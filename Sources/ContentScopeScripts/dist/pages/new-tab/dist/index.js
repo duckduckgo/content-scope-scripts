@@ -1712,36 +1712,3230 @@
     }
   });
 
-  // pages/new-tab/app/activity/components/Activity.module.css
-  var Activity_default;
-  var init_Activity = __esm({
-    "pages/new-tab/app/activity/components/Activity.module.css"() {
-      Activity_default = {
-        root: "Activity_root",
-        listExpander: "Activity_listExpander",
-        activity: "Activity_activity",
-        loader: "Activity_loader",
-        anim: "Activity_anim",
-        item: "Activity_item",
-        burning: "Activity_burning",
-        heading: "Activity_heading",
-        favicon: "Activity_favicon",
-        title: "Activity_title",
-        controls: "Activity_controls",
-        icon: "Activity_icon",
-        controlIcon: "Activity_controlIcon",
-        disableWhenBusy: "Activity_disableWhenBusy",
-        body: "Activity_body",
-        otherIcon: "Activity_otherIcon",
-        companiesIconRow: "Activity_companiesIconRow",
-        companiesIcons: "Activity_companiesIcons",
-        companiesText: "Activity_companiesText",
-        history: "Activity_history",
-        historyItem: "Activity_historyItem",
-        historyLink: "Activity_historyLink",
-        time: "Activity_time",
-        historyBtn: "Activity_historyBtn"
+  // pages/new-tab/app/entry-points/activity.js
+  var activity_exports = {};
+  __export(activity_exports, {
+    factory: () => factory
+  });
+  function factory() {
+  }
+  var init_activity = __esm({
+    "pages/new-tab/app/entry-points/activity.js"() {
+      "use strict";
+    }
+  });
+
+  // pages/new-tab/app/service.js
+  var Service;
+  var init_service = __esm({
+    "pages/new-tab/app/service.js"() {
+      "use strict";
+      Service = class {
+        eventTarget = new EventTarget();
+        DEBOUNCE_TIME_MS = 200;
+        _broadcast = true;
+        /** @type {undefined|((old: Data, next: Data, trigger: InvocationSource) => Data)} */
+        accept;
+        /**
+         * @param {object} props
+         * @param {(arg?: any) => Promise<Data>} [props.initial]
+         * @param {(fn: (t: Data) => void) => () => void} [props.subscribe] - optional subscribe
+         * @param {(t: Data) => void} [props.persist] - optional persist method
+         * @param {(old: Data, next: Data) => Data} [props.update] - optional updater
+         * @param {Data|null} [initial] - optional initial data
+         */
+        constructor(props, initial) {
+          this.impl = props;
+          if (initial) {
+            this.data = initial;
+          } else {
+            this.data = null;
+          }
+        }
+        /**
+         * @param {(old: Data, next: Data, trigger: InvocationSource) => Data} fn
+         */
+        withUpdater(fn2) {
+          this.accept = fn2;
+          return this;
+        }
+        /**
+         * @param {any} [params]
+         * @return {Promise<Data>}
+         */
+        async fetchInitial(params) {
+          if (!this.impl.initial) throw new Error("unreachable");
+          const initial = await this.impl.initial(params);
+          this._accept(initial, "initial");
+          return (
+            /** @type {Data} */
+            this.data
+          );
+        }
+        /**
+         * @param {any} [params]
+         * @return {Promise<Data>}
+         */
+        async triggerFetch(params) {
+          if (!this.impl.initial) throw new Error("unreachable");
+          const next = await this.impl.initial(params);
+          this._accept(next, "trigger-fetch");
+          return (
+            /** @type {Data} */
+            this.data
+          );
+        }
+        /**
+         * This is convenience to prevent the boilerplate of dealing with the
+         * eventTarget directly.
+         *
+         * Consumers pass a callback, which will be invoked with Data and the Source.
+         *
+         * A function is returned, which can be used to remove the event listener
+         *
+         * @param {(evt: {data: Data, source: InvocationSource}) => void} cb
+         */
+        onData(cb) {
+          this._setupSubscription();
+          const controller = new AbortController();
+          this.eventTarget.addEventListener(
+            "data",
+            (evt) => {
+              cb(evt.detail);
+            },
+            { signal: controller.signal }
+          );
+          return () => controller.abort();
+        }
+        /**
+         * Remove data subscriptions
+         */
+        destroy() {
+          this.sub?.();
+        }
+        /**
+         * Setup the subscription if one doesn't already exist
+         * @private
+         */
+        _setupSubscription() {
+          if (this.sub) return;
+          this.sub = this.impl.subscribe?.((data2) => {
+            this._accept(data2, "subscription");
+          });
+        }
+        disableBroadcast() {
+          this._broadcast = false;
+        }
+        enableBroadcast() {
+          this._broadcast = true;
+        }
+        flush() {
+          if (this.data) this._accept(this.data, "manual");
+        }
+        /**
+         * Apply a function over the current state.
+         *
+         * The change will be broadcast to observers immediately,
+         * and then persists after a debounced period.
+         *
+         * @param {(prev: Data) => Data} updaterFn - the function that returns the next state
+         */
+        update(updaterFn) {
+          if (this.data === null) return;
+          const next = updaterFn(this.data);
+          if (next) {
+            this._accept(next, "manual");
+          } else {
+            console.warn("could not update");
+          }
+        }
+        /**
+         * @param {Data} data
+         * @param {InvocationSource} source
+         * @private
+         */
+        _accept(data2, source) {
+          if (this.accept && source !== "initial") {
+            this.data = /** @type {NonNullable<Data>} */
+            this.accept(
+              /** @type {NonNullable<Data>} */
+              this.data,
+              data2,
+              source
+            );
+          } else {
+            this.data = /** @type {NonNullable<Data>} */
+            data2;
+          }
+          if (source === "initial") return;
+          this.clearDebounceTimer();
+          if (!this._broadcast) return console.warn("not broadcasting");
+          const dataEvent = new CustomEvent("data", {
+            detail: {
+              data: this.data,
+              source
+            }
+          });
+          this.eventTarget.dispatchEvent(dataEvent);
+          if (source === "manual") {
+            const time2 = window.location.search.includes("p2") ? this.DEBOUNCE_TIME_MS * 20.5 : this.DEBOUNCE_TIME_MS;
+            this.debounceTimer = setTimeout(() => {
+              this.persist();
+            }, time2);
+          }
+        }
+        /**
+         * Clears the debounce timer if it exists, simulating the switchMap behavior.
+         */
+        clearDebounceTimer() {
+          if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = null;
+          }
+        }
+        /**
+         * Persists the current in-memory widget configuration state to the internal data feed.
+         */
+        persist() {
+          if (!this.impl.persist) return;
+          if (this.data === null) return;
+          this.impl.persist(this.data);
+        }
       };
+    }
+  });
+
+  // pages/new-tab/app/favorites/favorites.service.js
+  var FavoritesService;
+  var init_favorites_service = __esm({
+    "pages/new-tab/app/favorites/favorites.service.js"() {
+      "use strict";
+      init_service();
+      FavoritesService = class {
+        /**
+         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @internal
+         */
+        constructor(ntp) {
+          this.ntp = ntp;
+          this.dataService = new Service({
+            initial: () => ntp.messaging.request("favorites_getData"),
+            subscribe: (cb) => ntp.messaging.subscribe("favorites_onDataUpdate", cb)
+          });
+          this.configService = new Service({
+            initial: () => ntp.messaging.request("favorites_getConfig"),
+            subscribe: (cb) => ntp.messaging.subscribe("favorites_onConfigUpdate", cb),
+            persist: (data2) => ntp.messaging.notify("favorites_setConfig", data2)
+          });
+        }
+        name() {
+          return "FavoritesService";
+        }
+        /**
+         * @returns {Promise<{data: FavoritesData; config: FavoritesConfig}>}
+         * @internal
+         */
+        async getInitial() {
+          const p1 = this.configService.fetchInitial();
+          const p22 = this.dataService.fetchInitial();
+          const [config, data2] = await Promise.all([p1, p22]);
+          return { config, data: data2 };
+        }
+        /**
+         * @internal
+         */
+        destroy() {
+          this.configService.destroy();
+          this.dataService.destroy();
+        }
+        /**
+         * @param {(evt: {data: FavoritesData, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onData(cb) {
+          return this.dataService.onData(cb);
+        }
+        /**
+         * @param {(evt: {data: FavoritesConfig, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onConfig(cb) {
+          return this.configService.onData(cb);
+        }
+        /**
+         * Update the in-memory data immediate and persist.
+         * Any state changes will be broadcast to consumers synchronously
+         * @internal
+         */
+        toggleExpansion() {
+          this.configService.update((old) => {
+            if (old.expansion === "expanded") {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "collapsed"
+              ) };
+            } else {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "expanded"
+              ) };
+            }
+          });
+        }
+        /**
+         * @param {FavoritesData} data
+         * @param {string} id - entity id to move
+         * @param {number} targetIndex - target index
+         * @param {number} fromIndex - from index
+         * @internal
+         */
+        setFavoritesOrder(data2, id, fromIndex, targetIndex) {
+          this.dataService.update((_old) => {
+            return data2;
+          });
+          this.ntp.messaging.notify("favorites_move", {
+            id,
+            targetIndex,
+            fromIndex
+          });
+        }
+        /**
+         * @param {string} id - entity id
+         * @internal
+         */
+        openContextMenu(id) {
+          this.ntp.messaging.notify("favorites_openContextMenu", { id });
+        }
+        /**
+         * @param {string} id - entity id
+         * @param {string} url - target url
+         * @param {FavoritesOpenAction['target']} target
+         * @internal
+         */
+        openFavorite(id, url6, target) {
+          this.ntp.messaging.notify("favorites_open", { id, url: url6, target });
+        }
+        /**
+         * @internal
+         */
+        add() {
+          this.ntp.messaging.notify("favorites_add");
+        }
+      };
+    }
+  });
+
+  // pages/new-tab/app/service.hooks.js
+  function reducer(state, event) {
+    switch (state.status) {
+      case "idle": {
+        switch (event.kind) {
+          case "load-initial": {
+            return { ...state, status: (
+              /** @type {const} */
+              "pending-initial"
+            ) };
+          }
+          default:
+            return state;
+        }
+      }
+      case "pending-initial": {
+        switch (event.kind) {
+          case "initial-data": {
+            return {
+              ...state,
+              status: (
+                /** @type {const} */
+                "ready"
+              ),
+              data: event.data,
+              config: event.config
+            };
+          }
+          case "error": {
+            console.error("error with initial data", event.error);
+            return state;
+          }
+          default:
+            return state;
+        }
+      }
+      case "ready": {
+        switch (event.kind) {
+          case "config": {
+            return { ...state, config: event.config };
+          }
+          case "data": {
+            return { ...state, data: event.data };
+          }
+          case "clear": {
+            return { ...state, effect: null };
+          }
+          default:
+            return state;
+        }
+      }
+      default:
+        return state;
+    }
+  }
+  function useInitialDataAndConfig({ dispatch, service }) {
+    const messaging2 = useMessaging();
+    y2(() => {
+      if (!service.current) return console.warn("missing service");
+      const currentService = service.current;
+      async function init2() {
+        const { config, data: data2 } = await currentService.getInitial();
+        if (data2) {
+          dispatch({ kind: "initial-data", data: data2, config });
+        } else {
+          dispatch({ kind: "error", error: "missing data from getInitial" });
+        }
+      }
+      dispatch({ kind: "load-initial" });
+      init2().catch((e4) => {
+        console.error("uncaught error", e4);
+        dispatch({ kind: "error", error: e4 });
+        messaging2.reportPageException({ message: `${currentService.name()}: failed to fetch initial data+config: ` + e4.message });
+      });
+      return () => {
+        currentService.destroy();
+      };
+    }, [messaging2]);
+  }
+  function useInitialData({ dispatch, service }) {
+    const messaging2 = useMessaging();
+    y2(() => {
+      if (!service.current) return console.warn("missing service");
+      const currentService = service.current;
+      async function init2() {
+        const data2 = await currentService.getInitial();
+        if (data2) {
+          dispatch({ kind: "initial-data", data: data2 });
+        } else {
+          dispatch({ kind: "error", error: "missing data from getInitial" });
+        }
+      }
+      dispatch({ kind: "load-initial" });
+      init2().catch((e4) => {
+        console.error("uncaught error", e4);
+        dispatch({ kind: "error", error: e4 });
+        messaging2.reportPageException({ message: `${currentService.name()}: failed to fetch initial data: ` + e4.message });
+      });
+      return () => {
+        currentService.destroy();
+      };
+    }, []);
+  }
+  function useDataSubscription({ dispatch, service }) {
+    y2(() => {
+      if (!service.current) return console.warn("could not access service");
+      const unsub = service.current.onData((evt) => {
+        dispatch({ kind: "data", data: evt.data });
+      });
+      return () => {
+        unsub();
+      };
+    }, [service, dispatch]);
+  }
+  function useConfigSubscription({ dispatch, service }) {
+    const toggle = q2(() => {
+      service.current?.toggleExpansion();
+    }, [service, dispatch]);
+    y2(() => {
+      if (!service.current) return console.warn("could not access service");
+      const unsub2 = service.current.onConfig((data2) => {
+        dispatch({ kind: "config", config: data2.data });
+      });
+      return () => {
+        unsub2();
+      };
+    }, [service]);
+    return { toggle };
+  }
+  var init_service_hooks = __esm({
+    "pages/new-tab/app/service.hooks.js"() {
+      "use strict";
+      init_hooks_module();
+      init_types();
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/FavoritesProvider.js
+  function FavoritesProvider({ children }) {
+    const initial = (
+      /** @type {State} */
+      {
+        status: (
+          /** @type {const} */
+          "idle"
+        ),
+        data: null,
+        config: null
+      }
+    );
+    const [state, dispatch] = h2(reducer, initial);
+    const service = useService();
+    useInitialDataAndConfig({ dispatch, service });
+    useDataSubscription({ dispatch, service });
+    const { toggle } = useConfigSubscription({ dispatch, service });
+    const favoritesDidReOrder = q2(
+      ({ list: list2, id, fromIndex, targetIndex }) => {
+        if (!service.current) return;
+        service.current.setFavoritesOrder({ favorites: list2 }, id, fromIndex, targetIndex);
+      },
+      [service]
+    );
+    const openContextMenu = q2(
+      (id) => {
+        if (!service.current) return;
+        service.current.openContextMenu(id);
+      },
+      [service]
+    );
+    const openFavorite = q2(
+      (id, url6, target) => {
+        if (!service.current) return;
+        service.current.openFavorite(id, url6, target);
+      },
+      [service]
+    );
+    const add2 = q2(() => {
+      if (!service.current) return;
+      service.current.add();
+    }, [service]);
+    const onConfigChanged = q2(
+      (cb) => {
+        if (!service.current) return;
+        return service.current.onConfig((event) => {
+          cb(event.data);
+        });
+      },
+      [service]
+    );
+    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add: add2, onConfigChanged } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
+  }
+  function useService() {
+    const service = A2(
+      /** @type {FavoritesService | null} */
+      null
+    );
+    const ntp = useMessaging();
+    y2(() => {
+      const stats = new FavoritesService(ntp);
+      service.current = stats;
+      return () => {
+        stats.destroy();
+      };
+    }, [ntp]);
+    return service;
+  }
+  var FavoritesContext, FavoritesDispatchContext;
+  var init_FavoritesProvider = __esm({
+    "pages/new-tab/app/favorites/components/FavoritesProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_favorites_service();
+      init_types();
+      init_service_hooks();
+      FavoritesContext = K({
+        /** @type {import('../../service.hooks.js').State<FavoritesData, FavoritesConfig>} */
+        state: { status: "idle", data: null, config: null },
+        /** @type {() => void} */
+        toggle: () => {
+          throw new Error("must implement");
+        },
+        /** @type {ReorderFn<Favorite>} */
+        favoritesDidReOrder: (_args) => {
+          throw new Error("must implement");
+        },
+        /** @type {(id: string) => void} */
+        openContextMenu: (_id) => {
+          throw new Error("must implement");
+        },
+        /** @type {(id: string, url: string, target: OpenTarget) => void} */
+        openFavorite: (_id, _url, _target) => {
+          throw new Error("must implement");
+        },
+        /** @type {() => void} */
+        add: () => {
+          throw new Error("must implement add");
+        },
+        /** @type {(cb: (data: FavoritesConfig) => void) => void} */
+        onConfigChanged: (_cb) => {
+        }
+      });
+      FavoritesDispatchContext = K(
+        /** @type {import("preact/hooks").Dispatch<Events>} */
+        {}
+      );
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js
+  function _arrayWithHoles(r4) {
+    if (Array.isArray(r4)) return r4;
+  }
+  var init_arrayWithHoles = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js
+  function _iterableToArrayLimit(r4, l5) {
+    var t4 = null == r4 ? null : "undefined" != typeof Symbol && r4[Symbol.iterator] || r4["@@iterator"];
+    if (null != t4) {
+      var e4, n3, i5, u4, a4 = [], f4 = true, o4 = false;
+      try {
+        if (i5 = (t4 = t4.call(r4)).next, 0 === l5) {
+          if (Object(t4) !== t4) return;
+          f4 = false;
+        } else for (; !(f4 = (e4 = i5.call(t4)).done) && (a4.push(e4.value), a4.length !== l5); f4 = true) ;
+      } catch (r5) {
+        o4 = true, n3 = r5;
+      } finally {
+        try {
+          if (!f4 && null != t4["return"] && (u4 = t4["return"](), Object(u4) !== u4)) return;
+        } finally {
+          if (o4) throw n3;
+        }
+      }
+      return a4;
+    }
+  }
+  var init_iterableToArrayLimit = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js
+  function _arrayLikeToArray(r4, a4) {
+    (null == a4 || a4 > r4.length) && (a4 = r4.length);
+    for (var e4 = 0, n3 = Array(a4); e4 < a4; e4++) n3[e4] = r4[e4];
+    return n3;
+  }
+  var init_arrayLikeToArray = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js
+  function _unsupportedIterableToArray(r4, a4) {
+    if (r4) {
+      if ("string" == typeof r4) return _arrayLikeToArray(r4, a4);
+      var t4 = {}.toString.call(r4).slice(8, -1);
+      return "Object" === t4 && r4.constructor && (t4 = r4.constructor.name), "Map" === t4 || "Set" === t4 ? Array.from(r4) : "Arguments" === t4 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t4) ? _arrayLikeToArray(r4, a4) : void 0;
+    }
+  }
+  var init_unsupportedIterableToArray = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js"() {
+      init_arrayLikeToArray();
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/nonIterableRest.js
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  var init_nonIterableRest = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/nonIterableRest.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/slicedToArray.js
+  function _slicedToArray(r4, e4) {
+    return _arrayWithHoles(r4) || _iterableToArrayLimit(r4, e4) || _unsupportedIterableToArray(r4, e4) || _nonIterableRest();
+  }
+  var init_slicedToArray = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"() {
+      init_arrayWithHoles();
+      init_iterableToArrayLimit();
+      init_unsupportedIterableToArray();
+      init_nonIterableRest();
+    }
+  });
+
+  // ../node_modules/bind-event-listener/dist/bind.js
+  var require_bind = __commonJS({
+    "../node_modules/bind-event-listener/dist/bind.js"(exports2) {
+      "use strict";
+      Object.defineProperty(exports2, "__esModule", { value: true });
+      exports2.bind = void 0;
+      function bind4(target, _a) {
+        var type = _a.type, listener = _a.listener, options = _a.options;
+        target.addEventListener(type, listener, options);
+        return function unbind() {
+          target.removeEventListener(type, listener, options);
+        };
+      }
+      exports2.bind = bind4;
+    }
+  });
+
+  // ../node_modules/bind-event-listener/dist/bind-all.js
+  var require_bind_all = __commonJS({
+    "../node_modules/bind-event-listener/dist/bind-all.js"(exports2) {
+      "use strict";
+      var __assign = exports2 && exports2.__assign || function() {
+        __assign = Object.assign || function(t4) {
+          for (var s4, i5 = 1, n3 = arguments.length; i5 < n3; i5++) {
+            s4 = arguments[i5];
+            for (var p5 in s4) if (Object.prototype.hasOwnProperty.call(s4, p5))
+              t4[p5] = s4[p5];
+          }
+          return t4;
+        };
+        return __assign.apply(this, arguments);
+      };
+      Object.defineProperty(exports2, "__esModule", { value: true });
+      exports2.bindAll = void 0;
+      var bind_1 = require_bind();
+      function toOptions(value2) {
+        if (typeof value2 === "undefined") {
+          return void 0;
+        }
+        if (typeof value2 === "boolean") {
+          return {
+            capture: value2
+          };
+        }
+        return value2;
+      }
+      function getBinding(original, sharedOptions) {
+        if (sharedOptions == null) {
+          return original;
+        }
+        var binding = __assign(__assign({}, original), { options: __assign(__assign({}, toOptions(sharedOptions)), toOptions(original.options)) });
+        return binding;
+      }
+      function bindAll5(target, bindings, sharedOptions) {
+        var unbinds = bindings.map(function(original) {
+          var binding = getBinding(original, sharedOptions);
+          return (0, bind_1.bind)(target, binding);
+        });
+        return function unbindAll() {
+          unbinds.forEach(function(unbind) {
+            return unbind();
+          });
+        };
+      }
+      exports2.bindAll = bindAll5;
+    }
+  });
+
+  // ../node_modules/bind-event-listener/dist/index.js
+  var require_dist = __commonJS({
+    "../node_modules/bind-event-listener/dist/index.js"(exports2) {
+      "use strict";
+      Object.defineProperty(exports2, "__esModule", { value: true });
+      exports2.bindAll = exports2.bind = void 0;
+      var bind_1 = require_bind();
+      Object.defineProperty(exports2, "bind", { enumerable: true, get: function() {
+        return bind_1.bind;
+      } });
+      var bind_all_1 = require_bind_all();
+      Object.defineProperty(exports2, "bindAll", { enumerable: true, get: function() {
+        return bind_all_1.bindAll;
+      } });
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/honey-pot-data-attribute.js
+  var honeyPotDataAttribute;
+  var init_honey_pot_data_attribute = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/honey-pot-data-attribute.js"() {
+      honeyPotDataAttribute = "data-pdnd-honey-pot";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/is-honey-pot-element.js
+  function isHoneyPotElement(target) {
+    return target instanceof Element && target.hasAttribute(honeyPotDataAttribute);
+  }
+  var init_is_honey_pot_element = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/is-honey-pot-element.js"() {
+      init_honey_pot_data_attribute();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/get-element-from-point-without-honey-pot.js
+  function getElementFromPointWithoutHoneypot(client) {
+    var _document$elementsFro = document.elementsFromPoint(client.x, client.y), _document$elementsFro2 = _slicedToArray(_document$elementsFro, 2), top2 = _document$elementsFro2[0], second = _document$elementsFro2[1];
+    if (!top2) {
+      return null;
+    }
+    if (isHoneyPotElement(top2)) {
+      return second !== null && second !== void 0 ? second : null;
+    }
+    return top2;
+  }
+  var init_get_element_from_point_without_honey_pot = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/get-element-from-point-without-honey-pot.js"() {
+      init_slicedToArray();
+      init_is_honey_pot_element();
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/typeof.js
+  function _typeof2(o4) {
+    "@babel/helpers - typeof";
+    return _typeof2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
+      return typeof o5;
+    } : function(o5) {
+      return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
+    }, _typeof2(o4);
+  }
+  var init_typeof = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/typeof.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/toPrimitive.js
+  function toPrimitive(t4, r4) {
+    if ("object" != _typeof2(t4) || !t4) return t4;
+    var e4 = t4[Symbol.toPrimitive];
+    if (void 0 !== e4) {
+      var i5 = e4.call(t4, r4 || "default");
+      if ("object" != _typeof2(i5)) return i5;
+      throw new TypeError("@@toPrimitive must return a primitive value.");
+    }
+    return ("string" === r4 ? String : Number)(t4);
+  }
+  var init_toPrimitive = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/toPrimitive.js"() {
+      init_typeof();
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/toPropertyKey.js
+  function toPropertyKey(t4) {
+    var i5 = toPrimitive(t4, "string");
+    return "symbol" == _typeof2(i5) ? i5 : i5 + "";
+  }
+  var init_toPropertyKey = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/toPropertyKey.js"() {
+      init_typeof();
+      init_toPrimitive();
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/defineProperty.js
+  function _defineProperty(e4, r4, t4) {
+    return (r4 = toPropertyKey(r4)) in e4 ? Object.defineProperty(e4, r4, {
+      value: t4,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    }) : e4[r4] = t4, e4;
+  }
+  var init_defineProperty = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/defineProperty.js"() {
+      init_toPropertyKey();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/max-z-index.js
+  var maxZIndex;
+  var init_max_z_index = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/max-z-index.js"() {
+      maxZIndex = 2147483647;
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/make-honey-pot-fix.js
+  function ownKeys(e4, r4) {
+    var t4 = Object.keys(e4);
+    if (Object.getOwnPropertySymbols) {
+      var o4 = Object.getOwnPropertySymbols(e4);
+      r4 && (o4 = o4.filter(function(r5) {
+        return Object.getOwnPropertyDescriptor(e4, r5).enumerable;
+      })), t4.push.apply(t4, o4);
+    }
+    return t4;
+  }
+  function _objectSpread(e4) {
+    for (var r4 = 1; r4 < arguments.length; r4++) {
+      var t4 = null != arguments[r4] ? arguments[r4] : {};
+      r4 % 2 ? ownKeys(Object(t4), true).forEach(function(r5) {
+        _defineProperty(e4, r5, t4[r5]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e4, Object.getOwnPropertyDescriptors(t4)) : ownKeys(Object(t4)).forEach(function(r5) {
+        Object.defineProperty(e4, r5, Object.getOwnPropertyDescriptor(t4, r5));
+      });
+    }
+    return e4;
+  }
+  function floorToClosestPixel(point) {
+    return {
+      x: Math.floor(point.x),
+      y: Math.floor(point.y)
+    };
+  }
+  function pullBackByHalfHoneyPotSize(point) {
+    return {
+      x: point.x - halfHoneyPotSize,
+      y: point.y - halfHoneyPotSize
+    };
+  }
+  function preventGoingBackwardsOffScreen(point) {
+    return {
+      x: Math.max(point.x, 0),
+      y: Math.max(point.y, 0)
+    };
+  }
+  function preventGoingForwardsOffScreen(point) {
+    return {
+      x: Math.min(point.x, window.innerWidth - honeyPotSize),
+      y: Math.min(point.y, window.innerHeight - honeyPotSize)
+    };
+  }
+  function getHoneyPotRectFor(_ref) {
+    var client = _ref.client;
+    var point = preventGoingForwardsOffScreen(preventGoingBackwardsOffScreen(pullBackByHalfHoneyPotSize(floorToClosestPixel(client))));
+    return DOMRect.fromRect({
+      x: point.x,
+      y: point.y,
+      width: honeyPotSize,
+      height: honeyPotSize
+    });
+  }
+  function getRectStyles(_ref2) {
+    var clientRect = _ref2.clientRect;
+    return {
+      left: "".concat(clientRect.left, "px"),
+      top: "".concat(clientRect.top, "px"),
+      width: "".concat(clientRect.width, "px"),
+      height: "".concat(clientRect.height, "px")
+    };
+  }
+  function isWithin(_ref3) {
+    var client = _ref3.client, clientRect = _ref3.clientRect;
+    return (
+      // is within horizontal bounds
+      client.x >= clientRect.x && client.x <= clientRect.x + clientRect.width && // is within vertical bounds
+      client.y >= clientRect.y && client.y <= clientRect.y + clientRect.height
+    );
+  }
+  function mountHoneyPot(_ref4) {
+    var initial = _ref4.initial;
+    var element = document.createElement("div");
+    element.setAttribute(honeyPotDataAttribute, "true");
+    var clientRect = getHoneyPotRectFor({
+      client: initial
+    });
+    Object.assign(element.style, _objectSpread(_objectSpread({
+      // Setting a background color explicitly to avoid any inherited styles.
+      // Looks like this could be `opacity: 0`, but worried that _might_
+      // cause the element to be ignored on some platforms.
+      // When debugging, set backgroundColor to something like "red".
+      backgroundColor: "transparent",
+      position: "fixed",
+      // Being explicit to avoid inheriting styles
+      padding: 0,
+      margin: 0,
+      boxSizing: "border-box"
+    }, getRectStyles({
+      clientRect
+    })), {}, {
+      // We want this element to absorb pointer events,
+      // it's kind of the whole point 😉
+      pointerEvents: "auto",
+      // Want to make sure the honey pot is top of everything else.
+      // Don't need to worry about native drag previews, as they will
+      // have been rendered (and removed) before the honey pot is rendered
+      zIndex: maxZIndex
+    }));
+    document.body.appendChild(element);
+    var unbindPointerMove = (0, import_bind_event_listener.bind)(window, {
+      type: "pointermove",
+      listener: function listener(event) {
+        var client = {
+          x: event.clientX,
+          y: event.clientY
+        };
+        clientRect = getHoneyPotRectFor({
+          client
+        });
+        Object.assign(element.style, getRectStyles({
+          clientRect
+        }));
+      },
+      // using capture so we are less likely to be impacted by event stopping
+      options: {
+        capture: true
+      }
+    });
+    return function finish(_ref5) {
+      var current = _ref5.current;
+      unbindPointerMove();
+      if (isWithin({
+        client: current,
+        clientRect
+      })) {
+        element.remove();
+        return;
+      }
+      function cleanup() {
+        unbindPostDragEvents();
+        element.remove();
+      }
+      var unbindPostDragEvents = (0, import_bind_event_listener.bindAll)(window, [
+        {
+          type: "pointerdown",
+          listener: cleanup
+        },
+        {
+          type: "pointermove",
+          listener: cleanup
+        },
+        {
+          type: "focusin",
+          listener: cleanup
+        },
+        {
+          type: "focusout",
+          listener: cleanup
+        },
+        // a 'pointerdown' should happen before 'dragstart', but just being super safe
+        {
+          type: "dragstart",
+          listener: cleanup
+        },
+        // if the user has dragged something out of the window
+        // and then is dragging something back into the window
+        // the first events we will see are "dragenter" (and then "dragover").
+        // So if we see any of these we need to clear the post drag fix.
+        {
+          type: "dragenter",
+          listener: cleanup
+        },
+        {
+          type: "dragover",
+          listener: cleanup
+        }
+        // Not adding a "wheel" event listener, as "wheel" by itself does not
+        // resolve the bug.
+      ], {
+        // Using `capture` so less likely to be impacted by other code stopping events
+        capture: true
+      });
+    };
+  }
+  function makeHoneyPotFix() {
+    var latestPointerMove = null;
+    function bindEvents() {
+      latestPointerMove = null;
+      return (0, import_bind_event_listener.bind)(window, {
+        type: "pointermove",
+        listener: function listener(event) {
+          latestPointerMove = {
+            x: event.clientX,
+            y: event.clientY
+          };
+        },
+        // listening for pointer move in capture phase
+        // so we are less likely to be impacted by events being stopped.
+        options: {
+          capture: true
+        }
+      });
+    }
+    function getOnPostDispatch() {
+      var finish = null;
+      return function onPostEvent(_ref6) {
+        var eventName = _ref6.eventName, payload = _ref6.payload;
+        if (eventName === "onDragStart") {
+          var input = payload.location.initial.input;
+          var initial = latestPointerMove !== null && latestPointerMove !== void 0 ? latestPointerMove : {
+            x: input.clientX,
+            y: input.clientY
+          };
+          finish = mountHoneyPot({
+            initial
+          });
+        }
+        if (eventName === "onDrop") {
+          var _finish;
+          var _input = payload.location.current.input;
+          (_finish = finish) === null || _finish === void 0 || _finish({
+            current: {
+              x: _input.clientX,
+              y: _input.clientY
+            }
+          });
+          finish = null;
+          latestPointerMove = null;
+        }
+      };
+    }
+    return {
+      bindEvents,
+      getOnPostDispatch
+    };
+  }
+  var import_bind_event_listener, honeyPotSize, halfHoneyPotSize;
+  var init_make_honey_pot_fix = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/make-honey-pot-fix.js"() {
+      init_defineProperty();
+      import_bind_event_listener = __toESM(require_dist());
+      init_max_z_index();
+      init_honey_pot_data_attribute();
+      honeyPotSize = 2;
+      halfHoneyPotSize = honeyPotSize / 2;
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js
+  function _arrayWithoutHoles(r4) {
+    if (Array.isArray(r4)) return _arrayLikeToArray(r4);
+  }
+  var init_arrayWithoutHoles = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js"() {
+      init_arrayLikeToArray();
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/iterableToArray.js
+  function _iterableToArray(r4) {
+    if ("undefined" != typeof Symbol && null != r4[Symbol.iterator] || null != r4["@@iterator"]) return Array.from(r4);
+  }
+  var init_iterableToArray = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/iterableToArray.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  var init_nonIterableSpread = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js"() {
+    }
+  });
+
+  // ../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js
+  function _toConsumableArray(r4) {
+    return _arrayWithoutHoles(r4) || _iterableToArray(r4) || _unsupportedIterableToArray(r4) || _nonIterableSpread();
+  }
+  var init_toConsumableArray = __esm({
+    "../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"() {
+      init_arrayWithoutHoles();
+      init_iterableToArray();
+      init_unsupportedIterableToArray();
+      init_nonIterableSpread();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js
+  function once(fn2) {
+    var cache = null;
+    return function wrapped() {
+      if (!cache) {
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+        var result = fn2.apply(this, args);
+        cache = {
+          result
+        };
+      }
+      return cache.result;
+    };
+  }
+  var init_once = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-firefox.js
+  var isFirefox;
+  var init_is_firefox = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-firefox.js"() {
+      init_once();
+      isFirefox = once(function isFirefox2() {
+        if (false) {
+          return false;
+        }
+        return navigator.userAgent.includes("Firefox");
+      });
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-safari.js
+  var isSafari2;
+  var init_is_safari = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-safari.js"() {
+      init_once();
+      isSafari2 = once(function isSafari3() {
+        if (false) {
+          return false;
+        }
+        var _navigator = navigator, userAgent = _navigator.userAgent;
+        return userAgent.includes("AppleWebKit") && !userAgent.includes("Chrome");
+      });
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/count-events-for-safari.js
+  function isEnteringWindowInSafari(_ref) {
+    var dragEnter = _ref.dragEnter;
+    if (!isSafari2()) {
+      return false;
+    }
+    return dragEnter.hasOwnProperty(symbols.isEnteringWindow);
+  }
+  function isLeavingWindowInSafari(_ref2) {
+    var dragLeave = _ref2.dragLeave;
+    if (!isSafari2()) {
+      return false;
+    }
+    return dragLeave.hasOwnProperty(symbols.isLeavingWindow);
+  }
+  var import_bind_event_listener2, symbols;
+  var init_count_events_for_safari = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/count-events-for-safari.js"() {
+      import_bind_event_listener2 = __toESM(require_dist());
+      init_is_safari();
+      symbols = {
+        isLeavingWindow: Symbol("leaving"),
+        isEnteringWindow: Symbol("entering")
+      };
+      (function fixSafari() {
+        if (typeof window === "undefined") {
+          return;
+        }
+        if (false) {
+          return;
+        }
+        if (!isSafari2()) {
+          return;
+        }
+        function getInitialState() {
+          return {
+            enterCount: 0,
+            isOverWindow: false
+          };
+        }
+        var state = getInitialState();
+        function resetState() {
+          state = getInitialState();
+        }
+        (0, import_bind_event_listener2.bindAll)(
+          window,
+          [{
+            type: "dragstart",
+            listener: function listener() {
+              state.enterCount = 0;
+              state.isOverWindow = true;
+            }
+          }, {
+            type: "drop",
+            listener: resetState
+          }, {
+            type: "dragend",
+            listener: resetState
+          }, {
+            type: "dragenter",
+            listener: function listener(event) {
+              if (!state.isOverWindow && state.enterCount === 0) {
+                event[symbols.isEnteringWindow] = true;
+              }
+              state.isOverWindow = true;
+              state.enterCount++;
+            }
+          }, {
+            type: "dragleave",
+            listener: function listener(event) {
+              state.enterCount--;
+              if (state.isOverWindow && state.enterCount === 0) {
+                event[symbols.isLeavingWindow] = true;
+                state.isOverWindow = false;
+              }
+            }
+          }],
+          // using `capture: true` so that adding event listeners
+          // in bubble phase will have the correct symbols
+          {
+            capture: true
+          }
+        );
+      })();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js
+  function isNodeLike(target) {
+    return "nodeName" in target;
+  }
+  function isFromAnotherWindow(eventTarget) {
+    return isNodeLike(eventTarget) && eventTarget.ownerDocument !== document;
+  }
+  var init_is_from_another_window = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-leaving-window.js
+  function isLeavingWindow(_ref) {
+    var dragLeave = _ref.dragLeave;
+    var type = dragLeave.type, relatedTarget = dragLeave.relatedTarget;
+    if (type !== "dragleave") {
+      return false;
+    }
+    if (isSafari2()) {
+      return isLeavingWindowInSafari({
+        dragLeave
+      });
+    }
+    if (relatedTarget == null) {
+      return true;
+    }
+    if (isFirefox()) {
+      return isFromAnotherWindow(relatedTarget);
+    }
+    return relatedTarget instanceof HTMLIFrameElement;
+  }
+  var init_is_leaving_window = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-leaving-window.js"() {
+      init_is_firefox();
+      init_is_safari();
+      init_count_events_for_safari();
+      init_is_from_another_window();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/detect-broken-drag.js
+  function getBindingsForBrokenDrags(_ref) {
+    var onDragEnd = _ref.onDragEnd;
+    return [
+      // ## Detecting drag ending for removed draggables
+      //
+      // If a draggable element is removed during a drag and the user drops:
+      // 1. if over a valid drop target: we get a "drop" event to know the drag is finished
+      // 2. if not over a valid drop target (or cancelled): we get nothing
+      // The "dragend" event will not fire on the source draggable if it has been
+      // removed from the DOM.
+      // So we need to figure out if a drag operation has finished by looking at other events
+      // We can do this by looking at other events
+      // ### First detection: "pointermove" events
+      // 1. "pointermove" events cannot fire during a drag and drop operation
+      // according to the spec. So if we get a "pointermove" it means that
+      // the drag and drop operations has finished. So if we get a "pointermove"
+      // we know that the drag is over
+      // 2. 🦊😤 Drag and drop operations are _supposed_ to suppress
+      // other pointer events. However, firefox will allow a few
+      // pointer event to get through after a drag starts.
+      // The most I've seen is 3
+      {
+        type: "pointermove",
+        listener: /* @__PURE__ */ function() {
+          var callCount = 0;
+          return function listener() {
+            if (callCount < 20) {
+              callCount++;
+              return;
+            }
+            onDragEnd();
+          };
+        }()
+      },
+      // ### Second detection: "pointerdown" events
+      // If we receive this event then we know that a drag operation has finished
+      // and potentially another one is about to start.
+      // Note: `pointerdown` fires on all browsers / platforms before "dragstart"
+      {
+        type: "pointerdown",
+        listener: onDragEnd
+      }
+    ];
+  }
+  var init_detect_broken_drag = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/detect-broken-drag.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/get-input.js
+  function getInput(event) {
+    return {
+      altKey: event.altKey,
+      button: event.button,
+      buttons: event.buttons,
+      ctrlKey: event.ctrlKey,
+      metaKey: event.metaKey,
+      shiftKey: event.shiftKey,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      pageX: event.pageX,
+      pageY: event.pageY
+    };
+  }
+  var init_get_input = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/get-input.js"() {
+    }
+  });
+
+  // ../node_modules/raf-schd/dist/raf-schd.esm.js
+  var rafSchd, raf_schd_esm_default;
+  var init_raf_schd_esm = __esm({
+    "../node_modules/raf-schd/dist/raf-schd.esm.js"() {
+      rafSchd = function rafSchd2(fn2) {
+        var lastArgs = [];
+        var frameId = null;
+        var wrapperFn = function wrapperFn2() {
+          for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+          lastArgs = args;
+          if (frameId) {
+            return;
+          }
+          frameId = requestAnimationFrame(function() {
+            frameId = null;
+            fn2.apply(void 0, lastArgs);
+          });
+        };
+        wrapperFn.cancel = function() {
+          if (!frameId) {
+            return;
+          }
+          cancelAnimationFrame(frameId);
+          frameId = null;
+        };
+        return wrapperFn;
+      };
+      raf_schd_esm_default = rafSchd;
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/dispatch-consumer-event.js
+  function makeDispatch(_ref) {
+    var source = _ref.source, initial = _ref.initial, dispatchEvent = _ref.dispatchEvent;
+    var previous = {
+      dropTargets: []
+    };
+    function safeDispatch(args) {
+      dispatchEvent(args);
+      previous = {
+        dropTargets: args.payload.location.current.dropTargets
+      };
+    }
+    var dispatch = {
+      start: function start2(_ref2) {
+        var nativeSetDragImage = _ref2.nativeSetDragImage;
+        var location2 = {
+          current: initial,
+          previous,
+          initial
+        };
+        safeDispatch({
+          eventName: "onGenerateDragPreview",
+          payload: {
+            source,
+            location: location2,
+            nativeSetDragImage
+          }
+        });
+        dragStart.schedule(function() {
+          safeDispatch({
+            eventName: "onDragStart",
+            payload: {
+              source,
+              location: location2
+            }
+          });
+        });
+      },
+      dragUpdate: function dragUpdate(_ref3) {
+        var current = _ref3.current;
+        dragStart.flush();
+        scheduleOnDrag.cancel();
+        safeDispatch({
+          eventName: "onDropTargetChange",
+          payload: {
+            source,
+            location: {
+              initial,
+              previous,
+              current
+            }
+          }
+        });
+      },
+      drag: function drag(_ref4) {
+        var current = _ref4.current;
+        scheduleOnDrag(function() {
+          dragStart.flush();
+          var location2 = {
+            initial,
+            previous,
+            current
+          };
+          safeDispatch({
+            eventName: "onDrag",
+            payload: {
+              source,
+              location: location2
+            }
+          });
+        });
+      },
+      drop: function drop(_ref5) {
+        var current = _ref5.current, updatedSourcePayload = _ref5.updatedSourcePayload;
+        dragStart.flush();
+        scheduleOnDrag.cancel();
+        safeDispatch({
+          eventName: "onDrop",
+          payload: {
+            source: updatedSourcePayload !== null && updatedSourcePayload !== void 0 ? updatedSourcePayload : source,
+            location: {
+              current,
+              previous,
+              initial
+            }
+          }
+        });
+      }
+    };
+    return dispatch;
+  }
+  var scheduleOnDrag, dragStart;
+  var init_dispatch_consumer_event = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/dispatch-consumer-event.js"() {
+      init_raf_schd_esm();
+      scheduleOnDrag = raf_schd_esm_default(function(fn2) {
+        return fn2();
+      });
+      dragStart = /* @__PURE__ */ function() {
+        var scheduled = null;
+        function schedule(fn2) {
+          var frameId = requestAnimationFrame(function() {
+            scheduled = null;
+            fn2();
+          });
+          scheduled = {
+            frameId,
+            fn: fn2
+          };
+        }
+        function flush() {
+          if (scheduled) {
+            cancelAnimationFrame(scheduled.frameId);
+            scheduled.fn();
+            scheduled = null;
+          }
+        }
+        return {
+          schedule,
+          flush
+        };
+      }();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/lifecycle-manager.js
+  function canStart() {
+    return !globalState.isActive;
+  }
+  function getNativeSetDragImage(event) {
+    if (event.dataTransfer) {
+      return event.dataTransfer.setDragImage.bind(event.dataTransfer);
+    }
+    return null;
+  }
+  function hasHierarchyChanged(_ref) {
+    var current = _ref.current, next = _ref.next;
+    if (current.length !== next.length) {
+      return true;
+    }
+    for (var i5 = 0; i5 < current.length; i5++) {
+      if (current[i5].element !== next[i5].element) {
+        return true;
+      }
+    }
+    return false;
+  }
+  function start(_ref2) {
+    var event = _ref2.event, dragType = _ref2.dragType, getDropTargetsOver = _ref2.getDropTargetsOver, dispatchEvent = _ref2.dispatchEvent;
+    if (!canStart()) {
+      return;
+    }
+    var initial = getStartLocation({
+      event,
+      dragType,
+      getDropTargetsOver
+    });
+    globalState.isActive = true;
+    var state = {
+      current: initial
+    };
+    setDropEffectOnEvent({
+      event,
+      current: initial.dropTargets
+    });
+    var dispatch = makeDispatch({
+      source: dragType.payload,
+      dispatchEvent,
+      initial
+    });
+    function updateState(next) {
+      var hasChanged = hasHierarchyChanged({
+        current: state.current.dropTargets,
+        next: next.dropTargets
+      });
+      state.current = next;
+      if (hasChanged) {
+        dispatch.dragUpdate({
+          current: state.current
+        });
+      }
+    }
+    function onUpdateEvent(event2) {
+      var input = getInput(event2);
+      var target = isHoneyPotElement(event2.target) ? getElementFromPointWithoutHoneypot({
+        x: input.clientX,
+        y: input.clientY
+      }) : event2.target;
+      var nextDropTargets = getDropTargetsOver({
+        target,
+        input,
+        source: dragType.payload,
+        current: state.current.dropTargets
+      });
+      if (nextDropTargets.length) {
+        event2.preventDefault();
+        setDropEffectOnEvent({
+          event: event2,
+          current: nextDropTargets
+        });
+      }
+      updateState({
+        dropTargets: nextDropTargets,
+        input
+      });
+    }
+    function cancel() {
+      if (state.current.dropTargets.length) {
+        updateState({
+          dropTargets: [],
+          input: state.current.input
+        });
+      }
+      dispatch.drop({
+        current: state.current,
+        updatedSourcePayload: null
+      });
+      finish();
+    }
+    function finish() {
+      globalState.isActive = false;
+      unbindEvents();
+    }
+    var unbindEvents = (0, import_bind_event_listener3.bindAll)(
+      window,
+      [{
+        // 👋 Note: we are repurposing the `dragover` event as our `drag` event
+        // this is because firefox does not publish pointer coordinates during
+        // a `drag` event, but does for every other type of drag event
+        // `dragover` fires on all elements that are being dragged over
+        // Because we are binding to `window` - our `dragover` is effectively the same as a `drag`
+        // 🦊😤
+        type: "dragover",
+        listener: function listener(event2) {
+          onUpdateEvent(event2);
+          dispatch.drag({
+            current: state.current
+          });
+        }
+      }, {
+        type: "dragenter",
+        listener: onUpdateEvent
+      }, {
+        type: "dragleave",
+        listener: function listener(event2) {
+          if (!isLeavingWindow({
+            dragLeave: event2
+          })) {
+            return;
+          }
+          updateState({
+            input: state.current.input,
+            dropTargets: []
+          });
+          if (dragType.startedFrom === "external") {
+            cancel();
+          }
+        }
+      }, {
+        // A "drop" can only happen if the browser allowed the drop
+        type: "drop",
+        listener: function listener(event2) {
+          state.current = {
+            dropTargets: state.current.dropTargets,
+            input: getInput(event2)
+          };
+          if (!state.current.dropTargets.length) {
+            cancel();
+            return;
+          }
+          event2.preventDefault();
+          setDropEffectOnEvent({
+            event: event2,
+            current: state.current.dropTargets
+          });
+          dispatch.drop({
+            current: state.current,
+            // When dropping something native, we need to extract the latest
+            // `.items` from the "drop" event as it is now accessible
+            updatedSourcePayload: dragType.type === "external" ? dragType.getDropPayload(event2) : null
+          });
+          finish();
+        }
+      }, {
+        // "dragend" fires when on the drag source (eg a draggable element)
+        // when the drag is finished.
+        // "dragend" will fire after "drop" (if there was a successful drop)
+        // "dragend" does not fire if the draggable source has been removed during the drag
+        // or for external drag sources (eg files)
+        // This "dragend" listener will not fire if there was a successful drop
+        // as we will have already removed the event listener
+        type: "dragend",
+        listener: function listener(event2) {
+          state.current = {
+            dropTargets: state.current.dropTargets,
+            input: getInput(event2)
+          };
+          cancel();
+        }
+      }].concat(_toConsumableArray(getBindingsForBrokenDrags({
+        onDragEnd: cancel
+      }))),
+      // Once we have started a managed drag operation it is important that we see / own all drag events
+      // We got one adoption bug pop up where some code was stopping (`event.stopPropagation()`)
+      // all "drop" events in the bubble phase on the `document.body`.
+      // This meant that we never saw the "drop" event.
+      {
+        capture: true
+      }
+    );
+    dispatch.start({
+      nativeSetDragImage: getNativeSetDragImage(event)
+    });
+  }
+  function setDropEffectOnEvent(_ref3) {
+    var _current$;
+    var event = _ref3.event, current = _ref3.current;
+    var innerMost = (_current$ = current[0]) === null || _current$ === void 0 ? void 0 : _current$.dropEffect;
+    if (innerMost != null && event.dataTransfer) {
+      event.dataTransfer.dropEffect = innerMost;
+    }
+  }
+  function getStartLocation(_ref4) {
+    var event = _ref4.event, dragType = _ref4.dragType, getDropTargetsOver = _ref4.getDropTargetsOver;
+    var input = getInput(event);
+    if (dragType.startedFrom === "external") {
+      return {
+        input,
+        dropTargets: []
+      };
+    }
+    var dropTargets = getDropTargetsOver({
+      input,
+      source: dragType.payload,
+      target: event.target,
+      current: []
+    });
+    return {
+      input,
+      dropTargets
+    };
+  }
+  var import_bind_event_listener3, globalState, lifecycle;
+  var init_lifecycle_manager = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/lifecycle-manager.js"() {
+      init_toConsumableArray();
+      import_bind_event_listener3 = __toESM(require_dist());
+      init_get_element_from_point_without_honey_pot();
+      init_is_honey_pot_element();
+      init_is_leaving_window();
+      init_detect_broken_drag();
+      init_get_input();
+      init_dispatch_consumer_event();
+      globalState = {
+        isActive: false
+      };
+      lifecycle = {
+        canStart,
+        start
+      };
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/usage-ledger.js
+  function registerUsage(_ref) {
+    var typeKey = _ref.typeKey, mount3 = _ref.mount;
+    var entry = ledger.get(typeKey);
+    if (entry) {
+      entry.usageCount++;
+      return entry;
+    }
+    var initial = {
+      typeKey,
+      unmount: mount3(),
+      usageCount: 1
+    };
+    ledger.set(typeKey, initial);
+    return initial;
+  }
+  function register(args) {
+    var entry = registerUsage(args);
+    return function unregister() {
+      entry.usageCount--;
+      if (entry.usageCount > 0) {
+        return;
+      }
+      entry.unmount();
+      ledger.delete(args.typeKey);
+    };
+  }
+  var ledger;
+  var init_usage_ledger = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/usage-ledger.js"() {
+      ledger = /* @__PURE__ */ new Map();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/combine.js
+  function combine() {
+    for (var _len = arguments.length, fns = new Array(_len), _key = 0; _key < _len; _key++) {
+      fns[_key] = arguments[_key];
+    }
+    return function cleanup() {
+      fns.forEach(function(fn2) {
+        return fn2();
+      });
+    };
+  }
+  var init_combine = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/combine.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/add-attribute.js
+  function addAttribute(element, _ref) {
+    var attribute = _ref.attribute, value2 = _ref.value;
+    element.setAttribute(attribute, value2);
+    return function() {
+      return element.removeAttribute(attribute);
+    };
+  }
+  var init_add_attribute = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/add-attribute.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-drop-target.js
+  function ownKeys2(e4, r4) {
+    var t4 = Object.keys(e4);
+    if (Object.getOwnPropertySymbols) {
+      var o4 = Object.getOwnPropertySymbols(e4);
+      r4 && (o4 = o4.filter(function(r5) {
+        return Object.getOwnPropertyDescriptor(e4, r5).enumerable;
+      })), t4.push.apply(t4, o4);
+    }
+    return t4;
+  }
+  function _objectSpread2(e4) {
+    for (var r4 = 1; r4 < arguments.length; r4++) {
+      var t4 = null != arguments[r4] ? arguments[r4] : {};
+      r4 % 2 ? ownKeys2(Object(t4), true).forEach(function(r5) {
+        _defineProperty(e4, r5, t4[r5]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e4, Object.getOwnPropertyDescriptors(t4)) : ownKeys2(Object(t4)).forEach(function(r5) {
+        Object.defineProperty(e4, r5, Object.getOwnPropertyDescriptor(t4, r5));
+      });
+    }
+    return e4;
+  }
+  function _createForOfIteratorHelper(r4, e4) {
+    var t4 = "undefined" != typeof Symbol && r4[Symbol.iterator] || r4["@@iterator"];
+    if (!t4) {
+      if (Array.isArray(r4) || (t4 = _unsupportedIterableToArray2(r4)) || e4 && r4 && "number" == typeof r4.length) {
+        t4 && (r4 = t4);
+        var _n = 0, F5 = function F6() {
+        };
+        return { s: F5, n: function n3() {
+          return _n >= r4.length ? { done: true } : { done: false, value: r4[_n++] };
+        }, e: function e5(r5) {
+          throw r5;
+        }, f: F5 };
+      }
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    var o4, a4 = true, u4 = false;
+    return { s: function s4() {
+      t4 = t4.call(r4);
+    }, n: function n3() {
+      var r5 = t4.next();
+      return a4 = r5.done, r5;
+    }, e: function e5(r5) {
+      u4 = true, o4 = r5;
+    }, f: function f4() {
+      try {
+        a4 || null == t4.return || t4.return();
+      } finally {
+        if (u4) throw o4;
+      }
+    } };
+  }
+  function _unsupportedIterableToArray2(r4, a4) {
+    if (r4) {
+      if ("string" == typeof r4) return _arrayLikeToArray2(r4, a4);
+      var t4 = {}.toString.call(r4).slice(8, -1);
+      return "Object" === t4 && r4.constructor && (t4 = r4.constructor.name), "Map" === t4 || "Set" === t4 ? Array.from(r4) : "Arguments" === t4 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t4) ? _arrayLikeToArray2(r4, a4) : void 0;
+    }
+  }
+  function _arrayLikeToArray2(r4, a4) {
+    (null == a4 || a4 > r4.length) && (a4 = r4.length);
+    for (var e4 = 0, n3 = Array(a4); e4 < a4; e4++) n3[e4] = r4[e4];
+    return n3;
+  }
+  function copyReverse(array) {
+    return array.slice(0).reverse();
+  }
+  function makeDropTarget(_ref) {
+    var typeKey = _ref.typeKey, defaultDropEffect = _ref.defaultDropEffect;
+    var registry = /* @__PURE__ */ new WeakMap();
+    var dropTargetDataAtt = "data-drop-target-for-".concat(typeKey);
+    var dropTargetSelector = "[".concat(dropTargetDataAtt, "]");
+    function addToRegistry2(args) {
+      registry.set(args.element, args);
+      return function() {
+        return registry.delete(args.element);
+      };
+    }
+    function dropTargetForConsumers(args) {
+      if (true) {
+        var existing = registry.get(args.element);
+        if (existing) {
+          console.warn("You have already registered a [".concat(typeKey, "] dropTarget on the same element"), {
+            existing,
+            proposed: args
+          });
+        }
+        if (args.element instanceof HTMLIFrameElement) {
+          console.warn("\n            We recommend not registering <iframe> elements as drop targets\n            as it can result in some strange browser event ordering.\n          ".replace(/\s{2,}/g, " ").trim());
+        }
+      }
+      return combine(addAttribute(args.element, {
+        attribute: dropTargetDataAtt,
+        value: "true"
+      }), addToRegistry2(args));
+    }
+    function getActualDropTargets(_ref2) {
+      var _args$getData, _args$getData2, _args$getDropEffect, _args$getDropEffect2;
+      var source = _ref2.source, target = _ref2.target, input = _ref2.input, _ref2$result = _ref2.result, result = _ref2$result === void 0 ? [] : _ref2$result;
+      if (target == null) {
+        return result;
+      }
+      if (!(target instanceof Element)) {
+        if (target instanceof Node) {
+          return getActualDropTargets({
+            source,
+            target: target.parentElement,
+            input,
+            result
+          });
+        }
+        return result;
+      }
+      var closest = target.closest(dropTargetSelector);
+      if (closest == null) {
+        return result;
+      }
+      var args = registry.get(closest);
+      if (args == null) {
+        return result;
+      }
+      var feedback = {
+        input,
+        source,
+        element: args.element
+      };
+      if (args.canDrop && !args.canDrop(feedback)) {
+        return getActualDropTargets({
+          source,
+          target: args.element.parentElement,
+          input,
+          result
+        });
+      }
+      var data2 = (_args$getData = (_args$getData2 = args.getData) === null || _args$getData2 === void 0 ? void 0 : _args$getData2.call(args, feedback)) !== null && _args$getData !== void 0 ? _args$getData : {};
+      var dropEffect = (_args$getDropEffect = (_args$getDropEffect2 = args.getDropEffect) === null || _args$getDropEffect2 === void 0 ? void 0 : _args$getDropEffect2.call(args, feedback)) !== null && _args$getDropEffect !== void 0 ? _args$getDropEffect : defaultDropEffect;
+      var record = {
+        data: data2,
+        element: args.element,
+        dropEffect,
+        // we are collecting _actual_ drop targets, so these are
+        // being applied _not_ due to stickiness
+        isActiveDueToStickiness: false
+      };
+      return getActualDropTargets({
+        source,
+        target: args.element.parentElement,
+        input,
+        // Using bubble ordering. Same ordering as `event.getPath()`
+        result: [].concat(_toConsumableArray(result), [record])
+      });
+    }
+    function notifyCurrent(_ref3) {
+      var eventName = _ref3.eventName, payload = _ref3.payload;
+      var _iterator = _createForOfIteratorHelper(payload.location.current.dropTargets), _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+          var _entry$eventName;
+          var record = _step.value;
+          var entry = registry.get(record.element);
+          var args = _objectSpread2(_objectSpread2({}, payload), {}, {
+            self: record
+          });
+          entry === null || entry === void 0 || (_entry$eventName = entry[eventName]) === null || _entry$eventName === void 0 || _entry$eventName.call(
+            entry,
+            // I cannot seem to get the types right here.
+            // TS doesn't seem to like that one event can need `nativeSetDragImage`
+            // @ts-expect-error
+            args
+          );
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
+    var actions = {
+      onGenerateDragPreview: notifyCurrent,
+      onDrag: notifyCurrent,
+      onDragStart: notifyCurrent,
+      onDrop: notifyCurrent,
+      onDropTargetChange: function onDropTargetChange(_ref4) {
+        var payload = _ref4.payload;
+        var isCurrent = new Set(payload.location.current.dropTargets.map(function(record2) {
+          return record2.element;
+        }));
+        var visited = /* @__PURE__ */ new Set();
+        var _iterator2 = _createForOfIteratorHelper(payload.location.previous.dropTargets), _step2;
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done; ) {
+            var _entry$onDropTargetCh;
+            var record = _step2.value;
+            visited.add(record.element);
+            var entry = registry.get(record.element);
+            var isOver = isCurrent.has(record.element);
+            var args = _objectSpread2(_objectSpread2({}, payload), {}, {
+              self: record
+            });
+            entry === null || entry === void 0 || (_entry$onDropTargetCh = entry.onDropTargetChange) === null || _entry$onDropTargetCh === void 0 || _entry$onDropTargetCh.call(entry, args);
+            if (!isOver) {
+              var _entry$onDragLeave;
+              entry === null || entry === void 0 || (_entry$onDragLeave = entry.onDragLeave) === null || _entry$onDragLeave === void 0 || _entry$onDragLeave.call(entry, args);
+            }
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+        var _iterator3 = _createForOfIteratorHelper(payload.location.current.dropTargets), _step3;
+        try {
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done; ) {
+            var _entry$onDropTargetCh2, _entry$onDragEnter;
+            var _record = _step3.value;
+            if (visited.has(_record.element)) {
+              continue;
+            }
+            var _args = _objectSpread2(_objectSpread2({}, payload), {}, {
+              self: _record
+            });
+            var _entry = registry.get(_record.element);
+            _entry === null || _entry === void 0 || (_entry$onDropTargetCh2 = _entry.onDropTargetChange) === null || _entry$onDropTargetCh2 === void 0 || _entry$onDropTargetCh2.call(_entry, _args);
+            _entry === null || _entry === void 0 || (_entry$onDragEnter = _entry.onDragEnter) === null || _entry$onDragEnter === void 0 || _entry$onDragEnter.call(_entry, _args);
+          }
+        } catch (err) {
+          _iterator3.e(err);
+        } finally {
+          _iterator3.f();
+        }
+      }
+    };
+    function dispatchEvent(args) {
+      actions[args.eventName](args);
+    }
+    function getIsOver(_ref5) {
+      var source = _ref5.source, target = _ref5.target, input = _ref5.input, current = _ref5.current;
+      var actual = getActualDropTargets({
+        source,
+        target,
+        input
+      });
+      if (actual.length >= current.length) {
+        return actual;
+      }
+      var lastCaptureOrdered = copyReverse(current);
+      var actualCaptureOrdered = copyReverse(actual);
+      var resultCaptureOrdered = [];
+      for (var index2 = 0; index2 < lastCaptureOrdered.length; index2++) {
+        var _argsForLast$getIsSti;
+        var last = lastCaptureOrdered[index2];
+        var fresh = actualCaptureOrdered[index2];
+        if (fresh != null) {
+          resultCaptureOrdered.push(fresh);
+          continue;
+        }
+        var parent2 = resultCaptureOrdered[index2 - 1];
+        var lastParent = lastCaptureOrdered[index2 - 1];
+        if ((parent2 === null || parent2 === void 0 ? void 0 : parent2.element) !== (lastParent === null || lastParent === void 0 ? void 0 : lastParent.element)) {
+          break;
+        }
+        var argsForLast = registry.get(last.element);
+        if (!argsForLast) {
+          break;
+        }
+        var feedback = {
+          input,
+          source,
+          element: argsForLast.element
+        };
+        if (argsForLast.canDrop && !argsForLast.canDrop(feedback)) {
+          break;
+        }
+        if (!((_argsForLast$getIsSti = argsForLast.getIsSticky) !== null && _argsForLast$getIsSti !== void 0 && _argsForLast$getIsSti.call(argsForLast, feedback))) {
+          break;
+        }
+        resultCaptureOrdered.push(_objectSpread2(_objectSpread2({}, last), {}, {
+          // making it clear to consumers this drop target is active due to stickiness
+          isActiveDueToStickiness: true
+        }));
+      }
+      return copyReverse(resultCaptureOrdered);
+    }
+    return {
+      dropTargetForConsumers,
+      getIsOver,
+      dispatchEvent
+    };
+  }
+  var init_make_drop_target = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-drop-target.js"() {
+      init_defineProperty();
+      init_toConsumableArray();
+      init_combine();
+      init_add_attribute();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-monitor.js
+  function _createForOfIteratorHelper2(r4, e4) {
+    var t4 = "undefined" != typeof Symbol && r4[Symbol.iterator] || r4["@@iterator"];
+    if (!t4) {
+      if (Array.isArray(r4) || (t4 = _unsupportedIterableToArray3(r4)) || e4 && r4 && "number" == typeof r4.length) {
+        t4 && (r4 = t4);
+        var _n = 0, F5 = function F6() {
+        };
+        return { s: F5, n: function n3() {
+          return _n >= r4.length ? { done: true } : { done: false, value: r4[_n++] };
+        }, e: function e5(r5) {
+          throw r5;
+        }, f: F5 };
+      }
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    var o4, a4 = true, u4 = false;
+    return { s: function s4() {
+      t4 = t4.call(r4);
+    }, n: function n3() {
+      var r5 = t4.next();
+      return a4 = r5.done, r5;
+    }, e: function e5(r5) {
+      u4 = true, o4 = r5;
+    }, f: function f4() {
+      try {
+        a4 || null == t4.return || t4.return();
+      } finally {
+        if (u4) throw o4;
+      }
+    } };
+  }
+  function _unsupportedIterableToArray3(r4, a4) {
+    if (r4) {
+      if ("string" == typeof r4) return _arrayLikeToArray3(r4, a4);
+      var t4 = {}.toString.call(r4).slice(8, -1);
+      return "Object" === t4 && r4.constructor && (t4 = r4.constructor.name), "Map" === t4 || "Set" === t4 ? Array.from(r4) : "Arguments" === t4 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t4) ? _arrayLikeToArray3(r4, a4) : void 0;
+    }
+  }
+  function _arrayLikeToArray3(r4, a4) {
+    (null == a4 || a4 > r4.length) && (a4 = r4.length);
+    for (var e4 = 0, n3 = Array(a4); e4 < a4; e4++) n3[e4] = r4[e4];
+    return n3;
+  }
+  function ownKeys3(e4, r4) {
+    var t4 = Object.keys(e4);
+    if (Object.getOwnPropertySymbols) {
+      var o4 = Object.getOwnPropertySymbols(e4);
+      r4 && (o4 = o4.filter(function(r5) {
+        return Object.getOwnPropertyDescriptor(e4, r5).enumerable;
+      })), t4.push.apply(t4, o4);
+    }
+    return t4;
+  }
+  function _objectSpread3(e4) {
+    for (var r4 = 1; r4 < arguments.length; r4++) {
+      var t4 = null != arguments[r4] ? arguments[r4] : {};
+      r4 % 2 ? ownKeys3(Object(t4), true).forEach(function(r5) {
+        _defineProperty(e4, r5, t4[r5]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e4, Object.getOwnPropertyDescriptors(t4)) : ownKeys3(Object(t4)).forEach(function(r5) {
+        Object.defineProperty(e4, r5, Object.getOwnPropertyDescriptor(t4, r5));
+      });
+    }
+    return e4;
+  }
+  function makeMonitor() {
+    var registry = /* @__PURE__ */ new Set();
+    var dragging = null;
+    function tryAddToActive(monitor) {
+      if (!dragging) {
+        return;
+      }
+      if (!monitor.canMonitor || monitor.canMonitor(dragging.canMonitorArgs)) {
+        dragging.active.add(monitor);
+      }
+    }
+    function monitorForConsumers(args) {
+      var entry = _objectSpread3({}, args);
+      registry.add(entry);
+      tryAddToActive(entry);
+      return function cleanup() {
+        registry.delete(entry);
+        if (dragging) {
+          dragging.active.delete(entry);
+        }
+      };
+    }
+    function dispatchEvent(_ref) {
+      var eventName = _ref.eventName, payload = _ref.payload;
+      if (eventName === "onGenerateDragPreview") {
+        dragging = {
+          canMonitorArgs: {
+            initial: payload.location.initial,
+            source: payload.source
+          },
+          active: /* @__PURE__ */ new Set()
+        };
+        var _iterator = _createForOfIteratorHelper2(registry), _step;
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+            var monitor = _step.value;
+            tryAddToActive(monitor);
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+      }
+      if (!dragging) {
+        return;
+      }
+      var active2 = Array.from(dragging.active);
+      for (var _i = 0, _active = active2; _i < _active.length; _i++) {
+        var _monitor = _active[_i];
+        if (dragging.active.has(_monitor)) {
+          var _monitor$eventName;
+          (_monitor$eventName = _monitor[eventName]) === null || _monitor$eventName === void 0 || _monitor$eventName.call(_monitor, payload);
+        }
+      }
+      if (eventName === "onDrop") {
+        dragging.active.clear();
+        dragging = null;
+      }
+    }
+    return {
+      dispatchEvent,
+      monitorForConsumers
+    };
+  }
+  var init_make_monitor = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-monitor.js"() {
+      init_defineProperty();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-adapter.js
+  function makeAdapter(_ref) {
+    var typeKey = _ref.typeKey, mount3 = _ref.mount, dispatchEventToSource2 = _ref.dispatchEventToSource, onPostDispatch = _ref.onPostDispatch, defaultDropEffect = _ref.defaultDropEffect;
+    var monitorAPI = makeMonitor();
+    var dropTargetAPI = makeDropTarget({
+      typeKey,
+      defaultDropEffect
+    });
+    function dispatchEvent(args) {
+      dispatchEventToSource2 === null || dispatchEventToSource2 === void 0 || dispatchEventToSource2(args);
+      dropTargetAPI.dispatchEvent(args);
+      monitorAPI.dispatchEvent(args);
+      onPostDispatch === null || onPostDispatch === void 0 || onPostDispatch(args);
+    }
+    function start2(_ref2) {
+      var event = _ref2.event, dragType = _ref2.dragType;
+      lifecycle.start({
+        event,
+        dragType,
+        getDropTargetsOver: dropTargetAPI.getIsOver,
+        dispatchEvent
+      });
+    }
+    function registerUsage2() {
+      function mountAdapter() {
+        var api = {
+          canStart: lifecycle.canStart,
+          start: start2
+        };
+        return mount3(api);
+      }
+      return register({
+        typeKey,
+        mount: mountAdapter
+      });
+    }
+    return {
+      registerUsage: registerUsage2,
+      dropTarget: dropTargetAPI.dropTargetForConsumers,
+      monitor: monitorAPI.monitorForConsumers
+    };
+  }
+  var init_make_adapter = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-adapter.js"() {
+      init_lifecycle_manager();
+      init_usage_ledger();
+      init_make_drop_target();
+      init_make_monitor();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/android.js
+  var isAndroid, androidFallbackText;
+  var init_android = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/android.js"() {
+      init_once();
+      isAndroid = once(function isAndroid2() {
+        return navigator.userAgent.toLocaleLowerCase().includes("android");
+      });
+      androidFallbackText = "pdnd:android-fallback";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/text-media-type.js
+  var textMediaType;
+  var init_text_media_type = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/text-media-type.js"() {
+      textMediaType = "text/plain";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/url-media-type.js
+  var URLMediaType;
+  var init_url_media_type = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/url-media-type.js"() {
+      URLMediaType = "text/uri-list";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter-native-data-key.js
+  var elementAdapterNativeDataKey;
+  var init_element_adapter_native_data_key = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter-native-data-key.js"() {
+      elementAdapterNativeDataKey = "application/vnd.pdnd";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter.js
+  function addToRegistry(args) {
+    draggableRegistry.set(args.element, args);
+    return function cleanup() {
+      draggableRegistry.delete(args.element);
+    };
+  }
+  function draggable(args) {
+    if (true) {
+      if (args.dragHandle && !args.element.contains(args.dragHandle)) {
+        console.warn("Drag handle element must be contained in draggable element", {
+          element: args.element,
+          dragHandle: args.dragHandle
+        });
+      }
+    }
+    if (true) {
+      var existing = draggableRegistry.get(args.element);
+      if (existing) {
+        console.warn("You have already registered a `draggable` on the same element", {
+          existing,
+          proposed: args
+        });
+      }
+    }
+    return combine(
+      // making the draggable register the adapter rather than drop targets
+      // this is because you *must* have a draggable element to start a drag
+      // but you _might_ not have any drop targets immediately
+      // (You might create drop targets async)
+      adapter.registerUsage(),
+      addToRegistry(args),
+      addAttribute(args.element, {
+        attribute: "draggable",
+        value: "true"
+      })
+    );
+  }
+  var import_bind_event_listener4, draggableRegistry, honeyPotFix, adapter, dropTargetForElements, monitorForElements;
+  var init_element_adapter = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter.js"() {
+      init_slicedToArray();
+      import_bind_event_listener4 = __toESM(require_dist());
+      init_get_element_from_point_without_honey_pot();
+      init_make_honey_pot_fix();
+      init_make_adapter();
+      init_combine();
+      init_add_attribute();
+      init_android();
+      init_get_input();
+      init_text_media_type();
+      init_url_media_type();
+      init_element_adapter_native_data_key();
+      draggableRegistry = /* @__PURE__ */ new WeakMap();
+      honeyPotFix = makeHoneyPotFix();
+      adapter = makeAdapter({
+        typeKey: "element",
+        defaultDropEffect: "move",
+        mount: function mount(api) {
+          return combine(honeyPotFix.bindEvents(), (0, import_bind_event_listener4.bind)(document, {
+            type: "dragstart",
+            listener: function listener(event) {
+              var _entry$dragHandle, _entry$getInitialData, _entry$getInitialData2, _entry$dragHandle2, _entry$getInitialData3, _entry$getInitialData4;
+              if (!api.canStart(event)) {
+                return;
+              }
+              if (event.defaultPrevented) {
+                return;
+              }
+              if (!event.dataTransfer) {
+                if (true) {
+                  console.warn("\n              It appears as though you have are not testing DragEvents correctly.\n\n              - If you are unit testing, ensure you have polyfilled DragEvent.\n              - If you are browser testing, ensure you are dispatching drag events correctly.\n\n              Please see our testing guides for more information:\n              https://atlassian.design/components/pragmatic-drag-and-drop/core-package/testing\n            ".replace(/ {2}/g, ""));
+                }
+                return;
+              }
+              var target = event.target;
+              if (!(target instanceof HTMLElement)) {
+                return null;
+              }
+              var entry = draggableRegistry.get(target);
+              if (!entry) {
+                return null;
+              }
+              var input = getInput(event);
+              var feedback = {
+                element: entry.element,
+                dragHandle: (_entry$dragHandle = entry.dragHandle) !== null && _entry$dragHandle !== void 0 ? _entry$dragHandle : null,
+                input
+              };
+              if (entry.canDrag && !entry.canDrag(feedback)) {
+                event.preventDefault();
+                return null;
+              }
+              if (entry.dragHandle) {
+                var over = getElementFromPointWithoutHoneypot({
+                  x: input.clientX,
+                  y: input.clientY
+                });
+                if (!entry.dragHandle.contains(over)) {
+                  event.preventDefault();
+                  return null;
+                }
+              }
+              var nativeData = (_entry$getInitialData = (_entry$getInitialData2 = entry.getInitialDataForExternal) === null || _entry$getInitialData2 === void 0 ? void 0 : _entry$getInitialData2.call(entry, feedback)) !== null && _entry$getInitialData !== void 0 ? _entry$getInitialData : null;
+              if (nativeData) {
+                for (var _i = 0, _Object$entries = Object.entries(nativeData); _i < _Object$entries.length; _i++) {
+                  var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2), key2 = _Object$entries$_i[0], data2 = _Object$entries$_i[1];
+                  event.dataTransfer.setData(key2, data2 !== null && data2 !== void 0 ? data2 : "");
+                }
+              }
+              if (isAndroid() && !event.dataTransfer.types.includes(textMediaType) && !event.dataTransfer.types.includes(URLMediaType)) {
+                event.dataTransfer.setData(textMediaType, androidFallbackText);
+              }
+              event.dataTransfer.setData(elementAdapterNativeDataKey, "");
+              var payload = {
+                element: entry.element,
+                dragHandle: (_entry$dragHandle2 = entry.dragHandle) !== null && _entry$dragHandle2 !== void 0 ? _entry$dragHandle2 : null,
+                data: (_entry$getInitialData3 = (_entry$getInitialData4 = entry.getInitialData) === null || _entry$getInitialData4 === void 0 ? void 0 : _entry$getInitialData4.call(entry, feedback)) !== null && _entry$getInitialData3 !== void 0 ? _entry$getInitialData3 : {}
+              };
+              var dragType = {
+                type: "element",
+                payload,
+                startedFrom: "internal"
+              };
+              api.start({
+                event,
+                dragType
+              });
+            }
+          }));
+        },
+        dispatchEventToSource: function dispatchEventToSource(_ref) {
+          var _draggableRegistry$ge, _draggableRegistry$ge2;
+          var eventName = _ref.eventName, payload = _ref.payload;
+          (_draggableRegistry$ge = draggableRegistry.get(payload.source.element)) === null || _draggableRegistry$ge === void 0 || (_draggableRegistry$ge2 = _draggableRegistry$ge[eventName]) === null || _draggableRegistry$ge2 === void 0 || _draggableRegistry$ge2.call(
+            _draggableRegistry$ge,
+            // I cannot seem to get the types right here.
+            // TS doesn't seem to like that one event can need `nativeSetDragImage`
+            // @ts-expect-error
+            payload
+          );
+        },
+        onPostDispatch: honeyPotFix.getOnPostDispatch()
+      });
+      dropTargetForElements = adapter.dropTarget;
+      monitorForElements = adapter.monitor;
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/adapter.js
+  var init_adapter = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/adapter.js"() {
+      init_element_adapter();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/closest-edge.js
+  function ownKeys4(e4, r4) {
+    var t4 = Object.keys(e4);
+    if (Object.getOwnPropertySymbols) {
+      var o4 = Object.getOwnPropertySymbols(e4);
+      r4 && (o4 = o4.filter(function(r5) {
+        return Object.getOwnPropertyDescriptor(e4, r5).enumerable;
+      })), t4.push.apply(t4, o4);
+    }
+    return t4;
+  }
+  function _objectSpread4(e4) {
+    for (var r4 = 1; r4 < arguments.length; r4++) {
+      var t4 = null != arguments[r4] ? arguments[r4] : {};
+      r4 % 2 ? ownKeys4(Object(t4), true).forEach(function(r5) {
+        _defineProperty(e4, r5, t4[r5]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e4, Object.getOwnPropertyDescriptors(t4)) : ownKeys4(Object(t4)).forEach(function(r5) {
+        Object.defineProperty(e4, r5, Object.getOwnPropertyDescriptor(t4, r5));
+      });
+    }
+    return e4;
+  }
+  function attachClosestEdge(userData, _ref) {
+    var _entries$sort$0$edge, _entries$sort$;
+    var element = _ref.element, input = _ref.input, allowedEdges = _ref.allowedEdges;
+    var client = {
+      x: input.clientX,
+      y: input.clientY
+    };
+    var rect = element.getBoundingClientRect();
+    var entries4 = allowedEdges.map(function(edge) {
+      return {
+        edge,
+        value: getDistanceToEdge[edge](rect, client)
+      };
+    });
+    var addClosestEdge = (_entries$sort$0$edge = (_entries$sort$ = entries4.sort(function(a4, b4) {
+      return a4.value - b4.value;
+    })[0]) === null || _entries$sort$ === void 0 ? void 0 : _entries$sort$.edge) !== null && _entries$sort$0$edge !== void 0 ? _entries$sort$0$edge : null;
+    return _objectSpread4(_objectSpread4({}, userData), {}, _defineProperty({}, uniqueKey, addClosestEdge));
+  }
+  function extractClosestEdge(userData) {
+    var _ref2;
+    return (_ref2 = userData[uniqueKey]) !== null && _ref2 !== void 0 ? _ref2 : null;
+  }
+  var getDistanceToEdge, uniqueKey;
+  var init_closest_edge = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/closest-edge.js"() {
+      init_defineProperty();
+      getDistanceToEdge = {
+        top: function top(rect, client) {
+          return Math.abs(client.y - rect.top);
+        },
+        right: function right(rect, client) {
+          return Math.abs(rect.right - client.x);
+        },
+        bottom: function bottom(rect, client) {
+          return Math.abs(rect.bottom - client.y);
+        },
+        left: function left(rect, client) {
+          return Math.abs(client.x - rect.left);
+        }
+      };
+      uniqueKey = Symbol("closestEdge");
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/reorder.js
+  function reorder(_ref) {
+    var list2 = _ref.list, startIndex = _ref.startIndex, finishIndex = _ref.finishIndex;
+    if (startIndex === -1 || finishIndex === -1) {
+      return Array.from(list2);
+    }
+    var result = Array.from(list2);
+    var _result$splice = result.splice(startIndex, 1), _result$splice2 = _slicedToArray(_result$splice, 1), removed = _result$splice2[0];
+    result.splice(finishIndex, 0, removed);
+    return result;
+  }
+  var init_reorder = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/reorder.js"() {
+      init_slicedToArray();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/reorder.js
+  var init_reorder2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/reorder.js"() {
+      init_reorder();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/get-reorder-destination-index.js
+  function getReorderDestinationIndex(_ref) {
+    var startIndex = _ref.startIndex, closestEdgeOfTarget = _ref.closestEdgeOfTarget, indexOfTarget = _ref.indexOfTarget, axis = _ref.axis;
+    if (startIndex === -1 || indexOfTarget === -1) {
+      return startIndex;
+    }
+    if (startIndex === indexOfTarget) {
+      return startIndex;
+    }
+    if (closestEdgeOfTarget == null) {
+      return indexOfTarget;
+    }
+    var isGoingAfter = axis === "vertical" && closestEdgeOfTarget === "bottom" || axis === "horizontal" && closestEdgeOfTarget === "right";
+    var isMovingForward = startIndex < indexOfTarget;
+    if (isMovingForward) {
+      return isGoingAfter ? indexOfTarget : indexOfTarget - 1;
+    }
+    return isGoingAfter ? indexOfTarget + 1 : indexOfTarget;
+  }
+  var init_get_reorder_destination_index = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/get-reorder-destination-index.js"() {
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/reorder-with-edge.js
+  function reorderWithEdge(_ref) {
+    var list2 = _ref.list, startIndex = _ref.startIndex, closestEdgeOfTarget = _ref.closestEdgeOfTarget, indexOfTarget = _ref.indexOfTarget, axis = _ref.axis;
+    return reorder({
+      list: list2,
+      startIndex,
+      finishIndex: getReorderDestinationIndex({
+        closestEdgeOfTarget,
+        startIndex,
+        indexOfTarget,
+        axis
+      })
+    });
+  }
+  var init_reorder_with_edge = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/reorder-with-edge.js"() {
+      init_reorder2();
+      init_get_reorder_destination_index();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-entering-window.js
+  function isEnteringWindow(_ref) {
+    var dragEnter = _ref.dragEnter;
+    var type = dragEnter.type, relatedTarget = dragEnter.relatedTarget;
+    if (type !== "dragenter") {
+      return false;
+    }
+    if (isSafari2()) {
+      return isEnteringWindowInSafari({
+        dragEnter
+      });
+    }
+    if (relatedTarget == null) {
+      return true;
+    }
+    if (isFirefox()) {
+      return isFromAnotherWindow(relatedTarget);
+    }
+    return relatedTarget instanceof HTMLIFrameElement;
+  }
+  var init_is_entering_window = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-entering-window.js"() {
+      init_is_firefox();
+      init_is_safari();
+      init_count_events_for_safari();
+      init_is_from_another_window();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/external-adapter.js
+  function isAnAvailableType(_ref) {
+    var type = _ref.type, value2 = _ref.value;
+    if (type === elementAdapterNativeDataKey) {
+      return false;
+    }
+    if (type === textMediaType && value2 === androidFallbackText) {
+      return false;
+    }
+    return true;
+  }
+  function getAvailableTypes(transfer) {
+    return Array.from(transfer.types).filter(function(type) {
+      return isAnAvailableType({
+        type,
+        value: transfer.getData(type)
+      });
+    });
+  }
+  function getAvailableItems(dataTransfer) {
+    return Array.from(dataTransfer.items).filter(function(item) {
+      return item.kind === "file" || isAnAvailableType({
+        type: item.type,
+        value: dataTransfer.getData(item.type)
+      });
+    });
+  }
+  function dropTargetForExternal(args) {
+    return adapter2.dropTarget(args);
+  }
+  function monitorForExternal(args) {
+    return adapter2.monitor(args);
+  }
+  var import_bind_event_listener5, didDragStartLocally, adapter2;
+  var init_external_adapter = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/external-adapter.js"() {
+      init_toConsumableArray();
+      import_bind_event_listener5 = __toESM(require_dist());
+      init_make_adapter();
+      init_android();
+      init_is_entering_window();
+      init_detect_broken_drag();
+      init_text_media_type();
+      init_element_adapter_native_data_key();
+      didDragStartLocally = false;
+      adapter2 = makeAdapter({
+        typeKey: "external",
+        // for external drags, we are generally making a copy of something that is being dragged
+        defaultDropEffect: "copy",
+        mount: function mount2(api) {
+          return (0, import_bind_event_listener5.bind)(window, {
+            type: "dragenter",
+            listener: function listener(event) {
+              if (didDragStartLocally) {
+                return;
+              }
+              if (!event.dataTransfer) {
+                if (true) {
+                  console.warn("\n              It appears as though you have are not testing DragEvents correctly.\n\n              - If you are unit testing, ensure you have polyfilled DragEvent.\n              - If you are browser testing, ensure you are dispatching drag events correctly.\n\n              Please see our testing guides for more information:\n              https://atlassian.design/components/pragmatic-drag-and-drop/core-package/testing\n            ".replace(/ {2}/g, ""));
+                }
+                return;
+              }
+              if (!api.canStart(event)) {
+                return;
+              }
+              if (!isEnteringWindow({
+                dragEnter: event
+              })) {
+                return;
+              }
+              var types = getAvailableTypes(event.dataTransfer);
+              if (!types.length) {
+                return;
+              }
+              var locked = {
+                types,
+                items: [],
+                getStringData: function getStringData() {
+                  return null;
+                }
+              };
+              api.start({
+                event,
+                dragType: {
+                  type: "external",
+                  startedFrom: "external",
+                  payload: locked,
+                  getDropPayload: function getDropPayload(event2) {
+                    if (!event2.dataTransfer) {
+                      return locked;
+                    }
+                    var items = getAvailableItems(event2.dataTransfer);
+                    var nativeGetData = event2.dataTransfer.getData.bind(event2.dataTransfer);
+                    return {
+                      types,
+                      items,
+                      // return `null` if there is no result, otherwise string
+                      getStringData: function getStringData(mediaType) {
+                        if (!types.includes(mediaType)) {
+                          return null;
+                        }
+                        var value2 = nativeGetData(mediaType);
+                        if (!isAnAvailableType({
+                          type: mediaType,
+                          value: value2
+                        })) {
+                          return null;
+                        }
+                        return value2;
+                      }
+                    };
+                  }
+                }
+              });
+            }
+          });
+        }
+      });
+      (function startup() {
+        if (typeof window === "undefined") {
+          return;
+        }
+        adapter2.registerUsage();
+        var idle = {
+          type: "idle"
+        };
+        var state = idle;
+        function clear() {
+          if (state.type !== "dragging") {
+            return;
+          }
+          didDragStartLocally = false;
+          state.cleanup();
+          state = idle;
+        }
+        function bindEndEvents() {
+          return (0, import_bind_event_listener5.bindAll)(
+            window,
+            [{
+              type: "dragend",
+              listener: clear
+            }].concat(_toConsumableArray(getBindingsForBrokenDrags({
+              onDragEnd: clear
+            }))),
+            // we want to make sure we get all the events,
+            // and this helps avoid not seeing events when folks stop
+            // them later on the event path
+            {
+              capture: true
+            }
+          );
+        }
+        (0, import_bind_event_listener5.bind)(window, {
+          type: "dragstart",
+          listener: function listener() {
+            if (state.type !== "idle") {
+              return;
+            }
+            didDragStartLocally = true;
+            state = {
+              type: "dragging",
+              cleanup: bindEndEvents()
+            };
+          },
+          // binding in the capture phase so these listeners are called
+          // before our listeners in the adapters `mount` function
+          options: {
+            capture: true
+          }
+        });
+      })();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/adapter.js
+  var init_adapter2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/adapter.js"() {
+      init_external_adapter();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/combine.js
+  var init_combine2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/combine.js"() {
+      init_combine();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/html-media-type.js
+  var HTMLMediaType;
+  var init_html_media_type = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/html-media-type.js"() {
+      HTMLMediaType = "text/html";
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/html.js
+  function getHTML(_ref2) {
+    var source = _ref2.source;
+    return source.getStringData(HTMLMediaType);
+  }
+  var init_html = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/html.js"() {
+      init_html_media_type();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/html.js
+  var init_html2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/html.js"() {
+      init_html();
+    }
+  });
+
+  // pages/new-tab/app/favorites/constants.js
+  var DDG_MIME_TYPE, DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK, DDG_DEFAULT_ICON_SIZE;
+  var init_constants = __esm({
+    "pages/new-tab/app/favorites/constants.js"() {
+      "use strict";
+      DDG_MIME_TYPE = "application/vnd.duckduckgo.bookmark-by-id";
+      DDG_FALLBACK_ICON = "./company-icons/other.svg";
+      DDG_FALLBACK_ICON_DARK = "./company-icons/other-dark.svg";
+      DDG_DEFAULT_ICON_SIZE = 64;
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/set-custom-native-drag-preview.js
+  function defaultOffset() {
+    return {
+      x: 0,
+      y: 0
+    };
+  }
+  function setCustomNativeDragPreview(_ref) {
+    var render = _ref.render, nativeSetDragImage = _ref.nativeSetDragImage, _ref$getOffset = _ref.getOffset, getOffset = _ref$getOffset === void 0 ? defaultOffset : _ref$getOffset;
+    var container = document.createElement("div");
+    Object.assign(container.style, {
+      // Ensuring we don't cause reflow when adding the element to the page
+      // Using `position:fixed` rather than `position:absolute` so we are
+      // positioned on the current viewport.
+      // `position:fixed` also creates a new stacking context, so we don't need to do that here
+      position: "fixed",
+      // According to `mdn`, the element can be offscreen:
+      // https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/setDragImage#imgelement
+      //
+      // However, that  information does not appear in the specs:
+      // https://html.spec.whatwg.org/multipage/dnd.html#dom-datatransfer-setdragimage-dev
+      //
+      // If the element is _completely_ offscreen, Safari@17.1 will cancel the drag
+      top: 0,
+      left: 0,
+      // Using maximum possible z-index so that this element will always be on top
+      // https://stackoverflow.com/questions/491052/minimum-and-maximum-value-of-z-index
+      // Did not use `layers` in `@atlaskit/theme` because:
+      // 1. This element is not a 'layer' in the conventional sense, as this element
+      //    is only created for a single frame for the browser to take a photo of it,
+      //    and then it is destroyed
+      // 2. Did not want to add a dependency onto `@atlaskit/theme`
+      // 3. Want to always be on top of product UI which might have higher z-index's
+      zIndex: maxZIndex,
+      // Avoiding any additional events caused by the new element (being super safe)
+      pointerEvents: "none"
+    });
+    document.body.append(container);
+    var unmount = render({
+      container
+    });
+    queueMicrotask(function() {
+      var previewOffset = getOffset({
+        container
+      });
+      if (isSafari2()) {
+        var rect = container.getBoundingClientRect();
+        if (rect.width === 0) {
+          return;
+        }
+        container.style.left = "-".concat(rect.width - 1e-4, "px");
+      }
+      nativeSetDragImage === null || nativeSetDragImage === void 0 || nativeSetDragImage(container, previewOffset.x, previewOffset.y);
+    });
+    function cleanup() {
+      unbindMonitor();
+      unmount === null || unmount === void 0 || unmount();
+      document.body.removeChild(container);
+    }
+    var unbindMonitor = monitorForElements({
+      // Remove portal in the dragstart event so that the user will never see it
+      onDragStart: cleanup,
+      // Backup: remove portal when the drop finishes (this would be an error case)
+      onDrop: cleanup
+    });
+  }
+  var init_set_custom_native_drag_preview = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/set-custom-native-drag-preview.js"() {
+      init_element_adapter();
+      init_is_safari();
+      init_max_z_index();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/set-custom-native-drag-preview.js
+  var init_set_custom_native_drag_preview2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/set-custom-native-drag-preview.js"() {
+      init_set_custom_native_drag_preview();
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/center-under-pointer.js
+  var centerUnderPointer;
+  var init_center_under_pointer = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/center-under-pointer.js"() {
+      centerUnderPointer = function centerUnderPointer2(_ref) {
+        var container = _ref.container;
+        var rect = container.getBoundingClientRect();
+        return {
+          x: rect.width / 2,
+          y: rect.height / 2
+        };
+      };
+    }
+  });
+
+  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/center-under-pointer.js
+  var init_center_under_pointer2 = __esm({
+    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/center-under-pointer.js"() {
+      init_center_under_pointer();
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/PragmaticDND.js
+  function PragmaticDND({ children, items, itemsDidReOrder }) {
+    const [instanceId] = d2(getInstanceId);
+    useGridState(items, itemsDidReOrder, instanceId);
+    return /* @__PURE__ */ _(InstanceIdContext.Provider, { value: instanceId }, children);
+  }
+  function useGridState(favorites2, itemsDidReOrder, instanceId) {
+    y2(() => {
+      return combine(
+        monitorForExternal({
+          onDrop(payload) {
+            const id = idFromPayload(payload);
+            if (!id) return;
+            const location2 = payload.location;
+            const target = location2.current.dropTargets[0];
+            if (!target || !target.data || typeof target.data.url !== "string") {
+              return console.warn("missing data from target");
+            }
+            const closestEdgeOfTarget = extractClosestEdge(target.data);
+            const destinationSrc = target.data.url;
+            let indexOfTarget = favorites2.findIndex((item) => item.url === destinationSrc);
+            if (indexOfTarget === -1 && destinationSrc.includes("PLACEHOLDER-URL")) {
+              indexOfTarget = favorites2.length;
+            }
+            const targetIndex = getReorderDestinationIndex({
+              closestEdgeOfTarget,
+              startIndex: favorites2.length,
+              indexOfTarget,
+              axis: "horizontal"
+            });
+            itemsDidReOrder({
+              list: favorites2,
+              id,
+              fromIndex: favorites2.length,
+              targetIndex
+            });
+          }
+        }),
+        monitorForElements({
+          canMonitor({ source }) {
+            return source.data.instanceId === instanceId;
+          },
+          onDrop({ source, location: location2 }) {
+            const target = location2.current.dropTargets[0];
+            if (!target) {
+              return;
+            }
+            const destinationSrc = target.data.url;
+            const destinationId = target.data.id;
+            const startId = source.data.id;
+            if (typeof startId !== "string") {
+              return console.warn("could not access startId");
+            }
+            if (typeof destinationSrc !== "string") {
+              return console.warn("could not access the destinationSrc");
+            }
+            const startIndex = favorites2.findIndex((item) => item.id === startId);
+            let indexOfTarget = favorites2.findIndex((item) => item.id === destinationId);
+            if (indexOfTarget === -1 && destinationSrc.includes("PLACEHOLDER-URL")) {
+              indexOfTarget = favorites2.length;
+            }
+            const closestEdgeOfTarget = extractClosestEdge(target.data);
+            const targetIndex = getReorderDestinationIndex({
+              closestEdgeOfTarget,
+              startIndex,
+              indexOfTarget,
+              axis: "horizontal"
+            });
+            const reorderedList = reorderWithEdge({
+              list: favorites2,
+              startIndex,
+              indexOfTarget,
+              closestEdgeOfTarget,
+              axis: "horizontal"
+            });
+            itemsDidReOrder({
+              list: reorderedList,
+              id: startId,
+              fromIndex: startIndex,
+              targetIndex
+            });
+          }
+        })
+      );
+    }, [instanceId, favorites2]);
+  }
+  function useItemState(url6, id, opts) {
+    const instanceId = x2(InstanceIdContext);
+    const ref = A2(null);
+    const [state, setState] = d2(
+      /** @type {DNDState} */
+      { type: "idle" }
+    );
+    y2(() => {
+      const el = ref.current;
+      if (!el) throw new Error("unreachable");
+      let draggableCleanup = () => {
+      };
+      if (opts.kind === "draggable") {
+        draggableCleanup = draggable({
+          element: el,
+          getInitialData: () => ({ type: "grid-item", url: url6, id, instanceId }),
+          getInitialDataForExternal: () => ({
+            "text/plain": url6,
+            [DDG_MIME_TYPE]: id
+          }),
+          onDragStart: () => setState({ type: "dragging" }),
+          onDrop: () => setState({ type: "idle" }),
+          onGenerateDragPreview: ({ nativeSetDragImage, source }) => {
+            setCustomNativeDragPreview({
+              getOffset: ({ container }) => centerUnderPointer({ container }),
+              render: ({ container }) => {
+                const clone = (
+                  /** @type {HTMLElement} */
+                  source.element.cloneNode(true)
+                );
+                const outer = document.createElement("div");
+                outer.classList.add(opts.class ?? "");
+                outer.dataset.theme = opts.theme;
+                outer.appendChild(clone);
+                container.appendChild(outer);
+                return () => {
+                  container.removeChild(outer);
+                };
+              },
+              nativeSetDragImage
+            });
+          }
+        });
+      }
+      return combine(
+        draggableCleanup,
+        dropTargetForExternal({
+          element: el,
+          canDrop: ({ source }) => {
+            return source.types.some((type) => type === "text/html");
+          },
+          getData: ({ input }) => {
+            return attachClosestEdge(
+              { url: url6, id },
+              {
+                element: el,
+                input,
+                allowedEdges: ["left", "right"]
+              }
+            );
+          },
+          onDrop: () => {
+            setState({ type: "idle" });
+          },
+          onDragLeave: () => setState({ type: "idle" }),
+          onDrag: ({ self: self2 }) => {
+            const closestEdge = extractClosestEdge(self2.data);
+            setState((current) => {
+              if (current.type === "is-dragging-over" && current.closestEdge === closestEdge) {
+                return current;
+              }
+              return { type: "is-dragging-over", closestEdge };
+            });
+          }
+        }),
+        dropTargetForElements({
+          element: el,
+          getData: ({ input }) => {
+            return attachClosestEdge(
+              { url: url6, id },
+              {
+                element: el,
+                input,
+                allowedEdges: ["left", "right"]
+              }
+            );
+          },
+          getIsSticky: () => false,
+          canDrop: ({ source }) => {
+            return source.data.instanceId === instanceId && source.data.type === "grid-item" && source.data.id !== id;
+          },
+          onDragEnter: ({ self: self2 }) => {
+            const closestEdge = extractClosestEdge(self2.data);
+            setState({ type: "is-dragging-over", closestEdge });
+          },
+          onDrag({ self: self2 }) {
+            const closestEdge = extractClosestEdge(self2.data);
+            setState((current) => {
+              if (current.type === "is-dragging-over" && current.closestEdge === closestEdge) {
+                return current;
+              }
+              return { type: "is-dragging-over", closestEdge };
+            });
+          },
+          onDragLeave: () => setState({ type: "idle" }),
+          onDrop: () => setState({ type: "idle" })
+        })
+      );
+    }, [instanceId, url6, id, opts.kind, opts.class, opts.theme]);
+    return { ref, state };
+  }
+  function getInstanceId() {
+    return Symbol("instance-id");
+  }
+  function idFromPayload(payload) {
+    const ddg = payload.source.getStringData(DDG_MIME_TYPE);
+    if (ddg && ddg.length > 0) return ddg;
+    const html = getHTML(payload);
+    if (!html) return console.warn(`missing text/html payload + missing ${DDG_MIME_TYPE} mime type`);
+    const fragment = document.createRange().createContextualFragment(html);
+    const node = fragment.firstElementChild;
+    if (!node) return console.warn("missing first element");
+    if (node.getAttribute("name") !== DDG_MIME_TYPE) return console.warn(`attribute name was not ${DDG_MIME_TYPE}`);
+    const id = node.getAttribute("content");
+    if (!id) return console.warn("id missing from `content` attribute");
+    return id;
+  }
+  var InstanceIdContext;
+  var init_PragmaticDND = __esm({
+    "pages/new-tab/app/favorites/components/PragmaticDND.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_adapter();
+      init_closest_edge();
+      init_reorder_with_edge();
+      init_get_reorder_destination_index();
+      init_adapter2();
+      init_combine2();
+      init_html2();
+      init_constants();
+      init_set_custom_native_drag_preview2();
+      init_center_under_pointer2();
+      InstanceIdContext = K(getInstanceId());
     }
   });
 
@@ -1948,320 +5142,2319 @@
     }
   });
 
-  // pages/new-tab/app/service.hooks.js
-  function reducer(state, event) {
-    switch (state.status) {
-      case "idle": {
-        switch (event.kind) {
-          case "load-initial": {
-            return { ...state, status: (
-              /** @type {const} */
-              "pending-initial"
-            ) };
-          }
-          default:
-            return state;
-        }
-      }
-      case "pending-initial": {
-        switch (event.kind) {
-          case "initial-data": {
-            return {
-              ...state,
-              status: (
-                /** @type {const} */
-                "ready"
-              ),
-              data: event.data,
-              config: event.config
-            };
-          }
-          case "error": {
-            console.error("error with initial data", event.error);
-            return state;
-          }
-          default:
-            return state;
-        }
-      }
-      case "ready": {
-        switch (event.kind) {
-          case "config": {
-            return { ...state, config: event.config };
-          }
-          case "data": {
-            return { ...state, data: event.data };
-          }
-          case "clear": {
-            return { ...state, effect: null };
-          }
-          default:
-            return state;
-        }
-      }
-      default:
-        return state;
-    }
-  }
-  function useInitialDataAndConfig({ dispatch, service }) {
-    const messaging2 = useMessaging();
-    y2(() => {
-      if (!service.current) return console.warn("missing service");
-      const currentService = service.current;
-      async function init2() {
-        const { config, data: data2 } = await currentService.getInitial();
-        if (data2) {
-          dispatch({ kind: "initial-data", data: data2, config });
-        } else {
-          dispatch({ kind: "error", error: "missing data from getInitial" });
-        }
-      }
-      dispatch({ kind: "load-initial" });
-      init2().catch((e4) => {
-        console.error("uncaught error", e4);
-        dispatch({ kind: "error", error: e4 });
-        messaging2.reportPageException({ message: `${currentService.name()}: failed to fetch initial data+config: ` + e4.message });
-      });
-      return () => {
-        currentService.destroy();
+  // pages/new-tab/app/favorites/components/Favorites.module.css
+  var Favorites_default;
+  var init_Favorites = __esm({
+    "pages/new-tab/app/favorites/components/Favorites.module.css"() {
+      Favorites_default = {
+        root: "Favorites_root",
+        showhide: "Favorites_showhide",
+        grid: "Favorites_grid",
+        gridRow: "Favorites_gridRow"
       };
-    }, [messaging2]);
+    }
+  });
+
+  // pages/new-tab/app/components/ShowHide.module.css
+  var ShowHide_default;
+  var init_ShowHide = __esm({
+    "pages/new-tab/app/components/ShowHide.module.css"() {
+      ShowHide_default = {
+        button: "ShowHide_button",
+        iconBlock: "ShowHide_iconBlock",
+        round: "ShowHide_round",
+        pill: "ShowHide_pill",
+        fill: "ShowHide_fill",
+        hover: "ShowHide_hover",
+        bar: "ShowHide_bar"
+      };
+    }
+  });
+
+  // pages/new-tab/app/components/ShowHideButton.jsx
+  function ShowHideButtonCircle({ label, onClick, buttonAttrs = {} }) {
+    return /* @__PURE__ */ _("button", { ...buttonAttrs, class: (0, import_classnames.default)(ShowHide_default.button, ShowHide_default.round), "aria-label": label, "data-toggle": "true", onClick }, /* @__PURE__ */ _("div", { class: ShowHide_default.iconBlock }, /* @__PURE__ */ _(Chevron, null)));
   }
-  function useInitialData({ dispatch, service }) {
-    const messaging2 = useMessaging();
+  function ShowHideButtonPill({ label, onClick, text: text2, fill = true, buttonAttrs = {} }) {
+    const btnText = label ? /* @__PURE__ */ _("span", { "aria-hidden": "true" }, text2) : text2;
+    return /* @__PURE__ */ _(
+      "button",
+      {
+        ...buttonAttrs,
+        "aria-label": label,
+        class: (0, import_classnames.default)(ShowHide_default.button, ShowHide_default.hover, ShowHide_default.pill, fill && ShowHide_default.fill),
+        "data-toggle": "true",
+        onClick
+      },
+      /* @__PURE__ */ _(Chevron, null),
+      btnText
+    );
+  }
+  function ShowHideBar({ children }) {
+    return /* @__PURE__ */ _("div", { class: ShowHide_default.bar, "data-show-hide": true }, children);
+  }
+  var import_classnames;
+  var init_ShowHideButton = __esm({
+    "pages/new-tab/app/components/ShowHideButton.jsx"() {
+      "use strict";
+      init_ShowHide();
+      import_classnames = __toESM(require_classnames(), 1);
+      init_Icons2();
+      init_preact_module();
+    }
+  });
+
+  // pages/new-tab/app/dropzone.js
+  function useGlobalDropzone() {
     y2(() => {
-      if (!service.current) return console.warn("missing service");
-      const currentService = service.current;
-      async function init2() {
-        const data2 = await currentService.getInitial();
-        if (data2) {
-          dispatch({ kind: "initial-data", data: data2 });
-        } else {
-          dispatch({ kind: "error", error: "missing data from getInitial" });
-        }
-      }
-      dispatch({ kind: "load-initial" });
-      init2().catch((e4) => {
-        console.error("uncaught error", e4);
-        dispatch({ kind: "error", error: e4 });
-        messaging2.reportPageException({ message: `${currentService.name()}: failed to fetch initial data: ` + e4.message });
-      });
+      let safezones = [];
+      const controller = new AbortController();
+      window.addEventListener(
+        REGISTER_EVENT,
+        (e4) => {
+          if (isValidEvent(e4)) {
+            safezones.push(e4.detail.dropzone);
+          }
+        },
+        { signal: controller.signal }
+      );
+      window.addEventListener(
+        CLEAR_EVENT,
+        (e4) => {
+          if (isValidEvent(e4)) {
+            const match = safezones.findIndex((x3) => x3 === e4.detail.dropzone);
+            safezones.splice(match, 1);
+          }
+        },
+        { signal: controller.signal }
+      );
+      document.addEventListener(
+        "dragover",
+        (event) => {
+          if (!event.target) return;
+          const target = (
+            /** @type {HTMLElement} */
+            event.target
+          );
+          if (safezones.length > 0) {
+            for (const safezone of safezones) {
+              if (safezone.contains(target)) return;
+            }
+          }
+          let preventDrop = true;
+          if (preventDrop) {
+            event.preventDefault();
+            if (event.dataTransfer) {
+              event.dataTransfer.dropEffect = "none";
+            }
+          }
+        },
+        { signal: controller.signal }
+      );
       return () => {
-        currentService.destroy();
+        controller.abort();
+        safezones = [];
       };
     }, []);
   }
-  function useDataSubscription({ dispatch, service }) {
+  function useDropzoneSafeArea() {
+    const ref = A2(null);
     y2(() => {
-      if (!service.current) return console.warn("could not access service");
-      const unsub = service.current.onData((evt) => {
-        dispatch({ kind: "data", data: evt.data });
+      if (!ref.current) return;
+      const evt = new CustomEvent(REGISTER_EVENT, { detail: { dropzone: ref.current } });
+      window.dispatchEvent(evt);
+      return () => {
+        window.dispatchEvent(new CustomEvent(CLEAR_EVENT, { detail: { dropzone: ref.current } }));
+      };
+    }, []);
+    return ref;
+  }
+  function isValidEvent(input) {
+    return "detail" in input && input.detail.dropzone instanceof HTMLElement;
+  }
+  var REGISTER_EVENT, CLEAR_EVENT;
+  var init_dropzone = __esm({
+    "pages/new-tab/app/dropzone.js"() {
+      "use strict";
+      init_hooks_module();
+      REGISTER_EVENT = "register-dropzone";
+      CLEAR_EVENT = "clear-dropzone";
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/Tile.module.css
+  var Tile_default;
+  var init_Tile = __esm({
+    "pages/new-tab/app/favorites/components/Tile.module.css"() {
+      Tile_default = {
+        item: "Tile_item",
+        icon: "Tile_icon",
+        pulse: "Tile_pulse",
+        preview: "Tile_preview",
+        draggable: "Tile_draggable",
+        text: "Tile_text",
+        placeholder: "Tile_placeholder",
+        plus: "Tile_plus",
+        dropper: "Tile_dropper"
+      };
+    }
+  });
+
+  // shared/components/FaviconWithState.module.css
+  var FaviconWithState_default;
+  var init_FaviconWithState = __esm({
+    "shared/components/FaviconWithState.module.css"() {
+      FaviconWithState_default = {
+        favicon: "FaviconWithState_favicon",
+        faviconLarge: "FaviconWithState_faviconLarge",
+        faviconSmall: "FaviconWithState_faviconSmall",
+        faviconText: "FaviconWithState_faviconText"
+      };
+    }
+  });
+
+  // shared/getColorForString.js
+  function getArrayIndex(str, arrayLength) {
+    const utf8Encoder = new TextEncoder();
+    const bytes = utf8Encoder.encode(str);
+    let hash = BigInt(5381);
+    for (const byte of bytes) {
+      hash = (hash << BigInt(5)) + hash + BigInt(byte);
+      hash = BigInt.asIntN(64, hash);
+    }
+    const index2 = hash % BigInt(arrayLength);
+    return Number(index2 < 0 ? -index2 : index2);
+  }
+  function urlToColor(url6) {
+    if (typeof url6 !== "string") return null;
+    if (urlToColorCache.has(url6)) {
+      return urlToColorCache.get(url6);
+    }
+    const index2 = getArrayIndex(url6, EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
+    const color = EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES[index2];
+    urlToColorCache.set(url6, color);
+    return color;
+  }
+  var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES, urlToColorCache;
+  var init_getColorForString = __esm({
+    "shared/getColorForString.js"() {
+      "use strict";
+      EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES = [
+        "#94B3AF",
+        "#727998",
+        "#645468",
+        "#4D5F7F",
+        "#855DB6",
+        "#5E5ADB",
+        "#678FFF",
+        "#6BB4EF",
+        "#4A9BAE",
+        "#66C4C6",
+        "#55D388",
+        "#99DB7A",
+        "#ECCC7B",
+        "#E7A538",
+        "#DD6B4C",
+        "#D65D62"
+      ];
+      urlToColorCache = /* @__PURE__ */ new Map();
+    }
+  });
+
+  // shared/components/FaviconWithState.js
+  function FaviconWithState({ defaultSize = 64, fallback, fallbackDark, faviconSrc, faviconMax, etldPlusOne, theme, displayKind }) {
+    const size = Math.min(faviconMax, defaultSize);
+    const sizeClass = displayKind === "favorite-tile" ? FaviconWithState_default.faviconLarge : FaviconWithState_default.faviconSmall;
+    const imgsrc = faviconSrc ? faviconSrc + "?preferredSize=" + size : null;
+    const initialState = (() => {
+      if (imgsrc) return states.loading_favicon_src;
+      if (etldPlusOne) return states.using_fallback_text;
+      return states.loading_fallback_img;
+    })();
+    const [state, setState] = d2(
+      /** @type {ImgState} */
+      initialState
+    );
+    switch (state) {
+      /**
+       * These are the happy paths, where we are loading the favicon source and it does not 404
+       */
+      case states.loading_favicon_src:
+      case states.did_load_favicon_src: {
+        if (!imgsrc) {
+          console.warn("unreachable - must have imgsrc here");
+          return null;
+        }
+        return /* @__PURE__ */ _(
+          "img",
+          {
+            src: imgsrc,
+            class: (0, import_classnames2.default)(FaviconWithState_default.favicon, sizeClass),
+            alt: "",
+            "data-state": state,
+            onLoad: () => setState(states.did_load_favicon_src),
+            onError: () => {
+              if (etldPlusOne) {
+                setState(states.using_fallback_text);
+              } else {
+                setState(states.loading_fallback_img);
+              }
+            }
+          }
+        );
+      }
+      /**
+       * A fallback can be applied when the `etldPlusOne` is there. For example,
+       * if `etldPlusOne = 'example.com'`, we can display `Ex` and use the domain name
+       * to select a background color.
+       */
+      case states.using_fallback_text: {
+        if (!etldPlusOne) {
+          console.warn("unreachable - must have etld+1 here");
+          return null;
+        }
+        let style;
+        const fallbackColor = urlToColor(etldPlusOne);
+        if (fallbackColor) {
+          style = { background: fallbackColor };
+        }
+        const chars = etldPlusOne.slice(0, 2);
+        return /* @__PURE__ */ _("div", { class: (0, import_classnames2.default)(FaviconWithState_default.favicon, sizeClass, FaviconWithState_default.faviconText), style, "data-state": state }, /* @__PURE__ */ _("span", { "aria-hidden": true }, chars[0]), /* @__PURE__ */ _("span", { "aria-hidden": true }, chars[1]));
+      }
+      /**
+       * If we get here, we couldn't load the favicon source OR the fallback text
+       * So, we default to a globe icon
+       */
+      case states.loading_fallback_img:
+      case states.did_load_fallback_img: {
+        return /* @__PURE__ */ _(
+          "img",
+          {
+            src: theme === "light" ? fallback : fallbackDark,
+            class: (0, import_classnames2.default)(FaviconWithState_default.favicon, sizeClass),
+            alt: "",
+            "data-state": state,
+            onLoad: () => setState(states.did_load_fallback_img),
+            onError: () => setState(states.fallback_img_failed)
+          }
+        );
+      }
+      default:
+        return null;
+    }
+  }
+  var import_classnames2, states;
+  var init_FaviconWithState2 = __esm({
+    "shared/components/FaviconWithState.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      import_classnames2 = __toESM(require_classnames(), 1);
+      init_FaviconWithState();
+      init_getColorForString();
+      states = /** @type {Record<ImgState, ImgState>} */
+      {
+        loading_favicon_src: "loading_favicon_src",
+        did_load_favicon_src: "did_load_favicon_src",
+        loading_fallback_img: "loading_fallback_img",
+        did_load_fallback_img: "did_load_fallback_img",
+        fallback_img_failed: "fallback_img_failed",
+        using_fallback_text: "using_fallback_text"
+      };
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/Tile.js
+  function Placeholder() {
+    const id = g2();
+    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { class: (0, import_classnames3.default)(Tile_default.icon, Tile_default.placeholder) }, "\xA0"), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+  }
+  function PlusIconWrapper({ onClick }) {
+    const id = g2();
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {import('../strings.json')} */
+      {}
+    );
+    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames3.default)(Tile_default.icon, Tile_default.plus, Tile_default.draggable), "aria-labelledby": id, onClick }, /* @__PURE__ */ _(PlusIcon, null)), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, t4("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+  }
+  var import_classnames3, Tile, PlusIconMemo;
+  var init_Tile2 = __esm({
+    "pages/new-tab/app/favorites/components/Tile.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames3 = __toESM(require_classnames(), 1);
+      init_hooks_module();
+      init_compat_module();
+      init_Tile();
+      init_constants();
+      init_PragmaticDND();
+      init_types();
+      init_Icons2();
+      init_FaviconWithState2();
+      Tile = M2(
+        /**
+         * @param {object} props
+         * @param {Favorite['url']} props.url
+         * @param {Favorite['etldPlusOne']} props.etldPlusOne
+         * @param {Favorite['id']} props.id
+         * @param {Favorite['title']} props.title
+         * @param {string|null|undefined} props.faviconSrc
+         * @param {number|null|undefined} props.faviconMax
+         * @param {Document['visibilityState']} props.visibility - whether this item is actually visible on screen, or not
+         * @param {"dark"|"light"} props.theme
+         * @param {number} props.index
+         * @param {boolean} props.animateItems
+         */
+        function Tile2({ url: url6, etldPlusOne, faviconSrc, faviconMax, theme, index: index2, title, id, visibility, animateItems }) {
+          const { state, ref } = useItemState(url6, id, {
+            kind: "draggable",
+            class: Tile_default.preview,
+            theme
+          });
+          const tileId = g2();
+          return /* @__PURE__ */ _(
+            "a",
+            {
+              class: Tile_default.item,
+              tabindex: 0,
+              href: url6,
+              "data-id": id,
+              "data-index": index2,
+              "data-edge": "closestEdge" in state && state.closestEdge,
+              "aria-labelledby": tileId,
+              style: animateItems ? { viewTransitionName: `Tile-${id}` } : void 0,
+              ref
+            },
+            /* @__PURE__ */ _("div", { class: (0, import_classnames3.default)(Tile_default.icon, Tile_default.draggable) }, visibility === "visible" && /* @__PURE__ */ _(
+              FaviconWithState,
+              {
+                faviconSrc,
+                faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE,
+                theme,
+                etldPlusOne,
+                displayKind: "favorite-tile",
+                fallback: DDG_FALLBACK_ICON,
+                fallbackDark: DDG_FALLBACK_ICON_DARK
+              }
+            )),
+            /* @__PURE__ */ _("div", { class: Tile_default.text, id: tileId }, title),
+            state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
+          );
+        }
+      );
+      PlusIconMemo = M2(PlusIconWrapper);
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/TileRow.js
+  var TileRow;
+  var init_TileRow = __esm({
+    "pages/new-tab/app/favorites/components/TileRow.js"() {
+      "use strict";
+      init_Favorites();
+      init_Tile2();
+      init_preact_module();
+      init_compat_module();
+      init_Favorites2();
+      init_hooks_module();
+      TileRow = M2(
+        /**
+         * Represents a row of tiles with optional placeholders to fill empty spaces in the first row.
+         * @param {object} props - An object containing parameters for the TileRow_ function.
+         * @param {number} props.topOffset - The top offset position of the row (relative to the container)
+         * @param {Favorite[]} props.items - An array of favorites to be displayed as tiles in the row.
+         * @param {Document['visibilityState']} props.visibility - whether this item is actually visible
+         * @param {() => void} props.add - A function to be called when a new item is added to the row.
+         */
+        function TileRow2({ topOffset, items, add: add2, visibility }) {
+          const fillers = ROW_CAPACITY - items.length;
+          const { theme, animateItems } = x2(FavoritesThemeContext);
+          return /* @__PURE__ */ _("ul", { className: Favorites_default.gridRow, style: { transform: `translateY(${topOffset}px)` } }, items.map((item, index2) => {
+            return /* @__PURE__ */ _(
+              Tile,
+              {
+                url: item.url,
+                etldPlusOne: item.etldPlusOne,
+                faviconSrc: item.favicon?.src,
+                faviconMax: item.favicon?.maxAvailableSize,
+                title: item.title,
+                key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize + visibility,
+                id: item.id,
+                index: index2,
+                visibility,
+                theme,
+                animateItems: animateItems.value
+              }
+            );
+          }), fillers > 0 && Array.from({ length: fillers }).map((_5, fillerIndex) => {
+            if (fillerIndex === 0) {
+              return /* @__PURE__ */ _(PlusIconMemo, { key: `placeholder-plus-${items.length}`, onClick: add2 });
+            }
+            return /* @__PURE__ */ _(Placeholder, { key: `placeholder-${items.length}` });
+          }));
+        }
+      );
+    }
+  });
+
+  // pages/new-tab/app/components/BackgroundReceiver.module.css
+  var BackgroundReceiver_default;
+  var init_BackgroundReceiver = __esm({
+    "pages/new-tab/app/components/BackgroundReceiver.module.css"() {
+      BackgroundReceiver_default = {
+        root: "BackgroundReceiver_root",
+        "fade-in": "BackgroundReceiver_fade-in"
+      };
+    }
+  });
+
+  // pages/new-tab/app/customizer/values.js
+  var values;
+  var init_values = __esm({
+    "pages/new-tab/app/customizer/values.js"() {
+      "use strict";
+      values = {
+        colors: {
+          color01: { hex: "#000000", colorScheme: "dark" },
+          color02: { hex: "#342e42", colorScheme: "dark" },
+          color03: { hex: "#4d5f7f", colorScheme: "dark" },
+          color04: { hex: "#9a979d", colorScheme: "dark" },
+          color05: { hex: "#dbdddf", colorScheme: "light" },
+          color06: { hex: "#577de4", colorScheme: "dark" },
+          color07: { hex: "#75b9f0", colorScheme: "light" },
+          color08: { hex: "#5552ac", colorScheme: "dark" },
+          color09: { hex: "#b79ed4", colorScheme: "light" },
+          color10: { hex: "#e4def2", colorScheme: "light" },
+          color11: { hex: "#b5e2ce", colorScheme: "light" },
+          color12: { hex: "#5bc787", colorScheme: "light" },
+          color13: { hex: "#4594a7", colorScheme: "dark" },
+          color14: { hex: "#e9dccd", colorScheme: "light" },
+          color15: { hex: "#f3bb44", colorScheme: "light" },
+          color16: { hex: "#e5724f", colorScheme: "light" },
+          color17: { hex: "#d55154", colorScheme: "dark" },
+          color18: { hex: "#f7dee5", colorScheme: "light" },
+          color19: { hex: "#e28499", colorScheme: "light" }
+        },
+        gradients: {
+          gradient01: { path: "gradients/gradient01.svg", fallback: "#f2e5d4", colorScheme: "light" },
+          gradient02: { path: "gradients/gradient02.svg", fallback: "#d5bcd1", colorScheme: "light" },
+          /**
+           * Note: the following name `gradient02.01` is used to allow migration for existing macOS users.
+           * When switching to the web-based NTP, we introduced an eight gradient to round-out the columns, but
+           * the colors in the gradient meant it needed to be wedged in between 02 and 03.
+           */
+          "gradient02.01": { path: "gradients/gradient02.01.svg", fallback: "#f4ca78", colorScheme: "light" },
+          gradient03: { path: "gradients/gradient03.svg", fallback: "#e6a356", colorScheme: "light" },
+          gradient04: { path: "gradients/gradient04.svg", fallback: "#4448ae", colorScheme: "dark" },
+          gradient05: { path: "gradients/gradient05.svg", fallback: "#a55778", colorScheme: "dark" },
+          gradient06: { path: "gradients/gradient06.svg", fallback: "#222566", colorScheme: "dark" },
+          gradient07: { path: "gradients/gradient07.svg", fallback: "#0e0e3d", colorScheme: "dark" }
+        },
+        userImages: {
+          "01": {
+            colorScheme: "dark",
+            id: "01",
+            src: "backgrounds/bg-01.jpg",
+            thumb: "backgrounds/bg-01-thumb.jpg"
+          },
+          "02": {
+            colorScheme: "light",
+            id: "02",
+            src: "backgrounds/bg-02.jpg",
+            thumb: "backgrounds/bg-02-thumb.jpg"
+          },
+          "03": {
+            colorScheme: "light",
+            id: "03",
+            src: "backgrounds/bg-03.jpg",
+            thumb: "backgrounds/bg-03-thumb.jpg"
+          }
+        }
+      };
+    }
+  });
+
+  // pages/new-tab/app/customizer/utils.js
+  function detectThemeFromHex(backgroundColor) {
+    const hex = backgroundColor.replace("#", "");
+    const r4 = parseInt(hex.slice(0, 2), 16);
+    const g6 = parseInt(hex.slice(2, 4), 16);
+    const b4 = parseInt(hex.slice(4, 6), 16);
+    const luminance = 0.2126 * r4 + 0.7152 * g6 + 0.0722 * b4;
+    return luminance < 128 ? "dark" : "light";
+  }
+  function applyDefaultStyles(defaultStyles) {
+    if (defaultStyles?.lightBackgroundColor) {
+      document.body.style.setProperty("--default-light-background-color", defaultStyles.lightBackgroundColor);
+    }
+    if (defaultStyles?.darkBackgroundColor) {
+      document.body.style.setProperty("--default-dark-background-color", defaultStyles.darkBackgroundColor);
+    }
+  }
+  var init_utils = __esm({
+    "pages/new-tab/app/customizer/utils.js"() {
+      "use strict";
+    }
+  });
+
+  // pages/new-tab/app/components/BackgroundProvider.js
+  function inferSchemeFrom(background, browserTheme, system) {
+    const browser = themeFromBrowser(browserTheme, system);
+    switch (background.kind) {
+      case "default":
+        return { bg: browser, browser };
+      case "color": {
+        const color = values.colors[background.value];
+        return { bg: color.colorScheme, browser };
+      }
+      case "gradient": {
+        const gradient = values.gradients[background.value];
+        return { bg: gradient.colorScheme, browser };
+      }
+      case "userImage":
+        return { bg: background.value.colorScheme, browser };
+      case "hex":
+        return { bg: detectThemeFromHex(background.value), browser };
+    }
+  }
+  function themeFromBrowser(browserTheme, system) {
+    if (browserTheme === "system") {
+      return system;
+    }
+    return browserTheme;
+  }
+  function BackgroundConsumer({ browser }) {
+    const { data: data2 } = x2(CustomizerContext);
+    const background = data2.value.background;
+    useSignalEffect(() => {
+      const background2 = data2.value.background;
+      document.body.dataset.backgroundKind = background2.kind;
+      let nextBodyBackground = "";
+      if (background2.kind === "gradient") {
+        const gradient = values.gradients[background2.value];
+        nextBodyBackground = gradient.fallback;
+      }
+      if (background2.kind === "color") {
+        const color = values.colors[background2.value];
+        nextBodyBackground = color.hex;
+      }
+      if (background2.kind === "hex") {
+        nextBodyBackground = background2.value;
+      }
+      if (background2.kind === "userImage") {
+        const isDark = background2.value.colorScheme === "dark";
+        nextBodyBackground = isDark ? "var(--default-dark-background-color)" : "var(--default-light-background-color)";
+      }
+      if (background2.kind === "default") {
+        nextBodyBackground = browser.value === "dark" ? "var(--default-dark-background-color)" : "var(--default-light-background-color)";
+      }
+      document.body.style.setProperty("background-color", nextBodyBackground);
+      if (!document.body.dataset.animateBackground) {
+        requestAnimationFrame(() => {
+          document.body.dataset.animateBackground = "true";
+        });
+      }
+    });
+    switch (background.kind) {
+      case "color":
+      case "default":
+      case "hex": {
+        return null;
+      }
+      case "userImage": {
+        const img = background.value;
+        return /* @__PURE__ */ _(ImageCrossFade, { src: img.src });
+      }
+      case "gradient": {
+        const gradient = values.gradients[background.value];
+        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(ImageCrossFade, { src: gradient.path }), /* @__PURE__ */ _(
+          "div",
+          {
+            className: BackgroundReceiver_default.root,
+            style: {
+              backgroundImage: `url(gradients/grain.png)`,
+              backgroundRepeat: "repeat",
+              opacity: 0.5,
+              mixBlendMode: "soft-light"
+            }
+          }
+        ));
+      }
+      default: {
+        console.warn("Unreachable!");
+        return null;
+      }
+    }
+  }
+  function ImageCrossFade_({ src }) {
+    const [state, setState] = d2({
+      /** @type {ImgState} */
+      value: states2.idle,
+      current: src,
+      next: src
+    });
+    y2(() => {
+      let img = new Image();
+      let cancelled = false;
+      setState((prev) => {
+        const nextState = prev.value === states2.idle ? states2.loadingFirst : states2.loading;
+        return { ...prev, value: nextState };
+      });
+      let handler = () => {
+        if (cancelled) return;
+        setState((prev) => {
+          if (prev.value === states2.loading) {
+            return { ...prev, value: states2.fading, next: src };
+          }
+          return prev;
+        });
+      };
+      img.addEventListener("load", handler);
+      img.src = src;
+      return () => {
+        cancelled = true;
+        if (img && handler) {
+          img.removeEventListener("load", handler);
+          img = void 0;
+          handler = void 0;
+        }
+      };
+    }, [src]);
+    switch (state.value) {
+      case states2.settled:
+      case states2.loadingFirst:
+        return /* @__PURE__ */ _("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" });
+      case states2.loading:
+      case states2.fading:
+        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" }), /* @__PURE__ */ _(
+          "img",
+          {
+            class: BackgroundReceiver_default.root,
+            "data-state": state.value,
+            src: state.next,
+            onLoad: (e4) => {
+              const elem2 = (
+                /** @type {HTMLImageElement} */
+                e4.target
+              );
+              elem2.style.opacity = "0";
+              const anim = elem2.animate([{ opacity: "0" }, { opacity: "1" }], {
+                duration: 250,
+                iterations: 1,
+                fill: "both"
+              });
+              anim.onfinish = () => {
+                setState((prev) => {
+                  return { ...prev, value: states2.settled, current: prev.next, next: prev.next };
+                });
+              };
+            }
+          }
+        ));
+      default:
+        return null;
+    }
+  }
+  var states2, ImageCrossFade;
+  var init_BackgroundProvider = __esm({
+    "pages/new-tab/app/components/BackgroundProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_BackgroundReceiver();
+      init_values();
+      init_hooks_module();
+      init_CustomizerProvider();
+      init_utils();
+      init_signals_module();
+      init_compat_module();
+      states2 = {
+        idle: "idle",
+        loadingFirst: "loadingFirst",
+        loading: "loading",
+        fading: "fading",
+        settled: "settled"
+      };
+      ImageCrossFade = M2(ImageCrossFade_);
+    }
+  });
+
+  // pages/new-tab/app/customizer/themes.js
+  function useThemes(data2) {
+    const mq = useSignal(mediaQueryList.matches ? "dark" : "light");
+    useSignalEffect(() => {
+      const listener = (e4) => {
+        mq.value = e4.matches ? "dark" : "light";
+      };
+      mediaQueryList.addEventListener("change", listener);
+      return () => mediaQueryList.removeEventListener("change", listener);
+    });
+    const main = useComputed(() => {
+      return inferSchemeFrom(data2.value.background, data2.value.theme, mq.value).bg;
+    });
+    const browser = useComputed(() => {
+      return themeFromBrowser(data2.value.theme, mq.value);
+    });
+    return { main, browser };
+  }
+  var THEME_QUERY2, mediaQueryList;
+  var init_themes = __esm({
+    "pages/new-tab/app/customizer/themes.js"() {
+      "use strict";
+      init_signals_module();
+      init_BackgroundProvider();
+      THEME_QUERY2 = "(prefers-color-scheme: dark)";
+      mediaQueryList = window.matchMedia(THEME_QUERY2);
+    }
+  });
+
+  // pages/new-tab/app/customizer/CustomizerProvider.js
+  function CustomizerProvider({ service, initialData, children }) {
+    const data2 = useSignal(initialData);
+    const { main, browser } = useThemes(data2);
+    useSignalEffect(() => {
+      const unsub = service.onBackground((evt) => {
+        data2.value = { ...data2.value, background: evt.data.background };
+      });
+      const unsub1 = service.onTheme((evt) => {
+        data2.value = { ...data2.value, theme: evt.data.theme };
+      });
+      const unsub2 = service.onImages((evt) => {
+        data2.value = { ...data2.value, userImages: evt.data.userImages };
+      });
+      const unsub3 = service.onColor((evt) => {
+        data2.value = { ...data2.value, userColor: evt.data.userColor };
+      });
+      return () => {
+        unsub();
+        unsub1();
+        unsub2();
+        unsub3();
+      };
+    });
+    useSignalEffect(() => {
+      const unsub = service.onTheme((evt) => {
+        if (evt.source === "subscription") {
+          applyDefaultStyles(evt.data.defaultStyles);
+        }
       });
       return () => {
         unsub();
       };
-    }, [service, dispatch]);
-  }
-  function useConfigSubscription({ dispatch, service }) {
-    const toggle = q2(() => {
-      service.current?.toggleExpansion();
-    }, [service, dispatch]);
-    y2(() => {
-      if (!service.current) return console.warn("could not access service");
-      const unsub2 = service.current.onConfig((data2) => {
-        dispatch({ kind: "config", config: data2.data });
-      });
-      return () => {
-        unsub2();
-      };
+    });
+    const select = q2(
+      (bg) => {
+        service.setBackground(bg);
+      },
+      [service]
+    );
+    const upload = q2(() => {
+      service.upload();
     }, [service]);
-    return { toggle };
+    const setTheme = q2(
+      (theme) => {
+        service.setTheme(theme);
+      },
+      [service]
+    );
+    const deleteImage = q2(
+      (id) => {
+        service.deleteImage(id);
+      },
+      [service]
+    );
+    const customizerContextMenu = q2((params) => service.contextMenu(params), [service]);
+    return /* @__PURE__ */ _(CustomizerContext.Provider, { value: { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu } }, /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser } }, children));
   }
-  var init_service_hooks = __esm({
-    "pages/new-tab/app/service.hooks.js"() {
+  var CustomizerThemesContext, CustomizerContext;
+  var init_CustomizerProvider = __esm({
+    "pages/new-tab/app/customizer/CustomizerProvider.js"() {
       "use strict";
+      init_preact_module();
       init_hooks_module();
-      init_types();
+      init_signals_module();
+      init_themes();
+      init_utils();
+      CustomizerThemesContext = K({
+        /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
+        main: d3("light"),
+        /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
+        browser: d3("light")
+      });
+      CustomizerContext = K({
+        /** @type {import("@preact/signals").Signal<CustomizerData>} */
+        data: d3({
+          background: { kind: "default" },
+          userImages: [],
+          userColor: null,
+          theme: "system"
+        }),
+        /** @type {(bg: BackgroundData) => void} */
+        select: (_5) => {
+        },
+        upload: () => {
+        },
+        /**
+         * @type {(theme: ThemeData) => void}
+         */
+        setTheme: (_5) => {
+        },
+        /**
+         * @type {(id: string) => void}
+         */
+        deleteImage: (_5) => {
+        },
+        /**
+         * @param {UserImageContextMenu} _params
+         */
+        customizerContextMenu: (_params) => {
+        }
+      });
     }
   });
 
-  // pages/new-tab/app/service.js
-  var Service;
-  var init_service = __esm({
-    "pages/new-tab/app/service.js"() {
+  // pages/new-tab/app/utils.js
+  function viewTransition(fn2) {
+    if ("startViewTransition" in document && typeof document.startViewTransition === "function") {
+      return document.startViewTransition(fn2);
+    }
+    return fn2();
+  }
+  function noop(named) {
+    return () => {
+      console.log(named, "noop");
+    };
+  }
+  function eventToTarget(event, platformName) {
+    const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
+    if (isControlClick) {
+      return "new-tab";
+    } else if (event.shiftKey) {
+      return "new-window";
+    } else if (event.button === 1) {
+      return "new-tab";
+    }
+    return "same-tab";
+  }
+  function useOnMiddleClick(ref, handler) {
+    y2(() => {
+      const element = ref.current;
+      if (!element) return;
+      const handleAuxClick = (event) => event.button === 1 && handler(event);
+      element.addEventListener("auxclick", handleAuxClick);
+      return () => {
+        element.removeEventListener("auxclick", handleAuxClick);
+      };
+    }, [ref, handler]);
+  }
+  var init_utils2 = __esm({
+    "pages/new-tab/app/utils.js"() {
       "use strict";
-      Service = class {
-        eventTarget = new EventTarget();
-        DEBOUNCE_TIME_MS = 200;
-        _broadcast = true;
-        /** @type {undefined|((old: Data, next: Data, trigger: InvocationSource) => Data)} */
-        accept;
-        /**
-         * @param {object} props
-         * @param {(arg?: any) => Promise<Data>} [props.initial]
-         * @param {(fn: (t: Data) => void) => () => void} [props.subscribe] - optional subscribe
-         * @param {(t: Data) => void} [props.persist] - optional persist method
-         * @param {(old: Data, next: Data) => Data} [props.update] - optional updater
-         * @param {Data|null} [initial] - optional initial data
-         */
-        constructor(props, initial) {
-          this.impl = props;
-          if (initial) {
-            this.data = initial;
-          } else {
-            this.data = null;
+      init_hooks_module();
+    }
+  });
+
+  // shared/components/DocumentVisibility.js
+  function DocumentVisibilityProvider({ children }) {
+    const initial = document.visibilityState;
+    const [documentVisibility, setDocumentVisibility] = d2(initial);
+    y2(() => {
+      const handleVisibilityChange = () => {
+        setDocumentVisibility(document.visibilityState);
+      };
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    }, []);
+    return /* @__PURE__ */ _(DocumentVisibilityContext.Provider, { value: documentVisibility }, children);
+  }
+  function useDocumentVisibility() {
+    return x2(DocumentVisibilityContext);
+  }
+  var DocumentVisibilityContext;
+  var init_DocumentVisibility = __esm({
+    "shared/components/DocumentVisibility.js"() {
+      "use strict";
+      init_hooks_module();
+      init_preact_module();
+      DocumentVisibilityContext = K(
+        /** @type {DocumentVisibilityState} */
+        "hidden"
+      );
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/Favorites.js
+  function Favorites({ favorites: favorites2, expansion, toggle, openContextMenu, openFavorite, add: add2, canAnimateItems }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {import('../strings.json')} */
+      {}
+    );
+    const WIDGET_ID = g2();
+    const TOGGLE_ID = g2();
+    const hiddenCount = expansion === "collapsed" ? favorites2.length - ROW_CAPACITY : 0;
+    const rowHeight = ITEM_HEIGHT + ROW_GAP;
+    const canToggleExpansion = favorites2.length >= ROW_CAPACITY;
+    const { data: data2 } = x2(CustomizerContext);
+    const { main } = x2(CustomizerThemesContext);
+    const kind = useComputed(() => data2.value.background.kind);
+    const animateItems = useComputed(() => {
+      return canAnimateItems && kind.value !== "userImage";
+    });
+    return /* @__PURE__ */ _(FavoritesThemeContext.Provider, { value: { theme: main.value, animateItems } }, /* @__PURE__ */ _("div", { class: Favorites_default.root, "data-testid": "FavoritesConfigured", "data-background-kind": kind }, /* @__PURE__ */ _(
+      VirtualizedGridRows,
+      {
+        WIDGET_ID,
+        favorites: favorites2,
+        rowHeight,
+        add: add2,
+        expansion,
+        openFavorite,
+        openContextMenu
+      }
+    ), canToggleExpansion && /* @__PURE__ */ _(ShowHideBar, null, /* @__PURE__ */ _(
+      ShowHideButtonPill,
+      {
+        buttonAttrs: {
+          "aria-expanded": expansion === "expanded",
+          "aria-pressed": expansion === "expanded",
+          "aria-controls": WIDGET_ID,
+          id: TOGGLE_ID
+        },
+        text: expansion === "expanded" ? t4("ntp_show_less") : t4("ntp_show_more"),
+        label: expansion === "expanded" ? t4("favorites_show_less") : t4("favorites_show_more", { count: String(hiddenCount) }),
+        onClick: toggle
+      }
+    ))));
+  }
+  function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites: favorites2, expansion, openFavorite, openContextMenu, add: add2 }) {
+    const platformName = usePlatformName();
+    const visibility = useDocumentVisibility();
+    const rows = T2(() => {
+      const chunked = [];
+      let inner = [];
+      for (let i5 = 0; i5 < favorites2.length; i5++) {
+        inner.push(favorites2[i5]);
+        if (inner.length === ROW_CAPACITY) {
+          chunked.push(inner.slice());
+          inner = [];
+        }
+        if (i5 === favorites2.length - 1) {
+          chunked.push(inner.slice());
+          inner = [];
+        }
+      }
+      return chunked;
+    }, [favorites2]);
+    const safeAreaRef = (
+      /** @type {import("preact").RefObject<HTMLDivElement>} */
+      useDropzoneSafeArea()
+    );
+    const containerHeight = expansion === "collapsed" || rows.length === 0 ? rowHeight : rows.length * rowHeight;
+    const clickHandler = getOnClickHandler(openFavorite, platformName);
+    useOnMiddleClick(safeAreaRef, clickHandler);
+    return /* @__PURE__ */ _(
+      "div",
+      {
+        className: Favorites_default.grid,
+        style: { height: containerHeight + "px" },
+        id: WIDGET_ID,
+        ref: safeAreaRef,
+        onContextMenu: getContextMenuHandler(openContextMenu),
+        onClick: clickHandler
+      },
+      rows.length === 0 && /* @__PURE__ */ _(TileRow, { key: "empty-rows", items: [], topOffset: 0, add: add2, visibility: "visible" }),
+      rows.length > 0 && /* @__PURE__ */ _(Inner, { rows, safeAreaRef, rowHeight, add: add2, visibility })
+    );
+  }
+  function Inner({ rows, safeAreaRef, rowHeight, add: add2, visibility }) {
+    const { onConfigChanged, state } = x2(FavoritesContext);
+    const [expansion, setExpansion] = d2(state.config?.expansion || "collapsed");
+    const { start: start2, end } = useVisibleRows(rows, rowHeight, safeAreaRef, expansion);
+    y2(() => {
+      return onConfigChanged((config) => {
+        if (config.expansion === "expanded") {
+          setTimeout(() => {
+            setExpansion(config.expansion);
+          }, 0);
+        } else {
+          setExpansion(config.expansion);
+        }
+      });
+    }, [onConfigChanged]);
+    const subsetOfRowsToRender = expansion === "collapsed" ? [rows[0]] : rows.slice(start2, end + 1);
+    return /* @__PURE__ */ _(k, null, subsetOfRowsToRender.map((items, rowIndex) => {
+      const topOffset = expansion === "expanded" ? (start2 + rowIndex) * rowHeight : 0;
+      const keyed = `-${start2 + rowIndex}-`;
+      return /* @__PURE__ */ _(TileRow, { key: keyed, items, topOffset, add: add2, visibility });
+    }));
+  }
+  function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
+    const [{ start: start2, end }, setVisibleRange] = d2({ start: 0, end: 1 });
+    const gridOffsetRef = A2(0);
+    const mainScrollerRef = A2(
+      /** @type {Element|null} */
+      null
+    );
+    const contentTubeRef = A2(
+      /** @type {Element|null} */
+      null
+    );
+    function updateGlobals() {
+      if (!safeAreaRef.current) return;
+      const rec = safeAreaRef.current.getBoundingClientRect();
+      gridOffsetRef.current = rec.y + mainScrollerRef.current?.scrollTop;
+    }
+    function setVisibleRowsForOffset(rowCount) {
+      if (!safeAreaRef.current) return console.warn("cannot access ref");
+      const scrollY = mainScrollerRef.current?.scrollTop ?? 0;
+      const offset = gridOffsetRef.current;
+      const end2 = scrollY + window.innerHeight - offset;
+      let start3;
+      if (offset > scrollY) {
+        start3 = 0;
+      } else {
+        start3 = scrollY - offset;
+      }
+      const startIndex = Math.floor(start3 / rowHeight);
+      const endIndex = Math.min(Math.ceil(end2 / rowHeight), rowCount);
+      setVisibleRange((prev) => {
+        if (startIndex !== prev.start || endIndex !== prev.end) {
+          return { start: startIndex, end: endIndex };
+        }
+        return prev;
+      });
+    }
+    _2(() => {
+      if (expansion === "collapsed") return;
+      mainScrollerRef.current = document.querySelector("[data-main-scroller]") || document.documentElement;
+      contentTubeRef.current = document.querySelector("[data-content-tube]") || document.body;
+      if (!contentTubeRef.current || !mainScrollerRef.current) console.warn("missing elements");
+      updateGlobals();
+      setVisibleRowsForOffset(rows.length);
+      const controller = new AbortController();
+      mainScrollerRef.current?.addEventListener(
+        "scroll",
+        () => {
+          setVisibleRowsForOffset(rows.length);
+        },
+        { signal: controller.signal }
+      );
+      return () => {
+        controller.abort();
+      };
+    }, [rows.length, expansion]);
+    y2(() => {
+      let lastWindowHeight = window.innerHeight;
+      function handler() {
+        if (lastWindowHeight === window.innerHeight) return;
+        lastWindowHeight = window.innerHeight;
+        updateGlobals();
+        setVisibleRowsForOffset(rows.length);
+      }
+      window.addEventListener("resize", handler);
+      return () => {
+        return window.removeEventListener("resize", handler);
+      };
+    }, [rows.length]);
+    y2(() => {
+      if (!contentTubeRef.current) return;
+      let lastHeight;
+      let debounceTimer;
+      const resizer = new ResizeObserver((entries4) => {
+        const first = entries4[0];
+        if (!first || !first.contentRect) return;
+        if (first.contentRect.height !== lastHeight) {
+          lastHeight = first.contentRect.height;
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            updateGlobals();
+            setVisibleRowsForOffset(rows.length);
+          }, 50);
+        }
+      });
+      resizer.observe(contentTubeRef.current);
+      return () => {
+        resizer.disconnect();
+        clearTimeout(debounceTimer);
+      };
+    }, [rows.length]);
+    return { start: start2, end };
+  }
+  function getContextMenuHandler(openContextMenu) {
+    return (event) => {
+      let target = (
+        /** @type {HTMLElement|null} */
+        event.target
+      );
+      while (target && target !== event.currentTarget) {
+        if (typeof target.dataset.id === "string" && "href" in target && typeof target.href === "string") {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return openContextMenu(target.dataset.id);
+        } else {
+          target = target.parentElement;
+        }
+      }
+    };
+  }
+  function getOnClickHandler(openFavorite, platformName) {
+    return (event) => {
+      const target = (
+        /** @type {HTMLElement|null} */
+        event.target
+      );
+      if (!target) return;
+      const anchor = (
+        /** @type {HTMLAnchorElement|null} */
+        target.closest("a[href][data-id]")
+      );
+      if (anchor && anchor.dataset.id) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const openTarget = eventToTarget(event, platformName);
+        return openFavorite(anchor.dataset.id, anchor.href, openTarget);
+      }
+    };
+  }
+  var FavoritesMemo, ROW_CAPACITY, ITEM_HEIGHT, ROW_GAP, FavoritesThemeContext;
+  var init_Favorites2 = __esm({
+    "pages/new-tab/app/favorites/components/Favorites.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_compat_module();
+      init_Favorites();
+      init_ShowHideButton();
+      init_types();
+      init_settings_provider();
+      init_dropzone();
+      init_TileRow();
+      init_FavoritesProvider();
+      init_CustomizerProvider();
+      init_signals_module();
+      init_utils2();
+      init_DocumentVisibility();
+      FavoritesMemo = M2(Favorites);
+      ROW_CAPACITY = 6;
+      ITEM_HEIGHT = 96;
+      ROW_GAP = 8;
+      FavoritesThemeContext = K({
+        theme: (
+          /** @type {"light"|"dark"} */
+          "light"
+        ),
+        animateItems: d3(false)
+      });
+    }
+  });
+
+  // pages/new-tab/app/favorites/components/FavoritesCustomized.js
+  function FavoritesConsumer() {
+    const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2 } = x2(FavoritesContext);
+    const telemetry2 = useTelemetry();
+    const { data: backgroundData } = x2(CustomizerContext);
+    function didReorder(data2) {
+      const background = backgroundData.value.background;
+      const supportsViewTransitions = state.config?.animation?.kind === "view-transitions" && background.kind !== "userImage";
+      if (supportsViewTransitions) {
+        viewTransition(() => {
+          favoritesDidReOrder(data2);
+        });
+      } else {
+        favoritesDidReOrder(data2);
+      }
+    }
+    if (state.status === "ready") {
+      telemetry2.measureFromPageLoad("favorites-will-render", "time to favorites");
+      return /* @__PURE__ */ _(PragmaticDND, { items: state.data.favorites, itemsDidReOrder: didReorder }, /* @__PURE__ */ _(
+        FavoritesMemo,
+        {
+          favorites: state.data.favorites,
+          expansion: state.config.expansion,
+          canAnimateItems: state.config?.animation?.kind === "view-transitions",
+          openContextMenu,
+          openFavorite,
+          add: add2,
+          toggle
+        }
+      ));
+    }
+    return null;
+  }
+  function FavoritesCustomized() {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {import("../strings.json")} */
+      {}
+    );
+    const { id, visibility, toggle, index: index2 } = useVisibility();
+    const title = t4("favorites_menu_title");
+    useCustomizer({ title, id, icon: "star", toggle, visibility: visibility.value, index: index2 });
+    if (visibility.value === "hidden") {
+      return null;
+    }
+    return /* @__PURE__ */ _(FavoritesProvider, null, /* @__PURE__ */ _(FavoritesConsumer, null));
+  }
+  var init_FavoritesCustomized = __esm({
+    "pages/new-tab/app/favorites/components/FavoritesCustomized.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_widget_config_provider();
+      init_CustomizerMenu();
+      init_FavoritesProvider();
+      init_PragmaticDND();
+      init_Favorites2();
+      init_utils2();
+      init_CustomizerProvider();
+    }
+  });
+
+  // pages/new-tab/app/entry-points/favorites.js
+  var favorites_exports = {};
+  __export(favorites_exports, {
+    factory: () => factory2
+  });
+  function factory2() {
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "favorites" }, /* @__PURE__ */ _(FavoritesCustomized, null));
+  }
+  var init_favorites = __esm({
+    "pages/new-tab/app/entry-points/favorites.js"() {
+      "use strict";
+      init_preact_module();
+      init_Layout();
+      init_FavoritesCustomized();
+    }
+  });
+
+  // shared/components/Button/Button.module.css
+  var Button_default;
+  var init_Button = __esm({
+    "shared/components/Button/Button.module.css"() {
+      Button_default = {
+        button: "Button_button",
+        standard: "Button_standard",
+        accent: "Button_accent",
+        accentBrand: "Button_accentBrand",
+        primary: "Button_primary",
+        ghost: "Button_ghost"
+      };
+    }
+  });
+
+  // shared/components/Button/Button.js
+  function Button({ variant, className, children, onClick, type = "button" }) {
+    return /* @__PURE__ */ _(
+      "button",
+      {
+        className: (0, import_classnames4.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
+        type,
+        onClick: (
+          /**
+           * @param {import("preact").JSX.TargetedMouseEvent<EventTarget>} event
+           */
+          (event) => {
+            if (onClick) {
+              onClick(event);
+            }
           }
-        }
+        )
+      },
+      children
+    );
+  }
+  var import_classnames4;
+  var init_Button2 = __esm({
+    "shared/components/Button/Button.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames4 = __toESM(require_classnames(), 1);
+      init_Button();
+    }
+  });
+
+  // pages/new-tab/app/components/DismissButton.module.css
+  var DismissButton_default;
+  var init_DismissButton = __esm({
+    "pages/new-tab/app/components/DismissButton.module.css"() {
+      DismissButton_default = {
+        btn: "DismissButton_btn"
+      };
+    }
+  });
+
+  // pages/new-tab/app/components/DismissButton.jsx
+  function DismissButton({ className, onClick, buttonProps = {} }) {
+    const { t: t4 } = useTypedTranslation();
+    return /* @__PURE__ */ _("button", { class: (0, import_classnames5.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ _(Cross, null));
+  }
+  var import_classnames5;
+  var init_DismissButton2 = __esm({
+    "pages/new-tab/app/components/DismissButton.jsx"() {
+      "use strict";
+      init_preact_module();
+      import_classnames5 = __toESM(require_classnames(), 1);
+      init_Icons2();
+      init_types();
+      init_DismissButton();
+    }
+  });
+
+  // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.module.css
+  var FreemiumPIRBanner_default;
+  var init_FreemiumPIRBanner = __esm({
+    "pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.module.css"() {
+      FreemiumPIRBanner_default = {
+        root: "FreemiumPIRBanner_root",
+        icon: "FreemiumPIRBanner_icon",
+        "animate-fade": "FreemiumPIRBanner_animate-fade",
+        iconBlock: "FreemiumPIRBanner_iconBlock",
+        content: "FreemiumPIRBanner_content",
+        title: "FreemiumPIRBanner_title",
+        description: "FreemiumPIRBanner_description",
+        btnBlock: "FreemiumPIRBanner_btnBlock",
+        btnRow: "FreemiumPIRBanner_btnRow",
+        dismissBtn: "FreemiumPIRBanner_dismissBtn"
+      };
+    }
+  });
+
+  // pages/new-tab/app/freemium-pir-banner/freemiumPIRBanner.service.js
+  var FreemiumPIRBannerService;
+  var init_freemiumPIRBanner_service = __esm({
+    "pages/new-tab/app/freemium-pir-banner/freemiumPIRBanner.service.js"() {
+      "use strict";
+      init_service();
+      FreemiumPIRBannerService = class {
         /**
-         * @param {(old: Data, next: Data, trigger: InvocationSource) => Data} fn
+         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @internal
          */
-        withUpdater(fn2) {
-          this.accept = fn2;
-          return this;
+        constructor(ntp) {
+          this.ntp = ntp;
+          this.dataService = new Service({
+            initial: () => ntp.messaging.request("freemiumPIRBanner_getData"),
+            subscribe: (cb) => ntp.messaging.subscribe("freemiumPIRBanner_onDataUpdate", cb)
+          });
+        }
+        name() {
+          return "FreemiumPIRBannerService";
         }
         /**
-         * @param {any} [params]
-         * @return {Promise<Data>}
+         * @returns {Promise<FreemiumPIRBannerData>}
+         * @internal
          */
-        async fetchInitial(params) {
-          if (!this.impl.initial) throw new Error("unreachable");
-          const initial = await this.impl.initial(params);
-          this._accept(initial, "initial");
-          return (
-            /** @type {Data} */
-            this.data
-          );
+        async getInitial() {
+          return await this.dataService.fetchInitial();
         }
         /**
-         * @param {any} [params]
-         * @return {Promise<Data>}
-         */
-        async triggerFetch(params) {
-          if (!this.impl.initial) throw new Error("unreachable");
-          const next = await this.impl.initial(params);
-          this._accept(next, "trigger-fetch");
-          return (
-            /** @type {Data} */
-            this.data
-          );
-        }
-        /**
-         * This is convenience to prevent the boilerplate of dealing with the
-         * eventTarget directly.
-         *
-         * Consumers pass a callback, which will be invoked with Data and the Source.
-         *
-         * A function is returned, which can be used to remove the event listener
-         *
-         * @param {(evt: {data: Data, source: InvocationSource}) => void} cb
-         */
-        onData(cb) {
-          this._setupSubscription();
-          const controller = new AbortController();
-          this.eventTarget.addEventListener(
-            "data",
-            (evt) => {
-              cb(evt.detail);
-            },
-            { signal: controller.signal }
-          );
-          return () => controller.abort();
-        }
-        /**
-         * Remove data subscriptions
+         * @internal
          */
         destroy() {
-          this.sub?.();
+          this.dataService.destroy();
         }
         /**
-         * Setup the subscription if one doesn't already exist
-         * @private
+         * @param {(evt: {data: FreemiumPIRBannerData, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
          */
-        _setupSubscription() {
-          if (this.sub) return;
-          this.sub = this.impl.subscribe?.((data2) => {
-            this._accept(data2, "subscription");
-          });
-        }
-        disableBroadcast() {
-          this._broadcast = false;
-        }
-        enableBroadcast() {
-          this._broadcast = true;
-        }
-        flush() {
-          if (this.data) this._accept(this.data, "manual");
+        onData(cb) {
+          return this.dataService.onData(cb);
         }
         /**
-         * Apply a function over the current state.
-         *
-         * The change will be broadcast to observers immediately,
-         * and then persists after a debounced period.
-         *
-         * @param {(prev: Data) => Data} updaterFn - the function that returns the next state
+         * @param {string} id
+         * @internal
          */
-        update(updaterFn) {
-          if (this.data === null) return;
-          const next = updaterFn(this.data);
-          if (next) {
-            this._accept(next, "manual");
-          } else {
-            console.warn("could not update");
-          }
+        dismiss(id) {
+          return this.ntp.messaging.notify("freemiumPIRBanner_dismiss", { id });
         }
         /**
-         * @param {Data} data
-         * @param {InvocationSource} source
-         * @private
+         * @param {string} id
          */
-        _accept(data2, source) {
-          if (this.accept && source !== "initial") {
-            this.data = /** @type {NonNullable<Data>} */
-            this.accept(
-              /** @type {NonNullable<Data>} */
-              this.data,
-              data2,
-              source
-            );
-          } else {
-            this.data = /** @type {NonNullable<Data>} */
-            data2;
-          }
-          if (source === "initial") return;
-          this.clearDebounceTimer();
-          if (!this._broadcast) return console.warn("not broadcasting");
-          const dataEvent = new CustomEvent("data", {
-            detail: {
-              data: this.data,
-              source
-            }
-          });
-          this.eventTarget.dispatchEvent(dataEvent);
-          if (source === "manual") {
-            const time2 = window.location.search.includes("p2") ? this.DEBOUNCE_TIME_MS * 20.5 : this.DEBOUNCE_TIME_MS;
-            this.debounceTimer = setTimeout(() => {
-              this.persist();
-            }, time2);
-          }
-        }
-        /**
-         * Clears the debounce timer if it exists, simulating the switchMap behavior.
-         */
-        clearDebounceTimer() {
-          if (this.debounceTimer) {
-            clearTimeout(this.debounceTimer);
-            this.debounceTimer = null;
-          }
-        }
-        /**
-         * Persists the current in-memory widget configuration state to the internal data feed.
-         */
-        persist() {
-          if (!this.impl.persist) return;
-          if (this.data === null) return;
-          this.impl.persist(this.data);
+        action(id) {
+          this.ntp.messaging.notify("freemiumPIRBanner_action", { id });
         }
       };
+    }
+  });
+
+  // pages/new-tab/app/freemium-pir-banner/FreemiumPIRBannerProvider.js
+  function FreemiumPIRBannerProvider(props) {
+    const initial = (
+      /** @type {State} */
+      {
+        status: "idle",
+        data: null,
+        config: null
+      }
+    );
+    const [state, dispatch] = h2(reducer, initial);
+    const service = useService2();
+    useInitialData({ dispatch, service });
+    useDataSubscription({ dispatch, service });
+    const dismiss = q2(
+      (id) => {
+        console.log("onDismiss");
+        service.current?.dismiss(id);
+      },
+      [service]
+    );
+    const action = q2(
+      (id) => {
+        service.current?.action(id);
+      },
+      [service]
+    );
+    return /* @__PURE__ */ _(FreemiumPIRBannerContext.Provider, { value: { state, dismiss, action } }, /* @__PURE__ */ _(FreemiumPIRBannerDispatchContext.Provider, { value: dispatch }, props.children));
+  }
+  function useService2() {
+    const service = A2(
+      /** @type {FreemiumPIRBannerService|null} */
+      null
+    );
+    const ntp = useMessaging();
+    y2(() => {
+      const stats = new FreemiumPIRBannerService(ntp);
+      service.current = stats;
+      return () => {
+        stats.destroy();
+      };
+    }, [ntp]);
+    return service;
+  }
+  var FreemiumPIRBannerContext, FreemiumPIRBannerDispatchContext;
+  var init_FreemiumPIRBannerProvider = __esm({
+    "pages/new-tab/app/freemium-pir-banner/FreemiumPIRBannerProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_freemiumPIRBanner_service();
+      init_service_hooks();
+      FreemiumPIRBannerContext = K({
+        /** @type {State} */
+        state: { status: "idle", data: null, config: null },
+        /** @type {(id: string) => void} */
+        dismiss: (id) => {
+          throw new Error("must implement dismiss" + id);
+        },
+        /** @type {(id: string) => void} */
+        action: (id) => {
+          throw new Error("must implement action" + id);
+        }
+      });
+      FreemiumPIRBannerDispatchContext = K(
+        /** @type {import("preact/hooks").Dispatch<Events>} */
+        {}
+      );
+    }
+  });
+
+  // pages/new-tab/app/freemium-pir-banner/freemiumPIRBanner.utils.js
+  function convertMarkdownToHTMLForStrongTags(markdown) {
+    markdown = escapeXML(markdown);
+    const regex = /\*\*(.*?)\*\*/g;
+    const result = markdown.replace(regex, "<strong>$1</strong>");
+    return result;
+  }
+  function escapeXML(str) {
+    const replacements = {
+      "&": "&amp;",
+      '"': "&quot;",
+      "'": "&apos;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "/": "&#x2F;"
+    };
+    return String(str).replace(/[&"'<>/]/g, (m4) => replacements[m4]);
+  }
+  var init_freemiumPIRBanner_utils = __esm({
+    "pages/new-tab/app/freemium-pir-banner/freemiumPIRBanner.utils.js"() {
+      "use strict";
+    }
+  });
+
+  // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js
+  function FreemiumPIRBanner({ message, action, dismiss }) {
+    const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
+    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames6.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ _("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+  }
+  function FreemiumPIRBannerConsumer() {
+    const { state, action, dismiss } = x2(FreemiumPIRBannerContext);
+    if (state.status === "ready" && state.data.content) {
+      return /* @__PURE__ */ _(FreemiumPIRBanner, { message: state.data.content, action, dismiss });
+    }
+    return null;
+  }
+  var import_classnames6;
+  var init_FreemiumPIRBanner2 = __esm({
+    "pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js"() {
+      "use strict";
+      import_classnames6 = __toESM(require_classnames(), 1);
+      init_preact_module();
+      init_Button2();
+      init_DismissButton2();
+      init_FreemiumPIRBanner();
+      init_FreemiumPIRBannerProvider();
+      init_hooks_module();
+      init_freemiumPIRBanner_utils();
+    }
+  });
+
+  // pages/new-tab/app/entry-points/freemiumPIRBanner.js
+  var freemiumPIRBanner_exports = {};
+  __export(freemiumPIRBanner_exports, {
+    factory: () => factory3
+  });
+  function factory3() {
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "freemiumPIRBanner" }, /* @__PURE__ */ _(FreemiumPIRBannerProvider, null, /* @__PURE__ */ _(FreemiumPIRBannerConsumer, null)));
+  }
+  var init_freemiumPIRBanner = __esm({
+    "pages/new-tab/app/entry-points/freemiumPIRBanner.js"() {
+      "use strict";
+      init_preact_module();
+      init_Layout();
+      init_FreemiumPIRBanner2();
+      init_FreemiumPIRBannerProvider();
+    }
+  });
+
+  // pages/new-tab/app/next-steps/next-steps.service.js
+  var NextStepsService;
+  var init_next_steps_service = __esm({
+    "pages/new-tab/app/next-steps/next-steps.service.js"() {
+      "use strict";
+      init_service();
+      NextStepsService = class {
+        /**
+         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @internal
+         */
+        constructor(ntp) {
+          this.ntp = ntp;
+          this.dataService = new Service({
+            initial: () => ntp.messaging.request("nextSteps_getData"),
+            subscribe: (cb) => ntp.messaging.subscribe("nextSteps_onDataUpdate", cb)
+          });
+          this.configService = new Service({
+            initial: () => ntp.messaging.request("nextSteps_getConfig"),
+            subscribe: (cb) => ntp.messaging.subscribe("nextSteps_onConfigUpdate", cb),
+            persist: (data2) => ntp.messaging.notify("nextSteps_setConfig", data2)
+          });
+        }
+        name() {
+          return "NextStepsService";
+        }
+        /**
+         * @returns {Promise<{data: NextStepsData; config: NextStepsConfig}>}
+         * @internal
+         */
+        async getInitial() {
+          const p1 = this.configService.fetchInitial();
+          const p22 = this.dataService.fetchInitial();
+          const [config, data2] = await Promise.all([p1, p22]);
+          return { config, data: data2 };
+        }
+        /**
+         * @internal
+         */
+        destroy() {
+          this.configService.destroy();
+          this.dataService.destroy();
+        }
+        /**
+         * @param {(evt: {data: NextStepsData, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onData(cb) {
+          return this.dataService.onData(cb);
+        }
+        /**
+         * @param {(evt: {data: NextStepsConfig, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onConfig(cb) {
+          return this.configService.onData(cb);
+        }
+        /**
+         * Update the in-memory data immediate and persist.
+         * Any state changes will be broadcast to consumers synchronously
+         * @internal
+         */
+        toggleExpansion() {
+          this.configService.update((old) => {
+            if (old.expansion === "expanded") {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "collapsed"
+              ) };
+            } else {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "expanded"
+              ) };
+            }
+          });
+        }
+        /**
+         * Dismiss a particular card
+         * @param {string} id
+         */
+        dismiss(id) {
+          this.ntp.messaging.notify("nextSteps_dismiss", { id });
+        }
+        /**
+         * Perform a primary action on a card
+         * @param {string} id
+         */
+        action(id) {
+          this.ntp.messaging.notify("nextSteps_action", { id });
+        }
+      };
+    }
+  });
+
+  // pages/new-tab/app/next-steps/NextStepsProvider.js
+  function NextStepsProvider(props) {
+    const initial = (
+      /** @type {State} */
+      {
+        status: "idle",
+        data: null,
+        config: null
+      }
+    );
+    const [state, dispatch] = h2(reducer, initial);
+    const service = useService3();
+    useInitialDataAndConfig({ dispatch, service });
+    useDataSubscription({ dispatch, service });
+    const { toggle } = useConfigSubscription({ dispatch, service });
+    const action = q2(
+      (id) => {
+        service.current?.action(id);
+      },
+      [service]
+    );
+    const dismiss = q2(
+      (id) => {
+        service.current?.dismiss(id);
+      },
+      [service]
+    );
+    return /* @__PURE__ */ _(NextStepsContext.Provider, { value: { state, toggle, action, dismiss } }, /* @__PURE__ */ _(NextStepsDispatchContext.Provider, { value: dispatch }, props.children));
+  }
+  function useService3() {
+    const service = A2(
+      /** @type {NextStepsService|null} */
+      null
+    );
+    const ntp = useMessaging();
+    y2(() => {
+      const stats = new NextStepsService(ntp);
+      service.current = stats;
+      return () => {
+        stats.destroy();
+      };
+    }, [ntp]);
+    return service;
+  }
+  var NextStepsContext, NextStepsDispatchContext;
+  var init_NextStepsProvider = __esm({
+    "pages/new-tab/app/next-steps/NextStepsProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_next_steps_service();
+      init_service_hooks();
+      NextStepsContext = K({
+        /** @type {State} */
+        state: { status: "idle", data: null, config: null },
+        /** @type {() => void} */
+        toggle: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(id: string) => void} */
+        dismiss: (_id) => {
+          throw new Error("must implement");
+        },
+        /** @type {(id: string) => void} */
+        action: (_id) => {
+          throw new Error("must implement");
+        }
+      });
+      NextStepsDispatchContext = K(
+        /** @type {import("preact/hooks").Dispatch<Events>} */
+        {}
+      );
+    }
+  });
+
+  // pages/new-tab/app/next-steps/nextsteps.data.js
+  var variants, otherText, cardsWithConfirmationText, additionalCardStates;
+  var init_nextsteps_data = __esm({
+    "pages/new-tab/app/next-steps/nextsteps.data.js"() {
+      "use strict";
+      variants = {
+        /** @param {(translationId: keyof enStrings) => string} t */
+        bringStuff: (t4) => ({
+          id: "bringStuff",
+          icon: "Bring-Stuff",
+          title: t4("nextSteps_bringStuff_title"),
+          summary: t4("nextSteps_bringStuff_summary"),
+          actionText: t4("nextSteps_bringStuff_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        defaultApp: (t4) => ({
+          id: "defaultApp",
+          icon: "Default-App",
+          title: t4("nextSteps_defaultApp_title"),
+          summary: t4("nextSteps_defaultApp_summary"),
+          actionText: t4("nextSteps_defaultApp_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        blockCookies: (t4) => ({
+          id: "blockCookies",
+          icon: "Cookie-Pops",
+          title: t4("nextSteps_blockCookies_title"),
+          summary: t4("nextSteps_blockCookies_summary"),
+          actionText: t4("nextSteps_blockCookies_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        emailProtection: (t4) => ({
+          id: "emailProtection",
+          icon: "Email-Protection",
+          title: t4("nextSteps_emailProtection_title"),
+          summary: t4("nextSteps_emailProtection_summary"),
+          actionText: t4("nextSteps_emailProtection_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        duckplayer: (t4) => ({
+          id: "duckplayer",
+          icon: "Tube-Clean",
+          title: t4("nextSteps_duckPlayer_title"),
+          summary: t4("nextSteps_duckPlayer_summary"),
+          actionText: t4("nextSteps_duckPlayer_actionText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        addAppToDockMac: (t4) => ({
+          id: "addAppToDockMac",
+          icon: "Dock-Add-Mac",
+          title: t4("nextSteps_addAppDockMac_title"),
+          summary: t4("nextSteps_addAppDockMac_summary"),
+          actionText: t4("nextSteps_addAppDockMac_actionText"),
+          confirmationText: t4("nextSteps_addAppDockMac_confirmationText")
+        }),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        pinAppToTaskbarWindows: (t4) => ({
+          id: "pinAppToTaskbarWindows",
+          icon: "Dock-Add-Windows",
+          title: t4("nextSteps_pinAppToTaskbarWindows_title"),
+          summary: t4("nextSteps_pinAppToTaskbarWindows_summary"),
+          actionText: t4("nextSteps_pinAppToTaskbarWindows_actionText")
+        })
+      };
+      otherText = {
+        /** @param {(translationId: keyof ntpStrings) => string} t */
+        showMore: (t4) => t4("ntp_show_more"),
+        /** @param {(translationId: keyof ntpStrings) => string} t */
+        showLess: (t4) => t4("ntp_show_less"),
+        /** @param {(translationId: keyof enStrings) => string} t */
+        nextSteps_sectionTitle: (t4) => t4("nextSteps_sectionTitle")
+      };
+      cardsWithConfirmationText = ["addAppToDockMac"];
+      additionalCardStates = {
+        hasConfirmationText: (variantId) => cardsWithConfirmationText.includes(variantId)
+      };
+    }
+  });
+
+  // pages/new-tab/app/next-steps/components/NextSteps.module.css
+  var NextSteps_default;
+  var init_NextSteps = __esm({
+    "pages/new-tab/app/next-steps/components/NextSteps.module.css"() {
+      NextSteps_default = {
+        card: "NextSteps_card",
+        icon: "NextSteps_icon",
+        title: "NextSteps_title",
+        description: "NextSteps_description",
+        btn: "NextSteps_btn",
+        supressActiveStateForSwitchToConfirmationText: "NextSteps_supressActiveStateForSwitchToConfirmationText",
+        confirmation: "NextSteps_confirmation",
+        dismissBtn: "NextSteps_dismissBtn",
+        cardGroup: "NextSteps_cardGroup",
+        cardGrid: "NextSteps_cardGrid",
+        showhide: "NextSteps_showhide",
+        bubble: "NextSteps_bubble",
+        nextStepsCard: "NextSteps_nextStepsCard"
+      };
+    }
+  });
+
+  // pages/new-tab/app/next-steps/components/NextStepsCard.js
+  function NextStepsCard({ type, dismiss, action }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {import("../strings.json")} */
+      {}
+    );
+    const message = variants[type]?.(t4);
+    const [showConfirmation, setShowConfirmation] = d2(false);
+    const hasConfirmationState = additionalCardStates.hasConfirmationText(type);
+    const handleClick = () => {
+      if (!hasConfirmationState) {
+        return action(message.id);
+      }
+      action(message.id);
+      setShowConfirmation(true);
+    };
+    return /* @__PURE__ */ _("div", { class: NextSteps_default.card }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ _("h3", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ _("p", { class: NextSteps_default.description }, message.summary), hasConfirmationState && !!showConfirmation ? /* @__PURE__ */ _("div", { class: NextSteps_default.confirmation }, /* @__PURE__ */ _(CheckColor, null), /* @__PURE__ */ _("p", null, message.confirmationText)) : /* @__PURE__ */ _(
+      "button",
+      {
+        class: (0, import_classnames7.default)(NextSteps_default.btn, hasConfirmationState && NextSteps_default.supressActiveStateForSwitchToConfirmationText),
+        onClick: handleClick
+      },
+      message.actionText
+    ), /* @__PURE__ */ _(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
+  }
+  var import_classnames7;
+  var init_NextStepsCard = __esm({
+    "pages/new-tab/app/next-steps/components/NextStepsCard.js"() {
+      "use strict";
+      init_preact_module();
+      import_classnames7 = __toESM(require_classnames(), 1);
+      init_hooks_module();
+      init_DismissButton2();
+      init_Icons2();
+      init_types();
+      init_nextsteps_data();
+      init_NextSteps();
+    }
+  });
+
+  // pages/new-tab/app/next-steps/components/NextStepsGroup.js
+  function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {strings} */
+      {}
+    );
+    const WIDGET_ID = g2();
+    const TOGGLE_ID = g2();
+    const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
+    return /* @__PURE__ */ _("div", { class: NextSteps_default.cardGroup, id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(ShowHideBar, null, /* @__PURE__ */ _(
+      ShowHideButtonPill,
+      {
+        buttonAttrs: {
+          "aria-expanded": expansion === "expanded",
+          "aria-pressed": expansion === "expanded",
+          "aria-controls": WIDGET_ID,
+          id: TOGGLE_ID
+        },
+        text: expansion === "expanded" ? otherText.showLess(t4) : otherText.showMore(t4),
+        label: void 0,
+        onClick: toggle
+      }
+    )));
+  }
+  function NextStepsBubbleHeader() {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {strings} */
+      {}
+    );
+    const text2 = otherText.nextSteps_sectionTitle(t4);
+    return /* @__PURE__ */ _("div", { class: NextSteps_default.bubble }, /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "12", height: "26", viewBox: "0 0 12 26", fill: "none" }, /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M12 0C5.37258 0 0 5.37258 0 12V25.3388C2.56367 22.0873 6.53807 20 11 20H12V0Z",
+        fill: "#3969EF"
+      }
+    )), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("h2", null, text2)), /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "10", height: "20", viewBox: "0 0 10 20", fill: "none" }, /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M3.8147e-06 0C1.31322 1.566e-08 2.61358 0.258658 3.82684 0.761205C5.04009 1.26375 6.14249 2.00035 7.07107 2.92893C7.99966 3.85752 8.73625 4.95991 9.2388 6.17317C9.74135 7.38642 10 8.68678 10 10C10 11.3132 9.74135 12.6136 9.2388 13.8268C8.73625 15.0401 7.99966 16.1425 7.07107 17.0711C6.14248 17.9997 5.04009 18.7362 3.82684 19.2388C2.61358 19.7413 1.31322 20 0 20L3.8147e-06 10V0Z",
+        fill: "#3969EF"
+      }
+    )));
+  }
+  var init_NextStepsGroup = __esm({
+    "pages/new-tab/app/next-steps/components/NextStepsGroup.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_ShowHideButton();
+      init_types();
+      init_nextsteps_data();
+      init_NextSteps();
+      init_NextStepsCard();
+    }
+  });
+
+  // pages/new-tab/app/next-steps/NextSteps.js
+  function NextStepsCustomized() {
+    return /* @__PURE__ */ _(NextStepsProvider, null, /* @__PURE__ */ _(NextStepsConsumer, null));
+  }
+  function NextStepsConsumer() {
+    const { state, toggle } = x2(NextStepsContext);
+    if (state.status === "ready" && state.data.content) {
+      const ids = state.data.content.map((x3) => x3.id);
+      const { action, dismiss } = x2(NextStepsContext);
+      return /* @__PURE__ */ _(NextStepsCardGroup, { types: ids, toggle, expansion: state.config.expansion, action, dismiss });
+    }
+    return null;
+  }
+  var init_NextSteps2 = __esm({
+    "pages/new-tab/app/next-steps/NextSteps.js"() {
+      "use strict";
+      init_preact_module();
+      init_NextStepsProvider();
+      init_hooks_module();
+      init_NextStepsGroup();
+    }
+  });
+
+  // pages/new-tab/app/entry-points/nextSteps.js
+  var nextSteps_exports = {};
+  __export(nextSteps_exports, {
+    factory: () => factory4
+  });
+  function factory4() {
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "nextSteps" }, /* @__PURE__ */ _(NextStepsCustomized, null));
+  }
+  var init_nextSteps = __esm({
+    "pages/new-tab/app/entry-points/nextSteps.js"() {
+      "use strict";
+      init_preact_module();
+      init_Layout();
+      init_NextSteps2();
+    }
+  });
+
+  // pages/new-tab/app/entry-points/privacyStats.js
+  var privacyStats_exports = {};
+  __export(privacyStats_exports, {
+    factory: () => factory5
+  });
+  function factory5() {
+  }
+  var init_privacyStats = __esm({
+    "pages/new-tab/app/entry-points/privacyStats.js"() {
+      "use strict";
+    }
+  });
+
+  // pages/new-tab/app/protections/protections.service.js
+  var ProtectionsService;
+  var init_protections_service = __esm({
+    "pages/new-tab/app/protections/protections.service.js"() {
+      "use strict";
+      init_service();
+      ProtectionsService = class {
+        /**
+         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @internal
+         */
+        constructor(ntp) {
+          this.dataService = new Service({
+            initial: () => ntp.messaging.request("protections_getData"),
+            subscribe: (cb) => ntp.messaging.subscribe("protections_onDataUpdate", cb)
+          });
+          this.configService = new Service({
+            initial: () => ntp.messaging.request("protections_getConfig"),
+            subscribe: (cb) => ntp.messaging.subscribe("protections_onConfigUpdate", cb),
+            persist: (data2) => ntp.messaging.notify("protections_setConfig", data2)
+          });
+        }
+        name() {
+          return "ProtectionsService";
+        }
+        /**
+         * @returns {Promise<{data: ProtectionsData; config: ProtectionsConfig}>}
+         * @internal
+         */
+        async getInitial() {
+          const p1 = this.configService.fetchInitial();
+          const p22 = this.dataService.fetchInitial();
+          const [config, data2] = await Promise.all([p1, p22]);
+          return { config, data: data2 };
+        }
+        /**
+         * @internal
+         */
+        destroy() {
+          this.configService.destroy();
+          this.dataService.destroy();
+        }
+        /**
+         * @param {(evt: {data: ProtectionsData, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onData(cb) {
+          return this.dataService.onData(cb);
+        }
+        /**
+         * @param {(evt: {data: ProtectionsConfig, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onConfig(cb) {
+          return this.configService.onData(cb);
+        }
+        /**
+         * Update the in-memory data immediate and persist.
+         * Any state changes will be broadcast to consumers synchronously
+         * @internal
+         */
+        toggleExpansion() {
+          this.configService.update((old) => {
+            if (old.expansion === "expanded") {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "collapsed"
+              ) };
+            } else {
+              return { ...old, expansion: (
+                /** @type {const} */
+                "expanded"
+              ) };
+            }
+          });
+        }
+        /**
+         * @param {ProtectionsConfig['feed']} feed
+         */
+        setFeed(feed) {
+          this.configService.update((old) => {
+            return {
+              ...old,
+              feed
+            };
+          });
+        }
+      };
+    }
+  });
+
+  // pages/new-tab/app/protections/components/ProtectionsProvider.js
+  function ProtectionsProvider(props) {
+    const initial = (
+      /** @type {State} */
+      {
+        status: "idle",
+        data: null,
+        config: null
+      }
+    );
+    const [state, dispatch] = h2(reducer, initial);
+    const service = useService4();
+    useInitialDataAndConfig({ dispatch, service });
+    const { toggle } = useConfigSubscription({ dispatch, service });
+    const setFeed = q2(
+      (feed) => {
+        service.current?.setFeed(feed);
+      },
+      [service]
+    );
+    return /* @__PURE__ */ _(ProtectionsContext.Provider, { value: { state, toggle, setFeed } }, /* @__PURE__ */ _(ProtectionsServiceContext.Provider, { value: service.current }, props.children));
+  }
+  function useService4() {
+    const service = A2(
+      /** @type {ProtectionsService|null} */
+      null
+    );
+    const ntp = useMessaging();
+    y2(() => {
+      const stats = new ProtectionsService(ntp);
+      service.current = stats;
+      return () => {
+        stats.destroy();
+      };
+    }, [ntp]);
+    return service;
+  }
+  function useBlockedCount(initial) {
+    const service = useService4();
+    const signal = useSignal(initial);
+    useSignalEffect(() => {
+      return service.current?.onData((evt) => {
+        signal.value = evt.data.totalCount;
+      });
+    });
+    return signal;
+  }
+  var ProtectionsContext, ProtectionsServiceContext;
+  var init_ProtectionsProvider = __esm({
+    "pages/new-tab/app/protections/components/ProtectionsProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_service_hooks();
+      init_protections_service();
+      init_signals_module();
+      ProtectionsContext = K({
+        /** @type {State} */
+        state: { status: "idle", data: null, config: null },
+        /** @type {() => void} */
+        toggle: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(feed: ProtectionsConfig['feed']) => void} */
+        setFeed: (_feed) => {
+          throw new Error("must implement");
+        }
+      });
+      ProtectionsServiceContext = K(
+        /** @type {ProtectionsService|null} */
+        {}
+      );
+    }
+  });
+
+  // pages/new-tab/app/protections/components/Protections.module.css
+  var Protections_default;
+  var init_Protections = __esm({
+    "pages/new-tab/app/protections/components/Protections.module.css"() {
+      Protections_default = {
+        root: "Protections_root",
+        listExpander: "Protections_listExpander",
+        body: "Protections_body",
+        switcher: "Protections_switcher",
+        block: "Protections_block",
+        empty: "Protections_empty",
+        feed: "Protections_feed",
+        button: "Protections_button",
+        active: "Protections_active"
+      };
+    }
+  });
+
+  // pages/new-tab/app/privacy-stats/components/PrivacyStats.module.css
+  var PrivacyStats_default;
+  var init_PrivacyStats = __esm({
+    "pages/new-tab/app/privacy-stats/components/PrivacyStats.module.css"() {
+      PrivacyStats_default = {
+        heading: "PrivacyStats_heading",
+        control: "PrivacyStats_control",
+        headingIcon: "PrivacyStats_headingIcon",
+        caption: "PrivacyStats_caption",
+        widgetExpander: "PrivacyStats_widgetExpander",
+        counter: "PrivacyStats_counter",
+        title: "PrivacyStats_title",
+        subtitle: "PrivacyStats_subtitle",
+        indented: "PrivacyStats_indented",
+        body: "PrivacyStats_body",
+        list: "PrivacyStats_list",
+        row: "PrivacyStats_row",
+        listFooter: "PrivacyStats_listFooter",
+        otherTrackersRow: "PrivacyStats_otherTrackersRow",
+        listExpander: "PrivacyStats_listExpander",
+        company: "PrivacyStats_company",
+        name: "PrivacyStats_name",
+        count: "PrivacyStats_count",
+        bar: "PrivacyStats_bar",
+        fill: "PrivacyStats_fill"
+      };
+    }
+  });
+
+  // pages/new-tab/app/protections/components/ProtectionsHeading.js
+  function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, buttonAttrs = {} }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const [formatter] = d2(() => new Intl.NumberFormat());
+    const adBlocking = useAdBlocking();
+    const blockedCount = blockedCountSignal.value;
+    const none = blockedCount === 0;
+    const some = blockedCount > 0;
+    const alltime = formatter.format(blockedCount);
+    let alltimeTitle;
+    if (blockedCount === 1) {
+      alltimeTitle = adBlocking ? t4("stats_countBlockedAdsAndTrackersSingular") : t4("stats_countBlockedSingular");
+    } else {
+      alltimeTitle = adBlocking ? t4("stats_countBlockedAdsAndTrackersPlural", { count: alltime }) : t4("stats_countBlockedPlural", { count: alltime });
+    }
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading" }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.control }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/shield-green.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
+      ShowHideButtonCircle,
+      {
+        buttonAttrs: {
+          ...buttonAttrs,
+          "aria-expanded": expansion === "expanded",
+          "aria-pressed": expansion === "expanded"
+        },
+        onClick: onToggle,
+        label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
+      }
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames8.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+  }
+  var import_classnames8;
+  var init_ProtectionsHeading = __esm({
+    "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
+      "use strict";
+      init_types();
+      init_hooks_module();
+      init_PrivacyStats();
+      init_ShowHideButton();
+      import_classnames8 = __toESM(require_classnames(), 1);
+      init_preact_module();
+      init_settings_provider();
+      init_TranslationsProvider();
+    }
+  });
+
+  // pages/new-tab/app/protections/components/Protections.js
+  function Protections({ expansion = "expanded", children, blockedCountSignal, feed, toggle, setFeed }) {
+    const WIDGET_ID = g2();
+    const TOGGLE_ID = g2();
+    const attrs = T2(() => {
+      return {
+        "aria-controls": WIDGET_ID,
+        id: TOGGLE_ID
+      };
+    }, [WIDGET_ID, TOGGLE_ID]);
+    return /* @__PURE__ */ _("div", { class: Protections_default.root }, /* @__PURE__ */ _(
+      ProtectionsHeading,
+      {
+        blockedCountSignal,
+        onToggle: toggle,
+        expansion,
+        canExpand: true,
+        buttonAttrs: attrs
+      }
+    ), /* @__PURE__ */ _(ProtectionsBody, { feed, setFeed, id: WIDGET_ID, expansion }, children));
+  }
+  function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
+    const hidden = expansion === "collapsed";
+    const showing = expansion === "expanded";
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {enStrings} */
+      {}
+    );
+    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
+      "button",
+      {
+        class: (0, import_classnames9.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        onClick: () => setFeed("privacy-stats")
+      },
+      t4("protections_statsSwitchTitle")
+    ), /* @__PURE__ */ _("button", { class: (0, import_classnames9.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+  }
+  function ProtectionsEmpty({ children }) {
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(Protections_default.block, Protections_default.empty) }, children);
+  }
+  var import_classnames9;
+  var init_Protections2 = __esm({
+    "pages/new-tab/app/protections/components/Protections.js"() {
+      "use strict";
+      init_hooks_module();
+      init_preact_module();
+      import_classnames9 = __toESM(require_classnames(), 1);
+      init_Protections();
+      init_ProtectionsHeading();
+      init_types();
     }
   });
 
@@ -2348,11 +7541,6 @@
             }
             return next;
           });
-          this.configService = new Service({
-            initial: () => ntp.messaging.request("activity_getConfig"),
-            subscribe: (cb) => ntp.messaging.subscribe("activity_onConfigUpdate", cb),
-            persist: (data2) => ntp.messaging.notify("activity_setConfig", data2)
-          });
           this.burns = new EventTarget();
           this.burnUnsub = this.ntp.messaging.subscribe("activity_onBurnComplete", () => {
             this.burns?.dispatchEvent(new CustomEvent("activity_onBurnComplete"));
@@ -2362,20 +7550,16 @@
           return "BatchedActivity";
         }
         /**
-         * @returns {Promise<{data: ActivityData; config: ActivityConfig }>}
+         * @returns {Promise<ActivityData>}
          * @internal
          */
         async getInitial() {
-          const configPromise = this.configService.fetchInitial();
-          const dataPromise = this.dataService.fetchInitial();
-          const [config, data2] = await Promise.all([configPromise, dataPromise]);
-          return { config, data: data2 };
+          return await this.dataService.fetchInitial();
         }
         /**
          * @internal
          */
         destroy() {
-          this.configService.destroy();
           this.dataService.destroy();
           this.burnUnsub();
           this.burns = null;
@@ -2409,90 +7593,63 @@
           }
         }
         /**
-         * @param {(evt: {data: ActivityConfig, source: InvocationSource}) => void} cb
-         * @internal
-         */
-        onConfig(cb) {
-          return this.configService.onData(cb);
-        }
-        /**
-         * Update the in-memory data immediate and persist.
-         * Any state changes will be broadcast to consumers synchronously
-         * @internal
-         */
-        toggleExpansion() {
-          this.configService.update((old) => {
-            if (old.expansion === "expanded") {
-              return { ...old, expansion: (
-                /** @type {const} */
-                "collapsed"
-              ) };
-            } else {
-              return { ...old, expansion: (
-                /** @type {const} */
-                "expanded"
-              ) };
-            }
-          });
-        }
-        /**
          * @param {string} url
          */
-        addFavorite(url5) {
+        addFavorite(url6) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.map((item) => {
-                if (item.url === url5) return { ...item, favorite: true };
+                if (item.url === url6) return { ...item, favorite: true };
                 return item;
               })
             };
           });
-          this.ntp.messaging.notify("activity_addFavorite", { url: url5 });
+          this.ntp.messaging.notify("activity_addFavorite", { url: url6 });
         }
         /**
          * @param {string} url
          */
-        removeFavorite(url5) {
+        removeFavorite(url6) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.map((item) => {
-                if (item.url === url5) return { ...item, favorite: false };
+                if (item.url === url6) return { ...item, favorite: false };
                 return item;
               })
             };
           });
-          this.ntp.messaging.notify("activity_removeFavorite", { url: url5 });
+          this.ntp.messaging.notify("activity_removeFavorite", { url: url6 });
         }
         /**
          * @param {string} url
          * @return {Promise<import('../../types/new-tab.js').ConfirmBurnResponse>}
          */
-        confirmBurn(url5) {
-          return this.ntp.messaging.request("activity_confirmBurn", { url: url5 });
+        confirmBurn(url6) {
+          return this.ntp.messaging.request("activity_confirmBurn", { url: url6 });
         }
         /**
          * @param {string} url
          */
-        remove(url5) {
+        remove(url6) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.filter((item) => {
-                return item.url !== url5;
+                return item.url !== url6;
               }),
-              urls: old.urls.filter((x3) => x3 !== url5)
+              urls: old.urls.filter((x3) => x3 !== url6)
             };
           });
-          this.ntp.messaging.notify("activity_removeItem", { url: url5 });
+          this.ntp.messaging.notify("activity_removeItem", { url: url6 });
         }
         /**
          * @param {string} url
          * @param {import('../../types/new-tab.js').OpenTarget} target
          */
-        openUrl(url5, target) {
-          this.ntp.messaging.notify("activity_open", { url: url5, target });
+        openUrl(url6, target) {
+          this.ntp.messaging.notify("activity_open", { url: url6, target });
         }
         onBurnComplete(cb) {
           if (!this.burns) throw new Error("unreachable");
@@ -2525,12 +7682,11 @@
     );
     const [state, dispatch] = h2(reducer, initial);
     const batched = useBatchedActivityApi();
-    const service = useService(batched);
-    useInitialDataAndConfig({ dispatch, service });
-    const { toggle } = useConfigSubscription({ dispatch, service });
-    return /* @__PURE__ */ _(ActivityContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(ActivityServiceContext.Provider, { value: service.current }, props.children));
+    const service = useService5(batched);
+    useInitialData({ dispatch, service });
+    return /* @__PURE__ */ _(ActivityContext.Provider, { value: { state } }, /* @__PURE__ */ _(ActivityServiceContext.Provider, { value: service.current }, props.children));
   }
-  function useService(useBatched) {
+  function useService5(useBatched) {
     const service = A2(
       /** @type {BatchedActivityService|null} */
       null
@@ -2557,11 +7713,7 @@
       init_batched_activity_service();
       ActivityContext = K({
         /** @type {State} */
-        state: { status: "idle", data: null, config: null },
-        /** @type {() => void} */
-        toggle: () => {
-          throw new Error("must implement");
-        }
+        state: { status: "idle", data: null, config: null }
       });
       ActivityServiceContext = K(
         /** @type {BatchedActivityService|null} */
@@ -2570,44 +7722,36 @@
     }
   });
 
-  // pages/new-tab/app/utils.js
-  function viewTransition(fn2) {
-    if ("startViewTransition" in document && typeof document.startViewTransition === "function") {
-      return document.startViewTransition(fn2);
-    }
-    return fn2();
-  }
-  function noop(named) {
-    return () => {
-      console.log(named, "noop");
-    };
-  }
-  function eventToTarget(event, platformName) {
-    const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
-    if (isControlClick) {
-      return "new-tab";
-    } else if (event.shiftKey) {
-      return "new-window";
-    } else if (event.button === 1) {
-      return "new-tab";
-    }
-    return "same-tab";
-  }
-  function useOnMiddleClick(ref, handler) {
-    y2(() => {
-      const element = ref.current;
-      if (!element) return;
-      const handleAuxClick = (event) => event.button === 1 && handler(event);
-      element.addEventListener("auxclick", handleAuxClick);
-      return () => {
-        element.removeEventListener("auxclick", handleAuxClick);
+  // pages/new-tab/app/activity/components/Activity.module.css
+  var Activity_default;
+  var init_Activity = __esm({
+    "pages/new-tab/app/activity/components/Activity.module.css"() {
+      Activity_default = {
+        root: "Activity_root",
+        activity: "Activity_activity",
+        block: "Activity_block",
+        loader: "Activity_loader",
+        anim: "Activity_anim",
+        item: "Activity_item",
+        burning: "Activity_burning",
+        heading: "Activity_heading",
+        favicon: "Activity_favicon",
+        title: "Activity_title",
+        controls: "Activity_controls",
+        icon: "Activity_icon",
+        controlIcon: "Activity_controlIcon",
+        disableWhenBusy: "Activity_disableWhenBusy",
+        body: "Activity_body",
+        otherIcon: "Activity_otherIcon",
+        companiesIconRow: "Activity_companiesIconRow",
+        companiesIcons: "Activity_companiesIcons",
+        companiesText: "Activity_companiesText",
+        history: "Activity_history",
+        historyItem: "Activity_historyItem",
+        historyLink: "Activity_historyLink",
+        time: "Activity_time",
+        historyBtn: "Activity_historyBtn"
       };
-    }, [ref, handler]);
-  }
-  var init_utils = __esm({
-    "pages/new-tab/app/utils.js"() {
-      "use strict";
-      init_hooks_module();
     }
   });
 
@@ -2624,7 +7768,7 @@
 
   // pages/new-tab/app/privacy-stats/constants.js
   var DDG_STATS_OTHER_COMPANY_IDENTIFIER, DDG_STATS_DEFAULT_ROWS;
-  var init_constants = __esm({
+  var init_constants2 = __esm({
     "pages/new-tab/app/privacy-stats/constants.js"() {
       "use strict";
       DDG_STATS_OTHER_COMPANY_IDENTIFIER = "__other__";
@@ -2649,7 +7793,7 @@
     "pages/new-tab/app/components/CompanyIcon.js"() {
       "use strict";
       init_CompanyIcon();
-      init_constants();
+      init_constants2();
       init_preact_module();
       init_compat_module();
       mappings = {
@@ -2808,173 +7952,9 @@
     }
   });
 
-  // shared/components/FaviconWithState.module.css
-  var FaviconWithState_default;
-  var init_FaviconWithState = __esm({
-    "shared/components/FaviconWithState.module.css"() {
-      FaviconWithState_default = {
-        favicon: "FaviconWithState_favicon",
-        faviconLarge: "FaviconWithState_faviconLarge",
-        faviconSmall: "FaviconWithState_faviconSmall",
-        faviconText: "FaviconWithState_faviconText"
-      };
-    }
-  });
-
-  // shared/getColorForString.js
-  function getArrayIndex(str, arrayLength) {
-    const utf8Encoder = new TextEncoder();
-    const bytes = utf8Encoder.encode(str);
-    let hash = BigInt(5381);
-    for (const byte of bytes) {
-      hash = (hash << BigInt(5)) + hash + BigInt(byte);
-      hash = BigInt.asIntN(64, hash);
-    }
-    const index2 = hash % BigInt(arrayLength);
-    return Number(index2 < 0 ? -index2 : index2);
-  }
-  function urlToColor(url5) {
-    if (typeof url5 !== "string") return null;
-    if (urlToColorCache.has(url5)) {
-      return urlToColorCache.get(url5);
-    }
-    const index2 = getArrayIndex(url5, EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
-    const color = EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES[index2];
-    urlToColorCache.set(url5, color);
-    return color;
-  }
-  var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES, urlToColorCache;
-  var init_getColorForString = __esm({
-    "shared/getColorForString.js"() {
-      "use strict";
-      EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES = [
-        "#94B3AF",
-        "#727998",
-        "#645468",
-        "#4D5F7F",
-        "#855DB6",
-        "#5E5ADB",
-        "#678FFF",
-        "#6BB4EF",
-        "#4A9BAE",
-        "#66C4C6",
-        "#55D388",
-        "#99DB7A",
-        "#ECCC7B",
-        "#E7A538",
-        "#DD6B4C",
-        "#D65D62"
-      ];
-      urlToColorCache = /* @__PURE__ */ new Map();
-    }
-  });
-
-  // shared/components/FaviconWithState.js
-  function FaviconWithState({ defaultSize = 64, fallback, fallbackDark, faviconSrc, faviconMax, etldPlusOne, theme, displayKind }) {
-    const size = Math.min(faviconMax, defaultSize);
-    const sizeClass = displayKind === "favorite-tile" ? FaviconWithState_default.faviconLarge : FaviconWithState_default.faviconSmall;
-    const imgsrc = faviconSrc ? faviconSrc + "?preferredSize=" + size : null;
-    const initialState = (() => {
-      if (imgsrc) return states.loading_favicon_src;
-      if (etldPlusOne) return states.using_fallback_text;
-      return states.loading_fallback_img;
-    })();
-    const [state, setState] = d2(
-      /** @type {ImgState} */
-      initialState
-    );
-    switch (state) {
-      /**
-       * These are the happy paths, where we are loading the favicon source and it does not 404
-       */
-      case states.loading_favicon_src:
-      case states.did_load_favicon_src: {
-        if (!imgsrc) {
-          console.warn("unreachable - must have imgsrc here");
-          return null;
-        }
-        return /* @__PURE__ */ _(
-          "img",
-          {
-            src: imgsrc,
-            class: (0, import_classnames.default)(FaviconWithState_default.favicon, sizeClass),
-            alt: "",
-            "data-state": state,
-            onLoad: () => setState(states.did_load_favicon_src),
-            onError: () => {
-              if (etldPlusOne) {
-                setState(states.using_fallback_text);
-              } else {
-                setState(states.loading_fallback_img);
-              }
-            }
-          }
-        );
-      }
-      /**
-       * A fallback can be applied when the `etldPlusOne` is there. For example,
-       * if `etldPlusOne = 'example.com'`, we can display `Ex` and use the domain name
-       * to select a background color.
-       */
-      case states.using_fallback_text: {
-        if (!etldPlusOne) {
-          console.warn("unreachable - must have etld+1 here");
-          return null;
-        }
-        let style;
-        const fallbackColor = urlToColor(etldPlusOne);
-        if (fallbackColor) {
-          style = { background: fallbackColor };
-        }
-        const chars = etldPlusOne.slice(0, 2);
-        return /* @__PURE__ */ _("div", { class: (0, import_classnames.default)(FaviconWithState_default.favicon, sizeClass, FaviconWithState_default.faviconText), style, "data-state": state }, /* @__PURE__ */ _("span", { "aria-hidden": true }, chars[0]), /* @__PURE__ */ _("span", { "aria-hidden": true }, chars[1]));
-      }
-      /**
-       * If we get here, we couldn't load the favicon source OR the fallback text
-       * So, we default to a globe icon
-       */
-      case states.loading_fallback_img:
-      case states.did_load_fallback_img: {
-        return /* @__PURE__ */ _(
-          "img",
-          {
-            src: theme === "light" ? fallback : fallbackDark,
-            class: (0, import_classnames.default)(FaviconWithState_default.favicon, sizeClass),
-            alt: "",
-            "data-state": state,
-            onLoad: () => setState(states.did_load_fallback_img),
-            onError: () => setState(states.fallback_img_failed)
-          }
-        );
-      }
-      default:
-        return null;
-    }
-  }
-  var import_classnames, states;
-  var init_FaviconWithState2 = __esm({
-    "shared/components/FaviconWithState.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      import_classnames = __toESM(require_classnames(), 1);
-      init_FaviconWithState();
-      init_getColorForString();
-      states = /** @type {Record<ImgState, ImgState>} */
-      {
-        loading_favicon_src: "loading_favicon_src",
-        did_load_favicon_src: "did_load_favicon_src",
-        loading_fallback_img: "loading_fallback_img",
-        did_load_fallback_img: "did_load_fallback_img",
-        fallback_img_failed: "fallback_img_failed",
-        using_fallback_text: "using_fallback_text"
-      };
-    }
-  });
-
   // pages/new-tab/app/activity/constants.js
   var ACTION_ADD_FAVORITE, ACTION_REMOVE_FAVORITE, ACTION_REMOVE;
-  var init_constants2 = __esm({
+  var init_constants3 = __esm({
     "pages/new-tab/app/activity/constants.js"() {
       "use strict";
       ACTION_ADD_FAVORITE = "add-favorite";
@@ -3027,18 +8007,6 @@
     "pages/new-tab/app/components/icons/Fire.js"() {
       "use strict";
       init_preact_module();
-    }
-  });
-
-  // pages/new-tab/app/favorites/constants.js
-  var DDG_MIME_TYPE, DDG_FALLBACK_ICON, DDG_FALLBACK_ICON_DARK, DDG_DEFAULT_ICON_SIZE;
-  var init_constants3 = __esm({
-    "pages/new-tab/app/favorites/constants.js"() {
-      "use strict";
-      DDG_MIME_TYPE = "application/vnd.duckduckgo.bookmark-by-id";
-      DDG_FALLBACK_ICON = "./company-icons/other.svg";
-      DDG_FALLBACK_ICON_DARK = "./company-icons/other-dark.svg";
-      DDG_DEFAULT_ICON_SIZE = 64;
     }
   });
 
@@ -3201,13 +8169,13 @@
   }
   function any(...fns) {
     return (subject) => {
-      const jobs = fns.map((factory8) => {
+      const jobs = fns.map((factory9) => {
         const subject2 = {
           /** @type {any} */
           next: void 0
         };
         const promise = new Promise((resolve) => subject2.next = resolve);
-        const cleanup = factory8(subject2);
+        const cleanup = factory9(subject2);
         return {
           promise,
           cleanup
@@ -3223,13 +8191,13 @@
   }
   function all(...fns) {
     return (subject) => {
-      const jobs = fns.map((factory8) => {
+      const jobs = fns.map((factory9) => {
         const subject2 = {
           /** @type {any} */
           next: void 0
         };
         const promise = new Promise((resolve) => subject2.next = resolve);
-        const cleanup = factory8(subject2);
+        const cleanup = factory9(subject2);
         return {
           promise,
           cleanup
@@ -3345,17 +8313,13 @@
         /** @type {HTMLButtonElement|null} */
         target.closest("button[value][data-action]")
       );
-      const toggle = (
-        /** @type {HTMLButtonElement|null} */
-        target.closest("button[data-toggle]")
-      );
       if (anchor) {
-        const url5 = anchor.dataset.url;
-        if (!url5) return;
+        const url6 = anchor.dataset.url;
+        if (!url6) return;
         event.preventDefault();
         event.stopImmediatePropagation();
         const openTarget = eventToTarget(event, platformName);
-        service.openUrl(url5, openTarget);
+        service.openUrl(url6, openTarget);
       } else if (button) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -3374,14 +8338,9 @@
         } else {
           console.warn("unhandled action:", action);
         }
-      } else if (toggle) {
-        if (state.config?.expansion === "collapsed" && batched) {
-          const next = activity.value.urls.slice(0, Math.min(service.INITIAL, activity.value.urls.length));
-          setVisibleRange(next);
-        }
       }
     }
-    const didClick = q2(didClick_, [service, batched, state.config.expansion]);
+    const didClick = q2(didClick_, [service, batched]);
     const firstUrls = state.data.activity.map((x3) => x3.url);
     const keys = useSignal(normalizeKeys([], firstUrls));
     const activity = useSignal(
@@ -3469,11 +8428,11 @@
       "use strict";
       init_preact_module();
       init_hooks_module();
-      init_utils();
+      init_utils2();
       init_settings_provider();
-      init_constants2();
-      init_signals_module();
       init_constants3();
+      init_signals_module();
+      init_constants();
       init_ActivityProvider();
       init_ActivityInteractionsContext();
       init_BurnProvider();
@@ -3491,48 +8450,48 @@
   });
 
   // pages/new-tab/app/activity/components/ActivityItem.js
-  function Controls({ canBurn, url: url5, title }) {
+  function Controls({ canBurn, url: url6, title }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
     );
     const { activity } = x2(NormalizedDataContext);
-    const favorite = useComputed(() => activity.value.favorites[url5]);
+    const favorite = useComputed(() => activity.value.favorites[url6]);
     const favoriteTitle = favorite.value ? t4("activity_favoriteRemove", { domain: title }) : t4("activity_favoriteAdd", { domain: title });
     const secondaryTitle = canBurn ? t4("activity_burn", { domain: title }) : t4("activity_itemRemove", { domain: title });
     return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames2.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames10.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
-        value: url5,
+        value: url6,
         type: "button"
       },
       favorite.value ? /* @__PURE__ */ _(StarFilled, null) : /* @__PURE__ */ _(Star, null)
     ), /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames2.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames10.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
-        value: url5,
+        value: url6,
         type: "button"
       },
       canBurn ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(Cross, null)
     ));
   }
-  var import_classnames2, ActivityItem;
+  var import_classnames10, ActivityItem;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames2 = __toESM(require_classnames(), 1);
+      import_classnames10 = __toESM(require_classnames(), 1);
       init_Activity();
       init_FaviconWithState2();
-      init_constants2();
+      init_constants3();
       init_Star();
       init_Fire();
       init_Icons2();
@@ -3541,7 +8500,7 @@
       init_signals_module();
       init_NormalizeDataProvider();
       init_BurnProvider();
-      init_constants3();
+      init_constants();
       ActivityItem = M2(
         /**
          * @param {object} props
@@ -3554,8 +8513,8 @@
          * @param {number} props.faviconMax
          * @param {string} props.etldPlusOne
          */
-        function ActivityItem2({ canBurn, documentVisibility, title, url: url5, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url5, class: (0, import_classnames2.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url5, "data-url": url5 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url5 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+        function ActivityItem2({ canBurn, documentVisibility, title, url: url6, favoriteSrc, faviconMax, etldPlusOne, children }) {
+          return /* @__PURE__ */ _("li", { key: url6, class: (0, import_classnames10.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url6, "data-url": url6 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url6 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -3567,7 +8526,7 @@
               fallback: DDG_FALLBACK_ICON,
               fallbackDark: DDG_FALLBACK_ICON_DARK
             }
-          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url5, title })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
+          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url6, title })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
         }
       );
     }
@@ -3576,8 +8535,8 @@
   // ../node_modules/lottie-web/build/player/lottie.js
   var require_lottie = __commonJS({
     "../node_modules/lottie-web/build/player/lottie.js"(exports, module) {
-      typeof navigator !== "undefined" && function(global, factory8) {
-        typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory8() : typeof define === "function" && define.amd ? define(factory8) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.lottie = factory8());
+      typeof navigator !== "undefined" && function(global, factory9) {
+        typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory9() : typeof define === "function" && define.amd ? define(factory9) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.lottie = factory9());
       }(exports, function() {
         "use strict";
         var svgNS = "http://www.w3.org/2000/svg";
@@ -4068,8 +9027,8 @@
               var blob = new Blob(["var _workerSelf = self; self.onmessage = ", fn2.toString()], {
                 type: "text/javascript"
               });
-              var url5 = URL.createObjectURL(blob);
-              return new Worker(url5);
+              var url6 = URL.createObjectURL(blob);
+              return new Worker(url6);
             }
             workerFn = fn2;
             return workerProxy;
@@ -6884,7 +11843,7 @@
             shapePath.c = false;
           }
           function clone(shape) {
-            var cloned = factory8.newElement();
+            var cloned = factory9.newElement();
             var i5;
             var len = shape._length === void 0 ? shape.v.length : shape._length;
             cloned.setLength(len);
@@ -6894,9 +11853,9 @@
             }
             return cloned;
           }
-          var factory8 = poolFactory(4, create, release);
-          factory8.clone = clone;
-          return factory8;
+          var factory9 = poolFactory(4, create, release);
+          factory9.clone = clone;
+          return factory9;
         }();
         function ShapeCollection() {
           this._length = 0;
@@ -7918,9 +12877,9 @@
           var modifiers = {};
           ob2.registerModifier = registerModifier;
           ob2.getModifier = getModifier;
-          function registerModifier(nm, factory8) {
+          function registerModifier(nm, factory9) {
             if (!modifiers[nm]) {
-              modifiers[nm] = factory8;
+              modifiers[nm] = factory9;
             }
           }
           function getModifier(nm, elem2, data2) {
@@ -19919,7 +24878,7 @@
   __export(BurnAnimationLottieWeb_exports, {
     BurnAnimation: () => BurnAnimation
   });
-  function BurnAnimation({ url: url5 }) {
+  function BurnAnimation({ url: url6 }) {
     const ref = A2(
       /** @type {Lottie} */
       null
@@ -19931,7 +24890,7 @@
       let timer2 = null;
       const publish = (reason) => {
         if (finished) return;
-        window.dispatchEvent(new CustomEvent("done-burning", { detail: { url: url5, reason } }));
+        window.dispatchEvent(new CustomEvent("done-burning", { detail: { url: url6, reason } }));
         finished = true;
         clearTimeout(timer2);
       };
@@ -19956,7 +24915,7 @@
           publish("unmount occurred");
         }
       };
-    }, [url5, json]);
+    }, [url6, json]);
     return /* @__PURE__ */ _("div", { ref, "data-lottie-player": true });
   }
   var import_lottie_web;
@@ -19971,14 +24930,14 @@
   });
 
   // pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js
-  function ActivityItemAnimationWrapper({ children, url: url5 }) {
+  function ActivityItemAnimationWrapper({ children, url: url6 }) {
     const ref = A2(
       /** @type {HTMLDivElement|null} */
       null
     );
     const { exiting, burning } = x2(ActivityBurningSignalContext);
-    const isBurning = useComputed(() => burning.value.some((x3) => x3 === url5));
-    const isExiting = useComputed(() => exiting.value.some((x3) => x3 === url5));
+    const isBurning = useComputed(() => burning.value.some((x3) => x3 === url6));
+    const isExiting = useComputed(() => exiting.value.some((x3) => x3 === url6));
     _2(() => {
       let canceled = false;
       let sent = false;
@@ -20001,7 +24960,7 @@
           window.dispatchEvent(
             new CustomEvent("done-exiting", {
               detail: {
-                url: url5,
+                url: url6,
                 reason: "animation completed"
               }
             })
@@ -20017,193 +24976,21 @@
       return () => {
         canceled = true;
       };
-    }, [isBurning.value, isExiting.value, url5]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames3.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url5 })));
+    }, [isBurning.value, isExiting.value, url6]);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url6 })));
   }
-  var import_classnames3, BurnAnimationLazy;
+  var import_classnames11, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames3 = __toESM(require_classnames(), 1);
+      import_classnames11 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
       BurnAnimationLazy = z3(() => Promise.resolve().then(() => (init_BurnAnimationLottieWeb(), BurnAnimationLottieWeb_exports)).then((x3) => x3.BurnAnimation));
-    }
-  });
-
-  // shared/components/DocumentVisibility.js
-  function DocumentVisibilityProvider({ children }) {
-    const initial = document.visibilityState;
-    const [documentVisibility, setDocumentVisibility] = d2(initial);
-    y2(() => {
-      const handleVisibilityChange = () => {
-        setDocumentVisibility(document.visibilityState);
-      };
-      document.addEventListener("visibilitychange", handleVisibilityChange);
-      return () => {
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
-      };
-    }, []);
-    return /* @__PURE__ */ _(DocumentVisibilityContext.Provider, { value: documentVisibility }, children);
-  }
-  function useDocumentVisibility() {
-    return x2(DocumentVisibilityContext);
-  }
-  var DocumentVisibilityContext;
-  var init_DocumentVisibility = __esm({
-    "shared/components/DocumentVisibility.js"() {
-      "use strict";
-      init_hooks_module();
-      init_preact_module();
-      DocumentVisibilityContext = K(
-        /** @type {DocumentVisibilityState} */
-        "hidden"
-      );
-    }
-  });
-
-  // pages/new-tab/app/privacy-stats/components/PrivacyStats.module.css
-  var PrivacyStats_default;
-  var init_PrivacyStats = __esm({
-    "pages/new-tab/app/privacy-stats/components/PrivacyStats.module.css"() {
-      PrivacyStats_default = {
-        root: "PrivacyStats_root",
-        listExpander: "PrivacyStats_listExpander",
-        heading: "PrivacyStats_heading",
-        activityVariant: "PrivacyStats_activityVariant",
-        headingIcon: "PrivacyStats_headingIcon",
-        adsAndTrackersVariant: "PrivacyStats_adsAndTrackersVariant",
-        title: "PrivacyStats_title",
-        widgetExpander: "PrivacyStats_widgetExpander",
-        subtitle: "PrivacyStats_subtitle",
-        uppercase: "PrivacyStats_uppercase",
-        indented: "PrivacyStats_indented",
-        body: "PrivacyStats_body",
-        list: "PrivacyStats_list",
-        entering: "PrivacyStats_entering",
-        "fade-in": "PrivacyStats_fade-in",
-        entered: "PrivacyStats_entered",
-        exiting: "PrivacyStats_exiting",
-        "fade-out": "PrivacyStats_fade-out",
-        row: "PrivacyStats_row",
-        listFooter: "PrivacyStats_listFooter",
-        otherTrackersRow: "PrivacyStats_otherTrackersRow",
-        company: "PrivacyStats_company",
-        name: "PrivacyStats_name",
-        count: "PrivacyStats_count",
-        bar: "PrivacyStats_bar",
-        fill: "PrivacyStats_fill"
-      };
-    }
-  });
-
-  // pages/new-tab/app/components/ShowHide.module.css
-  var ShowHide_default;
-  var init_ShowHide = __esm({
-    "pages/new-tab/app/components/ShowHide.module.css"() {
-      ShowHide_default = {
-        button: "ShowHide_button",
-        iconBlock: "ShowHide_iconBlock",
-        round: "ShowHide_round",
-        pill: "ShowHide_pill",
-        fill: "ShowHide_fill",
-        hover: "ShowHide_hover",
-        bar: "ShowHide_bar"
-      };
-    }
-  });
-
-  // pages/new-tab/app/components/ShowHideButton.jsx
-  function ShowHideButtonCircle({ label, onClick, buttonAttrs = {} }) {
-    return /* @__PURE__ */ _("button", { ...buttonAttrs, class: (0, import_classnames4.default)(ShowHide_default.button, ShowHide_default.round), "aria-label": label, "data-toggle": "true", onClick }, /* @__PURE__ */ _("div", { class: ShowHide_default.iconBlock }, /* @__PURE__ */ _(Chevron, null)));
-  }
-  function ShowHideButtonPill({ label, onClick, text: text2, fill = true, buttonAttrs = {} }) {
-    const btnText = label ? /* @__PURE__ */ _("span", { "aria-hidden": "true" }, text2) : text2;
-    return /* @__PURE__ */ _(
-      "button",
-      {
-        ...buttonAttrs,
-        "aria-label": label,
-        class: (0, import_classnames4.default)(ShowHide_default.button, ShowHide_default.hover, ShowHide_default.pill, fill && ShowHide_default.fill),
-        "data-toggle": "true",
-        onClick
-      },
-      /* @__PURE__ */ _(Chevron, null),
-      btnText
-    );
-  }
-  function ShowHideBar({ children }) {
-    return /* @__PURE__ */ _("div", { class: ShowHide_default.bar, "data-show-hide": true }, children);
-  }
-  var import_classnames4;
-  var init_ShowHideButton = __esm({
-    "pages/new-tab/app/components/ShowHideButton.jsx"() {
-      "use strict";
-      init_ShowHide();
-      import_classnames4 = __toESM(require_classnames(), 1);
-      init_Icons2();
-      init_preact_module();
-    }
-  });
-
-  // pages/new-tab/app/privacy-stats/components/ActivityHeading.js
-  function ActivityHeading({ expansion, canExpand, itemCount, trackerCount, onToggle, buttonAttrs = {} }) {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {Strings} */
-      {}
-    );
-    const [formatter] = d2(() => new Intl.NumberFormat());
-    const adBlocking = useAdBlocking();
-    const none = itemCount === 0 && trackerCount === 0;
-    const some = itemCount > 0 || trackerCount > 0;
-    const trackerCountFormatted = formatter.format(trackerCount);
-    let allTimeString;
-    if (trackerCount === 1) {
-      allTimeString = adBlocking ? t4("stats_countBlockedAdsAndTrackersSingular") : t4("stats_countBlockedSingular");
-    } else {
-      allTimeString = adBlocking ? t4("stats_countBlockedAdsAndTrackersPlural", { count: trackerCountFormatted }) : t4("stats_countBlockedPlural", { count: trackerCountFormatted });
-    }
-    return /* @__PURE__ */ _(
-      "div",
-      {
-        className: (0, import_classnames5.default)(PrivacyStats_default.heading, PrivacyStats_default.activityVariant, { [PrivacyStats_default.adsAndTrackersVariant]: adBlocking }),
-        "data-testid": "ActivityHeading"
-      },
-      /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: adBlocking ? "./icons/shield-green.svg" : "./icons/shield.svg", alt: "Privacy Shield" })),
-      none && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, t4("activity_noRecent_title")),
-      some && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, /* @__PURE__ */ _(Trans, { str: allTimeString, values: { count: trackerCountFormatted } })),
-      canExpand && /* @__PURE__ */ _("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
-        ShowHideButtonCircle,
-        {
-          buttonAttrs: {
-            ...buttonAttrs,
-            "aria-expanded": expansion === "expanded",
-            "aria-pressed": expansion === "expanded"
-          },
-          onClick: onToggle,
-          label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
-        }
-      )),
-      none && /* @__PURE__ */ _("p", { className: (0, import_classnames5.default)(PrivacyStats_default.subtitle, { [PrivacyStats_default.indented]: !adBlocking }) }, adBlocking ? t4("activity_noRecentAdsAndTrackers_subtitle") : t4("activity_noRecent_subtitle")),
-      some && /* @__PURE__ */ _("p", { className: (0, import_classnames5.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented, { [PrivacyStats_default.uppercase]: !adBlocking }) }, t4("stats_feedCountBlockedPeriod"))
-    );
-  }
-  var import_classnames5;
-  var init_ActivityHeading = __esm({
-    "pages/new-tab/app/privacy-stats/components/ActivityHeading.js"() {
-      "use strict";
-      init_types();
-      init_hooks_module();
-      init_PrivacyStats();
-      init_ShowHideButton();
-      import_classnames5 = __toESM(require_classnames(), 1);
-      init_preact_module();
-      init_TranslationsProvider();
-      init_settings_provider();
     }
   });
 
@@ -20260,34 +25047,25 @@
   });
 
   // pages/new-tab/app/activity/components/Activity.js
-  function Activity({ expansion, toggle, trackerCount, itemCount, batched, children }) {
-    const expanded = expansion === "expanded";
-    const WIDGET_ID = g2();
-    const TOGGLE_ID = g2();
-    const { didClick } = x2(ActivityInteractionsContext);
-    const ref = A2(null);
-    useOnMiddleClick(ref, didClick);
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: Activity_default.root, onClick: didClick, ref }, /* @__PURE__ */ _(
-      ActivityHeading,
-      {
-        trackerCount,
-        itemCount,
-        onToggle: toggle,
-        expansion,
-        canExpand: itemCount > 0,
-        buttonAttrs: {
-          "aria-controls": WIDGET_ID,
-          id: TOGGLE_ID
-        }
-      }
-    ), itemCount > 0 && expanded && children), batched && itemCount > 0 && expanded && /* @__PURE__ */ _(Loader, null));
+  function Activity({ itemCount, batched, children }) {
+    return /* @__PURE__ */ _("div", { class: Activity_default.root, "data-testid": "Activity" }, itemCount === 0 && /* @__PURE__ */ _(ActivityEmptyState, null), itemCount > 0 && children, batched && itemCount > 0 && /* @__PURE__ */ _(Loader, null));
+  }
+  function ActivityEmptyState() {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {import("../strings.json")} */
+      {}
+    );
+    return /* @__PURE__ */ _(ProtectionsEmpty, null, /* @__PURE__ */ _("p", null, t4("activity_empty")));
   }
   function ActivityBody({ canBurn, visibility }) {
     const { isReducedMotion } = useEnv();
     const { keys } = x2(NormalizedDataContext);
     const { burning, exiting } = x2(ActivityBurningSignalContext);
     const busy = useComputed(() => burning.value.length > 0 || exiting.value.length > 0);
-    return /* @__PURE__ */ _("ul", { class: Activity_default.activity, "data-busy": busy }, keys.value.map((id, _index) => {
+    const { didClick } = x2(ActivityInteractionsContext);
+    const ref = A2(null);
+    useOnMiddleClick(ref, didClick);
+    return /* @__PURE__ */ _("ul", { class: Activity_default.activity, "data-busy": busy, ref, onClick: didClick }, keys.value.map((id, _index) => {
       if (canBurn && !isReducedMotion) return /* @__PURE__ */ _(BurnableItem, { id, key: id, documentVisibility: visibility });
       return /* @__PURE__ */ _(RemovableItem, { id, key: id, canBurn, documentVisibility: visibility });
     }));
@@ -20343,40 +25121,24 @@
     }
     return /* @__PURE__ */ _("div", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ _("div", { class: Activity_default.companiesIcons }, icons, otherIcon), /* @__PURE__ */ _("div", { class: Activity_default.companiesText }, adBlocking ? /* @__PURE__ */ _(Trans, { str: t4("activity_countBlockedAdsAndTrackersPlural", { count: String(status.value.totalCount) }), values: {} }) : /* @__PURE__ */ _(Trans, { str: t4("activity_countBlockedPlural", { count: String(status.value.totalCount) }), values: {} })));
   }
-  function ActivityConfigured({ expansion, toggle, children }) {
+  function ActivityConfigured({ children }) {
     const batched = useBatchedActivityApi();
     const { activity } = x2(NormalizedDataContext);
-    const count = useComputed(() => {
-      return activity.value.totalTrackers;
-    });
     const itemCount = useComputed(() => {
       return Object.keys(activity.value.items).length;
     });
-    return /* @__PURE__ */ _(Activity, { batched, itemCount: itemCount.value, trackerCount: count.value, expansion, toggle }, children);
-  }
-  function ActivityCustomized() {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {enStrings} */
-      {}
-    );
-    const sectionTitle = t4("activity_menuTitle");
-    const { visibility, id, toggle, index: index2 } = useVisibility();
-    useCustomizer({ title: sectionTitle, id, icon: "shield", toggle, visibility: visibility.value, index: index2 });
-    if (visibility.value === "hidden") {
-      return null;
-    }
-    return /* @__PURE__ */ _(ActivityProvider, null, /* @__PURE__ */ _(ActivityConsumer, null));
+    return /* @__PURE__ */ _(Activity, { batched, itemCount: itemCount.value }, children);
   }
   function ActivityConsumer() {
-    const { state, toggle } = x2(ActivityContext);
+    const { state } = x2(ActivityContext);
     const service = x2(ActivityServiceContext);
     const platformName = usePlatformName();
     const visibility = useDocumentVisibility();
     if (service && state.status === "ready") {
       if (platformName === "windows") {
-        return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(ActivityConfigured, { expansion: state.config.expansion, toggle }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility })));
+        return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(ActivityConfigured, null, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility })));
       }
-      return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(BurnProvider, { service }, /* @__PURE__ */ _(ActivityConfigured, { expansion: state.config.expansion, toggle }, /* @__PURE__ */ _(ActivityBody, { canBurn: true, visibility }))));
+      return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(BurnProvider, { service }, /* @__PURE__ */ _(ActivityConfigured, null, /* @__PURE__ */ _(ActivityBody, { canBurn: true, visibility }))));
     }
     return null;
   }
@@ -20390,9 +25152,7 @@
       init_compat_module();
       init_ActivityProvider();
       init_types();
-      init_widget_config_provider();
-      init_utils();
-      init_CustomizerMenu();
+      init_utils2();
       init_settings_provider();
       init_CompanyIcon2();
       init_TranslationsProvider();
@@ -20402,10 +25162,10 @@
       init_signals_module();
       init_ActivityItemAnimationWrapper();
       init_DocumentVisibility();
-      init_ActivityHeading();
       init_HistoryItems();
       init_NormalizeDataProvider();
       init_ActivityInteractionsContext();
+      init_Protections2();
       BurnableItem = M2(
         /**
          * @param {object} props
@@ -20467,4613 +25227,6 @@
     }
   });
 
-  // pages/new-tab/app/entry-points/activity.js
-  var activity_exports = {};
-  __export(activity_exports, {
-    factory: () => factory
-  });
-  function factory() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "activity" }, /* @__PURE__ */ _(ActivityCustomized, null));
-  }
-  var init_activity = __esm({
-    "pages/new-tab/app/entry-points/activity.js"() {
-      "use strict";
-      init_preact_module();
-      init_Layout();
-      init_Activity2();
-    }
-  });
-
-  // pages/new-tab/app/favorites/favorites.service.js
-  var FavoritesService;
-  var init_favorites_service = __esm({
-    "pages/new-tab/app/favorites/favorites.service.js"() {
-      "use strict";
-      init_service();
-      FavoritesService = class {
-        /**
-         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
-         * @internal
-         */
-        constructor(ntp) {
-          this.ntp = ntp;
-          this.dataService = new Service({
-            initial: () => ntp.messaging.request("favorites_getData"),
-            subscribe: (cb) => ntp.messaging.subscribe("favorites_onDataUpdate", cb)
-          });
-          this.configService = new Service({
-            initial: () => ntp.messaging.request("favorites_getConfig"),
-            subscribe: (cb) => ntp.messaging.subscribe("favorites_onConfigUpdate", cb),
-            persist: (data2) => ntp.messaging.notify("favorites_setConfig", data2)
-          });
-        }
-        name() {
-          return "FavoritesService";
-        }
-        /**
-         * @returns {Promise<{data: FavoritesData; config: FavoritesConfig}>}
-         * @internal
-         */
-        async getInitial() {
-          const p1 = this.configService.fetchInitial();
-          const p22 = this.dataService.fetchInitial();
-          const [config, data2] = await Promise.all([p1, p22]);
-          return { config, data: data2 };
-        }
-        /**
-         * @internal
-         */
-        destroy() {
-          this.configService.destroy();
-          this.dataService.destroy();
-        }
-        /**
-         * @param {(evt: {data: FavoritesData, source: 'manual' | 'subscription'}) => void} cb
-         * @internal
-         */
-        onData(cb) {
-          return this.dataService.onData(cb);
-        }
-        /**
-         * @param {(evt: {data: FavoritesConfig, source: 'manual' | 'subscription'}) => void} cb
-         * @internal
-         */
-        onConfig(cb) {
-          return this.configService.onData(cb);
-        }
-        /**
-         * Update the in-memory data immediate and persist.
-         * Any state changes will be broadcast to consumers synchronously
-         * @internal
-         */
-        toggleExpansion() {
-          this.configService.update((old) => {
-            if (old.expansion === "expanded") {
-              return { ...old, expansion: (
-                /** @type {const} */
-                "collapsed"
-              ) };
-            } else {
-              return { ...old, expansion: (
-                /** @type {const} */
-                "expanded"
-              ) };
-            }
-          });
-        }
-        /**
-         * @param {FavoritesData} data
-         * @param {string} id - entity id to move
-         * @param {number} targetIndex - target index
-         * @param {number} fromIndex - from index
-         * @internal
-         */
-        setFavoritesOrder(data2, id, fromIndex, targetIndex) {
-          this.dataService.update((_old) => {
-            return data2;
-          });
-          this.ntp.messaging.notify("favorites_move", {
-            id,
-            targetIndex,
-            fromIndex
-          });
-        }
-        /**
-         * @param {string} id - entity id
-         * @internal
-         */
-        openContextMenu(id) {
-          this.ntp.messaging.notify("favorites_openContextMenu", { id });
-        }
-        /**
-         * @param {string} id - entity id
-         * @param {string} url - target url
-         * @param {FavoritesOpenAction['target']} target
-         * @internal
-         */
-        openFavorite(id, url5, target) {
-          this.ntp.messaging.notify("favorites_open", { id, url: url5, target });
-        }
-        /**
-         * @internal
-         */
-        add() {
-          this.ntp.messaging.notify("favorites_add");
-        }
-      };
-    }
-  });
-
-  // pages/new-tab/app/favorites/components/FavoritesProvider.js
-  function FavoritesProvider({ children }) {
-    const initial = (
-      /** @type {State} */
-      {
-        status: (
-          /** @type {const} */
-          "idle"
-        ),
-        data: null,
-        config: null
-      }
-    );
-    const [state, dispatch] = h2(reducer, initial);
-    const service = useService2();
-    useInitialDataAndConfig({ dispatch, service });
-    useDataSubscription({ dispatch, service });
-    const { toggle } = useConfigSubscription({ dispatch, service });
-    const favoritesDidReOrder = q2(
-      ({ list: list2, id, fromIndex, targetIndex }) => {
-        if (!service.current) return;
-        service.current.setFavoritesOrder({ favorites: list2 }, id, fromIndex, targetIndex);
-      },
-      [service]
-    );
-    const openContextMenu = q2(
-      (id) => {
-        if (!service.current) return;
-        service.current.openContextMenu(id);
-      },
-      [service]
-    );
-    const openFavorite = q2(
-      (id, url5, target) => {
-        if (!service.current) return;
-        service.current.openFavorite(id, url5, target);
-      },
-      [service]
-    );
-    const add2 = q2(() => {
-      if (!service.current) return;
-      service.current.add();
-    }, [service]);
-    const onConfigChanged = q2(
-      (cb) => {
-        if (!service.current) return;
-        return service.current.onConfig((event) => {
-          cb(event.data);
-        });
-      },
-      [service]
-    );
-    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add: add2, onConfigChanged } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
-  }
-  function useService2() {
-    const service = A2(
-      /** @type {FavoritesService | null} */
-      null
-    );
-    const ntp = useMessaging();
-    y2(() => {
-      const stats = new FavoritesService(ntp);
-      service.current = stats;
-      return () => {
-        stats.destroy();
-      };
-    }, [ntp]);
-    return service;
-  }
-  var FavoritesContext, FavoritesDispatchContext;
-  var init_FavoritesProvider = __esm({
-    "pages/new-tab/app/favorites/components/FavoritesProvider.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      init_favorites_service();
-      init_types();
-      init_service_hooks();
-      FavoritesContext = K({
-        /** @type {import('../../service.hooks.js').State<FavoritesData, FavoritesConfig>} */
-        state: { status: "idle", data: null, config: null },
-        /** @type {() => void} */
-        toggle: () => {
-          throw new Error("must implement");
-        },
-        /** @type {ReorderFn<Favorite>} */
-        favoritesDidReOrder: (_args) => {
-          throw new Error("must implement");
-        },
-        /** @type {(id: string) => void} */
-        openContextMenu: (_id) => {
-          throw new Error("must implement");
-        },
-        /** @type {(id: string, url: string, target: OpenTarget) => void} */
-        openFavorite: (_id, _url, _target) => {
-          throw new Error("must implement");
-        },
-        /** @type {() => void} */
-        add: () => {
-          throw new Error("must implement add");
-        },
-        /** @type {(cb: (data: FavoritesConfig) => void) => void} */
-        onConfigChanged: (_cb) => {
-        }
-      });
-      FavoritesDispatchContext = K(
-        /** @type {import("preact/hooks").Dispatch<Events>} */
-        {}
-      );
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js
-  function _arrayWithHoles(r4) {
-    if (Array.isArray(r4)) return r4;
-  }
-  var init_arrayWithHoles = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/arrayWithHoles.js"() {
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js
-  function _iterableToArrayLimit(r4, l5) {
-    var t4 = null == r4 ? null : "undefined" != typeof Symbol && r4[Symbol.iterator] || r4["@@iterator"];
-    if (null != t4) {
-      var e4, n3, i5, u4, a4 = [], f4 = true, o4 = false;
-      try {
-        if (i5 = (t4 = t4.call(r4)).next, 0 === l5) {
-          if (Object(t4) !== t4) return;
-          f4 = false;
-        } else for (; !(f4 = (e4 = i5.call(t4)).done) && (a4.push(e4.value), a4.length !== l5); f4 = true) ;
-      } catch (r5) {
-        o4 = true, n3 = r5;
-      } finally {
-        try {
-          if (!f4 && null != t4["return"] && (u4 = t4["return"](), Object(u4) !== u4)) return;
-        } finally {
-          if (o4) throw n3;
-        }
-      }
-      return a4;
-    }
-  }
-  var init_iterableToArrayLimit = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js"() {
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js
-  function _arrayLikeToArray(r4, a4) {
-    (null == a4 || a4 > r4.length) && (a4 = r4.length);
-    for (var e4 = 0, n3 = Array(a4); e4 < a4; e4++) n3[e4] = r4[e4];
-    return n3;
-  }
-  var init_arrayLikeToArray = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/arrayLikeToArray.js"() {
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js
-  function _unsupportedIterableToArray(r4, a4) {
-    if (r4) {
-      if ("string" == typeof r4) return _arrayLikeToArray(r4, a4);
-      var t4 = {}.toString.call(r4).slice(8, -1);
-      return "Object" === t4 && r4.constructor && (t4 = r4.constructor.name), "Map" === t4 || "Set" === t4 ? Array.from(r4) : "Arguments" === t4 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t4) ? _arrayLikeToArray(r4, a4) : void 0;
-    }
-  }
-  var init_unsupportedIterableToArray = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js"() {
-      init_arrayLikeToArray();
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/nonIterableRest.js
-  function _nonIterableRest() {
-    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-  var init_nonIterableRest = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/nonIterableRest.js"() {
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/slicedToArray.js
-  function _slicedToArray(r4, e4) {
-    return _arrayWithHoles(r4) || _iterableToArrayLimit(r4, e4) || _unsupportedIterableToArray(r4, e4) || _nonIterableRest();
-  }
-  var init_slicedToArray = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"() {
-      init_arrayWithHoles();
-      init_iterableToArrayLimit();
-      init_unsupportedIterableToArray();
-      init_nonIterableRest();
-    }
-  });
-
-  // ../node_modules/bind-event-listener/dist/bind.js
-  var require_bind = __commonJS({
-    "../node_modules/bind-event-listener/dist/bind.js"(exports2) {
-      "use strict";
-      Object.defineProperty(exports2, "__esModule", { value: true });
-      exports2.bind = void 0;
-      function bind4(target, _a) {
-        var type = _a.type, listener = _a.listener, options = _a.options;
-        target.addEventListener(type, listener, options);
-        return function unbind() {
-          target.removeEventListener(type, listener, options);
-        };
-      }
-      exports2.bind = bind4;
-    }
-  });
-
-  // ../node_modules/bind-event-listener/dist/bind-all.js
-  var require_bind_all = __commonJS({
-    "../node_modules/bind-event-listener/dist/bind-all.js"(exports2) {
-      "use strict";
-      var __assign = exports2 && exports2.__assign || function() {
-        __assign = Object.assign || function(t4) {
-          for (var s4, i5 = 1, n3 = arguments.length; i5 < n3; i5++) {
-            s4 = arguments[i5];
-            for (var p5 in s4) if (Object.prototype.hasOwnProperty.call(s4, p5))
-              t4[p5] = s4[p5];
-          }
-          return t4;
-        };
-        return __assign.apply(this, arguments);
-      };
-      Object.defineProperty(exports2, "__esModule", { value: true });
-      exports2.bindAll = void 0;
-      var bind_1 = require_bind();
-      function toOptions(value2) {
-        if (typeof value2 === "undefined") {
-          return void 0;
-        }
-        if (typeof value2 === "boolean") {
-          return {
-            capture: value2
-          };
-        }
-        return value2;
-      }
-      function getBinding(original, sharedOptions) {
-        if (sharedOptions == null) {
-          return original;
-        }
-        var binding = __assign(__assign({}, original), { options: __assign(__assign({}, toOptions(sharedOptions)), toOptions(original.options)) });
-        return binding;
-      }
-      function bindAll5(target, bindings, sharedOptions) {
-        var unbinds = bindings.map(function(original) {
-          var binding = getBinding(original, sharedOptions);
-          return (0, bind_1.bind)(target, binding);
-        });
-        return function unbindAll() {
-          unbinds.forEach(function(unbind) {
-            return unbind();
-          });
-        };
-      }
-      exports2.bindAll = bindAll5;
-    }
-  });
-
-  // ../node_modules/bind-event-listener/dist/index.js
-  var require_dist = __commonJS({
-    "../node_modules/bind-event-listener/dist/index.js"(exports2) {
-      "use strict";
-      Object.defineProperty(exports2, "__esModule", { value: true });
-      exports2.bindAll = exports2.bind = void 0;
-      var bind_1 = require_bind();
-      Object.defineProperty(exports2, "bind", { enumerable: true, get: function() {
-        return bind_1.bind;
-      } });
-      var bind_all_1 = require_bind_all();
-      Object.defineProperty(exports2, "bindAll", { enumerable: true, get: function() {
-        return bind_all_1.bindAll;
-      } });
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/honey-pot-data-attribute.js
-  var honeyPotDataAttribute;
-  var init_honey_pot_data_attribute = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/honey-pot-data-attribute.js"() {
-      honeyPotDataAttribute = "data-pdnd-honey-pot";
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/is-honey-pot-element.js
-  function isHoneyPotElement(target) {
-    return target instanceof Element && target.hasAttribute(honeyPotDataAttribute);
-  }
-  var init_is_honey_pot_element = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/is-honey-pot-element.js"() {
-      init_honey_pot_data_attribute();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/get-element-from-point-without-honey-pot.js
-  function getElementFromPointWithoutHoneypot(client) {
-    var _document$elementsFro = document.elementsFromPoint(client.x, client.y), _document$elementsFro2 = _slicedToArray(_document$elementsFro, 2), top2 = _document$elementsFro2[0], second = _document$elementsFro2[1];
-    if (!top2) {
-      return null;
-    }
-    if (isHoneyPotElement(top2)) {
-      return second !== null && second !== void 0 ? second : null;
-    }
-    return top2;
-  }
-  var init_get_element_from_point_without_honey_pot = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/get-element-from-point-without-honey-pot.js"() {
-      init_slicedToArray();
-      init_is_honey_pot_element();
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/typeof.js
-  function _typeof2(o4) {
-    "@babel/helpers - typeof";
-    return _typeof2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
-      return typeof o5;
-    } : function(o5) {
-      return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
-    }, _typeof2(o4);
-  }
-  var init_typeof = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/typeof.js"() {
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/toPrimitive.js
-  function toPrimitive(t4, r4) {
-    if ("object" != _typeof2(t4) || !t4) return t4;
-    var e4 = t4[Symbol.toPrimitive];
-    if (void 0 !== e4) {
-      var i5 = e4.call(t4, r4 || "default");
-      if ("object" != _typeof2(i5)) return i5;
-      throw new TypeError("@@toPrimitive must return a primitive value.");
-    }
-    return ("string" === r4 ? String : Number)(t4);
-  }
-  var init_toPrimitive = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/toPrimitive.js"() {
-      init_typeof();
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/toPropertyKey.js
-  function toPropertyKey(t4) {
-    var i5 = toPrimitive(t4, "string");
-    return "symbol" == _typeof2(i5) ? i5 : i5 + "";
-  }
-  var init_toPropertyKey = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/toPropertyKey.js"() {
-      init_typeof();
-      init_toPrimitive();
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/defineProperty.js
-  function _defineProperty(e4, r4, t4) {
-    return (r4 = toPropertyKey(r4)) in e4 ? Object.defineProperty(e4, r4, {
-      value: t4,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    }) : e4[r4] = t4, e4;
-  }
-  var init_defineProperty = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/defineProperty.js"() {
-      init_toPropertyKey();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/max-z-index.js
-  var maxZIndex;
-  var init_max_z_index = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/max-z-index.js"() {
-      maxZIndex = 2147483647;
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/make-honey-pot-fix.js
-  function ownKeys(e4, r4) {
-    var t4 = Object.keys(e4);
-    if (Object.getOwnPropertySymbols) {
-      var o4 = Object.getOwnPropertySymbols(e4);
-      r4 && (o4 = o4.filter(function(r5) {
-        return Object.getOwnPropertyDescriptor(e4, r5).enumerable;
-      })), t4.push.apply(t4, o4);
-    }
-    return t4;
-  }
-  function _objectSpread(e4) {
-    for (var r4 = 1; r4 < arguments.length; r4++) {
-      var t4 = null != arguments[r4] ? arguments[r4] : {};
-      r4 % 2 ? ownKeys(Object(t4), true).forEach(function(r5) {
-        _defineProperty(e4, r5, t4[r5]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e4, Object.getOwnPropertyDescriptors(t4)) : ownKeys(Object(t4)).forEach(function(r5) {
-        Object.defineProperty(e4, r5, Object.getOwnPropertyDescriptor(t4, r5));
-      });
-    }
-    return e4;
-  }
-  function floorToClosestPixel(point) {
-    return {
-      x: Math.floor(point.x),
-      y: Math.floor(point.y)
-    };
-  }
-  function pullBackByHalfHoneyPotSize(point) {
-    return {
-      x: point.x - halfHoneyPotSize,
-      y: point.y - halfHoneyPotSize
-    };
-  }
-  function preventGoingBackwardsOffScreen(point) {
-    return {
-      x: Math.max(point.x, 0),
-      y: Math.max(point.y, 0)
-    };
-  }
-  function preventGoingForwardsOffScreen(point) {
-    return {
-      x: Math.min(point.x, window.innerWidth - honeyPotSize),
-      y: Math.min(point.y, window.innerHeight - honeyPotSize)
-    };
-  }
-  function getHoneyPotRectFor(_ref) {
-    var client = _ref.client;
-    var point = preventGoingForwardsOffScreen(preventGoingBackwardsOffScreen(pullBackByHalfHoneyPotSize(floorToClosestPixel(client))));
-    return DOMRect.fromRect({
-      x: point.x,
-      y: point.y,
-      width: honeyPotSize,
-      height: honeyPotSize
-    });
-  }
-  function getRectStyles(_ref2) {
-    var clientRect = _ref2.clientRect;
-    return {
-      left: "".concat(clientRect.left, "px"),
-      top: "".concat(clientRect.top, "px"),
-      width: "".concat(clientRect.width, "px"),
-      height: "".concat(clientRect.height, "px")
-    };
-  }
-  function isWithin(_ref3) {
-    var client = _ref3.client, clientRect = _ref3.clientRect;
-    return (
-      // is within horizontal bounds
-      client.x >= clientRect.x && client.x <= clientRect.x + clientRect.width && // is within vertical bounds
-      client.y >= clientRect.y && client.y <= clientRect.y + clientRect.height
-    );
-  }
-  function mountHoneyPot(_ref4) {
-    var initial = _ref4.initial;
-    var element = document.createElement("div");
-    element.setAttribute(honeyPotDataAttribute, "true");
-    var clientRect = getHoneyPotRectFor({
-      client: initial
-    });
-    Object.assign(element.style, _objectSpread(_objectSpread({
-      // Setting a background color explicitly to avoid any inherited styles.
-      // Looks like this could be `opacity: 0`, but worried that _might_
-      // cause the element to be ignored on some platforms.
-      // When debugging, set backgroundColor to something like "red".
-      backgroundColor: "transparent",
-      position: "fixed",
-      // Being explicit to avoid inheriting styles
-      padding: 0,
-      margin: 0,
-      boxSizing: "border-box"
-    }, getRectStyles({
-      clientRect
-    })), {}, {
-      // We want this element to absorb pointer events,
-      // it's kind of the whole point 😉
-      pointerEvents: "auto",
-      // Want to make sure the honey pot is top of everything else.
-      // Don't need to worry about native drag previews, as they will
-      // have been rendered (and removed) before the honey pot is rendered
-      zIndex: maxZIndex
-    }));
-    document.body.appendChild(element);
-    var unbindPointerMove = (0, import_bind_event_listener.bind)(window, {
-      type: "pointermove",
-      listener: function listener(event) {
-        var client = {
-          x: event.clientX,
-          y: event.clientY
-        };
-        clientRect = getHoneyPotRectFor({
-          client
-        });
-        Object.assign(element.style, getRectStyles({
-          clientRect
-        }));
-      },
-      // using capture so we are less likely to be impacted by event stopping
-      options: {
-        capture: true
-      }
-    });
-    return function finish(_ref5) {
-      var current = _ref5.current;
-      unbindPointerMove();
-      if (isWithin({
-        client: current,
-        clientRect
-      })) {
-        element.remove();
-        return;
-      }
-      function cleanup() {
-        unbindPostDragEvents();
-        element.remove();
-      }
-      var unbindPostDragEvents = (0, import_bind_event_listener.bindAll)(window, [
-        {
-          type: "pointerdown",
-          listener: cleanup
-        },
-        {
-          type: "pointermove",
-          listener: cleanup
-        },
-        {
-          type: "focusin",
-          listener: cleanup
-        },
-        {
-          type: "focusout",
-          listener: cleanup
-        },
-        // a 'pointerdown' should happen before 'dragstart', but just being super safe
-        {
-          type: "dragstart",
-          listener: cleanup
-        },
-        // if the user has dragged something out of the window
-        // and then is dragging something back into the window
-        // the first events we will see are "dragenter" (and then "dragover").
-        // So if we see any of these we need to clear the post drag fix.
-        {
-          type: "dragenter",
-          listener: cleanup
-        },
-        {
-          type: "dragover",
-          listener: cleanup
-        }
-        // Not adding a "wheel" event listener, as "wheel" by itself does not
-        // resolve the bug.
-      ], {
-        // Using `capture` so less likely to be impacted by other code stopping events
-        capture: true
-      });
-    };
-  }
-  function makeHoneyPotFix() {
-    var latestPointerMove = null;
-    function bindEvents() {
-      latestPointerMove = null;
-      return (0, import_bind_event_listener.bind)(window, {
-        type: "pointermove",
-        listener: function listener(event) {
-          latestPointerMove = {
-            x: event.clientX,
-            y: event.clientY
-          };
-        },
-        // listening for pointer move in capture phase
-        // so we are less likely to be impacted by events being stopped.
-        options: {
-          capture: true
-        }
-      });
-    }
-    function getOnPostDispatch() {
-      var finish = null;
-      return function onPostEvent(_ref6) {
-        var eventName = _ref6.eventName, payload = _ref6.payload;
-        if (eventName === "onDragStart") {
-          var input = payload.location.initial.input;
-          var initial = latestPointerMove !== null && latestPointerMove !== void 0 ? latestPointerMove : {
-            x: input.clientX,
-            y: input.clientY
-          };
-          finish = mountHoneyPot({
-            initial
-          });
-        }
-        if (eventName === "onDrop") {
-          var _finish;
-          var _input = payload.location.current.input;
-          (_finish = finish) === null || _finish === void 0 || _finish({
-            current: {
-              x: _input.clientX,
-              y: _input.clientY
-            }
-          });
-          finish = null;
-          latestPointerMove = null;
-        }
-      };
-    }
-    return {
-      bindEvents,
-      getOnPostDispatch
-    };
-  }
-  var import_bind_event_listener, honeyPotSize, halfHoneyPotSize;
-  var init_make_honey_pot_fix = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/make-honey-pot-fix.js"() {
-      init_defineProperty();
-      import_bind_event_listener = __toESM(require_dist());
-      init_max_z_index();
-      init_honey_pot_data_attribute();
-      honeyPotSize = 2;
-      halfHoneyPotSize = honeyPotSize / 2;
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js
-  function _arrayWithoutHoles(r4) {
-    if (Array.isArray(r4)) return _arrayLikeToArray(r4);
-  }
-  var init_arrayWithoutHoles = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js"() {
-      init_arrayLikeToArray();
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/iterableToArray.js
-  function _iterableToArray(r4) {
-    if ("undefined" != typeof Symbol && null != r4[Symbol.iterator] || null != r4["@@iterator"]) return Array.from(r4);
-  }
-  var init_iterableToArray = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/iterableToArray.js"() {
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-  var init_nonIterableSpread = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js"() {
-    }
-  });
-
-  // ../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js
-  function _toConsumableArray(r4) {
-    return _arrayWithoutHoles(r4) || _iterableToArray(r4) || _unsupportedIterableToArray(r4) || _nonIterableSpread();
-  }
-  var init_toConsumableArray = __esm({
-    "../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"() {
-      init_arrayWithoutHoles();
-      init_iterableToArray();
-      init_unsupportedIterableToArray();
-      init_nonIterableSpread();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js
-  function once(fn2) {
-    var cache = null;
-    return function wrapped() {
-      if (!cache) {
-        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-        var result = fn2.apply(this, args);
-        cache = {
-          result
-        };
-      }
-      return cache.result;
-    };
-  }
-  var init_once = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/once.js"() {
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-firefox.js
-  var isFirefox;
-  var init_is_firefox = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-firefox.js"() {
-      init_once();
-      isFirefox = once(function isFirefox2() {
-        if (false) {
-          return false;
-        }
-        return navigator.userAgent.includes("Firefox");
-      });
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-safari.js
-  var isSafari2;
-  var init_is_safari = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/is-safari.js"() {
-      init_once();
-      isSafari2 = once(function isSafari3() {
-        if (false) {
-          return false;
-        }
-        var _navigator = navigator, userAgent = _navigator.userAgent;
-        return userAgent.includes("AppleWebKit") && !userAgent.includes("Chrome");
-      });
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/count-events-for-safari.js
-  function isEnteringWindowInSafari(_ref) {
-    var dragEnter = _ref.dragEnter;
-    if (!isSafari2()) {
-      return false;
-    }
-    return dragEnter.hasOwnProperty(symbols.isEnteringWindow);
-  }
-  function isLeavingWindowInSafari(_ref2) {
-    var dragLeave = _ref2.dragLeave;
-    if (!isSafari2()) {
-      return false;
-    }
-    return dragLeave.hasOwnProperty(symbols.isLeavingWindow);
-  }
-  var import_bind_event_listener2, symbols;
-  var init_count_events_for_safari = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/count-events-for-safari.js"() {
-      import_bind_event_listener2 = __toESM(require_dist());
-      init_is_safari();
-      symbols = {
-        isLeavingWindow: Symbol("leaving"),
-        isEnteringWindow: Symbol("entering")
-      };
-      (function fixSafari() {
-        if (typeof window === "undefined") {
-          return;
-        }
-        if (false) {
-          return;
-        }
-        if (!isSafari2()) {
-          return;
-        }
-        function getInitialState() {
-          return {
-            enterCount: 0,
-            isOverWindow: false
-          };
-        }
-        var state = getInitialState();
-        function resetState() {
-          state = getInitialState();
-        }
-        (0, import_bind_event_listener2.bindAll)(
-          window,
-          [{
-            type: "dragstart",
-            listener: function listener() {
-              state.enterCount = 0;
-              state.isOverWindow = true;
-            }
-          }, {
-            type: "drop",
-            listener: resetState
-          }, {
-            type: "dragend",
-            listener: resetState
-          }, {
-            type: "dragenter",
-            listener: function listener(event) {
-              if (!state.isOverWindow && state.enterCount === 0) {
-                event[symbols.isEnteringWindow] = true;
-              }
-              state.isOverWindow = true;
-              state.enterCount++;
-            }
-          }, {
-            type: "dragleave",
-            listener: function listener(event) {
-              state.enterCount--;
-              if (state.isOverWindow && state.enterCount === 0) {
-                event[symbols.isLeavingWindow] = true;
-                state.isOverWindow = false;
-              }
-            }
-          }],
-          // using `capture: true` so that adding event listeners
-          // in bubble phase will have the correct symbols
-          {
-            capture: true
-          }
-        );
-      })();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js
-  function isNodeLike(target) {
-    return "nodeName" in target;
-  }
-  function isFromAnotherWindow(eventTarget) {
-    return isNodeLike(eventTarget) && eventTarget.ownerDocument !== document;
-  }
-  var init_is_from_another_window = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-from-another-window.js"() {
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-leaving-window.js
-  function isLeavingWindow(_ref) {
-    var dragLeave = _ref.dragLeave;
-    var type = dragLeave.type, relatedTarget = dragLeave.relatedTarget;
-    if (type !== "dragleave") {
-      return false;
-    }
-    if (isSafari2()) {
-      return isLeavingWindowInSafari({
-        dragLeave
-      });
-    }
-    if (relatedTarget == null) {
-      return true;
-    }
-    if (isFirefox()) {
-      return isFromAnotherWindow(relatedTarget);
-    }
-    return relatedTarget instanceof HTMLIFrameElement;
-  }
-  var init_is_leaving_window = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-leaving-window.js"() {
-      init_is_firefox();
-      init_is_safari();
-      init_count_events_for_safari();
-      init_is_from_another_window();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/detect-broken-drag.js
-  function getBindingsForBrokenDrags(_ref) {
-    var onDragEnd = _ref.onDragEnd;
-    return [
-      // ## Detecting drag ending for removed draggables
-      //
-      // If a draggable element is removed during a drag and the user drops:
-      // 1. if over a valid drop target: we get a "drop" event to know the drag is finished
-      // 2. if not over a valid drop target (or cancelled): we get nothing
-      // The "dragend" event will not fire on the source draggable if it has been
-      // removed from the DOM.
-      // So we need to figure out if a drag operation has finished by looking at other events
-      // We can do this by looking at other events
-      // ### First detection: "pointermove" events
-      // 1. "pointermove" events cannot fire during a drag and drop operation
-      // according to the spec. So if we get a "pointermove" it means that
-      // the drag and drop operations has finished. So if we get a "pointermove"
-      // we know that the drag is over
-      // 2. 🦊😤 Drag and drop operations are _supposed_ to suppress
-      // other pointer events. However, firefox will allow a few
-      // pointer event to get through after a drag starts.
-      // The most I've seen is 3
-      {
-        type: "pointermove",
-        listener: /* @__PURE__ */ function() {
-          var callCount = 0;
-          return function listener() {
-            if (callCount < 20) {
-              callCount++;
-              return;
-            }
-            onDragEnd();
-          };
-        }()
-      },
-      // ### Second detection: "pointerdown" events
-      // If we receive this event then we know that a drag operation has finished
-      // and potentially another one is about to start.
-      // Note: `pointerdown` fires on all browsers / platforms before "dragstart"
-      {
-        type: "pointerdown",
-        listener: onDragEnd
-      }
-    ];
-  }
-  var init_detect_broken_drag = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/detect-broken-drag.js"() {
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/get-input.js
-  function getInput(event) {
-    return {
-      altKey: event.altKey,
-      button: event.button,
-      buttons: event.buttons,
-      ctrlKey: event.ctrlKey,
-      metaKey: event.metaKey,
-      shiftKey: event.shiftKey,
-      clientX: event.clientX,
-      clientY: event.clientY,
-      pageX: event.pageX,
-      pageY: event.pageY
-    };
-  }
-  var init_get_input = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/get-input.js"() {
-    }
-  });
-
-  // ../node_modules/raf-schd/dist/raf-schd.esm.js
-  var rafSchd, raf_schd_esm_default;
-  var init_raf_schd_esm = __esm({
-    "../node_modules/raf-schd/dist/raf-schd.esm.js"() {
-      rafSchd = function rafSchd2(fn2) {
-        var lastArgs = [];
-        var frameId = null;
-        var wrapperFn = function wrapperFn2() {
-          for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-          }
-          lastArgs = args;
-          if (frameId) {
-            return;
-          }
-          frameId = requestAnimationFrame(function() {
-            frameId = null;
-            fn2.apply(void 0, lastArgs);
-          });
-        };
-        wrapperFn.cancel = function() {
-          if (!frameId) {
-            return;
-          }
-          cancelAnimationFrame(frameId);
-          frameId = null;
-        };
-        return wrapperFn;
-      };
-      raf_schd_esm_default = rafSchd;
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/dispatch-consumer-event.js
-  function makeDispatch(_ref) {
-    var source = _ref.source, initial = _ref.initial, dispatchEvent = _ref.dispatchEvent;
-    var previous = {
-      dropTargets: []
-    };
-    function safeDispatch(args) {
-      dispatchEvent(args);
-      previous = {
-        dropTargets: args.payload.location.current.dropTargets
-      };
-    }
-    var dispatch = {
-      start: function start2(_ref2) {
-        var nativeSetDragImage = _ref2.nativeSetDragImage;
-        var location2 = {
-          current: initial,
-          previous,
-          initial
-        };
-        safeDispatch({
-          eventName: "onGenerateDragPreview",
-          payload: {
-            source,
-            location: location2,
-            nativeSetDragImage
-          }
-        });
-        dragStart.schedule(function() {
-          safeDispatch({
-            eventName: "onDragStart",
-            payload: {
-              source,
-              location: location2
-            }
-          });
-        });
-      },
-      dragUpdate: function dragUpdate(_ref3) {
-        var current = _ref3.current;
-        dragStart.flush();
-        scheduleOnDrag.cancel();
-        safeDispatch({
-          eventName: "onDropTargetChange",
-          payload: {
-            source,
-            location: {
-              initial,
-              previous,
-              current
-            }
-          }
-        });
-      },
-      drag: function drag(_ref4) {
-        var current = _ref4.current;
-        scheduleOnDrag(function() {
-          dragStart.flush();
-          var location2 = {
-            initial,
-            previous,
-            current
-          };
-          safeDispatch({
-            eventName: "onDrag",
-            payload: {
-              source,
-              location: location2
-            }
-          });
-        });
-      },
-      drop: function drop(_ref5) {
-        var current = _ref5.current, updatedSourcePayload = _ref5.updatedSourcePayload;
-        dragStart.flush();
-        scheduleOnDrag.cancel();
-        safeDispatch({
-          eventName: "onDrop",
-          payload: {
-            source: updatedSourcePayload !== null && updatedSourcePayload !== void 0 ? updatedSourcePayload : source,
-            location: {
-              current,
-              previous,
-              initial
-            }
-          }
-        });
-      }
-    };
-    return dispatch;
-  }
-  var scheduleOnDrag, dragStart;
-  var init_dispatch_consumer_event = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/dispatch-consumer-event.js"() {
-      init_raf_schd_esm();
-      scheduleOnDrag = raf_schd_esm_default(function(fn2) {
-        return fn2();
-      });
-      dragStart = /* @__PURE__ */ function() {
-        var scheduled = null;
-        function schedule(fn2) {
-          var frameId = requestAnimationFrame(function() {
-            scheduled = null;
-            fn2();
-          });
-          scheduled = {
-            frameId,
-            fn: fn2
-          };
-        }
-        function flush() {
-          if (scheduled) {
-            cancelAnimationFrame(scheduled.frameId);
-            scheduled.fn();
-            scheduled = null;
-          }
-        }
-        return {
-          schedule,
-          flush
-        };
-      }();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/lifecycle-manager.js
-  function canStart() {
-    return !globalState.isActive;
-  }
-  function getNativeSetDragImage(event) {
-    if (event.dataTransfer) {
-      return event.dataTransfer.setDragImage.bind(event.dataTransfer);
-    }
-    return null;
-  }
-  function hasHierarchyChanged(_ref) {
-    var current = _ref.current, next = _ref.next;
-    if (current.length !== next.length) {
-      return true;
-    }
-    for (var i5 = 0; i5 < current.length; i5++) {
-      if (current[i5].element !== next[i5].element) {
-        return true;
-      }
-    }
-    return false;
-  }
-  function start(_ref2) {
-    var event = _ref2.event, dragType = _ref2.dragType, getDropTargetsOver = _ref2.getDropTargetsOver, dispatchEvent = _ref2.dispatchEvent;
-    if (!canStart()) {
-      return;
-    }
-    var initial = getStartLocation({
-      event,
-      dragType,
-      getDropTargetsOver
-    });
-    globalState.isActive = true;
-    var state = {
-      current: initial
-    };
-    setDropEffectOnEvent({
-      event,
-      current: initial.dropTargets
-    });
-    var dispatch = makeDispatch({
-      source: dragType.payload,
-      dispatchEvent,
-      initial
-    });
-    function updateState(next) {
-      var hasChanged = hasHierarchyChanged({
-        current: state.current.dropTargets,
-        next: next.dropTargets
-      });
-      state.current = next;
-      if (hasChanged) {
-        dispatch.dragUpdate({
-          current: state.current
-        });
-      }
-    }
-    function onUpdateEvent(event2) {
-      var input = getInput(event2);
-      var target = isHoneyPotElement(event2.target) ? getElementFromPointWithoutHoneypot({
-        x: input.clientX,
-        y: input.clientY
-      }) : event2.target;
-      var nextDropTargets = getDropTargetsOver({
-        target,
-        input,
-        source: dragType.payload,
-        current: state.current.dropTargets
-      });
-      if (nextDropTargets.length) {
-        event2.preventDefault();
-        setDropEffectOnEvent({
-          event: event2,
-          current: nextDropTargets
-        });
-      }
-      updateState({
-        dropTargets: nextDropTargets,
-        input
-      });
-    }
-    function cancel() {
-      if (state.current.dropTargets.length) {
-        updateState({
-          dropTargets: [],
-          input: state.current.input
-        });
-      }
-      dispatch.drop({
-        current: state.current,
-        updatedSourcePayload: null
-      });
-      finish();
-    }
-    function finish() {
-      globalState.isActive = false;
-      unbindEvents();
-    }
-    var unbindEvents = (0, import_bind_event_listener3.bindAll)(
-      window,
-      [{
-        // 👋 Note: we are repurposing the `dragover` event as our `drag` event
-        // this is because firefox does not publish pointer coordinates during
-        // a `drag` event, but does for every other type of drag event
-        // `dragover` fires on all elements that are being dragged over
-        // Because we are binding to `window` - our `dragover` is effectively the same as a `drag`
-        // 🦊😤
-        type: "dragover",
-        listener: function listener(event2) {
-          onUpdateEvent(event2);
-          dispatch.drag({
-            current: state.current
-          });
-        }
-      }, {
-        type: "dragenter",
-        listener: onUpdateEvent
-      }, {
-        type: "dragleave",
-        listener: function listener(event2) {
-          if (!isLeavingWindow({
-            dragLeave: event2
-          })) {
-            return;
-          }
-          updateState({
-            input: state.current.input,
-            dropTargets: []
-          });
-          if (dragType.startedFrom === "external") {
-            cancel();
-          }
-        }
-      }, {
-        // A "drop" can only happen if the browser allowed the drop
-        type: "drop",
-        listener: function listener(event2) {
-          state.current = {
-            dropTargets: state.current.dropTargets,
-            input: getInput(event2)
-          };
-          if (!state.current.dropTargets.length) {
-            cancel();
-            return;
-          }
-          event2.preventDefault();
-          setDropEffectOnEvent({
-            event: event2,
-            current: state.current.dropTargets
-          });
-          dispatch.drop({
-            current: state.current,
-            // When dropping something native, we need to extract the latest
-            // `.items` from the "drop" event as it is now accessible
-            updatedSourcePayload: dragType.type === "external" ? dragType.getDropPayload(event2) : null
-          });
-          finish();
-        }
-      }, {
-        // "dragend" fires when on the drag source (eg a draggable element)
-        // when the drag is finished.
-        // "dragend" will fire after "drop" (if there was a successful drop)
-        // "dragend" does not fire if the draggable source has been removed during the drag
-        // or for external drag sources (eg files)
-        // This "dragend" listener will not fire if there was a successful drop
-        // as we will have already removed the event listener
-        type: "dragend",
-        listener: function listener(event2) {
-          state.current = {
-            dropTargets: state.current.dropTargets,
-            input: getInput(event2)
-          };
-          cancel();
-        }
-      }].concat(_toConsumableArray(getBindingsForBrokenDrags({
-        onDragEnd: cancel
-      }))),
-      // Once we have started a managed drag operation it is important that we see / own all drag events
-      // We got one adoption bug pop up where some code was stopping (`event.stopPropagation()`)
-      // all "drop" events in the bubble phase on the `document.body`.
-      // This meant that we never saw the "drop" event.
-      {
-        capture: true
-      }
-    );
-    dispatch.start({
-      nativeSetDragImage: getNativeSetDragImage(event)
-    });
-  }
-  function setDropEffectOnEvent(_ref3) {
-    var _current$;
-    var event = _ref3.event, current = _ref3.current;
-    var innerMost = (_current$ = current[0]) === null || _current$ === void 0 ? void 0 : _current$.dropEffect;
-    if (innerMost != null && event.dataTransfer) {
-      event.dataTransfer.dropEffect = innerMost;
-    }
-  }
-  function getStartLocation(_ref4) {
-    var event = _ref4.event, dragType = _ref4.dragType, getDropTargetsOver = _ref4.getDropTargetsOver;
-    var input = getInput(event);
-    if (dragType.startedFrom === "external") {
-      return {
-        input,
-        dropTargets: []
-      };
-    }
-    var dropTargets = getDropTargetsOver({
-      input,
-      source: dragType.payload,
-      target: event.target,
-      current: []
-    });
-    return {
-      input,
-      dropTargets
-    };
-  }
-  var import_bind_event_listener3, globalState, lifecycle;
-  var init_lifecycle_manager = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/lifecycle-manager.js"() {
-      init_toConsumableArray();
-      import_bind_event_listener3 = __toESM(require_dist());
-      init_get_element_from_point_without_honey_pot();
-      init_is_honey_pot_element();
-      init_is_leaving_window();
-      init_detect_broken_drag();
-      init_get_input();
-      init_dispatch_consumer_event();
-      globalState = {
-        isActive: false
-      };
-      lifecycle = {
-        canStart,
-        start
-      };
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/usage-ledger.js
-  function registerUsage(_ref) {
-    var typeKey = _ref.typeKey, mount3 = _ref.mount;
-    var entry = ledger.get(typeKey);
-    if (entry) {
-      entry.usageCount++;
-      return entry;
-    }
-    var initial = {
-      typeKey,
-      unmount: mount3(),
-      usageCount: 1
-    };
-    ledger.set(typeKey, initial);
-    return initial;
-  }
-  function register(args) {
-    var entry = registerUsage(args);
-    return function unregister() {
-      entry.usageCount--;
-      if (entry.usageCount > 0) {
-        return;
-      }
-      entry.unmount();
-      ledger.delete(args.typeKey);
-    };
-  }
-  var ledger;
-  var init_usage_ledger = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/ledger/usage-ledger.js"() {
-      ledger = /* @__PURE__ */ new Map();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/combine.js
-  function combine() {
-    for (var _len = arguments.length, fns = new Array(_len), _key = 0; _key < _len; _key++) {
-      fns[_key] = arguments[_key];
-    }
-    return function cleanup() {
-      fns.forEach(function(fn2) {
-        return fn2();
-      });
-    };
-  }
-  var init_combine = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/combine.js"() {
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/add-attribute.js
-  function addAttribute(element, _ref) {
-    var attribute = _ref.attribute, value2 = _ref.value;
-    element.setAttribute(attribute, value2);
-    return function() {
-      return element.removeAttribute(attribute);
-    };
-  }
-  var init_add_attribute = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/add-attribute.js"() {
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-drop-target.js
-  function ownKeys2(e4, r4) {
-    var t4 = Object.keys(e4);
-    if (Object.getOwnPropertySymbols) {
-      var o4 = Object.getOwnPropertySymbols(e4);
-      r4 && (o4 = o4.filter(function(r5) {
-        return Object.getOwnPropertyDescriptor(e4, r5).enumerable;
-      })), t4.push.apply(t4, o4);
-    }
-    return t4;
-  }
-  function _objectSpread2(e4) {
-    for (var r4 = 1; r4 < arguments.length; r4++) {
-      var t4 = null != arguments[r4] ? arguments[r4] : {};
-      r4 % 2 ? ownKeys2(Object(t4), true).forEach(function(r5) {
-        _defineProperty(e4, r5, t4[r5]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e4, Object.getOwnPropertyDescriptors(t4)) : ownKeys2(Object(t4)).forEach(function(r5) {
-        Object.defineProperty(e4, r5, Object.getOwnPropertyDescriptor(t4, r5));
-      });
-    }
-    return e4;
-  }
-  function _createForOfIteratorHelper(r4, e4) {
-    var t4 = "undefined" != typeof Symbol && r4[Symbol.iterator] || r4["@@iterator"];
-    if (!t4) {
-      if (Array.isArray(r4) || (t4 = _unsupportedIterableToArray2(r4)) || e4 && r4 && "number" == typeof r4.length) {
-        t4 && (r4 = t4);
-        var _n = 0, F5 = function F6() {
-        };
-        return { s: F5, n: function n3() {
-          return _n >= r4.length ? { done: true } : { done: false, value: r4[_n++] };
-        }, e: function e5(r5) {
-          throw r5;
-        }, f: F5 };
-      }
-      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-    }
-    var o4, a4 = true, u4 = false;
-    return { s: function s4() {
-      t4 = t4.call(r4);
-    }, n: function n3() {
-      var r5 = t4.next();
-      return a4 = r5.done, r5;
-    }, e: function e5(r5) {
-      u4 = true, o4 = r5;
-    }, f: function f4() {
-      try {
-        a4 || null == t4.return || t4.return();
-      } finally {
-        if (u4) throw o4;
-      }
-    } };
-  }
-  function _unsupportedIterableToArray2(r4, a4) {
-    if (r4) {
-      if ("string" == typeof r4) return _arrayLikeToArray2(r4, a4);
-      var t4 = {}.toString.call(r4).slice(8, -1);
-      return "Object" === t4 && r4.constructor && (t4 = r4.constructor.name), "Map" === t4 || "Set" === t4 ? Array.from(r4) : "Arguments" === t4 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t4) ? _arrayLikeToArray2(r4, a4) : void 0;
-    }
-  }
-  function _arrayLikeToArray2(r4, a4) {
-    (null == a4 || a4 > r4.length) && (a4 = r4.length);
-    for (var e4 = 0, n3 = Array(a4); e4 < a4; e4++) n3[e4] = r4[e4];
-    return n3;
-  }
-  function copyReverse(array) {
-    return array.slice(0).reverse();
-  }
-  function makeDropTarget(_ref) {
-    var typeKey = _ref.typeKey, defaultDropEffect = _ref.defaultDropEffect;
-    var registry = /* @__PURE__ */ new WeakMap();
-    var dropTargetDataAtt = "data-drop-target-for-".concat(typeKey);
-    var dropTargetSelector = "[".concat(dropTargetDataAtt, "]");
-    function addToRegistry2(args) {
-      registry.set(args.element, args);
-      return function() {
-        return registry.delete(args.element);
-      };
-    }
-    function dropTargetForConsumers(args) {
-      if (true) {
-        var existing = registry.get(args.element);
-        if (existing) {
-          console.warn("You have already registered a [".concat(typeKey, "] dropTarget on the same element"), {
-            existing,
-            proposed: args
-          });
-        }
-        if (args.element instanceof HTMLIFrameElement) {
-          console.warn("\n            We recommend not registering <iframe> elements as drop targets\n            as it can result in some strange browser event ordering.\n          ".replace(/\s{2,}/g, " ").trim());
-        }
-      }
-      return combine(addAttribute(args.element, {
-        attribute: dropTargetDataAtt,
-        value: "true"
-      }), addToRegistry2(args));
-    }
-    function getActualDropTargets(_ref2) {
-      var _args$getData, _args$getData2, _args$getDropEffect, _args$getDropEffect2;
-      var source = _ref2.source, target = _ref2.target, input = _ref2.input, _ref2$result = _ref2.result, result = _ref2$result === void 0 ? [] : _ref2$result;
-      if (target == null) {
-        return result;
-      }
-      if (!(target instanceof Element)) {
-        if (target instanceof Node) {
-          return getActualDropTargets({
-            source,
-            target: target.parentElement,
-            input,
-            result
-          });
-        }
-        return result;
-      }
-      var closest = target.closest(dropTargetSelector);
-      if (closest == null) {
-        return result;
-      }
-      var args = registry.get(closest);
-      if (args == null) {
-        return result;
-      }
-      var feedback = {
-        input,
-        source,
-        element: args.element
-      };
-      if (args.canDrop && !args.canDrop(feedback)) {
-        return getActualDropTargets({
-          source,
-          target: args.element.parentElement,
-          input,
-          result
-        });
-      }
-      var data2 = (_args$getData = (_args$getData2 = args.getData) === null || _args$getData2 === void 0 ? void 0 : _args$getData2.call(args, feedback)) !== null && _args$getData !== void 0 ? _args$getData : {};
-      var dropEffect = (_args$getDropEffect = (_args$getDropEffect2 = args.getDropEffect) === null || _args$getDropEffect2 === void 0 ? void 0 : _args$getDropEffect2.call(args, feedback)) !== null && _args$getDropEffect !== void 0 ? _args$getDropEffect : defaultDropEffect;
-      var record = {
-        data: data2,
-        element: args.element,
-        dropEffect,
-        // we are collecting _actual_ drop targets, so these are
-        // being applied _not_ due to stickiness
-        isActiveDueToStickiness: false
-      };
-      return getActualDropTargets({
-        source,
-        target: args.element.parentElement,
-        input,
-        // Using bubble ordering. Same ordering as `event.getPath()`
-        result: [].concat(_toConsumableArray(result), [record])
-      });
-    }
-    function notifyCurrent(_ref3) {
-      var eventName = _ref3.eventName, payload = _ref3.payload;
-      var _iterator = _createForOfIteratorHelper(payload.location.current.dropTargets), _step;
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done; ) {
-          var _entry$eventName;
-          var record = _step.value;
-          var entry = registry.get(record.element);
-          var args = _objectSpread2(_objectSpread2({}, payload), {}, {
-            self: record
-          });
-          entry === null || entry === void 0 || (_entry$eventName = entry[eventName]) === null || _entry$eventName === void 0 || _entry$eventName.call(
-            entry,
-            // I cannot seem to get the types right here.
-            // TS doesn't seem to like that one event can need `nativeSetDragImage`
-            // @ts-expect-error
-            args
-          );
-        }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
-    }
-    var actions = {
-      onGenerateDragPreview: notifyCurrent,
-      onDrag: notifyCurrent,
-      onDragStart: notifyCurrent,
-      onDrop: notifyCurrent,
-      onDropTargetChange: function onDropTargetChange(_ref4) {
-        var payload = _ref4.payload;
-        var isCurrent = new Set(payload.location.current.dropTargets.map(function(record2) {
-          return record2.element;
-        }));
-        var visited = /* @__PURE__ */ new Set();
-        var _iterator2 = _createForOfIteratorHelper(payload.location.previous.dropTargets), _step2;
-        try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done; ) {
-            var _entry$onDropTargetCh;
-            var record = _step2.value;
-            visited.add(record.element);
-            var entry = registry.get(record.element);
-            var isOver = isCurrent.has(record.element);
-            var args = _objectSpread2(_objectSpread2({}, payload), {}, {
-              self: record
-            });
-            entry === null || entry === void 0 || (_entry$onDropTargetCh = entry.onDropTargetChange) === null || _entry$onDropTargetCh === void 0 || _entry$onDropTargetCh.call(entry, args);
-            if (!isOver) {
-              var _entry$onDragLeave;
-              entry === null || entry === void 0 || (_entry$onDragLeave = entry.onDragLeave) === null || _entry$onDragLeave === void 0 || _entry$onDragLeave.call(entry, args);
-            }
-          }
-        } catch (err) {
-          _iterator2.e(err);
-        } finally {
-          _iterator2.f();
-        }
-        var _iterator3 = _createForOfIteratorHelper(payload.location.current.dropTargets), _step3;
-        try {
-          for (_iterator3.s(); !(_step3 = _iterator3.n()).done; ) {
-            var _entry$onDropTargetCh2, _entry$onDragEnter;
-            var _record = _step3.value;
-            if (visited.has(_record.element)) {
-              continue;
-            }
-            var _args = _objectSpread2(_objectSpread2({}, payload), {}, {
-              self: _record
-            });
-            var _entry = registry.get(_record.element);
-            _entry === null || _entry === void 0 || (_entry$onDropTargetCh2 = _entry.onDropTargetChange) === null || _entry$onDropTargetCh2 === void 0 || _entry$onDropTargetCh2.call(_entry, _args);
-            _entry === null || _entry === void 0 || (_entry$onDragEnter = _entry.onDragEnter) === null || _entry$onDragEnter === void 0 || _entry$onDragEnter.call(_entry, _args);
-          }
-        } catch (err) {
-          _iterator3.e(err);
-        } finally {
-          _iterator3.f();
-        }
-      }
-    };
-    function dispatchEvent(args) {
-      actions[args.eventName](args);
-    }
-    function getIsOver(_ref5) {
-      var source = _ref5.source, target = _ref5.target, input = _ref5.input, current = _ref5.current;
-      var actual = getActualDropTargets({
-        source,
-        target,
-        input
-      });
-      if (actual.length >= current.length) {
-        return actual;
-      }
-      var lastCaptureOrdered = copyReverse(current);
-      var actualCaptureOrdered = copyReverse(actual);
-      var resultCaptureOrdered = [];
-      for (var index2 = 0; index2 < lastCaptureOrdered.length; index2++) {
-        var _argsForLast$getIsSti;
-        var last = lastCaptureOrdered[index2];
-        var fresh = actualCaptureOrdered[index2];
-        if (fresh != null) {
-          resultCaptureOrdered.push(fresh);
-          continue;
-        }
-        var parent2 = resultCaptureOrdered[index2 - 1];
-        var lastParent = lastCaptureOrdered[index2 - 1];
-        if ((parent2 === null || parent2 === void 0 ? void 0 : parent2.element) !== (lastParent === null || lastParent === void 0 ? void 0 : lastParent.element)) {
-          break;
-        }
-        var argsForLast = registry.get(last.element);
-        if (!argsForLast) {
-          break;
-        }
-        var feedback = {
-          input,
-          source,
-          element: argsForLast.element
-        };
-        if (argsForLast.canDrop && !argsForLast.canDrop(feedback)) {
-          break;
-        }
-        if (!((_argsForLast$getIsSti = argsForLast.getIsSticky) !== null && _argsForLast$getIsSti !== void 0 && _argsForLast$getIsSti.call(argsForLast, feedback))) {
-          break;
-        }
-        resultCaptureOrdered.push(_objectSpread2(_objectSpread2({}, last), {}, {
-          // making it clear to consumers this drop target is active due to stickiness
-          isActiveDueToStickiness: true
-        }));
-      }
-      return copyReverse(resultCaptureOrdered);
-    }
-    return {
-      dropTargetForConsumers,
-      getIsOver,
-      dispatchEvent
-    };
-  }
-  var init_make_drop_target = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-drop-target.js"() {
-      init_defineProperty();
-      init_toConsumableArray();
-      init_combine();
-      init_add_attribute();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-monitor.js
-  function _createForOfIteratorHelper2(r4, e4) {
-    var t4 = "undefined" != typeof Symbol && r4[Symbol.iterator] || r4["@@iterator"];
-    if (!t4) {
-      if (Array.isArray(r4) || (t4 = _unsupportedIterableToArray3(r4)) || e4 && r4 && "number" == typeof r4.length) {
-        t4 && (r4 = t4);
-        var _n = 0, F5 = function F6() {
-        };
-        return { s: F5, n: function n3() {
-          return _n >= r4.length ? { done: true } : { done: false, value: r4[_n++] };
-        }, e: function e5(r5) {
-          throw r5;
-        }, f: F5 };
-      }
-      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-    }
-    var o4, a4 = true, u4 = false;
-    return { s: function s4() {
-      t4 = t4.call(r4);
-    }, n: function n3() {
-      var r5 = t4.next();
-      return a4 = r5.done, r5;
-    }, e: function e5(r5) {
-      u4 = true, o4 = r5;
-    }, f: function f4() {
-      try {
-        a4 || null == t4.return || t4.return();
-      } finally {
-        if (u4) throw o4;
-      }
-    } };
-  }
-  function _unsupportedIterableToArray3(r4, a4) {
-    if (r4) {
-      if ("string" == typeof r4) return _arrayLikeToArray3(r4, a4);
-      var t4 = {}.toString.call(r4).slice(8, -1);
-      return "Object" === t4 && r4.constructor && (t4 = r4.constructor.name), "Map" === t4 || "Set" === t4 ? Array.from(r4) : "Arguments" === t4 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t4) ? _arrayLikeToArray3(r4, a4) : void 0;
-    }
-  }
-  function _arrayLikeToArray3(r4, a4) {
-    (null == a4 || a4 > r4.length) && (a4 = r4.length);
-    for (var e4 = 0, n3 = Array(a4); e4 < a4; e4++) n3[e4] = r4[e4];
-    return n3;
-  }
-  function ownKeys3(e4, r4) {
-    var t4 = Object.keys(e4);
-    if (Object.getOwnPropertySymbols) {
-      var o4 = Object.getOwnPropertySymbols(e4);
-      r4 && (o4 = o4.filter(function(r5) {
-        return Object.getOwnPropertyDescriptor(e4, r5).enumerable;
-      })), t4.push.apply(t4, o4);
-    }
-    return t4;
-  }
-  function _objectSpread3(e4) {
-    for (var r4 = 1; r4 < arguments.length; r4++) {
-      var t4 = null != arguments[r4] ? arguments[r4] : {};
-      r4 % 2 ? ownKeys3(Object(t4), true).forEach(function(r5) {
-        _defineProperty(e4, r5, t4[r5]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e4, Object.getOwnPropertyDescriptors(t4)) : ownKeys3(Object(t4)).forEach(function(r5) {
-        Object.defineProperty(e4, r5, Object.getOwnPropertyDescriptor(t4, r5));
-      });
-    }
-    return e4;
-  }
-  function makeMonitor() {
-    var registry = /* @__PURE__ */ new Set();
-    var dragging = null;
-    function tryAddToActive(monitor) {
-      if (!dragging) {
-        return;
-      }
-      if (!monitor.canMonitor || monitor.canMonitor(dragging.canMonitorArgs)) {
-        dragging.active.add(monitor);
-      }
-    }
-    function monitorForConsumers(args) {
-      var entry = _objectSpread3({}, args);
-      registry.add(entry);
-      tryAddToActive(entry);
-      return function cleanup() {
-        registry.delete(entry);
-        if (dragging) {
-          dragging.active.delete(entry);
-        }
-      };
-    }
-    function dispatchEvent(_ref) {
-      var eventName = _ref.eventName, payload = _ref.payload;
-      if (eventName === "onGenerateDragPreview") {
-        dragging = {
-          canMonitorArgs: {
-            initial: payload.location.initial,
-            source: payload.source
-          },
-          active: /* @__PURE__ */ new Set()
-        };
-        var _iterator = _createForOfIteratorHelper2(registry), _step;
-        try {
-          for (_iterator.s(); !(_step = _iterator.n()).done; ) {
-            var monitor = _step.value;
-            tryAddToActive(monitor);
-          }
-        } catch (err) {
-          _iterator.e(err);
-        } finally {
-          _iterator.f();
-        }
-      }
-      if (!dragging) {
-        return;
-      }
-      var active2 = Array.from(dragging.active);
-      for (var _i = 0, _active = active2; _i < _active.length; _i++) {
-        var _monitor = _active[_i];
-        if (dragging.active.has(_monitor)) {
-          var _monitor$eventName;
-          (_monitor$eventName = _monitor[eventName]) === null || _monitor$eventName === void 0 || _monitor$eventName.call(_monitor, payload);
-        }
-      }
-      if (eventName === "onDrop") {
-        dragging.active.clear();
-        dragging = null;
-      }
-    }
-    return {
-      dispatchEvent,
-      monitorForConsumers
-    };
-  }
-  var init_make_monitor = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-monitor.js"() {
-      init_defineProperty();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-adapter.js
-  function makeAdapter(_ref) {
-    var typeKey = _ref.typeKey, mount3 = _ref.mount, dispatchEventToSource2 = _ref.dispatchEventToSource, onPostDispatch = _ref.onPostDispatch, defaultDropEffect = _ref.defaultDropEffect;
-    var monitorAPI = makeMonitor();
-    var dropTargetAPI = makeDropTarget({
-      typeKey,
-      defaultDropEffect
-    });
-    function dispatchEvent(args) {
-      dispatchEventToSource2 === null || dispatchEventToSource2 === void 0 || dispatchEventToSource2(args);
-      dropTargetAPI.dispatchEvent(args);
-      monitorAPI.dispatchEvent(args);
-      onPostDispatch === null || onPostDispatch === void 0 || onPostDispatch(args);
-    }
-    function start2(_ref2) {
-      var event = _ref2.event, dragType = _ref2.dragType;
-      lifecycle.start({
-        event,
-        dragType,
-        getDropTargetsOver: dropTargetAPI.getIsOver,
-        dispatchEvent
-      });
-    }
-    function registerUsage2() {
-      function mountAdapter() {
-        var api = {
-          canStart: lifecycle.canStart,
-          start: start2
-        };
-        return mount3(api);
-      }
-      return register({
-        typeKey,
-        mount: mountAdapter
-      });
-    }
-    return {
-      registerUsage: registerUsage2,
-      dropTarget: dropTargetAPI.dropTargetForConsumers,
-      monitor: monitorAPI.monitorForConsumers
-    };
-  }
-  var init_make_adapter = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-adapter.js"() {
-      init_lifecycle_manager();
-      init_usage_ledger();
-      init_make_drop_target();
-      init_make_monitor();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/android.js
-  var isAndroid, androidFallbackText;
-  var init_android = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/android.js"() {
-      init_once();
-      isAndroid = once(function isAndroid2() {
-        return navigator.userAgent.toLocaleLowerCase().includes("android");
-      });
-      androidFallbackText = "pdnd:android-fallback";
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/text-media-type.js
-  var textMediaType;
-  var init_text_media_type = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/text-media-type.js"() {
-      textMediaType = "text/plain";
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/url-media-type.js
-  var URLMediaType;
-  var init_url_media_type = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/url-media-type.js"() {
-      URLMediaType = "text/uri-list";
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter-native-data-key.js
-  var elementAdapterNativeDataKey;
-  var init_element_adapter_native_data_key = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter-native-data-key.js"() {
-      elementAdapterNativeDataKey = "application/vnd.pdnd";
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter.js
-  function addToRegistry(args) {
-    draggableRegistry.set(args.element, args);
-    return function cleanup() {
-      draggableRegistry.delete(args.element);
-    };
-  }
-  function draggable(args) {
-    if (true) {
-      if (args.dragHandle && !args.element.contains(args.dragHandle)) {
-        console.warn("Drag handle element must be contained in draggable element", {
-          element: args.element,
-          dragHandle: args.dragHandle
-        });
-      }
-    }
-    if (true) {
-      var existing = draggableRegistry.get(args.element);
-      if (existing) {
-        console.warn("You have already registered a `draggable` on the same element", {
-          existing,
-          proposed: args
-        });
-      }
-    }
-    return combine(
-      // making the draggable register the adapter rather than drop targets
-      // this is because you *must* have a draggable element to start a drag
-      // but you _might_ not have any drop targets immediately
-      // (You might create drop targets async)
-      adapter.registerUsage(),
-      addToRegistry(args),
-      addAttribute(args.element, {
-        attribute: "draggable",
-        value: "true"
-      })
-    );
-  }
-  var import_bind_event_listener4, draggableRegistry, honeyPotFix, adapter, dropTargetForElements, monitorForElements;
-  var init_element_adapter = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/element-adapter.js"() {
-      init_slicedToArray();
-      import_bind_event_listener4 = __toESM(require_dist());
-      init_get_element_from_point_without_honey_pot();
-      init_make_honey_pot_fix();
-      init_make_adapter();
-      init_combine();
-      init_add_attribute();
-      init_android();
-      init_get_input();
-      init_text_media_type();
-      init_url_media_type();
-      init_element_adapter_native_data_key();
-      draggableRegistry = /* @__PURE__ */ new WeakMap();
-      honeyPotFix = makeHoneyPotFix();
-      adapter = makeAdapter({
-        typeKey: "element",
-        defaultDropEffect: "move",
-        mount: function mount(api) {
-          return combine(honeyPotFix.bindEvents(), (0, import_bind_event_listener4.bind)(document, {
-            type: "dragstart",
-            listener: function listener(event) {
-              var _entry$dragHandle, _entry$getInitialData, _entry$getInitialData2, _entry$dragHandle2, _entry$getInitialData3, _entry$getInitialData4;
-              if (!api.canStart(event)) {
-                return;
-              }
-              if (event.defaultPrevented) {
-                return;
-              }
-              if (!event.dataTransfer) {
-                if (true) {
-                  console.warn("\n              It appears as though you have are not testing DragEvents correctly.\n\n              - If you are unit testing, ensure you have polyfilled DragEvent.\n              - If you are browser testing, ensure you are dispatching drag events correctly.\n\n              Please see our testing guides for more information:\n              https://atlassian.design/components/pragmatic-drag-and-drop/core-package/testing\n            ".replace(/ {2}/g, ""));
-                }
-                return;
-              }
-              var target = event.target;
-              if (!(target instanceof HTMLElement)) {
-                return null;
-              }
-              var entry = draggableRegistry.get(target);
-              if (!entry) {
-                return null;
-              }
-              var input = getInput(event);
-              var feedback = {
-                element: entry.element,
-                dragHandle: (_entry$dragHandle = entry.dragHandle) !== null && _entry$dragHandle !== void 0 ? _entry$dragHandle : null,
-                input
-              };
-              if (entry.canDrag && !entry.canDrag(feedback)) {
-                event.preventDefault();
-                return null;
-              }
-              if (entry.dragHandle) {
-                var over = getElementFromPointWithoutHoneypot({
-                  x: input.clientX,
-                  y: input.clientY
-                });
-                if (!entry.dragHandle.contains(over)) {
-                  event.preventDefault();
-                  return null;
-                }
-              }
-              var nativeData = (_entry$getInitialData = (_entry$getInitialData2 = entry.getInitialDataForExternal) === null || _entry$getInitialData2 === void 0 ? void 0 : _entry$getInitialData2.call(entry, feedback)) !== null && _entry$getInitialData !== void 0 ? _entry$getInitialData : null;
-              if (nativeData) {
-                for (var _i = 0, _Object$entries = Object.entries(nativeData); _i < _Object$entries.length; _i++) {
-                  var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2), key2 = _Object$entries$_i[0], data2 = _Object$entries$_i[1];
-                  event.dataTransfer.setData(key2, data2 !== null && data2 !== void 0 ? data2 : "");
-                }
-              }
-              if (isAndroid() && !event.dataTransfer.types.includes(textMediaType) && !event.dataTransfer.types.includes(URLMediaType)) {
-                event.dataTransfer.setData(textMediaType, androidFallbackText);
-              }
-              event.dataTransfer.setData(elementAdapterNativeDataKey, "");
-              var payload = {
-                element: entry.element,
-                dragHandle: (_entry$dragHandle2 = entry.dragHandle) !== null && _entry$dragHandle2 !== void 0 ? _entry$dragHandle2 : null,
-                data: (_entry$getInitialData3 = (_entry$getInitialData4 = entry.getInitialData) === null || _entry$getInitialData4 === void 0 ? void 0 : _entry$getInitialData4.call(entry, feedback)) !== null && _entry$getInitialData3 !== void 0 ? _entry$getInitialData3 : {}
-              };
-              var dragType = {
-                type: "element",
-                payload,
-                startedFrom: "internal"
-              };
-              api.start({
-                event,
-                dragType
-              });
-            }
-          }));
-        },
-        dispatchEventToSource: function dispatchEventToSource(_ref) {
-          var _draggableRegistry$ge, _draggableRegistry$ge2;
-          var eventName = _ref.eventName, payload = _ref.payload;
-          (_draggableRegistry$ge = draggableRegistry.get(payload.source.element)) === null || _draggableRegistry$ge === void 0 || (_draggableRegistry$ge2 = _draggableRegistry$ge[eventName]) === null || _draggableRegistry$ge2 === void 0 || _draggableRegistry$ge2.call(
-            _draggableRegistry$ge,
-            // I cannot seem to get the types right here.
-            // TS doesn't seem to like that one event can need `nativeSetDragImage`
-            // @ts-expect-error
-            payload
-          );
-        },
-        onPostDispatch: honeyPotFix.getOnPostDispatch()
-      });
-      dropTargetForElements = adapter.dropTarget;
-      monitorForElements = adapter.monitor;
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/adapter.js
-  var init_adapter = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/adapter.js"() {
-      init_element_adapter();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/closest-edge.js
-  function ownKeys4(e4, r4) {
-    var t4 = Object.keys(e4);
-    if (Object.getOwnPropertySymbols) {
-      var o4 = Object.getOwnPropertySymbols(e4);
-      r4 && (o4 = o4.filter(function(r5) {
-        return Object.getOwnPropertyDescriptor(e4, r5).enumerable;
-      })), t4.push.apply(t4, o4);
-    }
-    return t4;
-  }
-  function _objectSpread4(e4) {
-    for (var r4 = 1; r4 < arguments.length; r4++) {
-      var t4 = null != arguments[r4] ? arguments[r4] : {};
-      r4 % 2 ? ownKeys4(Object(t4), true).forEach(function(r5) {
-        _defineProperty(e4, r5, t4[r5]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e4, Object.getOwnPropertyDescriptors(t4)) : ownKeys4(Object(t4)).forEach(function(r5) {
-        Object.defineProperty(e4, r5, Object.getOwnPropertyDescriptor(t4, r5));
-      });
-    }
-    return e4;
-  }
-  function attachClosestEdge(userData, _ref) {
-    var _entries$sort$0$edge, _entries$sort$;
-    var element = _ref.element, input = _ref.input, allowedEdges = _ref.allowedEdges;
-    var client = {
-      x: input.clientX,
-      y: input.clientY
-    };
-    var rect = element.getBoundingClientRect();
-    var entries4 = allowedEdges.map(function(edge) {
-      return {
-        edge,
-        value: getDistanceToEdge[edge](rect, client)
-      };
-    });
-    var addClosestEdge = (_entries$sort$0$edge = (_entries$sort$ = entries4.sort(function(a4, b4) {
-      return a4.value - b4.value;
-    })[0]) === null || _entries$sort$ === void 0 ? void 0 : _entries$sort$.edge) !== null && _entries$sort$0$edge !== void 0 ? _entries$sort$0$edge : null;
-    return _objectSpread4(_objectSpread4({}, userData), {}, _defineProperty({}, uniqueKey, addClosestEdge));
-  }
-  function extractClosestEdge(userData) {
-    var _ref2;
-    return (_ref2 = userData[uniqueKey]) !== null && _ref2 !== void 0 ? _ref2 : null;
-  }
-  var getDistanceToEdge, uniqueKey;
-  var init_closest_edge = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/closest-edge.js"() {
-      init_defineProperty();
-      getDistanceToEdge = {
-        top: function top(rect, client) {
-          return Math.abs(client.y - rect.top);
-        },
-        right: function right(rect, client) {
-          return Math.abs(rect.right - client.x);
-        },
-        bottom: function bottom(rect, client) {
-          return Math.abs(rect.bottom - client.y);
-        },
-        left: function left(rect, client) {
-          return Math.abs(client.x - rect.left);
-        }
-      };
-      uniqueKey = Symbol("closestEdge");
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/reorder.js
-  function reorder(_ref) {
-    var list2 = _ref.list, startIndex = _ref.startIndex, finishIndex = _ref.finishIndex;
-    if (startIndex === -1 || finishIndex === -1) {
-      return Array.from(list2);
-    }
-    var result = Array.from(list2);
-    var _result$splice = result.splice(startIndex, 1), _result$splice2 = _slicedToArray(_result$splice, 1), removed = _result$splice2[0];
-    result.splice(finishIndex, 0, removed);
-    return result;
-  }
-  var init_reorder = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/reorder.js"() {
-      init_slicedToArray();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/reorder.js
-  var init_reorder2 = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/reorder.js"() {
-      init_reorder();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/get-reorder-destination-index.js
-  function getReorderDestinationIndex(_ref) {
-    var startIndex = _ref.startIndex, closestEdgeOfTarget = _ref.closestEdgeOfTarget, indexOfTarget = _ref.indexOfTarget, axis = _ref.axis;
-    if (startIndex === -1 || indexOfTarget === -1) {
-      return startIndex;
-    }
-    if (startIndex === indexOfTarget) {
-      return startIndex;
-    }
-    if (closestEdgeOfTarget == null) {
-      return indexOfTarget;
-    }
-    var isGoingAfter = axis === "vertical" && closestEdgeOfTarget === "bottom" || axis === "horizontal" && closestEdgeOfTarget === "right";
-    var isMovingForward = startIndex < indexOfTarget;
-    if (isMovingForward) {
-      return isGoingAfter ? indexOfTarget : indexOfTarget - 1;
-    }
-    return isGoingAfter ? indexOfTarget + 1 : indexOfTarget;
-  }
-  var init_get_reorder_destination_index = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/get-reorder-destination-index.js"() {
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/reorder-with-edge.js
-  function reorderWithEdge(_ref) {
-    var list2 = _ref.list, startIndex = _ref.startIndex, closestEdgeOfTarget = _ref.closestEdgeOfTarget, indexOfTarget = _ref.indexOfTarget, axis = _ref.axis;
-    return reorder({
-      list: list2,
-      startIndex,
-      finishIndex: getReorderDestinationIndex({
-        closestEdgeOfTarget,
-        startIndex,
-        indexOfTarget,
-        axis
-      })
-    });
-  }
-  var init_reorder_with_edge = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop-hitbox/dist/esm/reorder-with-edge.js"() {
-      init_reorder2();
-      init_get_reorder_destination_index();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-entering-window.js
-  function isEnteringWindow(_ref) {
-    var dragEnter = _ref.dragEnter;
-    var type = dragEnter.type, relatedTarget = dragEnter.relatedTarget;
-    if (type !== "dragenter") {
-      return false;
-    }
-    if (isSafari2()) {
-      return isEnteringWindowInSafari({
-        dragEnter
-      });
-    }
-    if (relatedTarget == null) {
-      return true;
-    }
-    if (isFirefox()) {
-      return isFromAnotherWindow(relatedTarget);
-    }
-    return relatedTarget instanceof HTMLIFrameElement;
-  }
-  var init_is_entering_window = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/changing-window/is-entering-window.js"() {
-      init_is_firefox();
-      init_is_safari();
-      init_count_events_for_safari();
-      init_is_from_another_window();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/external-adapter.js
-  function isAnAvailableType(_ref) {
-    var type = _ref.type, value2 = _ref.value;
-    if (type === elementAdapterNativeDataKey) {
-      return false;
-    }
-    if (type === textMediaType && value2 === androidFallbackText) {
-      return false;
-    }
-    return true;
-  }
-  function getAvailableTypes(transfer) {
-    return Array.from(transfer.types).filter(function(type) {
-      return isAnAvailableType({
-        type,
-        value: transfer.getData(type)
-      });
-    });
-  }
-  function getAvailableItems(dataTransfer) {
-    return Array.from(dataTransfer.items).filter(function(item) {
-      return item.kind === "file" || isAnAvailableType({
-        type: item.type,
-        value: dataTransfer.getData(item.type)
-      });
-    });
-  }
-  function dropTargetForExternal(args) {
-    return adapter2.dropTarget(args);
-  }
-  function monitorForExternal(args) {
-    return adapter2.monitor(args);
-  }
-  var import_bind_event_listener5, didDragStartLocally, adapter2;
-  var init_external_adapter = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/adapter/external-adapter.js"() {
-      init_toConsumableArray();
-      import_bind_event_listener5 = __toESM(require_dist());
-      init_make_adapter();
-      init_android();
-      init_is_entering_window();
-      init_detect_broken_drag();
-      init_text_media_type();
-      init_element_adapter_native_data_key();
-      didDragStartLocally = false;
-      adapter2 = makeAdapter({
-        typeKey: "external",
-        // for external drags, we are generally making a copy of something that is being dragged
-        defaultDropEffect: "copy",
-        mount: function mount2(api) {
-          return (0, import_bind_event_listener5.bind)(window, {
-            type: "dragenter",
-            listener: function listener(event) {
-              if (didDragStartLocally) {
-                return;
-              }
-              if (!event.dataTransfer) {
-                if (true) {
-                  console.warn("\n              It appears as though you have are not testing DragEvents correctly.\n\n              - If you are unit testing, ensure you have polyfilled DragEvent.\n              - If you are browser testing, ensure you are dispatching drag events correctly.\n\n              Please see our testing guides for more information:\n              https://atlassian.design/components/pragmatic-drag-and-drop/core-package/testing\n            ".replace(/ {2}/g, ""));
-                }
-                return;
-              }
-              if (!api.canStart(event)) {
-                return;
-              }
-              if (!isEnteringWindow({
-                dragEnter: event
-              })) {
-                return;
-              }
-              var types = getAvailableTypes(event.dataTransfer);
-              if (!types.length) {
-                return;
-              }
-              var locked = {
-                types,
-                items: [],
-                getStringData: function getStringData() {
-                  return null;
-                }
-              };
-              api.start({
-                event,
-                dragType: {
-                  type: "external",
-                  startedFrom: "external",
-                  payload: locked,
-                  getDropPayload: function getDropPayload(event2) {
-                    if (!event2.dataTransfer) {
-                      return locked;
-                    }
-                    var items = getAvailableItems(event2.dataTransfer);
-                    var nativeGetData = event2.dataTransfer.getData.bind(event2.dataTransfer);
-                    return {
-                      types,
-                      items,
-                      // return `null` if there is no result, otherwise string
-                      getStringData: function getStringData(mediaType) {
-                        if (!types.includes(mediaType)) {
-                          return null;
-                        }
-                        var value2 = nativeGetData(mediaType);
-                        if (!isAnAvailableType({
-                          type: mediaType,
-                          value: value2
-                        })) {
-                          return null;
-                        }
-                        return value2;
-                      }
-                    };
-                  }
-                }
-              });
-            }
-          });
-        }
-      });
-      (function startup() {
-        if (typeof window === "undefined") {
-          return;
-        }
-        adapter2.registerUsage();
-        var idle = {
-          type: "idle"
-        };
-        var state = idle;
-        function clear() {
-          if (state.type !== "dragging") {
-            return;
-          }
-          didDragStartLocally = false;
-          state.cleanup();
-          state = idle;
-        }
-        function bindEndEvents() {
-          return (0, import_bind_event_listener5.bindAll)(
-            window,
-            [{
-              type: "dragend",
-              listener: clear
-            }].concat(_toConsumableArray(getBindingsForBrokenDrags({
-              onDragEnd: clear
-            }))),
-            // we want to make sure we get all the events,
-            // and this helps avoid not seeing events when folks stop
-            // them later on the event path
-            {
-              capture: true
-            }
-          );
-        }
-        (0, import_bind_event_listener5.bind)(window, {
-          type: "dragstart",
-          listener: function listener() {
-            if (state.type !== "idle") {
-              return;
-            }
-            didDragStartLocally = true;
-            state = {
-              type: "dragging",
-              cleanup: bindEndEvents()
-            };
-          },
-          // binding in the capture phase so these listeners are called
-          // before our listeners in the adapters `mount` function
-          options: {
-            capture: true
-          }
-        });
-      })();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/adapter.js
-  var init_adapter2 = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/adapter.js"() {
-      init_external_adapter();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/combine.js
-  var init_combine2 = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/combine.js"() {
-      init_combine();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/html-media-type.js
-  var HTMLMediaType;
-  var init_html_media_type = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/util/media-types/html-media-type.js"() {
-      HTMLMediaType = "text/html";
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/html.js
-  function getHTML(_ref2) {
-    var source = _ref2.source;
-    return source.getStringData(HTMLMediaType);
-  }
-  var init_html = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/external/html.js"() {
-      init_html_media_type();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/html.js
-  var init_html2 = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/external/html.js"() {
-      init_html();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/set-custom-native-drag-preview.js
-  function defaultOffset() {
-    return {
-      x: 0,
-      y: 0
-    };
-  }
-  function setCustomNativeDragPreview(_ref) {
-    var render = _ref.render, nativeSetDragImage = _ref.nativeSetDragImage, _ref$getOffset = _ref.getOffset, getOffset = _ref$getOffset === void 0 ? defaultOffset : _ref$getOffset;
-    var container = document.createElement("div");
-    Object.assign(container.style, {
-      // Ensuring we don't cause reflow when adding the element to the page
-      // Using `position:fixed` rather than `position:absolute` so we are
-      // positioned on the current viewport.
-      // `position:fixed` also creates a new stacking context, so we don't need to do that here
-      position: "fixed",
-      // According to `mdn`, the element can be offscreen:
-      // https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/setDragImage#imgelement
-      //
-      // However, that  information does not appear in the specs:
-      // https://html.spec.whatwg.org/multipage/dnd.html#dom-datatransfer-setdragimage-dev
-      //
-      // If the element is _completely_ offscreen, Safari@17.1 will cancel the drag
-      top: 0,
-      left: 0,
-      // Using maximum possible z-index so that this element will always be on top
-      // https://stackoverflow.com/questions/491052/minimum-and-maximum-value-of-z-index
-      // Did not use `layers` in `@atlaskit/theme` because:
-      // 1. This element is not a 'layer' in the conventional sense, as this element
-      //    is only created for a single frame for the browser to take a photo of it,
-      //    and then it is destroyed
-      // 2. Did not want to add a dependency onto `@atlaskit/theme`
-      // 3. Want to always be on top of product UI which might have higher z-index's
-      zIndex: maxZIndex,
-      // Avoiding any additional events caused by the new element (being super safe)
-      pointerEvents: "none"
-    });
-    document.body.append(container);
-    var unmount = render({
-      container
-    });
-    queueMicrotask(function() {
-      var previewOffset = getOffset({
-        container
-      });
-      if (isSafari2()) {
-        var rect = container.getBoundingClientRect();
-        if (rect.width === 0) {
-          return;
-        }
-        container.style.left = "-".concat(rect.width - 1e-4, "px");
-      }
-      nativeSetDragImage === null || nativeSetDragImage === void 0 || nativeSetDragImage(container, previewOffset.x, previewOffset.y);
-    });
-    function cleanup() {
-      unbindMonitor();
-      unmount === null || unmount === void 0 || unmount();
-      document.body.removeChild(container);
-    }
-    var unbindMonitor = monitorForElements({
-      // Remove portal in the dragstart event so that the user will never see it
-      onDragStart: cleanup,
-      // Backup: remove portal when the drop finishes (this would be an error case)
-      onDrop: cleanup
-    });
-  }
-  var init_set_custom_native_drag_preview = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/set-custom-native-drag-preview.js"() {
-      init_element_adapter();
-      init_is_safari();
-      init_max_z_index();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/set-custom-native-drag-preview.js
-  var init_set_custom_native_drag_preview2 = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/set-custom-native-drag-preview.js"() {
-      init_set_custom_native_drag_preview();
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/center-under-pointer.js
-  var centerUnderPointer;
-  var init_center_under_pointer = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/public-utils/element/custom-native-drag-preview/center-under-pointer.js"() {
-      centerUnderPointer = function centerUnderPointer2(_ref) {
-        var container = _ref.container;
-        var rect = container.getBoundingClientRect();
-        return {
-          x: rect.width / 2,
-          y: rect.height / 2
-        };
-      };
-    }
-  });
-
-  // ../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/center-under-pointer.js
-  var init_center_under_pointer2 = __esm({
-    "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/entry-point/element/center-under-pointer.js"() {
-      init_center_under_pointer();
-    }
-  });
-
-  // pages/new-tab/app/favorites/components/PragmaticDND.js
-  function PragmaticDND({ children, items, itemsDidReOrder }) {
-    const [instanceId] = d2(getInstanceId);
-    useGridState(items, itemsDidReOrder, instanceId);
-    return /* @__PURE__ */ _(InstanceIdContext.Provider, { value: instanceId }, children);
-  }
-  function useGridState(favorites2, itemsDidReOrder, instanceId) {
-    y2(() => {
-      return combine(
-        monitorForExternal({
-          onDrop(payload) {
-            const id = idFromPayload(payload);
-            if (!id) return;
-            const location2 = payload.location;
-            const target = location2.current.dropTargets[0];
-            if (!target || !target.data || typeof target.data.url !== "string") {
-              return console.warn("missing data from target");
-            }
-            const closestEdgeOfTarget = extractClosestEdge(target.data);
-            const destinationSrc = target.data.url;
-            let indexOfTarget = favorites2.findIndex((item) => item.url === destinationSrc);
-            if (indexOfTarget === -1 && destinationSrc.includes("PLACEHOLDER-URL")) {
-              indexOfTarget = favorites2.length;
-            }
-            const targetIndex = getReorderDestinationIndex({
-              closestEdgeOfTarget,
-              startIndex: favorites2.length,
-              indexOfTarget,
-              axis: "horizontal"
-            });
-            itemsDidReOrder({
-              list: favorites2,
-              id,
-              fromIndex: favorites2.length,
-              targetIndex
-            });
-          }
-        }),
-        monitorForElements({
-          canMonitor({ source }) {
-            return source.data.instanceId === instanceId;
-          },
-          onDrop({ source, location: location2 }) {
-            const target = location2.current.dropTargets[0];
-            if (!target) {
-              return;
-            }
-            const destinationSrc = target.data.url;
-            const destinationId = target.data.id;
-            const startId = source.data.id;
-            if (typeof startId !== "string") {
-              return console.warn("could not access startId");
-            }
-            if (typeof destinationSrc !== "string") {
-              return console.warn("could not access the destinationSrc");
-            }
-            const startIndex = favorites2.findIndex((item) => item.id === startId);
-            let indexOfTarget = favorites2.findIndex((item) => item.id === destinationId);
-            if (indexOfTarget === -1 && destinationSrc.includes("PLACEHOLDER-URL")) {
-              indexOfTarget = favorites2.length;
-            }
-            const closestEdgeOfTarget = extractClosestEdge(target.data);
-            const targetIndex = getReorderDestinationIndex({
-              closestEdgeOfTarget,
-              startIndex,
-              indexOfTarget,
-              axis: "horizontal"
-            });
-            const reorderedList = reorderWithEdge({
-              list: favorites2,
-              startIndex,
-              indexOfTarget,
-              closestEdgeOfTarget,
-              axis: "horizontal"
-            });
-            itemsDidReOrder({
-              list: reorderedList,
-              id: startId,
-              fromIndex: startIndex,
-              targetIndex
-            });
-          }
-        })
-      );
-    }, [instanceId, favorites2]);
-  }
-  function useItemState(url5, id, opts) {
-    const instanceId = x2(InstanceIdContext);
-    const ref = A2(null);
-    const [state, setState] = d2(
-      /** @type {DNDState} */
-      { type: "idle" }
-    );
-    y2(() => {
-      const el = ref.current;
-      if (!el) throw new Error("unreachable");
-      let draggableCleanup = () => {
-      };
-      if (opts.kind === "draggable") {
-        draggableCleanup = draggable({
-          element: el,
-          getInitialData: () => ({ type: "grid-item", url: url5, id, instanceId }),
-          getInitialDataForExternal: () => ({
-            "text/plain": url5,
-            [DDG_MIME_TYPE]: id
-          }),
-          onDragStart: () => setState({ type: "dragging" }),
-          onDrop: () => setState({ type: "idle" }),
-          onGenerateDragPreview: ({ nativeSetDragImage, source }) => {
-            setCustomNativeDragPreview({
-              getOffset: ({ container }) => centerUnderPointer({ container }),
-              render: ({ container }) => {
-                const clone = (
-                  /** @type {HTMLElement} */
-                  source.element.cloneNode(true)
-                );
-                const outer = document.createElement("div");
-                outer.classList.add(opts.class ?? "");
-                outer.dataset.theme = opts.theme;
-                outer.appendChild(clone);
-                container.appendChild(outer);
-                return () => {
-                  container.removeChild(outer);
-                };
-              },
-              nativeSetDragImage
-            });
-          }
-        });
-      }
-      return combine(
-        draggableCleanup,
-        dropTargetForExternal({
-          element: el,
-          canDrop: ({ source }) => {
-            return source.types.some((type) => type === "text/html");
-          },
-          getData: ({ input }) => {
-            return attachClosestEdge(
-              { url: url5, id },
-              {
-                element: el,
-                input,
-                allowedEdges: ["left", "right"]
-              }
-            );
-          },
-          onDrop: () => {
-            setState({ type: "idle" });
-          },
-          onDragLeave: () => setState({ type: "idle" }),
-          onDrag: ({ self: self2 }) => {
-            const closestEdge = extractClosestEdge(self2.data);
-            setState((current) => {
-              if (current.type === "is-dragging-over" && current.closestEdge === closestEdge) {
-                return current;
-              }
-              return { type: "is-dragging-over", closestEdge };
-            });
-          }
-        }),
-        dropTargetForElements({
-          element: el,
-          getData: ({ input }) => {
-            return attachClosestEdge(
-              { url: url5, id },
-              {
-                element: el,
-                input,
-                allowedEdges: ["left", "right"]
-              }
-            );
-          },
-          getIsSticky: () => false,
-          canDrop: ({ source }) => {
-            return source.data.instanceId === instanceId && source.data.type === "grid-item" && source.data.id !== id;
-          },
-          onDragEnter: ({ self: self2 }) => {
-            const closestEdge = extractClosestEdge(self2.data);
-            setState({ type: "is-dragging-over", closestEdge });
-          },
-          onDrag({ self: self2 }) {
-            const closestEdge = extractClosestEdge(self2.data);
-            setState((current) => {
-              if (current.type === "is-dragging-over" && current.closestEdge === closestEdge) {
-                return current;
-              }
-              return { type: "is-dragging-over", closestEdge };
-            });
-          },
-          onDragLeave: () => setState({ type: "idle" }),
-          onDrop: () => setState({ type: "idle" })
-        })
-      );
-    }, [instanceId, url5, id, opts.kind, opts.class, opts.theme]);
-    return { ref, state };
-  }
-  function getInstanceId() {
-    return Symbol("instance-id");
-  }
-  function idFromPayload(payload) {
-    const ddg = payload.source.getStringData(DDG_MIME_TYPE);
-    if (ddg && ddg.length > 0) return ddg;
-    const html = getHTML(payload);
-    if (!html) return console.warn(`missing text/html payload + missing ${DDG_MIME_TYPE} mime type`);
-    const fragment = document.createRange().createContextualFragment(html);
-    const node = fragment.firstElementChild;
-    if (!node) return console.warn("missing first element");
-    if (node.getAttribute("name") !== DDG_MIME_TYPE) return console.warn(`attribute name was not ${DDG_MIME_TYPE}`);
-    const id = node.getAttribute("content");
-    if (!id) return console.warn("id missing from `content` attribute");
-    return id;
-  }
-  var InstanceIdContext;
-  var init_PragmaticDND = __esm({
-    "pages/new-tab/app/favorites/components/PragmaticDND.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      init_adapter();
-      init_closest_edge();
-      init_reorder_with_edge();
-      init_get_reorder_destination_index();
-      init_adapter2();
-      init_combine2();
-      init_html2();
-      init_constants3();
-      init_set_custom_native_drag_preview2();
-      init_center_under_pointer2();
-      InstanceIdContext = K(getInstanceId());
-    }
-  });
-
-  // pages/new-tab/app/favorites/components/Favorites.module.css
-  var Favorites_default;
-  var init_Favorites = __esm({
-    "pages/new-tab/app/favorites/components/Favorites.module.css"() {
-      Favorites_default = {
-        root: "Favorites_root",
-        showhide: "Favorites_showhide",
-        grid: "Favorites_grid",
-        gridRow: "Favorites_gridRow"
-      };
-    }
-  });
-
-  // pages/new-tab/app/dropzone.js
-  function useGlobalDropzone() {
-    y2(() => {
-      let safezones = [];
-      const controller = new AbortController();
-      window.addEventListener(
-        REGISTER_EVENT,
-        (e4) => {
-          if (isValidEvent(e4)) {
-            safezones.push(e4.detail.dropzone);
-          }
-        },
-        { signal: controller.signal }
-      );
-      window.addEventListener(
-        CLEAR_EVENT,
-        (e4) => {
-          if (isValidEvent(e4)) {
-            const match = safezones.findIndex((x3) => x3 === e4.detail.dropzone);
-            safezones.splice(match, 1);
-          }
-        },
-        { signal: controller.signal }
-      );
-      document.addEventListener(
-        "dragover",
-        (event) => {
-          if (!event.target) return;
-          const target = (
-            /** @type {HTMLElement} */
-            event.target
-          );
-          if (safezones.length > 0) {
-            for (const safezone of safezones) {
-              if (safezone.contains(target)) return;
-            }
-          }
-          let preventDrop = true;
-          if (preventDrop) {
-            event.preventDefault();
-            if (event.dataTransfer) {
-              event.dataTransfer.dropEffect = "none";
-            }
-          }
-        },
-        { signal: controller.signal }
-      );
-      return () => {
-        controller.abort();
-        safezones = [];
-      };
-    }, []);
-  }
-  function useDropzoneSafeArea() {
-    const ref = A2(null);
-    y2(() => {
-      if (!ref.current) return;
-      const evt = new CustomEvent(REGISTER_EVENT, { detail: { dropzone: ref.current } });
-      window.dispatchEvent(evt);
-      return () => {
-        window.dispatchEvent(new CustomEvent(CLEAR_EVENT, { detail: { dropzone: ref.current } }));
-      };
-    }, []);
-    return ref;
-  }
-  function isValidEvent(input) {
-    return "detail" in input && input.detail.dropzone instanceof HTMLElement;
-  }
-  var REGISTER_EVENT, CLEAR_EVENT;
-  var init_dropzone = __esm({
-    "pages/new-tab/app/dropzone.js"() {
-      "use strict";
-      init_hooks_module();
-      REGISTER_EVENT = "register-dropzone";
-      CLEAR_EVENT = "clear-dropzone";
-    }
-  });
-
-  // pages/new-tab/app/favorites/components/Tile.module.css
-  var Tile_default;
-  var init_Tile = __esm({
-    "pages/new-tab/app/favorites/components/Tile.module.css"() {
-      Tile_default = {
-        item: "Tile_item",
-        icon: "Tile_icon",
-        pulse: "Tile_pulse",
-        preview: "Tile_preview",
-        draggable: "Tile_draggable",
-        text: "Tile_text",
-        placeholder: "Tile_placeholder",
-        plus: "Tile_plus",
-        dropper: "Tile_dropper"
-      };
-    }
-  });
-
-  // pages/new-tab/app/favorites/components/Tile.js
-  function Placeholder() {
-    const id = g2();
-    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
-    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(Tile_default.icon, Tile_default.placeholder) }, "\xA0"), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
-  }
-  function PlusIconWrapper({ onClick }) {
-    const id = g2();
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {import('../strings.json')} */
-      {}
-    );
-    const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
-    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames6.default)(Tile_default.icon, Tile_default.plus, Tile_default.draggable), "aria-labelledby": id, onClick }, /* @__PURE__ */ _(PlusIcon, null)), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, t4("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
-  }
-  var import_classnames6, Tile, PlusIconMemo;
-  var init_Tile2 = __esm({
-    "pages/new-tab/app/favorites/components/Tile.js"() {
-      "use strict";
-      init_preact_module();
-      import_classnames6 = __toESM(require_classnames(), 1);
-      init_hooks_module();
-      init_compat_module();
-      init_Tile();
-      init_constants3();
-      init_PragmaticDND();
-      init_types();
-      init_Icons2();
-      init_FaviconWithState2();
-      Tile = M2(
-        /**
-         * @param {object} props
-         * @param {Favorite['url']} props.url
-         * @param {Favorite['etldPlusOne']} props.etldPlusOne
-         * @param {Favorite['id']} props.id
-         * @param {Favorite['title']} props.title
-         * @param {string|null|undefined} props.faviconSrc
-         * @param {number|null|undefined} props.faviconMax
-         * @param {Document['visibilityState']} props.visibility - whether this item is actually visible on screen, or not
-         * @param {"dark"|"light"} props.theme
-         * @param {number} props.index
-         * @param {boolean} props.animateItems
-         */
-        function Tile2({ url: url5, etldPlusOne, faviconSrc, faviconMax, theme, index: index2, title, id, visibility, animateItems }) {
-          const { state, ref } = useItemState(url5, id, {
-            kind: "draggable",
-            class: Tile_default.preview,
-            theme
-          });
-          const tileId = g2();
-          return /* @__PURE__ */ _(
-            "a",
-            {
-              class: Tile_default.item,
-              tabindex: 0,
-              href: url5,
-              "data-id": id,
-              "data-index": index2,
-              "data-edge": "closestEdge" in state && state.closestEdge,
-              "aria-labelledby": tileId,
-              style: animateItems ? { viewTransitionName: `Tile-${id}` } : void 0,
-              ref
-            },
-            /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(Tile_default.icon, Tile_default.draggable) }, visibility === "visible" && /* @__PURE__ */ _(
-              FaviconWithState,
-              {
-                faviconSrc,
-                faviconMax: faviconMax || DDG_DEFAULT_ICON_SIZE,
-                theme,
-                etldPlusOne,
-                displayKind: "favorite-tile",
-                fallback: DDG_FALLBACK_ICON,
-                fallbackDark: DDG_FALLBACK_ICON_DARK
-              }
-            )),
-            /* @__PURE__ */ _("div", { class: Tile_default.text, id: tileId }, title),
-            state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
-          );
-        }
-      );
-      PlusIconMemo = M2(PlusIconWrapper);
-    }
-  });
-
-  // pages/new-tab/app/favorites/components/TileRow.js
-  var TileRow;
-  var init_TileRow = __esm({
-    "pages/new-tab/app/favorites/components/TileRow.js"() {
-      "use strict";
-      init_Favorites();
-      init_Tile2();
-      init_preact_module();
-      init_compat_module();
-      init_Favorites2();
-      init_hooks_module();
-      TileRow = M2(
-        /**
-         * Represents a row of tiles with optional placeholders to fill empty spaces in the first row.
-         * @param {object} props - An object containing parameters for the TileRow_ function.
-         * @param {number} props.topOffset - The top offset position of the row (relative to the container)
-         * @param {Favorite[]} props.items - An array of favorites to be displayed as tiles in the row.
-         * @param {Document['visibilityState']} props.visibility - whether this item is actually visible
-         * @param {() => void} props.add - A function to be called when a new item is added to the row.
-         */
-        function TileRow2({ topOffset, items, add: add2, visibility }) {
-          const fillers = ROW_CAPACITY - items.length;
-          const { theme, animateItems } = x2(FavoritesThemeContext);
-          return /* @__PURE__ */ _("ul", { className: Favorites_default.gridRow, style: { transform: `translateY(${topOffset}px)` } }, items.map((item, index2) => {
-            return /* @__PURE__ */ _(
-              Tile,
-              {
-                url: item.url,
-                etldPlusOne: item.etldPlusOne,
-                faviconSrc: item.favicon?.src,
-                faviconMax: item.favicon?.maxAvailableSize,
-                title: item.title,
-                key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize + visibility,
-                id: item.id,
-                index: index2,
-                visibility,
-                theme,
-                animateItems: animateItems.value
-              }
-            );
-          }), fillers > 0 && Array.from({ length: fillers }).map((_5, fillerIndex) => {
-            if (fillerIndex === 0) {
-              return /* @__PURE__ */ _(PlusIconMemo, { key: `placeholder-plus-${items.length}`, onClick: add2 });
-            }
-            return /* @__PURE__ */ _(Placeholder, { key: `placeholder-${items.length}` });
-          }));
-        }
-      );
-    }
-  });
-
-  // pages/new-tab/app/components/BackgroundReceiver.module.css
-  var BackgroundReceiver_default;
-  var init_BackgroundReceiver = __esm({
-    "pages/new-tab/app/components/BackgroundReceiver.module.css"() {
-      BackgroundReceiver_default = {
-        root: "BackgroundReceiver_root",
-        "fade-in": "BackgroundReceiver_fade-in"
-      };
-    }
-  });
-
-  // pages/new-tab/app/customizer/values.js
-  var values;
-  var init_values = __esm({
-    "pages/new-tab/app/customizer/values.js"() {
-      "use strict";
-      values = {
-        colors: {
-          color01: { hex: "#000000", colorScheme: "dark" },
-          color02: { hex: "#342e42", colorScheme: "dark" },
-          color03: { hex: "#4d5f7f", colorScheme: "dark" },
-          color04: { hex: "#9a979d", colorScheme: "dark" },
-          color05: { hex: "#dbdddf", colorScheme: "light" },
-          color06: { hex: "#577de4", colorScheme: "dark" },
-          color07: { hex: "#75b9f0", colorScheme: "light" },
-          color08: { hex: "#5552ac", colorScheme: "dark" },
-          color09: { hex: "#b79ed4", colorScheme: "light" },
-          color10: { hex: "#e4def2", colorScheme: "light" },
-          color11: { hex: "#b5e2ce", colorScheme: "light" },
-          color12: { hex: "#5bc787", colorScheme: "light" },
-          color13: { hex: "#4594a7", colorScheme: "dark" },
-          color14: { hex: "#e9dccd", colorScheme: "light" },
-          color15: { hex: "#f3bb44", colorScheme: "light" },
-          color16: { hex: "#e5724f", colorScheme: "light" },
-          color17: { hex: "#d55154", colorScheme: "dark" },
-          color18: { hex: "#f7dee5", colorScheme: "light" },
-          color19: { hex: "#e28499", colorScheme: "light" }
-        },
-        gradients: {
-          gradient01: { path: "gradients/gradient01.svg", fallback: "#f2e5d4", colorScheme: "light" },
-          gradient02: { path: "gradients/gradient02.svg", fallback: "#d5bcd1", colorScheme: "light" },
-          /**
-           * Note: the following name `gradient02.01` is used to allow migration for existing macOS users.
-           * When switching to the web-based NTP, we introduced an eight gradient to round-out the columns, but
-           * the colors in the gradient meant it needed to be wedged in between 02 and 03.
-           */
-          "gradient02.01": { path: "gradients/gradient02.01.svg", fallback: "#f4ca78", colorScheme: "light" },
-          gradient03: { path: "gradients/gradient03.svg", fallback: "#e6a356", colorScheme: "light" },
-          gradient04: { path: "gradients/gradient04.svg", fallback: "#4448ae", colorScheme: "dark" },
-          gradient05: { path: "gradients/gradient05.svg", fallback: "#a55778", colorScheme: "dark" },
-          gradient06: { path: "gradients/gradient06.svg", fallback: "#222566", colorScheme: "dark" },
-          gradient07: { path: "gradients/gradient07.svg", fallback: "#0e0e3d", colorScheme: "dark" }
-        },
-        userImages: {
-          "01": {
-            colorScheme: "dark",
-            id: "01",
-            src: "backgrounds/bg-01.jpg",
-            thumb: "backgrounds/bg-01-thumb.jpg"
-          },
-          "02": {
-            colorScheme: "light",
-            id: "02",
-            src: "backgrounds/bg-02.jpg",
-            thumb: "backgrounds/bg-02-thumb.jpg"
-          },
-          "03": {
-            colorScheme: "light",
-            id: "03",
-            src: "backgrounds/bg-03.jpg",
-            thumb: "backgrounds/bg-03-thumb.jpg"
-          }
-        }
-      };
-    }
-  });
-
-  // pages/new-tab/app/customizer/utils.js
-  function detectThemeFromHex(backgroundColor) {
-    const hex = backgroundColor.replace("#", "");
-    const r4 = parseInt(hex.slice(0, 2), 16);
-    const g6 = parseInt(hex.slice(2, 4), 16);
-    const b4 = parseInt(hex.slice(4, 6), 16);
-    const luminance = 0.2126 * r4 + 0.7152 * g6 + 0.0722 * b4;
-    return luminance < 128 ? "dark" : "light";
-  }
-  function applyDefaultStyles(defaultStyles) {
-    if (defaultStyles?.lightBackgroundColor) {
-      document.body.style.setProperty("--default-light-background-color", defaultStyles.lightBackgroundColor);
-    }
-    if (defaultStyles?.darkBackgroundColor) {
-      document.body.style.setProperty("--default-dark-background-color", defaultStyles.darkBackgroundColor);
-    }
-  }
-  var init_utils2 = __esm({
-    "pages/new-tab/app/customizer/utils.js"() {
-      "use strict";
-    }
-  });
-
-  // pages/new-tab/app/components/BackgroundProvider.js
-  function inferSchemeFrom(background, browserTheme, system) {
-    const browser = themeFromBrowser(browserTheme, system);
-    switch (background.kind) {
-      case "default":
-        return { bg: browser, browser };
-      case "color": {
-        const color = values.colors[background.value];
-        return { bg: color.colorScheme, browser };
-      }
-      case "gradient": {
-        const gradient = values.gradients[background.value];
-        return { bg: gradient.colorScheme, browser };
-      }
-      case "userImage":
-        return { bg: background.value.colorScheme, browser };
-      case "hex":
-        return { bg: detectThemeFromHex(background.value), browser };
-    }
-  }
-  function themeFromBrowser(browserTheme, system) {
-    if (browserTheme === "system") {
-      return system;
-    }
-    return browserTheme;
-  }
-  function BackgroundConsumer({ browser }) {
-    const { data: data2 } = x2(CustomizerContext);
-    const background = data2.value.background;
-    useSignalEffect(() => {
-      const background2 = data2.value.background;
-      document.body.dataset.backgroundKind = background2.kind;
-      let nextBodyBackground = "";
-      if (background2.kind === "gradient") {
-        const gradient = values.gradients[background2.value];
-        nextBodyBackground = gradient.fallback;
-      }
-      if (background2.kind === "color") {
-        const color = values.colors[background2.value];
-        nextBodyBackground = color.hex;
-      }
-      if (background2.kind === "hex") {
-        nextBodyBackground = background2.value;
-      }
-      if (background2.kind === "userImage") {
-        const isDark = background2.value.colorScheme === "dark";
-        nextBodyBackground = isDark ? "var(--default-dark-background-color)" : "var(--default-light-background-color)";
-      }
-      if (background2.kind === "default") {
-        nextBodyBackground = browser.value === "dark" ? "var(--default-dark-background-color)" : "var(--default-light-background-color)";
-      }
-      document.body.style.setProperty("background-color", nextBodyBackground);
-      if (!document.body.dataset.animateBackground) {
-        requestAnimationFrame(() => {
-          document.body.dataset.animateBackground = "true";
-        });
-      }
-    });
-    switch (background.kind) {
-      case "color":
-      case "default":
-      case "hex": {
-        return null;
-      }
-      case "userImage": {
-        const img = background.value;
-        return /* @__PURE__ */ _(ImageCrossFade, { src: img.src });
-      }
-      case "gradient": {
-        const gradient = values.gradients[background.value];
-        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(ImageCrossFade, { src: gradient.path }), /* @__PURE__ */ _(
-          "div",
-          {
-            className: BackgroundReceiver_default.root,
-            style: {
-              backgroundImage: `url(gradients/grain.png)`,
-              backgroundRepeat: "repeat",
-              opacity: 0.5,
-              mixBlendMode: "soft-light"
-            }
-          }
-        ));
-      }
-      default: {
-        console.warn("Unreachable!");
-        return null;
-      }
-    }
-  }
-  function ImageCrossFade_({ src }) {
-    const [state, setState] = d2({
-      /** @type {ImgState} */
-      value: states2.idle,
-      current: src,
-      next: src
-    });
-    y2(() => {
-      let img = new Image();
-      let cancelled = false;
-      setState((prev) => {
-        const nextState = prev.value === states2.idle ? states2.loadingFirst : states2.loading;
-        return { ...prev, value: nextState };
-      });
-      let handler = () => {
-        if (cancelled) return;
-        setState((prev) => {
-          if (prev.value === states2.loading) {
-            return { ...prev, value: states2.fading, next: src };
-          }
-          return prev;
-        });
-      };
-      img.addEventListener("load", handler);
-      img.src = src;
-      return () => {
-        cancelled = true;
-        if (img && handler) {
-          img.removeEventListener("load", handler);
-          img = void 0;
-          handler = void 0;
-        }
-      };
-    }, [src]);
-    switch (state.value) {
-      case states2.settled:
-      case states2.loadingFirst:
-        return /* @__PURE__ */ _("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" });
-      case states2.loading:
-      case states2.fading:
-        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" }), /* @__PURE__ */ _(
-          "img",
-          {
-            class: BackgroundReceiver_default.root,
-            "data-state": state.value,
-            src: state.next,
-            onLoad: (e4) => {
-              const elem2 = (
-                /** @type {HTMLImageElement} */
-                e4.target
-              );
-              elem2.style.opacity = "0";
-              const anim = elem2.animate([{ opacity: "0" }, { opacity: "1" }], {
-                duration: 250,
-                iterations: 1,
-                fill: "both"
-              });
-              anim.onfinish = () => {
-                setState((prev) => {
-                  return { ...prev, value: states2.settled, current: prev.next, next: prev.next };
-                });
-              };
-            }
-          }
-        ));
-      default:
-        return null;
-    }
-  }
-  var states2, ImageCrossFade;
-  var init_BackgroundProvider = __esm({
-    "pages/new-tab/app/components/BackgroundProvider.js"() {
-      "use strict";
-      init_preact_module();
-      init_BackgroundReceiver();
-      init_values();
-      init_hooks_module();
-      init_CustomizerProvider();
-      init_utils2();
-      init_signals_module();
-      init_compat_module();
-      states2 = {
-        idle: "idle",
-        loadingFirst: "loadingFirst",
-        loading: "loading",
-        fading: "fading",
-        settled: "settled"
-      };
-      ImageCrossFade = M2(ImageCrossFade_);
-    }
-  });
-
-  // pages/new-tab/app/customizer/themes.js
-  function useThemes(data2) {
-    const mq = useSignal(mediaQueryList.matches ? "dark" : "light");
-    useSignalEffect(() => {
-      const listener = (e4) => {
-        mq.value = e4.matches ? "dark" : "light";
-      };
-      mediaQueryList.addEventListener("change", listener);
-      return () => mediaQueryList.removeEventListener("change", listener);
-    });
-    const main = useComputed(() => {
-      return inferSchemeFrom(data2.value.background, data2.value.theme, mq.value).bg;
-    });
-    const browser = useComputed(() => {
-      return themeFromBrowser(data2.value.theme, mq.value);
-    });
-    return { main, browser };
-  }
-  var THEME_QUERY2, mediaQueryList;
-  var init_themes = __esm({
-    "pages/new-tab/app/customizer/themes.js"() {
-      "use strict";
-      init_signals_module();
-      init_BackgroundProvider();
-      THEME_QUERY2 = "(prefers-color-scheme: dark)";
-      mediaQueryList = window.matchMedia(THEME_QUERY2);
-    }
-  });
-
-  // pages/new-tab/app/customizer/CustomizerProvider.js
-  function CustomizerProvider({ service, initialData, children }) {
-    const data2 = useSignal(initialData);
-    const { main, browser } = useThemes(data2);
-    useSignalEffect(() => {
-      const unsub = service.onBackground((evt) => {
-        data2.value = { ...data2.value, background: evt.data.background };
-      });
-      const unsub1 = service.onTheme((evt) => {
-        data2.value = { ...data2.value, theme: evt.data.theme };
-      });
-      const unsub2 = service.onImages((evt) => {
-        data2.value = { ...data2.value, userImages: evt.data.userImages };
-      });
-      const unsub3 = service.onColor((evt) => {
-        data2.value = { ...data2.value, userColor: evt.data.userColor };
-      });
-      return () => {
-        unsub();
-        unsub1();
-        unsub2();
-        unsub3();
-      };
-    });
-    useSignalEffect(() => {
-      const unsub = service.onTheme((evt) => {
-        if (evt.source === "subscription") {
-          applyDefaultStyles(evt.data.defaultStyles);
-        }
-      });
-      return () => {
-        unsub();
-      };
-    });
-    const select = q2(
-      (bg) => {
-        service.setBackground(bg);
-      },
-      [service]
-    );
-    const upload = q2(() => {
-      service.upload();
-    }, [service]);
-    const setTheme = q2(
-      (theme) => {
-        service.setTheme(theme);
-      },
-      [service]
-    );
-    const deleteImage = q2(
-      (id) => {
-        service.deleteImage(id);
-      },
-      [service]
-    );
-    const customizerContextMenu = q2((params) => service.contextMenu(params), [service]);
-    return /* @__PURE__ */ _(CustomizerContext.Provider, { value: { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu } }, /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser } }, children));
-  }
-  var CustomizerThemesContext, CustomizerContext;
-  var init_CustomizerProvider = __esm({
-    "pages/new-tab/app/customizer/CustomizerProvider.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      init_signals_module();
-      init_themes();
-      init_utils2();
-      CustomizerThemesContext = K({
-        /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
-        main: d3("light"),
-        /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
-        browser: d3("light")
-      });
-      CustomizerContext = K({
-        /** @type {import("@preact/signals").Signal<CustomizerData>} */
-        data: d3({
-          background: { kind: "default" },
-          userImages: [],
-          userColor: null,
-          theme: "system"
-        }),
-        /** @type {(bg: BackgroundData) => void} */
-        select: (_5) => {
-        },
-        upload: () => {
-        },
-        /**
-         * @type {(theme: ThemeData) => void}
-         */
-        setTheme: (_5) => {
-        },
-        /**
-         * @type {(id: string) => void}
-         */
-        deleteImage: (_5) => {
-        },
-        /**
-         * @param {UserImageContextMenu} _params
-         */
-        customizerContextMenu: (_params) => {
-        }
-      });
-    }
-  });
-
-  // pages/new-tab/app/favorites/components/Favorites.js
-  function Favorites({ favorites: favorites2, expansion, toggle, openContextMenu, openFavorite, add: add2, canAnimateItems }) {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {import('../strings.json')} */
-      {}
-    );
-    const WIDGET_ID = g2();
-    const TOGGLE_ID = g2();
-    const hiddenCount = expansion === "collapsed" ? favorites2.length - ROW_CAPACITY : 0;
-    const rowHeight = ITEM_HEIGHT + ROW_GAP;
-    const canToggleExpansion = favorites2.length >= ROW_CAPACITY;
-    const { data: data2 } = x2(CustomizerContext);
-    const { main } = x2(CustomizerThemesContext);
-    const kind = useComputed(() => data2.value.background.kind);
-    const animateItems = useComputed(() => {
-      return canAnimateItems && kind.value !== "userImage";
-    });
-    return /* @__PURE__ */ _(FavoritesThemeContext.Provider, { value: { theme: main.value, animateItems } }, /* @__PURE__ */ _("div", { class: Favorites_default.root, "data-testid": "FavoritesConfigured", "data-background-kind": kind }, /* @__PURE__ */ _(
-      VirtualizedGridRows,
-      {
-        WIDGET_ID,
-        favorites: favorites2,
-        rowHeight,
-        add: add2,
-        expansion,
-        openFavorite,
-        openContextMenu
-      }
-    ), canToggleExpansion && /* @__PURE__ */ _(ShowHideBar, null, /* @__PURE__ */ _(
-      ShowHideButtonPill,
-      {
-        buttonAttrs: {
-          "aria-expanded": expansion === "expanded",
-          "aria-pressed": expansion === "expanded",
-          "aria-controls": WIDGET_ID,
-          id: TOGGLE_ID
-        },
-        text: expansion === "expanded" ? t4("ntp_show_less") : t4("ntp_show_more"),
-        label: expansion === "expanded" ? t4("favorites_show_less") : t4("favorites_show_more", { count: String(hiddenCount) }),
-        onClick: toggle
-      }
-    ))));
-  }
-  function VirtualizedGridRows({ WIDGET_ID, rowHeight, favorites: favorites2, expansion, openFavorite, openContextMenu, add: add2 }) {
-    const platformName = usePlatformName();
-    const visibility = useDocumentVisibility();
-    const rows = T2(() => {
-      const chunked = [];
-      let inner = [];
-      for (let i5 = 0; i5 < favorites2.length; i5++) {
-        inner.push(favorites2[i5]);
-        if (inner.length === ROW_CAPACITY) {
-          chunked.push(inner.slice());
-          inner = [];
-        }
-        if (i5 === favorites2.length - 1) {
-          chunked.push(inner.slice());
-          inner = [];
-        }
-      }
-      return chunked;
-    }, [favorites2]);
-    const safeAreaRef = (
-      /** @type {import("preact").RefObject<HTMLDivElement>} */
-      useDropzoneSafeArea()
-    );
-    const containerHeight = expansion === "collapsed" || rows.length === 0 ? rowHeight : rows.length * rowHeight;
-    const clickHandler = getOnClickHandler(openFavorite, platformName);
-    useOnMiddleClick(safeAreaRef, clickHandler);
-    return /* @__PURE__ */ _(
-      "div",
-      {
-        className: Favorites_default.grid,
-        style: { height: containerHeight + "px" },
-        id: WIDGET_ID,
-        ref: safeAreaRef,
-        onContextMenu: getContextMenuHandler(openContextMenu),
-        onClick: clickHandler
-      },
-      rows.length === 0 && /* @__PURE__ */ _(TileRow, { key: "empty-rows", items: [], topOffset: 0, add: add2, visibility: "visible" }),
-      rows.length > 0 && /* @__PURE__ */ _(Inner, { rows, safeAreaRef, rowHeight, add: add2, visibility })
-    );
-  }
-  function Inner({ rows, safeAreaRef, rowHeight, add: add2, visibility }) {
-    const { onConfigChanged, state } = x2(FavoritesContext);
-    const [expansion, setExpansion] = d2(state.config?.expansion || "collapsed");
-    const { start: start2, end } = useVisibleRows(rows, rowHeight, safeAreaRef, expansion);
-    y2(() => {
-      return onConfigChanged((config) => {
-        if (config.expansion === "expanded") {
-          setTimeout(() => {
-            setExpansion(config.expansion);
-          }, 0);
-        } else {
-          setExpansion(config.expansion);
-        }
-      });
-    }, [onConfigChanged]);
-    const subsetOfRowsToRender = expansion === "collapsed" ? [rows[0]] : rows.slice(start2, end + 1);
-    return /* @__PURE__ */ _(k, null, subsetOfRowsToRender.map((items, rowIndex) => {
-      const topOffset = expansion === "expanded" ? (start2 + rowIndex) * rowHeight : 0;
-      const keyed = `-${start2 + rowIndex}-`;
-      return /* @__PURE__ */ _(TileRow, { key: keyed, items, topOffset, add: add2, visibility });
-    }));
-  }
-  function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
-    const [{ start: start2, end }, setVisibleRange] = d2({ start: 0, end: 1 });
-    const gridOffsetRef = A2(0);
-    const mainScrollerRef = A2(
-      /** @type {Element|null} */
-      null
-    );
-    const contentTubeRef = A2(
-      /** @type {Element|null} */
-      null
-    );
-    function updateGlobals() {
-      if (!safeAreaRef.current) return;
-      const rec = safeAreaRef.current.getBoundingClientRect();
-      gridOffsetRef.current = rec.y + mainScrollerRef.current?.scrollTop;
-    }
-    function setVisibleRowsForOffset(rowCount) {
-      if (!safeAreaRef.current) return console.warn("cannot access ref");
-      const scrollY = mainScrollerRef.current?.scrollTop ?? 0;
-      const offset = gridOffsetRef.current;
-      const end2 = scrollY + window.innerHeight - offset;
-      let start3;
-      if (offset > scrollY) {
-        start3 = 0;
-      } else {
-        start3 = scrollY - offset;
-      }
-      const startIndex = Math.floor(start3 / rowHeight);
-      const endIndex = Math.min(Math.ceil(end2 / rowHeight), rowCount);
-      setVisibleRange((prev) => {
-        if (startIndex !== prev.start || endIndex !== prev.end) {
-          return { start: startIndex, end: endIndex };
-        }
-        return prev;
-      });
-    }
-    _2(() => {
-      if (expansion === "collapsed") return;
-      mainScrollerRef.current = document.querySelector("[data-main-scroller]") || document.documentElement;
-      contentTubeRef.current = document.querySelector("[data-content-tube]") || document.body;
-      if (!contentTubeRef.current || !mainScrollerRef.current) console.warn("missing elements");
-      updateGlobals();
-      setVisibleRowsForOffset(rows.length);
-      const controller = new AbortController();
-      mainScrollerRef.current?.addEventListener(
-        "scroll",
-        () => {
-          setVisibleRowsForOffset(rows.length);
-        },
-        { signal: controller.signal }
-      );
-      return () => {
-        controller.abort();
-      };
-    }, [rows.length, expansion]);
-    y2(() => {
-      let lastWindowHeight = window.innerHeight;
-      function handler() {
-        if (lastWindowHeight === window.innerHeight) return;
-        lastWindowHeight = window.innerHeight;
-        updateGlobals();
-        setVisibleRowsForOffset(rows.length);
-      }
-      window.addEventListener("resize", handler);
-      return () => {
-        return window.removeEventListener("resize", handler);
-      };
-    }, [rows.length]);
-    y2(() => {
-      if (!contentTubeRef.current) return;
-      let lastHeight;
-      let debounceTimer;
-      const resizer = new ResizeObserver((entries4) => {
-        const first = entries4[0];
-        if (!first || !first.contentRect) return;
-        if (first.contentRect.height !== lastHeight) {
-          lastHeight = first.contentRect.height;
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => {
-            updateGlobals();
-            setVisibleRowsForOffset(rows.length);
-          }, 50);
-        }
-      });
-      resizer.observe(contentTubeRef.current);
-      return () => {
-        resizer.disconnect();
-        clearTimeout(debounceTimer);
-      };
-    }, [rows.length]);
-    return { start: start2, end };
-  }
-  function getContextMenuHandler(openContextMenu) {
-    return (event) => {
-      let target = (
-        /** @type {HTMLElement|null} */
-        event.target
-      );
-      while (target && target !== event.currentTarget) {
-        if (typeof target.dataset.id === "string" && "href" in target && typeof target.href === "string") {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          return openContextMenu(target.dataset.id);
-        } else {
-          target = target.parentElement;
-        }
-      }
-    };
-  }
-  function getOnClickHandler(openFavorite, platformName) {
-    return (event) => {
-      const target = (
-        /** @type {HTMLElement|null} */
-        event.target
-      );
-      if (!target) return;
-      const anchor = (
-        /** @type {HTMLAnchorElement|null} */
-        target.closest("a[href][data-id]")
-      );
-      if (anchor && anchor.dataset.id) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        const openTarget = eventToTarget(event, platformName);
-        return openFavorite(anchor.dataset.id, anchor.href, openTarget);
-      }
-    };
-  }
-  var FavoritesMemo, ROW_CAPACITY, ITEM_HEIGHT, ROW_GAP, FavoritesThemeContext;
-  var init_Favorites2 = __esm({
-    "pages/new-tab/app/favorites/components/Favorites.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      init_compat_module();
-      init_Favorites();
-      init_ShowHideButton();
-      init_types();
-      init_settings_provider();
-      init_dropzone();
-      init_TileRow();
-      init_FavoritesProvider();
-      init_CustomizerProvider();
-      init_signals_module();
-      init_utils();
-      init_DocumentVisibility();
-      FavoritesMemo = M2(Favorites);
-      ROW_CAPACITY = 6;
-      ITEM_HEIGHT = 96;
-      ROW_GAP = 8;
-      FavoritesThemeContext = K({
-        theme: (
-          /** @type {"light"|"dark"} */
-          "light"
-        ),
-        animateItems: d3(false)
-      });
-    }
-  });
-
-  // pages/new-tab/app/favorites/components/FavoritesCustomized.js
-  function FavoritesConsumer() {
-    const { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2 } = x2(FavoritesContext);
-    const telemetry2 = useTelemetry();
-    const { data: backgroundData } = x2(CustomizerContext);
-    function didReorder(data2) {
-      const background = backgroundData.value.background;
-      const supportsViewTransitions = state.config?.animation?.kind === "view-transitions" && background.kind !== "userImage";
-      if (supportsViewTransitions) {
-        viewTransition(() => {
-          favoritesDidReOrder(data2);
-        });
-      } else {
-        favoritesDidReOrder(data2);
-      }
-    }
-    if (state.status === "ready") {
-      telemetry2.measureFromPageLoad("favorites-will-render", "time to favorites");
-      return /* @__PURE__ */ _(PragmaticDND, { items: state.data.favorites, itemsDidReOrder: didReorder }, /* @__PURE__ */ _(
-        FavoritesMemo,
-        {
-          favorites: state.data.favorites,
-          expansion: state.config.expansion,
-          canAnimateItems: state.config?.animation?.kind === "view-transitions",
-          openContextMenu,
-          openFavorite,
-          add: add2,
-          toggle
-        }
-      ));
-    }
-    return null;
-  }
-  function FavoritesCustomized() {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {import("../strings.json")} */
-      {}
-    );
-    const { id, visibility, toggle, index: index2 } = useVisibility();
-    const title = t4("favorites_menu_title");
-    useCustomizer({ title, id, icon: "star", toggle, visibility: visibility.value, index: index2 });
-    if (visibility.value === "hidden") {
-      return null;
-    }
-    return /* @__PURE__ */ _(FavoritesProvider, null, /* @__PURE__ */ _(FavoritesConsumer, null));
-  }
-  var init_FavoritesCustomized = __esm({
-    "pages/new-tab/app/favorites/components/FavoritesCustomized.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      init_types();
-      init_widget_config_provider();
-      init_CustomizerMenu();
-      init_FavoritesProvider();
-      init_PragmaticDND();
-      init_Favorites2();
-      init_utils();
-      init_CustomizerProvider();
-    }
-  });
-
-  // pages/new-tab/app/entry-points/favorites.js
-  var favorites_exports = {};
-  __export(favorites_exports, {
-    factory: () => factory2
-  });
-  function factory2() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "favorites" }, /* @__PURE__ */ _(FavoritesCustomized, null));
-  }
-  var init_favorites = __esm({
-    "pages/new-tab/app/entry-points/favorites.js"() {
-      "use strict";
-      init_preact_module();
-      init_Layout();
-      init_FavoritesCustomized();
-    }
-  });
-
-  // shared/components/Button/Button.module.css
-  var Button_default;
-  var init_Button = __esm({
-    "shared/components/Button/Button.module.css"() {
-      Button_default = {
-        button: "Button_button",
-        standard: "Button_standard",
-        accent: "Button_accent",
-        accentBrand: "Button_accentBrand",
-        primary: "Button_primary",
-        ghost: "Button_ghost"
-      };
-    }
-  });
-
-  // shared/components/Button/Button.js
-  function Button({ variant, className, children, onClick, type = "button" }) {
-    return /* @__PURE__ */ _(
-      "button",
-      {
-        className: (0, import_classnames7.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
-        type,
-        onClick: (
-          /**
-           * @param {import("preact").JSX.TargetedMouseEvent<EventTarget>} event
-           */
-          (event) => {
-            if (onClick) {
-              onClick(event);
-            }
-          }
-        )
-      },
-      children
-    );
-  }
-  var import_classnames7;
-  var init_Button2 = __esm({
-    "shared/components/Button/Button.js"() {
-      "use strict";
-      init_preact_module();
-      import_classnames7 = __toESM(require_classnames(), 1);
-      init_Button();
-    }
-  });
-
-  // pages/new-tab/app/components/DismissButton.module.css
-  var DismissButton_default;
-  var init_DismissButton = __esm({
-    "pages/new-tab/app/components/DismissButton.module.css"() {
-      DismissButton_default = {
-        btn: "DismissButton_btn"
-      };
-    }
-  });
-
-  // pages/new-tab/app/components/DismissButton.jsx
-  function DismissButton({ className, onClick, buttonProps = {} }) {
-    const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ _("button", { class: (0, import_classnames8.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ _(Cross, null));
-  }
-  var import_classnames8;
-  var init_DismissButton2 = __esm({
-    "pages/new-tab/app/components/DismissButton.jsx"() {
-      "use strict";
-      init_preact_module();
-      import_classnames8 = __toESM(require_classnames(), 1);
-      init_Icons2();
-      init_types();
-      init_DismissButton();
-    }
-  });
-
-  // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.module.css
-  var FreemiumPIRBanner_default;
-  var init_FreemiumPIRBanner = __esm({
-    "pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.module.css"() {
-      FreemiumPIRBanner_default = {
-        root: "FreemiumPIRBanner_root",
-        icon: "FreemiumPIRBanner_icon",
-        "animate-fade": "FreemiumPIRBanner_animate-fade",
-        iconBlock: "FreemiumPIRBanner_iconBlock",
-        content: "FreemiumPIRBanner_content",
-        title: "FreemiumPIRBanner_title",
-        description: "FreemiumPIRBanner_description",
-        btnBlock: "FreemiumPIRBanner_btnBlock",
-        btnRow: "FreemiumPIRBanner_btnRow",
-        dismissBtn: "FreemiumPIRBanner_dismissBtn"
-      };
-    }
-  });
-
-  // pages/new-tab/app/freemium-pir-banner/freemiumPIRBanner.service.js
-  var FreemiumPIRBannerService;
-  var init_freemiumPIRBanner_service = __esm({
-    "pages/new-tab/app/freemium-pir-banner/freemiumPIRBanner.service.js"() {
-      "use strict";
-      init_service();
-      FreemiumPIRBannerService = class {
-        /**
-         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
-         * @internal
-         */
-        constructor(ntp) {
-          this.ntp = ntp;
-          this.dataService = new Service({
-            initial: () => ntp.messaging.request("freemiumPIRBanner_getData"),
-            subscribe: (cb) => ntp.messaging.subscribe("freemiumPIRBanner_onDataUpdate", cb)
-          });
-        }
-        name() {
-          return "FreemiumPIRBannerService";
-        }
-        /**
-         * @returns {Promise<FreemiumPIRBannerData>}
-         * @internal
-         */
-        async getInitial() {
-          return await this.dataService.fetchInitial();
-        }
-        /**
-         * @internal
-         */
-        destroy() {
-          this.dataService.destroy();
-        }
-        /**
-         * @param {(evt: {data: FreemiumPIRBannerData, source: 'manual' | 'subscription'}) => void} cb
-         * @internal
-         */
-        onData(cb) {
-          return this.dataService.onData(cb);
-        }
-        /**
-         * @param {string} id
-         * @internal
-         */
-        dismiss(id) {
-          return this.ntp.messaging.notify("freemiumPIRBanner_dismiss", { id });
-        }
-        /**
-         * @param {string} id
-         */
-        action(id) {
-          this.ntp.messaging.notify("freemiumPIRBanner_action", { id });
-        }
-      };
-    }
-  });
-
-  // pages/new-tab/app/freemium-pir-banner/FreemiumPIRBannerProvider.js
-  function FreemiumPIRBannerProvider(props) {
-    const initial = (
-      /** @type {State} */
-      {
-        status: "idle",
-        data: null,
-        config: null
-      }
-    );
-    const [state, dispatch] = h2(reducer, initial);
-    const service = useService3();
-    useInitialData({ dispatch, service });
-    useDataSubscription({ dispatch, service });
-    const dismiss = q2(
-      (id) => {
-        console.log("onDismiss");
-        service.current?.dismiss(id);
-      },
-      [service]
-    );
-    const action = q2(
-      (id) => {
-        service.current?.action(id);
-      },
-      [service]
-    );
-    return /* @__PURE__ */ _(FreemiumPIRBannerContext.Provider, { value: { state, dismiss, action } }, /* @__PURE__ */ _(FreemiumPIRBannerDispatchContext.Provider, { value: dispatch }, props.children));
-  }
-  function useService3() {
-    const service = A2(
-      /** @type {FreemiumPIRBannerService|null} */
-      null
-    );
-    const ntp = useMessaging();
-    y2(() => {
-      const stats = new FreemiumPIRBannerService(ntp);
-      service.current = stats;
-      return () => {
-        stats.destroy();
-      };
-    }, [ntp]);
-    return service;
-  }
-  var FreemiumPIRBannerContext, FreemiumPIRBannerDispatchContext;
-  var init_FreemiumPIRBannerProvider = __esm({
-    "pages/new-tab/app/freemium-pir-banner/FreemiumPIRBannerProvider.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      init_types();
-      init_freemiumPIRBanner_service();
-      init_service_hooks();
-      FreemiumPIRBannerContext = K({
-        /** @type {State} */
-        state: { status: "idle", data: null, config: null },
-        /** @type {(id: string) => void} */
-        dismiss: (id) => {
-          throw new Error("must implement dismiss" + id);
-        },
-        /** @type {(id: string) => void} */
-        action: (id) => {
-          throw new Error("must implement action" + id);
-        }
-      });
-      FreemiumPIRBannerDispatchContext = K(
-        /** @type {import("preact/hooks").Dispatch<Events>} */
-        {}
-      );
-    }
-  });
-
-  // pages/new-tab/app/freemium-pir-banner/freemiumPIRBanner.utils.js
-  function convertMarkdownToHTMLForStrongTags(markdown) {
-    markdown = escapeXML(markdown);
-    const regex = /\*\*(.*?)\*\*/g;
-    const result = markdown.replace(regex, "<strong>$1</strong>");
-    return result;
-  }
-  function escapeXML(str) {
-    const replacements = {
-      "&": "&amp;",
-      '"': "&quot;",
-      "'": "&apos;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "/": "&#x2F;"
-    };
-    return String(str).replace(/[&"'<>/]/g, (m4) => replacements[m4]);
-  }
-  var init_freemiumPIRBanner_utils = __esm({
-    "pages/new-tab/app/freemium-pir-banner/freemiumPIRBanner.utils.js"() {
-      "use strict";
-    }
-  });
-
-  // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js
-  function FreemiumPIRBanner({ message, action, dismiss }) {
-    const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames9.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ _("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
-  }
-  function FreemiumPIRBannerConsumer() {
-    const { state, action, dismiss } = x2(FreemiumPIRBannerContext);
-    if (state.status === "ready" && state.data.content) {
-      return /* @__PURE__ */ _(FreemiumPIRBanner, { message: state.data.content, action, dismiss });
-    }
-    return null;
-  }
-  var import_classnames9;
-  var init_FreemiumPIRBanner2 = __esm({
-    "pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js"() {
-      "use strict";
-      import_classnames9 = __toESM(require_classnames(), 1);
-      init_preact_module();
-      init_Button2();
-      init_DismissButton2();
-      init_FreemiumPIRBanner();
-      init_FreemiumPIRBannerProvider();
-      init_hooks_module();
-      init_freemiumPIRBanner_utils();
-    }
-  });
-
-  // pages/new-tab/app/entry-points/freemiumPIRBanner.js
-  var freemiumPIRBanner_exports = {};
-  __export(freemiumPIRBanner_exports, {
-    factory: () => factory3
-  });
-  function factory3() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "freemiumPIRBanner" }, /* @__PURE__ */ _(FreemiumPIRBannerProvider, null, /* @__PURE__ */ _(FreemiumPIRBannerConsumer, null)));
-  }
-  var init_freemiumPIRBanner = __esm({
-    "pages/new-tab/app/entry-points/freemiumPIRBanner.js"() {
-      "use strict";
-      init_preact_module();
-      init_Layout();
-      init_FreemiumPIRBanner2();
-      init_FreemiumPIRBannerProvider();
-    }
-  });
-
-  // pages/new-tab/app/next-steps/next-steps.service.js
-  var NextStepsService;
-  var init_next_steps_service = __esm({
-    "pages/new-tab/app/next-steps/next-steps.service.js"() {
-      "use strict";
-      init_service();
-      NextStepsService = class {
-        /**
-         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
-         * @internal
-         */
-        constructor(ntp) {
-          this.ntp = ntp;
-          this.dataService = new Service({
-            initial: () => ntp.messaging.request("nextSteps_getData"),
-            subscribe: (cb) => ntp.messaging.subscribe("nextSteps_onDataUpdate", cb)
-          });
-          this.configService = new Service({
-            initial: () => ntp.messaging.request("nextSteps_getConfig"),
-            subscribe: (cb) => ntp.messaging.subscribe("nextSteps_onConfigUpdate", cb),
-            persist: (data2) => ntp.messaging.notify("nextSteps_setConfig", data2)
-          });
-        }
-        name() {
-          return "NextStepsService";
-        }
-        /**
-         * @returns {Promise<{data: NextStepsData; config: NextStepsConfig}>}
-         * @internal
-         */
-        async getInitial() {
-          const p1 = this.configService.fetchInitial();
-          const p22 = this.dataService.fetchInitial();
-          const [config, data2] = await Promise.all([p1, p22]);
-          return { config, data: data2 };
-        }
-        /**
-         * @internal
-         */
-        destroy() {
-          this.configService.destroy();
-          this.dataService.destroy();
-        }
-        /**
-         * @param {(evt: {data: NextStepsData, source: 'manual' | 'subscription'}) => void} cb
-         * @internal
-         */
-        onData(cb) {
-          return this.dataService.onData(cb);
-        }
-        /**
-         * @param {(evt: {data: NextStepsConfig, source: 'manual' | 'subscription'}) => void} cb
-         * @internal
-         */
-        onConfig(cb) {
-          return this.configService.onData(cb);
-        }
-        /**
-         * Update the in-memory data immediate and persist.
-         * Any state changes will be broadcast to consumers synchronously
-         * @internal
-         */
-        toggleExpansion() {
-          this.configService.update((old) => {
-            if (old.expansion === "expanded") {
-              return { ...old, expansion: (
-                /** @type {const} */
-                "collapsed"
-              ) };
-            } else {
-              return { ...old, expansion: (
-                /** @type {const} */
-                "expanded"
-              ) };
-            }
-          });
-        }
-        /**
-         * Dismiss a particular card
-         * @param {string} id
-         */
-        dismiss(id) {
-          this.ntp.messaging.notify("nextSteps_dismiss", { id });
-        }
-        /**
-         * Perform a primary action on a card
-         * @param {string} id
-         */
-        action(id) {
-          this.ntp.messaging.notify("nextSteps_action", { id });
-        }
-      };
-    }
-  });
-
-  // pages/new-tab/app/next-steps/NextStepsProvider.js
-  function NextStepsProvider(props) {
-    const initial = (
-      /** @type {State} */
-      {
-        status: "idle",
-        data: null,
-        config: null
-      }
-    );
-    const [state, dispatch] = h2(reducer, initial);
-    const service = useService4();
-    useInitialDataAndConfig({ dispatch, service });
-    useDataSubscription({ dispatch, service });
-    const { toggle } = useConfigSubscription({ dispatch, service });
-    const action = q2(
-      (id) => {
-        service.current?.action(id);
-      },
-      [service]
-    );
-    const dismiss = q2(
-      (id) => {
-        service.current?.dismiss(id);
-      },
-      [service]
-    );
-    return /* @__PURE__ */ _(NextStepsContext.Provider, { value: { state, toggle, action, dismiss } }, /* @__PURE__ */ _(NextStepsDispatchContext.Provider, { value: dispatch }, props.children));
-  }
-  function useService4() {
-    const service = A2(
-      /** @type {NextStepsService|null} */
-      null
-    );
-    const ntp = useMessaging();
-    y2(() => {
-      const stats = new NextStepsService(ntp);
-      service.current = stats;
-      return () => {
-        stats.destroy();
-      };
-    }, [ntp]);
-    return service;
-  }
-  var NextStepsContext, NextStepsDispatchContext;
-  var init_NextStepsProvider = __esm({
-    "pages/new-tab/app/next-steps/NextStepsProvider.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      init_types();
-      init_next_steps_service();
-      init_service_hooks();
-      NextStepsContext = K({
-        /** @type {State} */
-        state: { status: "idle", data: null, config: null },
-        /** @type {() => void} */
-        toggle: () => {
-          throw new Error("must implement");
-        },
-        /** @type {(id: string) => void} */
-        dismiss: (_id) => {
-          throw new Error("must implement");
-        },
-        /** @type {(id: string) => void} */
-        action: (_id) => {
-          throw new Error("must implement");
-        }
-      });
-      NextStepsDispatchContext = K(
-        /** @type {import("preact/hooks").Dispatch<Events>} */
-        {}
-      );
-    }
-  });
-
-  // pages/new-tab/app/next-steps/nextsteps.data.js
-  var variants, otherText, cardsWithConfirmationText, additionalCardStates;
-  var init_nextsteps_data = __esm({
-    "pages/new-tab/app/next-steps/nextsteps.data.js"() {
-      "use strict";
-      variants = {
-        /** @param {(translationId: keyof enStrings) => string} t */
-        bringStuff: (t4) => ({
-          id: "bringStuff",
-          icon: "Bring-Stuff",
-          title: t4("nextSteps_bringStuff_title"),
-          summary: t4("nextSteps_bringStuff_summary"),
-          actionText: t4("nextSteps_bringStuff_actionText")
-        }),
-        /** @param {(translationId: keyof enStrings) => string} t */
-        defaultApp: (t4) => ({
-          id: "defaultApp",
-          icon: "Default-App",
-          title: t4("nextSteps_defaultApp_title"),
-          summary: t4("nextSteps_defaultApp_summary"),
-          actionText: t4("nextSteps_defaultApp_actionText")
-        }),
-        /** @param {(translationId: keyof enStrings) => string} t */
-        blockCookies: (t4) => ({
-          id: "blockCookies",
-          icon: "Cookie-Pops",
-          title: t4("nextSteps_blockCookies_title"),
-          summary: t4("nextSteps_blockCookies_summary"),
-          actionText: t4("nextSteps_blockCookies_actionText")
-        }),
-        /** @param {(translationId: keyof enStrings) => string} t */
-        emailProtection: (t4) => ({
-          id: "emailProtection",
-          icon: "Email-Protection",
-          title: t4("nextSteps_emailProtection_title"),
-          summary: t4("nextSteps_emailProtection_summary"),
-          actionText: t4("nextSteps_emailProtection_actionText")
-        }),
-        /** @param {(translationId: keyof enStrings) => string} t */
-        duckplayer: (t4) => ({
-          id: "duckplayer",
-          icon: "Tube-Clean",
-          title: t4("nextSteps_duckPlayer_title"),
-          summary: t4("nextSteps_duckPlayer_summary"),
-          actionText: t4("nextSteps_duckPlayer_actionText")
-        }),
-        /** @param {(translationId: keyof enStrings) => string} t */
-        addAppToDockMac: (t4) => ({
-          id: "addAppToDockMac",
-          icon: "Dock-Add-Mac",
-          title: t4("nextSteps_addAppDockMac_title"),
-          summary: t4("nextSteps_addAppDockMac_summary"),
-          actionText: t4("nextSteps_addAppDockMac_actionText"),
-          confirmationText: t4("nextSteps_addAppDockMac_confirmationText")
-        }),
-        /** @param {(translationId: keyof enStrings) => string} t */
-        pinAppToTaskbarWindows: (t4) => ({
-          id: "pinAppToTaskbarWindows",
-          icon: "Dock-Add-Windows",
-          title: t4("nextSteps_pinAppToTaskbarWindows_title"),
-          summary: t4("nextSteps_pinAppToTaskbarWindows_summary"),
-          actionText: t4("nextSteps_pinAppToTaskbarWindows_actionText")
-        })
-      };
-      otherText = {
-        /** @param {(translationId: keyof ntpStrings) => string} t */
-        showMore: (t4) => t4("ntp_show_more"),
-        /** @param {(translationId: keyof ntpStrings) => string} t */
-        showLess: (t4) => t4("ntp_show_less"),
-        /** @param {(translationId: keyof enStrings) => string} t */
-        nextSteps_sectionTitle: (t4) => t4("nextSteps_sectionTitle")
-      };
-      cardsWithConfirmationText = ["addAppToDockMac"];
-      additionalCardStates = {
-        hasConfirmationText: (variantId) => cardsWithConfirmationText.includes(variantId)
-      };
-    }
-  });
-
-  // pages/new-tab/app/next-steps/components/NextSteps.module.css
-  var NextSteps_default;
-  var init_NextSteps = __esm({
-    "pages/new-tab/app/next-steps/components/NextSteps.module.css"() {
-      NextSteps_default = {
-        card: "NextSteps_card",
-        icon: "NextSteps_icon",
-        title: "NextSteps_title",
-        description: "NextSteps_description",
-        btn: "NextSteps_btn",
-        supressActiveStateForSwitchToConfirmationText: "NextSteps_supressActiveStateForSwitchToConfirmationText",
-        confirmation: "NextSteps_confirmation",
-        dismissBtn: "NextSteps_dismissBtn",
-        cardGroup: "NextSteps_cardGroup",
-        cardGrid: "NextSteps_cardGrid",
-        showhide: "NextSteps_showhide",
-        bubble: "NextSteps_bubble",
-        nextStepsCard: "NextSteps_nextStepsCard"
-      };
-    }
-  });
-
-  // pages/new-tab/app/next-steps/components/NextStepsCard.js
-  function NextStepsCard({ type, dismiss, action }) {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {import("../strings.json")} */
-      {}
-    );
-    const message = variants[type]?.(t4);
-    const [showConfirmation, setShowConfirmation] = d2(false);
-    const hasConfirmationState = additionalCardStates.hasConfirmationText(type);
-    const handleClick = () => {
-      if (!hasConfirmationState) {
-        return action(message.id);
-      }
-      action(message.id);
-      setShowConfirmation(true);
-    };
-    return /* @__PURE__ */ _("div", { class: NextSteps_default.card }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ _("h3", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ _("p", { class: NextSteps_default.description }, message.summary), hasConfirmationState && !!showConfirmation ? /* @__PURE__ */ _("div", { class: NextSteps_default.confirmation }, /* @__PURE__ */ _(CheckColor, null), /* @__PURE__ */ _("p", null, message.confirmationText)) : /* @__PURE__ */ _(
-      "button",
-      {
-        class: (0, import_classnames10.default)(NextSteps_default.btn, hasConfirmationState && NextSteps_default.supressActiveStateForSwitchToConfirmationText),
-        onClick: handleClick
-      },
-      message.actionText
-    ), /* @__PURE__ */ _(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
-  }
-  var import_classnames10;
-  var init_NextStepsCard = __esm({
-    "pages/new-tab/app/next-steps/components/NextStepsCard.js"() {
-      "use strict";
-      init_preact_module();
-      import_classnames10 = __toESM(require_classnames(), 1);
-      init_hooks_module();
-      init_DismissButton2();
-      init_Icons2();
-      init_types();
-      init_nextsteps_data();
-      init_NextSteps();
-    }
-  });
-
-  // pages/new-tab/app/next-steps/components/NextStepsGroup.js
-  function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }) {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {strings} */
-      {}
-    );
-    const WIDGET_ID = g2();
-    const TOGGLE_ID = g2();
-    const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
-    return /* @__PURE__ */ _("div", { class: NextSteps_default.cardGroup, id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(ShowHideBar, null, /* @__PURE__ */ _(
-      ShowHideButtonPill,
-      {
-        buttonAttrs: {
-          "aria-expanded": expansion === "expanded",
-          "aria-pressed": expansion === "expanded",
-          "aria-controls": WIDGET_ID,
-          id: TOGGLE_ID
-        },
-        text: expansion === "expanded" ? otherText.showLess(t4) : otherText.showMore(t4),
-        label: void 0,
-        onClick: toggle
-      }
-    )));
-  }
-  function NextStepsBubbleHeader() {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {strings} */
-      {}
-    );
-    const text2 = otherText.nextSteps_sectionTitle(t4);
-    return /* @__PURE__ */ _("div", { class: NextSteps_default.bubble }, /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "12", height: "26", viewBox: "0 0 12 26", fill: "none" }, /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M12 0C5.37258 0 0 5.37258 0 12V25.3388C2.56367 22.0873 6.53807 20 11 20H12V0Z",
-        fill: "#3969EF"
-      }
-    )), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("h2", null, text2)), /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "10", height: "20", viewBox: "0 0 10 20", fill: "none" }, /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M3.8147e-06 0C1.31322 1.566e-08 2.61358 0.258658 3.82684 0.761205C5.04009 1.26375 6.14249 2.00035 7.07107 2.92893C7.99966 3.85752 8.73625 4.95991 9.2388 6.17317C9.74135 7.38642 10 8.68678 10 10C10 11.3132 9.74135 12.6136 9.2388 13.8268C8.73625 15.0401 7.99966 16.1425 7.07107 17.0711C6.14248 17.9997 5.04009 18.7362 3.82684 19.2388C2.61358 19.7413 1.31322 20 0 20L3.8147e-06 10V0Z",
-        fill: "#3969EF"
-      }
-    )));
-  }
-  var init_NextStepsGroup = __esm({
-    "pages/new-tab/app/next-steps/components/NextStepsGroup.js"() {
-      "use strict";
-      init_preact_module();
-      init_hooks_module();
-      init_ShowHideButton();
-      init_types();
-      init_nextsteps_data();
-      init_NextSteps();
-      init_NextStepsCard();
-    }
-  });
-
-  // pages/new-tab/app/next-steps/NextSteps.js
-  function NextStepsCustomized() {
-    return /* @__PURE__ */ _(NextStepsProvider, null, /* @__PURE__ */ _(NextStepsConsumer, null));
-  }
-  function NextStepsConsumer() {
-    const { state, toggle } = x2(NextStepsContext);
-    if (state.status === "ready" && state.data.content) {
-      const ids = state.data.content.map((x3) => x3.id);
-      const { action, dismiss } = x2(NextStepsContext);
-      return /* @__PURE__ */ _(NextStepsCardGroup, { types: ids, toggle, expansion: state.config.expansion, action, dismiss });
-    }
-    return null;
-  }
-  var init_NextSteps2 = __esm({
-    "pages/new-tab/app/next-steps/NextSteps.js"() {
-      "use strict";
-      init_preact_module();
-      init_NextStepsProvider();
-      init_hooks_module();
-      init_NextStepsGroup();
-    }
-  });
-
-  // pages/new-tab/app/entry-points/nextSteps.js
-  var nextSteps_exports = {};
-  __export(nextSteps_exports, {
-    factory: () => factory4
-  });
-  function factory4() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "nextSteps" }, /* @__PURE__ */ _(NextStepsCustomized, null));
-  }
-  var init_nextSteps = __esm({
-    "pages/new-tab/app/entry-points/nextSteps.js"() {
-      "use strict";
-      init_preact_module();
-      init_Layout();
-      init_NextSteps2();
-    }
-  });
-
   // pages/new-tab/app/privacy-stats/privacy-stats.service.js
   var PrivacyStatsService;
   var init_privacy_stats_service = __esm({
@@ -25090,30 +25243,21 @@
             initial: () => ntp.messaging.request("stats_getData"),
             subscribe: (cb) => ntp.messaging.subscribe("stats_onDataUpdate", cb)
           });
-          this.configService = new Service({
-            initial: () => ntp.messaging.request("stats_getConfig"),
-            subscribe: (cb) => ntp.messaging.subscribe("stats_onConfigUpdate", cb),
-            persist: (data2) => ntp.messaging.notify("stats_setConfig", data2)
-          });
         }
         name() {
           return "PrivacyStatsService";
         }
         /**
-         * @returns {Promise<{data: PrivacyStatsData; config: StatsConfig}>}
+         * @returns {Promise<PrivacyStatsData>}
          * @internal
          */
         async getInitial() {
-          const p1 = this.configService.fetchInitial();
-          const p22 = this.dataService.fetchInitial();
-          const [config, data2] = await Promise.all([p1, p22]);
-          return { config, data: data2 };
+          return await this.dataService.fetchInitial();
         }
         /**
          * @internal
          */
         destroy() {
-          this.configService.destroy();
           this.dataService.destroy();
         }
         /**
@@ -25122,33 +25266,6 @@
          */
         onData(cb) {
           return this.dataService.onData(cb);
-        }
-        /**
-         * @param {(evt: {data: StatsConfig, source: 'manual' | 'subscription'}) => void} cb
-         * @internal
-         */
-        onConfig(cb) {
-          return this.configService.onData(cb);
-        }
-        /**
-         * Update the in-memory data immediate and persist.
-         * Any state changes will be broadcast to consumers synchronously
-         * @internal
-         */
-        toggleExpansion() {
-          this.configService.update((old) => {
-            if (old.expansion === "expanded") {
-              return { ...old, expansion: (
-                /** @type {const} */
-                "collapsed"
-              ) };
-            } else {
-              return { ...old, expansion: (
-                /** @type {const} */
-                "expanded"
-              ) };
-            }
-          });
         }
       };
     }
@@ -25165,13 +25282,12 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService5();
-    useInitialDataAndConfig({ dispatch, service });
+    const service = useService6();
+    useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
-    const { toggle } = useConfigSubscription({ dispatch, service });
-    return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService5() {
+  function useService6() {
     const service = A2(
       /** @type {PrivacyStatsService|null} */
       null
@@ -25197,81 +25313,12 @@
       init_service_hooks();
       PrivacyStatsContext = K({
         /** @type {State} */
-        state: { status: "idle", data: null, config: null },
-        /** @type {() => void} */
-        toggle: () => {
-          throw new Error("must implement");
-        }
+        state: { status: "idle", data: null, config: null }
       });
       PrivacyStatsDispatchContext = K(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
-    }
-  });
-
-  // pages/new-tab/app/privacy-stats/privacy-stats.utils.js
-  function sortStatsForDisplay(stats) {
-    const sorted = stats.slice().sort((a4, b4) => b4.count - a4.count);
-    const other = sorted.findIndex((x3) => x3.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER);
-    if (other > -1) {
-      const popped = sorted.splice(other, 1);
-      sorted.push(popped[0]);
-    }
-    return sorted;
-  }
-  function displayNameForCompany(companyName) {
-    return companyName.replace(/\.[a-z]+$/i, "");
-  }
-  var init_privacy_stats_utils = __esm({
-    "pages/new-tab/app/privacy-stats/privacy-stats.utils.js"() {
-      "use strict";
-      init_constants();
-    }
-  });
-
-  // pages/new-tab/app/privacy-stats/components/PrivacyStatsHeading.js
-  function PrivacyStatsHeading({ expansion, canExpand, recent, onToggle, buttonAttrs = {} }) {
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {Strings} */
-      {}
-    );
-    const [formatter] = d2(() => new Intl.NumberFormat());
-    const adBlocking = useAdBlocking();
-    const none = recent === 0;
-    const some = recent > 0;
-    const alltime = formatter.format(recent);
-    let alltimeTitle;
-    if (recent === 1) {
-      alltimeTitle = adBlocking ? t4("stats_countBlockedAdsAndTrackersSingular") : t4("stats_countBlockedSingular");
-    } else {
-      alltimeTitle = adBlocking ? t4("stats_countBlockedAdsAndTrackersPlural", { count: alltime }) : t4("stats_countBlockedPlural", { count: alltime });
-    }
-    return /* @__PURE__ */ _("div", { className: (0, import_classnames11.default)(PrivacyStats_default.heading, { [PrivacyStats_default.adsAndTrackersVariant]: adBlocking }), "data-testid": "PrivacyStatsHeading" }, /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: adBlocking ? "./icons/shield-green.svg" : "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, adBlocking ? t4("stats_noRecentAdsAndTrackers") : t4("stats_noRecent")), some && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), canExpand && /* @__PURE__ */ _("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
-      ShowHideButtonCircle,
-      {
-        buttonAttrs: {
-          ...buttonAttrs,
-          "aria-expanded": expansion === "expanded",
-          "aria-pressed": expansion === "expanded"
-        },
-        onClick: onToggle,
-        label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
-      }
-    )), recent === 0 && /* @__PURE__ */ _("p", { className: (0, import_classnames11.default)(PrivacyStats_default.subtitle, { [PrivacyStats_default.indented]: !adBlocking }) }, adBlocking ? t4("stats_noActivityAdsAndTrackers") : t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ _("p", { className: (0, import_classnames11.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented, { [PrivacyStats_default.uppercase]: !adBlocking }) }, t4("stats_feedCountBlockedPeriod")));
-  }
-  var import_classnames11;
-  var init_PrivacyStatsHeading = __esm({
-    "pages/new-tab/app/privacy-stats/components/PrivacyStatsHeading.js"() {
-      "use strict";
-      init_types();
-      init_hooks_module();
-      init_PrivacyStats();
-      init_ShowHideButton();
-      import_classnames11 = __toESM(require_classnames(), 1);
-      init_preact_module();
-      init_settings_provider();
-      init_TranslationsProvider();
     }
   });
 
@@ -25322,45 +25369,40 @@
     }
   });
 
-  // pages/new-tab/app/privacy-stats/components/PrivacyStats.js
-  function PrivacyStats({ expansion = "expanded", secondaryExpansion, data: data2, toggle }) {
-    const expanded = expansion === "expanded";
-    const { hasNamedCompanies, recent } = T2(() => {
-      let recent2 = 0;
-      let hasNamedCompanies2 = false;
-      for (let i5 = 0; i5 < data2.trackerCompanies.length; i5++) {
-        recent2 += data2.trackerCompanies[i5].count;
-        if (!hasNamedCompanies2 && data2.trackerCompanies[i5].displayName !== DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
-          hasNamedCompanies2 = true;
-        }
-      }
-      return { hasNamedCompanies: hasNamedCompanies2, recent: recent2 };
-    }, [data2.trackerCompanies]);
-    const WIDGET_ID = g2();
-    const TOGGLE_ID = g2();
-    const attrs = T2(() => {
-      return {
-        "aria-controls": WIDGET_ID,
-        id: TOGGLE_ID
-      };
-    }, [WIDGET_ID, TOGGLE_ID]);
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.root }, /* @__PURE__ */ _(
-      PrivacyStatsHeading,
-      {
-        recent,
-        onToggle: toggle,
-        expansion,
-        canExpand: hasNamedCompanies,
-        buttonAttrs: attrs
-      }
-    ), hasNamedCompanies && expanded && /* @__PURE__ */ _(PrivacyStatsBody, { expansion: secondaryExpansion, trackerCompanies: data2.trackerCompanies, id: WIDGET_ID }));
+  // pages/new-tab/app/privacy-stats/privacy-stats.utils.js
+  function sortStatsForDisplay(stats) {
+    const sorted = stats.slice().sort((a4, b4) => b4.count - a4.count);
+    const other = sorted.findIndex((x3) => x3.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER);
+    if (other > -1) {
+      const popped = sorted.splice(other, 1);
+      sorted.push(popped[0]);
+    }
+    return sorted;
   }
-  function PrivacyStatsBody({ trackerCompanies, expansion = "expanded", id }) {
+  function displayNameForCompany(companyName) {
+    return companyName.replace(/\.[a-z]+$/i, "");
+  }
+  var init_privacy_stats_utils = __esm({
+    "pages/new-tab/app/privacy-stats/privacy-stats.utils.js"() {
+      "use strict";
+      init_constants2();
+    }
+  });
+
+  // pages/new-tab/app/privacy-stats/components/PrivacyStats.js
+  function PrivacyStats({ trackerCompanies, expansion = "expanded" }) {
     const [formatter] = d2(() => new Intl.NumberFormat());
     const sorted = sortStatsForDisplay(trackerCompanies);
     const largestTrackerCount = sorted[0]?.count ?? 0;
     const visibleRows = expansion === "expanded" ? sorted : sorted.slice(0, DDG_STATS_DEFAULT_ROWS);
-    return /* @__PURE__ */ _("div", { id, "data-testid": "PrivacyStatsBody", class: PrivacyStats_default.body }, /* @__PURE__ */ _(CompanyList, { rows: visibleRows, largestTrackerCount, formatter }), /* @__PURE__ */ _(ListFooter, { all: sorted }));
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.body }, sorted.length === 0 && /* @__PURE__ */ _(PrivacyStatsEmptyState, null), sorted.length > 0 && /* @__PURE__ */ _(CompanyList, { rows: visibleRows, largestTrackerCount, formatter }), sorted.length > 0 && /* @__PURE__ */ _(ListFooter, { all: sorted }));
+  }
+  function PrivacyStatsEmptyState() {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {import("../strings.json")} */
+      {}
+    );
+    return /* @__PURE__ */ _(ProtectionsEmpty, null, t4("stats_noActivity"));
   }
   function CompanyList({ rows, formatter, largestTrackerCount }) {
     return /* @__PURE__ */ _("ul", { class: PrivacyStats_default.list, "data-testid": "CompanyList" }, rows.map((company) => {
@@ -25462,20 +25504,20 @@
       init_types();
       init_hooks_module();
       init_ShowHideButton();
-      init_constants();
+      init_constants2();
       init_privacy_stats_utils();
       init_CompanyIcon2();
-      init_PrivacyStatsHeading();
       init_BodyExpansionProvider();
+      init_Protections2();
     }
   });
 
   // pages/new-tab/app/privacy-stats/components/PrivacyStatsConsumer.js
   function PrivacyStatsConsumer() {
-    const { state, toggle } = x2(PrivacyStatsContext);
+    const { state } = x2(PrivacyStatsContext);
     const secondaryExpansion = useBodyExpansion();
     if (state.status === "ready") {
-      return /* @__PURE__ */ _(PrivacyStats, { expansion: state.config.expansion, secondaryExpansion, data: state.data, toggle });
+      return /* @__PURE__ */ _(PrivacyStats, { expansion: secondaryExpansion, trackerCompanies: state.data.trackerCompanies });
     }
     return null;
   }
@@ -25485,52 +25527,90 @@
       init_hooks_module();
       init_PrivacyStatsProvider();
       init_preact_module();
-      init_PrivacyStats2();
       init_BodyExpansionProvider();
+      init_PrivacyStats2();
     }
   });
 
-  // pages/new-tab/app/privacy-stats/components/PrivacyStatsCustomized.js
-  function PrivacyStatsCustomized() {
+  // pages/new-tab/app/protections/components/ProtectionsConsumer.js
+  function ProtectionsConsumer() {
+    const { state } = x2(ProtectionsContext);
+    if (state.status === "ready") {
+      return /* @__PURE__ */ _(ProtectionsReadyState, { data: state.data, config: state.config });
+    }
+    return null;
+  }
+  function ProtectionsReadyState({ data: data2, config }) {
+    const { toggle, setFeed } = x2(ProtectionsContext);
+    const blockedCountSignal = useBlockedCount(data2.totalCount);
+    return /* @__PURE__ */ _(
+      Protections,
+      {
+        blockedCountSignal,
+        expansion: config.expansion,
+        toggle,
+        feed: config.feed,
+        setFeed
+      },
+      config.feed === "activity" && /* @__PURE__ */ _(ActivityProvider, null, /* @__PURE__ */ _(ActivityConsumer, null)),
+      config.feed === "privacy-stats" && /* @__PURE__ */ _(PrivacyStatsProvider, null, /* @__PURE__ */ _(BodyExpanderProvider, null, /* @__PURE__ */ _(PrivacyStatsConsumer, null)))
+    );
+  }
+  var init_ProtectionsConsumer = __esm({
+    "pages/new-tab/app/protections/components/ProtectionsConsumer.js"() {
+      "use strict";
+      init_hooks_module();
+      init_ProtectionsProvider();
+      init_preact_module();
+      init_Protections2();
+      init_ActivityProvider();
+      init_Activity2();
+      init_PrivacyStatsProvider();
+      init_BodyExpansionProvider();
+      init_PrivacyStatsConsumer();
+    }
+  });
+
+  // pages/new-tab/app/protections/components/ProtectionsCustomized.js
+  function ProtectionsCustomized() {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
-    const sectionTitle = t4("stats_menuTitle_v2");
+    const sectionTitle = t4("protections_menuTitle");
     const { visibility, id, toggle, index: index2 } = useVisibility();
     useCustomizer({ title: sectionTitle, id, icon: "shield", toggle, visibility: visibility.value, index: index2 });
     if (visibility.value === "hidden") {
       return null;
     }
-    return /* @__PURE__ */ _(PrivacyStatsProvider, null, /* @__PURE__ */ _(BodyExpanderProvider, null, /* @__PURE__ */ _(PrivacyStatsConsumer, null)));
+    return /* @__PURE__ */ _(ProtectionsProvider, null, /* @__PURE__ */ _(ProtectionsConsumer, null));
   }
-  var init_PrivacyStatsCustomized = __esm({
-    "pages/new-tab/app/privacy-stats/components/PrivacyStatsCustomized.js"() {
+  var init_ProtectionsCustomized = __esm({
+    "pages/new-tab/app/protections/components/ProtectionsCustomized.js"() {
       "use strict";
       init_types();
       init_widget_config_provider();
       init_CustomizerMenu();
-      init_PrivacyStatsProvider();
+      init_ProtectionsProvider();
       init_preact_module();
-      init_PrivacyStatsConsumer();
-      init_BodyExpansionProvider();
+      init_ProtectionsConsumer();
     }
   });
 
-  // pages/new-tab/app/entry-points/privacyStats.js
-  var privacyStats_exports = {};
-  __export(privacyStats_exports, {
-    factory: () => factory5
+  // pages/new-tab/app/entry-points/protections.js
+  var protections_exports = {};
+  __export(protections_exports, {
+    factory: () => factory6
   });
-  function factory5() {
-    return /* @__PURE__ */ _(Centered, { "data-entry-point": "privacyStats" }, /* @__PURE__ */ _(PrivacyStatsCustomized, null));
+  function factory6() {
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "protections" }, /* @__PURE__ */ _(ProtectionsCustomized, null));
   }
-  var init_privacyStats = __esm({
-    "pages/new-tab/app/entry-points/privacyStats.js"() {
+  var init_protections = __esm({
+    "pages/new-tab/app/entry-points/protections.js"() {
       "use strict";
       init_preact_module();
       init_Layout();
-      init_PrivacyStatsCustomized();
+      init_ProtectionsCustomized();
     }
   });
 
@@ -25628,7 +25708,7 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService6();
+    const service = useService7();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
     const dismiss = q2(
@@ -25653,7 +25733,7 @@
     );
     return /* @__PURE__ */ _(RMFContext.Provider, { value: { state, dismiss, primaryAction, secondaryAction } }, /* @__PURE__ */ _(RMFDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService6() {
+  function useService7() {
     const service = A2(
       /** @type {RMFService|null} */
       null
@@ -25739,9 +25819,9 @@
   // pages/new-tab/app/entry-points/rmf.js
   var rmf_exports = {};
   __export(rmf_exports, {
-    factory: () => factory6
+    factory: () => factory7
   });
-  function factory6() {
+  function factory7() {
     return /* @__PURE__ */ _(Centered, { "data-entry-point": "rmf" }, /* @__PURE__ */ _(RMFProvider, null, /* @__PURE__ */ _(RMFConsumer, null)));
   }
   var init_rmf = __esm({
@@ -25838,14 +25918,14 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService7(updateNotification);
+    const service = useService8(updateNotification);
     useDataSubscription({ dispatch, service });
     const dismiss = q2(() => {
       service.current?.dismiss();
     }, [service]);
     return /* @__PURE__ */ _(UpdateNotificationContext.Provider, { value: { state, dismiss } }, /* @__PURE__ */ _(UpdateNotificationDispatchContext.Provider, { value: dispatch }, children));
   }
-  function useService7(initial) {
+  function useService8(initial) {
     const service = A2(
       /** @type {UpdateNotificationService|null} */
       null
@@ -25966,9 +26046,9 @@
   // pages/new-tab/app/entry-points/updateNotification.js
   var updateNotification_exports = {};
   __export(updateNotification_exports, {
-    factory: () => factory7
+    factory: () => factory8
   });
-  function factory7() {
+  function factory8() {
     return /* @__PURE__ */ _("div", { "data-entry-point": "updateNotification" }, /* @__PURE__ */ _(UpdateNotificationProvider, null, /* @__PURE__ */ _(UpdateNotificationConsumer, null)));
   }
   var init_updateNotification = __esm({
@@ -26236,7 +26316,7 @@
       toggle: (_id) => setOpen((prev) => !prev),
       index: index2
     });
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Debug, { telemetry: telemetry2, isOpen }));
+    return /* @__PURE__ */ _("div", null, isOpen && /* @__PURE__ */ _(Debug, { telemetry: telemetry2, isOpen: true }));
   }
   function Debug({ telemetry: telemetry2, isOpen }) {
     const textRef = A2(null);
@@ -26275,6 +26355,7 @@
     "../entry-points/freemiumPIRBanner.js": () => Promise.resolve().then(() => (init_freemiumPIRBanner(), freemiumPIRBanner_exports)),
     "../entry-points/nextSteps.js": () => Promise.resolve().then(() => (init_nextSteps(), nextSteps_exports)),
     "../entry-points/privacyStats.js": () => Promise.resolve().then(() => (init_privacyStats(), privacyStats_exports)),
+    "../entry-points/protections.js": () => Promise.resolve().then(() => (init_protections(), protections_exports)),
     "../entry-points/rmf.js": () => Promise.resolve().then(() => (init_rmf(), rmf_exports)),
     "../entry-points/updateNotification.js": () => Promise.resolve().then(() => (init_updateNotification(), updateNotification_exports))
   });
@@ -26324,7 +26405,7 @@
         },
         /* @__PURE__ */ _(WidgetLoader, { fn: matchingEntryPoint.factory })
       ));
-    }), env === "development" && /* @__PURE__ */ _(Centered, { "data-entry-point": "debug" }, /* @__PURE__ */ _(DebugCustomized, { index: widgets.length, isOpenInitially: false })));
+    }), env === "development" && /* @__PURE__ */ _(Centered, { "data-entry-point": "debug" }, /* @__PURE__ */ _(DebugCustomized, { index: widgets.length, isOpenInitially: window.location.search.includes("debugWidget") })));
   }
   function WidgetLoader({ fn: fn2 }) {
     const result = fn2?.();
@@ -26500,7 +26581,7 @@
   init_signals_module();
   init_hooks_module();
   init_CustomizerProvider();
-  init_utils2();
+  init_utils();
   init_types();
   function BackgroundSection({ data: data2, onNav, onUpload, select }) {
     const { browser } = x2(CustomizerThemesContext);
@@ -26826,7 +26907,7 @@
   init_values();
   init_Icons2();
   init_signals_module();
-  init_utils2();
+  init_utils();
   init_types();
   function ColorSelection({ data: data2, select, back }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -27374,6 +27455,22 @@
       title: "Dismiss",
       note: "Button label text for an action that removes the widget from the screen."
     },
+    protections_menuTitle: {
+      title: "Protections Report",
+      note: "Used as a label in the main navigation menu. 'Protections' refers to the privacy features that block trackers."
+    },
+    protections_statsSwitchTitle: {
+      title: "Summary",
+      note: "Used as a label in a toggle switch that shows aggregated privacy statistics. This is one of two options in a view selector (the other is 'Details')."
+    },
+    protections_activitySwitchTitle: {
+      title: "Details",
+      note: "Used as a label in a toggle switch that shows recent browsing activity with tracking information. This is one of two options in a view selector (the other is 'Summary')."
+    },
+    protections_noRecent: {
+      title: "No recent tracking activity",
+      note: "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
+    },
     stats_menuTitle: {
       title: "Blocked Tracking Attempts",
       note: "Used as a label in a customization menu"
@@ -27626,7 +27723,7 @@
       title: "No recent browsing activity",
       note: "Placeholder to indicate that no browsing activity was seen in the last 7 days"
     },
-    activity_noRecent_subtitle: {
+    activity_empty: {
       title: "Recently visited sites will appear here. Keep browsing to see how many trackers we block.",
       note: "Shown in the place a list of browsing history entries will be displayed."
     },
@@ -27750,9 +27847,24 @@
   // pages/new-tab/app/components/Components.jsx
   init_preact_module();
 
+  // pages/new-tab/app/components/Components.module.css
+  var Components_default = {
+    main: "Components_main",
+    contentTube: "Components_contentTube",
+    componentList: "Components_componentList",
+    tubeGrid: "Components_tubeGrid",
+    itemInfo: "Components_itemInfo",
+    itemLinks: "Components_itemLinks",
+    itemLink: "Components_itemLink",
+    debugBar: "Components_debugBar",
+    buttonRow: "Components_buttonRow",
+    "grid-container": "Components_grid-container",
+    item: "Components_item"
+  };
+
   // pages/new-tab/app/customizer/components/Customizer.examples.js
   init_preact_module();
-  init_utils();
+  init_utils2();
   init_CustomizerMenu();
   init_signals_module();
   var customizerExamples = {
@@ -28036,7 +28148,7 @@
 
   // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.examples.js
   init_preact_module();
-  init_utils();
+  init_utils2();
   init_FreemiumPIRBanner2();
 
   // pages/new-tab/app/freemium-pir-banner/mocks/freemiumPIRBanner.data.js
@@ -28087,7 +28199,7 @@
 
   // pages/new-tab/app/next-steps/components/NextSteps.examples.js
   init_preact_module();
-  init_utils();
+  init_utils2();
   init_NextStepsCard();
   init_NextStepsGroup();
   var nextStepsExamples = {
@@ -28192,10 +28304,9 @@
   init_PrivacyStatsProvider();
 
   // pages/new-tab/app/privacy-stats/mocks/privacy-stats.mocks.js
-  init_constants();
+  init_constants2();
   var privacyStatsMocks = {
     few: {
-      totalCount: 481113,
       trackerCompanies: [
         {
           displayName: "Facebook",
@@ -28220,7 +28331,6 @@
       ]
     },
     single: {
-      totalCount: 481113,
       trackerCompanies: [
         {
           displayName: "Google",
@@ -28229,15 +28339,12 @@
       ]
     },
     norecent: {
-      totalCount: 481113,
       trackerCompanies: []
     },
     none: {
-      totalCount: 0,
       trackerCompanies: []
     },
     onlyother: {
-      totalCount: 2,
       trackerCompanies: [
         {
           displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
@@ -28246,7 +28353,6 @@
       ]
     },
     manyOnlyTop: {
-      totalCount: 2,
       trackerCompanies: [
         {
           displayName: "Facebook",
@@ -28275,7 +28381,6 @@
       ]
     },
     fewOnlyTop: {
-      totalCount: 2,
       trackerCompanies: [
         {
           displayName: "Facebook",
@@ -28292,7 +28397,6 @@
       ]
     },
     topAndOneOther: {
-      totalCount: 2,
       trackerCompanies: [
         {
           displayName: "Facebook",
@@ -28321,7 +28425,6 @@
       ]
     },
     manyTopAndOther: {
-      totalCount: 2,
       trackerCompanies: [
         {
           displayName: "Facebook",
@@ -28354,7 +28457,6 @@
       ]
     },
     many: {
-      totalCount: 890,
       trackerCompanies: [
         { displayName: "Google", count: 153 },
         { displayName: "Microsoft", count: 69 },
@@ -28406,18 +28508,13 @@
   // pages/new-tab/app/privacy-stats/mocks/PrivacyStatsMockProvider.js
   init_service_hooks();
   init_BodyExpansionProvider();
-  function PrivacyStatsMockProvider({
-    data: data2 = privacyStatsMocks.few,
-    config = { expansion: "expanded", animation: { kind: "auto-animate" } },
-    ticker = false,
-    children
-  }) {
+  function PrivacyStatsMockProvider({ data: data2 = privacyStatsMocks.few, ticker = false, children }) {
     const initial = (
       /** @type {import('../components/PrivacyStatsProvider.js').State} */
       {
         status: "ready",
         data: data2,
-        config
+        config: null
       }
     );
     const [state, send] = h2(reducer, initial);
@@ -28425,7 +28522,6 @@
       if (!ticker) return;
       if (state.status === "ready") {
         const next = {
-          totalCount: state.data.totalCount + 1,
           trackerCompanies: state.data.trackerCompanies.map((company, index2) => {
             if (index2 === 0) return { ...company, count: company.count + 1 };
             return company;
@@ -28438,16 +28534,8 @@
       }
       return () => {
       };
-    }, [state.data?.totalCount, ticker]);
-    const toggle = q2(() => {
-      if (state.status !== "ready") return console.warn("was not ready");
-      if (state.config?.expansion === "expanded") {
-        send({ kind: "config", config: { ...state.config, expansion: "collapsed" } });
-      } else {
-        send({ kind: "config", config: { ...state.config, expansion: "expanded" } });
-      }
-    }, [state.config?.expansion]);
-    return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: send }, /* @__PURE__ */ _(BodyExpansionMockProvider, null, children)));
+    }, [ticker]);
+    return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: send }, /* @__PURE__ */ _(BodyExpansionMockProvider, null, children)));
   }
   function BodyExpansionMockProvider({ children, bodyExpansion = "collapsed" }) {
     const [bodyExpansionState, setBodyExpansion] = d2(bodyExpansion);
@@ -28468,7 +28556,7 @@
       factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { ticker: true }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
     },
     "stats.few.collapsed": {
-      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { config: { expansion: "collapsed" } }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, null, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
     },
     "stats.single": {
       factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.single }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
@@ -28480,7 +28568,7 @@
       factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.norecent }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
     },
     "stats.list": {
-      factory: () => /* @__PURE__ */ _(PrivacyStatsBody, { trackerCompanies: privacyStatsMocks.few.trackerCompanies, id: "example-stats.list", expansion: "expanded" })
+      factory: () => /* @__PURE__ */ _(PrivacyStats, { trackerCompanies: privacyStatsMocks.few.trackerCompanies, expansion: "expanded" })
     },
     "stats.footer": {
       factory: () => {
@@ -28505,7 +28593,7 @@
 
   // pages/new-tab/app/remote-messaging-framework/components/RMF.examples.js
   init_preact_module();
-  init_utils();
+  init_utils2();
   init_RemoteMessagingFramework2();
 
   // pages/new-tab/app/remote-messaging-framework/mocks/rmf.data.js
@@ -28608,7 +28696,7 @@
   // pages/new-tab/app/update-notification/components/UpdateNotification.examples.js
   init_preact_module();
   init_UpdateNotification2();
-  init_utils();
+  init_utils2();
   var updateNotificationExamples = {
     "updateNotification.empty": {
       factory: () => {
@@ -28625,7 +28713,6 @@
   // pages/new-tab/app/activity/components/Activity.examples.js
   init_preact_module();
   init_Activity2();
-  init_utils();
   init_signals_module();
 
   // ../messaging/lib/windows.js
@@ -29595,17 +29682,17 @@
   var activityExamples = {
     "activity.empty": {
       factory: () => {
-        return /* @__PURE__ */ _(Activity, { expansion: "expanded", itemCount: 0, trackerCount: 0, toggle: noop("toggle"), batched: false });
+        return /* @__PURE__ */ _(Activity, { itemCount: 0, batched: false });
       }
     },
     "activity.few": {
-      factory: () => /* @__PURE__ */ _(Activity, { expansion: "expanded", itemCount: 10, trackerCount: 20, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ _(Mock, { size: 3 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible" })))
+      factory: () => /* @__PURE__ */ _(Activity, { itemCount: 10, batched: false }, /* @__PURE__ */ _(Mock, { size: 3 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible" })))
     },
     "activity.noTrackers": {
-      factory: () => /* @__PURE__ */ _(Activity, { expansion: "expanded", itemCount: 20, trackerCount: 0, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ _(Mock, { size: 1 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible" })))
+      factory: () => /* @__PURE__ */ _(Activity, { itemCount: 20, batched: false }, /* @__PURE__ */ _(Mock, { size: 1 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible" })))
     },
     "activity.noActivity.someTrackers": {
-      factory: () => /* @__PURE__ */ _(Activity, { expansion: "collapsed", itemCount: 0, trackerCount: 56, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ _(Mock, { size: 0 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible" })))
+      factory: () => /* @__PURE__ */ _(Activity, { itemCount: 0, batched: false }, /* @__PURE__ */ _(Mock, { size: 0 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible" })))
     }
   };
   function Mock({ children, size }) {
@@ -29633,6 +29720,133 @@
     );
   }
 
+  // pages/new-tab/app/protections/components/ProtectionsHeading.examples.js
+  init_preact_module();
+  init_hooks_module();
+  init_Protections2();
+  init_signals_module();
+  init_Activity2();
+  init_PrivacyStats2();
+  init_settings_provider();
+  var protectionsHeadingExamples = {
+    protectionsHeading: {
+      factory: () => {
+        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h2", null, 'AdBlocking = "enabled"'), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(TubeGrid, null, /* @__PURE__ */ _(MockWithState, { initial: 0 }, ({ expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+          return /* @__PURE__ */ _(SettingsProvider, { settings: new Settings({ adBlocking: { state: "enabled" } }) }, /* @__PURE__ */ _(
+            Protections,
+            {
+              blockedCountSignal,
+              feed,
+              setFeed,
+              expansion,
+              toggle
+            },
+            /* @__PURE__ */ _(PrivacyStatsEmptyState, null)
+          ));
+        }), /* @__PURE__ */ _(MockWithState, { initial: 120 }, ({ expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+          return /* @__PURE__ */ _(SettingsProvider, { settings: new Settings({ adBlocking: { state: "enabled" } }) }, /* @__PURE__ */ _(
+            Protections,
+            {
+              blockedCountSignal,
+              feed,
+              setFeed,
+              expansion,
+              toggle
+            },
+            /* @__PURE__ */ _(PrintState, { feed, blockedCountSignal })
+          ));
+        })), /* @__PURE__ */ _("h2", null, 'AdBlocking = "disabled"'), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(TubeGrid, null, /* @__PURE__ */ _(MockWithState, { initial: 0 }, ({ expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+          return /* @__PURE__ */ _(
+            Protections,
+            {
+              blockedCountSignal,
+              feed,
+              setFeed,
+              expansion,
+              toggle
+            },
+            /* @__PURE__ */ _(PrivacyStatsEmptyState, null)
+          );
+        }), /* @__PURE__ */ _(MockWithState, { initial: 0, feedType: "activity" }, ({ expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+          return /* @__PURE__ */ _(
+            Protections,
+            {
+              blockedCountSignal,
+              feed,
+              setFeed,
+              expansion,
+              toggle
+            },
+            /* @__PURE__ */ _(ActivityEmptyState, null)
+          );
+        }), /* @__PURE__ */ _(MockWithState, { initial: 1 }, ({ expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+          return /* @__PURE__ */ _(
+            Protections,
+            {
+              blockedCountSignal,
+              feed,
+              setFeed,
+              expansion,
+              toggle
+            },
+            /* @__PURE__ */ _(PrintState, { feed, blockedCountSignal })
+          );
+        }), /* @__PURE__ */ _(MockWithState, { initial: 0, interval: 1e3 }, ({ expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+          return /* @__PURE__ */ _(
+            Protections,
+            {
+              blockedCountSignal,
+              feed,
+              setFeed,
+              expansion,
+              toggle
+            },
+            /* @__PURE__ */ _(PrintState, { feed, blockedCountSignal })
+          );
+        }), /* @__PURE__ */ _(MockWithState, { initial: 100, feedType: "activity" }, ({ expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+          return /* @__PURE__ */ _(
+            Protections,
+            {
+              blockedCountSignal,
+              feed,
+              setFeed,
+              expansion,
+              toggle
+            },
+            /* @__PURE__ */ _(PrintState, { feed, blockedCountSignal })
+          );
+        })));
+      }
+    }
+  };
+  function PrintState(props) {
+    return /* @__PURE__ */ _("pre", { style: { marginTop: "24px" } }, /* @__PURE__ */ _("code", null, JSON.stringify(
+      {
+        feed: props.feed,
+        blockedCount: props.blockedCountSignal.value
+      },
+      null,
+      2
+    )));
+  }
+  var MockWithState = ({ children, initial = 0, feedType = "privacy-stats", interval = 0 }) => {
+    const [feed, setFeed] = d2(feedType);
+    const [expansion, setExpansion] = d2(
+      /** @type {import('../../../types/new-tab.js').Expansion} */
+      "expanded"
+    );
+    const signal = useSignal(initial);
+    y2(() => {
+      if (interval === 0) return;
+      const int = setInterval(() => signal.value += 1, interval);
+      return () => clearInterval(int);
+    }, [interval]);
+    const toggle = () => {
+      setExpansion((old) => old === "expanded" ? "collapsed" : "expanded");
+    };
+    return children({ toggle, expansion, feed, setFeed, blockedCountSignal: signal });
+  };
+
   // pages/new-tab/app/components/Examples.jsx
   var mainExamples = {
     ...favoritesExamples,
@@ -29647,7 +29861,8 @@
     ...otherRMFExamples,
     ...customizerExamples,
     ...updateNotificationExamples,
-    ...activityExamples
+    ...activityExamples,
+    ...protectionsHeadingExamples
   };
 
   // pages/new-tab/app/components/Components.jsx
@@ -29661,6 +29876,9 @@
     ...otherExamples
   };
   var entries3 = Object.entries(list);
+  function TubeGrid({ children }) {
+    return /* @__PURE__ */ _("div", { class: Components_default.tubeGrid }, children);
+  }
 
   // shared/call-with-retry.js
   async function callWithRetry(fn2, params = {}) {
@@ -29809,7 +30027,7 @@
 
   // pages/new-tab/app/index.js
   init_DocumentVisibility();
-  init_utils2();
+  init_utils();
   async function init(root2, messaging2, telemetry2, baseEnvironment2) {
     const result = await callWithRetry(() => messaging2.initialSetup());
     if ("error" in result) {
@@ -30089,8 +30307,11 @@
   init_values();
   var url3 = new URL(window.location.href);
 
+  // pages/new-tab/app/protections/mocks/protections.mock-transport.js
+  var url4 = typeof window !== "undefined" ? new URL(window.location.href) : new URL("https://example.com");
+
   // pages/new-tab/app/mock-transport.js
-  var url4 = new URL(window.location.href);
+  var url5 = new URL(window.location.href);
 
   // pages/new-tab/src/index.js
   var NewTabPage = class {

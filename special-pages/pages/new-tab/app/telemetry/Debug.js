@@ -15,11 +15,7 @@ export function DebugCustomized({ index, isOpenInitially = false }) {
         toggle: (_id) => setOpen((prev) => !prev),
         index,
     });
-    return (
-        <div>
-            <Debug telemetry={telemetry} isOpen={isOpen} />
-        </div>
-    );
+    return <div>{isOpen && <Debug telemetry={telemetry} isOpen={true} />}</div>;
 }
 
 /**

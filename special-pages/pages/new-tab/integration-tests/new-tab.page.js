@@ -1,6 +1,6 @@
 import { Mocks } from '../../../shared/mocks.js';
 import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
  * @typedef {import('injected/integration-test/type-helpers.mjs').Build} Build
@@ -118,6 +118,10 @@ export class NewtabPage {
         if (process.env.PAGE) {
             await this.page.goto('/' + '?' + searchParams.toString());
         } else {
+            test.info().annotations.push({
+                type: 'params',
+                description: '' + searchParams.toString(),
+            });
             await this.page.goto('/new-tab' + '?' + searchParams.toString());
         }
     }

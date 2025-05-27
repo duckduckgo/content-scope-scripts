@@ -55,6 +55,7 @@ export type PredefinedGradient =
  */
 export type BackgroundColorScheme = "light" | "dark";
 export type BrowserTheme = "light" | "dark" | "system";
+export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
  */
@@ -112,6 +113,7 @@ export interface NewTabMessages {
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
     | OpenNotification
+    | ProtectionsSetConfigNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
     | RmfDismissNotification
@@ -135,6 +137,8 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | ProtectionsGetConfigRequest
+    | ProtectionsGetDataRequest
     | RmfGetDataRequest
     | StatsGetConfigRequest
     | StatsGetDataRequest;
@@ -153,6 +157,8 @@ export interface NewTabMessages {
     | FreemiumPIRBannerOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
+    | ProtectionsOnConfigUpdateSubscription
+    | ProtectionsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
     | StatsOnConfigUpdateSubscription
     | StatsOnDataUpdateSubscription
@@ -456,6 +462,17 @@ export interface OpenNotification {
 }
 export interface OpenAction {
   target: "settings";
+}
+/**
+ * Generated from @see "../messages/protections_setConfig.notify.json"
+ */
+export interface ProtectionsSetConfigNotification {
+  method: "protections_setConfig";
+  params: ProtectionsConfig;
+}
+export interface ProtectionsConfig {
+  expansion: Expansion;
+  feed: FeedType;
 }
 /**
  * Generated from @see "../messages/reportInitException.notify.json"
@@ -794,6 +811,26 @@ export interface NextStepsData {
   content: null | NextStepsCards;
 }
 /**
+ * Generated from @see "../messages/protections_getConfig.request.json"
+ */
+export interface ProtectionsGetConfigRequest {
+  method: "protections_getConfig";
+  result: ProtectionsConfig;
+}
+/**
+ * Generated from @see "../messages/protections_getData.request.json"
+ */
+export interface ProtectionsGetDataRequest {
+  method: "protections_getData";
+  result: ProtectionsData;
+}
+export interface ProtectionsData {
+  /**
+   * Total number of trackers or ads blocked since install
+   */
+  totalCount: number;
+}
+/**
  * Generated from @see "../messages/rmf_getData.request.json"
  */
 export interface RmfGetDataRequest {
@@ -851,10 +888,6 @@ export interface StatsGetDataRequest {
   result: PrivacyStatsData;
 }
 export interface PrivacyStatsData {
-  /**
-   * Total number of trackers blocked since install
-   */
-  totalCount: number;
   trackerCompanies: TrackerCompany[];
 }
 export interface TrackerCompany {
@@ -972,6 +1005,20 @@ export interface NextStepsOnConfigUpdateSubscription {
 export interface NextStepsOnDataUpdateSubscription {
   subscriptionEvent: "nextSteps_onDataUpdate";
   params: NextStepsData;
+}
+/**
+ * Generated from @see "../messages/protections_onConfigUpdate.subscribe.json"
+ */
+export interface ProtectionsOnConfigUpdateSubscription {
+  subscriptionEvent: "protections_onConfigUpdate";
+  params: ProtectionsConfig;
+}
+/**
+ * Generated from @see "../messages/protections_onDataUpdate.subscribe.json"
+ */
+export interface ProtectionsOnDataUpdateSubscription {
+  subscriptionEvent: "protections_onDataUpdate";
+  params: ProtectionsData;
 }
 /**
  * Generated from @see "../messages/rmf_onDataUpdate.subscribe.json"

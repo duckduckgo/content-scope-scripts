@@ -8,12 +8,12 @@ import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 import { activityMockTransport } from './activity/mocks/activity.mock-transport.js';
+import { protectionsMockTransport } from './protections/mocks/protections.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
  * @typedef {import('../types/new-tab').FavoritesData} FavoritesData
  * @typedef {import('../types/new-tab').FavoritesConfig} FavoritesConfig
- * @typedef {import('../types/new-tab').StatsConfig} StatsConfig
  * @typedef {import('../types/new-tab').NextStepsConfig} NextStepsConfig
  * @typedef {import('../types/new-tab').NextStepsCards} NextStepsCards
  * @typedef {import('../types/new-tab').NextStepsData} NextStepsData
@@ -23,7 +23,7 @@ import { activityMockTransport } from './activity/mocks/activity.mock-transport.
  * @typedef {import('@duckduckgo/messaging/lib/test-utils.mjs').SubscriptionEvent} SubscriptionEvent
  */
 
-const VERSION_PREFIX = '__ntp_30__.';
+const VERSION_PREFIX = '__ntp_31__.';
 const url = new URL(window.location.href);
 
 export function mockTransport() {
@@ -105,6 +105,7 @@ export function mockTransport() {
     const transports = {
         customizer: customizerMockTransport(),
         activity: activityMockTransport(),
+        protections: protectionsMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -122,14 +123,6 @@ export function mockTransport() {
                     if (!msg.params) throw new Error('unreachable');
                     write('widget_config', msg.params);
                     broadcast('widget_config');
-                    return;
-                }
-                case 'stats_setConfig': {
-                    if (!msg.params) throw new Error('unreachable');
-
-                    const { animation, ...rest } = msg.params;
-                    write('stats_config', rest);
-                    broadcast('stats_config');
                     return;
                 }
                 case 'rmf_primaryAction': {
@@ -214,22 +207,6 @@ export function mockTransport() {
                         (msg) => {
                             if (msg.data.change === 'widget_config') {
                                 const values = read('widget_config');
-                                if (values) {
-                                    cb(values);
-                                }
-                            }
-                        },
-                        { signal: controller.signal },
-                    );
-                    return () => controller.abort();
-                }
-                case 'stats_onConfigUpdate': {
-                    const controller = new AbortController();
-                    channel?.addEventListener(
-                        'message',
-                        (msg) => {
-                            if (msg.data.change === 'stats_config') {
-                                const values = read('stats_config');
                                 if (values) {
                                     cb(values);
                                 }
@@ -385,18 +362,6 @@ export function mockTransport() {
                     }
                     return Promise.resolve(privacyStatsMocks.few);
                 }
-                case 'stats_getConfig': {
-                    /** @type {StatsConfig} */
-                    const defaultConfig = { expansion: 'expanded', animation: { kind: 'auto-animate' } };
-                    const fromStorage = read('stats_config') || defaultConfig;
-                    if (url.searchParams.get('animation') === 'none') {
-                        fromStorage.animation = { kind: 'none' };
-                    }
-                    if (url.searchParams.get('animation') === 'view-transitions') {
-                        fromStorage.animation = { kind: 'view-transitions' };
-                    }
-                    return Promise.resolve(fromStorage);
-                }
                 case 'nextSteps_getConfig': {
                     /** @type {NextStepsConfig} */
                     const config = { expansion: 'collapsed' };
@@ -505,15 +470,8 @@ export function mockTransport() {
                         updateNotification,
                     };
 
-                    const feed = url.searchParams.get('feed') || 'stats';
-                    if (feed === 'stats' || feed === 'both') {
-                        widgetsFromStorage.push({ id: 'privacyStats' });
-                        widgetConfigFromStorage.push({ id: 'privacyStats', visibility: 'visible' });
-                    }
-                    if (feed === 'activity' || feed === 'both') {
-                        widgetsFromStorage.push({ id: 'activity' });
-                        widgetConfigFromStorage.push({ id: 'activity', visibility: 'visible' });
-                    }
+                    widgetsFromStorage.push({ id: 'protections' });
+                    widgetConfigFromStorage.push({ id: 'protections', visibility: 'visible' });
 
                     initial.customizer = customizerData();
 
