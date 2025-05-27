@@ -1,7 +1,6 @@
 import { createContext, h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import { apply } from '../translations';
-import { signal } from '@preact/signals';
 
 /**
  * @typedef {(key: string, replacements?: Record<string, any>) => string} LocalTranslationFn
