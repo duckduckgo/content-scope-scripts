@@ -390,13 +390,13 @@ export class ReleaseNotesPage {
     async didRequestRetryGettingReleaseNotes() {
         const { page } = this;
         page.getByRole('button', { name: 'Reload Summary' }).click();
-        const calls = await this.mocks.waitForCallCount({ method: 'retryGettingReleaseNotes', count: 1 });
+        const calls = await this.mocks.waitForCallCount({ method: 'retryFetchReleaseNotes', count: 1 });
         expect(calls).toMatchObject([
             {
                 payload: {
                     context: 'specialPages',
                     featureName: 'release-notes',
-                    method: 'retryGettingReleaseNotes',
+                    method: 'retryFetchReleaseNotes',
                     params: {},
                 },
             },
