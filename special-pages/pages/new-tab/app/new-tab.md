@@ -1,9 +1,8 @@
 ---
 title: New Tab Page
-children: 
+children:
   - ./widget-list/widget-config.md
   - ./remote-messaging-framework/rmf.md
-  - ./update-notification/update-notification.md
   - ./privacy-stats/privacy-stats.md
   - ./activity/activity.md
   - ./favorites/favorites.md
@@ -18,7 +17,6 @@ children:
 - Returns {@link "NewTab Messages".InitialSetupResponse}
 - See also
    - [Widget Config](./widget-list/widget-config.md) for the initial page widgets
-   - [Update Notification](./update-notification/update-notification.md) for the optional data
    - [Customizer Drawer Feature Flags](./customizer/customizer.md) for optional feature flags like the customizer drawer
    about release notes (windows only).
 
@@ -26,7 +24,7 @@ children:
 
 ## Notifications
 
-### `contextMenu` 
+### `contextMenu`
 - {@link "NewTab Messages".ContextMenuNotification}
 - Sent when the user right-clicks in the page
 - Note: Other widgets might prevent this (and send their own, eg: favorites)
