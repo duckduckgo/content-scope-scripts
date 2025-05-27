@@ -44,7 +44,6 @@ body:has(.tubeGrid):has([data-isolated=true]) {
 .tubeGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, 540px);
-    grid-template-rows: repeat(auto-fill, auto);
     grid-column-gap: 12px;
     align-items: flex-start;
 
