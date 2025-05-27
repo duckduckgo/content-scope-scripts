@@ -1,6 +1,6 @@
 ### Integration
 
-Serve the entire folder found under `build/pages/release-notes`
+Serve the entire folder found under `build/<PLATFORM>/pages/release-notes`
 
 ### Platform Integrations
 
