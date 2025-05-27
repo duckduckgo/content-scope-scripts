@@ -110,6 +110,10 @@ export class ReleaseNotesPage {
         await this.sendSubscriptionMessage('loading');
     }
 
+    async releaseNotesLoadingError() {
+        await this.sendSubscriptionMessage('loadingError');
+    }
+
     async releaseNotesLoadedWithoutPrivacyPro() {
         await this.sendSubscriptionMessage('loaded', { releaseNotesPrivacyPro: undefined });
     }
@@ -191,6 +195,18 @@ export class ReleaseNotesPage {
         await expect(page.getByText('Last checked: Yesterday')).toBeVisible();
         await expect(page.getByText('Version 1.0.1 — Checking for update')).toBeVisible();
         await expect(page.getByTestId('placeholder')).toBeVisible();
+
+        await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
+    }
+
+    async didShowLoadingErrorState() {
+        const { page } = this;
+        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByText('Last checked: Yesterday')).toBeVisible();
+        await expect(page.getByText('Version 1.0.1 — Error loading update summary')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Reload Summary' })).toBeVisible();
 
         await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
         await expect(page.getByRole('heading', { name: 'For Privacy Pro Subscribers' })).not.toBeVisible();
@@ -365,6 +381,22 @@ export class ReleaseNotesPage {
                     context: 'specialPages',
                     featureName: 'release-notes',
                     method: 'retryUpdate',
+                    params: {},
+                },
+            },
+        ]);
+    }
+
+    async didRequestRetryGettingReleaseNotes() {
+        const { page } = this;
+        page.getByRole('button', { name: 'Reload Summary' }).click();
+        const calls = await this.mocks.waitForCallCount({ method: 'retryGettingReleaseNotes', count: 1 });
+        expect(calls).toMatchObject([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'release-notes',
+                    method: 'retryGettingReleaseNotes',
                     params: {},
                 },
             },
