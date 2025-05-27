@@ -41,17 +41,17 @@
   var __publicField = (obj, key2, value2) => __defNormalProp(obj, typeof key2 !== "symbol" ? key2 + "" : key2, value2);
 
   // ../node_modules/preact/dist/preact.module.js
-  function w(n3, l5) {
+  function d(n3, l5) {
     for (var u4 in l5) n3[u4] = l5[u4];
     return n3;
   }
-  function _(n3) {
+  function g(n3) {
     n3 && n3.parentNode && n3.parentNode.removeChild(n3);
   }
-  function g(l5, u4, t4) {
+  function _(l5, u4, t4) {
     var i5, r4, o4, e4 = {};
     for (o4 in u4) "key" == o4 ? i5 = u4[o4] : "ref" == o4 ? r4 = u4[o4] : e4[o4] = u4[o4];
-    if (arguments.length > 2 && (e4.children = arguments.length > 3 ? n.call(arguments, 2) : t4), "function" == typeof l5 && null != l5.defaultProps) for (o4 in l5.defaultProps) void 0 === e4[o4] && (e4[o4] = l5.defaultProps[o4]);
+    if (arguments.length > 2 && (e4.children = arguments.length > 3 ? n.call(arguments, 2) : t4), "function" == typeof l5 && null != l5.defaultProps) for (o4 in l5.defaultProps) null == e4[o4] && (e4[o4] = l5.defaultProps[o4]);
     return m(l5, e4, i5, r4, null);
   }
   function m(n3, t4, i5, r4, o4) {
@@ -64,38 +64,37 @@
   function x(n3, l5) {
     this.props = n3, this.context = l5;
   }
-  function C(n3, l5) {
-    if (null == l5) return n3.__ ? C(n3.__, n3.__i + 1) : null;
+  function S(n3, l5) {
+    if (null == l5) return n3.__ ? S(n3.__, n3.__i + 1) : null;
     for (var u4; l5 < n3.__k.length; l5++) if (null != (u4 = n3.__k[l5]) && null != u4.__e) return u4.__e;
-    return "function" == typeof n3.type ? C(n3) : null;
+    return "function" == typeof n3.type ? S(n3) : null;
   }
-  function S(n3) {
+  function C(n3) {
     var l5, u4;
     if (null != (n3 = n3.__) && null != n3.__c) {
       for (n3.__e = n3.__c.base = null, l5 = 0; l5 < n3.__k.length; l5++) if (null != (u4 = n3.__k[l5]) && null != u4.__e) {
         n3.__e = n3.__c.base = u4.__e;
         break;
       }
-      return S(n3);
+      return C(n3);
     }
   }
   function M(n3) {
-    (!n3.__d && (n3.__d = true) && i.push(n3) && !P.__r++ || r !== l.debounceRendering) && ((r = l.debounceRendering) || o)(P);
+    (!n3.__d && (n3.__d = true) && i.push(n3) && !$.__r++ || r != l.debounceRendering) && ((r = l.debounceRendering) || o)($);
   }
-  function P() {
-    var n3, u4, t4, r4, o4, f4, c4, s5;
-    for (i.sort(e); n3 = i.shift(); ) n3.__d && (u4 = i.length, r4 = void 0, f4 = (o4 = (t4 = n3).__v).__e, c4 = [], s5 = [], t4.__P && ((r4 = w({}, o4)).__v = o4.__v + 1, l.vnode && l.vnode(r4), j(t4.__P, r4, o4, t4.__n, t4.__P.namespaceURI, 32 & o4.__u ? [f4] : null, c4, null == f4 ? C(o4) : f4, !!(32 & o4.__u), s5), r4.__v = o4.__v, r4.__.__k[r4.__i] = r4, z(c4, r4, s5), r4.__e != f4 && S(r4)), i.length > u4 && i.sort(e));
-    P.__r = 0;
+  function $() {
+    for (var n3, u4, t4, r4, o4, f4, c4, s4 = 1; i.length; ) i.length > s4 && i.sort(e), n3 = i.shift(), s4 = i.length, n3.__d && (t4 = void 0, o4 = (r4 = (u4 = n3).__v).__e, f4 = [], c4 = [], u4.__P && ((t4 = d({}, r4)).__v = r4.__v + 1, l.vnode && l.vnode(t4), O(u4.__P, t4, r4, u4.__n, u4.__P.namespaceURI, 32 & r4.__u ? [o4] : null, f4, null == o4 ? S(r4) : o4, !!(32 & r4.__u), c4), t4.__v = r4.__v, t4.__.__k[t4.__i] = t4, z(f4, t4, c4), t4.__e != o4 && C(t4)));
+    $.__r = 0;
   }
-  function $(n3, l5, u4, t4, i5, r4, o4, e4, f4, c4, s5) {
-    var a4, h5, y5, d5, w5, _5, g6 = t4 && t4.__k || v, m4 = l5.length;
-    for (f4 = I(u4, l5, g6, f4, m4), a4 = 0; a4 < m4; a4++) null != (y5 = u4.__k[a4]) && (h5 = -1 === y5.__i ? p : g6[y5.__i] || p, y5.__i = a4, _5 = j(n3, y5, h5, i5, r4, o4, e4, f4, c4, s5), d5 = y5.__e, y5.ref && h5.ref != y5.ref && (h5.ref && V(h5.ref, null, y5), s5.push(y5.ref, y5.__c || d5, y5)), null == w5 && null != d5 && (w5 = d5), 4 & y5.__u || h5.__k === y5.__k ? f4 = A(y5, f4, n3) : "function" == typeof y5.type && void 0 !== _5 ? f4 = _5 : d5 && (f4 = d5.nextSibling), y5.__u &= -7);
-    return u4.__e = w5, f4;
+  function I(n3, l5, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
+    var a4, h5, v4, w5, d5, g6, _5 = t4 && t4.__k || y, m4 = l5.length;
+    for (f4 = P(u4, l5, _5, f4, m4), a4 = 0; a4 < m4; a4++) null != (v4 = u4.__k[a4]) && (h5 = -1 == v4.__i ? p : _5[v4.__i] || p, v4.__i = a4, g6 = O(n3, v4, h5, i5, r4, o4, e4, f4, c4, s4), w5 = v4.__e, v4.ref && h5.ref != v4.ref && (h5.ref && q(h5.ref, null, v4), s4.push(v4.ref, v4.__c || w5, v4)), null == d5 && null != w5 && (d5 = w5), 4 & v4.__u || h5.__k === v4.__k ? f4 = A(v4, f4, n3) : "function" == typeof v4.type && void 0 !== g6 ? f4 = g6 : w5 && (f4 = w5.nextSibling), v4.__u &= -7);
+    return u4.__e = d5, f4;
   }
-  function I(n3, l5, u4, t4, i5) {
-    var r4, o4, e4, f4, c4, s5 = u4.length, a4 = s5, h5 = 0;
-    for (n3.__k = new Array(i5), r4 = 0; r4 < i5; r4++) null != (o4 = l5[r4]) && "boolean" != typeof o4 && "function" != typeof o4 ? (f4 = r4 + h5, (o4 = n3.__k[r4] = "string" == typeof o4 || "number" == typeof o4 || "bigint" == typeof o4 || o4.constructor == String ? m(null, o4, null, null, null) : d(o4) ? m(k, { children: o4 }, null, null, null) : void 0 === o4.constructor && o4.__b > 0 ? m(o4.type, o4.props, o4.key, o4.ref ? o4.ref : null, o4.__v) : o4).__ = n3, o4.__b = n3.__b + 1, e4 = null, -1 !== (c4 = o4.__i = L(o4, u4, f4, a4)) && (a4--, (e4 = u4[c4]) && (e4.__u |= 2)), null == e4 || null === e4.__v ? (-1 == c4 && h5--, "function" != typeof o4.type && (o4.__u |= 4)) : c4 != f4 && (c4 == f4 - 1 ? h5-- : c4 == f4 + 1 ? h5++ : (c4 > f4 ? h5-- : h5++, o4.__u |= 4))) : n3.__k[r4] = null;
-    if (a4) for (r4 = 0; r4 < s5; r4++) null != (e4 = u4[r4]) && 0 == (2 & e4.__u) && (e4.__e == t4 && (t4 = C(e4)), q(e4, e4));
+  function P(n3, l5, u4, t4, i5) {
+    var r4, o4, e4, f4, c4, s4 = u4.length, a4 = s4, h5 = 0;
+    for (n3.__k = new Array(i5), r4 = 0; r4 < i5; r4++) null != (o4 = l5[r4]) && "boolean" != typeof o4 && "function" != typeof o4 ? (f4 = r4 + h5, (o4 = n3.__k[r4] = "string" == typeof o4 || "number" == typeof o4 || "bigint" == typeof o4 || o4.constructor == String ? m(null, o4, null, null, null) : w(o4) ? m(k, { children: o4 }, null, null, null) : null == o4.constructor && o4.__b > 0 ? m(o4.type, o4.props, o4.key, o4.ref ? o4.ref : null, o4.__v) : o4).__ = n3, o4.__b = n3.__b + 1, e4 = null, -1 != (c4 = o4.__i = L(o4, u4, f4, a4)) && (a4--, (e4 = u4[c4]) && (e4.__u |= 2)), null == e4 || null == e4.__v ? (-1 == c4 && (i5 > s4 ? h5-- : i5 < s4 && h5++), "function" != typeof o4.type && (o4.__u |= 4)) : c4 != f4 && (c4 == f4 - 1 ? h5-- : c4 == f4 + 1 ? h5++ : (c4 > f4 ? h5-- : h5++, o4.__u |= 4))) : n3.__k[r4] = null;
+    if (a4) for (r4 = 0; r4 < s4; r4++) null != (e4 = u4[r4]) && 0 == (2 & e4.__u) && (e4.__e == t4 && (t4 = S(e4)), B(e4, e4));
     return t4;
   }
   function A(n3, l5, u4) {
@@ -104,43 +103,43 @@
       for (t4 = n3.__k, i5 = 0; t4 && i5 < t4.length; i5++) t4[i5] && (t4[i5].__ = n3, l5 = A(t4[i5], l5, u4));
       return l5;
     }
-    n3.__e != l5 && (l5 && n3.type && !u4.contains(l5) && (l5 = C(n3)), u4.insertBefore(n3.__e, l5 || null), l5 = n3.__e);
+    n3.__e != l5 && (l5 && n3.type && !u4.contains(l5) && (l5 = S(n3)), u4.insertBefore(n3.__e, l5 || null), l5 = n3.__e);
     do {
       l5 = l5 && l5.nextSibling;
     } while (null != l5 && 8 == l5.nodeType);
     return l5;
   }
   function H(n3, l5) {
-    return l5 = l5 || [], null == n3 || "boolean" == typeof n3 || (d(n3) ? n3.some(function(n4) {
+    return l5 = l5 || [], null == n3 || "boolean" == typeof n3 || (w(n3) ? n3.some(function(n4) {
       H(n4, l5);
     }) : l5.push(n3)), l5;
   }
   function L(n3, l5, u4, t4) {
     var i5, r4, o4 = n3.key, e4 = n3.type, f4 = l5[u4];
-    if (null === f4 || f4 && o4 == f4.key && e4 === f4.type && 0 == (2 & f4.__u)) return u4;
+    if (null === f4 && null == n3.key || f4 && o4 == f4.key && e4 == f4.type && 0 == (2 & f4.__u)) return u4;
     if (t4 > (null != f4 && 0 == (2 & f4.__u) ? 1 : 0)) for (i5 = u4 - 1, r4 = u4 + 1; i5 >= 0 || r4 < l5.length; ) {
       if (i5 >= 0) {
-        if ((f4 = l5[i5]) && 0 == (2 & f4.__u) && o4 == f4.key && e4 === f4.type) return i5;
+        if ((f4 = l5[i5]) && 0 == (2 & f4.__u) && o4 == f4.key && e4 == f4.type) return i5;
         i5--;
       }
       if (r4 < l5.length) {
-        if ((f4 = l5[r4]) && 0 == (2 & f4.__u) && o4 == f4.key && e4 === f4.type) return r4;
+        if ((f4 = l5[r4]) && 0 == (2 & f4.__u) && o4 == f4.key && e4 == f4.type) return r4;
         r4++;
       }
     }
     return -1;
   }
   function T(n3, l5, u4) {
-    "-" == l5[0] ? n3.setProperty(l5, null == u4 ? "" : u4) : n3[l5] = null == u4 ? "" : "number" != typeof u4 || y.test(l5) ? u4 : u4 + "px";
+    "-" == l5[0] ? n3.setProperty(l5, null == u4 ? "" : u4) : n3[l5] = null == u4 ? "" : "number" != typeof u4 || v.test(l5) ? u4 : u4 + "px";
   }
-  function F(n3, l5, u4, t4, i5) {
-    var r4;
+  function j(n3, l5, u4, t4, i5) {
+    var r4, o4;
     n: if ("style" == l5) if ("string" == typeof u4) n3.style.cssText = u4;
     else {
       if ("string" == typeof t4 && (n3.style.cssText = t4 = ""), t4) for (l5 in t4) u4 && l5 in u4 || T(n3.style, l5, "");
-      if (u4) for (l5 in u4) t4 && u4[l5] === t4[l5] || T(n3.style, l5, u4[l5]);
+      if (u4) for (l5 in u4) t4 && u4[l5] == t4[l5] || T(n3.style, l5, u4[l5]);
     }
-    else if ("o" == l5[0] && "n" == l5[1]) r4 = l5 != (l5 = l5.replace(f, "$1")), l5 = l5.toLowerCase() in n3 || "onFocusOut" == l5 || "onFocusIn" == l5 ? l5.toLowerCase().slice(2) : l5.slice(2), n3.l || (n3.l = {}), n3.l[l5 + r4] = u4, u4 ? t4 ? u4.u = t4.u : (u4.u = c, n3.addEventListener(l5, r4 ? a : s, r4)) : n3.removeEventListener(l5, r4 ? a : s, r4);
+    else if ("o" == l5[0] && "n" == l5[1]) r4 = l5 != (l5 = l5.replace(f, "$1")), o4 = l5.toLowerCase(), l5 = o4 in n3 || "onFocusOut" == l5 || "onFocusIn" == l5 ? o4.slice(2) : l5.slice(2), n3.l || (n3.l = {}), n3.l[l5 + r4] = u4, u4 ? t4 ? u4.u = t4.u : (u4.u = c, n3.addEventListener(l5, r4 ? a : s, r4)) : n3.removeEventListener(l5, r4 ? a : s, r4);
     else {
       if ("http://www.w3.org/2000/svg" == i5) l5 = l5.replace(/xlink(H|:h)/, "h").replace(/sName$/, "s");
       else if ("width" != l5 && "height" != l5 && "href" != l5 && "list" != l5 && "form" != l5 && "tabIndex" != l5 && "download" != l5 && "rowSpan" != l5 && "colSpan" != l5 && "role" != l5 && "popover" != l5 && l5 in n3) try {
@@ -151,7 +150,7 @@
       "function" == typeof u4 || (null == u4 || false === u4 && "-" != l5[4] ? n3.removeAttribute(l5) : n3.setAttribute(l5, "popover" == l5 && 1 == u4 ? "" : u4));
     }
   }
-  function O(n3) {
+  function F(n3) {
     return function(u4) {
       if (this.l) {
         var t4 = this.l[u4.type + n3];
@@ -161,44 +160,44 @@
       }
     };
   }
-  function j(n3, u4, t4, i5, r4, o4, e4, f4, c4, s5) {
-    var a4, h5, p5, v4, y5, g6, m4, b4, C3, S2, M3, P4, I2, A5, H3, L2, T4, F4 = u4.type;
-    if (void 0 !== u4.constructor) return null;
+  function O(n3, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
+    var a4, h5, p5, y5, v4, _5, m4, b4, S2, C3, M3, $2, P4, A5, H3, L2, T5, j4 = u4.type;
+    if (null != u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), o4 = [f4 = u4.__e = t4.__e]), (a4 = l.__b) && a4(u4);
-    n: if ("function" == typeof F4) try {
-      if (b4 = u4.props, C3 = "prototype" in F4 && F4.prototype.render, S2 = (a4 = F4.contextType) && i5[a4.__c], M3 = a4 ? S2 ? S2.props.value : a4.__ : i5, t4.__c ? m4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (C3 ? u4.__c = h5 = new F4(b4, M3) : (u4.__c = h5 = new x(b4, M3), h5.constructor = F4, h5.render = B), S2 && S2.sub(h5), h5.props = b4, h5.state || (h5.state = {}), h5.context = M3, h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), C3 && null == h5.__s && (h5.__s = h5.state), C3 && null != F4.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = w({}, h5.__s)), w(h5.__s, F4.getDerivedStateFromProps(b4, h5.__s))), v4 = h5.props, y5 = h5.state, h5.__v = u4, p5) C3 && null == F4.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), C3 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
+    n: if ("function" == typeof j4) try {
+      if (b4 = u4.props, S2 = "prototype" in j4 && j4.prototype.render, C3 = (a4 = j4.contextType) && i5[a4.__c], M3 = a4 ? C3 ? C3.props.value : a4.__ : i5, t4.__c ? m4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (S2 ? u4.__c = h5 = new j4(b4, M3) : (u4.__c = h5 = new x(b4, M3), h5.constructor = j4, h5.render = D), C3 && C3.sub(h5), h5.props = b4, h5.state || (h5.state = {}), h5.context = M3, h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), S2 && null == h5.__s && (h5.__s = h5.state), S2 && null != j4.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = d({}, h5.__s)), d(h5.__s, j4.getDerivedStateFromProps(b4, h5.__s))), y5 = h5.props, v4 = h5.state, h5.__v = u4, p5) S2 && null == j4.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), S2 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
       else {
-        if (C3 && null == F4.getDerivedStateFromProps && b4 !== v4 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(b4, M3), !h5.__e && (null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(b4, h5.__s, M3) || u4.__v == t4.__v)) {
+        if (S2 && null == j4.getDerivedStateFromProps && b4 !== y5 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(b4, M3), !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(b4, h5.__s, M3) || u4.__v == t4.__v) {
           for (u4.__v != t4.__v && (h5.props = b4, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
             n4 && (n4.__ = u4);
-          }), P4 = 0; P4 < h5._sb.length; P4++) h5.__h.push(h5._sb[P4]);
+          }), $2 = 0; $2 < h5._sb.length; $2++) h5.__h.push(h5._sb[$2]);
           h5._sb = [], h5.__h.length && e4.push(h5);
           break n;
         }
-        null != h5.componentWillUpdate && h5.componentWillUpdate(b4, h5.__s, M3), C3 && null != h5.componentDidUpdate && h5.__h.push(function() {
-          h5.componentDidUpdate(v4, y5, g6);
+        null != h5.componentWillUpdate && h5.componentWillUpdate(b4, h5.__s, M3), S2 && null != h5.componentDidUpdate && h5.__h.push(function() {
+          h5.componentDidUpdate(y5, v4, _5);
         });
       }
-      if (h5.context = M3, h5.props = b4, h5.__P = n3, h5.__e = false, I2 = l.__r, A5 = 0, C3) {
-        for (h5.state = h5.__s, h5.__d = false, I2 && I2(u4), a4 = h5.render(h5.props, h5.state, h5.context), H3 = 0; H3 < h5._sb.length; H3++) h5.__h.push(h5._sb[H3]);
+      if (h5.context = M3, h5.props = b4, h5.__P = n3, h5.__e = false, P4 = l.__r, A5 = 0, S2) {
+        for (h5.state = h5.__s, h5.__d = false, P4 && P4(u4), a4 = h5.render(h5.props, h5.state, h5.context), H3 = 0; H3 < h5._sb.length; H3++) h5.__h.push(h5._sb[H3]);
         h5._sb = [];
       } else do {
-        h5.__d = false, I2 && I2(u4), a4 = h5.render(h5.props, h5.state, h5.context), h5.state = h5.__s;
+        h5.__d = false, P4 && P4(u4), a4 = h5.render(h5.props, h5.state, h5.context), h5.state = h5.__s;
       } while (h5.__d && ++A5 < 25);
-      h5.state = h5.__s, null != h5.getChildContext && (i5 = w(w({}, i5), h5.getChildContext())), C3 && !p5 && null != h5.getSnapshotBeforeUpdate && (g6 = h5.getSnapshotBeforeUpdate(v4, y5)), f4 = $(n3, d(L2 = null != a4 && a4.type === k && null == a4.key ? a4.props.children : a4) ? L2 : [L2], u4, t4, i5, r4, o4, e4, f4, c4, s5), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e4.push(h5), m4 && (h5.__E = h5.__ = null);
+      h5.state = h5.__s, null != h5.getChildContext && (i5 = d(d({}, i5), h5.getChildContext())), S2 && !p5 && null != h5.getSnapshotBeforeUpdate && (_5 = h5.getSnapshotBeforeUpdate(y5, v4)), L2 = a4, null != a4 && a4.type === k && null == a4.key && (L2 = N(a4.props.children)), f4 = I(n3, w(L2) ? L2 : [L2], u4, t4, i5, r4, o4, e4, f4, c4, s4), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e4.push(h5), m4 && (h5.__E = h5.__ = null);
     } catch (n4) {
       if (u4.__v = null, c4 || null != o4) if (n4.then) {
         for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
         o4[o4.indexOf(f4)] = null, u4.__e = f4;
-      } else for (T4 = o4.length; T4--; ) _(o4[T4]);
+      } else for (T5 = o4.length; T5--; ) g(o4[T5]);
       else u4.__e = t4.__e, u4.__k = t4.__k;
       l.__e(n4, u4, t4);
     }
-    else null == o4 && u4.__v == t4.__v ? (u4.__k = t4.__k, u4.__e = t4.__e) : f4 = u4.__e = N(t4.__e, u4, t4, i5, r4, o4, e4, c4, s5);
+    else null == o4 && u4.__v == t4.__v ? (u4.__k = t4.__k, u4.__e = t4.__e) : f4 = u4.__e = V(t4.__e, u4, t4, i5, r4, o4, e4, c4, s4);
     return (a4 = l.diffed) && a4(u4), 128 & u4.__u ? void 0 : f4;
   }
   function z(n3, u4, t4) {
-    for (var i5 = 0; i5 < t4.length; i5++) V(t4[i5], t4[++i5], t4[++i5]);
+    for (var i5 = 0; i5 < t4.length; i5++) q(t4[i5], t4[++i5], t4[++i5]);
     l.__c && l.__c(u4, n3), n3.some(function(u5) {
       try {
         n3 = u5.__h, u5.__h = [], n3.some(function(n4) {
@@ -209,35 +208,38 @@
       }
     });
   }
-  function N(u4, t4, i5, r4, o4, e4, f4, c4, s5) {
-    var a4, h5, v4, y5, w5, g6, m4, b4 = i5.props, k4 = t4.props, x4 = t4.type;
-    if ("svg" == x4 ? o4 = "http://www.w3.org/2000/svg" : "math" == x4 ? o4 = "http://www.w3.org/1998/Math/MathML" : o4 || (o4 = "http://www.w3.org/1999/xhtml"), null != e4) {
-      for (a4 = 0; a4 < e4.length; a4++) if ((w5 = e4[a4]) && "setAttribute" in w5 == !!x4 && (x4 ? w5.localName == x4 : 3 == w5.nodeType)) {
-        u4 = w5, e4[a4] = null;
+  function N(n3) {
+    return "object" != typeof n3 || null == n3 || n3.__b && n3.__b > 0 ? n3 : w(n3) ? n3.map(N) : d({}, n3);
+  }
+  function V(u4, t4, i5, r4, o4, e4, f4, c4, s4) {
+    var a4, h5, y5, v4, d5, _5, m4, b4 = i5.props, k4 = t4.props, x3 = t4.type;
+    if ("svg" == x3 ? o4 = "http://www.w3.org/2000/svg" : "math" == x3 ? o4 = "http://www.w3.org/1998/Math/MathML" : o4 || (o4 = "http://www.w3.org/1999/xhtml"), null != e4) {
+      for (a4 = 0; a4 < e4.length; a4++) if ((d5 = e4[a4]) && "setAttribute" in d5 == !!x3 && (x3 ? d5.localName == x3 : 3 == d5.nodeType)) {
+        u4 = d5, e4[a4] = null;
         break;
       }
     }
     if (null == u4) {
-      if (null == x4) return document.createTextNode(k4);
-      u4 = document.createElementNS(o4, x4, k4.is && k4), c4 && (l.__m && l.__m(t4, e4), c4 = false), e4 = null;
+      if (null == x3) return document.createTextNode(k4);
+      u4 = document.createElementNS(o4, x3, k4.is && k4), c4 && (l.__m && l.__m(t4, e4), c4 = false), e4 = null;
     }
-    if (null === x4) b4 === k4 || c4 && u4.data === k4 || (u4.data = k4);
+    if (null == x3) b4 === k4 || c4 && u4.data == k4 || (u4.data = k4);
     else {
-      if (e4 = e4 && n.call(u4.childNodes), b4 = i5.props || p, !c4 && null != e4) for (b4 = {}, a4 = 0; a4 < u4.attributes.length; a4++) b4[(w5 = u4.attributes[a4]).name] = w5.value;
-      for (a4 in b4) if (w5 = b4[a4], "children" == a4) ;
-      else if ("dangerouslySetInnerHTML" == a4) v4 = w5;
+      if (e4 = e4 && n.call(u4.childNodes), b4 = i5.props || p, !c4 && null != e4) for (b4 = {}, a4 = 0; a4 < u4.attributes.length; a4++) b4[(d5 = u4.attributes[a4]).name] = d5.value;
+      for (a4 in b4) if (d5 = b4[a4], "children" == a4) ;
+      else if ("dangerouslySetInnerHTML" == a4) y5 = d5;
       else if (!(a4 in k4)) {
         if ("value" == a4 && "defaultValue" in k4 || "checked" == a4 && "defaultChecked" in k4) continue;
-        F(u4, a4, null, w5, o4);
+        j(u4, a4, null, d5, o4);
       }
-      for (a4 in k4) w5 = k4[a4], "children" == a4 ? y5 = w5 : "dangerouslySetInnerHTML" == a4 ? h5 = w5 : "value" == a4 ? g6 = w5 : "checked" == a4 ? m4 = w5 : c4 && "function" != typeof w5 || b4[a4] === w5 || F(u4, a4, w5, b4[a4], o4);
-      if (h5) c4 || v4 && (h5.__html === v4.__html || h5.__html === u4.innerHTML) || (u4.innerHTML = h5.__html), t4.__k = [];
-      else if (v4 && (u4.innerHTML = ""), $(u4, d(y5) ? y5 : [y5], t4, i5, r4, "foreignObject" == x4 ? "http://www.w3.org/1999/xhtml" : o4, e4, f4, e4 ? e4[0] : i5.__k && C(i5, 0), c4, s5), null != e4) for (a4 = e4.length; a4--; ) _(e4[a4]);
-      c4 || (a4 = "value", "progress" == x4 && null == g6 ? u4.removeAttribute("value") : void 0 !== g6 && (g6 !== u4[a4] || "progress" == x4 && !g6 || "option" == x4 && g6 !== b4[a4]) && F(u4, a4, g6, b4[a4], o4), a4 = "checked", void 0 !== m4 && m4 !== u4[a4] && F(u4, a4, m4, b4[a4], o4));
+      for (a4 in k4) d5 = k4[a4], "children" == a4 ? v4 = d5 : "dangerouslySetInnerHTML" == a4 ? h5 = d5 : "value" == a4 ? _5 = d5 : "checked" == a4 ? m4 = d5 : c4 && "function" != typeof d5 || b4[a4] === d5 || j(u4, a4, d5, b4[a4], o4);
+      if (h5) c4 || y5 && (h5.__html == y5.__html || h5.__html == u4.innerHTML) || (u4.innerHTML = h5.__html), t4.__k = [];
+      else if (y5 && (u4.innerHTML = ""), I("template" == t4.type ? u4.content : u4, w(v4) ? v4 : [v4], t4, i5, r4, "foreignObject" == x3 ? "http://www.w3.org/1999/xhtml" : o4, e4, f4, e4 ? e4[0] : i5.__k && S(i5, 0), c4, s4), null != e4) for (a4 = e4.length; a4--; ) g(e4[a4]);
+      c4 || (a4 = "value", "progress" == x3 && null == _5 ? u4.removeAttribute("value") : null != _5 && (_5 !== u4[a4] || "progress" == x3 && !_5 || "option" == x3 && _5 != b4[a4]) && j(u4, a4, _5, b4[a4], o4), a4 = "checked", null != m4 && m4 != u4[a4] && j(u4, a4, m4, b4[a4], o4));
     }
     return u4;
   }
-  function V(n3, u4, t4) {
+  function q(n3, u4, t4) {
     try {
       if ("function" == typeof n3) {
         var i5 = "function" == typeof n3.__u;
@@ -247,9 +249,9 @@
       l.__e(n4, t4);
     }
   }
-  function q(n3, u4, t4) {
+  function B(n3, u4, t4) {
     var i5, r4;
-    if (l.unmount && l.unmount(n3), (i5 = n3.ref) && (i5.current && i5.current !== n3.__e || V(i5, null, u4)), null != (i5 = n3.__c)) {
+    if (l.unmount && l.unmount(n3), (i5 = n3.ref) && (i5.current && i5.current != n3.__e || q(i5, null, u4)), null != (i5 = n3.__c)) {
       if (i5.componentWillUnmount) try {
         i5.componentWillUnmount();
       } catch (n4) {
@@ -257,47 +259,47 @@
       }
       i5.base = i5.__P = null;
     }
-    if (i5 = n3.__k) for (r4 = 0; r4 < i5.length; r4++) i5[r4] && q(i5[r4], u4, t4 || "function" != typeof n3.type);
-    t4 || _(n3.__e), n3.__c = n3.__ = n3.__e = void 0;
+    if (i5 = n3.__k) for (r4 = 0; r4 < i5.length; r4++) i5[r4] && B(i5[r4], u4, t4 || "function" != typeof n3.type);
+    t4 || g(n3.__e), n3.__c = n3.__ = n3.__e = void 0;
   }
-  function B(n3, l5, u4) {
+  function D(n3, l5, u4) {
     return this.constructor(n3, u4);
   }
-  function D(u4, t4, i5) {
+  function E(u4, t4, i5) {
     var r4, o4, e4, f4;
-    t4 == document && (t4 = document.documentElement), l.__ && l.__(u4, t4), o4 = (r4 = "function" == typeof i5) ? null : i5 && i5.__k || t4.__k, e4 = [], f4 = [], j(t4, u4 = (!r4 && i5 || t4).__k = g(k, null, [u4]), o4 || p, p, t4.namespaceURI, !r4 && i5 ? [i5] : o4 ? null : t4.firstChild ? n.call(t4.childNodes) : null, e4, !r4 && i5 ? i5 : o4 ? o4.__e : t4.firstChild, r4, f4), z(e4, u4, f4);
+    t4 == document && (t4 = document.documentElement), l.__ && l.__(u4, t4), o4 = (r4 = "function" == typeof i5) ? null : i5 && i5.__k || t4.__k, e4 = [], f4 = [], O(t4, u4 = (!r4 && i5 || t4).__k = _(k, null, [u4]), o4 || p, p, t4.namespaceURI, !r4 && i5 ? [i5] : o4 ? null : t4.firstChild ? n.call(t4.childNodes) : null, e4, !r4 && i5 ? i5 : o4 ? o4.__e : t4.firstChild, r4, f4), z(e4, u4, f4);
   }
-  function J(n3, l5) {
-    var u4 = { __c: l5 = "__cC" + h++, __: n3, Consumer: function(n4, l6) {
-      return n4.children(l6);
-    }, Provider: function(n4) {
-      var u5, t4;
-      return this.getChildContext || (u5 = /* @__PURE__ */ new Set(), (t4 = {})[l5] = this, this.getChildContext = function() {
+  function K(n3) {
+    function l5(n4) {
+      var u4, t4;
+      return this.getChildContext || (u4 = /* @__PURE__ */ new Set(), (t4 = {})[l5.__c] = this, this.getChildContext = function() {
         return t4;
       }, this.componentWillUnmount = function() {
-        u5 = null;
+        u4 = null;
       }, this.shouldComponentUpdate = function(n5) {
-        this.props.value !== n5.value && u5.forEach(function(n6) {
+        this.props.value != n5.value && u4.forEach(function(n6) {
           n6.__e = true, M(n6);
         });
       }, this.sub = function(n5) {
-        u5.add(n5);
+        u4.add(n5);
         var l6 = n5.componentWillUnmount;
         n5.componentWillUnmount = function() {
-          u5 && u5.delete(n5), l6 && l6.call(n5);
+          u4 && u4.delete(n5), l6 && l6.call(n5);
         };
       }), n4.children;
-    } };
-    return u4.Provider.__ = u4.Consumer.contextType = u4;
+    }
+    return l5.__c = "__cC" + h++, l5.__ = n3, l5.Provider = l5.__l = (l5.Consumer = function(n4, l6) {
+      return n4.children(l6);
+    }).contextType = l5, l5;
   }
-  var n, l, u, t, i, r, o, e, f, c, s, a, h, p, v, y, d;
+  var n, l, u, t, i, r, o, e, f, c, s, a, h, p, y, v, w;
   var init_preact_module = __esm({
     "../node_modules/preact/dist/preact.module.js"() {
       p = {};
-      v = [];
-      y = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
-      d = Array.isArray;
-      n = v.slice, l = { __e: function(n3, l5, u4, t4) {
+      y = [];
+      v = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
+      w = Array.isArray;
+      n = y.slice, l = { __e: function(n3, l5, u4, t4) {
         for (var i5, r4, o4; l5 = l5.__; ) if ((i5 = l5.__c) && !i5.__) try {
           if ((r4 = i5.constructor) && null != r4.getDerivedStateFromError && (i5.setState(r4.getDerivedStateFromError(n3)), o4 = i5.__d), null != i5.componentDidCatch && (i5.componentDidCatch(n3, t4 || {}), o4 = i5.__d), o4) return i5.__E = i5;
         } catch (l6) {
@@ -308,12 +310,12 @@
         return null != n3 && null == n3.constructor;
       }, x.prototype.setState = function(n3, l5) {
         var u4;
-        u4 = null != this.__s && this.__s !== this.state ? this.__s : this.__s = w({}, this.state), "function" == typeof n3 && (n3 = n3(w({}, u4), this.props)), n3 && w(u4, n3), null != n3 && this.__v && (l5 && this._sb.push(l5), M(this));
+        u4 = null != this.__s && this.__s != this.state ? this.__s : this.__s = d({}, this.state), "function" == typeof n3 && (n3 = n3(d({}, u4), this.props)), n3 && d(u4, n3), null != n3 && this.__v && (l5 && this._sb.push(l5), M(this));
       }, x.prototype.forceUpdate = function(n3) {
         this.__v && (this.__e = true, n3 && this.__h.push(n3), M(this));
       }, x.prototype.render = k, i = [], o = "function" == typeof Promise ? Promise.prototype.then.bind(Promise.resolve()) : setTimeout, e = function(n3, l5) {
         return n3.__v.__b - l5.__v.__b;
-      }, P.__r = 0, f = /(PointerCapture)$|Capture$/i, c = 0, s = O(false), a = O(true), h = 0;
+      }, $.__r = 0, f = /(PointerCapture)$|Capture$/i, c = 0, s = F(false), a = F(true), h = 0;
     }
   });
 
@@ -378,20 +380,20 @@
   });
 
   // ../node_modules/preact/hooks/dist/hooks.module.js
-  function d2(n3, t4) {
+  function p2(n3, t4) {
     c2.__h && c2.__h(r2, n3, o2 || t4), o2 = 0;
     var u4 = r2.__H || (r2.__H = { __: [], __h: [] });
     return n3 >= u4.__.length && u4.__.push({}), u4.__[n3];
   }
-  function h2(n3) {
-    return o2 = 1, p2(D2, n3);
+  function d2(n3) {
+    return o2 = 1, h2(D2, n3);
   }
-  function p2(n3, u4, i5) {
-    var o4 = d2(t2++, 2);
+  function h2(n3, u4, i5) {
+    var o4 = p2(t2++, 2);
     if (o4.t = n3, !o4.__c && (o4.__ = [i5 ? i5(u4) : D2(void 0, u4), function(n4) {
       var t4 = o4.__N ? o4.__N[0] : o4.__[0], r4 = o4.t(t4, n4);
       t4 !== r4 && (o4.__N = [r4, o4.__[1]], o4.__c.setState({}));
-    }], o4.__c = r2, !r2.u)) {
+    }], o4.__c = r2, !r2.__f)) {
       var f4 = function(n4, t4, r4) {
         if (!o4.__c.__H) return true;
         var u5 = o4.__c.__H.__.filter(function(n5) {
@@ -408,7 +410,7 @@
           }
         }), c4 && c4.call(this, n4, t4, r4) || i6;
       };
-      r2.u = true;
+      r2.__f = true;
       var c4 = r2.shouldComponentUpdate, e4 = r2.componentWillUpdate;
       r2.componentWillUpdate = function(n4, t4, r4) {
         if (this.__e) {
@@ -421,12 +423,12 @@
     return o4.__N || o4.__;
   }
   function y2(n3, u4) {
-    var i5 = d2(t2++, 3);
-    !c2.__s && C2(i5.__H, u4) && (i5.__ = n3, i5.i = u4, r2.__H.__h.push(i5));
+    var i5 = p2(t2++, 3);
+    !c2.__s && C2(i5.__H, u4) && (i5.__ = n3, i5.u = u4, r2.__H.__h.push(i5));
   }
   function _2(n3, u4) {
-    var i5 = d2(t2++, 4);
-    !c2.__s && C2(i5.__H, u4) && (i5.__ = n3, i5.i = u4, r2.__h.push(i5));
+    var i5 = p2(t2++, 4);
+    !c2.__s && C2(i5.__H, u4) && (i5.__ = n3, i5.u = u4, r2.__h.push(i5));
   }
   function A2(n3) {
     return o2 = 5, T2(function() {
@@ -434,7 +436,7 @@
     }, []);
   }
   function T2(n3, r4) {
-    var u4 = d2(t2++, 7);
+    var u4 = p2(t2++, 7);
     return C2(u4.__H, r4) && (u4.__ = n3(), u4.__H = r4, u4.__h = n3), u4.__;
   }
   function q2(n3, t4) {
@@ -443,11 +445,11 @@
     }, t4);
   }
   function x2(n3) {
-    var u4 = r2.context[n3.__c], i5 = d2(t2++, 9);
+    var u4 = r2.context[n3.__c], i5 = p2(t2++, 9);
     return i5.c = n3, u4 ? (null == i5.__ && (i5.__ = true, u4.sub(r2)), u4.props.value) : n3.__;
   }
   function g2() {
-    var n3 = d2(t2++, 11);
+    var n3 = p2(t2++, 11);
     if (!n3.__) {
       for (var u4 = r2.__v; null !== u4 && !u4.__m && null !== u4.__; ) u4 = u4.__;
       var i5 = u4.__m || (u4.__m = [0, 0]);
@@ -465,7 +467,7 @@
   function w2(n3) {
     var t4, r4 = function() {
       clearTimeout(u4), k2 && cancelAnimationFrame(t4), setTimeout(n3);
-    }, u4 = setTimeout(r4, 100);
+    }, u4 = setTimeout(r4, 35);
     k2 && (t4 = requestAnimationFrame(r4));
   }
   function z2(n3) {
@@ -505,13 +507,13 @@
         a2 && a2(n3), t2 = 0;
         var i5 = (r2 = n3.__c).__H;
         i5 && (u2 === r2 ? (i5.__h = [], r2.__h = [], i5.__.forEach(function(n4) {
-          n4.__N && (n4.__ = n4.__N), n4.i = n4.__N = void 0;
+          n4.__N && (n4.__ = n4.__N), n4.u = n4.__N = void 0;
         })) : (i5.__h.forEach(z2), i5.__h.forEach(B2), i5.__h = [], t2 = 0)), u2 = r2;
       }, c2.diffed = function(n3) {
         v2 && v2(n3);
         var t4 = n3.__c;
         t4 && t4.__H && (t4.__H.__h.length && (1 !== f2.push(t4) && i3 === c2.requestAnimationFrame || ((i3 = c2.requestAnimationFrame) || w2)(j2)), t4.__H.__.forEach(function(n4) {
-          n4.i && (n4.__H = n4.i), n4.i = void 0;
+          n4.u && (n4.__H = n4.u), n4.u = void 0;
         })), u2 = r2 = null;
       }, c2.__c = function(n3, t4) {
         t4.some(function(n4) {
@@ -542,7 +544,7 @@
 
   // pages/new-tab/app/settings.provider.js
   function SettingsProvider({ settings, children }) {
-    return /* @__PURE__ */ g(SettingsContext.Provider, { value: { settings } }, children);
+    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
   }
   function usePlatformName() {
     return x2(SettingsContext).settings.platform.name;
@@ -564,7 +566,7 @@
       "use strict";
       init_preact_module();
       init_hooks_module();
-      SettingsContext = J(
+      SettingsContext = K(
         /** @type {{settings: import("./settings.js").Settings}} */
         {}
       );
@@ -723,7 +725,7 @@
     this.o = void 0;
     this.f = 32;
   }
-  function E(i5) {
+  function E2(i5) {
     var t4 = new b(i5);
     try {
       t4.c();
@@ -769,7 +771,7 @@
       };
       u3.prototype.subscribe = function(i5) {
         var t4 = this;
-        return E(function() {
+        return E2(function() {
           var r4 = t4.value, n3 = o3;
           o3 = void 0;
           try {
@@ -918,46 +920,46 @@
     l[i5] = r4.bind(null, l[i5] || function() {
     });
   }
-  function m3(i5) {
-    if (l4) l4();
-    l4 = i5 && i5.S();
-  }
   function g4(i5) {
-    var n3 = this, f4 = i5.data, o4 = useSignal(f4);
-    o4.value = f4;
-    var u4 = T2(function() {
-      var i6 = n3, t4 = n3.__v;
-      while (t4 = t4.__) if (t4.__c) {
-        t4.__c.__$f |= 4;
+    if (d4) d4();
+    d4 = i5 && i5.S();
+  }
+  function b2(i5) {
+    var n3 = this, t4 = i5.data, o4 = useSignal(t4);
+    o4.value = t4;
+    var e4 = T2(function() {
+      var i6 = n3, t5 = n3.__v;
+      while (t5 = t5.__) if (t5.__c) {
+        t5.__c.__$f |= 4;
         break;
       }
-      var f5 = w3(function() {
+      var f4 = w3(function() {
         var i7 = o4.value.value;
         return 0 === i7 ? 0 : true === i7 ? "" : i7 || "";
-      }), u5 = w3(function() {
-        return !t(f5.value);
-      }), c5 = E(function() {
-        this.N = A3;
-        if (u5.value) {
-          var n4 = f5.value;
-          if (i6.base && 3 === i6.base.nodeType) i6.base.data = n4;
+      }), e5 = w3(function() {
+        return !Array.isArray(f4.value) && !t(f4.value);
+      }), a5 = E2(function() {
+        this.N = T3;
+        if (e5.value) {
+          var n4 = f4.value;
+          if (i6.__v && i6.__v.__e && 3 === i6.__v.__e.nodeType) i6.__v.__e.data = n4;
         }
       }), v5 = n3.__$u.d;
       n3.__$u.d = function() {
-        c5();
+        a5();
         v5.call(this);
       };
-      return [u5, f5];
-    }, []), c4 = u4[0], v4 = u4[1];
-    return c4.value ? v4.peek() : v4.value;
+      return [e5, f4];
+    }, []), a4 = e4[0], v4 = e4[1];
+    return a4.value ? v4.peek() : v4.value;
   }
-  function b2(i5, n3, r4, t4) {
+  function y4(i5, n3, r4, t4) {
     var f4 = n3 in i5 && void 0 === i5.ownerSVGElement, o4 = d3(r4);
     return { o: function(i6, n4) {
       o4.value = i6;
       t4 = n4;
-    }, d: E(function() {
-      this.N = A3;
+    }, d: E2(function() {
+      this.N = T3;
       var r5 = o4.value.value;
       if (t4[n3] !== r5) {
         t4[n3] = r5;
@@ -975,55 +977,55 @@
   function useComputed(i5) {
     var n3 = A2(i5);
     n3.current = i5;
-    h4.__$f |= 4;
+    l4.__$f |= 4;
     return T2(function() {
       return w3(function() {
         return n3.current();
       });
     }, []);
   }
-  function q3() {
+  function A3() {
     r3(function() {
       var i5;
-      while (i5 = d4.shift()) s4.call(i5);
+      while (i5 = p4.shift()) h4.call(i5);
     });
   }
   function w4() {
-    if (1 === d4.push(this)) (l.requestAnimationFrame || y4)(q3);
+    if (1 === p4.push(this)) (l.requestAnimationFrame || k3)(A3);
   }
-  function x3() {
+  function F2() {
     r3(function() {
       var i5;
-      while (i5 = p4.shift()) s4.call(i5);
+      while (i5 = m3.shift()) h4.call(i5);
     });
   }
-  function A3() {
-    if (1 === p4.push(this)) (l.requestAnimationFrame || k3)(x3);
+  function T3() {
+    if (1 === m3.push(this)) (l.requestAnimationFrame || q3)(F2);
   }
   function useSignalEffect(i5) {
     var n3 = A2(i5);
     n3.current = i5;
     y2(function() {
-      return E(function() {
+      return E2(function() {
         this.N = w4;
         return n3.current();
       });
     }, []);
   }
-  var s4, h4, l4, d4, p4, y4, k3;
+  var h4, l4, d4, p4, m3, k3, q3;
   var init_signals_module = __esm({
     "../node_modules/@preact/signals/dist/signals.module.js"() {
       init_preact_module();
       init_hooks_module();
       init_signals_core_module();
       init_signals_core_module();
-      d4 = [];
       p4 = [];
-      E(function() {
-        s4 = this.N;
+      m3 = [];
+      E2(function() {
+        h4 = this.N;
       })();
-      g4.displayName = "_st";
-      Object.defineProperties(u3.prototype, { constructor: { configurable: true, value: void 0 }, type: { configurable: true, value: g4 }, props: { configurable: true, get: function() {
+      b2.displayName = "_st";
+      Object.defineProperties(u3.prototype, { constructor: { configurable: true, value: void 0 }, type: { configurable: true, value: b2 }, props: { configurable: true, get: function() {
         return { data: this };
       } }, __b: { configurable: true, value: 1 } });
       _4("__b", function(i5, n3) {
@@ -1041,34 +1043,36 @@
         i5(n3);
       });
       _4("__r", function(i5, n3) {
-        m3();
-        var r4, t4 = n3.__c;
-        if (t4) {
-          t4.__$f &= -2;
-          if (void 0 === (r4 = t4.__$u)) t4.__$u = r4 = function(i6) {
-            var n4;
-            E(function() {
-              n4 = this;
-            });
-            n4.c = function() {
-              t4.__$f |= 1;
-              t4.setState({});
-            };
-            return n4;
-          }();
+        if (n3.type !== k) {
+          g4();
+          var r4, f4 = n3.__c;
+          if (f4) {
+            f4.__$f &= -2;
+            if (void 0 === (r4 = f4.__$u)) f4.__$u = r4 = function(i6) {
+              var n4;
+              E2(function() {
+                n4 = this;
+              });
+              n4.c = function() {
+                f4.__$f |= 1;
+                f4.setState({});
+              };
+              return n4;
+            }();
+          }
+          l4 = f4;
+          g4(r4);
         }
-        h4 = t4;
-        m3(r4);
         i5(n3);
       });
       _4("__e", function(i5, n3, r4, t4) {
-        m3();
-        h4 = void 0;
+        g4();
+        l4 = void 0;
         i5(n3, r4, t4);
       });
       _4("diffed", function(i5, n3) {
-        m3();
-        h4 = void 0;
+        g4();
+        l4 = void 0;
         var r4;
         if ("string" == typeof n3.type && (r4 = n3.__e)) {
           var t4 = n3.__np, f4 = n3.props;
@@ -1088,7 +1092,7 @@
             for (var a4 in t4) {
               var c4 = o4[a4], v4 = t4[a4];
               if (void 0 === c4) {
-                c4 = b2(r4, a4, v4, f4);
+                c4 = y4(r4, a4, v4, f4);
                 o4[a4] = c4;
               } else c4.o(v4, f4);
             }
@@ -1140,8 +1144,14 @@
         for (var u4 in this.props) if (!(u4 in i5)) return true;
         return false;
       };
-      y4 = "undefined" == typeof requestAnimationFrame ? setTimeout : requestAnimationFrame;
-      k3 = function(i5) {
+      k3 = "undefined" == typeof requestAnimationFrame ? setTimeout : function(i5) {
+        var n3 = function() {
+          clearTimeout(r4);
+          cancelAnimationFrame(t4);
+          i5();
+        }, r4 = setTimeout(n3, 35), t4 = requestAnimationFrame(n3);
+      };
+      q3 = function(i5) {
         queueMicrotask(function() {
           queueMicrotask(i5);
         });
@@ -1152,7 +1162,7 @@
   // pages/new-tab/app/widget-list/widget-config.provider.js
   function WidgetConfigProvider(props) {
     const currentValues = useSignal(props.widgetConfigs);
-    E(() => {
+    E2(() => {
       const unsub = props.api.onData((widgetConfig) => {
         currentValues.value = widgetConfig.data;
       });
@@ -1161,7 +1171,7 @@
     function toggle(id) {
       props.api.toggleVisibility(id);
     }
-    return /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(
       WidgetConfigContext.Provider,
       {
         value: {
@@ -1182,11 +1192,11 @@
   function WidgetVisibilityProvider(props) {
     const { toggle, currentValues } = x2(WidgetConfigContext);
     const visibility = useComputed(() => {
-      const matchingConfig = currentValues.value.find((x4) => x4.id === props.id);
+      const matchingConfig = currentValues.value.find((x3) => x3.id === props.id);
       if (!matchingConfig) throw new Error("unreachable. Must find widget config via id: " + props.id);
       return matchingConfig.visibility;
     });
-    return /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(
       WidgetVisibilityContext.Provider,
       {
         value: {
@@ -1206,7 +1216,7 @@
       init_preact_module();
       init_hooks_module();
       init_signals_module();
-      WidgetConfigContext = J({
+      WidgetConfigContext = K({
         /** @type {Widgets} */
         widgets: [],
         /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
@@ -1227,7 +1237,7 @@
         toggle: (_id) => {
         }
       });
-      WidgetVisibilityContext = J({
+      WidgetVisibilityContext = K({
         id: (
           /** @type {WidgetConfigItem['id']} */
           ""
@@ -1275,7 +1285,7 @@
       const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title;
       return apply(subject, replacements, textLength);
     }
-    return /* @__PURE__ */ g(TranslationContext.Provider, { value: { t: t4 } }, children);
+    return /* @__PURE__ */ _(TranslationContext.Provider, { value: { t: t4 } }, children);
   }
   function Trans({ str, values: values2 }) {
     const ref = A2(null);
@@ -1300,7 +1310,7 @@
         cleanupsCurr.forEach((fn2) => fn2());
       };
     }, [values2, str]);
-    return /* @__PURE__ */ g("span", { ref, dangerouslySetInnerHTML: { __html: str } });
+    return /* @__PURE__ */ _("span", { ref, dangerouslySetInnerHTML: { __html: str } });
   }
   var TranslationContext;
   var init_TranslationsProvider = __esm({
@@ -1309,7 +1319,7 @@
       init_preact_module();
       init_hooks_module();
       init_translations();
-      TranslationContext = J({
+      TranslationContext = K({
         /** @type {LocalTranslationFn} */
         t: () => {
           throw new Error("must implement");
@@ -1337,7 +1347,7 @@
       init_hooks_module();
       init_TranslationsProvider();
       init_preact_module();
-      MessagingContext = J(
+      MessagingContext = K(
         /** @type {import("../src/index.js").NewTabPage} */
         {}
       );
@@ -1346,7 +1356,7 @@
         if (!ctx) console.warn("missing MessagingContext");
         return ctx;
       };
-      TelemetryContext = J(
+      TelemetryContext = K(
         /** @type {import("./telemetry/telemetry.js").Telemetry} */
         {
           measureFromPageLoad: () => {
@@ -1354,7 +1364,7 @@
         }
       );
       useTelemetry = () => x2(TelemetryContext);
-      InitialSetupContext = J(
+      InitialSetupContext = K(
         /** @type {InitialSetupResponse} */
         {}
       );
@@ -1364,10 +1374,10 @@
 
   // pages/new-tab/app/components/Layout.js
   function Centered({ children, ...rest }) {
-    return /* @__PURE__ */ g("div", { ...rest, class: "layout-centered" }, children);
+    return /* @__PURE__ */ _("div", { ...rest, class: "layout-centered" }, children);
   }
   function VerticalSpace({ children, ...rest }) {
-    return /* @__PURE__ */ g("div", { ...rest, class: "vertical-space" }, children);
+    return /* @__PURE__ */ _("div", { ...rest, class: "vertical-space" }, children);
   }
   var init_Layout = __esm({
     "pages/new-tab/app/components/Layout.js"() {
@@ -1401,7 +1411,7 @@
 
   // pages/new-tab/app/components/Icons.js
   function Chevron() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1412,7 +1422,7 @@
     ));
   }
   function ChevronSmall() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1423,7 +1433,7 @@
     ));
   }
   function CustomizeIcon() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", class: Icons_default.customize }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", class: Icons_default.customize }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1431,7 +1441,7 @@
         d: "M4.5 1C2.567 1 1 2.567 1 4.5C1 6.433 2.567 8 4.5 8C6.17556 8 7.57612 6.82259 7.91946 5.25H14.375C14.7202 5.25 15 4.97018 15 4.625C15 4.27982 14.7202 4 14.375 4H7.96456C7.72194 2.30385 6.26324 1 4.5 1ZM2.25 4.5C2.25 3.25736 3.25736 2.25 4.5 2.25C5.74264 2.25 6.75 3.25736 6.75 4.5C6.75 5.74264 5.74264 6.75 4.5 6.75C3.25736 6.75 2.25 5.74264 2.25 4.5Z",
         fill: "currentColor"
       }
-    ), /* @__PURE__ */ g(
+    ), /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1442,7 +1452,7 @@
     ));
   }
   function DuckFoot() {
-    return /* @__PURE__ */ g("svg", { viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16" }, /* @__PURE__ */ _(
       "path",
       {
         "clip-rule": "evenodd",
@@ -1452,7 +1462,7 @@
     ));
   }
   function Shield() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1463,7 +1473,7 @@
     ));
   }
   function Cross() {
-    return /* @__PURE__ */ g("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _(
       "path",
       {
         d: "M11.4419 5.44194C11.686 5.19786 11.686 4.80214 11.4419 4.55806C11.1979 4.31398 10.8021 4.31398 10.5581 4.55806L8 7.11612L5.44194 4.55806C5.19786 4.31398 4.80214 4.31398 4.55806 4.55806C4.31398 4.80214 4.31398 5.19786 4.55806 5.44194L7.11612 8L4.55806 10.5581C4.31398 10.8021 4.31398 11.1979 4.55806 11.4419C4.80214 11.686 5.19786 11.686 5.44194 11.4419L8 8.88388L10.5581 11.4419C10.8021 11.686 11.1979 11.686 11.4419 11.4419C11.686 11.1979 11.686 10.8021 11.4419 10.5581L8.88388 8L11.4419 5.44194Z",
@@ -1472,7 +1482,7 @@
     ));
   }
   function CheckColor() {
-    return /* @__PURE__ */ g("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g("path", { fill: "#4CBA3C", d: "M15.5 8a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0" }), /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("path", { fill: "#4CBA3C", d: "M15.5 8a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0" }), /* @__PURE__ */ _(
       "path",
       {
         fill: "#fff",
@@ -1480,7 +1490,7 @@
         d: "M11.844 5.137a.5.5 0 0 1 .019.707l-4.5 4.75a.5.5 0 0 1-.733-.008l-2.5-2.75a.5.5 0 0 1 .74-.672l2.138 2.351 4.129-4.359a.5.5 0 0 1 .707-.019",
         "clip-rule": "evenodd"
       }
-    ), /* @__PURE__ */ g(
+    ), /* @__PURE__ */ _(
       "path",
       {
         fill: "#288419",
@@ -1491,7 +1501,7 @@
     ));
   }
   function CircleCheck() {
-    return /* @__PURE__ */ g("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g("g", { "clip-path": "url(#clip0_1635_18497)" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_1635_18497)" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1500,10 +1510,10 @@
         fill: "currentColor",
         "fill-opacity": "0.6"
       }
-    )), /* @__PURE__ */ g("defs", null, /* @__PURE__ */ g("clipPath", { id: "clip0_1635_18497" }, /* @__PURE__ */ g("rect", { width: "24", height: "24", fill: "white" }))));
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_1635_18497" }, /* @__PURE__ */ _("rect", { width: "24", height: "24", fill: "white" }))));
   }
   function Picker() {
-    return /* @__PURE__ */ g("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1515,7 +1525,7 @@
     ));
   }
   function PlusIcon() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1526,7 +1536,7 @@
     ));
   }
   function BackChevron() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1565,7 +1575,7 @@
         e4.preventDefault();
         e4.stopImmediatePropagation();
         const items = getItems();
-        const simplified = items.filter((x4) => x4.id !== "debug").map((item) => {
+        const simplified = items.filter((x3) => x3.id !== "debug").map((item) => {
           return {
             id: item.id,
             title: item.title
@@ -1581,7 +1591,7 @@
   }
   function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef, kind }) {
     const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(
       "button",
       {
         ref: buttonRef,
@@ -1593,12 +1603,12 @@
         "data-kind": kind,
         id: buttonId
       },
-      /* @__PURE__ */ g(CustomizeIcon, null),
-      /* @__PURE__ */ g("span", null, t4("ntp_customizer_button"))
+      /* @__PURE__ */ _(CustomizeIcon, null),
+      /* @__PURE__ */ _("span", null, t4("ntp_customizer_button"))
     );
   }
   function CustomizerMenuPositionedFixed({ children }) {
-    return /* @__PURE__ */ g("div", { class: Customizer_default.lowerRightFixed }, children);
+    return /* @__PURE__ */ _("div", { class: Customizer_default.lowerRightFixed }, children);
   }
   function useCustomizer({ title, id, icon, toggle, visibility, index: index2 }) {
     y2(() => {
@@ -1628,8 +1638,8 @@
 
   // shared/components/EnvironmentProvider.js
   function EnvironmentProvider({ children, debugState, env = "production", willThrow = false, injectName = "windows" }) {
-    const [theme, setTheme] = h2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
-    const [isReducedMotion, setReducedMotion] = h2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
+    const [theme, setTheme] = d2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
+    const [isReducedMotion, setReducedMotion] = d2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     y2(() => {
       const mediaQueryList2 = window.matchMedia(THEME_QUERY);
       const listener = (e4) => setTheme(e4.matches ? "dark" : "light");
@@ -1650,7 +1660,7 @@
       });
       return () => mediaQueryList2.removeEventListener("change", listener);
     }, []);
-    return /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(
       EnvironmentContext.Provider,
       {
         value: {
@@ -1685,7 +1695,7 @@
       "use strict";
       init_preact_module();
       init_hooks_module();
-      EnvironmentContext = J({
+      EnvironmentContext = K({
         isReducedMotion: false,
         isDarkMode: false,
         debugState: false,
@@ -1754,14 +1764,14 @@
       return !r5 && t4 && (t4.call ? t4(null) : t4.current = null), e4 ? !e4(this.props, n4) || !r5 : E3(this.props, n4);
     }
     function u4(e5) {
-      return this.shouldComponentUpdate = r4, g(n3, e5);
+      return this.shouldComponentUpdate = r4, _(n3, e5);
     }
     return u4.displayName = "Memo(" + (n3.displayName || n3.name) + ")", u4.prototype.isReactComponent = true, u4.__f = true, u4;
   }
   function V2(n3, t4, e4) {
     return n3 && (n3.__c && n3.__c.__H && (n3.__c.__H.__.forEach(function(n4) {
       "function" == typeof n4.__c && n4.__c();
-    }), n3.__c.__H = null), null != (n3 = g5({}, n3)).__c && (n3.__c.__P === e4 && (n3.__c.__P = t4), n3.__c = null), n3.__k = n3.__k && n3.__k.map(function(n4) {
+    }), n3.__c.__H = null), null != (n3 = g5({}, n3)).__c && (n3.__c.__P === e4 && (n3.__c.__P = t4), n3.__c.__e = true, n3.__c = null), n3.__k = n3.__k && n3.__k.map(function(n4) {
       return V2(n4, t4, e4);
     })), n3;
   }
@@ -1786,7 +1796,7 @@
         u4 = n4;
       }), u4) throw u4;
       if (!r4) throw e4;
-      return g(r4, o5);
+      return _(r4, o5);
     }
     return o4.displayName = "Lazy", o4.__f = true, o4;
   }
@@ -1801,7 +1811,7 @@
   function on() {
     return this.defaultPrevented;
   }
-  var T3, A4, F3, U, H2, q4, G2, J2, K, Q, X, en, cn, ln, fn, an, sn;
+  var T4, A4, F4, U, H2, q4, G2, J2, K2, Q, X, en, ln, cn, fn, an, sn;
   var init_compat_module = __esm({
     "../node_modules/preact/compat/dist/compat.module.js"() {
       init_preact_module();
@@ -1811,17 +1821,17 @@
       (N2.prototype = new x()).isPureReactComponent = true, N2.prototype.shouldComponentUpdate = function(n3, t4) {
         return E3(this.props, n3) || E3(this.state, t4);
       };
-      T3 = l.__b;
+      T4 = l.__b;
       l.__b = function(n3) {
-        n3.type && n3.type.__f && n3.ref && (n3.props.ref = n3.ref, n3.ref = null), T3 && T3(n3);
+        n3.type && n3.type.__f && n3.ref && (n3.props.ref = n3.ref, n3.ref = null), T4 && T4(n3);
       };
       A4 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.forward_ref") || 3911;
-      F3 = l.__e;
+      F4 = l.__e;
       l.__e = function(n3, t4, e4, r4) {
         if (n3.then) {
           for (var u4, o4 = t4; o4 = o4.__; ) if ((u4 = o4.__c) && u4.__c) return null == t4.__e && (t4.__e = e4.__e, t4.__k = e4.__k), u4.__c(n3, t4);
         }
-        F3(n3, t4, e4, r4);
+        F4(n3, t4, e4, r4);
       };
       U = l.unmount;
       l.unmount = function(n3) {
@@ -1831,10 +1841,10 @@
         var e4 = t4.__c, r4 = this;
         null == r4.o && (r4.o = []), r4.o.push(e4);
         var u4 = j3(r4.__v), o4 = false, i5 = function() {
-          o4 || (o4 = true, e4.__R = null, u4 ? u4(c4) : c4());
+          o4 || (o4 = true, e4.__R = null, u4 ? u4(l5) : l5());
         };
         e4.__R = i5;
-        var c4 = function() {
+        var l5 = function() {
           if (!--r4.__u) {
             if (r4.state.__a) {
               var n4 = r4.state.__a;
@@ -1855,8 +1865,8 @@
           }
           this.__b = null;
         }
-        var i5 = e4.__a && g(k, null, n3.fallback);
-        return i5 && (i5.__u &= -33), [g(k, null, e4.__a ? null : n3.children), i5];
+        var i5 = e4.__a && _(k, null, n3.fallback);
+        return i5 && (i5.__u &= -33), [_(k, null, e4.__a ? null : n3.children), i5];
       };
       H2 = function(n3, t4, e4) {
         if (++e4[1] === e4[0] && n3.l.delete(t4), n3.props.revealOrder && ("t" !== n3.props.revealOrder[0] || !n3.l.size)) for (e4 = n3.i; e4; ) {
@@ -1888,7 +1898,7 @@
       q4 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103;
       G2 = /^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/;
       J2 = /^on(Ani|Tra|Tou|BeforeInp|Compo)/;
-      K = /[A-Z0-9]/g;
+      K2 = /[A-Z0-9]/g;
       Q = "undefined" != typeof document;
       X = function(n3) {
         return ("undefined" != typeof Symbol && "symbol" == typeof Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n3);
@@ -1904,7 +1914,7 @@
       l.event = function(n3) {
         return en && (n3 = en(n3)), n3.persist = rn, n3.isPropagationStopped = un, n3.isDefaultPrevented = on, n3.nativeEvent = n3;
       };
-      ln = { enumerable: false, configurable: true, get: function() {
+      cn = { enumerable: false, configurable: true, get: function() {
         return this.class;
       } };
       fn = l.vnode;
@@ -1912,28 +1922,28 @@
         "string" == typeof n3.type && function(n4) {
           var t4 = n4.props, e4 = n4.type, u4 = {}, o4 = -1 === e4.indexOf("-");
           for (var i5 in t4) {
-            var c4 = t4[i5];
-            if (!("value" === i5 && "defaultValue" in t4 && null == c4 || Q && "children" === i5 && "noscript" === e4 || "class" === i5 || "className" === i5)) {
-              var l5 = i5.toLowerCase();
-              "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === c4 ? c4 = "" : "translate" === l5 && "no" === c4 ? c4 = false : "o" === l5[0] && "n" === l5[1] ? "ondoubleclick" === l5 ? i5 = "ondblclick" : "onchange" !== l5 || "input" !== e4 && "textarea" !== e4 || X(t4.type) ? "onfocus" === l5 ? i5 = "onfocusin" : "onblur" === l5 ? i5 = "onfocusout" : J2.test(i5) && (i5 = l5) : l5 = i5 = "oninput" : o4 && G2.test(i5) ? i5 = i5.replace(K, "-$&").toLowerCase() : null === c4 && (c4 = void 0), "oninput" === l5 && u4[i5 = l5] && (i5 = "oninputCapture"), u4[i5] = c4;
+            var l5 = t4[i5];
+            if (!("value" === i5 && "defaultValue" in t4 && null == l5 || Q && "children" === i5 && "noscript" === e4 || "class" === i5 || "className" === i5)) {
+              var c4 = i5.toLowerCase();
+              "defaultValue" === i5 && "value" in t4 && null == t4.value ? i5 = "value" : "download" === i5 && true === l5 ? l5 = "" : "translate" === c4 && "no" === l5 ? l5 = false : "o" === c4[0] && "n" === c4[1] ? "ondoubleclick" === c4 ? i5 = "ondblclick" : "onchange" !== c4 || "input" !== e4 && "textarea" !== e4 || X(t4.type) ? "onfocus" === c4 ? i5 = "onfocusin" : "onblur" === c4 ? i5 = "onfocusout" : J2.test(i5) && (i5 = c4) : c4 = i5 = "oninput" : o4 && G2.test(i5) ? i5 = i5.replace(K2, "-$&").toLowerCase() : null === l5 && (l5 = void 0), "oninput" === c4 && u4[i5 = c4] && (i5 = "oninputCapture"), u4[i5] = l5;
             }
           }
           "select" == e4 && u4.multiple && Array.isArray(u4.value) && (u4.value = H(t4.children).forEach(function(n5) {
             n5.props.selected = -1 != u4.value.indexOf(n5.props.value);
           })), "select" == e4 && null != u4.defaultValue && (u4.value = H(t4.children).forEach(function(n5) {
             n5.props.selected = u4.multiple ? -1 != u4.defaultValue.indexOf(n5.props.value) : u4.defaultValue == n5.props.value;
-          })), t4.class && !t4.className ? (u4.class = t4.class, Object.defineProperty(u4, "className", ln)) : (t4.className && !t4.class || t4.class && t4.className) && (u4.class = u4.className = t4.className), n4.props = u4;
+          })), t4.class && !t4.className ? (u4.class = t4.class, Object.defineProperty(u4, "className", cn)) : (t4.className && !t4.class || t4.class && t4.className) && (u4.class = u4.className = t4.className), n4.props = u4;
         }(n3), n3.$$typeof = q4, fn && fn(n3);
       };
       an = l.__r;
       l.__r = function(n3) {
-        an && an(n3), cn = n3.__c;
+        an && an(n3), ln = n3.__c;
       };
       sn = l.diffed;
       l.diffed = function(n3) {
         sn && sn(n3);
         var t4 = n3.props, e4 = n3.__e;
-        null != e4 && "textarea" === n3.type && "value" in t4 && t4.value !== e4.value && (e4.value = null == t4.value ? "" : t4.value), cn = null;
+        null != e4 && "textarea" === n3.type && "value" in t4 && t4.value !== e4.value && (e4.value = null == t4.value ? "" : t4.value), ln = null;
       };
     }
   });
@@ -2296,7 +2306,7 @@
                 const data2 = await this.ntp.messaging.request("activity_getData");
                 return {
                   activity: data2.activity,
-                  urls: data2.activity.map((x4) => x4.url),
+                  urls: data2.activity.map((x3) => x3.url),
                   totalTrackers: data2.activity.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0)
                 };
               }
@@ -2305,7 +2315,7 @@
               const sub1 = ntp.messaging.subscribe("activity_onDataUpdate", (params) => {
                 cb({
                   activity: params.activity,
-                  urls: params.activity.map((x4) => x4.url),
+                  urls: params.activity.map((x3) => x3.url),
                   totalTrackers: params.activity.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0)
                 });
               });
@@ -2472,7 +2482,7 @@
               activity: old.activity.filter((item) => {
                 return item.url !== url5;
               }),
-              urls: old.urls.filter((x4) => x4 !== url5)
+              urls: old.urls.filter((x3) => x3 !== url5)
             };
           });
           this.ntp.messaging.notify("activity_removeItem", { url: url5 });
@@ -2513,12 +2523,12 @@
         config: null
       }
     );
-    const [state, dispatch] = p2(reducer, initial);
+    const [state, dispatch] = h2(reducer, initial);
     const batched = useBatchedActivityApi();
     const service = useService(batched);
     useInitialDataAndConfig({ dispatch, service });
     const { toggle } = useConfigSubscription({ dispatch, service });
-    return /* @__PURE__ */ g(ActivityContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ g(ActivityServiceContext.Provider, { value: service.current }, props.children));
+    return /* @__PURE__ */ _(ActivityContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(ActivityServiceContext.Provider, { value: service.current }, props.children));
   }
   function useService(useBatched) {
     const service = A2(
@@ -2545,7 +2555,7 @@
       init_service_hooks();
       init_settings_provider();
       init_batched_activity_service();
-      ActivityContext = J({
+      ActivityContext = K({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {() => void} */
@@ -2553,7 +2563,7 @@
           throw new Error("must implement");
         }
       });
-      ActivityServiceContext = J(
+      ActivityServiceContext = K(
         /** @type {BatchedActivityService|null} */
         {}
       );
@@ -2624,7 +2634,7 @@
 
   // pages/new-tab/app/components/CompanyIcon.js
   function Other() {
-    return /* @__PURE__ */ g("svg", { width: "32", height: "32", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "32", height: "32", viewBox: "0 0 32 32", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -2657,10 +2667,10 @@
           const id = cleaned in mappings ? mappings[cleaned] : cleaned;
           const firstChar = id[0];
           if (icon === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
-            return /* @__PURE__ */ g("span", { className: CompanyIcon_default.icon }, /* @__PURE__ */ g(Other, null));
+            return /* @__PURE__ */ _("span", { className: CompanyIcon_default.icon }, /* @__PURE__ */ _(Other, null));
           }
           const src = names.has(id) ? `./company-icons/${id}.svg` : `./company-icons/${firstChar}.svg`;
-          return /* @__PURE__ */ g("span", { className: CompanyIcon_default.icon, title: displayName }, /* @__PURE__ */ g("img", { src, alt: "", class: CompanyIcon_default.companyImgIcon, "data-loaded": "true" }));
+          return /* @__PURE__ */ _("span", { className: CompanyIcon_default.icon, title: displayName }, /* @__PURE__ */ _("img", { src, alt: "", class: CompanyIcon_default.companyImgIcon, "data-loaded": "true" }));
         }
       );
       names = /* @__PURE__ */ new Set([
@@ -2869,7 +2879,7 @@
       if (etldPlusOne) return states.using_fallback_text;
       return states.loading_fallback_img;
     })();
-    const [state, setState] = h2(
+    const [state, setState] = d2(
       /** @type {ImgState} */
       initialState
     );
@@ -2883,7 +2893,7 @@
           console.warn("unreachable - must have imgsrc here");
           return null;
         }
-        return /* @__PURE__ */ g(
+        return /* @__PURE__ */ _(
           "img",
           {
             src: imgsrc,
@@ -2917,7 +2927,7 @@
           style = { background: fallbackColor };
         }
         const chars = etldPlusOne.slice(0, 2);
-        return /* @__PURE__ */ g("div", { class: (0, import_classnames.default)(FaviconWithState_default.favicon, sizeClass, FaviconWithState_default.faviconText), style, "data-state": state }, /* @__PURE__ */ g("span", { "aria-hidden": true }, chars[0]), /* @__PURE__ */ g("span", { "aria-hidden": true }, chars[1]));
+        return /* @__PURE__ */ _("div", { class: (0, import_classnames.default)(FaviconWithState_default.favicon, sizeClass, FaviconWithState_default.faviconText), style, "data-state": state }, /* @__PURE__ */ _("span", { "aria-hidden": true }, chars[0]), /* @__PURE__ */ _("span", { "aria-hidden": true }, chars[1]));
       }
       /**
        * If we get here, we couldn't load the favicon source OR the fallback text
@@ -2925,7 +2935,7 @@
        */
       case states.loading_fallback_img:
       case states.did_load_fallback_img: {
-        return /* @__PURE__ */ g(
+        return /* @__PURE__ */ _(
           "img",
           {
             src: theme === "light" ? fallback : fallbackDark,
@@ -2975,7 +2985,7 @@
 
   // pages/new-tab/app/components/icons/Star.js
   function Star() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g("g", { "clip-path": "url(#clip0_22408_13762)" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_22408_13762)" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -2983,10 +2993,10 @@
         d: "M6.45094 1.23706C7.08238 -0.0497198 8.9167 -0.0497265 9.54814 1.23706L10.9707 4.13602C11.0397 4.27659 11.1735 4.37414 11.3284 4.39678L14.5197 4.86316C15.9315 5.06949 16.4967 6.80298 15.4779 7.80183L13.1606 10.0735C13.0494 10.1825 12.9987 10.3391 13.0249 10.4926L13.5708 13.6939C13.8114 15.1044 12.329 16.1776 11.0641 15.5088L8.22157 14.0058C8.08266 13.9324 7.91642 13.9324 7.77751 14.0058L4.93501 15.5088C3.67009 16.1776 2.1877 15.1044 2.42824 13.6939L2.97417 10.4926C3.00034 10.3391 2.94964 10.1825 2.83846 10.0735L0.521231 7.80183C-0.497628 6.80298 0.0675747 5.06949 1.47939 4.86316L4.67065 4.39678C4.82559 4.37414 4.95941 4.27659 5.02839 4.13602L6.45094 1.23706ZM8.42597 1.78772C8.25209 1.43339 7.74699 1.43339 7.57311 1.78772L6.15056 4.68669C5.90006 5.19717 5.41407 5.55141 4.85141 5.63364L1.66014 6.10003C1.27139 6.15684 1.11575 6.63418 1.39631 6.90922L3.71353 9.18094C4.11729 9.57677 4.30143 10.1453 4.20638 10.7027L3.66045 13.904C3.59422 14.2924 4.00241 14.5879 4.35072 14.4038L7.19322 12.9008C7.69768 12.6341 8.3014 12.6341 8.80586 12.9008L11.6484 14.4038C11.9967 14.5879 12.4049 14.2924 12.3386 13.904L11.7927 10.7027C11.6977 10.1453 11.8818 9.57677 12.2856 9.18094L14.6028 6.90922C14.8833 6.63418 14.7277 6.15684 14.3389 6.10003L11.1477 5.63364C10.585 5.55141 10.099 5.19717 9.84852 4.68669L8.42597 1.78772Z",
         fill: "currentColor"
       }
-    )), /* @__PURE__ */ g("defs", null, /* @__PURE__ */ g("clipPath", { id: "clip0_22408_13762" }, /* @__PURE__ */ g("rect", { width: "16", height: "16", fill: "white" }))));
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_22408_13762" }, /* @__PURE__ */ _("rect", { width: "16", height: "16", fill: "white" }))));
   }
   function StarFilled() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -3005,7 +3015,7 @@
 
   // pages/new-tab/app/components/icons/Fire.js
   function Fire() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
       "path",
       {
         d: "M6.51 15.53C5.52169 15.1832 4.62813 14.6102 3.90063 13.8566C3.17314 13.1031 2.63187 12.1899 2.32 11.19C2.00656 10.2021 1.95796 9.14927 2.17908 8.1367C2.4002 7.12413 2.88327 6.18736 3.58 5.42005C3.55086 5.89155 3.62952 6.36349 3.81 6.80005C4.02338 7.25295 4.32218 7.6604 4.69 8.00005C4.69 8.00005 4.12 6.49005 5.5 4.00005C6.05366 3.11404 6.78294 2.35083 7.64287 1.75747C8.50281 1.16412 9.47517 0.7532 10.5 0.550049C9.98683 1.37608 9.80801 2.36673 10 3.32005C10.3 4.32005 10.79 4.86005 11.34 6.32005C11.6531 7.02128 11.81 7.78217 11.8 8.55005C11.8924 8.00549 12.0785 7.48106 12.35 7.00005C12.8052 6.23481 13.5122 5.65154 14.35 5.35005C13.9622 6.24354 13.8041 7.21983 13.89 8.19005C14.13 9.57207 14.0024 10.9929 13.52 12.31C13.1426 13.1433 12.5797 13.8792 11.8743 14.4616C11.1689 15.0439 10.3396 15.4573 9.45 15.67C10.0363 15.44 10.5353 15.0313 10.8763 14.5018C11.2173 13.9723 11.383 13.349 11.35 12.72C11.2519 11.9769 10.8983 11.2911 10.35 10.78C10 12.67 9 12.89 9 12.89C9.38734 12.0753 9.6277 11.1985 9.71 10.3C9.76437 9.73167 9.71007 9.15813 9.55 8.61005C9.35788 7.62829 8.80485 6.75416 8 6.16005C8.05802 6.68407 8.01002 7.21441 7.85883 7.7195C7.70765 8.22458 7.45639 8.69408 7.12 9.10005C6.31 10.36 4.94 11.29 5 13.17C5.02619 13.6604 5.17907 14.1356 5.44372 14.5492C5.70838 14.9628 6.07576 15.3008 6.51 15.53Z",
@@ -3038,7 +3048,7 @@
     "pages/new-tab/app/burning/ActivityInteractionsContext.js"() {
       "use strict";
       init_preact_module();
-      ActivityInteractionsContext = J({
+      ActivityInteractionsContext = K({
         /**
          * @type {(evt: MouseEvent) => void} _event
          */
@@ -3118,7 +3128,7 @@
       const handler = (e4) => {
         if (e4.detail.url) {
           r3(() => {
-            burning.value = burning.value.filter((x4) => x4 !== e4.detail.url);
+            burning.value = burning.value.filter((x3) => x3 !== e4.detail.url);
             exiting.value = exiting.value.concat(e4.detail.url);
           });
         }
@@ -3128,7 +3138,7 @@
         window.removeEventListener("done-burning", handler);
       };
     }, [burning, exiting]);
-    return /* @__PURE__ */ g(ActivityBurningSignalContext.Provider, { value: { burning, exiting, animation } }, /* @__PURE__ */ g(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
+    return /* @__PURE__ */ _(ActivityBurningSignalContext.Provider, { value: { burning, exiting, animation } }, /* @__PURE__ */ _(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
   }
   function toPromise(fn2) {
     return new Promise((resolve) => {
@@ -3203,7 +3213,7 @@
           cleanup
         };
       });
-      Promise.any(jobs.map((x4) => x4.promise)).then((d5) => subject.next(d5)).catch(console.error);
+      Promise.any(jobs.map((x3) => x3.promise)).then((d5) => subject.next(d5)).catch(console.error);
       return () => {
         for (const job of jobs) {
           job.cleanup?.();
@@ -3225,7 +3235,7 @@
           cleanup
         };
       });
-      Promise.all(jobs.map((x4) => x4.promise)).then((d5) => subject.next(d5)).catch(console.error);
+      Promise.all(jobs.map((x3) => x3.promise)).then((d5) => subject.next(d5)).catch(console.error);
       return () => {
         for (const job of jobs) {
           job.cleanup?.();
@@ -3243,7 +3253,7 @@
       init_EnvironmentProvider();
       init_ActivityInteractionsContext();
       ACTION_BURN = "burn";
-      ActivityBurningSignalContext = J({
+      ActivityBurningSignalContext = K({
         /** @type {import("@preact/signals").Signal<string[]>} */
         burning: d3([]),
         /** @type {import("@preact/signals").Signal<string[]>} */
@@ -3372,7 +3382,7 @@
       }
     }
     const didClick = q2(didClick_, [service, batched, state.config.expansion]);
-    const firstUrls = state.data.activity.map((x4) => x4.url);
+    const firstUrls = state.data.activity.map((x3) => x3.url);
     const keys = useSignal(normalizeKeys([], firstUrls));
     const activity = useSignal(
       normalizeData(
@@ -3393,7 +3403,7 @@
     function fillHoles() {
       const visible = keys.value;
       const data2 = Object.keys(activity.value.items);
-      const missing = visible.filter((x4) => !data2.includes(x4));
+      const missing = visible.filter((x3) => !data2.includes(x3));
       service.next(missing);
     }
     function showNextChunk() {
@@ -3456,7 +3466,7 @@
         document.removeEventListener("visibilitychange", handler);
       };
     }, [batched]);
-    return /* @__PURE__ */ g(NormalizedDataContext.Provider, { value: { activity, keys } }, /* @__PURE__ */ g(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
+    return /* @__PURE__ */ _(NormalizedDataContext.Provider, { value: { activity, keys } }, /* @__PURE__ */ _(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
   }
   var NormalizedDataContext;
   var init_NormalizeDataProvider = __esm({
@@ -3472,7 +3482,7 @@
       init_ActivityProvider();
       init_ActivityInteractionsContext();
       init_BurnProvider();
-      NormalizedDataContext = J({
+      NormalizedDataContext = K({
         activity: d3(
           /** @type {NormalizedActivity} */
           {}
@@ -3495,7 +3505,7 @@
     const favorite = useComputed(() => activity.value.favorites[url5]);
     const favoriteTitle = favorite.value ? t4("activity_favoriteRemove", { domain: title }) : t4("activity_favoriteAdd", { domain: title });
     const secondaryTitle = canBurn ? t4("activity_burn", { domain: title }) : t4("activity_itemRemove", { domain: title });
-    return /* @__PURE__ */ g("div", { className: Activity_default.controls }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames2.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
@@ -3505,8 +3515,8 @@
         value: url5,
         type: "button"
       },
-      favorite.value ? /* @__PURE__ */ g(StarFilled, null) : /* @__PURE__ */ g(Star, null)
-    ), /* @__PURE__ */ g(
+      favorite.value ? /* @__PURE__ */ _(StarFilled, null) : /* @__PURE__ */ _(Star, null)
+    ), /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames2.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
@@ -3515,7 +3525,7 @@
         value: url5,
         type: "button"
       },
-      canBurn ? /* @__PURE__ */ g(Fire, null) : /* @__PURE__ */ g(Cross, null)
+      canBurn ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(Cross, null)
     ));
   }
   var import_classnames2, ActivityItem;
@@ -3550,7 +3560,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url5, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ g("li", { key: url5, class: (0, import_classnames2.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ g("div", { class: Activity_default.heading }, /* @__PURE__ */ g("a", { class: Activity_default.title, href: url5, "data-url": url5 }, /* @__PURE__ */ g("span", { className: Activity_default.favicon, "data-url": url5 }, documentVisibility === "visible" && /* @__PURE__ */ g(
+          return /* @__PURE__ */ _("li", { key: url5, class: (0, import_classnames2.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url5, "data-url": url5 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url5 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -3562,7 +3572,7 @@
               fallback: DDG_FALLBACK_ICON,
               fallbackDark: DDG_FALLBACK_ICON_DARK
             }
-          )), title), /* @__PURE__ */ g(Controls, { canBurn, url: url5, title })), /* @__PURE__ */ g("div", { class: Activity_default.body }, children));
+          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url5, title })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
         }
       );
     }
@@ -3862,7 +3872,7 @@
             return idPrefix$1 + "__lottie_element_" + _count;
           };
         }();
-        function HSVtoRGB(h5, s5, v4) {
+        function HSVtoRGB(h5, s4, v4) {
           var r4;
           var g6;
           var b4;
@@ -3873,9 +3883,9 @@
           var t4;
           i5 = Math.floor(h5 * 6);
           f4 = h5 * 6 - i5;
-          p5 = v4 * (1 - s5);
-          q5 = v4 * (1 - f4 * s5);
-          t4 = v4 * (1 - (1 - f4) * s5);
+          p5 = v4 * (1 - s4);
+          q5 = v4 * (1 - f4 * s4);
+          t4 = v4 * (1 - (1 - f4) * s4);
           switch (i5 % 6) {
             case 0:
               r4 = v4;
@@ -3917,7 +3927,7 @@
           var min = Math.min(r4, g6, b4);
           var d5 = max - min;
           var h5;
-          var s5 = max === 0 ? 0 : d5 / max;
+          var s4 = max === 0 ? 0 : d5 / max;
           var v4 = max / 255;
           switch (max) {
             case min:
@@ -3938,7 +3948,7 @@
             default:
               break;
           }
-          return [h5, s5, v4];
+          return [h5, s4, v4];
         }
         function addSaturationToRGB(color, offset) {
           var hsv = RGBtoHSV(color[0] * 255, color[1] * 255, color[2] * 255);
@@ -5952,13 +5962,13 @@
             this.get = this.get.bind(this);
           }
           BezierEasing.prototype = {
-            get: function get(x4) {
+            get: function get(x3) {
               var mX1 = this._p[0], mY1 = this._p[1], mX2 = this._p[2], mY2 = this._p[3];
               if (!this._precomputed) this._precompute();
-              if (mX1 === mY1 && mX2 === mY2) return x4;
-              if (x4 === 0) return 0;
-              if (x4 === 1) return 1;
-              return calcBezier(this._getTForX(x4), mY1, mY2);
+              if (mX1 === mY1 && mX2 === mY2) return x3;
+              if (x3 === 0) return 0;
+              if (x3 === 1) return 1;
+              return calcBezier(this._getTForX(x3), mY1, mY2);
             },
             // Private part
             _precompute: function _precompute() {
@@ -6070,17 +6080,17 @@
         }();
         function bezFunction() {
           var math = Math;
-          function pointOnLine2D(x1, y1, x22, y22, x32, y32) {
-            var det1 = x1 * y22 + y1 * x32 + x22 * y32 - x32 * y22 - y32 * x1 - x22 * y1;
+          function pointOnLine2D(x1, y1, x22, y22, x3, y32) {
+            var det1 = x1 * y22 + y1 * x3 + x22 * y32 - x3 * y22 - y32 * x1 - x22 * y1;
             return det1 > -1e-3 && det1 < 1e-3;
           }
-          function pointOnLine3D(x1, y1, z1, x22, y22, z22, x32, y32, z32) {
+          function pointOnLine3D(x1, y1, z1, x22, y22, z22, x3, y32, z32) {
             if (z1 === 0 && z22 === 0 && z32 === 0) {
-              return pointOnLine2D(x1, y1, x22, y22, x32, y32);
+              return pointOnLine2D(x1, y1, x22, y22, x3, y32);
             }
             var dist1 = math.sqrt(math.pow(x22 - x1, 2) + math.pow(y22 - y1, 2) + math.pow(z22 - z1, 2));
-            var dist2 = math.sqrt(math.pow(x32 - x1, 2) + math.pow(y32 - y1, 2) + math.pow(z32 - z1, 2));
-            var dist3 = math.sqrt(math.pow(x32 - x22, 2) + math.pow(y32 - y22, 2) + math.pow(z32 - z22, 2));
+            var dist2 = math.sqrt(math.pow(x3 - x1, 2) + math.pow(y32 - y1, 2) + math.pow(z32 - z1, 2));
+            var dist3 = math.sqrt(math.pow(x3 - x22, 2) + math.pow(y32 - y22, 2) + math.pow(z32 - z22, 2));
             var diffDist;
             if (dist1 > dist2) {
               if (dist1 > dist3) {
@@ -6514,10 +6524,10 @@
           var s22 = Math.sin(attitude / 2);
           var s32 = Math.sin(bank / 2);
           var w5 = c1 * c22 * c32 - s1 * s22 * s32;
-          var x4 = s1 * s22 * c32 + c1 * c22 * s32;
+          var x3 = s1 * s22 * c32 + c1 * c22 * s32;
           var y5 = s1 * c22 * c32 + c1 * s22 * s32;
           var z4 = c1 * s22 * c32 - s1 * c22 * s32;
-          return [x4, y5, z4, w5];
+          return [x3, y5, z4, w5];
         }
         function getValueAtCurrentTime() {
           var frameNum = this.comp.renderedFrame - this.offsetTime;
@@ -6657,22 +6667,22 @@
           this.propType = "multidimensional";
           var i5;
           var len = data2.k.length;
-          var s5;
+          var s4;
           var e4;
           var to;
           var ti;
           for (i5 = 0; i5 < len - 1; i5 += 1) {
             if (data2.k[i5].to && data2.k[i5].s && data2.k[i5 + 1] && data2.k[i5 + 1].s) {
-              s5 = data2.k[i5].s;
+              s4 = data2.k[i5].s;
               e4 = data2.k[i5 + 1].s;
               to = data2.k[i5].to;
               ti = data2.k[i5].ti;
-              if (s5.length === 2 && !(s5[0] === e4[0] && s5[1] === e4[1]) && bez.pointOnLine2D(s5[0], s5[1], e4[0], e4[1], s5[0] + to[0], s5[1] + to[1]) && bez.pointOnLine2D(s5[0], s5[1], e4[0], e4[1], e4[0] + ti[0], e4[1] + ti[1]) || s5.length === 3 && !(s5[0] === e4[0] && s5[1] === e4[1] && s5[2] === e4[2]) && bez.pointOnLine3D(s5[0], s5[1], s5[2], e4[0], e4[1], e4[2], s5[0] + to[0], s5[1] + to[1], s5[2] + to[2]) && bez.pointOnLine3D(s5[0], s5[1], s5[2], e4[0], e4[1], e4[2], e4[0] + ti[0], e4[1] + ti[1], e4[2] + ti[2])) {
+              if (s4.length === 2 && !(s4[0] === e4[0] && s4[1] === e4[1]) && bez.pointOnLine2D(s4[0], s4[1], e4[0], e4[1], s4[0] + to[0], s4[1] + to[1]) && bez.pointOnLine2D(s4[0], s4[1], e4[0], e4[1], e4[0] + ti[0], e4[1] + ti[1]) || s4.length === 3 && !(s4[0] === e4[0] && s4[1] === e4[1] && s4[2] === e4[2]) && bez.pointOnLine3D(s4[0], s4[1], s4[2], e4[0], e4[1], e4[2], s4[0] + to[0], s4[1] + to[1], s4[2] + to[2]) && bez.pointOnLine3D(s4[0], s4[1], s4[2], e4[0], e4[1], e4[2], e4[0] + ti[0], e4[1] + ti[1], e4[2] + ti[2])) {
                 data2.k[i5].to = null;
                 data2.k[i5].ti = null;
               }
-              if (s5[0] === e4[0] && s5[1] === e4[1] && to[0] === 0 && to[1] === 0 && ti[0] === 0 && ti[1] === 0) {
-                if (s5.length === 2 || s5[2] === e4[2] && to[2] === 0 && ti[2] === 0) {
+              if (s4[0] === e4[0] && s4[1] === e4[1] && to[0] === 0 && to[1] === 0 && ti[0] === 0 && ti[1] === 0) {
+                if (s4.length === 2 || s4[2] === e4[2] && to[2] === 0 && ti[2] === 0) {
                   data2.k[i5].to = null;
                   data2.k[i5].ti = null;
                 }
@@ -6806,7 +6816,7 @@
           this.o = this.o.concat(createSizedArray(this._maxLength));
           this._maxLength *= 2;
         };
-        ShapePath.prototype.setXYAt = function(x4, y5, type, pos, replace) {
+        ShapePath.prototype.setXYAt = function(x3, y5, type, pos, replace) {
           var arr;
           this._length = Math.max(this._length, pos + 1);
           if (this._length >= this._maxLength) {
@@ -6829,7 +6839,7 @@
           if (!arr[pos] || arr[pos] && !replace) {
             arr[pos] = pointPool.newElement();
           }
-          arr[pos][0] = x4;
+          arr[pos][0] = x3;
           arr[pos][1] = y5;
         };
         ShapePath.prototype.setTripleAt = function(vX, vY, oX, oY, iX, iY, pos, replace) {
@@ -7282,13 +7292,13 @@
                   rad = longFlag ? longRad : shortRad;
                   roundness = longFlag ? longRound : shortRound;
                   perimSegment = longFlag ? longPerimSegment : shortPerimSegment;
-                  var x4 = rad * Math.cos(currentAng);
+                  var x3 = rad * Math.cos(currentAng);
                   var y5 = rad * Math.sin(currentAng);
-                  var ox = x4 === 0 && y5 === 0 ? 0 : y5 / Math.sqrt(x4 * x4 + y5 * y5);
-                  var oy = x4 === 0 && y5 === 0 ? 0 : -x4 / Math.sqrt(x4 * x4 + y5 * y5);
-                  x4 += +this.p.v[0];
+                  var ox = x3 === 0 && y5 === 0 ? 0 : y5 / Math.sqrt(x3 * x3 + y5 * y5);
+                  var oy = x3 === 0 && y5 === 0 ? 0 : -x3 / Math.sqrt(x3 * x3 + y5 * y5);
+                  x3 += +this.p.v[0];
                   y5 += +this.p.v[1];
-                  this.v.setTripleAt(x4, y5, x4 - ox * perimSegment * roundness * dir, y5 - oy * perimSegment * roundness * dir, x4 + ox * perimSegment * roundness * dir, y5 + oy * perimSegment * roundness * dir, i5, true);
+                  this.v.setTripleAt(x3, y5, x3 - ox * perimSegment * roundness * dir, y5 - oy * perimSegment * roundness * dir, x3 + ox * perimSegment * roundness * dir, y5 + oy * perimSegment * roundness * dir, i5, true);
                   longFlag = !longFlag;
                   currentAng += angle * dir;
                 }
@@ -7305,13 +7315,13 @@
                 currentAng += this.r.v;
                 this.v._length = 0;
                 for (i5 = 0; i5 < numPts; i5 += 1) {
-                  var x4 = rad * Math.cos(currentAng);
+                  var x3 = rad * Math.cos(currentAng);
                   var y5 = rad * Math.sin(currentAng);
-                  var ox = x4 === 0 && y5 === 0 ? 0 : y5 / Math.sqrt(x4 * x4 + y5 * y5);
-                  var oy = x4 === 0 && y5 === 0 ? 0 : -x4 / Math.sqrt(x4 * x4 + y5 * y5);
-                  x4 += +this.p.v[0];
+                  var ox = x3 === 0 && y5 === 0 ? 0 : y5 / Math.sqrt(x3 * x3 + y5 * y5);
+                  var oy = x3 === 0 && y5 === 0 ? 0 : -x3 / Math.sqrt(x3 * x3 + y5 * y5);
+                  x3 += +this.p.v[0];
                   y5 += +this.p.v[1];
-                  this.v.setTripleAt(x4, y5, x4 - ox * perimSegment * roundness * dir, y5 - oy * perimSegment * roundness * dir, x4 + ox * perimSegment * roundness * dir, y5 + oy * perimSegment * roundness * dir, i5, true);
+                  this.v.setTripleAt(x3, y5, x3 - ox * perimSegment * roundness * dir, y5 - oy * perimSegment * roundness * dir, x3 + ox * perimSegment * roundness * dir, y5 + oy * perimSegment * roundness * dir, i5, true);
                   currentAng += angle * dir;
                 }
                 this.paths.length = 0;
@@ -7613,21 +7623,21 @@
               this.props[i5] = props[i5];
             }
           }
-          function applyToPoint(x4, y5, z4) {
+          function applyToPoint(x3, y5, z4) {
             return {
-              x: x4 * this.props[0] + y5 * this.props[4] + z4 * this.props[8] + this.props[12],
-              y: x4 * this.props[1] + y5 * this.props[5] + z4 * this.props[9] + this.props[13],
-              z: x4 * this.props[2] + y5 * this.props[6] + z4 * this.props[10] + this.props[14]
+              x: x3 * this.props[0] + y5 * this.props[4] + z4 * this.props[8] + this.props[12],
+              y: x3 * this.props[1] + y5 * this.props[5] + z4 * this.props[9] + this.props[13],
+              z: x3 * this.props[2] + y5 * this.props[6] + z4 * this.props[10] + this.props[14]
             };
           }
-          function applyToX(x4, y5, z4) {
-            return x4 * this.props[0] + y5 * this.props[4] + z4 * this.props[8] + this.props[12];
+          function applyToX(x3, y5, z4) {
+            return x3 * this.props[0] + y5 * this.props[4] + z4 * this.props[8] + this.props[12];
           }
-          function applyToY(x4, y5, z4) {
-            return x4 * this.props[1] + y5 * this.props[5] + z4 * this.props[9] + this.props[13];
+          function applyToY(x3, y5, z4) {
+            return x3 * this.props[1] + y5 * this.props[5] + z4 * this.props[9] + this.props[13];
           }
-          function applyToZ(x4, y5, z4) {
-            return x4 * this.props[2] + y5 * this.props[6] + z4 * this.props[10] + this.props[14];
+          function applyToZ(x3, y5, z4) {
+            return x3 * this.props[2] + y5 * this.props[6] + z4 * this.props[10] + this.props[14];
           }
           function getInverseMatrix() {
             var determinant = this.props[0] * this.props[5] - this.props[1] * this.props[4];
@@ -7684,21 +7694,21 @@
             }
             return arr;
           }
-          function applyToPointArray(x4, y5, z4) {
+          function applyToPointArray(x3, y5, z4) {
             var arr;
             if (this.isIdentity()) {
-              arr = [x4, y5, z4];
+              arr = [x3, y5, z4];
             } else {
-              arr = [x4 * this.props[0] + y5 * this.props[4] + z4 * this.props[8] + this.props[12], x4 * this.props[1] + y5 * this.props[5] + z4 * this.props[9] + this.props[13], x4 * this.props[2] + y5 * this.props[6] + z4 * this.props[10] + this.props[14]];
+              arr = [x3 * this.props[0] + y5 * this.props[4] + z4 * this.props[8] + this.props[12], x3 * this.props[1] + y5 * this.props[5] + z4 * this.props[9] + this.props[13], x3 * this.props[2] + y5 * this.props[6] + z4 * this.props[10] + this.props[14]];
             }
             return arr;
           }
-          function applyToPointStringified(x4, y5) {
+          function applyToPointStringified(x3, y5) {
             if (this.isIdentity()) {
-              return x4 + "," + y5;
+              return x3 + "," + y5;
             }
             var _p = this.props;
-            return Math.round((x4 * _p[0] + y5 * _p[4] + _p[12]) * 100) / 100 + "," + Math.round((x4 * _p[1] + y5 * _p[5] + _p[13]) * 100) / 100;
+            return Math.round((x3 * _p[0] + y5 * _p[4] + _p[12]) * 100) / 100 + "," + Math.round((x3 * _p[1] + y5 * _p[5] + _p[13]) * 100) / 100;
           }
           function toCSS() {
             var i5 = 0;
@@ -7982,21 +7992,21 @@
         TrimModifier.prototype.addShapeToModifier = function(shapeData) {
           shapeData.pathsData = [];
         };
-        TrimModifier.prototype.calculateShapeEdges = function(s5, e4, shapeLength, addedLength, totalModifierLength) {
+        TrimModifier.prototype.calculateShapeEdges = function(s4, e4, shapeLength, addedLength, totalModifierLength) {
           var segments = [];
           if (e4 <= 1) {
             segments.push({
-              s: s5,
+              s: s4,
               e: e4
             });
-          } else if (s5 >= 1) {
+          } else if (s4 >= 1) {
             segments.push({
-              s: s5 - 1,
+              s: s4 - 1,
               e: e4 - 1
             });
           } else {
             segments.push({
-              s: s5,
+              s: s4,
               e: 1
             });
             segments.push({
@@ -8041,7 +8051,7 @@
           return pathsData;
         };
         TrimModifier.prototype.processShapes = function(_isFirstFrame) {
-          var s5;
+          var s4;
           var e4;
           if (this._mdf || _isFirstFrame) {
             var o4 = this.o.v % 360 / 360;
@@ -8049,11 +8059,11 @@
               o4 += 1;
             }
             if (this.s.v > 1) {
-              s5 = 1 + o4;
+              s4 = 1 + o4;
             } else if (this.s.v < 0) {
-              s5 = 0 + o4;
+              s4 = 0 + o4;
             } else {
-              s5 = this.s.v + o4;
+              s4 = this.s.v + o4;
             }
             if (this.e.v > 1) {
               e4 = 1 + o4;
@@ -8062,17 +8072,17 @@
             } else {
               e4 = this.e.v + o4;
             }
-            if (s5 > e4) {
-              var _s = s5;
-              s5 = e4;
+            if (s4 > e4) {
+              var _s = s4;
+              s4 = e4;
               e4 = _s;
             }
-            s5 = Math.round(s5 * 1e4) * 1e-4;
+            s4 = Math.round(s4 * 1e4) * 1e-4;
             e4 = Math.round(e4 * 1e4) * 1e-4;
-            this.sValue = s5;
+            this.sValue = s4;
             this.eValue = e4;
           } else {
-            s5 = this.sValue;
+            s4 = this.sValue;
             e4 = this.eValue;
           }
           var shapePaths;
@@ -8084,7 +8094,7 @@
           var pathData;
           var totalShapeLength;
           var totalModifierLength = 0;
-          if (e4 === s5) {
+          if (e4 === s4) {
             for (i5 = 0; i5 < len; i5 += 1) {
               this.shapes[i5].localShapeCollection.releaseShapes();
               this.shapes[i5].shape._mdf = true;
@@ -8093,7 +8103,7 @@
                 this.shapes[i5].pathsData.length = 0;
               }
             }
-          } else if (!(e4 === 1 && s5 === 0 || e4 === 0 && s5 === 1)) {
+          } else if (!(e4 === 1 && s4 === 0 || e4 === 0 && s4 === 1)) {
             var segments = [];
             var shapeData;
             var localShapeCollection;
@@ -8121,7 +8131,7 @@
                 shapeData.shape._mdf = true;
               }
             }
-            var shapeS = s5;
+            var shapeS = s4;
             var shapeE = e4;
             var addedLength = 0;
             var edges;
@@ -8131,7 +8141,7 @@
                 localShapeCollection = shapeData.localShapeCollection;
                 localShapeCollection.releaseShapes();
                 if (this.m === 2 && len > 1) {
-                  edges = this.calculateShapeEdges(s5, e4, shapeData.totalShapeLength, addedLength, totalModifierLength);
+                  edges = this.calculateShapeEdges(s4, e4, shapeData.totalShapeLength, addedLength, totalModifierLength);
                   addedLength += shapeData.totalShapeLength;
                 } else {
                   edges = [[shapeS, shapeE]];
@@ -8953,11 +8963,11 @@
         }
         function quadRoots(a4, b4, c4) {
           if (a4 === 0) return [];
-          var s5 = b4 * b4 - 4 * a4 * c4;
-          if (s5 < 0) return [];
+          var s4 = b4 * b4 - 4 * a4 * c4;
+          if (s4 < 0) return [];
           var singleRoot = -b4 / (2 * a4);
-          if (s5 === 0) return [singleRoot];
-          var delta = Math.sqrt(s5) / (2 * a4);
+          if (s4 === 0) return [singleRoot];
+          var delta = Math.sqrt(s4) / (2 * a4);
           return [singleRoot - delta, singleRoot + delta];
         }
         function polynomialCoefficients(p0, p1, p22, p32) {
@@ -9634,13 +9644,13 @@
                   shouldLoadFont = false;
                 }
                 if (shouldLoadFont) {
-                  var s5 = createTag("style");
-                  s5.setAttribute("f-forigin", fontArr[i5].fOrigin);
-                  s5.setAttribute("f-origin", fontArr[i5].origin);
-                  s5.setAttribute("f-family", fontArr[i5].fFamily);
-                  s5.type = "text/css";
-                  s5.innerText = "@font-face {font-family: " + fontArr[i5].fFamily + "; font-style: normal; src: url('" + fontArr[i5].fPath + "');}";
-                  defs.appendChild(s5);
+                  var s4 = createTag("style");
+                  s4.setAttribute("f-forigin", fontArr[i5].fOrigin);
+                  s4.setAttribute("f-origin", fontArr[i5].origin);
+                  s4.setAttribute("f-family", fontArr[i5].fFamily);
+                  s4.type = "text/css";
+                  s4.innerText = "@font-face {font-family: " + fontArr[i5].fFamily + "; font-style: normal; src: url('" + fontArr[i5].fPath + "');}";
+                  defs.appendChild(s4);
                 }
               } else if (fontArr[i5].fOrigin === "g" || fontArr[i5].origin === 1) {
                 loadedSelector = document.querySelectorAll('link[f-forigin="g"], link[f-origin="1"]');
@@ -10576,7 +10586,7 @@
           var rect;
           var expansor;
           var feMorph;
-          var x4;
+          var x3;
           var maskType = "clipPath";
           var maskRef = "clip-path";
           for (i5 = 0; i5 < len; i5 += 1) {
@@ -10610,7 +10620,7 @@
               if (properties[i5].x.k !== 0) {
                 maskType = "mask";
                 maskRef = "mask";
-                x4 = PropertyFactory.getProp(this.element, properties[i5].x, 0, null, this.element);
+                x3 = PropertyFactory.getProp(this.element, properties[i5].x, 0, null, this.element);
                 filterID = createElementID();
                 expansor = createNS("filter");
                 expansor.setAttribute("id", filterID);
@@ -10623,11 +10633,11 @@
                 path.setAttribute("stroke", properties[i5].mode === "s" ? "#000000" : "#ffffff");
               } else {
                 feMorph = null;
-                x4 = null;
+                x3 = null;
               }
               this.storedData[i5] = {
                 elem: path,
-                x: x4,
+                x: x3,
                 expan: feMorph,
                 lastPath: "",
                 lastOperator: "",
@@ -11722,12 +11732,12 @@
                   percent = -0.99;
                 }
                 var dist = rad * percent;
-                var x4 = Math.cos(ang + itemData.a.v) * dist + pt1[0];
+                var x3 = Math.cos(ang + itemData.a.v) * dist + pt1[0];
                 var y5 = Math.sin(ang + itemData.a.v) * dist + pt1[1];
-                gfill.setAttribute("fx", x4);
+                gfill.setAttribute("fx", x3);
                 gfill.setAttribute("fy", y5);
                 if (hasOpacity && !itemData.g._collapsable) {
-                  itemData.of.setAttribute("fx", x4);
+                  itemData.of.setAttribute("fx", x3);
                   itemData.of.setAttribute("fy", y5);
                 }
               }
@@ -12162,9 +12172,9 @@
         }
         TextProperty.prototype.defaultBoxWidth = [0, 0];
         TextProperty.prototype.copyData = function(obj, data2) {
-          for (var s5 in data2) {
-            if (Object.prototype.hasOwnProperty.call(data2, s5)) {
-              obj[s5] = data2[s5];
+          for (var s4 in data2) {
+            if (Object.prototype.hasOwnProperty.call(data2, s4)) {
+              obj[s4] = data2[s4];
             }
           }
           return obj;
@@ -12607,28 +12617,28 @@
               }
               var easer = BezierFactory.getBezierEasing(x1, y1, x22, y22).get;
               var mult = 0;
-              var s5 = this.finalS;
+              var s4 = this.finalS;
               var e4 = this.finalE;
               var type = this.data.sh;
               if (type === 2) {
-                if (e4 === s5) {
+                if (e4 === s4) {
                   mult = ind >= e4 ? 1 : 0;
                 } else {
-                  mult = max(0, min(0.5 / (e4 - s5) + (ind - s5) / (e4 - s5), 1));
+                  mult = max(0, min(0.5 / (e4 - s4) + (ind - s4) / (e4 - s4), 1));
                 }
                 mult = easer(mult);
               } else if (type === 3) {
-                if (e4 === s5) {
+                if (e4 === s4) {
                   mult = ind >= e4 ? 0 : 1;
                 } else {
-                  mult = 1 - max(0, min(0.5 / (e4 - s5) + (ind - s5) / (e4 - s5), 1));
+                  mult = 1 - max(0, min(0.5 / (e4 - s4) + (ind - s4) / (e4 - s4), 1));
                 }
                 mult = easer(mult);
               } else if (type === 4) {
-                if (e4 === s5) {
+                if (e4 === s4) {
                   mult = 0;
                 } else {
-                  mult = max(0, min(0.5 / (e4 - s5) + (ind - s5) / (e4 - s5), 1));
+                  mult = max(0, min(0.5 / (e4 - s4) + (ind - s4) / (e4 - s4), 1));
                   if (mult < 0.5) {
                     mult *= 2;
                   } else {
@@ -12637,28 +12647,28 @@
                 }
                 mult = easer(mult);
               } else if (type === 5) {
-                if (e4 === s5) {
+                if (e4 === s4) {
                   mult = 0;
                 } else {
-                  var tot = e4 - s5;
-                  ind = min(max(0, ind + 0.5 - s5), e4 - s5);
-                  var x4 = -tot / 2 + ind;
+                  var tot = e4 - s4;
+                  ind = min(max(0, ind + 0.5 - s4), e4 - s4);
+                  var x3 = -tot / 2 + ind;
                   var a4 = tot / 2;
-                  mult = Math.sqrt(1 - x4 * x4 / (a4 * a4));
+                  mult = Math.sqrt(1 - x3 * x3 / (a4 * a4));
                 }
                 mult = easer(mult);
               } else if (type === 6) {
-                if (e4 === s5) {
+                if (e4 === s4) {
                   mult = 0;
                 } else {
-                  ind = min(max(0, ind + 0.5 - s5), e4 - s5);
-                  mult = (1 + Math.cos(Math.PI + Math.PI * 2 * ind / (e4 - s5))) / 2;
+                  ind = min(max(0, ind + 0.5 - s4), e4 - s4);
+                  mult = (1 + Math.cos(Math.PI + Math.PI * 2 * ind / (e4 - s4))) / 2;
                 }
                 mult = easer(mult);
               } else {
-                if (ind >= floor(s5)) {
-                  if (ind - s5 < 0) {
-                    mult = max(0, min(min(e4, 1) - (s5 - ind), 1));
+                if (ind >= floor(s4)) {
+                  if (ind - s4 < 0) {
+                    mult = max(0, min(min(e4, 1) - (s4 - ind), 1));
                   } else {
                     mult = max(0, min(e4 - ind, 1));
                   }
@@ -12691,14 +12701,14 @@
               }
               var divisor = this.data.r === 2 ? 1 : 100 / this.data.totalChars;
               var o4 = this.o.v / divisor;
-              var s5 = this.s.v / divisor + o4;
+              var s4 = this.s.v / divisor + o4;
               var e4 = this.e.v / divisor + o4;
-              if (s5 > e4) {
-                var _s = s5;
-                s5 = e4;
+              if (s4 > e4) {
+                var _s = s4;
+                s4 = e4;
                 e4 = _s;
               }
-              this.finalS = s5;
+              this.finalS = s4;
               this.finalE = e4;
             }
           };
@@ -14825,9 +14835,9 @@
                 percent = -0.99;
               }
               var dist = rad * percent;
-              var x4 = Math.cos(ang + itemData.a.v) * dist + pt1[0];
+              var x3 = Math.cos(ang + itemData.a.v) * dist + pt1[0];
               var y5 = Math.sin(ang + itemData.a.v) * dist + pt1[1];
-              grd = ctx.createRadialGradient(x4, y5, 0, pt1[0], pt1[1], rad);
+              grd = ctx.createRadialGradient(x3, y5, 0, pt1[0], pt1[1], rad);
             }
             var i5;
             var len = styleData.g.p;
@@ -15168,8 +15178,8 @@
         CanvasRendererBase.prototype.ctxFill = function(rule) {
           this.canvasContext.fill(rule);
         };
-        CanvasRendererBase.prototype.ctxFillRect = function(x4, y5, w5, h5) {
-          this.canvasContext.fillRect(x4, y5, w5, h5);
+        CanvasRendererBase.prototype.ctxFillRect = function(x3, y5, w5, h5) {
+          this.canvasContext.fillRect(x3, y5, w5, h5);
         };
         CanvasRendererBase.prototype.ctxStroke = function() {
           this.canvasContext.stroke();
@@ -15552,12 +15562,12 @@
           }
           this.nativeContext.fill(rule);
         };
-        CVContextData.prototype.fillRect = function(x4, y5, w5, h5) {
+        CVContextData.prototype.fillRect = function(x3, y5, w5, h5) {
           if (this.appliedFillStyle !== this.currentFillStyle) {
             this.appliedFillStyle = this.currentFillStyle;
             this.nativeContext.fillStyle = this.appliedFillStyle;
           }
-          this.nativeContext.fillRect(x4, y5, w5, h5);
+          this.nativeContext.fillRect(x3, y5, w5, h5);
         };
         CVContextData.prototype.stroke = function() {
           if (this.appliedStrokeStyle !== this.currentStrokeStyle) {
@@ -16816,18 +16826,18 @@
             var shortseed = mixkey(flatten(options.entropy ? [seed, tostring(pool)] : seed === null ? autoseed() : seed, 3), key2);
             var arc4 = new ARC4(key2);
             var prng = function prng2() {
-              var n3 = arc4.g(chunks), d5 = startdenom, x4 = 0;
+              var n3 = arc4.g(chunks), d5 = startdenom, x3 = 0;
               while (n3 < significance) {
-                n3 = (n3 + x4) * width2;
+                n3 = (n3 + x3) * width2;
                 d5 *= width2;
-                x4 = arc4.g(1);
+                x3 = arc4.g(1);
               }
               while (n3 >= overflow) {
                 n3 /= 2;
                 d5 /= 2;
-                x4 >>>= 1;
+                x3 >>>= 1;
               }
-              return (n3 + x4) / d5;
+              return (n3 + x3) / d5;
             };
             prng.int32 = function() {
               return arc4.g(4) | 0;
@@ -16854,22 +16864,22 @@
           }
           math["seed" + rngname] = seedrandom;
           function ARC4(key2) {
-            var t4, keylen = key2.length, me = this, i5 = 0, j4 = me.i = me.j = 0, s5 = me.S = [];
+            var t4, keylen = key2.length, me = this, i5 = 0, j4 = me.i = me.j = 0, s4 = me.S = [];
             if (!keylen) {
               key2 = [keylen++];
             }
             while (i5 < width2) {
-              s5[i5] = i5++;
+              s4[i5] = i5++;
             }
             for (i5 = 0; i5 < width2; i5++) {
-              s5[i5] = s5[j4 = mask2 & j4 + key2[i5 % keylen] + (t4 = s5[i5])];
-              s5[j4] = t4;
+              s4[i5] = s4[j4 = mask2 & j4 + key2[i5 % keylen] + (t4 = s4[i5])];
+              s4[j4] = t4;
             }
             me.g = function(count) {
-              var t5, r4 = 0, i6 = me.i, j5 = me.j, s6 = me.S;
+              var t5, r4 = 0, i6 = me.i, j5 = me.j, s5 = me.S;
               while (count--) {
-                t5 = s6[i6 = mask2 & i6 + 1];
-                r4 = r4 * width2 + s6[mask2 & (s6[i6] = s6[j5 = mask2 & j5 + t5]) + (s6[j5] = t5)];
+                t5 = s5[i6 = mask2 & i6 + 1];
+                r4 = r4 * width2 + s5[mask2 & (s5[i6] = s5[j5 = mask2 & j5 + t5]) + (s5[j5] = t5)];
               }
               me.i = i6;
               me.j = j5;
@@ -17165,14 +17175,14 @@
             var max = Math.max(r4, g6, b4);
             var min = Math.min(r4, g6, b4);
             var h5;
-            var s5;
+            var s4;
             var l5 = (max + min) / 2;
             if (max === min) {
               h5 = 0;
-              s5 = 0;
+              s4 = 0;
             } else {
               var d5 = max - min;
-              s5 = l5 > 0.5 ? d5 / (2 - max - min) : d5 / (max + min);
+              s4 = l5 > 0.5 ? d5 / (2 - max - min) : d5 / (max + min);
               switch (max) {
                 case r4:
                   h5 = (g6 - b4) / d5 + (g6 < b4 ? 6 : 0);
@@ -17188,7 +17198,7 @@
               }
               h5 /= 6;
             }
-            return [h5, s5, l5, val2[3]];
+            return [h5, s4, l5, val2[3]];
           }
           function hue2rgb(p5, q5, t4) {
             if (t4 < 0) t4 += 1;
@@ -17200,17 +17210,17 @@
           }
           function hslToRgb(val2) {
             var h5 = val2[0];
-            var s5 = val2[1];
+            var s4 = val2[1];
             var l5 = val2[2];
             var r4;
             var g6;
             var b4;
-            if (s5 === 0) {
+            if (s4 === 0) {
               r4 = l5;
               b4 = l5;
               g6 = l5;
             } else {
-              var q5 = l5 < 0.5 ? l5 * (1 + s5) : l5 + s5 - l5 * s5;
+              var q5 = l5 < 0.5 ? l5 * (1 + s4) : l5 + s4 - l5 * s4;
               var p5 = 2 * l5 - q5;
               r4 = hue2rgb(p5, q5, h5 + 1 / 3);
               g6 = hue2rgb(p5, q5, h5);
@@ -19505,11 +19515,11 @@
               if (forceRender || this.filterManager.effectElements[9].p._mdf || this.filterManager.effectElements[4].p._mdf || this.filterManager.effectElements[7].p._mdf || this.filterManager.effectElements[8].p._mdf || mask2.prop._mdf) {
                 var dasharrayValue;
                 if (this.filterManager.effectElements[7].p.v !== 0 || this.filterManager.effectElements[8].p.v !== 100) {
-                  var s5 = Math.min(this.filterManager.effectElements[7].p.v, this.filterManager.effectElements[8].p.v) * 0.01;
+                  var s4 = Math.min(this.filterManager.effectElements[7].p.v, this.filterManager.effectElements[8].p.v) * 0.01;
                   var e4 = Math.max(this.filterManager.effectElements[7].p.v, this.filterManager.effectElements[8].p.v) * 0.01;
                   var l5 = path.getTotalLength();
-                  dasharrayValue = "0 0 0 " + l5 * s5 + " ";
-                  var lineLength = l5 * (e4 - s5);
+                  dasharrayValue = "0 0 0 " + l5 * s4 + " ";
+                  var lineLength = l5 * (e4 - s4);
                   var segment = 1 + this.filterManager.effectElements[4].p.v * 2 * this.filterManager.effectElements[9].p.v * 0.01;
                   var units = Math.floor(lineLength / segment);
                   var j4;
@@ -19719,9 +19729,9 @@
             if (forceRender || this.filterManager.effectElements[2].p._mdf || this.filterManager.effectElements[3].p._mdf) {
               var distance = this.filterManager.effectElements[3].p.v;
               var angle = (this.filterManager.effectElements[2].p.v - 90) * degToRads;
-              var x4 = distance * Math.cos(angle);
+              var x3 = distance * Math.cos(angle);
               var y5 = distance * Math.sin(angle);
-              this.feOffset.setAttribute("dx", x4);
+              this.feOffset.setAttribute("dx", x3);
               this.feOffset.setAttribute("dy", y5);
             }
           }
@@ -19952,7 +19962,7 @@
         }
       };
     }, [url5, json]);
-    return /* @__PURE__ */ g("div", { ref, "data-lottie-player": true });
+    return /* @__PURE__ */ _("div", { ref, "data-lottie-player": true });
   }
   var import_lottie_web;
   var init_BurnAnimationLottieWeb = __esm({
@@ -19972,8 +19982,8 @@
       null
     );
     const { exiting, burning } = x2(ActivityBurningSignalContext);
-    const isBurning = useComputed(() => burning.value.some((x4) => x4 === url5));
-    const isExiting = useComputed(() => exiting.value.some((x4) => x4 === url5));
+    const isBurning = useComputed(() => burning.value.some((x3) => x3 === url5));
+    const isExiting = useComputed(() => exiting.value.some((x3) => x3 === url5));
     _2(() => {
       let canceled = false;
       let sent = false;
@@ -20013,7 +20023,7 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url5]);
-    return /* @__PURE__ */ g("div", { class: (0, import_classnames3.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && /* @__PURE__ */ g(P3, { fallback: null }, /* @__PURE__ */ g(BurnAnimationLazy, { url: url5 })));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames3.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url5 })));
   }
   var import_classnames3, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
@@ -20026,14 +20036,14 @@
       init_Activity();
       init_compat_module();
       init_preact_module();
-      BurnAnimationLazy = z3(() => Promise.resolve().then(() => (init_BurnAnimationLottieWeb(), BurnAnimationLottieWeb_exports)).then((x4) => x4.BurnAnimation));
+      BurnAnimationLazy = z3(() => Promise.resolve().then(() => (init_BurnAnimationLottieWeb(), BurnAnimationLottieWeb_exports)).then((x3) => x3.BurnAnimation));
     }
   });
 
   // shared/components/DocumentVisibility.js
   function DocumentVisibilityProvider({ children }) {
     const initial = document.visibilityState;
-    const [documentVisibility, setDocumentVisibility] = h2(initial);
+    const [documentVisibility, setDocumentVisibility] = d2(initial);
     y2(() => {
       const handleVisibilityChange = () => {
         setDocumentVisibility(document.visibilityState);
@@ -20043,7 +20053,7 @@
         document.removeEventListener("visibilitychange", handleVisibilityChange);
       };
     }, []);
-    return /* @__PURE__ */ g(DocumentVisibilityContext.Provider, { value: documentVisibility }, children);
+    return /* @__PURE__ */ _(DocumentVisibilityContext.Provider, { value: documentVisibility }, children);
   }
   function useDocumentVisibility() {
     return x2(DocumentVisibilityContext);
@@ -20054,7 +20064,7 @@
       "use strict";
       init_hooks_module();
       init_preact_module();
-      DocumentVisibilityContext = J(
+      DocumentVisibilityContext = K(
         /** @type {DocumentVisibilityState} */
         "hidden"
       );
@@ -20114,11 +20124,11 @@
 
   // pages/new-tab/app/components/ShowHideButton.jsx
   function ShowHideButtonCircle({ label, onClick, buttonAttrs = {} }) {
-    return /* @__PURE__ */ g("button", { ...buttonAttrs, class: (0, import_classnames4.default)(ShowHide_default.button, ShowHide_default.round), "aria-label": label, "data-toggle": "true", onClick }, /* @__PURE__ */ g("div", { class: ShowHide_default.iconBlock }, /* @__PURE__ */ g(Chevron, null)));
+    return /* @__PURE__ */ _("button", { ...buttonAttrs, class: (0, import_classnames4.default)(ShowHide_default.button, ShowHide_default.round), "aria-label": label, "data-toggle": "true", onClick }, /* @__PURE__ */ _("div", { class: ShowHide_default.iconBlock }, /* @__PURE__ */ _(Chevron, null)));
   }
   function ShowHideButtonPill({ label, onClick, text: text2, fill = true, buttonAttrs = {} }) {
-    const btnText = label ? /* @__PURE__ */ g("span", { "aria-hidden": "true" }, text2) : text2;
-    return /* @__PURE__ */ g(
+    const btnText = label ? /* @__PURE__ */ _("span", { "aria-hidden": "true" }, text2) : text2;
+    return /* @__PURE__ */ _(
       "button",
       {
         ...buttonAttrs,
@@ -20127,12 +20137,12 @@
         "data-toggle": "true",
         onClick
       },
-      /* @__PURE__ */ g(Chevron, null),
+      /* @__PURE__ */ _(Chevron, null),
       btnText
     );
   }
   function ShowHideBar({ children }) {
-    return /* @__PURE__ */ g("div", { class: ShowHide_default.bar, "data-show-hide": true }, children);
+    return /* @__PURE__ */ _("div", { class: ShowHide_default.bar, "data-show-hide": true }, children);
   }
   var import_classnames4;
   var init_ShowHideButton = __esm({
@@ -20151,7 +20161,7 @@
       /** @type {Strings} */
       {}
     );
-    const [formatter] = h2(() => new Intl.NumberFormat());
+    const [formatter] = d2(() => new Intl.NumberFormat());
     const adBlocking = useAdBlocking();
     const none = itemCount === 0 && trackerCount === 0;
     const some = itemCount > 0 || trackerCount > 0;
@@ -20162,16 +20172,16 @@
     } else {
       allTimeString = adBlocking ? t4("stats_countBlockedAdsAndTrackersPlural", { count: trackerCountFormatted }) : t4("stats_countBlockedPlural", { count: trackerCountFormatted });
     }
-    return /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(
       "div",
       {
         className: (0, import_classnames5.default)(PrivacyStats_default.heading, PrivacyStats_default.activityVariant, { [PrivacyStats_default.adsAndTrackersVariant]: adBlocking }),
         "data-testid": "ActivityHeading"
       },
-      /* @__PURE__ */ g("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ g("img", { src: adBlocking ? "./icons/shield-green.svg" : "./icons/shield.svg", alt: "Privacy Shield" })),
-      none && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, t4("activity_noRecent_title")),
-      some && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, /* @__PURE__ */ g(Trans, { str: allTimeString, values: { count: trackerCountFormatted } })),
-      canExpand && /* @__PURE__ */ g("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ g(
+      /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: adBlocking ? "./icons/shield-green.svg" : "./icons/shield.svg", alt: "Privacy Shield" })),
+      none && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, t4("activity_noRecent_title")),
+      some && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, /* @__PURE__ */ _(Trans, { str: allTimeString, values: { count: trackerCountFormatted } })),
+      canExpand && /* @__PURE__ */ _("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
         ShowHideButtonCircle,
         {
           buttonAttrs: {
@@ -20183,8 +20193,8 @@
           label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
         }
       )),
-      none && /* @__PURE__ */ g("p", { className: (0, import_classnames5.default)(PrivacyStats_default.subtitle, { [PrivacyStats_default.indented]: !adBlocking }) }, adBlocking ? t4("activity_noRecentAdsAndTrackers_subtitle") : t4("activity_noRecent_subtitle")),
-      some && /* @__PURE__ */ g("p", { className: (0, import_classnames5.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented, { [PrivacyStats_default.uppercase]: !adBlocking }) }, t4("stats_feedCountBlockedPeriod"))
+      none && /* @__PURE__ */ _("p", { className: (0, import_classnames5.default)(PrivacyStats_default.subtitle, { [PrivacyStats_default.indented]: !adBlocking }) }, adBlocking ? t4("activity_noRecentAdsAndTrackers_subtitle") : t4("activity_noRecent_subtitle")),
+      some && /* @__PURE__ */ _("p", { className: (0, import_classnames5.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented, { [PrivacyStats_default.uppercase]: !adBlocking }) }, t4("stats_feedCountBlockedPeriod"))
     );
   }
   var import_classnames5;
@@ -20206,7 +20216,7 @@
   function HistoryItems({ id }) {
     const { activity } = x2(NormalizedDataContext);
     const history = useComputed(() => activity.value.history[id]);
-    const [expansion, setExpansion] = h2(
+    const [expansion, setExpansion] = d2(
       /** @type {Expansion} */
       "collapsed"
     );
@@ -20221,9 +20231,9 @@
         setExpansion("expanded");
       }
     }
-    return /* @__PURE__ */ g("ul", { class: Activity_default.history, onClick }, history.value.slice(0, current).map((item, index2) => {
+    return /* @__PURE__ */ _("ul", { class: Activity_default.history, onClick }, history.value.slice(0, current).map((item, index2) => {
       const isLast = index2 === current - 1;
-      return /* @__PURE__ */ g(HistoryItem, { key: item.url + item.title, item, isLast, current, min, max });
+      return /* @__PURE__ */ _(HistoryItem, { key: item.url + item.title, item, isLast, current, min, max });
     }));
   }
   function HistoryItem({ item, isLast, current, min, max }) {
@@ -20236,7 +20246,7 @@
     const hiddenCount = max - current;
     const showButton = hasMore || hasLess;
     const buttonLabel = hasMore && isLast ? t4("activity_show_more_history", { count: String(hiddenCount) }) : t4("activity_show_less_history");
-    return /* @__PURE__ */ g("li", { class: Activity_default.historyItem }, /* @__PURE__ */ g("a", { href: item.url, class: Activity_default.historyLink, title: item.url, "data-url": item.url }, item.title), /* @__PURE__ */ g("small", { class: Activity_default.time }, item.relativeTime), isLast && showButton && /* @__PURE__ */ g("button", { "data-action": hasMore && isLast ? "show" : "hide", class: Activity_default.historyBtn, "aria-label": buttonLabel }, /* @__PURE__ */ g(ChevronSmall, null)));
+    return /* @__PURE__ */ _("li", { class: Activity_default.historyItem }, /* @__PURE__ */ _("a", { href: item.url, class: Activity_default.historyLink, title: item.url, "data-url": item.url }, item.title), /* @__PURE__ */ _("small", { class: Activity_default.time }, item.relativeTime), isLast && showButton && /* @__PURE__ */ _("button", { "data-action": hasMore && isLast ? "show" : "hide", class: Activity_default.historyBtn, "aria-label": buttonLabel }, /* @__PURE__ */ _(ChevronSmall, null)));
   }
   var MIN_SHOW_AMOUNT, MAX_SHOW_AMOUNT;
   var init_HistoryItems = __esm({
@@ -20262,7 +20272,7 @@
     const { didClick } = x2(ActivityInteractionsContext);
     const ref = A2(null);
     useOnMiddleClick(ref, didClick);
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("div", { class: Activity_default.root, onClick: didClick, ref }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: Activity_default.root, onClick: didClick, ref }, /* @__PURE__ */ _(
       ActivityHeading,
       {
         trackerCount,
@@ -20275,16 +20285,16 @@
           id: TOGGLE_ID
         }
       }
-    ), itemCount > 0 && expanded && children), batched && itemCount > 0 && expanded && /* @__PURE__ */ g(Loader, null));
+    ), itemCount > 0 && expanded && children), batched && itemCount > 0 && expanded && /* @__PURE__ */ _(Loader, null));
   }
   function ActivityBody({ canBurn, visibility }) {
     const { isReducedMotion } = useEnv();
     const { keys } = x2(NormalizedDataContext);
     const { burning, exiting } = x2(ActivityBurningSignalContext);
     const busy = useComputed(() => burning.value.length > 0 || exiting.value.length > 0);
-    return /* @__PURE__ */ g("ul", { class: Activity_default.activity, "data-busy": busy }, keys.value.map((id, _index) => {
-      if (canBurn && !isReducedMotion) return /* @__PURE__ */ g(BurnableItem, { id, key: id, documentVisibility: visibility });
-      return /* @__PURE__ */ g(RemovableItem, { id, key: id, canBurn, documentVisibility: visibility });
+    return /* @__PURE__ */ _("ul", { class: Activity_default.activity, "data-busy": busy }, keys.value.map((id, _index) => {
+      if (canBurn && !isReducedMotion) return /* @__PURE__ */ _(BurnableItem, { id, key: id, documentVisibility: visibility });
+      return /* @__PURE__ */ _(RemovableItem, { id, key: id, canBurn, documentVisibility: visibility });
     }));
   }
   function Loader() {
@@ -20307,7 +20317,7 @@
         }
       };
     }, []);
-    return /* @__PURE__ */ g("div", { class: Activity_default.loader, ref: loaderRef }, "Loading...");
+    return /* @__PURE__ */ _("div", { class: Activity_default.loader, ref: loaderRef }, "Loading...");
   }
   function TrackerStatus({ id, trackersFound }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -20320,12 +20330,12 @@
     const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
     const adBlocking = useAdBlocking();
     const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, _index) => {
-      return /* @__PURE__ */ g(CompanyIcon, { displayName: item.displayName, key: item });
+      return /* @__PURE__ */ _(CompanyIcon, { displayName: item.displayName, key: item });
     });
     let otherIcon = null;
     if (other.length > 0) {
       const title = other.map((item) => item.displayName).join("\n");
-      otherIcon = /* @__PURE__ */ g("span", { title, class: Activity_default.otherIcon }, "+", other.length);
+      otherIcon = /* @__PURE__ */ _("span", { title, class: Activity_default.otherIcon }, "+", other.length);
     }
     if (status.value.totalCount === 0) {
       let text2;
@@ -20334,9 +20344,9 @@
       } else {
         text2 = adBlocking ? t4("activity_no_adsAndTrackers") : t4("activity_no_trackers");
       }
-      return /* @__PURE__ */ g("p", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, text2);
+      return /* @__PURE__ */ _("p", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, text2);
     }
-    return /* @__PURE__ */ g("div", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ g("div", { class: Activity_default.companiesIcons }, icons, otherIcon), /* @__PURE__ */ g("div", { class: Activity_default.companiesText }, adBlocking ? /* @__PURE__ */ g(Trans, { str: t4("activity_countBlockedAdsAndTrackersPlural", { count: String(status.value.totalCount) }), values: {} }) : /* @__PURE__ */ g(Trans, { str: t4("activity_countBlockedPlural", { count: String(status.value.totalCount) }), values: {} })));
+    return /* @__PURE__ */ _("div", { class: Activity_default.companiesIconRow, "data-testid": "TrackerStatus" }, /* @__PURE__ */ _("div", { class: Activity_default.companiesIcons }, icons, otherIcon), /* @__PURE__ */ _("div", { class: Activity_default.companiesText }, adBlocking ? /* @__PURE__ */ _(Trans, { str: t4("activity_countBlockedAdsAndTrackersPlural", { count: String(status.value.totalCount) }), values: {} }) : /* @__PURE__ */ _(Trans, { str: t4("activity_countBlockedPlural", { count: String(status.value.totalCount) }), values: {} })));
   }
   function ActivityConfigured({ expansion, toggle, children }) {
     const batched = useBatchedActivityApi();
@@ -20347,7 +20357,7 @@
     const itemCount = useComputed(() => {
       return Object.keys(activity.value.items).length;
     });
-    return /* @__PURE__ */ g(Activity, { batched, itemCount: itemCount.value, trackerCount: count.value, expansion, toggle }, children);
+    return /* @__PURE__ */ _(Activity, { batched, itemCount: itemCount.value, trackerCount: count.value, expansion, toggle }, children);
   }
   function ActivityCustomized() {
     const { t: t4 } = useTypedTranslationWith(
@@ -20360,7 +20370,7 @@
     if (visibility.value === "hidden") {
       return null;
     }
-    return /* @__PURE__ */ g(ActivityProvider, null, /* @__PURE__ */ g(ActivityConsumer, null));
+    return /* @__PURE__ */ _(ActivityProvider, null, /* @__PURE__ */ _(ActivityConsumer, null));
   }
   function ActivityConsumer() {
     const { state, toggle } = x2(ActivityContext);
@@ -20369,9 +20379,9 @@
     const visibility = useDocumentVisibility();
     if (service && state.status === "ready") {
       if (platformName === "windows") {
-        return /* @__PURE__ */ g(SignalStateProvider, null, /* @__PURE__ */ g(ActivityConfigured, { expansion: state.config.expansion, toggle }, /* @__PURE__ */ g(ActivityBody, { canBurn: false, visibility })));
+        return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(ActivityConfigured, { expansion: state.config.expansion, toggle }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility })));
       }
-      return /* @__PURE__ */ g(SignalStateProvider, null, /* @__PURE__ */ g(BurnProvider, { service }, /* @__PURE__ */ g(ActivityConfigured, { expansion: state.config.expansion, toggle }, /* @__PURE__ */ g(ActivityBody, { canBurn: true, visibility }))));
+      return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(BurnProvider, { service }, /* @__PURE__ */ _(ActivityConfigured, { expansion: state.config.expansion, toggle }, /* @__PURE__ */ _(ActivityBody, { canBurn: true, visibility }))));
     }
     return null;
   }
@@ -20413,7 +20423,7 @@
           if (!item.value) {
             return null;
           }
-          return /* @__PURE__ */ g(ActivityItemAnimationWrapper, { url: id }, /* @__PURE__ */ g(
+          return /* @__PURE__ */ _(ActivityItemAnimationWrapper, { url: id }, /* @__PURE__ */ _(
             ActivityItem,
             {
               title: item.value.title,
@@ -20424,8 +20434,8 @@
               canBurn: true,
               documentVisibility
             },
-            /* @__PURE__ */ g(TrackerStatus, { id, trackersFound: item.value.trackersFound }),
-            /* @__PURE__ */ g(HistoryItems, { id })
+            /* @__PURE__ */ _(TrackerStatus, { id, trackersFound: item.value.trackersFound }),
+            /* @__PURE__ */ _(HistoryItems, { id })
           ));
         }
       );
@@ -20440,9 +20450,9 @@
           const { activity } = x2(NormalizedDataContext);
           const item = useComputed(() => activity.value.items[id]);
           if (!item.value) {
-            return /* @__PURE__ */ g("p", { "data-testid": "ActivityItem", "data-state": "loading", "data-id": id, hidden: true }, "Loading: ", id);
+            return /* @__PURE__ */ _("p", { "data-testid": "ActivityItem", "data-state": "loading", "data-id": id, hidden: true }, "Loading: ", id);
           }
-          return /* @__PURE__ */ g(
+          return /* @__PURE__ */ _(
             ActivityItem,
             {
               title: item.value.title,
@@ -20453,8 +20463,8 @@
               canBurn,
               documentVisibility
             },
-            /* @__PURE__ */ g(TrackerStatus, { id, trackersFound: item.value.trackersFound }),
-            /* @__PURE__ */ g(HistoryItems, { id })
+            /* @__PURE__ */ _(TrackerStatus, { id, trackersFound: item.value.trackersFound }),
+            /* @__PURE__ */ _(HistoryItems, { id })
           );
         }
       );
@@ -20468,7 +20478,7 @@
     factory: () => factory
   });
   function factory() {
-    return /* @__PURE__ */ g(Centered, { "data-entry-point": "activity" }, /* @__PURE__ */ g(ActivityCustomized, null));
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "activity" }, /* @__PURE__ */ _(ActivityCustomized, null));
   }
   var init_activity = __esm({
     "pages/new-tab/app/entry-points/activity.js"() {
@@ -20612,7 +20622,7 @@
         config: null
       }
     );
-    const [state, dispatch] = p2(reducer, initial);
+    const [state, dispatch] = h2(reducer, initial);
     const service = useService2();
     useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -20651,7 +20661,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ g(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add: add2, onConfigChanged } }, /* @__PURE__ */ g(FavoritesDispatchContext.Provider, { value: dispatch }, children));
+    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add: add2, onConfigChanged } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
   }
   function useService2() {
     const service = A2(
@@ -20677,7 +20687,7 @@
       init_favorites_service();
       init_types();
       init_service_hooks();
-      FavoritesContext = J({
+      FavoritesContext = K({
         /** @type {import('../../service.hooks.js').State<FavoritesData, FavoritesConfig>} */
         state: { status: "idle", data: null, config: null },
         /** @type {() => void} */
@@ -20704,7 +20714,7 @@
         onConfigChanged: (_cb) => {
         }
       });
-      FavoritesDispatchContext = J(
+      FavoritesDispatchContext = K(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -20817,10 +20827,10 @@
       "use strict";
       var __assign = exports2 && exports2.__assign || function() {
         __assign = Object.assign || function(t4) {
-          for (var s5, i5 = 1, n3 = arguments.length; i5 < n3; i5++) {
-            s5 = arguments[i5];
-            for (var p5 in s5) if (Object.prototype.hasOwnProperty.call(s5, p5))
-              t4[p5] = s5[p5];
+          for (var s4, i5 = 1, n3 = arguments.length; i5 < n3; i5++) {
+            s4 = arguments[i5];
+            for (var p5 in s4) if (Object.prototype.hasOwnProperty.call(s4, p5))
+              t4[p5] = s4[p5];
           }
           return t4;
         };
@@ -21183,9 +21193,8 @@
       return function onPostEvent(_ref6) {
         var eventName = _ref6.eventName, payload = _ref6.payload;
         if (eventName === "onDragStart") {
-          var _latestPointerMove;
           var input = payload.location.initial.input;
-          var initial = (_latestPointerMove = latestPointerMove) !== null && _latestPointerMove !== void 0 ? _latestPointerMove : {
+          var initial = latestPointerMove !== null && latestPointerMove !== void 0 ? latestPointerMove : {
             x: input.clientX,
             y: input.clientY
           };
@@ -21999,18 +22008,18 @@
     if (!t4) {
       if (Array.isArray(r4) || (t4 = _unsupportedIterableToArray2(r4)) || e4 && r4 && "number" == typeof r4.length) {
         t4 && (r4 = t4);
-        var _n = 0, F4 = function F5() {
+        var _n = 0, F5 = function F6() {
         };
-        return { s: F4, n: function n3() {
+        return { s: F5, n: function n3() {
           return _n >= r4.length ? { done: true } : { done: false, value: r4[_n++] };
         }, e: function e5(r5) {
           throw r5;
-        }, f: F4 };
+        }, f: F5 };
       }
       throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
     }
     var o4, a4 = true, u4 = false;
-    return { s: function s5() {
+    return { s: function s4() {
       t4 = t4.call(r4);
     }, n: function n3() {
       var r5 = t4.next();
@@ -22277,18 +22286,18 @@
     if (!t4) {
       if (Array.isArray(r4) || (t4 = _unsupportedIterableToArray3(r4)) || e4 && r4 && "number" == typeof r4.length) {
         t4 && (r4 = t4);
-        var _n = 0, F4 = function F5() {
+        var _n = 0, F5 = function F6() {
         };
-        return { s: F4, n: function n3() {
+        return { s: F5, n: function n3() {
           return _n >= r4.length ? { done: true } : { done: false, value: r4[_n++] };
         }, e: function e5(r5) {
           throw r5;
-        }, f: F4 };
+        }, f: F5 };
       }
       throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
     }
     var o4, a4 = true, u4 = false;
-    return { s: function s5() {
+    return { s: function s4() {
       t4 = t4.call(r4);
     }, n: function n3() {
       var r5 = t4.next();
@@ -23134,9 +23143,9 @@
 
   // pages/new-tab/app/favorites/components/PragmaticDND.js
   function PragmaticDND({ children, items, itemsDidReOrder }) {
-    const [instanceId] = h2(getInstanceId);
+    const [instanceId] = d2(getInstanceId);
     useGridState(items, itemsDidReOrder, instanceId);
-    return /* @__PURE__ */ g(InstanceIdContext.Provider, { value: instanceId }, children);
+    return /* @__PURE__ */ _(InstanceIdContext.Provider, { value: instanceId }, children);
   }
   function useGridState(favorites2, itemsDidReOrder, instanceId) {
     y2(() => {
@@ -23221,7 +23230,7 @@
   function useItemState(url5, id, opts) {
     const instanceId = x2(InstanceIdContext);
     const ref = A2(null);
-    const [state, setState] = h2(
+    const [state, setState] = d2(
       /** @type {DNDState} */
       { type: "idle" }
     );
@@ -23361,7 +23370,7 @@
       init_constants3();
       init_set_custom_native_drag_preview2();
       init_center_under_pointer2();
-      InstanceIdContext = J(getInstanceId());
+      InstanceIdContext = K(getInstanceId());
     }
   });
 
@@ -23396,7 +23405,7 @@
         CLEAR_EVENT,
         (e4) => {
           if (isValidEvent(e4)) {
-            const match = safezones.findIndex((x4) => x4 === e4.detail.dropzone);
+            const match = safezones.findIndex((x3) => x3 === e4.detail.dropzone);
             safezones.splice(match, 1);
           }
         },
@@ -23483,7 +23492,7 @@
   function Placeholder() {
     const id = g2();
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
-    return /* @__PURE__ */ g("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ g("div", { class: (0, import_classnames6.default)(Tile_default.icon, Tile_default.placeholder) }, "\xA0"), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ g("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(Tile_default.icon, Tile_default.placeholder) }, "\xA0"), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
   }
   function PlusIconWrapper({ onClick }) {
     const id = g2();
@@ -23492,7 +23501,7 @@
       {}
     );
     const { state, ref } = useItemState(`PLACEHOLDER-URL-${id}`, `PLACEHOLDER-ID-${id}`, { kind: "target" });
-    return /* @__PURE__ */ g("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ g("button", { class: (0, import_classnames6.default)(Tile_default.icon, Tile_default.plus, Tile_default.draggable), "aria-labelledby": id, onClick }, /* @__PURE__ */ g(PlusIcon, null)), /* @__PURE__ */ g("div", { class: Tile_default.text, id }, t4("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ g("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
+    return /* @__PURE__ */ _("div", { class: Tile_default.item, ref, "data-edge": "closestEdge" in state && state.closestEdge }, /* @__PURE__ */ _("button", { class: (0, import_classnames6.default)(Tile_default.icon, Tile_default.plus, Tile_default.draggable), "aria-labelledby": id, onClick }, /* @__PURE__ */ _(PlusIcon, null)), /* @__PURE__ */ _("div", { class: Tile_default.text, id }, t4("favorites_add")), state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null);
   }
   var import_classnames6, Tile, PlusIconMemo;
   var init_Tile2 = __esm({
@@ -23529,7 +23538,7 @@
             theme
           });
           const tileId = g2();
-          return /* @__PURE__ */ g(
+          return /* @__PURE__ */ _(
             "a",
             {
               class: Tile_default.item,
@@ -23542,7 +23551,7 @@
               style: animateItems ? { viewTransitionName: `Tile-${id}` } : void 0,
               ref
             },
-            /* @__PURE__ */ g("div", { class: (0, import_classnames6.default)(Tile_default.icon, Tile_default.draggable) }, visibility === "visible" && /* @__PURE__ */ g(
+            /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(Tile_default.icon, Tile_default.draggable) }, visibility === "visible" && /* @__PURE__ */ _(
               FaviconWithState,
               {
                 faviconSrc,
@@ -23554,8 +23563,8 @@
                 fallbackDark: DDG_FALLBACK_ICON_DARK
               }
             )),
-            /* @__PURE__ */ g("div", { class: Tile_default.text, id: tileId }, title),
-            state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ g("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
+            /* @__PURE__ */ _("div", { class: Tile_default.text, id: tileId }, title),
+            state.type === "is-dragging-over" && state.closestEdge ? /* @__PURE__ */ _("div", { class: Tile_default.dropper, "data-edge": state.closestEdge }) : null
           );
         }
       );
@@ -23586,8 +23595,8 @@
         function TileRow2({ topOffset, items, add: add2, visibility }) {
           const fillers = ROW_CAPACITY - items.length;
           const { theme, animateItems } = x2(FavoritesThemeContext);
-          return /* @__PURE__ */ g("ul", { className: Favorites_default.gridRow, style: { transform: `translateY(${topOffset}px)` } }, items.map((item, index2) => {
-            return /* @__PURE__ */ g(
+          return /* @__PURE__ */ _("ul", { className: Favorites_default.gridRow, style: { transform: `translateY(${topOffset}px)` } }, items.map((item, index2) => {
+            return /* @__PURE__ */ _(
               Tile,
               {
                 url: item.url,
@@ -23605,9 +23614,9 @@
             );
           }), fillers > 0 && Array.from({ length: fillers }).map((_5, fillerIndex) => {
             if (fillerIndex === 0) {
-              return /* @__PURE__ */ g(PlusIconMemo, { key: `placeholder-plus-${items.length}`, onClick: add2 });
+              return /* @__PURE__ */ _(PlusIconMemo, { key: `placeholder-plus-${items.length}`, onClick: add2 });
             }
-            return /* @__PURE__ */ g(Placeholder, { key: `placeholder-${items.length}` });
+            return /* @__PURE__ */ _(Placeholder, { key: `placeholder-${items.length}` });
           }));
         }
       );
@@ -23780,11 +23789,11 @@
       }
       case "userImage": {
         const img = background.value;
-        return /* @__PURE__ */ g(ImageCrossFade, { src: img.src });
+        return /* @__PURE__ */ _(ImageCrossFade, { src: img.src });
       }
       case "gradient": {
         const gradient = values.gradients[background.value];
-        return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(ImageCrossFade, { src: gradient.path }), /* @__PURE__ */ g(
+        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(ImageCrossFade, { src: gradient.path }), /* @__PURE__ */ _(
           "div",
           {
             className: BackgroundReceiver_default.root,
@@ -23804,7 +23813,7 @@
     }
   }
   function ImageCrossFade_({ src }) {
-    const [state, setState] = h2({
+    const [state, setState] = d2({
       /** @type {ImgState} */
       value: states2.idle,
       current: src,
@@ -23840,10 +23849,10 @@
     switch (state.value) {
       case states2.settled:
       case states2.loadingFirst:
-        return /* @__PURE__ */ g("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" });
+        return /* @__PURE__ */ _("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" });
       case states2.loading:
       case states2.fading:
-        return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" }), /* @__PURE__ */ g(
+        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("img", { class: BackgroundReceiver_default.root, "data-state": state.value, src: state.current, alt: "" }), /* @__PURE__ */ _(
           "img",
           {
             class: BackgroundReceiver_default.root,
@@ -23980,7 +23989,7 @@
       [service]
     );
     const customizerContextMenu = q2((params) => service.contextMenu(params), [service]);
-    return /* @__PURE__ */ g(CustomizerContext.Provider, { value: { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu } }, /* @__PURE__ */ g(CustomizerThemesContext.Provider, { value: { main, browser } }, children));
+    return /* @__PURE__ */ _(CustomizerContext.Provider, { value: { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu } }, /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser } }, children));
   }
   var CustomizerThemesContext, CustomizerContext;
   var init_CustomizerProvider = __esm({
@@ -23991,13 +24000,13 @@
       init_signals_module();
       init_themes();
       init_utils2();
-      CustomizerThemesContext = J({
+      CustomizerThemesContext = K({
         /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
         main: d3("light"),
         /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
         browser: d3("light")
       });
-      CustomizerContext = J({
+      CustomizerContext = K({
         /** @type {import("@preact/signals").Signal<CustomizerData>} */
         data: d3({
           background: { kind: "default" },
@@ -24046,7 +24055,7 @@
     const animateItems = useComputed(() => {
       return canAnimateItems && kind.value !== "userImage";
     });
-    return /* @__PURE__ */ g(FavoritesThemeContext.Provider, { value: { theme: main.value, animateItems } }, /* @__PURE__ */ g("div", { class: Favorites_default.root, "data-testid": "FavoritesConfigured", "data-background-kind": kind }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(FavoritesThemeContext.Provider, { value: { theme: main.value, animateItems } }, /* @__PURE__ */ _("div", { class: Favorites_default.root, "data-testid": "FavoritesConfigured", "data-background-kind": kind }, /* @__PURE__ */ _(
       VirtualizedGridRows,
       {
         WIDGET_ID,
@@ -24057,7 +24066,7 @@
         openFavorite,
         openContextMenu
       }
-    ), canToggleExpansion && /* @__PURE__ */ g(ShowHideBar, null, /* @__PURE__ */ g(
+    ), canToggleExpansion && /* @__PURE__ */ _(ShowHideBar, null, /* @__PURE__ */ _(
       ShowHideButtonPill,
       {
         buttonAttrs: {
@@ -24098,7 +24107,7 @@
     const containerHeight = expansion === "collapsed" || rows.length === 0 ? rowHeight : rows.length * rowHeight;
     const clickHandler = getOnClickHandler(openFavorite, platformName);
     useOnMiddleClick(safeAreaRef, clickHandler);
-    return /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(
       "div",
       {
         className: Favorites_default.grid,
@@ -24108,13 +24117,13 @@
         onContextMenu: getContextMenuHandler(openContextMenu),
         onClick: clickHandler
       },
-      rows.length === 0 && /* @__PURE__ */ g(TileRow, { key: "empty-rows", items: [], topOffset: 0, add: add2, visibility: "visible" }),
-      rows.length > 0 && /* @__PURE__ */ g(Inner, { rows, safeAreaRef, rowHeight, add: add2, visibility })
+      rows.length === 0 && /* @__PURE__ */ _(TileRow, { key: "empty-rows", items: [], topOffset: 0, add: add2, visibility: "visible" }),
+      rows.length > 0 && /* @__PURE__ */ _(Inner, { rows, safeAreaRef, rowHeight, add: add2, visibility })
     );
   }
   function Inner({ rows, safeAreaRef, rowHeight, add: add2, visibility }) {
     const { onConfigChanged, state } = x2(FavoritesContext);
-    const [expansion, setExpansion] = h2(state.config?.expansion || "collapsed");
+    const [expansion, setExpansion] = d2(state.config?.expansion || "collapsed");
     const { start: start2, end } = useVisibleRows(rows, rowHeight, safeAreaRef, expansion);
     y2(() => {
       return onConfigChanged((config) => {
@@ -24128,14 +24137,14 @@
       });
     }, [onConfigChanged]);
     const subsetOfRowsToRender = expansion === "collapsed" ? [rows[0]] : rows.slice(start2, end + 1);
-    return /* @__PURE__ */ g(k, null, subsetOfRowsToRender.map((items, rowIndex) => {
+    return /* @__PURE__ */ _(k, null, subsetOfRowsToRender.map((items, rowIndex) => {
       const topOffset = expansion === "expanded" ? (start2 + rowIndex) * rowHeight : 0;
       const keyed = `-${start2 + rowIndex}-`;
-      return /* @__PURE__ */ g(TileRow, { key: keyed, items, topOffset, add: add2, visibility });
+      return /* @__PURE__ */ _(TileRow, { key: keyed, items, topOffset, add: add2, visibility });
     }));
   }
   function useVisibleRows(rows, rowHeight, safeAreaRef, expansion) {
-    const [{ start: start2, end }, setVisibleRange] = h2({ start: 0, end: 1 });
+    const [{ start: start2, end }, setVisibleRange] = d2({ start: 0, end: 1 });
     const gridOffsetRef = A2(0);
     const mainScrollerRef = A2(
       /** @type {Element|null} */
@@ -24284,7 +24293,7 @@
       ROW_CAPACITY = 6;
       ITEM_HEIGHT = 96;
       ROW_GAP = 8;
-      FavoritesThemeContext = J({
+      FavoritesThemeContext = K({
         theme: (
           /** @type {"light"|"dark"} */
           "light"
@@ -24312,7 +24321,7 @@
     }
     if (state.status === "ready") {
       telemetry2.measureFromPageLoad("favorites-will-render", "time to favorites");
-      return /* @__PURE__ */ g(PragmaticDND, { items: state.data.favorites, itemsDidReOrder: didReorder }, /* @__PURE__ */ g(
+      return /* @__PURE__ */ _(PragmaticDND, { items: state.data.favorites, itemsDidReOrder: didReorder }, /* @__PURE__ */ _(
         FavoritesMemo,
         {
           favorites: state.data.favorites,
@@ -24338,7 +24347,7 @@
     if (visibility.value === "hidden") {
       return null;
     }
-    return /* @__PURE__ */ g(FavoritesProvider, null, /* @__PURE__ */ g(FavoritesConsumer, null));
+    return /* @__PURE__ */ _(FavoritesProvider, null, /* @__PURE__ */ _(FavoritesConsumer, null));
   }
   var init_FavoritesCustomized = __esm({
     "pages/new-tab/app/favorites/components/FavoritesCustomized.js"() {
@@ -24362,7 +24371,7 @@
     factory: () => factory2
   });
   function factory2() {
-    return /* @__PURE__ */ g(Centered, { "data-entry-point": "favorites" }, /* @__PURE__ */ g(FavoritesCustomized, null));
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "favorites" }, /* @__PURE__ */ _(FavoritesCustomized, null));
   }
   var init_favorites = __esm({
     "pages/new-tab/app/entry-points/favorites.js"() {
@@ -24390,7 +24399,7 @@
 
   // shared/components/Button/Button.js
   function Button({ variant, className, children, onClick, type = "button" }) {
-    return /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(
       "button",
       {
         className: (0, import_classnames7.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
@@ -24432,7 +24441,7 @@
   // pages/new-tab/app/components/DismissButton.jsx
   function DismissButton({ className, onClick, buttonProps = {} }) {
     const { t: t4 } = useTypedTranslation();
-    return /* @__PURE__ */ g("button", { class: (0, import_classnames8.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ g(Cross, null));
+    return /* @__PURE__ */ _("button", { class: (0, import_classnames8.default)(DismissButton_default.btn, className), onClick, "aria-label": t4("ntp_dismiss"), "data-testid": "dismissBtn", ...buttonProps }, /* @__PURE__ */ _(Cross, null));
   }
   var import_classnames8;
   var init_DismissButton2 = __esm({
@@ -24533,7 +24542,7 @@
         config: null
       }
     );
-    const [state, dispatch] = p2(reducer, initial);
+    const [state, dispatch] = h2(reducer, initial);
     const service = useService3();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -24550,7 +24559,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ g(FreemiumPIRBannerContext.Provider, { value: { state, dismiss, action } }, /* @__PURE__ */ g(FreemiumPIRBannerDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ _(FreemiumPIRBannerContext.Provider, { value: { state, dismiss, action } }, /* @__PURE__ */ _(FreemiumPIRBannerDispatchContext.Provider, { value: dispatch }, props.children));
   }
   function useService3() {
     const service = A2(
@@ -24576,7 +24585,7 @@
       init_types();
       init_freemiumPIRBanner_service();
       init_service_hooks();
-      FreemiumPIRBannerContext = J({
+      FreemiumPIRBannerContext = K({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {(id: string) => void} */
@@ -24588,7 +24597,7 @@
           throw new Error("must implement action" + id);
         }
       });
-      FreemiumPIRBannerDispatchContext = J(
+      FreemiumPIRBannerDispatchContext = K(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -24622,12 +24631,12 @@
   // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js
   function FreemiumPIRBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ g("div", { id: message.id, class: (0, import_classnames9.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ g("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ g("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ g("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ g("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ g("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ g("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ g(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames9.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ _("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function FreemiumPIRBannerConsumer() {
     const { state, action, dismiss } = x2(FreemiumPIRBannerContext);
     if (state.status === "ready" && state.data.content) {
-      return /* @__PURE__ */ g(FreemiumPIRBanner, { message: state.data.content, action, dismiss });
+      return /* @__PURE__ */ _(FreemiumPIRBanner, { message: state.data.content, action, dismiss });
     }
     return null;
   }
@@ -24652,7 +24661,7 @@
     factory: () => factory3
   });
   function factory3() {
-    return /* @__PURE__ */ g(Centered, { "data-entry-point": "freemiumPIRBanner" }, /* @__PURE__ */ g(FreemiumPIRBannerProvider, null, /* @__PURE__ */ g(FreemiumPIRBannerConsumer, null)));
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "freemiumPIRBanner" }, /* @__PURE__ */ _(FreemiumPIRBannerProvider, null, /* @__PURE__ */ _(FreemiumPIRBannerConsumer, null)));
   }
   var init_freemiumPIRBanner = __esm({
     "pages/new-tab/app/entry-points/freemiumPIRBanner.js"() {
@@ -24769,7 +24778,7 @@
         config: null
       }
     );
-    const [state, dispatch] = p2(reducer, initial);
+    const [state, dispatch] = h2(reducer, initial);
     const service = useService4();
     useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -24786,7 +24795,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ g(NextStepsContext.Provider, { value: { state, toggle, action, dismiss } }, /* @__PURE__ */ g(NextStepsDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ _(NextStepsContext.Provider, { value: { state, toggle, action, dismiss } }, /* @__PURE__ */ _(NextStepsDispatchContext.Provider, { value: dispatch }, props.children));
   }
   function useService4() {
     const service = A2(
@@ -24812,7 +24821,7 @@
       init_types();
       init_next_steps_service();
       init_service_hooks();
-      NextStepsContext = J({
+      NextStepsContext = K({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {() => void} */
@@ -24828,7 +24837,7 @@
           throw new Error("must implement");
         }
       });
-      NextStepsDispatchContext = J(
+      NextStepsDispatchContext = K(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -24943,7 +24952,7 @@
       {}
     );
     const message = variants[type]?.(t4);
-    const [showConfirmation, setShowConfirmation] = h2(false);
+    const [showConfirmation, setShowConfirmation] = d2(false);
     const hasConfirmationState = additionalCardStates.hasConfirmationText(type);
     const handleClick = () => {
       if (!hasConfirmationState) {
@@ -24952,14 +24961,14 @@
       action(message.id);
       setShowConfirmation(true);
     };
-    return /* @__PURE__ */ g("div", { class: NextSteps_default.card }, /* @__PURE__ */ g("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ g("h3", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ g("p", { class: NextSteps_default.description }, message.summary), hasConfirmationState && !!showConfirmation ? /* @__PURE__ */ g("div", { class: NextSteps_default.confirmation }, /* @__PURE__ */ g(CheckColor, null), /* @__PURE__ */ g("p", null, message.confirmationText)) : /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("div", { class: NextSteps_default.card }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-128.svg`, alt: "", class: NextSteps_default.icon }), /* @__PURE__ */ _("h3", { class: NextSteps_default.title }, message.title), /* @__PURE__ */ _("p", { class: NextSteps_default.description }, message.summary), hasConfirmationState && !!showConfirmation ? /* @__PURE__ */ _("div", { class: NextSteps_default.confirmation }, /* @__PURE__ */ _(CheckColor, null), /* @__PURE__ */ _("p", null, message.confirmationText)) : /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames10.default)(NextSteps_default.btn, hasConfirmationState && NextSteps_default.supressActiveStateForSwitchToConfirmationText),
         onClick: handleClick
       },
       message.actionText
-    ), /* @__PURE__ */ g(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    ), /* @__PURE__ */ _(DismissButton, { className: NextSteps_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   var import_classnames10;
   var init_NextStepsCard = __esm({
@@ -24985,7 +24994,7 @@
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
-    return /* @__PURE__ */ g("div", { class: NextSteps_default.cardGroup, id: WIDGET_ID }, /* @__PURE__ */ g(NextStepsBubbleHeader, null), /* @__PURE__ */ g("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ g(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ g(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ g(ShowHideBar, null, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("div", { class: NextSteps_default.cardGroup, id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(ShowHideBar, null, /* @__PURE__ */ _(
       ShowHideButtonPill,
       {
         buttonAttrs: {
@@ -25006,7 +25015,7 @@
       {}
     );
     const text2 = otherText.nextSteps_sectionTitle(t4);
-    return /* @__PURE__ */ g("div", { class: NextSteps_default.bubble }, /* @__PURE__ */ g("svg", { xmlns: "http://www.w3.org/2000/svg", width: "12", height: "26", viewBox: "0 0 12 26", fill: "none" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("div", { class: NextSteps_default.bubble }, /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "12", height: "26", viewBox: "0 0 12 26", fill: "none" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -25014,7 +25023,7 @@
         d: "M12 0C5.37258 0 0 5.37258 0 12V25.3388C2.56367 22.0873 6.53807 20 11 20H12V0Z",
         fill: "#3969EF"
       }
-    )), /* @__PURE__ */ g("div", null, /* @__PURE__ */ g("h2", null, text2)), /* @__PURE__ */ g("svg", { xmlns: "http://www.w3.org/2000/svg", width: "10", height: "20", viewBox: "0 0 10 20", fill: "none" }, /* @__PURE__ */ g(
+    )), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("h2", null, text2)), /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "10", height: "20", viewBox: "0 0 10 20", fill: "none" }, /* @__PURE__ */ _(
       "path",
       {
         d: "M3.8147e-06 0C1.31322 1.566e-08 2.61358 0.258658 3.82684 0.761205C5.04009 1.26375 6.14249 2.00035 7.07107 2.92893C7.99966 3.85752 8.73625 4.95991 9.2388 6.17317C9.74135 7.38642 10 8.68678 10 10C10 11.3132 9.74135 12.6136 9.2388 13.8268C8.73625 15.0401 7.99966 16.1425 7.07107 17.0711C6.14248 17.9997 5.04009 18.7362 3.82684 19.2388C2.61358 19.7413 1.31322 20 0 20L3.8147e-06 10V0Z",
@@ -25037,14 +25046,14 @@
 
   // pages/new-tab/app/next-steps/NextSteps.js
   function NextStepsCustomized() {
-    return /* @__PURE__ */ g(NextStepsProvider, null, /* @__PURE__ */ g(NextStepsConsumer, null));
+    return /* @__PURE__ */ _(NextStepsProvider, null, /* @__PURE__ */ _(NextStepsConsumer, null));
   }
   function NextStepsConsumer() {
     const { state, toggle } = x2(NextStepsContext);
     if (state.status === "ready" && state.data.content) {
-      const ids = state.data.content.map((x4) => x4.id);
+      const ids = state.data.content.map((x3) => x3.id);
       const { action, dismiss } = x2(NextStepsContext);
-      return /* @__PURE__ */ g(NextStepsCardGroup, { types: ids, toggle, expansion: state.config.expansion, action, dismiss });
+      return /* @__PURE__ */ _(NextStepsCardGroup, { types: ids, toggle, expansion: state.config.expansion, action, dismiss });
     }
     return null;
   }
@@ -25064,7 +25073,7 @@
     factory: () => factory4
   });
   function factory4() {
-    return /* @__PURE__ */ g(Centered, { "data-entry-point": "nextSteps" }, /* @__PURE__ */ g(NextStepsCustomized, null));
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "nextSteps" }, /* @__PURE__ */ _(NextStepsCustomized, null));
   }
   var init_nextSteps = __esm({
     "pages/new-tab/app/entry-points/nextSteps.js"() {
@@ -25165,12 +25174,12 @@
         config: null
       }
     );
-    const [state, dispatch] = p2(reducer, initial);
+    const [state, dispatch] = h2(reducer, initial);
     const service = useService5();
     useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
     const { toggle } = useConfigSubscription({ dispatch, service });
-    return /* @__PURE__ */ g(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ g(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
   }
   function useService5() {
     const service = A2(
@@ -25196,7 +25205,7 @@
       init_types();
       init_privacy_stats_service();
       init_service_hooks();
-      PrivacyStatsContext = J({
+      PrivacyStatsContext = K({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {() => void} */
@@ -25204,7 +25213,7 @@
           throw new Error("must implement");
         }
       });
-      PrivacyStatsDispatchContext = J(
+      PrivacyStatsDispatchContext = K(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -25214,7 +25223,7 @@
   // pages/new-tab/app/privacy-stats/privacy-stats.utils.js
   function sortStatsForDisplay(stats) {
     const sorted = stats.slice().sort((a4, b4) => b4.count - a4.count);
-    const other = sorted.findIndex((x4) => x4.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER);
+    const other = sorted.findIndex((x3) => x3.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER);
     if (other > -1) {
       const popped = sorted.splice(other, 1);
       sorted.push(popped[0]);
@@ -25237,7 +25246,7 @@
       /** @type {Strings} */
       {}
     );
-    const [formatter] = h2(() => new Intl.NumberFormat());
+    const [formatter] = d2(() => new Intl.NumberFormat());
     const adBlocking = useAdBlocking();
     const none = recent === 0;
     const some = recent > 0;
@@ -25248,7 +25257,7 @@
     } else {
       alltimeTitle = adBlocking ? t4("stats_countBlockedAdsAndTrackersPlural", { count: alltime }) : t4("stats_countBlockedPlural", { count: alltime });
     }
-    return /* @__PURE__ */ g("div", { className: (0, import_classnames11.default)(PrivacyStats_default.heading, { [PrivacyStats_default.adsAndTrackersVariant]: adBlocking }), "data-testid": "PrivacyStatsHeading" }, /* @__PURE__ */ g("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ g("img", { src: adBlocking ? "./icons/shield-green.svg" : "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, adBlocking ? t4("stats_noRecentAdsAndTrackers") : t4("stats_noRecent")), some && /* @__PURE__ */ g("h2", { className: PrivacyStats_default.title }, " ", /* @__PURE__ */ g(Trans, { str: alltimeTitle, values: { count: alltime } })), canExpand && /* @__PURE__ */ g("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("div", { className: (0, import_classnames11.default)(PrivacyStats_default.heading, { [PrivacyStats_default.adsAndTrackersVariant]: adBlocking }), "data-testid": "PrivacyStatsHeading" }, /* @__PURE__ */ _("span", { className: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: adBlocking ? "./icons/shield-green.svg" : "./icons/shield.svg", alt: "Privacy Shield" })), none && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, adBlocking ? t4("stats_noRecentAdsAndTrackers") : t4("stats_noRecent")), some && /* @__PURE__ */ _("h2", { className: PrivacyStats_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), canExpand && /* @__PURE__ */ _("span", { className: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -25259,7 +25268,7 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    )), recent === 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames11.default)(PrivacyStats_default.subtitle, { [PrivacyStats_default.indented]: !adBlocking }) }, adBlocking ? t4("stats_noActivityAdsAndTrackers") : t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ g("p", { className: (0, import_classnames11.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented, { [PrivacyStats_default.uppercase]: !adBlocking }) }, t4("stats_feedCountBlockedPeriod")));
+    )), recent === 0 && /* @__PURE__ */ _("p", { className: (0, import_classnames11.default)(PrivacyStats_default.subtitle, { [PrivacyStats_default.indented]: !adBlocking }) }, adBlocking ? t4("stats_noActivityAdsAndTrackers") : t4("stats_noActivity")), recent > 0 && /* @__PURE__ */ _("p", { className: (0, import_classnames11.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented, { [PrivacyStats_default.uppercase]: !adBlocking }) }, t4("stats_feedCountBlockedPeriod")));
   }
   var import_classnames11;
   var init_PrivacyStatsHeading = __esm({
@@ -25285,7 +25294,7 @@
   }
   function BodyExpanderProvider(props) {
     const messaging2 = useMessaging();
-    const [bodyExpansion, setBodyExpansion] = h2(
+    const [bodyExpansion, setBodyExpansion] = d2(
       /** @type {import('../../../types/new-tab').Expansion} */
       "collapsed"
     );
@@ -25301,7 +25310,7 @@
         }
       };
     }, [messaging2]);
-    return /* @__PURE__ */ g(BodyExpansionApiContext.Provider, { value: bodyExpansionApi }, /* @__PURE__ */ g(BodyExpansionContext.Provider, { value: bodyExpansion }, props.children));
+    return /* @__PURE__ */ _(BodyExpansionApiContext.Provider, { value: bodyExpansionApi }, /* @__PURE__ */ _(BodyExpansionContext.Provider, { value: bodyExpansion }, props.children));
   }
   var BodyExpansionApiContext, BodyExpansionContext;
   var init_BodyExpansionProvider = __esm({
@@ -25310,13 +25319,13 @@
       init_preact_module();
       init_hooks_module();
       init_types();
-      BodyExpansionApiContext = J({
+      BodyExpansionApiContext = K({
         showMore() {
         },
         showLess() {
         }
       });
-      BodyExpansionContext = J(
+      BodyExpansionContext = K(
         /** @type {import('../../../types/new-tab').Expansion} */
         "collapsed"
       );
@@ -25345,7 +25354,7 @@
         id: TOGGLE_ID
       };
     }, [WIDGET_ID, TOGGLE_ID]);
-    return /* @__PURE__ */ g("div", { class: PrivacyStats_default.root }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.root }, /* @__PURE__ */ _(
       PrivacyStatsHeading,
       {
         recent,
@@ -25354,17 +25363,17 @@
         canExpand: hasNamedCompanies,
         buttonAttrs: attrs
       }
-    ), hasNamedCompanies && expanded && /* @__PURE__ */ g(PrivacyStatsBody, { expansion: secondaryExpansion, trackerCompanies: data2.trackerCompanies, id: WIDGET_ID }));
+    ), hasNamedCompanies && expanded && /* @__PURE__ */ _(PrivacyStatsBody, { expansion: secondaryExpansion, trackerCompanies: data2.trackerCompanies, id: WIDGET_ID }));
   }
   function PrivacyStatsBody({ trackerCompanies, expansion = "expanded", id }) {
-    const [formatter] = h2(() => new Intl.NumberFormat());
+    const [formatter] = d2(() => new Intl.NumberFormat());
     const sorted = sortStatsForDisplay(trackerCompanies);
     const largestTrackerCount = sorted[0]?.count ?? 0;
     const visibleRows = expansion === "expanded" ? sorted : sorted.slice(0, DDG_STATS_DEFAULT_ROWS);
-    return /* @__PURE__ */ g("div", { id, "data-testid": "PrivacyStatsBody", class: PrivacyStats_default.body }, /* @__PURE__ */ g(CompanyList, { rows: visibleRows, largestTrackerCount, formatter }), /* @__PURE__ */ g(ListFooter, { all: sorted }));
+    return /* @__PURE__ */ _("div", { id, "data-testid": "PrivacyStatsBody", class: PrivacyStats_default.body }, /* @__PURE__ */ _(CompanyList, { rows: visibleRows, largestTrackerCount, formatter }), /* @__PURE__ */ _(ListFooter, { all: sorted }));
   }
   function CompanyList({ rows, formatter, largestTrackerCount }) {
-    return /* @__PURE__ */ g("ul", { class: PrivacyStats_default.list, "data-testid": "CompanyList" }, rows.map((company) => {
+    return /* @__PURE__ */ _("ul", { class: PrivacyStats_default.list, "data-testid": "CompanyList" }, rows.map((company) => {
       const percentage = Math.min(company.count * 100 / largestTrackerCount, 100);
       const valueOrMin = Math.max(percentage, 10);
       const inlineStyles = {
@@ -25375,7 +25384,7 @@
       if (company.displayName === DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
         return null;
       }
-      return /* @__PURE__ */ g("li", { key: company.displayName, class: PrivacyStats_default.row }, /* @__PURE__ */ g("div", { className: PrivacyStats_default.company }, /* @__PURE__ */ g(CompanyIcon, { displayName }), /* @__PURE__ */ g("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ g("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ g("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ g("span", { class: PrivacyStats_default.fill, style: inlineStyles }));
+      return /* @__PURE__ */ _("li", { key: company.displayName, class: PrivacyStats_default.row }, /* @__PURE__ */ _("div", { className: PrivacyStats_default.company }, /* @__PURE__ */ _(CompanyIcon, { displayName }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.name }, displayName)), /* @__PURE__ */ _("span", { class: PrivacyStats_default.count }, countText), /* @__PURE__ */ _("span", { class: PrivacyStats_default.bar }), /* @__PURE__ */ _("span", { class: PrivacyStats_default.fill, style: inlineStyles }));
     }));
   }
   function ListFooter({ all: all2 }) {
@@ -25403,22 +25412,22 @@
       switch (state) {
         case "few_other":
         case "few_top+other": {
-          return /* @__PURE__ */ g(OtherText, { count: lastElement.count });
+          return /* @__PURE__ */ _(OtherText, { count: lastElement.count });
         }
         case "many_top_collapsed":
         case "many_top_expanded":
         case "many_top+other_collapsed": {
-          return /* @__PURE__ */ g(PillShowMoreLess, { expansion });
+          return /* @__PURE__ */ _(PillShowMoreLess, { expansion });
         }
         case "many_top+other_expanded":
-          return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(OtherText, { count: lastElement.count }), /* @__PURE__ */ g(PillShowMoreLess, { expansion }));
+          return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(OtherText, { count: lastElement.count }), /* @__PURE__ */ _(PillShowMoreLess, { expansion }));
         case "few_top":
         default:
           return null;
       }
     })();
     if (contents === null) return null;
-    return /* @__PURE__ */ g("div", { class: PrivacyStats_default.listFooter, "data-testid": "ListFooter" }, contents);
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.listFooter, "data-testid": "ListFooter" }, contents);
   }
   function PillShowMoreLess({ expansion }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -25433,7 +25442,7 @@
         showLess();
       }
     };
-    return /* @__PURE__ */ g("div", { class: PrivacyStats_default.listExpander }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.listExpander }, /* @__PURE__ */ _(
       ShowHideButtonPill,
       {
         onClick: toggleListExpansion,
@@ -25453,7 +25462,7 @@
       {}
     );
     const otherText2 = t4("stats_otherCount", { count: String(count) });
-    return /* @__PURE__ */ g("div", { class: PrivacyStats_default.otherTrackersRow }, otherText2);
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.otherTrackersRow }, otherText2);
   }
   var init_PrivacyStats2 = __esm({
     "pages/new-tab/app/privacy-stats/components/PrivacyStats.js"() {
@@ -25476,7 +25485,7 @@
     const { state, toggle } = x2(PrivacyStatsContext);
     const secondaryExpansion = useBodyExpansion();
     if (state.status === "ready") {
-      return /* @__PURE__ */ g(PrivacyStats, { expansion: state.config.expansion, secondaryExpansion, data: state.data, toggle });
+      return /* @__PURE__ */ _(PrivacyStats, { expansion: state.config.expansion, secondaryExpansion, data: state.data, toggle });
     }
     return null;
   }
@@ -25503,7 +25512,7 @@
     if (visibility.value === "hidden") {
       return null;
     }
-    return /* @__PURE__ */ g(PrivacyStatsProvider, null, /* @__PURE__ */ g(BodyExpanderProvider, null, /* @__PURE__ */ g(PrivacyStatsConsumer, null)));
+    return /* @__PURE__ */ _(PrivacyStatsProvider, null, /* @__PURE__ */ _(BodyExpanderProvider, null, /* @__PURE__ */ _(PrivacyStatsConsumer, null)));
   }
   var init_PrivacyStatsCustomized = __esm({
     "pages/new-tab/app/privacy-stats/components/PrivacyStatsCustomized.js"() {
@@ -25524,7 +25533,7 @@
     factory: () => factory5
   });
   function factory5() {
-    return /* @__PURE__ */ g(Centered, { "data-entry-point": "privacyStats" }, /* @__PURE__ */ g(PrivacyStatsCustomized, null));
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "privacyStats" }, /* @__PURE__ */ _(PrivacyStatsCustomized, null));
   }
   var init_privacyStats = __esm({
     "pages/new-tab/app/entry-points/privacyStats.js"() {
@@ -25628,7 +25637,7 @@
         config: null
       }
     );
-    const [state, dispatch] = p2(reducer, initial);
+    const [state, dispatch] = h2(reducer, initial);
     const service = useService6();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
@@ -25652,7 +25661,7 @@
       },
       [service]
     );
-    return /* @__PURE__ */ g(RMFContext.Provider, { value: { state, dismiss, primaryAction, secondaryAction } }, /* @__PURE__ */ g(RMFDispatchContext.Provider, { value: dispatch }, props.children));
+    return /* @__PURE__ */ _(RMFContext.Provider, { value: { state, dismiss, primaryAction, secondaryAction } }, /* @__PURE__ */ _(RMFDispatchContext.Provider, { value: dispatch }, props.children));
   }
   function useService6() {
     const service = A2(
@@ -25678,7 +25687,7 @@
       init_types();
       init_rmf_service();
       init_service_hooks();
-      RMFContext = J({
+      RMFContext = K({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {(id: string) => void} */
@@ -25694,7 +25703,7 @@
           throw new Error("must implement secondaryAction" + id);
         }
       });
-      RMFDispatchContext = J(
+      RMFDispatchContext = K(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -25705,12 +25714,12 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ g("div", { id, class: (0, import_classnames12.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ g("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ g("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ g("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ g("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ g("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ g("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ g(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ g(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ g(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ g("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ g(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ g(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames12.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
     if (state.status === "ready" && state.data.content) {
-      return /* @__PURE__ */ g(
+      return /* @__PURE__ */ _(
         RemoteMessagingFramework,
         {
           message: state.data.content,
@@ -25743,7 +25752,7 @@
     factory: () => factory6
   });
   function factory6() {
-    return /* @__PURE__ */ g(Centered, { "data-entry-point": "rmf" }, /* @__PURE__ */ g(RMFProvider, null, /* @__PURE__ */ g(RMFConsumer, null)));
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "rmf" }, /* @__PURE__ */ _(RMFProvider, null, /* @__PURE__ */ _(RMFConsumer, null)));
   }
   var init_rmf = __esm({
     "pages/new-tab/app/entry-points/rmf.js"() {
@@ -25827,7 +25836,7 @@
     if (updateNotification === null) {
       return null;
     }
-    return /* @__PURE__ */ g(UpdateNotificationWithInitial, { updateNotification }, props.children);
+    return /* @__PURE__ */ _(UpdateNotificationWithInitial, { updateNotification }, props.children);
   }
   function UpdateNotificationWithInitial({ updateNotification, children }) {
     const initial = (
@@ -25838,13 +25847,13 @@
         config: void 0
       }
     );
-    const [state, dispatch] = p2(reducer, initial);
+    const [state, dispatch] = h2(reducer, initial);
     const service = useService7(updateNotification);
     useDataSubscription({ dispatch, service });
     const dismiss = q2(() => {
       service.current?.dismiss();
     }, [service]);
-    return /* @__PURE__ */ g(UpdateNotificationContext.Provider, { value: { state, dismiss } }, /* @__PURE__ */ g(UpdateNotificationDispatchContext.Provider, { value: dispatch }, children));
+    return /* @__PURE__ */ _(UpdateNotificationContext.Provider, { value: { state, dismiss } }, /* @__PURE__ */ _(UpdateNotificationDispatchContext.Provider, { value: dispatch }, children));
   }
   function useService7(initial) {
     const service = A2(
@@ -25870,7 +25879,7 @@
       init_types();
       init_update_notification_service();
       init_service_hooks();
-      UpdateNotificationContext = J({
+      UpdateNotificationContext = K({
         /** @type {State} */
         state: { status: "idle", data: null, config: null },
         /** @type {() => void} */
@@ -25878,7 +25887,7 @@
           throw new Error("must implement dismiss");
         }
       });
-      UpdateNotificationDispatchContext = J(
+      UpdateNotificationDispatchContext = K(
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
@@ -25887,7 +25896,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ g("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ g("div", { class: (0, import_classnames13.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ g(WithNotes, { notes, version }) : /* @__PURE__ */ g(WithoutNotes, { version })), /* @__PURE__ */ g(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -25899,7 +25908,7 @@
       /** @type {import("../strings.json")} */
       {}
     );
-    const inlineLink = /* @__PURE__ */ g(
+    const inlineLink = /* @__PURE__ */ _(
       Trans,
       {
         str: t4("updateNotification_whats_new"),
@@ -25929,9 +25938,9 @@
         index2 += 1;
       }
     }
-    return /* @__PURE__ */ g("details", { ref }, /* @__PURE__ */ g("summary", { tabIndex: -1, className: UpdateNotification_default.summary }, t4("updateNotification_updated_version", { version }), " ", inlineLink), /* @__PURE__ */ g("div", { id, class: UpdateNotification_default.detailsContent }, chunks.map((chunk, index3) => {
-      return /* @__PURE__ */ g(k, { key: chunk.title + index3 }, chunk.title && /* @__PURE__ */ g("p", { class: UpdateNotification_default.title }, chunk.title), /* @__PURE__ */ g("ul", { class: UpdateNotification_default.list }, chunk.notes.map((note, index4) => {
-        return /* @__PURE__ */ g("li", { key: note + index4 }, note);
+    return /* @__PURE__ */ _("details", { ref }, /* @__PURE__ */ _("summary", { tabIndex: -1, className: UpdateNotification_default.summary }, t4("updateNotification_updated_version", { version }), " ", inlineLink), /* @__PURE__ */ _("div", { id, class: UpdateNotification_default.detailsContent }, chunks.map((chunk, index3) => {
+      return /* @__PURE__ */ _(k, { key: chunk.title + index3 }, chunk.title && /* @__PURE__ */ _("p", { class: UpdateNotification_default.title }, chunk.title), /* @__PURE__ */ _("ul", { class: UpdateNotification_default.list }, chunk.notes.map((note, index4) => {
+        return /* @__PURE__ */ _("li", { key: note + index4 }, note);
       })));
     })));
   }
@@ -25940,12 +25949,12 @@
       /** @type {import("../strings.json")} */
       {}
     );
-    return /* @__PURE__ */ g("p", null, t4("updateNotification_updated_version", { version }));
+    return /* @__PURE__ */ _("p", null, t4("updateNotification_updated_version", { version }));
   }
   function UpdateNotificationConsumer() {
     const { state, dismiss } = x2(UpdateNotificationContext);
     if (state.status === "ready" && state.data.content) {
-      return /* @__PURE__ */ g(UpdateNotification, { notes: state.data.content.notes, version: state.data.content.version, dismiss });
+      return /* @__PURE__ */ _(UpdateNotification, { notes: state.data.content.notes, version: state.data.content.version, dismiss });
     }
     return null;
   }
@@ -25970,7 +25979,7 @@
     factory: () => factory7
   });
   function factory7() {
-    return /* @__PURE__ */ g("div", { "data-entry-point": "updateNotification" }, /* @__PURE__ */ g(UpdateNotificationProvider, null, /* @__PURE__ */ g(UpdateNotificationConsumer, null)));
+    return /* @__PURE__ */ _("div", { "data-entry-point": "updateNotification" }, /* @__PURE__ */ _(UpdateNotificationProvider, null, /* @__PURE__ */ _(UpdateNotificationConsumer, null)));
   }
   var init_updateNotification = __esm({
     "pages/new-tab/app/entry-points/updateNotification.js"() {
@@ -25984,7 +25993,7 @@
   // ../node_modules/preact/devtools/dist/devtools.module.js
   init_preact_module();
   var i2;
-  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.25.4", l, { Fragment: k, Component: x });
+  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.26.7", l, { Fragment: k, Component: x });
 
   // pages/new-tab/src/index.js
   init_preact_module();
@@ -26061,8 +26070,8 @@
       const formatted = format?.(message) || message;
       messaging2.reportPageException({ message: formatted });
     };
-    const fallbackElement = fallback?.(INLINE_ERROR) || /* @__PURE__ */ g("p", null, INLINE_ERROR);
-    return /* @__PURE__ */ g(ErrorBoundary, { context, didCatch: ({ message }) => didCatch(message), fallback: fallbackElement }, children);
+    const fallbackElement = fallback?.(INLINE_ERROR) || /* @__PURE__ */ _("p", null, INLINE_ERROR);
+    return /* @__PURE__ */ _(ErrorBoundary, { context, didCatch: ({ message }) => didCatch(message), fallback: fallbackElement }, children);
   }
 
   // pages/new-tab/app/telemetry/Debug.js
@@ -26163,15 +26172,15 @@
         timestamp
       };
       this.record(Telemetry.EVENT_REQUEST, json);
-      return this.messaging.request(method, params).then((x4) => {
+      return this.messaging.request(method, params).then((x3) => {
         const resJson = {
           kind: "response",
           method,
-          result: x4,
+          result: x3,
           timestamp
         };
         this.record(Telemetry.EVENT_RESPONSE, resJson);
-        return x4;
+        return x3;
       });
     }
     /**
@@ -26227,7 +26236,7 @@
 
   // pages/new-tab/app/telemetry/Debug.js
   function DebugCustomized({ index: index2, isOpenInitially = false }) {
-    const [isOpen, setOpen] = h2(isOpenInitially);
+    const [isOpen, setOpen] = d2(isOpenInitially);
     const telemetry2 = useTelemetry();
     useCustomizer({
       title: "\u{1F41E} Debug",
@@ -26237,12 +26246,12 @@
       toggle: (_id) => setOpen((prev) => !prev),
       index: index2
     });
-    return /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(Debug, { telemetry: telemetry2, isOpen }));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Debug, { telemetry: telemetry2, isOpen }));
   }
   function Debug({ telemetry: telemetry2, isOpen }) {
     const textRef = A2(null);
     useEvents(textRef, telemetry2);
-    return /* @__PURE__ */ g("div", { hidden: !isOpen }, /* @__PURE__ */ g("textarea", { style: { width: "100%" }, rows: 20, ref: textRef }));
+    return /* @__PURE__ */ _("div", { hidden: !isOpen }, /* @__PURE__ */ _("textarea", { style: { width: "100%" }, rows: 20, ref: textRef }));
   }
   function useEvents(ref, telemetry2) {
     y2(() => {
@@ -26310,22 +26319,22 @@
       const composed = `Widget '${id}' threw an exception: ` + message;
       messaging2.reportPageException({ message: composed });
     };
-    return /* @__PURE__ */ g(k, null, widgets.map((widget, index2) => {
+    return /* @__PURE__ */ _(k, null, widgets.map((widget, index2) => {
       const isUserConfigurable = widgetConfigItems.find((item) => item.id === widget.id);
       const matchingEntryPoint = entryPoints[widget.id];
       if (!isUserConfigurable) {
-        return /* @__PURE__ */ g(ErrorBoundary, { key: widget.id, didCatch: ({ message }) => didCatch(message, widget.id), fallback: null }, /* @__PURE__ */ g(WidgetLoader, { fn: matchingEntryPoint.factory }));
+        return /* @__PURE__ */ _(ErrorBoundary, { key: widget.id, didCatch: ({ message }) => didCatch(message, widget.id), fallback: null }, /* @__PURE__ */ _(WidgetLoader, { fn: matchingEntryPoint.factory }));
       }
-      return /* @__PURE__ */ g(WidgetVisibilityProvider, { key: widget.id, id: widget.id, index: index2 }, /* @__PURE__ */ g(
+      return /* @__PURE__ */ _(WidgetVisibilityProvider, { key: widget.id, id: widget.id, index: index2 }, /* @__PURE__ */ _(
         ErrorBoundary,
         {
           key: widget.id,
           didCatch: ({ message }) => didCatch(message, widget.id),
-          fallback: /* @__PURE__ */ g(Centered, { "data-entry-point": widget.id }, /* @__PURE__ */ g(VerticalSpace, null, /* @__PURE__ */ g("p", null, INLINE_ERROR), /* @__PURE__ */ g("p", null, "Widget ID: ", widget.id)))
+          fallback: /* @__PURE__ */ _(Centered, { "data-entry-point": widget.id }, /* @__PURE__ */ _(VerticalSpace, null, /* @__PURE__ */ _("p", null, INLINE_ERROR), /* @__PURE__ */ _("p", null, "Widget ID: ", widget.id)))
         },
-        /* @__PURE__ */ g(WidgetLoader, { fn: matchingEntryPoint.factory })
+        /* @__PURE__ */ _(WidgetLoader, { fn: matchingEntryPoint.factory })
       ));
-    }), env === "development" && /* @__PURE__ */ g(Centered, { "data-entry-point": "debug" }, /* @__PURE__ */ g(DebugCustomized, { index: widgets.length, isOpenInitially: false })));
+    }), env === "development" && /* @__PURE__ */ _(Centered, { "data-entry-point": "debug" }, /* @__PURE__ */ _(DebugCustomized, { index: widgets.length, isOpenInitially: false })));
   }
   function WidgetLoader({ fn: fn2 }) {
     const result = fn2?.();
@@ -26520,20 +26529,20 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ g("ul", { class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ g("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("ul", { class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
         onClick: () => select({ background: { kind: "default" } })
       }
-    )), /* @__PURE__ */ g("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ g(
+    )), /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       ColorPanel,
       {
         checked: data2.value.background.kind === "color" || data2.value.background.kind === "hex",
         color: displayColor,
         onClick: () => onNav("color")
       }
-    )), /* @__PURE__ */ g("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ g(GradientPanel, { checked: data2.value.background.kind === "gradient", gradient, onClick: () => onNav("gradient") })), /* @__PURE__ */ g("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ g(
+    )), /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(GradientPanel, { checked: data2.value.background.kind === "gradient", gradient, onClick: () => onNav("gradient") })), /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       BackgroundImagePanel,
       {
         checked: data2.value.background.kind === "userImage",
@@ -26551,7 +26560,7 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
@@ -26562,8 +26571,8 @@
         onClick,
         tabindex: checked ? -1 : 0
       },
-      checked && /* @__PURE__ */ g(CircleCheck, null)
-    ), /* @__PURE__ */ g("span", { id }, t4("customizer_background_selection_default")));
+      checked && /* @__PURE__ */ _(CircleCheck, null)
+    ), /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_default")));
   }
   function ColorPanel(props) {
     const id = g2();
@@ -26571,7 +26580,7 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
@@ -26583,8 +26592,8 @@
         role: "radio",
         style: { background: props.color.hex }
       },
-      props.checked && /* @__PURE__ */ g(CircleCheck, null)
-    ), /* @__PURE__ */ g("span", { id }, t4("customizer_background_selection_color")));
+      props.checked && /* @__PURE__ */ _(CircleCheck, null)
+    ), /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_color")));
   }
   function GradientPanel(props) {
     const id = g2();
@@ -26592,7 +26601,7 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
         onClick: props.onClick,
@@ -26608,8 +26617,8 @@
           backgroundPosition: "center center"
         }
       },
-      props.checked && /* @__PURE__ */ g(CircleCheck, null)
-    ), /* @__PURE__ */ g("span", { id }, t4("customizer_background_selection_gradient")));
+      props.checked && /* @__PURE__ */ _(CircleCheck, null)
+    ), /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_gradient")));
   }
   function BackgroundImagePanel(props) {
     const id = g2();
@@ -26631,9 +26640,9 @@
     const firstImage = useComputed(() => {
       return props.data.value.userImages[0] ?? null;
     });
-    const label = empty.value === true ? /* @__PURE__ */ g("span", { id }, t4("customizer_background_selection_image_add")) : /* @__PURE__ */ g("span", { id }, t4("customizer_background_selection_image_existing"));
+    const label = empty.value === true ? /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_image_add")) : /* @__PURE__ */ _("span", { id }, t4("customizer_background_selection_image_existing"));
     if (empty.value === true) {
-      return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(
+      return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
         "button",
         {
           class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
@@ -26643,12 +26652,12 @@
           role: "radio",
           onClick: props.upload
         },
-        /* @__PURE__ */ g(PlusIcon, null)
+        /* @__PURE__ */ _(PlusIcon, null)
       ), label);
     }
     const image = selectedImage.value !== null ? selectedImage.value?.thumb : firstImage.value?.thumb;
     const scheme = selectedImage.value !== null ? selectedImage.value?.colorScheme : firstImage.value?.colorScheme;
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
@@ -26662,7 +26671,7 @@
           backgroundRepeat: "no-repeat"
         }
       },
-      props.checked && /* @__PURE__ */ g(CircleCheck, null)
+      props.checked && /* @__PURE__ */ _(CircleCheck, null)
     ), label);
   }
 
@@ -26687,7 +26696,7 @@
       /** @type {strings} */
       {}
     );
-    return /* @__PURE__ */ g("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ g("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
@@ -26697,8 +26706,8 @@
         tabindex: current.value === "light" ? -1 : 0,
         onClick: () => props.setTheme({ theme: "light" })
       },
-      /* @__PURE__ */ g("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "light" }))
-    ), /* @__PURE__ */ g("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ g("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ g(
+      /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "light" }))
+    ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
@@ -26708,8 +26717,8 @@
         tabindex: current.value === "dark" ? -1 : 0,
         onClick: () => props.setTheme({ theme: "dark" })
       },
-      /* @__PURE__ */ g("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "dark" }))
-    ), /* @__PURE__ */ g("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ g("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ g(
+      /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "dark" }))
+    ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
         class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
@@ -26719,8 +26728,8 @@
         tabindex: current.value === "system" ? -1 : 0,
         onClick: () => props.setTheme({ theme: "system" })
       },
-      /* @__PURE__ */ g("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "system" }))
-    ), /* @__PURE__ */ g("span", null, t4("customizer_browser_theme_system"))));
+      /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_browser_theme_label", { type: "system" }))
+    ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_system"))));
   }
 
   // pages/new-tab/app/customizer/components/VisibilityMenuSection.js
@@ -26762,7 +26771,7 @@
         onUnchecked();
       }
     }
-    return /* @__PURE__ */ g("label", { class: Switch_default.label, "data-platform-name": platformName, "data-theme": theme, "data-size": size }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("label", { class: Switch_default.label, "data-platform-name": platformName, "data-theme": theme, "data-size": size }, /* @__PURE__ */ _(
       "input",
       {
         disabled: pending,
@@ -26773,7 +26782,7 @@
         checked,
         onChange: change
       }
-    ), /* @__PURE__ */ g("span", { class: Switch_default.switch, style: "transition-duration: 130ms;transition-delay: 0ms;" }));
+    ), /* @__PURE__ */ _("span", { class: Switch_default.switch, style: "transition-duration: 130ms;transition-delay: 0ms;" }));
   }
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
@@ -26782,8 +26791,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ g("ul", { className: (0, import_classnames16.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ g("li", { key: row.id }, /* @__PURE__ */ g("div", { class: (0, import_classnames16.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ g("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ g(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ g(Shield, null)), /* @__PURE__ */ g("span", null, row.title ?? row.id), /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames16.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ _(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ _(Shield, null)), /* @__PURE__ */ _("span", null, row.title ?? row.id), /* @__PURE__ */ _(
         Switch,
         {
           theme: browser.value,
@@ -26802,7 +26811,7 @@
   // pages/new-tab/app/customizer/components/VisibilityMenuSection.js
   init_preact_module();
   function VisibilityMenuSection() {
-    const [rowData, setRowData] = h2(() => {
+    const [rowData, setRowData] = d2(() => {
       const items = (
         /** @type {import("./CustomizerMenu.js").VisibilityRowData[]} */
         getItems()
@@ -26818,7 +26827,7 @@
         window.removeEventListener(UPDATE_EVENT, handler);
       };
     }, []);
-    return /* @__PURE__ */ g(EmbeddedVisibilityMenu, { rows: rowData });
+    return /* @__PURE__ */ _(EmbeddedVisibilityMenu, { rows: rowData });
   }
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
@@ -26852,14 +26861,14 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ g("div", null, /* @__PURE__ */ g("button", { type: "button", onClick: back, class: (0, import_classnames17.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ g(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ g(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ g("div", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ g(PickerPanel, { data: data2, select }), /* @__PURE__ */ g(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames17.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "color" && data2.value.background.value);
-    return /* @__PURE__ */ g(k, null, entries.map((key2) => {
+    return /* @__PURE__ */ _(k, null, entries.map((key2) => {
       const entry = values.colors[key2];
-      return /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ g(
+      return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ _(
         "button",
         {
           class: CustomizerDrawerInner_default.bgPanel,
@@ -26870,7 +26879,7 @@
           "aria-checked": key2 === selected.value,
           "data-value": key2
         },
-        /* @__PURE__ */ g("span", { class: "sr-only" }, "Select ", key2)
+        /* @__PURE__ */ _("span", { class: "sr-only" }, "Select ", key2)
       ));
     }));
   }
@@ -26886,7 +26895,7 @@
     });
     const hexSelected = useComputed(() => data2.value.background.kind === "hex");
     const modeSelected = useComputed(() => detectThemeFromHex(hex.value));
-    return /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       "button",
       {
         className: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
@@ -26896,7 +26905,7 @@
         role: "radio",
         "aria-checked": hexSelected
       }
-    ), /* @__PURE__ */ g(
+    ), /* @__PURE__ */ _(
       "input",
       {
         type: "color",
@@ -26914,7 +26923,7 @@
           }
         }
       }
-    ), /* @__PURE__ */ g("span", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ g(Picker, null)));
+    ), /* @__PURE__ */ _("span", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
@@ -26947,14 +26956,14 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ g("div", null, /* @__PURE__ */ g("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ g(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ g(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ g(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ g("ul", { className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
-      return /* @__PURE__ */ g("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ g(
+      return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ _(
         "button",
         {
           className: CustomizerDrawerInner_default.bgPanel,
@@ -26970,7 +26979,7 @@
             backgroundRepeat: "no-repeat"
           }
         },
-        /* @__PURE__ */ g("span", { className: "sr-only" }, "Select ", key2)
+        /* @__PURE__ */ _("span", { className: "sr-only" }, "Select ", key2)
       ));
     }));
   }
@@ -27024,7 +27033,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ g("div", { onContextMenu }, /* @__PURE__ */ g("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ g(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ g(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ g(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ g("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -27039,11 +27048,11 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ g("ul", { className: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       $INTEGRATION: (() => {
         if (entry.id === "__will_throw__") throw new Error("Simulated error");
       })();
-      return /* @__PURE__ */ g("li", { className: CustomizerDrawerInner_default.bgListItem, key: entry.id }, /* @__PURE__ */ g(
+      return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: entry.id }, /* @__PURE__ */ _(
         "button",
         {
           className: CustomizerDrawerInner_default.bgPanel,
@@ -27058,8 +27067,8 @@
             backgroundRepeat: "no-repeat"
           }
         },
-        /* @__PURE__ */ g("span", { class: "sr-only" }, t4("customizer_image_select", { number: String(index2 + 1) }))
-      ), /* @__PURE__ */ g(
+        /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_image_select", { number: String(index2 + 1) }))
+      ), /* @__PURE__ */ _(
         DismissButton,
         {
           className: CustomizerDrawerInner_default.deleteBtn,
@@ -27071,7 +27080,7 @@
         }
       ));
     }), placeholders.map((_5, index2) => {
-      return /* @__PURE__ */ g("li", { className: CustomizerDrawerInner_default.bgListItem, key: `placeholder-${diff}-${index2}` }, /* @__PURE__ */ g(
+      return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: `placeholder-${diff}-${index2}` }, /* @__PURE__ */ _(
         "button",
         {
           type: "button",
@@ -27079,8 +27088,8 @@
           class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
-        /* @__PURE__ */ g(PlusIcon, null),
-        /* @__PURE__ */ g("span", { class: "sr-only" }, t4("customizer_background_selection_image_add"))
+        /* @__PURE__ */ _(PlusIcon, null),
+        /* @__PURE__ */ _("span", { class: "sr-only" }, t4("customizer_background_selection_image_add"))
       ));
     }));
   }
@@ -27089,10 +27098,10 @@
   init_preact_module();
   var import_classnames20 = __toESM(require_classnames(), 1);
   function CustomizerSection({ title, children }) {
-    return /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("h3", { className: CustomizerDrawerInner_default.sectionTitle }, title), /* @__PURE__ */ g("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
+    return /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h3", { className: CustomizerDrawerInner_default.sectionTitle }, title), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ g("div", { class: (0, import_classnames20.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
@@ -27103,13 +27112,13 @@
   // pages/new-tab/app/components/icons/Open.js
   init_preact_module();
   function Open() {
-    return /* @__PURE__ */ g("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none" }, /* @__PURE__ */ _(
       "path",
       {
         d: "M4.125 2.25C3.08947 2.25 2.25 3.08947 2.25 4.125V11.875C2.25 12.9105 3.08947 13.75 4.125 13.75H11.875C12.9105 13.75 13.75 12.9105 13.75 11.875V8.765C13.75 8.41982 14.0298 8.14 14.375 8.14C14.7202 8.14 15 8.41982 15 8.765V11.875C15 13.6009 13.6009 15 11.875 15H4.125C2.39911 15 1 13.6009 1 11.875V4.125C1 2.39911 2.39911 1 4.125 1H7.235C7.58018 1 7.86 1.27982 7.86 1.625C7.86 1.97018 7.58018 2.25 7.235 2.25H4.125Z",
         fill: "currentColor"
       }
-    ), /* @__PURE__ */ g(
+    ), /* @__PURE__ */ _(
       "path",
       {
         d: "M10.25 1.625C10.25 1.27982 10.5298 1 10.875 1H14.375C14.7202 1 15 1.27982 15 1.625V5.125C15 5.47018 14.7202 5.75 14.375 5.75C14.0298 5.75 13.75 5.47018 13.75 5.125V3.13388L9.06694 7.81694C8.82286 8.06102 8.42714 8.06102 8.18306 7.81694C7.93898 7.57286 7.93898 7.17714 8.18306 6.93306L12.8661 2.25H10.875C10.5298 2.25 10.25 1.97018 10.25 1.625Z",
@@ -27129,7 +27138,7 @@
       e4.preventDefault();
       messaging2.open({ target: "settings" });
     }
-    return /* @__PURE__ */ g("a", { href: "duck://settings", class: (0, import_classnames21.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ g("span", null, t4("customizer_settings_link")), /* @__PURE__ */ g(Open, null));
+    return /* @__PURE__ */ _("a", { href: "duck://settings", class: (0, import_classnames21.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ _("span", null, t4("customizer_settings_link")), /* @__PURE__ */ _(Open, null));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
@@ -27141,7 +27150,7 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ g("header", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ g("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ g(
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
         onClick: close,
@@ -27150,17 +27159,17 @@
           "aria-label": "Close"
         }
       }
-    )), /* @__PURE__ */ g(
+    )), /* @__PURE__ */ _(
       InlineErrorBoundary,
       {
         format: (message) => `CustomizerDrawerInner threw an exception: ${message}`,
-        fallback: (message) => /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.internal }, /* @__PURE__ */ g("p", null, message))
+        fallback: (message) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.internal }, /* @__PURE__ */ _("p", null, message))
       },
-      /* @__PURE__ */ g(
+      /* @__PURE__ */ _(
         TwoCol,
         {
-          left: ({ push }) => /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.sections }, /* @__PURE__ */ g(CustomizerSection, { title: t4("customizer_section_title_background") }, /* @__PURE__ */ g(BackgroundSection, { data: data2, onNav: push, onUpload, select })), /* @__PURE__ */ g(CustomizerSection, { title: t4("customizer_section_title_theme") }, /* @__PURE__ */ g(BrowserThemeSection, { data: data2, setTheme })), /* @__PURE__ */ g(CustomizerSection, { title: t4("customizer_section_title_sections") }, /* @__PURE__ */ g(VisibilityMenuSection, null)), /* @__PURE__ */ g(BorderedSection, null, /* @__PURE__ */ g(SettingsLink, null))),
-          right: ({ id, pop }) => /* @__PURE__ */ g(k, null, id === "color" && /* @__PURE__ */ g(ColorSelection, { data: data2, select, back: pop }), id === "gradient" && /* @__PURE__ */ g(GradientSelection, { data: data2, select, back: pop }), id === "image" && /* @__PURE__ */ g(
+          left: ({ push }) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sections }, /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_background") }, /* @__PURE__ */ _(BackgroundSection, { data: data2, onNav: push, onUpload, select })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_theme") }, /* @__PURE__ */ _(BrowserThemeSection, { data: data2, setTheme })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_sections") }, /* @__PURE__ */ _(VisibilityMenuSection, null)), /* @__PURE__ */ _(BorderedSection, null, /* @__PURE__ */ _(SettingsLink, null))),
+          right: ({ id, pop }) => /* @__PURE__ */ _(k, null, id === "color" && /* @__PURE__ */ _(ColorSelection, { data: data2, select, back: pop }), id === "gradient" && /* @__PURE__ */ _(GradientSelection, { data: data2, select, back: pop }), id === "image" && /* @__PURE__ */ _(
             ImageSelection,
             {
               data: data2,
@@ -27197,16 +27206,16 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ g("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ g("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ g("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
   function CustomizerDrawer({ displayChildren }) {
-    return /* @__PURE__ */ g("div", { class: CustomizerDrawer_default.root }, displayChildren.value === true && /* @__PURE__ */ g(CustomizerConsumer, null));
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawer_default.root }, displayChildren.value === true && /* @__PURE__ */ _(CustomizerConsumer, null));
   }
   function CustomizerConsumer() {
     const { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu } = x2(CustomizerContext);
-    return /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(
       CustomizerDrawerInner,
       {
         data: data2,
@@ -27243,7 +27252,7 @@
     const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
     const { main, browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(BackgroundConsumer, { browser }), /* @__PURE__ */ g("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ g("main", { class: (0, import_classnames23.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ g("div", { class: App_default.content }, /* @__PURE__ */ g("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ g(WidgetList, null)))), /* @__PURE__ */ g("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ g(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames23.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
       CustomizerButton,
       {
         buttonId,
@@ -27253,7 +27262,7 @@
         isOpen,
         kind: "drawer"
       }
-    ))), /* @__PURE__ */ g(
+    ))), /* @__PURE__ */ _(
       "aside",
       {
         class: (0, import_classnames23.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
@@ -27263,18 +27272,18 @@
         "data-browser-panel": true,
         ref: asideRef
       },
-      /* @__PURE__ */ g("div", { class: App_default.asideContent }, /* @__PURE__ */ g(
+      /* @__PURE__ */ _("div", { class: App_default.asideContent }, /* @__PURE__ */ _(
         InlineErrorBoundary,
         {
           context: "Customizer Drawer",
-          fallback: (message) => /* @__PURE__ */ g("div", { class: App_default.paddedError }, /* @__PURE__ */ g("p", null, message))
+          fallback: (message) => /* @__PURE__ */ _("div", { class: App_default.paddedError }, /* @__PURE__ */ _("p", null, message))
         },
-        /* @__PURE__ */ g(CustomizerDrawer, { displayChildren })
+        /* @__PURE__ */ _(CustomizerDrawer, { displayChildren })
       ))
     )));
   }
   function AppLevelErrorBoundaryFallback({ children }) {
-    return /* @__PURE__ */ g("div", { class: App_default.paddedError }, /* @__PURE__ */ g("p", null, children), /* @__PURE__ */ g("div", { class: App_default.paddedErrorRecovery }, "You can try to ", /* @__PURE__ */ g("button", { onClick: () => location.reload() }, "Reload this page")));
+    return /* @__PURE__ */ _("div", { class: App_default.paddedError }, /* @__PURE__ */ _("p", null, children), /* @__PURE__ */ _("div", { class: App_default.paddedErrorRecovery }, "You can try to ", /* @__PURE__ */ _("button", { onClick: () => location.reload() }, "Reload this page")));
   }
 
   // pages/new-tab/app/index.js
@@ -27776,29 +27785,29 @@
   var customizerExamples = {
     "customizer.backgroundSection": {
       factory: () => {
-        return /* @__PURE__ */ g(Provider, null, ({ data: data2, select }) => {
-          return /* @__PURE__ */ g(BackgroundSection, { data: data2, onNav: noop("onNav"), onUpload: noop("onUpload"), select });
+        return /* @__PURE__ */ _(Provider, null, ({ data: data2, select }) => {
+          return /* @__PURE__ */ _(BackgroundSection, { data: data2, onNav: noop("onNav"), onUpload: noop("onUpload"), select });
         });
       }
     },
     "customizer.colorSelection": {
       factory: () => {
-        return /* @__PURE__ */ g(Provider, null, ({ data: data2, select }) => {
-          return /* @__PURE__ */ g(ColorSelection, { data: data2, select, back: noop("back") });
+        return /* @__PURE__ */ _(Provider, null, ({ data: data2, select }) => {
+          return /* @__PURE__ */ _(ColorSelection, { data: data2, select, back: noop("back") });
         });
       }
     },
     "customizer.gradientSelection": {
       factory: () => {
-        return /* @__PURE__ */ g(Provider, null, ({ data: data2, select }) => {
-          return /* @__PURE__ */ g(GradientSelection, { data: data2, select, back: noop("back") });
+        return /* @__PURE__ */ _(Provider, null, ({ data: data2, select }) => {
+          return /* @__PURE__ */ _(GradientSelection, { data: data2, select, back: noop("back") });
         });
       }
     },
     "customizer.imageSelection": {
       factory: () => {
-        return /* @__PURE__ */ g(Provider, null, ({ data: data2, select }) => {
-          return /* @__PURE__ */ g(
+        return /* @__PURE__ */ _(Provider, null, ({ data: data2, select }) => {
+          return /* @__PURE__ */ _(
             ImageSelection,
             {
               data: data2,
@@ -27813,7 +27822,7 @@
       }
     },
     "customizer-menu": {
-      factory: () => /* @__PURE__ */ g(MaxContent, null, /* @__PURE__ */ g(CustomizerButton, { isOpen: true, kind: "menu" }), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("div", { style: "width: 206px; border: 1px dotted black" }, /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(MaxContent, null, /* @__PURE__ */ _(CustomizerButton, { isOpen: true, kind: "menu" }), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("div", { style: "width: 206px; border: 1px dotted black" }, /* @__PURE__ */ _(
         EmbeddedVisibilityMenu,
         {
           rows: [
@@ -27839,7 +27848,7 @@
     }
   };
   function MaxContent({ children }) {
-    return /* @__PURE__ */ g("div", { style: { display: "grid", gridTemplateColumns: "max-content" } }, children);
+    return /* @__PURE__ */ _("div", { style: { display: "grid", gridTemplateColumns: "max-content" } }, children);
   }
   function Provider({ children }) {
     const data2 = {
@@ -28128,8 +28137,8 @@
         config
       }
     );
-    const [et] = h2(() => new EventTarget());
-    const [state, dispatch] = p2(reducer, initial);
+    const [et] = d2(() => new EventTarget());
+    const [state, dispatch] = h2(reducer, initial);
     const toggle = q2(() => {
       if (state.status !== "ready") return;
       const next = state.config.expansion === "expanded" ? (
@@ -28162,42 +28171,42 @@
       },
       [et]
     );
-    return /* @__PURE__ */ g(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2, onConfigChanged } }, /* @__PURE__ */ g(FavoritesDispatchContext.Provider, { value: dispatch }, children));
+    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openContextMenu, openFavorite, add: add2, onConfigChanged } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
   }
 
   // pages/new-tab/app/favorites/components/Favorites.examples.js
   init_FavoritesCustomized();
   var favoritesExamples = {
     "favorites.dnd": {
-      factory: () => /* @__PURE__ */ g(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ g(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ _(FavoritesConsumer, null))
     },
     "favorites.few.7": {
-      factory: () => /* @__PURE__ */ g(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 7) } }, /* @__PURE__ */ g(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 7) } }, /* @__PURE__ */ _(FavoritesConsumer, null))
     },
     "favorites.few.7.no-animation": {
-      factory: () => /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(
         MockFavoritesProvider,
         {
           data: { favorites: favorites.many.favorites.slice(0, 7) },
           config: { expansion: "expanded", animation: { kind: "none" } }
         },
-        /* @__PURE__ */ g(FavoritesConsumer, null)
+        /* @__PURE__ */ _(FavoritesConsumer, null)
       )
     },
     "favorites.few.6": {
-      factory: () => /* @__PURE__ */ g(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 6) } }, /* @__PURE__ */ g(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 6) } }, /* @__PURE__ */ _(FavoritesConsumer, null))
     },
     "favorites.few.12": {
-      factory: () => /* @__PURE__ */ g(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 12) } }, /* @__PURE__ */ g(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: { favorites: favorites.many.favorites.slice(0, 12) } }, /* @__PURE__ */ _(FavoritesConsumer, null))
     },
     "favorites.multi": {
-      factory: () => /* @__PURE__ */ g("div", null, /* @__PURE__ */ g(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ g(FavoritesConsumer, null)), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ g(FavoritesConsumer, null)), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ g(FavoritesConsumer, null)))
+      factory: () => /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.many }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ _(FavoritesConsumer, null)), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ _(FavoritesConsumer, null)))
     },
     "favorites.single": {
-      factory: () => /* @__PURE__ */ g(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ g(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.single }, /* @__PURE__ */ _(FavoritesConsumer, null))
     },
     "favorites.none": {
-      factory: () => /* @__PURE__ */ g(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ g(FavoritesConsumer, null))
+      factory: () => /* @__PURE__ */ _(MockFavoritesProvider, { data: favorites.none }, /* @__PURE__ */ _(FavoritesConsumer, null))
     }
   };
 
@@ -28231,7 +28240,7 @@
   // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.examples.js
   var freemiumPIRBannerExamples = {
     "freemiumPIR.onboarding": {
-      factory: () => /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(
         FreemiumPIRBanner,
         {
           message: freemiumPIRDataExamples.onboarding.content,
@@ -28241,7 +28250,7 @@
       )
     },
     "freemiumPIR.scan_results": {
-      factory: () => /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(
         FreemiumPIRBanner,
         {
           message: freemiumPIRDataExamples.scan_results.content,
@@ -28259,7 +28268,7 @@
   init_NextStepsGroup();
   var nextStepsExamples = {
     "next-steps.cardGroup.all": {
-      factory: () => /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(
         NextStepsCardGroup,
         {
           types: [
@@ -28279,7 +28288,7 @@
       )
     },
     "next-steps.cardGroup.all-expanded": {
-      factory: () => /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(
         NextStepsCardGroup,
         {
           types: [
@@ -28299,7 +28308,7 @@
       )
     },
     "next-steps.cardGroup.two": {
-      factory: () => /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(
         NextStepsCardGroup,
         {
           types: ["bringStuff", "defaultApp"],
@@ -28311,7 +28320,7 @@
       )
     },
     "next-steps.cardGroup.one": {
-      factory: () => /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(
         NextStepsCardGroup,
         {
           types: ["bringStuff"],
@@ -28325,28 +28334,28 @@
   };
   var otherNextStepsExamples = {
     "next-steps.bringStuff": {
-      factory: () => /* @__PURE__ */ g(NextStepsCard, { type: "bringStuff", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "bringStuff", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.duckplayer": {
-      factory: () => /* @__PURE__ */ g(NextStepsCard, { type: "duckplayer", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "duckplayer", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.defaultApp": {
-      factory: () => /* @__PURE__ */ g(NextStepsCard, { type: "defaultApp", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "defaultApp", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.emailProtection": {
-      factory: () => /* @__PURE__ */ g(NextStepsCard, { type: "emailProtection", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "emailProtection", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.blockCookies": {
-      factory: () => /* @__PURE__ */ g(NextStepsCard, { type: "blockCookies", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "blockCookies", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.addAppToDockMac": {
-      factory: () => /* @__PURE__ */ g(NextStepsCard, { type: "addAppToDockMac", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "addAppToDockMac", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.pinToTaskbarWindows": {
-      factory: () => /* @__PURE__ */ g(NextStepsCard, { type: "pinAppToTaskbarWindows", dismiss: noop("dismiss"), action: noop("action") })
+      factory: () => /* @__PURE__ */ _(NextStepsCard, { type: "pinAppToTaskbarWindows", dismiss: noop("dismiss"), action: noop("action") })
     },
     "next-steps.bubble": {
-      factory: () => /* @__PURE__ */ g(NextStepsBubbleHeader, null)
+      factory: () => /* @__PURE__ */ _(NextStepsBubbleHeader, null)
     }
   };
 
@@ -28587,7 +28596,7 @@
         config
       }
     );
-    const [state, send] = p2(reducer, initial);
+    const [state, send] = h2(reducer, initial);
     y2(() => {
       if (!ticker) return;
       if (state.status === "ready") {
@@ -28614,17 +28623,17 @@
         send({ kind: "config", config: { ...state.config, expansion: "expanded" } });
       }
     }, [state.config?.expansion]);
-    return /* @__PURE__ */ g(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ g(PrivacyStatsDispatchContext.Provider, { value: send }, /* @__PURE__ */ g(BodyExpansionMockProvider, null, children)));
+    return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state, toggle } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: send }, /* @__PURE__ */ _(BodyExpansionMockProvider, null, children)));
   }
   function BodyExpansionMockProvider({ children, bodyExpansion = "collapsed" }) {
-    const [bodyExpansionState, setBodyExpansion] = h2(bodyExpansion);
+    const [bodyExpansionState, setBodyExpansion] = d2(bodyExpansion);
     const showMore = q2(() => {
       setBodyExpansion("expanded");
     }, []);
     const showLess = q2(() => {
       setBodyExpansion("collapsed");
     }, []);
-    return /* @__PURE__ */ g(BodyExpansionContext.Provider, { value: bodyExpansionState }, /* @__PURE__ */ g(BodyExpansionApiContext.Provider, { value: { showMore, showLess } }, children));
+    return /* @__PURE__ */ _(BodyExpansionContext.Provider, { value: bodyExpansionState }, /* @__PURE__ */ _(BodyExpansionApiContext.Provider, { value: { showMore, showLess } }, children));
   }
 
   // pages/new-tab/app/privacy-stats/components/PrivacyStats.examples.js
@@ -28632,27 +28641,27 @@
   init_PrivacyStatsConsumer();
   var privacyStatsExamples = {
     "stats.few": {
-      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { ticker: true }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { ticker: true }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
     },
     "stats.few.collapsed": {
-      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { config: { expansion: "collapsed" } }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { config: { expansion: "collapsed" } }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
     },
     "stats.single": {
-      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks.single }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.single }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
     },
     "stats.none": {
-      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks.none }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.none }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
     },
     "stats.norecent": {
-      factory: () => /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks.norecent }, /* @__PURE__ */ g(PrivacyStatsConsumer, null))
+      factory: () => /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.norecent }, /* @__PURE__ */ _(PrivacyStatsConsumer, null))
     },
     "stats.list": {
-      factory: () => /* @__PURE__ */ g(PrivacyStatsBody, { trackerCompanies: privacyStatsMocks.few.trackerCompanies, id: "example-stats.list", expansion: "expanded" })
+      factory: () => /* @__PURE__ */ _(PrivacyStatsBody, { trackerCompanies: privacyStatsMocks.few.trackerCompanies, id: "example-stats.list", expansion: "expanded" })
     },
     "stats.footer": {
       factory: () => {
         const data2 = privacyStatsMocks.manyTopAndOther.trackerCompanies;
-        return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("h2", null, "Collapsed"), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(BodyExpansionMockProvider, { bodyExpansion: "collapsed" }, /* @__PURE__ */ g(ListFooter, { all: data2 })), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("h2", null, "Expanded"), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(BodyExpansionMockProvider, { bodyExpansion: "expanded" }, /* @__PURE__ */ g(ListFooter, { all: data2 })));
+        return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h2", null, "Collapsed"), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(BodyExpansionMockProvider, { bodyExpansion: "collapsed" }, /* @__PURE__ */ _(ListFooter, { all: data2 })), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("h2", null, "Expanded"), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(BodyExpansionMockProvider, { bodyExpansion: "expanded" }, /* @__PURE__ */ _(ListFooter, { all: data2 })));
       }
     }
   };
@@ -28660,13 +28669,13 @@
     "stats.all": {
       factory: () => {
         const names2 = Object.keys(privacyStatsMocks);
-        return /* @__PURE__ */ g(k, null, names2.map((key2) => {
-          return /* @__PURE__ */ g(k, { key: key2 }, /* @__PURE__ */ g("h2", null, key2), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks[key2] }, /* @__PURE__ */ g(PrivacyStatsConsumer, null)));
+        return /* @__PURE__ */ _(k, null, names2.map((key2) => {
+          return /* @__PURE__ */ _(k, { key: key2 }, /* @__PURE__ */ _("h2", null, key2), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks[key2] }, /* @__PURE__ */ _(PrivacyStatsConsumer, null)));
         }));
       }
     },
     "stats.manyTopAndOther": {
-      factory: () => /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("h2", null, "manyOnlyTop"), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks.manyTopAndOther }, /* @__PURE__ */ g(PrivacyStatsConsumer, null)), /* @__PURE__ */ g("h2", null, "manyOnlyTop + body expanded"), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g(PrivacyStatsMockProvider, { data: privacyStatsMocks.manyTopAndOther, bodyExpansion: "expanded" }, /* @__PURE__ */ g(PrivacyStatsConsumer, null)))
+      factory: () => /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h2", null, "manyOnlyTop"), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.manyTopAndOther }, /* @__PURE__ */ _(PrivacyStatsConsumer, null)), /* @__PURE__ */ _("h2", null, "manyOnlyTop + body expanded"), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _(PrivacyStatsMockProvider, { data: privacyStatsMocks.manyTopAndOther, bodyExpansion: "expanded" }, /* @__PURE__ */ _(PrivacyStatsConsumer, null)))
     }
   };
 
@@ -28731,13 +28740,13 @@
   // pages/new-tab/app/remote-messaging-framework/components/RMF.examples.js
   var RMFExamples = {
     "rmf.small": {
-      factory: () => /* @__PURE__ */ g(RemoteMessagingFramework, { message: rmfDataExamples.small.content, dismiss: noop("rmf_dismiss") })
+      factory: () => /* @__PURE__ */ _(RemoteMessagingFramework, { message: rmfDataExamples.small.content, dismiss: noop("rmf_dismiss") })
     },
     "rmf.medium": {
-      factory: () => /* @__PURE__ */ g(RemoteMessagingFramework, { message: rmfDataExamples.medium.content, dismiss: noop("rmf_dismiss") })
+      factory: () => /* @__PURE__ */ _(RemoteMessagingFramework, { message: rmfDataExamples.medium.content, dismiss: noop("rmf_dismiss") })
     },
     "rmf.big-single-action": {
-      factory: () => /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action.content,
@@ -28747,7 +28756,7 @@
       )
     },
     "rmf.big-two-action": {
-      factory: () => /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_two_action.content,
@@ -28760,7 +28769,7 @@
   };
   var otherRMFExamples = {
     "rmf.big-two-action-overflow": {
-      factory: () => /* @__PURE__ */ g(
+      factory: () => /* @__PURE__ */ _(
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_two_action_overflow.content,
@@ -28779,12 +28788,12 @@
   var updateNotificationExamples = {
     "updateNotification.empty": {
       factory: () => {
-        return /* @__PURE__ */ g(UpdateNotification, { notes: [], version: "1.2.3", dismiss: noop("dismiss!") });
+        return /* @__PURE__ */ _(UpdateNotification, { notes: [], version: "1.2.3", dismiss: noop("dismiss!") });
       }
     },
     "updateNotification.populated": {
       factory: () => {
-        return /* @__PURE__ */ g(UpdateNotification, { notes: ["Bug Fixed and Updates"], version: "1.2.3", dismiss: noop("dismiss!") });
+        return /* @__PURE__ */ _(UpdateNotification, { notes: ["Bug Fixed and Updates"], version: "1.2.3", dismiss: noop("dismiss!") });
       }
     }
   };
@@ -29895,7 +29904,7 @@
         switch (msg.method) {
           case "activity_removeItem": {
             const oldCount = dataset.activity.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0);
-            dataset.activity = dataset.activity.filter((x4) => x4.url !== msg.params.url);
+            dataset.activity = dataset.activity.filter((x3) => x3.url !== msg.params.url);
             const patchParams = toPatch(dataset.activity);
             patchParams.totalTrackersBlocked = oldCount;
             setTimeout(() => {
@@ -30048,7 +30057,7 @@
               setTimeout(() => {
                 const cb = subs.get("activity_onDataUpdate");
                 console.log("will send updated data after 500ms", url5);
-                const next = activityMocks.few.activity.filter((x4) => x4.url !== url5);
+                const next = activityMocks.few.activity.filter((x3) => x3.url !== url5);
                 cb?.({ activity: next });
               }, 500);
               setTimeout(() => {
@@ -30065,7 +30074,7 @@
           }
           case "activity_getDataForUrls": {
             const next = {
-              activity: dataset.activity.filter((x4) => msg.params.urls.includes(x4.url))
+              activity: dataset.activity.filter((x3) => msg.params.urls.includes(x3.url))
             };
             return Promise.resolve(next);
           }
@@ -30089,13 +30098,13 @@
   }
   function toPatch(entries4) {
     return {
-      urls: entries4.map((x4) => x4.url),
+      urls: entries4.map((x3) => x3.url),
       totalTrackersBlocked: entries4.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0)
     };
   }
   function toPatchItem(entries4, nth) {
     return {
-      urls: entries4.map((x4) => x4.url),
+      urls: entries4.map((x3) => x3.url),
       totalTrackersBlocked: entries4.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0),
       patch: entries4[nth]
     };
@@ -30167,17 +30176,17 @@
   var activityExamples = {
     "activity.empty": {
       factory: () => {
-        return /* @__PURE__ */ g(Activity, { expansion: "expanded", itemCount: 0, trackerCount: 0, toggle: noop("toggle"), batched: false });
+        return /* @__PURE__ */ _(Activity, { expansion: "expanded", itemCount: 0, trackerCount: 0, toggle: noop("toggle"), batched: false });
       }
     },
     "activity.few": {
-      factory: () => /* @__PURE__ */ g(Activity, { expansion: "expanded", itemCount: 10, trackerCount: 20, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ g(Mock, { size: 3 }, /* @__PURE__ */ g(ActivityBody, { canBurn: false, visibility: "visible" })))
+      factory: () => /* @__PURE__ */ _(Activity, { expansion: "expanded", itemCount: 10, trackerCount: 20, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ _(Mock, { size: 3 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible" })))
     },
     "activity.noTrackers": {
-      factory: () => /* @__PURE__ */ g(Activity, { expansion: "expanded", itemCount: 20, trackerCount: 0, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ g(Mock, { size: 1 }, /* @__PURE__ */ g(ActivityBody, { canBurn: false, visibility: "visible" })))
+      factory: () => /* @__PURE__ */ _(Activity, { expansion: "expanded", itemCount: 20, trackerCount: 0, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ _(Mock, { size: 1 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible" })))
     },
     "activity.noActivity.someTrackers": {
-      factory: () => /* @__PURE__ */ g(Activity, { expansion: "collapsed", itemCount: 0, trackerCount: 56, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ g(Mock, { size: 0 }, /* @__PURE__ */ g(ActivityBody, { canBurn: false, visibility: "visible" })))
+      factory: () => /* @__PURE__ */ _(Activity, { expansion: "collapsed", itemCount: 0, trackerCount: 56, toggle: noop("toggle"), batched: false }, /* @__PURE__ */ _(Mock, { size: 0 }, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility: "visible" })))
     }
   };
   function Mock({ children, size }) {
@@ -30191,9 +30200,9 @@
         urls: [],
         totalTrackers: 0
       },
-      { activity: mocks, urls: mocks.map((x4) => x4.url), totalTrackers: 0 }
+      { activity: mocks, urls: mocks.map((x3) => x3.url), totalTrackers: 0 }
     );
-    return /* @__PURE__ */ g(
+    return /* @__PURE__ */ _(
       NormalizedDataContext.Provider,
       {
         value: {
@@ -30251,13 +30260,13 @@
     };
     const dataSignal = useSignal(data2);
     const { main, browser } = useThemes(dataSignal);
-    return /* @__PURE__ */ g(CustomizerThemesContext.Provider, { value: { main, browser } }, /* @__PURE__ */ g("div", { class: Components_default.main, "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ g(BackgroundConsumer, { browser }), /* @__PURE__ */ g("div", { "data-content-tube": true, class: Components_default.contentTube }, isolated && /* @__PURE__ */ g(Isolated, { entries: filtered, e2e }), !isolated && /* @__PURE__ */ g(k, null, /* @__PURE__ */ g(DebugBar, { id: ids[0], ids, entries: entries3 }), /* @__PURE__ */ g(Stage, { entries: (
+    return /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser } }, /* @__PURE__ */ _("div", { class: Components_default.main, "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { "data-content-tube": true, class: Components_default.contentTube }, isolated && /* @__PURE__ */ _(Isolated, { entries: filtered, e2e }), !isolated && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(DebugBar, { id: ids[0], ids, entries: entries3 }), /* @__PURE__ */ _(Stage, { entries: (
       /** @type {any} */
       filtered
     ) })))));
   }
   function Stage({ entries: entries4 }) {
-    return /* @__PURE__ */ g("div", { class: Components_default.componentList, "data-testid": "stage" }, entries4.map(([id, item]) => {
+    return /* @__PURE__ */ _("div", { class: Components_default.componentList, "data-testid": "stage" }, entries4.map(([id, item]) => {
       const next = new URL(url2);
       next.searchParams.set("isolate", "true");
       next.searchParams.set("id", id);
@@ -30269,28 +30278,28 @@
       e2e.searchParams.set("e2e", "true");
       const without = new URL(url2);
       const current = without.searchParams.getAll("id");
-      const others = current.filter((x4) => x4 !== id);
-      const matching = current.filter((x4) => x4 === id);
+      const others = current.filter((x3) => x3 !== id);
+      const matching = current.filter((x3) => x3 === id);
       const matchingMinus1 = matching.length === 1 ? [] : matching.slice(0, -1);
       without.searchParams.delete("id");
       for (let string of [...others, ...matchingMinus1]) {
         without.searchParams.append("id", string);
       }
-      return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("div", { class: Components_default.itemInfo }, /* @__PURE__ */ g("div", { class: Components_default.itemLinks }, /* @__PURE__ */ g("code", null, id), /* @__PURE__ */ g("a", { href: next.toString(), target: "_blank", title: "open in new tab" }, "Open \u{1F517}"), " ", /* @__PURE__ */ g("a", { href: without.toString(), hidden: current.length === 0 }, "Remove")), /* @__PURE__ */ g("div", { class: Components_default.itemLinks }, /* @__PURE__ */ g("a", { href: selected.toString(), class: Components_default.itemLink, title: "show this component only" }, "select"), " ", /* @__PURE__ */ g("a", { href: next.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "isolate"), " ", /* @__PURE__ */ g("a", { href: e2e.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "edge-to-edge"))), /* @__PURE__ */ g("div", { className: Components_default.item, key: id }, item.factory()));
+      return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: Components_default.itemInfo }, /* @__PURE__ */ _("div", { class: Components_default.itemLinks }, /* @__PURE__ */ _("code", null, id), /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank", title: "open in new tab" }, "Open \u{1F517}"), " ", /* @__PURE__ */ _("a", { href: without.toString(), hidden: current.length === 0 }, "Remove")), /* @__PURE__ */ _("div", { class: Components_default.itemLinks }, /* @__PURE__ */ _("a", { href: selected.toString(), class: Components_default.itemLink, title: "show this component only" }, "select"), " ", /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "isolate"), " ", /* @__PURE__ */ _("a", { href: e2e.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "edge-to-edge"))), /* @__PURE__ */ _("div", { className: Components_default.item, key: id }, item.factory()));
     }));
   }
   function Isolated({ entries: entries4, e2e }) {
     if (e2e) {
-      return /* @__PURE__ */ g("div", null, entries4.map(([id, item]) => {
-        return /* @__PURE__ */ g(k, { key: id }, item.factory());
+      return /* @__PURE__ */ _("div", null, entries4.map(([id, item]) => {
+        return /* @__PURE__ */ _(k, { key: id }, item.factory());
       }));
     }
-    return /* @__PURE__ */ g("div", { class: Components_default.componentList, "data-testid": "stage" }, entries4.map(([id, item], index2) => {
-      return /* @__PURE__ */ g("div", { key: id + index2 }, item.factory());
+    return /* @__PURE__ */ _("div", { class: Components_default.componentList, "data-testid": "stage" }, entries4.map(([id, item], index2) => {
+      return /* @__PURE__ */ _("div", { key: id + index2 }, item.factory());
     }));
   }
   function DebugBar({ entries: entries4, id, ids }) {
-    return /* @__PURE__ */ g("div", { class: Components_default.debugBar, "data-testid": "selector" }, /* @__PURE__ */ g(ExampleSelector, { entries: entries4, id }), ids.length > 0 && /* @__PURE__ */ g(Append, { entries: entries4 }), /* @__PURE__ */ g(TextLength, null), /* @__PURE__ */ g(Isolate, null));
+    return /* @__PURE__ */ _("div", { class: Components_default.debugBar, "data-testid": "selector" }, /* @__PURE__ */ _(ExampleSelector, { entries: entries4, id }), ids.length > 0 && /* @__PURE__ */ _(Append, { entries: entries4 }), /* @__PURE__ */ _(TextLength, null), /* @__PURE__ */ _(Isolate, null));
   }
   function TextLength() {
     function onClick() {
@@ -30301,14 +30310,14 @@
       url2.searchParams.delete("textLength");
       window.location.href = url2.toString();
     }
-    return /* @__PURE__ */ g("div", { class: Components_default.buttonRow }, /* @__PURE__ */ g("button", { onClick: onReset, type: "button" }, "Text Length 1x"), /* @__PURE__ */ g("button", { onClick, type: "button" }, "Text Length 1.5x"));
+    return /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("button", { onClick: onReset, type: "button" }, "Text Length 1x"), /* @__PURE__ */ _("button", { onClick, type: "button" }, "Text Length 1.5x"));
   }
   function Isolate() {
     const next = new URL(url2);
     next.searchParams.set("isolate", "true");
     const prod = new URL("/build/pages/new-tab", "https://content-scope-scripts.netlify.app");
     prod.search = url2.search;
-    return /* @__PURE__ */ g("div", { class: Components_default.buttonRow }, /* @__PURE__ */ g("a", { href: next.toString(), target: "_blank" }, "Isolate (open in a new tab)"), /* @__PURE__ */ g("a", { href: prod.toString(), target: "_blank" }, "Open in Production (new tab)"));
+    return /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank" }, "Isolate (open in a new tab)"), /* @__PURE__ */ _("a", { href: prod.toString(), target: "_blank" }, "Open in Production (new tab)"));
   }
   function ExampleSelector({ entries: entries4, id }) {
     function onReset() {
@@ -30327,7 +30336,7 @@
         window.location.href = url5.toString();
       }
     }
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("div", { class: Components_default.buttonRow }, /* @__PURE__ */ g("label", null, "Single:", " ", /* @__PURE__ */ g("select", { value: id || "none", onChange }, /* @__PURE__ */ g("option", { value: "none" }, "Select an example"), entries4.map(([id2]) => /* @__PURE__ */ g("option", { key: id2, value: id2 }, id2)))), /* @__PURE__ */ g("button", { onClick: onReset }, "RESET \u{1F501}")));
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("label", null, "Single:", " ", /* @__PURE__ */ _("select", { value: id || "none", onChange }, /* @__PURE__ */ _("option", { value: "none" }, "Select an example"), entries4.map(([id2]) => /* @__PURE__ */ _("option", { key: id2, value: id2 }, id2)))), /* @__PURE__ */ _("button", { onClick: onReset }, "RESET \u{1F501}")));
   }
   function Append({ entries: entries4 }) {
     function onReset() {
@@ -30346,7 +30355,7 @@
       url5.searchParams.append("id", value2);
       window.location.href = url5.toString();
     }
-    return /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("form", { class: Components_default.buttonRow, onSubmit }, /* @__PURE__ */ g("label", null, "Append:", " ", /* @__PURE__ */ g("select", { value: "none", name: "add-id" }, /* @__PURE__ */ g("option", { value: "none" }, "Select an example"), entries4.map(([id]) => /* @__PURE__ */ g("option", { key: id, value: id }, id)))), /* @__PURE__ */ g("button", null, "Confirm")));
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("form", { class: Components_default.buttonRow, onSubmit }, /* @__PURE__ */ _("label", null, "Append:", " ", /* @__PURE__ */ _("select", { value: "none", name: "add-id" }, /* @__PURE__ */ _("option", { value: "none" }, "Select an example"), entries4.map(([id]) => /* @__PURE__ */ _("option", { key: id, value: id }, id)))), /* @__PURE__ */ _("button", null, "Confirm")));
   }
 
   // shared/call-with-retry.js
@@ -30535,8 +30544,8 @@
       userImages: []
     };
     const customizerApi = new CustomizerService(messaging2, customizerData2);
-    D(
-      /* @__PURE__ */ g(
+    E(
+      /* @__PURE__ */ _(
         EnvironmentProvider,
         {
           debugState: environment.debugState,
@@ -30544,14 +30553,14 @@
           willThrow: environment.willThrow,
           env: environment.env
         },
-        /* @__PURE__ */ g(
+        /* @__PURE__ */ _(
           InlineErrorBoundary,
           {
             context: "App entry point",
-            fallback: (message) => /* @__PURE__ */ g(AppLevelErrorBoundaryFallback, null, message)
+            fallback: (message) => /* @__PURE__ */ _(AppLevelErrorBoundaryFallback, null, message)
           },
-          /* @__PURE__ */ g(UpdateEnvironment, { search: window.location.search }),
-          /* @__PURE__ */ g(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ g(InitialSetupContext.Provider, { value: init2 }, /* @__PURE__ */ g(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ g(SettingsProvider, { settings }, /* @__PURE__ */ g(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ g(CustomizerProvider, { service: customizerApi, initialData: customizerData2 }, /* @__PURE__ */ g(DocumentVisibilityProvider, null, /* @__PURE__ */ g(
+          /* @__PURE__ */ _(UpdateEnvironment, { search: window.location.search }),
+          /* @__PURE__ */ _(MessagingContext.Provider, { value: messaging2 }, /* @__PURE__ */ _(InitialSetupContext.Provider, { value: init2 }, /* @__PURE__ */ _(TelemetryContext.Provider, { value: telemetry2 }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ _(CustomizerProvider, { service: customizerApi, initialData: customizerData2 }, /* @__PURE__ */ _(DocumentVisibilityProvider, null, /* @__PURE__ */ _(
             WidgetConfigProvider,
             {
               api: widgetConfigAPI,
@@ -30559,7 +30568,7 @@
               widgets: init2.widgets,
               entryPoints
             },
-            /* @__PURE__ */ g(App, null)
+            /* @__PURE__ */ _(App, null)
           ))))))))
         )
       ),
@@ -30567,7 +30576,7 @@
     );
   }
   async function getStrings(environment) {
-    return environment.locale === "en" ? new_tab_default : await fetch(`./locales/${environment.locale}/new-tab.json`).then((x4) => x4.json()).catch((e4) => {
+    return environment.locale === "en" ? new_tab_default : await fetch(`./locales/${environment.locale}/new-tab.json`).then((x3) => x3.json()).catch((e4) => {
       console.error("Could not load locale", environment.locale, e4);
       return new_tab_default;
     });
@@ -30592,8 +30601,8 @@
     }
   }
   function renderComponents(root2, environment, settings, strings) {
-    $INTEGRATION: D(
-      /* @__PURE__ */ g(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ g(SettingsProvider, { settings }, /* @__PURE__ */ g(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ g(Components, null)))),
+    $INTEGRATION: E(
+      /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: new_tab_default, textLength: environment.textLength }, /* @__PURE__ */ _(Components, null)))),
       root2
     );
   }
@@ -31238,10 +31247,10 @@
                 if (inc === max) return clearInterval(int);
                 const next = {
                   ...privacyStatsMocks.few,
-                  trackerCompanies: privacyStatsMocks.few.trackerCompanies.map((x4, index2) => {
+                  trackerCompanies: privacyStatsMocks.few.trackerCompanies.map((x3, index2) => {
                     return {
-                      ...x4,
-                      count: x4.count + inc * index2
+                      ...x3,
+                      count: x3.count + inc * index2
                     };
                   })
                 };
@@ -31528,7 +31537,7 @@
   var root = document.querySelector("#app");
   if (!root) {
     document.documentElement.dataset.fatalError = "true";
-    D("Fatal: #app missing", document.body);
+    E("Fatal: #app missing", document.body);
     throw new Error("Missing #app");
   }
   init(root, newTabMessaging, telemetry, baseEnvironment).catch((e4) => {
@@ -31536,8 +31545,8 @@
     const msg = typeof e4?.message === "string" ? e4.message : "unknown init error";
     newTabMessaging.reportInitException(msg);
     document.documentElement.dataset.fatalError = "true";
-    const element = /* @__PURE__ */ g(k, null, /* @__PURE__ */ g("div", { style: "padding: 1rem;" }, /* @__PURE__ */ g("p", null, /* @__PURE__ */ g("strong", null, "A fatal error occurred:")), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("pre", { style: { whiteSpace: "prewrap", overflow: "auto" } }, /* @__PURE__ */ g("code", null, JSON.stringify({ message: e4.message }, null, 2))), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("p", null, /* @__PURE__ */ g("strong", null, "Telemetry")), /* @__PURE__ */ g("br", null), /* @__PURE__ */ g("pre", { style: { whiteSpace: "prewrap", overflow: "auto", fontSize: ".8em" } }, /* @__PURE__ */ g("code", null, JSON.stringify(telemetry.eventStore, null, 2)))));
-    D(element, document.body);
+    const element = /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { style: "padding: 1rem;" }, /* @__PURE__ */ _("p", null, /* @__PURE__ */ _("strong", null, "A fatal error occurred:")), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("pre", { style: { whiteSpace: "prewrap", overflow: "auto" } }, /* @__PURE__ */ _("code", null, JSON.stringify({ message: e4.message }, null, 2))), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("p", null, /* @__PURE__ */ _("strong", null, "Telemetry")), /* @__PURE__ */ _("br", null), /* @__PURE__ */ _("pre", { style: { whiteSpace: "prewrap", overflow: "auto", fontSize: ".8em" } }, /* @__PURE__ */ _("code", null, JSON.stringify(telemetry.eventStore, null, 2)))));
+    E(element, document.body);
   });
 })();
 /*! Bundled license information:
