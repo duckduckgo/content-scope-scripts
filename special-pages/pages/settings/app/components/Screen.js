@@ -12,7 +12,7 @@ import cn from 'classnames';
  * Access global state and render the results
  * @param {Object} props
  * @param {Signal<string>} props.screenId
- * @param {import('../settings.service').ScreenDefinition} props.screenDefinition
+ * @param {import('../settings.service').PaneDefinition} props.screenDefinition
  * @param {import('../settings.service').SettingsStructure["excludedElements"]} props.excludedElements
  */
 export function ScreenContainer(props) {
@@ -35,7 +35,7 @@ export function ScreenContainer(props) {
 
 /**
  * @param {Object} props
- * @param {import('../settings.service').ScreenDefinition["elements"]} props.elements
+ * @param {import('../settings.service').PaneDefinition["elements"]} props.elements
  * @param {import('../settings.service').SettingsStructure["excludedElements"]} props.excludedElements
  */
 export function ElementsContainer(props) {

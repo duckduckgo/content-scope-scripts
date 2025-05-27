@@ -1,7 +1,10 @@
 /**
+ * @import { ElementDefinition } from "../settings.service"
+ */
+/**
  * A builder-pattern API for creating screen definitions
  */
-export class Pane {
+export class PaneBuilder {
     /**
      * @param {string} id - The screen identifier
      */
@@ -9,11 +12,11 @@ export class Pane {
         this.definition = {
             /** @type {string} */
             id,
-            /** @type {import("../settings.service").ElementDefinition[]} */
+            /** @type {ElementDefinition[]} */
             elements: [],
-            /** @type {import("../settings.service").ElementDefinition[][]} */
+            /** @type {ElementDefinition[][]} */
             sections: [],
-            /** @type {import("../settings.service").ElementDefinition | null} */
+            /** @type {ElementDefinition | null} */
             title: null,
         };
     }
@@ -21,7 +24,7 @@ export class Pane {
     /**
      * Sets the title of the screen
      * @param {string} title - The translation key for the title
-     * @returns {Pane} - The builder instance for chaining
+     * @returns {PaneBuilder} - The builder instance for chaining
      */
     withTitle(title) {
         const titleId = `${this.definition.id}.titleStatus`;
@@ -41,10 +44,10 @@ export class Pane {
      * Sets the title of the screen
      * @param {object} props
      * @param {string} props.title - The translation key for the title
-     * @param {string} props.valueId - The translation key for the title
+     * @param {string} [props.valueId] - The translation key for the title
      * @param {string} props.onText
      * @param {string} props.offText
-     * @returns {Pane} - The builder instance for chaining
+     * @returns {PaneBuilder} - The builder instance for chaining
      */
     withTitleStatus({ title, valueId, onText, offText }) {
         const titleId = `${this.definition.id}.titleStatus`;
@@ -65,8 +68,8 @@ export class Pane {
 
     /**
      * Adds a custom element with specified kind and props
-     * @param {import("../settings.service").ElementDefinition | { build(): import("../settings.service").ElementDefinition }} element
-     * @returns {Pane} - The builder instance for chaining
+     * @param {ElementDefinition | { build(): ElementDefinition }} element
+     * @returns {PaneBuilder} - The builder instance for chaining
      */
     addElement(element) {
         if ('kind' in element) {
@@ -77,15 +80,33 @@ export class Pane {
         }
         return this;
     }
+    /**
+     * Adds a custom element with specified kind and props
+     * @param {(ElementDefinition | { build(): ElementDefinition })[]} elements
+     * @returns {PaneBuilder} - The builder instance for chaining
+     */
+    addSection(elements) {
+        const next = [];
+        for (const element of elements) {
+            if ('kind' in element) {
+                next.push(element);
+            }
+            if ('build' in element && typeof element.build === 'function') {
+                next.push(element.build());
+            }
+        }
+        this.definition.sections.push(next);
+        return this;
+    }
 
     /**
      * Builds and returns the final screen definition
-     * @returns {Record<string, import("../settings.service").ScreenDefinition>} - The complete screen definition
+     * @returns {Record<string, import("../settings.service").PaneDefinition>} - The complete screen definition
      */
     build() {
         if (this.definition.title === null) throw new Error('unreachable - must have added a title');
 
-        /** @type {Record<string, import("../settings.service").ScreenDefinition>} */
+        /** @type {Record<string, import("../settings.service").PaneDefinition>} */
         const result = {};
         result[this.definition.id] = {
             id: this.definition.id,
@@ -109,7 +130,7 @@ export class ButtonBuilder {
     }
 
     /**
-     * @return {import("../settings.service").ElementDefinition}
+     * @return {ElementDefinition}
      */
     build() {
         return {
@@ -136,7 +157,7 @@ export class DescriptionLink {
     }
 
     /**
-     * @return {import("../settings.service").ElementDefinition}
+     * @return {ElementDefinition}
      */
     build() {
         return {
@@ -146,6 +167,35 @@ export class DescriptionLink {
                 description: this.description,
                 linkText: this.linkText,
             },
+        };
+    }
+}
+
+export class Switch {
+    /**
+     * @param {object} props
+     * @param {string} [props.id] optional ID - one will be generated if not provided
+     * @param {string} props.valueId - The value to switch on, must be a boolean
+     * @param {(ElementDefinition|{build(): ElementDefinition })[]} props.on
+     * @param {(ElementDefinition|{build(): ElementDefinition })[]} props.off
+     */
+    constructor({ id, valueId, on, off }) {
+        this.id = id;
+        this.valueId = valueId;
+        this.on = on;
+        this.off = off;
+    }
+
+    /**
+     * @return {ElementDefinition}
+     */
+    build() {
+        return {
+            kind: 'SwitchDefinition',
+            id: this.id || uuid(),
+            valueId: this.valueId,
+            on: this.on.map((x) => ('build' in x ? x.build() : x)),
+            off: this.off.map((x) => ('build' in x ? x.build() : x)),
         };
     }
 }
@@ -162,7 +212,7 @@ export class Checkbox {
     }
 
     /**
-     * @return {import("../settings.service").ElementDefinition}
+     * @return {ElementDefinition}
      */
     build() {
         return {
@@ -187,7 +237,7 @@ export class SectionTitle {
     }
 
     /**
-     * @return {import("../settings.service").ElementDefinition}
+     * @return {ElementDefinition}
      */
     build() {
         return {
@@ -195,6 +245,56 @@ export class SectionTitle {
             id: this.id || uuid(),
             props: {
                 title: this.title,
+            },
+        };
+    }
+}
+
+export class TextRow {
+    /**
+     * @param {object} props
+     * @param {string} [props.id]
+     * @param {string} props.text
+     */
+    constructor({ id, text }) {
+        this.id = id;
+        this.text = text;
+    }
+
+    /**
+     * @return {ElementDefinition}
+     */
+    build() {
+        return {
+            kind: 'TextRowDefinition',
+            id: this.id || uuid(),
+            props: {
+                text: this.text,
+            },
+        };
+    }
+}
+
+export class LinkRow {
+    /**
+     * @param {object} props
+     * @param {string} props.id
+     * @param {string} props.text
+     */
+    constructor({ id, text }) {
+        this.id = id;
+        this.text = text;
+    }
+
+    /**
+     * @return {ElementDefinition}
+     */
+    build() {
+        return {
+            kind: 'LinkRowDefinition',
+            id: this.id || uuid(),
+            props: {
+                text: this.text,
             },
         };
     }
@@ -212,7 +312,7 @@ export class Custom {
     }
 
     /**
-     * @return {import("../settings.service").ElementDefinition}
+     * @return {ElementDefinition}
      */
     build() {
         switch (this.elementKind) {
@@ -252,32 +352,48 @@ function uuid() {
         .join('')
         .replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5');
 }
+
 /**
  * @param {keyof import('../../public/locales/en/settings.json')} t
+ * @param {Record<string, any>} [data]
  * @return {string}
  */
-export function UserText(t) {
+export function UserText(t, data = {}) {
+    console.log('data:', data);
     return t;
+}
+
+/**
+ * @template {string} T
+ * @param {T} t
+ * @return {{id: T}}
+ */
+export function Value(t) {
+    return { id: t };
 }
 
 /**
  * Helper factory function to create a screen builder
  * @param {string} id - The screen identifier
- * @returns {Pick<Pane, 'withTitle' | 'withTitleStatus'>} - A new screen builder instance
+ * @returns {Pick<PaneBuilder, 'withTitle' | 'withTitleStatus'>} - A new screen builder instance
  */
 export function pane(id) {
-    return new Pane(id);
+    return new PaneBuilder(id);
 }
 
-export const api = {
-    pane,
-    DescriptionLink,
-    Checkbox,
-    UserText,
-    ButtonBuilder,
-    SectionTitle,
-    Custom,
-};
+export class Api {
+    pane = pane;
+    DescriptionLink = DescriptionLink;
+    Checkbox = Checkbox;
+    UserText = UserText;
+    ButtonBuilder = ButtonBuilder;
+    SectionTitle = SectionTitle;
+    Custom = Custom;
+    Switch = Switch;
+    Value = Value;
+    Text = TextRow;
+    Link = LinkRow;
+}
 
 function demo() {
     const _pane = pane('privateSearch').withTitle('Private Search').build();

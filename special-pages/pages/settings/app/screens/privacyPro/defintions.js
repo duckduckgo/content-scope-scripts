@@ -1,14 +1,15 @@
 /**
  * @import {ScreenTitleStatusProps} from '../../elements/ScreenTitleStatus.js'
- * @import {ElementDefinition, ScreenDefinition} from '../../settings.service.js'
+ * @import {ElementDefinition, PaneDefinition} from '../../settings.service.js'
  */
 
 /**
- * @returns {Record<string, ScreenDefinition>}
+ * @returns {Record<string, PaneDefinition>}
  */
 export function privacyPro() {
     return {
         privacyPro: {
+            sections: [],
             id: 'privacyPro',
             title: {
                 kind: 'ScreenTitleDefinition',

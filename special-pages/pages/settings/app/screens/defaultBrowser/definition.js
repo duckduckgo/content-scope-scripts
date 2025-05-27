@@ -1,10 +1,10 @@
 /**
  * @import {ScreenTitleStatusProps} from '../../elements/ScreenTitleStatus.js'
- * @import {ElementDefinition, ScreenDefinition} from '../../settings.service.js'
+ * @import {ElementDefinition, PaneDefinition} from '../../settings.service.js'
  */
 
 /**
- * @returns {Record<string, ScreenDefinition>}
+ * @returns {Record<string, PaneDefinition>}
  */
 export function defaultBrowser() {
     return {
@@ -23,25 +23,25 @@ export function defaultBrowser() {
             sections: [
                 [
                     {
-                        id: 'defaultBrowser.base.inlineWarning',
+                        id: 'defaultBrowser.inlineWarning',
                         kind: 'SwitchDefinition',
                         valueId: 'defaultBrowser.isDefault',
                         on: [
                             {
-                                id: 'defaultBrowser.base.inlineWarning1',
+                                id: 'defaultBrowser.inlineWarning1',
                                 kind: 'TextRowDefinition',
                                 props: {
-                                    text: 'defaultBrowser.base.ddg_is_default',
+                                    text: 'defaultBrowser.ddg_is_default',
                                 },
                             },
                         ],
                         off: [
                             {
-                                id: 'defaultBrowser.base.inlineWarning2',
+                                id: 'defaultBrowser.inlineWarning2',
                                 kind: 'InlineWarningDefinition',
                                 props: {
-                                    text: 'defaultBrowser.base.ddg_not_default',
-                                    buttonText: 'defaultBrowser.base.make_ddg_default',
+                                    text: 'defaultBrowser.ddg_not_default',
+                                    buttonText: 'defaultBrowser.make_ddg_default',
                                 },
                             },
                         ],

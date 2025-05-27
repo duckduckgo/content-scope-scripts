@@ -1,11 +1,11 @@
 /**
  * @import {ScreenTitleStatusProps} from '../../elements/ScreenTitleStatus.js'
- * @import {ElementDefinition, ScreenDefinition} from '../../settings.service.js'
+ * @import {ElementDefinition, PaneDefinition} from '../../settings.service.js'
  */
 
 /**
- * @param {typeof import("../../global/builders.js").api} api
- * @returns {Record<string, ScreenDefinition>}
+ * @param {import("../../global/builders.js").Api} api
+ * @returns {Record<string, PaneDefinition>}
  */
 export function cookiePopupProtection(api) {
     const { UserText } = api;

@@ -7,6 +7,7 @@
  *   | { id: string, kind: "ScreenTitleDefinition", props: import('./elements/ScreenTitle.js').ScreenTitleDefinition }
  *   | { id: string, kind: "SectionTitleProps", props: import('./elements/SectionTitle.js').SectionTitleProps }
  *   | { id: string, kind: "TextRowDefinition", props: import('./elements/TextRow.js').TextRowDefinition }
+ *   | { id: string, kind: "LinkRowDefinition", props: import('./elements/LinkRow.js').LinkRowDefinition }
  *   | { id: string, kind: "NearestLocation", strings: string[] }
  *   | { id: string, kind: "PrivacyPro", strings: string[] }
  *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
@@ -24,10 +25,9 @@
 
 /**
  * @typedef {"privacyPro" | "protections" | "main" | "about" | "dev"} ScreenCategory
- * @typedef {{elements: ElementDefinition[], sections?: ElementDefinition[][], id: string, title: ElementDefinition}} ScreenDefinition
  * @typedef {{id: string, screenIds: string[]}} ScreenGroup
  * @typedef {{
- *    screens: Record<string, ScreenDefinition>,
+ *    screens: Record<string, PaneDefinition>,
  *    groups: ScreenGroup[],
  *    excludedElements: string[]
  * }} SettingsStructure
@@ -40,7 +40,21 @@ import { cookiePopupProtection } from './screens/cookiePopupProtection/definitio
 import { emailProtection } from './screens/emailProtection/definitions.js';
 import { vpn } from './screens/vpn/definitions.js';
 import { privacyPro } from './screens/privacyPro/defintions.js';
-import { api } from './global/builders.js';
+import { Api } from './global/builders.js';
+
+/**
+ * The minimum amount of data needed to
+ */
+export class PaneDefinition {
+    /** @type {ElementDefinition[]} */
+    elements;
+    /** @type {ElementDefinition[][] | undefined} */
+    sections;
+    /** @type {string} */
+    id;
+    /** @type {ElementDefinition} */
+    title;
+}
 
 /**
  * @typedef {'initial' | 'user' | 'auto'} SettingsQuerySource
@@ -106,14 +120,15 @@ export function paramsToQuery(params, source = 'initial') {
  * @return {SettingsStructure}
  */
 export function defaultStructure() {
+    const api = new Api();
     return {
         excludedElements: [],
         screens: {
             ...defaultBrowser(),
-            ...privateSearch(),
+            ...privateSearch(api),
             ...webTrackingProtection(),
             ...cookiePopupProtection(api),
-            ...emailProtection(),
+            ...emailProtection(api),
             ...vpn(api),
             ...privacyPro(),
         },
@@ -141,7 +156,7 @@ export function defaultState() {
         'privateSearch.titleStatus': true,
         'defaultBrowser.isDefault': false,
         'defaultBrowser.dock.enabled': false,
-        'emailProtection.enabled': true,
+        'emailProtection.enabled': false,
         /** @type {'nearest' | 'uk' | 'us'} */
         'vpn.location.selector': 'nearest',
         /** @type {'none' | 'subscribed'} */

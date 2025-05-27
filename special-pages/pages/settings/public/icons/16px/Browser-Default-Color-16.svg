@@ -1,0 +1,18 @@
+<svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#FAFAFA" d="M12 1.5A3.5 3.5 0 0 1 15.5 5v2.835c0 .221-.273.34-.449.204a5 5 0 0 0-7.582 6.076c.082.175-.04.385-.232.385H4A3.5 3.5 0 0 1 .5 11V5A3.5 3.5 0 0 1 4 1.5h8Z"/>
+  <path fill="#DDD" d="M12.5 1.5a3 3 0 0 1 3 3v1H.5v-1a3 3 0 0 1 3-3h9Z"/>
+  <path fill="url(#Browser-Default-Color-16_svg__a)" d="M12 1a4 4 0 0 1 4 4v2.801c0 .384-.53.579-.827.335A5.079 5.079 0 0 0 15 8V6H1v5a3 3 0 0 0 3 3h3.417c.049.11.1.218.156.324.153.292-.044.676-.374.676H4a4 4 0 0 1-4-4V5a4 4 0 0 1 4-4h8ZM4 2a3 3 0 0 0-3 3h14a3 3 0 0 0-3-3H4Z"/>
+  <path fill="#4CBA3C" d="M15.5 12a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"/>
+  <path fill="url(#Browser-Default-Color-16_svg__b)" d="M15 12a3 3 0 1 0-6 0 3 3 0 0 0 6 0Zm1 0a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/>
+  <path fill="#fff" d="M13.184 10.737a.5.5 0 0 1 .704.703l-.035.039-1.875 1.875a.5.5 0 0 1-.668.034l-.039-.034-1.125-1.125-.034-.039a.5.5 0 0 1 .703-.703l.038.034.772.772 1.521-1.521.038-.035Z"/>
+  <defs>
+    <linearGradient id="Browser-Default-Color-16_svg__a" x1="8" x2="8" y1="15" y2="1" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#888"/>
+      <stop offset="1" stop-color="#AAA"/>
+    </linearGradient>
+    <linearGradient id="Browser-Default-Color-16_svg__b" x1="12" x2="12" y1="8" y2="16" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4CBA3C"/>
+      <stop offset="1" stop-color="#288419"/>
+    </linearGradient>
+  </defs>
+</svg>

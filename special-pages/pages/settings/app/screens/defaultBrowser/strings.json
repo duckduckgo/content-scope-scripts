@@ -3,19 +3,19 @@
     "title": "Default Browser",
     "note": "Heading for the default browser settings section"
   },
-  "defaultBrowser.base.off_opt": {
+  "defaultBrowser.off_opt": {
     "title": "Off",
     "note": "Option indicating that the default browser setting is turned off"
   },
-  "defaultBrowser.base.ddg_not_default": {
+  "defaultBrowser.ddg_not_default": {
     "title": "DuckDuckGo is not your default browser.",
     "note": "Notification message indicating that DuckDuckGo is not set as the default browser"
   },
-  "defaultBrowser.base.ddg_is_default": {
+  "defaultBrowser.ddg_is_default": {
     "title": "DuckDuckGo is your default browser.",
     "note": "Notification message indicating that DuckDuckGo is not set as the default browser"
   },
-  "defaultBrowser.base.make_ddg_default": {
+  "defaultBrowser.make_ddg_default": {
     "title": "Make DuckDuckGo Default...",
     "note": "Button text to set DuckDuckGo as the default browser"
   },

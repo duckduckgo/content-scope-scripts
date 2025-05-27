@@ -58,7 +58,7 @@ export function Sidebar({ settingsStructure }) {
  *
  * @param {Object} props
  * @param {import('@preact/signals').ReadonlySignal<string|null>} props.current The current selection with a value property.
- * @param {import('../settings.service').ScreenDefinition} props.setting The range represented by this item.
+ * @param {import('../settings.service').PaneDefinition} props.setting The range represented by this item.
  * @param {(setting: string) => void} props.onClick Callback function triggered when the range is clicked.
  */
 function Item({ current, setting, onClick }) {

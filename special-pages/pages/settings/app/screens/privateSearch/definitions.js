@@ -1,41 +1,28 @@
 /**
  * @import {ScreenTitleStatusProps} from '../../elements/ScreenTitleStatus.js'
- * @import {ElementDefinition, ScreenDefinition} from '../../settings.service.js'
+ * @import {ElementDefinition, PaneDefinition} from '../../settings.service.js'
  */
 
 /**
- * @returns {Record<string, ScreenDefinition>}
+ * @param {import("../../global/builders.js").Api} api
+ * @returns {Record<string, PaneDefinition>}
  */
-export function privateSearch() {
-    return {
-        privateSearch: {
-            id: 'privateSearch',
-            title: {
-                id: 'privateSearch.titleStatus',
-                kind: 'ScreenTitleStatusDefinition',
-                props: {
-                    offText: 'status_off',
-                    onText: 'status_on_private',
-                    title: 'privateSearch.screenTitle',
-                },
-            },
-            elements: [
-                {
-                    id: 'privateSearch.base.description',
-                    kind: 'DescriptionLinkDefinition',
-                    props: {
-                        linkText: 'privateSearch.base.learn_more_link',
-                        description: 'privateSearch.base.ddg_private_search_info',
-                    },
-                },
-                {
-                    id: 'privateSearch.base.autocomplete_on',
-                    kind: 'CheckboxDefinition',
-                    props: {
-                        text: 'privateSearch.base.autocomplete_opt',
-                    },
-                },
-            ],
-        },
-    };
+export function privateSearch(api) {
+    return api
+        .pane('privateSearch')
+        .withTitleStatus({
+            title: api.UserText('privateSearch.screenTitle'),
+            offText: api.UserText('status_off'),
+            onText: api.UserText('status_on_private'),
+        })
+        .addElement(
+            new api.DescriptionLink({
+                linkText: api.UserText('privateSearch.base.learn_more_link'),
+                description: api.UserText('privateSearch.base.ddg_private_search_info'),
+            }),
+        )
+        .addElement(
+            new api.Checkbox({ id: 'privateSearch.base.autocomplete_on', text: api.UserText('privateSearch.base.autocomplete_opt') }),
+        )
+        .build();
 }

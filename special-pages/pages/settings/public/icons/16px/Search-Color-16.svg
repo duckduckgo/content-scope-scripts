@@ -1,0 +1,12 @@
+<svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#E46F4F" fill-rule="evenodd" d="M8 15.5a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z" clip-rule="evenodd"/>
+  <path fill="#fff" d="M9.146 9.146a.5.5 0 0 1 .67-.034l.037.034 2.5 2.5.035.039a.5.5 0 0 1-.704.703l-.038-.034-2.5-2.5-.034-.039a.5.5 0 0 1 .034-.669Z"/>
+  <path fill="#fff" d="M10 7a3 3 0 1 0-6 0 3 3 0 0 0 6 0Zm1 0a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/>
+  <path fill="url(#Search-Color-16_svg__a)" d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0Zm0 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Z"/>
+  <defs>
+    <linearGradient id="Search-Color-16_svg__a" x1="8" x2="8" y1="0" y2="16" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DE5833"/>
+      <stop offset="1" stop-color="#BC4726"/>
+    </linearGradient>
+  </defs>
+</svg>

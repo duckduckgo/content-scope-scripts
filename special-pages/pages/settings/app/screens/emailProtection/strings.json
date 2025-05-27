@@ -14,5 +14,17 @@
   "emailProtection.enable_button": {
     "title": "Enable Email Protection",
     "note": ""
+  },
+  "emailProtection.enabledFor": {
+    "title": "Autofill enabled in this browser for: shaneosbourne@duck.com"
+  },
+  "emailProtection.manage": {
+    "title": "Manage Account"
+  },
+  "emailProtection.disable": {
+    "title": "Disable Email Protection Autofill"
+  },
+  "emailProtection.support": {
+    "title": "Support"
   }
 }

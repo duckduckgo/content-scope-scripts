@@ -11,6 +11,7 @@ import { NearestLocationWithState } from '../custom/NearestLocation.js';
 import { Debug } from '../components/Screen.js';
 import { ScreenTitle } from './ScreenTitle.js';
 import { PrivacyProWithState } from '../custom/PrivacyPro.js';
+import { LinkRowWithState } from './LinkRow.js';
 
 /**
  * @param {object} props
@@ -85,6 +86,9 @@ function toComponents(def, debug = false) {
                 }
                 case 'PrivacyPro': {
                     return <PrivacyProWithState id={d.id} key={d.id} />;
+                }
+                case 'LinkRowDefinition': {
+                    return <LinkRowWithState {...d.props} id={d.id} key={d.id} />;
                 }
                 default:
                     throw new Error('not handled!');

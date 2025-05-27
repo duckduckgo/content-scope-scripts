@@ -34,13 +34,25 @@ export function settingsMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'buttonPress': {
+                    if (msg.params.id === 'emailProtection.enabled') {
+                        const int = setTimeout(() => {
+                            subscriptions.get('onValueChanged')?.({ id: 'emailProtection.enabled', value: true });
+                        }, 500);
+                        return () => clearInterval(int);
+                    }
+                    if (msg.params.id === 'emailProtection.disable') {
+                        const int = setTimeout(() => {
+                            subscriptions.get('onValueChanged')?.({ id: 'emailProtection.enabled', value: false });
+                        }, 500);
+                        return () => clearInterval(int);
+                    }
                     if (msg.params.id === 'defaultBrowser.inlineWarning2') {
                         const int = setTimeout(() => {
                             subscriptions.get('onValueChanged')?.({ id: 'defaultBrowser.isDefault', value: true });
                         }, 500);
                         return () => clearInterval(int);
                     }
-                    if (msg.params.id === 'defaultBrowser.dock.button') {
+                    if (msg.params.id === 'defaultBrowser.shortcuts.dock.button') {
                         const int = setTimeout(() => {
                             subscriptions.get('onValueChanged')?.({ id: 'defaultBrowser.dock.enabled', value: true });
                         }, 500);
