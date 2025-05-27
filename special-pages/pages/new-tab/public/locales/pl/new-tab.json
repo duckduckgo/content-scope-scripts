@@ -64,6 +64,22 @@
     "title" : "{count} – tyle prób śledzenia zablokowano",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
+  "stats_noActivityAdsAndTrackers" : {
+    "title" : "DuckDuckGo blokuje reklamy i próby śledzenia podczas korzystania z przeglądarki. Odwiedź kilka stron, aby przekonać się, ile mechanizmów śledzących zablokujemy!",
+    "note" : "Placeholder for when we cannot report any blocked ads and trackers yet"
+  },
+  "stats_noRecentAdsAndTrackers" : {
+    "title" : "Ochrona aktywna",
+    "note" : "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
+  },
+  "stats_countBlockedAdsAndTrackersSingular" : {
+    "title" : "<b>1</b> reklama i próba śledzenia zablokowana",
+    "note" : "The main headline indicating that a single ad or tracking attempt was blocked"
+  },
+  "stats_countBlockedAdsAndTrackersPlural" : {
+    "title" : "Zablokowanych reklam i prób śledzenia: <b>{count}</b>",
+    "note" : "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
+  },
   "stats_feedCountBlockedSingular" : {
     "title" : "1 próba zablokowana przez DuckDuckGo w ciągu ostatnich 7 dni",
     "note" : "A summary description of how many tracking attempts where blocked, when only one exists."
@@ -291,6 +307,22 @@
   "activity_countBlockedPlural" : {
     "title" : "Zablokowanych prób śledzenia: <b>{count}</b>",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_noRecentAdsAndTrackers_subtitle" : {
+    "title" : "Tutaj będą widoczne ostatnio odwiedzone witryny. Przeglądaj dalej, aby zobaczyć liczbę zablokowanych reklam i mechanizmów śledzących.",
+    "note" : "Shown in the place a list of browsing history entries will be displayed."
+  },
+  "activity_no_adsAndTrackers" : {
+    "title" : "Nie znaleziono reklam i prób śledzenia",
+    "note" : "Placeholder message indicating that no ads and trackers are detected"
+  },
+  "activity_no_adsAndTrackers_blocked" : {
+    "title" : "Nie zablokowano reklam i prób śledzenia",
+    "note" : "Placeholder message indicating that no ads and trackers are blocked"
+  },
+  "activity_countBlockedAdsAndTrackersPlural" : {
+    "title" : "Zablokowane reklamy i próby śledzenia: <b>{count}</b>",
+    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + Tracking attempts blocked'"
   },
   "activity_favoriteAdd" : {
     "title" : "Dodaj {domain} do ulubionych",
