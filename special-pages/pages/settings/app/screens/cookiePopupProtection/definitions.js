@@ -4,39 +4,31 @@
  */
 
 /**
+ * @param {typeof import("../../global/builders.js").api} api
  * @returns {Record<string, ScreenDefinition>}
  */
-export function cookiePopupProtection() {
-    return {
-        cookiePopupProtection: {
-            id: 'cookiePopupProtection',
-            title: {
-                id: 'cookiePopupProtection.titleStatus',
-                valueId: 'cookiePopupProtection.base.cpm_on',
-                kind: 'ScreenTitleStatusDefinition',
-                props: {
-                    offText: 'status_off',
-                    onText: 'status_on',
-                    title: 'cookiePopupProtection.screenTitle',
-                },
-            },
-            elements: [
-                {
-                    id: 'cookiePopupProtection.base.description',
-                    kind: 'DescriptionLinkDefinition',
-                    props: {
-                        description: 'cookiePopupProtection.base.ddg_cookie_info',
-                        linkText: 'cookiePopupProtection.base.learn_more_link',
-                    },
-                },
-                {
-                    id: 'cookiePopupProtection.base.cpm_on',
-                    kind: 'CheckboxDefinition',
-                    props: {
-                        text: 'cookiePopupProtection.base.auto_handle_cookie_opt',
-                    },
-                },
-            ],
-        },
-    };
+export function cookiePopupProtection(api) {
+    const { UserText } = api;
+
+    const description = new api.DescriptionLink({
+        description: UserText('cookiePopupProtection.base.ddg_cookie_info'),
+        linkText: UserText('cookiePopupProtection.base.learn_more_link'),
+    });
+
+    const checkbox = new api.Checkbox({
+        id: 'cookiePopupProtection.base.cpm_on',
+        text: UserText('cookiePopupProtection.base.auto_handle_cookie_opt'),
+    });
+
+    return api
+        .pane('cookiePopupProtection')
+        .withTitleStatus({
+            valueId: 'cookiePopupProtection.base.cpm_on',
+            title: UserText('cookiePopupProtection.screenTitle'),
+            offText: UserText('status_off'),
+            onText: UserText('status_on'),
+        })
+        .addElement(description)
+        .addElement(checkbox)
+        .build();
 }

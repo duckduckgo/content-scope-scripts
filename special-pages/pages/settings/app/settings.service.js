@@ -7,7 +7,7 @@
  *   | { id: string, kind: "ScreenTitleDefinition", props: import('./elements/ScreenTitle.js').ScreenTitleDefinition }
  *   | { id: string, kind: "SectionTitleProps", props: import('./elements/SectionTitle.js').SectionTitleProps }
  *   | { id: string, kind: "TextRowDefinition", props: import('./elements/TextRow.js').TextRowDefinition }
- *   | { id: string, kind: "NearestLocation" }
+ *   | { id: string, kind: "NearestLocation", strings: string[] }
  *   | { id: string, kind: "PrivacyPro", strings: string[] }
  *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
  *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition, children?: ElementDefinition[] }
@@ -40,6 +40,7 @@ import { cookiePopupProtection } from './screens/cookiePopupProtection/definitio
 import { emailProtection } from './screens/emailProtection/definitions.js';
 import { vpn } from './screens/vpn/definitions.js';
 import { privacyPro } from './screens/privacyPro/defintions.js';
+import { api } from './global/builders.js';
 
 /**
  * @typedef {'initial' | 'user' | 'auto'} SettingsQuerySource
@@ -111,9 +112,9 @@ export function defaultStructure() {
             ...defaultBrowser(),
             ...privateSearch(),
             ...webTrackingProtection(),
-            ...cookiePopupProtection(),
+            ...cookiePopupProtection(api),
             ...emailProtection(),
-            ...vpn(),
+            ...vpn(api),
             ...privacyPro(),
         },
         groups: [
@@ -141,6 +142,7 @@ export function defaultState() {
         'defaultBrowser.isDefault': false,
         'defaultBrowser.dock.enabled': false,
         'emailProtection.enabled': true,
+        /** @type {'nearest' | 'uk' | 'us'} */
         'vpn.location.selector': 'nearest',
         /** @type {'none' | 'subscribed'} */
         'privacyPro.subscription': 'none',

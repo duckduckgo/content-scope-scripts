@@ -4,42 +4,20 @@
  */
 
 /**
+ * @param {typeof import("../../global/builders.js").api} api
  * @returns {Record<string, ScreenDefinition>}
  */
-export function vpn() {
-    return {
-        vpn: {
-            id: 'vpn',
-            title: {
-                id: 'vpn.titleStatus',
-                valueId: 'vpn.enabled',
-                kind: 'ScreenTitleStatusDefinition',
-                props: {
-                    offText: 'status_off',
-                    onText: 'status_on',
-                    title: 'vpn.screenTitle',
-                },
-            },
-            elements: [
-                {
-                    id: 'vpn.location.enableButton',
-                    kind: 'ButtonRowDefinition',
-                    props: {
-                        text: 'vpn.enable_button',
-                    },
-                },
-                {
-                    id: 'vpn.location.nearestLocation',
-                    kind: 'SectionTitleProps',
-                    props: {
-                        title: 'vpn.location.section_title',
-                    },
-                },
-                {
-                    id: 'vpn.location.selector',
-                    kind: 'NearestLocation',
-                },
-            ],
-        },
-    };
+export function vpn(api) {
+    return api
+        .pane('vpn')
+        .withTitleStatus({
+            onText: 'status_on',
+            title: 'vpn.screenTitle',
+            valueId: 'vpn.enabled',
+            offText: 'status_off',
+        })
+        .addElement(new api.ButtonBuilder({ id: 'vpn.location.enableButton', text: api.UserText('vpn.enable_button') }))
+        .addElement(new api.SectionTitle({ title: api.UserText('vpn.location.section_title') }))
+        .addElement(new api.Custom({ elementKind: 'NearestLocation' }))
+        .build();
 }
