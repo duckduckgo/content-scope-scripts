@@ -198,9 +198,13 @@
 .updatesLink {
     display: inline-flex;
     align-items: center;
-    border-bottom: 1px solid currentColor;
+    border-bottom: 1px solid transparent;
     width: fit-content;
     text-decoration: none;
+
+    &:hover {
+        border-bottom-color: currentColor;
+    }
 
     .linkIcon {
         height: 1rem;
