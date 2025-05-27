@@ -4,6 +4,9 @@ import { Protections } from './Protections.js';
 import { useSignal } from '@preact/signals';
 import { ActivityEmptyState } from '../../activity/components/Activity.js';
 import { PrivacyStatsEmptyState } from '../../privacy-stats/components/PrivacyStats.js';
+import { TubeGrid } from '../../components/Components.jsx';
+import { SettingsProvider } from '../../settings.provider.js';
+import { Settings } from '../../settings.js';
 
 /**
  * @import {FeedType} from '../../../types/new-tab.js')
@@ -14,81 +17,123 @@ export const protectionsHeadingExamples = {
         factory: () => {
             return (
                 <Fragment>
-                    <MockWithState initial={0}>
-                        {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
-                            return (
-                                <Protections
-                                    blockedCountSignal={blockedCountSignal}
-                                    feed={feed}
-                                    setFeed={setFeed}
-                                    expansion={expansion}
-                                    toggle={toggle}
-                                >
-                                    <PrivacyStatsEmptyState />
-                                </Protections>
-                            );
-                        }}
-                    </MockWithState>
-                    <MockWithState initial={0} feedType={'activity'}>
-                        {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
-                            return (
-                                <Protections
-                                    blockedCountSignal={blockedCountSignal}
-                                    feed={feed}
-                                    setFeed={setFeed}
-                                    expansion={expansion}
-                                    toggle={toggle}
-                                >
-                                    <ActivityEmptyState />
-                                </Protections>
-                            );
-                        }}
-                    </MockWithState>
-                    <MockWithState initial={1}>
-                        {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
-                            return (
-                                <Protections
-                                    blockedCountSignal={blockedCountSignal}
-                                    feed={feed}
-                                    setFeed={setFeed}
-                                    expansion={expansion}
-                                    toggle={toggle}
-                                >
-                                    <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
-                                </Protections>
-                            );
-                        }}
-                    </MockWithState>
-                    <MockWithState initial={0} interval={1000}>
-                        {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
-                            return (
-                                <Protections
-                                    blockedCountSignal={blockedCountSignal}
-                                    feed={feed}
-                                    setFeed={setFeed}
-                                    expansion={expansion}
-                                    toggle={toggle}
-                                >
-                                    <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
-                                </Protections>
-                            );
-                        }}
-                    </MockWithState>
-                    <MockWithState initial={100} feedType={'activity'}>
-                        {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
-                            return (
-                                <Protections
-                                    blockedCountSignal={blockedCountSignal}
-                                    feed={feed}
-                                    setFeed={setFeed}
-                                    expansion={expansion}
-                                    toggle={toggle}
-                                >
-                                    <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
-                                </Protections>
-                            );
-                        }}
-                    </MockWithState>
+                    <h2>AdBlocking = "enabled"</h2>
+                    <br />
+                    <TubeGrid>
+                        <MockWithState initial={0}>
+                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                                return (
+                                    <SettingsProvider settings={new Settings({ adBlocking: { state: 'enabled' } })}>
+                                        <Protections
+                                            blockedCountSignal={blockedCountSignal}
+                                            feed={feed}
+                                            setFeed={setFeed}
+                                            expansion={expansion}
+                                            toggle={toggle}
+                                        >
+                                            <PrivacyStatsEmptyState />
+                                        </Protections>
+                                    </SettingsProvider>
+                                );
+                            }}
+                        </MockWithState>
+                        <MockWithState initial={120}>
+                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                                return (
+                                    <SettingsProvider settings={new Settings({ adBlocking: { state: 'enabled' } })}>
+                                        <Protections
+                                            blockedCountSignal={blockedCountSignal}
+                                            feed={feed}
+                                            setFeed={setFeed}
+                                            expansion={expansion}
+                                            toggle={toggle}
+                                        >
+                                            <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
+                                        </Protections>
+                                    </SettingsProvider>
+                                );
+                            }}
+                        </MockWithState>
+                    </TubeGrid>
+                    <h2>AdBlocking = "disabled"</h2>
+                    <br />
+                    <TubeGrid>
+                        <MockWithState initial={0}>
+                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                                return (
+                                    <Protections
+                                        blockedCountSignal={blockedCountSignal}
+                                        feed={feed}
+                                        setFeed={setFeed}
+                                        expansion={expansion}
+                                        toggle={toggle}
+                                    >
+                                        <PrivacyStatsEmptyState />
+                                    </Protections>
+                                );
+                            }}
+                        </MockWithState>
+                        <MockWithState initial={0} feedType={'activity'}>
+                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                                return (
+                                    <Protections
+                                        blockedCountSignal={blockedCountSignal}
+                                        feed={feed}
+                                        setFeed={setFeed}
+                                        expansion={expansion}
+                                        toggle={toggle}
+                                    >
+                                        <ActivityEmptyState />
+                                    </Protections>
+                                );
+                            }}
+                        </MockWithState>
+                        <MockWithState initial={1}>
+                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                                return (
+                                    <Protections
+                                        blockedCountSignal={blockedCountSignal}
+                                        feed={feed}
+                                        setFeed={setFeed}
+                                        expansion={expansion}
+                                        toggle={toggle}
+                                    >
+                                        <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
+                                    </Protections>
+                                );
+                            }}
+                        </MockWithState>
+                        <MockWithState initial={0} interval={1000}>
+                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                                return (
+                                    <Protections
+                                        blockedCountSignal={blockedCountSignal}
+                                        feed={feed}
+                                        setFeed={setFeed}
+                                        expansion={expansion}
+                                        toggle={toggle}
+                                    >
+                                        <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
+                                    </Protections>
+                                );
+                            }}
+                        </MockWithState>
+                        <MockWithState initial={100} feedType={'activity'}>
+                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                                return (
+                                    <Protections
+                                        blockedCountSignal={blockedCountSignal}
+                                        feed={feed}
+                                        setFeed={setFeed}
+                                        expansion={expansion}
+                                        toggle={toggle}
+                                    >
+                                        <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
+                                    </Protections>
+                                );
+                            }}
+                        </MockWithState>
+                    </TubeGrid>
                 </Fragment>
             );
         },

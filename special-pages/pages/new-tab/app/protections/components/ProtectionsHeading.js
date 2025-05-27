@@ -38,7 +38,7 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
     }
 
     return (
-        <div class={cn(styles.heading, { [styles.adsAndTrackersVariant]: adBlocking })} data-testid="ProtectionsHeading">
+        <div class={styles.heading} data-testid="ProtectionsHeading">
             <div class={styles.control}>
                 <span class={styles.headingIcon}>
                     <img src={'./icons/shield-green.svg'} alt="Privacy Shield" />
@@ -59,14 +59,14 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
                 )}
             </div>
             <div class={styles.counter}>
-                {none && <h3 class={styles.title}>{adBlocking ? t('stats_noRecentAdsAndTrackers') : t('protections_noRecent')}</h3>}
+                {none && <h3 class={styles.title}>{t('protections_noRecent')}</h3>}
                 {some && (
                     <h3 class={styles.title}>
                         {' '}
                         <Trans str={alltimeTitle} values={{ count: alltime }} />
                     </h3>
                 )}
-                <p class={cn(styles.subtitle, styles.indented, { [styles.uppercase]: !adBlocking })}>{t('stats_feedCountBlockedPeriod')}</p>
+                <p class={cn(styles.subtitle, styles.indented)}>{t('stats_feedCountBlockedPeriod')}</p>
             </div>
         </div>
     );

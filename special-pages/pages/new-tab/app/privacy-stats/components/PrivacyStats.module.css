@@ -54,29 +54,13 @@
     font-size: var(--title-2-font-size);
     font-weight: var(--title-2-font-weight);
     line-height: var(--title-2-line-height);
-
-    .adsAndTrackersVariant & {
-        font-size: var(--title-3-em-font-size);
-
-        &:has(b) {
-            color: var(--ntp-text-muted);
-        }
-
-        b {
-            color: var(--ntp-text-normal);
-            font-weight: var(--title-2-font-weight);
-        }
-    }
 }
 
 .subtitle {
     grid-area: label;
     color: var(--ntp-text-muted);
-
-    &.uppercase {
-        line-height: var(--body-line-height);
-        text-transform: uppercase;
-    }
+    line-height: var(--body-line-height);
+    text-transform: uppercase;
 
     &.indented {
         padding-left: 2px;
