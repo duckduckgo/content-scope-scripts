@@ -8,32 +8,12 @@ title: Privacy Stats
 - Used to fetch the initial data (during the first render)
 - returns {@link "NewTab Messages".PrivacyStatsData}
 
-### `stats_getConfig` 
-- {@link "NewTab Messages".StatsGetDataRequest}
-- Used to fetch the initial config data (eg: expanded vs collapsed)
-- returns {@link "NewTab Messages".StatsConfig}
-
 ## Subscriptions:
 ### `stats_onDataUpdate` 
 - {@link "NewTab Messages".StatsOnDataUpdateSubscription}.
 - The tracker/company data used in the feed.
 - returns {@link "NewTab Messages".PrivacyStatsData}
-### `stats_onConfigUpdate` 
-- {@link "NewTab Messages".StatsOnDataUpdateSubscription}.
-- The widget config
-- returns {@link "NewTab Messages".StatsConfig}
-
-## Notifications:
-### `stats_setConfig` 
-- {@link "NewTab Messages".StatsSetConfigNotification}
-- Sent when the user toggles the expansion of the stats
-- sends {@link "NewTab Messages".StatsConfig}
-- example payload:
-      ```json
-      {
-        "expansion": "collapsed"
-      }
-      ```
+ 
 ### `stats_showMore` 
 - {@link "NewTab Messages".StatsShowMoreNotification}
 - Sent when the user chooses to show more stats (eg: more than the default 5)

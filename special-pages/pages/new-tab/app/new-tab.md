@@ -9,6 +9,7 @@ children:
   - ./favorites/favorites.md
   - ./next-steps/next-steps.md
   - ./customizer/customizer.md
+  - ./protections/protections.md
 ---
 
 ## Requests

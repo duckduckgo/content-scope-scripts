@@ -3,7 +3,7 @@
     "title": "No recent browsing activity",
     "note": "Placeholder to indicate that no browsing activity was seen in the last 7 days"
   },
-  "activity_noRecent_subtitle": {
+  "activity_empty": {
     "title": "Recently visited sites will appear here. Keep browsing to see how many trackers we block.",
     "note": "Shown in the place a list of browsing history entries will be displayed."
   },

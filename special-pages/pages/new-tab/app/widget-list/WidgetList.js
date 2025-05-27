@@ -93,7 +93,7 @@ export function WidgetList() {
             })}
             {env === 'development' && (
                 <Centered data-entry-point="debug">
-                    <DebugCustomized index={widgets.length} isOpenInitially={false} />
+                    <DebugCustomized index={widgets.length} isOpenInitially={window.location.search.includes('debugWidget')} />
                 </Centered>
             )}
         </Fragment>

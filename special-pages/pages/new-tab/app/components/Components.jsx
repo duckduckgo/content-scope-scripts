@@ -120,7 +120,7 @@ function Stage({ entries }) {
 function Isolated({ entries, e2e }) {
     if (e2e) {
         return (
-            <div>
+            <div data-isolated={true}>
                 {entries.map(([id, item]) => {
                     return <Fragment key={id}>{item.factory()}</Fragment>;
                 })}
@@ -128,7 +128,7 @@ function Isolated({ entries, e2e }) {
         );
     }
     return (
-        <div class={styles.componentList} data-testid="stage">
+        <div class={styles.componentList} data-testid="stage" data-isolated={true}>
             {entries.map(([id, item], index) => {
                 return <div key={id + index}>{item.factory()}</div>;
             })}
@@ -228,6 +228,10 @@ function ExampleSelector({ entries, id }) {
             </div>
         </Fragment>
     );
+}
+
+export function TubeGrid({ children }) {
+    return <div class={styles.tubeGrid}>{children}</div>;
 }
 
 /**

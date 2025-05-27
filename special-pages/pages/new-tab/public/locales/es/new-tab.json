@@ -40,6 +40,22 @@
     "title" : "Descartar",
     "note" : "Button label text for an action that removes the widget from the screen."
   },
+  "protections_menuTitle" : {
+    "title" : "Informe de protecciones",
+    "note" : "Used as a label in the main navigation menu. 'Protections' refers to the privacy features that block trackers."
+  },
+  "protections_statsSwitchTitle" : {
+    "title" : "Resumen",
+    "note" : "Used as a label in a toggle switch that shows aggregated privacy statistics. This is one of two options in a view selector (the other is 'Details')."
+  },
+  "protections_activitySwitchTitle" : {
+    "title" : "Detalles",
+    "note" : "Used as a label in a toggle switch that shows recent browsing activity with tracking information. This is one of two options in a view selector (the other is 'Summary')."
+  },
+  "protections_noRecent" : {
+    "title" : "No hay actividad de rastreo reciente",
+    "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
+  },
   "stats_menuTitle" : {
     "title" : "Intentos de rastreo bloqueados",
     "note" : "Used as a label in a customization menu"
@@ -292,7 +308,7 @@
     "title" : "No hay actividad de navegación reciente",
     "note" : "Placeholder to indicate that no browsing activity was seen in the last 7 days"
   },
-  "activity_noRecent_subtitle" : {
+  "activity_empty" : {
     "title" : "Los sitios visitados recientemente aparecen aquí. Sigue navegando para ver cuántos rastreadores hemos bloqueado.",
     "note" : "Shown in the place a list of browsing history entries will be displayed."
   },
