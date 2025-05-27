@@ -1,12 +1,10 @@
-import { Fragment, h } from 'preact';
+import { h } from 'preact';
 import styles from './Activity.module.css';
-import { useContext, useEffect, useId, useRef } from 'preact/hooks';
+import { useContext, useEffect, useRef } from 'preact/hooks';
 import { memo } from 'preact/compat';
-import { ActivityContext, ActivityProvider, ActivityServiceContext } from '../ActivityProvider.js';
+import { ActivityContext, ActivityServiceContext } from '../ActivityProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
-import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useOnMiddleClick } from '../../utils.js';
-import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { useAdBlocking, useBatchedActivityApi, usePlatformName } from '../../settings.provider.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
@@ -16,10 +14,10 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js'
 import { useComputed } from '@preact/signals';
 import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js';
 import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility.js';
-import { ActivityHeading } from '../../privacy-stats/components/ActivityHeading.js';
 import { HistoryItems } from './HistoryItems.js';
 import { NormalizedDataContext, SignalStateProvider } from '../NormalizeDataProvider.js';
 import { ActivityInteractionsContext } from '../../burning/ActivityInteractionsContext.js';
+import { ProtectionsEmpty } from '../../protections/components/Protections.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -30,41 +28,26 @@ import { ActivityInteractionsContext } from '../../burning/ActivityInteractionsC
  * Renders the Activity component with associated heading and body, managing interactivity and state.
  *
  * @param {Object} props - Object containing all properties required by the Activity component.
- * @param {Expansion} props.expansion - String indicating the expansion state of the activity, such as 'expanded' or 'collapsed'.
- * @param {() => void} props.toggle - Callback function to handle the expansion/collapse action.
- * @param {number} props.trackerCount - Object representing the tracker count for the activity.
  * @param {number} props.itemCount - Object representing the count of items in the activity.
  * @param {boolean} props.batched - Boolean indicating whether the activity uses batched loading.
  * @param {import("preact").ComponentChild} [props.children]
  */
-export function Activity({ expansion, toggle, trackerCount, itemCount, batched, children }) {
-    // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
-    const expanded = expansion === 'expanded';
-    const WIDGET_ID = useId();
-    const TOGGLE_ID = useId();
-    const { didClick } = useContext(ActivityInteractionsContext);
-
-    const ref = useRef(null);
-    useOnMiddleClick(ref, didClick);
-
+export function Activity({ itemCount, batched, children }) {
     return (
-        <Fragment>
-            <div class={styles.root} onClick={didClick} ref={ref}>
-                <ActivityHeading
-                    trackerCount={trackerCount}
-                    itemCount={itemCount}
-                    onToggle={toggle}
-                    expansion={expansion}
-                    canExpand={itemCount > 0}
-                    buttonAttrs={{
-                        'aria-controls': WIDGET_ID,
-                        id: TOGGLE_ID,
-                    }}
-                />
-                {itemCount > 0 && expanded && children}
-            </div>
-            {batched && itemCount > 0 && expanded && <Loader />}
-        </Fragment>
+        <div class={styles.root} data-testid="Activity">
+            {itemCount === 0 && <ActivityEmptyState />}
+            {itemCount > 0 && children}
+            {batched && itemCount > 0 && <Loader />}
+        </div>
+    );
+}
+
+export function ActivityEmptyState() {
+    const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
+    return (
+        <ProtectionsEmpty>
+            <p>{t('activity_empty')}</p>
+        </ProtectionsEmpty>
     );
 }
 
@@ -79,8 +62,14 @@ export function ActivityBody({ canBurn, visibility }) {
     const { burning, exiting } = useContext(ActivityBurningSignalContext);
     const busy = useComputed(() => burning.value.length > 0 || exiting.value.length > 0);
 
+    // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
+    const { didClick } = useContext(ActivityInteractionsContext);
+
+    const ref = useRef(null);
+    useOnMiddleClick(ref, didClick);
+
     return (
-        <ul class={styles.activity} data-busy={busy}>
+        <ul class={styles.activity} data-busy={busy} ref={ref} onClick={didClick}>
             {keys.value.map((id, _index) => {
                 if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={visibility} />;
                 return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={visibility} />;
@@ -243,57 +232,21 @@ function TrackerStatus({ id, trackersFound }) {
 
 /**
  * @param {object} props
- * @param {Expansion} props.expansion
- * @param {()=>void} props.toggle
  * @param {import("preact").ComponentChild} props.children
  */
-export function ActivityConfigured({ expansion, toggle, children }) {
+export function ActivityConfigured({ children }) {
     const batched = useBatchedActivityApi();
 
     const { activity } = useContext(NormalizedDataContext);
-
-    const count = useComputed(() => {
-        return activity.value.totalTrackers;
-    });
 
     const itemCount = useComputed(() => {
         return Object.keys(activity.value.items).length;
     });
 
     return (
-        <Activity batched={batched} itemCount={itemCount.value} trackerCount={count.value} expansion={expansion} toggle={toggle}>
+        <Activity batched={batched} itemCount={itemCount.value}>
             {children}
         </Activity>
-    );
-}
-
-/**
- * Use this when rendered within a widget list.
- *
- * It reaches out to access this widget's global visibility, and chooses
- * whether to incur the side effects (data fetching).
- */
-export function ActivityCustomized() {
-    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
-
-    /**
-     * The menu title for the stats widget is changes when the menu is in the sidebar.
-     */
-    // prettier-ignore
-    const sectionTitle = t('activity_menuTitle');
-
-    const { visibility, id, toggle, index } = useVisibility();
-
-    useCustomizer({ title: sectionTitle, id, icon: 'shield', toggle, visibility: visibility.value, index });
-
-    if (visibility.value === 'hidden') {
-        return null;
-    }
-
-    return (
-        <ActivityProvider>
-            <ActivityConsumer />
-        </ActivityProvider>
     );
 }
 
@@ -310,7 +263,7 @@ export function ActivityCustomized() {
  * ```
  */
 export function ActivityConsumer() {
-    const { state, toggle } = useContext(ActivityContext);
+    const { state } = useContext(ActivityContext);
     const service = useContext(ActivityServiceContext);
     const platformName = usePlatformName();
     const visibility = useDocumentVisibility();
@@ -318,7 +271,7 @@ export function ActivityConsumer() {
         if (platformName === 'windows') {
             return (
                 <SignalStateProvider>
-                    <ActivityConfigured expansion={state.config.expansion} toggle={toggle}>
+                    <ActivityConfigured>
                         <ActivityBody canBurn={false} visibility={visibility} />
                     </ActivityConfigured>
                 </SignalStateProvider>
@@ -327,7 +280,7 @@ export function ActivityConsumer() {
         return (
             <SignalStateProvider>
                 <BurnProvider service={service}>
-                    <ActivityConfigured expansion={state.config.expansion} toggle={toggle}>
+                    <ActivityConfigured>
                         <ActivityBody canBurn={true} visibility={visibility} />
                     </ActivityConfigured>
                 </BurnProvider>

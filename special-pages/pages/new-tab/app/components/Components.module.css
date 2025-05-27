@@ -33,6 +33,25 @@ body[data-display="components"] {
     grid-row-gap: 2rem;
 }
 
+body:has(.tubeGrid):has([data-isolated=true]) {
+    .componentList {
+        max-width: none;
+        padding: var(--sp-16);
+
+    }
+}
+
+.tubeGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 540px);
+    grid-column-gap: 12px;
+    align-items: flex-start;
+
+    + .tubeGrid {
+        margin-top: 12px;
+    }
+}
+
 .itemInfo {
     display: flex;
     flex-direction: column;
