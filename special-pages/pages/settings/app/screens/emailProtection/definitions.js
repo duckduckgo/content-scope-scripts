@@ -30,11 +30,11 @@ export function emailProtection(api) {
                     new api.Text({
                         text: api.UserText('emailProtection.enabledFor', { email: emailValue.id }),
                     }),
-                    new api.ButtonBuilder({
+                    new api.Button({
                         id: 'emailProtection.manage',
                         text: api.UserText('emailProtection.manage'),
                     }),
-                    new api.ButtonBuilder({
+                    new api.Button({
                         id: 'emailProtection.disable',
                         text: api.UserText('emailProtection.disable'),
                     }),
@@ -44,7 +44,7 @@ export function emailProtection(api) {
                     }),
                 ],
                 off: [
-                    new api.ButtonBuilder({
+                    new api.Button({
                         id: value.id,
                         text: api.UserText('emailProtection.enable_button'),
                     }),

@@ -1,6 +1,6 @@
 /**
  * @import {ScreenTitleStatusProps} from '../../elements/ScreenTitleStatus.js'
- * @import {ElementDefinition, PaneDefinition} from '../../settings.service.js'
+ * @import {PaneDefinition} from '../../settings.service.js'
  */
 
 /**
@@ -8,15 +8,17 @@
  * @returns {Record<string, PaneDefinition>}
  */
 export function vpn(api) {
+    const value = api.Value('vpn.enabled');
+
     return api
         .pane('vpn')
         .withTitleStatus({
-            onText: 'status_on',
-            title: 'vpn.screenTitle',
-            valueId: 'vpn.enabled',
-            offText: 'status_off',
+            onText: api.UserText('status_on'),
+            title: api.UserText('vpn.screenTitle'),
+            valueId: value.id,
+            offText: api.UserText('status_off'),
         })
-        .addElement(new api.ButtonBuilder({ id: 'vpn.location.enableButton', text: api.UserText('vpn.enable_button') }))
+        .addElement(new api.Button({ id: 'vpn.location.enableButton', text: api.UserText('vpn.enable_button') }))
         .addElement(new api.SectionTitle({ title: api.UserText('vpn.location.section_title') }))
         .addElement(new api.Custom({ elementKind: 'NearestLocation' }))
         .build();

@@ -96,40 +96,55 @@ export function PreResults({ results, renderedStrings, matchedTranslations }) {
     }, [seen]);
 
     const visibleElements = useComputed(() => {
-        const elementsToRender = [];
         const matches = matchedTranslations.value.matches;
-
-        for (const { screenIds } of results.value.groups) {
-            for (const screenId of screenIds) {
-                const forScreen = [];
-                const { title, elements, sections } = results.value.screens[screenId];
-                if (sections && sections.length > 0) {
-                    const sectionMatches = findSections(sections, matches);
-                    forScreen.push(...sectionMatches);
-                } else {
-                    const elementMatches = elements.some((element) => elementUsedTranslation(element, matches));
-                    if (elementMatches) {
-                        forScreen.push(...elements);
-                    }
-                }
-
-                if (forScreen.length) {
-                    elementsToRender.push(title);
-                    elementsToRender.push(...forScreen);
-                }
-            }
-        }
-
+        const elementsToRender = extracted(results, matches);
         return removeDuplicates(elementsToRender);
     });
 
-    // console.log(visibleElements.value);
+    const debug = location.href.includes('debug');
 
     return (
-        <div hidden={true}>
-            <Elements elements={visibleElements.value} excluded={[]} debug={location.href.includes('debug')} />
+        <div hidden={!debug} style={'border: 2px dotted red; padding: 2rem'}>
+            <Elements elements={visibleElements.value} excluded={[]} debug={debug} />
         </div>
     );
+}
+
+/**
+ * @param results
+ */
+function extracted(results, intersection) {
+    const elementsToRender = [];
+    for (const { screenIds } of results.value.groups) {
+        for (const screenId of screenIds) {
+            const forScreen = [];
+            const { title, elements, sections } = results.value.screens[screenId];
+            if (sections && sections.length > 0) {
+                const sectionMatches = findSections(sections, intersection);
+                forScreen.push(...sectionMatches);
+            } else {
+                const elementMatches = elements.some((element) => elementUsedTranslation(element, intersection));
+                if (elementMatches) {
+                    forScreen.push(...elements);
+                }
+            }
+
+            if (forScreen.length) {
+                elementsToRender.push(title);
+                elementsToRender.push(...forScreen);
+            } else {
+                if (elementUsedTranslation(title, intersection)) {
+                    elementsToRender.push(title);
+                    if (sections && sections.length) {
+                        elementsToRender.push(...sections[0]);
+                    } else {
+                        elementsToRender.push(...elements);
+                    }
+                }
+            }
+        }
+    }
+    return elementsToRender;
 }
 
 /**
@@ -147,29 +162,7 @@ export function Results({ results, renderedStrings, term, matchedTranslations })
         const searchMatches = matchedTranslations.value.matches;
         const s = renderedStrings.value;
         const intersection = searchMatches.filter((x) => s.includes(x.key));
-        const elementsToRender = [];
-
-        for (const { screenIds } of results.value.groups) {
-            for (const screenId of screenIds) {
-                const forScreen = [];
-                const { title, elements, sections } = results.value.screens[screenId];
-                if (sections && sections.length > 0) {
-                    const sectionMatches = findSections(sections, intersection);
-                    forScreen.push(...sectionMatches);
-                } else {
-                    const elementMatches = elements.some((element) => elementUsedTranslation(element, intersection));
-                    if (elementMatches) {
-                        forScreen.push(...elements);
-                    }
-                }
-
-                if (forScreen.length) {
-                    elementsToRender.push(title);
-                    elementsToRender.push(...forScreen);
-                }
-            }
-        }
-
+        const elementsToRender = extracted(results, intersection);
         return removeDuplicates(elementsToRender);
     });
 
@@ -179,6 +172,8 @@ export function Results({ results, renderedStrings, term, matchedTranslations })
         </div>
     );
 }
+
+function collect() {}
 
 /**
  * @param {import('../settings.service.js').ElementDefinition[][]} sections

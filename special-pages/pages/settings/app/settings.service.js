@@ -126,7 +126,7 @@ export function defaultStructure() {
         screens: {
             ...defaultBrowser(),
             ...privateSearch(api),
-            ...webTrackingProtection(),
+            ...webTrackingProtection(api),
             ...cookiePopupProtection(api),
             ...emailProtection(api),
             ...vpn(api),
@@ -161,5 +161,6 @@ export function defaultState() {
         'vpn.location.selector': 'nearest',
         /** @type {'none' | 'subscribed'} */
         'privacyPro.subscription': 'none',
+        'webTrackingProtection.base.gpc': true,
     };
 }

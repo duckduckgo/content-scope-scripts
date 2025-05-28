@@ -209,6 +209,18 @@ export class Checkbox {
     constructor({ id, text }) {
         this.id = id;
         this.text = text;
+        /** @type {ElementDefinition[]} */
+        this.children = [];
+    }
+
+    /**
+     * @param {(ElementDefinition|{build(): ElementDefinition })[]} children
+     */
+    withChildren(children) {
+        for (const child of children) {
+            this.children.push('build' in child ? child.build() : child);
+        }
+        return this;
     }
 
     /**
@@ -220,6 +232,7 @@ export class Checkbox {
             id: this.id,
             props: {
                 text: this.text,
+                children: this.children,
             },
         };
     }
@@ -388,7 +401,7 @@ export class Api {
     DescriptionLink = DescriptionLink;
     Checkbox = Checkbox;
     UserText = UserText;
-    ButtonBuilder = ButtonBuilder;
+    Button = ButtonBuilder;
     SectionTitle = SectionTitle;
     Custom = Custom;
     Switch = Switch;

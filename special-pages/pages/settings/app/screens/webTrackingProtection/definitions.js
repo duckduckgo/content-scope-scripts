@@ -1,52 +1,36 @@
 /**
  * @import {ScreenTitleStatusProps} from '../../elements/ScreenTitleStatus.js'
- * @import {ElementDefinition, PaneDefinition} from '../../settings.service.js'
+ * @import {PaneDefinition} from '../../settings.service.js'
  */
 
 /**
+ * @param {import("../../global/builders.js").Api} api
  * @returns {Record<string, PaneDefinition>}
  */
-export function webTrackingProtection() {
-    return {
-        webTrackingProtection: {
-            id: 'webTrackingProtection',
-            title: {
-                id: 'webTrackingProtection.titleStatus',
-                kind: 'ScreenTitleStatusDefinition',
-                props: {
-                    offText: 'status_off',
-                    onText: 'status_on_private',
-                    title: 'webTrackingProtection.screenTitle',
-                },
-            },
-            elements: [
-                {
-                    id: 'webTrackingProtection.base.description',
-                    kind: 'DescriptionLinkDefinition',
-                    props: {
-                        linkText: 'webTrackingProtection.base.learn_more_tracking',
-                        description: 'webTrackingProtection.base.ddg_tracking_info',
-                    },
-                },
-                {
-                    id: 'webTrackingProtection.base.gpc',
-                    kind: 'CheckboxDefinition',
-                    props: {
-                        text: 'webTrackingProtection.gpc.global_privacy_opt',
-                    },
-                    children: [
-                        {
-                            id: 'webTrackingProtection.gpc.description',
-                            kind: 'DescriptionLinkDefinition',
-                            props: {
-                                description: 'webTrackingProtection.gpc.global_privacy_info',
-                                linkText: 'webTrackingProtection.gpc.learn_more_gpc',
-                            },
-                        },
-                    ],
-                },
-            ],
-            sections: [],
-        },
-    };
+export function webTrackingProtection(api) {
+    const gpcValue = api.Value('webTrackingProtection.base.gpc');
+
+    return api
+        .pane('webTrackingProtection')
+        .withTitleStatus({
+            offText: api.UserText('status_off'),
+            onText: api.UserText('status_on_private'),
+            title: api.UserText('webTrackingProtection.screenTitle'),
+        })
+        .addSection([
+            new api.DescriptionLink({
+                linkText: api.UserText('webTrackingProtection.base.learn_more_tracking'),
+                description: api.UserText('webTrackingProtection.base.ddg_tracking_info'),
+            }),
+            new api.Checkbox({
+                id: gpcValue.id,
+                text: api.UserText('webTrackingProtection.gpc.global_privacy_opt'),
+            }).withChildren([
+                new api.DescriptionLink({
+                    linkText: api.UserText('webTrackingProtection.gpc.learn_more_gpc'),
+                    description: api.UserText('webTrackingProtection.base.ddg_tracking_info'),
+                }),
+            ]),
+        ])
+        .build();
 }
