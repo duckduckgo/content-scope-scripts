@@ -212,6 +212,10 @@ function elementUsedTranslation(element, mapping) {
         const some = element.children?.some((el) => elementUsedTranslation(el, mapping));
         if (some) return true;
     }
+    if (element.kind === 'RelatedProps') {
+        const some = element.children?.some((el) => elementUsedTranslation(el, mapping));
+        if (some) return true;
+    }
     if ('strings' in element) {
         const exact = mapping.find((x) => element.strings.includes(x.key));
         if (exact) return true;

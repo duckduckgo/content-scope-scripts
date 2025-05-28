@@ -375,37 +375,68 @@ export class LinkRow {
     }
 }
 
-export class Custom {
+export class PrivacyPro {
     /**
      * @param {object} props
      * @param {string} [props.id]
-     * @param {'NearestLocation' | 'PrivacyPro'} props.elementKind
      */
-    constructor({ id, elementKind }) {
+    constructor({ id }) {
         this.id = id;
-        this.elementKind = elementKind;
     }
 
     /**
      * @return {ElementDefinition}
      */
     build() {
-        switch (this.elementKind) {
-            case 'PrivacyPro': {
-                return {
-                    kind: this.elementKind,
-                    id: this.id || uuid(),
-                    strings: [],
-                };
-            }
-            case 'NearestLocation': {
-                return {
-                    kind: this.elementKind,
-                    id: this.id || uuid(),
-                    strings: [],
-                };
-            }
-        }
+        return {
+            kind: 'PrivacyPro',
+            id: this.id || uuid(),
+            strings: [],
+        };
+    }
+}
+
+export class NearestLocation {
+    /**
+     * @param {object} props
+     * @param {string} [props.id]
+     */
+    constructor({ id }) {
+        this.id = id;
+    }
+
+    /**
+     * @return {ElementDefinition}
+     */
+    build() {
+        return {
+            kind: 'NearestLocation',
+            id: this.id || uuid(),
+            strings: [],
+        };
+    }
+}
+export class Sync {
+    /**
+     * @param {object} props
+     * @param {string} [props.id]
+     * @param {string} props.startId
+     */
+    constructor({ id, startId }) {
+        this.id = id;
+        this.startId = startId;
+    }
+
+    /**
+     * @return {ElementDefinition}
+     */
+    build() {
+        return {
+            kind: 'Sync',
+            id: this.id || uuid(),
+            strings: [],
+            startId: this.startId,
+        };
     }
 }
 
@@ -466,7 +497,9 @@ export class Api {
     Button = ButtonBuilder;
     SectionTitle = SectionTitle;
     Related = Related;
-    Custom = Custom;
+    PrivacyPro = PrivacyPro;
+    NearestLocation = NearestLocation;
+    Sync = Sync;
     Switch = Switch;
     InlineWarning = InlineWarning;
     Value = Value;

@@ -21,6 +21,6 @@ export function vpn(api) {
         .icon('/icons/16px/Vpn-Color-16.svg')
         .addElement(new api.Button({ id: 'vpn.location.enableButton', text: api.UserText('vpn.enable_button') }))
         .addElement(new api.SectionTitle({ title: api.UserText('vpn.location.section_title') }))
-        .addElement(new api.Custom({ elementKind: 'NearestLocation' }))
+        .addElement(new api.NearestLocation({}))
         .build();
 }

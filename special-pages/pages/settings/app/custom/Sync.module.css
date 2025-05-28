@@ -1,0 +1,34 @@
+.sync {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-block: 12px;
+}
+.icon {
+    img {
+        display: block;
+        width: 64px;
+        height: 64px;
+    }
+}
+.title {
+    margin-top: 12px;
+    font-size: var(--title-3-em-font-size);
+    font-weight: var(--title-3-em-font-weight);
+    line-height: var(--title-3-em-line-height);
+}
+.description {
+    margin: 8px;
+}
+.button {
+    margin-top: 12px;
+}
+.info {
+    text-align: center;
+    font-size: 12px;
+    max-width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 8px;
+}

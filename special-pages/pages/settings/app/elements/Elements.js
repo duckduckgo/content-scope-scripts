@@ -13,6 +13,7 @@ import { ScreenTitle } from './ScreenTitle.js';
 import { PrivacyProWithState } from '../custom/PrivacyPro.js';
 import { LinkRowWithState } from './LinkRow.js';
 import { Related } from './Related.js';
+import { SyncWithState } from '../custom/Sync.js';
 
 /**
  * @param {object} props
@@ -94,6 +95,9 @@ function toComponents(def, debug = false) {
                 }
                 case 'LinkRowDefinition': {
                     return <LinkRowWithState {...d.props} id={d.id} key={d.id} />;
+                }
+                case 'Sync': {
+                    return <SyncWithState startId={d.startId} id={d.id} key={d.id} />;
                 }
                 default:
                     throw new Error('not handled!');

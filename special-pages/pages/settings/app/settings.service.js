@@ -10,6 +10,7 @@
  *   | { id: string, kind: "LinkRowDefinition", props: import('./elements/LinkRow.js').LinkRowDefinition }
  *   | { id: string, kind: "NearestLocation", strings: string[] }
  *   | { id: string, kind: "PrivacyPro", strings: string[] }
+ *   | { id: string, kind: "Sync", strings: string[]; startId: string }
  *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
  *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition, children?: ElementDefinition[] }
  *   | { id: string, kind: "RelatedProps", children: ElementDefinition[] }
@@ -146,7 +147,7 @@ export function defaultStructure() {
             },
             {
                 id: 'privacyPro',
-                screenIds: ['privacyPro', 'vpn'],
+                screenIds: ['privacyPro'],
             },
             {
                 id: 'other',
@@ -173,6 +174,8 @@ export function defaultState() {
         'vpn.enabled': false,
         /** @type {'none' | 'subscribed'} */
         'privacyPro.subscription': 'none',
+        /** @type {'none' | 'syncing'} */
+        'sync.status': 'none',
         'webTrackingProtection.base.gpc': true,
     };
 }

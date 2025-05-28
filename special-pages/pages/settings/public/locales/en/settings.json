@@ -113,6 +113,27 @@
     "title": "Sync & Backup",
     "note": ""
   },
+  "sync.other": {
+    "title": "Other Options"
+  },
+  "sync.other.backup": {
+    "title": "Sync and Back Up This Device"
+  },
+  "sync.other.recover": {
+    "title": "Recover Synced Data"
+  },
+  "sync.start.title": {
+    "title": "Begin Syncing"
+  },
+  "sync.start.description": {
+    "title": "Securely sync bookmarks and passwords between your devices."
+  },
+  "sync.start.begin": {
+    "title": "Sync With Another Device"
+  },
+  "sync.start.info": {
+    "title": "Your data is end-to-end encrypted, and DuckDuckGo does not have access to the encryption key."
+  },
   "privateSearch.screenTitle": {
     "title": "Private Search",
     "note": "Heading for the private search settings section"
