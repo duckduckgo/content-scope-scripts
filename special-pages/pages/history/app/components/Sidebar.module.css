@@ -3,7 +3,7 @@
     flex-direction: column;
     height: 100%;
 
-    > * {
+    >* {
         min-width: 0
     }
 
@@ -19,7 +19,7 @@
 }
 
 .nav {
-    padding-right: var(--sp-1);
+    padding-right: 0;
 }
 
 .item {
@@ -127,7 +127,7 @@
         opacity: 1;
     }
 
-    .link:focus-visible + & {
+    .link:focus-visible+& {
         opacity: 1;
     }
 
