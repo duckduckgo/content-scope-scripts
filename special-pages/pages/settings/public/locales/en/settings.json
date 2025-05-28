@@ -41,6 +41,14 @@
     "title": "Privacy Protections",
     "note": ""
   },
+  "group_title_privacyPro": {
+    "title": "Privacy Pro",
+    "note": ""
+  },
+  "group_title_other": {
+    "title": "Other Settings",
+    "note": ""
+  },
   "status_on": {
     "title": "On",
     "note": "Option indicating that the default browser setting is turned on"
@@ -99,6 +107,10 @@
   },
   "vpn.location.button_label": {
     "title": "Change...",
+    "note": ""
+  },
+  "sync.screenTitle": {
+    "title": "Sync & Backup",
     "note": ""
   },
   "privateSearch.screenTitle": {
@@ -161,6 +173,10 @@
   },
   "privacyPro.links.terms": {
     "title": "Privacy Policy and Terms of Service"
+  },
+  "general.screenTitle": {
+    "title": "General",
+    "note": ""
   },
   "emailProtection.screenTitle": {
     "title": "Email Protection",

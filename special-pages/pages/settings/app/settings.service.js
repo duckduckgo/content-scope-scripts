@@ -41,6 +41,8 @@ import { emailProtection } from './screens/emailProtection/definitions.js';
 import { vpn } from './screens/vpn/definitions.js';
 import { privacyPro } from './screens/privacyPro/defintions.js';
 import { Api } from './global/builders.js';
+import { general } from './screens/general/definitions.js';
+import { sync } from './screens/sync/definitions.js';
 
 /**
  * The minimum amount of data needed to
@@ -48,12 +50,14 @@ import { Api } from './global/builders.js';
 export class PaneDefinition {
     /** @type {ElementDefinition[]} */
     elements;
-    /** @type {ElementDefinition[][] | undefined} */
-    sections;
+    /** @type {ElementDefinition[][]} */
+    sections = [];
     /** @type {string} */
     id;
     /** @type {ElementDefinition} */
     title;
+    /** @type {string|null} */
+    icon;
 }
 
 /**
@@ -124,13 +128,15 @@ export function defaultStructure() {
     return {
         excludedElements: [],
         screens: {
-            ...defaultBrowser(),
+            ...defaultBrowser(api),
             ...privateSearch(api),
             ...webTrackingProtection(api),
             ...cookiePopupProtection(api),
             ...emailProtection(api),
             ...vpn(api),
             ...privacyPro(),
+            ...general(api),
+            ...sync(api),
         },
         groups: [
             {
@@ -140,6 +146,10 @@ export function defaultStructure() {
             {
                 id: 'privacyPro',
                 screenIds: ['privacyPro', 'vpn'],
+            },
+            {
+                id: 'other',
+                screenIds: ['general', 'sync'],
             },
         ],
     };
@@ -159,6 +169,7 @@ export function defaultState() {
         'emailProtection.enabled': false,
         /** @type {'nearest' | 'uk' | 'us'} */
         'vpn.location.selector': 'nearest',
+        'vpn.enabled': false,
         /** @type {'none' | 'subscribed'} */
         'privacyPro.subscription': 'none',
         'webTrackingProtection.base.gpc': true,

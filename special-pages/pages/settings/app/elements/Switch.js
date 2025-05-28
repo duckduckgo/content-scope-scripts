@@ -1,5 +1,7 @@
+import { h } from 'preact';
 import { useGlobalSettingsState } from '../global/Providers/SettingsServiceProvider.js';
 import { useComputed } from '@preact/signals';
+import styles from './Elements.module.css';
 
 /**
  * @typedef {Object} SwitchDefinition
@@ -15,5 +17,5 @@ import { useComputed } from '@preact/signals';
 export function Switch({ on, off, valueId }) {
     const state = useGlobalSettingsState();
     const computed = useComputed(() => state.value[valueId]);
-    return computed.value ? on : off;
+    return <div class={styles.innerList}>{computed.value ? on : off}</div>;
 }

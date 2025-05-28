@@ -1,10 +1,11 @@
 import { Fragment, h } from 'preact';
 import cn from 'classnames';
 import styles from './Sidebar.module.css';
-import { useComputed } from '@preact/signals';
+import { Signal, useComputed } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
 import { useNavContext, useNavDispatch } from '../global/Providers/NavProvider.js';
 import { useQueryDispatch } from '../global/Providers/QueryProvider.js';
+import { useGlobalSettingsState } from '../global/Providers/SettingsServiceProvider.js';
 
 /**
  * @import json from "../strings.json"
@@ -36,12 +37,17 @@ export function Sidebar({ settingsStructure }) {
                 {settingsStructure.value.groups.map((group) => {
                     const dynamicLookup = 'group_title_' + group.id;
                     const groupLabel = t(/** @type {any} */ (dynamicLookup));
+                    if (groupLabel === '') console.warn('missing group label for ', dynamicLookup);
                     return (
                         <Fragment>
                             <small class={styles.groupHeading}>{groupLabel}</small>
                             <div class={styles.group}>
                                 {group.screenIds.map((id) => {
                                     const match = settingsStructure.value.screens[id];
+                                    if (!match) {
+                                        console.warn('missing pane definition for id: %s in group: %s', id, group.id);
+                                        return null;
+                                    }
                                     return <Item current={current} key={id} onClick={() => navigateTo(id)} setting={match} />;
                                 })}
                             </div>
@@ -53,6 +59,8 @@ export function Sidebar({ settingsStructure }) {
     );
 }
 
+const DEFAULT_ICON = '/icons/16px/~Placeholder-Color-16.svg';
+
 /**
  * A component that renders a list item with optional delete actions and a link.
  *
@@ -63,6 +71,23 @@ export function Sidebar({ settingsStructure }) {
  */
 function Item({ current, setting, onClick }) {
     const { t } = useTypedTranslation();
+    const settingsState = useGlobalSettingsState();
+    const status = useComputed(() => {
+        const paneDefaults = {
+            privateSearch: true,
+            webTrackingProtection: true,
+        };
+        if (setting.id in paneDefaults) return true;
+        if ('valueId' in setting.title && typeof setting.title.valueId === 'string') {
+            const matched = settingsState.value[setting.title.valueId];
+            if (matched === undefined) {
+                console.warn('valueId exists, but there was no matching value for it: ', setting.title.valueId);
+                return null;
+            }
+            return settingsState.value[setting.title.valueId];
+        }
+        return null;
+    });
     const { buttonLabel } = labels(setting.id, t);
     const classNames = useComputed(() => {
         if (setting.id === 'all' && current.value === null) {
@@ -82,12 +107,27 @@ function Item({ current, setting, onClick }) {
                     onClick(setting.id);
                 }}
             >
-                <span className={styles.icon}>
-                    <img src={'icons/all.svg'} />
+                <span class={styles.icon}>
+                    <img src={setting.icon || DEFAULT_ICON} />
                 </span>
-                {buttonLabel}
+                <span class={styles.label}>{buttonLabel}</span>
+                <StatusSymbol status={status} />
             </a>
         </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {Signal<boolean|null>} props.status
+ */
+function StatusSymbol({ status }) {
+    if (status.value === null) return null;
+    return (
+        <span class={styles.status} data-status={status.value ? 'on' : 'off'}>
+            <span class={styles.statusCircle} />
+            <span class={styles.statusText}>{status.value ? 'on' : 'off'}</span>
+        </span>
     );
 }
 

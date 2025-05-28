@@ -19,7 +19,9 @@ function Signup() {
     return (
         <Boxed>
             <div class={styles.signup}>
-                <div class={styles.icon}>icon</div>
+                <div class={styles.icon}>
+                    <img src="/icons/16px/Privacy-Pro-Color-16.svg" />
+                </div>
                 <div class={styles.content}>
                     <div class={styles.title}>{t('privacyPro.signup.title')}</div>
                     <div class={styles.text}>{t('privacyPro.signup.description')}</div>

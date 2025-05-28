@@ -4,6 +4,11 @@
     --title-font-weight: 600;
     --title-line-height: 18px;
 
+    /* Mac/System/Title 2 (Emphasis) */
+    --title-2-font-size: 17px;
+    --title-2-font-weight: 700;
+    --title-2-line-height: 1;
+
     /* Mac/System/Body */
     --body-font-size: 13px;
     --body-font-weight: 400;
@@ -21,7 +26,7 @@
 }
 
 body {
-    --default-light-background-color: var(--color-gray-0);
+    --default-light-background-color: #f1f1f1;
     --default-dark-background-color: var(--color-gray-85);
 }
 

@@ -24,7 +24,7 @@ export function InlineWarning({ text, buttonText, onClick }) {
     const { t } = useTranslation();
     return (
         <div class={styles.inlineWarning}>
-            <span class={styles.warningIcon}>⚠️</span>
+            <img class={styles.warningIcon} src="/icons/Exclamation-16.svg" />
             <span class={styles.warningText}>{t(text)}</span>
             <button class={styles.warningButton} type="button" onClick={onClick}>
                 {t(buttonText)}

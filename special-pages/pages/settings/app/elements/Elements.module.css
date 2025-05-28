@@ -11,18 +11,31 @@
 }
 .screenTitle {
     margin-top: 12px;
+    font-size: var(--title-2-font-size);
+    font-weight: var(--title-2-font-weight);
+    line-height: var(--title-2-line-height);
 }
-.sectionTitle {}
+.sectionTitle {
+    font-size: var(--title-3-em-font-size);
+    font-weight: var(--title-3-em-font-weight);
+    line-height: var(--title-3-em-line-height);
+}
 .titleIndicator {}
-
 .descriptionLink {}
+.descriptionLinkText {
+    color: var(--settings-text-muted)
+}
 .inlineWarning {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     flex-wrap: wrap;
     gap: 8px;
 }
-.warningIcon {}
+.warningIcon {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
 .warningText {}
 .warningButton {}
 
@@ -33,20 +46,18 @@
 }
 
 .statusCircle {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
 }
 
 .statusText {}
 .statusOn {
-    background: lightgreen;
+    background: var(--color-green-50);
 }
 .statusOff {
-    background: grey;
+    background: rgba(31, 31, 31, 0.12);
 }
-
-
 .checkboxContainer {}
 .checkboxRow {
     display: flex;
@@ -58,8 +69,6 @@
     padding-left: 20px;
     margin-top: 8px;
 }
-
-
 .text {}
 .link {
     font-weight: bold;
@@ -68,6 +77,11 @@
     [data-theme="dark"] & {
         color: var(--ddg-color-primary-dark);
     }
+}
+.innerList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 

@@ -23,7 +23,7 @@ export function ResultsContainer(props) {
 
     const matchedTranslations = useComputed(() => {
         const tree = {};
-        const termLowered = props.term.value.toLowerCase();
+        const termLowered = props.term.value.trim().toLowerCase();
         const matches = [];
         for (const [key, { title }] of Object.entries(strings)) {
             const titleLowered = title?.toLowerCase();

@@ -19,6 +19,7 @@ export function emailProtection(api) {
             onText: api.UserText('status_on'),
             valueId: value.id,
         })
+        .icon('/icons/16px/Email-Protection-Color-16.svg')
         .addSection([
             new api.DescriptionLink({
                 linkText: api.UserText('emailProtection.learn_more_link'),

@@ -30,7 +30,7 @@ export function DescriptionLink({ linkText, description, onClick }) {
     }
     return (
         <div data-test-id="DescriptionLink" class={styles.descriptionLink}>
-            <p>{t(description)}</p>
+            <p class={styles.descriptionLinkText}>{t(description)}</p>
             <a href="#" onClick={_onClick} class={styles.link}>
                 {t(linkText)}
             </a>

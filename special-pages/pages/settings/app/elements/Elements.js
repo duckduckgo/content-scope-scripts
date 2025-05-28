@@ -60,6 +60,7 @@ function toComponents(def, debug = false) {
                     return <DescriptionLinkWithState {...d.props} id={d.id} key={d.id} />;
                 }
                 case 'CheckboxDefinition': {
+                    console.log(d);
                     if (Array.isArray(d.children)) {
                         const inner = toComponents(d.children);
                         return (

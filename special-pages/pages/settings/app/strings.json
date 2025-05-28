@@ -30,5 +30,13 @@
   "group_title_protections": {
     "title": "Privacy Protections",
     "note": ""
+  },
+  "group_title_privacyPro": {
+    "title": "Privacy Pro",
+    "note": ""
+  },
+  "group_title_other": {
+    "title": "Other Settings",
+    "note": ""
   }
 }

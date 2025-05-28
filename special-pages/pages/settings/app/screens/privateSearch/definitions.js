@@ -15,6 +15,7 @@ export function privateSearch(api) {
             offText: api.UserText('status_off'),
             onText: api.UserText('status_on_private'),
         })
+        .icon('/icons/16px/Find-Search-Color-16.svg')
         .addElement(
             new api.DescriptionLink({
                 linkText: api.UserText('privateSearch.base.learn_more_link'),

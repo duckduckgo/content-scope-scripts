@@ -17,6 +17,7 @@ export function webTrackingProtection(api) {
             onText: api.UserText('status_on_private'),
             title: api.UserText('webTrackingProtection.screenTitle'),
         })
+        .icon('/icons/16px/Shield-Color-16.svg')
         .addSection([
             new api.DescriptionLink({
                 linkText: api.UserText('webTrackingProtection.base.learn_more_tracking'),

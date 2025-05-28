@@ -1,5 +1,5 @@
 /**
- * @import { ElementDefinition } from "../settings.service"
+ * @import { ElementDefinition, PaneDefinition } from "../settings.service"
  */
 /**
  * A builder-pattern API for creating screen definitions
@@ -9,16 +9,22 @@ export class PaneBuilder {
      * @param {string} id - The screen identifier
      */
     constructor(id) {
+        /** @type {{ id: string; elements: ElementDefinition[]; sections: ElementDefinition[][]; title: ElementDefinition | null; icon: string | null}} */
         this.definition = {
-            /** @type {string} */
             id,
-            /** @type {ElementDefinition[]} */
             elements: [],
-            /** @type {ElementDefinition[][]} */
             sections: [],
-            /** @type {ElementDefinition | null} */
             title: null,
+            icon: null,
         };
+    }
+
+    /**
+     * @param {string} path
+     */
+    icon(path) {
+        this.definition.icon = path;
+        return this;
     }
 
     /**
@@ -113,6 +119,7 @@ export class PaneBuilder {
             title: this.definition.title,
             elements: this.definition.elements,
             sections: this.definition.sections,
+            icon: this.definition.icon || '',
         };
         return result;
     }
@@ -210,7 +217,7 @@ export class Checkbox {
         this.id = id;
         this.text = text;
         /** @type {ElementDefinition[]} */
-        this.children = [];
+        this.childElements = [];
     }
 
     /**
@@ -218,7 +225,7 @@ export class Checkbox {
      */
     withChildren(children) {
         for (const child of children) {
-            this.children.push('build' in child ? child.build() : child);
+            this.childElements.push('build' in child ? child.build() : child);
         }
         return this;
     }
@@ -230,9 +237,9 @@ export class Checkbox {
         return {
             kind: 'CheckboxDefinition',
             id: this.id,
+            children: this.childElements,
             props: {
                 text: this.text,
-                children: this.children,
             },
         };
     }
@@ -283,6 +290,34 @@ export class TextRow {
             id: this.id || uuid(),
             props: {
                 text: this.text,
+            },
+        };
+    }
+}
+
+export class InlineWarning {
+    /**
+     * @param {object} props
+     * @param {string} [props.id]
+     * @param {string} props.text
+     * @param {string} props.buttonText
+     */
+    constructor({ id, text, buttonText }) {
+        this.id = id;
+        this.text = text;
+        this.buttonText = buttonText;
+    }
+
+    /**
+     * @return {ElementDefinition}
+     */
+    build() {
+        return {
+            kind: 'InlineWarningDefinition',
+            id: this.id || uuid(),
+            props: {
+                text: this.text,
+                buttonText: this.buttonText,
             },
         };
     }
@@ -405,6 +440,7 @@ export class Api {
     SectionTitle = SectionTitle;
     Custom = Custom;
     Switch = Switch;
+    InlineWarning = InlineWarning;
     Value = Value;
     Text = TextRow;
     Link = LinkRow;

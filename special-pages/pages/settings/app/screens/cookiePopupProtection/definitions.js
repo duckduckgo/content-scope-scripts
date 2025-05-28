@@ -28,6 +28,7 @@ export function cookiePopupProtection(api) {
             offText: UserText('status_off'),
             onText: UserText('status_on'),
         })
+        .icon('/icons/16px/Cookie-Color-16.svg')
         .addElement(description)
         .addElement(checkbox)
         .build();
