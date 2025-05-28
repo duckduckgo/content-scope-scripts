@@ -10,7 +10,7 @@ export class Settings {
     withPlatformName(name) {
         /** @type {ImportMeta['platform'][]} */
         const valid = ['windows', 'macos'];
-        console.log('name', name);
+
         if (valid.includes(/** @type {any} */ (name))) {
             return new Settings({
                 ...this,
