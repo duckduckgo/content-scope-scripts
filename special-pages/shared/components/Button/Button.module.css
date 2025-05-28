@@ -85,7 +85,7 @@
     }
 }
 
-/* Backward-compatible styles for use with Release Notes */
+/* Backward-compatible styles for use when no platform info available */
 body:not([data-platform-name]) {
     & .button {
         background-blend-mode: normal, color-burn, normal;
