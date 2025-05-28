@@ -359,7 +359,9 @@ function uuid() {
  * @return {string}
  */
 export function UserText(t, data = {}) {
-    console.log('data:', data);
+    // console.log('data:', data);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _v = data;
     return t;
 }
 
@@ -394,20 +396,3 @@ export class Api {
     Text = TextRow;
     Link = LinkRow;
 }
-
-function demo() {
-    const _pane = pane('privateSearch').withTitle('Private Search').build();
-    const _pane2 = pane('vpn')
-        .withTitleStatus({
-            onText: 'status_on',
-            title: 'vpn.screenTitle',
-            valueId: 'vpn.enabled',
-            offText: 'status_off',
-        })
-        .addElement(new ButtonBuilder({ id: 'vpn.location.enableButton', text: 'vpn.enable_button' }))
-        .addElement(new SectionTitle({ id: 'vpn.location.nearestLocation', title: 'vpn.location.section_title' }))
-        .build();
-    console.log(JSON.stringify({ panes: [_pane, _pane2] }, null, 2));
-}
-
-demo();

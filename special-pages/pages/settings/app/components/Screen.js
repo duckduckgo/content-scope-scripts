@@ -2,8 +2,6 @@ import styles from './VirtualizedList.module.css';
 import { h } from 'preact';
 import { Elements, Sections } from '../elements/Elements.js';
 import { useEffect, useRef } from 'preact/hooks';
-import { useQueryContext } from '../global/Providers/QueryProvider.js';
-import { useComputed } from '@preact/signals';
 import cn from 'classnames';
 
 /**
@@ -36,90 +34,57 @@ export function ScreenContainer(props) {
 /**
  * @param {Object} props
  * @param {import('../settings.service').PaneDefinition["elements"]} props.elements
+ * @param {string} props.term
+ * @param {string} props.stateHash
  * @param {import('../settings.service').SettingsStructure["excludedElements"]} props.excludedElements
  */
-export function ElementsContainer(props) {
-    const query = useQueryContext();
-    const term = useComputed(() => query.value.term);
+export function HighlightingContainer({ term, stateHash, elements, excludedElements }) {
     const ref = useRef();
+
     useEffect(() => {
-        const unsub = term.subscribe((term) => {
-            if (!ref.current) return;
-            if (term === '') return;
-            if (term === null) return;
-            const lowered = term.trim().toLowerCase();
-            const searchHighlight = new Highlight();
-            const walker = document.createTreeWalker(ref.current, NodeFilter.SHOW_TEXT);
-            const textNodes = [];
-            let node;
+        if (!ref.current) return console.warn('missing ref.current');
+        if (term === '') return console.warn('term empty');
+        if (term === null) return console.warn('term is null');
+        CSS.highlights.delete('search-results');
+        const lowered = term.trim().toLowerCase();
+        const searchHighlight = new Highlight();
+        const walker = document.createTreeWalker(ref.current, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        let node;
 
-            while ((node = walker.nextNode())) {
-                if (node.textContent?.trim().toLowerCase().includes(lowered)) {
-                    if (node.parentElement?.tagName === 'H1') {
-                        // console.log('sip?');
-                        // 'Ignore h1'
-                    } else {
-                        textNodes.push(node);
-                    }
+        while ((node = walker.nextNode())) {
+            if (node.textContent?.trim().toLowerCase().includes(lowered)) {
+                if (node.parentElement?.hasAttribute('data-do-not-highlight')) {
+                    continue;
                 }
+                textNodes.push(node);
             }
+        }
 
-            textNodes.forEach((textNode) => {
-                const text = textNode.textContent;
-                const regex = new RegExp(lowered, 'gi');
-                let match;
+        textNodes.forEach((textNode) => {
+            const text = textNode.textContent;
+            const regex = new RegExp(lowered, 'gi');
+            let match;
 
-                while ((match = regex.exec(text || ''))) {
-                    const range = new Range();
-                    range.setStart(textNode, match.index);
-                    range.setEnd(textNode, match.index + match[0].length);
-                    searchHighlight.add(range);
-                }
-            });
-
-            CSS.highlights.set('search-results', searchHighlight);
+            while ((match = regex.exec(text || ''))) {
+                const range = new Range();
+                range.setStart(textNode, match.index);
+                range.setEnd(textNode, match.index + match[0].length);
+                searchHighlight.add(range);
+            }
         });
 
+        CSS.highlights.set('search-results', searchHighlight);
+
         return () => {
-            unsub();
             CSS.highlights.delete('search-results');
         };
-        // console.log('query.value', [term.value]);
-        // // Create a highlight
-        // const searchHighlight = new Highlight();
-        // //
-        // // // Find text nodes containing your search term
-        // const walker = document.createTreeWalker(ref.current, NodeFilter.SHOW_TEXT);
-        //
-        // const textNodes = [];
-        // let node;
-        // while ((node = walker.nextNode())) {
-        //     if (node.textContent?.includes('searchTerm')) {
-        //         textNodes.push(node);
-        //     }
-        // }
-        //
-        // // Create ranges for matches
-        // textNodes.forEach((textNode) => {
-        //     // const text = textNode.textContent;
-        //     // const regex = /searchTerm/gi;
-        //     // let match;
-        //     //
-        //     // while ((match = regex.exec(text))) {
-        //     //     const range = new Range();
-        //     //     range.setStart(textNode, match.index);
-        //     //     range.setEnd(textNode, match.index + match[0].length);
-        //     //     searchHighlight.add(range);
-        //     // }
-        // });
+    }, [elements, term, stateHash]);
 
-        // Register the highlight
-        // CSS.highlights.set('search-results', searchHighlight);
-    }, []);
     return (
-        <div class={styles.container} data-testid="ElementsContainer" ref={/** @type {any} */ (ref)}>
-            {props.elements.length === 0 && <Empty text={term} title={'No matches'} />}
-            <Elements elements={props.elements} excluded={props.excludedElements} debug={location.href.includes('debug')} />
+        <div class={styles.container} data-testid="HighlightingContainer" ref={/** @type {any} */ (ref)}>
+            {elements.length === 0 && <Empty text={term} title={'No matches'} />}
+            <Elements elements={elements} excluded={excludedElements} debug={location.href.includes('debug')} />
         </div>
     );
 }
@@ -128,7 +93,7 @@ export function ElementsContainer(props) {
  * Empty state component displayed when no results are available
  * @param {object} props
  * @param {object} props.title
- * @param {Signal<string|null>} props.text
+ * @param {Signal<string|null>|string} props.text
  */
 export function Empty({ title, text }) {
     return (
@@ -138,7 +103,9 @@ export function Empty({ title, text }) {
                 <img src="icons/clock.svg" width={60} height={60} alt="" class={styles.forground} />
             </div>
             <h2 class={styles.emptyTitle}>{title}</h2>
-            <p class={styles.emptyText}>{text}</p>
+            <p class={styles.emptyText} data-do-not-highlight>
+                {text}
+            </p>
         </div>
     );
 }

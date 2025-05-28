@@ -1,8 +1,10 @@
-import { h } from 'preact';
-import { useResultsData } from '../global/Providers/SettingsServiceProvider.js';
-import { useStrings } from '../types.js';
-import { useComputed } from '@preact/signals';
-import { ElementsContainer } from './Screen.js';
+import { Fragment, h } from 'preact';
+import { useGlobalSettingsState, useResultsData } from '../global/Providers/SettingsServiceProvider.js';
+import { SeenContextProvider, useSeen, useStrings } from '../types.js';
+import { useComputed, useSignal } from '@preact/signals';
+import { HighlightingContainer } from './Screen.js';
+import { useEffect } from 'preact/hooks';
+import { Elements } from '../elements/Elements.js';
 
 /**
  * @import { Signal } from '@preact/signals';
@@ -17,36 +19,11 @@ export function ResultsContainer(props) {
     const results = useResultsData();
     const strings = useStrings();
 
-    return <Results results={results} term={props.term} strings={strings} />;
-}
+    const renderedStrings = useSignal(/** @type {string[]} */ ([]));
 
-/**
- * @param {import('../settings.service.js').ElementDefinition[]} toRender
- */
-function removeDuplicates(toRender) {
-    // return undefined;
-    /** @type {Set<string>} */
-    let seen = new Set([]);
-    /** @type {import('../settings.service.js').ElementDefinition[]} */
-    const output = [];
-    for (const element of toRender) {
-        const count = seen.size;
-        seen.add(element.id);
-        if (seen.size !== count) output.push(element);
-    }
-    return output;
-}
-
-/**
- * @param {object} props
- * @param {Signal<import("../global/Providers/SettingsServiceProvider.js").Results["data"]>} props.results
- * @param {Signal<string>} props.term
- * @param {Record<string, {title: string}>} props.strings
- */
-export function Results({ results, term, strings }) {
     const matchedTranslations = useComputed(() => {
         const tree = {};
-        const termLowered = term.value.toLowerCase();
+        const termLowered = props.term.value.toLowerCase();
         const matches = [];
         for (const [key, { title }] of Object.entries(strings)) {
             const titleLowered = title?.toLowerCase();
@@ -62,15 +39,71 @@ export function Results({ results, term, strings }) {
         return { tree, matches };
     });
 
-    const visible = useComputed(() => {
-        const toRender = [];
+    return (
+        <Fragment>
+            <SeenContextProvider key={props.term.value}>
+                <PreResults
+                    results={results}
+                    term={props.term}
+                    strings={strings}
+                    renderedStrings={renderedStrings}
+                    matchedTranslations={matchedTranslations}
+                />
+            </SeenContextProvider>
+            <Results
+                results={results}
+                term={props.term}
+                strings={strings}
+                renderedStrings={renderedStrings}
+                matchedTranslations={matchedTranslations}
+            />
+        </Fragment>
+    );
+}
+
+/**
+ * @param {import('../settings.service.js').ElementDefinition[]} toRender
+ */
+function removeDuplicates(toRender) {
+    // return undefined;
+    /** @type {Set<string>} */
+    const seen = new Set([]);
+    /** @type {import('../settings.service.js').ElementDefinition[]} */
+    const output = [];
+    for (const element of toRender) {
+        const count = seen.size;
+        seen.add(element.id);
+        if (seen.size !== count) output.push(element);
+    }
+    return output;
+}
+
+/**
+ * @param {object} props
+ * @param {Signal<import("../global/Providers/SettingsServiceProvider.js").Results["data"]>} props.results
+ * @param {Signal<string>} props.term
+ * @param {Signal<string[]>} props.renderedStrings
+ * @param {Signal<{matches: {key:string;title:string}[]}>} props.matchedTranslations
+ * @param {Record<string, {title: string}>} props.strings
+ */
+export function PreResults({ results, renderedStrings, matchedTranslations }) {
+    const seen = useSeen();
+
+    useEffect(() => {
+        return seen.subscribe((seen) => {
+            renderedStrings.value = [...seen];
+        });
+    }, [seen]);
+
+    const visibleElements = useComputed(() => {
+        const elementsToRender = [];
         const matches = matchedTranslations.value.matches;
 
         for (const { screenIds } of results.value.groups) {
             for (const screenId of screenIds) {
                 const forScreen = [];
                 const { title, elements, sections } = results.value.screens[screenId];
-                if (sections) {
+                if (sections && sections.length > 0) {
                     const sectionMatches = findSections(sections, matches);
                     forScreen.push(...sectionMatches);
                 } else {
@@ -81,15 +114,70 @@ export function Results({ results, term, strings }) {
                 }
 
                 if (forScreen.length) {
-                    toRender.push(title);
-                    toRender.push(...forScreen);
+                    elementsToRender.push(title);
+                    elementsToRender.push(...forScreen);
                 }
             }
         }
 
-        return removeDuplicates(toRender);
+        return removeDuplicates(elementsToRender);
     });
-    return <ElementsContainer elements={visible.value} excludedElements={[]} />;
+
+    // console.log(visibleElements.value);
+
+    return (
+        <div hidden={true}>
+            <Elements elements={visibleElements.value} excluded={[]} debug={location.href.includes('debug')} />
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {Signal<import("../global/Providers/SettingsServiceProvider.js").Results["data"]>} props.results
+ * @param {Signal<string>} props.term
+ * @param {Signal<string[]>} props.renderedStrings
+ * @param {Signal<{matches: {key:string;title:string}[]}>} props.matchedTranslations
+ * @param {Record<string, {title: string}>} props.strings
+ */
+export function Results({ results, renderedStrings, term, matchedTranslations }) {
+    const state = useGlobalSettingsState();
+    const hash = useComputed(() => JSON.stringify(state.value));
+    const observed = useComputed(() => {
+        const searchMatches = matchedTranslations.value.matches;
+        const s = renderedStrings.value;
+        const intersection = searchMatches.filter((x) => s.includes(x.key));
+        const elementsToRender = [];
+
+        for (const { screenIds } of results.value.groups) {
+            for (const screenId of screenIds) {
+                const forScreen = [];
+                const { title, elements, sections } = results.value.screens[screenId];
+                if (sections && sections.length > 0) {
+                    const sectionMatches = findSections(sections, intersection);
+                    forScreen.push(...sectionMatches);
+                } else {
+                    const elementMatches = elements.some((element) => elementUsedTranslation(element, intersection));
+                    if (elementMatches) {
+                        forScreen.push(...elements);
+                    }
+                }
+
+                if (forScreen.length) {
+                    elementsToRender.push(title);
+                    elementsToRender.push(...forScreen);
+                }
+            }
+        }
+
+        return removeDuplicates(elementsToRender);
+    });
+
+    return (
+        <div>
+            <HighlightingContainer elements={observed.value} excludedElements={[]} term={term.value} stateHash={hash.value} />
+        </div>
+    );
 }
 
 /**

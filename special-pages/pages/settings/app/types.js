@@ -2,8 +2,13 @@ import { useContext } from 'preact/hooks';
 import { TranslationContext } from '../../../shared/components/TranslationsProvider.js';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import json from './strings.json';
-import { createContext } from 'preact';
+import { h, createContext } from 'preact';
 import { AppSettings } from './AppSettings.js';
+import { signal, useSignal } from '@preact/signals';
+
+/**
+ * @import { Signal } from '@preact/signals';
+ */
 
 /**
  * This is a wrapper to only allow keys from the default translation file
@@ -15,16 +20,31 @@ export function useTypedTranslation() {
     };
 }
 
+export const SeenContext = createContext(signal(new Set(/** @type {string[]} */ ([]))));
+
+export function SeenContextProvider({ children }) {
+    const seen = useSignal(new Set(/** @type {string[]} */ ([])));
+    return <SeenContext.Provider value={seen}>{children}</SeenContext.Provider>;
+}
+
+export function useSeen() {
+    return useContext(SeenContext);
+}
+
 /**
  * This is a wrapper to only allow keys from the default translation file
- * @type {() => { t: (key: string, replacements?: Record<string, string>) => string }}
+ * @return {{
+ *   t: (key: string, replacements?: Record<string, string>) => string;
+ * }}
  */
 export function useTranslation() {
     const fn = useContext(TranslationContext).t;
+    const seen = useContext(SeenContext);
 
     return {
         t: (key, params) => {
             const r = fn(key, params);
+            seen.value.add(key);
             if (r === '') {
                 console.warn('missing translation for ', key);
                 return key;
