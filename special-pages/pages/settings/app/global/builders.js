@@ -270,6 +270,33 @@ export class SectionTitle {
     }
 }
 
+export class Related {
+    /**
+     * @param {object} props
+     * @param {string} [props.id]
+     * @param {(ElementDefinition|{build(): ElementDefinition })[]} props.children
+     */
+    constructor({ id, children }) {
+        this.id = id;
+        this.children = children;
+    }
+
+    /**
+     * @return {ElementDefinition}
+     */
+    build() {
+        const next = [];
+        for (const child of this.children) {
+            next.push('build' in child ? child.build() : child);
+        }
+        return {
+            kind: 'RelatedProps',
+            id: this.id || uuid(),
+            children: next,
+        };
+    }
+}
+
 export class TextRow {
     /**
      * @param {object} props
@@ -438,6 +465,7 @@ export class Api {
     UserText = UserText;
     Button = ButtonBuilder;
     SectionTitle = SectionTitle;
+    Related = Related;
     Custom = Custom;
     Switch = Switch;
     InlineWarning = InlineWarning;

@@ -3,4 +3,8 @@
     padding: 12px;
     border-radius: 8px;
     border: 1px solid var(--color-black-at-9);
+
+    + .boxed {
+        margin-top: 12px;
+    }
 }

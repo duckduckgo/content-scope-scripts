@@ -74,14 +74,22 @@
     font-weight: bold;
     text-decoration: none;
     color: var(--ddg-color-primary);
+    cursor: pointer;
     [data-theme="dark"] & {
         color: var(--ddg-color-primary-dark);
     }
 }
+
 .innerList {
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+
+.related {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 

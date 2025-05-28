@@ -12,6 +12,7 @@ import { Debug } from '../components/Screen.js';
 import { ScreenTitle } from './ScreenTitle.js';
 import { PrivacyProWithState } from '../custom/PrivacyPro.js';
 import { LinkRowWithState } from './LinkRow.js';
+import { Related } from './Related.js';
 
 /**
  * @param {object} props
@@ -60,7 +61,6 @@ function toComponents(def, debug = false) {
                     return <DescriptionLinkWithState {...d.props} id={d.id} key={d.id} />;
                 }
                 case 'CheckboxDefinition': {
-                    console.log(d);
                     if (Array.isArray(d.children)) {
                         const inner = toComponents(d.children);
                         return (
@@ -70,6 +70,10 @@ function toComponents(def, debug = false) {
                         );
                     }
                     return <CheckboxWithState {...d.props} id={d.id} key={d.id} />;
+                }
+                case 'RelatedProps': {
+                    const inner = toComponents(d.children);
+                    return <Related key={d.id}>{inner}</Related>;
                 }
                 case 'SwitchDefinition': {
                     const on = toComponents(d.on);

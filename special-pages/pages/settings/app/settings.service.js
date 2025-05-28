@@ -12,6 +12,7 @@
  *   | { id: string, kind: "PrivacyPro", strings: string[] }
  *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
  *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition, children?: ElementDefinition[] }
+ *   | { id: string, kind: "RelatedProps", children: ElementDefinition[] }
  *   | { id: string, kind: "ButtonRowDefinition", props: import('./elements/ButtonRow.js').ButtonRowDefinition }
  *   | {
  *       id: string,
@@ -134,7 +135,7 @@ export function defaultStructure() {
             ...cookiePopupProtection(api),
             ...emailProtection(api),
             ...vpn(api),
-            ...privacyPro(),
+            ...privacyPro(api),
             ...general(api),
             ...sync(api),
         },

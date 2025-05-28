@@ -11,6 +11,7 @@
 .icon {
     grid-area: icon;
     display: block;
+
     img {
         display: block;
         height: 16px;
@@ -26,7 +27,9 @@
 }
 
 .title {
-    font-weight: bold;
+    font-size: var(--title-3-em-font-size);
+    font-weight: var(--title-3-em-font-weight);
+    line-height: var(--title-3-em-line-height);
 }
 
 .text {
@@ -49,3 +52,51 @@
 }
 .secondary{}
 
+
+.features {
+    padding: 1rem;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 24px auto;
+    grid-template-areas:
+            'icon title'
+            'icon description';
+    grid-column-gap: 8px;
+
+    + .row {
+        border-top: 1px solid var(--color-black-at-9);
+        padding-top: 16px;
+        margin-top: 16px
+    }
+}
+.rowIcon {
+    grid-area: icon;
+    width: 24px;
+    height: 24px;
+    position: relative;
+    background: var(--color-black-at-9);
+    border-radius: 4px;
+    img {
+        position: absolute;
+        display: block;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
+}
+.rowIconCentered {
+    align-self: center;
+}
+.rowTitle {
+    grid-area: title;
+    font-weight: var(--title-3-em-font-weight);
+}
+.rowText {
+    grid-area: description;
+    color: var(--settings-text-muted);
+    font-size: 11px;
+}
