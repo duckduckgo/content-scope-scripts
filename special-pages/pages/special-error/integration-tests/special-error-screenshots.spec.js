@@ -18,6 +18,13 @@ test.describe('screenshots @screenshots', () => {
         await expect(page).toHaveScreenshot('ssl-expired-cert-reduced-motion.png', { maxDiffPixels });
     });
 
+    test('Malware warning with advanced info', async ({ page }, workerInfo) => {
+        const special = SpecialErrorPage.create(page, workerInfo);
+        await special.openPage({ errorId: 'malware' });
+        await special.showsAdvancedInfo();
+        await expect(page).toHaveScreenshot('malware-warning-advanced.png', { maxDiffPixels });
+    });
+
     test('Phishing warning with advanced info', async ({ page }, workerInfo) => {
         const special = SpecialErrorPage.create(page, workerInfo);
         await special.openPage({ errorId: 'phishing' });
