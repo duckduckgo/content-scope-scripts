@@ -76,6 +76,39 @@ test.describe('Duck Player Native thumbnail overlay', () => {
         await duckPlayer.didShowOverlay();
         await duckPlayer.didShowLogoInOverlay();
     });
+    test('Disables controls on mobile', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo));
+
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+
+        // Given the duckPlayerNative feature is enabled
+        await duckPlayer.withRemoteConfig();
+
+        // When I go to a YouTube page
+        await duckPlayer.gotoYouTubePage();
+        await duckPlayer.sendOnMediaControl();
+
+        // Then the original YouTube controls should be disabled
+        await duckPlayer.didShowOverlay();
+        await duckPlayer.videoControlsAreDisabled();
+    });
+    test('Does not duplicate overlay on repeated calls', async ({ page }, workerInfo) => {
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+
+        // Given the duckPlayerNative feature is enabled
+        await duckPlayer.withRemoteConfig();
+
+        // When I go to a YouTube page
+        await duckPlayer.gotoYouTubePage();
+        await duckPlayer.sendOnMediaControl();
+
+        // And the browser fires multiple pause messages
+        await duckPlayer.sendOnMediaControl();
+        await duckPlayer.sendOnMediaControl();
+
+        // Then I should see only one thumbnail overlay on the page
+        await duckPlayer.overlayIsUnique();
+    });
     test('Dismisses overlay on click', async ({ page }, workerInfo) => {
         const duckPlayer = DuckPlayerNative.create(page, workerInfo);
 
@@ -127,3 +160,17 @@ test.describe('Duck Player Native custom error view', () => {
         await duckPlayer.didShowSignInError();
     });
 });
+
+/**
+ * @param {import("@playwright/test").TestInfo} testInfo
+ */
+function isMobile(testInfo) {
+    const u = /** @type {any} */ (testInfo.project.use);
+    return u?.platform === 'android' || u?.platform === 'ios';
+}
+/**
+ * @param {import("@playwright/test").TestInfo} testInfo
+ */
+function isDesktop(testInfo) {
+    return !isMobile(testInfo);
+}

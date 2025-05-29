@@ -33,6 +33,7 @@ export class DuckPlayerNative {
         this.page = page;
         this.build = build;
         this.platform = platform;
+        this.isMobile = platform.name === 'android' || platform.name === 'ios';
         this.collector = new ResultsCollector(page, build, platform);
         this.collector.withMockResponse({
             initialSetup: defaultInitialSetup,
@@ -85,7 +86,8 @@ export class DuckPlayerNative {
     async gotoPage(pageType, params = {}) {
         await this.withPageType(pageType);
 
-        const { variant = 'default', videoID = '123' } = params;
+        const defaultVariant = this.isMobile ? 'mobile' : 'default';
+        const { variant = defaultVariant, videoID = '123' } = params;
         const urlParams = new URLSearchParams([
             ['v', videoID],
             ['variant', variant],
@@ -234,6 +236,15 @@ export class DuckPlayerNative {
 
     async didShowLogoInOverlay() {
         await this.page.locator('ddg-video-thumbnail-overlay-mobile .logo').waitFor({ state: 'visible', timeout: 1000 });
+    }
+
+    async overlayIsUnique() {
+        const count = await this.page.locator('ddg-video-thumbnail-overlay-mobile').count();
+        expect(count).toBe(1);
+    }
+
+    async videoControlsAreDisabled() {
+        await this.page.locator('#player-control-overlay').waitFor({ state: 'hidden', timeout: 1000 });
     }
 
     async clickOnOverlay() {
