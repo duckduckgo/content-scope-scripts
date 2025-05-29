@@ -244,10 +244,17 @@ export function iterateDataKey(key, callback) {
     }
 }
 
+const alwaysInitFeatures = new Set(['cookie']);
+
+export function alwaysInitExtensionFeatures(args, featureName) {
+    return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
+}
+
 export function isFeatureBroken(args, feature) {
-    return isPlatformSpecificFeature(feature)
-        ? !args.site.enabledFeatures.includes(feature)
-        : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
+    if (isPlatformSpecificFeature(feature)) {
+        return false;
+    }
+    return args.site.isBroken || args.site.allowlisted;
 }
 
 export function camelcase(dashCaseText) {
@@ -621,7 +628,7 @@ export function satisfiesMinVersion(minVersionString, applicationVersionString) 
  * @param {string | number | undefined} currentVersion
  * @returns {boolean}
  */
-function isSupportedVersion(minSupportedVersion, currentVersion) {
+export function isSupportedVersion(minSupportedVersion, currentVersion) {
     if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {
         if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {
             return true;
@@ -658,67 +665,15 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
             output.platform.version = version;
         }
     }
-    const enabledFeatures = computeEnabledFeatures(data, topLevelHostname, preferences.platform?.version, platformSpecificFeatures);
     const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary);
     output.site = Object.assign(site, {
         isBroken,
         allowlisted,
-        enabledFeatures,
     });
-
-    // Copy feature settings from remote config to preferences object
-    output.featureSettings = parseFeatureSettings(data, enabledFeatures);
+    output.platformSpecificFeatures = platformSpecificFeatures;
     output.bundledConfig = data;
 
     return output;
-}
-
-/**
- * Retutns a list of enabled features
- * @param {RemoteConfig} data
- * @param {string | null} topLevelHostname
- * @param {Platform['version']} platformVersion
- * @param {string[]} platformSpecificFeatures
- * @returns {string[]}
- */
-export function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
-    const remoteFeatureNames = Object.keys(data.features);
-    const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
-        (featureName) => !remoteFeatureNames.includes(featureName),
-    );
-    const enabledFeatures = remoteFeatureNames
-        .filter((featureName) => {
-            const feature = data.features[featureName];
-            // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
-            if (feature.minSupportedVersion && platformVersion) {
-                if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
-                    return false;
-                }
-            }
-            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
-        })
-        .concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
-    return enabledFeatures;
-}
-
-/**
- * Returns the relevant feature settings for the enabled features
- * @param {RemoteConfig} data
- * @param {string[]} enabledFeatures
- * @returns {Record<string, unknown>}
- */
-export function parseFeatureSettings(data, enabledFeatures) {
-    /** @type {Record<string, unknown>} */
-    const featureSettings = {};
-    const remoteFeatureNames = Object.keys(data.features);
-    remoteFeatureNames.forEach((featureName) => {
-        if (!enabledFeatures.includes(featureName)) {
-            return;
-        }
-
-        featureSettings[featureName] = data.features[featureName].settings;
-    });
-    return featureSettings;
 }
 
 export function isGloballyDisabled(args) {
