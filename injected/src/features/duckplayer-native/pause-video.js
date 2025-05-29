@@ -1,6 +1,8 @@
 /**
+ * Pause a YouTube video
  *
  * @param {string} videoSelector
+ * @returns {() => void} A function that allows the video to play again
  */
 export function stopVideoFromPlaying(videoSelector) {
     /**
@@ -24,6 +26,29 @@ export function stopVideoFromPlaying(videoSelector) {
         const video = /** @type {HTMLVideoElement} */ (document.querySelector(videoSelector));
         if (video?.isConnected) {
             video.play();
+        }
+    };
+}
+
+/**
+ * Disable the controls on a YouTube video
+ *
+ * @param {string} controlsSelector
+ * @returns {() => void} A function that re-enables the controls
+ */
+export function disableVideoControls(controlsSelector) {
+    let displayState;
+
+    const controls = /** @type {HTMLDivElement} */ (document.querySelector(controlsSelector));
+    if (controls?.isConnected) {
+        displayState = controls.style.display;
+        controls.style.display = 'none';
+    }
+
+    return () => {
+        const controls = /** @type {HTMLDivElement} */ (document.querySelector(controlsSelector));
+        if (controls?.isConnected) {
+            controls.style.display = displayState;
         }
     };
 }

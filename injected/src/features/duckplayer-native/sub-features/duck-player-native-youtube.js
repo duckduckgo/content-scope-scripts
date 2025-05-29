@@ -1,7 +1,7 @@
 import { Logger, SideEffects } from '../../duckplayer/util.js';
 import { muteAudio } from '../mute-audio.js';
 import { pollTimestamp } from '../get-current-timestamp.js';
-import { stopVideoFromPlaying } from '../pause-video.js';
+import { stopVideoFromPlaying, disableVideoControls } from '../pause-video.js';
 import { appendThumbnailOverlay as showThumbnailOverlay } from '../overlays/thumbnail-overlay.js';
 
 /**
@@ -80,18 +80,23 @@ export class DuckPlayerNativeYoutube {
 
         const targetElement = document.querySelector(videoElementContainer);
         if (targetElement) {
+            // Prevent repeat execution
+            if (this.paused === pause) return;
+            this.paused = pause;
+
             if (pause) {
                 this.sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
+                this.sideEffects.add('disabling video controls', () => disableVideoControls('#player-control-container'));
                 this.sideEffects.add('appending thumbnail', () => {
                     const clickHandler = () => {
                         this.messages.notifyOverlayDismissed();
-                        this.sideEffects.destroy('stopping video from playing');
-                        this.sideEffects.destroy('appending thumbnail');
+                        this.mediaControlHandler(false);
                     };
                     return showThumbnailOverlay(/** @type {HTMLElement} */ (targetElement), this.environment, clickHandler);
                 });
             } else {
                 this.sideEffects.destroy('stopping video from playing');
+                this.sideEffects.destroy('disabling video controls');
                 this.sideEffects.destroy('appending thumbnail');
             }
         }
