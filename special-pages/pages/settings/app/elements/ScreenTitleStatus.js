@@ -6,13 +6,23 @@ import { useTranslation } from '../types.js';
 import { useGlobalSettingsState } from '../global/Providers/SettingsServiceProvider.js';
 import { useComputed } from '@preact/signals';
 
-/**
- * Props for the ScreenTitleStatus component
- * @typedef {Object} ScreenTitleStatusDefinition
- * @property {string} title - The screen title text
- * @property {string} onText - Text to display when status is on
- * @property {string} offText - Text to display when status is off
- */
+export class ScreenTitleStatusDefinition {
+    /**
+     * @type {string}
+     * The screen title text
+     */
+    title;
+    /**
+     * Text to display when status is on
+     * @type {string}
+     */
+    onText;
+    /**
+     * Text to display when status is off
+     * @type {string}
+     */
+    offText;
+}
 
 /**
  * Props for the ScreenTitleStatus component

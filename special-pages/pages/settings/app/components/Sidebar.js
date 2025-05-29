@@ -1,22 +1,24 @@
 import { Fragment, h } from 'preact';
+import { useComputed } from '@preact/signals';
 import cn from 'classnames';
-import styles from './Sidebar.module.css';
-import { Signal, useComputed } from '@preact/signals';
 import { useTypedTranslation } from '../types.js';
 import { useNavContext, useNavDispatch } from '../global/Providers/NavProvider.js';
 import { useQueryDispatch } from '../global/Providers/QueryProvider.js';
 import { useGlobalSettingsState } from '../global/Providers/SettingsServiceProvider.js';
+import styles from './Sidebar.module.css';
 
 /**
+ * @import {Signal} from "@preact/signals"
  * @import json from "../strings.json"
  * @import {SettingsScreen} from "../../types/settings.js"
+ * @import {SettingsStructure} from "../schema/pane-types.js"
  */
 
 /**
  * Renders a sidebar navigation component with links based on the provided ranges.
  *
  * @param {Object} props - The properties object.
- * @param {import("@preact/signals").Signal<import('../settings.service').SettingsStructure>} props.settingsStructure
+ * @param {Signal<SettingsStructure>} props.settingsStructure
  */
 export function Sidebar({ settingsStructure }) {
     const { t } = useTypedTranslation();
@@ -66,7 +68,7 @@ const DEFAULT_ICON = '/icons/16px/~Placeholder-Color-16.svg';
  *
  * @param {Object} props
  * @param {import('@preact/signals').ReadonlySignal<string|null>} props.current The current selection with a value property.
- * @param {import('../settings.service').PaneDefinition} props.setting The range represented by this item.
+ * @param {import("../schema/pane-types.js").PaneDefinition} props.setting The range represented by this item.
  * @param {(setting: string) => void} props.onClick Callback function triggered when the range is clicked.
  */
 function Item({ current, setting, onClick }) {

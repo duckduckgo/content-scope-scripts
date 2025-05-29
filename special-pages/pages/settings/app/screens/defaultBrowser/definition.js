@@ -1,7 +1,7 @@
 /**
  * @import { ScreenTitleStatusProps } from '../../elements/ScreenTitleStatus.js'
- * @import { PaneDefinition } from '../../settings.service.js'
- * @import { Api } from "../../global/builders.js"
+ * @import {PaneDefinition} from '../../schema/pane-types.js'
+ * @import { Api } from "../../schema/element-builders.js"
  */
 
 /**

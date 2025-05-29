@@ -12,7 +12,7 @@ import { signal, useComputed, useSignal } from '@preact/signals';
 
 /**
  * @typedef {object} Results
- * @property {import('../../settings.service.js').SettingsStructure} data
+ * @property {import('../../schema/pane-types.js').SettingsStructure} data
  * @property {Record<string, any>} state
  */
 

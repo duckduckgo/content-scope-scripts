@@ -1,10 +1,10 @@
 /**
  * @import {ScreenTitleStatusProps} from '../../elements/ScreenTitleStatus.js'
- * @import {PaneDefinition} from '../../settings.service.js'
+ * @import {PaneDefinition} from '../../schema/pane-types.js'
  */
 
 /**
- * @param {import("../../global/builders.js").Api} api
+ * @param {import("../../schema/element-builders.js").Api} api
  * @returns {Record<string, PaneDefinition>}
  */
 export function vpn(api) {

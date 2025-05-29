@@ -1,6 +1,8 @@
 /**
- * @import { ElementDefinition, PaneDefinition } from "../settings.service"
+ * @import { PaneDefinition } from "./pane-types.js"
+ * @import { ElementDefinition } from "./element-types.js"
  */
+
 /**
  * A builder-pattern API for creating screen definitions
  */
@@ -37,7 +39,7 @@ export class PaneBuilder {
 
         this.definition.title = {
             id: titleId,
-            kind: 'ScreenTitleDefinition',
+            kind: 'ScreenTitleElement',
             props: {
                 title,
             },
@@ -60,7 +62,7 @@ export class PaneBuilder {
 
         this.definition.title = {
             id: titleId,
-            kind: 'ScreenTitleStatusDefinition',
+            kind: 'ScreenTitleStatusElement',
             valueId,
             props: {
                 title,
@@ -107,12 +109,12 @@ export class PaneBuilder {
 
     /**
      * Builds and returns the final screen definition
-     * @returns {Record<string, import("../settings.service").PaneDefinition>} - The complete screen definition
+     * @returns {Record<string, import("./pane-types.js").PaneDefinition>} - The complete screen definition
      */
     build() {
         if (this.definition.title === null) throw new Error('unreachable - must have added a title');
 
-        /** @type {Record<string, import("../settings.service").PaneDefinition>} */
+        /** @type {Record<string, import("./pane-types.js").PaneDefinition>} */
         const result = {};
         result[this.definition.id] = {
             id: this.definition.id,
@@ -141,7 +143,7 @@ export class ButtonBuilder {
      */
     build() {
         return {
-            kind: 'ButtonRowDefinition',
+            kind: 'ButtonRowElement',
             id: this.id,
             props: {
                 text: this.text,
@@ -168,7 +170,7 @@ export class DescriptionLink {
      */
     build() {
         return {
-            kind: 'DescriptionLinkDefinition',
+            kind: 'DescriptionLinkElement',
             id: this.id || uuid(),
             props: {
                 description: this.description,
@@ -198,7 +200,7 @@ export class Switch {
      */
     build() {
         return {
-            kind: 'SwitchDefinition',
+            kind: 'SwitchElement',
             id: this.id || uuid(),
             valueId: this.valueId,
             on: this.on.map((x) => ('build' in x ? x.build() : x)),
@@ -235,7 +237,7 @@ export class Checkbox {
      */
     build() {
         return {
-            kind: 'CheckboxDefinition',
+            kind: 'CheckboxElement',
             id: this.id,
             children: this.childElements,
             props: {
@@ -261,7 +263,7 @@ export class SectionTitle {
      */
     build() {
         return {
-            kind: 'SectionTitleProps',
+            kind: 'SectionTitleElement',
             id: this.id || uuid(),
             props: {
                 title: this.title,
@@ -290,7 +292,7 @@ export class Related {
             next.push('build' in child ? child.build() : child);
         }
         return {
-            kind: 'RelatedProps',
+            kind: 'RelatedElement',
             id: this.id || uuid(),
             children: next,
         };
@@ -313,7 +315,7 @@ export class TextRow {
      */
     build() {
         return {
-            kind: 'TextRowDefinition',
+            kind: 'TextRowElement',
             id: this.id || uuid(),
             props: {
                 text: this.text,
@@ -340,7 +342,7 @@ export class InlineWarning {
      */
     build() {
         return {
-            kind: 'InlineWarningDefinition',
+            kind: 'InlineWarningElement',
             id: this.id || uuid(),
             props: {
                 text: this.text,
@@ -366,7 +368,7 @@ export class LinkRow {
      */
     build() {
         return {
-            kind: 'LinkRowDefinition',
+            kind: 'LinkRowElement',
             id: this.id || uuid(),
             props: {
                 text: this.text,
@@ -389,7 +391,7 @@ export class PrivacyPro {
      */
     build() {
         return {
-            kind: 'PrivacyPro',
+            kind: 'PrivacyProElement',
             id: this.id || uuid(),
             strings: [],
         };
@@ -410,7 +412,7 @@ export class NearestLocation {
      */
     build() {
         return {
-            kind: 'NearestLocation',
+            kind: 'NearestLocationElement',
             id: this.id || uuid(),
             strings: [],
         };
@@ -421,10 +423,12 @@ export class Sync {
      * @param {object} props
      * @param {string} [props.id]
      * @param {string} props.startId
+     * @param {string[]} props.strings
      */
-    constructor({ id, startId }) {
+    constructor({ id, startId, strings }) {
         this.id = id;
         this.startId = startId;
+        this.strings = strings;
     }
 
     /**
@@ -432,9 +436,9 @@ export class Sync {
      */
     build() {
         return {
-            kind: 'Sync',
+            kind: 'SyncElement',
             id: this.id || uuid(),
-            strings: [],
+            strings: this.strings,
             startId: this.startId,
         };
     }

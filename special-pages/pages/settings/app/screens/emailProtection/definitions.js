@@ -1,10 +1,11 @@
 /**
  * @import {ScreenTitleStatusProps} from '../../elements/ScreenTitleStatus.js'
- * @import {ElementDefinition, PaneDefinition} from '../../settings.service.js'
+ * @import {PaneDefinition} from '../../schema/pane-types.js'
+ * @import { ElementDefinition } from "../../schema/element-types.js"
  */
 
 /**
- * @param {import("../../global/builders.js").Api} api
+ * @param {import("../../schema/element-builders.js").Api} api
  * @returns {Record<string, PaneDefinition>}
  */
 export function emailProtection(api) {

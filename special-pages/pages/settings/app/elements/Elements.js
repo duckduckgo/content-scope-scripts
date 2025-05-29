@@ -16,8 +16,12 @@ import { Related } from './Related.js';
 import { SyncWithState } from '../custom/Sync.js';
 
 /**
+ * @import { ElementDefinition } from "../schema/element-types.js"
+ */
+
+/**
  * @param {object} props
- * @param {import('../settings.service.js').ElementDefinition[]} props.elements
+ * @param {ElementDefinition[]} props.elements
  * @param {string[]} props.excluded
  * @param {boolean} props.debug
  */
@@ -28,7 +32,7 @@ export function Elements(props) {
 
 /**
  * @param {object} props
- * @param {(import('../settings.service.js').ElementDefinition[][]) | null | undefined} [props.sections]
+ * @param {(ElementDefinition[][]) | null | undefined} [props.sections]
  * @param {string[]} props.excluded
  * @param {boolean} props.debug
  */
@@ -39,29 +43,29 @@ export function Sections(props) {
 }
 
 /**
- * @param {import('../settings.service.js').ElementDefinition[]} def
+ * @param {ElementDefinition[]} def
  * @param {boolean} debug
  */
 function toComponents(def, debug = false) {
     return def.map((d) => {
         const item = (() => {
             switch (d.kind) {
-                case 'ScreenTitleDefinition': {
+                case 'ScreenTitleElement': {
                     return <ScreenTitle {...d.props} key={d.id} />;
                 }
-                case 'ScreenTitleStatusDefinition': {
+                case 'ScreenTitleStatusElement': {
                     return <ScreenTitleStatusWithState {...d.props} valueId={d.valueId} id={d.id} key={d.id} />;
                 }
-                case 'InlineWarningDefinition': {
+                case 'InlineWarningElement': {
                     return <InlineWarningWithState {...d.props} id={d.id} key={d.id} />;
                 }
-                case 'SectionTitleProps': {
+                case 'SectionTitleElement': {
                     return <SectionTitle {...d.props} key={d.id} />;
                 }
-                case 'DescriptionLinkDefinition': {
+                case 'DescriptionLinkElement': {
                     return <DescriptionLinkWithState {...d.props} id={d.id} key={d.id} />;
                 }
-                case 'CheckboxDefinition': {
+                case 'CheckboxElement': {
                     if (Array.isArray(d.children)) {
                         const inner = toComponents(d.children);
                         return (
@@ -72,31 +76,31 @@ function toComponents(def, debug = false) {
                     }
                     return <CheckboxWithState {...d.props} id={d.id} key={d.id} />;
                 }
-                case 'RelatedProps': {
+                case 'RelatedElement': {
                     const inner = toComponents(d.children);
                     return <Related key={d.id}>{inner}</Related>;
                 }
-                case 'SwitchDefinition': {
+                case 'SwitchElement': {
                     const on = toComponents(d.on);
                     const off = toComponents(d.off);
                     return <Switch on={on} off={off} valueId={d.valueId} key={d.id} />;
                 }
-                case 'TextRowDefinition': {
+                case 'TextRowElement': {
                     return <TextRow {...d.props} id={d.id} key={d.id} />;
                 }
-                case 'ButtonRowDefinition': {
+                case 'ButtonRowElement': {
                     return <ButtonRowWithState {...d.props} id={d.id} key={d.id} />;
                 }
-                case 'NearestLocation': {
+                case 'NearestLocationElement': {
                     return <NearestLocationWithState id={d.id} key={d.id} />;
                 }
-                case 'PrivacyPro': {
+                case 'PrivacyProElement': {
                     return <PrivacyProWithState id={d.id} key={d.id} />;
                 }
-                case 'LinkRowDefinition': {
+                case 'LinkRowElement': {
                     return <LinkRowWithState {...d.props} id={d.id} key={d.id} />;
                 }
-                case 'Sync': {
+                case 'SyncElement': {
                     return <SyncWithState startId={d.startId} id={d.id} key={d.id} />;
                 }
                 default:

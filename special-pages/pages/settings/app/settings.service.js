@@ -1,38 +1,6 @@
 /**
  * @import {SettingsData} from "../types/settings.js"
- */
-
-/**
- * @typedef {{ id: string, valueId?: string, kind: "ScreenTitleStatusDefinition", props: import('./elements/ScreenTitleStatus.js').ScreenTitleStatusDefinition }
- *   | { id: string, kind: "ScreenTitleDefinition", props: import('./elements/ScreenTitle.js').ScreenTitleDefinition }
- *   | { id: string, kind: "SectionTitleProps", props: import('./elements/SectionTitle.js').SectionTitleProps }
- *   | { id: string, kind: "TextRowDefinition", props: import('./elements/TextRow.js').TextRowDefinition }
- *   | { id: string, kind: "LinkRowDefinition", props: import('./elements/LinkRow.js').LinkRowDefinition }
- *   | { id: string, kind: "NearestLocation", strings: string[] }
- *   | { id: string, kind: "PrivacyPro", strings: string[] }
- *   | { id: string, kind: "Sync", strings: string[]; startId: string }
- *   | { id: string, kind: "DescriptionLinkDefinition", props: import('./elements/DescriptionLink.js').DescriptionLinkDefinition }
- *   | { id: string, kind: "CheckboxDefinition", props: import('./elements/Checkbox.js').CheckboxDefinition, children?: ElementDefinition[] }
- *   | { id: string, kind: "RelatedProps", children: ElementDefinition[] }
- *   | { id: string, kind: "ButtonRowDefinition", props: import('./elements/ButtonRow.js').ButtonRowDefinition }
- *   | {
- *       id: string,
- *       kind: "SwitchDefinition",
- *       valueId: string
- *       on: ElementDefinition[],
- *       off: ElementDefinition[],
- *     }
- *   | { id: string, kind: "InlineWarningDefinition", props: import('./elements/InlineWarning.js').InlineWarningDefinition }} ElementDefinition
- */
-
-/**
- * @typedef {"privacyPro" | "protections" | "main" | "about" | "dev"} ScreenCategory
- * @typedef {{id: string, screenIds: string[]}} ScreenGroup
- * @typedef {{
- *    screens: Record<string, PaneDefinition>,
- *    groups: ScreenGroup[],
- *    excludedElements: string[]
- * }} SettingsStructure
+ *
  */
 
 import { privateSearch } from './screens/privateSearch/definitions.js';
@@ -42,25 +10,9 @@ import { cookiePopupProtection } from './screens/cookiePopupProtection/definitio
 import { emailProtection } from './screens/emailProtection/definitions.js';
 import { vpn } from './screens/vpn/definitions.js';
 import { privacyPro } from './screens/privacyPro/defintions.js';
-import { Api } from './global/builders.js';
+import { Api } from './schema/element-builders.js';
 import { general } from './screens/general/definitions.js';
 import { sync } from './screens/sync/definitions.js';
-
-/**
- * The minimum amount of data needed to
- */
-export class PaneDefinition {
-    /** @type {ElementDefinition[]} */
-    elements;
-    /** @type {ElementDefinition[][]} */
-    sections = [];
-    /** @type {string} */
-    id;
-    /** @type {ElementDefinition} */
-    title;
-    /** @type {string|null} */
-    icon;
-}
 
 /**
  * @typedef {'initial' | 'user' | 'auto'} SettingsQuerySource
@@ -123,7 +75,7 @@ export function paramsToQuery(params, source = 'initial') {
 }
 
 /**
- * @return {SettingsStructure}
+ * @return {import('./schema/pane-types.js').SettingsStructure}
  */
 export function defaultStructure() {
     const api = new Api();

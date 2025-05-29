@@ -7,7 +7,8 @@ import { useEffect } from 'preact/hooks';
 import { Elements } from '../elements/Elements.js';
 
 /**
- * @import { Signal } from '@preact/signals';
+ * @import {Signal} from '@preact/signals'
+ * @typedef {import('../schema/element-types.js').ElementDefinition} ElementDefinition
  */
 
 /**
@@ -62,13 +63,13 @@ export function ResultsContainer(props) {
 }
 
 /**
- * @param {import('../settings.service.js').ElementDefinition[]} toRender
+ * @param {ElementDefinition[]} toRender
  */
 function removeDuplicates(toRender) {
     // return undefined;
     /** @type {Set<string>} */
     const seen = new Set([]);
-    /** @type {import('../settings.service.js').ElementDefinition[]} */
+    /** @type {ElementDefinition[]} */
     const output = [];
     for (const element of toRender) {
         const count = seen.size;
@@ -173,10 +174,8 @@ export function Results({ results, renderedStrings, term, matchedTranslations })
     );
 }
 
-function collect() {}
-
 /**
- * @param {import('../settings.service.js').ElementDefinition[][]} sections
+ * @param {ElementDefinition[][]} sections
  * @param {{key: string, title: string}[]} mapping
  */
 function findSections(sections, mapping) {
@@ -193,7 +192,7 @@ function findSections(sections, mapping) {
 }
 
 /**
- * @param {import('../settings.service.js').ElementDefinition} element
+ * @param {ElementDefinition} element
  * @param {{key: string, title: string}[]} mapping
  * @return {boolean}
  */
@@ -203,16 +202,16 @@ function elementUsedTranslation(element, mapping) {
         const exact = mapping.find((x) => strings.includes(x.key));
         if (exact) return true;
     }
-    if (element.kind === 'SwitchDefinition') {
+    if (element.kind === 'SwitchElement') {
         const on = element.on.some((el) => elementUsedTranslation(el, mapping));
         const off = element.off.some((el) => elementUsedTranslation(el, mapping));
         if (on || off) return true;
     }
-    if (element.kind === 'CheckboxDefinition') {
+    if (element.kind === 'CheckboxElement') {
         const some = element.children?.some((el) => elementUsedTranslation(el, mapping));
         if (some) return true;
     }
-    if (element.kind === 'RelatedProps') {
+    if (element.kind === 'RelatedElement') {
         const some = element.children?.some((el) => elementUsedTranslation(el, mapping));
         if (some) return true;
     }

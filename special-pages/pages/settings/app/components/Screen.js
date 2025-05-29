@@ -10,8 +10,8 @@ import cn from 'classnames';
  * Access global state and render the results
  * @param {Object} props
  * @param {Signal<string>} props.screenId
- * @param {import('../settings.service').PaneDefinition} props.screenDefinition
- * @param {import('../settings.service').SettingsStructure["excludedElements"]} props.excludedElements
+ * @param {import('../schema/pane-types.js').PaneDefinition} props.screenDefinition
+ * @param {import('../schema/pane-types.js').SettingsStructure["excludedElements"]} props.excludedElements
  */
 export function ScreenContainer(props) {
     return (
@@ -33,10 +33,10 @@ export function ScreenContainer(props) {
 
 /**
  * @param {Object} props
- * @param {import('../settings.service').PaneDefinition["elements"]} props.elements
+ * @param {import('../schema/pane-types.js').PaneDefinition["elements"]} props.elements
  * @param {string} props.term
  * @param {string} props.stateHash
- * @param {import('../settings.service').SettingsStructure["excludedElements"]} props.excludedElements
+ * @param {import('../schema/pane-types.js').SettingsStructure["excludedElements"]} props.excludedElements
  */
 export function HighlightingContainer({ term, stateHash, elements, excludedElements }) {
     const ref = useRef();

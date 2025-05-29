@@ -1,8 +1,8 @@
 import json from './strings.json';
 
 /**
- * @import {PaneDefinition} from '../../settings.service.js'
- * @import { Api } from "../../global/builders.js"
+ * @import {PaneDefinition} from '../../schema/pane-types.js'
+ * @import { Api } from "../../schema/element-builders.js"
  */
 
 /**
@@ -15,7 +15,7 @@ export function privacyPro(api) {
             icon: '/icons/16px/Privacy-Pro-Color-16.svg',
             id: 'privacyPro',
             title: {
-                kind: 'ScreenTitleDefinition',
+                kind: 'ScreenTitleElement',
                 id: 'privacyPro.screenTitle',
                 props: {
                     title: 'privacyPro.screenTitle',
@@ -23,7 +23,7 @@ export function privacyPro(api) {
             },
             elements: [
                 {
-                    kind: 'PrivacyPro',
+                    kind: 'PrivacyProElement',
                     id: 'privacyPro.custom',
                     strings: Object.keys(json),
                 },
