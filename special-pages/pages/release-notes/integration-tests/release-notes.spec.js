@@ -25,6 +25,14 @@ test.describe('release-notes', () => {
         await releaseNotes.didShowLoadingState();
     });
 
+    test('shows loading error state', async ({ page }, workerInfo) => {
+        const releaseNotes = ReleaseNotesPage.create(page, workerInfo);
+        await releaseNotes.reducedMotion();
+        await releaseNotes.openPage({ env: 'app' });
+        await releaseNotes.releaseNotesLoadingError();
+        await releaseNotes.didShowLoadingErrorState();
+    });
+
     test('shows downloading update state', async ({ page }, workerInfo) => {
         const releaseNotes = ReleaseNotesPage.create(page, workerInfo);
         await releaseNotes.reducedMotion();
@@ -136,5 +144,13 @@ test.describe('release-notes', () => {
         await releaseNotes.openPage({ env: 'app' });
         await releaseNotes.releaseNotesUpdateError();
         await releaseNotes.didRequestRetryUpdate();
+    });
+
+    test('sends retry getting release notes click to browser', async ({ page }, workerInfo) => {
+        const releaseNotes = ReleaseNotesPage.create(page, workerInfo);
+        await releaseNotes.reducedMotion();
+        await releaseNotes.openPage({ env: 'app' });
+        await releaseNotes.releaseNotesLoadingError();
+        await releaseNotes.didRequestRetryGettingReleaseNotes();
     });
 });

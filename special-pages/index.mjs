@@ -45,6 +45,7 @@ export const support = {
     'release-notes': {
         integration: ['copy', 'build-js'],
         apple: ['copy', 'build-js'],
+        windows: ['copy', 'build-js'],
     },
     /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
     'special-error': {

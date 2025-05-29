@@ -1,12 +1,14 @@
 import { Fragment, h } from 'preact';
-import { useMessaging } from '../index';
 import classNames from 'classnames';
+import { useMessaging } from '../index';
 import { useTypedTranslation } from '../types';
+import { Button } from '../../../../shared/components/Button/Button';
+import { Card } from '../../../../shared/components/Card/Card';
 // eslint-disable-next-line no-redeclare
 import { Text } from '../../../../shared/components/Text/Text';
-import { Card } from '../../../../shared/components/Card/Card';
-import { Button } from '../../../../shared/components/Button/Button';
+import { usePlatformName } from '../settings.provider';
 import { ContentPlaceholder } from './ContentPlaceholder';
+import OpenInIcon from './OpenIn16';
 
 import styles from './ReleaseNotes.module.css';
 
@@ -14,6 +16,7 @@ import styles from './ReleaseNotes.module.css';
  * @typedef {import('../../types/release-notes.js').UpdateMessage} UpdateMessage
  * @typedef {import('../../types/release-notes.js').UpdateErrorState} UpdateErrorState
  * @typedef {import('../../types/release-notes.js').UpdateReadyState} UpdateReadyState
+ * @typedef {import('../../types/release-notes.js').ReleaseNotesLoadingErrorState} ReleaseNotesLoadingErrorState
  * @typedef {import('../../types/release-notes.js').ReleaseNotesLoadedState} ReleaseNotesLoadedState
  * @typedef {import('../types.js').Notes} Notes
  */
@@ -40,6 +43,7 @@ function StatusText({ status, version, progress = 0 }) {
     const statusTexts = {
         loaded: t('browserUpToDate'),
         loading: t('checkingForUpdate'),
+        loadingError: t('loadingError'),
         updateReady: t('newVersionAvailable'),
         updateError: t('updateError'),
         criticalUpdateReady: t('criticallyOutOfDate'),
@@ -64,6 +68,7 @@ function StatusIcon({ status, className }) {
     const iconClasses = {
         loaded: styles.checkIcon,
         loading: styles.spinnerIcon,
+        loadingError: styles.warningIcon,
         updateReady: styles.alertIcon,
         criticalUpdateReady: styles.warningIcon,
         updateError: styles.warningIcon,
@@ -214,7 +219,7 @@ export function CardContents({ releaseData }) {
     const { status } = releaseData;
     const isLoading = status === 'loading' || status === 'updateDownloading' || status === 'updatePreparing';
 
-    if (isLoading) {
+    if (isLoading || status === 'loadingError') {
         return <ContentPlaceholder />;
     }
 
@@ -251,24 +256,41 @@ export function CardContents({ releaseData }) {
 
 /**
  * @param {object} props
- * @param {UpdateReadyState|UpdateErrorState} props.releaseData
+ * @param {UpdateReadyState|UpdateErrorState|ReleaseNotesLoadingErrorState} props.releaseData
  */
 export function UpdateButton({ releaseData }) {
     const { t } = useTypedTranslation();
     const { messages } = useMessaging();
+    const platform = usePlatformName();
 
     const { status } = releaseData;
     let button;
 
+    if (status === 'loadingError') {
+        button = (
+            <Button onClick={() => messages?.retryFetchReleaseNotes()} variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                {t('retryGettingReleaseNotes')}
+            </Button>
+        );
+    }
+
     if (status === 'updateError') {
-        button = <Button onClick={() => messages?.retryUpdate()}>{t('retryUpdate')}</Button>;
+        button = (
+            <Button onClick={() => messages?.retryUpdate()} variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                {t('retryUpdate')}
+            </Button>
+        );
     }
 
     if (status === 'updateReady' || status === 'criticalUpdateReady') {
         const { automaticUpdate } = releaseData;
         const buttonText = automaticUpdate ? t('restartToUpdate') : t('updateBrowser');
 
-        button = <Button onClick={() => messages?.browserRestart()}>{buttonText}</Button>;
+        button = (
+            <Button onClick={() => messages?.browserRestart()} variant="accentBrand" size={platform === 'macos' ? 'lg' : 'md'}>
+                {buttonText}
+            </Button>
+        );
     }
 
     if (!button) return null;
@@ -297,18 +319,26 @@ export function ReleaseNotes({ releaseData }) {
         }
     }
 
-    const shouldShowButton = status === 'updateReady' || status === 'criticalUpdateReady' || status === 'updateError';
+    const shouldShowButton =
+        status === 'updateReady' || status === 'criticalUpdateReady' || status === 'updateError' || status === 'loadingError';
 
     return (
         <article className={styles.article}>
             <header className={styles.heading}>
+                <p>{t('thankyou')}</p>
                 <PageTitle title={t('browserReleaseNotes')} />
                 <UpdateStatus status={status} timestamp={timestampInMilliseconds} version={currentVersion} progress={progress} />
                 {shouldShowButton && <UpdateButton releaseData={releaseData} />}
             </header>
-            <Card className={styles.card}>
-                <CardContents releaseData={releaseData} />
-            </Card>
+            {status !== 'loadingError' && (
+                <Card className={styles.card}>
+                    <CardContents releaseData={releaseData} />
+                </Card>
+            )}
+            <a href="https://duckduckgo.com/updates" target="_blank" className={styles.updatesLink}>
+                {t('whatsNewAtDuckDuckGoLink')}
+                <OpenInIcon className={styles.linkIcon} />
+            </a>
         </article>
     );
 }
