@@ -13,6 +13,11 @@ export const sampleData = {
         currentVersion: '1.0.1',
         lastUpdate: timestampInSeconds - 24 * 60 * 60,
     },
+    loadingError: {
+        status: 'loadingError',
+        currentVersion: '1.0.1',
+        lastUpdate: timestampInSeconds - 24 * 60 * 60,
+    },
     loaded: {
         currentVersion: '1.0.1',
         latestVersion: '1.0.1',
