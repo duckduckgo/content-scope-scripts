@@ -86,7 +86,7 @@ export class DuckPlayerNativeYoutube {
 
             if (pause) {
                 this.sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
-                this.sideEffects.add('disabling video controls', () => disableVideoControls('#player-control-container'));
+                this.sideEffects.add('disabling video controls', () => disableVideoControls('#player-control-container')); // TODO: Move to remote config
                 this.sideEffects.add('appending thumbnail', () => {
                     const clickHandler = () => {
                         this.messages.notifyOverlayDismissed();
