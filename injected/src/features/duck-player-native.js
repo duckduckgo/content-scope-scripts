@@ -45,7 +45,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         const messages = new DuckPlayerNativeMessages(this.messaging, env);
         messages.subscribeToURLChange(({ pageType }) => {
             const playbackPaused = false; // This can be added to the event data in the future if needed
-            this.urlChanged(pageType, selectors, playbackPaused, env, messages);
+            this.urlDidChange(pageType, selectors, playbackPaused, env, messages);
         });
 
         /** @type {InitialSettings} */
@@ -60,7 +60,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         if (initialSetup.pageType) {
             const playbackPaused = initialSetup.playbackPaused || false;
-            this.urlChanged(initialSetup.pageType, selectors, playbackPaused, env, messages);
+            this.urlDidChange(initialSetup.pageType, selectors, playbackPaused, env, messages);
         }
     }
 
@@ -72,7 +72,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
      * @param {Environment} env
      * @param {DuckPlayerNativeMessages} messages
      */
-    urlChanged(pageType, selectors, playbackPaused, env, messages) {
+    urlDidChange(pageType, selectors, playbackPaused, env, messages) {
         /** @type {DuckPlayerNativeSubFeature | null} */
         let nextPage = null;
 
