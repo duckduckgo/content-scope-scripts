@@ -59,7 +59,9 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         }
 
         if (initialSetup.pageType) {
-            const playbackPaused = initialSetup.playbackPaused || false;
+            const playbackPaused =
+                (typeof initialSetup.playbackPaused === 'boolean' && initialSetup.playbackPaused) ||
+                (typeof initialSetup.playbackPaused === 'string' && initialSetup.playbackPaused === 'true');
             this.urlDidChange(initialSetup.pageType, selectors, playbackPaused, env, messages);
         }
     }
