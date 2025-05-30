@@ -78,7 +78,7 @@ function MobileLayout({ embed }) {
                 </SwitchProvider>
             </div>
             <div class={cn(styles.buttons, styles.hideInFocus)}>
-                <MobileButtons embed={embed} accentWatchButton={embed !== null && showCustomError} />
+                <MobileButtons embed={embed} accentedWatchButton={embed !== null && showCustomError} />
             </div>
         </main>
     );

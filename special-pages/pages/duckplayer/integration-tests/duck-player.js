@@ -29,7 +29,7 @@ const html = {
 <div class="ytp-error" role="alert" data-layer="4">
   <div class="ytp-error-content" style="padding-top: 165px">
     <div class="ytp-error-content-wrap">
-      <div class="ytp-error-content-wrap-reason"><span>Sign in to confirm you’re not a bot</span></div>
+      <div class="ytp-error-content-wrap-reason"><span>Sign in to confirm you're not a bot</span></div>
       <div class="ytp-error-content-wrap-subreason">
         <span
           ><span>This helps protect our community. </span
@@ -440,37 +440,43 @@ export class DuckPlayerPage {
     }
 
     async opensDuckPlayerYouTubeLinkFromError({ videoID = 'UNSUPPORTED' }) {
-        const action = () => this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
-        await this.build.switch({
-            windows: async () => {
-                const failure = new Promise((resolve) => {
-                    this.page.context().on('requestfailed', (f) => {
-                        resolve(f.url());
+        const buttons = await this.page.getByRole('button', { name: 'Watch on YouTube' }).all();
+
+        // Some error screens show multiple Watch on YouTube buttons, so we need to check each one
+        for (let i = 0; i < buttons.length; i++) {
+            const action = () => buttons[i].click();
+            await this.build.switch({
+                windows: async () => {
+                    const failure = new Promise((resolve) => {
+                        this.page.context().on('requestfailed', (f) => {
+                            resolve(f.url());
+                        });
                     });
-                });
-                await action();
-                expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
-            },
-            apple: async () => {
-                if (this.platform.name === 'ios') {
-                    // todo: why does this not work on ios??
                     await action();
-                    return;
-                }
-                await action();
-                await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
-            },
-            android: async () => {
-                // const failure = new Promise(resolve => {
-                //     this.page.context().on('requestfailed', f => {
-                //         resolve(f.url())
-                //     })
-                // })
-                // todo: why does this not work on android?
-                await action();
-                // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
-            },
-        });
+                    expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
+                },
+                apple: async () => {
+                    if (this.platform.name === 'ios') {
+                        // todo: why does this not work on ios??
+                        await action();
+                        return;
+                    }
+                    await action();
+                    await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
+                },
+                android: async () => {
+                    // const failure = new Promise(resolve => {
+                    //     this.page.context().on('requestfailed', f => {
+                    //         resolve(f.url())
+                    //     })
+                    // })
+                    // todo: why does this not work on android?
+                    await action();
+                    // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
+                },
+            });
+            await this.page.goBack();
+        }
     }
 
     /**
