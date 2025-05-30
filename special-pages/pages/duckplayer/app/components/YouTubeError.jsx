@@ -52,7 +52,7 @@ function useErrorStrings(kind) {
  * @param {object} props
  * @param {YouTubeError} props.kind
  * @param {Settings['layout']} props.layout
- * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
+ * @param {import("../embed-settings.js").EmbedSettings|null} [props.embed]
  */
 export function YouTubeError({ kind, layout, embed }) {
     const { t } = useTypedTranslation();
@@ -95,7 +95,7 @@ export function YouTubeError({ kind, layout, embed }) {
                         </ul>
                     )}
 
-                    {layout === 'desktop' && (
+                    {embed && layout === 'desktop' && (
                         <div className={styles.buttons}>
                             <span className={styles.spacer}></span>
                             <Button
@@ -103,7 +103,7 @@ export function YouTubeError({ kind, layout, embed }) {
                                 variant={'accent'}
                                 buttonProps={{
                                     onClick: () => {
-                                        if (embed) openOnYoutube(embed);
+                                        openOnYoutube(embed);
                                     },
                                 }}
                             >
