@@ -29,7 +29,7 @@ const html = {
 <div class="ytp-error" role="alert" data-layer="4">
   <div class="ytp-error-content" style="padding-top: 165px">
     <div class="ytp-error-content-wrap">
-      <div class="ytp-error-content-wrap-reason"><span>Sign in to confirm you’re not a bot</span></div>
+      <div class="ytp-error-content-wrap-reason"><span>Sign in to confirm you're not a bot</span></div>
       <div class="ytp-error-content-wrap-subreason">
         <span
           ><span>This helps protect our community. </span
@@ -440,37 +440,43 @@ export class DuckPlayerPage {
     }
 
     async opensDuckPlayerYouTubeLinkFromError({ videoID = 'UNSUPPORTED' }) {
-        const action = () => this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
-        await this.build.switch({
-            windows: async () => {
-                const failure = new Promise((resolve) => {
-                    this.page.context().on('requestfailed', (f) => {
-                        resolve(f.url());
+        const buttons = await this.page.getByRole('button', { name: 'Watch on YouTube' }).all();
+
+        // Some error screens show multiple Watch on YouTube buttons, so we need to check each one
+        for (let i = 0; i < buttons.length; i++) {
+            const action = () => buttons[i].click();
+            await this.build.switch({
+                windows: async () => {
+                    const failure = new Promise((resolve) => {
+                        this.page.context().on('requestfailed', (f) => {
+                            resolve(f.url());
+                        });
                     });
-                });
-                await action();
-                expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
-            },
-            apple: async () => {
-                if (this.platform.name === 'ios') {
-                    // todo: why does this not work on ios??
                     await action();
-                    return;
-                }
-                await action();
-                await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
-            },
-            android: async () => {
-                // const failure = new Promise(resolve => {
-                //     this.page.context().on('requestfailed', f => {
-                //         resolve(f.url())
-                //     })
-                // })
-                // todo: why does this not work on android?
-                await action();
-                // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
-            },
-        });
+                    expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
+                },
+                apple: async () => {
+                    if (this.platform.name === 'ios') {
+                        // todo: why does this not work on ios??
+                        await action();
+                        return;
+                    }
+                    await action();
+                    await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
+                    await this.page.goBack();
+                },
+                android: async () => {
+                    // const failure = new Promise(resolve => {
+                    //     this.page.context().on('requestfailed', f => {
+                    //         resolve(f.url())
+                    //     })
+                    // })
+                    // todo: why does this not work on android?
+                    await action();
+                    // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
+                },
+            });
+        }
     }
 
     /**
@@ -612,5 +618,38 @@ export class DuckPlayerPage {
     async openInfo() {
         const { page } = this;
         await page.getByRole('button', { name: 'Open Info' }).click();
+    }
+
+    /* Aria Snapshots */
+    async didShowGenericError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Duck Player can’t load this video" [level=1]
+            - paragraph: This video can’t be viewed outside of YouTube.
+            - paragraph: You can still watch this video on YouTube, but without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowAgeRestrictedError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Sorry, this video is age-restricted" [level=1]
+            - paragraph: To watch age-restricted videos, you need to sign in to YouTube to verify your age.
+            - paragraph: You can still watch this video, but you’ll have to sign in and watch it on YouTube without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowNoEmbedError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Sorry, this video can only be played on YouTube" [level=1]
+            - paragraph: The creator of this video has chosen not to allow it to be viewed outside of YouTube.
+            - paragraph: You can still watch it on YouTube, but without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowSignInRequiredError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Sorry, but YouTube thinks you’re a bot!" [level=1]
+            - paragraph: This sometimes happens when you’re using a VPN. If that’s the case, try turning it off and reloading this page.
+            - paragraph: No luck? You can still watch this video, but you’ll have to sign in and watch it on YouTube without the added privacy of Duck Player.
+          `);
     }
 }

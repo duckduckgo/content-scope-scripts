@@ -132,3 +132,12 @@ ul.messages {
     }
 }
 
+.buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.buttons .spacer {
+    flex: 0 0 16px;
+}
