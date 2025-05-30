@@ -20,15 +20,20 @@
         }
       }
     },
-    "defaultStyles": {
-      "oneOf": [
-        {
-          "type": "null"
-        },
-        {
-          "$ref": "types/default-styles.json"
+    "customizer": {
+      "type": "object",
+      "properties": {
+        "defaultStyles": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "../../new-tab/messages/types/default-styles.json"
+            }
+          ]
         }
-      ]
+      }
     }
   }
 }

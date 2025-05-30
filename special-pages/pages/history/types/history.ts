@@ -196,7 +196,9 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
-  defaultStyles?: null | DefaultStyles;
+  customizer?: {
+    defaultStyles?: null | DefaultStyles;
+  };
 }
 export interface DefaultStyles {
   /**
