@@ -463,6 +463,7 @@ export class DuckPlayerPage {
                     }
                     await action();
                     await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
+                    await this.page.goBack();
                 },
                 android: async () => {
                     // const failure = new Promise(resolve => {
@@ -475,7 +476,6 @@ export class DuckPlayerPage {
                     // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
                 },
             });
-            await this.page.goBack();
         }
     }
 
