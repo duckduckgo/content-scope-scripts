@@ -9,9 +9,9 @@ import styles from './Sidebar.module.css';
 
 /**
  * @import {Signal} from "@preact/signals"
- * @import json from "../strings.json"
- * @import {SettingsScreen} from "../../types/settings.js"
- * @import {SettingsStructure} from "../schema/pane-types.js"
+ * @typedef {import('../strings.json')} json
+ * @typedef {import('../../types/settings.js').SettingsScreen} SettingsScreen
+ * @typedef {import('../schema/pane-types.js').SettingsStructure} SettingsStructure
  */
 
 /**
