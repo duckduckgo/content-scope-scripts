@@ -2,6 +2,8 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { Settings } from '../settings';
 import { useTypedTranslation } from '../types.js';
+import { Button, OpenInIcon } from './Button.jsx';
+import { useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
 
 import styles from './YouTubeError.module.css';
 
@@ -20,14 +22,27 @@ function useErrorStrings(kind) {
     switch (kind) {
         case 'sign-in-required':
             return {
-                heading: t('blockedVideoErrorHeading'),
+                heading: t('signInRequiredErrorHeading'),
                 messages: [t('signInRequiredErrorMessage1'), t('signInRequiredErrorMessage2')],
                 variant: 'paragraphs',
             };
+        case 'age-restricted':
+            return {
+                heading: t('ageRestrictedErrorHeading'),
+                messages: [t('ageRestrictedErrorMessage1'), t('ageRestrictedErrorMessage2')],
+                variant: 'paragraphs',
+            };
+        case 'no-embed':
+            return {
+                heading: t('noEmbedErrorHeading'),
+                messages: [t('noEmbedErrorMessage1'), t('noEmbedErrorMessage2')],
+                variant: 'paragraphs',
+            };
+        case 'unknown':
         default:
             return {
-                heading: t('blockedVideoErrorHeading'),
-                messages: [t('blockedVideoErrorMessage1'), t('blockedVideoErrorMessage2')],
+                heading: t('unknownErrorHeading'),
+                messages: [t('unknownErrorMessage1'), t('unknownErrorMessage2')],
                 variant: 'paragraphs',
             };
     }
@@ -37,8 +52,11 @@ function useErrorStrings(kind) {
  * @param {object} props
  * @param {YouTubeError} props.kind
  * @param {Settings['layout']} props.layout
+ * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
-export function YouTubeError({ kind, layout }) {
+export function YouTubeError({ kind, layout, embed }) {
+    const { t } = useTypedTranslation();
+    const openOnYoutube = useOpenOnYoutubeHandler();
     const { heading, messages, variant } = useErrorStrings(kind);
     const classes = cn(styles.error, {
         [styles.desktop]: layout === 'desktop',
@@ -75,6 +93,24 @@ export function YouTubeError({ kind, layout }) {
                                 <li key={item}>{item}</li>
                             ))}
                         </ul>
+                    )}
+
+                    {layout === 'desktop' && (
+                        <div className={styles.buttons}>
+                            <span className={styles.spacer}></span>
+                            <Button
+                                formfactor={'desktop'}
+                                variant={'accent'}
+                                buttonProps={{
+                                    onClick: () => {
+                                        if (embed) openOnYoutube(embed);
+                                    },
+                                }}
+                            >
+                                <OpenInIcon />
+                                {t('watchOnYoutube')}
+                            </Button>
+                        </div>
                     )}
                 </div>
             </div>

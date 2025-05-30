@@ -59,14 +59,14 @@ function MobileLayout({ embed }) {
     const platformName = usePlatformName();
     const youtubeError = useYouTubeError();
     const settings = useSettings();
-    const showCustomError = youtubeError && settings.customError?.state === 'enabled';
+    const showCustomError = youtubeError !== null && settings.customError?.state === 'enabled';
 
     return (
         <main class={styles.main} data-youtube-error={!!youtubeError}>
             <div class={cn(styles.filler, styles.hideInFocus)} />
             <div class={styles.embed}>
                 {embed === null && <PlayerError layout={'mobile'} kind={'invalid-id'} />}
-                {embed !== null && showCustomError && <YouTubeError layout={'mobile'} kind={youtubeError} />}
+                {embed !== null && showCustomError && <YouTubeError layout={'mobile'} kind={youtubeError} embed={embed} />}
                 {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'mobile'} />}
             </div>
             <div class={cn(styles.logo, styles.hideInFocus)}>
@@ -78,7 +78,7 @@ function MobileLayout({ embed }) {
                 </SwitchProvider>
             </div>
             <div class={cn(styles.buttons, styles.hideInFocus)}>
-                <MobileButtons embed={embed} />
+                <MobileButtons embed={embed} accentWatchButton={embed !== null && showCustomError}/>
             </div>
         </main>
     );
