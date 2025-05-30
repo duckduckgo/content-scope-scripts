@@ -10,9 +10,9 @@ import cog from '../img/cog.data.svg';
 /**
  * @param {object} props
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
- * @param {boolean} [props.accentWatchButton]
+ * @param {boolean} [props.accentedWatchButton]
  */
-export function MobileButtons({ embed, accentWatchButton = false }) {
+export function MobileButtons({ embed, accentedWatchButton = false }) {
     const openSettings = useOpenSettingsHandler();
     const openInfo = useOpenInfoHandler();
     const openOnYoutube = useOpenOnYoutubeHandler();
@@ -39,7 +39,7 @@ export function MobileButtons({ embed, accentWatchButton = false }) {
             </Button>
             <Button
                 fill={true}
-                variant={accentWatchButton ? 'accent' : 'standard'}
+                variant={accentedWatchButton ? 'accent' : 'standard'}
                 buttonProps={{
                     onClick: () => {
                         if (embed) openOnYoutube(embed);
