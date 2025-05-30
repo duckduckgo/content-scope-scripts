@@ -613,4 +613,37 @@ export class DuckPlayerPage {
         const { page } = this;
         await page.getByRole('button', { name: 'Open Info' }).click();
     }
+
+    /* Aria Snapshots */
+    async didShowGenericError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Duck Player can’t load this video" [level=1]
+            - paragraph: This video can’t be viewed outside of YouTube.
+            - paragraph: You can still watch this video on YouTube, but without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowAgeRestrictedError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Sorry, this video is age-restricted" [level=1]
+            - paragraph: To watch age-restricted videos, you need to sign in to YouTube to verify your age.
+            - paragraph: You can still watch this video, but you’ll have to sign in and watch it on YouTube without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowNoEmbedError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Sorry, this video can only be played on YouTube" [level=1]
+            - paragraph: The creator of this video has chosen not to allow it to be viewed outside of YouTube.
+            - paragraph: You can still watch it on YouTube, but without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowSignInRequiredError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Sorry, but YouTube thinks you’re a bot!" [level=1]
+            - paragraph: This sometimes happens when you’re using a VPN. If that’s the case, try turning it off and reloading this page.
+            - paragraph: No luck? You can still watch this video, but you’ll have to sign in and watch it on YouTube without the added privacy of Duck Player.
+          `);
+    }
 }

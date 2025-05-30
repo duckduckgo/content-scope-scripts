@@ -68,7 +68,7 @@ export function YouTubeError({ kind, layout, embed }) {
             <div className={styles.container}>
                 <span className={styles.icon}></span>
 
-                <div className={styles.content}>
+                <div className={styles.content} data-testid="YouTubeErrorContent">
                     <h1 className={styles.heading}>{heading}</h1>
 
                     {messages && variant === 'inline' && (
