@@ -16,6 +16,10 @@
         "signInRequiredSelector": {
           "description": "A selector that, when not empty, indicates a sign-in required error",
           "type": "string"
+        },
+        "youtubeError": {
+          "description": "A selector that, when not empty, indicates a sign-in required error",
+          "type": "string"
         }
       }
     }
