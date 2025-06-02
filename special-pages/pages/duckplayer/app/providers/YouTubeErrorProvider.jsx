@@ -2,25 +2,12 @@ import { useContext, useState } from 'preact/hooks';
 import { h, createContext } from 'preact';
 import { useEffect } from 'preact/hooks';
 import { useMessaging } from '../types';
-import { usePlatformName } from './SettingsProvider';
 import { useSetFocusMode } from '../components/FocusMode';
-
-export const YOUTUBE_ERROR_EVENT = 'ddg-duckplayer-youtube-error';
+import { YOUTUBE_ERROR_IDS, YOUTUBE_ERROR_EVENT } from '../../../../../injected/src/features/duckplayer-native/youtube-errors.js';
 
 /**
- * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
+ * @import {YouTubeError} from '../../types/duckplayer'
  */
-
-/** @type {Record<string,YouTubeError>} */
-export const YOUTUBE_ERRORS = {
-    ageRestricted: 'age-restricted',
-    signInRequired: 'sign-in-required',
-    noEmbed: 'no-embed',
-    unknown: 'unknown',
-};
-
-/** @type {YouTubeError[]} */
-export const YOUTUBE_ERROR_IDS = Object.values(YOUTUBE_ERRORS);
 
 const YouTubeErrorContext = createContext({
     /** @type {YouTubeError|null} */

@@ -1,5 +1,5 @@
 import { Logger } from '../duckplayer/util.js';
-import { checkForError, getErrorType } from '../../../../special-pages/pages/duckplayer/app/features/error-detection.js';
+import { checkForError, getErrorType } from './youtube-errors.js';
 
 /**
  * @import {DuckPlayerNativeSettings} from "@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js"
@@ -14,14 +14,6 @@ import { checkForError, getErrorType } from '../../../../special-pages/pages/duc
  * @property {ErrorDetectionCallback} callback
  * @property {boolean} testMode
  */
-
-/** @type {Record<string,YouTubeError>} */
-export const YOUTUBE_ERRORS = {
-    ageRestricted: 'age-restricted',
-    signInRequired: 'sign-in-required',
-    noEmbed: 'no-embed',
-    unknown: 'unknown',
-};
 
 /**
  * Detects YouTube errors based on DOM queries
@@ -61,7 +53,7 @@ export class ErrorDetection {
         if (documentBody) {
             // Check if iframe already contains error
             if (checkForError(this.selectors.youtubeError, documentBody)) {
-                const error = getErrorType(window);
+                const error = getErrorType(window, this.selectors.signInRequiredError, this.logger);
                 this.handleError(error);
                 return;
             }
@@ -105,7 +97,7 @@ export class ErrorDetection {
                 mutation.addedNodes.forEach((node) => {
                     if (checkForError(this.selectors.youtubeError, node)) {
                         this.logger.log('A node with an error has been added to the document:', node);
-                        const error = getErrorType(window);
+                        const error = getErrorType(window, this.selectors.signInRequiredError, this.logger);
                         this.handleError(error);
                     }
                 });
