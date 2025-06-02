@@ -654,8 +654,58 @@
   // pages/release-notes/app/components/ReleaseNotes.js
   var import_classnames5 = __toESM(require_classnames(), 1);
 
-  // shared/components/Text/Text.js
+  // shared/components/Button/Button.js
   var import_classnames2 = __toESM(require_classnames(), 1);
+
+  // shared/components/Button/Button.module.css
+  var Button_default = {
+    button: "Button_button",
+    lg: "Button_lg",
+    xl: "Button_xl",
+    standard: "Button_standard",
+    accent: "Button_accent",
+    accentBrand: "Button_accentBrand",
+    primary: "Button_primary",
+    ghost: "Button_ghost"
+  };
+
+  // shared/components/Button/Button.js
+  function Button({ variant, size = "md", className, children, onClick, type = "button" }) {
+    return /* @__PURE__ */ _(
+      "button",
+      {
+        className: (0, import_classnames2.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant, [Button_default[size]]: size }, className),
+        type,
+        onClick: (
+          /**
+           * @param {import("preact").JSX.TargetedMouseEvent<EventTarget>} event
+           */
+          (event) => {
+            if (onClick) {
+              onClick(event);
+            }
+          }
+        )
+      },
+      children
+    );
+  }
+
+  // shared/components/Card/Card.js
+  var import_classnames3 = __toESM(require_classnames(), 1);
+
+  // shared/components/Card/Card.module.css
+  var Card_default = {
+    card: "Card_card"
+  };
+
+  // shared/components/Card/Card.js
+  function Card({ className, children }) {
+    return /* @__PURE__ */ _("section", { className: (0, import_classnames3.default)(Card_default.card, className) }, children);
+  }
+
+  // shared/components/Text/Text.js
+  var import_classnames4 = __toESM(require_classnames(), 1);
 
   // shared/components/Text/Text.module.css
   var Text_default = {
@@ -676,55 +726,19 @@
 
   // shared/components/Text/Text.js
   function Text({ as: Comp = "p", variant, strictSpacing = true, className, children }) {
-    return /* @__PURE__ */ _(Comp, { className: (0, import_classnames2.default)({ [Text_default[`${variant}`]]: variant, [Text_default.strictSpacing]: strictSpacing }, className) }, children);
+    return /* @__PURE__ */ _(Comp, { className: (0, import_classnames4.default)({ [Text_default[`${variant}`]]: variant, [Text_default.strictSpacing]: strictSpacing }, className) }, children);
   }
 
-  // shared/components/Card/Card.js
-  var import_classnames3 = __toESM(require_classnames(), 1);
-
-  // shared/components/Card/Card.module.css
-  var Card_default = {
-    card: "Card_card"
-  };
-
-  // shared/components/Card/Card.js
-  function Card({ className, children }) {
-    return /* @__PURE__ */ _("section", { className: (0, import_classnames3.default)(Card_default.card, className) }, children);
+  // pages/release-notes/app/settings.provider.js
+  var SettingsContext = K(
+    /** @type {{settings: import("./settings.js").Settings}} */
+    {}
+  );
+  function SettingsProvider({ settings, children }) {
+    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { settings } }, children);
   }
-
-  // shared/components/Button/Button.js
-  var import_classnames4 = __toESM(require_classnames(), 1);
-
-  // shared/components/Button/Button.module.css
-  var Button_default = {
-    button: "Button_button",
-    standard: "Button_standard",
-    accent: "Button_accent",
-    accentBrand: "Button_accentBrand",
-    primary: "Button_primary",
-    ghost: "Button_ghost"
-  };
-
-  // shared/components/Button/Button.js
-  function Button({ variant, className, children, onClick, type = "button" }) {
-    return /* @__PURE__ */ _(
-      "button",
-      {
-        className: (0, import_classnames4.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
-        type,
-        onClick: (
-          /**
-           * @param {import("preact").JSX.TargetedMouseEvent<EventTarget>} event
-           */
-          (event) => {
-            if (onClick) {
-              onClick(event);
-            }
-          }
-        )
-      },
-      children
-    );
+  function usePlatformName() {
+    return x2(SettingsContext).settings.platform.name;
   }
 
   // pages/release-notes/app/components/ContentPlaceholder.module.css
@@ -735,6 +749,23 @@
   // pages/release-notes/app/components/ContentPlaceholder.js
   function ContentPlaceholder() {
     return /* @__PURE__ */ _("div", { className: ContentPlaceholder_default.contentPlaceholder, "aria-hidden": "true", "data-testid": "placeholder" }, /* @__PURE__ */ _("h2", null), /* @__PURE__ */ _("p", null), /* @__PURE__ */ _("ul", null, /* @__PURE__ */ _("li", null, /* @__PURE__ */ _("p", null), /* @__PURE__ */ _("p", null)), /* @__PURE__ */ _("li", null, /* @__PURE__ */ _("p", null), /* @__PURE__ */ _("p", null))));
+  }
+
+  // pages/release-notes/app/components/OpenIn16.js
+  function OpenIn16({ className }) {
+    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", className }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M7.361 1.013a.626.626 0 0 1 0 1.224l-.126.013H5A2.75 2.75 0 0 0 2.25 5v6A2.75 2.75 0 0 0 5 13.75h6A2.75 2.75 0 0 0 13.75 11V8.765a.625.625 0 0 1 1.25 0V11a4 4 0 0 1-4 4H5a4 4 0 0 1-4-4V5a4 4 0 0 1 4-4h2.235l.126.013Z"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M12.875 1C14.049 1 15 1.951 15 3.125v2.25a.625.625 0 1 1-1.25 0v-2.24L9.067 7.817a.626.626 0 0 1-.884-.884l4.682-4.683h-2.24a.625.625 0 1 1 0-1.25h2.25Z"
+      }
+    ));
   }
 
   // pages/release-notes/app/components/ReleaseNotes.module.css
@@ -764,7 +795,9 @@
     listGrid: "ReleaseNotes_listGrid",
     list: "ReleaseNotes_list",
     listItem: "ReleaseNotes_listItem",
-    newTag: "ReleaseNotes_newTag"
+    newTag: "ReleaseNotes_newTag",
+    updatesLink: "ReleaseNotes_updatesLink",
+    linkIcon: "ReleaseNotes_linkIcon"
   };
 
   // pages/release-notes/app/components/ReleaseNotes.js
@@ -777,6 +810,7 @@
     const statusTexts = {
       loaded: t3("browserUpToDate"),
       loading: t3("checkingForUpdate"),
+      loadingError: t3("loadingError"),
       updateReady: t3("newVersionAvailable"),
       updateError: t3("updateError"),
       criticalUpdateReady: t3("criticallyOutOfDate"),
@@ -789,6 +823,7 @@
     const iconClasses = {
       loaded: ReleaseNotes_default.checkIcon,
       loading: ReleaseNotes_default.spinnerIcon,
+      loadingError: ReleaseNotes_default.warningIcon,
       updateReady: ReleaseNotes_default.alertIcon,
       criticalUpdateReady: ReleaseNotes_default.warningIcon,
       updateError: ReleaseNotes_default.warningIcon,
@@ -835,7 +870,7 @@
     const { t: t3 } = useTypedTranslation();
     const { status } = releaseData;
     const isLoading = status === "loading" || status === "updateDownloading" || status === "updatePreparing";
-    if (isLoading) {
+    if (isLoading || status === "loadingError") {
       return /* @__PURE__ */ _(ContentPlaceholder, null);
     }
     const notes = [];
@@ -859,15 +894,19 @@
   function UpdateButton({ releaseData }) {
     const { t: t3 } = useTypedTranslation();
     const { messages } = useMessaging();
+    const platform = usePlatformName();
     const { status } = releaseData;
     let button;
+    if (status === "loadingError") {
+      button = /* @__PURE__ */ _(Button, { onClick: () => messages?.retryFetchReleaseNotes(), variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryGettingReleaseNotes"));
+    }
     if (status === "updateError") {
-      button = /* @__PURE__ */ _(Button, { onClick: () => messages?.retryUpdate() }, t3("retryUpdate"));
+      button = /* @__PURE__ */ _(Button, { onClick: () => messages?.retryUpdate(), variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryUpdate"));
     }
     if (status === "updateReady" || status === "criticalUpdateReady") {
       const { automaticUpdate } = releaseData;
       const buttonText = automaticUpdate ? t3("restartToUpdate") : t3("updateBrowser");
-      button = /* @__PURE__ */ _(Button, { onClick: () => messages?.browserRestart() }, buttonText);
+      button = /* @__PURE__ */ _(Button, { onClick: () => messages?.browserRestart(), variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, buttonText);
     }
     if (!button) return null;
     return /* @__PURE__ */ _("div", { className: ReleaseNotes_default.buttonContainer }, button);
@@ -885,8 +924,8 @@
         console.warn("Invalid download progress value in data");
       }
     }
-    const shouldShowButton = status === "updateReady" || status === "criticalUpdateReady" || status === "updateError";
-    return /* @__PURE__ */ _("article", { className: ReleaseNotes_default.article }, /* @__PURE__ */ _("header", { className: ReleaseNotes_default.heading }, /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _(UpdateStatus, { status, timestamp: timestampInMilliseconds, version: currentVersion, progress }), shouldShowButton && /* @__PURE__ */ _(UpdateButton, { releaseData })), /* @__PURE__ */ _(Card, { className: ReleaseNotes_default.card }, /* @__PURE__ */ _(CardContents, { releaseData })));
+    const shouldShowButton = status === "updateReady" || status === "criticalUpdateReady" || status === "updateError" || status === "loadingError";
+    return /* @__PURE__ */ _("article", { className: ReleaseNotes_default.article }, /* @__PURE__ */ _("header", { className: ReleaseNotes_default.heading }, /* @__PURE__ */ _("p", null, t3("thankyou")), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _(UpdateStatus, { status, timestamp: timestampInMilliseconds, version: currentVersion, progress }), shouldShowButton && /* @__PURE__ */ _(UpdateButton, { releaseData })), status !== "loadingError" && /* @__PURE__ */ _(Card, { className: ReleaseNotes_default.card }, /* @__PURE__ */ _(CardContents, { releaseData })), /* @__PURE__ */ _("a", { href: "https://duckduckgo.com/updates", target: "_blank", className: ReleaseNotes_default.updatesLink }, t3("whatsNewAtDuckDuckGoLink"), /* @__PURE__ */ _(OpenIn16, { className: ReleaseNotes_default.linkIcon })));
   }
 
   // pages/release-notes/app/components/App.js
@@ -926,6 +965,11 @@
   var sampleData = {
     loading: {
       status: "loading",
+      currentVersion: "1.0.1",
+      lastUpdate: timestampInSeconds - 24 * 60 * 60
+    },
+    loadingError: {
+      status: "loadingError",
       currentVersion: "1.0.1",
       lastUpdate: timestampInSeconds - 24 * 60 * 60
     },
@@ -1014,6 +1058,7 @@
   function Components() {
     const { t: t3 } = useTypedTranslation();
     const { isDarkMode } = useEnv();
+    const platform = usePlatformName();
     const todayInMilliseconds = Date.now();
     const yesterdayInMilliseconds = new Date(todayInMilliseconds - 24 * 60 * 60 * 1e3).getTime();
     const sampleNotesData = [
@@ -1034,7 +1079,7 @@
         ]
       }
     ];
-    return /* @__PURE__ */ _("main", { className: Components_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _("h1", null, "Release Notes Components"), /* @__PURE__ */ _("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ _(DuckDuckGoLogo, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Page Title"), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Status"), /* @__PURE__ */ _(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "criticalUpdateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateError", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateDownloading", version: "1.2.0", timestamp: todayInMilliseconds, progress: 0.35 }), /* @__PURE__ */ _(UpdateStatus, { status: "updatePreparing", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Buttons"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("restartToUpdate"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("updateBrowser"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, null, t3("retryUpdate"))), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder"), /* @__PURE__ */ _(ContentPlaceholder, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Heading"), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Subheading"), /* @__PURE__ */ _(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ _(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes List"), /* @__PURE__ */ _(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ContentPlaceholder, null)), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ReleaseNotesContent, { title: "May 10 2024", currentVersion: "1.0.1", latestVersion: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateDownloading })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updatePreparing })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateError })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.criticalUpdateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("main", { className: Components_default.main, "data-theme": isDarkMode ? "dark" : "light" }, /* @__PURE__ */ _("h1", null, "Release Notes Components"), /* @__PURE__ */ _("h2", null, "DuckDuckGo Logo"), /* @__PURE__ */ _(DuckDuckGoLogo, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Page Title"), /* @__PURE__ */ _(PageTitle, { title: t3("browserReleaseNotes") }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Status"), /* @__PURE__ */ _(UpdateStatus, { status: "loading", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loadingError", version: "1.0.1", timestamp: yesterdayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "loaded", version: "1.0.1", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "criticalUpdateReady", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateError", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _(UpdateStatus, { status: "updateDownloading", version: "1.2.0", timestamp: todayInMilliseconds, progress: 0.35 }), /* @__PURE__ */ _(UpdateStatus, { status: "updatePreparing", version: "1.2.0", timestamp: todayInMilliseconds }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Update Buttons"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryGettingReleaseNotes"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("restartToUpdate"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("updateBrowser"))), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(Button, { variant: "accentBrand", size: platform === "macos" ? "lg" : "md" }, t3("retryUpdate"))), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder"), /* @__PURE__ */ _(ContentPlaceholder, null), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Heading"), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2023", version: "1.0.0", showNewTag: false }), /* @__PURE__ */ _(ReleaseNotesHeading, { title: "May 10 2024", version: "1.2.0", showNewTag: true }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Subheading"), /* @__PURE__ */ _(ReleaseNotesSubheading, { title: "Release Notes Subheading without Icon" }), /* @__PURE__ */ _(ReleaseNotesSubheading, { icon: "PrivacyPro", title: "Release Notes Subheading with Privacy Pro Icon" }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes List"), /* @__PURE__ */ _(ReleaseNotesList, { notes: sampleNotesData[0].notes }), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Content Placeholder Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ContentPlaceholder, null)), /* @__PURE__ */ _("hr", null), /* @__PURE__ */ _("h2", null, "Release Notes Inside a Card"), /* @__PURE__ */ _(Card, { className: Components_default.card }, /* @__PURE__ */ _(ReleaseNotesContent, { title: "May 10 2024", currentVersion: "1.0.1", latestVersion: "1.2.0", notes: sampleNotesData })), /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loading }), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loaded })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.loadingError })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateDownloading })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updatePreparing })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateError })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.updateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(ReleaseNotes, { releaseData: sampleData.criticalUpdateReady })), /* @__PURE__ */ _(LoadingThen, null, /* @__PURE__ */ _(
       ReleaseNotes,
       {
         releaseData: (
@@ -1157,6 +1202,46 @@
     somethingWentWrong: {
       title: "Something went wrong",
       note: "A message shown when the application experienced a crash"
+    },
+    retryGettingReleaseNotes: {
+      title: "Reload Summary",
+      note: "A button label that allows the user to retry getting the release notes after a loading error"
+    },
+    loadingError: {
+      title: "Error loading update summary",
+      note: "A message shown when the application experienced a loading error"
+    },
+    thankyou: {
+      title: "Thanks for choosing DuckDuckGo!",
+      note: "Subheader text for tag that appears above page header expressing gratitude for choosing DuckDuckGo"
+    },
+    whatsNewAtDuckDuckGoLink: {
+      title: "See what else we\u2019ve been working on",
+      note: "Text for a link that opens the DuckDuckGo blog to show the latest news and updates"
+    }
+  };
+
+  // pages/release-notes/app/settings.js
+  var Settings = class _Settings {
+    /**
+     * @param {object} params
+     * @param {{name: 'macos' | 'windows'}} [params.platform]
+     */
+    constructor({ platform = { name: "macos" } }) {
+      this.platform = platform;
+    }
+    withPlatformName(name) {
+      const valid = ["windows", "macos"];
+      if (valid.includes(
+        /** @type {any} */
+        name
+      )) {
+        return new _Settings({
+          ...this,
+          platform: { name }
+        });
+      }
+      return this;
     }
   };
 
@@ -1168,6 +1253,10 @@
     )
   });
   var useMessaging = () => x2(MessagingContext);
+  function installGlobalSideEffects(environment, settings) {
+    document.body.dataset.platformName = settings.platform.name;
+    document.body.dataset.display = environment.display;
+  }
   async function init(messages, baseEnvironment2) {
     const result = await callWithRetry(() => messages.initialSetup());
     if ("error" in result) {
@@ -1175,6 +1264,8 @@
     }
     const init2 = result.value;
     const environment = baseEnvironment2.withEnv(init2.env).withLocale(init2.locale).withLocale(baseEnvironment2.urlParams.get("locale")).withTextLength(baseEnvironment2.urlParams.get("textLength")).withDisplay(baseEnvironment2.urlParams.get("display"));
+    const settings = new Settings({}).withPlatformName(baseEnvironment2.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment2.urlParams.get("platform"));
+    installGlobalSideEffects(environment, settings);
     const strings = environment.locale === "en" ? release_notes_default : await fetch(`./locales/${environment.locale}/release-notes.json`).then((x3) => x3.json()).catch((e3) => {
       console.error("Could not load locale", environment.locale, e3);
       return release_notes_default;
@@ -1183,13 +1274,22 @@
     if (!root) throw new Error("could not render, root element missing");
     if (environment.display === "app") {
       E(
-        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(App, null)))),
+        /* @__PURE__ */ _(
+          EnvironmentProvider,
+          {
+            debugState: environment.debugState,
+            injectName: environment.injectName,
+            willThrow: environment.willThrow,
+            env: environment.env
+          },
+          /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(App, null))))
+        ),
         root
       );
     }
     if (environment.display === "components") {
       E(
-        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(Components, null)))),
+        /* @__PURE__ */ _(EnvironmentProvider, { debugState: environment.debugState, injectName: environment.injectName, willThrow: environment.willThrow }, /* @__PURE__ */ _(SettingsProvider, { settings }, /* @__PURE__ */ _(TranslationProvider, { translationObject: strings, fallback: release_notes_default, textLength: environment.textLength }, /* @__PURE__ */ _(MessagingContext.Provider, { value: { messages } }, /* @__PURE__ */ _(Components, null))))),
         root
       );
     }
@@ -2309,6 +2409,12 @@
       this.messaging.notify("reportInitException", params);
     }
     /**
+     * Forwards a click on retry fetching release notes button to browser. Added specifically for Windows use-case
+     */
+    retryFetchReleaseNotes() {
+      this.messaging.notify("retryFetchReleaseNotes", {});
+    }
+    /**
      * Forwards a click on restart button to browser
      */
     browserRestart() {
@@ -2328,7 +2434,7 @@
       return this.messaging.subscribe("onUpdate", callback);
     }
   };
-  var baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv("production");
+  var baseEnvironment = new Environment().withInjectName("apple").withEnv("production");
   var messaging = createSpecialPageMessaging({
     injectName: baseEnvironment.injectName,
     env: "production",

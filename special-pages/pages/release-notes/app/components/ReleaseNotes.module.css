@@ -194,3 +194,22 @@
     font-weight: 600;
     line-height: calc(11 * var(--px-in-rem));
 }
+
+.updatesLink {
+    display: inline-flex;
+    align-items: center;
+    border-bottom: 1px solid transparent;
+    width: fit-content;
+    text-decoration: none;
+
+    &:hover {
+        border-bottom-color: currentColor;
+    }
+
+    .linkIcon {
+        height: 1rem;
+        width: 1rem;
+        margin-left: var(--sp-1);
+        vertical-align: middle;
+    }
+}

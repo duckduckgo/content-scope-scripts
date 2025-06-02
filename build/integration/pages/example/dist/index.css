@@ -118,6 +118,10 @@
   --theme-text-primary-color: var(--color-black-at-84);
   --theme-text-secondary-color: var(--color-black-at-60);
   --theme-text-link-color: var(--ddg-color-primary);
+  --border-radius-lg: 12px;
+  --border-radius-md: 8px;
+  --border-radius-sm: 6px;
+  --border-radius-xs: 4px;
   --macos-text-primary: var(--color-black-at-84);
   --ios-content-max-width: calc(794 * var(--px-in-rem));
 }

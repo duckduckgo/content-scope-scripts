@@ -2177,6 +2177,8 @@
   // shared/components/Button/Button.module.css
   var Button_default = {
     button: "Button_button",
+    lg: "Button_lg",
+    xl: "Button_xl",
     standard: "Button_standard",
     accent: "Button_accent",
     accentBrand: "Button_accentBrand",
@@ -2185,11 +2187,11 @@
   };
 
   // shared/components/Button/Button.js
-  function Button({ variant, className, children, onClick, type = "button" }) {
+  function Button({ variant, size = "md", className, children, onClick, type = "button" }) {
     return /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames2.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant }, className),
+        className: (0, import_classnames2.default)(Button_default.button, { [Button_default[`${variant}`]]: !!variant, [Button_default[size]]: size }, className),
         type,
         onClick: (
           /**

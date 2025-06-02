@@ -79,5 +79,21 @@
   "somethingWentWrong" : {
     "title" : "Er is iets misgegaan",
     "note" : "A message shown when the application experienced a crash"
+  },
+  "retryGettingReleaseNotes" : {
+    "title" : "Samenvatting opnieuw laden",
+    "note" : "A button label that allows the user to retry getting the release notes after a loading error"
+  },
+  "loadingError" : {
+    "title" : "Fout bij het laden van het updateoverzicht",
+    "note" : "A message shown when the application experienced a loading error"
+  },
+  "thankyou" : {
+    "title" : "Bedankt dat je voor DuckDuckGo hebt gekozen!",
+    "note" : "Subheader text for tag that appears above page header expressing gratitude for choosing DuckDuckGo"
+  },
+  "whatsNewAtDuckDuckGoLink" : {
+    "title" : "Bekijk waar we nog meer aan hebben gewerkt",
+    "note" : "Text for a link that opens the DuckDuckGo blog to show the latest news and updates"
   }
 }

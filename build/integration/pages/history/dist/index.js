@@ -4362,7 +4362,7 @@
     function onDelete(range) {
       historyServiceDispatch({ kind: "delete-range", value: range });
     }
-    return /* @__PURE__ */ _("div", { class: Sidebar_default.stack }, /* @__PURE__ */ _("h1", { class: Sidebar_default.pageTitle }, t4("page_title")), /* @__PURE__ */ _("nav", { class: Sidebar_default.nav }, ranges.value.map((range) => {
+    return /* @__PURE__ */ _("div", { class: Sidebar_default.stack }, /* @__PURE__ */ _("h1", { class: Sidebar_default.pageTitle }, t4("page_title")), /* @__PURE__ */ _("nav", { class: (0, import_classnames4.default)(Sidebar_default.nav, App_default.customScroller) }, ranges.value.map((range) => {
       return /* @__PURE__ */ _(Item3, { key: range.id, onClick, onDelete, current, range: range.id, count: range.count });
     })));
   }
@@ -4916,7 +4916,7 @@
     const didCatchInit = (message) => {
       messaging2.reportInitException({ message });
     };
-    applyDefaultStyles(init2.defaultStyles);
+    applyDefaultStyles(init2.customizer?.defaultStyles);
     const strings = await getStrings(environment);
     const service = new HistoryService(messaging2);
     const query = paramsToQuery(environment.urlParams, "initial");
@@ -5217,7 +5217,9 @@
               platform: { name: "integration" },
               env: "development",
               locale: "en",
-              defaultStyles: getDefaultStyles()
+              customizer: {
+                defaultStyles: getDefaultStyles()
+              }
             };
             return Promise.resolve(initial);
           }
