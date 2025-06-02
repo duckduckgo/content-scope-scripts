@@ -42,23 +42,22 @@ export function checkForError(errorSelector, node) {
  * @returns {YouTubeError}
  */
 export function getErrorType(windowObject, signInRequiredSelector, logger) {
-    const { log, warn } = logger || { log: () => {}, warn: () => {} };
     const currentWindow = /** @type {Window & typeof globalThis & { ytcfg: object }} */ (windowObject);
     let playerResponse;
 
     if (!currentWindow.ytcfg) {
-        warn('ytcfg missing!');
+        logger?.warn('ytcfg missing!');
     } else {
-        log('Got ytcfg', currentWindow.ytcfg);
+        logger?.log('Got ytcfg', currentWindow.ytcfg);
     }
 
     try {
         const playerResponseJSON = currentWindow.ytcfg?.get('PLAYER_VARS')?.embedded_player_response;
-        log('Player response', playerResponseJSON);
+        logger?.log('Player response', playerResponseJSON);
 
         playerResponse = JSON.parse(playerResponseJSON);
     } catch (e) {
-        log('Could not parse player response', e);
+        logger?.log('Could not parse player response', e);
     }
 
     if (typeof playerResponse === 'object') {
@@ -70,12 +69,12 @@ export function getErrorType(windowObject, signInRequiredSelector, logger) {
         if (status === 'UNPLAYABLE') {
             // 1.1. Check for presence of desktopLegacyAgeGateReason
             if (desktopLegacyAgeGateReason === 1) {
-                log('AGE RESTRICTED ERROR');
+                logger?.log('AGE RESTRICTED ERROR');
                 return YOUTUBE_ERRORS.ageRestricted;
             }
 
             // 1.2. Fall back to embed not allowed error
-            log('NO EMBED ERROR');
+            logger?.log('NO EMBED ERROR');
             return YOUTUBE_ERRORS.noEmbed;
         }
     }
@@ -83,14 +82,14 @@ export function getErrorType(windowObject, signInRequiredSelector, logger) {
     // 2. Check for sign-in support link
     try {
         if (signInRequiredSelector && !!document.querySelector(signInRequiredSelector)) {
-            log('SIGN-IN ERROR');
+            logger?.log('SIGN-IN ERROR');
             return YOUTUBE_ERRORS.signInRequired;
         }
     } catch (e) {
-        log('Sign-in required query failed', e);
+        logger?.log('Sign-in required query failed', e);
     }
 
     // 3. Fall back to unknown error
-    log('UNKNOWN ERROR');
+    logger?.log('UNKNOWN ERROR');
     return YOUTUBE_ERRORS.unknown;
 }
