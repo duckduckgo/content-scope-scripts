@@ -157,7 +157,9 @@ export function mockTransport() {
                         platform: { name: 'integration' },
                         env: 'development',
                         locale: 'en',
-                        defaultStyles: getDefaultStyles(),
+                        customizer: {
+                            defaultStyles: getDefaultStyles(),
+                        },
                     };
 
                     return Promise.resolve(initial);
