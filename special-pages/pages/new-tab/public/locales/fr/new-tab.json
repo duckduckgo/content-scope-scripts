@@ -337,8 +337,8 @@
     "note" : "Placeholder message indicating that no ads and trackers are blocked"
   },
   "activity_countBlockedAdsAndTrackersPlural" : {
-    "title" : "<b>{count}</b> publicités et tentatives de pistage bloquées",
-    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + Tracking attempts blocked'"
+    "title" : "<b>{count}</b> publicités et tentatives de pistage bloquées",
+    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + tracking attempts blocked'"
   },
   "activity_favoriteAdd" : {
     "title" : "Ajouter {domain} aux favoris",
