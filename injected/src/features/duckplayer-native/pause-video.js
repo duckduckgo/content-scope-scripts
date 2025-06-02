@@ -33,10 +33,14 @@ export function stopVideoFromPlaying(videoSelector) {
 /**
  * Disable the controls on a YouTube video
  *
- * @param {string} controlsSelector
+ * @param {string} [controlsSelector]
  * @returns {() => void} A function that re-enables the controls
  */
 export function disableVideoControls(controlsSelector) {
+    if (!controlsSelector) {
+        return () => {};
+    }
+
     let displayState;
 
     const controls = /** @type {HTMLDivElement} */ (document.querySelector(controlsSelector));
