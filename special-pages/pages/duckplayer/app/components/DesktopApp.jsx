@@ -35,7 +35,7 @@ export function DesktopApp({ embed }) {
 function DesktopLayout({ embed }) {
     const youtubeError = useYouTubeError();
     const settings = useSettings();
-    const showCustomError = youtubeError && settings.customError?.state === 'enabled';
+    const showCustomError = youtubeError !== null && settings.customError?.state === 'enabled';
 
     return (
         <div class={styles.desktop}>

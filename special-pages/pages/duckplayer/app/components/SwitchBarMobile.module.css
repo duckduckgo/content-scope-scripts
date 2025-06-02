@@ -51,3 +51,10 @@
         bottom: 0;
     }
 }
+
+/* Different layout for YouTube Errors on mobile */
+[data-youtube-error="true"] {
+    & .switchBar {
+        display: none;
+    }
+}

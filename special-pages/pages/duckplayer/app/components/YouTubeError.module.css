@@ -78,8 +78,8 @@
         content: ' ';
         display: block;
         background: url('../img/warning-96.data.svg') no-repeat;
-        height: 48px;
-        width: 48px;
+        height: 96px;
+        width: 96px;
     }
 
     @media screen and (max-width: 320px) {
