@@ -36,7 +36,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         const locale = args?.locale || args?.language || 'en';
         const env = new Environment({
-            debug: this.isDebug,
+            debug: this.isDebug || true, // TODO: Remove ` || true` before shipping
             injectName: import.meta.injectName,
             platform: this.platform,
             locale,
@@ -45,7 +45,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         const messages = new DuckPlayerNativeMessages(this.messaging, env);
         messages.subscribeToURLChange(({ pageType }) => {
             const playbackPaused = false; // This can be added to the event data in the future if needed
-            this.urlChanged(pageType, selectors, playbackPaused, env, messages);
+            this.urlDidChange(pageType, selectors, playbackPaused, env, messages);
         });
 
         /** @type {InitialSettings} */
@@ -59,8 +59,11 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         }
 
         if (initialSetup.pageType) {
-            const playbackPaused = initialSetup.playbackPaused || false;
-            this.urlChanged(initialSetup.pageType, selectors, playbackPaused, env, messages);
+            // TODO: This should be solved on the native side by always passing a boolean
+            const playbackPaused =
+                (typeof initialSetup.playbackPaused === 'boolean' && initialSetup.playbackPaused) ||
+                (typeof initialSetup.playbackPaused === 'string' && initialSetup.playbackPaused === 'true');
+            this.urlDidChange(initialSetup.pageType, selectors, playbackPaused, env, messages);
         }
     }
 
@@ -72,7 +75,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
      * @param {Environment} env
      * @param {DuckPlayerNativeMessages} messages
      */
-    urlChanged(pageType, selectors, playbackPaused, env, messages) {
+    urlDidChange(pageType, selectors, playbackPaused, env, messages) {
         /** @type {DuckPlayerNativeSubFeature | null} */
         let nextPage = null;
 
