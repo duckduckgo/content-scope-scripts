@@ -60,7 +60,7 @@ export async function init(root, messaging, baseEnvironment) {
     };
 
     // apply default styles
-    applyDefaultStyles(init.defaultStyles);
+    applyDefaultStyles(init.customizer?.defaultStyles);
 
     const strings = await getStrings(environment);
     const service = new HistoryService(messaging);
