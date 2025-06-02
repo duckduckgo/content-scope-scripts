@@ -59,6 +59,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         }
 
         if (initialSetup.pageType) {
+            // TODO: This should be solved on the native side by always passing a boolean
             const playbackPaused =
                 (typeof initialSetup.playbackPaused === 'boolean' && initialSetup.playbackPaused) ||
                 (typeof initialSetup.playbackPaused === 'string' && initialSetup.playbackPaused === 'true');
