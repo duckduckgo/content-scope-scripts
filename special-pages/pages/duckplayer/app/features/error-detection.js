@@ -21,13 +21,18 @@ export class ErrorDetection {
     /** @type {CustomErrorSettings} */
     options;
 
+    /** @type {Logger} */
+    logger;
+
     /**
      * @param {CustomErrorSettings} options
      */
     constructor(options) {
         this.options = options;
         this.errorSelector = options?.settings?.youtubeError || '.ytp-error';
-        this.logger = isTest ? new Logger({ id: 'ERROR_DETECTION', shouldLog: () => true }) : null;
+        if (isTest) {
+            this.logger = new Logger({ id: 'ERROR_DETECTION', shouldLog: () => true });
+        }
     }
 
     /**
