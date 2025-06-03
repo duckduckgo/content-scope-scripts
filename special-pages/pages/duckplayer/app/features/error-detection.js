@@ -29,7 +29,8 @@ export class ErrorDetection {
      */
     constructor(options) {
         this.options = options;
-        this.errorSelector = options?.settings?.youtubeError || '.ytp-error';
+        this.errorSelector = options?.settings?.youtubeErrorSelector || '.ytp-error';
+        console.log('options', options);
         if (isTest) {
             this.logger = new Logger({ id: 'ERROR_DETECTION', shouldLog: () => true });
         }

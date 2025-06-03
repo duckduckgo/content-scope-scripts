@@ -150,9 +150,9 @@ export interface CustomErrorSettings {
      */
     signInRequiredSelector?: string;
     /**
-     * A selector that, when not empty, indicates a sign-in required error
+     * A selector that, when not empty, indicates a general YouTube error
      */
-    youtubeError?: string;
+    youtubeErrorSelector?: string;
   };
 }
 /**
