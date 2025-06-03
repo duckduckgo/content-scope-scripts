@@ -2,7 +2,7 @@ import { test } from '@playwright/test';
 import { SpecialErrorPage } from './special-error';
 
 /* Redeclaring constants here to flag unintentional changes in the constants.js file */
-const phishingMalwareHelpPageURL = 'https://duckduckgo.com/duckduckgo-help-pages/privacy/scam-blocker';
+const phishingMalwareHelpPageURL = 'https://duckduckgo.com/duckduckgo-help-pages/threat-protection/scam-blocker';
 const reportSiteAsSafeFormURL = 'https://duckduckgo.com/malicious-site-protection/report-error';
 
 test.describe('special-error', () => {
