@@ -43,6 +43,13 @@ export function checkForError(errorSelector, node) {
  */
 export function getErrorType(windowObject, signInRequiredSelector, logger) {
     const currentWindow = /** @type {Window & typeof globalThis & { ytcfg: object }} */ (windowObject);
+    const currentDocument = currentWindow.document;
+
+    if (!currentWindow || !currentDocument) {
+        logger?.warn('Window or document missing!');
+        return YOUTUBE_ERRORS.unknown;
+    }
+
     let playerResponse;
 
     if (!currentWindow.ytcfg) {
@@ -81,7 +88,7 @@ export function getErrorType(windowObject, signInRequiredSelector, logger) {
 
     // 2. Check for sign-in support link
     try {
-        if (signInRequiredSelector && !!document.querySelector(signInRequiredSelector)) {
+        if (signInRequiredSelector && !!currentDocument.querySelector(signInRequiredSelector)) {
             logger?.log('SIGN-IN ERROR');
             return YOUTUBE_ERRORS.signInRequired;
         }
