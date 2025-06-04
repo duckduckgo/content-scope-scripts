@@ -648,7 +648,7 @@ export class DuckPlayerPage {
     async didShowSignInRequiredError() {
         await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
             - heading "Sorry, but YouTube thinks you’re a bot!" [level=1]
-            - paragraph: This sometimes happens when you’re using a VPN. If that’s the case, try turning it off and reloading this page.
+            - paragraph: This sometimes happens when you’re using a VPN. If that’s the case, try changing locations or turning it off and reloading this page.
             - paragraph: No luck? You can still watch this video, but you’ll have to sign in and watch it on YouTube without the added privacy of Duck Player.
           `);
     }
