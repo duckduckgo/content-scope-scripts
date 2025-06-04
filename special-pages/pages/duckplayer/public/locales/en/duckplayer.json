@@ -73,6 +73,10 @@
     "title": "Sorry, but YouTube thinks you’re a bot!",
     "note": "Message shown when YouTube has blocked playback of a video"
   },
+  "signInRequiredErrorHeadingAlternative": {
+    "title": "Sorry, YouTube thinks you’re a bot!",
+    "note": "Message shown when YouTube has blocked playback of a video"
+  },
   "signInRequiredErrorMessage1": {
     "title": "This sometimes happens when you’re using a VPN. If that’s the case, try changing locations or turning it off and reloading this page.",
     "note": "Explanation on why the error is happening and a suggestions on how to solve it."
@@ -80,6 +84,10 @@
   "signInRequiredErrorMessage2": {
     "title": "No luck? You can still watch this video, but you’ll have to sign in and watch it on YouTube without the added privacy of Duck Player.",
     "note": "More troubleshooting tips for this specific error"
+  },
+  "signInRequiredErrorMessage3": {
+    "title": "This can happen when you’re using a VPN. You can try changing locations or turning it off and reloading this page. If that doesn’t work, you may have to watch this video directly on YouTube.",
+    "note": "Explanation on why the error is happening and a suggestions on how to solve it."
   },
   "tooltipInfo": {
     "title": "Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations."

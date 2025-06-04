@@ -19,12 +19,16 @@ import { useYouTubeError } from '../providers/YouTubeErrorProvider';
  */
 function useErrorStrings(youtubeError) {
     const { t } = useTypedTranslation();
+    // TODO: Remove after ship review
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAlternativeCopy = urlParams.has('alternativeCopy');
 
     switch (youtubeError) {
         case 'sign-in-required':
             return {
-                heading: t('signInRequiredErrorHeading'),
-                messages: [t('signInRequiredErrorMessage1'), t('signInRequiredErrorMessage2')],
+                // TODO: Remove after ship review
+                heading: isAlternativeCopy ? t('signInRequiredErrorHeadingAlternative') : t('signInRequiredErrorHeading'),
+                messages: isAlternativeCopy ? [t('signInRequiredErrorMessage3')] : [t('signInRequiredErrorMessage1'), t('signInRequiredErrorMessage2')],
                 variant: 'paragraphs',
             };
         case 'age-restricted':
