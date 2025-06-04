@@ -80,10 +80,3 @@
     display: flex;
     gap: 8px;
 }
-
-/* Different layout for YouTube Errors on desktop */
-[data-youtube-error="true"] {
-    & .switch {
-        display: none;
-    }
-}

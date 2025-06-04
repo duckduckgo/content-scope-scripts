@@ -4,6 +4,7 @@ import { useEffect } from 'preact/hooks';
 import { useMessaging } from '../types';
 import { useSetFocusMode } from '../components/FocusMode';
 import { YOUTUBE_ERROR_IDS, YOUTUBE_ERROR_EVENT } from '../../../../../injected/src/features/duckplayer-native/youtube-errors.js';
+import { useSettings } from './SettingsProvider';
 
 /**
  * @import {YouTubeError} from '../../types/duckplayer'
@@ -56,4 +57,10 @@ export function YouTubeErrorProvider({ initial = null, children }) {
 
 export function useYouTubeError() {
     return useContext(YouTubeErrorContext).error;
+}
+
+export function useShowCustomError() {
+    const settings = useSettings();
+    const youtubeError = useContext(YouTubeErrorContext).error;
+    return youtubeError !== null && settings.customError?.state === 'enabled';
 }

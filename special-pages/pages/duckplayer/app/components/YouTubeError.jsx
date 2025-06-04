@@ -6,6 +6,7 @@ import { Button, OpenInIcon } from './Button.jsx';
 import { useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
 
 import styles from './YouTubeError.module.css';
+import { useYouTubeError } from '../providers/YouTubeErrorProvider';
 
 /**
  * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
@@ -13,13 +14,13 @@ import styles from './YouTubeError.module.css';
  */
 
 /**
- * @param {YouTubeError} kind
+ * @param {YouTubeError} youtubeError
  * @returns {{heading: ComponentChild, messages: ComponentChild[], variant: 'list'|'inline'|'paragraphs'}}
  */
-function useErrorStrings(kind) {
+function useErrorStrings(youtubeError) {
     const { t } = useTypedTranslation();
 
-    switch (kind) {
+    switch (youtubeError) {
         case 'sign-in-required':
             return {
                 heading: t('signInRequiredErrorHeading'),
@@ -50,14 +51,18 @@ function useErrorStrings(kind) {
 
 /**
  * @param {object} props
- * @param {YouTubeError} props.kind
  * @param {Settings['layout']} props.layout
  * @param {import("../embed-settings.js").EmbedSettings|null} [props.embed]
  */
-export function YouTubeError({ kind, layout, embed }) {
+export function YouTubeError({ layout, embed }) {
+    const youtubeError = useYouTubeError();
+    if (!youtubeError) {
+        return null;
+    }
+
     const { t } = useTypedTranslation();
     const openOnYoutube = useOpenOnYoutubeHandler();
-    const { heading, messages, variant } = useErrorStrings(kind);
+    const { heading, messages, variant } = useErrorStrings(youtubeError);
     const classes = cn(styles.error, {
         [styles.desktop]: layout === 'desktop',
         [styles.mobile]: layout === 'mobile',

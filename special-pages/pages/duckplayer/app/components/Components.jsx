@@ -15,10 +15,12 @@ import { EmbedSettings } from '../embed-settings.js';
 import { SwitchBarDesktop } from './SwitchBarDesktop.jsx';
 import { SwitchProvider } from '../providers/SwitchProvider.jsx';
 import { YouTubeError } from './YouTubeError';
+import { YouTubeErrorProvider } from '../providers/YouTubeErrorProvider';
 
 export function Components() {
     const settings = new Settings({
         platform: { name: 'macos' },
+        customError: { state: 'enabled' },
     });
     let embed = EmbedSettings.fromHref('https://localhost?videoID=123');
     let url = embed?.toEmbedUrl();
@@ -83,22 +85,50 @@ export function Components() {
                 <br />
 
                 <SettingsProvider settings={settings}>
-                    <PlayerContainer>
-                        <YouTubeError layout={'desktop'} kind={'sign-in-required'} />
-                        <InfoBarContainer>
-                            <InfoBar embed={embed} />
-                        </InfoBarContainer>
-                    </PlayerContainer>
+                    <YouTubeErrorProvider initial={'sign-in-required'}>
+                        <PlayerContainer>
+                            <YouTubeError layout={'desktop'} />
+                            <InfoBarContainer>
+                                <InfoBar embed={embed} />
+                            </InfoBarContainer>
+                        </PlayerContainer>
+                    </YouTubeErrorProvider>
                 </SettingsProvider>
                 <br />
 
                 <SettingsProvider settings={settings}>
-                    <PlayerContainer>
-                        <YouTubeError layout={'desktop'} kind={'no-embed'} />
-                        <InfoBarContainer>
-                            <InfoBar embed={embed} />
-                        </InfoBarContainer>
-                    </PlayerContainer>
+                    <YouTubeErrorProvider initial={'age-restricted'}>
+                        <PlayerContainer>
+                            <YouTubeError layout={'desktop'} />
+                            <InfoBarContainer>
+                                <InfoBar embed={embed} />
+                            </InfoBarContainer>
+                        </PlayerContainer>
+                    </YouTubeErrorProvider>
+                </SettingsProvider>
+                <br />
+
+                <SettingsProvider settings={settings}>
+                    <YouTubeErrorProvider initial={'no-embed'}>
+                        <PlayerContainer>
+                            <YouTubeError layout={'desktop'} />
+                            <InfoBarContainer>
+                                <InfoBar embed={embed} />
+                            </InfoBarContainer>
+                        </PlayerContainer>
+                    </YouTubeErrorProvider>
+                </SettingsProvider>
+                <br />
+
+                <SettingsProvider settings={settings}>
+                    <YouTubeErrorProvider initial={'unknown'}>
+                        <PlayerContainer>
+                            <YouTubeError layout={'desktop'} />
+                            <InfoBarContainer>
+                                <InfoBar embed={embed} />
+                            </InfoBarContainer>
+                        </PlayerContainer>
+                    </YouTubeErrorProvider>
                 </SettingsProvider>
                 <br />
 
@@ -113,20 +143,44 @@ export function Components() {
                 </PlayerContainer>
                 <br />
 
-                <PlayerContainer inset>
-                    <PlayerInternal inset>
-                        <YouTubeError layout={'mobile'} kind={'sign-in-required'} />
-                        <SwitchBarMobile platformName={'ios'} />
-                    </PlayerInternal>
-                </PlayerContainer>
+                <YouTubeErrorProvider initial={'sign-in-required'}>
+                    <PlayerContainer inset>
+                        <PlayerInternal inset>
+                            <YouTubeError layout={'mobile'} />
+                            <SwitchBarMobile platformName={'ios'} />
+                        </PlayerInternal>
+                    </PlayerContainer>
+                </YouTubeErrorProvider>
                 <br />
 
-                <PlayerContainer inset>
-                    <PlayerInternal inset>
-                        <YouTubeError layout={'mobile'} kind={'no-embed'} />
-                        <SwitchBarMobile platformName={'ios'} />
-                    </PlayerInternal>
-                </PlayerContainer>
+                <YouTubeErrorProvider initial={'age-restricted'}>
+                    <PlayerContainer inset>
+                        <PlayerInternal inset>
+                            <YouTubeError layout={'mobile'} />
+                            <SwitchBarMobile platformName={'ios'} />
+                        </PlayerInternal>
+                    </PlayerContainer>
+                </YouTubeErrorProvider>
+                <br />
+
+                <YouTubeErrorProvider initial={'no-embed'}>
+                    <PlayerContainer inset>
+                        <PlayerInternal inset>
+                            <YouTubeError layout={'mobile'} />
+                            <SwitchBarMobile platformName={'ios'} />
+                        </PlayerInternal>
+                    </PlayerContainer>
+                </YouTubeErrorProvider>
+                <br />
+
+                <YouTubeErrorProvider initial={'unknown'}>
+                    <PlayerContainer inset>
+                        <PlayerInternal inset>
+                            <YouTubeError layout={'mobile'} />
+                            <SwitchBarMobile platformName={'ios'} />
+                        </PlayerInternal>
+                    </PlayerContainer>
+                </YouTubeErrorProvider>
                 <br />
             </main>
         </>

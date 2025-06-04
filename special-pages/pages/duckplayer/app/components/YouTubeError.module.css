@@ -1,6 +1,10 @@
 .error {
+    --background-color: #141414;
+    --text-color: #fff;
+    --text-color-secondary: #ccc;
+
     align-items: center;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--background-color);
     display: grid;
     height: 100%;
     justify-items: center;
@@ -98,7 +102,7 @@
 }
 
 .heading {
-    color: #fff;
+    color: var(--text-color);
     font-size: 20px;
     font-weight: 700;
     line-height: calc(24 / 20);
