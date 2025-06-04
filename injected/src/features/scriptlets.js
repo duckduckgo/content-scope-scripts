@@ -1,19 +1,18 @@
 import ContentFeature from '../content-feature.js';
 import { isBeingFramed } from '../utils.js';
-import { trustedSetAttr } from './Scriptlets/src/scriptlets/trusted-set-attr.js'
 import { setCookie } from './Scriptlets/src/scriptlets/set-cookie.js';
+import { setCookieReload } from './Scriptlets/src/scriptlets/set-cookie-reload.js';
 import { removeCookie } from './Scriptlets/src/scriptlets/remove-cookie.js';
 import { setConstant } from './Scriptlets/src/scriptlets/set-constant.js';
+import { setLocalStorageItem } from './Scriptlets/src/scriptlets/set-local-storage-item.js';
 import { abortCurrentInlineScript } from './Scriptlets/src/scriptlets/abort-current-inline-script.js';
 import { abortOnPropertyRead } from './Scriptlets/src/scriptlets/abort-on-property-read.js';
 import { abortOnPropertyWrite } from './Scriptlets/src/scriptlets/abort-on-property-write.js';
-import { trustedReplaceNodeText } from './Scriptlets/src/scriptlets/trusted-replace-node-text.js';
 import { preventAddEventListener } from './Scriptlets/src/scriptlets/prevent-addEventListener.js';
 import { preventWindowOpen } from './Scriptlets/src/scriptlets/prevent-window-open.js';
 import { preventSetTimeout } from './Scriptlets/src/scriptlets/prevent-setTimeout.js';
 import { removeNodeText } from './Scriptlets/src/scriptlets/remove-node-text.js';
 import { preventFetch } from './Scriptlets/src/scriptlets/prevent-fetch.js';
-import { disableNewtabLinks } from './Scriptlets/src/scriptlets/disable-newtab-links.js';
 
 export class Scriptlets extends ContentFeature {
     init() {
@@ -34,10 +33,10 @@ export class Scriptlets extends ContentFeature {
 
     runScriptlet(scriptlet, source) {
         const attrs = scriptlet.attrs || {};
-        if (scriptlet.name === 'trustedSetAttr') {
-            trustedSetAttr(source, attrs.selector, attrs.attr, attrs.value);
-        }
         if (scriptlet.name === 'setCookie') {
+            setCookie(source, attrs.name, attrs.value, attrs.path, attrs.domain);
+        }
+        if (scriptlet.name === 'setCookieReload') {
             setCookie(source, attrs.name, attrs.value, attrs.path, attrs.domain);
         }
         if (scriptlet.name === 'removeCookie') {
@@ -46,8 +45,8 @@ export class Scriptlets extends ContentFeature {
         if (scriptlet.name === 'setConstant') {
             setConstant(source, attrs.property, attrs.value, attrs.stack, attrs.valueWrapper, attrs.setProxyTrap);
         }
-        if (scriptlet.name === 'trustedReplaceNodeText') {
-            trustedReplaceNodeText(source, attrs.nodeName, attrs.textMatch, attrs.pattern, attrs.replacement, ...attrs.extraArgs);
+        if (scriptlet.name === 'setLocalStorageItem') {
+            setLocalStorageItem(source, attrs.key, attrs.value);
         }
         if (scriptlet.name === 'abortCurrentInlineScript') {
             abortCurrentInlineScript(source, attrs.property, attrs.search);
@@ -72,9 +71,6 @@ export class Scriptlets extends ContentFeature {
         }
         if (scriptlet.name === 'preventFetch') {
             preventFetch(source, attrs.propsToMatch, attrs.responseBody, attrs.responseType);
-        }
-        if (scriptlet.name === 'disableNewtabLinks') {
-            disableNewtabLinks(source);
         }
     }
 }
