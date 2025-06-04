@@ -31,7 +31,7 @@ export function NextStepsCardGroup({ types, expansion, toggle, action, dismiss }
 
     return (
         <div class={styles.cardGroup} id={WIDGET_ID}>
-            <NextStepsBubbleHeader />
+            {types.length > 0 && <NextStepsBubbleHeader />}
             <div class={styles.cardGrid}>
                 {alwaysShown.map((type) => (
                     <NextStepsCard key={type} type={type} dismiss={dismiss} action={action} />
