@@ -13,14 +13,17 @@ import { useSettings } from './SettingsProvider';
 const YouTubeErrorContext = createContext({
     /** @type {YouTubeError|null} */
     error: null,
+    /** @type {string} */
+    locale: 'en',
 });
 
 /**
  * @param {object} props
  * @param {YouTubeError|null} [props.initial=null]
+ * @param {string} props.locale // TODO: Remove this after translations are complete
  * @param {import("preact").ComponentChild} props.children
  */
-export function YouTubeErrorProvider({ initial = null, children }) {
+export function YouTubeErrorProvider({ initial = null, locale, children }) {
     // initial state
     let initialError = null;
     if (initial && YOUTUBE_ERROR_IDS.includes(initial)) {
@@ -52,11 +55,16 @@ export function YouTubeErrorProvider({ initial = null, children }) {
         return () => window.removeEventListener(YOUTUBE_ERROR_EVENT, errorEventHandler);
     }, []);
 
-    return <YouTubeErrorContext.Provider value={{ error }}>{children}</YouTubeErrorContext.Provider>;
+    return <YouTubeErrorContext.Provider value={{ error, locale }}>{children}</YouTubeErrorContext.Provider>;
 }
 
 export function useYouTubeError() {
     return useContext(YouTubeErrorContext).error;
+}
+
+// TODO: Remove this after translations are complete
+export function useLocale() {
+    return useContext(YouTubeErrorContext).locale;
 }
 
 export function useShowCustomError() {

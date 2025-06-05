@@ -6,51 +6,95 @@ import { Button, OpenInIcon } from './Button.jsx';
 import { useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
 
 import styles from './YouTubeError.module.css';
-import { useYouTubeError } from '../providers/YouTubeErrorProvider';
+import { useLocale, useYouTubeError } from '../providers/YouTubeErrorProvider';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 
 /**
  * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
  * @typedef {import('preact').ComponentChild} ComponentChild
+ * @typedef {{heading: ComponentChild, messages: ComponentChild[], variant: 'list'|'inline'|'paragraphs'}} ErrorStrings
  */
 
 /**
  * @param {YouTubeError} youtubeError
- * @returns {{heading: ComponentChild, messages: ComponentChild[], variant: 'list'|'inline'|'paragraphs'}}
+ * @param {string} locale
+ * @returns {ErrorStrings}
  */
-function useErrorStrings(youtubeError) {
+function useErrorStrings(youtubeError, locale) {
     const { t } = useTypedTranslation();
+
+    let version = locale === 'en' ? 'long' : 'classic';
+
     // TODO: Remove after ship review
     const urlParams = new URLSearchParams(window.location.search);
     const isAlternativeCopy = urlParams.has('alternativeCopy');
-
-    switch (youtubeError) {
-        case 'sign-in-required':
-            return {
-                // TODO: Remove after ship review
-                heading: isAlternativeCopy ? t('signInRequiredErrorHeadingAlternative') : t('signInRequiredErrorHeading'),
-                messages: isAlternativeCopy ? [t('signInRequiredErrorMessage3'), t('signInRequiredErrorMessage4')] : [t('signInRequiredErrorMessage1'), t('signInRequiredErrorMessage2')],
-                variant: 'paragraphs',
-            };
-        case 'age-restricted':
-            return {
-                heading: t('ageRestrictedErrorHeading'),
-                messages: [t('ageRestrictedErrorMessage1'), t('ageRestrictedErrorMessage2')],
-                variant: 'paragraphs',
-            };
-        case 'no-embed':
-            return {
-                heading: t('noEmbedErrorHeading'),
-                messages: [t('noEmbedErrorMessage1'), t('noEmbedErrorMessage2')],
-                variant: 'paragraphs',
-            };
-        case 'unknown':
-        default:
-            return {
-                heading: t('unknownErrorHeading'),
-                messages: [t('unknownErrorMessage1'), t('unknownErrorMessage2')],
-                variant: 'paragraphs',
-            };
+    if (version === 'long' && isAlternativeCopy) {
+        version = 'short';
     }
+
+    /**
+     * @type {Record<string, Partial<Record<YouTubeError, ErrorStrings>>  & { unknown: ErrorStrings }>}
+     */
+    const versions = {
+        classic: {
+            'sign-in-required': {
+                heading: t('blockedVideoErrorHeading1'),
+                messages: [t('signInRequiredErrorMessage1a'), t('signInRequiredErrorMessage1b')],
+                variant: 'paragraphs',
+            },
+            unknown: {
+                heading: t('blockedVideoErrorHeading1'),
+                messages: [t('blockedVideoErrorMessage1a'), t('blockedVideoErrorMessage1b')],
+                variant: 'paragraphs',
+            },
+        },
+        long: {
+            'sign-in-required': {
+                heading: t('signInRequiredErrorHeading2'),
+                messages: [t('signInRequiredErrorMessage2a'), t('signInRequiredErrorMessage2b')],
+                variant: 'paragraphs',
+            },
+            'age-restricted': {
+                heading: t('ageRestrictedErrorHeading1'),
+                messages: [t('ageRestrictedErrorMessage1a'), t('ageRestrictedErrorMessage1b')],
+                variant: 'paragraphs',
+            },
+            'no-embed': {
+                heading: t('noEmbedErrorHeading1'),
+                messages: [t('noEmbedErrorMessage1a'), t('noEmbedErrorMessage1b')],
+                variant: 'paragraphs',
+            },
+            unknown: {
+                heading: t('unknownErrorHeading1'),
+                messages: [t('unknownErrorMessage1a'), t('unknownErrorMessage1b')],
+                variant: 'paragraphs',
+            },
+        },
+        short: {
+            'sign-in-required': {
+                heading: t('signInRequiredErrorHeading3'),
+                messages: [t('signInRequiredErrorMessage3a'), t('signInRequiredErrorMessage3b')],
+                variant: 'paragraphs',
+            },
+            'age-restricted': {
+                heading: t('ageRestrictedErrorHeading1'),
+                messages: [t('ageRestrictedErrorMessage1a'), t('ageRestrictedErrorMessage1b')],
+                variant: 'paragraphs',
+            },
+            'no-embed': {
+                heading: t('noEmbedErrorHeading1'),
+                messages: [t('noEmbedErrorMessage1a'), t('noEmbedErrorMessage1b')],
+                variant: 'paragraphs',
+            },
+            unknown: {
+                heading: t('unknownErrorHeading1'),
+                messages: [t('unknownErrorMessage1a'), t('unknownErrorMessage1b')],
+                variant: 'paragraphs',
+            },
+        },
+    };
+
+    return versions[version]?.[youtubeError] || versions[version]?.['unknown'] || versions['classic']['unknown'];
 }
 
 /**
@@ -60,13 +104,14 @@ function useErrorStrings(youtubeError) {
  */
 export function YouTubeError({ layout, embed }) {
     const youtubeError = useYouTubeError();
+    const locale = useLocale();
     if (!youtubeError) {
         return null;
     }
 
     const { t } = useTypedTranslation();
     const openOnYoutube = useOpenOnYoutubeHandler();
-    const { heading, messages, variant } = useErrorStrings(youtubeError);
+    const { heading, messages, variant } = useErrorStrings(youtubeError, locale);
     const classes = cn(styles.error, {
         [styles.desktop]: layout === 'desktop',
         [styles.mobile]: layout === 'mobile',

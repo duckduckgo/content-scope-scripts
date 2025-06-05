@@ -32,23 +32,23 @@
     "title" : "<b>CHYBA:</b> Neplatný identifikátor videa",
     "note" : "Shown when the page URL doesn't match a known video ID. Note for translators: The <b> tag makes the word 'ERROR:' bold. Depending on the grammar of the target language, you might need to move it so that the correct word is emphasized."
   },
-  "blockedVideoErrorHeading" : {
+  "blockedVideoErrorHeading1" : {
     "title" : "YouTube nedovolí Duck Playeru načítať toto video",
     "note" : "Message shown when YouTube has blocked playback of a video"
   },
-  "blockedVideoErrorMessage1" : {
+  "blockedVideoErrorMessage1a" : {
     "title" : "YouTube nepovoľuje, aby sa toto video pozeralo mimo YouTube.",
     "note" : "Explanation on why the error is happening."
   },
-  "blockedVideoErrorMessage2" : {
+  "blockedVideoErrorMessage1b" : {
     "title" : "Toto video si môžeš pozrieť aj na YouTube, ale bez dodatočného súkromia Duck Player.",
     "note" : "A message explaining that the blocked video can be watched directly on YouTube."
   },
-  "signInRequiredErrorMessage1" : {
+  "signInRequiredErrorMessage1a" : {
     "title" : "YouTube blokuje načítanie tohto videa. Ak používaš sieť VPN, skús ju vypnúť a znova načítať túto stránku.",
     "note" : "Explanation on why the error is happening and a suggestions on how to solve it."
   },
-  "signInRequiredErrorMessage2" : {
+  "signInRequiredErrorMessage1b" : {
     "title" : "Ak to nefunguje, môžeš si toto video pozrieť aj na YouTube, ale bez dodatočnej ochrany súkromia, ktorú poskytuje Duck Player.",
     "note" : "More troubleshooting tips for this specific error"
   },

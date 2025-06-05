@@ -85,7 +85,7 @@ export function Components() {
                 <br />
 
                 <SettingsProvider settings={settings}>
-                    <YouTubeErrorProvider initial={'sign-in-required'}>
+                    <YouTubeErrorProvider initial={'sign-in-required'} locale="en">
                         <PlayerContainer>
                             <YouTubeError layout={'desktop'} />
                             <InfoBarContainer>
@@ -97,7 +97,7 @@ export function Components() {
                 <br />
 
                 <SettingsProvider settings={settings}>
-                    <YouTubeErrorProvider initial={'age-restricted'}>
+                    <YouTubeErrorProvider initial={'age-restricted'} locale="en">
                         <PlayerContainer>
                             <YouTubeError layout={'desktop'} />
                             <InfoBarContainer>
@@ -109,7 +109,7 @@ export function Components() {
                 <br />
 
                 <SettingsProvider settings={settings}>
-                    <YouTubeErrorProvider initial={'no-embed'}>
+                    <YouTubeErrorProvider initial={'no-embed'} locale="en">
                         <PlayerContainer>
                             <YouTubeError layout={'desktop'} />
                             <InfoBarContainer>
@@ -121,7 +121,19 @@ export function Components() {
                 <br />
 
                 <SettingsProvider settings={settings}>
-                    <YouTubeErrorProvider initial={'unknown'}>
+                    <YouTubeErrorProvider initial={'unknown'} locale="en">
+                        <PlayerContainer>
+                            <YouTubeError layout={'desktop'} />
+                            <InfoBarContainer>
+                                <InfoBar embed={embed} />
+                            </InfoBarContainer>
+                        </PlayerContainer>
+                    </YouTubeErrorProvider>
+                </SettingsProvider>
+                <br />
+
+                <SettingsProvider settings={settings}>
+                    <YouTubeErrorProvider initial={'unknown'} locale="es">
                         <PlayerContainer>
                             <YouTubeError layout={'desktop'} />
                             <InfoBarContainer>
@@ -143,7 +155,7 @@ export function Components() {
                 </PlayerContainer>
                 <br />
 
-                <YouTubeErrorProvider initial={'sign-in-required'}>
+                <YouTubeErrorProvider initial={'sign-in-required'} locale="en">
                     <PlayerContainer inset>
                         <PlayerInternal inset>
                             <YouTubeError layout={'mobile'} />
@@ -153,7 +165,7 @@ export function Components() {
                 </YouTubeErrorProvider>
                 <br />
 
-                <YouTubeErrorProvider initial={'age-restricted'}>
+                <YouTubeErrorProvider initial={'age-restricted'} locale="en">
                     <PlayerContainer inset>
                         <PlayerInternal inset>
                             <YouTubeError layout={'mobile'} />
@@ -163,7 +175,7 @@ export function Components() {
                 </YouTubeErrorProvider>
                 <br />
 
-                <YouTubeErrorProvider initial={'no-embed'}>
+                <YouTubeErrorProvider initial={'no-embed'} locale="en">
                     <PlayerContainer inset>
                         <PlayerInternal inset>
                             <YouTubeError layout={'mobile'} />
@@ -173,7 +185,17 @@ export function Components() {
                 </YouTubeErrorProvider>
                 <br />
 
-                <YouTubeErrorProvider initial={'unknown'}>
+                <YouTubeErrorProvider initial={'unknown'} locale="en">
+                    <PlayerContainer inset>
+                        <PlayerInternal inset>
+                            <YouTubeError layout={'mobile'} />
+                            <SwitchBarMobile platformName={'ios'} />
+                        </PlayerInternal>
+                    </PlayerContainer>
+                </YouTubeErrorProvider>
+                <br />
+
+                <YouTubeErrorProvider initial={'unknown'} locale="es">
                     <PlayerContainer inset>
                         <PlayerInternal inset>
                             <YouTubeError layout={'mobile'} />
