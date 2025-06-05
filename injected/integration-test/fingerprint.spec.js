@@ -2,7 +2,7 @@
  *  Tests for fingerprint defenses. Ensure that fingerprinting is actually being blocked.
  */
 import { test as base, expect } from '@playwright/test';
-import { testContextForExtension } from './helpers/harness.js';
+import { testContextForExtension, gotoAndWait } from './helpers/harness.js';
 import { createRequire } from 'node:module';
 
 // eslint-disable-next-line no-redeclare
@@ -23,13 +23,23 @@ const expectedFingerprintValues = {
 
 const pagePath = '/index.html';
 const tests = [{ url: `http://localhost:3220${pagePath}` }, { url: `http://127.0.0.1:8383${pagePath}` }];
+const enabledCanvasArgs = {
+    site: {
+        enabledFeatures: ['fingerprintingCanvas'],
+    },
+    featureSettings: {
+        fingerprintingCanvas: {
+            additionalEnabledCheck: 'enabled',
+        },
+    },
+};
 
 test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () => {
     test.describe.serial('Fingerprint Defense Tests', () => {
         for (const _test of tests) {
             test(`${_test.url} should include anti-fingerprinting code`, async ({ page, altServerPort }) => {
                 console.log('running:', altServerPort);
-                await page.goto(_test.url);
+                await gotoAndWait(page, _test.url, enabledCanvasArgs);
                 const values = await page.evaluate(() => {
                     return {
                         // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -64,7 +74,7 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
          * @param {tests[number]} test
          */
         async function runTest(page, test) {
-            await page.goto(test.url);
+            await gotoAndWait(page, test.url, enabledCanvasArgs);
             const lib = require.resolve('@fingerprintjs/fingerprintjs/dist/fp.js');
             await page.addScriptTag({ path: lib });
 
@@ -117,7 +127,7 @@ test.describe.serial('All Fingerprint Defense Tests (must run in serial)', () =>
         tests.forEach((testCase) => {
             test(`Fingerprints should not match across first parties ${testCase.url}`, async ({ page, altServerPort }) => {
                 console.log('running:', altServerPort);
-                await page.goto(testCase.url);
+                await gotoAndWait(page, testCase.url, enabledCanvasArgs);
 
                 // give it another second just to be sure
                 await page.waitForTimeout(1000);
