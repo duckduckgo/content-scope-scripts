@@ -6,6 +6,12 @@ export default class FingerprintingCanvas extends ContentFeature {
     init(args) {
         const { sessionKey, site } = args;
         const domainKey = site.domain;
+        const additionalEnabledCheck = this.getFeatureSettingEnabled('additionalEnabledCheck');
+        if (!additionalEnabledCheck) {
+            // If additionalEnabledCheck is not enabled bail out early.
+            // This is a temporary measure to allow for experiment rollout without feature enabling in C-S-S experiments.
+            return;
+        }
         const supportsWebGl = this.getFeatureSettingEnabled('webGl');
 
         const unsafeCanvases = new WeakSet();
@@ -41,7 +47,7 @@ export default class FingerprintingCanvas extends ContentFeature {
         proxy.overload();
 
         // Known data methods
-        const safeMethods = ['putImageData', 'drawImage'];
+        const safeMethods = this.getFeatureSetting('safeMethods') ?? ['putImageData', 'drawImage'];
         for (const methodName of safeMethods) {
             const safeMethodProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
                 apply(target, thisArg, args) {
@@ -58,7 +64,7 @@ export default class FingerprintingCanvas extends ContentFeature {
             safeMethodProxy.overload();
         }
 
-        const unsafeMethods = [
+        const unsafeMethods = this.getFeatureSetting('unsafeMethods') ?? [
             'strokeRect',
             'bezierCurveTo',
             'quadraticCurveTo',
@@ -94,7 +100,7 @@ export default class FingerprintingCanvas extends ContentFeature {
         }
 
         if (supportsWebGl) {
-            const unsafeGlMethods = [
+            const unsafeGlMethods = this.getFeatureSetting('unsafeGlMethods') ?? [
                 'commit',
                 'compileShader',
                 'shaderSource',
@@ -164,7 +170,7 @@ export default class FingerprintingCanvas extends ContentFeature {
             return result;
         }
 
-        const canvasMethods = ['toDataURL', 'toBlob'];
+        const canvasMethods = this.getFeatureSetting('canvasMethods') ?? ['toDataURL', 'toBlob'];
         for (const methodName of canvasMethods) {
             const proxy = new DDGProxy(this, HTMLCanvasElement.prototype, methodName, {
                 apply(target, thisArg, args) {
