@@ -1,6 +1,9 @@
 import { test } from '@playwright/test';
 import { SpecialErrorPage } from './special-error';
-import { phishingMalwareHelpPageURL, reportSiteAsSafeFormURL } from '../app/constants';
+
+/* Redeclaring constants here to flag unintentional changes in the constants.js file */
+const phishingMalwareHelpPageURL = 'https://duckduckgo.com/duckduckgo-help-pages/threat-protection/scam-blocker';
+const reportSiteAsSafeFormURL = 'https://duckduckgo.com/malicious-site-protection/report-error';
 
 test.describe('special-error', () => {
     test('initial handshake', async ({ page }, workerInfo) => {
