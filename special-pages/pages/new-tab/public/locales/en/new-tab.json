@@ -330,16 +330,16 @@
     "note": "Shown in the place a list of browsing history entries will be displayed."
   },
   "activity_no_adsAndTrackers": {
-    "title": "No ads + Tracking attempts found",
+    "title": "No ads + tracking attempts found",
     "note": "Placeholder message indicating that no ads and trackers are detected"
   },
   "activity_no_adsAndTrackers_blocked": {
-    "title": "No ads + Tracking attempts blocked",
+    "title": "No ads + tracking attempts blocked",
     "note": "Placeholder message indicating that no ads and trackers are blocked"
   },
   "activity_countBlockedAdsAndTrackersPlural": {
-    "title": "<b>{count}</b> ads + Tracking attempts blocked",
-    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + Tracking attempts blocked'"
+    "title": "<b>{count}</b> ads + tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + tracking attempts blocked'"
   },
   "activity_favoriteAdd": {
     "title": "Add {domain} to favorites",

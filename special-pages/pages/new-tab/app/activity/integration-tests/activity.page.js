@@ -354,7 +354,7 @@ export class ActivityPage {
               - img
             - button "Clear browsing history and data for example.com":
               - img
-            - text: +1 56 ads + Tracking attempts blocked
+            - text: +1 56 ads + tracking attempts blocked
             - list:
               - listitem:
                 - link "/bathrooms/toilets"
@@ -371,7 +371,7 @@ export class ActivityPage {
               - img
             - button "Clear browsing history and data for twitter.com":
               - img
-            - paragraph: No ads + Tracking attempts blocked
+            - paragraph: No ads + tracking attempts blocked
             - list:
               - listitem:
                 - link "Trending Topics"
@@ -385,7 +385,7 @@ export class ActivityPage {
               - img
             - button "Clear browsing history and data for app.linkedin.com":
               - img
-            - paragraph: No ads + Tracking attempts found
+            - paragraph: No ads + tracking attempts found
             - list:
               - listitem:
                 - link "Profile Page"

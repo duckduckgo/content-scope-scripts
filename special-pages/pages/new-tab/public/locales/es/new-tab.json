@@ -333,12 +333,12 @@
     "note" : "Placeholder message indicating that no ads and trackers are detected"
   },
   "activity_no_adsAndTrackers_blocked" : {
-    "title" : "Sin anuncios + Intentos de rastreo bloqueados",
+    "title" : "Sin anuncios + intentos de rastreo bloqueados",
     "note" : "Placeholder message indicating that no ads and trackers are blocked"
   },
   "activity_countBlockedAdsAndTrackersPlural" : {
     "title" : "Se han bloqueado <b>{count}</b> intentos de publicidad + rastreo",
-    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + Tracking attempts blocked'"
+    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + tracking attempts blocked'"
   },
   "activity_favoriteAdd" : {
     "title" : "Añadir {domain} a favoritos",
