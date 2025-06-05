@@ -759,6 +759,15 @@ export class WebCompat extends ContentFeature {
     }
 
     videoPlaybackObserve() {
+        if (document.readyState === 'loading') {
+            // if the document is not ready, we may miss the original viewport tag
+            document.addEventListener('DOMContentLoaded', () => this.videoPlaybackObserveInner());
+        } else {
+            this.videoPlaybackObserveInner();
+        }
+    }
+
+    videoPlaybackObserveInner() {
         const seenVideoElements = new WeakSet();
         function addPlayObserver(video) {
             if (seenVideoElements.has(video)) {
