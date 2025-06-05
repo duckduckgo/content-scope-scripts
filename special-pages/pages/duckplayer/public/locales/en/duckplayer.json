@@ -70,23 +70,27 @@
     "note": "A message explaining that the blocked video can be watched directly on YouTube."
   },
   "signInRequiredErrorHeading": {
-    "title": "Sorry, but YouTube thinks you’re a bot!",
-    "note": "Message shown when YouTube has blocked playback of a video"
-  },
-  "signInRequiredErrorHeadingAlternative": {
     "title": "Sorry, YouTube thinks you’re a bot!",
     "note": "Message shown when YouTube has blocked playback of a video"
   },
+  "signInRequiredErrorHeadingAlternative": {
+    "title": "YouTube thinks you’re a bot!",
+    "note": "Message shown when YouTube has blocked playback of a video"
+  },
   "signInRequiredErrorMessage1": {
-    "title": "This sometimes happens when you’re using a VPN. If that’s the case, try changing locations or turning it off and reloading this page.",
+    "title": "This can happen if you're using a VPN. Try turning the VPN off or switching server locations and reloading this page.",
     "note": "Explanation on why the error is happening and a suggestions on how to solve it."
   },
   "signInRequiredErrorMessage2": {
-    "title": "No luck? You can still watch this video, but you’ll have to sign in and watch it on YouTube without the added privacy of Duck Player.",
+    "title": "If that doesn't work, you can still watch it on YouTube, but without the added privacy of DuckPlayer.",
     "note": "More troubleshooting tips for this specific error"
   },
   "signInRequiredErrorMessage3": {
-    "title": "This can happen when you’re using a VPN. You can try changing locations or turning it off and reloading this page. If that doesn’t work, you may have to watch this video directly on YouTube.",
+    "title": "This may be caused by using a VPN. Try turning it off or switching servers.",
+    "note": "Explanation on why the error is happening and a suggestions on how to solve it."
+  },
+  "signInRequiredErrorMessage4": {
+    "title": "You can still watch the video directly on YouTube, but without the added privacy of DuckPlayer",
     "note": "Explanation on why the error is happening and a suggestions on how to solve it."
   },
   "tooltipInfo": {

@@ -28,7 +28,7 @@ function useErrorStrings(youtubeError) {
             return {
                 // TODO: Remove after ship review
                 heading: isAlternativeCopy ? t('signInRequiredErrorHeadingAlternative') : t('signInRequiredErrorHeading'),
-                messages: isAlternativeCopy ? [t('signInRequiredErrorMessage3')] : [t('signInRequiredErrorMessage1'), t('signInRequiredErrorMessage2')],
+                messages: isAlternativeCopy ? [t('signInRequiredErrorMessage3'), t('signInRequiredErrorMessage4')] : [t('signInRequiredErrorMessage1'), t('signInRequiredErrorMessage2')],
                 variant: 'paragraphs',
             };
         case 'age-restricted':
