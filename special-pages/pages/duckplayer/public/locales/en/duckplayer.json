@@ -33,51 +33,51 @@
     "title": "<b>ERROR:</b> Invalid video id",
     "note": "Shown when the page URL doesn't match a known video ID. Note for translators: The <b> tag makes the word 'ERROR:' bold. Depending on the grammar of the target language, you might need to move it so that the correct word is emphasized."
   },
-  "unknownErrorHeading1": {
+  "unknownErrorHeading2": {
     "title": "Duck Player can’t load this video",
     "note": "Message shown when YouTube has blocked playback of a video"
   },
-  "unknownErrorMessage1a": {
+  "unknownErrorMessage2a": {
     "title": "This video can’t be viewed outside of YouTube.",
     "note": "Explanation on why the error is happening."
   },
-  "unknownErrorMessage1b": {
+  "unknownErrorMessage2b": {
     "title": "You can still watch this video on YouTube, but without the added privacy of Duck Player.",
     "note": "A message explaining that the blocked video can be watched directly on YouTube."
   },
-  "ageRestrictedErrorHeading1": {
+  "ageRestrictedErrorHeading2": {
     "title": "Sorry, this video is age-restricted",
     "note": "Message shown when YouTube has blocked playback of a video"
   },
-  "ageRestrictedErrorMessage1a": {
+  "ageRestrictedErrorMessage2a": {
     "title": "To watch age-restricted videos, you need to sign in to YouTube to verify your age.",
     "note": "Explanation on why the error is happening."
   },
-  "ageRestrictedErrorMessage1b": {
+  "ageRestrictedErrorMessage2b": {
     "title": "You can still watch this video, but you’ll have to sign in and watch it on YouTube without the added privacy of Duck Player.",
     "note": "A message explaining that the blocked video can be watched directly on YouTube."
   },
-  "noEmbedErrorHeading1": {
+  "noEmbedErrorHeading2": {
     "title": "Sorry, this video can only be played on YouTube",
     "note": "Message shown when YouTube has blocked playback of a video"
   },
-  "noEmbedErrorMessage1a": {
+  "noEmbedErrorMessage2a": {
     "title": "The creator of this video has chosen not to allow it to be viewed on other sites.",
     "note": "Explanation on why the error is happening."
   },
-  "noEmbedErrorMessage1b": {
+  "noEmbedErrorMessage2b": {
     "title": "You can still watch it on YouTube, but without the added privacy of Duck Player.",
     "note": "A message explaining that the blocked video can be watched directly on YouTube."
   },
-  "blockedVideoErrorHeading1": {
+  "blockedVideoErrorHeading": {
     "title": "YouTube won’t let Duck Player load this video",
     "note": "Message shown when YouTube has blocked playback of a video"
   },
-  "blockedVideoErrorMessage1a": {
+  "blockedVideoErrorMessage1": {
     "title": "YouTube doesn’t allow this video to be viewed outside of YouTube.",
     "note": "Explanation on why the error is happening."
   },
-  "blockedVideoErrorMessage1b": {
+  "blockedVideoErrorMessage2": {
     "title": "You can still watch this video on YouTube, but without the added privacy of Duck Player.",
     "note": "A message explaining that the blocked video can be watched directly on YouTube."
   },
@@ -85,15 +85,11 @@
     "title": "Sorry, YouTube thinks you’re a bot",
     "note": "Message shown when YouTube has blocked playback of a video"
   },
-  "signInRequiredErrorHeading3": {
-    "title": "YouTube thinks you’re a bot!",
-    "note": "Message shown when YouTube has blocked playback of a video"
-  },
-  "signInRequiredErrorMessage1a": {
+  "signInRequiredErrorMessage1": {
     "title": "YouTube is blocking this video from loading. If you’re using a VPN, try turning it off and reloading this page.",
     "note": "Explanation on why the error is happening and a suggestions on how to solve it."
   },
-  "signInRequiredErrorMessage1b": {
+  "signInRequiredErrorMessage2": {
     "title": "If this doesn’t work, you can still watch this video on YouTube, but without the added privacy of Duck Player.",
     "note": "More troubleshooting tips for this specific error"
   },
@@ -104,14 +100,6 @@
   "signInRequiredErrorMessage2b": {
     "title": "If that doesn’t work, you’ll have to sign in and watch this video on YouTube without the added privacy of Duck Player.",
     "note": "More troubleshooting tips for this specific error"
-  },
-  "signInRequiredErrorMessage3a": {
-    "title": "This may be caused by using a VPN. Try turning it off or switching servers.",
-    "note": "Explanation on why the error is happening and a suggestions on how to solve it."
-  },
-  "signInRequiredErrorMessage3b": {
-    "title": "You can still watch the video directly on YouTube, but without the added privacy of DuckPlayer",
-    "note": "Explanation on why the error is happening and a suggestions on how to solve it."
   },
   "tooltipInfo": {
     "title": "Duck Player provides a clean viewing experience without personalized ads and prevents viewing activity from influencing your YouTube recommendations."

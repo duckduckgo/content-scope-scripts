@@ -23,78 +23,49 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 function useErrorStrings(youtubeError, locale) {
     const { t } = useTypedTranslation();
 
-    let version = locale === 'en' ? 'long' : 'classic';
-
-    // TODO: Remove after ship review
-    const urlParams = new URLSearchParams(window.location.search);
-    const isAlternativeCopy = urlParams.has('alternativeCopy');
-    if (version === 'long' && isAlternativeCopy) {
-        version = 'short';
-    }
-
     /**
      * @type {Record<string, Partial<Record<YouTubeError, ErrorStrings>>  & { unknown: ErrorStrings }>}
      */
     const versions = {
-        classic: {
+        v1: {
             'sign-in-required': {
-                heading: t('blockedVideoErrorHeading1'),
-                messages: [t('signInRequiredErrorMessage1a'), t('signInRequiredErrorMessage1b')],
+                heading: t('blockedVideoErrorHeading'),
+                messages: [t('signInRequiredErrorMessage1'), t('signInRequiredErrorMessage2')],
                 variant: 'paragraphs',
             },
             unknown: {
-                heading: t('blockedVideoErrorHeading1'),
-                messages: [t('blockedVideoErrorMessage1a'), t('blockedVideoErrorMessage1b')],
+                heading: t('blockedVideoErrorHeading'),
+                messages: [t('blockedVideoErrorMessage1'), t('blockedVideoErrorMessage2')],
                 variant: 'paragraphs',
             },
         },
-        long: {
+        v2: {
             'sign-in-required': {
                 heading: t('signInRequiredErrorHeading2'),
                 messages: [t('signInRequiredErrorMessage2a'), t('signInRequiredErrorMessage2b')],
                 variant: 'paragraphs',
             },
             'age-restricted': {
-                heading: t('ageRestrictedErrorHeading1'),
-                messages: [t('ageRestrictedErrorMessage1a'), t('ageRestrictedErrorMessage1b')],
+                heading: t('ageRestrictedErrorHeading2'),
+                messages: [t('ageRestrictedErrorMessage2a'), t('ageRestrictedErrorMessage2b')],
                 variant: 'paragraphs',
             },
             'no-embed': {
-                heading: t('noEmbedErrorHeading1'),
-                messages: [t('noEmbedErrorMessage1a'), t('noEmbedErrorMessage1b')],
+                heading: t('noEmbedErrorHeading2'),
+                messages: [t('noEmbedErrorMessage2a'), t('noEmbedErrorMessage2b')],
                 variant: 'paragraphs',
             },
             unknown: {
-                heading: t('unknownErrorHeading1'),
-                messages: [t('unknownErrorMessage1a'), t('unknownErrorMessage1b')],
-                variant: 'paragraphs',
-            },
-        },
-        short: {
-            'sign-in-required': {
-                heading: t('signInRequiredErrorHeading3'),
-                messages: [t('signInRequiredErrorMessage3a'), t('signInRequiredErrorMessage3b')],
-                variant: 'paragraphs',
-            },
-            'age-restricted': {
-                heading: t('ageRestrictedErrorHeading1'),
-                messages: [t('ageRestrictedErrorMessage1a'), t('ageRestrictedErrorMessage1b')],
-                variant: 'paragraphs',
-            },
-            'no-embed': {
-                heading: t('noEmbedErrorHeading1'),
-                messages: [t('noEmbedErrorMessage1a'), t('noEmbedErrorMessage1b')],
-                variant: 'paragraphs',
-            },
-            unknown: {
-                heading: t('unknownErrorHeading1'),
-                messages: [t('unknownErrorMessage1a'), t('unknownErrorMessage1b')],
+                heading: t('unknownErrorHeading2'),
+                messages: [t('unknownErrorMessage2a'), t('unknownErrorMessage2b')],
                 variant: 'paragraphs',
             },
         },
     };
 
-    return versions[version]?.[youtubeError] || versions[version]?.['unknown'] || versions['classic']['unknown'];
+    const version = locale === 'en' ? 'v2' : 'v1';
+
+    return versions[version]?.[youtubeError] || versions[version]?.['unknown'] || versions['v1']['unknown'];
 }
 
 /**
