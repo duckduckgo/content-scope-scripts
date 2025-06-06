@@ -1,7 +1,7 @@
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
-
+import { DDGProxy } from '../utils';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
@@ -125,6 +125,9 @@ export class WebCompat extends ContentFeature {
 
         if (this.getFeatureSettingEnabled('modifyCookies')) {
             this.modifyCookies();
+        }
+        if (this.getFeatureSettingEnabled('disableDeviceEnumeration') || this.getFeatureSettingEnabled('disableDeviceEnumerationFrames')) {
+            this.preventDeviceEnumeration();
         }
     }
 
@@ -751,6 +754,27 @@ export class WebCompat extends ContentFeature {
                 }
             });
             this.forceViewportTag(viewportTag, newContent.join(', '));
+        }
+    }
+
+    preventDeviceEnumeration() {
+        if (!window.MediaDevices) {
+            return;
+        }
+        let disableDeviceEnumeration = false;
+        const isFrame = window.self !== window.top;
+        if (isFrame) {
+            disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumerationFrames');
+        } else {
+            disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumeration');
+        }
+        if (disableDeviceEnumeration) {
+            const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
+                apply() {
+                    return Promise.resolve([]);
+                },
+            });
+            enumerateDevicesProxy.overload();
         }
     }
 }
