@@ -1,1 +1,1 @@
-- Duck Player custom error copy update (#1706)
+- Device enumeration blocking WebCompat feature (#1724)

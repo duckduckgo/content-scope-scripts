@@ -2849,7 +2849,16 @@
     android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-password-import": ["autofillPasswordImport"],
-    windows: ["cookie", ...baseFeatures, "windowsPermissionUsage", "duckPlayer", "brokerProtection", "breakageReporting", "messageBridge"],
+    windows: [
+      "cookie",
+      ...baseFeatures,
+      "windowsPermissionUsage",
+      "duckPlayer",
+      "brokerProtection",
+      "breakageReporting",
+      "messageBridge",
+      "webCompat"
+    ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad"],
     "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad"],
@@ -14481,6 +14490,9 @@ ul.messages {
       if (this.getFeatureSettingEnabled("modifyCookies")) {
         this.modifyCookies();
       }
+      if (this.getFeatureSettingEnabled("disableDeviceEnumeration") || this.getFeatureSettingEnabled("disableDeviceEnumerationFrames")) {
+        this.preventDeviceEnumeration();
+      }
     }
     /** Shim Web Share API in Android WebView */
     shimWebShare() {
@@ -15005,6 +15017,26 @@ ul.messages {
           }
         });
         this.forceViewportTag(viewportTag, newContent.join(", "));
+      }
+    }
+    preventDeviceEnumeration() {
+      if (!window.MediaDevices) {
+        return;
+      }
+      let disableDeviceEnumeration = false;
+      const isFrame = window.self !== window.top;
+      if (isFrame) {
+        disableDeviceEnumeration = this.getFeatureSettingEnabled("disableDeviceEnumerationFrames");
+      } else {
+        disableDeviceEnumeration = this.getFeatureSettingEnabled("disableDeviceEnumeration");
+      }
+      if (disableDeviceEnumeration) {
+        const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, "enumerateDevices", {
+          apply() {
+            return Promise.resolve([]);
+          }
+        });
+        enumerateDevicesProxy.overload();
       }
     }
   };
