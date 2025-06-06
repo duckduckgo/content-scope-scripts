@@ -350,7 +350,13 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 },
             });
             getUserMediaProxy.overload();
-            const disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumeration');
+            let disableDeviceEnumeration = false;
+            const isFrame = window.self !== window.top;
+            if (isFrame) {
+                disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumerationFrames');
+            } else {
+                disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumeration');
+            }
             if (disableDeviceEnumeration) {
                 const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
                     apply() {
