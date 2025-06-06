@@ -71,9 +71,11 @@ function MobileLayout({ embed }) {
                 <MobileWordmark />
             </div>
             <div class={cn(styles.switch, styles.hideInFocus)}>
-                {!showCustomError && <SwitchProvider>
-                    <SwitchBarMobile platformName={platformName} />
-                </SwitchProvider>}
+                {!showCustomError && (
+                    <SwitchProvider>
+                        <SwitchBarMobile platformName={platformName} />
+                    </SwitchProvider>
+                )}
             </div>
             <div class={cn(styles.buttons, styles.hideInFocus)}>
                 <MobileButtons embed={embed} accentedWatchButton={embed !== null && showCustomError} />
