@@ -350,16 +350,15 @@ export default class WindowsPermissionUsage extends ContentFeature {
                 },
             });
             getUserMediaProxy.overload();
-
-            const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
-                apply(target, thisArg, args) {
-                    console.debug('Enumerating media devices');
-                    const devices = DDGReflect.apply(target, thisArg, args);
-                    console.debug(`Found ${devices.length} media devices`, devices);
-                    return devices;
-                },
-            });
-            enumerateDevicesProxy.overload();
+            const disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumeration');
+            if (disableDeviceEnumeration) {
+                const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
+                    apply(target, thisArg, args) {
+                        return Promise.resolve([]);
+                    },
+                });
+                enumerateDevicesProxy.overload();
+            }
         }
 
         function performAction(action, permission) {
