@@ -9,7 +9,7 @@ export class Telemetry extends ContentFeature {
 
     videoPlaybackObserve() {
         if (document.readyState === 'loading') {
-            // if the document is not ready, we may miss the original viewport tag
+            // if the document is not ready wait until it is
             document.addEventListener('DOMContentLoaded', () => this.videoPlaybackObserveInner());
         } else {
             this.videoPlaybackObserveInner();
