@@ -13530,8 +13530,8 @@
         display: block;
         background-image: url("data:image/svg+xml,%3Csvg fill='none' viewBox='0 0 96 96' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='red' d='M47.5 70.802c1.945 0 3.484-1.588 3.841-3.5C53.076 58.022 61.218 51 71 51h4.96c2.225 0 4.04-1.774 4.04-4 0-.026-.007-9.022-1.338-14.004a8.02 8.02 0 0 0-5.659-5.658C68.014 26 48 26 48 26s-20.015 0-25.004 1.338a8.01 8.01 0 0 0-5.658 5.658C16 37.986 16 48.401 16 48.401s0 10.416 1.338 15.405a8.01 8.01 0 0 0 5.658 5.658c4.99 1.338 24.504 1.338 24.504 1.338'/%3E%3Cpath fill='%23fff' d='m41.594 58 16.627-9.598-16.627-9.599z'/%3E%3Cpath fill='%23EB102D' d='M87 71c0 8.837-7.163 16-16 16s-16-7.163-16-16 7.163-16 16-16 16 7.163 16 16'/%3E%3Cpath fill='%23fff' d='M73 77.8a2 2 0 1 1-4 0 2 2 0 0 1 4 0m-2.039-4.4c-.706 0-1.334-.49-1.412-1.12l-.942-8.75c-.079-.7.55-1.33 1.412-1.33h1.962c.785 0 1.492.63 1.413 1.33l-.942 8.75c-.157.63-.784 1.12-1.49 1.12Z'/%3E%3Cpath fill='%23CCC' d='M92.501 59c.298 0 .595.12.823.354.454.468.454 1.23 0 1.698l-2.333 2.4a1.145 1.145 0 0 1-1.65 0 1.227 1.227 0 0 1 0-1.698l2.333-2.4c.227-.234.524-.354.822-.354zm-1.166 10.798h3.499c.641 0 1.166.54 1.166 1.2s-.525 1.2-1.166 1.2h-3.499c-.641 0-1.166-.54-1.166-1.2s.525-1.2 1.166-1.2m-1.982 8.754c.227-.234.525-.354.822-.354h.006c.297 0 .595.12.822.354l2.332 2.4c.455.467.455 1.23 0 1.697a1.145 1.145 0 0 1-1.65 0l-2.332-2.4a1.227 1.227 0 0 1 0-1.697'/%3E%3C/svg%3E%0A");
         background-repeat: no-repeat;
-        height: 48px;
-        width: 48px;
+        height: 96px;
+        width: 96px;
     }
 
     @media screen and (max-width: 320px) {
@@ -13684,12 +13684,76 @@ ul.messages {
 
   // src/features/duckplayer-native/error-detection.js
   init_define_import_meta_trackerLookup();
+
+  // src/features/duckplayer-native/youtube-errors.js
+  init_define_import_meta_trackerLookup();
   var YOUTUBE_ERRORS = {
     ageRestricted: "age-restricted",
     signInRequired: "sign-in-required",
     noEmbed: "no-embed",
     unknown: "unknown"
   };
+  var YOUTUBE_ERROR_IDS = Object.values(YOUTUBE_ERRORS);
+  function checkForError(errorSelector, node) {
+    if (node?.nodeType === Node.ELEMENT_NODE) {
+      const element = (
+        /** @type {HTMLElement} */
+        node
+      );
+      const isError = element.matches(errorSelector) || !!element.querySelector(errorSelector);
+      return isError;
+    }
+    return false;
+  }
+  function getErrorType(windowObject, signInRequiredSelector, logger) {
+    const currentWindow = (
+      /** @type {Window & typeof globalThis & { ytcfg: object }} */
+      windowObject
+    );
+    const currentDocument = currentWindow.document;
+    if (!currentWindow || !currentDocument) {
+      logger?.warn("Window or document missing!");
+      return YOUTUBE_ERRORS.unknown;
+    }
+    let playerResponse;
+    if (!currentWindow.ytcfg) {
+      logger?.warn("ytcfg missing!");
+    } else {
+      logger?.log("Got ytcfg", currentWindow.ytcfg);
+    }
+    try {
+      const playerResponseJSON = currentWindow.ytcfg?.get("PLAYER_VARS")?.embedded_player_response;
+      logger?.log("Player response", playerResponseJSON);
+      playerResponse = JSON.parse(playerResponseJSON);
+    } catch (e) {
+      logger?.log("Could not parse player response", e);
+    }
+    if (typeof playerResponse === "object") {
+      const {
+        previewPlayabilityStatus: { desktopLegacyAgeGateReason, status }
+      } = playerResponse;
+      if (status === "UNPLAYABLE") {
+        if (desktopLegacyAgeGateReason === 1) {
+          logger?.log("AGE RESTRICTED ERROR");
+          return YOUTUBE_ERRORS.ageRestricted;
+        }
+        logger?.log("NO EMBED ERROR");
+        return YOUTUBE_ERRORS.noEmbed;
+      }
+    }
+    try {
+      if (signInRequiredSelector && !!currentDocument.querySelector(signInRequiredSelector)) {
+        logger?.log("SIGN-IN ERROR");
+        return YOUTUBE_ERRORS.signInRequired;
+      }
+    } catch (e) {
+      logger?.log("Sign-in required query failed", e);
+    }
+    logger?.log("UNKNOWN ERROR");
+    return YOUTUBE_ERRORS.unknown;
+  }
+
+  // src/features/duckplayer-native/error-detection.js
   var ErrorDetection = class {
     /**
      * @param {ErrorDetectionSettings} settings
@@ -13721,8 +13785,8 @@ ul.messages {
     observe() {
       const documentBody = document?.body;
       if (documentBody) {
-        if (this.checkForError(documentBody)) {
-          const error = this.getErrorType();
+        if (checkForError(this.selectors.youtubeError, documentBody)) {
+          const error = getErrorType(window, this.selectors.signInRequiredError, this.logger);
           this.handleError(error);
           return;
         }
@@ -13758,77 +13822,14 @@ ul.messages {
       for (const mutation of mutationsList) {
         if (mutation.type === "childList") {
           mutation.addedNodes.forEach((node) => {
-            if (this.checkForError(node)) {
+            if (checkForError(this.selectors.youtubeError, node)) {
               this.logger.log("A node with an error has been added to the document:", node);
-              const error = this.getErrorType();
+              const error = getErrorType(window, this.selectors.signInRequiredError, this.logger);
               this.handleError(error);
             }
           });
         }
       }
-    }
-    /**
-     * Attempts to detect the type of error in the YouTube embed iframe
-     * @returns {YouTubeError}
-     */
-    getErrorType() {
-      const currentWindow = (
-        /** @type {Window & typeof globalThis & { ytcfg: object }} */
-        window
-      );
-      let playerResponse;
-      if (!currentWindow.ytcfg) {
-        this.logger.warn("ytcfg missing!");
-      } else {
-        this.logger.log("Got ytcfg", currentWindow.ytcfg);
-      }
-      try {
-        const playerResponseJSON = currentWindow.ytcfg?.get("PLAYER_VARS")?.embedded_player_response;
-        this.logger.log("Player response", playerResponseJSON);
-        playerResponse = JSON.parse(playerResponseJSON);
-      } catch (e) {
-        this.logger.log("Could not parse player response", e);
-      }
-      if (typeof playerResponse === "object") {
-        const {
-          previewPlayabilityStatus: { desktopLegacyAgeGateReason, status }
-        } = playerResponse;
-        if (status === "UNPLAYABLE") {
-          if (desktopLegacyAgeGateReason === 1) {
-            this.logger.log("AGE RESTRICTED ERROR");
-            return YOUTUBE_ERRORS.ageRestricted;
-          }
-          this.logger.log("NO EMBED ERROR");
-          return YOUTUBE_ERRORS.noEmbed;
-        }
-      }
-      try {
-        if (document.querySelector(this.selectors.signInRequiredError)) {
-          this.logger.log("SIGN-IN ERROR");
-          return YOUTUBE_ERRORS.signInRequired;
-        }
-      } catch (e) {
-        this.logger.log("Sign-in required query failed", e);
-      }
-      this.logger.log("UNKNOWN ERROR");
-      return YOUTUBE_ERRORS.unknown;
-    }
-    /**
-     * Analyses a node and its children to determine if it contains an error state
-     *
-     * @param {Node} [node]
-     */
-    checkForError(node) {
-      if (node?.nodeType === Node.ELEMENT_NODE) {
-        const { youtubeError } = this.selectors;
-        const element = (
-          /** @type {HTMLElement} */
-          node
-        );
-        const isError = element.matches(youtubeError) || !!element.querySelector(youtubeError);
-        return isError;
-      }
-      return false;
     }
   };
 

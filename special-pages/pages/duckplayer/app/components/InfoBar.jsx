@@ -11,12 +11,14 @@ import { SwitchContext, SwitchProvider } from '../providers/SwitchProvider.jsx';
 import { Tooltip } from './Tooltip.jsx';
 import { useSetFocusMode } from './FocusMode.jsx';
 import { useTypedTranslation } from '../types.js';
+import { useShowCustomError } from '../providers/YouTubeErrorProvider';
 
 /**
  * @param {object} props
  * @param {import("../embed-settings.js").EmbedSettings|null} props.embed
  */
 export function InfoBar({ embed }) {
+    const showCustomError = useShowCustomError();
     return (
         <div class={styles.infoBar}>
             <div class={styles.lhs}>
@@ -28,9 +30,11 @@ export function InfoBar({ embed }) {
             </div>
             <div class={styles.rhs}>
                 <SwitchProvider>
-                    <div class={styles.switch}>
-                        <SwitchBarDesktop />
-                    </div>
+                    {!showCustomError && (
+                        <div class={styles.switch}>
+                            <SwitchBarDesktop />
+                        </div>
+                    )}
                     <ControlBarDesktop embed={embed} />
                 </SwitchProvider>
             </div>
@@ -100,6 +104,8 @@ export function InfoIcon({ debugStyles = false }) {
 function ControlBarDesktop({ embed }) {
     const settingsUrl = useSettingsUrl();
     const openOnYoutube = useOpenOnYoutubeHandler();
+    const showCustomError = useShowCustomError(); // When there's a YouTube error, the watch on YouTube button is shown in the error screen instead
+
     const { t } = useTypedTranslation();
     const { state } = useContext(SwitchContext);
     return (
@@ -116,16 +122,18 @@ function ControlBarDesktop({ embed }) {
             >
                 <Icon src={cog} />
             </ButtonLink>
-            <Button
-                formfactor={'desktop'}
-                buttonProps={{
-                    onClick: () => {
-                        if (embed) openOnYoutube(embed);
-                    },
-                }}
-            >
-                {t('watchOnYoutube')}
-            </Button>
+            {!showCustomError && (
+                <Button
+                    formfactor={'desktop'}
+                    buttonProps={{
+                        onClick: () => {
+                            if (embed) openOnYoutube(embed);
+                        },
+                    }}
+                >
+                    {t('watchOnYoutube')}
+                </Button>
+            )}
         </div>
     );
 }

@@ -1,4 +1,1 @@
-- build(deps-dev): bump eslint in the eslint group across 1 directory (#1717)
-- Add basic canvas experiment ability (#1703)
-- Updated Scam Blocker help page URLs (#1671)
-- Fix capitalisation in tracking attempts text (#1707)
+- Duck Player custom error copy update (#1706)

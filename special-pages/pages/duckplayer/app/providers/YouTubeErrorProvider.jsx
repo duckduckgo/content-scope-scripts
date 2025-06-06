@@ -2,37 +2,28 @@ import { useContext, useState } from 'preact/hooks';
 import { h, createContext } from 'preact';
 import { useEffect } from 'preact/hooks';
 import { useMessaging } from '../types';
-import { usePlatformName } from './SettingsProvider';
 import { useSetFocusMode } from '../components/FocusMode';
-
-export const YOUTUBE_ERROR_EVENT = 'ddg-duckplayer-youtube-error';
+import { YOUTUBE_ERROR_IDS, YOUTUBE_ERROR_EVENT } from '../../../../../injected/src/features/duckplayer-native/youtube-errors.js';
+import { useSettings } from './SettingsProvider';
 
 /**
- * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
+ * @import {YouTubeError} from '../../types/duckplayer'
  */
-
-/** @type {Record<string,YouTubeError>} */
-export const YOUTUBE_ERRORS = {
-    ageRestricted: 'age-restricted',
-    signInRequired: 'sign-in-required',
-    noEmbed: 'no-embed',
-    unknown: 'unknown',
-};
-
-/** @type {YouTubeError[]} */
-export const YOUTUBE_ERROR_IDS = Object.values(YOUTUBE_ERRORS);
 
 const YouTubeErrorContext = createContext({
     /** @type {YouTubeError|null} */
     error: null,
+    /** @type {string} - Enables showing different error messages based on locale */
+    locale: 'en',
 });
 
 /**
  * @param {object} props
  * @param {YouTubeError|null} [props.initial=null]
+ * @param {string} props.locale
  * @param {import("preact").ComponentChild} props.children
  */
-export function YouTubeErrorProvider({ initial = null, children }) {
+export function YouTubeErrorProvider({ initial = null, locale, children }) {
     // initial state
     let initialError = null;
     if (initial && YOUTUBE_ERROR_IDS.includes(initial)) {
@@ -64,9 +55,19 @@ export function YouTubeErrorProvider({ initial = null, children }) {
         return () => window.removeEventListener(YOUTUBE_ERROR_EVENT, errorEventHandler);
     }, []);
 
-    return <YouTubeErrorContext.Provider value={{ error }}>{children}</YouTubeErrorContext.Provider>;
+    return <YouTubeErrorContext.Provider value={{ error, locale }}>{children}</YouTubeErrorContext.Provider>;
 }
 
 export function useYouTubeError() {
     return useContext(YouTubeErrorContext).error;
+}
+
+export function useLocale() {
+    return useContext(YouTubeErrorContext).locale;
+}
+
+export function useShowCustomError() {
+    const settings = useSettings();
+    const youtubeError = useContext(YouTubeErrorContext).error;
+    return youtubeError !== null && settings.customError?.state === 'enabled';
 }
