@@ -90,7 +90,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
                                     <UserValuesProvider initial={init.userValues}>
                                         {settings.layout === 'desktop' && (
                                             <TranslationProvider
-                                                translationObject={enStrings}
+                                                translationObject={strings}
                                                 fallback={enStrings}
                                                 textLength={environment.textLength}
                                             >
