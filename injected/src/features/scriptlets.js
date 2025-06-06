@@ -14,8 +14,14 @@ import { preventSetTimeout } from './Scriptlets/src/scriptlets/prevent-setTimeou
 import { removeNodeText } from './Scriptlets/src/scriptlets/remove-node-text.js';
 import { preventFetch } from './Scriptlets/src/scriptlets/prevent-fetch.js';
 
+/** @type {Scriptlets} */
+let featureInstance;
+
 export class Scriptlets extends ContentFeature {
     init() {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        featureInstance = this;
+
         if (isBeingFramed()) {
             return;
         }
@@ -33,6 +39,10 @@ export class Scriptlets extends ContentFeature {
 
     runScriptlet(scriptlet, source) {
         const attrs = scriptlet.attrs || {};
+
+        // add debug flag to site breakage reports
+        featureInstance.addDebugFlag();
+        
         if (scriptlet.name === 'setCookie') {
             setCookie(source, attrs.name, attrs.value, attrs.path, attrs.domain);
         }
