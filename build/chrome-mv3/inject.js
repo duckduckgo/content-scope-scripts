@@ -5149,6 +5149,10 @@
     init(args) {
       const { sessionKey, site } = args;
       const domainKey = site.domain;
+      const additionalEnabledCheck = this.getFeatureSettingEnabled("additionalEnabledCheck");
+      if (!additionalEnabledCheck) {
+        return;
+      }
       const supportsWebGl = this.getFeatureSettingEnabled("webGl");
       const unsafeCanvases = /* @__PURE__ */ new WeakSet();
       const canvasContexts = /* @__PURE__ */ new WeakMap();
@@ -5171,7 +5175,7 @@
         }
       });
       proxy.overload();
-      const safeMethods = ["putImageData", "drawImage"];
+      const safeMethods = this.getFeatureSetting("safeMethods") ?? ["putImageData", "drawImage"];
       for (const methodName of safeMethods) {
         const safeMethodProxy = new DDGProxy(this, CanvasRenderingContext2D.prototype, methodName, {
           apply(target, thisArg, args2) {
@@ -5185,7 +5189,7 @@
         });
         safeMethodProxy.overload();
       }
-      const unsafeMethods = [
+      const unsafeMethods = this.getFeatureSetting("unsafeMethods") ?? [
         "strokeRect",
         "bezierCurveTo",
         "quadraticCurveTo",
@@ -5218,7 +5222,7 @@
         }
       }
       if (supportsWebGl) {
-        const unsafeGlMethods = [
+        const unsafeGlMethods = this.getFeatureSetting("unsafeGlMethods") ?? [
           "commit",
           "compileShader",
           "shaderSource",
@@ -5271,7 +5275,7 @@
         }
         return result;
       }
-      const canvasMethods = ["toDataURL", "toBlob"];
+      const canvasMethods = this.getFeatureSetting("canvasMethods") ?? ["toDataURL", "toBlob"];
       for (const methodName of canvasMethods) {
         const proxy2 = new DDGProxy(this, HTMLCanvasElement.prototype, methodName, {
           apply(target, thisArg, args2) {

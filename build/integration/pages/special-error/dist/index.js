@@ -1911,7 +1911,7 @@
       note: "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
     },
     malwareWarningText: {
-      title: "DuckDuckGo blocked this page because it may be distributing malware designed to compromise your device or steal your personal information.{newline}<a>Learn more</a>",
+      title: "DuckDuckGo Scam Blocker prevented this page from loading because it may be distributing malware designed to compromise your device or steal your personal information.{newline}<a>Learn more</a>",
       note: "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
     },
     malwareAdvancedInfoHeading: {
@@ -1923,7 +1923,7 @@
       note: "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
     },
     phishingWarningText: {
-      title: "This website may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers.{newline}<a>Learn more</a>",
+      title: "DuckDuckGo Scam Blocker prevented this page from loading because it may be impersonating a legitimate site in order to trick you into providing personal information, such as passwords or credit card numbers.{newline}<a>Learn more</a>",
       note: "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
     },
     phishingAdvancedInfoHeading: {
@@ -1935,7 +1935,7 @@
       note: "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
     },
     scamWarningText: {
-      title: "DuckDuckGo blocked this page because it may be trying to deceive or manipulate you into transferring money, buying counterfeit goods, or installing malware under false pretenses.{newline}<a>Learn more</a>",
+      title: "DuckDuckGo Scam Blocker prevented this page from loading because it may be trying to deceive or manipulate you into transferring money, buying counterfeit goods, or installing malware under false pretenses.{newline}<a>Learn more</a>",
       note: "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
     },
     scamAdvancedInfoHeading: {
@@ -2005,7 +2005,7 @@
   }
 
   // pages/special-error/app/constants.js
-  var phishingMalwareHelpPageURL = "https://duckduckgo.com/duckduckgo-help-pages/privacy/phishing-and-malware-protection";
+  var phishingMalwareHelpPageURL = "https://duckduckgo.com/duckduckgo-help-pages/threat-protection/scam-blocker";
   var reportSiteAsSafeFormURL = "https://duckduckgo.com/malicious-site-protection/report-error";
 
   // pages/special-error/app/hooks/ErrorStrings.jsx

@@ -338,7 +338,7 @@
   },
   "activity_countBlockedAdsAndTrackersPlural" : {
     "title" : "<b>{count}</b> anúncios + tentativas de rastreamento bloqueadas",
-    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + Tracking attempts blocked'"
+    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + tracking attempts blocked'"
   },
   "activity_favoriteAdd" : {
     "title" : "Adicionar {domain} aos favoritos",
