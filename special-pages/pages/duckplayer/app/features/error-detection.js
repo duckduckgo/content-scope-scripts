@@ -1,4 +1,3 @@
-import { Logger } from 'injected/src/features/duckplayer/util.js';
 import { YOUTUBE_ERROR_EVENT, checkForError, getErrorType } from '../../../../../injected/src/features/duckplayer-native/youtube-errors.js';
 
 /**
@@ -6,8 +5,6 @@ import { YOUTUBE_ERROR_EVENT, checkForError, getErrorType } from '../../../../..
  * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
  * @typedef {import('../../types/duckplayer').CustomErrorSettings} CustomErrorSettings
  */
-
-const isTest = false; // TODO: How to get debug state from the native side?
 
 /**
  * Detects YouTube errors based on DOM queries
@@ -21,9 +18,6 @@ export class ErrorDetection {
     /** @type {CustomErrorSettings} */
     options;
 
-    /** @type {Logger} */
-    logger;
-
     /**
      * @param {CustomErrorSettings} options
      */
@@ -31,9 +25,6 @@ export class ErrorDetection {
         this.options = options;
         this.errorSelector = options?.settings?.youtubeErrorSelector || '.ytp-error';
         console.log('options', options);
-        if (isTest) {
-            this.logger = new Logger({ id: 'ERROR_DETECTION', shouldLog: () => true });
-        }
     }
 
     /**
@@ -52,7 +43,7 @@ export class ErrorDetection {
         if (contentWindow && documentBody) {
             // Check if iframe already contains error
             if (checkForError(this.errorSelector, documentBody)) {
-                const error = getErrorType(contentWindow, this.options.settings?.signInRequiredSelector, this.logger);
+                const error = getErrorType(contentWindow, this.options.settings?.signInRequiredSelector);
                 window.dispatchEvent(new CustomEvent(YOUTUBE_ERROR_EVENT, { detail: { error } }));
 
                 return null;
@@ -86,7 +77,7 @@ export class ErrorDetection {
                 mutation.addedNodes.forEach((node) => {
                     if (checkForError(this.errorSelector, node)) {
                         console.log('A node with an error has been added to the document:', node);
-                        const error = getErrorType(this.iframe.contentWindow, this.options.settings?.signInRequiredSelector, this.logger);
+                        const error = getErrorType(this.iframe.contentWindow, this.options.settings?.signInRequiredSelector);
 
                         window.dispatchEvent(new CustomEvent(YOUTUBE_ERROR_EVENT, { detail: { error } }));
                     }
