@@ -100,8 +100,7 @@ test.describe('duckplayer custom error', () => {
     test('shows custom error screen for videos that require sign-in', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithYouTubeError('sign-in-required', 'e90eWYPNtJ8');
-        await duckplayer.hasShownErrorMessage('YouTube won’t let Duck Player load this video');
-        await duckplayer.hasShownErrorMessage('If you’re using a VPN, try turning it off');
+        await duckplayer.didShowSignInRequiredError();
     });
     test('supports "watch on youtube" for videos that require sign-in', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
@@ -111,8 +110,7 @@ test.describe('duckplayer custom error', () => {
     test('shows custom error screen for videos that are age-restricted', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithYouTubeError('age-restricted', 'e90eWYPNtJ8');
-        await duckplayer.hasShownErrorMessage('YouTube won’t let Duck Player load this video');
-        await duckplayer.hasShownErrorMessage('YouTube doesn’t allow this video to be viewed');
+        await duckplayer.didShowAgeRestrictedError();
     });
     test('supports "watch on youtube" for videos that are age-restricted', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
@@ -122,8 +120,7 @@ test.describe('duckplayer custom error', () => {
     test('shows custom error screen for videos that can’t be embedded', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithYouTubeError('no-embed', 'e90eWYPNtJ8');
-        await duckplayer.hasShownErrorMessage('YouTube won’t let Duck Player load this video');
-        await duckplayer.hasShownErrorMessage('YouTube doesn’t allow this video to be viewed');
+        await duckplayer.didShowNoEmbedError();
     });
     test('supports "watch on youtube" for videos that can’t be embedded', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
@@ -133,13 +130,24 @@ test.describe('duckplayer custom error', () => {
     test('shows custom error screen for videos with unknown errors', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithYouTubeError('unknown', 'e90eWYPNtJ8');
-        await duckplayer.hasShownErrorMessage('YouTube won’t let Duck Player load this video');
-        await duckplayer.hasShownErrorMessage('YouTube doesn’t allow this video to be viewed');
+        await duckplayer.didShowGenericError();
     });
     test('supports "watch on youtube" for videos with unknown errors', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithYouTubeError('unknown', 'e90eWYPNtJ8');
         await duckplayer.opensDuckPlayerYouTubeLinkFromError({ videoID: 'e90eWYPNtJ8' });
+    });
+    test('shows custom error screen, in Spanish, for videos that require sign-in', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('sign-in-required', 'e90eWYPNtJ8', 'es');
+        await duckplayer.didShowSignInRequiredErrorInSpanish();
+    });
+    test('shows custom error screen, in Spanish, for videos that are age-restricted', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('age-restricted', 'e90eWYPNtJ8', 'es');
+        await duckplayer.didShowGenericErrorInSpanish();
     });
 });
 
