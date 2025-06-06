@@ -126,7 +126,7 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('modifyCookies')) {
             this.modifyCookies();
         }
-        if (this.getFeatureSettingEnabled('disableDeviceEnumeration') || this.getFeatureSettingEnabled('disableDeviceEnumerationFrames')) {
+        if (this.getFeatureSettingEnabled('disableDeviceEnumeration')) {
             this.preventDeviceEnumeration();
         }
     }
@@ -761,21 +761,12 @@ export class WebCompat extends ContentFeature {
         if (!window.MediaDevices) {
             return;
         }
-        let disableDeviceEnumeration = false;
-        const isFrame = window.self !== window.top;
-        if (isFrame) {
-            disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumerationFrames');
-        } else {
-            disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumeration');
-        }
-        if (disableDeviceEnumeration) {
-            const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
-                apply() {
-                    return Promise.resolve([]);
-                },
-            });
-            enumerateDevicesProxy.overload();
-        }
+        const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
+            apply() {
+                return Promise.resolve([]);
+            },
+        });
+        enumerateDevicesProxy.overload();
     }
 }
 
