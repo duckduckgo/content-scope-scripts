@@ -138,11 +138,13 @@ test.describe('duckplayer custom error', () => {
         await duckplayer.opensDuckPlayerYouTubeLinkFromError({ videoID: 'e90eWYPNtJ8' });
     });
     test('shows custom error screen, in Spanish, for videos that require sign-in', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo));
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithYouTubeError('sign-in-required', 'e90eWYPNtJ8', 'es');
         await duckplayer.didShowSignInRequiredErrorInSpanish();
     });
     test('shows custom error screen, in Spanish, for videos that are age-restricted', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo));
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithYouTubeError('age-restricted', 'e90eWYPNtJ8', 'es');
         await duckplayer.didShowGenericErrorInSpanish();
