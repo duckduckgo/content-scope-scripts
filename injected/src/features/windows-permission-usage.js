@@ -353,7 +353,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             const disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumeration');
             if (disableDeviceEnumeration) {
                 const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
-                    apply(target, thisArg, args) {
+                    apply() {
                         return Promise.resolve([]);
                     },
                 });
