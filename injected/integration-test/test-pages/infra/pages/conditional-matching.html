@@ -56,6 +56,46 @@
             return results;
         });
 
+        test('Conditional frame matching', async () => {
+            const results = [];
+            const frame = document.createElement('iframe');
+            const scriptTag = 'script';
+            frame.srcdoc = `
+                <!DOCTYPE html>
+                <html>
+                    <body>
+                        <${scriptTag}>
+                            window.addEventListener('message', (event) => {
+                                if (event.data === 'getDeviceMemory') {
+                                    event.source.postMessage(navigator.deviceMemory, event.origin);
+                                }
+                            });
+                        </${scriptTag}>
+                    </body>
+                </html>
+            `;
+            document.body.appendChild(frame);
+            await new Promise(resolve => frame.onload = resolve);
+            const deviceMemoryPromise = new Promise(resolve => {
+                window.addEventListener('message', (event) => {
+                    resolve(event.data);
+                }, { once: true });
+                frame.contentWindow.postMessage('getDeviceMemory', '*');
+            });
+            const deviceMemory = await deviceMemoryPromise;
+            results.push({
+                name: "Ensure iframe changes work",
+                result: deviceMemory,
+                expected: 43338
+            });
+            results.push({
+                name: "Expect frame top modification works",
+                result: navigator.deviceMemory,
+                expected: 43339
+            });
+            return results;
+        });
+
 
         // eslint-disable-next-line no-undef
         renderResults();
