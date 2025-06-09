@@ -107,7 +107,7 @@ export function showThumbnailOverlay(targetElement, environment, onClick) {
         overlay.addEventListener(DDGVideoThumbnailOverlay.OVERLAY_CLICKED, onClick);
     }
 
-    targetElement.insertBefore(overlay, targetElement.firstChild);
+    targetElement.appendChild(overlay);
 
     return () => {
         document.querySelector(DDGVideoThumbnailOverlay.CUSTOM_TAG_NAME)?.remove();
