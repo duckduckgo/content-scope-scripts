@@ -35,7 +35,7 @@
     "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@types/chrome": "^0.0.326",
     "@types/jasmine": "^5.1.8",
-    "@types/node": "^22.15.29",
+    "@types/node": "^22.15.30",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "fast-check": "^4.1.1",
     "jasmine": "^5.7.1",
