@@ -72,8 +72,7 @@ export class DuckPlayerNativeYoutube {
         this.logger.log('Running media control handler. Pause:', pause);
 
         const videoElement = this.selectors?.videoElement;
-        // const videoElementContainer = this.selectors?.videoElementContainer;
-        const videoElementContainer = '#player-container-id'; // TODO: replace with remote config
+        const videoElementContainer = this.selectors?.videoElementContainer;
         if (!videoElementContainer || !videoElement) {
             this.logger.warn('Missing media control selectors in config');
             return;

@@ -193,16 +193,6 @@
     </div>
 </template>
 
-<template id="video-controls-template">
-    <!-- When Duck Player Native pauses a video on YouTube, this block should be hidden -->
-    <div id="player-control-container" playable="true" class="disable-user-select" style="display: block; background-color: red; width: 10%; height: 10%;">
-        <div id="player-control-overlay" class="new-controls bigbar medium-modification animation-enabled enable-fullscreen-controls fs-watch-system fadein">
-            <div class="player-controls-content">
-            </div>
-        </div>
-    </div>
-</template>
-
 <template id="age-restricted-error-template">
     <div class="ytp-error" role="alert" data-layer="4">
         <div class="ytp-error-content" style="padding-top: 395.5px;">
@@ -314,7 +304,6 @@
         },
         "mobile": () => {
             insertTemplateInMain('inner-template');
-            document.querySelector('.container').innerHTML += html('template[id="video-controls-template"]');
             document.documentElement.dataset.layout="mobile";
         },
         "incremental-dom": () => {

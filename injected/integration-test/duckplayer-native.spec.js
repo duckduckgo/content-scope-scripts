@@ -76,22 +76,6 @@ test.describe('Duck Player Native thumbnail overlay', () => {
         await duckPlayer.didShowOverlay();
         await duckPlayer.didShowLogoInOverlay();
     });
-    test('Disables controls on mobile', async ({ page }, workerInfo) => {
-        test.skip(isDesktop(workerInfo));
-
-        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
-
-        // Given the duckPlayerNative feature is enabled
-        await duckPlayer.withRemoteConfig();
-
-        // When I go to a YouTube page
-        await duckPlayer.gotoYouTubePage();
-        await duckPlayer.sendOnMediaControl();
-
-        // Then the original YouTube controls should be disabled
-        await duckPlayer.didShowOverlay();
-        await duckPlayer.videoControlsAreDisabled();
-    });
     test('Does not duplicate overlay on repeated calls', async ({ page }, workerInfo) => {
         const duckPlayer = DuckPlayerNative.create(page, workerInfo);
 

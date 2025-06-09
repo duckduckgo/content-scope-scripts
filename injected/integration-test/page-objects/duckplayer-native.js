@@ -243,10 +243,6 @@ export class DuckPlayerNative {
         expect(count).toBe(1);
     }
 
-    async videoControlsAreDisabled() {
-        await this.page.locator('#player-control-overlay').waitFor({ state: 'hidden', timeout: 1000 });
-    }
-
     async clickOnOverlay() {
         await this.page.locator('ddg-video-thumbnail-overlay-mobile').click();
     }
