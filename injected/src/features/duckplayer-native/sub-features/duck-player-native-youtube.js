@@ -1,8 +1,8 @@
 import { Logger, SideEffects } from '../../duckplayer/util.js';
 import { muteAudio } from '../mute-audio.js';
 import { pollTimestamp } from '../get-current-timestamp.js';
-import { stopVideoFromPlaying, disableVideoControls } from '../pause-video.js';
-import { appendThumbnailOverlay as showThumbnailOverlay } from '../overlays/thumbnail-overlay.js';
+import { stopVideoFromPlaying } from '../pause-video.js';
+import { showThumbnailOverlay } from '../overlays/thumbnail-overlay.js';
 
 /**
  * @import {DuckPlayerNativeMessages} from '../messages.js'
@@ -72,7 +72,8 @@ export class DuckPlayerNativeYoutube {
         this.logger.log('Running media control handler. Pause:', pause);
 
         const videoElement = this.selectors?.videoElement;
-        const videoElementContainer = this.selectors?.videoElementContainer;
+        // const videoElementContainer = this.selectors?.videoElementContainer;
+        const videoElementContainer = '#player-container-id'; // TODO: replace with remote config
         if (!videoElementContainer || !videoElement) {
             this.logger.warn('Missing media control selectors in config');
             return;
@@ -86,7 +87,6 @@ export class DuckPlayerNativeYoutube {
 
             if (pause) {
                 this.sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
-                this.sideEffects.add('disabling video controls', () => disableVideoControls(this.selectors?.playerControlsContainer));
                 this.sideEffects.add('appending thumbnail', () => {
                     const clickHandler = () => {
                         this.messages.notifyOverlayDismissed();
@@ -96,7 +96,6 @@ export class DuckPlayerNativeYoutube {
                 });
             } else {
                 this.sideEffects.destroy('stopping video from playing');
-                this.sideEffects.destroy('disabling video controls');
                 this.sideEffects.destroy('appending thumbnail');
             }
         }

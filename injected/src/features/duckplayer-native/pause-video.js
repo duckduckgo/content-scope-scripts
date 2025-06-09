@@ -29,30 +29,3 @@ export function stopVideoFromPlaying(videoSelector) {
         }
     };
 }
-
-/**
- * Disable the controls on a YouTube video
- *
- * @param {string} [controlsSelector]
- * @returns {() => void} A function that re-enables the controls
- */
-export function disableVideoControls(controlsSelector) {
-    if (!controlsSelector) {
-        return () => {};
-    }
-
-    let displayState;
-
-    const controls = /** @type {HTMLDivElement} */ (document.querySelector(controlsSelector));
-    if (controls?.isConnected) {
-        displayState = controls.style.display;
-        controls.style.display = 'none';
-    }
-
-    return () => {
-        const controls = /** @type {HTMLDivElement} */ (document.querySelector(controlsSelector));
-        if (controls?.isConnected) {
-            controls.style.display = displayState;
-        }
-    };
-}
