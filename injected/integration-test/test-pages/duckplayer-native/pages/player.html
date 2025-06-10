@@ -215,6 +215,50 @@
     </div>
 </template>
 
+<template id="no-embed-error-template">
+    <div class="ytp-error" role="alert" data-layer="4">
+        <div class="ytp-error-content" style="padding-top: 395.5px;">
+            <div class="ytp-error-icon-container"><svg fill="#fff" viewBox="0 0 48 48">
+                    <path d="M0 0h48v48H0V0z" fill="none"></path>
+                    <path
+                        d="M22 30h4v4h-4zm0-16h4v12h-4zm1.99-10C12.94 4 4 12.95 4 24s8.94 20 19.99 20S44 35.05 44 24 35.04 4 23.99 4zM24 40c-8.84 0-16-7.16-16-16S15.16 8 24 8s16 7.16 16 16-7.16 16-16 16z"
+                        fill-opacity="0.7"></path>
+                </svg></div>
+            <div class="ytp-error-content-wrap">
+                <div class="ytp-error-content-wrap-reason"><span><span>The uploader has not made this video available in your country
+                </span><a href="//support.google.com/youtube/answer/2802167?hl=en"
+                            target="_blank">Learn more</a></span></div>
+                <div class="ytp-error-content-wrap-subreason">
+                    <div><a href="http://www.youtube.com/watch?v=PGaO6KUR9fk" target="TARGET_NEW_WINDOW">Watch on
+                            YouTube</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="unknown-error-template">
+    <div class="ytp-error" role="alert" data-layer="4">
+        <div class="ytp-error-content" style="padding-top: 395.5px;">
+            <div class="ytp-error-icon-container"><svg fill="#fff" viewBox="0 0 48 48">
+                    <path d="M0 0h48v48H0V0z" fill="none"></path>
+                    <path
+                        d="M22 30h4v4h-4zm0-16h4v12h-4zm1.99-10C12.94 4 4 12.95 4 24s8.94 20 19.99 20S44 35.05 44 24 35.04 4 23.99 4zM24 40c-8.84 0-16-7.16-16-16S15.16 8 24 8s16 7.16 16 16-7.16 16-16 16z"
+                        fill-opacity="0.7"></path>
+                </svg></div>
+            <div class="ytp-error-content-wrap">
+                <div class="ytp-error-content-wrap-reason"><span><span>This video isn't available anymore
+                </span><a href="//support.google.com/youtube/answer/2802167?hl=en"
+                            target="_blank">Learn more</a></span></div>
+                <div class="ytp-error-content-wrap-subreason">
+                    <div><a href="http://www.youtube.com/watch?v=PGaO6KUR9fk" target="TARGET_NEW_WINDOW">Watch on
+                            YouTube</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
 <template id="sign-in-error-template">
     <div class="ytp-error" role="alert" data-layer="4">
         <div class="ytp-error-content" style="padding-top: 395.5px;">
@@ -322,7 +366,45 @@
                 insertTemplateInMain('playlist-template');
             }, 200);
             setTimeout(() => {
+                // Simulate conditions for this error in YouTube config object
+                window.ytcfg = {
+                    get: () => ({
+                        embedded_player_response: JSON.stringify({
+                            previewPlayabilityStatus: { desktopLegacyAgeGateReason: 1, status: 'UNPLAYABLE' }
+                        })
+                    })
+                };
                 insertTemplateInVideo('age-restricted-error-template');
+            }, 300);
+        },
+        "no-embed-error": () => {
+            main.innerHTML += `<div class="container"><div id="player"></div></div>`
+            setTimeout(() => {
+                insertHTMLVideoPlayer();
+                insertTemplateInMain('related-template');
+                insertTemplateInMain('playlist-template');
+            }, 200);
+            setTimeout(() => {
+                // Simulate conditions for this error in YouTube config object
+                window.ytcfg = {
+                    get: () => ({
+                        embedded_player_response: JSON.stringify({
+                            previewPlayabilityStatus: { status: 'UNPLAYABLE' }
+                        })
+                    })
+                };
+                insertTemplateInVideo('no-embed-error-template');
+            }, 300);
+        },
+        "unknown-error": () => {
+            main.innerHTML += `<div class="container"><div id="player"></div></div>`
+            setTimeout(() => {
+                insertHTMLVideoPlayer();
+                insertTemplateInMain('related-template');
+                insertTemplateInMain('playlist-template');
+            }, 200);
+            setTimeout(() => {
+                insertTemplateInVideo('unknown-error-template');
             }, 300);
         },
         "sign-in-error": () => {

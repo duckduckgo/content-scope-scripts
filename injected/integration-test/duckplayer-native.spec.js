@@ -118,19 +118,6 @@ test.describe('Duck Player Native thumbnail overlay', () => {
 });
 
 test.describe('Duck Player Native custom error view', () => {
-    test('Shows age-restricted error', async ({ page }, workerInfo) => {
-        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
-
-        // Given the duckPlayerNative feature is enabled
-        await duckPlayer.withRemoteConfig();
-
-        // When I go to a YouTube page with an age-restricted error
-        await duckPlayer.gotoAgeRestrictedErrorPage();
-
-        // Then I should see the generic error screen
-        await duckPlayer.didShowGenericError();
-    });
-
     test('Shows sign-in error', async ({ page }, workerInfo) => {
         const duckPlayer = DuckPlayerNative.create(page, workerInfo);
 
@@ -142,5 +129,44 @@ test.describe('Duck Player Native custom error view', () => {
 
         // Then I should see the generic error screen
         await duckPlayer.didShowSignInError();
+    });
+
+    test('Shows age-restricted error', async ({ page }, workerInfo) => {
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+
+        // Given the duckPlayerNative feature is enabled
+        await duckPlayer.withRemoteConfig();
+
+        // When I go to a YouTube page with an age-restricted error
+        await duckPlayer.gotoAgeRestrictedErrorPage();
+
+        // Then I should see the generic error screen
+        await duckPlayer.didShowAgeRestrictedError();
+    });
+
+    test('Shows no-embed error', async ({ page }, workerInfo) => {
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+
+        // Given the duckPlayerNative feature is enabled
+        await duckPlayer.withRemoteConfig();
+
+        // When I go to a YouTube page with an age-restricted error
+        await duckPlayer.gotoNoEmbedErrorPage();
+
+        // Then I should see the generic error screen
+        await duckPlayer.didShowNoEmbedError();
+    });
+
+    test('Shows generic/unknown error', async ({ page }, workerInfo) => {
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+
+        // Given the duckPlayerNative feature is enabled
+        await duckPlayer.withRemoteConfig();
+
+        // When I go to a YouTube page with an age-restricted error
+        await duckPlayer.gotoUnknownErrorPage();
+
+        // Then I should see the generic error screen
+        await duckPlayer.didShowUnknownError();
     });
 });
