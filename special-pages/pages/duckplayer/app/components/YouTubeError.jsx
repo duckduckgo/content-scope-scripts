@@ -21,8 +21,8 @@ import { useLocale, useYouTubeError } from '../providers/YouTubeErrorProvider';
 function useErrorStrings(youtubeError) {
     const { t } = useTypedTranslation();
 
-    // v2 is currently used everywhere. Keeping the versioning setup in place in case we need it in the future.
-    const version = 'v2'; // All locales use v2 for now
+    // This versioning setup exists in case we need to experiment with copy variants in the future. At the moment, v2 is used everywhere.
+    const version = 'v2';
 
     /**
      * @type {Record<string, Partial<Record<YouTubeError, ErrorStrings>>  & { unknown: ErrorStrings }>}
