@@ -3,7 +3,16 @@ import { Logger } from '../../duckplayer/util.js';
 import { createPolicy, html } from '../../../dom-utils.js';
 import { customElementsDefine, customElementsGet } from '../../../captured-globals.js';
 
-/** @import {YouTubeError} from '../error-detection' */
+/**
+ * @import {YouTubeError} from '../error-detection'
+ * @import {TranslationFn} from '../../duck-player-native.js'
+ **/
+
+/**
+ * @typedef ErrorStrings
+ * @property {string} title
+ * @property {string[]} messages
+ */
 
 /**
  * The custom element that we use to present our UI elements
@@ -79,19 +88,31 @@ export class CustomError extends HTMLElement {
 
 /**
  * @param {YouTubeError} errorId
- * @param {Record<string, string>} t - Localized strings from environment
+ * @param {TranslationFn} t - Translation function
+ * @returns {ErrorStrings}
  */
 function getErrorStrings(errorId, t) {
     switch (errorId) {
         case 'sign-in-required':
             return {
-                title: t.blockedVideoErrorHeading,
-                messages: [t.signInRequiredErrorMessage1, t.signInRequiredErrorMessage2],
+                title: t('signInRequiredErrorHeading2'),
+                messages: [t('signInRequiredErrorMessage2a'), t('signInRequiredErrorMessage2b')],
             };
+        case 'age-restricted':
+            return {
+                title: t('ageRestrictedErrorHeading2'),
+                messages: [t('ageRestrictedErrorMessage2a'), t('ageRestrictedErrorMessage2b')],
+            };
+        case 'no-embed':
+            return {
+                title: t('noEmbedErrorHeading2'),
+                messages: [t('noEmbedErrorMessage2a'), t('noEmbedErrorMessage2b')],
+            };
+        case 'unknown':
         default:
             return {
-                title: t.blockedVideoErrorHeading,
-                messages: [t.blockedVideoErrorMessage1, t.blockedVideoErrorMessage2],
+                title: t('unknownErrorHeading2'),
+                messages: [t('unknownErrorMessage2a'), t('unknownErrorMessage2b')],
             };
     }
 }
@@ -101,9 +122,10 @@ function getErrorStrings(errorId, t) {
  * @param {HTMLElement} targetElement
  * @param {YouTubeError} errorId
  * @param {import('../../duckplayer/environment.js').Environment} environment
+ * @param {TranslationFn} t - Translation function
  */
-export function showError(targetElement, errorId, environment) {
-    const { title, messages } = getErrorStrings(errorId, environment.strings('native.json'));
+export function showError(targetElement, errorId, environment, t) {
+    const { title, messages } = getErrorStrings(errorId, t);
     const logger = new Logger({
         id: 'CUSTOM_ERROR',
         shouldLog: () => environment.isTestMode(),
