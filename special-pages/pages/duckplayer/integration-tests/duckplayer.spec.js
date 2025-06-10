@@ -147,6 +147,18 @@ test.describe('duckplayer custom error', () => {
         test.skip(isDesktop(workerInfo));
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithYouTubeError('age-restricted', 'e90eWYPNtJ8', 'es');
+        await duckplayer.didShowAgeRestrictedErrorInSpanish();
+    });
+    test('shows custom error screen, in Spanish, for videos that can’t be embedded', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('no-embed', 'e90eWYPNtJ8', 'es');
+        await duckplayer.didShowNoEmbedErrorInSpanish();
+    });
+    test('shows custom error screen, in Spanish, for videos with unknown errors', async ({ page }, workerInfo) => {
+        test.skip(isDesktop(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('unknown', 'e90eWYPNtJ8', 'es');
         await duckplayer.didShowGenericErrorInSpanish();
     });
 });
