@@ -33,7 +33,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "malwareWarningText" : {
-    "title" : "DuckDuckGo bloķēja šo lapu, jo tajā, iespējams, tiek izplatīta ļaunprātīga programmatūra, kas paredzēta, lai apdraudētu tavu ierīci vai nozagtu tavu personisko informāciju.{newline}<a>Uzzini vairāk</a>",
+    "title" : "DuckDuckGo Scam Blocker bloķēja šo lapu, jo tajā, iespējams, tiek izplatīta ļaunprātīga programmatūra, kas paredzēta, lai apdraudētu tavu ierīci vai nozagtu tavu personisko informāciju.{newline}<a>Uzzini vairāk</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
@@ -45,7 +45,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "phishingWarningText" : {
-    "title" : "Iespējams, ka šī vietne uzdodas par likumīgu vietni, lai tevi maldinātu un izvilinātu personisku informāciju, piemēram, paroles vai kredītkartes numurus.{newline}<a>Uzzini vairāk</a>",
+    "title" : "DuckDuckGo Scam Blocker bloķēja šo lapu, jo tā var uzdoties par likumīgu vietni, lai tevi maldinātu un izvilinātu personisko informāciju, piemēram, paroles vai kredītkaršu numurus.{newline}<a>Uzzini vairāk</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
@@ -57,7 +57,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "scamWarningText" : {
-    "title" : "DuckDuckGo bloķēja šo lapu, jo tā, iespējams, mēģina tevi apkrāpt vai manipulēt ar tevi, lai tu pārskaitītu naudu, iegādātos viltotas preces vai maldināšanas rezultātā instalētu ļaunprātīgu programmatūru.{newline}<a>Uzzini vairāk</a>",
+    "title" : "DuckDuckGo Scam Blocker bloķēja šo lapu, jo tā, iespējams, mēģina tevi maldināt vai manipulēt, lai tu pārskaitītu naudu, iegādātos viltotas preces vai ar viltu instalētu ļaunprātīgu programmatūru.{newline}<a>Uzzini vairāk</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "scamAdvancedInfoHeading" : {

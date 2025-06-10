@@ -33,7 +33,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "malwareWarningText" : {
-    "title" : "Το DuckDuckGo μπλόκαρε αυτήν τη σελίδα επειδή μπορεί να διανέμει κακόβουλο λογισμικό, το οποίο έχει σχεδιαστεί για να θέσει σε κίνδυνο τη συσκευή σας ή να υποκλέψει τα προσωπικά στοιχεία σας.{newline}<a>Μάθετε περισσότερα</a>",
+    "title" : "Το DuckDuckGo Πρόγραμμα αποκλεισμού απάτης απέτρεψε τη φόρτωση της σελίδας αυτής καθώς ενδέχεται να διανέμει κακόβουλο λογισμικό, το οποίο έχει σχεδιαστεί για να θέσει σε κίνδυνο τη συσκευή σας ή να υποκλέψει τα προσωπικά στοιχεία σας.{newline}<a>Μάθετε περισσότερα</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
@@ -45,7 +45,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "phishingWarningText" : {
-    "title" : "Ο ιστότοπος αυτός μπορεί να υποδύεται έναν νόμιμο ιστότοπο προκειμένου να σας εξαπατήσει ώστε να παράσχετε προσωπικές πληροφορίες, όπως κωδικούς πρόσβασης ή αριθμούς πιστωτικών καρτών.{newline}<a>Μάθετε περισσότερα</a>",
+    "title" : "Το DuckDuckGo Πρόγραμμα αποκλεισμού απάτης εμπόδισε τη φόρτωση αυτής της σελίδας επειδή μπορεί να υποδύεται έναν νόμιμο ιστότοπο προκειμένου να σας εξαπατήσει να παράσχετε προσωπικές πληροφορίες, όπως κωδικούς πρόσβασης ή αριθμούς πιστωτικών καρτών.{newline}<a>Μάθετε περισσότερα</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
@@ -57,7 +57,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "scamWarningText" : {
-    "title" : "Το DuckDuckGo απέκλεισε αυτήν τη σελίδα επειδή μπορεί να προσπαθεί να σας εξαπατήσει ή να σας χειραγωγήσει για να μεταφέρετε χρήματα, να αγοράσετε παραποιημένα προϊόντα ή να εγκαταστήσετε κακόβουλο λογισμικό με ψευδείς προφάσεις.{newline}<a>Μάθετε περισσότερα</a>",
+    "title" : "Το DuckDuckGo Πρόγραμμα αποκλεισμού απάτης απέκλεισε αυτήν τη σελίδα επειδή ίσως προσπαθεί να σας εξαπατήσει ή να σας χειραγωγήσει για να μεταφέρετε χρήματα, να αγοράσετε παραποιημένα προϊόντα ή να εγκαταστήσετε κακόβουλο λογισμικό με ψευδείς προφάσεις.{newline}<a>Μάθετε περισσότερα</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "scamAdvancedInfoHeading" : {
