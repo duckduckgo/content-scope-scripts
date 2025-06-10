@@ -1,1 +1,3 @@
-- Device enumeration blocking WebCompat feature (#1724)
+- Duck Player custom error translations (#1732)
+- Duck Player Native pausing bugs (#1705)
+- Scam Blocker translations (#1733)

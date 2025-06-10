@@ -7,7 +7,6 @@ import { useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
 
 import styles from './YouTubeError.module.css';
 import { useLocale, useYouTubeError } from '../providers/YouTubeErrorProvider';
-import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 
 /**
  * @typedef {import('../../types/duckplayer').YouTubeError} YouTubeError
@@ -17,11 +16,13 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 
 /**
  * @param {YouTubeError} youtubeError
- * @param {string} locale
  * @returns {ErrorStrings}
  */
-function useErrorStrings(youtubeError, locale) {
+function useErrorStrings(youtubeError) {
     const { t } = useTypedTranslation();
+
+    // This versioning setup exists in case we need to experiment with copy variants in the future. At the moment, v2 is used everywhere.
+    const version = 'v2';
 
     /**
      * @type {Record<string, Partial<Record<YouTubeError, ErrorStrings>>  & { unknown: ErrorStrings }>}
@@ -63,8 +64,6 @@ function useErrorStrings(youtubeError, locale) {
         },
     };
 
-    const version = locale === 'en' ? 'v2' : 'v1';
-
     return versions[version]?.[youtubeError] || versions[version]?.['unknown'] || versions['v1']['unknown'];
 }
 
@@ -75,14 +74,13 @@ function useErrorStrings(youtubeError, locale) {
  */
 export function YouTubeError({ layout, embed }) {
     const youtubeError = useYouTubeError();
-    const locale = useLocale();
     if (!youtubeError) {
         return null;
     }
 
     const { t } = useTypedTranslation();
     const openOnYoutube = useOpenOnYoutubeHandler();
-    const { heading, messages, variant } = useErrorStrings(youtubeError, locale);
+    const { heading, messages, variant } = useErrorStrings(youtubeError);
     const classes = cn(styles.error, {
         [styles.desktop]: layout === 'desktop',
         [styles.mobile]: layout === 'mobile',
