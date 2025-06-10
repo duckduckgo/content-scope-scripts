@@ -1,6 +1,8 @@
 /**
+ * Pause a YouTube video
  *
  * @param {string} videoSelector
+ * @returns {() => void} A function that allows the video to play again
  */
 export function stopVideoFromPlaying(videoSelector) {
     /**
