@@ -444,6 +444,7 @@ export function mockTransport() {
                         { id: 'rmf' },
                         { id: 'freemiumPIRBanner' },
                         { id: 'nextSteps' },
+                        { id: 'search' },
                         { id: 'favorites' },
                     ];
 

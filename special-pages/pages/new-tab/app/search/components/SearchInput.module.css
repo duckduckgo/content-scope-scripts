@@ -1,0 +1,140 @@
+.root {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    border-radius: 16px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 16px;
+    padding: 8px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/*@keyframes grow-y {*/
+/*    from {*/
+/*        transform: scaleY(0);*/
+/*    }*/
+/*    to {*/
+/*        transform: scaleY(1);*/
+/*    }*/
+/*}*/
+
+/*@keyframes shrink-y {*/
+/*    from {*/
+/*        transform: scaleY(1);*/
+/*    }*/
+/*    to {*/
+/*        transform: scaleY(0);*/
+/*    }*/
+/*}*/
+
+/*::view-transition-old(search-input-transition) {*/
+/*    animation: 0.25s linear both shrink-y;*/
+/*}*/
+
+::view-transition-new(search-input-transition) {
+    animation: 0.25s grow-y;
+}
+
+.searchContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 32px;
+}
+
+.searchInput {
+    flex: 1;
+    height: 32px;
+    padding: 0;
+    padding: 0 8px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+    color: #202124;
+    background-color: transparent;
+}
+
+.searchInput::placeholder {
+    color: #9aa0a6;
+}
+
+.searchActions {
+    display: flex;
+    align-items: center;
+}
+
+.searchTypeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 32px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 0;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    svg[data-name="duckai"] {
+        color: var(--color-black-at-84);
+    }
+}
+
+.searchTypeButton:hover {
+    background-color: rgba(60, 64, 67, 0.08);
+}
+
+.searchTypeButton.active {
+    color: #1a73e8;
+}
+
+.separator {
+    height: 24px;
+    width: 1px;
+    background-color: #dadce0;
+    margin: 0 8px;
+}
+
+.secondaryControls {
+    height: 40px;
+    display: flex;
+    gap: 8px;
+}
+
+.squareButton {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 0;
+    border-radius: 8px;
+    position: relative;
+    svg {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.submit {
+    background-color: var(--duckai-purple);
+    color: #fff;
+    position: relative;
+    top: 4px;
+}
+
+.buttonSecondary {
+    background-color: rgba(0, 0, 0, 0.06);
+    color: var(--color-black-at-84);
+}
