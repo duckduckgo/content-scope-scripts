@@ -1,6 +1,7 @@
 import ContentFeature from '../content-feature.js';
 import { isBeingFramed } from '../utils.js';
 import { setCookie } from './Scriptlets/src/scriptlets/set-cookie.js';
+import { trustedSetCookie } from './Scriptlets/src/scriptlets/trusted-set-cookie.js';
 import { setCookieReload } from './Scriptlets/src/scriptlets/set-cookie-reload.js';
 import { removeCookie } from './Scriptlets/src/scriptlets/remove-cookie.js';
 import { setConstant } from './Scriptlets/src/scriptlets/set-constant.js';
@@ -21,12 +22,13 @@ export class Scriptlets extends ContentFeature {
         }
         /* @type {import('./Scriptlets/src/scriptlets/scriptlets.ts').Source} */
         const source = {
-            verbose: true
+            verbose: false
         };
-        // TODO populate source
 
         const scriptlets = this.getFeatureSetting('scriptlets');
         for (const scriptlet of scriptlets) {
+            source.name = scriptlet.name
+            source.args = Object.values(scriptlet.attrs)
             this.runScriptlet(scriptlet, source);
         }
     }
@@ -36,12 +38,15 @@ export class Scriptlets extends ContentFeature {
 
         // add debug flag to site breakage reports
         this.addDebugFlag();
-        
+
         if (scriptlet.name === 'setCookie') {
             setCookie(source, attrs.name, attrs.value, attrs.path, attrs.domain);
         }
+        if (scriptlet.name === 'trustedSetCookie') {
+            trustedSetCookie(source, attrs.name, attrs.value, attrs.path, attrs.domain);
+        }
         if (scriptlet.name === 'setCookieReload') {
-            setCookie(source, attrs.name, attrs.value, attrs.path, attrs.domain);
+            setCookieReload(source, attrs.name, attrs.value, attrs.path, attrs.domain);
         }
         if (scriptlet.name === 'removeCookie') {
             removeCookie(source, attrs.match);

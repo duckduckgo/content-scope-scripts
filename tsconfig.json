@@ -37,6 +37,7 @@
     "injected/integration-test/test-pages",
     "injected/playwright-report",
     "injected/integration-test/extension",
+    "injected/src/features/Scriptlets",
     "special-pages/pages/**/public",
     "special-pages/playwright-report",
     "special-pages/test-results",
