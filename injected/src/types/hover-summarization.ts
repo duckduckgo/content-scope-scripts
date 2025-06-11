@@ -17,23 +17,35 @@ export interface HoverSummarizationMessages {
  */
 export interface HoverSummarizationRequest {
   method: "hover-summarization";
-  params: HoverSummarization;
+  params: HoverSummarizationRequestParams;
   result: HoverSummarizationResponse;
 }
 /**
  * Request to native device to fetch hover summaries of supplied URL
  */
-export interface HoverSummarization {
+export interface HoverSummarizationRequestParams {
   /**
-   * URL to fetch hover summary for
+   * URL to fetch hover summary data for
    */
   url?: string;
 }
 export interface HoverSummarizationResponse {
   data: {
+    /**
+     * The title of the page being summarized.
+     */
     title?: string;
+    /**
+     * The URL of the favicon for the page.
+     */
     favicon?: string;
+    /**
+     * A brief summary of the page content.
+     */
     summary?: string;
+    /**
+     * An error message if the summarization failed, otherwise null.
+     */
     error?: null | string;
   };
 }

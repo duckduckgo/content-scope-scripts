@@ -8,11 +8,11 @@ export default class HoverSummarization extends ContentFeature {
     }
 
     init(args) {
-        if (args.platform && args.platform.name === 'windows') {
-            this.injectHoverSummarization();
-        } else {
-            console.log('not injecting hover summarization, platform is not windows');
+        console.log({ args });
+        if (!this.messaging) {
+            throw new Error('cannot operate duck player without a messaging backend');
         }
+        this.injectHoverSummarization();
     }
 
     update() {}
@@ -29,8 +29,8 @@ export default class HoverSummarization extends ContentFeature {
             link.addEventListener('mouseenter', () => {
                 // Start a timer when the mouse enters the link
                 hoverTimer = setTimeout(() => {
-                    // This function will be called after 1 second of hovering
-                    console.log('Hovered for 1 second. Press Shift + Alt to activate.');
+                    // This function will be called after half second of hovering
+                    console.log('Link Hovered. Press Shift to activate summarization.');
                 }, 500);
             });
 
@@ -40,11 +40,11 @@ export default class HoverSummarization extends ContentFeature {
             });
 
             // Listen for keydown events
-            document.addEventListener('keydown', (event) => {
+            document.addEventListener('keydown', async (event) => {
                 // Check if Shift is pressed & hover timer has completed, add summary card
                 if (event.shiftKey && hoverTimer) {
                     try {
-                        this.messaging.request('hover-summarization', { url: link.getAttribute('href') });
+                        await this.messaging.request('hover-summarization', { url: link.getAttribute('href') });
                         const locationRect = link.getBoundingClientRect();
                         // Step 1: Create a new element
                         const summaryCard = document.createElement('div');

@@ -8,16 +8,20 @@
         "type": "object",
         "properties": {
             "title": {
-                "type": "string"
+                "type": "string",
+                "description": "The title of the page being summarized."
             },
             "favicon": {
-                "type": "string"
+                "type": "string",
+                "description": "The URL of the favicon for the page."
             },
             "summary": {
-                "type": "string"
+                "type": "string",
+                "description": "A brief summary of the page content."
             },
             "error": {
-                "type": ["null", "string"]
+                "type": ["null", "string"],
+                "description": "An error message if the summarization failed, otherwise null."
             }
         }
       }
