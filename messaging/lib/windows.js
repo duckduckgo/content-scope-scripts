@@ -55,6 +55,7 @@ export class WindowsMessagingTransport {
      * @return {Promise<any>}
      */
     request(msg, opts = {}) {
+        console.log({ msg, opts });
         // convert the message to window-specific naming
         const data = this.globals.JSONparse(this.globals.JSONstringify(msg.params || {}));
         const outgoing = WindowsRequestMessage.fromRequest(msg, data);

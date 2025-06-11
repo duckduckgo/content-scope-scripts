@@ -28,6 +28,7 @@ const otherFeatures = /** @type {const} */ ([
     'breakageReporting',
     'autofillPasswordImport',
     'favicon',
+    'hoverSummarization',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -55,6 +56,7 @@ export const platformSupport = {
         'breakageReporting',
         'messageBridge',
         'webCompat',
+        'hoverSummarization',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],

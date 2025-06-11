@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "name": "HoverSummarizationResponse",
+    "required": ["data"],
+    "properties": {
+      "data": {
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string"
+            },
+            "favicon": {
+                "type": "string"
+            },
+            "summary": {
+                "type": "string"
+            },
+            "error": {
+                "type": ["null", "string"]
+            }
+        }
+      }
+    }
+}
