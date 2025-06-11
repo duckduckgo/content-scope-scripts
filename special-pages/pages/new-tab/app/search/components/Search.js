@@ -17,8 +17,8 @@ export function Search() {
     return (
         <div class={styles.root}>
             <div class={styles.icons}>
-                <img class={styles.iconSearch} src="/icons/search/Logo.svg" alt="Search" />
-                <img class={styles.iconText} src="/icons/search/Logotype.svg" alt="Search" />
+                <img class={styles.iconSearch} src="./icons/search/Logo.svg" alt="Search" />
+                <img class={styles.iconText} src="./icons/search/Logotype.svg" alt="Search" />
             </div>
             <div class={styles.wrap}>
                 <div class={styles.pillSwitcher}>
