@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Hover Summarization Test Page</title>
+    <style>
+        *, *:before, *:after {
+            box-sizing: border-box;
+        }
+        body {
+            max-width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+    </style>
+</head>
+<body>
+
+<main>
+    This is a test page for hover summarization.
+    <ul>
+        <li><a href="https://www.duckduckgo.com">DuckDuckGo</a></li>
+        <li><a href="https://www.youtube.com">YouTube</a></li>
+        <li><a href="https://www.wikipedia.org">Wikipedia</a></li>
+        <li><a href="https://www.reddit.com">Reddit</a></li>
+        <li><a href="https://www.twitter.com">Twitter</a></li>
+        <li><a href="https://www.facebook.com">Facebook</a></li>
+        <li><a href="https://www.instagram.com">Instagram</a></li>
+    </ul>
+</main>
+
+<script>
+    (async () => {
+        settings = {
+            "unprotectedTemporary": [],
+            "features": {
+                "hoverSummarization": {
+                    "state": "enabled",
+                    "exceptions": [],
+                    "settings": {}
+                }
+            }
+        }
+
+        if (!new URLSearchParams(location.search).has('preview')) {
+            console.log('Not previewing');
+            return;
+        }
+        const platformName = new URLSearchParams(window.location.search).get('platform') || 'macos';
+        const locale = new URLSearchParams(window.location.search).get('locale') || 'en';
+
+        await import("/build/contentScope.js").catch(console.error);
+
+        const initArgs = {
+            detail: {
+                debug: true,
+                locale: locale,
+                platform: {
+                    name: platformName,
+                },
+                site: {
+                    domain: location.hostname,
+                    isBroken: false,
+                    allowlisted: false,
+                    enabledFeatures: [
+                        'hoverSummarization',
+                    ]
+                },
+                featureSettings: {
+                    hoverSummarization: settings.features.hoverSummarization.settings,
+                }
+            }
+        };
+        console.log('Dispatching event content-scope-init-args', initArgs);
+        document.dispatchEvent(new CustomEvent('content-scope-init-args', initArgs));
+    })();
+</script>
+
+</body>
+</html>
