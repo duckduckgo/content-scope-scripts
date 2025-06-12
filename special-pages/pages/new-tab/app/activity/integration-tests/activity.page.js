@@ -1,5 +1,5 @@
 import { activityMocks } from '../mocks/activity.mocks.js';
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { generateSampleData } from '../mocks/activity.mock-transport.js';
 
 /**
@@ -44,7 +44,7 @@ export class ActivityPage {
     }
 
     context() {
-        return this.page.locator('[data-entry-point="activity"]');
+        return this.page.locator('[data-entry-point="protections"] [data-testid="Activity"]');
     }
 
     rows() {
@@ -75,6 +75,10 @@ export class ActivityPage {
 
     async didRender() {
         await this.context().waitFor();
+    }
+
+    async ready() {
+        await this.ntp.mocks.waitForCallCount({ method: 'activity_getData', count: 1 });
     }
 
     async cannotExpandListWhenEmpty() {
@@ -146,18 +150,20 @@ export class ActivityPage {
         // control: ensure we have 5 first
         await expect(this.context().getByTestId('ActivityItem')).toHaveCount(5);
 
-        // burn 1 item in the list
-        await this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' }).click();
+        await test.step('burn 1 item in the list', async () => {
+            await this.context().getByRole('button', { name: 'Clear browsing history and data for example.com' }).click();
+        });
 
-        // assert the confirm was sent
-        const result = await this.ntp.mocks.waitForCallCount({ method: 'activity_confirmBurn', count: 1 });
-        expect(result[0].payload).toMatchObject({
-            context: 'specialPages',
-            featureName: 'newTabPage',
-            method: 'activity_confirmBurn',
-            params: {
-                url: 'https://example.com',
-            },
+        await test.step('assert the activity_confirmBurn was sent', async () => {
+            const result = await this.ntp.mocks.waitForCallCount({ method: 'activity_confirmBurn', count: 1 });
+            expect(result[0].payload).toMatchObject({
+                context: 'specialPages',
+                featureName: 'newTabPage',
+                method: 'activity_confirmBurn',
+                params: {
+                    url: 'https://example.com',
+                },
+            });
         });
 
         // simulate a small delay from native
@@ -348,7 +354,7 @@ export class ActivityPage {
               - img
             - button "Clear browsing history and data for example.com":
               - img
-            - text: +1 56 ads + Tracking attempts blocked
+            - text: +1 56 ads + tracking attempts blocked
             - list:
               - listitem:
                 - link "/bathrooms/toilets"
@@ -365,7 +371,7 @@ export class ActivityPage {
               - img
             - button "Clear browsing history and data for twitter.com":
               - img
-            - paragraph: No ads + Tracking attempts blocked
+            - paragraph: No ads + tracking attempts blocked
             - list:
               - listitem:
                 - link "Trending Topics"
@@ -379,7 +385,7 @@ export class ActivityPage {
               - img
             - button "Clear browsing history and data for app.linkedin.com":
               - img
-            - paragraph: No ads + Tracking attempts found
+            - paragraph: No ads + tracking attempts found
             - list:
               - listitem:
                 - link "Profile Page"
@@ -420,10 +426,19 @@ export class ActivityPage {
         const { page } = this;
         await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
             - img "Privacy Shield"
-            - heading "Total of 0 ads & tracking attempts blocked" [level=2]
+            - heading "0 advertising & tracking attempts blocked" [level=2]
             - button "Hide recent activity" [expanded] [pressed]:
               - img
             - paragraph: Past 7 days
         `);
+    }
+
+    async hasTrackingInfoWithoutButtons() {
+        const { page } = this;
+        await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
+          - img "Privacy Shield"
+          - heading "56 tracking attempts blocked" [level=2]
+          - paragraph: Past 7 days
+      `);
     }
 }

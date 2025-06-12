@@ -6,7 +6,8 @@ Serve the entire folder found under `build/<PLATFORM>/pages/release-notes`
 
 So far, the following platforms are supported
 
-- macOS
+- macOS (Sparkle build only)
+- Windows
 
 ---
 

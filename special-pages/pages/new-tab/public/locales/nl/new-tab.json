@@ -40,6 +40,22 @@
     "title" : "Negeren",
     "note" : "Button label text for an action that removes the widget from the screen."
   },
+  "protections_menuTitle" : {
+    "title" : "Beschermingsrapport",
+    "note" : "Used as a label in the main navigation menu. 'Protections' refers to the privacy features that block trackers."
+  },
+  "protections_statsSwitchTitle" : {
+    "title" : "Overzicht",
+    "note" : "Used as a label in a toggle switch that shows aggregated privacy statistics. This is one of two options in a view selector (the other is 'Details')."
+  },
+  "protections_activitySwitchTitle" : {
+    "title" : "Details",
+    "note" : "Used as a label in a toggle switch that shows recent browsing activity with tracking information. This is one of two options in a view selector (the other is 'Summary')."
+  },
+  "protections_noRecent" : {
+    "title" : "Geen recente trackingactiviteit",
+    "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
+  },
   "stats_menuTitle" : {
     "title" : "Geblokkeerde trackingpogingen",
     "note" : "Used as a label in a customization menu"
@@ -63,6 +79,22 @@
   "stats_countBlockedPlural" : {
     "title" : "{count} trackingpogingen geblokkeerd",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "stats_noActivityAdsAndTrackers" : {
+    "title" : "DuckDuckGo blokkeert advertenties en trackingpogingen terwijl je surft. Bezoek een paar sites om te zien hoeveel pogingen we blokkeren!",
+    "note" : "Placeholder for when we cannot report any blocked ads and trackers yet"
+  },
+  "stats_noRecentAdsAndTrackers" : {
+    "title" : "Bescherming actief",
+    "note" : "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
+  },
+  "stats_countBlockedAdsAndTrackersSingular" : {
+    "title" : "<b>1</b> advertentie- en trackingpoging geblokkeerd",
+    "note" : "The main headline indicating that a single ad or tracking attempt was blocked"
+  },
+  "stats_countBlockedAdsAndTrackersPlural" : {
+    "title" : "<b>{count}</b> advertentie- en trackingpogingen geblokkeerd",
+    "note" : "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
   },
   "stats_feedCountBlockedSingular" : {
     "title" : "1 poging geblokkeerd door DuckDuckGo in de afgelopen 7 dagen",
@@ -276,7 +308,7 @@
     "title" : "Geen recente browse-activiteit",
     "note" : "Placeholder to indicate that no browsing activity was seen in the last 7 days"
   },
-  "activity_noRecent_subtitle" : {
+  "activity_empty" : {
     "title" : "Onlangs bezochte websites verschijnen hier. Blijf browsen om te zien hoeveel trackers we blokkeren.",
     "note" : "Shown in the place a list of browsing history entries will be displayed."
   },
@@ -291,6 +323,22 @@
   "activity_countBlockedPlural" : {
     "title" : "<b>{count}</b> trackingpogingen geblokkeerd",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_noRecentAdsAndTrackers_subtitle" : {
+    "title" : "Onlangs bezochte websites verschijnen hier. Blijf browsen om te zien hoeveel advertenties en trackers we blokkeren.",
+    "note" : "Shown in the place a list of browsing history entries will be displayed."
+  },
+  "activity_no_adsAndTrackers" : {
+    "title" : "Geen advertenties + trackingpogingen gevonden",
+    "note" : "Placeholder message indicating that no ads and trackers are detected"
+  },
+  "activity_no_adsAndTrackers_blocked" : {
+    "title" : "Geen advertenties + trackingpogingen geblokkeerd",
+    "note" : "Placeholder message indicating that no ads and trackers are blocked"
+  },
+  "activity_countBlockedAdsAndTrackersPlural" : {
+    "title" : "<b>{count}</b> advertenties + trackingpogingen geblokkeerd",
+    "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + tracking attempts blocked'"
   },
   "activity_favoriteAdd" : {
     "title" : "{domain} toevoegen aan favorieten",

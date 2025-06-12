@@ -40,6 +40,46 @@ export const activityMocks = {
             },
         ],
     },
+    longEntry: {
+        activity: [
+            {
+                favicon: { src: 'selco-icon.png' },
+                url: 'https://example.app',
+                title: 'example.app',
+                etldPlusOne: 'example.app',
+                favorite: false,
+                trackersFound: false,
+                trackingStatus: {
+                    trackerCompanies: [],
+                    totalCount: 0,
+                },
+                history: [
+                    {
+                        title: '/products/bathroom/toilets-and-bidets/wall-mounted/modern-collection/ceramic-toilet-bowl?color=white&size=standard&material=porcelain&inStock=true&freeShipping=true',
+                        url: 'https://example.com/products/bathroom',
+                        relativeTime: 'Just now',
+                    },
+                ],
+            },
+        ],
+    },
+    singleWithTrackers: {
+        activity: [
+            {
+                favicon: { src: 'selco-icon.png' },
+                url: 'https://example.com',
+                title: 'example.com',
+                etldPlusOne: 'example.com',
+                favorite: false,
+                trackersFound: true,
+                trackingStatus: {
+                    trackerCompanies: [{ displayName: 'Google' }, { displayName: 'Facebook' }, { displayName: 'Amazon' }],
+                    totalCount: 56,
+                },
+                history: [],
+            },
+        ],
+    },
     few: {
         activity: [
             {

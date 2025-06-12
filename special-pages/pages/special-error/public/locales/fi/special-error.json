@@ -33,7 +33,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "malwareWarningText" : {
-    "title" : "DuckDuckGo esti tämän sivun, koska se saattaa levittää haittaohjelmia, jotka voivat vaarantaa laitteesi tai varastaa henkilökohtaisia tietojasi.{newline}<a>Lue lisää</a>",
+    "title" : "DuckDuckGon huijausten esto esti tämän sivun lataamisen, koska se saattaa levittää haittaohjelmia, jotka on suunniteltu vaarantamaan laitteesi tai varastamaan henkilötietojasi.{newline}<a>Lue lisää</a>.",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
@@ -45,7 +45,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "phishingWarningText" : {
-    "title" : "Tämä verkkosivusto saattaa esiintyä laillisena sivustona huijatakseen sinua antamaan henkilökohtaisia tietoja, kuten salasanan tai luottokortin numeron.{newline}<a>Lue lisää</a>",
+    "title" : "DuckDuckGo Scam Blocker esti tämän sivun lataamisen, koska se saattaa esiintyä laillisena sivustona huijatakseen sinua antamaan henkilökohtaisia tietoja, kuten salasanoja tai luottokorttinumeroita.{newline}<a>Lue lisää</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
@@ -57,7 +57,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "scamWarningText" : {
-    "title" : "DuckDuckGo esti tämän sivun, koska se saattaa yrittää huijata tai manipuloida sinua siirtämään rahaa, ostamaan väärennettyjä tuotteita tai asentamaan haittaohjelmia väärin perustein.{newline}<a>Lue lisää</a>",
+    "title" : "DuckDuckGo Scam Blocker esti tämän sivun lataamisen, koska se saattaa yrittää huijata tai manipuloida sinua siirtämään rahaa, ostamaan väärennettyjä tuotteita tai asentamaan haittaohjelmia väärin perustein.{newline}<a>Lue lisää</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "scamAdvancedInfoHeading" : {

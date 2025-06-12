@@ -21,6 +21,19 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await stats.hasRows(4);
             await expect(page).toHaveScreenshot('stats-few.png', { maxDiffPixels });
         });
+        test('with dataset "few" (dark)', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            const stats = new PrivacyStatsPage(page, ntp);
+            await ntp.reducedMotion();
+            await ntp.darkMode();
+
+            // see privacy-stats.mocks.js
+            await ntp.openPage({ additional: { stats: 'few' } });
+
+            // make sure we're screenshotting when data is showing
+            await stats.hasRows(4);
+            await expect(page).toHaveScreenshot('stats-few-dark.png', { maxDiffPixels });
+        });
     });
 
     test.describe('activity widget screenshots narrow', () => {
@@ -29,7 +42,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const ap = new ActivityPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { feed: 'activity' } });
+            await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
             await ap.didRender();
             await expect(page).toHaveScreenshot('narrow-default.png', { maxDiffPixels });
         });
@@ -37,8 +50,8 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const ap = new ActivityPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { feed: 'activity', activity: 'empty' } });
-            await ap.didRender();
+            await ntp.openPage({ additional: { 'protections.feed': 'activity', activity: 'empty' } });
+            await ap.ready();
             await expect(page).toHaveScreenshot('narrow-empty.png', { maxDiffPixels });
         });
     });
@@ -49,7 +62,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const ap = new ActivityPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { feed: 'activity' } });
+            await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
             await ap.didRender();
             await expect(page).toHaveScreenshot('wide-default.png', { maxDiffPixels });
         });
@@ -57,8 +70,8 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const ap = new ActivityPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { feed: 'activity', activity: 'empty' } });
-            await ap.didRender();
+            await ntp.openPage({ additional: { 'protections.feed': 'activity', activity: 'empty' } });
+            await ap.ready();
             await expect(page).toHaveScreenshot('wide-empty.png', { maxDiffPixels });
         });
         test('with drawer', async ({ page }, workerInfo) => {
@@ -66,7 +79,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ap = new ActivityPage(page, ntp);
             const customizer = new CustomizerPage(ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { feed: 'activity', customizerDrawer: 'enabled' } });
+            await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
             await ap.didRender();
             await customizer.opensCustomizer();
             await expect(page).toHaveScreenshot('wide-default-drawer.png', { maxDiffPixels });

@@ -33,9 +33,11 @@ With {@link "History Messages".DefaultStyles} overrides
   "platform": {
     "name": "macos"
   },
-  "defaultStyles": {
-    "lightBackgroundColor": "#E9EBEC",
-    "darkBackgroundColor": "#27282A"
+  "customizer": {
+    "defaultStyles": {
+      "lightBackgroundColor": "#E9EBEC",
+      "darkBackgroundColor": "#27282A"
+    }
   }
 }
 ```

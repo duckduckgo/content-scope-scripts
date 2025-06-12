@@ -76,6 +76,17 @@ export function reducer(state, action) {
                         /** @type {import('./types').SystemValueId} */
                         const systemValueId = action.id;
 
+                        // skip Duck Player onboarding step when ad blocking is enabled
+                        // note: there's no UI for disabling this setting, so we never need to re-insert duckPlayerSingle into order
+                        const isAdBlockingSetting =
+                            systemValueId === 'placebo-ad-blocking' ||
+                            systemValueId === 'aggressive-ad-blocking' ||
+                            systemValueId === 'youtube-ad-blocking';
+                        const nextOrder =
+                            isAdBlockingSetting && action.payload.enabled
+                                ? state.order.filter((step) => step !== 'duckPlayerSingle')
+                                : state.order;
+
                         /** @type {import('./types').UIValue} */
                         const nextUIState = isCurrent && action.payload.enabled ? 'accepted' : 'skipped';
 
@@ -86,6 +97,7 @@ export function reducer(state, action) {
                                 // bump the step (show the next row)
                                 ...state.step,
                             },
+                            order: nextOrder,
                             activeRow: isCurrent ? state.activeRow + 1 : state.activeRow,
                             values: {
                                 ...state.values,
@@ -143,7 +155,8 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             bookmarks: 'idle',
             'session-restore': 'idle',
             'home-shortcut': 'idle',
-            'ad-blocking': 'idle',
+            'placebo-ad-blocking': 'idle',
+            'aggressive-ad-blocking': 'idle',
             'youtube-ad-blocking': 'idle',
         },
     });
@@ -218,36 +231,24 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
  * @param {ImportMeta['platform']} platform
  */
 async function handleSystemSettingUpdate(action, messaging, platform) {
-    const { id, payload, current } = action;
+    const { id, payload } = action;
     switch (id) {
         case 'bookmarks': {
-            if (!current) {
-                messaging.setBookmarksBar(payload);
-            } else {
-                if (payload.enabled) {
-                    messaging.setBookmarksBar(payload);
-                }
-            }
+            messaging.setBookmarksBar(payload);
             return payload;
         }
         case 'session-restore': {
-            if (!current) {
-                messaging.setSessionRestore(payload);
-            } else {
-                if (payload.enabled) {
-                    messaging.setSessionRestore(payload);
-                }
-            }
+            messaging.setSessionRestore(payload);
             return payload;
         }
         case 'home-shortcut': {
-            if (!current) {
-                messaging.setShowHomeButton(payload);
-            } else {
-                if (payload.enabled) {
-                    messaging.setShowHomeButton(payload);
-                }
-            }
+            messaging.setShowHomeButton(payload);
+            return payload;
+        }
+        case 'placebo-ad-blocking':
+        case 'aggressive-ad-blocking':
+        case 'youtube-ad-blocking': {
+            messaging.setAdBlocking(payload);
             return payload;
         }
         case 'dock': {
@@ -279,17 +280,6 @@ async function handleSystemSettingUpdate(action, messaging, platform) {
                 return { enabled: true };
             }
             break;
-        }
-        case 'ad-blocking':
-        case 'youtube-ad-blocking': {
-            if (!current) {
-                messaging.setAdBlocking(payload);
-            } else {
-                if (payload.enabled) {
-                    messaging.setAdBlocking(payload);
-                }
-            }
-            return payload;
         }
     }
     if ('value' in payload) {

@@ -5,7 +5,7 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 import { usePlatformName } from './SettingsProvider';
 import { ErrorBoundary } from '../../../../shared/components/ErrorBoundary';
 import { Fallback } from '../pages/Fallback';
-import { Background } from './v3/Background';
+import { Background } from './v3/Background.js';
 import { BeforeAfterProvider } from './v3/BeforeAfterProvider';
 import { SingleStep } from './v3/SingleStep';
 import { Hiker } from './v3/Hiker';

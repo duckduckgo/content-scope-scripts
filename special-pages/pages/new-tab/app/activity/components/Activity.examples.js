@@ -1,6 +1,5 @@
 import { h } from 'preact';
 import { Activity, ActivityBody } from './Activity.js';
-import { noop } from '../../utils.js';
 import { signal } from '@preact/signals';
 import { generateSampleData } from '../mocks/activity.mock-transport.js';
 import { normalizeData, NormalizedDataContext } from '../NormalizeDataProvider.js';
@@ -10,12 +9,12 @@ import { normalizeData, NormalizedDataContext } from '../NormalizeDataProvider.j
 export const activityExamples = {
     'activity.empty': {
         factory: () => {
-            return <Activity expansion={'expanded'} itemCount={0} trackerCount={0} toggle={noop('toggle')} batched={false} />;
+            return <Activity itemCount={0} batched={false} />;
         },
     },
     'activity.few': {
         factory: () => (
-            <Activity expansion={'expanded'} itemCount={10} trackerCount={20} toggle={noop('toggle')} batched={false}>
+            <Activity itemCount={10} batched={false}>
                 <Mock size={3}>
                     <ActivityBody canBurn={false} visibility={'visible'} />
                 </Mock>
@@ -24,8 +23,17 @@ export const activityExamples = {
     },
     'activity.noTrackers': {
         factory: () => (
-            <Activity expansion={'expanded'} itemCount={20} trackerCount={0} toggle={noop('toggle')} batched={false}>
+            <Activity itemCount={20} batched={false}>
                 <Mock size={1}>
+                    <ActivityBody canBurn={false} visibility={'visible'} />
+                </Mock>
+            </Activity>
+        ),
+    },
+    'activity.noActivity.someTrackers': {
+        factory: () => (
+            <Activity itemCount={0} batched={false}>
+                <Mock size={0}>
                     <ActivityBody canBurn={false} visibility={'visible'} />
                 </Mock>
             </Activity>

@@ -542,6 +542,10 @@ class DuckplayerOverlaysMobile {
         this.overlays = overlays;
     }
 
+    async drawerIsPresented() {
+        const { page } = this.overlays;
+        await page.locator('ddg-video-drawer-mobile').waitFor({ state: 'visible', timeout: 2000 });
+    }
     async choosesWatchHere() {
         const { page } = this.overlays;
         await page.getByRole('button', { name: 'No Thanks' }).click();

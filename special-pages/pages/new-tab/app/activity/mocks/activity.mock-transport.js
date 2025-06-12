@@ -36,6 +36,24 @@ export function activityMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
+                case 'activity_removeItem': {
+                    // grab the tracker count of the current dataset before we alter it
+                    const oldCount = dataset.activity.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0);
+
+                    // now filter the items
+                    dataset.activity = dataset.activity.filter((x) => x.url !== msg.params.url);
+
+                    // create the patch dataset, and use the original tracker count
+                    const patchParams = toPatch(dataset.activity);
+                    patchParams.totalTrackersBlocked = oldCount;
+
+                    // simulate the native side pushing the fresh data back into the page.
+                    setTimeout(() => {
+                        const cb = subs.get('activity_onDataPatch');
+                        cb(patchParams);
+                    }, 0);
+                    break;
+                }
                 default: {
                     console.warn('unhandled notification', msg);
                 }
@@ -52,6 +70,9 @@ export function activityMockTransport() {
             }
             if (sub === 'activity_onDataUpdate') {
                 subs.set('activity_onDataUpdate', cb);
+            }
+            if (sub === 'activity_onDataPatch') {
+                subs.set('activity_onDataPatch', cb);
             }
             if (sub === 'activity_onDataUpdate' && url.searchParams.has('flood')) {
                 let count = 0;
@@ -213,13 +234,6 @@ export function activityMockTransport() {
                 }
                 case 'activity_getData':
                     return Promise.resolve(dataset);
-                case 'activity_getConfig': {
-                    /** @type {import('../../../types/new-tab.ts').ActivityConfig} */
-                    const config = {
-                        expansion: 'expanded',
-                    };
-                    return Promise.resolve(config);
-                }
                 default: {
                     return Promise.reject(new Error('unhandled request' + msg));
                 }

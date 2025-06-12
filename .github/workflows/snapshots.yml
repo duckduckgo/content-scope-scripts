@@ -59,8 +59,8 @@ jobs:
               with:
                   name: playwright-report-pages
                   path: |
-                      special-pages/playwright-report
-                      special-pages/test-results
-                      injected/playwright-report
-                      injected/test-results
+                      special-pages/playwright-report/**
+                      special-pages/test-results/**
+                      injected/playwright-report/**
+                      injected/test-results/**
                   retention-days: 5

@@ -41,6 +41,22 @@
     "title": "Dismiss",
     "note": "Button label text for an action that removes the widget from the screen."
   },
+  "protections_menuTitle": {
+    "title": "Protections Report",
+    "note": "Used as a label in the main navigation menu. 'Protections' refers to the privacy features that block trackers."
+  },
+  "protections_statsSwitchTitle": {
+    "title": "Summary",
+    "note": "Used as a label in a toggle switch that shows aggregated privacy statistics. This is one of two options in a view selector (the other is 'Details')."
+  },
+  "protections_activitySwitchTitle": {
+    "title": "Details",
+    "note": "Used as a label in a toggle switch that shows recent browsing activity with tracking information. This is one of two options in a view selector (the other is 'Summary')."
+  },
+  "protections_noRecent": {
+    "title": "No recent tracking activity",
+    "note": "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
+  },
   "stats_menuTitle": {
     "title": "Blocked Tracking Attempts",
     "note": "Used as a label in a customization menu"
@@ -70,16 +86,16 @@
     "note": "Placeholder for when we cannot report any blocked ads and trackers yet"
   },
   "stats_noRecentAdsAndTrackers": {
-    "title": "Ads & tracking protections active",
+    "title": "Protections active",
     "note": "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
   },
   "stats_countBlockedAdsAndTrackersSingular": {
-    "title": "Total of <b>1</b> ad & tracking attempt blocked",
+    "title": "<b>1</b> advertising & tracking attempt blocked",
     "note": "The main headline indicating that a single ad or tracking attempt was blocked"
   },
   "stats_countBlockedAdsAndTrackersPlural": {
-    "title": "Total of <b>{count}</b> ads & tracking attempts blocked",
-    "note": "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: 'Total of 2 ads & tracking attempts blocked'"
+    "title": "<b>{count}</b> advertising & tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
   },
   "stats_feedCountBlockedSingular": {
     "title": "1 attempt blocked by DuckDuckGo in the last 7 days",
@@ -293,7 +309,7 @@
     "title": "No recent browsing activity",
     "note": "Placeholder to indicate that no browsing activity was seen in the last 7 days"
   },
-  "activity_noRecent_subtitle": {
+  "activity_empty": {
     "title": "Recently visited sites will appear here. Keep browsing to see how many trackers we block.",
     "note": "Shown in the place a list of browsing history entries will be displayed."
   },
@@ -314,16 +330,16 @@
     "note": "Shown in the place a list of browsing history entries will be displayed."
   },
   "activity_no_adsAndTrackers": {
-    "title": "No ads + Tracking attempts found",
+    "title": "No ads + tracking attempts found",
     "note": "Placeholder message indicating that no ads and trackers are detected"
   },
   "activity_no_adsAndTrackers_blocked": {
-    "title": "No ads + Tracking attempts blocked",
+    "title": "No ads + tracking attempts blocked",
     "note": "Placeholder message indicating that no ads and trackers are blocked"
   },
   "activity_countBlockedAdsAndTrackersPlural": {
-    "title": "<b>{count}</b> ads + Tracking attempts blocked",
-    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + Tracking attempts blocked'"
+    "title": "<b>{count}</b> ads + tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + tracking attempts blocked'"
   },
   "activity_favoriteAdd": {
     "title": "Add {domain} to favorites",
