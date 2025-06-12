@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "name": "HoverSummarizationResponse",
+    "required": ["data"],
+    "properties": {
+      "data": {
+        "oneOf": [
+            {
+                "type": "null"
+            },
+            {
+                "type": "object",
+                "properties": {
+                    "summary": {
+                        "type": "array",
+                        "description": "A brief summary of the page content.",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        ]
+      }
+    }
+}

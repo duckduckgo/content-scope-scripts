@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "title": "HoverSummarizationRequestParams",
+    "additionalProperties": false,
+    "description": "Request to native device to fetch hover summaries of supplied URL",
+    "properties": {
+      "url": {
+        "description": "URL to fetch hover summary data for",
+        "type": "string"
+      }
+    }
+  }
