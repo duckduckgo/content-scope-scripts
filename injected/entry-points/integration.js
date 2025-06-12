@@ -127,7 +127,6 @@ async function initCode() {
     document.addEventListener(
         'content-scope-init-args',
         async (evt) => {
-            console.log('Received content-scope-init-args', evt);
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             const merged = mergeDeep(processedConfig, evt.detail);
             // init features
