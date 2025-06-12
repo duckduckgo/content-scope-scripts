@@ -1,3 +1,1 @@
-- Duck Player custom error translations (#1732)
-- Duck Player Native pausing bugs (#1705)
-- Scam Blocker translations (#1733)
+- Add automation run button and status banner (#1738)
