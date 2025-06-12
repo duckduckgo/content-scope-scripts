@@ -28,12 +28,13 @@ const otherFeatures = /** @type {const} */ ([
     'breakageReporting',
     'autofillPasswordImport',
     'favicon',
+    'scriptlets',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures],
+    apple: ['webCompat', 'duckPlayerNative', 'scriptlets', ...baseFeatures],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
