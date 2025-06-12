@@ -126,6 +126,8 @@ export interface NewTabMessages {
     | RmfDismissNotification
     | RmfPrimaryActionNotification
     | RmfSecondaryActionNotification
+    | SearchOpenSuggestionNotification
+    | SearchSubmitNotification
     | StatsShowLessNotification
     | StatsShowMoreNotification
     | TelemetryEventNotification
@@ -517,6 +519,67 @@ export interface RMFSecondaryAction {
   id: string;
 }
 /**
+ * Generated from @see "../messages/search_openSuggestion.notify.json"
+ */
+export interface SearchOpenSuggestionNotification {
+  method: "search_openSuggestion";
+  params: SearchOpenSuggestion;
+}
+export interface SearchOpenSuggestion {
+  suggestion:
+    | BookmarkSuggestion
+    | OpenTabSuggestion
+    | PhraseSuggestion
+    | WebsiteSuggestion
+    | HistoryEntrySuggestion
+    | InternalPageSuggestion;
+  target: OpenTarget;
+}
+export interface BookmarkSuggestion {
+  kind: "bookmark";
+  title: string;
+  url: string;
+  isFavorite: boolean;
+  score: number;
+}
+export interface OpenTabSuggestion {
+  kind: "openTab";
+  title: string;
+  tabId: string;
+  score: number;
+}
+export interface PhraseSuggestion {
+  kind: "phrase";
+  phrase: string;
+}
+export interface WebsiteSuggestion {
+  kind: "website";
+  url: string;
+}
+export interface HistoryEntrySuggestion {
+  kind: "historyEntry";
+  title: string;
+  url: string;
+  score: number;
+}
+export interface InternalPageSuggestion {
+  kind: "internalPage";
+  title: string;
+  url: string;
+  score: number;
+}
+/**
+ * Generated from @see "../messages/search_submit.notify.json"
+ */
+export interface SearchSubmitNotification {
+  method: "search_submit";
+  params: SearchSubmitParams;
+}
+export interface SearchSubmitParams {
+  term: string;
+  target: OpenTarget;
+}
+/**
  * Generated from @see "../messages/stats_showLess.notify.json"
  */
 export interface StatsShowLessNotification {
@@ -864,39 +927,6 @@ export interface SuggestionsData {
     duckduckgoSuggestions: Suggestions;
     localSuggestions: Suggestions;
   };
-}
-export interface BookmarkSuggestion {
-  kind: "bookmark";
-  title: string;
-  url: string;
-  isFavorite: boolean;
-  score: number;
-}
-export interface OpenTabSuggestion {
-  kind: "openTab";
-  title: string;
-  tabId: string;
-  score: number;
-}
-export interface PhraseSuggestion {
-  kind: "phrase";
-  phrase: string;
-}
-export interface WebsiteSuggestion {
-  kind: "website";
-  url: string;
-}
-export interface HistoryEntrySuggestion {
-  kind: "historyEntry";
-  title: string;
-  url: string;
-  score: number;
-}
-export interface InternalPageSuggestion {
-  kind: "internalPage";
-  title: string;
-  url: string;
-  score: number;
 }
 /**
  * Generated from @see "../messages/stats_getData.request.json"

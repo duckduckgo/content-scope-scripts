@@ -25,7 +25,16 @@ title: Search
 ## Requests:
 ### `search_getSuggestions` 
 - {@link "NewTab Messages".SearchGetSuggestionsRequest}
-- Used to fetch the initial data (during the first render)
 - returns {@link "NewTab Messages".SuggestionsData}
 
 {@includeCode ./mocks/getSuggestions.json}
+
+## Notifications:
+### `search_openSuggestion` 
+- {@link "NewTab Messages".SearchOpenSuggestionNotification}
+- Sends {@link "NewTab Messages".SearchOpenSuggestion}
+
+## Notifications:
+### `search_submit` 
+- {@link "NewTab Messages".SearchSubmitNotification}
+- Sends {@link "NewTab Messages".SearchSubmitParams}

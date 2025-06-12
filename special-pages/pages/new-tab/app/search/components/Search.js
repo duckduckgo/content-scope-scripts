@@ -3,13 +3,17 @@ import { Signal, useComputed, useSignal } from '@preact/signals';
 import classNames from 'classnames';
 import styles from './Search.module.css';
 import { SearchInput, toDisplay } from './SearchInput.js';
-import { viewTransition } from '../../utils.js';
+import { eventToTarget, viewTransition } from '../../utils.js';
 import { useEffect, useRef } from 'preact/hooks';
+import { useMessaging } from '../../types.js';
+import { usePlatformName } from '../../settings.provider.js';
 
 export function Search() {
     const mode = useSignal(/** @type {"search"  | "ai"} */ ('search'));
     const suggestions = useSignal(/** @type {import('../../../types/new-tab').Suggestions} */ ([]));
     const selected = useSignal(/** @type {null|number} */ (null));
+    const ntp = useMessaging();
+    const platformName = usePlatformName();
     const showing = useComputed(() => {
         if (suggestions.value.length > 0) return 'showing-suggestions';
         return 'none';
@@ -26,6 +30,7 @@ export function Search() {
     useEffect(() => {
         const listener = () => {
             suggestions.value = [];
+            selected.value = null;
         };
         window.addEventListener('clear-suggestions', listener);
         return () => {
@@ -43,6 +48,25 @@ export function Search() {
             window.removeEventListener('keydown', listener);
         };
     }, []);
+
+    function onSubmit(e) {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const term = data.get('term');
+        const selected = data.get('selected');
+        const target = eventToTarget(e, platformName);
+        if (term && selected) {
+            const suggestion = suggestions.value[Number(selected)];
+            if (suggestion) {
+                console.log({ term, selected });
+                ntp.messaging.notify('search_openSuggestion', { suggestion, target });
+            } else {
+                console.warn('not found');
+            }
+        } else if (term) {
+            ntp.messaging.notify('search_submit', { term: String(term), target });
+        }
+    }
 
     return (
         <div class={styles.root} data-state={showing}>
@@ -65,10 +89,18 @@ export function Search() {
                     </button>
                 </div>
             </div>
-            <SearchInput mode={mode} suggestions={suggestions} selected={selected} />
-            {showing.value === 'showing-suggestions' && <SuggestionList suggestions={suggestions} selected={selected} />}
+            <form onSubmit={onSubmit}>
+                <SearchInput mode={mode} suggestions={suggestions} selected={selected} />
+                <SelectedInput selected={selected} />
+                {showing.value === 'showing-suggestions' && <SuggestionList suggestions={suggestions} selected={selected} />}
+            </form>
         </div>
     );
+}
+
+function SelectedInput({ selected }) {
+    if (selected.value === null) return null;
+    return <input type="hidden" name="selected" value={selected.value} />;
 }
 
 /**

@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { useSignal, useSignalEffect } from '@preact/signals';
 
+const url = new URL(window.location.href);
+
 /**
  *
  * @import { Signal } from '@preact/signals';
@@ -84,6 +86,7 @@ function InputFieldWithSuggestions({ mode, suggestions, selected }) {
             data-testid="searchInput"
             onInput={onInput}
             onKeyDown={onKeydown}
+            name="term"
         />
     );
 }
@@ -105,11 +108,13 @@ function useSuggestions(suggestions, mode, selected) {
     const ntp = useMessaging();
 
     /**
+     * @param {string} reason
      * @param {string} value
      * @param {number} start
      * @param {number} end
      */
-    function setValueAndRange(value, start, end) {
+    function setValueAndRange(reason, value, start, end) {
+        if (url.searchParams.getAll('debug').includes('reason')) console.log('reason:', reason);
         const input = ref.current;
         if (!input || typeof input.selectionStart !== 'number') return console.warn('no');
         input.value = value;
@@ -120,7 +125,7 @@ function useSuggestions(suggestions, mode, selected) {
         const listener = () => {
             const input = ref.current;
             if (!input || typeof input.selectionStart !== 'number') return console.warn('no');
-            setValueAndRange(last.current, input.value.length, input.value.length);
+            setValueAndRange('reset-mode', last.current, input.value.length, input.value.length);
         };
         window.addEventListener('reset-mode', listener);
         return () => {
@@ -139,7 +144,7 @@ function useSuggestions(suggestions, mode, selected) {
                 case 'autocomplete': {
                     const { value, range } = result;
                     const { start, end } = range;
-                    setValueAndRange(value, start, end);
+                    setValueAndRange('suggestions changed', value, start, end);
                 }
             }
         });
@@ -156,7 +161,7 @@ function useSuggestions(suggestions, mode, selected) {
                 case 'autocomplete': {
                     const { value, range } = result;
                     const { start, end } = range;
-                    setValueAndRange(value, start, end);
+                    setValueAndRange('selected.value useSignalEffect', value, start, end);
                 }
             }
         }
@@ -168,14 +173,18 @@ function useSuggestions(suggestions, mode, selected) {
                 return;
             }
             if (mode.peek() === 'ai') return;
-            console.log(`✉️ search_getSuggestions('${e.target.value}')`);
+            if (url.searchParams.getAll('debug').includes('api')) {
+                console.log(`✉️ search_getSuggestions('${e.target.value}')`);
+            }
             ntp.messaging
                 .request('search_getSuggestions', { term: e.target.value })
                 // eslint-disable-next-line promise/prefer-await-to-then
                 .then((/** @type {import('../../../types/new-tab').SuggestionsData} */ data) => {
-                    console.group(`✅ search_getSuggestions`);
-                    console.log(data);
-                    console.groupEnd();
+                    if (url.searchParams.getAll('debug').includes('api')) {
+                        console.group(`✅ search_getSuggestions`);
+                        console.log(data);
+                        console.groupEnd();
+                    }
                     const flat = [
                         ...data.suggestions.topHits,
                         ...data.suggestions.duckduckgoSuggestions,
@@ -199,7 +208,7 @@ function useSuggestions(suggestions, mode, selected) {
             switch (result.kind) {
                 case 'autocomplete': {
                     const { value, range } = result;
-                    setValueAndRange(value, range.start, range.end);
+                    setValueAndRange('other keydown', value, range.start, range.end);
                 }
             }
         },
