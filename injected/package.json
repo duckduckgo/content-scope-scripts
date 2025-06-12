@@ -37,7 +37,7 @@
     "@types/chrome": "^0.0.326",
     "@types/jasmine": "^5.1.8",
     "@types/node": "^22.15.29",
-    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/eslint-plugin": "^8.34.0",
     "fast-check": "^4.1.1",
     "jasmine": "^5.7.1",
     "minimist": "^1.2.8"
