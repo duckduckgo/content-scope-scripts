@@ -2821,11 +2821,12 @@
       "performanceMetrics",
       "breakageReporting",
       "autofillPasswordImport",
-      "favicon"
+      "favicon",
+      "scriptlets"
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures],
+    apple: ["webCompat", "duckPlayerNative", "scriptlets", ...baseFeatures],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",

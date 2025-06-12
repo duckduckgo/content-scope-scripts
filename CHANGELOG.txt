@@ -1,1 +1,1 @@
-- Add automation run button and status banner (#1738)
+- Web interventions: add scriptlet feature (#1742)

@@ -196,3 +196,7 @@ This will create platform specific code within the `build` folder (that is not c
 ```shell
 npm run build
 ```
+
+#### Third-Party Libraries
+We make use of the following submodules:
+- [Adguard Scriptlets](https://github.com/AdguardTeam/Scriptlets)
