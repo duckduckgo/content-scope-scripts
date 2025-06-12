@@ -12,7 +12,14 @@ export default class HoverSummarization extends ContentFeature {
         if (!this.messaging) {
             throw new Error('cannot operate link hover summarization without a messaging backend');
         }
-        this.injectHoverSummarization();
+
+        if (document.readyState === 'loading') {
+            console.log('Injecting hover summarization on DOMContentLoaded');
+            document.addEventListener('DOMContentLoaded', this.injectHoverSummarization.bind(this), { once: true });
+        } else {
+            console.log('Injecting hover summarization immediately');
+            this.injectHoverSummarization();
+        }
     }
 
     injectHoverSummarization() {
@@ -44,10 +51,11 @@ export default class HoverSummarization extends ContentFeature {
         document.addEventListener('keydown', keydownHandler);
 
         linksList.forEach((link) => {
+            console.log('Adding mouseenter listener to link', link);
             link.addEventListener('mouseenter', () => {
                 currentHoveredLink = link;
+                console.log('Link Hovered. Press Shift to activate summarization.');
                 currentHoverTimer = setTimeout(() => {
-                    console.log('Link Hovered. Press Shift to activate summarization.');
                 }, 500);
             });
 
