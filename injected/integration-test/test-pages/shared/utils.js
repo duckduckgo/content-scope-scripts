@@ -97,7 +97,9 @@ function test(name, test) {
 
 function updateResultsHeader(results) {
     const totalTests = Object.values(results).flat().length;
-    const passed = Object.values(results).flat().filter(result => result.result === result.expected).length;
+    const passed = Object.values(results)
+        .flat()
+        .filter((result) => result.result === result.expected).length;
     const output = document.getElementById('test-status');
     output.textContent = totalTests > 0 && passed === totalTests ? 'pass' : 'fail';
 }
