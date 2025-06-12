@@ -23,7 +23,7 @@ export default tseslint.config(
             'playwright-report',
             'test-results',
             'injected/src/types',
-            'injected/src/features/Scriptlets/**/*',
+            'injected/src/features/Scriptlets',
             'injected/src/features/scriptlets.js',
             '.idea',
         ],
