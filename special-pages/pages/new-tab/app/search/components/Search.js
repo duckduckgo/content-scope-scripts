@@ -191,14 +191,39 @@ function SuggestionList({ suggestions, selected }) {
             }}
         >
             {list.value.map((x, index) => {
+                const icon = iconFor(x.item);
                 return (
                     <button class={styles.item} value={index} key={toDisplay(x.item)} data-selected={x.selected}>
-                        <SearchIcon /> {toDisplay(x.item)}
+                        {icon} {toDisplay(x.item)}
                     </button>
                 );
             })}
         </div>
     );
+}
+
+/**
+ *
+ * @param {import('../../../types/new-tab').Suggestions[number]} suggestion
+ */
+function iconFor(suggestion) {
+    switch (suggestion.kind) {
+        case 'phrase':
+            return <SearchIcon />;
+        case 'website':
+            return <GlobeIcon />;
+        case 'historyEntry':
+            return <HistoryIcon />;
+        case 'bookmark':
+            if (suggestion.isFavorite) {
+                return <FavoriteIcon />;
+            }
+            return <BookmarkIcon />;
+        case 'openTab':
+        case 'internalPage':
+            console.warn('icon not implemented for ', suggestion.kind);
+            return null;
+    }
 }
 
 export function SearchIcon() {
@@ -208,6 +233,64 @@ export function SearchIcon() {
                 d="M14.8 13.7L10.9 9.8C11.6 8.9 12 7.7 12 6.5C12 3.5 9.5 1 6.5 1C3.5 1 1 3.5 1 6.5C1 9.5 3.5 12 6.5 12C7.7 12 8.9 11.6 9.8 10.9L13.7 14.8C13.8 14.9 14 15 14.2 15C14.4 15 14.6 14.9 14.7 14.8C15.1 14.5 15.1 14 14.8 13.7ZM2.5 6.5C2.5 4.3 4.3 2.5 6.5 2.5C8.7 2.5 10.5 4.3 10.5 6.5C10.5 8.7 8.7 10.5 6.5 10.5C4.3 10.5 2.5 8.7 2.5 6.5Z"
                 fill="currentColor"
                 fill-opacity="0.6"
+            />
+        </svg>
+    );
+}
+
+export function BookmarkIcon() {
+    return (
+        <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M4.5 7a5 5 0 0 1 5-5h5a5 5 0 0 1 5 5v12.102c0 2.31-2.587 3.677-4.495 2.375l-2.23-1.522a1.375 1.375 0 0 0-1.55 0l-2.23 1.522C7.089 22.779 4.5 21.412 4.5 19.102V7Zm5-3.5A3.5 3.5 0 0 0 6 7v12.102a1.375 1.375 0 0 0 2.15 1.136l2.23-1.522a2.875 2.875 0 0 1 3.24 0l2.23 1.522c.913.623 2.15-.031 2.15-1.136V7a3.5 3.5 0 0 0-3.5-3.5h-5Z"
+                clip-rule="evenodd"
+            />
+        </svg>
+    );
+}
+
+export function FavoriteIcon() {
+    return (
+        <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill="currentColor"
+                d="M12.477 7.345a.5.5 0 0 0-.928 0l-.728 1.812a.5.5 0 0 1-.43.313l-1.948.132a.5.5 0 0 0-.287.883l1.499 1.252a.5.5 0 0 1 .164.505l-.477 1.894a.5.5 0 0 0 .751.546l1.654-1.039a.5.5 0 0 1 .532 0l1.654 1.039a.5.5 0 0 0 .75-.546l-.476-1.893a.5.5 0 0 1 .165-.506l1.498-1.252a.5.5 0 0 0-.286-.883l-1.949-.132a.5.5 0 0 1-.43-.313l-.728-1.812Z"
+            />
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M9.5 2a5 5 0 0 0-5 5v12.102c0 2.31 2.588 3.677 4.496 2.375l2.23-1.522a1.375 1.375 0 0 1 1.55 0l2.229 1.522c1.908 1.302 4.495-.065 4.495-2.375V7a5 5 0 0 0-5-5h-5ZM6 7a3.5 3.5 0 0 1 3.5-3.5h5A3.5 3.5 0 0 1 18 7v12.102c0 1.105-1.237 1.759-2.15 1.136l-2.23-1.522a2.875 2.875 0 0 0-3.24 0l-2.23 1.522A1.375 1.375 0 0 1 6 19.102V7Z"
+                clip-rule="evenodd"
+            />
+        </svg>
+    );
+}
+
+export function GlobeIcon() {
+    return (
+        <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm1.529-.7a8.507 8.507 0 0 1 5.616-7.308 8.524 8.524 0 0 0-.57 1.194c-.682 1.748-1.058 4.093-1.074 6.64a49.2 49.2 0 0 1-3.753-.49l-.22-.037Zm.01 1.523a8.508 8.508 0 0 0 5.606 7.186 8.53 8.53 0 0 1-.57-1.195c-.577-1.479-.935-3.384-1.041-5.478a50.81 50.81 0 0 1-3.994-.513Zm5.503.624c.112 1.899.442 3.57.93 4.82.306.782.657 1.36 1.02 1.732.356.363.691.501 1.008.501.317 0 .653-.138 1.008-.501.363-.372.715-.95 1.02-1.731.489-1.252.819-2.923.93-4.821-1.97.115-3.946.115-5.916 0Zm7.425-.111c-.107 2.094-.464 4-1.042 5.478-.167.428-.356.83-.57 1.195a8.508 8.508 0 0 0 5.606-7.186 50.802 50.802 0 0 1-3.994.513Zm4.005-2.037-.219.037a49.196 49.196 0 0 1-3.753.49c-.017-2.547-.392-4.892-1.075-6.64a8.526 8.526 0 0 0-.57-1.194 8.507 8.507 0 0 1 5.617 7.307ZM15 11.941a49.224 49.224 0 0 1-6 0c.006-2.47.368-4.66.972-6.209.306-.782.657-1.36 1.02-1.73.356-.364.691-.502 1.008-.502.317 0 .653.138 1.008.501.363.372.715.95 1.02 1.731.605 1.549.967 3.74.972 6.21Z"
+                clip-rule="evenodd"
+            />
+        </svg>
+    );
+}
+
+export function HistoryIcon() {
+    return (
+        <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill="currentColor"
+                d="M4.562 8c-.021 0-.042 0-.063-.002A8.5 8.5 0 1 1 3.5 12 .75.75 0 0 0 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10S17.523 2 12 2a9.993 9.993 0 0 0-8.5 4.73V3.75a.75.75 0 1 0-1.5 0v3.189A2.561 2.561 0 0 0 4.562 9.5H7.25a.75.75 0 1 0 0-1.5H4.562Z"
+            />
+            <path
+                fill="currentColor"
+                d="M12.781 6.531a.781.781 0 0 0-1.562 0V12c0 .207.082.406.229.552l2.969 2.97a.781.781 0 1 0 1.104-1.106l-2.74-2.74V6.531Z"
             />
         </svg>
     );

@@ -98,6 +98,16 @@ export function getMockSuggestions(searchTerm) {
                     score: 95 + Math.floor(Math.random() * 5),
                 })),
             duckduckgoSuggestions: [
+                ...pizzaRelatedData.websites
+                    .filter((phrase) => phrase.toLowerCase().includes(term))
+                    .slice(0, 2)
+                    .map((website, index) => ({
+                        kind: /** @type {const} */ ('bookmark'),
+                        title: website,
+                        url: website,
+                        isFavorite: index === 0,
+                        score: 95 + Math.floor(Math.random() * 5),
+                    })),
                 ...pizzaRelatedData.phrases
                     .filter((phrase) => phrase.toLowerCase().includes(term))
                     .slice(3, 8)

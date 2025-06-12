@@ -98,6 +98,12 @@
     cursor: pointer;
     gap: 8px;
 
+    svg {
+        width: 16px;
+        height: 16px;
+        display: block;
+    }
+
     svg path {
         fill-opacity: 1!important;
     }
