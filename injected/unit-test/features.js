@@ -6,6 +6,7 @@ describe('Features definition', () => {
         expect(platformSupport.apple).toEqual([
             'webCompat',
             'duckPlayerNative',
+            'scriptlets',
             'fingerprintingAudio',
             'fingerprintingBattery',
             'fingerprintingCanvas',

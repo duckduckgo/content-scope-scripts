@@ -3,7 +3,8 @@
   "scripts": {
     "postinstall": "npm run copy-sjcl",
     "copy-sjcl": "node scripts/generateSJCL.js",
-    "build": "npm run build-types && npm run build-locales && npm run bundle-trackers && npm run bundle-entry-points",
+    "checkout-submodules": "git submodule update --init --recursive --no-fetch",
+    "build": "npm run checkout-submodules && npm run build-types && npm run build-locales && npm run bundle-trackers && npm run bundle-entry-points",
     "bundle-config": "node scripts/bundleConfig.mjs",
     "bundle-entry-points": "node scripts/entry-points.js",
     "build-chrome-mv3": "node scripts/entry-points.js",
