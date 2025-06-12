@@ -28,6 +28,7 @@ const otherFeatures = /** @type {const} */ ([
     'breakageReporting',
     'autofillPasswordImport',
     'favicon',
+    'scriptlets',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
