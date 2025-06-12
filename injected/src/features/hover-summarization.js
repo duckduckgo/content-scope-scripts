@@ -1,7 +1,6 @@
-/* eslint-disable */
 import ContentFeature from '../content-feature';
 
-const linkSelector = 'a[href],a';
+const linkSelector = 'a';
 
 export default class HoverSummarization extends ContentFeature {
     load() {}
@@ -35,16 +34,24 @@ export default class HoverSummarization extends ContentFeature {
             if (event.shiftKey && currentHoverTimer && currentHoveredLink) {
                 try {
                     const url = currentHoveredLink.getAttribute('href');
-                    // Create a new URL object
-                    const parsedUrl = new URL(url);
-                    const domain = parsedUrl.hostname;
+                    let parsedUrl;
+                    if (!url.includes('http') || !url.includes('.')) {
+                        parsedUrl = new URL(url, window.location.origin);
+                    } else {
+                        parsedUrl = new URL(url);
+                    }
+                    const urlToSend = parsedUrl.href;
+                    // console.log('parsedUrl', parsedUrl);
+                    const domain = parsedUrl.host;
                     const cleanDomain = domain.replace(/^www\./, '');
+                    console.log('url being sent', urlToSend);
+                    console.log('display domain', cleanDomain);
+                    const { data } = await this.messaging.request('hover-baseinfo', {
+                        url: urlToSend,
+                    });
 
-                    // const {
-                    //     data: { title, image },
-                    // } = await this.messaging.request('hover-baseinfo', {
-                    //     url,
-                    // });
+                    const { title, image } = data;
+                    console.log({ title, image });
                     // this.createCard(currentHoveredLink, cleanDomain, title, image);
                     this.createCard(
                         currentHoveredLink,
