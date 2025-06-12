@@ -19,6 +19,20 @@
     justify-content: center;
     margin-top: 24px;
 }
+.formWrap {
+    height: 48px;
+    margin-top: 16px;
+    position: relative;
+    z-index: 1;
+    [data-mode="ai"] & {
+        height: 96px;
+    }
+}
+.form {
+    border-radius: 16px;
+    background-color: #fff;
+    box-shadow: var(--ntp-surface-shadow);
+}
 .pillSwitcher {
     display: flex;
     background: var(--color-black-at-6);
@@ -57,13 +71,16 @@
     }
 }
 .list {
-    position: absolute;
     top: 100%;
     width: 100%;
     background: white;
     z-index: 1;
     border-bottom-right-radius: 16px;
     border-bottom-left-radius: 16px;
+    border-top: 1px solid var(--color-black-at-6);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 .list:not(:empty) {
     padding: 8px;
@@ -71,6 +88,9 @@
 .item {
     display: block;
     text-decoration: none;
+    font-size: var(--title-3-em-font-size);
+    padding: 4px 8px;
+    color: var(--ntp-text-normal);
     &[data-selected="true"] {
         background: var(--color-black-at-6);
     }

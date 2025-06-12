@@ -69,7 +69,7 @@ export function Search() {
     }
 
     return (
-        <div class={styles.root} data-state={showing}>
+        <div class={styles.root} data-state={showing} data-mode={mode}>
             <div class={styles.icons}>
                 <img class={styles.iconSearch} src="./icons/search/Logo.svg" alt="Search" />
                 <img class={styles.iconText} src="./icons/search/Logotype.svg" alt="Search" />
@@ -89,11 +89,13 @@ export function Search() {
                     </button>
                 </div>
             </div>
-            <form onSubmit={onSubmit}>
-                <SearchInput mode={mode} suggestions={suggestions} selected={selected} />
-                <SelectedInput selected={selected} />
-                {showing.value === 'showing-suggestions' && <SuggestionList suggestions={suggestions} selected={selected} />}
-            </form>
+            <div class={styles.formWrap}>
+                <form onSubmit={onSubmit} class={styles.form}>
+                    <SearchInput mode={mode} suggestions={suggestions} selected={selected} />
+                    <SelectedInput selected={selected} />
+                    {showing.value === 'showing-suggestions' && <SuggestionList suggestions={suggestions} selected={selected} />}
+                </form>
+            </div>
         </div>
     );
 }

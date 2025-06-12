@@ -2,41 +2,11 @@
     position: relative;
     width: 100%;
     margin: 0 auto;
-    border-radius: 16px;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-top: 16px;
     padding: 8px 8px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    [data-state="showing-suggestions"] & {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-    }
 }
-
-/*@keyframes grow-y {*/
-/*    from {*/
-/*        transform: scaleY(0);*/
-/*    }*/
-/*    to {*/
-/*        transform: scaleY(1);*/
-/*    }*/
-/*}*/
-
-/*@keyframes shrink-y {*/
-/*    from {*/
-/*        transform: scaleY(1);*/
-/*    }*/
-/*    to {*/
-/*        transform: scaleY(0);*/
-/*    }*/
-/*}*/
-
-/*::view-transition-old(search-input-transition) {*/
-/*    animation: 0.25s linear both shrink-y;*/
-/*}*/
 
 ::view-transition-new(search-input-transition) {
     animation: 0.25s grow-y;
