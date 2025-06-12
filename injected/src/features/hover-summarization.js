@@ -53,20 +53,23 @@ export default class HoverSummarization extends ContentFeature {
 
                     const { title, image, timeToRead } = data;
                     console.log({ title, image, timeToRead });
-                    // this.createCard(currentHoveredLink, cleanDomain, title, image, timeToRead);
-                    this.createCard(
-                        currentHoveredLink,
-                        'vox.com',
-                        'The surprising way romance may affect your friendships',
-                        'https://platform.vox.com/wp-content/uploads/sites/2/2025/06/GettyImages-2196337297.jpg?quality=90&strip=all&crop=0%2C16.666666666667%2C100%2C66.666666666667&w=1440',
-                        2,
-                    );
+                    this.createCard(currentHoveredLink, cleanDomain, title, image, timeToRead);
+                    // this.createCard(
+                    //     currentHoveredLink,
+                    //     'vox.com',
+                    //     'The surprising way romance may affect your friendships',
+                    //     'https://platform.vox.com/wp-content/uploads/sites/2/2025/06/GettyImages-2196337297.jpg?quality=90&strip=all&crop=0%2C16.666666666667%2C100%2C66.666666666667&w=1440',
+                    //     2,
+                    // );
 
                     const summaryInfo = await this.messaging.request('hover-summarization', {
                         url: urlToSend,
                     });
                     const { summary } = summaryInfo.data;
                     console.log({ summary });
+                    if (summary.length > 0) {
+                        this.updateCard(summary);
+                    }
                     clearTimeout(currentHoverTimer);
                     // currentHoverTimer = null;
                     // currentHoveredLink = null;
@@ -79,7 +82,6 @@ export default class HoverSummarization extends ContentFeature {
         document.addEventListener('keydown', keydownHandler);
 
         linksList.forEach((link) => {
-            console.log('Adding mouseenter listener to link', link);
             link.addEventListener('mouseenter', () => {
                 currentHoveredLink = link;
                 console.log('Link Hovered. Press Shift to activate summarization.');
@@ -132,7 +134,7 @@ export default class HoverSummarization extends ContentFeature {
         summaryCard.appendChild(imageElement);
 
         const readingTimeElement = document.createElement('p');
-        readingTimeElement.textContent = `Reading time: ${timeToRead} minutes`;
+        readingTimeElement.textContent = `Estimated reading time: ${timeToRead} minutes`;
         summaryCard.appendChild(readingTimeElement);
 
         // Function to handle clicking outside the card
@@ -151,5 +153,20 @@ export default class HoverSummarization extends ContentFeature {
 
         // Step 3: Append the new element to the DOM
         document.body.appendChild(summaryCard);
+    }
+
+    updateCard(summaryArr) {
+        const existingCard = document.querySelector('.hover-summary-card');
+        if (!existingCard) {
+            return;
+        }
+        const summaryListElement = document.createElement('ul');
+        summaryListElement.className = 'summary-list';
+        summaryArr.forEach((summaryItem) => {
+            const summaryListItem = document.createElement('li');
+            summaryListItem.textContent = summaryItem;
+            summaryListElement.appendChild(summaryListItem);
+        });
+        existingCard.appendChild(summaryListElement);
     }
 }
