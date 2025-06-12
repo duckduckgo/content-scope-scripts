@@ -168,12 +168,18 @@ function SuggestionList({ suggestions, selected }) {
         };
     }, [selected]);
 
-    function mouseEnter(e) {
-        const button = e.target.closest('button[value]');
-        if (button && button instanceof HTMLButtonElement) {
-            selected.value = Number(e.target.value);
+    useEffect(() => {
+        function mouseEnter(e) {
+            const button = e.target.closest('button[value]');
+            if (button && button instanceof HTMLButtonElement) {
+                selected.value = Number(e.target.value);
+            }
         }
-    }
+        ref.current?.addEventListener('mouseenter', mouseEnter, true);
+        return () => {
+            ref.current?.removeEventListener('mouseenter', mouseEnter, true);
+        };
+    }, [selected]);
 
     return (
         <div
@@ -186,7 +192,7 @@ function SuggestionList({ suggestions, selected }) {
         >
             {list.value.map((x, index) => {
                 return (
-                    <button class={styles.item} value={index} key={toDisplay(x.item)} data-selected={x.selected} onMouseEnter={mouseEnter}>
+                    <button class={styles.item} value={index} key={toDisplay(x.item)} data-selected={x.selected}>
                         {x.item.kind}: {toDisplay(x.item)}
                     </button>
                 );
