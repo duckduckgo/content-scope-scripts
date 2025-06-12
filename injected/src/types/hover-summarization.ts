@@ -39,6 +39,10 @@ export interface HoverBaseinfoResponse {
      * The URL of the social card image for the page.
      */
     image?: string;
+    /**
+     * The estimated reading time for the page.
+     */
+    timeToRead?: string;
   };
 }
 /**

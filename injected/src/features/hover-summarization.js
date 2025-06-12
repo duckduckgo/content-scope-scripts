@@ -35,13 +35,14 @@ export default class HoverSummarization extends ContentFeature {
                 try {
                     const url = currentHoveredLink.getAttribute('href');
                     let parsedUrl;
+                    // handling relative paths and no protocol
                     if (!url.includes('http') || !url.includes('.')) {
                         parsedUrl = new URL(url, window.location.origin);
                     } else {
                         parsedUrl = new URL(url);
                     }
                     const urlToSend = parsedUrl.href;
-                    // console.log('parsedUrl', parsedUrl);
+
                     const domain = parsedUrl.host;
                     const cleanDomain = domain.replace(/^www\./, '');
                     console.log('url being sent', urlToSend);
@@ -50,21 +51,22 @@ export default class HoverSummarization extends ContentFeature {
                         url: urlToSend,
                     });
 
-                    const { title, image } = data;
-                    console.log({ title, image });
-                    // this.createCard(currentHoveredLink, cleanDomain, title, image);
+                    const { title, image, timeToRead } = data;
+                    console.log({ title, image, timeToRead });
+                    // this.createCard(currentHoveredLink, cleanDomain, title, image, timeToRead);
                     this.createCard(
                         currentHoveredLink,
                         'vox.com',
                         'The surprising way romance may affect your friendships',
                         'https://platform.vox.com/wp-content/uploads/sites/2/2025/06/GettyImages-2196337297.jpg?quality=90&strip=all&crop=0%2C16.666666666667%2C100%2C66.666666666667&w=1440',
+                        2,
                     );
 
-                    // const {
-                    //     data: { summary },
-                    // } = await this.messaging.request('hover-summarization', {
-                    //     url,
-                    // });
+                    const summaryInfo = await this.messaging.request('hover-summarization', {
+                        url: urlToSend,
+                    });
+                    const { summary } = summaryInfo.data;
+                    console.log({ summary });
                     clearTimeout(currentHoverTimer);
                     // currentHoverTimer = null;
                     // currentHoveredLink = null;
@@ -92,7 +94,7 @@ export default class HoverSummarization extends ContentFeature {
         });
     }
 
-    createCard(link, cleanDomain, title, image) {
+    createCard(link, cleanDomain, title, image, timeToRead) {
         // Remove any existing cards first
         const existingCards = document.querySelectorAll('.hover-summary-card');
         existingCards.forEach((card) => card.remove());
@@ -114,7 +116,7 @@ export default class HoverSummarization extends ContentFeature {
         summaryCard.style.padding = '10px';
         summaryCard.style.maxWidth = '300px';
 
-        const domainElement = document.createElement('h3');
+        const domainElement = document.createElement('p');
         domainElement.textContent = cleanDomain;
         summaryCard.appendChild(domainElement);
 
@@ -128,6 +130,10 @@ export default class HoverSummarization extends ContentFeature {
         imageElement.style.height = 'auto';
         imageElement.style.borderRadius = '0.5rem';
         summaryCard.appendChild(imageElement);
+
+        const readingTimeElement = document.createElement('p');
+        readingTimeElement.textContent = `Reading time: ${timeToRead} minutes`;
+        summaryCard.appendChild(readingTimeElement);
 
         // Function to handle clicking outside the card
         const handleClickOutside = (event) => {

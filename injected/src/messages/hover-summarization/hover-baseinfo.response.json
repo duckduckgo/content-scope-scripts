@@ -20,6 +20,10 @@
                         "image": {
                             "type": "string",
                             "description": "The URL of the social card image for the page."
+                        },
+                        "timeToRead": {
+                            "type": "string",
+                            "description": "The estimated reading time for the page."
                         }
                     }
                   }
