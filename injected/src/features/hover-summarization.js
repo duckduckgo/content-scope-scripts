@@ -55,8 +55,7 @@ export default class HoverSummarization extends ContentFeature {
             link.addEventListener('mouseenter', () => {
                 currentHoveredLink = link;
                 console.log('Link Hovered. Press Shift to activate summarization.');
-                currentHoverTimer = setTimeout(() => {
-                }, 500);
+                currentHoverTimer = setTimeout(() => {}, 500);
             });
 
             link.addEventListener('mouseleave', () => {
@@ -85,10 +84,24 @@ export default class HoverSummarization extends ContentFeature {
         summaryCard.style.zIndex = '1000';
         summaryCard.style.backgroundColor = 'white';
         summaryCard.style.border = '1px solid #ccc'; // Add border for visibility
-        summaryCard.style.borderRadius = '4px';
+        summaryCard.style.borderRadius = '0.5rem';
         summaryCard.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
         summaryCard.style.padding = '10px';
         summaryCard.style.maxWidth = '300px';
+
+        // Function to handle clicking outside the card
+        const handleClickOutside = (event) => {
+            // Check if the clicked element is outside the summary card
+            if (!summaryCard.contains(event.target)) {
+                summaryCard.remove();
+                document.removeEventListener('click', handleClickOutside);
+            }
+        };
+
+        // Add click-outside listener after a short delay to prevent immediate closure
+        setTimeout(() => {
+            document.addEventListener('click', handleClickOutside);
+        }, 100);
 
         // Step 3: Append the new element to the DOM
         document.body.appendChild(summaryCard);
