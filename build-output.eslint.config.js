@@ -3,10 +3,7 @@
 
 export default [
     {
-        ignores: [
-            'injected/src/features/Scriptlets',
-            'injected/src/features/scriptlets.js',
-        ],
+        ignores: ['injected/src/features/Scriptlets', 'injected/src/features/scriptlets.js'],
     },
     {
         languageOptions: {

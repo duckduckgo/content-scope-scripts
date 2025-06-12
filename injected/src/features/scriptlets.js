@@ -22,13 +22,13 @@ export class Scriptlets extends ContentFeature {
         }
         /* @type {import('./Scriptlets/src/scriptlets/scriptlets.ts').Source} */
         const source = {
-            verbose: false
+            verbose: false,
         };
 
         const scriptlets = this.getFeatureSetting('scriptlets');
         for (const scriptlet of scriptlets) {
-            source.name = scriptlet.name
-            source.args = Object.values(scriptlet.attrs)
+            source.name = scriptlet.name;
+            source.args = Object.values(scriptlet.attrs);
             this.runScriptlet(scriptlet, source);
         }
     }
@@ -61,10 +61,10 @@ export class Scriptlets extends ContentFeature {
             abortCurrentInlineScript(source, attrs.property, attrs.search);
         }
         if (scriptlet.name === 'abortOnPropertyRead') {
-            abortOnPropertyRead(source, attrs.property)
+            abortOnPropertyRead(source, attrs.property);
         }
         if (scriptlet.name === 'abortOnPropertyWrite') {
-            abortOnPropertyWrite(source, attrs.property)
+            abortOnPropertyWrite(source, attrs.property);
         }
         if (scriptlet.name === 'preventAddEventListener') {
             preventAddEventListener(source, attrs.typeSearch, attrs.listenerSearch, attrs.additionalArgName, attrs.additionalArgValue);
