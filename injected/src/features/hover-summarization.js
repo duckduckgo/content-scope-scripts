@@ -10,12 +10,10 @@ export default class HoverSummarization extends ContentFeature {
     init(args) {
         console.log({ args });
         if (!this.messaging) {
-            throw new Error('cannot operate duck player without a messaging backend');
+            throw new Error('cannot operate link hover summarization without a messaging backend');
         }
         this.injectHoverSummarization();
     }
-
-    update() {}
 
     injectHoverSummarization() {
         const linksList = document.querySelectorAll(linkSelector);
@@ -23,51 +21,68 @@ export default class HoverSummarization extends ContentFeature {
             return;
         }
 
-        linksList.forEach((link) => {
-            let hoverTimer;
+        let currentHoveredLink = null;
+        let currentHoverTimer = null;
 
+        // Single keydown listener for all links
+        const keydownHandler = (/** @type {{ shiftKey: Boolean; }} */ event) => {
+            if (event.shiftKey && currentHoverTimer && currentHoveredLink) {
+                try {
+                    this.messaging.request('hover-summarization', {
+                        url: currentHoveredLink.getAttribute('href'),
+                    });
+                    this.createCard(currentHoveredLink);
+                    clearTimeout(currentHoverTimer);
+                    // currentHoverTimer = null;
+                    // currentHoveredLink = null;
+                } catch (e) {
+                    console.error('Error while processing hover summarization:', e);
+                }
+            }
+        };
+
+        document.addEventListener('keydown', keydownHandler);
+
+        linksList.forEach((link) => {
             link.addEventListener('mouseenter', () => {
-                // Start a timer when the mouse enters the link
-                hoverTimer = setTimeout(() => {
-                    // This function will be called after half second of hovering
+                currentHoveredLink = link;
+                currentHoverTimer = setTimeout(() => {
                     console.log('Link Hovered. Press Shift to activate summarization.');
                 }, 500);
             });
 
             link.addEventListener('mouseleave', () => {
-                // Clear the timer if the mouse leaves the link
-                clearTimeout(hoverTimer);
-            });
-
-            // Listen for keydown events
-            document.addEventListener('keydown', async (event) => {
-                // Check if Shift is pressed & hover timer has completed, add summary card
-                if (event.shiftKey && hoverTimer) {
-                    try {
-                        await this.messaging.request('hover-summarization', { url: link.getAttribute('href') });
-                        const locationRect = link.getBoundingClientRect();
-                        // Step 1: Create a new element
-                        const summaryCard = document.createElement('div');
-
-                        // Step 2: Set attributes or content
-                        summaryCard.textContent = 'Hello, this will be a summary card!';
-                        summaryCard.style.position = 'fixed'; // Optional: Make it fixed position
-                        summaryCard.style.top = `${locationRect.bottom + window.scrollY}px`; // Position below the link
-                        summaryCard.style.left = `${locationRect.left + window.scrollX}px`; // Align with the left edge of the link
-                        summaryCard.style.zIndex = '1000'; // Optional: Ensure it appears above other content
-                        summaryCard.style.backgroundColor = 'white';
-                        summaryCard.style.padding = '10px'; // Optional: Add some padding
-                        summaryCard.style.margin = '10px'; // Optional: Add some margin
-
-                        // Step 3: Append the new element to the DOM
-                        document.body.appendChild(summaryCard);
-                        // Your custom logic here
-                        clearTimeout(hoverTimer); // Clear the timer to prevent multiple triggers
-                    } catch (e) {
-                        console.error('Error while processing hover summarization:', e);
-                    }
-                }
+                clearTimeout(currentHoverTimer);
+                currentHoverTimer = null;
+                currentHoveredLink = null;
             });
         });
+    }
+
+    createCard(link) {
+        // Remove any existing cards first
+        const existingCards = document.querySelectorAll('.hover-summary-card');
+        existingCards.forEach((card) => card.remove());
+
+        console.log('Creating a summary card...');
+        const locationRect = link.getBoundingClientRect();
+
+        const summaryCard = document.createElement('div');
+
+        summaryCard.className = 'hover-summary-card'; // Add a class for easy removal
+        summaryCard.textContent = 'Hello, this will be a summary card!';
+        summaryCard.style.position = 'fixed';
+        summaryCard.style.top = `${locationRect.bottom}px`;
+        summaryCard.style.left = `${locationRect.left}px`;
+        summaryCard.style.zIndex = '1000';
+        summaryCard.style.backgroundColor = 'white';
+        summaryCard.style.border = '1px solid #ccc'; // Add border for visibility
+        summaryCard.style.borderRadius = '4px';
+        summaryCard.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+        summaryCard.style.padding = '10px';
+        summaryCard.style.maxWidth = '300px';
+
+        // Step 3: Append the new element to the DOM
+        document.body.appendChild(summaryCard);
     }
 }
