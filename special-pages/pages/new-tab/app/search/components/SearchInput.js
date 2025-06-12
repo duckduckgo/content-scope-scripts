@@ -125,11 +125,11 @@ function useSuggestions(suggestions, mode, selected) {
         const listener = () => {
             const input = ref.current;
             if (!input || typeof input.selectionStart !== 'number') return console.warn('no');
-            setValueAndRange('reset-mode', last.current, input.value.length, input.value.length);
+            setValueAndRange('reset-back-to-last-typed-value', last.current, input.value.length, input.value.length);
         };
-        window.addEventListener('reset-mode', listener);
+        window.addEventListener('reset-back-to-last-typed-value', listener);
         return () => {
-            window.removeEventListener('reset-mode', listener);
+            window.removeEventListener('reset-back-to-last-typed-value', listener);
         };
     }, []);
 

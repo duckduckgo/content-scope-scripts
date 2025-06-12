@@ -23,7 +23,7 @@ export function Search() {
         viewTransition(() => {
             mode.value = next;
             suggestions.value = [];
-            window.dispatchEvent(new Event('reset-mode'));
+            window.dispatchEvent(new Event('reset-back-to-last-typed-value'));
         });
     }
 
@@ -37,6 +37,7 @@ export function Search() {
             window.removeEventListener('clear-suggestions', listener);
         };
     }, []);
+
     useEffect(() => {
         const listener = (e) => {
             if (e.key === 'Escape') {
@@ -131,6 +132,17 @@ function SuggestionList({ suggestions, selected }) {
     }, []);
     useEffect(() => {
         const listener = (e) => {
+            if (!ref.current?.contains(e.target)) {
+                window.dispatchEvent(new Event('clear-suggestions'));
+            }
+        };
+        document.addEventListener('click', listener);
+        return () => {
+            document.removeEventListener('click', listener);
+        };
+    }, []);
+    useEffect(() => {
+        const listener = (e) => {
             if (e.key === 'ArrowDown') {
                 if (selected.value === null) {
                     selected.value = 0;
@@ -156,13 +168,27 @@ function SuggestionList({ suggestions, selected }) {
         };
     }, [selected]);
 
+    function mouseEnter(e) {
+        const button = e.target.closest('button[value]');
+        if (button && button instanceof HTMLButtonElement) {
+            selected.value = Number(e.target.value);
+        }
+    }
+
     return (
-        <div class={styles.list} data-selected={selected} ref={ref}>
-            {list.value.map((x) => {
+        <div
+            class={styles.list}
+            data-selected={selected}
+            ref={ref}
+            onMouseLeave={() => {
+                window.dispatchEvent(new Event('reset-back-to-last-typed-value'));
+            }}
+        >
+            {list.value.map((x, index) => {
                 return (
-                    <a href="#" key={toDisplay(x.item)} data-selected={x.selected} class={styles.item}>
+                    <button class={styles.item} value={index} key={toDisplay(x.item)} data-selected={x.selected} onMouseEnter={mouseEnter}>
                         {x.item.kind}: {toDisplay(x.item)}
-                    </a>
+                    </button>
                 );
             })}
         </div>

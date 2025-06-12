@@ -91,7 +91,20 @@
     font-size: var(--title-3-em-font-size);
     padding: 4px 8px;
     color: var(--ntp-text-normal);
+    background-color: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--ddg-color-primary);
+        color: white;
+        border-radius: 4px;
+    }
+
     &[data-selected="true"] {
-        background: var(--color-black-at-6);
+        background: var(--ddg-color-primary);
+        color: white;
+        border-radius: 4px;
     }
 }
