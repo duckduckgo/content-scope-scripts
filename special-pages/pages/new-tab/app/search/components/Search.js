@@ -1,13 +1,15 @@
 import { h } from 'preact';
-import { useComputed, useSignal } from '@preact/signals';
+import { Signal, useComputed, useSignal } from '@preact/signals';
 import classNames from 'classnames';
 import styles from './Search.module.css';
 import { SearchInput, toDisplay } from './SearchInput.js';
 import { viewTransition } from '../../utils.js';
+import { useEffect, useRef } from 'preact/hooks';
 
 export function Search() {
     const mode = useSignal(/** @type {"search"  | "ai"} */ ('search'));
     const suggestions = useSignal(/** @type {import('../../../types/new-tab').Suggestions} */ ([]));
+    const selected = useSignal(/** @type {null|number} */ (null));
     const showing = useComputed(() => {
         if (suggestions.value.length > 0) return 'showing-suggestions';
         return 'none';
@@ -20,6 +22,27 @@ export function Search() {
             window.dispatchEvent(new Event('reset-mode'));
         });
     }
+
+    useEffect(() => {
+        const listener = () => {
+            suggestions.value = [];
+        };
+        window.addEventListener('clear-suggestions', listener);
+        return () => {
+            window.removeEventListener('clear-suggestions', listener);
+        };
+    }, []);
+    useEffect(() => {
+        const listener = (e) => {
+            if (e.key === 'Escape') {
+                window.dispatchEvent(new Event('clear-suggestions'));
+            }
+        };
+        window.addEventListener('keydown', listener);
+        return () => {
+            window.removeEventListener('keydown', listener);
+        };
+    }, []);
 
     return (
         <div class={styles.root} data-state={showing}>
@@ -42,8 +65,8 @@ export function Search() {
                     </button>
                 </div>
             </div>
-            <SearchInput mode={mode} suggestions={suggestions} />
-            <SuggestionList suggestions={suggestions} />
+            <SearchInput mode={mode} suggestions={suggestions} selected={selected} />
+            {showing.value === 'showing-suggestions' && <SuggestionList suggestions={suggestions} selected={selected} />}
         </div>
     );
 }
@@ -51,15 +74,61 @@ export function Search() {
 /**
  * @param {object} props
  * @param {import("@preact/signals").Signal<import('../../../types/new-tab').Suggestions>} props.suggestions
+ * @param {Signal<number|null>} props.selected
  */
-function SuggestionList({ suggestions }) {
+function SuggestionList({ suggestions, selected }) {
+    const ref = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const list = useComputed(() => {
+        const index = selected.value;
+        return suggestions.value.map((x, i) => {
+            return { item: x, selected: i === index };
+        });
+    });
+    useEffect(() => {
+        const listener = () => {
+            if (!ref.current?.contains(document.activeElement)) {
+                window.dispatchEvent(new Event('clear-suggestions'));
+            }
+        };
+        window.addEventListener('focusin', listener);
+        return () => {
+            window.removeEventListener('focusin', listener);
+        };
+    }, []);
+    useEffect(() => {
+        const listener = (e) => {
+            if (e.key === 'ArrowDown') {
+                if (selected.value === null) {
+                    selected.value = 0;
+                } else {
+                    const next = Math.min(selected.value + 1, list.value.length - 1);
+                    selected.value = next;
+                }
+            }
+            if (e.key === 'ArrowUp') {
+                if (selected.value === null) return;
+                if (selected.value === 0) {
+                    selected.value = null;
+                    window.dispatchEvent(new Event('focus-input'));
+                } else {
+                    const next = Math.max(selected.value - 1, 0);
+                    selected.value = next;
+                }
+            }
+        };
+        window.addEventListener('keydown', listener);
+        return () => {
+            window.removeEventListener('keydown', listener);
+        };
+    }, [selected]);
+
     return (
-        <div class={styles.list}>
-            {suggestions.value.map((x) => {
+        <div class={styles.list} data-selected={selected} ref={ref}>
+            {list.value.map((x) => {
                 return (
-                    <div key={toDisplay(x)}>
-                        {x.kind}: {toDisplay(x)}
-                    </div>
+                    <a href="#" key={toDisplay(x.item)} data-selected={x.selected} class={styles.item}>
+                        {x.item.kind}: {toDisplay(x.item)}
+                    </a>
                 );
             })}
         </div>

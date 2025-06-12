@@ -68,3 +68,10 @@
 .list:not(:empty) {
     padding: 8px;
 }
+.item {
+    display: block;
+    text-decoration: none;
+    &[data-selected="true"] {
+        background: var(--color-black-at-6);
+    }
+}

@@ -4,7 +4,7 @@ import styles from './SearchInput.module.css';
 import { DuckAiIcon, SearchIcon } from './Search.js';
 import { useCallback, useEffect, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
-import { useSignal } from '@preact/signals';
+import { useSignal, useSignalEffect } from '@preact/signals';
 
 /**
  *
@@ -14,13 +14,14 @@ import { useSignal } from '@preact/signals';
  *
  * @param {Object} props - The props for the SearchInput component.
  * @param {import('@preact/signals').Signal<'ai' | 'search'>} props.mode - The mode in which the component operates. Determines the presence of additional controls.
- * @param {Signal<import('../../../types/new-tab').Suggestions>} props.suggestions - The mode in which the component operates. Determines the presence of additional controls.
+ * @param {import('@preact/signals').Signal<import('../../../types/new-tab').Suggestions>} props.suggestions - The mode in which the component operates. Determines the presence of additional controls.
+ * @param {import('@preact/signals').Signal<number|null>} props.selected
  */
-export function SearchInput({ mode, suggestions }) {
+export function SearchInput({ mode, suggestions, selected }) {
     return (
         <div class={styles.root} style={{ viewTransitionName: 'search-input-transition' }}>
             <div class={styles.searchContainer} style={{ viewTransitionName: 'search-input-transition2' }}>
-                <InputFieldWithSuggestions mode={mode} suggestions={suggestions} />
+                <InputFieldWithSuggestions mode={mode} suggestions={suggestions} selected={selected} />
                 {mode.value === 'search' && (
                     <div class={styles.searchActions}>
                         <button class={cn(styles.searchTypeButton)} aria-label="Web search">
@@ -60,9 +61,10 @@ export function SearchInput({ mode, suggestions }) {
  * @param {Object} props - The properties passed to the Input component.
  * @param {import('@preact/signals').Signal<'ai' | 'search'>} props.mode - The mode in which the component operates. Determines the presence of additional controls.
  * @param {Signal<import('../../../types/new-tab').Suggestions>} props.suggestions - The mode in which the component operates. Determines the presence of additional controls.
+ * @param {import('@preact/signals').Signal<number|null>} props.selected
  */
-function InputFieldWithSuggestions({ mode, suggestions }) {
-    const { onInput, onKeydown, ref } = useSuggestions(suggestions, mode);
+function InputFieldWithSuggestions({ mode, suggestions, selected }) {
+    const { onInput, onKeydown, ref } = useSuggestions(suggestions, mode, selected);
     useEffect(() => {
         return mode.subscribe(() => {
             ref.current?.focus();
@@ -89,24 +91,36 @@ function InputFieldWithSuggestions({ mode, suggestions }) {
 /**
  * @param {Signal<import('../../../types/new-tab').Suggestions>} suggestions
  * @param {import('@preact/signals').Signal<'ai' | 'search'>} mode
+ * @param {import('@preact/signals').Signal<number|null>} selected
  * @returns {{
  *  onInput: ((function(*): void)|*),
  *  onKeydown: ((function(*): void)|*),
  *  ref: import('preact/hooks').MutableRef<HTMLInputElement|null>
  * }}
  */
-function useSuggestions(suggestions, mode) {
+function useSuggestions(suggestions, mode, selected) {
     const ref = useRef(/** @type {HTMLInputElement|null} */ (null));
     const last = useRef(/** @type {string} */ (''));
     const strings = useSignal(/** @type {string[]} */ ([]));
     const ntp = useMessaging();
 
+    /**
+     * @param {string} value
+     * @param {number} start
+     * @param {number} end
+     */
+    function setValueAndRange(value, start, end) {
+        const input = ref.current;
+        if (!input || typeof input.selectionStart !== 'number') return console.warn('no');
+        input.value = value;
+        input.setSelectionRange(start, end);
+    }
+
     useEffect(() => {
         const listener = () => {
             const input = ref.current;
             if (!input || typeof input.selectionStart !== 'number') return console.warn('no');
-            input.value = last.current;
-            input.setSelectionRange(input.value.length, input.value.length);
+            setValueAndRange(last.current, input.value.length, input.value.length);
         };
         window.addEventListener('reset-mode', listener);
         return () => {
@@ -125,12 +139,28 @@ function useSuggestions(suggestions, mode) {
                 case 'autocomplete': {
                     const { value, range } = result;
                     const { start, end } = range;
-                    input.value = value;
-                    input.setSelectionRange(start, end);
+                    setValueAndRange(value, start, end);
                 }
             }
         });
     }, [strings, ref]);
+
+    useSignalEffect(() => {
+        const sub = selected.value;
+        if (sub !== null) {
+            const input = ref.current;
+            if (!input || typeof input.selectionStart !== 'number') return console.warn('no');
+            const suggestion = suggestions.peek()[sub];
+            const result = pick(last.current, input.value, last.current.length, suggestion);
+            switch (result.kind) {
+                case 'autocomplete': {
+                    const { value, range } = result;
+                    const { start, end } = range;
+                    setValueAndRange(value, start, end);
+                }
+            }
+        }
+    });
 
     const onInput = useCallback(
         (e) => {
@@ -144,7 +174,7 @@ function useSuggestions(suggestions, mode) {
                 // eslint-disable-next-line promise/prefer-await-to-then
                 .then((/** @type {import('../../../types/new-tab').SuggestionsData} */ data) => {
                     console.group(`✅ search_getSuggestions`);
-                    console.log(JSON.stringify(data));
+                    console.log(data);
                     console.groupEnd();
                     const flat = [
                         ...data.suggestions.topHits,
@@ -169,8 +199,7 @@ function useSuggestions(suggestions, mode) {
             switch (result.kind) {
                 case 'autocomplete': {
                     const { value, range } = result;
-                    e.target.value = value;
-                    e.target.setSelectionRange(range.start, range.end);
+                    setValueAndRange(value, range.start, range.end);
                 }
             }
         },
@@ -238,6 +267,43 @@ function next(lastTypedValue, currentValue, cursorPos, suggestions) {
     return { kind: 'none', lastTypedValue: inner };
 }
 
+/**
+ * @param {string} lastTypedValue
+ * @param {string} currentValue
+ * @param {number} cursorPos
+ * @param {import('../../../types/new-tab').Suggestions[number]} suggestion
+ * @return {{kind: "none"; lastTypedValue: string}
+ *   | {kind: "delete"; lastTypedValue: string}
+ *   | {kind: "empty"; lastTypedValue: string}
+ *   | {kind: "autocomplete"; lastTypedValue: string, value: string, range: {start: number; end: number}, others: string[]}
+ *   }
+ */
+function pick(lastTypedValue, currentValue, cursorPos, suggestion) {
+    let inner = lastTypedValue;
+
+    // Get the actual typed portion (everything up to cursor)
+    const typedValue = currentValue.substring(0, cursorPos).toLowerCase();
+    inner = typedValue;
+
+    if (typedValue.length === 0) {
+        return { kind: 'empty', lastTypedValue: inner };
+    }
+
+    const first = toDisplay(suggestion);
+
+    if (first && first.toLowerCase() !== typedValue) {
+        return {
+            kind: 'autocomplete',
+            value: first,
+            range: { start: typedValue.length, end: first.length },
+            lastTypedValue: inner,
+            others: [],
+        };
+    }
+
+    return { kind: 'none', lastTypedValue: inner };
+}
+
 export function toDisplay(suggestion) {
     switch (suggestion.kind) {
         case 'bookmark':
@@ -285,13 +351,9 @@ function keynext(input, e, lastTypedValue) {
     }
 
     if (e.key === 'Escape' && typeof input.selectionStart === 'number') {
-        const typedPortion = input.value.substring(0, input.selectionStart);
         return {
-            kind: 'autocomplete',
-            lastTypedValue: typedPortion,
-            range: { start: typedPortion.length, end: typedPortion.length },
-            others: [],
-            value: typedPortion,
+            kind: 'none',
+            lastTypedValue,
         };
     }
 
