@@ -5,25 +5,23 @@
     "required": ["data"],
     "properties": {
       "data": {
-        "type": "object",
-        "properties": {
-            "title": {
-                "type": "string",
-                "description": "The title of the page being summarized."
+        "oneOf": [
+            {
+                "type": "null"
             },
-            "favicon": {
-                "type": "string",
-                "description": "The URL of the favicon for the page."
-            },
-            "summary": {
-                "type": "string",
-                "description": "A brief summary of the page content."
-            },
-            "error": {
-                "type": ["null", "string"],
-                "description": "An error message if the summarization failed, otherwise null."
+            {
+                "type": "object",
+                "properties": {
+                    "summary": {
+                        "type": "array",
+                        "description": "A brief summary of the page content.",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
-        }
+        ]
       }
     }
 }

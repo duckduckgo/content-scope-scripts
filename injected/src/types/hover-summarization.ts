@@ -10,7 +10,36 @@
  * Requests, Notifications and Subscriptions from the HoverSummarization feature
  */
 export interface HoverSummarizationMessages {
-  requests: HoverSummarizationRequest;
+  requests: HoverBaseinfoRequest | HoverSummarizationRequest;
+}
+/**
+ * Generated from @see "../messages/hover-summarization/hover-baseinfo.request.json"
+ */
+export interface HoverBaseinfoRequest {
+  method: "hover-baseinfo";
+  params: HoverBaseInfoRequestParams;
+  result: HoverBaseinfoResponse;
+}
+/**
+ * Request to native device to fetch social card info of supplied URL
+ */
+export interface HoverBaseInfoRequestParams {
+  /**
+   * URL to fetch social card data for
+   */
+  url?: string;
+}
+export interface HoverBaseinfoResponse {
+  data: null | {
+    /**
+     * The title of the page
+     */
+    title?: string;
+    /**
+     * The URL of the social card image for the page.
+     */
+    image?: string;
+  };
 }
 /**
  * Generated from @see "../messages/hover-summarization/hover-summarization.request.json"
@@ -30,23 +59,11 @@ export interface HoverSummarizationRequestParams {
   url?: string;
 }
 export interface HoverSummarizationResponse {
-  data: {
-    /**
-     * The title of the page being summarized.
-     */
-    title?: string;
-    /**
-     * The URL of the favicon for the page.
-     */
-    favicon?: string;
+  data: null | {
     /**
      * A brief summary of the page content.
      */
-    summary?: string;
-    /**
-     * An error message if the summarization failed, otherwise null.
-     */
-    error?: null | string;
+    summary?: string[];
   };
 }
 

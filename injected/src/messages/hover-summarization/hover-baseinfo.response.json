@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "name": "HoverBaseInfoResponse",
+    "required": ["data"],
+    "properties": {
+      "data": {
+        "oneOf": [
+                {
+                    "type": "null"
+                },
+                {
+                    "type": "object",
+                    "name": "SocialCardInfo",
+                    "properties": {
+                        "title": {
+                            "type": "string",
+                            "description": "The title of the page"
+                        },
+                        "image": {
+                            "type": "string",
+                            "description": "The URL of the social card image for the page."
+                        }
+                    }
+                  }
+            ]
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

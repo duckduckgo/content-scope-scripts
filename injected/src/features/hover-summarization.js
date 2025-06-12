@@ -38,7 +38,11 @@ export default class HoverSummarization extends ContentFeature {
                     this.messaging.request('hover-summarization', {
                         url: currentHoveredLink.getAttribute('href'),
                     });
-                    this.createCard(currentHoveredLink);
+                    this.createCard(
+                        currentHoveredLink,
+                        'Title',
+                        'https://platform.vox.com/wp-content/uploads/sites/2/2025/06/GettyImages-2196337297.jpg?quality=90&strip=all&crop=0%2C16.666666666667%2C100%2C66.666666666667&w=1440',
+                    );
                     clearTimeout(currentHoverTimer);
                     // currentHoverTimer = null;
                     // currentHoveredLink = null;
@@ -66,7 +70,7 @@ export default class HoverSummarization extends ContentFeature {
         });
     }
 
-    createCard(link) {
+    createCard(link, title, image) {
         // Remove any existing cards first
         const existingCards = document.querySelectorAll('.hover-summary-card');
         existingCards.forEach((card) => card.remove());
@@ -77,17 +81,27 @@ export default class HoverSummarization extends ContentFeature {
         const summaryCard = document.createElement('div');
 
         summaryCard.className = 'hover-summary-card'; // Add a class for easy removal
-        summaryCard.textContent = 'Hello, this will be a summary card!';
         summaryCard.style.position = 'fixed';
         summaryCard.style.top = `${locationRect.bottom}px`;
         summaryCard.style.left = `${locationRect.left}px`;
         summaryCard.style.zIndex = '1000';
         summaryCard.style.backgroundColor = 'white';
-        summaryCard.style.border = '1px solid #ccc'; // Add border for visibility
         summaryCard.style.borderRadius = '0.5rem';
-        summaryCard.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+        summaryCard.style.boxShadow =
+            '0px 0px 0px 1px  rgba(0, 0, 0, 0.08), 0px 8px 8px 0px  rgba(0, 0, 0, 0.08), 0px 2px 4px 0px  rgba(0, 0, 0, 0.08)';
         summaryCard.style.padding = '10px';
         summaryCard.style.maxWidth = '300px';
+
+        const titleElement = document.createElement('h3');
+        titleElement.textContent = title;
+        summaryCard.appendChild(titleElement);
+
+        const imageElement = document.createElement('img');
+        imageElement.src = image;
+        imageElement.style.width = '100%';
+        imageElement.style.height = 'auto';
+        imageElement.style.borderRadius = '0.5rem';
+        summaryCard.appendChild(imageElement);
 
         // Function to handle clicking outside the card
         const handleClickOutside = (event) => {
