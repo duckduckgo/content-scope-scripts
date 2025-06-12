@@ -172,7 +172,7 @@ function SuggestionList({ suggestions, selected }) {
         function mouseEnter(e) {
             const button = e.target.closest('button[value]');
             if (button && button instanceof HTMLButtonElement) {
-                selected.value = Number(e.target.value);
+                selected.value = Number(button.value);
             }
         }
         ref.current?.addEventListener('mouseenter', mouseEnter, true);
@@ -193,7 +193,7 @@ function SuggestionList({ suggestions, selected }) {
             {list.value.map((x, index) => {
                 return (
                     <button class={styles.item} value={index} key={toDisplay(x.item)} data-selected={x.selected}>
-                        {x.item.kind}: {toDisplay(x.item)}
+                        <SearchIcon /> {toDisplay(x.item)}
                     </button>
                 );
             })}

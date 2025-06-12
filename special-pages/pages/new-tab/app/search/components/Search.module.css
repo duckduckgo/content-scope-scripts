@@ -86,7 +86,8 @@
     padding: 8px;
 }
 .item {
-    display: block;
+    display: flex;
+    align-items: center;
     text-decoration: none;
     font-size: var(--title-3-em-font-size);
     padding: 4px 8px;
@@ -95,6 +96,11 @@
     border: 0;
     text-align: left;
     cursor: pointer;
+    gap: 8px;
+
+    svg path {
+        fill-opacity: 1!important;
+    }
 
     &:hover {
         background: var(--ddg-color-primary);

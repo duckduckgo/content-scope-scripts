@@ -156,6 +156,7 @@ function useSuggestions(suggestions, mode, selected) {
             const input = ref.current;
             if (!input || typeof input.selectionStart !== 'number') return console.warn('no');
             const suggestion = suggestions.peek()[sub];
+            if (!suggestion) console.warn('missing suggestion', sub);
             const result = pick(last.current, input.value, last.current.length, suggestion);
             switch (result.kind) {
                 case 'autocomplete': {
