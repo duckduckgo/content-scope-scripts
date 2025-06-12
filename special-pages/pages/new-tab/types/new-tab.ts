@@ -85,6 +85,14 @@ export type NextStepsCards = {
 }[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
+export type Suggestions = (
+  | BookmarkSuggestion
+  | OpenTabSuggestion
+  | PhraseSuggestion
+  | WebsiteSuggestion
+  | HistoryEntrySuggestion
+  | InternalPageSuggestion
+)[];
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -137,6 +145,7 @@ export interface NewTabMessages {
     | ProtectionsGetConfigRequest
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
+    | SearchGetSuggestionsRequest
     | StatsGetDataRequest;
   subscriptions:
     | ActivityOnBurnCompleteSubscription
@@ -837,6 +846,57 @@ export interface BigTwoActionMessage {
   icon: RMFIcon;
   primaryActionText: string;
   secondaryActionText: string;
+}
+/**
+ * Generated from @see "../messages/search_getSuggestions.request.json"
+ */
+export interface SearchGetSuggestionsRequest {
+  method: "search_getSuggestions";
+  params: SearchGetSuggestionsRequest1;
+  result: SuggestionsData;
+}
+export interface SearchGetSuggestionsRequest1 {
+  term: string;
+}
+export interface SuggestionsData {
+  suggestions: {
+    topHits: Suggestions;
+    duckduckgoSuggestions: Suggestions;
+    localSuggestions: Suggestions;
+  };
+}
+export interface BookmarkSuggestion {
+  kind: "bookmark";
+  title: string;
+  url: string;
+  isFavorite: boolean;
+  score: number;
+}
+export interface OpenTabSuggestion {
+  kind: "openTab";
+  title: string;
+  tabId: string;
+  score: number;
+}
+export interface PhraseSuggestion {
+  kind: "phrase";
+  phrase: string;
+}
+export interface WebsiteSuggestion {
+  kind: "website";
+  url: string;
+}
+export interface HistoryEntrySuggestion {
+  kind: "historyEntry";
+  title: string;
+  url: string;
+  score: number;
+}
+export interface InternalPageSuggestion {
+  kind: "internalPage";
+  title: string;
+  url: string;
+  score: number;
 }
 /**
  * Generated from @see "../messages/stats_getData.request.json"

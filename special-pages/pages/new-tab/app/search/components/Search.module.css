@@ -1,5 +1,6 @@
 .root {
     margin-bottom: var(--ntp-gap);
+    position: relative;
 }
 .icons {
     display: flex;
@@ -54,4 +55,16 @@
     svg[data-name="duckai"] {
         color: var(--duckai-purple);
     }
+}
+.list {
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    background: white;
+    z-index: 1;
+    border-bottom-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+}
+.list:not(:empty) {
+    padding: 8px;
 }

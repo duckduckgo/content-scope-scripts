@@ -10,6 +10,7 @@ children:
   - ./next-steps/next-steps.md
   - ./customizer/customizer.md
   - ./protections/protections.md
+  - ./search/search.md
 ---
 
 ## Requests

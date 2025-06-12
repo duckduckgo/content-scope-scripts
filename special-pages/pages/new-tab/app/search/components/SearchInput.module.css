@@ -10,6 +10,10 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    [data-state="showing-suggestions"] & {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
 }
 
 /*@keyframes grow-y {*/

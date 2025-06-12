@@ -9,6 +9,7 @@ import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 import { activityMockTransport } from './activity/mocks/activity.mock-transport.js';
 import { protectionsMockTransport } from './protections/mocks/protections.mock-transport.js';
+import { searchMockTransport } from './search/mocks/search.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -106,6 +107,7 @@ export function mockTransport() {
         customizer: customizerMockTransport(),
         activity: activityMockTransport(),
         protections: protectionsMockTransport(),
+        search: searchMockTransport(),
     };
 
     return new TestTransportConfig({

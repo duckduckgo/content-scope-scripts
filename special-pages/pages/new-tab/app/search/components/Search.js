@@ -1,21 +1,28 @@
 import { h } from 'preact';
-import { useSignal } from '@preact/signals';
+import { useComputed, useSignal } from '@preact/signals';
 import classNames from 'classnames';
 import styles from './Search.module.css';
-import { SearchInput } from './SearchInput.js';
+import { SearchInput, toDisplay } from './SearchInput.js';
 import { viewTransition } from '../../utils.js';
 
 export function Search() {
     const mode = useSignal(/** @type {"search"  | "ai"} */ ('search'));
+    const suggestions = useSignal(/** @type {import('../../../types/new-tab').Suggestions} */ ([]));
+    const showing = useComputed(() => {
+        if (suggestions.value.length > 0) return 'showing-suggestions';
+        return 'none';
+    });
 
     function setMode(next) {
         viewTransition(() => {
             mode.value = next;
+            suggestions.value = [];
+            window.dispatchEvent(new Event('reset-mode'));
         });
     }
 
     return (
-        <div class={styles.root}>
+        <div class={styles.root} data-state={showing}>
             <div class={styles.icons}>
                 <img class={styles.iconSearch} src="./icons/search/Logo.svg" alt="Search" />
                 <img class={styles.iconText} src="./icons/search/Logotype.svg" alt="Search" />
@@ -35,7 +42,26 @@ export function Search() {
                     </button>
                 </div>
             </div>
-            <SearchInput mode={mode} />
+            <SearchInput mode={mode} suggestions={suggestions} />
+            <SuggestionList suggestions={suggestions} />
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {import("@preact/signals").Signal<import('../../../types/new-tab').Suggestions>} props.suggestions
+ */
+function SuggestionList({ suggestions }) {
+    return (
+        <div class={styles.list}>
+            {suggestions.value.map((x) => {
+                return (
+                    <div key={toDisplay(x)}>
+                        {x.kind}: {toDisplay(x)}
+                    </div>
+                );
+            })}
         </div>
     );
 }
