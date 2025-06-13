@@ -55,7 +55,13 @@ export function Search() {
         const data = new FormData(e.target);
         const term = data.get('term');
         const selected = data.get('selected');
+        const mode = data.get('mode');
         const target = eventToTarget(e, platformName);
+
+        if (mode === 'ai' && term) {
+            return ntp.messaging.notify('search_submitChat', { chat: String(term), target });
+        }
+
         if (term && selected) {
             const suggestion = suggestions.value[Number(selected)];
             if (suggestion) {
@@ -94,6 +100,7 @@ export function Search() {
                 <form onSubmit={onSubmit} class={styles.form}>
                     <SearchInput mode={mode} suggestions={suggestions} selected={selected} />
                     <SelectedInput selected={selected} />
+                    <input type="hidden" name="mode" value={mode} />
                     {showing.value === 'showing-suggestions' && <SuggestionList suggestions={suggestions} selected={selected} />}
                 </form>
             </div>

@@ -52,16 +52,20 @@
     align-items: center;
     gap: 6px;
     font-weight: 600;
+    transition: background .2s;
 
     svg {
         width: 16px;
         height: 16px;
     }
+
+    &:hover {
+        background: var(--color-black-at-9);
+    }
 }
 
 .pillOption.active {
     background: var(--color-white);
-    /* Shadows/On Light/Elevation 10 */
     box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.08), 0px 2px 4px 0px rgba(0, 0, 0, 0.10);
     svg[data-name="search"] {
         color: blue;

@@ -106,7 +106,14 @@
     color: #fff;
     position: relative;
     top: 4px;
+    &:hover {
+        background-color: var(--duckai-purple-hover);
+    }
+    &:active {
+        background-color: var(--duckai-purple-active);
+    }
 }
+
 
 .buttonSecondary {
     background-color: rgba(0, 0, 0, 0.06);

@@ -38,6 +38,8 @@
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
 
     --duckai-purple: rgba(107, 78, 186, 1);
+    --duckai-purple-hover: rgb(128, 101, 208);
+    --duckai-purple-active: rgb(85, 64, 160);
 }
 
 body {

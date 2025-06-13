@@ -128,6 +128,7 @@ export interface NewTabMessages {
     | RmfSecondaryActionNotification
     | SearchOpenSuggestionNotification
     | SearchSubmitNotification
+    | SearchSubmitChatNotification
     | StatsShowLessNotification
     | StatsShowMoreNotification
     | TelemetryEventNotification
@@ -577,6 +578,17 @@ export interface SearchSubmitNotification {
 }
 export interface SearchSubmitParams {
   term: string;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/search_submitChat.notify.json"
+ */
+export interface SearchSubmitChatNotification {
+  method: "search_submitChat";
+  params: SearchSubmitChatParams;
+}
+export interface SearchSubmitChatParams {
+  chat: string;
   target: OpenTarget;
 }
 /**

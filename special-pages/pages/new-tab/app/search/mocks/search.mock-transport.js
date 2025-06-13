@@ -8,7 +8,9 @@ export function searchMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 default: {
-                    console.warn('unhandled notification', msg);
+                    console.group('unhandled notification', msg);
+                    console.warn(JSON.stringify(msg));
+                    console.groupEnd();
                 }
             }
         },
