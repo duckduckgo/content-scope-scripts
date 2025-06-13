@@ -207,6 +207,9 @@ function PillShowMoreLess({ expansion }) {
  */
 export function OtherText({ count }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const otherText = t('stats_otherCount', { count: String(count) });
+    const [formatter] = useState(() => new Intl.NumberFormat());
+    const formattedCount = formatter.format(count);
+
+    const otherText = t('stats_otherCount', { count: String(formattedCount) });
     return <div class={styles.otherTrackersRow}>{otherText}</div>;
 }

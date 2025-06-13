@@ -28,7 +28,7 @@ export const privacyStatsMocks = {
             },
             {
                 displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
-                count: 210,
+                count: 2100,
             },
             {
                 displayName: 'Amazon.com',
