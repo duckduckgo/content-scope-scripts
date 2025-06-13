@@ -111,11 +111,11 @@ export const styles = `
 
     .summary-list {
         list-style: none;
-        padding-left: 0;
+        padding-left: 10px;
         display: flex;
         flex-direction: column;
         gap: 1rem;
-        margin: 0.5rem 0 0;
+        margin: 0.5rem -10px 0;
 
         .summary-list-item {
             display: flex;
