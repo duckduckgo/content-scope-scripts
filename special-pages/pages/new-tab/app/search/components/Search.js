@@ -31,6 +31,7 @@ export function Search() {
     useEffect(() => {
         const listener = () => {
             suggestions.value = [];
+            console.log('did wipe');
             selected.value = null;
         };
         window.addEventListener('clear-suggestions', listener);
@@ -88,6 +89,7 @@ export function Search() {
                 console.warn('not found');
             }
         } else if (term) {
+            console.log({ term, selected, v: selected });
             ntp.messaging.notify('search_submit', { term: String(term), target });
         }
 
@@ -102,10 +104,11 @@ export function Search() {
 
         const data = new FormData(e.target);
         const term = data.get('term')?.toString().trim() || '';
-        const selected = data.get('selected')?.toString() || null;
+        const selectedForm = data.get('selected')?.toString() || null;
+
         const mode = /** @type {"search"|"ai"} */ (data.get('mode')?.toString() || 'search');
         const target = eventToTarget(e, platformName);
-        accept(term, mode, target, selected);
+        accept(term, mode, target, selectedForm);
     }
 
     return (
@@ -173,7 +176,9 @@ function SuggestionList({ suggestions, selected }) {
     useEffect(() => {
         const listener = (e) => {
             if (!ref.current?.contains(e.target)) {
-                window.dispatchEvent(new Event('clear-suggestions'));
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('clear-suggestions'));
+                }, 0);
             }
         };
         document.addEventListener('click', listener);
@@ -262,7 +267,7 @@ function iconFor(suggestion) {
         case 'openTab':
         case 'internalPage':
             console.warn('icon not implemented for ', suggestion.kind);
-            return null;
+            return <BrowserIcon />;
     }
 }
 
@@ -316,6 +321,17 @@ export function GlobeIcon() {
                 fill-rule="evenodd"
                 d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm1.529-.7a8.507 8.507 0 0 1 5.616-7.308 8.524 8.524 0 0 0-.57 1.194c-.682 1.748-1.058 4.093-1.074 6.64a49.2 49.2 0 0 1-3.753-.49l-.22-.037Zm.01 1.523a8.508 8.508 0 0 0 5.606 7.186 8.53 8.53 0 0 1-.57-1.195c-.577-1.479-.935-3.384-1.041-5.478a50.81 50.81 0 0 1-3.994-.513Zm5.503.624c.112 1.899.442 3.57.93 4.82.306.782.657 1.36 1.02 1.732.356.363.691.501 1.008.501.317 0 .653-.138 1.008-.501.363-.372.715-.95 1.02-1.731.489-1.252.819-2.923.93-4.821-1.97.115-3.946.115-5.916 0Zm7.425-.111c-.107 2.094-.464 4-1.042 5.478-.167.428-.356.83-.57 1.195a8.508 8.508 0 0 0 5.606-7.186 50.802 50.802 0 0 1-3.994.513Zm4.005-2.037-.219.037a49.196 49.196 0 0 1-3.753.49c-.017-2.547-.392-4.892-1.075-6.64a8.526 8.526 0 0 0-.57-1.194 8.507 8.507 0 0 1 5.617 7.307ZM15 11.941a49.224 49.224 0 0 1-6 0c.006-2.47.368-4.66.972-6.209.306-.782.657-1.36 1.02-1.73.356-.364.691-.502 1.008-.502.317 0 .653.138 1.008.501.363.372.715.95 1.02 1.731.605 1.549.967 3.74.972 6.21Z"
                 clip-rule="evenodd"
+            />
+        </svg>
+    );
+}
+
+export function BrowserIcon() {
+    return (
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill="currentColor"
+                d="M11 2a4 4 0 0 1 4 4v4c0 .854.39 1.617 1 2.121v.357c0 .517-.541.841-.925.495A3.99 3.99 0 0 1 13.75 10V6A2.75 2.75 0 0 0 11 3.25H5A2.75 2.75 0 0 0 2.25 6v4a3.99 3.99 0 0 1-1.325 2.973c-.384.346-.925.022-.925-.495v-.357c.61-.504 1-1.267 1-2.121V6a4 4 0 0 1 4-4h6Z"
             />
         </svg>
     );
