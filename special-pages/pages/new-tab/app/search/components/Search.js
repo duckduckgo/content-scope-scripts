@@ -9,6 +9,7 @@ import { useMessaging } from '../../types.js';
 import { usePlatformName } from '../../settings.provider.js';
 
 export function Search() {
+    const formRef = useRef(null);
     const mode = useSignal(/** @type {"search"  | "ai"} */ ('search'));
     const suggestions = useSignal(/** @type {import('../../../types/new-tab').Suggestions} */ ([]));
     const selected = useSignal(/** @type {null|number} */ (null));
@@ -50,17 +51,31 @@ export function Search() {
         };
     }, []);
 
-    function onSubmit(e) {
-        e.preventDefault();
+    useEffect(() => {
+        const listener = (/** @type {CustomEvent} */ evt) => {
+            if (!formRef.current) return console.warn('formRef.current is null');
+            const { detail } = evt;
+            const data = new FormData(formRef.current);
+            const term = data.get('term')?.toString().trim() || '';
 
-        if (!(e.target instanceof HTMLFormElement)) return;
+            if (term) {
+                accept(term, 'ai', detail.target, null);
+            }
+        };
+        window.addEventListener('accept-ai', listener);
+        return () => {
+            window.removeEventListener('accept-ai', listener);
+        };
+    }, []);
 
-        const data = new FormData(e.target);
-        const term = data.get('term');
-        const selected = data.get('selected');
-        const mode = data.get('mode');
-        const target = eventToTarget(e, platformName);
-
+    /**
+     * @param {string} term
+     * @param {"search" | "ai"} mode
+     * @param {import('../../../types/new-tab').OpenTarget} target
+     * @param {string|null} selected
+     * @returns {*}
+     */
+    function accept(term, mode, target, selected) {
         if (mode === 'ai' && term) {
             return ntp.messaging.notify('search_submitChat', { chat: String(term), target });
         }
@@ -68,7 +83,6 @@ export function Search() {
         if (term && selected) {
             const suggestion = suggestions.value[Number(selected)];
             if (suggestion) {
-                console.log({ term, selected });
                 ntp.messaging.notify('search_openSuggestion', { suggestion, target });
             } else {
                 console.warn('not found');
@@ -79,6 +93,19 @@ export function Search() {
 
         window.dispatchEvent(new Event('clear-all'));
         window.dispatchEvent(new Event('clear-suggestions'));
+    }
+
+    function onSubmit(e) {
+        e.preventDefault();
+
+        if (!(e.target instanceof HTMLFormElement)) return;
+
+        const data = new FormData(e.target);
+        const term = data.get('term')?.toString().trim() || '';
+        const selected = data.get('selected')?.toString() || null;
+        const mode = /** @type {"search"|"ai"} */ (data.get('mode')?.toString() || 'search');
+        const target = eventToTarget(e, platformName);
+        accept(term, mode, target, selected);
     }
 
     return (
@@ -103,7 +130,7 @@ export function Search() {
                 </div>
             </div>
             <div class={styles.formWrap}>
-                <form onSubmit={onSubmit} class={styles.form}>
+                <form onSubmit={onSubmit} class={styles.form} ref={formRef}>
                     <SearchInput mode={mode} suggestions={suggestions} selected={selected} />
                     <SelectedInput selected={selected} />
                     <input type="hidden" name="mode" value={mode} />

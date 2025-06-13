@@ -5,6 +5,8 @@ import { DuckAiIcon, SearchIcon } from './Search.js';
 import { useCallback, useEffect, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { useSignal, useSignalEffect } from '@preact/signals';
+import { eventToTarget } from '../../utils.js';
+import { usePlatformName } from '../../settings.provider.js';
 
 const url = new URL(window.location.href);
 
@@ -20,17 +22,26 @@ const url = new URL(window.location.href);
  * @param {import('@preact/signals').Signal<number|null>} props.selected
  */
 export function SearchInput({ mode, suggestions, selected }) {
+    const platformName = usePlatformName();
     return (
         <div class={styles.root} style={{ viewTransitionName: 'search-input-transition' }}>
             <div class={styles.searchContainer} style={{ viewTransitionName: 'search-input-transition2' }}>
                 <InputFieldWithSuggestions mode={mode} suggestions={suggestions} selected={selected} />
                 {mode.value === 'search' && (
                     <div class={styles.searchActions}>
-                        <button class={cn(styles.searchTypeButton)} aria-label="Web search">
+                        <button class={cn(styles.searchTypeButton)} aria-label="Web search" inert>
                             <SearchIcon />
                         </button>
                         <div class={styles.separator}></div>
-                        <button class={cn(styles.searchTypeButton)} aria-label="Image search">
+                        <button
+                            class={cn(styles.searchTypeButton, styles.squareButton)}
+                            aria-label="Image search"
+                            type="button"
+                            onClick={(e) => {
+                                const target = eventToTarget(e, platformName);
+                                window.dispatchEvent(new CustomEvent('accept-ai', { detail: { target } }));
+                            }}
+                        >
                             <DuckAiIcon />
                         </button>
                     </div>
