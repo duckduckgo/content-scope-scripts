@@ -44,39 +44,39 @@ export default class HoverSummarization extends ContentFeature {
 
                     // !!!!!!! Get Basic Info & update base info section
                     // REAL
-                    // const { data } = await this.messaging.request('hover-baseinfo', {
-                    //     url: urlToSend,
-                    // });
-                    // const { title, image, timeToRead } = data;
-                    // this.updateCardWithImageTitleReadingTime(image, title, timeToRead);
+                    const { data } = await this.messaging.request('hover-baseinfo', {
+                        url: urlToSend,
+                    });
+                    const { title, image, timeToRead } = data;
+                    this.updateCardWithImageTitleReadingTime(image, title, timeToRead);
 
                     // MOCK
-                    const mockBasicInfo = {
-                        title: 'The surprising way romance may affect your friendships',
-                        image: 'https://platform.vox.com/wp-content/uploads/sites/2/2025/06/GettyImages-2196337297.jpg?quality=90&strip=all&crop=0%2C16.666666666667%2C100%2C66.666666666667&w=1440',
-                        timeToRead: 2,
-                    };
-                    const { title, image, timeToRead } = mockBasicInfo;
-                    setTimeout(() => {
-                        this.updateCardWithImageTitleReadingTime(image, title, timeToRead);
-                    }, 3000);
+                    // const mockBasicInfo = {
+                    //     title: 'The surprising way romance may affect your friendships',
+                    //     image: 'https://platform.vox.com/wp-content/uploads/sites/2/2025/06/GettyImages-2196337297.jpg?quality=90&strip=all&crop=0%2C16.666666666667%2C100%2C66.666666666667&w=1440',
+                    //     timeToRead: 2,
+                    // };
+                    // const { title, image, timeToRead } = mockBasicInfo;
+                    // setTimeout(() => {
+                    //     this.updateCardWithImageTitleReadingTime(image, title, timeToRead);
+                    // }, 3000);
 
                     // !!!!!!! Get Summary & update summary section
                     // REAL
-                    // const summaryInfo = await this.messaging.request('hover-summarization', {
-                    //     url: urlToSend,
-                    // });
-                    // const { summary } = summaryInfo.data;
-                    // console.log({ summary });
-                    // this.updateCardWithSummary(summary);
+                    const summaryInfo = await this.messaging.request('hover-summarization', {
+                        url: urlToSend,
+                    });
+                    const { summary } = summaryInfo.data;
+                    console.log({ summary });
+                    this.updateCardWithSummary(summary);
 
                     // MOCK
-                    const summary = ['This is a summary', 'This is another, much much much much longer summary', 'This is a third summary'];
-                    if (summary.length > 0) {
-                        setTimeout(() => {
-                            this.updateCardWithSummary(summary);
-                        }, 8000);
-                    }
+                    // const summary = ['This is a summary', 'This is another, much much much much longer summary', 'This is a third summary'];
+                    // if (summary.length > 0) {
+                    //     setTimeout(() => {
+                    //         this.updateCardWithSummary(summary);
+                    //     }, 8000);
+                    // }
                     clearTimeout(currentHoverTimer);
                     // currentHoverTimer = null;
                     // currentHoveredLink = null;
