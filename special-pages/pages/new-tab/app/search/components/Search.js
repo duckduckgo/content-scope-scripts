@@ -78,6 +78,7 @@ export function Search() {
         }
 
         window.dispatchEvent(new Event('clear-all'));
+        window.dispatchEvent(new Event('clear-suggestions'));
     }
 
     return (
