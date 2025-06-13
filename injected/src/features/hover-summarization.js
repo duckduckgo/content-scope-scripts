@@ -1,6 +1,7 @@
 import ContentFeature from '../content-feature';
 import { spinner, clock, assist, copy, arrowCircleRight } from './hover-summarization/svgs';
 import { styles } from './hover-summarization/styles';
+import { scripts } from './hover-summarization/scripts';
 
 const linkSelector = 'a';
 
@@ -21,21 +22,11 @@ export default class HoverSummarization extends ContentFeature {
     }
 
     injectHoverSummarization() {
-        // Inject Floating UI scripts if not already present
-        const floatingUiCoreSrc = "https://cdn.jsdelivr.net/npm/@floating-ui/core@1.7.1";
-        const floatingUiDomSrc = "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.1";
-
-        const ensureScript = (src) => {
-            if (!document.querySelector(`script[src="${src}"]`)) {
-                const script = document.createElement('script');
-                script.src = src;
-                script.async = false;
-                document.head.appendChild(script);
-            }
-        };
-
-        ensureScript(floatingUiCoreSrc);
-        ensureScript(floatingUiDomSrc);
+        // Inject Floating UI library
+        const script = document.createElement('script');
+        script.textContent = scripts;
+        script.async = false;
+        document.head.appendChild(script);
 
         const linksList = document.querySelectorAll(linkSelector);
         if (linksList.length === 0) {
