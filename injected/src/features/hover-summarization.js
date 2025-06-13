@@ -21,6 +21,22 @@ export default class HoverSummarization extends ContentFeature {
     }
 
     injectHoverSummarization() {
+        // Inject Floating UI scripts if not already present
+        const floatingUiCoreSrc = "https://cdn.jsdelivr.net/npm/@floating-ui/core@1.7.1";
+        const floatingUiDomSrc = "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.1";
+
+        const ensureScript = (src) => {
+            if (!document.querySelector(`script[src="${src}"]`)) {
+                const script = document.createElement('script');
+                script.src = src;
+                script.async = false;
+                document.head.appendChild(script);
+            }
+        };
+
+        ensureScript(floatingUiCoreSrc);
+        ensureScript(floatingUiDomSrc);
+
         const linksList = document.querySelectorAll(linkSelector);
         if (linksList.length === 0) {
             return;
@@ -105,89 +121,87 @@ export default class HoverSummarization extends ContentFeature {
 
     createCard(link, cleanDomain) {
         // Remove any existing cards first
-        const existingCards = document.querySelectorAll('.hover-summary-card');
-        existingCards.forEach((card) => card.remove());
+        const existingFrames = document.querySelectorAll('.hover-summary-iframe');
+        existingFrames.forEach((frame) => frame.remove());
 
         console.log('Creating a summary card...');
         const locationRect = link.getBoundingClientRect();
 
-        const style = document.createElement('style');
-        style.textContent = styles;
-        document.head.appendChild(style);
+        // Create iframe container
+        const iframe = document.createElement('iframe');
+        iframe.className = 'hover-summary-iframe';
+        iframe.style.position = 'absolute';
+        iframe.style.border = 'none';
+        iframe.style.zIndex = '9999';
+        iframe.style.width = '440px';
+        iframe.style.height = '600px';
+        iframe.style.background = 'transparent';
+        iframe.style.transition = 'left 0.2s ease, top 0.2s ease, height 0.2s ease';
 
-        const summaryCard = document.createElement('div');
+        // This function will get called repeatedly
+        function updatePosition() {
+            window.FloatingUIDOM.computePosition(link, iframe, {
+                middleware: [window.FloatingUIDOM.autoPlacement()],
+            }).then(({x, y}) => {
+                Object.assign(iframe.style, {
+                    left: `${x}px`,
+                    top: `${y}px`,
+                });
+            });
+        }
 
-        summaryCard.className = 'hover-summary-card';
-        summaryCard.style.top = `${locationRect.bottom}px`;
-        summaryCard.style.left = `${locationRect.left}px`;
+        // Append iframe to body
+        document.body.appendChild(iframe);
 
-        const domainContainer = document.createElement('div');
-        domainContainer.className = 'domain-container';
-        summaryCard.appendChild(domainContainer);
+        // Start auto updates
+        const cleanup = window.FloatingUIDOM.autoUpdate(
+            link,
+            iframe,
+            updatePosition,
+        );
 
-        const domainTextElement = document.createElement('p');
-        domainTextElement.textContent = cleanDomain;
-        domainContainer.appendChild(domainTextElement);
-
-        const domainLoadingIcon = document.createElement('div');
-        domainLoadingIcon.className = 'domain-loading-icon';
-        domainLoadingIcon.innerHTML = spinner;
-        domainContainer.appendChild(domainLoadingIcon);
-
-        const baseInfoContainer = document.createElement('div');
-        baseInfoContainer.className = 'base-info-container';
-        baseInfoContainer.classList.add('border-bottom');
-        summaryCard.appendChild(baseInfoContainer);
-
-        const summaryContainer = document.createElement('div');
-        summaryContainer.className = 'summary-container';
-        summaryCard.appendChild(summaryContainer);
-
-        const summaryTitleRow = document.createElement('div');
-        summaryTitleRow.className = 'summary-title-row';
-        summaryContainer.appendChild(summaryTitleRow);
-
-        const summaryTitleIconContainer = document.createElement('div');
-        summaryTitleIconContainer.className = 'summary-title-left-container';
-        summaryTitleRow.appendChild(summaryTitleIconContainer);
-
-        const summaryTitleIcon = document.createElement('div');
-        summaryTitleIcon.className = 'summary-title-icon';
-        summaryTitleIcon.innerHTML = assist;
-        summaryTitleIconContainer.appendChild(summaryTitleIcon);
-
-        const summaryTitle = document.createElement('h4');
-        summaryTitle.className = 'summary-title';
-        summaryTitle.textContent = 'Highlights';
-        summaryTitleIconContainer.appendChild(summaryTitle);
-
-        const summaryLoadingElement = document.createElement('div');
-        summaryLoadingElement.className = 'summary-loading';
-        summaryLoadingElement.innerHTML = spinner;
-        summaryTitleRow.appendChild(summaryLoadingElement);
-
-        // add visit page element
-        const visitPageContainer = document.createElement('div');
-        visitPageContainer.className = 'visit-page-container';
-        summaryCard.appendChild(visitPageContainer);
-
-        const visitPageIcon = document.createElement('div');
-        visitPageIcon.className = 'visit-page-icon';
-        visitPageIcon.innerHTML = arrowCircleRight;
-        visitPageContainer.appendChild(visitPageIcon);
-
-        const visitPageElement = document.createElement('a');
-        visitPageElement.textContent = 'Visit Page';
-        visitPageElement.href = link.href;
-        visitPageElement.target = '_blank';
-        visitPageContainer.appendChild(visitPageElement);
+        // Write initial HTML structure
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>${styles}</style>
+            </head>
+            <body style="margin: 8px; padding: 0; background: transparent;">
+                <div class="hover-summary-card" style="position: relative; top: 0; left: 0;">
+                    <div class="domain-container">
+                        <p>${cleanDomain}</p>
+                        <div class="domain-loading-icon">${spinner}</div>
+                    </div>
+                    <div class="base-info-container border-bottom"></div>
+                    <div class="summary-container">
+                        <div class="summary-title-row">
+                            <div class="summary-title-left-container">
+                                <div class="summary-title-icon">${assist}</div>
+                                <h4 class="summary-title">Highlights</h4>
+                            </div>
+                            <div class="summary-loading">${spinner}</div>
+                        </div>
+                    </div>
+                    <div class="visit-page-container">
+                        <div class="visit-page-icon">${arrowCircleRight}</div>
+                        <a href="${link.href}" target="_blank">Visit Page</a>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `);
+        iframeDoc.close();
 
         // Function to handle clicking outside the card
         const handleClickOutside = (event) => {
-            // Check if the clicked element is outside the summary card
-            if (!summaryCard.contains(event.target)) {
-                summaryCard.remove();
+            // Check if the clicked element is outside the iframe
+            if (!iframe.contains(event.target)) {
+                iframe.remove();
                 document.removeEventListener('click', handleClickOutside);
+                cleanup(); // Clean up Floating UI autoUpdate
             }
         };
 
@@ -196,12 +210,28 @@ export default class HoverSummarization extends ContentFeature {
             document.addEventListener('click', handleClickOutside);
         }, 100);
 
-        // Step 3: Append the new element to the DOM
-        document.body.appendChild(summaryCard);
+        // Adjust iframe height based on content
+        const adjustIframeHeight = () => {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const contentHeight = iframeDoc.documentElement.scrollHeight;
+            iframe.style.height = contentHeight + 40 + 'px';
+        };
+
+        // Store adjustment function on iframe for later use
+        iframe.adjustHeight = adjustIframeHeight;
+        
+        // Initial adjustment
+        setTimeout(adjustIframeHeight, 50);
     }
 
     updateCardWithImageTitleReadingTime(image, title, timeToRead) {
-        const existingCard = document.querySelector('.hover-summary-card');
+        const existingFrame = document.querySelector('.hover-summary-iframe');
+        if (!existingFrame) {
+            return;
+        }
+
+        const iframeDoc = existingFrame.contentDocument || existingFrame.contentWindow.document;
+        const existingCard = iframeDoc.querySelector('.hover-summary-card');
         if (!existingCard) {
             return;
         }
@@ -223,32 +253,43 @@ export default class HoverSummarization extends ContentFeature {
             return;
         }
 
-        const imageElement = document.createElement('img');
+        const imageElement = iframeDoc.createElement('img');
         imageElement.className = 'base-info-image';
         imageElement.src = image;
         baseInfoContainer.appendChild(imageElement);
 
-        const titleElement = document.createElement('p');
+        const titleElement = iframeDoc.createElement('p');
         titleElement.className = 'base-info-title';
         titleElement.textContent = title;
         baseInfoContainer.appendChild(titleElement);
 
-        const readingTimeContainer = document.createElement('div');
+        const readingTimeContainer = iframeDoc.createElement('div');
         readingTimeContainer.className = 'reading-time-container';
         baseInfoContainer.appendChild(readingTimeContainer);
 
-        const readingTimeIcon = document.createElement('div');
+        const readingTimeIcon = iframeDoc.createElement('div');
         readingTimeIcon.className = 'reading-time-icon';
         readingTimeIcon.innerHTML = clock;
         readingTimeContainer.appendChild(readingTimeIcon);
 
-        const readingTimeElement = document.createElement('p');
+        const readingTimeElement = iframeDoc.createElement('p');
         readingTimeElement.textContent = `Estimated reading time: ${timeToRead} minutes`;
         readingTimeContainer.appendChild(readingTimeElement);
+
+        // Adjust iframe height
+        if (existingFrame.adjustHeight) {
+            setTimeout(existingFrame.adjustHeight, 100);
+        }
     }
 
     updateCardWithSummary(summaryArr) {
-        const existingCard = document.querySelector('.hover-summary-card');
+        const existingFrame = document.querySelector('.hover-summary-iframe');
+        if (!existingFrame) {
+            return;
+        }
+
+        const iframeDoc = existingFrame.contentDocument || existingFrame.contentWindow.document;
+        const existingCard = iframeDoc.querySelector('.hover-summary-card');
         if (!existingCard) {
             return;
         }
@@ -262,18 +303,18 @@ export default class HoverSummarization extends ContentFeature {
             summaryLoadingElement.remove();
         }
         // add summary list
-        const summaryListElement = document.createElement('ul');
+        const summaryListElement = iframeDoc.createElement('ul');
         summaryListElement.className = 'summary-list';
 
         summaryArr.forEach((summaryItem) => {
-            const summaryListItem = document.createElement('li');
+            const summaryListItem = iframeDoc.createElement('li');
             summaryListItem.className = 'summary-list-item';
 
-            const bulletPoint = document.createElement('div');
+            const bulletPoint = iframeDoc.createElement('div');
             bulletPoint.className = 'bullet-point';
             summaryListItem.appendChild(bulletPoint);
 
-            const summaryListItemText = document.createElement('p');
+            const summaryListItemText = iframeDoc.createElement('p');
             summaryListItemText.className = 'summary-list-item-text';
             summaryListItemText.textContent = summaryItem;
             summaryListItem.appendChild(summaryListItemText);
@@ -283,16 +324,16 @@ export default class HoverSummarization extends ContentFeature {
 
         summaryListElement.classList.add('border-bottom');
 
-        const copyContainer = document.createElement('button');
+        const copyContainer = iframeDoc.createElement('button');
         copyContainer.className = 'copy-container';
         summaryListElement.appendChild(copyContainer);
 
-        const copyIcon = document.createElement('div');
+        const copyIcon = iframeDoc.createElement('div');
         copyIcon.className = 'copy-icon';
         copyIcon.innerHTML = copy;
         copyContainer.appendChild(copyIcon);
 
-        const copyText = document.createElement('p');
+        const copyText = iframeDoc.createElement('p');
         copyText.className = 'copy-text';
         copyText.textContent = 'Copy Highlights';
         copyContainer.appendChild(copyText);
@@ -300,10 +341,15 @@ export default class HoverSummarization extends ContentFeature {
         summaryContainer.appendChild(summaryListElement);
         summaryContainer.appendChild(copyContainer);
 
-        const disclaimerText = document.createElement('p');
+        const disclaimerText = iframeDoc.createElement('p');
         disclaimerText.className = 'disclaimer-text';
         disclaimerText.textContent = 'These key points were generated by AI and may contain errors.';
         existingCard.appendChild(disclaimerText);
+
+        // Adjust iframe height
+        if (existingFrame.adjustHeight) {
+            setTimeout(existingFrame.adjustHeight, 100);
+        }
     }
 
     parseURL(url) {

@@ -5,8 +5,7 @@ export const styles = `
     }
 
     .hover-summary-card {
-        position: fixed;
-        z-index: 1000;
+        position: relative;
         background-color: white;
         border-radius: 0.5rem;
         box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 8px 8px 0px rgba(0, 0, 0, 0.08), 0px 2px 4px 0px rgba(0, 0, 0, 0.08);
@@ -62,9 +61,9 @@ export const styles = `
 
     .base-info-title {
         position: absolute;
-        bottom: 42px;
+        bottom: 64px;
         right: 0;
-        width: 95%;
+        width: 84%;
         background-color: rgba(0, 0, 0, 0.7);
         color: white;
         padding: 1rem 18px;
@@ -96,6 +95,13 @@ export const styles = `
         justify-content: flex-start;
     }
 
+    .reading-time-icon,
+    .visit-page-icon,
+    .copy-icon {
+        width: 16px;
+        height: 16px;
+    }
+
     .domain-container,
     .summary-title-row {
         justify-content: space-between;
@@ -119,16 +125,22 @@ export const styles = `
 
         .summary-list-item {
             display: flex;
-            align-items: center;
+            align-items: start;
             gap: 10px;
             padding-left: 3px;
 
             .bullet-point {
-                width: 4px;
-                height: 4px;
+                width: 6px;
+                height: 6px;
                 background-color: rgba(31, 31, 31, 0.72);
-                margin-right: 10px;
+                margin-right: 6px;
                 border-radius: 50%;
+                vertical-align: top;
+                flex: auto;
+                min-width: 6px;
+                max-width: 6px;
+                margin-left: 2px;
+                margin-top: 8px;
             }
         }
     }
