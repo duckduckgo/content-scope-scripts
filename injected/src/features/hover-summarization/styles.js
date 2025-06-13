@@ -144,6 +144,15 @@ export const styles = `
         height: 28px;
         font-size: 14px;
         color: #1f1f1f;
+        border-radius: 0.25rem;
+
+        &:hover {
+            cursor: pointer;
+        }
+
+        &:active {
+            background-color: rgba(31, 31, 31, 0.09);
+        }
     }
 
     .visit-page-container {
