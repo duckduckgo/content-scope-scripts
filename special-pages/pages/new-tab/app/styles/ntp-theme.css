@@ -3,6 +3,7 @@
     --ntp-drawer-width: calc(224 * var(--px-in-rem));
     --ntp-drawer-scroll-width: 12px;
     --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
+    --ntp-surface-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.13);
 
     /* Mac/System/Callout */
     --callout-font-size: 12px;
@@ -35,13 +36,23 @@
     --border-radius-xs: 4px;
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
+
+    --duckai-purple: rgba(107, 78, 186, 1);
+    --duckai-purple-hover: rgb(128, 101, 208);
+    --duckai-purple-active: rgb(85, 64, 160);
 }
 
 body {
     --default-light-background-color: var(--color-gray-0);
     --default-dark-background-color: var(--color-gray-85);
+    --default-ntp-tube-width: 504;
+    --default-favorites-count: 6;
 }
 
+body:has([data-entry-point="search"]) {
+    --default-ntp-tube-width: 680;
+    --default-favorites-count: 8;
+}
 
 [data-theme=light] {
     --ntp-surface-background-color: var(--color-white-at-30);
