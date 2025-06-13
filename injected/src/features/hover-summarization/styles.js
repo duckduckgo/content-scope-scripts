@@ -148,6 +148,7 @@ export const styles = `
 
     .visit-page-container {
         padding: 4px 10px;
+        height: 28px;
 
         a {
             color: #1f1f1f;
@@ -160,6 +161,15 @@ export const styles = `
                 text-decoration: underline;
             }
         }
+    }
+
+    .disclaimer-text {
+        height: 28px;
+        text-align: center;
+        padding: 4px 12px 4px 10px;
+        font-size: 12px;
+        color: rgba(31, 31, 31, 0.72);
+        border-top: 1px solid rgba(31, 31, 31, 0.09);
     }
 
     .border-bottom {
