@@ -19,7 +19,7 @@
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
     "docs": "typedoc",
     "docs-watch": "typedoc --watch",
-    "tsc": "tsc",
+    "tsc": "npm run --workspace=injected extract-scriptlets && tsc",
     "tsc-watch": "tsc --watch",
     "lint": "eslint . && npm run tsc && npm run lint-no-output-globals && npx prettier . --check",
     "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js Sources/ContentScopeScripts/dist/contentScope.js",
@@ -53,6 +53,7 @@
     "urlpattern-polyfill": "^10.1.0"
   },
   "dependencies": {
+    "@adguard/scriptlets": "^2.1.6",
     "immutable-json-patch": "^6.0.1"
   }
 }
