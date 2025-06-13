@@ -1,4 +1,6 @@
 import ContentFeature from '../content-feature';
+import { spinner, clock, assist, copy, arrowCircleRight } from './hover-summarization/svgs';
+import { styles } from './hover-summarization/styles';
 
 const linkSelector = 'a';
 
@@ -42,39 +44,39 @@ export default class HoverSummarization extends ContentFeature {
 
                     // !!!!!!! Get Basic Info & update base info section
                     // REAL
-                    const { data } = await this.messaging.request('hover-baseinfo', {
-                        url: urlToSend,
-                    });
-                    const { title, image, timeToRead } = data;
-                    this.updateCardWithImageTitleReadingTime(image, title, timeToRead);
+                    // const { data } = await this.messaging.request('hover-baseinfo', {
+                    //     url: urlToSend,
+                    // });
+                    // const { title, image, timeToRead } = data;
+                    // this.updateCardWithImageTitleReadingTime(image, title, timeToRead);
 
                     // MOCK
-                    // const mockBasicInfo = {
-                    //     title: 'The surprising way romance may affect your friendships',
-                    //     image: 'https://platform.vox.com/wp-content/uploads/sites/2/2025/06/GettyImages-2196337297.jpg?quality=90&strip=all&crop=0%2C16.666666666667%2C100%2C66.666666666667&w=1440',
-                    //     timeToRead: 2,
-                    // };
-                    // const { title, image, timeToRead } = mockBasicInfo;
-                    // setTimeout(() => {
-                    //     this.updateCardWithImageTitleReadingTime(image, title, timeToRead);
-                    // }, 1000);
+                    const mockBasicInfo = {
+                        title: 'The surprising way romance may affect your friendships',
+                        image: 'https://platform.vox.com/wp-content/uploads/sites/2/2025/06/GettyImages-2196337297.jpg?quality=90&strip=all&crop=0%2C16.666666666667%2C100%2C66.666666666667&w=1440',
+                        timeToRead: 2,
+                    };
+                    const { title, image, timeToRead } = mockBasicInfo;
+                    setTimeout(() => {
+                        this.updateCardWithImageTitleReadingTime(image, title, timeToRead);
+                    }, 3000);
 
                     // !!!!!!! Get Summary & update summary section
                     // REAL
-                    const summaryInfo = await this.messaging.request('hover-summarization', {
-                        url: urlToSend,
-                    });
-                    const { summary } = summaryInfo.data;
-                    console.log({ summary });
-                    this.updateCardWithSummary(summary);
+                    // const summaryInfo = await this.messaging.request('hover-summarization', {
+                    //     url: urlToSend,
+                    // });
+                    // const { summary } = summaryInfo.data;
+                    // console.log({ summary });
+                    // this.updateCardWithSummary(summary);
 
                     // MOCK
-                    // const summary = ['This is a summary', 'This is another, much much much much longer summary', 'This is a third summary'];
-                    // if (summary.length > 0) {
-                    //     setTimeout(() => {
-                    //         this.updateCardWithSummary(summary);
-                    //     }, 3000);
-                    // }
+                    const summary = ['This is a summary', 'This is another, much much much much longer summary', 'This is a third summary'];
+                    if (summary.length > 0) {
+                        setTimeout(() => {
+                            this.updateCardWithSummary(summary);
+                        }, 8000);
+                    }
                     clearTimeout(currentHoverTimer);
                     // currentHoverTimer = null;
                     // currentHoveredLink = null;
@@ -109,48 +111,76 @@ export default class HoverSummarization extends ContentFeature {
         console.log('Creating a summary card...');
         const locationRect = link.getBoundingClientRect();
 
+        const style = document.createElement('style');
+        style.textContent = styles;
+        document.head.appendChild(style);
+
         const summaryCard = document.createElement('div');
 
-        summaryCard.className = 'hover-summary-card'; // Add a class for easy removal
+        summaryCard.className = 'hover-summary-card';
         summaryCard.style.top = `${locationRect.bottom}px`;
         summaryCard.style.left = `${locationRect.left}px`;
-        summaryCard.style.position = 'fixed';
-        summaryCard.style.zIndex = '1000';
-        summaryCard.style.backgroundColor = 'white';
-        summaryCard.style.borderRadius = '0.5rem';
-        summaryCard.style.boxShadow =
-            '0px 0px 0px 1px  rgba(0, 0, 0, 0.08), 0px 8px 8px 0px  rgba(0, 0, 0, 0.08), 0px 2px 4px 0px  rgba(0, 0, 0, 0.08)';
-        summaryCard.style.padding = '10px';
-        summaryCard.style.maxWidth = '300px';
 
-        const domainElement = document.createElement('p');
-        domainElement.textContent = cleanDomain;
-        summaryCard.appendChild(domainElement);
+        const domainContainer = document.createElement('div');
+        domainContainer.className = 'domain-container';
+        summaryCard.appendChild(domainContainer);
+
+        const domainTextElement = document.createElement('p');
+        domainTextElement.textContent = cleanDomain;
+        domainContainer.appendChild(domainTextElement);
+
+        const domainLoadingIcon = document.createElement('div');
+        domainLoadingIcon.className = 'domain-loading-icon';
+        domainLoadingIcon.innerHTML = spinner;
+        domainContainer.appendChild(domainLoadingIcon);
 
         const baseInfoContainer = document.createElement('div');
         baseInfoContainer.className = 'base-info-container';
+        baseInfoContainer.classList.add('border-bottom');
         summaryCard.appendChild(baseInfoContainer);
-
-        const loadingBaseInfoElement = document.createElement('p');
-        loadingBaseInfoElement.className = 'loading-base-info';
-        loadingBaseInfoElement.textContent = 'Loading base info...';
-        baseInfoContainer.appendChild(loadingBaseInfoElement);
 
         const summaryContainer = document.createElement('div');
         summaryContainer.className = 'summary-container';
         summaryCard.appendChild(summaryContainer);
 
-        const summaryLoadingElement = document.createElement('p');
+        const summaryTitleRow = document.createElement('div');
+        summaryTitleRow.className = 'summary-title-row';
+        summaryContainer.appendChild(summaryTitleRow);
+
+        const summaryTitleIconContainer = document.createElement('div');
+        summaryTitleIconContainer.className = 'summary-title-left-container';
+        summaryTitleRow.appendChild(summaryTitleIconContainer);
+
+        const summaryTitleIcon = document.createElement('div');
+        summaryTitleIcon.className = 'summary-title-icon';
+        summaryTitleIcon.innerHTML = assist;
+        summaryTitleIconContainer.appendChild(summaryTitleIcon);
+
+        const summaryTitle = document.createElement('h4');
+        summaryTitle.className = 'summary-title';
+        summaryTitle.textContent = 'Highlights';
+        summaryTitleIconContainer.appendChild(summaryTitle);
+
+        const summaryLoadingElement = document.createElement('div');
         summaryLoadingElement.className = 'summary-loading';
-        summaryLoadingElement.textContent = 'Loading summary...';
-        summaryContainer.appendChild(summaryLoadingElement);
+        summaryLoadingElement.innerHTML = spinner;
+        summaryTitleRow.appendChild(summaryLoadingElement);
 
         // add visit page element
+        const visitPageContainer = document.createElement('div');
+        visitPageContainer.className = 'visit-page-container';
+        summaryCard.appendChild(visitPageContainer);
+
+        const visitPageIcon = document.createElement('div');
+        visitPageIcon.className = 'visit-page-icon';
+        visitPageIcon.innerHTML = arrowCircleRight;
+        visitPageContainer.appendChild(visitPageIcon);
+
         const visitPageElement = document.createElement('a');
         visitPageElement.textContent = 'Visit Page';
         visitPageElement.href = link.href;
         visitPageElement.target = '_blank';
-        summaryCard.appendChild(visitPageElement);
+        visitPageContainer.appendChild(visitPageElement);
 
         // Function to handle clicking outside the card
         const handleClickOutside = (event) => {
@@ -176,6 +206,12 @@ export default class HoverSummarization extends ContentFeature {
             return;
         }
 
+        // remove domain loading icon
+        const domainLoadingIcon = existingCard.querySelector('.domain-loading-icon');
+        if (domainLoadingIcon) {
+            domainLoadingIcon.remove();
+        }
+
         // remove loading base info element
         const loadingBaseInfoElement = existingCard.querySelector('.loading-base-info');
         if (loadingBaseInfoElement) {
@@ -187,20 +223,28 @@ export default class HoverSummarization extends ContentFeature {
             return;
         }
 
-        const titleElement = document.createElement('h3');
+        const imageElement = document.createElement('img');
+        imageElement.className = 'base-info-image';
+        imageElement.src = image;
+        baseInfoContainer.appendChild(imageElement);
+
+        const titleElement = document.createElement('p');
+        titleElement.className = 'base-info-title';
         titleElement.textContent = title;
         baseInfoContainer.appendChild(titleElement);
 
-        const imageElement = document.createElement('img');
-        imageElement.src = image;
-        imageElement.style.width = '100%';
-        imageElement.style.height = 'auto';
-        imageElement.style.borderRadius = '0.25rem';
-        baseInfoContainer.appendChild(imageElement);
+        const readingTimeContainer = document.createElement('div');
+        readingTimeContainer.className = 'reading-time-container';
+        baseInfoContainer.appendChild(readingTimeContainer);
+
+        const readingTimeIcon = document.createElement('div');
+        readingTimeIcon.className = 'reading-time-icon';
+        readingTimeIcon.innerHTML = clock;
+        readingTimeContainer.appendChild(readingTimeIcon);
 
         const readingTimeElement = document.createElement('p');
         readingTimeElement.textContent = `Estimated reading time: ${timeToRead} minutes`;
-        baseInfoContainer.appendChild(readingTimeElement);
+        readingTimeContainer.appendChild(readingTimeElement);
     }
 
     updateCardWithSummary(summaryArr) {
@@ -220,12 +264,41 @@ export default class HoverSummarization extends ContentFeature {
         // add summary list
         const summaryListElement = document.createElement('ul');
         summaryListElement.className = 'summary-list';
+
         summaryArr.forEach((summaryItem) => {
             const summaryListItem = document.createElement('li');
-            summaryListItem.textContent = summaryItem;
+            summaryListItem.className = 'summary-list-item';
+
+            const bulletPoint = document.createElement('div');
+            bulletPoint.className = 'bullet-point';
+            summaryListItem.appendChild(bulletPoint);
+
+            const summaryListItemText = document.createElement('p');
+            summaryListItemText.className = 'summary-list-item-text';
+            summaryListItemText.textContent = summaryItem;
+            summaryListItem.appendChild(summaryListItemText);
+
             summaryListElement.appendChild(summaryListItem);
         });
+
+        summaryListElement.classList.add('border-bottom');
+
+        const copyContainer = document.createElement('button');
+        copyContainer.className = 'copy-container';
+        summaryListElement.appendChild(copyContainer);
+
+        const copyIcon = document.createElement('div');
+        copyIcon.className = 'copy-icon';
+        copyIcon.innerHTML = copy;
+        copyContainer.appendChild(copyIcon);
+
+        const copyText = document.createElement('p');
+        copyText.className = 'copy-text';
+        copyText.textContent = 'Copy Highlights';
+        copyContainer.appendChild(copyText);
+
         summaryContainer.appendChild(summaryListElement);
+        summaryContainer.appendChild(copyContainer);
     }
 
     parseURL(url) {
