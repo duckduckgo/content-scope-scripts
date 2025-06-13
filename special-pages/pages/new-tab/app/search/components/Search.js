@@ -77,20 +77,22 @@ export function Search() {
      * @returns {*}
      */
     function accept(term, mode, target, selected) {
-        if (mode === 'ai' && term) {
-            return ntp.messaging.notify('search_submitChat', { chat: String(term), target });
-        }
-
-        if (term && selected) {
-            const suggestion = suggestions.value[Number(selected)];
-            if (suggestion) {
-                ntp.messaging.notify('search_openSuggestion', { suggestion, target });
-            } else {
-                console.warn('not found');
+        if (mode === 'ai') {
+            if (term) {
+                ntp.messaging.notify('search_submitChat', { chat: String(term), target });
             }
-        } else if (term) {
-            console.log({ term, selected, v: selected });
-            ntp.messaging.notify('search_submit', { term: String(term), target });
+        } else if (mode === 'search') {
+            if (term && selected) {
+                const suggestion = suggestions.value[Number(selected)];
+                if (suggestion) {
+                    ntp.messaging.notify('search_openSuggestion', { suggestion, target });
+                } else {
+                    console.warn('not found');
+                }
+            } else if (term) {
+                console.log({ term, selected, v: selected });
+                ntp.messaging.notify('search_submit', { term: String(term), target });
+            }
         }
 
         window.dispatchEvent(new Event('clear-all'));
@@ -176,9 +178,10 @@ function SuggestionList({ suggestions, selected }) {
     useEffect(() => {
         const listener = (e) => {
             if (!ref.current?.contains(e.target)) {
-                setTimeout(() => {
-                    window.dispatchEvent(new Event('clear-suggestions'));
-                }, 0);
+                // todo: re-instate the click-outside
+                // setTimeout(() => {
+                //     window.dispatchEvent(new Event('clear-suggestions'));
+                // }, 0);
             }
         };
         document.addEventListener('click', listener);
