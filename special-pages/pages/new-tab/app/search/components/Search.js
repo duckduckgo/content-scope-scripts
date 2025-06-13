@@ -52,6 +52,9 @@ export function Search() {
 
     function onSubmit(e) {
         e.preventDefault();
+
+        if (!(e.target instanceof HTMLFormElement)) return;
+
         const data = new FormData(e.target);
         const term = data.get('term');
         const selected = data.get('selected');
@@ -73,6 +76,8 @@ export function Search() {
         } else if (term) {
             ntp.messaging.notify('search_submit', { term: String(term), target });
         }
+
+        window.dispatchEvent(new Event('clear-all'));
     }
 
     return (

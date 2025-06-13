@@ -121,6 +121,17 @@ function useSuggestions(suggestions, mode, selected) {
         input.setSelectionRange(start, end);
     }
 
+    /**
+     * @param {string} reason
+     */
+    function reset(reason) {
+        if (url.searchParams.getAll('debug').includes('reason')) console.log('[reset] reason:', reason);
+        const input = ref.current;
+        if (!input) return console.warn('missing input');
+        input.value = '';
+        last.current = '';
+    }
+
     useEffect(() => {
         const listener = () => {
             const input = ref.current;
@@ -130,6 +141,16 @@ function useSuggestions(suggestions, mode, selected) {
         window.addEventListener('reset-back-to-last-typed-value', listener);
         return () => {
             window.removeEventListener('reset-back-to-last-typed-value', listener);
+        };
+    }, []);
+
+    useEffect(() => {
+        const listener = () => {
+            reset('window event "clear-all"');
+        };
+        window.addEventListener('clear-all', listener);
+        return () => {
+            window.removeEventListener('clear-all', listener);
         };
     }, []);
 
