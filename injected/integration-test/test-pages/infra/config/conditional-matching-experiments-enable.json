@@ -1,0 +1,73 @@
+{
+    "features": {
+      "contentScopeExperiments": {
+        "exceptions": [],
+        "state": "enabled",
+        "features": {
+          "bloops": {
+            "state": "enabled",
+            "rollout": {},
+            "cohorts": [
+              {
+                "name": "control",
+                "weight": 1
+              },
+              {
+                "name": "treatment",
+                "weight": 1
+              }
+            ]
+          },
+          "test": {
+            "state": "enabled",
+            "rollout": {},
+            "cohorts": [
+              {
+                "name": "control",
+                "weight": 1
+              },
+              {
+                "name": "treatment",
+                "weight": 1
+              }
+            ]
+          }
+        }
+      },
+      "apiManipulation": {
+        "state": "disabled",
+        "settings": {
+          "apiChanges": {
+            "Navigator.prototype.hardwareConcurrency": {
+              "type": "descriptor",
+              "getterValue": {
+                "type": "number",
+                "value": 400
+              }
+            }
+          },
+          "conditionalChanges": [
+            {
+              "condition": {
+                "experiment": {
+                  "experimentName": "bloops",
+                  "cohort": "treatment"
+                }
+              },
+              "state": "enabled"
+            },
+            {
+              "condition": {
+                "experiment": {
+                  "experimentName": "bloops",
+                  "cohort": "control"
+                }
+              },
+              "state": "enabled"
+            }
+          ]
+        }
+      },
+      "exceptions": []
+    }
+}
