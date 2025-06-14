@@ -220,7 +220,7 @@ export const settingsRowItems = {
     // Intended only for use with v3
     'placebo-ad-blocking': (t) => ({
         id: 'placebo-ad-blocking',
-        icon: 'v3/ads.svg',
+        icon: 'v3/Ads-Blocked-Color-24.svg',
         title: t('row_placebo-ad-blocking_title_v3'),
         secondaryText: t('row_ad-blocking_desc_v3'),
         summary: t('row_placebo-ad-blocking_title_v3'),
@@ -231,7 +231,7 @@ export const settingsRowItems = {
     // Intended only for use with v3
     'aggressive-ad-blocking': (t) => ({
         id: 'aggressive-ad-blocking',
-        icon: 'v3/ads.svg',
+        icon: 'v3/Ads-Blocked-Color-24.svg',
         title: t('row_aggressive-ad-blocking_title_v3'),
         secondaryText: t('row_ad-blocking_desc_v3'),
         summary: t('row_aggressive-ad-blocking_title_v3'),
@@ -242,7 +242,7 @@ export const settingsRowItems = {
     // Intended only for use with v3
     'youtube-ad-blocking': (t) => ({
         id: 'youtube-ad-blocking',
-        icon: 'v3/video-player.svg',
+        icon: 'v3/Video-Player-Color-24.svg',
         title: t('row_youtube-ad-blocking_title_v3'),
         secondaryText: t('row_youtube-ad-blocking_desc_v3'),
         summary: t('row_youtube-ad-blocking_title_v3'),
