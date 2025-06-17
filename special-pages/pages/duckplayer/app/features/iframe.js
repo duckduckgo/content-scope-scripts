@@ -42,7 +42,6 @@ export class IframeFeature {
  *
  * @param {import("../settings").Settings} settings
  * @param {EmbedSettings} embed
- * @returns {Record<string, () => IframeFeature>}
  */
 export function createIframeFeatures(settings, embed) {
     return {
@@ -88,10 +87,11 @@ export function createIframeFeatures(settings, embed) {
             return new ErrorDetection(settings.customError);
         },
         /**
+         * @param {() => void} handler - what to invoke when a watch-link was clicked
          * @return {IframeFeature}
          */
-        replaceWatchLinks: () => {
-            return new ReplaceWatchLinks(embed.videoId.id);
+        replaceWatchLinks: (handler) => {
+            return new ReplaceWatchLinks(embed.videoId.id, handler);
         },
     };
 }

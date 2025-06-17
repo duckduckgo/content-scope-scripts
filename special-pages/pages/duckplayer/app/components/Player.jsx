@@ -2,11 +2,10 @@ import { h } from 'preact';
 import cn from 'classnames';
 import styles from './Player.module.css';
 import { useEffect, useRef } from 'preact/hooks';
-import { useSettings, usePlatformName, useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
+import { useSettings, useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
 import { createIframeFeatures } from '../features/iframe.js';
 import { Settings } from '../settings';
 import { useTypedTranslation } from '../types.js';
-import { WATCH_LINK_CLICK_EVENT } from '../features/replace-watch-links';
 
 /**
  * @import {EmbedSettings} from '../embed-settings.js';
@@ -96,7 +95,6 @@ function useIframeEffects(src, embed) {
     const ref = useRef(/** @type {HTMLIFrameElement|null} */ (null));
     const didLoad = useRef(/** @type {boolean} */ (false));
     const settings = useSettings();
-    const platformName = usePlatformName();
     const openOnYoutube = useOpenOnYoutubeHandler();
 
     useEffect(() => {
@@ -112,15 +110,8 @@ function useIframeEffects(src, embed) {
             features.titleCapture(),
             features.mouseCapture(),
             features.errorDetection(),
-            features.replaceWatchLinks(),
+            features.replaceWatchLinks(() => openOnYoutube(embed)),
         ];
-
-        // Handle watch link clicks in iframe
-        window.addEventListener(WATCH_LINK_CLICK_EVENT, () => {
-            if (embed) {
-                openOnYoutube(embed);
-            }
-        });
 
         /**
          * @type {ReturnType<import("../features/pip").IframeFeature['iframeDidLoad']>[]}
