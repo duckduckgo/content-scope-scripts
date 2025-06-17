@@ -6,6 +6,7 @@ import { useSettings } from '../providers/SettingsProvider.jsx';
 import { createIframeFeatures } from '../features/iframe.js';
 import { Settings } from '../settings';
 import { useTypedTranslation } from '../types.js';
+import { EmbedSettings } from '../embed-settings';
 
 /**
  * Player component renders an embedded media player.
@@ -13,9 +14,10 @@ import { useTypedTranslation } from '../types.js';
  * @param {object} props
  * @param {string} props.src - The source URL of the media to be played.
  * @param {Settings['layout']} props.layout
+ * @param {EmbedSettings} props.embed
  */
-export function Player({ src, layout }) {
-    const { ref, didLoad } = useIframeEffects(src);
+export function Player({ src, layout, embed }) {
+    const { ref, didLoad } = useIframeEffects(src, embed);
     const wrapperClasses = cn({
         [styles.root]: true,
         [styles.player]: true,
@@ -80,12 +82,13 @@ export function PlayerError({ kind, layout }) {
  * When either event occurs, we proceed to apply our list of features.
  *
  * @param {string} src - the iframe `src` attribute
+ * @param {EmbedSettings} embed
  * @return {{
  *   ref: import("preact/hooks").MutableRef<HTMLIFrameElement|null>,
  *   didLoad: () => void
  * }}
  */
-function useIframeEffects(src) {
+function useIframeEffects(src, embed) {
     const ref = useRef(/** @type {HTMLIFrameElement|null} */ (null));
     const didLoad = useRef(/** @type {boolean} */ (false));
     const settings = useSettings();
@@ -93,7 +96,7 @@ function useIframeEffects(src) {
     useEffect(() => {
         if (!ref.current) return;
         const iframe = ref.current;
-        const features = createIframeFeatures(settings);
+        const features = createIframeFeatures(settings, embed);
 
         /** @type {import("../features/iframe.js").IframeFeature[]} */
         const iframeFeatures = [
@@ -132,7 +135,7 @@ function useIframeEffects(src) {
             }
             iframe.removeEventListener('load', loadHandler);
         };
-    }, [src, settings]);
+    }, [src, settings, embed]);
 
     return { ref, didLoad: () => (didLoad.current = true) };
 }

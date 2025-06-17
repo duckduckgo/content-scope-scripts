@@ -2,6 +2,8 @@
  * @typedef {import("./iframe").IframeFeature} IframeFeature
  */
 
+import { VideoParams } from 'injected/src/features/duckplayer/util';
+
 export const WATCH_LINK_CLICK_EVENT = 'ddg-iframe-watch-link-click';
 
 /**
@@ -28,17 +30,23 @@ export class ReplaceWatchLinks {
 
         if (win && doc) {
             console.log('adding click listener to', doc);
-            doc.addEventListener('click', (e) => {
-                console.log('click event', e);
-                /** @type {HTMLLinkElement|null} */
-                const closestLink = /** @type {Element} */(e.target).closest('a[href]');
-                console.log('closestLink', closestLink);
-                if (closestLink && this.isWatchLink(closestLink.href)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.dispatchEvent(new CustomEvent(WATCH_LINK_CLICK_EVENT));
-                }
-            });
+            doc.addEventListener(
+                'click',
+                (e) => {
+                    console.log('click event', e);
+                    /** @type {HTMLLinkElement|null} */
+                    const closestLink = /** @type {Element} */ (e.target).closest('a[href]');
+                    console.log('closestLink', closestLink);
+                    if (closestLink && this.isWatchLink(closestLink.href)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.dispatchEvent(new CustomEvent(WATCH_LINK_CLICK_EVENT));
+                    }
+                },
+                {
+                    capture: true,
+                },
+            );
         } else {
             console.warn('could not access iframe?.contentWindow && iframe?.contentDocument');
         }
@@ -51,10 +59,7 @@ export class ReplaceWatchLinks {
      * @return {boolean}
      */
     isWatchLink(href) {
-        if (!this.videoId || !href) {
-            return false;
-        }
-        const url = new URL(href);
-        return url.hostname.endsWith('youtube.com') && url.pathname.includes('/watch') && url.searchParams.get('v') === this.videoId;
+        const videoParams = VideoParams.forWatchPage(href);
+        return videoParams?.id === this.videoId;
     }
 }
