@@ -4,6 +4,8 @@ import { ClickCapture } from './click-capture.js';
 import { TitleCapture } from './title-capture.js';
 import { MouseCapture } from './mouse-capture.js';
 import { ErrorDetection } from './error-detection.js';
+import { ReplaceWatchLinks } from './replace-watch-links.js';
+import { EmbedSettings } from '../embed-settings.js';
 
 /**
  * Represents an individual piece of functionality in the iframe.
@@ -80,6 +82,15 @@ export function createIframeFeatures(settings) {
          */
         errorDetection: () => {
             return new ErrorDetection(settings.customError);
+        },
+        /**
+         * @return {IframeFeature}
+         */
+        replaceWatchLinks: () => {
+            const embed = EmbedSettings.fromHref(window.location.href);
+            const videoId = embed?.videoId?.id || '';
+
+            return new ReplaceWatchLinks(videoId);
         },
     };
 }
