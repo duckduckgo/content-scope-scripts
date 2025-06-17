@@ -1,4 +1,5 @@
 import { h, Fragment } from 'preact';
+import { useEffect } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './MobileApp.module.css';
 import { Player, PlayerError } from './Player.jsx';
@@ -13,6 +14,8 @@ import { OrientationProvider } from '../providers/OrientationProvider.jsx';
 import { FocusMode } from './FocusMode.jsx';
 import { useTelemetry } from '../types.js';
 import { useShowCustomError } from '../providers/YouTubeErrorProvider';
+import { useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
+import { WATCH_LINK_CLICK_EVENT } from '../features/replace-watch-links.js';
 
 const DISABLED_HEIGHT = 450;
 
@@ -24,8 +27,18 @@ export function MobileApp({ embed }) {
     const settings = useSettings();
     const telemetry = useTelemetry();
     const showCustomError = useShowCustomError();
-
+    const openOnYoutube = useOpenOnYoutubeHandler();
     const features = createAppFeaturesFrom(settings);
+
+    useEffect(() => {
+        window.addEventListener(WATCH_LINK_CLICK_EVENT, () => {
+            if (embed) {
+                console.log('ddg-iframe-watch-link-click', embed);
+                openOnYoutube(embed);
+            }
+        });
+    }, [embed, openOnYoutube]);
+
     return (
         <>
             {!showCustomError && features.focusMode()}
