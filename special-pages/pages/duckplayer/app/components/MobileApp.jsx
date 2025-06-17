@@ -1,5 +1,4 @@
 import { h, Fragment } from 'preact';
-import { useEffect } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './MobileApp.module.css';
 import { Player, PlayerError } from './Player.jsx';
@@ -14,7 +13,6 @@ import { OrientationProvider } from '../providers/OrientationProvider.jsx';
 import { FocusMode } from './FocusMode.jsx';
 import { useTelemetry } from '../types.js';
 import { useShowCustomError } from '../providers/YouTubeErrorProvider';
-import { useReplaceWatchLinks } from '../providers/SettingsProvider.jsx';
 
 const DISABLED_HEIGHT = 450;
 
@@ -27,7 +25,6 @@ export function MobileApp({ embed }) {
     const telemetry = useTelemetry();
     const showCustomError = useShowCustomError();
     const features = createAppFeaturesFrom(settings);
-    useReplaceWatchLinks(embed);
 
     return (
         <>
