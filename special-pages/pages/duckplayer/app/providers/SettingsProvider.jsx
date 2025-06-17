@@ -94,20 +94,3 @@ export function useOpenOnYoutubeHandler() {
         }
     };
 }
-
-/**
- * @param {EmbedSettings|null} embed
- */
-export function useReplaceWatchLinks(embed) {
-    if (!embed) return;
-
-    const openOnYoutube = useOpenOnYoutubeHandler();
-    useEffect(() => {
-        window.addEventListener(WATCH_LINK_CLICK_EVENT, () => {
-            if (embed) {
-                openOnYoutube(embed);
-            }
-        });
-    }, [embed, openOnYoutube]);
-}
-
