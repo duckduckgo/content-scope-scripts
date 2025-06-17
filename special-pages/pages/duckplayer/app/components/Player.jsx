@@ -115,7 +115,7 @@ function useIframeEffects(src, embed) {
         ];
 
         // Replace watch links on mobile only
-        const shouldReplaceLinks = platformName === 'android' || platformName === 'ios';
+        const shouldReplaceLinks = platformName === 'android' || platformName === 'ios' || platformName === 'windows';
         if (shouldReplaceLinks) {
             iframeFeatures.push(features.replaceWatchLinks());
             window.addEventListener(WATCH_LINK_CLICK_EVENT, () => {
