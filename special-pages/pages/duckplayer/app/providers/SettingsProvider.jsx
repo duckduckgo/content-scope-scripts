@@ -1,11 +1,15 @@
 import { h } from 'preact';
 import { createContext } from 'preact';
 import { Settings } from '../settings';
-import { useContext } from 'preact/hooks';
+import { useContext, useEffect } from 'preact/hooks';
 import { useMessaging } from '../types.js';
-import { EmbedSettings } from '../embed-settings';
+import { WATCH_LINK_CLICK_EVENT } from '../features/replace-watch-links';
 
 const SettingsContext = createContext(/** @type {{settings: Settings}} */ ({}));
+
+/**
+ * @import {EmbedSettings} from '../embed-settings.js';
+ */
 
 /**
  * @param {object} params
@@ -90,3 +94,20 @@ export function useOpenOnYoutubeHandler() {
         }
     };
 }
+
+/**
+ * @param {EmbedSettings|null} embed
+ */
+export function useReplaceWatchLinks(embed) {
+    if (!embed) return;
+
+    const openOnYoutube = useOpenOnYoutubeHandler();
+    useEffect(() => {
+        window.addEventListener(WATCH_LINK_CLICK_EVENT, () => {
+            if (embed) {
+                openOnYoutube(embed);
+            }
+        });
+    }, [embed, openOnYoutube]);
+}
+

@@ -14,8 +14,7 @@ import { OrientationProvider } from '../providers/OrientationProvider.jsx';
 import { FocusMode } from './FocusMode.jsx';
 import { useTelemetry } from '../types.js';
 import { useShowCustomError } from '../providers/YouTubeErrorProvider';
-import { useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
-import { WATCH_LINK_CLICK_EVENT } from '../features/replace-watch-links.js';
+import { useReplaceWatchLinks } from '../providers/SettingsProvider.jsx';
 
 const DISABLED_HEIGHT = 450;
 
@@ -27,16 +26,8 @@ export function MobileApp({ embed }) {
     const settings = useSettings();
     const telemetry = useTelemetry();
     const showCustomError = useShowCustomError();
-    const openOnYoutube = useOpenOnYoutubeHandler();
     const features = createAppFeaturesFrom(settings);
-
-    useEffect(() => {
-        window.addEventListener(WATCH_LINK_CLICK_EVENT, () => {
-            if (embed) {
-                openOnYoutube(embed);
-            }
-        });
-    }, [embed, openOnYoutube]);
+    useReplaceWatchLinks(embed);
 
     return (
         <>
