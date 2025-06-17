@@ -26,55 +26,18 @@ export class ReplaceWatchLinks {
             return () => {};
         }
 
-        const updateLink = (elem) => {
-            if (elem.href && this.isWatchLink(elem.href)) {
-                console.log('Adding click listener to', elem);
-                elem.addEventListener('click', (e) => {
-                    console.log('Watch link clicked', e);
+        if (win && doc) {
+            console.log('adding click listener to', doc);
+            doc.addEventListener('click', (e) => {
+                console.log('click event', e);
+                /** @type {HTMLLinkElement|null} */
+                const closestLink = /** @type {Element} */(e.target).closest('a[href]');
+                console.log('closestLink', closestLink);
+                if (closestLink && this.isWatchLink(closestLink.href)) {
                     e.preventDefault();
                     e.stopPropagation();
                     window.dispatchEvent(new CustomEvent(WATCH_LINK_CLICK_EVENT));
-                });
-            }
-        };
-
-        if (win && doc) {
-            const clickableElements = Array.from(doc.querySelectorAll('a'));
-            console.log('LinkCapture: Found clickable elements:', clickableElements);
-            clickableElements.forEach((/** @type {HTMLAnchorElement} */ elem) => {
-                updateLink(elem);
-            });
-
-            // Create a MutationObserver instance
-            const observer = new MutationObserver((mutations) => {
-                for (const mutation of mutations) {
-                    // Check for added nodes
-                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                        mutation.addedNodes.forEach((node) => {
-                            // If the node is an element, check for a tags
-                            if (node.nodeType === Node.ELEMENT_NODE) {
-                                const element = /** @type {Element} */ (node);
-
-                                // Check if the added node itself is an anchor tag
-                                if (element.tagName === 'A') {
-                                    updateLink(element);
-                                }
-
-                                // Check for anchor tags within the added node
-                                const anchorTags = element.querySelectorAll('a');
-                                anchorTags.forEach((/** @type {HTMLAnchorElement} */ anchor) => {
-                                    updateLink(anchor);
-                                });
-                            }
-                        });
-                    }
                 }
-            });
-
-            // Start observing the iframe's document for changes
-            observer.observe(doc, {
-                childList: true,
-                subtree: true, // Observe all descendants of the body
             });
         } else {
             console.warn('could not access iframe?.contentWindow && iframe?.contentDocument');
