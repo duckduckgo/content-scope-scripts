@@ -6,7 +6,10 @@ import { useSettings } from '../providers/SettingsProvider.jsx';
 import { createIframeFeatures } from '../features/iframe.js';
 import { Settings } from '../settings';
 import { useTypedTranslation } from '../types.js';
-import { EmbedSettings } from '../embed-settings';
+
+/**
+ * @import {EmbedSettings} from '../embed-settings.js';
+ */
 
 /**
  * Player component renders an embedded media player.

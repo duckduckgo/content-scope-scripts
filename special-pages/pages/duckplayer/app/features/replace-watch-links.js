@@ -29,14 +29,11 @@ export class ReplaceWatchLinks {
         }
 
         if (win && doc) {
-            console.log('adding click listener to', doc);
             doc.addEventListener(
                 'click',
                 (e) => {
-                    console.log('click event', e);
                     /** @type {HTMLLinkElement|null} */
                     const closestLink = /** @type {Element} */ (e.target).closest('a[href]');
-                    console.log('closestLink', closestLink);
                     if (closestLink && this.isWatchLink(closestLink.href)) {
                         e.preventDefault();
                         e.stopPropagation();
