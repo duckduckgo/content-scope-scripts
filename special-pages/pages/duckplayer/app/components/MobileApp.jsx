@@ -33,7 +33,6 @@ export function MobileApp({ embed }) {
     useEffect(() => {
         window.addEventListener(WATCH_LINK_CLICK_EVENT, () => {
             if (embed) {
-                console.log('ddg-iframe-watch-link-click', embed);
                 openOnYoutube(embed);
             }
         });
@@ -78,7 +77,7 @@ function MobileLayout({ embed }) {
             <div class={styles.embed}>
                 {embed === null && <PlayerError layout={'mobile'} kind={'invalid-id'} />}
                 {embed !== null && showCustomError && <YouTubeError layout={'mobile'} embed={embed} />}
-                {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'mobile'} />}
+                {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'mobile'} embed={embed} />}
             </div>
             <div class={cn(styles.logo, styles.hideInFocus)}>
                 <MobileWordmark />

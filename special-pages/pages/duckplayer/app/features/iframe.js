@@ -5,7 +5,10 @@ import { TitleCapture } from './title-capture.js';
 import { MouseCapture } from './mouse-capture.js';
 import { ErrorDetection } from './error-detection.js';
 import { ReplaceWatchLinks } from './replace-watch-links.js';
-import { EmbedSettings } from '../embed-settings.js';
+
+/**
+ * @import {EmbedSettings} from '../embed-settings.js';
+ */
 
 /**
  * Represents an individual piece of functionality in the iframe.
@@ -38,9 +41,10 @@ export class IframeFeature {
  * global `Settings`
  *
  * @param {import("../settings").Settings} settings
+ * @param {EmbedSettings} embed
  * @returns {Record<string, () => IframeFeature>}
  */
-export function createIframeFeatures(settings) {
+export function createIframeFeatures(settings, embed) {
     return {
         /**
          * @return {IframeFeature}
@@ -87,10 +91,7 @@ export function createIframeFeatures(settings) {
          * @return {IframeFeature}
          */
         replaceWatchLinks: () => {
-            const embed = EmbedSettings.fromHref(window.location.href);
-            const videoId = embed?.videoId?.id || '';
-
-            return new ReplaceWatchLinks(videoId);
+            return new ReplaceWatchLinks(embed.videoId.id);
         },
     };
 }
