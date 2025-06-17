@@ -112,18 +112,15 @@ function useIframeEffects(src, embed) {
             features.titleCapture(),
             features.mouseCapture(),
             features.errorDetection(),
+            features.replaceWatchLinks(),
         ];
 
-        // Replace watch links on mobile only
-        const shouldReplaceLinks = platformName === 'android' || platformName === 'ios' || platformName === 'windows';
-        if (shouldReplaceLinks) {
-            iframeFeatures.push(features.replaceWatchLinks());
-            window.addEventListener(WATCH_LINK_CLICK_EVENT, () => {
-                if (embed) {
-                    openOnYoutube(embed);
-                }
-            });
-        }
+        // Handle watch link clicks in iframe
+        window.addEventListener(WATCH_LINK_CLICK_EVENT, () => {
+            if (embed) {
+                openOnYoutube(embed);
+            }
+        });
 
         /**
          * @type {ReturnType<import("../features/pip").IframeFeature['iframeDidLoad']>[]}
