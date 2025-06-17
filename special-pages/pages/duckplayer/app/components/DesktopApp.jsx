@@ -4,7 +4,7 @@ import { InfoBar, InfoBarContainer } from './InfoBar.jsx';
 import { PlayerContainer } from './PlayerContainer.jsx';
 import { Player, PlayerError } from './Player.jsx';
 import { YouTubeError } from './YouTubeError';
-import { useSettings } from '../providers/SettingsProvider.jsx';
+import { useSettings, useReplaceWatchLinks } from '../providers/SettingsProvider.jsx';
 import { createAppFeaturesFrom } from '../features/app.js';
 import { HideInFocusMode } from './FocusMode.jsx';
 import { useShowCustomError } from '../providers/YouTubeErrorProvider';
@@ -17,6 +17,7 @@ export function DesktopApp({ embed }) {
     const settings = useSettings();
     const features = createAppFeaturesFrom(settings);
     const showCustomError = useShowCustomError();
+    useReplaceWatchLinks(embed);
 
     return (
         <>
