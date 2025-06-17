@@ -4,17 +4,17 @@
 
 import { VideoParams } from 'injected/src/features/duckplayer/util';
 
-export const WATCH_LINK_CLICK_EVENT = 'ddg-iframe-watch-link-click';
-
 /**
  * @implements IframeFeature
  */
 export class ReplaceWatchLinks {
     /**
      * @param {string} videoId
+     * @param {() => void} handler - what to invoke when a watch-link was clicked
      */
-    constructor(videoId) {
+    constructor(videoId, handler) {
         this.videoId = videoId;
+        this.handler = handler;
     }
     /**
      * @param {HTMLIFrameElement} iframe
@@ -32,12 +32,14 @@ export class ReplaceWatchLinks {
             doc.addEventListener(
                 'click',
                 (e) => {
+                    if (!(e.target instanceof Element)) return;
+
                     /** @type {HTMLLinkElement|null} */
-                    const closestLink = /** @type {Element} */ (e.target).closest('a[href]');
+                    const closestLink = e.target.closest('a[href]');
                     if (closestLink && this.isWatchLink(closestLink.href)) {
                         e.preventDefault();
                         e.stopPropagation();
-                        window.dispatchEvent(new CustomEvent(WATCH_LINK_CLICK_EVENT));
+                        this.handler();
                     }
                 },
                 {

@@ -1,9 +1,8 @@
 import { h } from 'preact';
 import { createContext } from 'preact';
 import { Settings } from '../settings';
-import { useContext, useEffect } from 'preact/hooks';
+import { useContext } from 'preact/hooks';
 import { useMessaging } from '../types.js';
-import { WATCH_LINK_CLICK_EVENT } from '../features/replace-watch-links';
 
 const SettingsContext = createContext(/** @type {{settings: Settings}} */ ({}));
 
