@@ -73,7 +73,10 @@ describe('test-pages/*/config/*.json schema validation', () => {
         return config;
     }
 
-    const configFiles = glob.sync(path.resolve(__dirname, '../integration-test/test-pages/*/config/*.json'));
+    const configFiles = glob
+        .sync('../integration-test/test-pages/*/config/*.json', { cwd: __dirname })
+        .map((p) => path.resolve(__dirname, p));
+
     // Legacy allowlist: skip schema validation for these known legacy files
     // Some of these have expected invalid configs
     const legacyAllowlist = [
