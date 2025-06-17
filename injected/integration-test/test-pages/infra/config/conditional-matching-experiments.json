@@ -8,7 +8,13 @@
         "features": {
           "bloops": {
             "state": "enabled",
-            "rollout": {},
+            "rollout": {
+              "steps": [
+                {
+                  "percent": 100
+                }
+              ]
+            },
             "cohorts": [
               {
                 "name": "control",
@@ -22,7 +28,13 @@
           },
           "test": {
             "state": "enabled",
-            "rollout": {},
+            "rollout": {
+              "steps": [
+                {
+                  "percent": 100
+                }
+              ]
+            },
             "cohorts": [
               {
                 "name": "control",
