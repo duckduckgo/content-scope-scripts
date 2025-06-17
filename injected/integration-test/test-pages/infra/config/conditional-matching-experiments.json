@@ -1,4 +1,6 @@
 {
+    "version": 1,
+    "readme": "This config is used to test the conditional matching of experiments using the API manipulation feature.",
     "features": {
       "contentScopeExperiments": {
         "exceptions": [],
@@ -78,8 +80,9 @@
               ]
             }
           ]
-        }
-      },
-      "exceptions": []
-    }
+        },
+        "exceptions": []
+      }
+    },
+    "unprotectedTemporary": []
 }
