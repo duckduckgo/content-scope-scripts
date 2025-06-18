@@ -40,7 +40,7 @@ function DesktopLayout({ embed }) {
             <PlayerContainer>
                 {embed === null && <PlayerError layout={'desktop'} kind={'invalid-id'} />}
                 {embed !== null && showCustomError && <YouTubeError layout={'desktop'} embed={embed} />}
-                {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'desktop'} />}
+                {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'desktop'} embed={embed} />}
                 <HideInFocusMode style={'slide'}>
                     <InfoBarContainer>
                         <InfoBar embed={embed} />

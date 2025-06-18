@@ -24,8 +24,8 @@ export function MobileApp({ embed }) {
     const settings = useSettings();
     const telemetry = useTelemetry();
     const showCustomError = useShowCustomError();
-
     const features = createAppFeaturesFrom(settings);
+
     return (
         <>
             {!showCustomError && features.focusMode()}
@@ -65,7 +65,7 @@ function MobileLayout({ embed }) {
             <div class={styles.embed}>
                 {embed === null && <PlayerError layout={'mobile'} kind={'invalid-id'} />}
                 {embed !== null && showCustomError && <YouTubeError layout={'mobile'} embed={embed} />}
-                {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'mobile'} />}
+                {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'mobile'} embed={embed} />}
             </div>
             <div class={cn(styles.logo, styles.hideInFocus)}>
                 <MobileWordmark />
