@@ -25505,7 +25505,9 @@
       /** @type {Strings} */
       {}
     );
-    const otherText2 = t4("stats_otherCount", { count: String(count) });
+    const [formatter] = d2(() => new Intl.NumberFormat());
+    const formattedCount = formatter.format(count);
+    const otherText2 = t4("stats_otherCount", { count: String(formattedCount) });
     return /* @__PURE__ */ _("div", { class: PrivacyStats_default.otherTrackersRow }, otherText2);
   }
   var init_PrivacyStats2 = __esm({
@@ -28482,7 +28484,7 @@
         },
         {
           displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
-          count: 210
+          count: 2100
         },
         {
           displayName: "Amazon.com",

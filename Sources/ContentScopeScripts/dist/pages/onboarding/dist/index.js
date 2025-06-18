@@ -8989,7 +8989,7 @@
     // Intended only for use with v3
     "placebo-ad-blocking": (t3) => ({
       id: "placebo-ad-blocking",
-      icon: "v3/ads.svg",
+      icon: "v3/Ads-Blocked-Color-24.svg",
       title: t3("row_placebo-ad-blocking_title_v3"),
       secondaryText: t3("row_ad-blocking_desc_v3"),
       summary: t3("row_placebo-ad-blocking_title_v3"),
@@ -9000,7 +9000,7 @@
     // Intended only for use with v3
     "aggressive-ad-blocking": (t3) => ({
       id: "aggressive-ad-blocking",
-      icon: "v3/ads.svg",
+      icon: "v3/Ads-Blocked-Color-24.svg",
       title: t3("row_aggressive-ad-blocking_title_v3"),
       secondaryText: t3("row_ad-blocking_desc_v3"),
       summary: t3("row_aggressive-ad-blocking_title_v3"),
@@ -9011,7 +9011,7 @@
     // Intended only for use with v3
     "youtube-ad-blocking": (t3) => ({
       id: "youtube-ad-blocking",
-      icon: "v3/video-player.svg",
+      icon: "v3/Video-Player-Color-24.svg",
       title: t3("row_youtube-ad-blocking_title_v3"),
       secondaryText: t3("row_youtube-ad-blocking_desc_v3"),
       summary: t3("row_youtube-ad-blocking_title_v3"),
@@ -9531,11 +9531,11 @@
       note: "The description of a browser privacy feature in the comparison table."
     },
     comparison_blockCookies: {
-      title: "Block cookie requests & pop-ups",
+      title: "Block cookie pop-ups",
       note: "The description of a browser privacy feature in the comparison table."
     },
     comparison_blockAds: {
-      title: "Block tracking ads",
+      title: "Block targeted ads",
       note: "The description of a browser privacy feature in the comparison table."
     },
     comparison_eraseData: {
@@ -10695,10 +10695,10 @@
     PARTIAL_SUPPORT: "partialSupport",
     FULL_SUPPORT: "fullSupport"
   };
-  var tableIconPrefix = "assets/img/steps/v3/";
+  var tableIconPrefix = "assets/img/steps/";
   var comparisonTableData = (t3, adBlockingEnabled = false) => [
     {
-      icon: "search.svg",
+      icon: "v3/Find-Search-Color-24.svg",
       title: t3("comparison_searchPrivately"),
       statuses: {
         chrome: SupportStatus.NOT_SUPPORTED,
@@ -10707,7 +10707,7 @@
       }
     },
     {
-      icon: "shield.svg",
+      icon: "v3/Shield-Color-24.svg",
       title: t3("comparison_blockTrackers"),
       statuses: {
         chrome: SupportStatus.NOT_SUPPORTED,
@@ -10716,7 +10716,7 @@
       }
     },
     {
-      icon: "cookie.svg",
+      icon: "v3/Cookie-Blocked-Color-24.svg",
       title: t3("comparison_blockCookies"),
       statuses: {
         chrome: SupportStatus.NOT_SUPPORTED,
@@ -10725,7 +10725,7 @@
       }
     },
     {
-      icon: "ads.svg",
+      icon: "v3/Ads-Blocked-Color-24.svg",
       title: t3("comparison_blockAds"),
       statuses: {
         chrome: SupportStatus.NOT_SUPPORTED,
@@ -10734,7 +10734,7 @@
       }
     },
     {
-      icon: "fire.svg",
+      icon: "v3/Fire-Color-24.svg",
       title: t3("comparison_eraseData"),
       statuses: {
         chrome: SupportStatus.NOT_SUPPORTED,
@@ -10743,7 +10743,7 @@
       }
     },
     {
-      icon: "video-player.svg",
+      icon: "v3/Video-Player-Color-24.svg",
       title: adBlockingEnabled ? t3("comparison_youtubeAdFree") : t3("comparison_privateYoutube"),
       statuses: {
         chrome: SupportStatus.NOT_SUPPORTED,
@@ -11132,7 +11132,7 @@
   var settingsRowItems2 = {
     "default-browser": (t3) => ({
       id: "default-browser",
-      icon: "v3/default-browser.svg",
+      icon: "v3/Browser-Default-Color-24.svg",
       title: t3("row_default-browser_title_v3"),
       kind: "one-time",
       acceptText: t3("row_default-browser_accept"),
@@ -11140,7 +11140,7 @@
     }),
     import: (t3) => ({
       id: "import",
-      icon: "v3/import.svg",
+      icon: "v3/Import-Color-24.svg",
       title: t3("row_import_title_v3"),
       secondaryText: t3("row_import_summary_v3"),
       kind: "one-time",
@@ -11154,7 +11154,7 @@
       const secondaryText = platform === "macos" ? t3("row_dock_summary_v3") : t3("row_taskbar_summary_v3");
       return {
         id: "dock",
-        icon: "v3/dock.svg",
+        icon: "v3/Add-To-Dock-Color-24.svg",
         title,
         secondaryText,
         kind: "one-time",
@@ -11164,7 +11164,7 @@
     },
     bookmarks: (t3) => ({
       id: "bookmarks",
-      icon: "v3/favorite.svg",
+      icon: "v3/Bookmark-Favorite-Color-24.svg",
       title: t3("row_bookmarks_title_v3"),
       kind: "toggle",
       acceptText: t3("row_bookmarks_accept"),
@@ -11172,7 +11172,7 @@
     }),
     "session-restore": (t3) => ({
       id: "session-restore",
-      icon: "v3/session-restore.svg",
+      icon: "v3/Session-Restore-Color-24.svg",
       title: t3("row_session-restore_title_v3"),
       kind: "toggle",
       acceptText: t3("row_session-restore_accept"),
@@ -11180,7 +11180,7 @@
     }),
     "home-shortcut": (t3) => ({
       id: "home-shortcut",
-      icon: "v3/home.svg",
+      icon: "v3/Home-Color-24.svg",
       title: t3("row_home-shortcut_title_v3"),
       kind: "toggle",
       acceptText: t3("row_home-shortcut_accept"),
@@ -11188,7 +11188,7 @@
     }),
     "placebo-ad-blocking": (t3) => ({
       id: "placebo-ad-blocking",
-      icon: "v3/ads.svg",
+      icon: "v3/Ads-Blocked-Color-24.svg",
       title: t3("row_placebo-ad-blocking_title_v3"),
       secondaryText: t3("row_ad-blocking_desc_v3"),
       kind: "one-time",
@@ -11197,7 +11197,7 @@
     }),
     "aggressive-ad-blocking": (t3) => ({
       id: "aggressive-ad-blocking",
-      icon: "v3/ads.svg",
+      icon: "v3/Ads-Blocked-Color-24.svg",
       title: t3("row_aggressive-ad-blocking_title_v3"),
       secondaryText: t3("row_ad-blocking_desc_v3"),
       kind: "one-time",
@@ -11206,7 +11206,7 @@
     }),
     "youtube-ad-blocking": (t3) => ({
       id: "youtube-ad-blocking",
-      icon: "v3/ads.svg",
+      icon: "v3/Ads-Blocked-Color-24.svg",
       title: t3("row_youtube-ad-blocking_title_v3"),
       secondaryText: t3("row_youtube-ad-blocking_desc_v3"),
       kind: "one-time",

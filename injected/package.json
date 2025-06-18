@@ -32,12 +32,12 @@
   },
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
-    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#b5c39e2b0592c044d609dfed624db31c3c5bca3b",
+    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#2c569c49990bae4ac83578fc9eaef282489d7926",
     "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@types/chrome": "^0.0.326",
     "@types/jasmine": "^5.1.8",
-    "@types/node": "^22.15.29",
-    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@types/node": "^24.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.34.0",
     "fast-check": "^4.1.1",
     "jasmine": "^5.7.1",
     "minimist": "^1.2.8"

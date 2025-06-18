@@ -1,4 +1,6 @@
 {
+  "readme": "This config is used to test the message bridge feature.",
+  "version": 1,
   "unprotectedTemporary": [],
   "features": {
     "navigatorInterface": {

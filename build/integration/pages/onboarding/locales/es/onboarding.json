@@ -381,11 +381,11 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies" : {
-    "title" : "Bloquea las solicitudes de cookies y las ventanas emergentes",
+    "title" : "Bloqueo de ventanas emergentes de cookies",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Bloquea anuncios de rastreo",
+    "title" : "Bloqueo de anuncios segmentados",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {
