@@ -30,17 +30,23 @@
                 blockedFetchError = error;
             }
 
-            // Try to fetch an allowed URL (should work normally)
+            // Try to fetch an allowed URL (should fail due to CORS but attempt should be made)
             try {
                 allowedFetchResult = await fetch('https://example.com/allowed-url');
             } catch (error) {
                 allowedFetchError = error;
             }
 
+            // The scriptlet works by:
+            // 1. Blocked URL gets intercepted and returns a mock Response object
+            // 2. Allowed URL fails normally with network/CORS errors
+            const blockedRequestIntercepted = blockedFetchResult !== null && blockedFetchError === null;
+            const allowedRequestFailedNormally = allowedFetchResult === null && allowedFetchError !== null;
+
             return [
-                { name: 'Blocked fetch should not succeed', result: blockedFetchResult === null, expected: true },
-                { name: 'Allowed fetch should attempt to work', result: allowedFetchResult !== null || allowedFetchError !== null, expected: true },
-                { name: 'fetch function should still exist', result: typeof fetch, expected: 'function' }
+                { name: 'fetch function should still exist', result: typeof fetch, expected: 'function' },
+                { name: 'Blocked fetch should return mock response', result: blockedRequestIntercepted, expected: true },
+                { name: 'Allowed fetch should fail with network error', result: allowedRequestFailedNormally, expected: true }
             ];
         });
 

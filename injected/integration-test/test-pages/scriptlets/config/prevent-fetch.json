@@ -10,9 +10,14 @@
         "scriptlets": [],
         "conditionalChanges": [
           {
-            "condition": {
-              "domain": ["localhost", "privacy-test-pages.site"]
-            },
+            "condition": [
+              {
+                "domain": "localhost"
+              },
+              {
+                "domain": "privacy-test-pages.site"
+              }
+            ],
             "patchSettings": [
               {
                 "op": "add",
@@ -20,7 +25,7 @@
                 "value": {
                   "name": "preventFetch",
                   "attrs": {
-                    "propsToMatch": "url:blocked-url"
+                    "propsToMatch": "url:/blocked-url"
                   }
                 }
               }

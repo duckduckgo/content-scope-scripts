@@ -13,27 +13,33 @@
     <p>This page verifies that the abort-current-inline-script scriptlet works properly given the <a href="../config/abort-current-inline-script.json">config</a>.</p>
 
     <script>
-        // Set a flag to track whether the bad script executed
-        window.badScriptExecuted = false;
-        window.goodScriptExecuted = false;
-    </script>
-
-    <!-- This script should be aborted because it contains "badScript" and calls document.createElement -->
-    <script>
-        const badScript = document.createElement('div');
-        window.badScriptExecuted = true;
-    </script>
-
-    <!-- This script should execute normally -->
-    <script>
-        const goodElement = document.createElement('span');
-        window.goodScriptExecuted = true;
-    </script>
-
-    <script>
         // eslint-disable-next-line no-undef
         test('Abort-current-inline-script scriptlet should abort matching scripts', async () => {
             // Wait a bit for scriptlets to execute
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Reset flags
+            window.badScriptExecuted = false;
+            window.goodScriptExecuted = false;
+
+            // Create scripts dynamically so the scriptlet can intercept them
+            const badScript = document.createElement('script');
+            badScript.textContent = `
+                const badScript = document.createElement('div');
+                window.badScriptExecuted = true;
+            `;
+
+            const goodScript = document.createElement('script');  
+            goodScript.textContent = `
+                const goodElement = document.createElement('span');
+                window.goodScriptExecuted = true;
+            `;
+
+            // Add scripts to DOM - scriptlet should abort the bad one
+            document.body.appendChild(badScript);
+            document.body.appendChild(goodScript);
+            
+            // Wait for scripts to potentially execute
             await new Promise(resolve => setTimeout(resolve, 100));
 
             return [

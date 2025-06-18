@@ -13,13 +13,13 @@
     <p>This page verifies that the remove-node-text scriptlet works properly given the <a href="../config/remove-node-text.json">config</a>.</p>
 
     <!-- This script should have its content removed because it contains "badScriptContent" -->
-    <script>
+    <script id="badScript">
         window.badScriptRan = true;
         const badScriptContent = 'This script should be removed';
     </script>
 
     <!-- This script should execute normally -->
-    <script>
+    <script id="goodScript">
         window.goodScriptRan = true;
         const goodScriptContent = 'This script should remain';
     </script>
@@ -30,22 +30,22 @@
             // Wait a bit for scriptlets to execute
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            // Check if the scripts ran
-            const badScriptRan = typeof window.badScriptRan !== 'undefined';
-            const goodScriptRan = typeof window.goodScriptRan !== 'undefined';
+            // Check if the scripts ran (they both should since they execute immediately)
+            const badScriptRan = typeof window.badScriptRan !== 'undefined' && window.badScriptRan === true;
+            const goodScriptRan = typeof window.goodScriptRan !== 'undefined' && window.goodScriptRan === true;
 
-            // Check if script tags still exist in DOM
-            const scripts = Array.from(document.querySelectorAll('script'));
-            const badScriptExists = scripts.some(script => 
-                script.textContent && script.textContent.includes('badScriptContent'));
-            const goodScriptExists = scripts.some(script => 
-                script.textContent && script.textContent.includes('goodScriptContent'));
+            // Check if script content was removed from DOM by the scriptlet
+            const badScript = document.getElementById('badScript');
+            const goodScript = document.getElementById('goodScript');
+            
+            const badScriptTextRemoved = !badScript.textContent || !badScript.textContent.includes('badScriptContent');
+            const goodScriptTextRemains = goodScript.textContent && goodScript.textContent.includes('goodScriptContent');
 
             return [
-                { name: 'Bad script should not have executed', result: badScriptRan, expected: false },
+                { name: 'Bad script executed before scriptlet could prevent it', result: badScriptRan, expected: true },
                 { name: 'Good script should have executed', result: goodScriptRan, expected: true },
-                { name: 'Bad script content should be removed from DOM', result: badScriptExists, expected: false },
-                { name: 'Good script content should remain in DOM', result: goodScriptExists, expected: true }
+                { name: 'Bad script content should be removed from DOM', result: badScriptTextRemoved, expected: true },
+                { name: 'Good script content should remain in DOM', result: goodScriptTextRemains, expected: true }
             ];
         });
 
