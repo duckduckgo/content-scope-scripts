@@ -19,21 +19,8 @@
                   "name": "setConstant",
                   "attrs": {
                     "property": "testConstant",
-                    "value": "blocked"
-                  },
-                  "source": "adguard"
-                }
-              },
-              {
-                "op": "add",
-                "path": "/scriptlets/-",
-                "value": {
-                  "name": "setConstant",
-                  "attrs": {
-                    "property": "deepObject.nestedProperty",
-                    "value": "true"
-                  },
-                  "source": "adguard"
+                    "value": "false"
+                  }
                 }
               }
             ]

@@ -19,9 +19,8 @@
                   "name": "setCookie",
                   "attrs": {
                     "name": "testCookie",
-                    "value": "testValue"
-                  },
-                  "source": "ddg"
+                    "value": "yes"
+                  }
                 }
               },
               {
@@ -31,10 +30,9 @@
                   "name": "setCookie",
                   "attrs": {
                     "name": "pathCookie",
-                    "value": "pathValue",
-                    "path": "/scriptlets/pages/"
-                  },
-                  "source": "ddg"
+                    "value": "enabled",
+                    "path": "/"
+                  }
                 }
               }
             ]

@@ -19,8 +19,7 @@
                   "name": "preventSetTimeout",
                   "attrs": {
                     "matchCallback": "badTimeout"
-                  },
-                  "source": "adguard"
+                  }
                 }
               }
             ]

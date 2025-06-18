@@ -19,8 +19,7 @@
                   "name": "preventFetch",
                   "attrs": {
                     "propsToMatch": "url:blocked-url"
-                  },
-                  "source": "adguard"
+                  }
                 }
               }
             ]

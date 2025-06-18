@@ -17,8 +17,7 @@
                 "path": "/scriptlets/-",
                 "value": {
                   "name": "preventWindowOpen",
-                  "attrs": {},
-                  "source": "adguard"
+                  "attrs": {}
                 }
               }
             ]

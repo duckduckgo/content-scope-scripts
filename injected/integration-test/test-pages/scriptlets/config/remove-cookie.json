@@ -19,8 +19,7 @@
                   "name": "removeCookie",
                   "attrs": {
                     "match": "unwantedCookie"
-                  },
-                  "source": "adguard"
+                  }
                 }
               }
             ]

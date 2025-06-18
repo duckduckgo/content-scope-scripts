@@ -36,7 +36,7 @@
         test('Set-cookie scriptlet should set cookies as configured', async () => {
             // Wait a bit for scriptlets to execute
             await new Promise(resolve => setTimeout(resolve, 100));
-            
+
             const hasTestCookie = hasCookie('testCookie');
             const testCookieValue = getCookieValue('testCookie');
             const hasPathCookie = hasCookie('pathCookie');
@@ -44,9 +44,9 @@
 
             return [
                 { name: 'testCookie should be set', result: hasTestCookie, expected: true },
-                { name: 'testCookie should have correct value', result: testCookieValue, expected: 'testValue' },
+                { name: 'testCookie should have correct value', result: testCookieValue, expected: 'yes' },
                 { name: 'pathCookie should be set', result: hasPathCookie, expected: true },
-                { name: 'pathCookie should have correct value', result: pathCookieValue, expected: 'pathValue' }
+                { name: 'pathCookie should have correct value', result: pathCookieValue, expected: 'enabled' }
             ];
         });
 

@@ -19,8 +19,7 @@
                   "name": "abortOnPropertyWrite",
                   "attrs": {
                     "property": "testWriteProperty"
-                  },
-                  "source": "adguard"
+                  }
                 }
               }
             ]

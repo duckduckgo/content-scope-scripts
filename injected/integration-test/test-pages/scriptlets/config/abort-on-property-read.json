@@ -19,8 +19,7 @@
                   "name": "abortOnPropertyRead",
                   "attrs": {
                     "property": "testBadProperty"
-                  },
-                  "source": "adguard"
+                  }
                 }
               }
             ]

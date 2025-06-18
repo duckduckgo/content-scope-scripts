@@ -17,13 +17,13 @@
         test('Set-local-storage-item scriptlet should set localStorage items', async () => {
             // Wait a bit for scriptlets to execute
             await new Promise(resolve => setTimeout(resolve, 100));
-            
+
             const storageValue = localStorage.getItem('testKey');
             const hasStorageItem = storageValue !== null;
 
             return [
                 { name: 'testKey should be set in localStorage', result: hasStorageItem, expected: true },
-                { name: 'testKey should have correct value', result: storageValue, expected: 'testStorageValue' }
+                { name: 'testKey should have correct value', result: storageValue, expected: 'true' }
             ];
         });
 

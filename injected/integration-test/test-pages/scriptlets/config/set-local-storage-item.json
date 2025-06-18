@@ -19,9 +19,8 @@
                   "name": "setLocalStorageItem",
                   "attrs": {
                     "key": "testKey",
-                    "value": "testStorageValue"
-                  },
-                  "source": "adguard"
+                    "value": "true"
+                  }
                 }
               }
             ]
