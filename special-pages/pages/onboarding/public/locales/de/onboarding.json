@@ -381,11 +381,11 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies" : {
-    "title" : "Cookie-Anfragen und Pop-ups blockieren",
+    "title" : "Cookie-Pop-ups blockieren",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Tracking-Anzeigen blockieren",
+    "title" : "Gezielte Werbung blockieren",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {
