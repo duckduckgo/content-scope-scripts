@@ -36,8 +36,8 @@
     "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@types/chrome": "^0.0.326",
     "@types/jasmine": "^5.1.8",
-    "@types/node": "^24.0.1",
-    "@typescript-eslint/eslint-plugin": "^8.34.0",
+    "@types/node": "^24.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
     "fast-check": "^4.1.1",
     "jasmine": "^5.7.1",
     "minimist": "^1.2.8"
