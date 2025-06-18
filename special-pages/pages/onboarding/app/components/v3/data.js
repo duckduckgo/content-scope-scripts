@@ -149,7 +149,7 @@ export const stepsConfig = {
 export const settingsRowItems = {
     'default-browser': (t) => ({
         id: 'default-browser',
-        icon: 'v3/default-browser.svg',
+        icon: 'v3/Browser-Default-Color-24.svg',
         title: t('row_default-browser_title_v3'),
         kind: 'one-time',
         acceptText: t('row_default-browser_accept'),
@@ -157,7 +157,7 @@ export const settingsRowItems = {
     }),
     import: (t) => ({
         id: 'import',
-        icon: 'v3/import.svg',
+        icon: 'v3/Import-Color-24.svg',
         title: t('row_import_title_v3'),
         secondaryText: t('row_import_summary_v3'),
         kind: 'one-time',
@@ -172,7 +172,7 @@ export const settingsRowItems = {
 
         return {
             id: 'dock',
-            icon: 'v3/dock.svg',
+            icon: 'v3/Add-To-Dock-Color-24.svg',
             title,
             secondaryText,
             kind: 'one-time',
@@ -182,7 +182,7 @@ export const settingsRowItems = {
     },
     bookmarks: (t) => ({
         id: 'bookmarks',
-        icon: 'v3/favorite.svg',
+        icon: 'v3/Bookmark-Favorite-Color-24.svg',
         title: t('row_bookmarks_title_v3'),
         kind: 'toggle',
         acceptText: t('row_bookmarks_accept'),
@@ -190,7 +190,7 @@ export const settingsRowItems = {
     }),
     'session-restore': (t) => ({
         id: 'session-restore',
-        icon: 'v3/session-restore.svg',
+        icon: 'v3/Session-Restore-Color-24.svg',
         title: t('row_session-restore_title_v3'),
         kind: 'toggle',
         acceptText: t('row_session-restore_accept'),
@@ -198,7 +198,7 @@ export const settingsRowItems = {
     }),
     'home-shortcut': (t) => ({
         id: 'home-shortcut',
-        icon: 'v3/home.svg',
+        icon: 'v3/Home-Color-24.svg',
         title: t('row_home-shortcut_title_v3'),
         kind: 'toggle',
         acceptText: t('row_home-shortcut_accept'),
@@ -206,7 +206,7 @@ export const settingsRowItems = {
     }),
     'placebo-ad-blocking': (t) => ({
         id: 'placebo-ad-blocking',
-        icon: 'v3/ads.svg',
+        icon: 'v3/Ads-Blocked-Color-24.svg',
         title: t('row_placebo-ad-blocking_title_v3'),
         secondaryText: t('row_ad-blocking_desc_v3'),
         kind: 'one-time',
@@ -215,7 +215,7 @@ export const settingsRowItems = {
     }),
     'aggressive-ad-blocking': (t) => ({
         id: 'aggressive-ad-blocking',
-        icon: 'v3/ads.svg',
+        icon: 'v3/Ads-Blocked-Color-24.svg',
         title: t('row_aggressive-ad-blocking_title_v3'),
         secondaryText: t('row_ad-blocking_desc_v3'),
         kind: 'one-time',
@@ -224,7 +224,7 @@ export const settingsRowItems = {
     }),
     'youtube-ad-blocking': (t) => ({
         id: 'youtube-ad-blocking',
-        icon: 'v3/ads.svg',
+        icon: 'v3/Ads-Blocked-Color-24.svg',
         title: t('row_youtube-ad-blocking_title_v3'),
         secondaryText: t('row_youtube-ad-blocking_desc_v3'),
         kind: 'one-time',

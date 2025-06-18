@@ -381,11 +381,11 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies" : {
-    "title" : "Блокирует запросы и всплывающие окна куки",
+    "title" : "Блокирует всплывающие окна куки",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Блокирует рекламу с отслеживанием",
+    "title" : "Блокировка целевой рекламы",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {

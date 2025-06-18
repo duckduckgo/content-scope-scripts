@@ -1,4 +1,6 @@
 {
+  "readme": "This config is used to test the duckplayer native feature.",
+  "version": 1,
   "unprotectedTemporary": [],
   "features": {
     "duckPlayerNative": {
