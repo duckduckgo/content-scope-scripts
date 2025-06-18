@@ -26,7 +26,7 @@ export class Scriptlets extends ContentFeature {
         }
         /* @type {import('@adguard/scriptlets').Source} */
         const source = {
-            verbose: true,
+            verbose: false,
         };
 
         const scriptlets = this.getFeatureSetting('scriptlets');

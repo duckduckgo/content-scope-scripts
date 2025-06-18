@@ -1,6 +1,6 @@
 {
   "readme": "This config tests the preventAddEventListener scriptlet",
-  "version": "1",
+  "version": 1,
   "unprotectedTemporary": [],
   "features": {
     "scriptlets": {
