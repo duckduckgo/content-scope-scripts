@@ -1,8 +1,11 @@
 {
+    "readme": "This config is used to test the api manipulation feature.",
+    "version": 1,
     "unprotectedTemporary": [],
     "features": {
         "apiManipulation": {
             "state": "enabled",
+            "exceptions": [],
             "settings": {
                 "apiChanges": {
                     "Navigator.prototype.hardwareConcurrency": {
