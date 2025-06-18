@@ -31,6 +31,7 @@ export default defineConfig({
             testMatch: [
                 'integration-test/navigator-interface-insecure.js',
                 'integration-test/webcompat.spec.js',
+                'integration-test/scriptlets.spec.js',
                 'integration-test/message-bridge-apple.spec.js'
             ],
             use: { injectName: 'apple', platform: 'macos' },
@@ -69,6 +70,7 @@ export default defineConfig({
                 'integration-test/pages.spec.js',
                 'integration-test/utils.spec.js',
                 'integration-test/web-compat.spec.js',
+                'integration-test/scriptlets.spec.js',
             ],
             use: { injectName: 'chrome-mv3', platform: 'extension', ...devices['Desktop Chrome'] },
         },

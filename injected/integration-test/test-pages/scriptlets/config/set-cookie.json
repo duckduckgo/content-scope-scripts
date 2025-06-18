@@ -1,0 +1,46 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "scriptlets": {
+      "exceptions": [],
+      "state": "enabled",
+      "settings": {
+        "scriptlets": [],
+        "conditionalChanges": [
+          {
+            "condition": {
+              "domain": ["localhost", "privacy-test-pages.site"]
+            },
+            "patchSettings": [
+              {
+                "op": "add",
+                "path": "/scriptlets/-",
+                "value": {
+                  "name": "setCookie",
+                  "attrs": {
+                    "name": "testCookie",
+                    "value": "testValue"
+                  },
+                  "source": "ddg"
+                }
+              },
+              {
+                "op": "add",
+                "path": "/scriptlets/-",
+                "value": {
+                  "name": "setCookie",
+                  "attrs": {
+                    "name": "pathCookie",
+                    "value": "pathValue",
+                    "path": "/scriptlets/pages/"
+                  },
+                  "source": "ddg"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+} 

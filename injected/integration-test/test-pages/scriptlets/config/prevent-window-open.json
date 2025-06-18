@@ -1,0 +1,30 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "scriptlets": {
+      "exceptions": [],
+      "state": "enabled",
+      "settings": {
+        "scriptlets": [],
+        "conditionalChanges": [
+          {
+            "condition": {
+              "domain": ["localhost", "privacy-test-pages.site"]
+            },
+            "patchSettings": [
+              {
+                "op": "add",
+                "path": "/scriptlets/-",
+                "value": {
+                  "name": "preventWindowOpen",
+                  "attrs": {},
+                  "source": "adguard"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+} 

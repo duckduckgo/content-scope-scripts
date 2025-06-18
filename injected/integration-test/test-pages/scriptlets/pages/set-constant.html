@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Set Constant Scriptlet Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Scriptlets]</a></p>
+
+    <p>This page verifies that the set-constant scriptlet works properly given the <a href="../config/set-constant.json">config</a>.</p>
+
+    <script>
+        // Try to set these properties - they should be overridden by the scriptlet
+        window.testConstant = 'original value';
+        window.deepObject = {
+            nestedProperty: 'original nested value'
+        };
+
+        // eslint-disable-next-line no-undef
+        test('Set-constant scriptlet should override property values', async () => {
+            // Wait a bit for scriptlets to execute
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const testConstantValue = window.testConstant;
+            const nestedPropertyValue = window.deepObject?.nestedProperty;
+
+            // Try to change the values - they should remain constant
+            window.testConstant = 'new value';
+            window.deepObject.nestedProperty = 'new nested value';
+
+            const testConstantAfterChange = window.testConstant;
+            const nestedPropertyAfterChange = window.deepObject?.nestedProperty;
+
+            return [
+                { name: 'testConstant should be set to "blocked"', result: testConstantValue, expected: 'blocked' },
+                { name: 'deepObject.nestedProperty should be set to "true"', result: nestedPropertyValue, expected: 'true' },
+                { name: 'testConstant should remain constant after attempted change', result: testConstantAfterChange, expected: 'blocked' },
+                { name: 'deepObject.nestedProperty should remain constant after attempted change', result: nestedPropertyAfterChange, expected: 'true' }
+            ];
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html> 

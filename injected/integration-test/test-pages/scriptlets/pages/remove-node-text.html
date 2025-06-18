@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Remove Node Text Scriptlet Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Scriptlets]</a></p>
+
+    <p>This page verifies that the remove-node-text scriptlet works properly given the <a href="../config/remove-node-text.json">config</a>.</p>
+
+    <!-- This script should have its content removed because it contains "badScriptContent" -->
+    <script>
+        window.badScriptRan = true;
+        const badScriptContent = 'This script should be removed';
+    </script>
+
+    <!-- This script should execute normally -->
+    <script>
+        window.goodScriptRan = true;
+        const goodScriptContent = 'This script should remain';
+    </script>
+
+    <script>
+        // eslint-disable-next-line no-undef
+        test('Remove-node-text scriptlet should remove matching script content', async () => {
+            // Wait a bit for scriptlets to execute
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Check if the scripts ran
+            const badScriptRan = typeof window.badScriptRan !== 'undefined';
+            const goodScriptRan = typeof window.goodScriptRan !== 'undefined';
+
+            // Check if script tags still exist in DOM
+            const scripts = Array.from(document.querySelectorAll('script'));
+            const badScriptExists = scripts.some(script => 
+                script.textContent && script.textContent.includes('badScriptContent'));
+            const goodScriptExists = scripts.some(script => 
+                script.textContent && script.textContent.includes('goodScriptContent'));
+
+            return [
+                { name: 'Bad script should not have executed', result: badScriptRan, expected: false },
+                { name: 'Good script should have executed', result: goodScriptRan, expected: true },
+                { name: 'Bad script content should be removed from DOM', result: badScriptExists, expected: false },
+                { name: 'Good script content should remain in DOM', result: goodScriptExists, expected: true }
+            ];
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html> 

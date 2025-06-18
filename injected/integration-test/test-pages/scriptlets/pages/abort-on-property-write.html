@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Abort on Property Write Scriptlet Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Scriptlets]</a></p>
+
+    <p>This page verifies that the abort-on-property-write scriptlet works properly given the <a href="../config/abort-on-property-write.json">config</a>.</p>
+
+    <script>
+        // eslint-disable-next-line no-undef
+        test('Abort-on-property-write scriptlet should abort when writing to specified property', async () => {
+            // Wait a bit for scriptlets to execute
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            let writeThrew = false;
+            let writeSuccessful = false;
+            let goodWriteThrew = false;
+            let goodWriteSuccessful = false;
+
+            // Try to write to the bad property
+            try {
+                // @ts-ignore - Deliberately testing property write blocking
+                window.testWriteProperty = 'This should cause an abort when written';
+                writeSuccessful = true;
+            } catch (error) {
+                writeThrew = true;
+            }
+
+            // Try to write to a good property (should work normally)
+            try {
+                // @ts-ignore - Deliberately testing property write
+                window.testGoodWriteProperty = 'This should work normally';
+                goodWriteSuccessful = true;
+            } catch (error) {
+                goodWriteThrew = true;
+            }
+
+            return [
+                { name: 'Writing to testWriteProperty should throw error', result: writeThrew, expected: true },
+                { name: 'Writing to testWriteProperty should not succeed', result: writeSuccessful, expected: false },
+                { name: 'Writing to testGoodWriteProperty should not throw error', result: goodWriteThrew, expected: false },
+                { name: 'Writing to testGoodWriteProperty should succeed', result: goodWriteSuccessful, expected: true }
+            ];
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html> 

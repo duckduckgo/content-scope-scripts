@@ -3,7 +3,6 @@
   "scripts": {
     "postinstall": "npm run copy-sjcl",
     "copy-sjcl": "node scripts/generateSJCL.js",
-    "checkout-submodules": "git submodule update --init --recursive --no-fetch",
     "build": "npm run extract-scriptlets && npm run build-types && npm run build-locales && npm run bundle-trackers && npm run bundle-entry-points",
     "extract-scriptlets": "node scripts/extract-scriptlets.js",
     "bundle-config": "node scripts/bundleConfig.mjs",

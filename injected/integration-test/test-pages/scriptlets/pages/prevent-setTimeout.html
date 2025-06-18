@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Prevent Set Timeout Scriptlet Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Scriptlets]</a></p>
+
+    <p>This page verifies that the prevent-setTimeout scriptlet works properly given the <a href="../config/prevent-setTimeout.json">config</a>.</p>
+
+    <script>
+        let badTimeoutExecuted = false;
+        let goodTimeoutExecuted = false;
+
+        // eslint-disable-next-line no-undef
+        test('Prevent-setTimeout scriptlet should block matching timeouts', async () => {
+            // Wait a bit for scriptlets to execute
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Try to set a bad timeout (should be blocked - contains "badTimeout")
+            const badTimeoutId = setTimeout(function badTimeout() {
+                badTimeoutExecuted = true;
+            }, 10);
+
+            // Try to set a good timeout (should work normally)
+            const goodTimeoutId = setTimeout(function goodTimeout() {
+                goodTimeoutExecuted = true;
+            }, 10);
+
+            // Wait for timeouts to potentially execute
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            return [
+                { name: 'Bad timeout should not execute', result: badTimeoutExecuted, expected: false },
+                { name: 'Good timeout should execute', result: goodTimeoutExecuted, expected: true },
+                { name: 'setTimeout function should still exist', result: typeof setTimeout, expected: 'function' },
+                { name: 'Bad timeout should return truthy ID', result: typeof badTimeoutId !== 'undefined', expected: true },
+                { name: 'Good timeout should return truthy ID', result: typeof goodTimeoutId !== 'undefined', expected: true }
+            ];
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html> 

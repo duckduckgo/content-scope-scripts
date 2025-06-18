@@ -70,7 +70,3 @@ const outputPath = join(process.cwd(), 'src/features/scriptlets-minimal.js');
 const moduleContent = generateMinimalScriptlets();
 
 writeFileSync(outputPath, moduleContent, 'utf8');
-
-console.log(`✅ Generated minimal scriptlets module: ${outputPath}`);
-console.log(`📦 Included ${NEEDED_FUNCTIONS.length} functions instead of the entire @adguard/scriptlets package`);
-console.log(`🎯 Functions: ${NEEDED_FUNCTIONS.join(', ')}`); 

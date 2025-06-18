@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Set Cookie Scriptlet Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Scriptlets]</a></p>
+
+    <p>This page verifies that the set-cookie scriptlet works properly given the <a href="../config/set-cookie.json">config</a>.</p>
+
+    <script>
+        // Helper function to check if a cookie exists
+        function hasCookie(name) {
+            return document.cookie.split(';').some(c => {
+                return c.trim().startsWith(name + '=');
+            });
+        }
+
+        // Helper function to get cookie value
+        function getCookieValue(name) {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [cookieName, cookieValue] = cookie.trim().split('=');
+                if (cookieName === name) {
+                    return cookieValue;
+                }
+            }
+            return null;
+        }
+
+        // eslint-disable-next-line no-undef
+        test('Set-cookie scriptlet should set cookies as configured', async () => {
+            // Wait a bit for scriptlets to execute
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const hasTestCookie = hasCookie('testCookie');
+            const testCookieValue = getCookieValue('testCookie');
+            const hasPathCookie = hasCookie('pathCookie');
+            const pathCookieValue = getCookieValue('pathCookie');
+
+            return [
+                { name: 'testCookie should be set', result: hasTestCookie, expected: true },
+                { name: 'testCookie should have correct value', result: testCookieValue, expected: 'testValue' },
+                { name: 'pathCookie should be set', result: hasPathCookie, expected: true },
+                { name: 'pathCookie should have correct value', result: pathCookieValue, expected: 'pathValue' }
+            ];
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html> 
