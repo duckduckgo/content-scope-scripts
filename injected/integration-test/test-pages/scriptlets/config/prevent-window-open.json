@@ -1,4 +1,6 @@
 {
+  "readme": "This config tests the preventWindowOpen scriptlet",
+  "version": "1",
   "unprotectedTemporary": [],
   "features": {
     "scriptlets": {

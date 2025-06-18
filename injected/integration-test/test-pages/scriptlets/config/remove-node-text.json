@@ -1,4 +1,6 @@
 {
+  "readme": "This config tests the removeNodeText scriptlet",
+  "version": "1",
   "unprotectedTemporary": [],
   "features": {
     "scriptlets": {
