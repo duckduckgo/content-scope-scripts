@@ -1,4 +1,1 @@
-- Fix config schema tests (#1752)
-- onboarding: updated assets and copy (#1718)
-- fix:  NTP Privacy Stats widget number formatting (#1735)
-- build(deps-dev): bump the typescript group across 1 directory with 2 updates (#1743)
+- Duck Player: Add support for new YouTube Player UI links (#1753)

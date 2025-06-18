@@ -3,9 +3,12 @@ import { createContext } from 'preact';
 import { Settings } from '../settings';
 import { useContext } from 'preact/hooks';
 import { useMessaging } from '../types.js';
-import { EmbedSettings } from '../embed-settings';
 
 const SettingsContext = createContext(/** @type {{settings: Settings}} */ ({}));
+
+/**
+ * @import {EmbedSettings} from '../embed-settings.js';
+ */
 
 /**
  * @param {object} params

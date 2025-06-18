@@ -22,7 +22,7 @@ export function Components() {
         platform: { name: 'macos' },
         customError: { state: 'enabled' },
     });
-    let embed = EmbedSettings.fromHref('https://localhost?videoID=123');
+    let embed = /** @type {EmbedSettings} */ (EmbedSettings.fromHref('https://localhost?videoID=123'));
     let url = embed?.toEmbedUrl();
     if (!url) throw new Error('unreachable');
     return (
@@ -76,7 +76,7 @@ export function Components() {
                 </h2>
                 <SettingsProvider settings={settings}>
                     <PlayerContainer>
-                        <Player src={url} layout={'desktop'} />
+                        <Player src={url} layout={'desktop'} embed={embed} />
                         <InfoBarContainer>
                             <InfoBar embed={embed} />
                         </InfoBarContainer>
