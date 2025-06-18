@@ -32,7 +32,7 @@ export class ReplaceWatchLinks {
             doc.addEventListener(
                 'click',
                 (e) => {
-                    if (!(e.target instanceof /** @type {any} */(win).Element)) return;
+                    if (!(e.target instanceof /** @type {any} */ (win).Element)) return;
 
                     /** @type {HTMLLinkElement|null} */
                     const closestLink = /** @type {Element} */ (e.target).closest('a[href]');
