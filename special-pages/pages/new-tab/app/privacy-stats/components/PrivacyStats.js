@@ -8,6 +8,7 @@ import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.uti
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.js';
 import { ProtectionsEmpty } from '../../protections/components/Protections.js';
+import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -23,7 +24,7 @@ import { ProtectionsEmpty } from '../../protections/components/Protections.js';
  * @param {Expansion} [props.expansion]
  */
 export function PrivacyStats({ trackerCompanies, expansion = 'expanded' }) {
-    const [formatter] = useState(() => new Intl.NumberFormat());
+    const [formatter] = useState(() => getLocalizedNumberFormatter('en'));
     const sorted = sortStatsForDisplay(trackerCompanies);
     const largestTrackerCount = sorted[0]?.count ?? 0;
 
