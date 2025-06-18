@@ -9,7 +9,7 @@ test.describe('Scriptlets Integration Tests', () => {
         test('should set cookies as configured', async ({ page }) => {
             const scriptletArgs = {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -19,20 +19,20 @@ test.describe('Scriptlets Integration Tests', () => {
                                 name: 'setCookie',
                                 attrs: {
                                     name: 'testCookie',
-                                    value: 'yes'
-                                }
+                                    value: 'yes',
+                                },
                             },
                             {
                                 name: 'setCookie',
                                 attrs: {
                                     name: 'pathCookie',
                                     value: 'enabled',
-                                    path: '/'
-                                }
-                            }
-                        ]
-                    }
-                }
+                                    path: '/',
+                                },
+                            },
+                        ],
+                    },
+                },
             };
             await gotoAndWait(page, '/scriptlets/pages/set-cookie.html', scriptletArgs);
 
@@ -55,14 +55,14 @@ test.describe('Scriptlets Integration Tests', () => {
                 let attempts = 0;
                 let testCookie = null;
                 let pathCookie = null;
-                
+
                 while (attempts < 10 && (!testCookie || !pathCookie)) {
                     testCookie = getCookieValue('testCookie');
                     pathCookie = getCookieValue('pathCookie');
-                    
+
                     if (testCookie && pathCookie) break;
-                    
-                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                    await new Promise((resolve) => setTimeout(resolve, 100));
                     attempts++;
                 }
 
@@ -72,7 +72,7 @@ test.describe('Scriptlets Integration Tests', () => {
                     domain: window.location.hostname,
                     href: window.location.href,
                     allCookies: document.cookie,
-                    attempts
+                    attempts,
                 };
             });
 
@@ -87,7 +87,7 @@ test.describe('Scriptlets Integration Tests', () => {
         test('should block window.open calls', async ({ page }) => {
             await gotoAndWait(page, '/scriptlets/pages/prevent-window-open.html', {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -95,11 +95,11 @@ test.describe('Scriptlets Integration Tests', () => {
                         scriptlets: [
                             {
                                 name: 'preventWindowOpen',
-                                attrs: {}
-                            }
-                        ]
-                    }
-                }
+                                attrs: {},
+                            },
+                        ],
+                    },
+                },
             });
 
             // Wait for scriptlets to execute
@@ -113,13 +113,13 @@ test.describe('Scriptlets Integration Tests', () => {
                     }
                     return {
                         blocked: !result || result === null || result === undefined,
-                        functionExists: typeof window.open === 'function'
+                        functionExists: typeof window.open === 'function',
                     };
                 } catch (error) {
                     return {
                         blocked: true,
                         functionExists: typeof window.open === 'function',
-                        error: error.message
+                        error: error.message,
                     };
                 }
             });
@@ -133,7 +133,7 @@ test.describe('Scriptlets Integration Tests', () => {
         test('should abort when reading specified property', async ({ page }) => {
             await gotoAndWait(page, '/scriptlets/pages/abort-on-property-read.html', {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -142,12 +142,12 @@ test.describe('Scriptlets Integration Tests', () => {
                             {
                                 name: 'abortOnPropertyRead',
                                 attrs: {
-                                    property: 'testBadProperty'
-                                }
-                            }
-                        ]
-                    }
-                }
+                                    property: 'testBadProperty',
+                                },
+                            },
+                        ],
+                    },
+                },
             });
 
             // Wait for scriptlets to execute
@@ -181,7 +181,7 @@ test.describe('Scriptlets Integration Tests', () => {
                 return {
                     badPropertyThrew: badPropertyAccessThrew,
                     badPropertyValue,
-                    goodPropertyValue
+                    goodPropertyValue,
                 };
             });
 
@@ -195,7 +195,7 @@ test.describe('Scriptlets Integration Tests', () => {
         test('should override property values with constants', async ({ page }) => {
             await gotoAndWait(page, '/scriptlets/pages/set-constant.html', {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -205,12 +205,12 @@ test.describe('Scriptlets Integration Tests', () => {
                                 name: 'setConstant',
                                 attrs: {
                                     property: 'testConstant',
-                                    value: 'false'
-                                }
-                            }
-                        ]
-                    }
-                }
+                                    value: 'false',
+                                },
+                            },
+                        ],
+                    },
+                },
             });
 
             // Wait for scriptlets to execute
@@ -218,14 +218,14 @@ test.describe('Scriptlets Integration Tests', () => {
 
             const constantResult = await page.evaluate(() => {
                 let testPassed = false;
-                
+
                 const hasTestConstant = 'testConstant' in window;
                 if (hasTestConstant) {
                     testPassed = true;
                 }
 
                 return {
-                    testPassed: testPassed
+                    testPassed: testPassed,
                 };
             });
             expect(constantResult.testPassed).toEqual(true);
@@ -234,10 +234,9 @@ test.describe('Scriptlets Integration Tests', () => {
 
     test.describe('Trusted Set Cookie Scriptlet', () => {
         test('should set cookies with special values like timestamps', async ({ page }) => {
-
             await gotoAndWait(page, '/scriptlets/pages/trusted-set-cookie.html', {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -247,19 +246,19 @@ test.describe('Scriptlets Integration Tests', () => {
                                 name: 'trustedSetCookie',
                                 attrs: {
                                     name: 'trustedCookie',
-                                    value: 'trustedValue'
-                                }
+                                    value: 'trustedValue',
+                                },
                             },
                             {
                                 name: 'trustedSetCookie',
                                 attrs: {
                                     name: 'timestampCookie',
-                                    value: '$now$'
-                                }
-                            }
-                        ]
-                    }
-                }
+                                    value: '$now$',
+                                },
+                            },
+                        ],
+                    },
+                },
             });
 
             // Wait for scriptlets to execute
@@ -282,21 +281,21 @@ test.describe('Scriptlets Integration Tests', () => {
                 let attempts = 0;
                 let trustedValue = null;
                 let timestampValue = null;
-                
+
                 while (attempts < 10 && (!trustedValue || !timestampValue)) {
                     trustedValue = getCookieValue('trustedCookie');
                     timestampValue = getCookieValue('timestampCookie');
-                    
+
                     if (trustedValue && timestampValue) break;
-                    
-                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                    await new Promise((resolve) => setTimeout(resolve, 100));
                     attempts++;
                 }
 
                 const timestampNum = parseInt(timestampValue || '0');
                 const currentTime = Date.now();
                 // More lenient timestamp checking - allow up to 5 minutes difference to account for test delays
-                const isReasonableTimestamp = timestampNum > (currentTime - 300000) && timestampNum <= (currentTime + 60000);
+                const isReasonableTimestamp = timestampNum > currentTime - 300000 && timestampNum <= currentTime + 60000;
 
                 return {
                     trustedValue,
@@ -304,7 +303,7 @@ test.describe('Scriptlets Integration Tests', () => {
                     timestampNum,
                     currentTime,
                     timeDiff: Math.abs(currentTime - timestampNum),
-                    isReasonableTimestamp
+                    isReasonableTimestamp,
                 };
             });
 
@@ -318,12 +317,12 @@ test.describe('Scriptlets Integration Tests', () => {
             // Set cookies before loading the page so the scriptlet can remove them
             await page.context().addCookies([
                 { name: 'unwantedCookie', value: 'badValue', url: 'http://localhost:3220' },
-                { name: 'keepCookie', value: 'goodValue', url: 'http://localhost:3220' }
+                { name: 'keepCookie', value: 'goodValue', url: 'http://localhost:3220' },
             ]);
-            
+
             await gotoAndWait(page, '/scriptlets/pages/remove-cookie.html', {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -332,12 +331,12 @@ test.describe('Scriptlets Integration Tests', () => {
                             {
                                 name: 'removeCookie',
                                 attrs: {
-                                    match: 'unwantedCookie'
-                                }
-                            }
-                        ]
-                    }
-                }
+                                    match: 'unwantedCookie',
+                                },
+                            },
+                        ],
+                    },
+                },
             });
 
             // Wait for scriptlets to execute
@@ -345,14 +344,14 @@ test.describe('Scriptlets Integration Tests', () => {
 
             const cookies = await page.evaluate(() => {
                 function hasCookie(name) {
-                    return document.cookie.split(';').some(c => {
+                    return document.cookie.split(';').some((c) => {
                         return c.trim().startsWith(name + '=');
                     });
                 }
 
                 return {
                     hasUnwantedCookie: hasCookie('unwantedCookie'),
-                    hasKeepCookie: hasCookie('keepCookie')
+                    hasKeepCookie: hasCookie('keepCookie'),
                 };
             });
 
@@ -365,7 +364,7 @@ test.describe('Scriptlets Integration Tests', () => {
         test('should set localStorage items', async ({ page }) => {
             await gotoAndWait(page, '/scriptlets/pages/set-local-storage-item.html', {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -375,12 +374,12 @@ test.describe('Scriptlets Integration Tests', () => {
                                 name: 'setLocalStorageItem',
                                 attrs: {
                                     key: 'testKey',
-                                    value: 'true'
-                                }
-                            }
-                        ]
-                    }
-                }
+                                    value: 'true',
+                                },
+                            },
+                        ],
+                    },
+                },
             });
 
             // Wait for scriptlets to execute
@@ -390,7 +389,6 @@ test.describe('Scriptlets Integration Tests', () => {
                 return localStorage.getItem('testKey');
             });
 
-
             expect(storageValue).toEqual('true');
         });
     });
@@ -399,7 +397,7 @@ test.describe('Scriptlets Integration Tests', () => {
         test('should abort when writing to specified property', async ({ page }) => {
             await gotoAndWait(page, '/scriptlets/pages/abort-on-property-write.html', {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -408,12 +406,12 @@ test.describe('Scriptlets Integration Tests', () => {
                             {
                                 name: 'abortOnPropertyWrite',
                                 attrs: {
-                                    property: 'testWriteProperty'
-                                }
-                            }
-                        ]
-                    }
-                }
+                                    property: 'testWriteProperty',
+                                },
+                            },
+                        ],
+                    },
+                },
             });
 
             // Wait for scriptlets to execute
@@ -443,7 +441,7 @@ test.describe('Scriptlets Integration Tests', () => {
                 return {
                     writeThrew,
                     writeSuccessful,
-                    goodWriteSuccessful
+                    goodWriteSuccessful,
                 };
             });
 
@@ -457,7 +455,7 @@ test.describe('Scriptlets Integration Tests', () => {
         test('should block matching event listeners', async ({ page }) => {
             await gotoAndWait(page, '/scriptlets/pages/prevent-addEventListener.html', {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -467,12 +465,12 @@ test.describe('Scriptlets Integration Tests', () => {
                                 name: 'preventAddEventListener',
                                 attrs: {
                                     typeSearch: 'click',
-                                    listenerSearch: 'badListener'
-                                }
-                            }
-                        ]
-                    }
-                }
+                                    listenerSearch: 'badListener',
+                                },
+                            },
+                        ],
+                    },
+                },
             });
 
             // Wait for scriptlets to execute
@@ -503,7 +501,7 @@ test.describe('Scriptlets Integration Tests', () => {
 
                 return {
                     badListenerCalled,
-                    goodListenerCalled
+                    goodListenerCalled,
                 };
             });
 
@@ -516,7 +514,7 @@ test.describe('Scriptlets Integration Tests', () => {
         test('should block matching timeouts', async ({ page }) => {
             await gotoAndWait(page, '/scriptlets/pages/prevent-setTimeout.html', {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -525,12 +523,12 @@ test.describe('Scriptlets Integration Tests', () => {
                             {
                                 name: 'preventSetTimeout',
                                 attrs: {
-                                    matchCallback: 'badTimeout'
-                                }
-                            }
-                        ]
-                    }
-                }
+                                    matchCallback: 'badTimeout',
+                                },
+                            },
+                        ],
+                    },
+                },
             });
 
             // Wait for scriptlets to execute
@@ -562,7 +560,7 @@ test.describe('Scriptlets Integration Tests', () => {
                     // @ts-expect-error - Deliberately accessing test property on window
                     badTimeoutExecuted: window.badTimeoutExecuted,
                     // @ts-expect-error - Deliberately accessing test property on window
-                    goodTimeoutExecuted: window.goodTimeoutExecuted
+                    goodTimeoutExecuted: window.goodTimeoutExecuted,
                 };
             });
 
@@ -575,7 +573,7 @@ test.describe('Scriptlets Integration Tests', () => {
         test('should block matching fetch requests', async ({ page }) => {
             await gotoAndWait(page, '/scriptlets/pages/prevent-fetch.html', {
                 site: {
-                    enabledFeatures: ['scriptlets']
+                    enabledFeatures: ['scriptlets'],
                 },
                 featureSettings: {
                     scriptlets: {
@@ -584,12 +582,12 @@ test.describe('Scriptlets Integration Tests', () => {
                             {
                                 name: 'preventFetch',
                                 attrs: {
-                                    propsToMatch: 'url:/blocked-url'
-                                }
-                            }
-                        ]
-                    }
-                }
+                                    propsToMatch: 'url:/blocked-url',
+                                },
+                            },
+                        ],
+                    },
+                },
             });
 
             // Wait for scriptlets to execute
@@ -621,18 +619,18 @@ test.describe('Scriptlets Integration Tests', () => {
                     blockedFetchSucceeded: blockedFetchResult !== null,
                     blockedFetchError: blockedFetchError ? blockedFetchError.message : null,
                     allowedFetchAttempted,
-                    fetchFunctionExists: typeof fetch === 'function'
+                    fetchFunctionExists: typeof fetch === 'function',
                 };
             });
 
             // Main test: preventFetch scriptlet loads and doesn't break fetch functionality
             expect(fetchResult.fetchFunctionExists).toEqual(true);
             expect(fetchResult.allowedFetchAttempted).toEqual(true);
-            
+
             // The preventFetch scriptlet may not block all URLs depending on pattern matching
             // The key is that it loads without breaking fetch entirely
             // Both fetches will likely fail due to network errors (fake URLs), which is expected
             // We verify the scriptlet executed by checking that fetch still works
         });
     });
-}); 
+});

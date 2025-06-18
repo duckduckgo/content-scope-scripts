@@ -12,7 +12,7 @@ import { join } from 'path';
 // List of scriptlet functions we actually use
 const NEEDED_FUNCTIONS = [
     'set-cookie',
-    'trusted-set-cookie', 
+    'trusted-set-cookie',
     'set-cookie-reload',
     'remove-cookie',
     'set-constant',
@@ -24,32 +24,32 @@ const NEEDED_FUNCTIONS = [
     'prevent-window-open',
     'prevent-setTimeout',
     'remove-node-text',
-    'prevent-fetch'
+    'prevent-fetch',
 ];
 
 // Generate the minimal scriptlets module
 function generateMinimalScriptlets() {
     const functions = [];
-    
+
     for (const functionName of NEEDED_FUNCTIONS) {
         const func = scriptlets.getScriptletFunction(functionName);
         if (!func) {
             console.warn(`Warning: Function ${functionName} not found`);
             continue;
         }
-        
+
         // Convert kebab-case to camelCase for export names
         const exportName = functionName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
-        
+
         // Get the function source code
         const functionSource = func.toString();
-        
+
         // Add the function
         functions.push(`// ${functionName}`);
         functions.push(`export const ${exportName} = ${functionSource};`);
         functions.push('');
     }
-    
+
     const moduleContent = `// @ts-nocheck
 /**
  * Minimal scriptlets module - AUTO-GENERATED
@@ -61,7 +61,7 @@ function generateMinimalScriptlets() {
 
 ${functions.join('\n')}
 `;
-    
+
     return moduleContent;
 }
 

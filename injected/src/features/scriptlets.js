@@ -16,7 +16,7 @@ import {
     preventWindowOpen,
     preventSetTimeout,
     removeNodeText,
-    preventFetch
+    preventFetch,
 } from './scriptlets-minimal.js';
 
 export class Scriptlets extends ContentFeature {
