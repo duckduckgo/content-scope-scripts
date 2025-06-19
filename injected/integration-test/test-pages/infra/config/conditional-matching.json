@@ -13,6 +13,13 @@
                             "type": "number",
                             "value": 222
                         }
+                    },
+                    "Navigator.prototype.deviceMemory": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "number",
+                            "value": 1111
+                        }
                     }
                 },
                 "conditionalChanges": [
@@ -25,6 +32,34 @@
                                 "op": "replace",
                                 "path": "/apiChanges/Navigator.prototype.hardwareConcurrency/getterValue/value",
                                 "value": 333
+                            }
+                        ]
+                    },
+                    {
+                        "condition": {
+                            "context": {
+                                "top": true
+                            }
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "replace",
+                                "path": "/apiChanges/Navigator.prototype.deviceMemory/getterValue/value",
+                                "value": 43339
+                            }
+                        ]
+                    },
+                    {
+                        "condition": {
+                            "context": {
+                                "frame": true
+                            }
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "replace",
+                                "path": "/apiChanges/Navigator.prototype.deviceMemory/getterValue/value",
+                                "value": 43338
                             }
                         ]
                     }
