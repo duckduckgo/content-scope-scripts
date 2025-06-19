@@ -41,7 +41,7 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
         <div class={styles.heading} data-testid="ProtectionsHeading">
             <div class={styles.control}>
                 <span class={styles.headingIcon}>
-                    <img src={'./icons/shield-green.svg'} alt="Privacy Shield" />
+                    <img src={'./icons/Shield-Check-Color-16.svg'} alt="Privacy Shield" />
                 </span>
                 <h2 class={styles.caption}>{t('protections_menuTitle')}</h2>
                 {canExpand && (
