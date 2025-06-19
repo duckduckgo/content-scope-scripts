@@ -31,7 +31,8 @@
     "sjcl": "^1.0.8",
     "minimist": "^1.2.8",
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#2c569c49990bae4ac83578fc9eaef282489d7926",
-    "esbuild": "^0.25.4"
+    "esbuild": "^0.25.4",
+    "urlpattern-polyfill": "^10.1.0"
   },
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
