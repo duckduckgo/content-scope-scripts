@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Prevent Add Event Listener Scriptlet Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Scriptlets]</a></p>
+
+    <p>This page verifies that the prevent-addEventListener scriptlet works properly given the <a href="../config/prevent-addEventListener.json">config</a>.</p>
+
+    <button id="testButton">Test Button</button>
+
+    <script>
+        let badListenerCalled = false;
+        let goodListenerCalled = false;
+
+        function badListener() {
+            badListenerCalled = true;
+        }
+
+        function goodListener() {
+            goodListenerCalled = true;
+        }
+
+        // eslint-disable-next-line no-undef
+        test('Prevent-addEventListener scriptlet should block matching event listeners', async () => {
+            // Wait a bit for scriptlets to execute
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const button = document.getElementById('testButton');
+
+            // Try to add a bad listener (should be blocked - contains "badListener" on "click")
+            button.addEventListener('click', badListener);
+
+            // Try to add a good listener (should work normally)
+            button.addEventListener('mouseover', goodListener);
+
+            // Trigger events
+            button.click();
+            button.dispatchEvent(new MouseEvent('mouseover'));
+
+            // Wait for events to process
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            return [
+                { name: 'Bad listener should not be called', result: badListenerCalled, expected: false },
+                { name: 'Good listener should be called', result: goodListenerCalled, expected: true },
+                { name: 'addEventListener function should still exist', result: typeof button.addEventListener, expected: 'function' }
+            ];
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html> 
