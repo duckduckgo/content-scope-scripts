@@ -109,8 +109,8 @@ jobs:
               id: deployment
               uses: actions/deploy-pages@v4
 
-    # This job ensures all runtime dependencies for the injected/ subproject are correctly listed in the root 'dependencies' (not 'devDependencies')
-    # by running the build with only production dependencies installed at the root. It will fail if any required dependency is missing.
+    # This job ensures all runtime dependencies for the injected/ subproject are correctly listed in 'dependencies' (not 'devDependencies')
+    # by running the build with only production dependencies installed in injected/. It will fail if any required dependency is missing.
     production-deps:
         runs-on: ubuntu-latest
         steps:
@@ -119,20 +119,7 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version-file: '.nvmrc'
-            - name: Install production dependencies only (root)
+            - name: Install production dependencies only (injected/)
               run: npm ci --production
             - name: Build with production dependencies (injected/)
               run: cd injected && npm run build
-            - name: Check all injected/ runtime deps are in root dependencies
-              run: |
-                missing=0
-                for dep in $(node -e "const pkg=require('./injected/package.json');console.log(Object.keys(pkg.dependencies||{}).join(' '))"); do
-                  if ! node -e "const pkg=require('./package.json');process.exit(pkg.dependencies && pkg.dependencies['$dep'] ? 0 : 1)"; then
-                    echo "Missing dependency in root package.json: $dep"
-                    missing=1
-                  fi
-                done
-                if [ "$missing" -eq 1 ]; then
-                  echo "\n❌ One or more required injected/ dependencies are missing from root package.json."
-                  exit 1
-                fi

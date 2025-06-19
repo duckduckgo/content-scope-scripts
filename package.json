@@ -41,7 +41,9 @@
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
     "@playwright/test": "^1.52.0",
     "ajv": "^8.17.1",
+    "esbuild": "^0.25.4",
     "eslint": "^9.29.0",
+    "minimist": "^1.2.8",
     "prettier": "3.5.3",
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
@@ -49,13 +51,10 @@
     "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.5",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.33.0"
+    "typescript-eslint": "^8.33.0",
+    "urlpattern-polyfill": "^10.1.0"
   },
   "dependencies": {
-    "immutable-json-patch": "^6.0.1",
-    "esbuild": "^0.25.4",
-    "urlpattern-polyfill": "^10.1.0",
-    "minimist": "^1.2.8",
-    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#2c569c49990bae4ac83578fc9eaef282489d7926"
+    "immutable-json-patch": "^6.0.1"
   }
 }
