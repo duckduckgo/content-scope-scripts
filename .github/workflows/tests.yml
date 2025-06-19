@@ -109,8 +109,8 @@ jobs:
               id: deployment
               uses: actions/deploy-pages@v4
 
-# This job ensures all runtime dependencies are correctly listed in 'dependencies' (not 'devDependencies')
-# by running the build with only production dependencies installed. It will fail if any required dependency is missing.
+# This job ensures all runtime dependencies for the injected/ subproject are correctly listed in 'dependencies' (not 'devDependencies')
+# by running the build with only production dependencies installed in injected/. It will fail if any required dependency is missing.
     production-deps:
         runs-on: ubuntu-latest
         steps:
@@ -119,7 +119,7 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version-file: '.nvmrc'
-            - name: Install production dependencies only
-              run: npm ci --production
-            - name: Build with production dependencies
-              run: npm run build
+            - name: Install production dependencies only (injected/)
+              run: cd injected && npm ci --production
+            - name: Build with production dependencies (injected/)
+              run: cd injected && npm run build
