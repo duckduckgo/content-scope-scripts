@@ -70,12 +70,38 @@
                                     event.source.postMessage(navigator.deviceMemory, event.origin);
                                 }
                             });
+                            // In automation, listen for init args and signal complete
+                            document.addEventListener('content-scope-init-args', function (evt) {
+                                // Simulate content-scope init logic, then signal complete
+                                window.parent.postMessage('content-scope-init-complete', '*');
+                            });
                         </${scriptTag}>
                     </body>
                 </html>
             `;
             document.body.appendChild(frame);
             await new Promise(resolve => frame.onload = resolve);
+
+            // Send content-scope-init-args to the iframe (use parent's args if available)
+            const args = window.__testContentScopeArgs || null;
+            // Ensure args isn't blank here
+            if (!args) {
+                throw new Error('args is blank');
+            }
+            frame.contentWindow.document.dispatchEvent(
+                new CustomEvent('content-scope-init-args', { detail: args })
+            );
+
+            // Wait for the iframe to signal it's ready
+            await new Promise(resolve => {
+                window.addEventListener('message', function handler(event) {
+                    if (event.data === 'content-scope-init-complete') {
+                        window.removeEventListener('message', handler);
+                        resolve();
+                    }
+                });
+            });
+
             const deviceMemoryPromise = new Promise(resolve => {
                 window.addEventListener('message', (event) => {
                     resolve(event.data);
