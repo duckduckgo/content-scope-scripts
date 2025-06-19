@@ -1,3 +1,1 @@
-- Add test for prod deps (#1759)
-- build(deps-dev): bump eslint in the eslint group across 1 directory (#1756)
-- build(deps-dev): bump the typescript group across 1 directory with 2 updates (#1755)
+- Ensure npm deps with build simulating extension (#1761)
