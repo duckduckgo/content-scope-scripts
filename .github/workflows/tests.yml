@@ -120,6 +120,6 @@ jobs:
               with:
                   node-version-file: '.nvmrc'
             - name: Install production dependencies only (injected/)
-              run: cd injected && npm ci --production
+              run: npm ci --production
             - name: Build with production dependencies (injected/)
               run: cd injected && npm run build
