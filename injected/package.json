@@ -28,18 +28,20 @@
   "dependencies": {
     "parse-address": "^1.1.2",
     "seedrandom": "^3.0.5",
-    "sjcl": "^1.0.8"
+    "sjcl": "^1.0.8",
+    "minimist": "^1.2.8",
+    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#2c569c49990bae4ac83578fc9eaef282489d7926",
+    "esbuild": "^0.25.4",
+    "urlpattern-polyfill": "^10.1.0"
   },
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
-    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#2c569c49990bae4ac83578fc9eaef282489d7926",
     "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@types/chrome": "^0.0.326",
     "@types/jasmine": "^5.1.8",
-    "@types/node": "^24.0.1",
-    "@typescript-eslint/eslint-plugin": "^8.34.0",
+    "@types/node": "^24.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
     "fast-check": "^4.1.1",
-    "jasmine": "^5.7.1",
-    "minimist": "^1.2.8"
+    "jasmine": "^5.7.1"
   }
 }
