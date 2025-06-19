@@ -6,6 +6,8 @@ import cn from 'classnames';
 import { h } from 'preact';
 import { useAdBlocking } from '../../settings.provider.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
+import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
+import { useLocale } from '../../../../../shared/components/EnvironmentProvider.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -21,7 +23,8 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
  */
 export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const [formatter] = useState(() => new Intl.NumberFormat());
+    const locale = useLocale();
+    const [formatter] = useState(() => getLocalizedNumberFormatter(locale));
     const adBlocking = useAdBlocking();
     const blockedCount = blockedCountSignal.value;
     const none = blockedCount === 0;
@@ -41,7 +44,7 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
         <div class={styles.heading} data-testid="ProtectionsHeading">
             <div class={styles.control}>
                 <span class={styles.headingIcon}>
-                    <img src={'./icons/shield-green.svg'} alt="Privacy Shield" />
+                    <img src={'./icons/Shield-Check-Color-16.svg'} alt="Privacy Shield" />
                 </span>
                 <h2 class={styles.caption}>{t('protections_menuTitle')}</h2>
                 {canExpand && (
