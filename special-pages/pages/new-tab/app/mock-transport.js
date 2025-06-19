@@ -109,6 +109,7 @@ export function mockTransport() {
         const message = { content: newContent };
         for (const listener of listeners) {
             listener(message);
+            write('nextSteps_data', message);
         }
     }
 
@@ -256,6 +257,12 @@ export function mockTransport() {
                     const next = [...prev];
                     next.push(cb);
                     nextStepsSubscriptions.set('nextSteps_onDataUpdate', next);
+                    const params = url.searchParams.get('next-steps');
+                    if (params && params in nextSteps) {
+                        const data = read('nextSteps_data');
+                        cb(data);
+                    }
+
                     return () => {};
                 }
                 case 'rmf_onDataUpdate': {
