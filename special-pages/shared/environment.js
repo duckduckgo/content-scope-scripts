@@ -10,7 +10,7 @@ export class Environment {
      * @param {ImportMeta['injectName']} [params.injectName] - application platform
      * @param {boolean} [params.willThrow] - whether the application will simulate an error
      * @param {boolean} [params.debugState] - whether to show debugging UI
-     * @param {string} [params.locale] - for applications strings
+     * @param {keyof typeof import('./utils').translationsLocales} [params.locale] - for applications strings and numbers formatting
      * @param {number} [params.textLength] - what ratio of text should be used. Set a number higher than 1 to have longer strings for testing
      */
     constructor({

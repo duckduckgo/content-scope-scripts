@@ -13,32 +13,11 @@ export const translationsLocales = {
 };
 
 /**
- * @returns {string}
- */
-const geDocumentLanuage = () => {
-    // Check url params for override
-    const urlParams = new URLSearchParams(window.location.search);
-    const localeFromUrl = urlParams.get('locale');
-    if (localeFromUrl) {
-        return localeFromUrl;
-    }
-
-    // Check html element lang attribute
-    const htmlElement = document.documentElement;
-    if (htmlElement.lang) {
-        return htmlElement.lang;
-    }
-
-    // Fallback to browser language or English
-    return navigator.language || 'en';
-};
-
-/**
+ * @param {keyof typeof translationsLocales} locale
  * @returns {Intl.NumberFormat}
  */
-export const getLocalizedNumberFormatter = () => {
-    const locale = geDocumentLanuage();
-    const localeToUse = translationsLocales[locale] || 'en-US';
+export const getLocalizedNumberFormatter = (locale) => {
+    const localeToUse = translationsLocales[locale] || 'en-US'; // Fallback to English if locale is not supported
 
     return new Intl.NumberFormat(localeToUse);
 };

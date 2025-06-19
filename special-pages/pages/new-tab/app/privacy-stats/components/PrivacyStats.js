@@ -9,6 +9,7 @@ import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.js';
 import { ProtectionsEmpty } from '../../protections/components/Protections.js';
 import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
+import { useLocale } from '../../../../../shared/components/EnvironmentProvider';
 
 /**
  * @import enStrings from "../strings.json"
@@ -24,7 +25,8 @@ import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
  * @param {Expansion} [props.expansion]
  */
 export function PrivacyStats({ trackerCompanies, expansion = 'expanded' }) {
-    const [formatter] = useState(() => getLocalizedNumberFormatter());
+    const locale = useLocale();
+    const [formatter] = useState(() => getLocalizedNumberFormatter(locale));
     const sorted = sortStatsForDisplay(trackerCompanies);
     const largestTrackerCount = sorted[0]?.count ?? 0;
 
@@ -208,7 +210,8 @@ function PillShowMoreLess({ expansion }) {
  */
 export function OtherText({ count }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const [formatter] = useState(() => getLocalizedNumberFormatter());
+    const locale = useLocale();
+    const [formatter] = useState(() => getLocalizedNumberFormatter(locale));
     const formattedCount = formatter.format(count);
 
     const otherText = t('stats_otherCount', { count: String(formattedCount) });

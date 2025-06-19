@@ -1,5 +1,3 @@
-.heading {}
-
 .control {
     display: flex;
     align-items: center;
@@ -19,8 +17,8 @@
     padding-top: 0.5px;
 
     img {
-        max-width: 16px;
-        max-height: 16px;
+        max-width: 1rem;
+        max-height: 1rem;
     }
 }
 
@@ -167,7 +165,4 @@
     [data-theme=dark] & {
         background: var(--color-white-at-9);
     }
-}
-
-.listExpander {
 }
