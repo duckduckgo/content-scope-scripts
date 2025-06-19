@@ -108,3 +108,20 @@ jobs:
             - name: Deploy to GitHub Pages
               id: deployment
               uses: actions/deploy-pages@v4
+
+    # This job ensures all runtime dependencies for the injected/ subproject are correctly listed in 'dependencies' (not 'devDependencies')
+    # by running the build with only production dependencies installed in injected/. It will fail if any required dependency is missing.
+    production-deps:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: '.nvmrc'
+            - name: Install production dependencies only (injected/)
+              run: npm ci --production
+            - name: Build with production dependencies (injected/)
+              run: cd injected && npm run build
+            - name: Simulate extension esbuild for GPC feature (production deps only)
+              run: npx esbuild injected/src/features/gpc.js --bundle --outfile=/tmp/gpc-bundle.js
