@@ -109,8 +109,8 @@ jobs:
               id: deployment
               uses: actions/deploy-pages@v4
 
-# This job ensures all runtime dependencies for the injected/ subproject are correctly listed in 'dependencies' (not 'devDependencies')
-# by running the build with only production dependencies installed in injected/. It will fail if any required dependency is missing.
+    # This job ensures all runtime dependencies for the injected/ subproject are correctly listed in 'dependencies' (not 'devDependencies')
+    # by running the build with only production dependencies installed in injected/. It will fail if any required dependency is missing.
     production-deps:
         runs-on: ubuntu-latest
         steps:
