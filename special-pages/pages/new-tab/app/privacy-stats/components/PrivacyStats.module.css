@@ -17,6 +17,11 @@
     align-items: center;
     justify-content: center;
     padding-top: 0.5px;
+
+    img {
+        max-width: 16px;
+        max-height: 16px;
+    }
 }
 
 .caption {
