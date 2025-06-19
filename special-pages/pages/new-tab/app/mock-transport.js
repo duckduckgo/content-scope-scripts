@@ -106,7 +106,7 @@ export function mockTransport() {
     function clearNextStepsCard(cardId, data) {
         const listeners = nextStepsSubscriptions.get('nextSteps_onDataUpdate') || [];
         const newContent = data.content.filter((card) => card.id !== cardId);
-        const message = { content: { newContent } };
+        const message = { content: newContent };
         for (const listener of listeners) {
             listener(message);
         }
