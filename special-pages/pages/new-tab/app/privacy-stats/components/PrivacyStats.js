@@ -24,7 +24,7 @@ import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
  * @param {Expansion} [props.expansion]
  */
 export function PrivacyStats({ trackerCompanies, expansion = 'expanded' }) {
-    const [formatter] = useState(() => getLocalizedNumberFormatter('en'));
+    const [formatter] = useState(() => getLocalizedNumberFormatter());
     const sorted = sortStatsForDisplay(trackerCompanies);
     const largestTrackerCount = sorted[0]?.count ?? 0;
 
@@ -208,7 +208,7 @@ function PillShowMoreLess({ expansion }) {
  */
 export function OtherText({ count }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const [formatter] = useState(() => new Intl.NumberFormat());
+    const [formatter] = useState(() => getLocalizedNumberFormatter());
     const formattedCount = formatter.format(count);
 
     const otherText = t('stats_otherCount', { count: String(formattedCount) });

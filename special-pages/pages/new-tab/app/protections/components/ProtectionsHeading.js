@@ -6,6 +6,7 @@ import cn from 'classnames';
 import { h } from 'preact';
 import { useAdBlocking } from '../../settings.provider.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
+import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -21,7 +22,7 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
  */
 export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, buttonAttrs = {} }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const [formatter] = useState(() => new Intl.NumberFormat());
+    const [formatter] = useState(() => getLocalizedNumberFormatter());
     const adBlocking = useAdBlocking();
     const blockedCount = blockedCountSignal.value;
     const none = blockedCount === 0;
