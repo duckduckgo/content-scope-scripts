@@ -38,7 +38,7 @@ const geDocumentLanuage = () => {
  */
 export const getLocalizedNumberFormatter = () => {
     const locale = geDocumentLanuage();
-    console.log('locale', locale);
     const localeToUse = translationsLocales[locale] || 'en-US';
+
     return new Intl.NumberFormat(localeToUse);
 };
