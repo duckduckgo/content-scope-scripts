@@ -64,7 +64,7 @@ jobs:
                   git add -f build/ Sources/
 
             - name: Commit build files
-              uses: stefanzweifel/git-auto-commit-action@v5
+              uses: stefanzweifel/git-auto-commit-action@v6
               with:
                   commit_message: 'Release build ${{ github.event.inputs.version }} [ci release]'
                   commit_options: '--allow-empty'
