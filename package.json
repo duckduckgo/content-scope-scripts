@@ -51,10 +51,10 @@
     "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.5",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.33.0",
-    "urlpattern-polyfill": "^10.1.0"
+    "typescript-eslint": "^8.33.0"
   },
   "dependencies": {
-    "immutable-json-patch": "^6.0.1"
+    "immutable-json-patch": "^6.0.1",
+    "urlpattern-polyfill": "^10.1.0"
   }
 }

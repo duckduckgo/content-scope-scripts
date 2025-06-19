@@ -123,3 +123,5 @@ jobs:
               run: npm ci --production
             - name: Build with production dependencies (injected/)
               run: cd injected && npm run build
+            - name: Simulate extension esbuild for GPC feature (production deps only)
+              run: npx esbuild injected/src/features/gpc.js --bundle --outfile=/tmp/gpc-bundle.js
