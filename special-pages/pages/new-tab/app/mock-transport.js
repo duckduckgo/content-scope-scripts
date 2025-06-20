@@ -92,6 +92,7 @@ export function mockTransport() {
     /** @type {Map<SubscriptionNames, any[]>} */
     const rmfSubscriptions = new Map();
     const freemiumPIRBannerSubscriptions = new Map();
+    const nextStepsSubscriptions = new Map();
 
     function clearRmf() {
         const listeners = rmfSubscriptions.get('rmf_onDataUpdate') || [];
@@ -99,6 +100,16 @@ export function mockTransport() {
         const message = { content: undefined };
         for (const listener of listeners) {
             listener(message);
+        }
+    }
+
+    function clearNextStepsCard(cardId, data) {
+        const listeners = nextStepsSubscriptions.get('nextSteps_onDataUpdate') || [];
+        const newContent = data.content.filter((card) => card.id !== cardId);
+        const message = { content: newContent };
+        for (const listener of listeners) {
+            listener(message);
+            write('nextSteps_data', message);
         }
     }
 
@@ -137,6 +148,7 @@ export function mockTransport() {
                 }
                 case 'rmf_dismiss': {
                     console.log('ignoring rmf_dismiss', msg.params);
+                    clearRmf();
                     return;
                 }
                 case 'freemiumPIRBanner_action': {
@@ -175,6 +187,15 @@ export function mockTransport() {
                 }
                 case 'favorites_add': {
                     console.log('mock: ignoring favorites_add');
+                    return;
+                }
+                case 'nextSteps_dismiss': {
+                    if (msg.params.id) {
+                        const data = read('nextSteps_data');
+                        clearNextStepsCard(msg.params.id, data);
+                        return;
+                    }
+                    console.log('ignoring nextSteps_dismiss');
                     return;
                 }
                 default: {
@@ -229,6 +250,19 @@ export function mockTransport() {
                         const message = freemiumPIRDataExamples[freemiumPIRBannerParam];
                         cb(message);
                     }
+                    return () => {};
+                }
+                case 'nextSteps_onDataUpdate': {
+                    const prev = nextStepsSubscriptions.get('nextSteps_onDataUpdate') || [];
+                    const next = [...prev];
+                    next.push(cb);
+                    nextStepsSubscriptions.set('nextSteps_onDataUpdate', next);
+                    const params = url.searchParams.get('next-steps');
+                    if (params && params in nextSteps) {
+                        const data = read('nextSteps_data');
+                        cb(data);
+                    }
+
                     return () => {};
                 }
                 case 'rmf_onDataUpdate': {
@@ -387,6 +421,7 @@ export function mockTransport() {
                                     return { id: /** @type {any} */ (id) };
                                 }),
                         };
+                        write('nextSteps_data', data);
                     }
                     return Promise.resolve(data);
                 }
