@@ -621,7 +621,7 @@ export function satisfiesMinVersion(minVersionString, applicationVersionString) 
  * @param {string | number | undefined} currentVersion
  * @returns {boolean}
  */
-function isSupportedVersion(minSupportedVersion, currentVersion) {
+export function isSupportedVersion(minSupportedVersion, currentVersion) {
     if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {
         if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {
             return true;
