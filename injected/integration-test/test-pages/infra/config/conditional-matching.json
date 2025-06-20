@@ -1,7 +1,10 @@
 {
+    "readme": "This config is used to test the conditional matching of experiments using the API manipulation feature.",
+    "version": 1,
     "features": {
         "apiManipulation": {
             "state": "enabled",
+            "exceptions": [],
             "settings": {
                 "apiChanges": {
                     "Navigator.prototype.hardwareConcurrency": {

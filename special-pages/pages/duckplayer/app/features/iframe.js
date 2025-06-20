@@ -4,6 +4,11 @@ import { ClickCapture } from './click-capture.js';
 import { TitleCapture } from './title-capture.js';
 import { MouseCapture } from './mouse-capture.js';
 import { ErrorDetection } from './error-detection.js';
+import { ReplaceWatchLinks } from './replace-watch-links.js';
+
+/**
+ * @import {EmbedSettings} from '../embed-settings.js';
+ */
 
 /**
  * Represents an individual piece of functionality in the iframe.
@@ -36,9 +41,9 @@ export class IframeFeature {
  * global `Settings`
  *
  * @param {import("../settings").Settings} settings
- * @returns {Record<string, () => IframeFeature>}
+ * @param {EmbedSettings} embed
  */
-export function createIframeFeatures(settings) {
+export function createIframeFeatures(settings, embed) {
     return {
         /**
          * @return {IframeFeature}
@@ -80,6 +85,13 @@ export function createIframeFeatures(settings) {
          */
         errorDetection: () => {
             return new ErrorDetection(settings.customError);
+        },
+        /**
+         * @param {() => void} handler - what to invoke when a watch-link was clicked
+         * @return {IframeFeature}
+         */
+        replaceWatchLinks: (handler) => {
+            return new ReplaceWatchLinks(embed.videoId.id, handler);
         },
     };
 }
