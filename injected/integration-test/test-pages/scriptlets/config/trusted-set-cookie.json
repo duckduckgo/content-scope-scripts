@@ -1,0 +1,50 @@
+{
+  "readme": "This config tests the trustedSetCookie scriptlet",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "scriptlets": {
+      "exceptions": [],
+      "state": "enabled",
+      "settings": {
+        "scriptlets": [],
+        "conditionalChanges": [
+          {
+            "condition": [
+              {
+                "domain": "localhost"
+              },
+              {
+                "domain": "privacy-test-pages.site"
+              }
+            ],
+            "patchSettings": [
+              {
+                "op": "add",
+                "path": "/scriptlets/-",
+                "value": {
+                  "name": "trustedSetCookie",
+                  "attrs": {
+                    "name": "trustedCookie",
+                    "value": "trustedValue"
+                  }
+                }
+              },
+              {
+                "op": "add",
+                "path": "/scriptlets/-",
+                "value": {
+                  "name": "trustedSetCookie",
+                  "attrs": {
+                    "name": "timestampCookie",
+                    "value": "$now$"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+} 

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Abort on Property Read Scriptlet Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Scriptlets]</a></p>
+
+    <p>This page verifies that the abort-on-property-read scriptlet works properly given the <a href="../config/abort-on-property-read.json">config</a>.</p>
+
+    <script>
+        // Set up a test property that should be blocked
+        window.testBadProperty = 'This should cause an abort when read';
+        window.testGoodProperty = 'This should be readable';
+
+        // eslint-disable-next-line no-undef
+        test('Abort-on-property-read scriptlet should abort when reading specified property', async () => {
+            // Wait a bit for scriptlets to execute
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            let badPropertyAccessThrew = false;
+            let badPropertyValue = null;
+            let goodPropertyAccessThrew = false;
+            let goodPropertyValue = null;
+
+            // Try to read the bad property
+            try {
+                badPropertyValue = window.testBadProperty;
+            } catch (error) {
+                badPropertyAccessThrew = true;
+            }
+
+            // Try to read the good property (should work normally)
+            try {
+                goodPropertyValue = window.testGoodProperty;
+            } catch (error) {
+                goodPropertyAccessThrew = true;
+            }
+
+            return [
+                { name: 'Reading testBadProperty should throw error', result: badPropertyAccessThrew, expected: true },
+                { name: 'Bad property should not return value when accessed', result: badPropertyValue === null, expected: true },
+                { name: 'Reading testGoodProperty should not throw error', result: goodPropertyAccessThrew, expected: false },
+                { name: 'Good property should return expected value', result: goodPropertyValue, expected: 'This should be readable' }
+            ];
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html> 
