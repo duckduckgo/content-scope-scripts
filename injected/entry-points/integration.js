@@ -128,6 +128,8 @@ async function initCode() {
         async (evt) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             const merged = mergeDeep(processedConfig, evt.detail);
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            window.__testContentScopeArgs = merged;
             // init features
             await init(merged);
 
