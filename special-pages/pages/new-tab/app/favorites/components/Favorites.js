@@ -20,7 +20,7 @@ import { useDocumentVisibility } from '../../../../../shared/components/Document
  * @typedef {import('../../../types/new-tab.js').FavoritesOpenAction['target']} OpenTarget
  */
 export const FavoritesMemo = memo(Favorites);
-export const ROW_CAPACITY = 6;
+export const ROW_CAPACITY = 8;
 /**
  * Note: These values MUST match exactly what's defined in the CSS.
  */
@@ -65,7 +65,7 @@ export function Favorites({ favorites, expansion, toggle, openContextMenu, openF
 
     return (
         <FavoritesThemeContext.Provider value={{ theme: main.value, animateItems }}>
-            <div class={styles.root} data-testid="FavoritesConfigured" data-background-kind={kind}>
+            <div class={styles.root} data-testid="FavoritesConfigured" data-background-kind={kind} style={{ viewTransitionName: 'favs' }}>
                 <VirtualizedGridRows
                     WIDGET_ID={WIDGET_ID}
                     favorites={favorites}

@@ -1,0 +1,126 @@
+.root {
+    margin-bottom: var(--ntp-gap);
+    position: relative;
+}
+.icons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.iconSearch {
+    width: 84px;
+}
+.iconText {
+    width: 144px;
+    margin-top: 12px;
+}
+.wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+.formWrap {
+    height: 48px;
+    margin-top: 16px;
+    position: relative;
+    z-index: 1;
+    [data-mode="ai"] & {
+        height: 96px;
+    }
+}
+.form {
+    border-radius: 16px;
+    background-color: #fff;
+    box-shadow: var(--ntp-surface-shadow);
+}
+.pillSwitcher {
+    display: flex;
+    background: var(--color-black-at-6);
+    padding: 4px;
+    border-radius: 999px;
+    gap: 4px;
+    width: auto;
+}
+.pillOption {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 99px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    transition: background .2s;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover {
+        background: var(--color-black-at-9);
+    }
+}
+
+.pillOption.active {
+    background: var(--color-white);
+    box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.08), 0px 2px 4px 0px rgba(0, 0, 0, 0.10);
+    svg[data-name="search"] {
+        color: blue;
+    }
+    svg[data-name="duckai"] {
+        color: var(--duckai-purple);
+    }
+}
+.list {
+    top: 100%;
+    width: 100%;
+    background: white;
+    z-index: 1;
+    border-bottom-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-top: 1px solid var(--color-black-at-6);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.list:not(:empty) {
+    padding: 8px;
+}
+.item {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    font-size: var(--title-3-em-font-size);
+    padding: 4px 8px;
+    color: var(--ntp-text-normal);
+    background-color: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    gap: 8px;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        display: block;
+    }
+
+    svg path {
+        fill-opacity: 1!important;
+    }
+
+    &:hover {
+        background: var(--ddg-color-primary);
+        color: white;
+        border-radius: 4px;
+    }
+
+    &[data-selected="true"] {
+        background: var(--ddg-color-primary);
+        color: white;
+        border-radius: 4px;
+    }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Search Submit Params",
+  "type": "object",
+  "required": [
+    "term",
+    "target"
+  ],
+  "properties": {
+    "term": {
+      "type": "string"
+    },
+    "target": {
+      "$ref": "./types/open-target.json"
+    }
+  }
+}

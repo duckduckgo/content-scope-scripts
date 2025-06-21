@@ -1,0 +1,87 @@
+{
+  "suggestions": {
+    "topHits": [
+      {
+        "kind": "phrase",
+        "phrase": "pizza near me",
+        "score": 99
+      },
+      {
+        "kind": "phrase",
+        "phrase": "pizza delivery",
+        "score": 99
+      },
+      {
+        "kind": "phrase",
+        "phrase": "pizza hut",
+        "score": 99
+      }
+    ],
+    "duckduckgoSuggestions": [
+      {
+        "kind": "phrase",
+        "phrase": "pizza recipes"
+      },
+      {
+        "kind": "phrase",
+        "phrase": "pizza express"
+      },
+      {
+        "kind": "phrase",
+        "phrase": "pizza dough recipe"
+      },
+      {
+        "kind": "phrase",
+        "phrase": "pizza marinara"
+      },
+      {
+        "kind": "phrase",
+        "phrase": "pizza margherita"
+      },
+      {
+        "kind": "website",
+        "url": "https://pizzahut.com"
+      },
+      {
+        "kind": "website",
+        "url": "https://papajohns.com"
+      },
+      {
+        "kind": "website",
+        "url": "https://pizzaexpress.com"
+      }
+    ],
+    "localSuggestions": [
+      {
+        "kind": "historyEntry",
+        "title": "Best Pizza Places in New York",
+        "url": "https://example.com/search?q=Best%20Pizza%20Places%20in%20New%20York",
+        "score": 87
+      },
+      {
+        "kind": "historyEntry",
+        "title": "Pizza Making Tips and Tricks",
+        "url": "https://example.com/search?q=Pizza%20Making%20Tips%20and%20Tricks",
+        "score": 85
+      },
+      {
+        "kind": "historyEntry",
+        "title": "Italian Pizza History",
+        "url": "https://example.com/search?q=Italian%20Pizza%20History",
+        "score": 85
+      },
+      {
+        "kind": "historyEntry",
+        "title": "Homemade Pizza Guide",
+        "url": "https://example.com/search?q=Homemade%20Pizza%20Guide",
+        "score": 85
+      },
+      {
+        "kind": "historyEntry",
+        "title": "Pizza Dough Calculator",
+        "url": "https://example.com/search?q=Pizza%20Dough%20Calculator",
+        "score": 87
+      }
+    ]
+  }
+}

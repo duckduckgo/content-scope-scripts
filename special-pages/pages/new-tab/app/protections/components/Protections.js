@@ -35,7 +35,7 @@ export function Protections({ expansion = 'expanded', children, blockedCountSign
     }, [WIDGET_ID, TOGGLE_ID]);
 
     return (
-        <div class={styles.root}>
+        <div class={styles.root} style={{ viewTransitionName: 'protections' }}>
             <ProtectionsHeading
                 blockedCountSignal={blockedCountSignal}
                 onToggle={toggle}
