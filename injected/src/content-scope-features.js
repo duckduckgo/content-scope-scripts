@@ -7,7 +7,6 @@ import { registerForURLChanges } from './url-change';
 let initArgs = null;
 const updates = [];
 const features = [];
-const alwaysInitFeatures = new Set(['cookie']);
 const performanceMonitor = new PerformanceMonitor();
 
 // It's important to avoid enabling the features for non-HTML documents (such as
@@ -25,6 +24,15 @@ const isHTMLDocument =
  * @property {import('./utils.js').Platform} platform
  * @property {import('./utils.js').RemoteConfig} bundledConfig
  * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
+ * @property {boolean} [debug]
+ * @property {boolean} [desktopModeEnabled]
+ * @property {boolean} [forcedZoomEnabled]
+ * @property {import('./content-feature.js').AssetConfig} [assets]
+ * @property {import('./content-feature.js').Site} site
+ * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
+ * @property {{ feature: string, cohort: string, subfeature: string }[]} [currentCohorts]
+ * @property {import('./utils.js').RemoteConfig} bundledConfig
+ * @property {string[]} platformSpecificFeatures
  * @property {string} [messageSecret] - optional, used in the messageBridge creation
  */
 
@@ -48,16 +56,14 @@ export function load(args) {
     const featuresToLoad = isGloballyDisabled(args)
         // if we're globally disabled, only allow `platformSpecificFeatures`
         ? platformSpecificFeatures
-        // if available, use `site.enabledFeatures`. The extension doesn't have `site.enabledFeatures` at this
-        // point, which is why we fall back to `bundledFeatureNames`.
-        : args.site.enabledFeatures || bundledFeatureNames;
+        : bundledFeatureNames;
 
     for (const featureName of bundledFeatureNames) {
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
             const featureInstance = new ContentFeature(featureName, importConfig, args);
             featureInstance.callLoad();
-            features.push({ featureName, featureInstance });
+            features.push({ featureInstance });
         }
     }
     mark.end();
@@ -72,9 +78,10 @@ export async function init(args) {
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
     const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
-        if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
-            featureInstance.callInit(args);
+    resolvedFeatures.forEach(({ featureInstance }) => {
+        // TODO refactor this to use the registry
+        featureInstance.callInit(args);
+        if (featureInstance.isEnabled()) {
             // Either listenForUrlChanges or urlChanged ensures the feature listens.
             if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
                 registerForURLChanges(() => {
@@ -107,10 +114,6 @@ export function update(args) {
         return;
     }
     updateFeaturesInner(args);
-}
-
-function alwaysInitExtensionFeatures(args, featureName) {
-    return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
 }
 
 async function updateFeaturesInner(args) {
