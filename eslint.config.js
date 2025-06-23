@@ -18,7 +18,6 @@ export default tseslint.config(
             'special-pages/pages/**/public',
             'special-pages/pages/**/types',
             'special-pages/pages/**/messages',
-            'special-pages/shared/types',
             'special-pages/playwright-report/',
             'special-pages/test-results/',
             'playwright-report',
