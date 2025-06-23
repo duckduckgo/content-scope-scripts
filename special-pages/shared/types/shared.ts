@@ -12,18 +12,18 @@ export type ReportMetricEvent = ExceptionMetric;
  * Requests, Notifications and Subscriptions from the Shared feature
  */
 export interface SharedMessages {
-    notifications: ReportMetricNotification;
+  notifications: ReportMetricNotification;
 }
 /**
  * Generated from @see "../messages/reportMetric.notify.json"
  */
 export interface ReportMetricNotification {
-    method: 'reportMetric';
-    params: ReportMetricEvent;
+  method: "reportMetric";
+  params: ReportMetricEvent;
 }
 export interface ExceptionMetric {
-    metricName: 'exception';
-    params: {
-        message: string;
-    };
+  metricName: "exception";
+  params: {
+    message: string;
+  };
 }
