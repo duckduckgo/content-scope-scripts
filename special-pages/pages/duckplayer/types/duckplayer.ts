@@ -6,7 +6,6 @@
  * @module Duckplayer Messages
  */
 
-export type ReportMetricEvent = ExceptionMetric;
 export type YouTubeError = "age-restricted" | "sign-in-required" | "no-embed" | "unknown";
 export type PrivatePlayerMode =
   | {
@@ -27,7 +26,6 @@ export interface DuckplayerMessages {
     | OpenInfoNotification
     | OpenSettingsNotification
     | ReportInitExceptionNotification
-    | ReportMetricNotification
     | ReportPageExceptionNotification
     | ReportYouTubeErrorNotification
     | TelemetryEventNotification;
@@ -55,19 +53,6 @@ export interface ReportInitExceptionNotification {
 }
 export interface ReportInitExceptionNotify {
   message: string;
-}
-/**
- * Generated from @see "../messages/reportMetric.notify.json"
- */
-export interface ReportMetricNotification {
-  method: "reportMetric";
-  params: ReportMetricEvent;
-}
-export interface ExceptionMetric {
-  metricName: "exception";
-  params: {
-    message: string;
-  };
 }
 /**
  * Generated from @see "../messages/reportPageException.notify.json"
