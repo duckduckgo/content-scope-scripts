@@ -37,6 +37,7 @@ import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckpla
 import { isBeingFramed } from '../utils.js';
 import { initOverlays } from './duckplayer/overlays.js';
 import { Environment } from './duckplayer/environment.js';
+import { reportException } from '../../../special-pages/shared/report-metric.js';
 
 /**
  * @typedef UserValues - A way to communicate user settings
@@ -93,19 +94,23 @@ export default class DuckPlayerFeature extends ContentFeature {
             throw new Error('cannot operate duck player without a messaging backend');
         }
 
-        const locale = args?.locale || args?.language || 'en';
-        const env = new Environment({
-            debug: this.isDebug,
-            injectName: import.meta.injectName,
-            platform: this.platform,
-            locale,
-        });
-        const comms = new DuckPlayerOverlayMessages(this.messaging, env);
+        try {
+            const locale = args?.locale || args?.language || 'en';
+            const env = new Environment({
+                debug: this.isDebug,
+                injectName: import.meta.injectName,
+                platform: this.platform,
+                locale,
+            });
+            const comms = new DuckPlayerOverlayMessages(this.messaging, env);
 
-        if (overlaysEnabled) {
-            initOverlays(overlaySettings.youtube, env, comms);
-        } else if (serpProxyEnabled) {
-            comms.serpProxy();
+            if (overlaysEnabled) {
+                initOverlays(overlaySettings.youtube, env, comms);
+            } else if (serpProxyEnabled) {
+                comms.serpProxy();
+            }
+        } catch (e) {
+            reportException(this.messaging, { message: 'could not initialize duck player: ' + e.toString() });
         }
     }
 }
