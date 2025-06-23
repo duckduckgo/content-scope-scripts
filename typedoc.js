@@ -35,6 +35,7 @@ const config = {
         'special-pages/pages/special-error/app/types.js',
         'special-pages/pages/new-tab/app/favorites/constants.js',
         'special-pages/pages/**/types/*.ts',
+        'special-pages/shared/types/*.ts',
     ],
     categoryOrder: ['Special Pages', 'Content Scope Scripts Integrations', 'Other'],
     out: 'docs',

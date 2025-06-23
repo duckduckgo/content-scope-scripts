@@ -70,6 +70,8 @@ export async function init(messaging, telemetry, baseEnvironment) {
 
     const didCatch = (error) => {
         const message = error?.message || 'unknown';
+        messaging.reportException({ message });
+        // TODO: Remove the following event once all native platforms are responding to 'reportMetric: exception'
         messaging.reportPageException({ message });
     };
 
