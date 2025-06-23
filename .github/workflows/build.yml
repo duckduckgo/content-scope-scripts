@@ -49,10 +49,10 @@ jobs:
                   cat ${{ github.workspace }}/CHANGELOG.txt
                   echo "Current tag is: $(git rev-list --tags --max-count=1)"
 
-            - name: Checkout code from main into release branch
+            - name: Ensure clean release branch from main
               run: |
-                  # Checkout the code of main onto releases
-                  git checkout main -- .
+                  git reset --hard origin/main
+                  git clean -fxd
 
             - name: Build release
               run: |
