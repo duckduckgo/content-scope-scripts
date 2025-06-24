@@ -9,7 +9,7 @@
     }]
   },
   "browserReleaseNotes" : {
-    "title" : "Что нового",
+    "title" : "Примечания к релизу",
     "note" : "Page title for the Browser Release Notes page showing what's new in the current release"
   },
   "versionNumber" : {

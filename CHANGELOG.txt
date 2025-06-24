@@ -1,4 +1,1 @@
-- Ignore changelog for deletion (#1768)
-- Reset release build to clear out old contents (#1767)
-- fix: Next Steps bubble spacing in Windows + visibility bug (#1719)
-- Multiple small NTP improvements (#1758)
+- Updated Release Notes page title (#1739)

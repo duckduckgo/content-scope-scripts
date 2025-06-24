@@ -191,7 +191,7 @@ export class ReleaseNotesPage {
 
     async didShowLoadingState() {
         const { page } = this;
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Release Notes' })).toBeVisible();
         await expect(page.getByText('Last checked: Yesterday')).toBeVisible();
         await expect(page.getByText('Version 1.0.1 — Checking for update')).toBeVisible();
         await expect(page.getByTestId('placeholder')).toBeVisible();
@@ -203,7 +203,7 @@ export class ReleaseNotesPage {
 
     async didShowLoadingErrorState() {
         const { page } = this;
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Release Notes' })).toBeVisible();
         await expect(page.getByText('Last checked: Yesterday')).toBeVisible();
         await expect(page.getByText('Version 1.0.1 — Error loading update summary')).toBeVisible();
         await expect(page.getByRole('button', { name: 'Reload Summary' })).toBeVisible();
@@ -215,7 +215,7 @@ export class ReleaseNotesPage {
 
     async didShowUpdateDownloadingState() {
         const { page } = this;
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Release Notes' })).toBeVisible();
         await expect(page.getByText('Last checked: Today')).toBeVisible();
         await expect(page.getByText('Version 1.0.1 — Downloading update 74%')).toBeVisible();
         await expect(page.getByTestId('placeholder')).toBeVisible();
@@ -227,7 +227,7 @@ export class ReleaseNotesPage {
 
     async didShowUpdatePreparingState() {
         const { page } = this;
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Release Notes' })).toBeVisible();
         await expect(page.getByText('Last checked: Today')).toBeVisible();
         await expect(page.getByText('Version 1.0.1 — Preparing update')).toBeVisible();
         await expect(page.getByTestId('placeholder')).toBeVisible();
@@ -239,7 +239,7 @@ export class ReleaseNotesPage {
 
     async didShowUpToDateState() {
         const { page } = this;
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Release Notes' })).toBeVisible();
         await expect(page.getByRole('heading', { name: 'May 20 2024', exact: true })).toBeVisible();
 
         await expect(page.getByText('Last checked: Today')).toBeVisible();
@@ -257,7 +257,7 @@ export class ReleaseNotesPage {
      */
     async didShowUpdateReadyState({ critical = false, manual = false }) {
         const { page } = this;
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Release Notes' })).toBeVisible();
         await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible();
 
         await expect(page.getByText('Last checked: Today')).toBeVisible();
@@ -296,7 +296,7 @@ export class ReleaseNotesPage {
 
     async didShowUpdateErrorState() {
         const { page } = this;
-        await expect(page.getByRole('heading', { name: 'What’s New' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Release Notes' })).toBeVisible();
         await expect(page.getByRole('heading', { name: 'June 20 2024 New', exact: true })).toBeVisible();
 
         await expect(page.getByText('Last checked: Today')).toBeVisible();

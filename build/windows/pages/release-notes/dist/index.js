@@ -1142,7 +1142,7 @@
       ]
     },
     browserReleaseNotes: {
-      title: "What\u2019s New",
+      title: "Release Notes",
       note: "Page title for the Browser Release Notes page showing what's new in the current release"
     },
     versionNumber: {

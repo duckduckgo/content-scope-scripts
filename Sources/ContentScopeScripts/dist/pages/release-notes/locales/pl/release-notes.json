@@ -9,7 +9,7 @@
     }]
   },
   "browserReleaseNotes" : {
-    "title" : "Co nowego",
+    "title" : "Informacje o wersji",
     "note" : "Page title for the Browser Release Notes page showing what's new in the current release"
   },
   "versionNumber" : {
