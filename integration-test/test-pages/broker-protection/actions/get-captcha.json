@@ -1,9 +1,0 @@
-{
-  "state": {
-    "action": {
-      "actionType": "getCaptchaInfo",
-      "selector": ".g-recaptcha",
-      "id": "8324"
-    }
-  }
-}

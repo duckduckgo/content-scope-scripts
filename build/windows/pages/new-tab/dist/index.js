@@ -1637,7 +1637,14 @@
   });
 
   // shared/components/EnvironmentProvider.js
-  function EnvironmentProvider({ children, debugState, env = "production", willThrow = false, injectName = "windows" }) {
+  function EnvironmentProvider({
+    children,
+    debugState,
+    env = "production",
+    willThrow = false,
+    injectName = "windows",
+    locale = "en"
+  }) {
     const [theme, setTheme] = d2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
     const [isReducedMotion, setReducedMotion] = d2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
     y2(() => {
@@ -1669,7 +1676,8 @@
           isDarkMode: theme === "dark",
           injectName,
           willThrow,
-          env
+          env,
+          locale
         }
       },
       children
@@ -1689,6 +1697,9 @@
   function useEnv() {
     return x2(EnvironmentContext);
   }
+  function useLocale() {
+    return x2(EnvironmentContext).locale;
+  }
   var EnvironmentContext, THEME_QUERY, REDUCED_MOTION_QUERY;
   var init_EnvironmentProvider = __esm({
     "shared/components/EnvironmentProvider.js"() {
@@ -1704,6 +1715,8 @@
           "windows"
         ),
         willThrow: false,
+        /** @type {keyof typeof import('../utils').translationsLocales} */
+        locale: "en",
         /** @type {import('../environment').Environment['env']} */
         env: "production"
       });
@@ -7044,7 +7057,7 @@
     const WIDGET_ID = g2();
     const TOGGLE_ID = g2();
     const alwaysShown = types.length > 2 ? types.slice(0, 2) : types;
-    return /* @__PURE__ */ _("div", { class: NextSteps_default.cardGroup, id: WIDGET_ID }, /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(ShowHideBar, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: NextSteps_default.cardGroup, id: WIDGET_ID }, types.length > 0 && /* @__PURE__ */ _(NextStepsBubbleHeader, null), /* @__PURE__ */ _("div", { class: NextSteps_default.cardGrid }, alwaysShown.map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action })), expansion === "expanded" && types.length > 2 && types.slice(2).map((type) => /* @__PURE__ */ _(NextStepsCard, { key: type, type, dismiss, action }))), types.length > 2 && /* @__PURE__ */ _(ShowHideBar, null, /* @__PURE__ */ _(
       ShowHideButtonPill,
       {
         buttonAttrs: {
@@ -7337,7 +7350,6 @@
   var init_PrivacyStats = __esm({
     "pages/new-tab/app/privacy-stats/components/PrivacyStats.module.css"() {
       PrivacyStats_default = {
-        heading: "PrivacyStats_heading",
         control: "PrivacyStats_control",
         headingIcon: "PrivacyStats_headingIcon",
         caption: "PrivacyStats_caption",
@@ -7361,13 +7373,37 @@
     }
   });
 
+  // shared/utils.js
+  var translationsLocales, getLocalizedNumberFormatter;
+  var init_utils3 = __esm({
+    "shared/utils.js"() {
+      "use strict";
+      translationsLocales = {
+        en: "en-US",
+        nl: "nl-NL",
+        fr: "fr-FR",
+        de: "de-DE",
+        it: "it-IT",
+        pl: "pl-PL",
+        pt: "pt-PT",
+        ru: "ru-RU",
+        es: "es-ES"
+      };
+      getLocalizedNumberFormatter = (locale) => {
+        const localeToUse = translationsLocales[locale] || "en-US";
+        return new Intl.NumberFormat(localeToUse);
+      };
+    }
+  });
+
   // pages/new-tab/app/protections/components/ProtectionsHeading.js
   function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, buttonAttrs = {} }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
-    const [formatter] = d2(() => new Intl.NumberFormat());
+    const locale = useLocale();
+    const [formatter] = d2(() => getLocalizedNumberFormatter(locale));
     const adBlocking = useAdBlocking();
     const blockedCount = blockedCountSignal.value;
     const none = blockedCount === 0;
@@ -7379,7 +7415,7 @@
     } else {
       alltimeTitle = adBlocking ? t4("stats_countBlockedAdsAndTrackersPlural", { count: alltime }) : t4("stats_countBlockedPlural", { count: alltime });
     }
-    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading" }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.control }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/shield-green.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: PrivacyStats_default.heading, "data-testid": "ProtectionsHeading" }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.control }, /* @__PURE__ */ _("span", { class: PrivacyStats_default.headingIcon }, /* @__PURE__ */ _("img", { src: "./icons/Shield-Check-Color-16.svg", alt: "Privacy Shield" })), /* @__PURE__ */ _("h2", { class: PrivacyStats_default.caption }, t4("protections_menuTitle")), canExpand && /* @__PURE__ */ _("span", { class: PrivacyStats_default.widgetExpander }, /* @__PURE__ */ _(
       ShowHideButtonCircle,
       {
         buttonAttrs: {
@@ -7404,6 +7440,8 @@
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
+      init_utils3();
+      init_EnvironmentProvider();
     }
   });
 
@@ -25393,7 +25431,8 @@
 
   // pages/new-tab/app/privacy-stats/components/PrivacyStats.js
   function PrivacyStats({ trackerCompanies, expansion = "expanded" }) {
-    const [formatter] = d2(() => new Intl.NumberFormat());
+    const locale = useLocale();
+    const [formatter] = d2(() => getLocalizedNumberFormatter(locale));
     const sorted = sortStatsForDisplay(trackerCompanies);
     const largestTrackerCount = sorted[0]?.count ?? 0;
     const visibleRows = expansion === "expanded" ? sorted : sorted.slice(0, DDG_STATS_DEFAULT_ROWS);
@@ -25495,7 +25534,8 @@
       /** @type {Strings} */
       {}
     );
-    const [formatter] = d2(() => new Intl.NumberFormat());
+    const locale = useLocale();
+    const [formatter] = d2(() => getLocalizedNumberFormatter(locale));
     const formattedCount = formatter.format(count);
     const otherText2 = t4("stats_otherCount", { count: String(formattedCount) });
     return /* @__PURE__ */ _("div", { class: PrivacyStats_default.otherTrackersRow }, otherText2);
@@ -25513,6 +25553,8 @@
       init_CompanyIcon2();
       init_BodyExpansionProvider();
       init_Protections2();
+      init_utils3();
+      init_EnvironmentProvider();
     }
   });
 
@@ -30077,7 +30119,8 @@
           debugState: environment.debugState,
           injectName: environment.injectName,
           willThrow: environment.willThrow,
-          env: environment.env
+          env: environment.env,
+          locale: environment.locale
         },
         /* @__PURE__ */ _(
           InlineErrorBoundary,
@@ -30212,7 +30255,7 @@
      * @param {ImportMeta['injectName']} [params.injectName] - application platform
      * @param {boolean} [params.willThrow] - whether the application will simulate an error
      * @param {boolean} [params.debugState] - whether to show debugging UI
-     * @param {string} [params.locale] - for applications strings
+     * @param {keyof typeof import('./utils').translationsLocales} [params.locale] - for applications strings and numbers formatting
      * @param {number} [params.textLength] - what ratio of text should be used. Set a number higher than 1 to have longer strings for testing
      */
     constructor({

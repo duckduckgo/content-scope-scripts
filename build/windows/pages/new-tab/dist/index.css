@@ -1433,6 +1433,8 @@ body:not([data-platform-name]) .Button_button:active {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 1px;
+  margin: 0 -1px;
 }
 .NextSteps_bubble div h2 {
   color: var(--ntp-text-on-primary);
@@ -1546,8 +1548,6 @@ body:not([data-platform-name]) .Button_button:active {
 }
 
 /* pages/new-tab/app/privacy-stats/components/PrivacyStats.module.css */
-.PrivacyStats_heading {
-}
 .PrivacyStats_control {
   display: flex;
   align-items: center;
@@ -1564,6 +1564,10 @@ body:not([data-platform-name]) .Button_button:active {
   align-items: center;
   justify-content: center;
   padding-top: 0.5px;
+}
+.PrivacyStats_headingIcon img {
+  max-width: 1rem;
+  max-height: 1rem;
 }
 .PrivacyStats_caption {
   font-size: var(--title-3-em-font-size);
@@ -1682,8 +1686,6 @@ body:not([data-platform-name]) .Button_button:active {
 }
 [data-theme=dark] .PrivacyStats_fill {
   background: var(--color-white-at-9);
-}
-.PrivacyStats_listExpander {
 }
 
 /* pages/new-tab/app/activity/components/Activity.module.css */

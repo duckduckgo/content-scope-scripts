@@ -1,8 +1,0 @@
-{
-    "parserOptions": {
-        "project": null
-    },
-    "rules": {
-        "@typescript-eslint/await-thenable": "off"
-    }
-}

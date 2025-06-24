@@ -7,14 +7,6 @@
  */
 
 export type OpenTarget = "same-tab" | "new-tab" | "new-window";
-/**
- * Represents the expansion state of a widget
- */
-export type Expansion = "expanded" | "collapsed";
-/**
- * Generic Animation configuration
- */
-export type Animation = None | ViewTransitions | Auto;
 export type BackgroundVariant =
   | DefaultBackground
   | SolidColorBackground
@@ -55,6 +47,14 @@ export type PredefinedGradient =
  */
 export type BackgroundColorScheme = "light" | "dark";
 export type BrowserTheme = "light" | "dark" | "system";
+/**
+ * Represents the expansion state of a widget
+ */
+export type Expansion = "expanded" | "collapsed";
+/**
+ * Generic Animation configuration
+ */
+export type Animation = None | ViewTransitions | Auto;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -95,7 +95,6 @@ export interface NewTabMessages {
     | ActivityOpenNotification
     | ActivityRemoveFavoriteNotification
     | ActivityRemoveItemNotification
-    | ActivitySetConfigNotification
     | ContextMenuNotification
     | CustomizerContextMenuNotification
     | CustomizerDeleteImageNotification
@@ -119,7 +118,6 @@ export interface NewTabMessages {
     | RmfDismissNotification
     | RmfPrimaryActionNotification
     | RmfSecondaryActionNotification
-    | StatsSetConfigNotification
     | StatsShowLessNotification
     | StatsShowMoreNotification
     | TelemetryEventNotification
@@ -127,7 +125,6 @@ export interface NewTabMessages {
     | WidgetsSetConfigNotification;
   requests:
     | ActivityConfirmBurnRequest
-    | ActivityGetConfigRequest
     | ActivityGetDataRequest
     | ActivityGetDataForUrlsRequest
     | ActivityGetUrlsRequest
@@ -140,11 +137,9 @@ export interface NewTabMessages {
     | ProtectionsGetConfigRequest
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
-    | StatsGetConfigRequest
     | StatsGetDataRequest;
   subscriptions:
     | ActivityOnBurnCompleteSubscription
-    | ActivityOnConfigUpdateSubscription
     | ActivityOnDataPatchSubscription
     | ActivityOnDataUpdateSubscription
     | CustomizerAutoOpenSubscription
@@ -160,7 +155,6 @@ export interface NewTabMessages {
     | ProtectionsOnConfigUpdateSubscription
     | ProtectionsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
-    | StatsOnConfigUpdateSubscription
     | StatsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription;
@@ -217,32 +211,6 @@ export interface ActivityRemoveItemNotify {
    * The History Entry url to be removed
    */
   url: string;
-}
-/**
- * Generated from @see "../messages/activity_setConfig.notify.json"
- */
-export interface ActivitySetConfigNotification {
-  method: "activity_setConfig";
-  params: ActivityConfig;
-}
-export interface ActivityConfig {
-  expansion: Expansion;
-  animation?: Animation;
-}
-export interface None {
-  kind: "none";
-}
-/**
- * Use CSS view transitions where available
- */
-export interface ViewTransitions {
-  kind: "view-transitions";
-}
-/**
- * Use the auto-animate library to provide default animation styles
- */
-export interface Auto {
-  kind: "auto-animate";
 }
 /**
  * Generated from @see "../messages/contextMenu.notify.json"
@@ -402,6 +370,21 @@ export interface FavoritesConfig {
   expansion: Expansion;
   animation?: Animation;
 }
+export interface None {
+  kind: "none";
+}
+/**
+ * Use CSS view transitions where available
+ */
+export interface ViewTransitions {
+  kind: "view-transitions";
+}
+/**
+ * Use the auto-animate library to provide default animation styles
+ */
+export interface Auto {
+  kind: "auto-animate";
+}
 /**
  * Generated from @see "../messages/freemiumPIRBanner_action.notify.json"
  */
@@ -525,17 +508,6 @@ export interface RMFSecondaryAction {
   id: string;
 }
 /**
- * Generated from @see "../messages/stats_setConfig.notify.json"
- */
-export interface StatsSetConfigNotification {
-  method: "stats_setConfig";
-  params: StatsConfig;
-}
-export interface StatsConfig {
-  expansion: Expansion;
-  animation?: Animation;
-}
-/**
  * Generated from @see "../messages/stats_showLess.notify.json"
  */
 export interface StatsShowLessNotification {
@@ -600,13 +572,6 @@ export interface ConfirmBurnParams {
 }
 export interface ConfirmBurnResponse {
   action: "burn" | "none";
-}
-/**
- * Generated from @see "../messages/activity_getConfig.request.json"
- */
-export interface ActivityGetConfigRequest {
-  method: "activity_getConfig";
-  result: ActivityConfig;
 }
 /**
  * Generated from @see "../messages/activity_getData.request.json"
@@ -874,13 +839,6 @@ export interface BigTwoActionMessage {
   secondaryActionText: string;
 }
 /**
- * Generated from @see "../messages/stats_getConfig.request.json"
- */
-export interface StatsGetConfigRequest {
-  method: "stats_getConfig";
-  result: StatsConfig;
-}
-/**
  * Generated from @see "../messages/stats_getData.request.json"
  */
 export interface StatsGetDataRequest {
@@ -899,13 +857,6 @@ export interface TrackerCompany {
  */
 export interface ActivityOnBurnCompleteSubscription {
   subscriptionEvent: "activity_onBurnComplete";
-}
-/**
- * Generated from @see "../messages/activity_onConfigUpdate.subscribe.json"
- */
-export interface ActivityOnConfigUpdateSubscription {
-  subscriptionEvent: "activity_onConfigUpdate";
-  params: ActivityConfig;
 }
 /**
  * Generated from @see "../messages/activity_onDataPatch.subscribe.json"
@@ -1026,13 +977,6 @@ export interface ProtectionsOnDataUpdateSubscription {
 export interface RmfOnDataUpdateSubscription {
   subscriptionEvent: "rmf_onDataUpdate";
   params: RMFData;
-}
-/**
- * Generated from @see "../messages/stats_onConfigUpdate.subscribe.json"
- */
-export interface StatsOnConfigUpdateSubscription {
-  subscriptionEvent: "stats_onConfigUpdate";
-  params: StatsConfig;
 }
 /**
  * Generated from @see "../messages/stats_onDataUpdate.subscribe.json"

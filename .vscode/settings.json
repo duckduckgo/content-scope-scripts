@@ -1,6 +1,0 @@
-{
-    "files.exclude": {
-        "**/build/*": true,
-        "Sources/ContentScopeScripts/dist/contentScope.js": true
-    }
-}
