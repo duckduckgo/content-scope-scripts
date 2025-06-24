@@ -664,4 +664,149 @@ test.describe('Broker Protection communications', () => {
             dbp.isErrorMessage(response);
         });
     });
+
+    test.describe('wait functionality', () => {
+        test('wait works with successful click action', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+
+            const startTime = Date.now();
+
+            await dbp.simulateSubscriptionMessage('onActionReceived', {
+                state: {
+                    action: {
+                        actionType: 'click',
+                        id: '12345',
+                        wait: { ms: 2000 },
+                        elements: [
+                            {
+                                type: 'button',
+                                selector: 'button.btn-sbmt',
+                            },
+                        ],
+                    },
+                },
+            });
+
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            const endTime = Date.now();
+            const elapsedTime = endTime - startTime;
+
+            // Verify the action succeeded
+            dbp.isSuccessMessage(response);
+
+            // Verify the wait duration (allow some tolerance for execution time)
+            expect(elapsedTime).toBeGreaterThanOrEqual(2000);
+            expect(elapsedTime).toBeLessThan(3000); // Should not take much longer than 2s + execution time
+        });
+
+        test('wait works with failing click action', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+
+            const startTime = Date.now();
+
+            await dbp.simulateSubscriptionMessage('onActionReceived', {
+                state: {
+                    action: {
+                        actionType: 'click',
+                        id: '12345',
+                        wait: { ms: 2000 },
+                        elements: [
+                            {
+                                type: 'button',
+                                selector: 'button.btn-sbmt-fail',
+                            },
+                        ],
+                    },
+                },
+            });
+
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            const endTime = Date.now();
+            const elapsedTime = endTime - startTime;
+
+            // Verify the action succeeded
+            dbp.isErrorMessage(response);
+
+            // Verify the wait duration (allow some tolerance for execution time)
+            expect(elapsedTime).toBeGreaterThanOrEqual(2000);
+            expect(elapsedTime).toBeLessThan(3000); // Should not take much longer than 2s + execution time
+        });
+
+        test('wait works with expectation action', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+
+            const startTime = Date.now();
+
+            await dbp.simulateSubscriptionMessage('onActionReceived', {
+                state: {
+                    action: {
+                        actionType: 'expectation',
+                        id: 'test-wait-expectation',
+                        wait: { ms: 1500 },
+                        expectations: [
+                            {
+                                type: 'text',
+                                selector: '.message',
+                                expect: 'Please complete the form',
+                            },
+                        ],
+                    },
+                },
+            });
+
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            const endTime = Date.now();
+            const elapsedTime = endTime - startTime;
+
+            // Verify the expectation succeeded
+            dbp.isSuccessMessage(response);
+
+            // Verify the wait duration (allow some tolerance for execution time)
+            expect(elapsedTime).toBeGreaterThanOrEqual(1500);
+            expect(elapsedTime).toBeLessThan(2500); // Should not take much longer than 1.5s + execution time
+        });
+
+        test('wait works with failing expectation that has failSilently', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+
+            const startTime = Date.now();
+
+            await dbp.simulateSubscriptionMessage('onActionReceived', {
+                state: {
+                    action: {
+                        actionType: 'expectation',
+                        id: 'test-wait-expectation-failsilently',
+                        wait: { ms: 2500 },
+                        expectations: [
+                            {
+                                type: 'text',
+                                selector: '.message',
+                                expect: 'This text does not exist on the page',
+                                failSilently: true,
+                            },
+                        ],
+                    },
+                },
+            });
+
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            const endTime = Date.now();
+            const elapsedTime = endTime - startTime;
+
+            // Verify the expectation succeeded despite failing (due to failSilently)
+            dbp.isSuccessMessage(response);
+
+            // Verify the wait duration - should be close to 2500ms since no retries happen with failSilently
+            expect(elapsedTime).toBeGreaterThanOrEqual(2500);
+            expect(elapsedTime).toBeLessThan(3500); // Should not take much longer than 2.5s + execution time
+        });
+    });
 });

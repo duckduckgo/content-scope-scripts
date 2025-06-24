@@ -12,6 +12,7 @@
  * @property {string} [captchaType]
  * @property {string} [injectCaptchaHandler]
  * @property {string} [dataSource]
+ * @property {{ms: number}} [wait] - Optional wait time in milliseconds after action execution
  */
 
 /**

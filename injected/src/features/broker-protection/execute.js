@@ -8,24 +8,33 @@ import { ErrorResponse } from './types';
  * @return {Promise<import('./types.js').ActionResponse>}
  */
 export async function execute(action, inputData, root = document) {
+    let result;
+
     try {
         switch (action.actionType) {
             case 'navigate':
-                return navigate(action, data(action, inputData, 'userProfile'));
+                result = navigate(action, data(action, inputData, 'userProfile'));
+                break;
             case 'extract':
-                return await extract(action, data(action, inputData, 'userProfile'), root);
+                result = await extract(action, data(action, inputData, 'userProfile'), root);
+                break;
             case 'click':
-                return click(action, data(action, inputData, 'userProfile'), root);
+                result = click(action, data(action, inputData, 'userProfile'), root);
+                break;
             case 'expectation':
-                return expectation(action, root);
+                result = expectation(action, root);
+                break;
             case 'fillForm':
-                return fillForm(action, data(action, inputData, 'extractedProfile'), root);
+                result = fillForm(action, data(action, inputData, 'extractedProfile'), root);
+                break;
             case 'getCaptchaInfo':
-                return await getCaptchaInfo(action, root);
+                result = await getCaptchaInfo(action, root);
+                break;
             case 'solveCaptcha':
-                return solveCaptcha(action, data(action, inputData, 'token'), root);
+                result = solveCaptcha(action, data(action, inputData, 'token'), root);
+                break;
             default: {
-                return new ErrorResponse({
+                result = new ErrorResponse({
                     actionID: action.id,
                     message: `unimplemented actionType: ${action.actionType}`,
                 });
@@ -33,11 +42,18 @@ export async function execute(action, inputData, root = document) {
         }
     } catch (e) {
         console.log('unhandled exception: ', e);
-        return new ErrorResponse({
+        result = new ErrorResponse({
             actionID: action.id,
             message: `unhandled exception: ${e.message}`,
         });
     }
+
+    // Handle universal wait attribute
+    if (action.wait?.ms && typeof action.wait?.ms === 'number') {
+        await new Promise(resolve => setTimeout(resolve, action.wait?.ms));
+    }
+
+    return result;
 }
 
 /**
