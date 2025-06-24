@@ -5324,6 +5324,7 @@
       const vParam = url.searchParams.get("v");
       const tParam = url.searchParams.get("t");
       if (url.searchParams.has("list") && !url.searchParams.has("index")) {
+        console.log("has list but not index");
       }
       let time = null;
       if (vParam && _VideoParams.validVideoId.test(vParam)) {
