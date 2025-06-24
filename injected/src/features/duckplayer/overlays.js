@@ -36,6 +36,7 @@ export async function initOverlays(settings, environment, messages) {
     }
 
     let { userValues, ui } = initialSetup;
+    console.log('Initial Setup', settings, environment, initialSetup);
 
     /**
      * Create the instance - this might fail if settings or user preferences prevent it

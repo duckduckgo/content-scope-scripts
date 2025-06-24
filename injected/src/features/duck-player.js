@@ -61,6 +61,7 @@ import { Environment } from './duckplayer/environment.js';
  */
 export default class DuckPlayerFeature extends ContentFeature {
     init(args) {
+        console.log('DUCK PLAYER', args);
         /**
          * This feature never operates in a frame
          */

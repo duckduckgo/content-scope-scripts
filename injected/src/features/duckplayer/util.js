@@ -242,7 +242,8 @@ export class VideoParams {
         //   valid: '/watch?v=321&list=123&index=1234'
         // invalid: '/watch?v=321&list=123' <- index absent
         if (url.searchParams.has('list') && !url.searchParams.has('index')) {
-            return null;
+            // return null;
+            console.log('has list but not index');
         }
 
         let time = null;
