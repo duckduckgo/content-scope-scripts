@@ -103,10 +103,10 @@ describe('test-pages/*/config/*.json schema validation', () => {
             xit(`LEGACY: skipped schema validation for ${path.relative(process.cwd(), configPath)}`, () => {});
             continue;
         }
-        it(`should match the GenericV4Config schema: ${path.relative(process.cwd(), configPath)}`, async () => {
+        it(`should match the CurrentGenericConfig schema: ${path.relative(process.cwd(), configPath)}`, async () => {
             let config = JSON.parse(await readFile(configPath, 'utf-8'));
             config = ensureHashOnFeatures(config);
-            const validate = createValidator('GenericV4Config');
+            const validate = createValidator('CurrentGenericConfig');
             const valid = validate(config);
             if (!valid) {
                 throw new Error(`Schema validation failed for ${configPath}: ` + formatErrors(validate.errors));
