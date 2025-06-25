@@ -340,9 +340,20 @@ test.describe('reporting exceptions', () => {
         // load as normal
         duckplayer.initError();
         await duckplayer.openWithVideoID();
-        await duckplayer.didSendException('InitError', 'Max attempts reached: Error: response not found for initialSetup');
+        const message = isWindows(workerInfo)
+            ? 'Cannot read properties of undefined (reading \'pip\')'
+            : 'undefined is not an object (evaluating \'init2.settings.pip\')';
+        await duckplayer.didSendException('InitError', message);
     });
 });
+
+/**
+ * @param {import("@playwright/test").TestInfo} testInfo
+ */
+function isWindows(testInfo) {
+    const u = /** @type {any} */ (testInfo.project.use);
+    return u?.platform === 'windows';
+}
 
 /**
  * @param {import("@playwright/test").TestInfo} testInfo

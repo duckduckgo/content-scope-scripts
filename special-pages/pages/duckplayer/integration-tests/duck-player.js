@@ -147,9 +147,12 @@ export class DuckPlayerPage {
 
     initError() {
         const clone = structuredClone(this.defaults);
-        // Force an init error by passing an empty response to initialSetup
         // @ts-expect-error - this is a test
-        clone.initialSetup = undefined;
+        clone.initialSetup = {
+            locale: 'en',
+            env: 'development',
+            platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name },
+        };
         this.mocks.defaultResponses(clone);
     }
 
