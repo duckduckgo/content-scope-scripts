@@ -123,21 +123,35 @@ export class DuckPlayerOverlayMessages {
                 if (evt.detail.kind === constants.MSG_NAME_SET_VALUES) {
                     return this.setUserValues(evt.detail.data)
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
-                        .catch(console.error);
+                        .catch((e) => {
+                            console.error(e);
+                            this.reportException({ message: e.toString(), kind: 'MessagingError' });
+                        });
                 }
                 if (evt.detail.kind === constants.MSG_NAME_READ_VALUES_SERP) {
                     return this.getUserValues()
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
-                        .catch(console.error);
+                        .catch((e) => {
+                            console.error(e);
+                            this.reportException({ message: e.toString(), kind: 'MessagingError' });
+                        });
                 }
                 if (evt.detail.kind === constants.MSG_NAME_OPEN_INFO) {
                     return this.openInfo();
                 }
                 console.warn('unhandled event', evt);
             } catch (e) {
+                this.reportException({ message: e.toString(), kind: 'MessagingError' });
                 console.warn('cannot handle this message', e);
             }
         });
+    }
+
+    /**
+     * @param {import('../../../../special-pages/shared/types/shared.ts').ExceptionMetric['params']} params
+     */
+    reportException(params) {
+        return this.messaging.notify('reportMetric', { metricName: 'exception', params });
     }
 }
 

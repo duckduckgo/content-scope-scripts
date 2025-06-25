@@ -305,6 +305,12 @@ export class DuckplayerOverlays {
         });
     }
 
+    async initialSetupError() {
+        await this.collector.updateMockResponse({
+            initialSetup: {},
+        });
+    }
+
     /**
      * @param {keyof userValues} setting
      */
@@ -475,6 +481,15 @@ export class DuckplayerOverlays {
                 },
             },
         ]);
+    }
+
+    /**
+     * @param {string} kind
+     * @param {string} message
+     */
+    async didSendException(kind, message) {
+        const messages = await this.collector.waitForMessage('reportMetric');
+        expect(messages).toMatchObject([{ payload: { params: { metricName: 'exception', params: { kind, message } } } }]);
     }
 
     /**

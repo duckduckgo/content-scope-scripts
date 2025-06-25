@@ -26,6 +26,7 @@ export async function initOverlays(settings, environment, messages) {
     try {
         initialSetup = await messages.initialSetup();
     } catch (e) {
+        console.log('INITIAL SETUP ERROR');
         console.warn(e);
         return;
     }
