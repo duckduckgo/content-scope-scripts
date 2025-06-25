@@ -1,0 +1,14 @@
+{
+    "readme": "This config is used to test the device enumeration feature.",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "webCompat": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "deviceEnumeration": "enabled"
+            }
+        }
+    }
+} 

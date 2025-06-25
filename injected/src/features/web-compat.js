@@ -1,7 +1,7 @@
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
-import { DDGProxy } from '../utils';
+import { DDGProxy, DDGReflect } from '../utils';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
@@ -17,6 +17,7 @@ const MSG_WEB_SHARE = 'webShare';
 const MSG_PERMISSIONS_QUERY = 'permissionsQuery';
 const MSG_SCREEN_LOCK = 'screenLock';
 const MSG_SCREEN_UNLOCK = 'screenUnlock';
+const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 
 function canShare(data) {
     if (typeof data !== 'object') return false;
@@ -128,6 +129,9 @@ export class WebCompat extends ContentFeature {
         }
         if (this.getFeatureSettingEnabled('disableDeviceEnumeration') || this.getFeatureSettingEnabled('disableDeviceEnumerationFrames')) {
             this.preventDeviceEnumeration();
+        }
+        if (this.getFeatureSettingEnabled('deviceEnumeration')) {
+            this.deviceEnumerationFix();
         }
     }
 
@@ -776,6 +780,65 @@ export class WebCompat extends ContentFeature {
             });
             enumerateDevicesProxy.overload();
         }
+    }
+
+    deviceEnumerationFix() {
+        if (!window.MediaDevices) {
+            return;
+        }
+
+        const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
+            apply: async (target, thisArg, args) => {
+                try {
+                    // Request device enumeration information from native
+                    const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+
+                    // Check if native indicates that prompts would be required
+                    if (response.willPrompt) {
+                        // If prompts would be required, return a manipulated response
+                        // that includes the device types that are available
+                        const devices = [];
+
+                        if (response.videoInput) {
+                            devices.push({
+                                deviceId: 'default',
+                                kind: 'videoinput',
+                                label: '',
+                                groupId: 'default-group',
+                            });
+                        }
+
+                        if (response.audioInput) {
+                            devices.push({
+                                deviceId: 'default',
+                                kind: 'audioinput',
+                                label: '',
+                                groupId: 'default-group',
+                            });
+                        }
+
+                        if (response.audioOutput) {
+                            devices.push({
+                                deviceId: 'default',
+                                kind: 'audiooutput',
+                                label: '',
+                                groupId: 'default-group',
+                            });
+                        }
+
+                        return Promise.resolve(devices);
+                    } else {
+                        // If no prompts would be required, proceed with the regular device enumeration
+                        return DDGReflect.apply(target, thisArg, args);
+                    }
+                } catch (err) {
+                    // If the native request fails, fall back to the original implementation
+                    return DDGReflect.apply(target, thisArg, args);
+                }
+            },
+        });
+
+        enumerateDevicesProxy.overload();
     }
 }
 
