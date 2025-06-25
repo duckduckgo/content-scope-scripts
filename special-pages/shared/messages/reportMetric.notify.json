@@ -17,6 +17,9 @@
           "properties": {
             "message": {
               "type": "string"
+            },
+            "kind": {
+              "type": "string"
             }
           }
         }

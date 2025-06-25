@@ -333,6 +333,14 @@ test.describe('reporting exceptions', () => {
         // load as normal
         await duckplayer.openWithException();
         await duckplayer.showsErrorMessage();
+        await duckplayer.didSendException('Error', 'Simulated Exception');
+    });
+    test('initial setup error', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        // load as normal
+        duckplayer.initError();
+        await duckplayer.openWithVideoID();
+        await duckplayer.didSendException('InitError', 'Max attempts reached: Error: response not found for initialSetup');
     });
 });
 
