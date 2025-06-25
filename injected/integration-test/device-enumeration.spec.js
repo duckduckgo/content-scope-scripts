@@ -29,7 +29,7 @@ test.describe('Device Enumeration Feature', () => {
                 },
                 featureSettings: {
                     webCompat: {
-                        enumerateDevices: 'enabled',
+                        deviceEnumeration: 'enabled',
                     },
                 },
             });
