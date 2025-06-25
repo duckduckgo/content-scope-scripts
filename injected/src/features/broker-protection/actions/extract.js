@@ -26,6 +26,7 @@ import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profi
  * @property {string} [afterText] - get all text after this string
  * @property {string} [beforeText] - get all text before this string
  * @property {string} [separator] - split the text on this string
+ * @property {string} [fromAttribute] - use the value from this attribute instead of text content
  * @property {IdentifierType} [identifierType] - the type (path/param) of the identifier
  * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
  *
@@ -169,7 +170,11 @@ export function stringValuesFromElements(elements, key, extractField) {
     return elements.map((element) => {
         let elementValue;
 
-        if ('innerText' in element) {
+        //  Use the element attribute instead of text content if fromAttribute is specified
+        if (extractField?.fromAttribute && 'getAttribute' in element) {
+            elementValue = /** @type {HTMLElement} */ (element).getAttribute(extractField.fromAttribute) ?? null;
+
+        } else if ('innerText' in element) {
             elementValue = rules[key]?.(element) ?? element?.innerText ?? null;
 
             // In instances where we use the text() node test, innerText will be undefined, and we fall back to textContent

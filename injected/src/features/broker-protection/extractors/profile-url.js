@@ -34,13 +34,15 @@ export class ProfileUrlExtractor {
      * @return {string}
      */
     getIdFromProfileUrl(profileUrl, identifierType, identifier) {
-        const parsedUrl = new URL(profileUrl);
-        const urlParams = parsedUrl.searchParams;
-
         // Attempt to parse out an id from the search parameters
-        if (identifierType === 'param' && urlParams.has(identifier)) {
-            const profileId = urlParams.get(identifier);
-            return profileId || profileUrl;
+        if (identifierType === 'param') {
+            const parsedUrl = new URL(profileUrl);
+            const urlParams = parsedUrl.searchParams;
+
+            if (urlParams.has(identifier)) {
+                const profileId = urlParams.get(identifier);
+                return profileId || profileUrl;
+            }
         }
 
         return profileUrl;

@@ -375,4 +375,83 @@ describe('create profiles from extracted data', () => {
         };
         expect(stringValuesFromElements([element], 'testKey', { selector: 'example' })).toEqual(['John Smith, 39']);
     });
+
+    it('should extract from attribute when fromAttribute is specified', () => {
+        const element = {
+            innerText: 'Douglas S Tapper',
+            textContent: 'Douglas S Tapper',
+            getAttribute: (attr) => {
+                if (attr === 'data-link') return '/profile/Douglas-Tapper/FvHED5EB';
+                if (attr === 'href') return 'https://example.com/profile/123';
+                return null;
+            },
+        };
+
+        // Test extracting data-link attribute
+        expect(stringValuesFromElements([element], 'profileUrl', {
+            selector: 'example',
+            fromAttribute: 'data-link'
+        })).toEqual(['/profile/Douglas-Tapper/FvHED5EB']);
+
+                // Test extracting href attribute
+        expect(stringValuesFromElements([element], 'profileUrl', {
+            selector: 'example',
+            fromAttribute: 'href'
+        })).toEqual(['https://example.com/profile/123']);
+
+        // Test extracting non-existent attribute returns null
+        const nonExistentResult = stringValuesFromElements([element], 'profileUrl', {
+            selector: 'example',
+            fromAttribute: 'non-existent'
+        });
+        expect(nonExistentResult[0]).toBeNull();
+    });
+
+    it('should fallback to text content when fromAttribute is specified but element lacks getAttribute', () => {
+        const element = {
+            innerText: 'Douglas S Tapper',
+            textContent: 'Douglas S Tapper',
+            // No getAttribute method
+        };
+
+        const result = stringValuesFromElements([element], 'testKey', {
+            selector: 'example',
+            fromAttribute: 'data-link'
+        });
+        // Current behavior: falls back to innerText when getAttribute is not available
+        expect(result[0]).toBe('Douglas S Tapper');
+    });
+
+    it('should work with extractAttribute in createProfile for profileUrl', () => {
+        const selectors = {
+            name: {
+                selector: '.name',
+            },
+            profileUrl: {
+                selector: '.profile-link',
+                fromAttribute: 'data-link',
+            },
+        };
+
+        const elementFactory = (key) => {
+            return {
+                name: [{ innerText: 'Douglas Tapper' }],
+                profileUrl: [{
+                    innerText: 'View Profile',
+                    getAttribute: (attr) => {
+                        if (attr === 'data-link') return '/profile/Douglas-Tapper/FvHED5EB';
+                        return null;
+                    },
+                }],
+            }[key];
+        };
+
+        const profile = createProfile(elementFactory, selectors);
+
+        expect(profile.name).toBe('Douglas Tapper');
+        expect(profile.profileUrl).toEqual({
+            profileUrl: '/profile/Douglas-Tapper/FvHED5EB',
+            identifier: '/profile/Douglas-Tapper/FvHED5EB',
+        });
+    });
 });
