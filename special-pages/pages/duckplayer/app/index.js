@@ -27,11 +27,14 @@ import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
 export async function init(messaging, telemetry, baseEnvironment) {
     const result = await callWithRetry(() => messaging.initialSetup());
     if ('error' in result) {
-        throw new Error(result.error);
+        console.error('INITIAL SETUP ERROR', result.error);
+        const error = new Error(result.error);
+        error.name = 'InitialSetupError';
+        throw error;
     }
 
     const init = result.value;
-    console.log('INITIAL DATA', init);
+    console.log('INITIAL DATA');
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -69,10 +72,13 @@ export async function init(messaging, telemetry, baseEnvironment) {
     const embed = createEmbedSettings(window.location.href, settings);
 
     const didCatch = (error) => {
-        const message = error?.message || 'unknown';
-        messaging.reportException({ message });
+        const message = error?.message;
+        const kind = error?.error?.name;
+        messaging.reportException({ message, kind });
+        console.log('reportException', message, kind);
+
         // TODO: Remove the following event once all native platforms are responding to 'reportMetric: exception'
-        messaging.reportPageException({ message });
+        messaging.reportPageException({ message: message || 'unknown error' });
     };
 
     document.body.dataset.layout = settings.layout;
