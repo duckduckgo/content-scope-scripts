@@ -145,6 +145,14 @@ export class DuckPlayerPage {
         this.mocks.defaultResponses(clone);
     }
 
+    initError() {
+        const clone = structuredClone(this.defaults);
+        // Force an init error by passing an empty response to initialSetup
+        // @ts-expect-error - this is a test
+        clone.initialSetup = undefined;
+        this.mocks.defaultResponses(clone);
+    }
+
     /**
      * We don't need to actually load the content for these tests.
      * By mocking the response, we make the tests about 10x faster and also ensure they work offline.
@@ -535,6 +543,31 @@ export class DuckPlayerPage {
                 },
             },
         ]);
+    }
+
+    /**
+     * @param {import('../../../shared/types/shared.ts').ReportMetricEvent} evt
+     */
+    async didSendReportMetric(evt) {
+        const events = await this.mocks.waitForCallCount({ method: 'reportMetric', count: 1 });
+        expect(events).toStrictEqual([
+            {
+                payload: {
+                    context: 'specialPages',
+                    featureName: 'duckPlayerPage',
+                    method: 'reportMetric',
+                    params: evt,
+                },
+            },
+        ]);
+    }
+
+    /**
+     * @param {string} kind
+     * @param {string} message
+     */
+    didSendException(kind, message) {
+        return this.didSendReportMetric({ metricName: 'exception', params: { kind, message } });
     }
 
     async withStorageValues() {

@@ -25,5 +25,6 @@ export interface ExceptionMetric {
   metricName: "exception";
   params: {
     message: string;
+    kind?: string;
   };
 }
