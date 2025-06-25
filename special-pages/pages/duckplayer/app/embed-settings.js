@@ -103,9 +103,17 @@ class VideoId {
      * @throws {Error}
      */
     constructor(input) {
-        if (typeof input !== 'string') throw new Error('string required, got: ' + input);
+        if (typeof input !== 'string') {
+            const error = new Error('string required, got: ' + input);
+            error.name = 'VideoIdError';
+            throw error;
+        }
         const sanitized = sanitizeYoutubeId(input);
-        if (sanitized === null) throw new Error('invalid ID from: ' + input);
+        if (sanitized === null) {
+            const error = new Error('invalid ID from: ' + input);
+            error.name = 'VideoIdError';
+            throw error;
+        }
         this.id = sanitized;
     }
 
@@ -126,9 +134,17 @@ class Timestamp {
      * @throws {Error}
      */
     constructor(input) {
-        if (typeof input !== 'string') throw new Error('string required for timestamp');
+        if (typeof input !== 'string') {
+            const error = new Error('string required for timestamp, got: ' + input);
+            error.name = 'TimestampError';
+            throw error;
+        }
         const seconds = timestampInSeconds(input);
-        if (seconds === null) throw new Error('invalid input for timestamp: ' + input);
+        if (seconds === null) {
+            const error = new Error('invalid input for timestamp: ' + input);
+            error.name = 'TimestampError';
+            throw error;
+        }
         this.seconds = seconds;
     }
 

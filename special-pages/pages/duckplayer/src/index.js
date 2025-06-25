@@ -191,10 +191,12 @@ const telemetry = new Telemetry(messaging);
 init(duckplayerPage, telemetry, baseEnvironment).catch((e) => {
     // messages.
     console.error(e);
-    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
-    duckplayerPage.reportException({ message: msg });
+    const message = typeof e?.message === 'string' ? e.message : 'unknown error';
+    const kind = 'InitError';
+    duckplayerPage.reportException({ message, kind });
+
     // TODO: Remove this event once all native platforms are responding to 'reportMetric: exception'
-    duckplayerPage.reportInitException({ message: msg });
+    duckplayerPage.reportInitException({ message });
 });
 
 initStorage();

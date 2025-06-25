@@ -2,6 +2,8 @@ export const REPORT_METRIC_MESSAGE_ID = 'reportMetric';
 export const METRIC_NAME_EXCEPTION = 'exception';
 
 /**
+ * @typedef {import('../shared/types/shared.ts').ExceptionMetric} ExceptionMetric
+ * @typedef {import('../shared/types/shared.ts').ReportMetricEvent} ReportMetricEvent
  * @typedef {import('../shared/types/shared.ts').SharedMessages} SharedMessages
  * @typedef {import('@duckduckgo/messaging/lib/shared-types.js').MessagingBase<SharedMessages>|import('@duckduckgo/messaging').Messaging} SharedMessaging
  */
@@ -9,7 +11,7 @@ export const METRIC_NAME_EXCEPTION = 'exception';
 /**
  * Sends a standard 'reportMetric' event to the native layer
  * @param {SharedMessaging} messaging
- * @param {import('../shared/types/shared.ts').ReportMetricEvent} metricEvent
+ * @param {ReportMetricEvent} metricEvent
  */
 export function reportMetric(messaging, metricEvent) {
     if (!messaging?.notify) {
@@ -26,8 +28,19 @@ export function reportMetric(messaging, metricEvent) {
 /**
  * Sends a 'reportMetric' event with metric name 'exception'
  * @param {SharedMessaging} messaging
- * @param {import('../shared/types/shared.ts').ExceptionMetric['params']} params
+ * @param {ExceptionMetric['params']} params
  */
 export function reportException(messaging, params) {
-    reportMetric(messaging, { metricName: METRIC_NAME_EXCEPTION, params });
+    const message = typeof params?.message === 'string' ? params.message : 'unknown error';
+    const kind = typeof params?.kind === 'string' ? params.kind : 'Error';
+
+    /** @type {ExceptionMetric} */
+    const metric = {
+        metricName: METRIC_NAME_EXCEPTION,
+        params: {
+            message,
+            kind,
+        },
+    };
+    reportMetric(messaging, metric);
 }
