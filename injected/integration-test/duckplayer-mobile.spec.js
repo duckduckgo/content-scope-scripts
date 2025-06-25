@@ -147,3 +147,13 @@ test.describe('Overlay screenshot @screenshots', () => {
         await expect(page.locator('.html5-video-player')).toHaveScreenshot('overlay.png', { maxDiffPixels: 20 });
     });
 });
+
+test.describe('Reporting exceptions', () => {
+    test('initial setup error', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+        await overlays.withRemoteConfig({ locale: 'en' });
+        await overlays.initialSetupError();
+        await overlays.gotoPlayerPage();
+        await overlays.didSendException('TypeError', "undefined is not an object (evaluating 'userValues.privatePlayerMode')");
+    });
+});

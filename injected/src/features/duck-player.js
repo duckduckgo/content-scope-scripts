@@ -61,7 +61,7 @@ import { reportException } from '../../../special-pages/shared/report-metric.js'
  * @internal
  */
 export default class DuckPlayerFeature extends ContentFeature {
-    init(args) {
+    async init(args) {
         /**
          * This feature never operates in a frame
          */
@@ -105,12 +105,14 @@ export default class DuckPlayerFeature extends ContentFeature {
             const comms = new DuckPlayerOverlayMessages(this.messaging, env);
 
             if (overlaysEnabled) {
-                initOverlays(overlaySettings.youtube, env, comms);
+                await initOverlays(overlaySettings.youtube, env, comms);
             } else if (serpProxyEnabled) {
                 comms.serpProxy();
             }
         } catch (e) {
-            reportException(this.messaging, { message: 'could not initialize duck player: ' + e.toString() });
+            const message = e.message || 'Could not initialize duck player: ' + e.toString();
+            const kind = e.name;
+            reportException(this.messaging, { message, kind });
         }
     }
 }
