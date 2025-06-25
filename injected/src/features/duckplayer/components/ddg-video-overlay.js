@@ -22,7 +22,11 @@ export class DDGVideoOverlay extends HTMLElement {
      */
     constructor({ environment, params, ui, manager }) {
         super();
-        if (!(manager instanceof VideoOverlay)) throw new Error('invalid arguments');
+        if (!(manager instanceof VideoOverlay)) {
+            const error = new Error('Invalid VideoOverlay manager');
+            error.name = 'VideoOverlayError';
+            throw error;
+        }
         this.environment = environment;
         this.ui = ui;
         this.params = params;
@@ -121,7 +125,11 @@ export class DDGVideoOverlay extends HTMLElement {
         const optOutHandler = (e) => {
             if (e.isTrusted) {
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
-                if (!(remember instanceof HTMLInputElement)) throw new Error('cannot find our input');
+                if (!(remember instanceof HTMLInputElement)) {
+                    const error = new Error('Cannot find remember checkbox');
+                    error.name = 'VideoOverlayError';
+                    throw error;
+                }
                 this.manager.userOptOut(remember.checked, params);
             }
         };
@@ -129,7 +137,11 @@ export class DDGVideoOverlay extends HTMLElement {
             if (e.isTrusted) {
                 e.preventDefault();
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
-                if (!(remember instanceof HTMLInputElement)) throw new Error('cannot find our input');
+                if (!(remember instanceof HTMLInputElement)) {
+                    const error = new Error('Cannot find remember checkbox');
+                    error.name = 'VideoOverlayError';
+                    throw error;
+                }
                 this.manager.userOptIn(remember.checked, params);
             }
         };
