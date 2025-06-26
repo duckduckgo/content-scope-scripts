@@ -1,3 +1,4 @@
+import { METRIC_NAME_VIDEO_ID_ERROR, METRIC_NAME_TIMESTAMP_ERROR } from '../../../shared/report-metric.js';
 export class EmbedSettings {
     /**
      * @param {object} params
@@ -105,13 +106,13 @@ class VideoId {
     constructor(input) {
         if (typeof input !== 'string') {
             const error = new Error('string required, got: ' + input);
-            error.name = 'VideoIdError';
+            error.name = METRIC_NAME_VIDEO_ID_ERROR;
             throw error;
         }
         const sanitized = sanitizeYoutubeId(input);
         if (sanitized === null) {
             const error = new Error('invalid ID from: ' + input);
-            error.name = 'VideoIdError';
+            error.name = METRIC_NAME_VIDEO_ID_ERROR;
             throw error;
         }
         this.id = sanitized;
@@ -136,13 +137,13 @@ class Timestamp {
     constructor(input) {
         if (typeof input !== 'string') {
             const error = new Error('string required for timestamp, got: ' + input);
-            error.name = 'TimestampError';
+            error.name = METRIC_NAME_TIMESTAMP_ERROR;
             throw error;
         }
         const seconds = timestampInSeconds(input);
         if (seconds === null) {
             const error = new Error('invalid input for timestamp: ' + input);
-            error.name = 'TimestampError';
+            error.name = METRIC_NAME_TIMESTAMP_ERROR;
             throw error;
         }
         this.seconds = seconds;

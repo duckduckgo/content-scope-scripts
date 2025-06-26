@@ -33,7 +33,7 @@ import { mobileStrings } from './text.js';
 import { DDGVideoOverlayMobile } from './components/ddg-video-overlay-mobile.js';
 import { DDGVideoThumbnailOverlay } from './components/ddg-video-thumbnail-overlay-mobile.js';
 import { DDGVideoDrawerMobile } from './components/ddg-video-drawer-mobile.js';
-
+import { reportException, METRIC_NAME_MESSAGING_ERROR } from '../../../../special-pages/shared/report-metric.js';
 /**
  * Handle the switch between small & large overlays
  * + conduct any communications
@@ -256,13 +256,13 @@ export class VideoOverlay {
             elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                 return this.mobileOptOut(e.detail.remember).catch((e) => {
                     console.error(e);
-                    this.messages.reportException({ message: e.toString(), kind: 'MessagingError' });
+                    reportException(this.messages.messaging, { message: e.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                 });
             });
             elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                 return this.mobileOptIn(e.detail.remember, params).catch((e) => {
                     console.error(e);
-                    this.messages.reportException({ message: e.toString(), kind: 'MessagingError' });
+                    reportException(this.messages.messaging, { message: e.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                 });
             });
             targetElement.appendChild(elem);
@@ -297,7 +297,7 @@ export class VideoOverlay {
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptOut(e.detail.remember).catch((e) => {
                         console.error(e);
-                        this.messages.reportException({ message: e.toString(), kind: 'MessagingError' });
+                        reportException(this.messages.messaging, { message: e.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                     });
                 });
                 drawer.addEventListener(DDGVideoDrawerMobile.DISMISS, () => {
@@ -309,7 +309,7 @@ export class VideoOverlay {
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
                     return this.mobileOptIn(e.detail.remember, params).catch((e) => {
                         console.error(e);
-                        this.messages.reportException({ message: e.toString(), kind: 'MessagingError' });
+                        reportException(this.messages.messaging, { message: e.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                     });
                 });
                 drawerTargetElement.appendChild(drawer);
@@ -426,7 +426,7 @@ export class VideoOverlay {
             })
             .catch((e) => {
                 console.error('error setting user choice for opt-in', e);
-                this.messages.reportException({ message: e.toString(), kind: 'MessagingError' });
+                reportException(this.messages.messaging, { message: e.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
             });
     }
 
@@ -457,7 +457,7 @@ export class VideoOverlay {
                 .then(() => this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' }))
                 .catch((e) => {
                     console.error('could not set userChoice for opt-out', e);
-                    this.messages.reportException({ message: e.toString(), kind: 'MessagingError' });
+                    reportException(this.messages.messaging, { message: e.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                 });
         } else {
             this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '0' }));

@@ -573,6 +573,20 @@ export class DuckPlayerPage {
         return this.didSendReportMetric({ metricName: 'exception', params: { kind, message } });
     }
 
+    async didSendInitErrorException() {
+        await this.build.switch({
+            android: async () => {
+                await this.didSendException('InitError', "undefined is not an object (evaluating 'init2.settings.pip')");
+            },
+            apple: async () => {
+                await this.didSendException('InitError', "undefined is not an object (evaluating 'init2.settings.pip')");
+            },
+            windows: async () => {
+                await this.didSendException('InitError', "Cannot read properties of undefined (reading 'pip')");
+            },
+        });
+    }
+
     async withStorageValues() {
         await this.page.evaluate(() => {
             localStorage.setItem('foo', 'bar');
