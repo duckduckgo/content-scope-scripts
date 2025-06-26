@@ -507,8 +507,6 @@ export class DuckplayerOverlays {
      * @param {string} message
      */
     async didSendException(kind, message, context = 'contentScopeScripts') {
-        console.log('messages', await this.collector.outgoingMessages());
-
         const messages = await this.collector.waitForMessage('reportMetric');
         expect(messages).toMatchObject([
             {

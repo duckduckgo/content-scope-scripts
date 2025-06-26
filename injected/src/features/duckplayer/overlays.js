@@ -27,7 +27,6 @@ export async function initOverlays(settings, environment, messages) {
     try {
         initialSetup = await messages.initialSetup();
     } catch (e) {
-        console.log('INITIAL SETUP ERROR');
         console.warn(e);
         reportException(messages.messaging, { message: e?.toString(), kind: METRIC_NAME_INITIAL_SETUP_ERROR });
         return;
@@ -39,8 +38,6 @@ export async function initOverlays(settings, environment, messages) {
         reportException(messages.messaging, { message, kind: METRIC_NAME_INITIAL_SETUP_ERROR });
         return;
     }
-
-    console.log('initialSetup Yo', JSON.stringify(initialSetup, null, 2));
 
     let { userValues, ui } = initialSetup;
 
