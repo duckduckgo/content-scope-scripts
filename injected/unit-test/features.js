@@ -121,11 +121,15 @@ describe('ApiManipulation', () => {
     let dummyTarget;
 
     beforeEach(() => {
-        apiManipulation = new ApiManipulation('apiManipulation', {
-            bundledConfig: {},
-            site: { domain: 'test.com' },
-            platform: { version: '1.0.0' },
-        });
+        apiManipulation = new ApiManipulation(
+            'apiManipulation',
+            {},
+            {
+                bundledConfig: { features: { apiManipulation: { state: 'enabled', exceptions: [] } } },
+                site: { domain: 'test.com' },
+                platform: { version: '1.0.0' },
+            },
+        );
         dummyTarget = {};
     });
 
