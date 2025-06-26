@@ -4,7 +4,7 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 import { init } from '../app/index.js';
 import { initStorage } from './storage.js';
 import '../../../shared/live-reload.js';
-import { reportException, METRIC_NAME_INIT_ERROR } from '../../../shared/report-metric.js';
+import { reportException, METRIC_NAME_GENERIC_ERROR } from '../../../shared/report-metric.js';
 
 export class DuckplayerPage {
     /**
@@ -184,7 +184,8 @@ init(duckplayerPage, telemetry, baseEnvironment).catch((e) => {
     // messages.
     console.error(e);
     const message = typeof e?.message === 'string' ? e.message : 'unknown error';
-    reportException(duckplayerPage.messaging, { message, kind: METRIC_NAME_INIT_ERROR });
+    const kind = typeof e?.name === 'string' ? e.name : METRIC_NAME_GENERIC_ERROR;
+    reportException(duckplayerPage.messaging, { message, kind });
 
     // TODO: Remove this event once all native platforms are responding to 'reportMetric: exception'
     duckplayerPage.reportInitException({ message });
