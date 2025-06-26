@@ -12,20 +12,6 @@ const __filename = fileURLToPath(import.meta.url);
 // eslint-disable-next-line no-redeclare
 const __dirname = path.dirname(__filename);
 
-// Add this at the top for jest mock compatibility in environments without jest
-const jest = typeof globalThis.jest !== 'undefined' ? globalThis.jest : {
-    fn: (impl = () => {}) => {
-        const mockFn = (...args) => {
-            // @ts-ignore
-            mockFn.mock.calls.push(Array.from(args));
-            return impl(...args);
-        };
-        mockFn.mock = { calls: [] };
-        mockFn.mockClear = () => { mockFn.mock.calls = []; };
-        mockFn.mockImplementation = (newImpl) => { impl = newImpl; };
-        return mockFn;
-    }
-};
 
 describe('Features definition', () => {
     it('calls `webCompat` before `fingerPrintingScreenSize` https://app.asana.com/0/1177771139624306/1204944717262422/f', () => {
@@ -147,44 +133,34 @@ describe('ApiManipulation', () => {
     it('defines a new property if define: true is set and property does not exist', () => {
         const change = {
             type: 'descriptor',
-            getterValue: 'test-value',
+            getterValue: { type: 'string', value: 'defined!' },
             define: true
         };
-        apiManipulation.defineProperty = jest.fn((obj, key, desc) => {
-            Object.defineProperty(obj, key, desc);
-        });
-        apiManipulation.wrapApiDescriptor(dummyTarget, 'foo', change);
-        expect(dummyTarget.foo).toBe('test-value');
-        expect(apiManipulation.defineProperty).toHaveBeenCalled();
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'definedByConfig', change);
+        expect(dummyTarget.definedByConfig).toBe('defined!');
     });
 
     it('does not define a property if define is not set and property does not exist', () => {
         const change = {
             type: 'descriptor',
-            getterValue: 'test-value'
+            getterValue: { type: 'string', value: 'should not exist' }
         };
-        apiManipulation.defineProperty = jest.fn();
-        apiManipulation.wrapProperty = jest.fn();
-        apiManipulation.wrapApiDescriptor(dummyTarget, 'bar', change);
-        expect(dummyTarget.bar).toBeUndefined();
-        expect(apiManipulation.defineProperty).not.toHaveBeenCalled();
-        expect(apiManipulation.wrapProperty).toHaveBeenCalled();
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'notDefinedByConfig', change);
+        expect(dummyTarget.notDefinedByConfig).toBeUndefined();
     });
 
     it('wraps an existing property if present', () => {
-        Object.defineProperty(dummyTarget, 'baz', {
-            get: () => 'original',
+        Object.defineProperty(dummyTarget, 'hardwareConcurrency', {
+            get: () => 4,
             configurable: true,
             enumerable: true
         });
         const change = {
             type: 'descriptor',
-            getterValue: 'new-value'
+            getterValue: { type: 'number', value: 222 }
         };
-        apiManipulation.defineProperty = jest.fn();
-        apiManipulation.wrapProperty = jest.fn();
-        apiManipulation.wrapApiDescriptor(dummyTarget, 'baz', change);
-        expect(apiManipulation.defineProperty).not.toHaveBeenCalled();
-        expect(apiManipulation.wrapProperty).toHaveBeenCalled();
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'hardwareConcurrency', change);
+        // The getter should now return 222
+        expect(dummyTarget.hardwareConcurrency).toBe(222);
     });
 });
