@@ -393,7 +393,7 @@ export default class WindowsPermissionUsage extends ContentFeature {
             try {
                 const protoObject = prototype();
                 if (!protoObj || !(method in protoObj)) continue;
-                const proxy = new DDGProxy(this, prototype(), method, {
+                const proxy = new DDGProxy(this, protoObject, method, {
                     apply() {
                         if (isPromise) {
                             return Promise.reject(new DOMException('Permission denied'));
