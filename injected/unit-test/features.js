@@ -12,7 +12,6 @@ const __filename = fileURLToPath(import.meta.url);
 // eslint-disable-next-line no-redeclare
 const __dirname = path.dirname(__filename);
 
-
 describe('Features definition', () => {
     it('calls `webCompat` before `fingerPrintingScreenSize` https://app.asana.com/0/1177771139624306/1204944717262422/f', () => {
         // ensuring this order doesn't change, as it recently caused breakage
@@ -125,7 +124,7 @@ describe('ApiManipulation', () => {
         apiManipulation = new ApiManipulation('apiManipulation', {
             bundledConfig: {},
             site: { domain: 'test.com' },
-            platform: { version: '1.0.0' }
+            platform: { version: '1.0.0' },
         });
         dummyTarget = {};
     });
@@ -134,7 +133,7 @@ describe('ApiManipulation', () => {
         const change = {
             type: 'descriptor',
             getterValue: { type: 'string', value: 'defined!' },
-            define: true
+            define: true,
         };
         apiManipulation.wrapApiDescriptor(dummyTarget, 'definedByConfig', change);
         expect(dummyTarget.definedByConfig).toBe('defined!');
@@ -143,7 +142,7 @@ describe('ApiManipulation', () => {
     it('does not define a property if define is not set and property does not exist', () => {
         const change = {
             type: 'descriptor',
-            getterValue: { type: 'string', value: 'should not exist' }
+            getterValue: { type: 'string', value: 'should not exist' },
         };
         apiManipulation.wrapApiDescriptor(dummyTarget, 'notDefinedByConfig', change);
         expect(dummyTarget.notDefinedByConfig).toBeUndefined();
@@ -153,11 +152,11 @@ describe('ApiManipulation', () => {
         Object.defineProperty(dummyTarget, 'hardwareConcurrency', {
             get: () => 4,
             configurable: true,
-            enumerable: true
+            enumerable: true,
         });
         const change = {
             type: 'descriptor',
-            getterValue: { type: 'number', value: 222 }
+            getterValue: { type: 'number', value: 222 },
         };
         apiManipulation.wrapApiDescriptor(dummyTarget, 'hardwareConcurrency', change);
         // The getter should now return 222
