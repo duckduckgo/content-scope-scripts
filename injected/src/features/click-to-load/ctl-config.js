@@ -138,6 +138,7 @@ export function getStyles(assets) {
         cursor: pointer;
         box-shadow: none;
         z-index: 2147483646;
+        width: 100%;
     `,
         circle: `
         border-radius: 50%;
