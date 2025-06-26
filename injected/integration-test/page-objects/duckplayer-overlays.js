@@ -309,11 +309,7 @@ export class DuckplayerOverlays {
         await this.build.switch({
             android: async () => {
                 await this.collector.updateMockResponse({
-                    initialSetup: {
-                        locale: 'en',
-                        env: 'development',
-                        platform: { name: 'android ' },
-                    },
+                    initialSetup: {},
                 });
             },
             apple: async () => {
@@ -530,7 +526,7 @@ export class DuckplayerOverlays {
         await this.build.switch({
             android: async () => {
                 // Android produces a TypeError due to how its messaging lib is wired up
-                await this.didSendException('TypeError', "undefined is not an object (evaluating 'init2.settings.pip')");
+                await this.didSendException('TypeError', "Cannot read properties of undefined (reading 'privatePlayerMode')");
             },
             apple: async () => {
                 await this.didSendException('InitialSetupError', 'Error: an unknown error occurred');
