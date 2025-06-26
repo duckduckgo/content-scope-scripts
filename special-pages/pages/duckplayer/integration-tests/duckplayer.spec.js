@@ -340,20 +340,9 @@ test.describe('reporting exceptions', () => {
         // load as normal
         duckplayer.initError();
         await duckplayer.openWithVideoID();
-        const message = isWindows(workerInfo)
-            ? "Cannot read properties of undefined (reading 'pip')"
-            : "undefined is not an object (evaluating 'init2.settings.pip')";
-        await duckplayer.didSendException('InitError', message);
+        await duckplayer.didSendInitErrorException();
     });
 });
-
-/**
- * @param {import("@playwright/test").TestInfo} testInfo
- */
-function isWindows(testInfo) {
-    const u = /** @type {any} */ (testInfo.project.use);
-    return u?.platform === 'windows';
-}
 
 /**
  * @param {import("@playwright/test").TestInfo} testInfo

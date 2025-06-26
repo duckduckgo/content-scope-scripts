@@ -488,6 +488,8 @@ export class DuckplayerOverlays {
      * @param {string} message
      */
     async didSendException(kind, message) {
+        console.log('messages', await this.collector.outgoingMessages());
+
         const messages = await this.collector.waitForMessage('reportMetric');
         expect(messages).toMatchObject([{ payload: { params: { metricName: 'exception', params: { kind, message } } } }]);
     }
