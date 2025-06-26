@@ -1,5 +1,6 @@
 export const REPORT_METRIC_MESSAGE_ID = 'reportMetric';
 export const METRIC_NAME_EXCEPTION = 'exception';
+/* Error Types */
 export const METRIC_NAME_GENERIC_ERROR = 'Error';
 export const METRIC_NAME_INIT_ERROR = 'InitError';
 export const METRIC_NAME_INITIAL_SETUP_ERROR = 'InitialSetupError';
