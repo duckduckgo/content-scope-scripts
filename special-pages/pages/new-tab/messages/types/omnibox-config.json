@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Omnibox Config",
+  "type": "object",
+  "required": [
+    "mode"
+  ],
+  "properties": {
+    "mode": {
+      "title": "Omnibox Mode",
+      "type": "string",
+      "enum": ["search", "ai"]
+    }
+  }
+}

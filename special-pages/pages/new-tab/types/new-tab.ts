@@ -55,6 +55,41 @@ export type Expansion = "expanded" | "collapsed";
  * Generic Animation configuration
  */
 export type Animation = None | ViewTransitions | Auto;
+export type Suggestion =
+  | {
+      kind: "bookmark";
+      title: string;
+      url: string;
+      isFavorite: boolean;
+      score: number;
+    }
+  | {
+      kind: "openTab";
+      title: string;
+      tabId: string;
+      score: number;
+    }
+  | {
+      kind: "phrase";
+      phrase: string;
+    }
+  | {
+      kind: "website";
+      url: string;
+    }
+  | {
+      kind: "historyEntry";
+      title: string;
+      url: string;
+      score: number;
+    }
+  | {
+      kind: "internalPage";
+      title: string;
+      url: string;
+      score: number;
+    };
+export type OmniboxMode = "search" | "ai";
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -111,6 +146,10 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmniboxOpenSuggestionNotification
+    | OmniboxSetConfigNotification
+    | OmniboxSubmitChatNotification
+    | OmniboxSubmitSearchNotification
     | OpenNotification
     | ProtectionsSetConfigNotification
     | ReportInitExceptionNotification
@@ -134,6 +173,8 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmniboxGetConfigRequest
+    | OmniboxGetSuggestionsRequest
     | ProtectionsGetConfigRequest
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
@@ -152,6 +193,7 @@ export interface NewTabMessages {
     | FreemiumPIRBannerOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
+    | OmniboxOnConfigUpdateSubscription
     | ProtectionsOnConfigUpdateSubscription
     | ProtectionsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
@@ -435,6 +477,55 @@ export interface NextStepsSetConfigNotification {
 export interface NextStepsConfig {
   expansion: Expansion;
   animation?: Animation;
+}
+/**
+ * Generated from @see "../messages/omnibox_openSuggestion.notify.json"
+ */
+export interface OmniboxOpenSuggestionNotification {
+  method: "omnibox_openSuggestion";
+  params: OpenSuggestionAction;
+}
+export interface OpenSuggestionAction {
+  suggestion: Suggestion;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/omnibox_setConfig.notify.json"
+ */
+export interface OmniboxSetConfigNotification {
+  method: "omnibox_setConfig";
+  params: OmniboxConfig;
+}
+export interface OmniboxConfig {
+  mode: OmniboxMode;
+}
+/**
+ * Generated from @see "../messages/omnibox_submitChat.notify.json"
+ */
+export interface OmniboxSubmitChatNotification {
+  method: "omnibox_submitChat";
+  params: SubmitChatAction;
+}
+export interface SubmitChatAction {
+  /**
+   * The chat message to submit to Duck.ai
+   */
+  chat: string;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/omnibox_submitSearch.notify.json"
+ */
+export interface OmniboxSubmitSearchNotification {
+  method: "omnibox_submitSearch";
+  params: SubmitSearchAction;
+}
+export interface SubmitSearchAction {
+  /**
+   * The search term to submit
+   */
+  term: string;
+  target: OpenTarget;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
@@ -776,6 +867,34 @@ export interface NextStepsData {
   content: null | NextStepsCards;
 }
 /**
+ * Generated from @see "../messages/omnibox_getConfig.request.json"
+ */
+export interface OmniboxGetConfigRequest {
+  method: "omnibox_getConfig";
+  result: OmniboxConfig;
+}
+/**
+ * Generated from @see "../messages/omnibox_getSuggestions.request.json"
+ */
+export interface OmniboxGetSuggestionsRequest {
+  method: "omnibox_getSuggestions";
+  params: GetSuggestionsRequest;
+  result: SuggestionsData;
+}
+export interface GetSuggestionsRequest {
+  /**
+   * The search term to get suggestions for
+   */
+  term: string;
+}
+export interface SuggestionsData {
+  suggestions: {
+    topHits: Suggestion[];
+    duckduckgoSuggestions: Suggestion[];
+    localSuggestions: Suggestion[];
+  };
+}
+/**
  * Generated from @see "../messages/protections_getConfig.request.json"
  */
 export interface ProtectionsGetConfigRequest {
@@ -956,6 +1075,13 @@ export interface NextStepsOnConfigUpdateSubscription {
 export interface NextStepsOnDataUpdateSubscription {
   subscriptionEvent: "nextSteps_onDataUpdate";
   params: NextStepsData;
+}
+/**
+ * Generated from @see "../messages/omnibox_onConfigUpdate.subscribe.json"
+ */
+export interface OmniboxOnConfigUpdateSubscription {
+  subscriptionEvent: "omnibox_onConfigUpdate";
+  params: OmniboxConfig;
 }
 /**
  * Generated from @see "../messages/protections_onConfigUpdate.subscribe.json"
