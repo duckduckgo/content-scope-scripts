@@ -97,4 +97,72 @@ test.describe('Test integration pages', () => {
             `./integration-test/test-pages/webcompat/config/modify-cookies.json`,
         );
     });
+
+    test('minSupportedVersion (string) - below threshold', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use)
+            .withUserPreferences({ versionString: '1.0.0' });
+        await collector.load(
+            '/infra/pages/min-supported-version-string.html',
+            './integration-test/test-pages/infra/config/min-supported-version-string.json',
+        );
+        const results = await collector.results();
+        for (const key in results) {
+            for (const result of results[key]) {
+                await test.step(`${key}: ${result.name}`, () => {
+                    expect(result.result).toEqual(111);
+                });
+            }
+        }
+    });
+
+    test('minSupportedVersion (string) - above threshold', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use)
+            .withUserPreferences({ versionString: '2.0.0' });
+        await collector.load(
+            '/infra/pages/min-supported-version-string.html',
+            './integration-test/test-pages/infra/config/min-supported-version-string.json',
+        );
+        const results = await collector.results();
+        for (const key in results) {
+            for (const result of results[key]) {
+                await test.step(`${key}: ${result.name}`, () => {
+                    expect(result.result).toEqual(222);
+                });
+            }
+        }
+    });
+
+    test('minSupportedVersion (int) - below threshold', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use)
+            .withUserPreferences({ versionNumber: 98 });
+        await collector.load(
+            '/infra/pages/min-supported-version-int.html',
+            './integration-test/test-pages/infra/config/min-supported-version-int.json',
+        );
+        const results = await collector.results();
+        for (const key in results) {
+            for (const result of results[key]) {
+                await test.step(`${key}: ${result.name}`, () => {
+                    expect(result.result).toEqual(333);
+                });
+            }
+        }
+    });
+
+    test('minSupportedVersion (int) - above threshold', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use)
+            .withUserPreferences({ versionNumber: 99 });
+        await collector.load(
+            '/infra/pages/min-supported-version-int.html',
+            './integration-test/test-pages/infra/config/min-supported-version-int.json',
+        );
+        const results = await collector.results();
+        for (const key in results) {
+            for (const result of results[key]) {
+                await test.step(`${key}: ${result.name}`, () => {
+                    expect(result.result).toEqual(444);
+                });
+            }
+        }
+    });
 });

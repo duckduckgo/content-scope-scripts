@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Min Supported Version (String)</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Infra]</a></p>
+    <p>This page verifies minSupportedVersion (string) conditional patching.</p>
+    <script>
+        test('minSupportedVersion (string)', async () => {
+            const results = [];
+            results.push({
+                name: "hardwareConcurrency initial value (should be 111 or 222)",
+                result: navigator.hardwareConcurrency,
+                expected: navigator.hardwareConcurrency // will be checked in test
+            });
+            return results;
+        });
+        renderResults();
+    </script>
+</body>
+</html> 
