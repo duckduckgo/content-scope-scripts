@@ -15,7 +15,7 @@ import { Components } from './components/Components.jsx';
 import { MobileApp } from './components/MobileApp.jsx';
 import { DesktopApp } from './components/DesktopApp.jsx';
 import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
-import { reportException, METRIC_NAME_INITIAL_SETUP_ERROR } from '../../../shared/report-metric.js';
+import { reportException, METRIC_NAME_INITIAL_SETUP_ERROR, METRIC_NAME_INIT_ERROR } from '../../../shared/report-metric.js';
 
 /** @typedef {import('../types/duckplayer').YouTubeError} YouTubeError */
 
@@ -35,7 +35,11 @@ export async function init(messaging, telemetry, baseEnvironment) {
     }
 
     const init = result.value;
-    console.log('INITIAL DATA');
+    if (!init) {
+        const error = new Error('missing initialSetup data');
+        error.name = METRIC_NAME_INITIAL_SETUP_ERROR;
+        throw error;
+    }
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -71,12 +75,16 @@ export async function init(messaging, telemetry, baseEnvironment) {
     console.log(settings);
 
     const embed = createEmbedSettings(window.location.href, settings);
+    if (!embed) {
+        // TODO: Should we continue to render the page if embed is not found?
+        reportException(messaging.messaging, { message: 'embed not found', kind: METRIC_NAME_INIT_ERROR });
+        console.log('embed not found');
+    }
 
     const didCatch = (error) => {
         const message = error?.message;
         const kind = error?.error?.name;
         reportException(messaging.messaging, { message, kind });
-        console.log('reportException', message, kind);
 
         // TODO: Remove the following event once all native platforms are responding to 'reportMetric: exception'
         messaging.reportPageException({ message: message || 'unknown error' });
@@ -85,7 +93,11 @@ export async function init(messaging, telemetry, baseEnvironment) {
     document.body.dataset.layout = settings.layout;
 
     const root = document.querySelector('body');
-    if (!root) throw new Error('could not render, root element missing');
+    if (!root) {
+        const error = new Error('could not render, root element missing');
+        error.name = METRIC_NAME_INIT_ERROR;
+        throw error;
+    }
 
     if (environment.display === 'app') {
         render(

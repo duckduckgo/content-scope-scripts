@@ -126,7 +126,7 @@ export class DuckPlayerOverlayMessages {
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch((e) => {
                             console.error(e);
-                            reportException(this.messaging, { message: e.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
+                            reportException(this.messaging, { message: e?.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                         });
                 }
                 if (evt.detail.kind === constants.MSG_NAME_READ_VALUES_SERP) {
@@ -134,7 +134,7 @@ export class DuckPlayerOverlayMessages {
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch((e) => {
                             console.error(e);
-                            reportException(this.messaging, { message: e.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
+                            reportException(this.messaging, { message: e?.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                         });
                 }
                 if (evt.detail.kind === constants.MSG_NAME_OPEN_INFO) {
@@ -142,7 +142,7 @@ export class DuckPlayerOverlayMessages {
                 }
                 console.warn('unhandled event', evt);
             } catch (e) {
-                reportException(this.messaging, { message: e.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
+                reportException(this.messaging, { message: e?.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                 console.warn('cannot handle this message', e);
             }
         });

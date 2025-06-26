@@ -4,8 +4,6 @@ export const METRIC_NAME_GENERIC_ERROR = 'Error';
 export const METRIC_NAME_INIT_ERROR = 'InitError';
 export const METRIC_NAME_INITIAL_SETUP_ERROR = 'InitialSetupError';
 export const METRIC_NAME_MESSAGING_ERROR = 'MessagingError';
-export const METRIC_NAME_TIMESTAMP_ERROR = 'TimestampError';
-export const METRIC_NAME_VIDEO_ID_ERROR = 'VideoIdError';
 export const METRIC_NAME_VIDEO_OVERLAY_ERROR = 'VideoOverlayError';
 
 /**
@@ -38,6 +36,7 @@ export function reportMetric(messaging, metricEvent) {
  * @param {ExceptionMetric['params']} params
  */
 export function reportException(messaging, params) {
+    console.log('reportException', params);
     const message = typeof params?.message === 'string' ? params.message : 'unknown error';
     const kind = typeof params?.kind === 'string' ? params.kind : 'Error';
 
