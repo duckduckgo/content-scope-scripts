@@ -154,6 +154,6 @@ test.describe('Reporting exceptions', () => {
         await overlays.withRemoteConfig({ locale: 'en' });
         await overlays.initialSetupError();
         await overlays.gotoPlayerPage();
-        await overlays.didSendException('TypeError', "undefined is not an object (evaluating 'userValues.privatePlayerMode')");
+        await overlays.didSendInitialSetupErrorException();
     });
 });

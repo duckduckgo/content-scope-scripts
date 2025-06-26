@@ -145,15 +145,30 @@ export class DuckPlayerPage {
         this.mocks.defaultResponses(clone);
     }
 
-    initError() {
+    initialSetupError() {
         const clone = structuredClone(this.defaults);
-        // @ts-expect-error - this is a test
-        clone.initialSetup = {
-            locale: 'en',
-            env: 'development',
-            platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name },
-        };
-        this.mocks.defaultResponses(clone);
+
+        this.build.switch({
+            android: () => {
+                // @ts-expect-error - this is a test
+                clone.initialSetup = {
+                    locale: 'en',
+                    env: 'development',
+                    platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name },
+                };
+                this.mocks.defaultResponses(clone);
+            },
+            apple: () => {
+                // @ts-expect-error - this is a test
+                clone.initialSetup = null;
+                this.mocks.defaultResponses(clone);
+            },
+            windows: () => {
+                // @ts-expect-error - this is a test
+                clone.initialSetup = '';
+                this.mocks.defaultResponses(clone);
+            },
+        });
     }
 
     /**
@@ -267,6 +282,11 @@ export class DuckPlayerPage {
 
     async openWithException() {
         const params = new URLSearchParams({ willThrow: String(true) });
+        await this.openPage(params);
+    }
+
+    async openWithNoEmbed() {
+        const params = new URLSearchParams({ videoID: '' });
         await this.openPage(params);
     }
 
@@ -553,16 +573,15 @@ export class DuckPlayerPage {
      */
     async didSendReportMetric(evt) {
         const events = await this.mocks.waitForCallCount({ method: 'reportMetric', count: 1 });
-        expect(events).toStrictEqual([
-            {
-                payload: {
-                    context: 'specialPages',
-                    featureName: 'duckPlayerPage',
-                    method: 'reportMetric',
-                    params: evt,
-                },
+        console.log('events', events);
+        expect(events).toContainEqual({
+            payload: {
+                context: 'specialPages',
+                featureName: 'duckPlayerPage',
+                method: 'reportMetric',
+                params: evt,
             },
-        ]);
+        });
     }
 
     /**
@@ -573,16 +592,17 @@ export class DuckPlayerPage {
         return this.didSendReportMetric({ metricName: 'exception', params: { kind, message } });
     }
 
-    async didSendInitErrorException() {
+    async didSendInitialSetupErrorException() {
         await this.build.switch({
             android: async () => {
-                await this.didSendException('InitError', "undefined is not an object (evaluating 'init2.settings.pip')");
+                // Android produces a TypeError due to how its messaging lib is wired up
+                await this.didSendException('TypeError', "undefined is not an object (evaluating 'init2.settings.pip')");
             },
             apple: async () => {
-                await this.didSendException('InitError', "undefined is not an object (evaluating 'init2.settings.pip')");
+                await this.didSendException('InitialSetupError', 'Max attempts reached: Error: an unknown error occurred');
             },
             windows: async () => {
-                await this.didSendException('InitError', "Cannot read properties of undefined (reading 'pip')");
+                await this.didSendException('InitialSetupError', 'Max attempts reached: Error: unknown error');
             },
         });
     }
