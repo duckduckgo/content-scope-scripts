@@ -28,7 +28,6 @@ import { reportException, METRIC_NAME_INITIAL_SETUP_ERROR, METRIC_NAME_INIT_ERRO
 export async function init(messaging, telemetry, baseEnvironment) {
     const result = await callWithRetry(() => messaging.initialSetup());
     if ('error' in result) {
-        console.error('INITIAL SETUP ERROR', result.error);
         const error = new Error(result.error);
         error.name = METRIC_NAME_INITIAL_SETUP_ERROR;
         throw error;
