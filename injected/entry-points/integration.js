@@ -48,6 +48,7 @@ function generateConfig() {
                 'apiManipulation',
                 'duckPlayer',
                 'duckPlayerNative',
+                'scriptlets',
             ],
         },
     };

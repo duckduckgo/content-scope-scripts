@@ -1,0 +1,39 @@
+{
+  "readme": "This config tests the abortCurrentInlineScript scriptlet",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "scriptlets": {
+      "exceptions": [],
+      "state": "enabled",
+      "settings": {
+        "scriptlets": [],
+        "conditionalChanges": [
+          {
+            "condition": [
+              {
+                "domain": "localhost"
+              },
+              {
+                "domain": "privacy-test-pages.site"
+              }
+            ],
+            "patchSettings": [
+              {
+                "op": "add",
+                "path": "/scriptlets/-",
+                "value": {
+                  "name": "abortCurrentInlineScript",
+                  "attrs": {
+                    "property": "document.createElement",
+                    "search": "badScript"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+} 
