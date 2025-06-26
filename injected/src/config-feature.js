@@ -1,5 +1,12 @@
 import { immutableJSONPatch } from 'immutable-json-patch';
-import { camelcase, computeEnabledFeatures, matchHostname, parseFeatureSettings, computeLimitedSiteObject } from './utils.js';
+import {
+    camelcase,
+    computeEnabledFeatures,
+    matchHostname,
+    parseFeatureSettings,
+    computeLimitedSiteObject,
+    isSupportedVersion,
+} from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
 /**
@@ -19,6 +26,7 @@ export default class ConfigFeature {
     /**
      * @type {{
      *   debug?: boolean,
+     *   platform: import('./utils.js').Platform,
      *   desktopModeEnabled?: boolean,
      *   forcedZoomEnabled?: boolean,
      *   featureSettings?: Record<string, unknown>,
@@ -39,6 +47,7 @@ export default class ConfigFeature {
         const { bundledConfig, site, platform } = args;
         this.#bundledConfig = bundledConfig;
         this.#args = args;
+
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig && this.#args) {
@@ -106,6 +115,7 @@ export default class ConfigFeature {
      * @typedef {object} ConditionBlock
      * @property {string[] | string} [domain]
      * @property {object} [urlPattern]
+     * @property {object} [minSupportedVersion]
      * @property {object} [experiment]
      * @property {string} [experiment.experimentName]
      * @property {string} [experiment.cohort]
@@ -136,6 +146,7 @@ export default class ConfigFeature {
             domain: this._matchDomainConditional,
             urlPattern: this._matchUrlPatternConditional,
             experiment: this._matchExperimentConditional,
+            minSupportedVersion: this._matchMinSupportedVersion,
         };
 
         for (const key in conditionBlock) {
@@ -227,6 +238,16 @@ export default class ConfigFeature {
             return false;
         }
         return matchHostname(domain, conditionBlock.domain);
+    }
+
+    /**
+     * Takes a condition block and returns true if the platform version satisfies the `minSupportedFeature`
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMinSupportedVersion(conditionBlock) {
+        if (!conditionBlock.minSupportedVersion) return false;
+        return isSupportedVersion(conditionBlock.minSupportedVersion, this.#args?.platform?.version);
     }
 
     /**
