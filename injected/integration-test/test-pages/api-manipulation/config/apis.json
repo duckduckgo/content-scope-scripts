@@ -82,6 +82,21 @@
                         "getterValue": {
                             "type": "undefined"
                         }
+                    },
+                    "window.definedByConfig": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "string",
+                            "value": "defined!"
+                        },
+                        "define": true
+                    },
+                    "window.notDefinedByConfig": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "string",
+                            "value": "should not exist"
+                        }
                     }
                 }
             }
