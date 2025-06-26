@@ -306,8 +306,31 @@ export class DuckplayerOverlays {
     }
 
     async initialSetupError() {
-        await this.collector.updateMockResponse({
-            initialSetup: {},
+        await this.build.switch({
+            android: async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: {
+                        locale: 'en',
+                        env: 'development',
+                        platform: { name: 'android ' },
+                    },
+                });
+            },
+            apple: async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: null,
+                });
+            },
+            'apple-isolated': async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: null,
+                });
+            },
+            windows: async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: '',
+                });
+            },
         });
     }
 
@@ -487,11 +510,38 @@ export class DuckplayerOverlays {
      * @param {string} kind
      * @param {string} message
      */
-    async didSendException(kind, message) {
+    async didSendException(kind, message, context = 'contentScopeScripts') {
         console.log('messages', await this.collector.outgoingMessages());
 
         const messages = await this.collector.waitForMessage('reportMetric');
-        expect(messages).toMatchObject([{ payload: { params: { metricName: 'exception', params: { kind, message } } } }]);
+        expect(messages).toMatchObject([
+            {
+                payload: {
+                    context,
+                    featureName: 'duckPlayer',
+                    method: 'reportMetric',
+                    params: { metricName: 'exception', params: { kind, message } },
+                },
+            },
+        ]);
+    }
+
+    async didSendInitialSetupErrorException() {
+        await this.build.switch({
+            android: async () => {
+                // Android produces a TypeError due to how its messaging lib is wired up
+                await this.didSendException('TypeError', "undefined is not an object (evaluating 'init2.settings.pip')");
+            },
+            apple: async () => {
+                await this.didSendException('InitialSetupError', 'Error: an unknown error occurred');
+            },
+            'apple-isolated': async () => {
+                await this.didSendException('InitialSetupError', 'Error: an unknown error occurred', 'contentScopeScriptsIsolated');
+            },
+            windows: async () => {
+                await this.didSendException('InitialSetupError', 'Error: unknown error');
+            },
+        });
     }
 
     /**
