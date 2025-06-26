@@ -305,6 +305,9 @@ export function mockAndroidMessaging(params) {
                 ),
             );
 
+            // force a 'tick' to allow tests to reset mocks before reading responses
+            await new Promise((resolve) => setTimeout(resolve, 0));
+
             // if it's a notification, simulate the empty response and don't check for a response
             if (!('id' in msg)) {
                 return;
