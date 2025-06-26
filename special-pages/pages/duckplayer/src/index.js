@@ -4,7 +4,7 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 import { init } from '../app/index.js';
 import { initStorage } from './storage.js';
 import '../../../shared/live-reload.js';
-import { reportException } from '../../../shared/report-metric.js';
+import { reportException, METRIC_NAME_INIT_ERROR } from '../../../shared/report-metric.js';
 
 export class DuckplayerPage {
     /**
@@ -116,14 +116,6 @@ export class DuckplayerPage {
     reportInitException(params) {
         this.messaging.notify('reportInitException', params);
     }
-
-    /**
-     * This will be sent to report metrics to the native layer
-     * @param {import('../../../shared/types/shared.ts').ReportMetricEvent['params']} params
-     */
-    reportException(params) {
-        reportException(this.messaging, params);
-    }
 }
 
 // TODO: Remove telemetry
@@ -192,8 +184,7 @@ init(duckplayerPage, telemetry, baseEnvironment).catch((e) => {
     // messages.
     console.error(e);
     const message = typeof e?.message === 'string' ? e.message : 'unknown error';
-    const kind = 'InitError';
-    duckplayerPage.reportException({ message, kind });
+    reportException(duckplayerPage.messaging, { message, kind: METRIC_NAME_INIT_ERROR });
 
     // TODO: Remove this event once all native platforms are responding to 'reportMetric: exception'
     duckplayerPage.reportInitException({ message });
