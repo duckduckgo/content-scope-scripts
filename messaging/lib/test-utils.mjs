@@ -292,7 +292,7 @@ export function mockAndroidMessaging(params) {
          * @param {string} secret
          * @return {Promise<void>}
          */
-        // eslint-disable-next-line require-await
+
         process: async (jsonString, secret) => {
             /** @type {RequestMessage | NotificationMessage} */
             const msg = JSON.parse(jsonString);
