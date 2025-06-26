@@ -9,14 +9,24 @@
 <body>
     <script src="../../shared/utils.js"></script>
     <p><a href="../index.html">[Infra]</a></p>
-    <p>This page verifies minSupportedVersion (string) conditional patching.</p>
+    <p>This page verifies minSupportedVersion (string) conditional patching. Load with 1.5.0 as the version number.</p>
     <script>
         test('minSupportedVersion (string)', async () => {
             const results = [];
             results.push({
-                name: "hardwareConcurrency initial value (should be 111 or 222)",
-                result: navigator.hardwareConcurrency,
-                expected: navigator.hardwareConcurrency // will be checked in test
+                name: "versionStringTestBelow should always be true",
+                result: window.versionStringTestBelow,
+                expected: true
+            });
+            results.push({
+                name: "versionStringTestSame should always be true",
+                result: window.versionStringTestSame,
+                expected: true
+            });
+            results.push({
+                name: "versionStringTestAbove should be undefined",
+                result: window.versionStringTestAbove,
+                expected: undefined
             });
             return results;
         });

@@ -7,6 +7,9 @@ import { testContextForExtension } from './helpers/harness.js';
 import { ResultsCollector } from './page-objects/results-collector.js';
 
 const test = testContextForExtension(base);
+/**
+ * @typedef {import('../../injected/src/utils.js').Platform} Platform
+ */
 
 test.describe('Test integration pages', () => {
     /**
@@ -14,14 +17,15 @@ test.describe('Test integration pages', () => {
      * @param {import("@playwright/test").TestInfo} testInfo
      * @param {string} html
      * @param {string} config
+     * @param {Partial<Platform>} [platform]
      */
-    async function testPage(page, testInfo, html, config) {
-        const collector = ResultsCollector.create(page, testInfo.project.use);
-        await collector.load(html, config);
+    async function testPage(page, testInfo, html, config, platform = {}) {
+        const collector = ResultsCollector.create(page, testInfo?.project?.use);
+        await collector.load(html, config, platform);
         const results = await collector.results();
         for (const key in results) {
             for (const result of results[key]) {
-                await test.step(`${key}:\n ${result.name}`, () => {
+                await test.step(`${key}: ${result.name}`, () => {
                     expect(result.result).toEqual(result.expected);
                 });
             }
@@ -98,71 +102,23 @@ test.describe('Test integration pages', () => {
         );
     });
 
-    test('minSupportedVersion (string) - below threshold', async ({ page }, testInfo) => {
-        const collector = ResultsCollector.create(page, testInfo.project.use)
-            .withUserPreferences({ versionString: '1.0.0' });
-        await collector.load(
+    test('minSupportedVersion (string)', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
             '/infra/pages/min-supported-version-string.html',
             './integration-test/test-pages/infra/config/min-supported-version-string.json',
+            { version: '1.0.0' },
         );
-        const results = await collector.results();
-        for (const key in results) {
-            for (const result of results[key]) {
-                await test.step(`${key}: ${result.name}`, () => {
-                    expect(result.result).toEqual(111);
-                });
-            }
-        }
     });
 
-    test('minSupportedVersion (string) - above threshold', async ({ page }, testInfo) => {
-        const collector = ResultsCollector.create(page, testInfo.project.use)
-            .withUserPreferences({ versionString: '2.0.0' });
-        await collector.load(
-            '/infra/pages/min-supported-version-string.html',
-            './integration-test/test-pages/infra/config/min-supported-version-string.json',
-        );
-        const results = await collector.results();
-        for (const key in results) {
-            for (const result of results[key]) {
-                await test.step(`${key}: ${result.name}`, () => {
-                    expect(result.result).toEqual(222);
-                });
-            }
-        }
-    });
-
-    test('minSupportedVersion (int) - below threshold', async ({ page }, testInfo) => {
-        const collector = ResultsCollector.create(page, testInfo.project.use)
-            .withUserPreferences({ versionNumber: 98 });
-        await collector.load(
+    test('minSupportedVersion (int)', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
             '/infra/pages/min-supported-version-int.html',
             './integration-test/test-pages/infra/config/min-supported-version-int.json',
+            { version: 99 },
         );
-        const results = await collector.results();
-        for (const key in results) {
-            for (const result of results[key]) {
-                await test.step(`${key}: ${result.name}`, () => {
-                    expect(result.result).toEqual(333);
-                });
-            }
-        }
-    });
-
-    test('minSupportedVersion (int) - above threshold', async ({ page }, testInfo) => {
-        const collector = ResultsCollector.create(page, testInfo.project.use)
-            .withUserPreferences({ versionNumber: 99 });
-        await collector.load(
-            '/infra/pages/min-supported-version-int.html',
-            './integration-test/test-pages/infra/config/min-supported-version-int.json',
-        );
-        const results = await collector.results();
-        for (const key in results) {
-            for (const result of results[key]) {
-                await test.step(`${key}: ${result.name}`, () => {
-                    expect(result.result).toEqual(444);
-                });
-            }
-        }
     });
 });

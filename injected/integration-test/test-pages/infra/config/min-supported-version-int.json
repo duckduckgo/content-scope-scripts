@@ -7,24 +7,62 @@
             "exceptions": [],
             "settings": {
                 "apiChanges": {
-                    "Navigator.prototype.hardwareConcurrency": {
-                        "type": "descriptor",
-                        "getterValue": {
-                            "type": "number",
-                            "value": 333
-                        }
-                    }
                 },
                 "conditionalChanges": [
+                    {
+                        "condition": {
+                            "minSupportedVersion": 98
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "add",
+                                "path": "/apiChanges/window.versionIntTestBelow",
+                                "value": {
+                                    "type": "descriptor",
+                                    "getterValue": {
+                                        "type": "boolean",
+                                        "value": true
+                                    },
+                                    "define": true
+                                }
+                            }
+                        ]
+                    },
                     {
                         "condition": {
                             "minSupportedVersion": 99
                         },
                         "patchSettings": [
                             {
-                                "op": "replace",
-                                "path": "/apiChanges/Navigator.prototype.hardwareConcurrency/getterValue/value",
-                                "value": 444
+                                "op": "add",
+                                "path": "/apiChanges/window.versionIntTestSame",
+                                "value": {
+                                    "type": "descriptor",
+                                    "getterValue": {
+                                        "type": "boolean",
+                                        "value": true
+                                    },
+                                    "define": true
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "condition": {
+                            "minSupportedVersion": 100
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "add",
+                                "path": "/apiChanges/window.versionIntTestAbove",
+                                "value": {
+                                    "type": "descriptor",
+                                    "getterValue": {
+                                        "type": "boolean",
+                                        "value": true
+                                    },
+                                    "define": true
+                                }
                             }
                         ]
                     }

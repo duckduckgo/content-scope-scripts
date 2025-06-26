@@ -16,6 +16,10 @@ import { processConfig } from '../../src/utils.js';
 import { gotoAndWait } from '../helpers/harness.js';
 
 /**
+ * @typedef {import('../../src/utils.js').Platform} Platform
+ */
+
+/**
  * This is designed to allow you to execute Playwright tests using the various
  * artifacts we produce. For example, on the `apple` target this can be used to ensure
  * your tests run against the *real* file that Apple platforms will use in production.
@@ -59,8 +63,9 @@ export class ResultsCollector {
     /**
      * @param {string} htmlPath
      * @param {string} configPath
+     * @param {Partial<Platform>} [platform]
      */
-    async load(htmlPath, configPath) {
+    async load(htmlPath, configPath, platform) {
         /**
          * For now, take a separate path for the extension since it's setup
          * is quite different to browsers. We hide this setup step from consumers,
@@ -70,7 +75,7 @@ export class ResultsCollector {
         if (this.platform.name === 'extension') {
             return await this._loadExtension(htmlPath, configPath);
         }
-        await this.setup({ config: configPath });
+        await this.setup({ config: configPath, platform });
         await this.page.goto(htmlPath);
     }
 
@@ -129,10 +134,11 @@ export class ResultsCollector {
      * @param {object} params
      * @param {Record<string, any> | string} params.config
      * @param {string} [params.locale]
+     * @param {Partial<Platform>} [params.platform]
      * @return {Promise<void>}
      */
     async setup(params) {
-        let { config, locale } = params;
+        let { config, locale, platform } = params;
 
         if (typeof config === 'string') {
             config = JSON.parse(readFileSync(config, 'utf8'));
@@ -188,7 +194,7 @@ export class ResultsCollector {
             $CONTENT_SCOPE$: config,
             $USER_UNPROTECTED_DOMAINS$: [],
             $USER_PREFERENCES$: {
-                platform: { name: this.platform.name },
+                platform: { name: this.platform.name, ...platform },
                 debug: true,
                 messageCallback: 'messageCallback',
                 messageSecret: 'duckduckgo-android-messaging-secret',
