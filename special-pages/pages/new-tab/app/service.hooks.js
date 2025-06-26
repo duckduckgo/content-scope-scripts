@@ -28,7 +28,7 @@ import { useMessaging } from './types.js';
 
 /**
  * @template D
- * @template {{expansion: import("../types/new-tab").Expansion}|undefined|null} C
+ * @template C
  * @param {State<D, C>} state
  * @param {Events<D, C>} event
  */
@@ -182,24 +182,15 @@ export function useDataSubscription({ dispatch, service }) {
 }
 
 /**
- * Subscribe to config updates + provide a method for toggling visibility
+ * Subscribe to config updates
  * @template Config
  * @param {object} params
  * @param {import("preact/hooks").Dispatch<Events<any, Config>>} params.dispatch
  * @param {import("preact").RefObject<{
  *    onConfig: (cb: (event: { data: Config, source: InvocationSource}) => void) => () => void;
- *    toggleExpansion: () => void;
  * }>} params.service
  */
 export function useConfigSubscription({ dispatch, service }) {
-    /**
-     * Consumers can call 'toggle' and the in-memory data will be updated in the service
-     * The result of that toggle will be broadcasts immediately, allowing real-time (optimistic) UI updates
-     */
-    const toggle = useCallback(() => {
-        service.current?.toggleExpansion();
-    }, [service, dispatch]);
-
     useEffect(() => {
         if (!service.current) return console.warn('could not access service');
         const unsub2 = service.current.onConfig((data) => {
@@ -209,6 +200,4 @@ export function useConfigSubscription({ dispatch, service }) {
             unsub2();
         };
     }, [service]);
-
-    return { toggle };
 }
