@@ -108,7 +108,7 @@ test.describe('Test integration pages', () => {
             testInfo,
             '/infra/pages/min-supported-version-string.html',
             './integration-test/test-pages/infra/config/min-supported-version-string.json',
-            { version: '1.0.0' },
+            { version: '1.5.0' },
         );
     });
 
