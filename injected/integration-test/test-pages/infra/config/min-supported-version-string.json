@@ -15,7 +15,7 @@
                         "patchSettings": [
                             {
                                 "op": "add",
-                                "path": "/apiChanges/window.versionStringTestBelow",
+                                "path": "/apiChanges/versionStringTestBelow",
                                 "value": {
                                     "type": "descriptor",
                                     "getterValue": {
@@ -34,7 +34,7 @@
                         "patchSettings": [
                             {
                                 "op": "add",
-                                "path": "/apiChanges/window.versionStringTestSame",
+                                "path": "/apiChanges/versionStringTestSame",
                                 "value": {
                                     "type": "descriptor",
                                     "getterValue": {
@@ -53,7 +53,7 @@
                         "patchSettings": [
                             {
                                 "op": "add",
-                                "path": "/apiChanges/window.versionStringTestAbove",
+                                "path": "/apiChanges/versionStringTestAbove",
                                 "value": {
                                     "type": "descriptor",
                                     "getterValue": {
