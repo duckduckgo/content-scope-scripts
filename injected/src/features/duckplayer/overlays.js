@@ -2,6 +2,7 @@ import { DomState } from './util.js';
 import { ClickInterception, Thumbnails } from './thumbnails.js';
 import { VideoOverlay } from './video-overlay.js';
 import { registerCustomElements } from './components/index.js';
+import { reportException, METRIC_NAME_INITIAL_SETUP_ERROR } from '../../../../special-pages/shared/report-metric.js';
 
 /**
  * @typedef {object} OverlayOptions
@@ -28,13 +29,18 @@ export async function initOverlays(settings, environment, messages) {
     } catch (e) {
         console.log('INITIAL SETUP ERROR');
         console.warn(e);
+        reportException(messages.messaging, { message: e?.toString(), kind: METRIC_NAME_INITIAL_SETUP_ERROR });
         return;
     }
 
     if (!initialSetup) {
-        console.warn('cannot continue without user settings');
+        const message = 'cannot continue without user settings';
+        console.warn(message);
+        reportException(messages.messaging, { message, kind: METRIC_NAME_INITIAL_SETUP_ERROR });
         return;
     }
+
+    console.log('initialSetup Yo', JSON.stringify(initialSetup, null, 2));
 
     let { userValues, ui } = initialSetup;
 
