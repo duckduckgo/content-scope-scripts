@@ -391,9 +391,9 @@ export default class WindowsPermissionUsage extends ContentFeature {
         ];
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
             try {
-                const protoObject = prototype();
+                const protoObj = prototype();
                 if (!protoObj || !(method in protoObj)) continue;
-                const proxy = new DDGProxy(this, protoObject, method, {
+                const proxy = new DDGProxy(this, protoObj, method, {
                     apply() {
                         if (isPromise) {
                             return Promise.reject(new DOMException('Permission denied'));
