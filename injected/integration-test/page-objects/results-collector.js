@@ -73,7 +73,7 @@ export class ResultsCollector {
          * about the details.
          */
         if (this.platform.name === 'extension') {
-            return await this._loadExtension(htmlPath, configPath);
+            return await this._loadExtension(htmlPath, configPath, platform);
         }
         await this.setup({ config: configPath, platform });
         await this.page.goto(htmlPath);
@@ -109,14 +109,16 @@ export class ResultsCollector {
     /**
      * @param {string} htmlPath
      * @param {string} configPath
+     * @param {Partial<Platform>} [platform]
      * @private
      */
-    async _loadExtension(htmlPath, configPath) {
+    async _loadExtension(htmlPath, configPath, platform) {
         const config = JSON.parse(readFileSync(configPath, 'utf8'));
         /** @type {import('../../src/utils.js').UserPreferences} */
         const userPreferences = {
             platform: {
                 name: this.platform.name,
+                ...platform,
             },
             sessionKey: 'test',
         };
