@@ -15,6 +15,7 @@ import { Components } from './components/Components.jsx';
 import { MobileApp } from './components/MobileApp.jsx';
 import { DesktopApp } from './components/DesktopApp.jsx';
 import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
+import { reportException, METRIC_NAME_INITIAL_SETUP_ERROR } from '../../../shared/report-metric.js';
 
 /** @typedef {import('../types/duckplayer').YouTubeError} YouTubeError */
 
@@ -29,7 +30,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
     if ('error' in result) {
         console.error('INITIAL SETUP ERROR', result.error);
         const error = new Error(result.error);
-        error.name = 'InitialSetupError';
+        error.name = METRIC_NAME_INITIAL_SETUP_ERROR;
         throw error;
     }
 
@@ -74,7 +75,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
     const didCatch = (error) => {
         const message = error?.message;
         const kind = error?.error?.name;
-        messaging.reportException({ message, kind });
+        reportException(messaging.messaging, { message, kind });
         console.log('reportException', message, kind);
 
         // TODO: Remove the following event once all native platforms are responding to 'reportMetric: exception'
