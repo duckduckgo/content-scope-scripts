@@ -7,5 +7,6 @@ injected/src/features/Scriptlets
 **/*.json
 **/*.md
 **/*.html
+!injected/integration-test/test-pages/infra/pages/conditional-matching.html
 **/*.har
 **/*.css
