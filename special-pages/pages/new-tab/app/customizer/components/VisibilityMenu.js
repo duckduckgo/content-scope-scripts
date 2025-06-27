@@ -29,6 +29,7 @@ export function EmbeddedVisibilityMenu({ rows }) {
                             <span className={styles.svg}>
                                 {row.icon === 'shield' && <DuckFoot />}
                                 {row.icon === 'star' && <Shield />}
+                                {row.icon === 'search' && <img src="./icons/Find-Search-16.svg" alt="" />}
                             </span>
                             <span>{row.title ?? row.id}</span>
                             <Switch

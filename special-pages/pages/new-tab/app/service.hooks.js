@@ -97,8 +97,8 @@ export function useInitialDataAndConfig({ dispatch, service }) {
         if (!service.current) return console.warn('missing service');
         const currentService = service.current;
         async function init() {
-            const { config, data } = await currentService.getInitial();
-            if (data) {
+            const { data, config } = await currentService.getInitial();
+            if (data || config) {
                 dispatch({ kind: 'initial-data', data, config });
             } else {
                 dispatch({ kind: 'error', error: 'missing data from getInitial' });
