@@ -125,6 +125,22 @@
     "title": "{count} attempts from other networks",
     "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
   },
+  "omnibox_menuTitle": {
+    "title": "Search & Duck.ai",
+    "description": "The title of the omnibox widget as it appears in the customizer panel."
+  },
+  "omnibox_logoAlt": {
+    "title": "DuckDuckGo",
+    "description": "The alt text for the DuckDuckGo logo in the omnibox."
+  },
+  "omnibox_searchTab": {
+    "title": "Search",
+    "description": "The title of the tab in the omnibox that allows users to search the web."
+  },
+  "omnibox_aiTab": {
+    "title": "Duck.ai",
+    "description": "The title of the tab in the omnibox that allows users to create a Duck.ai chat."
+  },
   "nextSteps_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble above the first card"

@@ -7,7 +7,8 @@ import { h } from 'preact';
 import { OmniboxConsumer } from './OmniboxConsumer.js';
 
 /**
- * @typedef {import('../strings.json')} Strings
+ * @import enStrings from "../strings.json"
+ * @typedef {enStrings} Strings
  */
 
 /**

@@ -163,3 +163,69 @@ export function BackChevron() {
         </svg>
     );
 }
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Find-Search-16.svg. Inline SVG so that can be styled with CSS.
+ * @param {object} params
+ * @param {string} [params.className]
+ */
+export function SearchIcon({ className }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#Find-Search-16_svg__a)">
+                <path
+                    fill="currentColor"
+                    fill-rule="evenodd"
+                    d="M7 0a7 7 0 1 0 4.488 12.372l3.445 3.445a.625.625 0 1 0 .884-.884l-3.445-3.445A7 7 0 0 0 7 0M1.25 7a5.75 5.75 0 1 1 11.5 0 5.75 5.75 0 0 1-11.5 0"
+                    clip-rule="evenodd"
+                />
+            </g>
+            <defs>
+                <clipPath id="Find-Search-16_svg__a">
+                    <path fill="#fff" d="M0 0h16v16H0z" />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Ai-Chat-16.svg. Inline SVG so that can be styled with CSS.
+ * @param {object} params
+ * @param {string} [params.className]
+ */
+export function AiChatIcon({ className }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <g fill="currentColor" clip-path="url(#Ai-Chat-16_svg__a)">
+                <path
+                    fill-rule="evenodd"
+                    d="m10.54 12.57-.047.02c-.81.372-2.323.786-4.064 1.174a93 93 0 0 1-3.324.67l.297-.343c.781-.901.554-2.169-.215-2.85-1.22-1.08-1.937-2.539-1.937-4.116C1.25 4.013 4.132 1.25 8 1.25s6.75 2.763 6.75 5.875c0 2.372-1.644 4.514-4.161 5.427l-.049.017Zm.475 1.157c-1.891.868-6.545 1.75-9.2 2.206-.665.114-1.092-.66-.65-1.17l1.293-1.491c.28-.322.22-.813-.1-1.096C.902 10.886 0 9.1 0 7.125 0 3.19 3.582 0 8 0s8 3.19 8 7.125c0 2.985-2.061 5.541-4.985 6.602"
+                    clip-rule="evenodd"
+                />
+                <path d="M7.62 3.271c.099-.396.661-.396.76 0l.22.878a3.27 3.27 0 0 0 2.376 2.376l.878.22c.396.099.396.661 0 .76l-.878.22A3.27 3.27 0 0 0 8.6 10.102l-.219.877c-.099.396-.661.396-.76 0l-.22-.877a3.27 3.27 0 0 0-2.377-2.377l-.877-.22c-.396-.099-.396-.661 0-.76l.877-.22A3.27 3.27 0 0 0 7.4 4.15l.22-.878Z" />
+            </g>
+            <defs>
+                <clipPath id="Ai-Chat-16_svg__a">
+                    <path fill="#fff" d="M0 0h16v16H0z" />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Arrow-Right-16.svg. Inline SVG so that can be styled with CSS.
+ * @param {object} params
+ * @param {string} [params.className]
+ */
+export function ArrowRightIcon({ className }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <path
+                fill="currentColor"
+                d="M8.187 1.689a.625.625 0 0 1 .885-.884l5.31 5.316c.83.83.83 2.174 0 3.004l-5.31 5.315a.625.625 0 0 1-.885-.884l5.305-5.308H.625a.625.625 0 1 1 0-1.25h12.867z"
+            />
+        </svg>
+    );
+}
