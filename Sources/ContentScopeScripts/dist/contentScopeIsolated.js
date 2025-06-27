@@ -4412,6 +4412,7 @@
       /**
        * @type {{
        *   debug?: boolean,
+       *   platform: import('./utils.js').Platform,
        *   desktopModeEnabled?: boolean,
        *   forcedZoomEnabled?: boolean,
        *   featureSettings?: Record<string, unknown>,
@@ -4483,6 +4484,7 @@
      * @typedef {object} ConditionBlock
      * @property {string[] | string} [domain]
      * @property {object} [urlPattern]
+     * @property {object} [minSupportedVersion]
      * @property {object} [experiment]
      * @property {string} [experiment.experimentName]
      * @property {string} [experiment.cohort]
@@ -4508,7 +4510,8 @@
       const conditionChecks = {
         domain: this._matchDomainConditional,
         urlPattern: this._matchUrlPatternConditional,
-        experiment: this._matchExperimentConditional
+        experiment: this._matchExperimentConditional,
+        minSupportedVersion: this._matchMinSupportedVersion
       };
       for (const key in conditionBlock) {
         if (!conditionChecks[key]) {
@@ -4571,6 +4574,15 @@
         return false;
       }
       return matchHostname(domain, conditionBlock.domain);
+    }
+    /**
+     * Takes a condition block and returns true if the platform version satisfies the `minSupportedFeature`
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMinSupportedVersion(conditionBlock) {
+      if (!conditionBlock.minSupportedVersion) return false;
+      return isSupportedVersion(conditionBlock.minSupportedVersion, __privateGet(this, _args)?.platform?.version);
     }
     /**
      * Return the settings object for a feature

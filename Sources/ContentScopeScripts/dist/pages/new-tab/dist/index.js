@@ -1975,6 +1975,13 @@
         onConfig(cb) {
           return this.configService.onData(cb);
         }
+        onFaviconsRefreshed(cb) {
+          return this.ntp.messaging.subscribe("favorites_onRefresh", (data2) => {
+            if (data2.items.some((item) => item.kind === "favicons")) {
+              cb();
+            }
+          });
+        }
         /**
          * Update the in-memory data immediate and persist.
          * Any state changes will be broadcast to consumers synchronously
@@ -2227,7 +2234,14 @@
       },
       [service]
     );
-    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add: add2, onConfigChanged } }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children));
+    const faviconsRefreshedCount = useSignal(0);
+    y2(() => {
+      if (!service.current) return;
+      return service.current.onFaviconsRefreshed(() => {
+        faviconsRefreshedCount.value = faviconsRefreshedCount.value += 1;
+      });
+    }, []);
+    return /* @__PURE__ */ _(FavoritesContext.Provider, { value: { state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add: add2, onConfigChanged } }, /* @__PURE__ */ _(FaviconsRefreshedCount.Provider, { value: faviconsRefreshedCount }, /* @__PURE__ */ _(FavoritesDispatchContext.Provider, { value: dispatch }, children)));
   }
   function useService() {
     const service = A2(
@@ -2244,7 +2258,10 @@
     }, [ntp]);
     return service;
   }
-  var FavoritesContext, FavoritesDispatchContext;
+  function useFaviconRefreshedCount() {
+    return x2(FaviconsRefreshedCount);
+  }
+  var FavoritesContext, FavoritesDispatchContext, FaviconsRefreshedCount;
   var init_FavoritesProvider = __esm({
     "pages/new-tab/app/favorites/components/FavoritesProvider.js"() {
       "use strict";
@@ -2253,6 +2270,7 @@
       init_favorites_service();
       init_types();
       init_service_hooks();
+      init_signals_module();
       FavoritesContext = K({
         /** @type {import('../../service.hooks.js').State<FavoritesData, FavoritesConfig>} */
         state: { status: "idle", data: null, config: null },
@@ -2284,6 +2302,7 @@
         /** @type {import("preact/hooks").Dispatch<Events>} */
         {}
       );
+      FaviconsRefreshedCount = K(d3(0));
     }
   });
 
@@ -5572,6 +5591,7 @@
       init_compat_module();
       init_Favorites2();
       init_hooks_module();
+      init_FavoritesProvider();
       TileRow = M2(
         /**
          * Represents a row of tiles with optional placeholders to fill empty spaces in the first row.
@@ -5584,6 +5604,7 @@
         function TileRow2({ topOffset, items, add: add2, visibility }) {
           const fillers = ROW_CAPACITY - items.length;
           const { theme, animateItems } = x2(FavoritesThemeContext);
+          const count = useFaviconRefreshedCount();
           return /* @__PURE__ */ _("ul", { className: Favorites_default.gridRow, style: { transform: `translateY(${topOffset}px)` } }, items.map((item, index2) => {
             return /* @__PURE__ */ _(
               Tile,
@@ -5593,7 +5614,7 @@
                 faviconSrc: item.favicon?.src,
                 faviconMax: item.favicon?.maxAvailableSize,
                 title: item.title,
-                key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize + visibility,
+                key: item.id + item.favicon?.src + item.favicon?.maxAvailableSize + visibility + count.value,
                 id: item.id,
                 index: index2,
                 visibility,
@@ -28040,6 +28061,18 @@
     none: {
       /** @type {Favorite[]} */
       favorites: []
+    },
+    missing: {
+      /** @type {Favorite[]} */
+      favorites: [
+        {
+          id: "id-missing-1",
+          etldPlusOne: "adobe.com",
+          url: "https://adobe.com?id=id-many-3",
+          title: "Adobe",
+          favicon: { src: "./this-does-note-exist", maxAvailableSize: 16 }
+        }
+      ]
     },
     titles: {
       /** @type {Favorite[]} */
