@@ -37,7 +37,7 @@ import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckpla
 import { isBeingFramed } from '../utils.js';
 import { initOverlays } from './duckplayer/overlays.js';
 import { Environment } from './duckplayer/environment.js';
-import { METRIC_NAME_GENERIC_ERROR, reportException } from '../../../special-pages/shared/report-metric.js';
+import { ReportMetric } from '../../../special-pages/shared/report-metric.js';
 
 /**
  * @typedef UserValues - A way to communicate user settings
@@ -110,9 +110,8 @@ export default class DuckPlayerFeature extends ContentFeature {
                 comms.serpProxy();
             }
         } catch (e) {
-            const message = typeof e?.message === 'string' ? e.message : 'Could not initialize duck player: ' + e?.toString();
-            const kind = typeof e?.name === 'string' ? e.name : METRIC_NAME_GENERIC_ERROR;
-            reportException(this.messaging, { message, kind });
+            const metrics = new ReportMetric(this.messaging);
+            metrics.reportExceptionWithError(e);
         }
     }
 }

@@ -2,7 +2,6 @@ import { useContext, useState } from 'preact/hooks';
 import { h, createContext } from 'preact';
 import { useMessaging } from '../types.js';
 import { useEffect } from 'preact/hooks';
-import { reportException, METRIC_NAME_MESSAGING_ERROR } from '../../../../shared/report-metric.js';
 
 /**
  * @typedef {import("../../types/duckplayer.js").UserValues} UserValues
@@ -61,11 +60,6 @@ export function UserValuesProvider({ initial, children }) {
             })
             .catch((err) => {
                 console.error('could not set the enabled flag', err);
-                const message = 'could not set the enabled flag: ' + err.toString();
-                reportException(messaging.messaging, { message, kind: METRIC_NAME_MESSAGING_ERROR });
-
-                // TODO: Remove the following event once all native platforms are responding to 'reportMetric: exception'
-                messaging.reportPageException({ message });
             });
     }
 
