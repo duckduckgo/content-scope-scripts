@@ -6,8 +6,6 @@ import { initStorage } from './storage.js';
 import '../../../shared/live-reload.js';
 import {
     ReportMetric,
-    EXCEPTION_KIND_GENERIC_ERROR,
-    EXCEPTION_KIND_INITIAL_SETUP_ERROR,
     EXCEPTION_KIND_MESSAGING_ERROR,
 } from '../../../shared/report-metric.js';
 
@@ -46,7 +44,7 @@ export class DuckplayerPage {
         try {
             return await this.messaging.request('initialSetup');
         } catch (e) {
-            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_INITIAL_SETUP_ERROR });
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
             throw e;
         }
     }
@@ -197,13 +195,11 @@ const duckplayerPage = new DuckplayerPage(messaging, import.meta.injectName);
 const telemetry = new Telemetry(messaging);
 
 init(duckplayerPage, telemetry, baseEnvironment).catch((e) => {
-    // messages.
     console.error(e);
-    const message = typeof e?.message === 'string' ? e.message : 'unknown error';
-    const kind = typeof e?.name === 'string' ? e.name : EXCEPTION_KIND_GENERIC_ERROR;
-    duckplayerPage.metrics.reportException({ message, kind });
+    duckplayerPage.metrics.reportExceptionWithError(e);
 
     // TODO: Remove this event once all native platforms are responding to 'reportMetric: exception'
+    const message = typeof e?.message === 'string' ? e.message : 'unknown error';
     duckplayerPage.reportInitException({ message });
 });
 
