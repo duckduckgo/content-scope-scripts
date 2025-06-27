@@ -374,6 +374,22 @@ export function mockTransport() {
                     );
                     return () => controller.abort();
                 }
+                case 'favorites_onRefresh': {
+                    if (url.searchParams.get('favoriteRefresh') === 'favicons') {
+                        const timer = setTimeout(() => {
+                            /** @type {import('../types/new-tab').FavoritesRefresh} */
+                            const payload = {
+                                items: [{ kind: 'favicons' }],
+                            };
+                            cb(payload);
+                        }, 1000);
+                        return () => {
+                            clearTimeout(timer);
+                        };
+                    } else {
+                        return () => {};
+                    }
+                }
             }
             return () => {};
         },
