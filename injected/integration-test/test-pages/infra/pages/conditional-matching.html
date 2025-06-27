@@ -21,11 +21,13 @@
                     expected: 222
                 }
             ];
+            
             const oldPathname = window.location.pathname;
             const newUrl = new URL(window.location.href);
             newUrl.pathname = "/test/test/path";
             window.history.pushState(null, '', newUrl.href);
             await new Promise(resolve => requestIdleCallback(resolve));
+            
             results.push({
                 name: "Expect URL to be changed",
                 result: window.location.pathname,
@@ -36,12 +38,14 @@
                 result: navigator.hardwareConcurrency,
                 expected: 333
             })
+            
             const popStatePromise = new Promise(resolve => {
                 window.addEventListener('popstate', resolve, { once: true });
             });
             // Call pop state to revert the URL
             window.history.back();
             await popStatePromise;
+            
             results.push({
                 name: "Expect URL to be reverted",
                 result: window.location.pathname,
@@ -60,20 +64,52 @@
             const results = [];
             const frame = document.createElement('iframe');
             const scriptTag = 'script';
+            
+            // Set up listener for iframe-ready-for-init before the iframe loads
+            const iframeReadyPromise = new Promise(resolve => {
+                const handler = (event) => {
+                    if (event.data && event.data.type === 'iframe-ready-for-init') {
+                        window.removeEventListener('message', handler);
+                        resolve();
+                    }
+                };
+                window.addEventListener('message', handler);
+            });
+            
             frame.srcdoc = `
                 <!DOCTYPE html>
                 <html>
+                    <head></head>
                     <body>
                         <${scriptTag}>
-                            window.addEventListener('message', (event) => {
-                                if (event.data === 'getDeviceMemory') {
-                                    event.source.postMessage(navigator.deviceMemory, event.origin);
+                            // Wait for parent to signal when to load content scope script
+                            window.addEventListener('message', function handler(event) {
+                                if (event.data && event.data.type === 'load-content-scope') {
+                                    window.removeEventListener('message', handler);
+                                    
+                                    // Now load the content scope script
+                                    const script = document.createElement('script');
+                                    script.src = '/build/contentScope.js';
+                                    script.onload = () => {
+                                        // Immediately dispatch the init args
+                                        document.dispatchEvent(new CustomEvent('content-scope-init-args', { detail: event.data.args }));
+                                    };
+                                    document.head.appendChild(script);
                                 }
                             });
-                            // In automation, listen for init args and signal complete
+                            
+                            // Notify parent we're ready to receive load signal
+                            window.parent.postMessage({ type: 'iframe-ready-for-init' }, '*');
+                            
+                            window.addEventListener('message', (event) => {
+                                if (event.data === 'getDeviceMemory') {
+                                    event.source.postMessage({ type: 'deviceMemory', value: navigator.deviceMemory }, event.origin);
+                                }
+                            });
+                            // Listen for content-scope-init-args event and signal completion
                             document.addEventListener('content-scope-init-args', function (evt) {
-                                // Simulate content-scope init logic, then signal complete
-                                window.parent.postMessage('content-scope-init-complete', '*');
+                                // Signal complete
+                                window.parent.postMessage('content-scope-init-completed', '*');
                             });
                         </${scriptTag}>
                     </body>
@@ -81,21 +117,22 @@
             `;
             document.body.appendChild(frame);
             await new Promise(resolve => frame.onload = resolve);
-
+            // Wait for the iframe to signal it's ready for init
+            await iframeReadyPromise;
+            
             // Send content-scope-init-args to the iframe (use parent's args if available)
             const args = window.__testContentScopeArgs || null;
-            // Ensure args isn't blank here
             if (!args) {
                 throw new Error('args is blank');
             }
-            frame.contentWindow.document.dispatchEvent(
-                new CustomEvent('content-scope-init-args', { detail: args })
-            );
-
-            // Wait for the iframe to signal it's ready
+            
+            // Filter out non-serializable properties for postMessage
+            const serializableArgs = JSON.parse(JSON.stringify(args));
+            frame.contentWindow.postMessage({ type: 'load-content-scope', args: serializableArgs }, '*');
+            // Wait for the content-scope script to be initialized in the iframe
             await new Promise(resolve => {
                 window.addEventListener('message', function handler(event) {
-                    if (event.data === 'content-scope-init-complete') {
+                    if (event.data === 'content-scope-init-completed') {
                         window.removeEventListener('message', handler);
                         resolve();
                     }
@@ -104,11 +141,15 @@
 
             const deviceMemoryPromise = new Promise(resolve => {
                 window.addEventListener('message', (event) => {
-                    resolve(event.data);
+                    // Only resolve for deviceMemory responses
+                    if (event.data && event.data.type === 'deviceMemory') {
+                        resolve(event.data.value);
+                    }
                 }, { once: true });
                 frame.contentWindow.postMessage('getDeviceMemory', '*');
             });
             const deviceMemory = await deviceMemoryPromise;
+            
             results.push({
                 name: "Ensure iframe changes work",
                 result: deviceMemory,
