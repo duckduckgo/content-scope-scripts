@@ -103,6 +103,8 @@ export function getStyles(assets) {
         loginMode: {
             buttonBackground: `
             background: #666666;
+            width: 100%;
+            max-width: 300px;
         `,
             buttonFont: `
             color: #FFFFFF;
@@ -138,7 +140,6 @@ export function getStyles(assets) {
         cursor: pointer;
         box-shadow: none;
         z-index: 2147483646;
-        width: 100%;
     `,
         circle: `
         border-radius: 50%;
