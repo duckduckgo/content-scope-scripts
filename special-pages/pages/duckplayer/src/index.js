@@ -4,10 +4,7 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 import { init } from '../app/index.js';
 import { initStorage } from './storage.js';
 import '../../../shared/live-reload.js';
-import {
-    ReportMetric,
-    EXCEPTION_KIND_MESSAGING_ERROR,
-} from '../../../shared/report-metric.js';
+import { ReportMetric, EXCEPTION_KIND_MESSAGING_ERROR } from '../../../shared/report-metric.js';
 
 export class DuckplayerPage {
     /**
