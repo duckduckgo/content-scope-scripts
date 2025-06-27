@@ -60,6 +60,9 @@ export function UserValuesProvider({ initial, children }) {
             })
             .catch((err) => {
                 console.error('could not set the enabled flag', err);
+
+                // TODO: Remove the following event once all native platforms are responding to 'reportMetric: exception'
+                messaging.reportPageException({ message: 'could not set the enabled flag: ' + err.toString() });
             });
     }
 

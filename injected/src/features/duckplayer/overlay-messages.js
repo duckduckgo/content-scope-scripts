@@ -140,16 +140,12 @@ export class DuckPlayerOverlayMessages {
                 if (evt.detail.kind === constants.MSG_NAME_SET_VALUES) {
                     return this.setUserValues(evt.detail.data)
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
-                        .catch((e) => {
-                            console.error(e);
-                        });
+                        .catch(console.error);
                 }
                 if (evt.detail.kind === constants.MSG_NAME_READ_VALUES_SERP) {
                     return this.getUserValues()
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
-                        .catch((e) => {
-                            console.error(e);
-                        });
+                        .catch(console.error);
                 }
                 if (evt.detail.kind === constants.MSG_NAME_OPEN_INFO) {
                     return this.openInfo();

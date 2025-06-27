@@ -75,14 +75,14 @@ export async function init(messaging, telemetry, baseEnvironment) {
 
     const embed = createEmbedSettings(window.location.href, settings);
     if (!embed) {
-        messaging.metrics.reportException({ message: 'embed not found', kind: EXCEPTION_KIND_INIT_ERROR });
-        console.log('embed not found');
+        const message = 'Embed not found';
+        messaging.metrics.reportException({ message, kind: EXCEPTION_KIND_INIT_ERROR });
+        console.log(message);
     }
 
     const didCatch = (error) => {
         const message = error?.message;
-        const kind = error?.error?.name;
-        messaging.metrics.reportException({ message, kind });
+        messaging.metrics.reportExceptionWithError(error?.error);
 
         // TODO: Remove the following event once all native platforms are responding to 'reportMetric: exception'
         messaging.reportPageException({ message: message || 'unknown error' });
