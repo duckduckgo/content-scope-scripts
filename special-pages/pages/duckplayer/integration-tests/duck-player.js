@@ -145,17 +145,16 @@ export class DuckPlayerPage {
         this.mocks.defaultResponses(clone);
     }
 
-    initialSetupError() {
+    /**
+     * Simulates a messaging error by passing an empty initialSetup object
+     */
+    messagingError() {
         const clone = structuredClone(this.defaults);
 
         this.build.switch({
             android: () => {
                 // @ts-expect-error - this is a test
-                clone.initialSetup = {
-                    locale: 'en',
-                    env: 'development',
-                    platform: this.platform.name === 'windows' ? undefined : { name: this.platform.name },
-                };
+                clone.initialSetup = {};
                 this.mocks.defaultResponses(clone);
             },
             apple: () => {
@@ -592,17 +591,17 @@ export class DuckPlayerPage {
         return this.didSendReportMetric({ metricName: 'exception', params: { kind, message } });
     }
 
-    async didSendInitialSetupErrorException() {
+    async didSendMessagingException() {
         await this.build.switch({
             android: async () => {
                 // Android produces a TypeError due to how its messaging lib is wired up
                 await this.didSendException('TypeError', "undefined is not an object (evaluating 'init2.settings.pip')");
             },
             apple: async () => {
-                await this.didSendException('InitialSetupError', 'Max attempts reached: Error: an unknown error occurred');
+                await this.didSendException('MessagingError', 'an unknown error occurred');
             },
             windows: async () => {
-                await this.didSendException('InitialSetupError', 'Max attempts reached: Error: unknown error');
+                await this.didSendException('MessagingError', 'unknown error');
             },
         });
     }

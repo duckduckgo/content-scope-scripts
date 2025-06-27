@@ -344,9 +344,9 @@ test.describe('reporting exceptions', () => {
     test('initial setup error', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         // load as normal
-        duckplayer.initialSetupError();
+        duckplayer.messagingError();
         await duckplayer.openWithVideoID();
-        await duckplayer.didSendInitialSetupErrorException();
+        await duckplayer.didSendMessagingException();
     });
 });
 

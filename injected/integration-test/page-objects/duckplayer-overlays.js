@@ -305,7 +305,10 @@ export class DuckplayerOverlays {
         });
     }
 
-    async initialSetupError() {
+    /**
+     * Simulates a messaging error by passing an empty initialSetup object
+     */
+    async messagingError() {
         await this.build.switch({
             android: async () => {
                 await this.collector.updateMockResponse({
@@ -520,20 +523,20 @@ export class DuckplayerOverlays {
         ]);
     }
 
-    async didSendInitialSetupErrorException() {
+    async didSendMessagingException() {
         await this.build.switch({
             android: async () => {
                 // Android produces a TypeError due to how its messaging lib is wired up
                 await this.didSendException('TypeError', "Cannot read properties of undefined (reading 'privatePlayerMode')");
             },
             apple: async () => {
-                await this.didSendException('InitialSetupError', 'Error: an unknown error occurred');
+                await this.didSendException('MessagingError', 'an unknown error occurred');
             },
             'apple-isolated': async () => {
-                await this.didSendException('InitialSetupError', 'Error: an unknown error occurred', 'contentScopeScriptsIsolated');
+                await this.didSendException('MessagingError', 'an unknown error occurred', 'contentScopeScriptsIsolated');
             },
             windows: async () => {
-                await this.didSendException('InitialSetupError', 'Error: unknown error');
+                await this.didSendException('MessagingError', 'unknown error');
             },
         });
     }
