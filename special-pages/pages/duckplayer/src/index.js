@@ -4,7 +4,12 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 import { init } from '../app/index.js';
 import { initStorage } from './storage.js';
 import '../../../shared/live-reload.js';
-import { reportException, METRIC_NAME_GENERIC_ERROR } from '../../../shared/report-metric.js';
+import {
+    ReportMetric,
+    EXCEPTION_KIND_GENERIC_ERROR,
+    EXCEPTION_KIND_INITIAL_SETUP_ERROR,
+    EXCEPTION_KIND_MESSAGING_ERROR,
+} from '../../../shared/report-metric.js';
 
 export class DuckplayerPage {
     /**
@@ -13,6 +18,7 @@ export class DuckplayerPage {
     constructor(messaging, injectName) {
         this.messaging = createTypedMessages(this, messaging);
         this.injectName = injectName;
+        this.metrics = new ReportMetric(messaging);
     }
 
     /**
@@ -20,7 +26,7 @@ export class DuckplayerPage {
      * has occurred that cannot be recovered from
      * @returns {Promise<import("../types/duckplayer.ts").InitialSetupResponse>}
      */
-    initialSetup() {
+    async initialSetup() {
         if (this.injectName === 'integration') {
             return Promise.resolve({
                 platform: { name: 'ios' },
@@ -37,7 +43,12 @@ export class DuckplayerPage {
                 locale: 'en',
             });
         }
-        return this.messaging.request('initialSetup');
+        try {
+            return await this.messaging.request('initialSetup');
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_INITIAL_SETUP_ERROR });
+            throw e;
+        }
     }
 
     /**
@@ -45,8 +56,13 @@ export class DuckplayerPage {
      *
      * @param {import("../types/duckplayer.ts").UserValues} userValues
      */
-    setUserValues(userValues) {
-        return this.messaging.request('setUserValues', userValues);
+    async setUserValues(userValues) {
+        try {
+            return await this.messaging.request('setUserValues', userValues);
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+            throw e;
+        }
     }
 
     /**
@@ -184,8 +200,8 @@ init(duckplayerPage, telemetry, baseEnvironment).catch((e) => {
     // messages.
     console.error(e);
     const message = typeof e?.message === 'string' ? e.message : 'unknown error';
-    const kind = typeof e?.name === 'string' ? e.name : METRIC_NAME_GENERIC_ERROR;
-    reportException(duckplayerPage.messaging, { message, kind });
+    const kind = typeof e?.name === 'string' ? e.name : EXCEPTION_KIND_GENERIC_ERROR;
+    duckplayerPage.metrics.reportException({ message, kind });
 
     // TODO: Remove this event once all native platforms are responding to 'reportMetric: exception'
     duckplayerPage.reportInitException({ message });

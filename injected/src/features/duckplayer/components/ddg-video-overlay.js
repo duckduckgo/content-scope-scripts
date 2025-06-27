@@ -4,7 +4,8 @@ import { overlayCopyVariants } from '../text.js';
 import { appendImageAsBackground } from '../util.js';
 import { VideoOverlay } from '../video-overlay.js';
 import { createPolicy, html, trustedUnsafe } from '../../../dom-utils.js';
-import { METRIC_NAME_VIDEO_OVERLAY_ERROR } from '../../../../../special-pages/shared/report-metric.js';
+
+const EXCEPTION_KIND_VIDEO_OVERLAY_ERROR = 'VideoOverlayError';
 
 /**
  * The custom element that we use to present our UI elements
@@ -25,7 +26,6 @@ export class DDGVideoOverlay extends HTMLElement {
         super();
         if (!(manager instanceof VideoOverlay)) {
             const error = new Error('Invalid VideoOverlay manager');
-            error.name = METRIC_NAME_VIDEO_OVERLAY_ERROR;
             throw error;
         }
         this.environment = environment;
@@ -128,7 +128,7 @@ export class DDGVideoOverlay extends HTMLElement {
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
                 if (!(remember instanceof HTMLInputElement)) {
                     const error = new Error('Cannot find remember checkbox');
-                    error.name = METRIC_NAME_VIDEO_OVERLAY_ERROR;
+                    error.name = EXCEPTION_KIND_VIDEO_OVERLAY_ERROR;
                     throw error;
                 }
                 this.manager.userOptOut(remember.checked, params);
@@ -140,7 +140,7 @@ export class DDGVideoOverlay extends HTMLElement {
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
                 if (!(remember instanceof HTMLInputElement)) {
                     const error = new Error('Cannot find remember checkbox');
-                    error.name = METRIC_NAME_VIDEO_OVERLAY_ERROR;
+                    error.name = EXCEPTION_KIND_VIDEO_OVERLAY_ERROR;
                     throw error;
                 }
                 this.manager.userOptIn(remember.checked, params);
