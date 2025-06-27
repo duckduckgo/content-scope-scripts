@@ -119,6 +119,9 @@ export default class ConfigFeature {
      * @property {object} [experiment]
      * @property {string} [experiment.experimentName]
      * @property {string} [experiment.cohort]
+     * @property {object} [context]
+     * @property {boolean} [context.frame] - true if the condition applies to frames
+     * @property {boolean} [context.top] - true if the condition applies to the top frame
      */
 
     /**
@@ -144,6 +147,7 @@ export default class ConfigFeature {
         /** @type {Record<string, (conditionBlock: ConditionBlock) => boolean>} */
         const conditionChecks = {
             domain: this._matchDomainConditional,
+            context: this._matchContextConditional,
             urlPattern: this._matchUrlPatternConditional,
             experiment: this._matchExperimentConditional,
             minSupportedVersion: this._matchMinSupportedVersion,
@@ -206,6 +210,23 @@ export default class ConfigFeature {
                 cohort.cohort === experiment.cohort
             );
         });
+    }
+
+    /**
+     * Takes a condition block and returns true if the current context matches the context.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchContextConditional(conditionBlock) {
+        if (!conditionBlock.context) return false;
+        const isFrame = window.self !== window.top;
+        if (conditionBlock.context.frame && isFrame) {
+            return true;
+        }
+        if (conditionBlock.context.top && !isFrame) {
+            return true;
+        }
+        return false;
     }
 
     /**
