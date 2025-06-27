@@ -1,6 +1,6 @@
 /* eslint-disable promise/prefer-await-to-then */
 import * as constants from './constants.js';
-import { reportException, METRIC_NAME_MESSAGING_ERROR } from '../../../../special-pages/shared/report-metric.js';
+import { ReportMetric, EXCEPTION_KIND_MESSAGING_ERROR } from '../../../../special-pages/shared/report-metric.js';
 
 /**
  * @typedef {import("@duckduckgo/messaging").Messaging} Messaging
@@ -22,12 +22,13 @@ export class DuckPlayerOverlayMessages {
          */
         this.messaging = messaging;
         this.environment = environment;
+        this.metrics = new ReportMetric(messaging);
     }
 
     /**
      * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
      */
-    initialSetup() {
+    async initialSetup() {
         if (this.environment.isIntegrationMode()) {
             return Promise.resolve({
                 userValues: {
@@ -37,7 +38,12 @@ export class DuckPlayerOverlayMessages {
                 ui: {},
             });
         }
-        return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
+        try {
+            return await this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+            throw e;
+        }
     }
 
     /**
@@ -45,15 +51,25 @@ export class DuckPlayerOverlayMessages {
      * @param {import("../duck-player.js").UserValues} userValues
      * @returns {Promise<import("../duck-player.js").UserValues>}
      */
-    setUserValues(userValues) {
-        return this.messaging.request(constants.MSG_NAME_SET_VALUES, userValues);
+    async setUserValues(userValues) {
+        try {
+            return await this.messaging.request(constants.MSG_NAME_SET_VALUES, userValues);
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+            throw e;
+        }
     }
 
     /**
      * @returns {Promise<import("../duck-player.js").UserValues>}
      */
-    getUserValues() {
-        return this.messaging.request(constants.MSG_NAME_READ_VALUES, {});
+    async getUserValues() {
+        try {
+            return await this.messaging.request(constants.MSG_NAME_READ_VALUES, {});
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+            throw e;
+        }
     }
 
     /**
@@ -126,7 +142,6 @@ export class DuckPlayerOverlayMessages {
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch((e) => {
                             console.error(e);
-                            reportException(this.messaging, { message: e?.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                         });
                 }
                 if (evt.detail.kind === constants.MSG_NAME_READ_VALUES_SERP) {
@@ -134,7 +149,6 @@ export class DuckPlayerOverlayMessages {
                         .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
                         .catch((e) => {
                             console.error(e);
-                            reportException(this.messaging, { message: e?.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                         });
                 }
                 if (evt.detail.kind === constants.MSG_NAME_OPEN_INFO) {
@@ -142,7 +156,6 @@ export class DuckPlayerOverlayMessages {
                 }
                 console.warn('unhandled event', evt);
             } catch (e) {
-                reportException(this.messaging, { message: e?.toString(), kind: METRIC_NAME_MESSAGING_ERROR });
                 console.warn('cannot handle this message', e);
             }
         });

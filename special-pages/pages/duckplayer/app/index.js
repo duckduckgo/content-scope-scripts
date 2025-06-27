@@ -15,7 +15,7 @@ import { Components } from './components/Components.jsx';
 import { MobileApp } from './components/MobileApp.jsx';
 import { DesktopApp } from './components/DesktopApp.jsx';
 import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
-import { reportException, METRIC_NAME_INITIAL_SETUP_ERROR, METRIC_NAME_INIT_ERROR } from '../../../shared/report-metric.js';
+import { EXCEPTION_KIND_INIT_ERROR, EXCEPTION_KIND_INITIAL_SETUP_ERROR } from '../../../shared/report-metric';
 
 /** @typedef {import('../types/duckplayer').YouTubeError} YouTubeError */
 
@@ -29,14 +29,14 @@ export async function init(messaging, telemetry, baseEnvironment) {
     const result = await callWithRetry(() => messaging.initialSetup());
     if ('error' in result) {
         const error = new Error(result.error);
-        error.name = METRIC_NAME_INITIAL_SETUP_ERROR;
+        error.name = EXCEPTION_KIND_INITIAL_SETUP_ERROR;
         throw error;
     }
 
     const init = result.value;
     if (!init) {
         const error = new Error('missing initialSetup data');
-        error.name = METRIC_NAME_INITIAL_SETUP_ERROR;
+        error.name = EXCEPTION_KIND_INITIAL_SETUP_ERROR;
         throw error;
     }
 
@@ -75,15 +75,14 @@ export async function init(messaging, telemetry, baseEnvironment) {
 
     const embed = createEmbedSettings(window.location.href, settings);
     if (!embed) {
-        // TODO: Should we continue to render the page if embed is not found?
-        reportException(messaging.messaging, { message: 'embed not found', kind: METRIC_NAME_INIT_ERROR });
+        messaging.metrics.reportException({ message: 'embed not found', kind: EXCEPTION_KIND_INIT_ERROR });
         console.log('embed not found');
     }
 
     const didCatch = (error) => {
         const message = error?.message;
         const kind = error?.error?.name;
-        reportException(messaging.messaging, { message, kind });
+        messaging.metrics.reportException({ message, kind });
 
         // TODO: Remove the following event once all native platforms are responding to 'reportMetric: exception'
         messaging.reportPageException({ message: message || 'unknown error' });
@@ -94,7 +93,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
     const root = document.querySelector('body');
     if (!root) {
         const error = new Error('could not render, root element missing');
-        error.name = METRIC_NAME_INIT_ERROR;
+        error.name = EXCEPTION_KIND_INIT_ERROR;
         throw error;
     }
 
