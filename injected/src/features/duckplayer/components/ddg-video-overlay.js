@@ -24,10 +24,7 @@ export class DDGVideoOverlay extends HTMLElement {
      */
     constructor({ environment, params, ui, manager }) {
         super();
-        if (!(manager instanceof VideoOverlay)) {
-            const error = new Error('Invalid VideoOverlay manager');
-            throw error;
-        }
+        if (!(manager instanceof VideoOverlay)) throw new Error('Invalid VideoOverlay manager');
         this.environment = environment;
         this.ui = ui;
         this.params = params;

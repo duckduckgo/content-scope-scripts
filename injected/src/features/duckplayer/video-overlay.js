@@ -425,6 +425,7 @@ export class VideoOverlay {
                 return this.environment.setHref(params.toPrivatePlayerUrl());
             })
             .catch((e) => {
+                console.error(e);
                 this.messages.metrics.reportExceptionWithError(e);
             });
     }
@@ -455,7 +456,7 @@ export class VideoOverlay {
                 })
                 .then(() => this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' }))
                 .catch((e) => {
-                    console.error('could not set userChoice for opt-out', e);
+                    console.error(e);
                     this.messages.metrics.reportExceptionWithError(e);
                 });
         } else {
