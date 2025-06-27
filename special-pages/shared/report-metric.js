@@ -25,6 +25,9 @@
  *     message: 'Failed to load user data',
  *     kind: 'NetworkError'
  * });
+ *
+ * // Report an exception by passing an Error object
+ * metrics.reportExceptionWithError(new Error('Missing params'));
  * ```
  *
  * @module Report Metric
@@ -118,7 +121,7 @@ export class ReportMetric {
     }
 
     /**
-     * Sends a standard 'reportMetric' event to the native layer.
+     * Sends a standard `reportMetric` event to the native layer.
      *
      * @param {ReportMetricEvent} metricEvent - The metric event to report, must contain a metricName
      * @throws {Error} When metricEvent.metricName is missing
@@ -159,14 +162,22 @@ export class ReportMetric {
     }
 
     /**
-     * Sends a 'reportMetric' event with metric name 'exception', getting message and kind from the error object. If no error object is passed, a default error is reported.
+     * Sends a `reportMetric` event with metric name `exception`, getting message and kind from the error object. The `kind` property is inferred from `error.name`.
+     *
+     * If no error object is passed, a default error is reported.
      *
      * If an invalid error object is passed, nothing is reported.
      *
      * @param {Error} [error] - The error to report
+     *
+     * @example
+     * ```javascript
+     * const error = new Error('Failed to fetch user data from API');
+     * error.name = 'NetworkError';
+     * metrics.reportExceptionWithError(error);
+     * ```
      */
     reportExceptionWithError(error) {
-        console.log('reportExceptionWithError', error instanceof Error);
         if (error && !(error instanceof Error)) {
             console.warn('reportExceptionWithError: error is not an Error object', error);
             return;
