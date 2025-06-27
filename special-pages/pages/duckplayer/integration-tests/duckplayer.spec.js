@@ -339,7 +339,7 @@ test.describe('reporting exceptions', () => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         // load as normal
         await duckplayer.openWithNoEmbed();
-        await duckplayer.didSendException('InitError', 'embed not found');
+        await duckplayer.didSendException('InitError', 'Embed not found');
     });
     test('initial setup error', async ({ page }, workerInfo) => {
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
