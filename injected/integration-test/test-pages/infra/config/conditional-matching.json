@@ -14,12 +14,21 @@
                             "value": 222
                         }
                     },
-                    "Navigator.prototype.deviceMemory": {
+                    "testApi1": {
                         "type": "descriptor",
                         "getterValue": {
                             "type": "number",
-                            "value": 1111
-                        }
+                            "value": 100
+                        },
+                        "define": true
+                    },
+                    "testApi2": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "number",
+                            "value": 200
+                        },
+                        "define": true
                     }
                 },
                 "conditionalChanges": [
@@ -44,7 +53,7 @@
                         "patchSettings": [
                             {
                                 "op": "replace",
-                                "path": "/apiChanges/Navigator.prototype.deviceMemory/getterValue/value",
+                                "path": "/apiChanges/testApi1/getterValue/value",
                                 "value": 43339
                             }
                         ]
@@ -58,7 +67,7 @@
                         "patchSettings": [
                             {
                                 "op": "replace",
-                                "path": "/apiChanges/Navigator.prototype.deviceMemory/getterValue/value",
+                                "path": "/apiChanges/testApi1/getterValue/value",
                                 "value": 43338
                             }
                         ]
@@ -68,5 +77,5 @@
         }
     },
     "unprotectedTemporary": []
-  }
+}
   
