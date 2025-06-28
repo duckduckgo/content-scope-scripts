@@ -85,6 +85,14 @@ export type NextStepsCards = {
 }[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
 export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro";
+export type Suggestions = (
+  | BookmarkSuggestion
+  | OpenTabSuggestion
+  | PhraseSuggestion
+  | WebsiteSuggestion
+  | HistoryEntrySuggestion
+  | InternalPageSuggestion
+)[];
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -118,6 +126,9 @@ export interface NewTabMessages {
     | RmfDismissNotification
     | RmfPrimaryActionNotification
     | RmfSecondaryActionNotification
+    | SearchOpenSuggestionNotification
+    | SearchSubmitNotification
+    | SearchSubmitChatNotification
     | StatsShowLessNotification
     | StatsShowMoreNotification
     | TelemetryEventNotification
@@ -137,6 +148,7 @@ export interface NewTabMessages {
     | ProtectionsGetConfigRequest
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
+    | SearchGetSuggestionsRequest
     | StatsGetDataRequest;
   subscriptions:
     | ActivityOnBurnCompleteSubscription
@@ -509,6 +521,78 @@ export interface RMFSecondaryAction {
   id: string;
 }
 /**
+ * Generated from @see "../messages/search_openSuggestion.notify.json"
+ */
+export interface SearchOpenSuggestionNotification {
+  method: "search_openSuggestion";
+  params: SearchOpenSuggestion;
+}
+export interface SearchOpenSuggestion {
+  suggestion:
+    | BookmarkSuggestion
+    | OpenTabSuggestion
+    | PhraseSuggestion
+    | WebsiteSuggestion
+    | HistoryEntrySuggestion
+    | InternalPageSuggestion;
+  target: OpenTarget;
+}
+export interface BookmarkSuggestion {
+  kind: "bookmark";
+  title: string;
+  url: string;
+  isFavorite: boolean;
+  score: number;
+}
+export interface OpenTabSuggestion {
+  kind: "openTab";
+  title: string;
+  tabId: string;
+  score: number;
+}
+export interface PhraseSuggestion {
+  kind: "phrase";
+  phrase: string;
+}
+export interface WebsiteSuggestion {
+  kind: "website";
+  url: string;
+}
+export interface HistoryEntrySuggestion {
+  kind: "historyEntry";
+  title: string;
+  url: string;
+  score: number;
+}
+export interface InternalPageSuggestion {
+  kind: "internalPage";
+  title: string;
+  url: string;
+  score: number;
+}
+/**
+ * Generated from @see "../messages/search_submit.notify.json"
+ */
+export interface SearchSubmitNotification {
+  method: "search_submit";
+  params: SearchSubmitParams;
+}
+export interface SearchSubmitParams {
+  term: string;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/search_submitChat.notify.json"
+ */
+export interface SearchSubmitChatNotification {
+  method: "search_submitChat";
+  params: SearchSubmitChatParams;
+}
+export interface SearchSubmitChatParams {
+  chat: string;
+  target: OpenTarget;
+}
+/**
  * Generated from @see "../messages/stats_showLess.notify.json"
  */
 export interface StatsShowLessNotification {
@@ -838,6 +922,24 @@ export interface BigTwoActionMessage {
   icon: RMFIcon;
   primaryActionText: string;
   secondaryActionText: string;
+}
+/**
+ * Generated from @see "../messages/search_getSuggestions.request.json"
+ */
+export interface SearchGetSuggestionsRequest {
+  method: "search_getSuggestions";
+  params: SearchGetSuggestionsRequest1;
+  result: SuggestionsData;
+}
+export interface SearchGetSuggestionsRequest1 {
+  term: string;
+}
+export interface SuggestionsData {
+  suggestions: {
+    topHits: Suggestions;
+    duckduckgoSuggestions: Suggestions;
+    localSuggestions: Suggestions;
+  };
 }
 /**
  * Generated from @see "../messages/stats_getData.request.json"

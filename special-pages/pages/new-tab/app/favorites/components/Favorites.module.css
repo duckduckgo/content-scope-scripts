@@ -39,7 +39,7 @@
 
 .gridRow {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(var(--default-favorites-count), 1fr);
     align-items: start;
     position: absolute;
 }
