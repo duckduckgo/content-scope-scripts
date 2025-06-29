@@ -1,6 +1,6 @@
 /* eslint-disable promise/prefer-await-to-then */
 import * as constants from './constants.js';
-import { ReportMetric, EXCEPTION_KIND_MESSAGING_ERROR } from '../../../../special-pages/shared/report-metric.js';
+import { MetricsReporter, EXCEPTION_KIND_MESSAGING_ERROR } from '../../../../special-pages/shared/metrics-reporter.js';
 
 /**
  * @typedef {import("@duckduckgo/messaging").Messaging} Messaging
@@ -22,7 +22,7 @@ export class DuckPlayerOverlayMessages {
          */
         this.messaging = messaging;
         this.environment = environment;
-        this.metrics = new ReportMetric(messaging);
+        this.metrics = new MetricsReporter(messaging);
     }
 
     /**

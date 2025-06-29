@@ -37,7 +37,7 @@ import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckpla
 import { isBeingFramed } from '../utils.js';
 import { initOverlays } from './duckplayer/overlays.js';
 import { Environment } from './duckplayer/environment.js';
-import { ReportMetric } from '../../../special-pages/shared/report-metric.js';
+import { MetricsReporter } from '../../../special-pages/shared/metrics-reporter.js';
 
 /**
  * @typedef UserValues - A way to communicate user settings
@@ -110,7 +110,7 @@ export default class DuckPlayerFeature extends ContentFeature {
                 comms.serpProxy();
             }
         } catch (e) {
-            const metrics = new ReportMetric(this.messaging);
+            const metrics = new MetricsReporter(this.messaging);
             metrics.reportExceptionWithError(e);
         }
     }

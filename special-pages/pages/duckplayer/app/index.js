@@ -15,7 +15,7 @@ import { Components } from './components/Components.jsx';
 import { MobileApp } from './components/MobileApp.jsx';
 import { DesktopApp } from './components/DesktopApp.jsx';
 import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
-import { EXCEPTION_KIND_INIT_ERROR, EXCEPTION_KIND_INITIAL_SETUP_ERROR } from '../../../shared/report-metric';
+import { EXCEPTION_KIND_INIT_ERROR, EXCEPTION_KIND_INITIAL_SETUP_ERROR } from '../../../shared/metrics-reporter.js';
 
 /** @typedef {import('../types/duckplayer').YouTubeError} YouTubeError */
 

@@ -572,7 +572,6 @@ export class DuckPlayerPage {
      */
     async didSendReportMetric(evt) {
         const events = await this.mocks.waitForCallCount({ method: 'reportMetric', count: 1 });
-        console.log('events', events);
         expect(events).toContainEqual({
             payload: {
                 context: 'specialPages',
