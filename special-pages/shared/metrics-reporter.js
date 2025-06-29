@@ -10,9 +10,9 @@
  *
  * @example
  * ```javascript
- * import { ReportMetric } from './report-metric.js';
+ * import { MetricsReporter } from './metrics-reporter.js';
  *
- * const metrics = new ReportMetric(messaging);
+ * const metrics = new MetricsReporter(messaging);
  *
  * // Report a custom metric
  * metrics.reportMetric({
@@ -30,7 +30,7 @@
  * metrics.reportExceptionWithError(new Error('Missing params'));
  * ```
  *
- * @module Report Metric
+ * @module Metrics Reporter
  */
 
 /**
@@ -55,7 +55,7 @@ export const EXCEPTION_KIND_MESSAGING_ERROR = 'MessagingError';
 /**
  * Class for reporting metrics and exceptions to the native layer.
  */
-export class ReportMetric {
+export class MetricsReporter {
     /** The message ID used for reporting metrics to the native layer */
     static MESSAGE_ID = /** @type {const} */ ('reportMetric');
 
@@ -66,7 +66,7 @@ export class ReportMetric {
     static DEFAULT_EXCEPTION_MESSAGE = /** @type {const} */ ('Unknown error');
 
     /**
-     * Creates a new ReportMetric instance.
+     * Creates a new MetricsReporter instance.
      *
      * @param {SharedMessaging} messaging - The messaging instance used to communicate with the native layer
      * @throws {Error} When messaging is not provided or messaging.notify is not defined
@@ -90,7 +90,7 @@ export class ReportMetric {
         if (!metricEvent?.metricName) {
             throw new Error('metricName is required');
         }
-        this.messaging.notify(ReportMetric.MESSAGE_ID, metricEvent);
+        this.messaging.notify(MetricsReporter.MESSAGE_ID, metricEvent);
     }
 
     /**
@@ -108,11 +108,11 @@ export class ReportMetric {
      * @private
      */
     _createExceptionMetric(params) {
-        const message = params?.message && typeof params.message === 'string' ? params.message : ReportMetric.DEFAULT_EXCEPTION_MESSAGE;
+        const message = params?.message && typeof params.message === 'string' ? params.message : MetricsReporter.DEFAULT_EXCEPTION_MESSAGE;
         const kind = params?.kind && typeof params.kind === 'string' ? params.kind : EXCEPTION_KIND_GENERIC_ERROR;
 
         return {
-            metricName: ReportMetric.METRIC_NAME_EXCEPTION,
+            metricName: MetricsReporter.METRIC_NAME_EXCEPTION,
             params: {
                 message,
                 kind,
