@@ -37,6 +37,7 @@ import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckpla
 import { isBeingFramed } from '../utils.js';
 import { initOverlays } from './duckplayer/overlays.js';
 import { Environment } from './duckplayer/environment.js';
+import { MetricsReporter } from '../../../special-pages/shared/metrics-reporter.js';
 
 /**
  * @typedef UserValues - A way to communicate user settings
@@ -60,7 +61,7 @@ import { Environment } from './duckplayer/environment.js';
  * @internal
  */
 export default class DuckPlayerFeature extends ContentFeature {
-    init(args) {
+    async init(args) {
         /**
          * This feature never operates in a frame
          */
@@ -93,19 +94,24 @@ export default class DuckPlayerFeature extends ContentFeature {
             throw new Error('cannot operate duck player without a messaging backend');
         }
 
-        const locale = args?.locale || args?.language || 'en';
-        const env = new Environment({
-            debug: this.isDebug,
-            injectName: import.meta.injectName,
-            platform: this.platform,
-            locale,
-        });
-        const comms = new DuckPlayerOverlayMessages(this.messaging, env);
+        try {
+            const locale = args?.locale || args?.language || 'en';
+            const env = new Environment({
+                debug: this.isDebug,
+                injectName: import.meta.injectName,
+                platform: this.platform,
+                locale,
+            });
+            const comms = new DuckPlayerOverlayMessages(this.messaging, env);
 
-        if (overlaysEnabled) {
-            initOverlays(overlaySettings.youtube, env, comms);
-        } else if (serpProxyEnabled) {
-            comms.serpProxy();
+            if (overlaysEnabled) {
+                await initOverlays(overlaySettings.youtube, env, comms);
+            } else if (serpProxyEnabled) {
+                comms.serpProxy();
+            }
+        } catch (e) {
+            const metrics = new MetricsReporter(this.messaging);
+            metrics.reportExceptionWithError(e);
         }
     }
 }
