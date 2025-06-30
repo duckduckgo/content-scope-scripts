@@ -21,14 +21,8 @@ import styles from './Omnibar.module.css';
  * @param {(params: {term: string, target: OpenTarget}) => void} props.submitSearch
  * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
-export function Omnibar({ mode, setMode, getSuggestions, openSuggestion, submitSearch, submitChat }) {
+export function Omnibar(props) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
-    return (
-        <div class={styles.root}>
-            Omnibar goes here
-            <br />
-            {JSON.stringify({ mode })}
-        </div>
-    );
+    return <div class={styles.root}>Omnibar goes here. Mode = {props.mode}</div>;
 }
