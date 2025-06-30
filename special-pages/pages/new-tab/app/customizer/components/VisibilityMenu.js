@@ -2,7 +2,7 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { useContext } from 'preact/hooks';
 
-import { DuckFoot, Shield } from '../../components/Icons.js';
+import { DuckFoot, SearchIcon, Shield } from '../../components/Icons.js';
 import styles from './VisibilityMenu.module.css';
 import { Switch } from '../../../../../shared/components/Switch/Switch.js';
 import { usePlatformName } from '../../settings.provider.js';
@@ -29,7 +29,7 @@ export function EmbeddedVisibilityMenu({ rows }) {
                             <span className={styles.svg}>
                                 {row.icon === 'shield' && <DuckFoot />}
                                 {row.icon === 'star' && <Shield />}
-                                {row.icon === 'search' && <img src="./icons/Find-Search-16.svg" alt="" />}
+                                {row.icon === 'search' && <SearchIcon />}
                             </span>
                             <span>{row.title ?? row.id}</span>
                             <Switch

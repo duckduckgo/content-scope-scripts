@@ -2,17 +2,5 @@
   "omnibar_menuTitle": {
     "title": "Search & Duck.ai",
     "description": "The title of the omnibar widget as it appears in the customizer panel."
-  },
-  "omnibar_logoAlt": {
-    "title": "DuckDuckGo",
-    "description": "The alt text for the DuckDuckGo logo in the omnibar."
-  },
-  "omnibar_searchTab": {
-    "title": "Search",
-    "description": "The title of the tab in the omnibar that allows users to search the web."
-  },
-  "omnibar_aiTab": {
-    "title": "Duck.ai",
-    "description": "The title of the tab in the omnibar that allows users to create a Duck.ai chat."
   }
 }

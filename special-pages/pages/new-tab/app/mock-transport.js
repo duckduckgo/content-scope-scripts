@@ -476,19 +476,17 @@ export function mockTransport() {
                     return Promise.resolve(fromStorage);
                 }
                 case 'initialSetup': {
+                    /** @type {import('../types/new-tab.ts').Widgets} */
                     const widgetsFromStorage = read('widgets') || [
                         { id: 'updateNotification' },
                         { id: 'rmf' },
                         { id: 'freemiumPIRBanner' },
                         { id: 'nextSteps' },
-                        { id: 'omnibar' },
                         { id: 'favorites' },
                     ];
 
-                    const widgetConfigFromStorage = read('widget_config') || [
-                        { id: 'omnibar', visibility: 'visible' },
-                        { id: 'favorites', visibility: 'visible' },
-                    ];
+                    /** @type {import('../types/new-tab.ts').WidgetConfigs} */
+                    const widgetConfigFromStorage = read('widget_config') || [{ id: 'favorites', visibility: 'visible' }];
 
                     /** @type {UpdateNotificationData} */
                     let updateNotification = { content: null };
@@ -513,6 +511,13 @@ export function mockTransport() {
 
                     widgetsFromStorage.push({ id: 'protections' });
                     widgetConfigFromStorage.push({ id: 'protections', visibility: 'visible' });
+
+                    if (url.searchParams.has('omnibar')) {
+                        const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+                        widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'omnibar' });
+                        const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+                        widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: 'omnibar', visibility: 'visible' });
+                    }
 
                     initial.customizer = customizerData();
 
