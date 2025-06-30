@@ -125,6 +125,10 @@
     "title": "{count} attempts from other networks",
     "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
   },
+  "omnibar_menuTitle": {
+    "title": "Search & Duck.ai",
+    "description": "The title of the omnibar widget as it appears in the customizer panel."
+  },
   "nextSteps_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble above the first card"

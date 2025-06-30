@@ -1,6 +1,1 @@
-- ntp: accepting a new message to re-fetch favicons (#1775)
-- Check for API predence in Windows permissions (#1773)
-- build(deps-dev): bump prettier from 3.5.3 to 3.6.0 (#1764)
-- Add min supported version and integration testing (#1772)
-- Add API defining behaviour to apiManipulation (#1771)
-- Update config to v5 (#1770)
+- NTP: Scaffold Omnibar widget and message types (#1778)

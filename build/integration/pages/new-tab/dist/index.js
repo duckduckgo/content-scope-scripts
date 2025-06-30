@@ -1547,6 +1547,17 @@
       }
     ));
   }
+  function SearchIcon({ className }) {
+    return /* @__PURE__ */ _("svg", { className, fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#Find-Search-16_svg__a)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        "fill-rule": "evenodd",
+        d: "M7 0a7 7 0 1 0 4.488 12.372l3.445 3.445a.625.625 0 1 0 .884-.884l-3.445-3.445A7 7 0 0 0 7 0M1.25 7a5.75 5.75 0 1 1 11.5 0 5.75 5.75 0 0 1-11.5 0",
+        "clip-rule": "evenodd"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Find-Search-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
   var init_Icons2 = __esm({
     "pages/new-tab/app/components/Icons.js"() {
       "use strict";
@@ -2032,8 +2043,8 @@
          * @param {FavoritesOpenAction['target']} target
          * @internal
          */
-        openFavorite(id, url6, target) {
-          this.ntp.messaging.notify("favorites_open", { id, url: url6, target });
+        openFavorite(id, url7, target) {
+          this.ntp.messaging.notify("favorites_open", { id, url: url7, target });
         }
         /**
          * @internal
@@ -2106,8 +2117,8 @@
       if (!service.current) return console.warn("missing service");
       const currentService = service.current;
       async function init2() {
-        const { config, data: data2 } = await currentService.getInitial();
-        if (data2) {
+        const { data: data2, config } = await currentService.getInitial();
+        if (data2 || config) {
           dispatch({ kind: "initial-data", data: data2, config });
         } else {
           dispatch({ kind: "error", error: "missing data from getInitial" });
@@ -2160,9 +2171,6 @@
     }, [service, dispatch]);
   }
   function useConfigSubscription({ dispatch, service }) {
-    const toggle = q2(() => {
-      service.current?.toggleExpansion();
-    }, [service, dispatch]);
     y2(() => {
       if (!service.current) return console.warn("could not access service");
       const unsub2 = service.current.onConfig((data2) => {
@@ -2172,7 +2180,6 @@
         unsub2();
       };
     }, [service]);
-    return { toggle };
   }
   var init_service_hooks = __esm({
     "pages/new-tab/app/service.hooks.js"() {
@@ -2199,7 +2206,10 @@
     const service = useService();
     useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
-    const { toggle } = useConfigSubscription({ dispatch, service });
+    useConfigSubscription({ dispatch, service });
+    const toggle = q2(() => {
+      service.current?.toggleExpansion();
+    }, [service]);
     const favoritesDidReOrder = q2(
       ({ list: list2, id, fromIndex, targetIndex }) => {
         if (!service.current) return;
@@ -2215,9 +2225,9 @@
       [service]
     );
     const openFavorite = q2(
-      (id, url6, target) => {
+      (id, url7, target) => {
         if (!service.current) return;
-        service.current.openFavorite(id, url6, target);
+        service.current.openFavorite(id, url7, target);
       },
       [service]
     );
@@ -4824,7 +4834,7 @@
       );
     }, [instanceId, favorites2]);
   }
-  function useItemState(url6, id, opts) {
+  function useItemState(url7, id, opts) {
     const instanceId = x2(InstanceIdContext);
     const ref = A2(null);
     const [state, setState] = d2(
@@ -4839,9 +4849,9 @@
       if (opts.kind === "draggable") {
         draggableCleanup = draggable({
           element: el,
-          getInitialData: () => ({ type: "grid-item", url: url6, id, instanceId }),
+          getInitialData: () => ({ type: "grid-item", url: url7, id, instanceId }),
           getInitialDataForExternal: () => ({
-            "text/plain": url6,
+            "text/plain": url7,
             [DDG_MIME_TYPE]: id
           }),
           onDragStart: () => setState({ type: "dragging" }),
@@ -4877,7 +4887,7 @@
           },
           getData: ({ input }) => {
             return attachClosestEdge(
-              { url: url6, id },
+              { url: url7, id },
               {
                 element: el,
                 input,
@@ -4903,7 +4913,7 @@
           element: el,
           getData: ({ input }) => {
             return attachClosestEdge(
-              { url: url6, id },
+              { url: url7, id },
               {
                 element: el,
                 input,
@@ -4932,7 +4942,7 @@
           onDrop: () => setState({ type: "idle" })
         })
       );
-    }, [instanceId, url6, id, opts.kind, opts.class, opts.theme]);
+    }, [instanceId, url7, id, opts.kind, opts.class, opts.theme]);
     return { ref, state };
   }
   function getInstanceId() {
@@ -5362,14 +5372,14 @@
     const index2 = hash % BigInt(arrayLength);
     return Number(index2 < 0 ? -index2 : index2);
   }
-  function urlToColor(url6) {
-    if (typeof url6 !== "string") return null;
-    if (urlToColorCache.has(url6)) {
-      return urlToColorCache.get(url6);
+  function urlToColor(url7) {
+    if (typeof url7 !== "string") return null;
+    if (urlToColorCache.has(url7)) {
+      return urlToColorCache.get(url7);
     }
-    const index2 = getArrayIndex(url6, EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
+    const index2 = getArrayIndex(url7, EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
     const color = EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES[index2];
-    urlToColorCache.set(url6, color);
+    urlToColorCache.set(url7, color);
     return color;
   }
   var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES, urlToColorCache;
@@ -5544,8 +5554,8 @@
          * @param {number} props.index
          * @param {boolean} props.animateItems
          */
-        function Tile2({ url: url6, etldPlusOne, faviconSrc, faviconMax, theme, index: index2, title, id, visibility, animateItems }) {
-          const { state, ref } = useItemState(url6, id, {
+        function Tile2({ url: url7, etldPlusOne, faviconSrc, faviconMax, theme, index: index2, title, id, visibility, animateItems }) {
+          const { state, ref } = useItemState(url7, id, {
             kind: "draggable",
             class: Tile_default.preview,
             theme
@@ -5556,7 +5566,7 @@
             {
               class: Tile_default.item,
               tabindex: 0,
-              href: url6,
+              href: url7,
               "data-id": id,
               "data-index": index2,
               "data-edge": "closestEdge" in state && state.closestEdge,
@@ -6871,7 +6881,10 @@
     const service = useService3();
     useInitialDataAndConfig({ dispatch, service });
     useDataSubscription({ dispatch, service });
-    const { toggle } = useConfigSubscription({ dispatch, service });
+    useConfigSubscription({ dispatch, service });
+    const toggle = q2(() => {
+      service.current?.toggleExpansion();
+    }, [service]);
     const action = q2(
       (id) => {
         service.current?.action(id);
@@ -7173,12 +7186,317 @@
     }
   });
 
-  // pages/new-tab/app/entry-points/privacyStats.js
-  var privacyStats_exports = {};
-  __export(privacyStats_exports, {
+  // pages/new-tab/app/omnibar/omnibar.service.js
+  var OmnibarService;
+  var init_omnibar_service = __esm({
+    "pages/new-tab/app/omnibar/omnibar.service.js"() {
+      "use strict";
+      init_service();
+      OmnibarService = class {
+        /**
+         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @internal
+         */
+        constructor(ntp) {
+          this.ntp = ntp;
+          this.configService = new Service({
+            initial: () => ntp.messaging.request("omnibar_getConfig"),
+            subscribe: (cb) => ntp.messaging.subscribe("omnibar_onConfigUpdate", cb),
+            persist: (data2) => ntp.messaging.notify("omnibar_setConfig", data2)
+          });
+        }
+        name() {
+          return "OmnibarService";
+        }
+        /**
+         * @returns {Promise<{data: null; config: OmnibarConfig}>}
+         * @internal
+         */
+        async getInitial() {
+          const config = await this.configService.fetchInitial();
+          return { data: null, config };
+        }
+        /**
+         * @internal
+         */
+        destroy() {
+          this.configService.destroy();
+        }
+        /**
+         * @param {(evt: {data: OmnibarConfig, source: 'manual' | 'subscription'}) => void} cb
+         * @internal
+         */
+        onConfig(cb) {
+          return this.configService.onData(cb);
+        }
+        /**
+         * @param {OmnibarConfig['mode']} mode
+         */
+        setMode(mode) {
+          this.configService.update((old) => {
+            return {
+              ...old,
+              mode
+            };
+          });
+        }
+        /**
+         * Get suggestions for the given search term
+         * @param {string} term
+         * @returns {Promise<SuggestionsData>}
+         */
+        getSuggestions(term) {
+          return this.ntp.messaging.request("omnibar_getSuggestions", { term });
+        }
+        /**
+         * Open a selected suggestion
+         * @param {Object} params
+         * @param {Suggestion} params.suggestion
+         * @param {OpenTarget} params.target
+         */
+        openSuggestion(params) {
+          this.ntp.messaging.notify("omnibar_openSuggestion", params);
+        }
+        /**
+         * Submit a search query
+         * @param {Object} params
+         * @param {string} params.term
+         * @param {OpenTarget} params.target
+         */
+        submitSearch(params) {
+          this.ntp.messaging.notify("omnibar_submitSearch", params);
+        }
+        /**
+         * Submit a chat message to Duck.ai
+         * @param {Object} params
+         * @param {string} params.chat
+         * @param {OpenTarget} params.target
+         */
+        submitChat(params) {
+          this.ntp.messaging.notify("omnibar_submitChat", params);
+        }
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/OmnibarProvider.js
+  function OmnibarProvider(props) {
+    const initial = (
+      /** @type {State} */
+      {
+        status: "idle",
+        data: null,
+        config: null
+      }
+    );
+    const [state, dispatch] = h2(reducer, initial);
+    const service = useService4();
+    useInitialDataAndConfig({ dispatch, service });
+    useConfigSubscription({ dispatch, service });
+    const setMode = q2(
+      (mode) => {
+        service.current?.setMode(mode);
+      },
+      [service]
+    );
+    const getSuggestions = q2(
+      (term) => {
+        if (!service.current) throw new Error("Service not available");
+        return service.current.getSuggestions(term);
+      },
+      [service]
+    );
+    const openSuggestion = q2(
+      (params) => {
+        service.current?.openSuggestion(params);
+      },
+      [service]
+    );
+    const submitSearch = q2(
+      (params) => {
+        service.current?.submitSearch(params);
+      },
+      [service]
+    );
+    const submitChat = q2(
+      (params) => {
+        service.current?.submitChat(params);
+      },
+      [service]
+    );
+    return /* @__PURE__ */ _(
+      OmnibarContext.Provider,
+      {
+        value: {
+          state,
+          setMode,
+          getSuggestions,
+          openSuggestion,
+          submitSearch,
+          submitChat
+        }
+      },
+      /* @__PURE__ */ _(OmnibarServiceContext.Provider, { value: service.current }, props.children)
+    );
+  }
+  function useService4() {
+    const service = A2(
+      /** @type {OmnibarService|null} */
+      null
+    );
+    const ntp = useMessaging();
+    y2(() => {
+      const omnibar = new OmnibarService(ntp);
+      service.current = omnibar;
+      return () => {
+        omnibar.destroy();
+      };
+    }, [ntp]);
+    return service;
+  }
+  var OmnibarContext, OmnibarServiceContext;
+  var init_OmnibarProvider = __esm({
+    "pages/new-tab/app/omnibar/components/OmnibarProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_types();
+      init_service_hooks();
+      init_omnibar_service();
+      OmnibarContext = K({
+        /** @type {State} */
+        state: { status: "idle", data: null, config: null },
+        /** @type {(mode: OmnibarConfig['mode']) => void} */
+        setMode: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(term: string) => Promise<SuggestionsData>} */
+        getSuggestions: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(params: {suggestion: Suggestion, target: OpenTarget}) => void} */
+        openSuggestion: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(params: {term: string, target: OpenTarget}) => void} */
+        submitSearch: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(params: {chat: string, target: OpenTarget}) => void} */
+        submitChat: () => {
+          throw new Error("must implement");
+        }
+      });
+      OmnibarServiceContext = K(
+        /** @type {OmnibarService|null} */
+        null
+      );
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/Omnibar.module.css
+  var Omnibar_default;
+  var init_Omnibar = __esm({
+    "pages/new-tab/app/omnibar/components/Omnibar.module.css"() {
+      Omnibar_default = {
+        root: "Omnibar_root"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/Omnibar.js
+  function Omnibar(props) {
+    return /* @__PURE__ */ _("div", { class: Omnibar_default.root }, "Omnibar goes here. Mode = ", props.mode);
+  }
+  var init_Omnibar2 = __esm({
+    "pages/new-tab/app/omnibar/components/Omnibar.js"() {
+      "use strict";
+      init_preact_module();
+      init_Omnibar();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/OmnibarConsumer.js
+  function OmnibarConsumer() {
+    const { state } = x2(OmnibarContext);
+    if (state.status === "ready") {
+      return /* @__PURE__ */ _(OmnibarReadyState, { config: state.config });
+    }
+    return null;
+  }
+  function OmnibarReadyState({ config }) {
+    const { setMode, getSuggestions, openSuggestion, submitSearch, submitChat } = x2(OmnibarContext);
+    return /* @__PURE__ */ _(
+      Omnibar,
+      {
+        mode: config.mode,
+        setMode,
+        getSuggestions,
+        openSuggestion,
+        submitSearch,
+        submitChat
+      }
+    );
+  }
+  var init_OmnibarConsumer = __esm({
+    "pages/new-tab/app/omnibar/components/OmnibarConsumer.js"() {
+      "use strict";
+      init_hooks_module();
+      init_OmnibarProvider();
+      init_preact_module();
+      init_Omnibar2();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/OmnibarCustomized.js
+  function OmnibarCustomized() {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const sectionTitle = t4("omnibar_menuTitle");
+    const { visibility, id, toggle, index: index2 } = useVisibility();
+    useCustomizer({ title: sectionTitle, id, icon: "search", toggle, visibility: visibility.value, index: index2 });
+    if (visibility.value === "hidden") {
+      return null;
+    }
+    return /* @__PURE__ */ _(OmnibarProvider, null, /* @__PURE__ */ _(OmnibarConsumer, null));
+  }
+  var init_OmnibarCustomized = __esm({
+    "pages/new-tab/app/omnibar/components/OmnibarCustomized.js"() {
+      "use strict";
+      init_types();
+      init_widget_config_provider();
+      init_CustomizerMenu();
+      init_OmnibarProvider();
+      init_preact_module();
+      init_OmnibarConsumer();
+    }
+  });
+
+  // pages/new-tab/app/entry-points/omnibar.js
+  var omnibar_exports = {};
+  __export(omnibar_exports, {
     factory: () => factory5
   });
   function factory5() {
+    return /* @__PURE__ */ _(Centered, { "data-entry-point": "omnibar" }, /* @__PURE__ */ _(OmnibarCustomized, null));
+  }
+  var init_omnibar = __esm({
+    "pages/new-tab/app/entry-points/omnibar.js"() {
+      "use strict";
+      init_preact_module();
+      init_Layout();
+      init_OmnibarCustomized();
+    }
+  });
+
+  // pages/new-tab/app/entry-points/privacyStats.js
+  var privacyStats_exports = {};
+  __export(privacyStats_exports, {
+    factory: () => factory6
+  });
+  function factory6() {
   }
   var init_privacyStats = __esm({
     "pages/new-tab/app/entry-points/privacyStats.js"() {
@@ -7288,9 +7606,12 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService4();
+    const service = useService5();
     useInitialDataAndConfig({ dispatch, service });
-    const { toggle } = useConfigSubscription({ dispatch, service });
+    useConfigSubscription({ dispatch, service });
+    const toggle = q2(() => {
+      service.current?.toggleExpansion();
+    }, [service]);
     const setFeed = q2(
       (feed) => {
         service.current?.setFeed(feed);
@@ -7299,7 +7620,7 @@
     );
     return /* @__PURE__ */ _(ProtectionsContext.Provider, { value: { state, toggle, setFeed } }, /* @__PURE__ */ _(ProtectionsServiceContext.Provider, { value: service.current }, props.children));
   }
-  function useService4() {
+  function useService5() {
     const service = A2(
       /** @type {ProtectionsService|null} */
       null
@@ -7315,7 +7636,7 @@
     return service;
   }
   function useBlockedCount(initial) {
-    const service = useService4();
+    const service = useService5();
     const signal = useSignal(initial);
     useSignalEffect(() => {
       return service.current?.onData((evt) => {
@@ -7661,61 +7982,61 @@
         /**
          * @param {string} url
          */
-        addFavorite(url6) {
+        addFavorite(url7) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.map((item) => {
-                if (item.url === url6) return { ...item, favorite: true };
+                if (item.url === url7) return { ...item, favorite: true };
                 return item;
               })
             };
           });
-          this.ntp.messaging.notify("activity_addFavorite", { url: url6 });
+          this.ntp.messaging.notify("activity_addFavorite", { url: url7 });
         }
         /**
          * @param {string} url
          */
-        removeFavorite(url6) {
+        removeFavorite(url7) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.map((item) => {
-                if (item.url === url6) return { ...item, favorite: false };
+                if (item.url === url7) return { ...item, favorite: false };
                 return item;
               })
             };
           });
-          this.ntp.messaging.notify("activity_removeFavorite", { url: url6 });
+          this.ntp.messaging.notify("activity_removeFavorite", { url: url7 });
         }
         /**
          * @param {string} url
          * @return {Promise<import('../../types/new-tab.js').ConfirmBurnResponse>}
          */
-        confirmBurn(url6) {
-          return this.ntp.messaging.request("activity_confirmBurn", { url: url6 });
+        confirmBurn(url7) {
+          return this.ntp.messaging.request("activity_confirmBurn", { url: url7 });
         }
         /**
          * @param {string} url
          */
-        remove(url6) {
+        remove(url7) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.filter((item) => {
-                return item.url !== url6;
+                return item.url !== url7;
               }),
-              urls: old.urls.filter((x3) => x3 !== url6)
+              urls: old.urls.filter((x3) => x3 !== url7)
             };
           });
-          this.ntp.messaging.notify("activity_removeItem", { url: url6 });
+          this.ntp.messaging.notify("activity_removeItem", { url: url7 });
         }
         /**
          * @param {string} url
          * @param {import('../../types/new-tab.js').OpenTarget} target
          */
-        openUrl(url6, target) {
-          this.ntp.messaging.notify("activity_open", { url: url6, target });
+        openUrl(url7, target) {
+          this.ntp.messaging.notify("activity_open", { url: url7, target });
         }
         onBurnComplete(cb) {
           if (!this.burns) throw new Error("unreachable");
@@ -7748,11 +8069,11 @@
     );
     const [state, dispatch] = h2(reducer, initial);
     const batched = useBatchedActivityApi();
-    const service = useService5(batched);
+    const service = useService6(batched);
     useInitialData({ dispatch, service });
     return /* @__PURE__ */ _(ActivityContext.Provider, { value: { state } }, /* @__PURE__ */ _(ActivityServiceContext.Provider, { value: service.current }, props.children));
   }
-  function useService5(useBatched) {
+  function useService6(useBatched) {
     const service = A2(
       /** @type {BatchedActivityService|null} */
       null
@@ -8235,13 +8556,13 @@
   }
   function any(...fns) {
     return (subject) => {
-      const jobs = fns.map((factory9) => {
+      const jobs = fns.map((factory10) => {
         const subject2 = {
           /** @type {any} */
           next: void 0
         };
         const promise = new Promise((resolve) => subject2.next = resolve);
-        const cleanup = factory9(subject2);
+        const cleanup = factory10(subject2);
         return {
           promise,
           cleanup
@@ -8257,13 +8578,13 @@
   }
   function all(...fns) {
     return (subject) => {
-      const jobs = fns.map((factory9) => {
+      const jobs = fns.map((factory10) => {
         const subject2 = {
           /** @type {any} */
           next: void 0
         };
         const promise = new Promise((resolve) => subject2.next = resolve);
-        const cleanup = factory9(subject2);
+        const cleanup = factory10(subject2);
         return {
           promise,
           cleanup
@@ -8380,12 +8701,12 @@
         target.closest("button[value][data-action]")
       );
       if (anchor) {
-        const url6 = anchor.dataset.url;
-        if (!url6) return;
+        const url7 = anchor.dataset.url;
+        if (!url7) return;
         event.preventDefault();
         event.stopImmediatePropagation();
         const openTarget = eventToTarget(event, platformName);
-        service.openUrl(url6, openTarget);
+        service.openUrl(url7, openTarget);
       } else if (button) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -8521,13 +8842,13 @@
   });
 
   // pages/new-tab/app/activity/components/ActivityItem.js
-  function Controls({ canBurn, url: url6, title }) {
+  function Controls({ canBurn, url: url7, title }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
     );
     const { activity } = x2(NormalizedDataContext);
-    const favorite = useComputed(() => activity.value.favorites[url6]);
+    const favorite = useComputed(() => activity.value.favorites[url7]);
     const favoriteTitle = favorite.value ? t4("activity_favoriteRemove", { domain: title }) : t4("activity_favoriteAdd", { domain: title });
     const secondaryTitle = canBurn ? t4("activity_burn", { domain: title }) : t4("activity_itemRemove", { domain: title });
     return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
@@ -8537,7 +8858,7 @@
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
-        value: url6,
+        value: url7,
         type: "button"
       },
       favorite.value ? /* @__PURE__ */ _(StarFilled, null) : /* @__PURE__ */ _(Star, null)
@@ -8547,7 +8868,7 @@
         class: (0, import_classnames10.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
-        value: url6,
+        value: url7,
         type: "button"
       },
       canBurn ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(Cross, null)
@@ -8584,8 +8905,8 @@
          * @param {number} props.faviconMax
          * @param {string} props.etldPlusOne
          */
-        function ActivityItem2({ canBurn, documentVisibility, title, url: url6, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url6, class: (0, import_classnames10.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url6, "data-url": url6 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url6 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+        function ActivityItem2({ canBurn, documentVisibility, title, url: url7, favoriteSrc, faviconMax, etldPlusOne, children }) {
+          return /* @__PURE__ */ _("li", { key: url7, class: (0, import_classnames10.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url7, "data-url": url7 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url7 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -8597,7 +8918,7 @@
               fallback: DDG_FALLBACK_ICON,
               fallbackDark: DDG_FALLBACK_ICON_DARK
             }
-          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url6, title })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
+          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url7, title })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
         }
       );
     }
@@ -8606,8 +8927,8 @@
   // ../node_modules/lottie-web/build/player/lottie.js
   var require_lottie = __commonJS({
     "../node_modules/lottie-web/build/player/lottie.js"(exports, module) {
-      typeof navigator !== "undefined" && function(global, factory9) {
-        typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory9() : typeof define === "function" && define.amd ? define(factory9) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.lottie = factory9());
+      typeof navigator !== "undefined" && function(global, factory10) {
+        typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory10() : typeof define === "function" && define.amd ? define(factory10) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.lottie = factory10());
       }(exports, function() {
         "use strict";
         var svgNS = "http://www.w3.org/2000/svg";
@@ -9098,8 +9419,8 @@
               var blob = new Blob(["var _workerSelf = self; self.onmessage = ", fn2.toString()], {
                 type: "text/javascript"
               });
-              var url6 = URL.createObjectURL(blob);
-              return new Worker(url6);
+              var url7 = URL.createObjectURL(blob);
+              return new Worker(url7);
             }
             workerFn = fn2;
             return workerProxy;
@@ -11914,7 +12235,7 @@
             shapePath.c = false;
           }
           function clone3(shape) {
-            var cloned = factory9.newElement();
+            var cloned = factory10.newElement();
             var i5;
             var len = shape._length === void 0 ? shape.v.length : shape._length;
             cloned.setLength(len);
@@ -11924,9 +12245,9 @@
             }
             return cloned;
           }
-          var factory9 = poolFactory(4, create, release);
-          factory9.clone = clone3;
-          return factory9;
+          var factory10 = poolFactory(4, create, release);
+          factory10.clone = clone3;
+          return factory10;
         }();
         function ShapeCollection() {
           this._length = 0;
@@ -12948,9 +13269,9 @@
           var modifiers = {};
           ob2.registerModifier = registerModifier;
           ob2.getModifier = getModifier;
-          function registerModifier(nm, factory9) {
+          function registerModifier(nm, factory10) {
             if (!modifiers[nm]) {
-              modifiers[nm] = factory9;
+              modifiers[nm] = factory10;
             }
           }
           function getModifier(nm, elem2, data2) {
@@ -24949,7 +25270,7 @@
   __export(BurnAnimationLottieWeb_exports, {
     BurnAnimation: () => BurnAnimation
   });
-  function BurnAnimation({ url: url6 }) {
+  function BurnAnimation({ url: url7 }) {
     const ref = A2(
       /** @type {Lottie} */
       null
@@ -24961,7 +25282,7 @@
       let timer2 = null;
       const publish = (reason) => {
         if (finished) return;
-        window.dispatchEvent(new CustomEvent("done-burning", { detail: { url: url6, reason } }));
+        window.dispatchEvent(new CustomEvent("done-burning", { detail: { url: url7, reason } }));
         finished = true;
         clearTimeout(timer2);
       };
@@ -24986,7 +25307,7 @@
           publish("unmount occurred");
         }
       };
-    }, [url6, json]);
+    }, [url7, json]);
     return /* @__PURE__ */ _("div", { ref, "data-lottie-player": true });
   }
   var import_lottie_web;
@@ -25001,14 +25322,14 @@
   });
 
   // pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js
-  function ActivityItemAnimationWrapper({ children, url: url6 }) {
+  function ActivityItemAnimationWrapper({ children, url: url7 }) {
     const ref = A2(
       /** @type {HTMLDivElement|null} */
       null
     );
     const { exiting, burning } = x2(ActivityBurningSignalContext);
-    const isBurning = useComputed(() => burning.value.some((x3) => x3 === url6));
-    const isExiting = useComputed(() => exiting.value.some((x3) => x3 === url6));
+    const isBurning = useComputed(() => burning.value.some((x3) => x3 === url7));
+    const isExiting = useComputed(() => exiting.value.some((x3) => x3 === url7));
     _2(() => {
       let canceled = false;
       let sent = false;
@@ -25031,7 +25352,7 @@
           window.dispatchEvent(
             new CustomEvent("done-exiting", {
               detail: {
-                url: url6,
+                url: url7,
                 reason: "animation completed"
               }
             })
@@ -25047,8 +25368,8 @@
       return () => {
         canceled = true;
       };
-    }, [isBurning.value, isExiting.value, url6]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url6 })));
+    }, [isBurning.value, isExiting.value, url7]);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url7 })));
   }
   var import_classnames11, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
@@ -25353,12 +25674,12 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService6();
+    const service = useService7();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
     return /* @__PURE__ */ _(PrivacyStatsContext.Provider, { value: { state } }, /* @__PURE__ */ _(PrivacyStatsDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService6() {
+  function useService7() {
     const service = A2(
       /** @type {PrivacyStatsService|null} */
       null
@@ -25677,9 +25998,9 @@
   // pages/new-tab/app/entry-points/protections.js
   var protections_exports = {};
   __export(protections_exports, {
-    factory: () => factory6
+    factory: () => factory7
   });
-  function factory6() {
+  function factory7() {
     return /* @__PURE__ */ _(Centered, { "data-entry-point": "protections" }, /* @__PURE__ */ _(ProtectionsCustomized, null));
   }
   var init_protections = __esm({
@@ -25785,7 +26106,7 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService7();
+    const service = useService8();
     useInitialData({ dispatch, service });
     useDataSubscription({ dispatch, service });
     const dismiss = q2(
@@ -25810,7 +26131,7 @@
     );
     return /* @__PURE__ */ _(RMFContext.Provider, { value: { state, dismiss, primaryAction, secondaryAction } }, /* @__PURE__ */ _(RMFDispatchContext.Provider, { value: dispatch }, props.children));
   }
-  function useService7() {
+  function useService8() {
     const service = A2(
       /** @type {RMFService|null} */
       null
@@ -25896,9 +26217,9 @@
   // pages/new-tab/app/entry-points/rmf.js
   var rmf_exports = {};
   __export(rmf_exports, {
-    factory: () => factory7
+    factory: () => factory8
   });
-  function factory7() {
+  function factory8() {
     return /* @__PURE__ */ _(Centered, { "data-entry-point": "rmf" }, /* @__PURE__ */ _(RMFProvider, null, /* @__PURE__ */ _(RMFConsumer, null)));
   }
   var init_rmf = __esm({
@@ -25995,14 +26316,14 @@
       }
     );
     const [state, dispatch] = h2(reducer, initial);
-    const service = useService8(updateNotification);
+    const service = useService9(updateNotification);
     useDataSubscription({ dispatch, service });
     const dismiss = q2(() => {
       service.current?.dismiss();
     }, [service]);
     return /* @__PURE__ */ _(UpdateNotificationContext.Provider, { value: { state, dismiss } }, /* @__PURE__ */ _(UpdateNotificationDispatchContext.Provider, { value: dispatch }, children));
   }
-  function useService8(initial) {
+  function useService9(initial) {
     const service = A2(
       /** @type {UpdateNotificationService|null} */
       null
@@ -26123,9 +26444,9 @@
   // pages/new-tab/app/entry-points/updateNotification.js
   var updateNotification_exports = {};
   __export(updateNotification_exports, {
-    factory: () => factory8
+    factory: () => factory9
   });
-  function factory8() {
+  function factory9() {
     return /* @__PURE__ */ _("div", { "data-entry-point": "updateNotification" }, /* @__PURE__ */ _(UpdateNotificationProvider, null, /* @__PURE__ */ _(UpdateNotificationConsumer, null)));
   }
   var init_updateNotification = __esm({
@@ -26431,6 +26752,7 @@
     "../entry-points/favorites.js": () => Promise.resolve().then(() => (init_favorites(), favorites_exports)),
     "../entry-points/freemiumPIRBanner.js": () => Promise.resolve().then(() => (init_freemiumPIRBanner(), freemiumPIRBanner_exports)),
     "../entry-points/nextSteps.js": () => Promise.resolve().then(() => (init_nextSteps(), nextSteps_exports)),
+    "../entry-points/omnibar.js": () => Promise.resolve().then(() => (init_omnibar(), omnibar_exports)),
     "../entry-points/privacyStats.js": () => Promise.resolve().then(() => (init_privacyStats(), privacyStats_exports)),
     "../entry-points/protections.js": () => Promise.resolve().then(() => (init_protections(), protections_exports)),
     "../entry-points/rmf.js": () => Promise.resolve().then(() => (init_rmf(), rmf_exports)),
@@ -26940,7 +27262,7 @@
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
     return /* @__PURE__ */ _("ul", { className: (0, import_classnames16.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ _(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ _(Shield, null)), /* @__PURE__ */ _("span", null, row.title ?? row.id), /* @__PURE__ */ _(
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ _(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ _(Shield, null), row.icon === "search" && /* @__PURE__ */ _(SearchIcon, null)), /* @__PURE__ */ _("span", null, row.title ?? row.id), /* @__PURE__ */ _(
         Switch,
         {
           theme: browser.value,
@@ -27618,6 +27940,10 @@
     stats_otherCount: {
       title: "{count} attempts from other networks",
       note: "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
+    },
+    omnibar_menuTitle: {
+      title: "Search & Duck.ai",
+      description: "The title of the omnibar widget as it appears in the customizer panel."
     },
     nextSteps_sectionTitle: {
       title: "Next Steps",
@@ -30218,10 +30544,10 @@
         console.log(msg);
         switch (msg.method) {
           case "activity_confirmBurn": {
-            const url6 = msg.params.url;
+            const url7 = msg.params.url;
             let response = { action: "burn" };
             if (!window.__playwright_01) {
-              const fireproof = url6.startsWith("https://fireproof.");
+              const fireproof = url7.startsWith("https://fireproof.");
               if (fireproof) {
                 if (!confirm("are you sure?")) {
                   response = { action: "none" };
@@ -30231,13 +30557,13 @@
             if (response.action === "burn" && !window.__playwright_01) {
               setTimeout(() => {
                 const cb = subs.get("activity_onDataUpdate");
-                console.log("will send updated data after 500ms", url6);
-                const next = activityMocks.few.activity.filter((x3) => x3.url !== url6);
+                console.log("will send updated data after 500ms", url7);
+                const next = activityMocks.few.activity.filter((x3) => x3.url !== url7);
                 cb?.({ activity: next });
               }, 500);
               setTimeout(() => {
                 const cb = subs.get("activity_onBurnComplete");
-                console.log("will send updated data after 600ms", url6);
+                console.log("will send updated data after 600ms", url7);
                 cb?.();
               }, 600);
             }
@@ -30618,9 +30944,9 @@
   }
   function ExampleSelector({ entries: entries4, id }) {
     function onReset() {
-      const url6 = new URL(window.location.href);
-      url6.searchParams.delete("id");
-      window.location.href = url6.toString();
+      const url7 = new URL(window.location.href);
+      url7.searchParams.delete("id");
+      window.location.href = url7.toString();
     }
     function onChange(event) {
       if (!event.target) return;
@@ -30628,9 +30954,9 @@
       const selectedId = event.target.value;
       if (selectedId) {
         if (selectedId === "none") return onReset();
-        const url6 = new URL(window.location.href);
-        url6.searchParams.set("id", selectedId);
-        window.location.href = url6.toString();
+        const url7 = new URL(window.location.href);
+        url7.searchParams.set("id", selectedId);
+        window.location.href = url7.toString();
       }
     }
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("label", null, "Single:", " ", /* @__PURE__ */ _("select", { value: id || "none", onChange }, /* @__PURE__ */ _("option", { value: "none" }, "Select an example"), entries4.map(([id2]) => /* @__PURE__ */ _("option", { key: id2, value: id2 }, id2)))), /* @__PURE__ */ _("button", { onClick: onReset }, "RESET \u{1F501}")));
@@ -30640,9 +30966,9 @@
   }
   function Append({ entries: entries4 }) {
     function onReset() {
-      const url6 = new URL(window.location.href);
-      url6.searchParams.delete("id");
-      window.location.href = url6.toString();
+      const url7 = new URL(window.location.href);
+      url7.searchParams.delete("id");
+      window.location.href = url7.toString();
     }
     function onSubmit(event) {
       if (!event.target) return;
@@ -30651,9 +30977,9 @@
       const data2 = new FormData(form);
       const value2 = data2.get("add-id");
       if (typeof value2 !== "string") return;
-      const url6 = new URL(window.location.href);
-      url6.searchParams.append("id", value2);
-      window.location.href = url6.toString();
+      const url7 = new URL(window.location.href);
+      url7.searchParams.append("id", value2);
+      window.location.href = url7.toString();
     }
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("form", { class: Components_default.buttonRow, onSubmit }, /* @__PURE__ */ _("label", null, "Append:", " ", /* @__PURE__ */ _("select", { value: "none", name: "add-id" }, /* @__PURE__ */ _("option", { value: "none" }, "Select an example"), entries4.map(([id]) => /* @__PURE__ */ _("option", { key: id, value: id }, id)))), /* @__PURE__ */ _("button", null, "Confirm")));
   }
@@ -31399,9 +31725,68 @@
     });
   }
 
+  // pages/new-tab/app/omnibar/mocks/omnibar.mock-transport.js
+  var url5 = typeof window !== "undefined" ? new URL(window.location.href) : new URL("https://example.com");
+  function omnibarMockTransport() {
+    const config = {
+      mode: "search"
+    };
+    const subs = /* @__PURE__ */ new Map();
+    return new TestTransportConfig({
+      notify(_msg) {
+        const msg = (
+          /** @type {any} */
+          _msg
+        );
+        switch (msg.method) {
+          case "omnibar_setConfig": {
+            Object.assign(config, msg.params);
+            subs.get("omnibar_onConfigUpdate")?.(config);
+            break;
+          }
+          default: {
+            console.warn("unhandled notification", msg);
+          }
+        }
+      },
+      subscribe(_msg, cb) {
+        const sub2 = (
+          /** @type {any} */
+          _msg.subscriptionName
+        );
+        if (sub2 === "omnibar_onConfigUpdate") {
+          subs.set(sub2, cb);
+          return () => {
+          };
+        }
+        console.warn("unhandled sub", sub2);
+        return () => {
+        };
+      },
+      request(_msg) {
+        const msg = (
+          /** @type {any} */
+          _msg
+        );
+        switch (msg.method) {
+          case "omnibar_getConfig": {
+            const modeOverride = url5.searchParams.get("omnibar.mode");
+            if (modeOverride === "search" || modeOverride === "ai") {
+              config.mode = modeOverride;
+            }
+            return Promise.resolve(config);
+          }
+          default: {
+            return Promise.reject(new Error("unhandled request" + msg));
+          }
+        }
+      }
+    });
+  }
+
   // pages/new-tab/app/mock-transport.js
   var VERSION_PREFIX = "__ntp_31__.";
-  var url5 = new URL(window.location.href);
+  var url6 = new URL(window.location.href);
   function mockTransport() {
     let channel;
     if (typeof globalThis.BroadcastChannel !== "undefined") {
@@ -31424,7 +31809,7 @@
     }
     function read(name2) {
       try {
-        if (url5.searchParams.has("skip-read")) {
+        if (url6.searchParams.has("skip-read")) {
           console.warn("not reading from localstorage, because skip-read was in the search");
           return null;
         }
@@ -31438,7 +31823,7 @@
     }
     function write(name2, value2) {
       try {
-        if (url5.searchParams.has("skip-write")) {
+        if (url6.searchParams.has("skip-write")) {
           console.warn("not writing to localstorage, because skip-write was in the search");
           return;
         }
@@ -31469,7 +31854,8 @@
     const transports = {
       customizer: customizerMockTransport(),
       activity: activityMockTransport(),
-      protections: protectionsMockTransport()
+      protections: protectionsMockTransport(),
+      omnibar: omnibarMockTransport()
     };
     return new TestTransportConfig({
       notify(_msg) {
@@ -31592,7 +31978,7 @@
             const next = [...prev];
             next.push(cb);
             freemiumPIRBannerSubscriptions.set("freemiumPIRBanner_onDataUpdate", next);
-            const freemiumPIRBannerParam = url5.searchParams.get("pir");
+            const freemiumPIRBannerParam = url6.searchParams.get("pir");
             if (freemiumPIRBannerParam !== null && freemiumPIRBannerParam in freemiumPIRDataExamples) {
               const message = freemiumPIRDataExamples[freemiumPIRBannerParam];
               cb(message);
@@ -31605,7 +31991,7 @@
             const next = [...prev];
             next.push(cb);
             nextStepsSubscriptions.set("nextSteps_onDataUpdate", next);
-            const params = url5.searchParams.get("next-steps");
+            const params = url6.searchParams.get("next-steps");
             if (params && params in variants) {
               const data2 = read("nextSteps_data");
               cb(data2);
@@ -31618,8 +32004,8 @@
             const next = [...prev];
             next.push(cb);
             rmfSubscriptions.set("rmf_onDataUpdate", next);
-            const delay = url5.searchParams.get("rmf-delay");
-            const rmfParam = url5.searchParams.get("rmf");
+            const delay = url6.searchParams.get("rmf-delay");
+            const rmfParam = url6.searchParams.get("rmf");
             if (delay !== null && rmfParam !== null && rmfParam in rmfDataExamples) {
               const ms = parseInt(delay, 10);
               const timeout = setTimeout(() => {
@@ -31632,8 +32018,8 @@
             };
           }
           case "updateNotification_onDataUpdate": {
-            const update = url5.searchParams.get("update-notification");
-            const delay = url5.searchParams.get("update-notification-delay");
+            const update = url6.searchParams.get("update-notification");
+            const delay = url6.searchParams.get("update-notification-delay");
             if (update && delay && update in updateNotificationExamples2) {
               const ms = parseInt(delay, 10);
               const timeout = setTimeout(() => {
@@ -31662,8 +32048,8 @@
             return () => controller.abort();
           }
           case "stats_onDataUpdate": {
-            const statsVariant = url5.searchParams.get("stats");
-            const count = url5.searchParams.get("stats-update-count");
+            const statsVariant = url6.searchParams.get("stats");
+            const count = url6.searchParams.get("stats-update-count");
             const updateMaxCount = parseInt(count || "0");
             if (updateMaxCount === 0) return () => {
             };
@@ -31724,7 +32110,7 @@
             return () => controller.abort();
           }
           case "favorites_onRefresh": {
-            if (url5.searchParams.get("favoriteRefresh") === "favicons") {
+            if (url6.searchParams.get("favoriteRefresh") === "favicons") {
               const timer2 = setTimeout(() => {
                 const payload = {
                   items: [{ kind: "favicons" }]
@@ -31756,7 +32142,7 @@
         }
         switch (msg.method) {
           case "stats_getData": {
-            const statsVariant = url5.searchParams.get("stats");
+            const statsVariant = url6.searchParams.get("stats");
             if (statsVariant && statsVariant in privacyStatsMocks) {
               return Promise.resolve(privacyStatsMocks[statsVariant]);
             }
@@ -31768,7 +32154,7 @@
           }
           case "nextSteps_getData": {
             let data2 = { content: null };
-            const ids = url5.searchParams.getAll("next-steps");
+            const ids = url6.searchParams.getAll("next-steps");
             if (ids.length) {
               data2 = {
                 content: ids.filter((id) => {
@@ -31790,8 +32176,8 @@
           }
           case "rmf_getData": {
             let message = { content: void 0 };
-            const rmfParam = url5.searchParams.get("rmf");
-            const delayed = url5.searchParams.has("rmf-delay");
+            const rmfParam = url6.searchParams.get("rmf");
+            const delayed = url6.searchParams.has("rmf-delay");
             if (delayed) return Promise.resolve(message);
             if (rmfParam && rmfParam in rmfDataExamples) {
               message = rmfDataExamples[rmfParam];
@@ -31800,19 +32186,19 @@
           }
           case "freemiumPIRBanner_getData": {
             let freemiumPIRBannerMessage = { content: null };
-            const freemiumPIRBannerParam = url5.searchParams.get("pir");
+            const freemiumPIRBannerParam = url6.searchParams.get("pir");
             if (freemiumPIRBannerParam && freemiumPIRBannerParam in freemiumPIRDataExamples) {
               freemiumPIRBannerMessage = freemiumPIRDataExamples[freemiumPIRBannerParam];
             }
             return Promise.resolve(freemiumPIRBannerMessage);
           }
           case "favorites_getData": {
-            const param = url5.searchParams.get("favorites");
+            const param = url6.searchParams.get("favorites");
             let data2;
             if (param && param in favorites) {
               data2 = favorites[param];
             } else {
-              data2 = param ? gen(Number(url5.searchParams.get("favorites"))) : read("favorites_data") || favorites.many;
+              data2 = param ? gen(Number(url6.searchParams.get("favorites"))) : read("favorites_data") || favorites.many;
             }
             write("favorites_data", data2);
             return Promise.resolve(data2);
@@ -31820,7 +32206,7 @@
           case "favorites_getConfig": {
             const defaultConfig = { expansion: "collapsed", animation: { kind: "view-transitions" } };
             const fromStorage = read("favorites_config") || defaultConfig;
-            if (url5.searchParams.get("favorites.config.expansion") === "expanded") {
+            if (url6.searchParams.get("favorites.config.expansion") === "expanded") {
               defaultConfig.expansion = "expanded";
             }
             return Promise.resolve(fromStorage);
@@ -31835,9 +32221,9 @@
             ];
             const widgetConfigFromStorage = read("widget_config") || [{ id: "favorites", visibility: "visible" }];
             let updateNotification = { content: null };
-            const isDelayed = url5.searchParams.has("update-notification-delay");
-            if (!isDelayed && url5.searchParams.has("update-notification")) {
-              const value2 = url5.searchParams.get("update-notification");
+            const isDelayed = url6.searchParams.has("update-notification-delay");
+            if (!isDelayed && url6.searchParams.has("update-notification")) {
+              const value2 = url6.searchParams.get("update-notification");
               if (value2 && value2 in updateNotificationExamples2) {
                 updateNotification = updateNotificationExamples2[value2];
               }
@@ -31852,14 +32238,20 @@
             };
             widgetsFromStorage.push({ id: "protections" });
             widgetConfigFromStorage.push({ id: "protections", visibility: "visible" });
+            if (url6.searchParams.has("omnibar")) {
+              const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === "favorites") ?? 0;
+              widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: "omnibar" });
+              const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === "favorites") ?? 0;
+              widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: "omnibar", visibility: "visible" });
+            }
             initial.customizer = customizerData();
             const settings = {
               customizerDrawer: { state: "enabled" }
             };
-            if (url5.searchParams.get("autoOpen") === "true" && settings.customizerDrawer) {
+            if (url6.searchParams.get("autoOpen") === "true" && settings.customizerDrawer) {
               settings.customizerDrawer.autoOpen = true;
             }
-            if (url5.searchParams.get("adBlocking") === "enabled") {
+            if (url6.searchParams.get("adBlocking") === "enabled") {
               settings.adBlocking = { state: "enabled" };
             }
             initial.settings = settings;

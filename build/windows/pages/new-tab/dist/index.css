@@ -1454,6 +1454,15 @@ body:not([data-platform-name]) .Button_button:active {
   letter-spacing: normal;
 }
 
+/* pages/new-tab/app/omnibar/components/Omnibar.module.css */
+.Omnibar_root {
+  align-items: center;
+  border: 1px solid red;
+  display: flex;
+  height: 96px;
+  justify-content: center;
+}
+
 /* pages/new-tab/app/protections/components/Protections.module.css */
 .Protections_root {
   background: var(--ntp-surface-background-color);
