@@ -9,6 +9,7 @@
   "oneOf": [
     {
       "type": "object",
+      "title": "Bookmark Suggestion",
       "required": ["kind", "title", "url", "isFavorite", "score"],
       "properties": {
         "kind": {
@@ -30,6 +31,7 @@
     },
     {
       "type": "object",
+      "title": "Open Tab Suggestion",
       "required": ["kind", "title", "tabId", "score"],
       "properties": {
         "kind": {
@@ -48,6 +50,7 @@
     },
     {
       "type": "object",
+      "title": "Phrase Suggestion",
       "required": ["kind", "phrase"],
       "properties": {
         "kind": {
@@ -60,6 +63,7 @@
     },
     {
       "type": "object",
+      "title": "Website Suggestion",
       "required": ["kind", "url"],
       "properties": {
         "kind": {
@@ -72,6 +76,7 @@
     },
     {
       "type": "object",
+      "title": "History Entry Suggestion",
       "required": ["kind", "title", "url", "score"],
       "properties": {
         "kind": {
@@ -90,6 +95,7 @@
     },
     {
       "type": "object",
+      "title": "Internal Page Suggestion",
       "required": ["kind", "title", "url", "score"],
       "properties": {
         "kind": {

@@ -56,39 +56,12 @@ export type Expansion = "expanded" | "collapsed";
  */
 export type Animation = None | ViewTransitions | Auto;
 export type Suggestion =
-  | {
-      kind: "bookmark";
-      title: string;
-      url: string;
-      isFavorite: boolean;
-      score: number;
-    }
-  | {
-      kind: "openTab";
-      title: string;
-      tabId: string;
-      score: number;
-    }
-  | {
-      kind: "phrase";
-      phrase: string;
-    }
-  | {
-      kind: "website";
-      url: string;
-    }
-  | {
-      kind: "historyEntry";
-      title: string;
-      url: string;
-      score: number;
-    }
-  | {
-      kind: "internalPage";
-      title: string;
-      url: string;
-      score: number;
-    };
+  | BookmarkSuggestion
+  | OpenTabSuggestion
+  | PhraseSuggestion
+  | WebsiteSuggestion
+  | HistoryEntrySuggestion
+  | InternalPageSuggestion;
 export type OmnibarMode = "search" | "ai";
 export type FeedType = "privacy-stats" | "activity";
 /**
@@ -489,6 +462,39 @@ export interface OmnibarOpenSuggestionNotification {
 export interface OpenSuggestionAction {
   suggestion: Suggestion;
   target: OpenTarget;
+}
+export interface BookmarkSuggestion {
+  kind: "bookmark";
+  title: string;
+  url: string;
+  isFavorite: boolean;
+  score: number;
+}
+export interface OpenTabSuggestion {
+  kind: "openTab";
+  title: string;
+  tabId: string;
+  score: number;
+}
+export interface PhraseSuggestion {
+  kind: "phrase";
+  phrase: string;
+}
+export interface WebsiteSuggestion {
+  kind: "website";
+  url: string;
+}
+export interface HistoryEntrySuggestion {
+  kind: "historyEntry";
+  title: string;
+  url: string;
+  score: number;
+}
+export interface InternalPageSuggestion {
+  kind: "internalPage";
+  title: string;
+  url: string;
+  score: number;
 }
 /**
  * Generated from @see "../messages/omnibar_setConfig.notify.json"
