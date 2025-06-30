@@ -51,7 +51,6 @@ export class DuckPlayerNativeMessages {
      */
     async initialSetup() {
         try {
-            console.log('initialSetup');
             return await this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
         } catch (e) {
             this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
