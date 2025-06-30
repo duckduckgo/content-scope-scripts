@@ -157,6 +157,7 @@ export class MetricsReporter {
      * ```
      */
     reportException(params) {
+        console.log('reportException', params);
         const metric = this._createExceptionMetric(params);
         this._sendMetric(metric);
     }

@@ -1,4 +1,5 @@
 import * as constants from './constants.js';
+import { MetricsReporter, EXCEPTION_KIND_MESSAGING_ERROR } from '../../../../special-pages/shared/metrics-reporter.js';
 
 /** @import {YouTubeError} from './error-detection.js' */
 /** @import {Environment} from '../duckplayer/environment.js' */
@@ -42,13 +43,20 @@ export class DuckPlayerNativeMessages {
          */
         this.messaging = messaging;
         this.environment = environment;
+        this.metrics = new MetricsReporter(messaging);
     }
 
     /**
      * @returns {Promise<import('../duck-player-native.js').InitialSettings>}
      */
-    initialSetup() {
-        return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
+    async initialSetup() {
+        try {
+            console.log('initialSetup');
+            return await this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+            throw e;
+        }
     }
 
     /**
