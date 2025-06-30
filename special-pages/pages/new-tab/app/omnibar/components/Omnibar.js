@@ -1,7 +1,4 @@
-import { useState } from 'preact/hooks';
-import { h, Fragment } from 'preact';
-import cn from 'classnames';
-import { useTypedTranslationWith } from '../../types.js';
+import { h } from 'preact';
 import styles from './Omnibar.module.css';
 
 /**
@@ -22,7 +19,5 @@ import styles from './Omnibar.module.css';
  * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
 export function Omnibar(props) {
-    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-
     return <div class={styles.root}>Omnibar goes here. Mode = {props.mode}</div>;
 }

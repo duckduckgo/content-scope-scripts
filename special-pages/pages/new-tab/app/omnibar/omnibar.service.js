@@ -68,7 +68,7 @@ export class OmnibarService {
      * @param {string} term
      * @returns {Promise<SuggestionsData>}
      */
-    async getSuggestions(term) {
+    getSuggestions(term) {
         return this.ntp.messaging.request('omnibar_getSuggestions', { term });
     }
 

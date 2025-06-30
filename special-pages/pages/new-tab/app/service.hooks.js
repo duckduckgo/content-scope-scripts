@@ -23,7 +23,7 @@
  * } State
  */
 
-import { useCallback, useEffect } from 'preact/hooks';
+import { useEffect } from 'preact/hooks';
 import { useMessaging } from './types.js';
 
 /**
