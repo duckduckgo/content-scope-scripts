@@ -1,9 +1,10 @@
 import { createContext, h } from 'preact';
-import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 
 import { FavoritesService } from '../favorites.service.js';
 import { useMessaging } from '../../types.js';
 import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
+import { signal, useSignal } from '@preact/signals';
 
 /**
  * @typedef {import('../../../types/new-tab.ts').Favorite} Favorite
@@ -53,6 +54,12 @@ export const FavoritesContext = createContext({
 });
 
 export const FavoritesDispatchContext = createContext(/** @type {import("preact/hooks").Dispatch<Events>} */ ({}));
+
+/**
+ * A simple counter than can be used to invalidate a tree. For example, to force the browser
+ * to re-fetch icons that previously gave a 404 response
+ */
+export const FaviconsRefreshedCount = createContext(signal(0));
 
 /**
  * @param {object} props
@@ -127,9 +134,19 @@ export function FavoritesProvider({ children }) {
         [service],
     );
 
+    const faviconsRefreshedCount = useSignal(0);
+    useEffect(() => {
+        if (!service.current) return;
+        return service.current.onFaviconsRefreshed(() => {
+            faviconsRefreshedCount.value = faviconsRefreshedCount.value += 1;
+        });
+    }, []);
+
     return (
         <FavoritesContext.Provider value={{ state, toggle, favoritesDidReOrder, openFavorite, openContextMenu, add, onConfigChanged }}>
-            <FavoritesDispatchContext.Provider value={dispatch}>{children}</FavoritesDispatchContext.Provider>
+            <FaviconsRefreshedCount.Provider value={faviconsRefreshedCount}>
+                <FavoritesDispatchContext.Provider value={dispatch}>{children}</FavoritesDispatchContext.Provider>
+            </FaviconsRefreshedCount.Provider>
         </FavoritesContext.Provider>
     );
 }
@@ -145,4 +162,8 @@ export function useService() {
         };
     }, [ntp]);
     return service;
+}
+
+export function useFaviconRefreshedCount() {
+    return useContext(FaviconsRefreshedCount);
 }

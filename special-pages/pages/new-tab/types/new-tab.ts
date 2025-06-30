@@ -190,6 +190,7 @@ export interface NewTabMessages {
     | CustomizerOnThemeUpdateSubscription
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
+    | FavoritesOnRefreshSubscription
     | FreemiumPIRBannerOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
@@ -1054,6 +1055,18 @@ export interface FavoritesOnConfigUpdateSubscription {
 export interface FavoritesOnDataUpdateSubscription {
   subscriptionEvent: "favorites_onDataUpdate";
   params: FavoritesData;
+}
+/**
+ * Generated from @see "../messages/favorites_onRefresh.subscribe.json"
+ */
+export interface FavoritesOnRefreshSubscription {
+  subscriptionEvent: "favorites_onRefresh";
+  params: FavoritesRefresh;
+}
+export interface FavoritesRefresh {
+  items: {
+    kind: "favicons";
+  }[];
 }
 /**
  * Generated from @see "../messages/freemiumPIRBanner_onDataUpdate.subscribe.json"
