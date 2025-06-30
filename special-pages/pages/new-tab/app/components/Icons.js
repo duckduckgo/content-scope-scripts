@@ -163,3 +163,28 @@ export function BackChevron() {
         </svg>
     );
 }
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Find-Search-16.svg. Inline SVG so that can be styled with CSS.
+ * @param {object} params
+ * @param {string} [params.className]
+ */
+export function SearchIcon({ className }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#Find-Search-16_svg__a)">
+                <path
+                    fill="currentColor"
+                    fill-rule="evenodd"
+                    d="M7 0a7 7 0 1 0 4.488 12.372l3.445 3.445a.625.625 0 1 0 .884-.884l-3.445-3.445A7 7 0 0 0 7 0M1.25 7a5.75 5.75 0 1 1 11.5 0 5.75 5.75 0 0 1-11.5 0"
+                    clip-rule="evenodd"
+                />
+            </g>
+            <defs>
+                <clipPath id="Find-Search-16_svg__a">
+                    <path fill="#fff" d="M0 0h16v16H0z" />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
