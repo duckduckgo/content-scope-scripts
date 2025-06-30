@@ -9,7 +9,7 @@ import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 import { activityMockTransport } from './activity/mocks/activity.mock-transport.js';
 import { protectionsMockTransport } from './protections/mocks/protections.mock-transport.js';
-import { omniboxMockTransport } from './omnibox/mocks/omnibox.mock-transport.js';
+import { omnibarMockTransport } from './omnibar/mocks/omnibar.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -118,7 +118,7 @@ export function mockTransport() {
         customizer: customizerMockTransport(),
         activity: activityMockTransport(),
         protections: protectionsMockTransport(),
-        omnibox: omniboxMockTransport(),
+        omnibar: omnibarMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -481,12 +481,12 @@ export function mockTransport() {
                         { id: 'rmf' },
                         { id: 'freemiumPIRBanner' },
                         { id: 'nextSteps' },
-                        { id: 'omnibox' },
+                        { id: 'omnibar' },
                         { id: 'favorites' },
                     ];
 
                     const widgetConfigFromStorage = read('widget_config') || [
-                        { id: 'omnibox', visibility: 'visible' },
+                        { id: 'omnibar', visibility: 'visible' },
                         { id: 'favorites', visibility: 'visible' },
                     ];
 

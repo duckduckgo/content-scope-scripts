@@ -1,13 +1,13 @@
 import { Service } from '../service.js';
 
 /**
- * @typedef {import("../../types/new-tab.js").OmniboxConfig} OmniboxConfig
+ * @typedef {import("../../types/new-tab.js").OmnibarConfig} OmnibarConfig
  * @typedef {import("../../types/new-tab.js").SuggestionsData} SuggestionsData
  * @typedef {import("../../types/new-tab.js").Suggestion} Suggestion
  * @typedef {import("../../types/new-tab.js").OpenTarget} OpenTarget
  */
 
-export class OmniboxService {
+export class OmnibarService {
     /**
      * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
      * @internal
@@ -15,20 +15,20 @@ export class OmniboxService {
     constructor(ntp) {
         this.ntp = ntp;
 
-        /** @type {Service<OmniboxConfig>} */
+        /** @type {Service<OmnibarConfig>} */
         this.configService = new Service({
-            initial: () => ntp.messaging.request('omnibox_getConfig'),
-            subscribe: (cb) => ntp.messaging.subscribe('omnibox_onConfigUpdate', cb),
-            persist: (data) => ntp.messaging.notify('omnibox_setConfig', data),
+            initial: () => ntp.messaging.request('omnibar_getConfig'),
+            subscribe: (cb) => ntp.messaging.subscribe('omnibar_onConfigUpdate', cb),
+            persist: (data) => ntp.messaging.notify('omnibar_setConfig', data),
         });
     }
 
     name() {
-        return 'OmniboxService';
+        return 'OmnibarService';
     }
 
     /**
-     * @returns {Promise<{data: null; config: OmniboxConfig}>}
+     * @returns {Promise<{data: null; config: OmnibarConfig}>}
      * @internal
      */
     async getInitial() {
@@ -44,7 +44,7 @@ export class OmniboxService {
     }
 
     /**
-     * @param {(evt: {data: OmniboxConfig, source: 'manual' | 'subscription'}) => void} cb
+     * @param {(evt: {data: OmnibarConfig, source: 'manual' | 'subscription'}) => void} cb
      * @internal
      */
     onConfig(cb) {
@@ -52,7 +52,7 @@ export class OmniboxService {
     }
 
     /**
-     * @param {OmniboxConfig['mode']} mode
+     * @param {OmnibarConfig['mode']} mode
      */
     setMode(mode) {
         this.configService.update((old) => {
@@ -69,7 +69,7 @@ export class OmniboxService {
      * @returns {Promise<SuggestionsData>}
      */
     async getSuggestions(term) {
-        return this.ntp.messaging.request('omnibox_getSuggestions', { term });
+        return this.ntp.messaging.request('omnibar_getSuggestions', { term });
     }
 
     /**
@@ -79,7 +79,7 @@ export class OmniboxService {
      * @param {OpenTarget} params.target
      */
     openSuggestion(params) {
-        this.ntp.messaging.notify('omnibox_openSuggestion', params);
+        this.ntp.messaging.notify('omnibar_openSuggestion', params);
     }
 
     /**
@@ -89,7 +89,7 @@ export class OmniboxService {
      * @param {OpenTarget} params.target
      */
     submitSearch(params) {
-        this.ntp.messaging.notify('omnibox_submitSearch', params);
+        this.ntp.messaging.notify('omnibar_submitSearch', params);
     }
 
     /**
@@ -99,6 +99,6 @@ export class OmniboxService {
      * @param {OpenTarget} params.target
      */
     submitChat(params) {
-        this.ntp.messaging.notify('omnibox_submitChat', params);
+        this.ntp.messaging.notify('omnibar_submitChat', params);
     }
 }

@@ -2,8 +2,8 @@ import { TestTransportConfig } from '@duckduckgo/messaging';
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
-export function omniboxMockTransport() {
-    /** @type {import('../../../types/new-tab.ts').OmniboxConfig} */
+export function omnibarMockTransport() {
+    /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
     const config = {
         mode: 'search',
     };
@@ -16,9 +16,9 @@ export function omniboxMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
-                case 'omnibox_setConfig': {
+                case 'omnibar_setConfig': {
                     Object.assign(config, msg.params);
-                    subs.get('omnibox_onConfigUpdate')?.(config);
+                    subs.get('omnibar_onConfigUpdate')?.(config);
                     break;
                 }
                 default: {
@@ -29,7 +29,7 @@ export function omniboxMockTransport() {
         subscribe(_msg, cb) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */
             const sub = /** @type {any} */ (_msg.subscriptionName);
-            if (sub === 'omnibox_onConfigUpdate') {
+            if (sub === 'omnibar_onConfigUpdate') {
                 subs.set(sub, cb);
                 return () => {};
             }
@@ -40,8 +40,8 @@ export function omniboxMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
-                case 'omnibox_getConfig': {
-                    const modeOverride = url.searchParams.get('omnibox.mode');
+                case 'omnibar_getConfig': {
+                    const modeOverride = url.searchParams.get('omnibar.mode');
                     if (modeOverride === 'search' || modeOverride === 'ai') {
                         config.mode = modeOverride;
                     }

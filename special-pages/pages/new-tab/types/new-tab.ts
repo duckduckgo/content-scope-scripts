@@ -89,7 +89,7 @@ export type Suggestion =
       url: string;
       score: number;
     };
-export type OmniboxMode = "search" | "ai";
+export type OmnibarMode = "search" | "ai";
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -146,10 +146,10 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
-    | OmniboxOpenSuggestionNotification
-    | OmniboxSetConfigNotification
-    | OmniboxSubmitChatNotification
-    | OmniboxSubmitSearchNotification
+    | OmnibarOpenSuggestionNotification
+    | OmnibarSetConfigNotification
+    | OmnibarSubmitChatNotification
+    | OmnibarSubmitSearchNotification
     | OpenNotification
     | ProtectionsSetConfigNotification
     | ReportInitExceptionNotification
@@ -173,8 +173,8 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
-    | OmniboxGetConfigRequest
-    | OmniboxGetSuggestionsRequest
+    | OmnibarGetConfigRequest
+    | OmnibarGetSuggestionsRequest
     | ProtectionsGetConfigRequest
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
@@ -193,7 +193,7 @@ export interface NewTabMessages {
     | FreemiumPIRBannerOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
-    | OmniboxOnConfigUpdateSubscription
+    | OmnibarOnConfigUpdateSubscription
     | ProtectionsOnConfigUpdateSubscription
     | ProtectionsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
@@ -479,10 +479,10 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
- * Generated from @see "../messages/omnibox_openSuggestion.notify.json"
+ * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
  */
-export interface OmniboxOpenSuggestionNotification {
-  method: "omnibox_openSuggestion";
+export interface OmnibarOpenSuggestionNotification {
+  method: "omnibar_openSuggestion";
   params: OpenSuggestionAction;
 }
 export interface OpenSuggestionAction {
@@ -490,20 +490,20 @@ export interface OpenSuggestionAction {
   target: OpenTarget;
 }
 /**
- * Generated from @see "../messages/omnibox_setConfig.notify.json"
+ * Generated from @see "../messages/omnibar_setConfig.notify.json"
  */
-export interface OmniboxSetConfigNotification {
-  method: "omnibox_setConfig";
-  params: OmniboxConfig;
+export interface OmnibarSetConfigNotification {
+  method: "omnibar_setConfig";
+  params: OmnibarConfig;
 }
-export interface OmniboxConfig {
-  mode: OmniboxMode;
+export interface OmnibarConfig {
+  mode: OmnibarMode;
 }
 /**
- * Generated from @see "../messages/omnibox_submitChat.notify.json"
+ * Generated from @see "../messages/omnibar_submitChat.notify.json"
  */
-export interface OmniboxSubmitChatNotification {
-  method: "omnibox_submitChat";
+export interface OmnibarSubmitChatNotification {
+  method: "omnibar_submitChat";
   params: SubmitChatAction;
 }
 export interface SubmitChatAction {
@@ -514,10 +514,10 @@ export interface SubmitChatAction {
   target: OpenTarget;
 }
 /**
- * Generated from @see "../messages/omnibox_submitSearch.notify.json"
+ * Generated from @see "../messages/omnibar_submitSearch.notify.json"
  */
-export interface OmniboxSubmitSearchNotification {
-  method: "omnibox_submitSearch";
+export interface OmnibarSubmitSearchNotification {
+  method: "omnibar_submitSearch";
   params: SubmitSearchAction;
 }
 export interface SubmitSearchAction {
@@ -867,17 +867,17 @@ export interface NextStepsData {
   content: null | NextStepsCards;
 }
 /**
- * Generated from @see "../messages/omnibox_getConfig.request.json"
+ * Generated from @see "../messages/omnibar_getConfig.request.json"
  */
-export interface OmniboxGetConfigRequest {
-  method: "omnibox_getConfig";
-  result: OmniboxConfig;
+export interface OmnibarGetConfigRequest {
+  method: "omnibar_getConfig";
+  result: OmnibarConfig;
 }
 /**
- * Generated from @see "../messages/omnibox_getSuggestions.request.json"
+ * Generated from @see "../messages/omnibar_getSuggestions.request.json"
  */
-export interface OmniboxGetSuggestionsRequest {
-  method: "omnibox_getSuggestions";
+export interface OmnibarGetSuggestionsRequest {
+  method: "omnibar_getSuggestions";
   params: GetSuggestionsRequest;
   result: SuggestionsData;
 }
@@ -1077,11 +1077,11 @@ export interface NextStepsOnDataUpdateSubscription {
   params: NextStepsData;
 }
 /**
- * Generated from @see "../messages/omnibox_onConfigUpdate.subscribe.json"
+ * Generated from @see "../messages/omnibar_onConfigUpdate.subscribe.json"
  */
-export interface OmniboxOnConfigUpdateSubscription {
-  subscriptionEvent: "omnibox_onConfigUpdate";
-  params: OmniboxConfig;
+export interface OmnibarOnConfigUpdateSubscription {
+  subscriptionEvent: "omnibar_onConfigUpdate";
+  params: OmnibarConfig;
 }
 /**
  * Generated from @see "../messages/protections_onConfigUpdate.subscribe.json"

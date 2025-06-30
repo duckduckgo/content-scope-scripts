@@ -1,10 +1,10 @@
 import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
-import { OmniboxProvider } from './OmniboxProvider.js';
+import { OmnibarProvider } from './OmnibarProvider.js';
 import { h } from 'preact';
 
-import { OmniboxConsumer } from './OmniboxConsumer.js';
+import { OmnibarConsumer } from './OmnibarConsumer.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -17,13 +17,13 @@ import { OmniboxConsumer } from './OmniboxConsumer.js';
  * It reaches out to access this widget's global visibility, and chooses
  * whether to incur the side effects (data fetching).
  */
-export function OmniboxCustomized() {
+export function OmnibarCustomized() {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     /**
-     * The menu title for the omnibox widget.
+     * The menu title for the omnibar widget.
      */
-    const sectionTitle = t('omnibox_menuTitle');
+    const sectionTitle = t('omnibar_menuTitle');
 
     const { visibility, id, toggle, index } = useVisibility();
 
@@ -34,8 +34,8 @@ export function OmniboxCustomized() {
     }
 
     return (
-        <OmniboxProvider>
-            <OmniboxConsumer />
-        </OmniboxProvider>
+        <OmnibarProvider>
+            <OmnibarConsumer />
+        </OmnibarProvider>
     );
 }

@@ -89,7 +89,7 @@
      gap: 8px;
  }
 
- ::view-transition-new(omnibox-input-transition) {
+ ::view-transition-new(omnibar-input-transition) {
      animation: 0.25s grow-y;
  }
 

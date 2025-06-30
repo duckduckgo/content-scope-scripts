@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Omnibox Config",
+  "title": "Omnibar Config",
   "type": "object",
   "required": [
     "mode"
   ],
   "properties": {
     "mode": {
-      "title": "Omnibox Mode",
+      "title": "Omnibar Mode",
       "type": "string",
       "enum": ["search", "ai"]
     }
