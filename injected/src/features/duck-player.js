@@ -61,7 +61,7 @@ import { MetricsReporter } from '../../../special-pages/shared/metrics-reporter.
  * @internal
  */
 export default class DuckPlayerFeature extends ContentFeature {
-    async init(args) {
+    init(args) {
         /**
          * This feature never operates in a frame
          */
@@ -93,6 +93,7 @@ export default class DuckPlayerFeature extends ContentFeature {
         if (!this.messaging) {
             throw new Error('cannot operate duck player without a messaging backend');
         }
+        const metrics = new MetricsReporter(this.messaging);
 
         try {
             const locale = args?.locale || args?.language || 'en';
@@ -105,12 +106,18 @@ export default class DuckPlayerFeature extends ContentFeature {
             const comms = new DuckPlayerOverlayMessages(this.messaging, env);
 
             if (overlaysEnabled) {
-                await initOverlays(overlaySettings.youtube, env, comms);
+                initOverlays(overlaySettings.youtube, env, comms)
+                    // Using then instead of await because this is the public interface of the parent, which doesn't explicitly wait for promises to be resolved.
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    .catch((e) => {
+                        console.error(e);
+                        metrics.reportExceptionWithError(e);
+                    });
             } else if (serpProxyEnabled) {
                 comms.serpProxy();
             }
         } catch (e) {
-            const metrics = new MetricsReporter(this.messaging);
+            console.error(e);
             metrics.reportExceptionWithError(e);
         }
     }
