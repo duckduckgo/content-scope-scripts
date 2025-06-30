@@ -8,3 +8,4 @@ export const MSG_NAME_URL_CHANGE = 'onUrlChanged';
 export const MSG_NAME_FEATURE_READY = 'onDuckPlayerFeatureReady';
 export const MSG_NAME_SCRIPTS_READY = 'onDuckPlayerScriptsReady';
 export const MSG_NAME_DISMISS_OVERLAY = 'didDismissOverlay';
+export const MSG_NAME_FRONTEND_EVENT = 'onFrontendEvent';

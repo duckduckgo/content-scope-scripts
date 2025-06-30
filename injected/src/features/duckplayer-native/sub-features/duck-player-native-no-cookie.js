@@ -10,6 +10,12 @@ import { ErrorDetection } from '../error-detection.js';
  * @import {DuckPlayerNativeSelectors} from '../sub-feature.js'
  * @import {TranslationFn} from '../../duck-player-native.js'
  */
+
+/**
+ * @type {Event['type'][]}
+ */
+const EVENTS_TO_FORWARD = ['enterpictureinpicture', 'leavepictureinpicture'];
+
 /**
  * @import {DuckPlayerNativeSubFeature} from "../sub-feature.js"
  * @implements {DuckPlayerNativeSubFeature}
@@ -81,6 +87,23 @@ export class DuckPlayerNativeNoCookie {
 
             return () => {
                 if (destroy) destroy();
+            };
+        });
+
+        this.sideEffects.add('setting up event forwarding', () => {
+            const destroy = EVENTS_TO_FORWARD.map((eventName) => {
+                const handler = (event) => {
+                    this.messages.notifyFrontendEvent(eventName, event);
+                };
+                document.addEventListener(eventName, handler);
+
+                return () => {
+                    document.removeEventListener(eventName, handler);
+                };
+            });
+
+            return () => {
+                destroy.forEach((fn) => fn());
             };
         });
     }

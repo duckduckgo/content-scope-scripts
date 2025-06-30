@@ -19,6 +19,14 @@ import * as constants from './constants.js';
  */
 
 /**
+ * @typedef {object} FrontendEvent - Parameters passed to the onFrontendEvent callback
+ * @property {Event['type']} type
+ * @property {Event['target']} target
+ * @property {Event['currentTarget']} currentTarget
+ * @property {Event['timeStamp']} timeStamp
+ */
+
+/**
  * @typedef {'UNKNOWN'|'YOUTUBE'|'NOCOOKIE'|'SERP'} PageType
  */
 
@@ -110,5 +118,23 @@ export class DuckPlayerNativeMessages {
      */
     notifyOverlayDismissed() {
         this.messaging.notify(constants.MSG_NAME_DISMISS_OVERLAY, {});
+    }
+
+    /**
+     * Notifies browser of a frontend event
+     * @param {string} eventName
+     * @param {Event} event
+     */
+    notifyFrontendEvent(eventName, event) {
+        const { type, target, currentTarget, timeStamp } = event;
+        const eventParams = {
+            type,
+            target,
+            currentTarget,
+            timeStamp,
+        };
+
+        console.log('notifyFrontendEvent', eventName, eventParams);
+        this.messaging.notify(constants.MSG_NAME_FRONTEND_EVENT, eventParams);
     }
 }
