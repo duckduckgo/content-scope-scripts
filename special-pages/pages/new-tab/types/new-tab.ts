@@ -55,6 +55,14 @@ export type Expansion = "expanded" | "collapsed";
  * Generic Animation configuration
  */
 export type Animation = None | ViewTransitions | Auto;
+export type Suggestion =
+  | BookmarkSuggestion
+  | OpenTabSuggestion
+  | PhraseSuggestion
+  | WebsiteSuggestion
+  | HistoryEntrySuggestion
+  | InternalPageSuggestion;
+export type OmnibarMode = "search" | "ai";
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -111,6 +119,10 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarOpenSuggestionNotification
+    | OmnibarSetConfigNotification
+    | OmnibarSubmitChatNotification
+    | OmnibarSubmitSearchNotification
     | OpenNotification
     | ProtectionsSetConfigNotification
     | ReportInitExceptionNotification
@@ -134,6 +146,8 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarGetConfigRequest
+    | OmnibarGetSuggestionsRequest
     | ProtectionsGetConfigRequest
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
@@ -153,6 +167,7 @@ export interface NewTabMessages {
     | FreemiumPIRBannerOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
+    | OmnibarOnConfigUpdateSubscription
     | ProtectionsOnConfigUpdateSubscription
     | ProtectionsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
@@ -436,6 +451,88 @@ export interface NextStepsSetConfigNotification {
 export interface NextStepsConfig {
   expansion: Expansion;
   animation?: Animation;
+}
+/**
+ * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
+ */
+export interface OmnibarOpenSuggestionNotification {
+  method: "omnibar_openSuggestion";
+  params: OpenSuggestionAction;
+}
+export interface OpenSuggestionAction {
+  suggestion: Suggestion;
+  target: OpenTarget;
+}
+export interface BookmarkSuggestion {
+  kind: "bookmark";
+  title: string;
+  url: string;
+  isFavorite: boolean;
+  score: number;
+}
+export interface OpenTabSuggestion {
+  kind: "openTab";
+  title: string;
+  tabId: string;
+  score: number;
+}
+export interface PhraseSuggestion {
+  kind: "phrase";
+  phrase: string;
+}
+export interface WebsiteSuggestion {
+  kind: "website";
+  url: string;
+}
+export interface HistoryEntrySuggestion {
+  kind: "historyEntry";
+  title: string;
+  url: string;
+  score: number;
+}
+export interface InternalPageSuggestion {
+  kind: "internalPage";
+  title: string;
+  url: string;
+  score: number;
+}
+/**
+ * Generated from @see "../messages/omnibar_setConfig.notify.json"
+ */
+export interface OmnibarSetConfigNotification {
+  method: "omnibar_setConfig";
+  params: OmnibarConfig;
+}
+export interface OmnibarConfig {
+  mode: OmnibarMode;
+}
+/**
+ * Generated from @see "../messages/omnibar_submitChat.notify.json"
+ */
+export interface OmnibarSubmitChatNotification {
+  method: "omnibar_submitChat";
+  params: SubmitChatAction;
+}
+export interface SubmitChatAction {
+  /**
+   * The chat message to submit to Duck.ai
+   */
+  chat: string;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/omnibar_submitSearch.notify.json"
+ */
+export interface OmnibarSubmitSearchNotification {
+  method: "omnibar_submitSearch";
+  params: SubmitSearchAction;
+}
+export interface SubmitSearchAction {
+  /**
+   * The search term to submit
+   */
+  term: string;
+  target: OpenTarget;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
@@ -777,6 +874,34 @@ export interface NextStepsData {
   content: null | NextStepsCards;
 }
 /**
+ * Generated from @see "../messages/omnibar_getConfig.request.json"
+ */
+export interface OmnibarGetConfigRequest {
+  method: "omnibar_getConfig";
+  result: OmnibarConfig;
+}
+/**
+ * Generated from @see "../messages/omnibar_getSuggestions.request.json"
+ */
+export interface OmnibarGetSuggestionsRequest {
+  method: "omnibar_getSuggestions";
+  params: GetSuggestionsRequest;
+  result: SuggestionsData;
+}
+export interface GetSuggestionsRequest {
+  /**
+   * The search term to get suggestions for
+   */
+  term: string;
+}
+export interface SuggestionsData {
+  suggestions: {
+    topHits: Suggestion[];
+    duckduckgoSuggestions: Suggestion[];
+    localSuggestions: Suggestion[];
+  };
+}
+/**
  * Generated from @see "../messages/protections_getConfig.request.json"
  */
 export interface ProtectionsGetConfigRequest {
@@ -969,6 +1094,13 @@ export interface NextStepsOnConfigUpdateSubscription {
 export interface NextStepsOnDataUpdateSubscription {
   subscriptionEvent: "nextSteps_onDataUpdate";
   params: NextStepsData;
+}
+/**
+ * Generated from @see "../messages/omnibar_onConfigUpdate.subscribe.json"
+ */
+export interface OmnibarOnConfigUpdateSubscription {
+  subscriptionEvent: "omnibar_onConfigUpdate";
+  params: OmnibarConfig;
 }
 /**
  * Generated from @see "../messages/protections_onConfigUpdate.subscribe.json"
