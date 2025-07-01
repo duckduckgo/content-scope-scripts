@@ -36,7 +36,35 @@ export class DuckPlayerNativeNoCookie {
         });
     }
 
-    onInit() {}
+    onInit() {
+        this.sideEffects.add('adding loading spinner', () => {
+            const spinnerHandler = () => {
+                console.log('creating spinner');
+                const loadingSpinner = document.createElement('div');
+                loadingSpinner.innerHTML = '<div class="duck-player-native-loading-spinner" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: transparent; display: flex; justify-content: center; align-items: center; z-index: 10000000; color: white; font-size: 24px; font-weight: bold;">LOADING...</div>';
+                document.body.appendChild(loadingSpinner);
+            }
+
+            const spinnerDestroyHandler = () => {
+                document.querySelector('.duck-player-native-loading-spinner')?.parentElement?.remove();
+            }
+
+            let i = 0;
+            const interval = setInterval(() => {
+                console.log('i', i);
+                i++;
+                if (document.querySelector('body') && !document.querySelector('.duck-player-native-loading-spinner')) {
+                    spinnerHandler();
+                }
+                // if the player is loaded, destroy the interval
+            }, 10);
+
+            return () => {
+                spinnerDestroyHandler();
+                clearInterval(interval);
+            };
+        });
+    }
 
     onLoad() {
         this.sideEffects.add('started polling current timestamp', () => {
