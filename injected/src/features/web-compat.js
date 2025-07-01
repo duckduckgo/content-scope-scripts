@@ -130,9 +130,9 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('disableDeviceEnumeration') || this.getFeatureSettingEnabled('disableDeviceEnumerationFrames')) {
             this.preventDeviceEnumeration();
         }
-        if (this.getFeatureSettingEnabled('deviceEnumeration')) {
+        // if (this.getFeatureSettingEnabled('deviceEnumeration')) {
             this.deviceEnumerationFix();
-        }
+        //}
     }
 
     /** Shim Web Share API in Android WebView */
@@ -790,6 +790,7 @@ export class WebCompat extends ContentFeature {
         const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
             apply: async (target, thisArg, args) => {
                 try {
+                    debugger;
                     // Request device enumeration information from native
                     const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
 
