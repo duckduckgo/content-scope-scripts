@@ -1,7 +1,7 @@
 import { Logger, SideEffects } from '../../duckplayer/util.js';
 import { muteAudio } from '../mute-audio.js';
 import { pollTimestamp } from '../get-current-timestamp.js';
-import { stopVideoFromPlaying } from '../pause-video.js';
+import { stopVideoFromPlaying, muteAllElements } from '../pause-video.js';
 import { showThumbnailOverlay } from '../overlays/thumbnail-overlay.js';
 
 /**
@@ -86,6 +86,7 @@ export class DuckPlayerNativeYoutube {
 
             if (pause) {
                 this.sideEffects.add('stopping video from playing', () => stopVideoFromPlaying(videoElement));
+                this.sideEffects.add('muting all elements', () => muteAllElements());
                 this.sideEffects.add('appending thumbnail', () => {
                     const clickHandler = () => {
                         this.messages.notifyOverlayDismissed();
@@ -95,6 +96,7 @@ export class DuckPlayerNativeYoutube {
                 });
             } else {
                 this.sideEffects.destroy('stopping video from playing');
+                this.sideEffects.destroy('muting all elements');
                 this.sideEffects.destroy('appending thumbnail');
             }
         }
