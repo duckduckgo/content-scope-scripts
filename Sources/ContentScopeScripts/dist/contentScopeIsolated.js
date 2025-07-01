@@ -7113,6 +7113,7 @@
   var MSG_NAME_FEATURE_READY = "onDuckPlayerFeatureReady";
   var MSG_NAME_SCRIPTS_READY = "onDuckPlayerScriptsReady";
   var MSG_NAME_DISMISS_OVERLAY = "didDismissOverlay";
+  var MSG_NAME_PLAYER_LOADED = "didLoadPlayer";
 
   // src/features/duckplayer-native/messages.js
   var DuckPlayerNativeMessages = class {
@@ -7183,6 +7184,9 @@
      */
     notifyOverlayDismissed() {
       this.messaging.notify(MSG_NAME_DISMISS_OVERLAY, {});
+    }
+    notifyPlayerLoading() {
+      this.messaging.notify(MSG_NAME_PLAYER_LOADED);
     }
   };
 
@@ -8038,26 +8042,18 @@ ul.messages {
       });
     }
     onInit() {
-      this.sideEffects.add("adding loading spinner", () => {
-        const spinnerHandler = () => {
-          console.log("creating spinner");
-          const loadingSpinner = document.createElement("div");
-          loadingSpinner.innerHTML = '<div class="duck-player-native-loading-spinner" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: transparent; display: flex; justify-content: center; align-items: center; z-index: 10000000; color: white; font-size: 24px; font-weight: bold;">LOADING...</div>';
-          document.body.appendChild(loadingSpinner);
-        };
-        const spinnerDestroyHandler = () => {
-          document.querySelector(".duck-player-native-loading-spinner")?.parentElement?.remove();
-        };
+      this.sideEffects.add("adding loading watcher", () => {
         let i = 0;
         const interval = setInterval(() => {
           console.log("i", i);
           i++;
-          if (document.querySelector("body") && !document.querySelector(".duck-player-native-loading-spinner")) {
-            spinnerHandler();
+          if (document.querySelector("#global-loader")) {
+            console.log("loader detected. send message to native");
+            this.messages.notifyPlayerLoading();
+            clearInterval(interval);
           }
         }, 10);
         return () => {
-          spinnerDestroyHandler();
           clearInterval(interval);
         };
       });

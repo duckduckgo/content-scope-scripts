@@ -111,4 +111,8 @@ export class DuckPlayerNativeMessages {
     notifyOverlayDismissed() {
         this.messaging.notify(constants.MSG_NAME_DISMISS_OVERLAY, {});
     }
+
+    notifyPlayerLoading() {
+        this.messaging.notify(constants.MSG_NAME_PLAYER_LOADED);
+    }
 }
