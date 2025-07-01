@@ -22,14 +22,7 @@ export async function initOverlays(settings, environment, messages) {
     // bind early to attach all listeners
     const domState = new DomState();
 
-    /** @type {import("../duck-player.js").OverlaysInitialSettings} */
-    let initialSetup;
-    try {
-        initialSetup = await messages.initialSetup();
-    } catch (e) {
-        console.warn(e);
-        return;
-    }
+    const initialSetup = await messages.initialSetup();
 
     if (!initialSetup) {
         const message = 'InitialSetup data is missing';

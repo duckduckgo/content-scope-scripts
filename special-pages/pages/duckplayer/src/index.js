@@ -42,6 +42,8 @@ export class DuckplayerPage {
             return await this.messaging.request('initialSetup');
         } catch (e) {
             this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+
+            // this is needed because the consumer is re-trying based on exceptions
             throw e;
         }
     }

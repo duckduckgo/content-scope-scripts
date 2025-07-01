@@ -26,7 +26,7 @@ export class DuckPlayerOverlayMessages {
     }
 
     /**
-     * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
+     * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings|null>}
      */
     async initialSetup() {
         if (this.environment.isIntegrationMode()) {
@@ -42,33 +42,33 @@ export class DuckPlayerOverlayMessages {
             return await this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
         } catch (e) {
             this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
-            throw e;
+            return null;
         }
     }
 
     /**
      * Inform the native layer that an interaction occurred
      * @param {import("../duck-player.js").UserValues} userValues
-     * @returns {Promise<import("../duck-player.js").UserValues>}
+     * @returns {Promise<import("../duck-player.js").UserValues|null>}
      */
     async setUserValues(userValues) {
         try {
             return await this.messaging.request(constants.MSG_NAME_SET_VALUES, userValues);
         } catch (e) {
             this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
-            throw e;
+            return null;
         }
     }
 
     /**
-     * @returns {Promise<import("../duck-player.js").UserValues>}
+     * @returns {Promise<import("../duck-player.js").UserValues|null>}
      */
     async getUserValues() {
         try {
             return await this.messaging.request(constants.MSG_NAME_READ_VALUES, {});
         } catch (e) {
             this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
-            throw e;
+            return null;
         }
     }
 
@@ -118,6 +118,10 @@ export class DuckPlayerOverlayMessages {
      * This allows our SERP to interact with Duck Player settings.
      */
     serpProxy() {
+        /**
+         * @param {string} kind
+         * @param {Record<string, any>} data
+         */
         function respond(kind, data) {
             window.dispatchEvent(
                 new CustomEvent(constants.MSG_NAME_PROXY_RESPONSE, {
@@ -139,12 +143,16 @@ export class DuckPlayerOverlayMessages {
                 assertCustomEvent(evt);
                 if (evt.detail.kind === constants.MSG_NAME_SET_VALUES) {
                     return this.setUserValues(evt.detail.data)
-                        .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
+                        .then((updated) => {
+                            if (updated) respond(constants.MSG_NAME_PUSH_DATA, updated);
+                        })
                         .catch(console.error);
                 }
                 if (evt.detail.kind === constants.MSG_NAME_READ_VALUES_SERP) {
                     return this.getUserValues()
-                        .then((updated) => respond(constants.MSG_NAME_PUSH_DATA, updated))
+                        .then((updated) => {
+                            if (updated) respond(constants.MSG_NAME_PUSH_DATA, updated);
+                        })
                         .catch(console.error);
                 }
                 if (evt.detail.kind === constants.MSG_NAME_OPEN_INFO) {

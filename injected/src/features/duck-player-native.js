@@ -69,21 +69,19 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         }
     }
 
+    /**
+     * @param {DuckPlayerNativeMessages} messages
+     * @param {DuckPlayerNativeSettings['selectors']} selectors
+     * @param {Environment} env
+     * @returns {Promise<void>}
+     */
     async initDuckPlayerNative(messages, selectors, env) {
         messages.subscribeToURLChange(({ pageType }) => {
             const playbackPaused = false; // This can be added to the event data in the future if needed
             this.urlDidChange(pageType, selectors, playbackPaused, env, messages);
         });
 
-        /** @type {InitialSettings} */
-        let initialSetup;
-
-        try {
-            initialSetup = await messages.initialSetup();
-        } catch (e) {
-            console.warn(e);
-            return;
-        }
+        const initialSetup = await messages.initialSetup();
 
         if (!initialSetup) {
             const message = 'InitialSetup data is missing';

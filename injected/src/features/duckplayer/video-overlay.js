@@ -416,18 +416,14 @@ export class VideoOverlay {
             overlayInteracted: false,
             privatePlayerMode,
         };
-        this.messages
-            .setUserValues(outgoing)
-            .then(() => {
+        this.messages.setUserValues(outgoing).then((values) => {
+            if (values) {
                 if (this.environment.opensVideoOverlayLinksViaMessage) {
                     return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }));
                 }
                 return this.environment.setHref(params.toPrivatePlayerUrl());
-            })
-            .catch((e) => {
-                console.error(e);
-                this.messages.metrics.reportExceptionWithError(e);
-            });
+            }
+        });
     }
 
     /**
@@ -452,9 +448,11 @@ export class VideoOverlay {
                     overlayInteracted: true,
                 })
                 .then((values) => {
-                    this.userValues = values;
+                    if (values) {
+                        this.userValues = values;
+                        this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' });
+                    }
                 })
-                .then(() => this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' }))
                 .catch((e) => {
                     console.error(e);
                     this.messages.metrics.reportExceptionWithError(e);
@@ -483,11 +481,10 @@ export class VideoOverlay {
 
         const result = await this.messages.setUserValues(outgoing);
 
-        if (this.environment.debug) {
+        if (this.environment.debug && result) {
             console.log('did receive new values', result);
+            this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }));
         }
-
-        return this.messages.openDuckPlayer(new OpenInDuckPlayerMsg({ href: params.toPrivatePlayerUrl() }));
     }
 
     /**
@@ -516,11 +513,13 @@ export class VideoOverlay {
 
         const updatedValues = await this.messages.setUserValues(next);
 
-        // this is needed to ensure any future page navigations respect the new settings
-        this.userValues = updatedValues;
+        if (updatedValues) {
+            // this is needed to ensure any future page navigations respect the new settings
+            this.userValues = updatedValues;
 
-        if (this.environment.debug) {
-            console.log('user values response:', updatedValues);
+            if (this.environment.debug) {
+                console.log('user values response:', updatedValues);
+            }
         }
 
         this.destroy();
