@@ -141,9 +141,9 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('disableDeviceEnumeration')) {
             this.preventDeviceEnumeration();
         }
-        if (this.getFeatureSettingEnabled('deviceEnumeration')) {
+        // if (this.getFeatureSettingEnabled('deviceEnumeration')) {
             this.deviceEnumerationFix();
-        }
+        //}
     }
 
     /**
@@ -914,6 +914,7 @@ export class WebCompat extends ContentFeature {
              */
             apply: async (target, thisArg, args) => {
                 try {
+                    debugger;
                     // Request device enumeration information from native
                     /** @type {{willPrompt: boolean, videoInput: boolean, audioInput: boolean, audioOutput: boolean}} */
                     const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
