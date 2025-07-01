@@ -1,1 +1,1 @@
-- NTP: Scaffold Omnibar widget and message types (#1778)
+- Duck Player Native: Mute all elements (#1779)

@@ -5316,6 +5316,26 @@
       }
     };
   }
+  var MUTE_ELEMENTS_QUERY = "audio, video";
+  function muteAllElements() {
+    const int = setInterval(() => {
+      const elements = Array.from(document.querySelectorAll(MUTE_ELEMENTS_QUERY));
+      elements.forEach((element) => {
+        if (element?.isConnected) {
+          element.muted = true;
+        }
+      });
+    }, 10);
+    return () => {
+      clearInterval(int);
+      const elements = Array.from(document.querySelectorAll(MUTE_ELEMENTS_QUERY));
+      elements.forEach((element) => {
+        if (element?.isConnected) {
+          element.muted = false;
+        }
+      });
+    };
+  }
 
   // src/features/duckplayer-native/overlays/thumbnail-overlay.js
   init_define_import_meta_trackerLookup();
@@ -5632,6 +5652,7 @@
         this.paused = pause;
         if (pause) {
           this.sideEffects.add("stopping video from playing", () => stopVideoFromPlaying(videoElement));
+          this.sideEffects.add("muting all elements", () => muteAllElements());
           this.sideEffects.add("appending thumbnail", () => {
             const clickHandler = () => {
               this.messages.notifyOverlayDismissed();
@@ -5646,6 +5667,7 @@
           });
         } else {
           this.sideEffects.destroy("stopping video from playing");
+          this.sideEffects.destroy("muting all elements");
           this.sideEffects.destroy("appending thumbnail");
         }
       }
