@@ -1,6 +1,6 @@
 import { describe, it, mock, beforeEach } from 'node:test';
 import assert from 'node:assert';
-import { MetricsReporter } from '../shared/metrics-reporter.js';
+import { MetricsReporter } from '../shared/metrics/metrics-reporter.js';
 
 describe('reportMetric', () => {
     let messaging;

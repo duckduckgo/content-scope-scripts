@@ -1,5 +1,5 @@
 import * as constants from './constants.js';
-import { MetricsReporter, EXCEPTION_KIND_MESSAGING_ERROR } from '../../../../special-pages/shared/metrics-reporter.js';
+import { MetricsReporter, EXCEPTION_KIND_MESSAGING_ERROR } from 'special-pages/shared/metrics/metrics-reporter.js';
 
 /** @import {YouTubeError} from './error-detection.js' */
 /** @import {Environment} from '../duckplayer/environment.js' */

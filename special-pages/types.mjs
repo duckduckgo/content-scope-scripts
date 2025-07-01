@@ -30,14 +30,14 @@ for (const pageListElement of pageList) {
 }
 
 /* Shared types */
-specialPagesTypes.shared = {
-    schemaDir: join(specialPagesRoot, 'shared', 'messages'),
-    typesDir: join(specialPagesRoot, 'shared', 'types'),
+specialPagesTypes.metrics = {
+    schemaDir: join(specialPagesRoot, 'shared', 'metrics', 'messages'),
+    typesDir: join(specialPagesRoot, 'shared', 'metrics', 'types'),
     exclude: process.platform === 'win32',
     kind: 'single',
-    resolve: (_dirname) => '../src/index.js',
-    className: () => null,
-    filename: `shared.ts`,
+    resolve: (_dirname) => '../metrics-reporter.js',
+    className: (_top) => 'MetricsReporter',
+    filename: `metrics.ts`,
 };
 
 if (isLaunchFile(import.meta.url)) {

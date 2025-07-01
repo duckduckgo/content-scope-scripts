@@ -34,11 +34,11 @@
  */
 
 /**
- * @typedef {import('../shared/types/shared.ts').ExceptionMetric} ExceptionMetric
- * @typedef {import('../shared/types/shared.ts').ReportMetricEvent} ReportMetricEvent
- * @typedef {import('../shared/types/shared.ts').SharedMessages} SharedMessages
- * @typedef {import('@duckduckgo/messaging/lib/shared-types.js').MessagingBase<SharedMessages>|import('@duckduckgo/messaging').Messaging} SharedMessaging
+ * @typedef {import('./types/metrics.ts').ExceptionMetric} ExceptionMetric
+ * @typedef {import('./types/metrics.ts').ReportMetricEvent} ReportMetricEvent
  */
+
+import { createTypedMessages } from '@duckduckgo/messaging/lib/typed-messages.js';
 
 /** Exception kind for generic errors */
 export const EXCEPTION_KIND_GENERIC_ERROR = 'Error';
@@ -68,14 +68,14 @@ export class MetricsReporter {
     /**
      * Creates a new MetricsReporter instance.
      *
-     * @param {SharedMessaging} messaging - The messaging instance used to communicate with the native layer
+     * @param {import('@duckduckgo/messaging').Messaging} messaging - The messaging instance used to communicate with the native layer
      * @throws {Error} When messaging is not provided or messaging.notify is not defined
      */
     constructor(messaging) {
         if (!messaging) {
             throw new Error('messaging is required');
         }
-        this.messaging = messaging;
+        this.messaging = createTypedMessages(this, messaging);
     }
 
     /**
