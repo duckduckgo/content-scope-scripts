@@ -1,4 +1,5 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
+import { getMockSuggestions } from './omnibar.mocks.js';
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
@@ -46,6 +47,9 @@ export function omnibarMockTransport() {
                         config.mode = modeOverride;
                     }
                     return Promise.resolve(config);
+                }
+                case 'omnibar_getSuggestions': {
+                    return Promise.resolve(getMockSuggestions(msg.params.term));
                 }
                 default: {
                     return Promise.reject(new Error('unhandled request' + msg));

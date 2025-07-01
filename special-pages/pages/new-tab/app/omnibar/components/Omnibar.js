@@ -1,5 +1,10 @@
 import { h } from 'preact';
 import styles from './Omnibar.module.css';
+import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
+import { useTypedTranslationWith } from '../../types';
+import { useState } from 'preact/hooks';
+import { SearchForm } from './SearchForm';
+import { AiChatForm } from './AiChatForm';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -18,6 +23,39 @@ import styles from './Omnibar.module.css';
  * @param {(params: {term: string, target: OpenTarget}) => void} props.submitSearch
  * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
-export function Omnibar(props) {
-    return <div class={styles.root}>Omnibar goes here. Mode = {props.mode}</div>;
+export function Omnibar({ mode, setMode, getSuggestions, openSuggestion, submitSearch, submitChat }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+
+    const [query, setQuery] = useState(/** @type {String} */ (''));
+
+    return (
+        <div class={styles.root} data-mode={mode}>
+            <div class={styles.logoWrap}>
+                <img src="./icons/Logo-Stacked.svg" alt="DuckDuckGo" width={144} height={115.9} />
+            </div>
+            <div class={styles.tabListWrap}>
+                <div class={styles.tabList} role="tablist" aria-label="Search & Duck.ai tab switcher">
+                    <button class={styles.tab} role="tab" aria-selected={mode === 'search'} onClick={() => setMode('search')}>
+                        <SearchIcon className={styles.searchIcon} />
+                        Search
+                    </button>
+                    <button class={styles.tab} role="tab" aria-selected={mode === 'ai'} onClick={() => setMode('ai')}>
+                        <AiChatIcon className={styles.aiChatIcon} />
+                        Duck.ai
+                    </button>
+                </div>
+            </div>
+            {mode === 'search' ? (
+                <SearchForm
+                    term={query}
+                    setTerm={setQuery}
+                    getSuggestions={getSuggestions}
+                    openSuggestion={openSuggestion}
+                    submitSearch={submitSearch}
+                />
+            ) : (
+                <AiChatForm chat={query} setChat={setQuery} submitChat={submitChat} />
+            )}
+        </div>
+    );
 }
