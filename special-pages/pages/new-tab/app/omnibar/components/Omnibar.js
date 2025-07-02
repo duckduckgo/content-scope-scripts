@@ -1,11 +1,11 @@
 import { h } from 'preact';
-import styles from './Omnibar.module.css';
+import { useState } from 'preact/hooks';
 import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types';
-import { useState } from 'preact/hooks';
-import { SearchForm } from './SearchForm';
-import { AiChatForm } from './AiChatForm';
 import { viewTransition } from '../../utils';
+import { AiChatForm } from './AiChatForm';
+import styles from './Omnibar.module.css';
+import { SearchForm } from './SearchForm';
 
 /**
  * @typedef {import('../strings.json')} Strings

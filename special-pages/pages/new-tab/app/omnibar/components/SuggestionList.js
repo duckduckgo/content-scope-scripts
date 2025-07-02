@@ -1,43 +1,44 @@
 import { h } from 'preact';
-import styles from './SuggestionList.module.css';
-import { BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
 import { eventToTarget } from '../../../../../shared/handlers';
+import { BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
+import styles from './SuggestionList.module.css';
 
 /**
- * @typedef {import('./useSuggestions').SuggestionListItem} SuggestionListItem
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel
  */
 
 /**
  * @param {object} props
- * @param {SuggestionListItem[]} props.items
- * @param {(id: string) => void} props.setSelection
- * @param {() => void} props.clearSelection
+ * @param {SuggestionModel[]} props.suggestions
+ * @param {SuggestionModel | null} props.selectedSuggestion
+ * @param {(suggestion: SuggestionModel) => void} props.setSelectedSuggestion
+ * @param {() => void} props.clearSelectedSuggestion
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.openSuggestion
  */
-export function SuggestionList({ items, setSelection, clearSelection, openSuggestion }) {
+export function SuggestionsList({ suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion, openSuggestion }) {
     const platformName = usePlatformName();
     return (
-        <div role="listbox" id="search-suggestions" class={styles.list}>
-            {items.map((item) => {
+        <div role="listbox" id="suggestions-list" class={styles.list}>
+            {suggestions.map((suggestion) => {
                 return (
                     <button
-                        key={item.id}
+                        key={suggestion.id}
                         role="option"
-                        id={item.id}
+                        id={suggestion.id}
                         class={styles.item}
-                        aria-selected={item.selected}
-                        onMouseOver={() => setSelection(item.id)}
-                        onMouseLeave={() => clearSelection()}
+                        aria-selected={suggestion === selectedSuggestion}
+                        onMouseOver={() => setSelectedSuggestion(suggestion)}
+                        onMouseLeave={() => clearSelectedSuggestion()}
                         onClick={(event) => {
                             event.preventDefault();
-                            openSuggestion({ suggestion: item, target: eventToTarget(event, platformName) });
+                            openSuggestion({ suggestion: suggestion, target: eventToTarget(event, platformName) });
                         }}
                     >
-                        <SuggestionListItemIcon item={item} />
-                        {item.title}
+                        <SuggestionIcon suggestion={suggestion} />
+                        {suggestion.title}
                     </button>
                 );
             })}
@@ -47,10 +48,10 @@ export function SuggestionList({ items, setSelection, clearSelection, openSugges
 
 /**
  * @param {object} props
- * @param {SuggestionListItem} props.item
+ * @param {SuggestionModel} props.suggestion
  */
-function SuggestionListItemIcon({ item }) {
-    switch (item.kind) {
+function SuggestionIcon({ suggestion }) {
+    switch (suggestion.kind) {
         case 'phrase':
             return <SearchIcon />;
         case 'website':
@@ -58,7 +59,7 @@ function SuggestionListItemIcon({ item }) {
         case 'historyEntry':
             return <HistoryIcon />;
         case 'bookmark':
-            return item.isFavorite ? <FavoriteIcon /> : <BookmarkIcon />;
+            return suggestion.isFavorite ? <FavoriteIcon /> : <BookmarkIcon />;
         case 'openTab':
         case 'internalPage':
             return <BrowserIcon />;

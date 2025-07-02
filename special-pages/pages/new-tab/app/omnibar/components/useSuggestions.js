@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer } from 'preact/hooks';
+import { useMemo, useReducer } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
 
@@ -16,22 +16,7 @@ import { usePlatformName } from '../../settings.provider.js';
  */
 
 /**
- * @typedef {SuggestionModel & {
- *   selected: boolean,
- * }} SuggestionListItem
- */
-
-/**
- * @typedef {(
- *   | { value: string }
- *   | { value: string, caret: number }
- *   | { value: string, completion: string }
- * )} FancyValue
- */
-
-/**
  * @typedef {{
- *   term: string,
  *   caret: number | null,
  *   suggestions: SuggestionModel[],
  *   selectedIndex: number | null
@@ -40,12 +25,13 @@ import { usePlatformName } from '../../settings.provider.js';
 
 /**
  * @typedef {(
- *   | { type: 'input', term: string, caret?: number | null }
- *   | { type: 'resetSuggestions', suggestions?: SuggestionModel[] }
- *   | { type: 'moveSelectionDown' }
- *   | { type: 'moveSelectionUp' }
- *   | { type: 'setSelection', id: string }
- *   | { type: 'clearSelection' }
+ *   | { type: 'setCaret', caret: number | null }
+ *   | { type: 'setSuggestions', suggestions: SuggestionModel[] }
+ *   | { type: 'resetSuggestions' }
+ *   | { type: 'setSelectedSuggestion', suggestion: SuggestionModel }
+ *   | { type: 'clearSelectedSuggestion' }
+ *   | { type: 'previousSuggestion' }
+ *   | { type: 'nextSuggestion' }
  * )} Action
  */
 
@@ -53,7 +39,6 @@ import { usePlatformName } from '../../settings.provider.js';
  * @type {State}
  */
 const initialState = {
-    term: '',
     caret: null,
     suggestions: [],
     selectedIndex: null,
@@ -64,35 +49,41 @@ const initialState = {
  */
 function reducer(state, action) {
     switch (action.type) {
-        case 'input':
+        case 'setCaret': {
             return {
-                term: action.term,
-                caret: action.caret ?? null,
-                suggestions: [],
+                ...state,
+                caret: action.caret,
+            };
+        }
+        case 'setSuggestions':
+            return {
+                ...state,
+                suggestions: action.suggestions,
                 selectedIndex: null,
             };
         case 'resetSuggestions':
             return {
-                term: state.term,
-                caret: null,
-                suggestions: action.suggestions ?? [],
+                ...state,
+                suggestions: [],
                 selectedIndex: null,
             };
-        case 'moveSelectionDown': {
-            let nextIndex;
-            if (state.selectedIndex === null) {
-                nextIndex = 0;
-            } else if (state.selectedIndex === state.suggestions.length - 1) {
-                nextIndex = null;
-            } else {
-                nextIndex = state.selectedIndex + 1;
+        case 'setSelectedSuggestion': {
+            const nextIndex = state.suggestions.indexOf(action.suggestion);
+            if (nextIndex === -1) {
+                throw new Error(`Suggestion with id ${action.suggestion.id} not found`);
             }
             return {
                 ...state,
                 selectedIndex: nextIndex,
             };
         }
-        case 'moveSelectionUp': {
+        case 'clearSelectedSuggestion': {
+            return {
+                ...state,
+                selectedIndex: null,
+            };
+        }
+        case 'previousSuggestion': {
             let nextIndex;
             if (state.selectedIndex === null) {
                 nextIndex = state.suggestions.length - 1;
@@ -106,20 +97,18 @@ function reducer(state, action) {
                 selectedIndex: nextIndex,
             };
         }
-        case 'setSelection': {
-            const nextIndex = state.suggestions.findIndex((suggestion) => suggestion.id === action.id);
-            if (nextIndex === -1) {
-                throw new Error(`Suggestion with id ${action.id} not found`);
+        case 'nextSuggestion': {
+            let nextIndex;
+            if (state.selectedIndex === null) {
+                nextIndex = 0;
+            } else if (state.selectedIndex === state.suggestions.length - 1) {
+                nextIndex = null;
+            } else {
+                nextIndex = state.selectedIndex + 1;
             }
             return {
                 ...state,
                 selectedIndex: nextIndex,
-            };
-        }
-        case 'clearSelection': {
-            return {
-                ...state,
-                selectedIndex: null,
             };
         }
         default:
@@ -137,135 +126,120 @@ function reducer(state, action) {
 export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }) {
     const platformName = usePlatformName();
 
-    const [state, dispatch] = useReducer(reducer, { ...initialState, term });
+    const [state, dispatch] = useReducer(reducer, initialState);
 
-    /** @type {SuggestionListItem[]} */
-    const items = useMemo(
-        () =>
-            state.suggestions.map((suggestion, index) => ({
-                ...suggestion,
-                id: `suggestion-${index}`,
-                title: getSuggestionTitle(suggestion),
-                selected: state.selectedIndex === index,
-            })),
+    const selectedSuggestion = useMemo(
+        () => (state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null),
         [state.suggestions, state.selectedIndex],
     );
 
-    const selectedItem = useMemo(() => (state.selectedIndex !== null ? items[state.selectedIndex] : null), [items, state.selectedIndex]);
-
-    /** @type {FancyValue} */
-    const value = useMemo(() => {
-        if (state.caret !== null) {
-            return { value: state.term, caret: state.caret };
-        }
-        if (!selectedItem) {
-            return { value: state.term };
-        }
-        if ('url' in selectedItem && startsWithIgnoreCase(selectedItem.url, state.term)) {
-            return { value: state.term, completion: selectedItem.url.slice(state.term.length) };
-        }
-        if (startsWithIgnoreCase(selectedItem.title, state.term)) {
-            return { value: state.term, completion: selectedItem.title.slice(state.term.length) };
-        }
-        return { value: '', completion: selectedItem.title };
-    }, [state.term, state.caret, selectedItem]);
-
-    /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
-    const onChange = useCallback(
-        (event) => {
-            if (!(event.target instanceof HTMLInputElement)) return;
-
-            const term = event.target.value;
-            setTerm(term);
-            dispatch({ type: 'input', term });
-
-            if (term.length === 0) {
-                dispatch({ type: 'resetSuggestions' });
-                return;
-            }
-
-            getSuggestions(term)
-                .then((data) => {
-                    dispatch({
-                        type: 'resetSuggestions',
-                        suggestions: [
-                            ...data.suggestions.topHits,
-                            ...data.suggestions.duckduckgoSuggestions,
-                            ...data.suggestions.localSuggestions,
-                        ].map((suggestion, index) => ({
-                            ...suggestion,
-                            id: `suggestion-${index}`,
-                            title: getSuggestionTitle(suggestion),
-                        })),
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error fetching suggestions:', error);
-                    dispatch({ type: 'resetSuggestions' });
-                });
-        },
-        [setTerm, getSuggestions],
-    );
-
-    /** @type {(event: KeyboardEvent) => void} */
-    const onKeyDown = useCallback(
-        (event) => {
-            switch (event.key) {
-                case 'ArrowDown':
-                    event.preventDefault();
-                    dispatch({ type: 'moveSelectionDown' });
-                    break;
-                case 'ArrowUp':
-                    event.preventDefault();
-                    dispatch({ type: 'moveSelectionUp' });
-                    break;
-                case 'ArrowRight': {
-                    event.preventDefault();
-                    const term = fancyValueToString(value);
-                    setTerm(term); // @todo: setTerm and input are always called together, consider merging them
-                    dispatch({ type: 'input', term, caret: term.length });
-                    break;
-                }
-                case 'ArrowLeft': {
-                    event.preventDefault();
-                    const term = fancyValueToString(value);
-                    setTerm(term); // @todo: setTerm and input are always called together, consider merging them
-                    dispatch({ type: 'input', term, caret: value.value.length });
-                    break;
-                }
-                case 'Escape':
-                    event.preventDefault();
-                    dispatch({ type: 'resetSuggestions' });
-                    break;
-                case 'Enter':
-                    if (selectedItem) {
-                        event.preventDefault();
-                        openSuggestion({ suggestion: selectedItem, target: eventToTarget(event, platformName) });
-                    }
-                    break;
-            }
-        },
-        [selectedItem, openSuggestion],
-    );
-
-    /** @type {(id: string) => void} */
-    const setSelection = useCallback((id) => {
-        dispatch({ type: 'setSelection', id });
-    }, []);
+    /** @type {(suggestion: SuggestionModel) => void} */
+    const setSelectedSuggestion = (suggestion) => {
+        dispatch({ type: 'setSelectedSuggestion', suggestion });
+    };
 
     /** @type {() => void} */
-    const clearSelection = useCallback(() => {
-        dispatch({ type: 'clearSelection' });
-    }, []);
+    const clearSelectedSuggestion = () => {
+        dispatch({ type: 'clearSelectedSuggestion' });
+    };
+
+    const { inputValue, inputSelection } = useMemo(() => {
+        if (state.caret !== null) {
+            return { inputValue: term, inputSelection: { start: state.caret, end: state.caret } };
+        }
+        if (!selectedSuggestion) {
+            return { inputValue: term };
+        }
+        if ('url' in selectedSuggestion && startsWithIgnoreCase(selectedSuggestion.url, term)) {
+            const inputValue = term + selectedSuggestion.url.slice(term.length);
+            return { inputValue, inputSelection: { start: term.length, end: inputValue.length } };
+        }
+        if (startsWithIgnoreCase(selectedSuggestion.title, term)) {
+            const inputValue = term + selectedSuggestion.title.slice(term.length);
+            return { inputValue, inputSelection: { start: term.length, end: inputValue.length } };
+        }
+        return { inputValue: selectedSuggestion.title, inputSelection: { start: 0, end: selectedSuggestion.title.length } };
+    }, [term, state.caret, selectedSuggestion]);
+
+    /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
+    const onInputChange = (event) => {
+        if (!(event.target instanceof HTMLInputElement)) return;
+
+        const term = event.target.value;
+        setTerm(term);
+
+        if (term.length === 0) {
+            dispatch({ type: 'resetSuggestions' });
+            return;
+        }
+
+        getSuggestions(term)
+            .then((data) => {
+                const suggestions = [
+                    ...data.suggestions.topHits,
+                    ...data.suggestions.duckduckgoSuggestions,
+                    ...data.suggestions.localSuggestions,
+                ].map((suggestion, index) => ({
+                    ...suggestion,
+                    id: `suggestion-${index}`,
+                    title: getSuggestionTitle(suggestion),
+                }));
+                dispatch({
+                    type: 'setSuggestions',
+                    suggestions,
+                });
+            })
+            .catch((error) => {
+                console.error('Error fetching suggestions:', error);
+                dispatch({ type: 'resetSuggestions' });
+            });
+    };
+
+    /** @type {(event: KeyboardEvent) => void} */
+    const onInputKeyDown = (event) => {
+        switch (event.key) {
+            case 'ArrowUp':
+                event.preventDefault();
+                dispatch({ type: 'previousSuggestion' });
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                dispatch({ type: 'nextSuggestion' });
+                break;
+            case 'ArrowRight': {
+                event.preventDefault();
+                setTerm(inputValue);
+                dispatch({ type: 'setCaret', caret: inputValue.length });
+                break;
+            }
+            case 'ArrowLeft': {
+                event.preventDefault();
+                setTerm(inputValue);
+                dispatch({ type: 'setCaret', caret: term.length });
+                break;
+            }
+            case 'Escape':
+                event.preventDefault();
+                dispatch({ type: 'resetSuggestions' });
+                break;
+            case 'Enter':
+                if (selectedSuggestion) {
+                    event.preventDefault();
+                    openSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
+                }
+                break;
+        }
+    };
 
     return {
-        value,
-        items,
-        selectedItem,
-        onChange,
-        onKeyDown,
-        setSelection,
-        clearSelection,
+        suggestions: state.suggestions,
+        selectedSuggestion,
+        setSelectedSuggestion,
+        clearSelectedSuggestion,
+        inputValue,
+        inputSelection,
+        onInputChange,
+        onInputKeyDown,
     };
 }
 
@@ -301,15 +275,4 @@ function getSuggestionTitle(suggestion) {
  */
 function startsWithIgnoreCase(text, searchTerm) {
     return text.toLowerCase().startsWith(searchTerm.toLowerCase());
-}
-
-/**
- * @param {FancyValue} value
- * @returns {string}
- */
-function fancyValueToString(value) {
-    if ('completion' in value) {
-        return value.value + value.completion;
-    }
-    return value.value;
 }

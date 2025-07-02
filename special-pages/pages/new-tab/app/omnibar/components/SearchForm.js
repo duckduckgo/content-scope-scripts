@@ -1,10 +1,10 @@
-import { h } from 'preact';
 import cn from 'classnames';
-import styles from './Omnibar.module.css';
-import { SuggestionList } from './SuggestionList.js';
-import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
-import { useSuggestions } from './useSuggestions';
+import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
+import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
+import styles from './Omnibar.module.css';
+import { SuggestionsList } from './SuggestionList.js';
+import { useSuggestions } from './useSuggestions';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -12,7 +12,6 @@ import { useEffect, useRef } from 'preact/hooks';
  * @typedef {import('../../../types/new-tab.js').SuggestionsData} SuggestionsData
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
- * @typedef {import('./useSuggestions').FancyValue} FancyValue
  */
 
 /**
@@ -24,7 +23,16 @@ import { useEffect, useRef } from 'preact/hooks';
  * @param {(params: {term: string, target: OpenTarget}) => void} props.submitSearch
  */
 export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, submitSearch }) {
-    const { value, items, selectedItem, onChange, onKeyDown, setSelection, clearSelection } = useSuggestions({
+    const {
+        suggestions,
+        selectedSuggestion,
+        setSelectedSuggestion,
+        clearSelectedSuggestion,
+        inputValue,
+        inputSelection,
+        onInputChange,
+        onInputKeyDown,
+    } = useSuggestions({
         term,
         setTerm,
         getSuggestions,
@@ -34,9 +42,6 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
     /** @type {(event: SubmitEvent) => void} */
     const onSubmit = (event) => {
         event.preventDefault();
-        if (!(event.target instanceof HTMLFormElement)) return;
-        const formData = new FormData(event.target);
-        const term = formData.get('term')?.toString() ?? '';
         submitSearch({
             term,
             target: 'same-tab',
@@ -48,24 +53,24 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
             <form onSubmit={onSubmit} class={styles.form}>
                 <div class={styles.inputRoot} style={{ viewTransitionName: 'omnibar-input-transition' }}>
                     <div class={styles.inputContainer} style={{ viewTransitionName: 'omnibar-input-transition2' }}>
-                        <InputWithCompletion
+                        <InputWithControlledSelection
                             type="text"
                             role="combobox"
-                            name="term"
                             class={styles.input}
+                            value={inputValue}
+                            selection={inputSelection}
                             placeholder="Search or enter address"
                             aria-label="Search or enter address"
-                            aria-expanded="true"
+                            aria-expanded={suggestions.length > 0}
                             aria-haspopup="listbox"
-                            aria-controls="search-suggestions"
-                            aria-activedescendant={selectedItem?.id}
+                            aria-controls="suggestions-list"
+                            aria-activedescendant={selectedSuggestion?.id}
                             spellcheck={false}
                             autoComplete="off"
                             autoCorrect="off"
                             autoCapitalize="off"
-                            value={value}
-                            onChange={onChange}
-                            onKeyDown={onKeyDown}
+                            onChange={onInputChange}
+                            onKeyDown={onInputKeyDown}
                         />
                         <div class={styles.inputActions}>
                             <button class={cn(styles.inputAction)} aria-label="Web search" inert>
@@ -78,32 +83,36 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
                         </div>
                     </div>
                 </div>
-                <SuggestionList items={items} setSelection={setSelection} clearSelection={clearSelection} openSuggestion={openSuggestion} />
+                <SuggestionsList
+                    suggestions={suggestions}
+                    selectedSuggestion={selectedSuggestion}
+                    setSelectedSuggestion={setSelectedSuggestion}
+                    clearSelectedSuggestion={clearSelectedSuggestion}
+                    openSuggestion={openSuggestion}
+                />
             </form>
         </div>
     );
 }
 
+/** @typedef {Omit<import('preact').JSX.InputHTMLAttributes, 'value'> & {
+  *   value: string,
+  *   selection: { start: number, end: number } | undefined,
+  * }} InputWithControlledSelectionProps
+
 /**
- * @param {Omit<import('preact').JSX.InputHTMLAttributes, 'value'> & { value: FancyValue }} props
- * @returns
+ * @param {InputWithControlledSelectionProps} props
  */
-function InputWithCompletion({ value, ...props }) {
+function InputWithControlledSelection({ value, selection, ...props }) {
     const ref = useRef(/** @type {HTMLInputElement|null} */ (null));
 
     useEffect(() => {
         if (!ref.current) return;
-        if ('caret' in value) {
-            ref.current.value = value.value;
-            ref.current.setSelectionRange(value.caret, value.caret);
-        } else if ('completion' in value) {
-            ref.current.value = value.value + value.completion;
-            ref.current.setSelectionRange(value.value.length, value.value.length + value.completion.length);
-        } else {
-            ref.current.value = value.value;
-            // ref.current.setSelectionRange(value.value.length, value.value.length);
+        ref.current.value = value;
+        if (selection) {
+            ref.current.setSelectionRange(selection.start, selection.end);
         }
-    }, [value]);
+    }, [value, selection]);
 
     return <input {...props} ref={ref} />;
 }
