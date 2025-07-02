@@ -179,8 +179,9 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
             return;
         }
 
-        getSuggestions(term)
-            .then((data) => {
+        const fetchSuggestions = async () => {
+            try {
+                const data = await getSuggestions(term);
                 const suggestions = [
                     ...data.suggestions.topHits,
                     ...data.suggestions.duckduckgoSuggestions,
@@ -195,11 +196,12 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
                     term,
                     suggestions,
                 });
-            })
-            .catch((error) => {
+            } catch (error) {
                 console.error('Error fetching suggestions:', error);
                 dispatch({ type: 'resetSuggestions' });
-            });
+            }
+        };
+        fetchSuggestions();
     };
 
     /** @type {(event: KeyboardEvent) => void} */
