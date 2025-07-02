@@ -7,6 +7,7 @@ import { SuggestionsList } from './SuggestionList.js';
 import { useSuggestions } from './useSuggestions';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { usePlatformName } from '../../settings.provider';
+import { useTypedTranslationWith } from '../../types';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -26,6 +27,7 @@ import { usePlatformName } from '../../settings.provider';
  * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
 export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, submitSearch, submitChat }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
     const {
@@ -64,8 +66,8 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
                             class={styles.input}
                             value={inputValue}
                             selection={inputSelection}
-                            placeholder="Search or enter address"
-                            aria-label="Search or enter address"
+                            placeholder={t('searchForm_placeholder')}
+                            aria-label={t('searchForm_placeholder')}
                             aria-expanded={suggestions.length > 0}
                             aria-haspopup="listbox"
                             aria-controls="suggestions-list"
@@ -78,13 +80,13 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
                             onKeyDown={onInputKeyDown}
                         />
                         <div class={styles.inputActions}>
-                            <button type="submit" class={cn(styles.inputAction)} aria-label="Web search" inert>
+                            <button type="submit" class={cn(styles.inputAction)} aria-label={t('searchForm_searchButtonLabel')} inert>
                                 <SearchIcon />
                             </button>
                             <div class={styles.separator}></div>
                             <button
                                 class={cn(styles.inputAction, styles.squareButton)}
-                                aria-label="Duck.ai"
+                                aria-label={t('searchForm_aiButtonLabel')}
                                 onClick={(event) => {
                                     event.preventDefault();
                                     submitChat({

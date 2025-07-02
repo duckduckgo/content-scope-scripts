@@ -2,6 +2,7 @@ import { h } from 'preact';
 import cn from 'classnames';
 import styles from './Omnibar.module.css';
 import { ArrowRightIcon } from '../../components/Icons';
+import { useTypedTranslationWith } from '../../types';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -18,6 +19,8 @@ import { ArrowRightIcon } from '../../components/Icons';
  * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
 export function AiChatForm({ chat, setChat, submitChat }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+
     /** @type {(event: SubmitEvent) => void} */
     const onSubmit = (event) => {
         event.preventDefault();
@@ -36,8 +39,8 @@ export function AiChatForm({ chat, setChat, submitChat }) {
                             type="text"
                             class={styles.input}
                             value={chat}
-                            placeholder="Chat privately with Duck.ai"
-                            aria-label="Chat privately with Duck.ai"
+                            placeholder={t('aiChatForm_placeholder')}
+                            aria-label={t('aiChatForm_placeholder')}
                             autoComplete="off"
                             onChange={(event) => {
                                 if (event.target instanceof HTMLInputElement) {
@@ -46,7 +49,10 @@ export function AiChatForm({ chat, setChat, submitChat }) {
                             }}
                         />
                         <div class={styles.inputActions}>
-                            <button class={cn(styles.inputAction, styles.squareButton, styles.aiSubmitButton)} aria-label="Duck.ai chat">
+                            <button
+                                class={cn(styles.inputAction, styles.squareButton, styles.aiSubmitButton)}
+                                aria-label={t('aiChatForm_submitButtonLabel')}
+                            >
                                 <ArrowRightIcon />
                             </button>
                         </div>

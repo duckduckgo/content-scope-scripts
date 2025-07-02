@@ -32,10 +32,10 @@ export function Omnibar({ mode, setMode, getSuggestions, openSuggestion, submitS
     return (
         <div class={styles.root} data-mode={mode}>
             <div class={styles.logoWrap}>
-                <img src="./icons/Logo-Stacked.svg" alt="DuckDuckGo" width={144} height={115.9} />
+                <img src="./icons/Logo-Stacked.svg" alt={t('omnibar_logoAlt')} width={144} height={115.9} />
             </div>
             <div class={styles.tabListWrap}>
-                <div class={styles.tabList} role="tablist" aria-label="Search & Duck.ai tab switcher">
+                <div class={styles.tabList} role="tablist" aria-label={t('omnibar_tabSwitcherLabel')}>
                     <button
                         class={styles.tab}
                         role="tab"
@@ -47,7 +47,7 @@ export function Omnibar({ mode, setMode, getSuggestions, openSuggestion, submitS
                         }}
                     >
                         <SearchIcon className={styles.searchIcon} />
-                        Search
+                        {t('omnibar_searchTabLabel')}
                     </button>
                     <button
                         class={styles.tab}
@@ -60,7 +60,7 @@ export function Omnibar({ mode, setMode, getSuggestions, openSuggestion, submitS
                         }}
                     >
                         <AiChatIcon className={styles.aiChatIcon} />
-                        Duck.ai
+                        {t('omnibar_aiTabLabel')}
                     </button>
                 </div>
             </div>
