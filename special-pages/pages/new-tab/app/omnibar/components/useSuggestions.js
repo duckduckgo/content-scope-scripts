@@ -18,6 +18,7 @@ import { usePlatformName } from '../../settings.provider.js';
 /**
  * @typedef {{
  *   caret: number | null,
+ *   lastTerm: string | null,
  *   suggestions: SuggestionModel[],
  *   selectedIndex: number | null
  * }} State
@@ -26,7 +27,7 @@ import { usePlatformName } from '../../settings.provider.js';
 /**
  * @typedef {(
  *   | { type: 'setCaret', caret: number | null }
- *   | { type: 'setSuggestions', suggestions: SuggestionModel[] }
+ *   | { type: 'setSuggestions', term: string, suggestions: SuggestionModel[] }
  *   | { type: 'resetSuggestions' }
  *   | { type: 'setSelectedSuggestion', suggestion: SuggestionModel }
  *   | { type: 'clearSelectedSuggestion' }
@@ -40,6 +41,7 @@ import { usePlatformName } from '../../settings.provider.js';
  */
 const initialState = {
     caret: null,
+    lastTerm: null,
     suggestions: [],
     selectedIndex: null,
 };
@@ -58,12 +60,14 @@ function reducer(state, action) {
         case 'setSuggestions':
             return {
                 ...state,
+                lastTerm: action.term,
                 suggestions: action.suggestions,
                 selectedIndex: null,
             };
         case 'resetSuggestions':
             return {
                 ...state,
+                lastTerm: null,
                 suggestions: [],
                 selectedIndex: null,
             };
@@ -94,6 +98,7 @@ function reducer(state, action) {
             }
             return {
                 ...state,
+                caret: null,
                 selectedIndex: nextIndex,
             };
         }
@@ -108,6 +113,7 @@ function reducer(state, action) {
             }
             return {
                 ...state,
+                caret: null,
                 selectedIndex: nextIndex,
             };
         }
@@ -186,6 +192,7 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
                 }));
                 dispatch({
                     type: 'setSuggestions',
+                    term,
                     suggestions,
                 });
             })
@@ -200,22 +207,32 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
         switch (event.key) {
             case 'ArrowUp':
                 event.preventDefault();
+                if (state.lastTerm && term !== state.lastTerm) {
+                    setTerm(state.lastTerm);
+                }
                 dispatch({ type: 'previousSuggestion' });
                 break;
             case 'ArrowDown':
                 event.preventDefault();
+                if (state.lastTerm && term !== state.lastTerm) {
+                    setTerm(state.lastTerm);
+                }
                 dispatch({ type: 'nextSuggestion' });
                 break;
-            case 'ArrowRight': {
-                event.preventDefault();
-                setTerm(inputValue);
-                dispatch({ type: 'setCaret', caret: inputValue.length });
+            case 'ArrowLeft': {
+                if (term !== inputValue) {
+                    event.preventDefault();
+                    setTerm(inputValue);
+                    dispatch({ type: 'setCaret', caret: term.length });
+                }
                 break;
             }
-            case 'ArrowLeft': {
-                event.preventDefault();
-                setTerm(inputValue);
-                dispatch({ type: 'setCaret', caret: term.length });
+            case 'ArrowRight': {
+                if (term !== inputValue) {
+                    event.preventDefault();
+                    setTerm(inputValue);
+                    dispatch({ type: 'setCaret', caret: inputValue.length });
+                }
                 break;
             }
             case 'Escape':
