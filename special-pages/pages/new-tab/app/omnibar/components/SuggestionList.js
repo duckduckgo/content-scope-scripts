@@ -34,7 +34,7 @@ export function SuggestionsList({ suggestions, selectedSuggestion, setSelectedSu
                         onMouseLeave={() => clearSelectedSuggestion()}
                         onClick={(event) => {
                             event.preventDefault();
-                            openSuggestion({ suggestion: suggestion, target: eventToTarget(event, platformName) });
+                            openSuggestion({ suggestion, target: eventToTarget(event, platformName) });
                         }}
                     >
                         <SuggestionIcon suggestion={suggestion} />
