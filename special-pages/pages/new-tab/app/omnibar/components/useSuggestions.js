@@ -18,7 +18,7 @@ import { usePlatformName } from '../../settings.provider.js';
 /**
  * @typedef {{
  *   caret: number | null,
- *   lastTerm: string | null,
+ *   originalTerm: string | null,
  *   suggestions: SuggestionModel[],
  *   selectedIndex: number | null
  * }} State
@@ -41,7 +41,7 @@ import { usePlatformName } from '../../settings.provider.js';
  */
 const initialState = {
     caret: null,
-    lastTerm: null,
+    originalTerm: null,
     suggestions: [],
     selectedIndex: null,
 };
@@ -60,14 +60,14 @@ function reducer(state, action) {
         case 'setSuggestions':
             return {
                 ...state,
-                lastTerm: action.term,
+                originalTerm: action.term,
                 suggestions: action.suggestions,
                 selectedIndex: null,
             };
         case 'resetSuggestions':
             return {
                 ...state,
-                lastTerm: null,
+                originalTerm: null,
                 suggestions: [],
                 selectedIndex: null,
             };
@@ -209,15 +209,15 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
         switch (event.key) {
             case 'ArrowUp':
                 event.preventDefault();
-                if (state.lastTerm && term !== state.lastTerm) {
-                    setTerm(state.lastTerm);
+                if (state.originalTerm && term !== state.originalTerm) {
+                    setTerm(state.originalTerm);
                 }
                 dispatch({ type: 'previousSuggestion' });
                 break;
             case 'ArrowDown':
                 event.preventDefault();
-                if (state.lastTerm && term !== state.lastTerm) {
-                    setTerm(state.lastTerm);
+                if (state.originalTerm && term !== state.originalTerm) {
+                    setTerm(state.originalTerm);
                 }
                 dispatch({ type: 'nextSuggestion' });
                 break;
