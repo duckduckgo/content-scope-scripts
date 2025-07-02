@@ -5,6 +5,7 @@ import { useTypedTranslationWith } from '../../types';
 import { useState } from 'preact/hooks';
 import { SearchForm } from './SearchForm';
 import { AiChatForm } from './AiChatForm';
+import { viewTransition } from '../../utils';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -35,11 +36,29 @@ export function Omnibar({ mode, setMode, getSuggestions, openSuggestion, submitS
             </div>
             <div class={styles.tabListWrap}>
                 <div class={styles.tabList} role="tablist" aria-label="Search & Duck.ai tab switcher">
-                    <button class={styles.tab} role="tab" aria-selected={mode === 'search'} onClick={() => setMode('search')}>
+                    <button
+                        class={styles.tab}
+                        role="tab"
+                        aria-selected={mode === 'search'}
+                        onClick={() => {
+                            viewTransition(() => {
+                                setMode('search');
+                            });
+                        }}
+                    >
                         <SearchIcon className={styles.searchIcon} />
                         Search
                     </button>
-                    <button class={styles.tab} role="tab" aria-selected={mode === 'ai'} onClick={() => setMode('ai')}>
+                    <button
+                        class={styles.tab}
+                        role="tab"
+                        aria-selected={mode === 'ai'}
+                        onClick={() => {
+                            viewTransition(() => {
+                                setMode('ai');
+                            });
+                        }}
+                    >
                         <AiChatIcon className={styles.aiChatIcon} />
                         Duck.ai
                     </button>
