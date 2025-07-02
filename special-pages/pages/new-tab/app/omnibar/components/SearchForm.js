@@ -12,6 +12,7 @@ import { useEffect, useRef } from 'preact/hooks';
  * @typedef {import('../../../types/new-tab.js').SuggestionsData} SuggestionsData
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
+ * @typedef {import('./useSuggestions').FancyValue} FancyValue
  */
 
 /**
@@ -23,7 +24,7 @@ import { useEffect, useRef } from 'preact/hooks';
  * @param {(params: {term: string, target: OpenTarget}) => void} props.submitSearch
  */
 export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, submitSearch }) {
-    const { value, completion, items, selectedItem, onChange, onKeyDown } = useSuggestions({
+    const { value, items, selectedItem, onChange, onKeyDown, setSelection, clearSelection } = useSuggestions({
         term,
         setTerm,
         getSuggestions,
@@ -63,7 +64,6 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
                             autoCorrect="off"
                             autoCapitalize="off"
                             value={value}
-                            completion={completion}
                             onChange={onChange}
                             onKeyDown={onKeyDown}
                         />
@@ -78,26 +78,32 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
                         </div>
                     </div>
                 </div>
-                <SuggestionList items={items} />
+                <SuggestionList items={items} setSelection={setSelection} clearSelection={clearSelection} openSuggestion={openSuggestion} />
             </form>
         </div>
     );
 }
 
 /**
- * @param {import('preact').JSX.InputHTMLAttributes & { completion?: string }} props
+ * @param {Omit<import('preact').JSX.InputHTMLAttributes, 'value'> & { value: FancyValue }} props
  * @returns
  */
-function InputWithCompletion(props) {
+function InputWithCompletion({ value, ...props }) {
     const ref = useRef(/** @type {HTMLInputElement|null} */ (null));
 
-    const value = props.value?.toString() ?? '';
-    const completion = props.completion ?? '';
     useEffect(() => {
         if (!ref.current) return;
-        ref.current.value = value + completion;
-        ref.current.setSelectionRange(value.length, value.length + completion.length);
-    }, [value, completion]);
+        if ('caret' in value) {
+            ref.current.value = value.value;
+            ref.current.setSelectionRange(value.caret, value.caret);
+        } else if ('completion' in value) {
+            ref.current.value = value.value + value.completion;
+            ref.current.setSelectionRange(value.value.length, value.value.length + value.completion.length);
+        } else {
+            ref.current.value = value.value;
+            // ref.current.setSelectionRange(value.value.length, value.value.length);
+        }
+    }, [value]);
 
     return <input {...props} ref={ref} />;
 }

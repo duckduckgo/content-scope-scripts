@@ -10,24 +10,40 @@ import { useCallback, useMemo, useReducer } from 'preact/hooks';
  * @typedef {Suggestion & {
  *   id: string,
  *   title: string,
+ * }} SuggestionModel
+ */
+
+/**
+ * @typedef {SuggestionModel & {
  *   selected: boolean,
  * }} SuggestionListItem
  */
 
 /**
+ * @typedef {(
+ *   | { value: string }
+ *   | { value: string, caret: number }
+ *   | { value: string, completion: string }
+ * )} FancyValue
+ */
+
+/**
  * @typedef {{
  *   term: string,
- *   suggestions: Suggestion[],
+ *   caret: number | null,
+ *   suggestions: SuggestionModel[],
  *   selectedIndex: number | null
  * }} State
  */
 
 /**
  * @typedef {(
- *   | { type: 'input', term: string }
- *   | { type: 'resetSuggestions', suggestions?: Suggestion[] }
+ *   | { type: 'input', term: string, caret?: number | null }
+ *   | { type: 'resetSuggestions', suggestions?: SuggestionModel[] }
  *   | { type: 'moveSelectionDown' }
  *   | { type: 'moveSelectionUp' }
+ *   | { type: 'setSelection', id: string }
+ *   | { type: 'clearSelection' }
  * )} Action
  */
 
@@ -36,6 +52,7 @@ import { useCallback, useMemo, useReducer } from 'preact/hooks';
  */
 const initialState = {
     term: '',
+    caret: null,
     suggestions: [],
     selectedIndex: null,
 };
@@ -48,12 +65,14 @@ function reducer(state, action) {
         case 'input':
             return {
                 term: action.term,
+                caret: action.caret ?? null,
                 suggestions: [],
                 selectedIndex: null,
             };
         case 'resetSuggestions':
             return {
                 term: state.term,
+                caret: null,
                 suggestions: action.suggestions ?? [],
                 selectedIndex: null,
             };
@@ -85,6 +104,22 @@ function reducer(state, action) {
                 selectedIndex: nextIndex,
             };
         }
+        case 'setSelection': {
+            const nextIndex = state.suggestions.findIndex((suggestion) => suggestion.id === action.id);
+            if (nextIndex === -1) {
+                throw new Error(`Suggestion with id ${action.id} not found`);
+            }
+            return {
+                ...state,
+                selectedIndex: nextIndex,
+            };
+        }
+        case 'clearSelection': {
+            return {
+                ...state,
+                selectedIndex: null,
+            };
+        }
         default:
             throw new Error('Unknown action type');
     }
@@ -114,20 +149,22 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
 
     const selectedItem = useMemo(() => (state.selectedIndex !== null ? items[state.selectedIndex] : null), [items, state.selectedIndex]);
 
-    let value, completion;
-    if (!selectedItem) {
-        value = state.term;
-        completion = '';
-    } else if ('url' in selectedItem && startsWithIgnoreCase(selectedItem.url, state.term)) {
-        value = state.term;
-        completion = selectedItem.url.slice(state.term.length);
-    } else if (startsWithIgnoreCase(selectedItem.title, state.term)) {
-        value = state.term;
-        completion = selectedItem.title.slice(state.term.length);
-    } else {
-        value = '';
-        completion = selectedItem.title;
-    }
+    /** @type {FancyValue} */
+    const value = useMemo(() => {
+        if (state.caret !== null) {
+            return { value: state.term, caret: state.caret };
+        }
+        if (!selectedItem) {
+            return { value: state.term };
+        }
+        if ('url' in selectedItem && startsWithIgnoreCase(selectedItem.url, state.term)) {
+            return { value: state.term, completion: selectedItem.url.slice(state.term.length) };
+        }
+        if (startsWithIgnoreCase(selectedItem.title, state.term)) {
+            return { value: state.term, completion: selectedItem.title.slice(state.term.length) };
+        }
+        return { value: '', completion: selectedItem.title };
+    }, [state.term, state.caret, selectedItem]);
 
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
     const onChange = useCallback(
@@ -151,7 +188,11 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
                             ...data.suggestions.topHits,
                             ...data.suggestions.duckduckgoSuggestions,
                             ...data.suggestions.localSuggestions,
-                        ],
+                        ].map((suggestion, index) => ({
+                            ...suggestion,
+                            id: `suggestion-${index}`,
+                            title: getSuggestionTitle(suggestion),
+                        })),
                     });
                 })
                 .catch((error) => {
@@ -174,6 +215,20 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
                     event.preventDefault();
                     dispatch({ type: 'moveSelectionUp' });
                     break;
+                case 'ArrowRight': {
+                    event.preventDefault();
+                    const term = fancyValueToString(value);
+                    setTerm(term); // @todo: setTerm and input are always called together, consider merging them
+                    dispatch({ type: 'input', term, caret: term.length });
+                    break;
+                }
+                case 'ArrowLeft': {
+                    event.preventDefault();
+                    const term = fancyValueToString(value);
+                    setTerm(term); // @todo: setTerm and input are always called together, consider merging them
+                    dispatch({ type: 'input', term, caret: value.value.length });
+                    break;
+                }
                 case 'Escape':
                     event.preventDefault();
                     dispatch({ type: 'resetSuggestions' });
@@ -189,13 +244,24 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
         [selectedItem, openSuggestion],
     );
 
+    /** @type {(id: string) => void} */
+    const setSelection = useCallback((id) => {
+        dispatch({ type: 'setSelection', id });
+    }, []);
+
+    /** @type {() => void} */
+    const clearSelection = useCallback(() => {
+        dispatch({ type: 'clearSelection' });
+    }, []);
+
     return {
         value,
-        completion,
         items,
         selectedItem,
         onChange,
         onKeyDown,
+        setSelection,
+        clearSelection,
     };
 }
 
@@ -231,4 +297,15 @@ function getSuggestionTitle(suggestion) {
  */
 function startsWithIgnoreCase(text, searchTerm) {
     return text.toLowerCase().startsWith(searchTerm.toLowerCase());
+}
+
+/**
+ * @param {FancyValue} value
+ * @returns {string}
+ */
+function fancyValueToString(value) {
+    if ('completion' in value) {
+        return value.value + value.completion;
+    }
+    return value.value;
 }
