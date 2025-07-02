@@ -1,4 +1,6 @@
 import { useCallback, useMemo, useReducer } from 'preact/hooks';
+import { eventToTarget } from '../../../../../shared/handlers.js';
+import { usePlatformName } from '../../settings.provider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').SuggestionsData} SuggestionsData
@@ -133,6 +135,8 @@ function reducer(state, action) {
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.openSuggestion
  */
 export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }) {
+    const platformName = usePlatformName();
+
     const [state, dispatch] = useReducer(reducer, { ...initialState, term });
 
     /** @type {SuggestionListItem[]} */
@@ -236,7 +240,7 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
                 case 'Enter':
                     if (selectedItem) {
                         event.preventDefault();
-                        openSuggestion({ suggestion: selectedItem, target: 'same-tab' });
+                        openSuggestion({ suggestion: selectedItem, target: eventToTarget(event, platformName) });
                     }
                     break;
             }

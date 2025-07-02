@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import styles from './SuggestionList.module.css';
 import { BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
+import { eventToTarget } from '../../../../../shared/handlers';
+import { usePlatformName } from '../../settings.provider';
 
 /**
  * @typedef {import('./useSuggestions').SuggestionListItem} SuggestionListItem
@@ -16,6 +18,7 @@ import { BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, Search
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.openSuggestion
  */
 export function SuggestionList({ items, setSelection, clearSelection, openSuggestion }) {
+    const platformName = usePlatformName();
     return (
         <div role="listbox" id="search-suggestions" class={styles.list}>
             {items.map((item) => {
@@ -30,7 +33,7 @@ export function SuggestionList({ items, setSelection, clearSelection, openSugges
                         onMouseLeave={() => clearSelection()}
                         onClick={(event) => {
                             event.preventDefault();
-                            openSuggestion({ suggestion: item, target: 'same-tab' });
+                            openSuggestion({ suggestion: item, target: eventToTarget(event, platformName) });
                         }}
                     >
                         <SuggestionListItemIcon item={item} />
