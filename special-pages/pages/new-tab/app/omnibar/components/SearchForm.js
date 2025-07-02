@@ -5,6 +5,8 @@ import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
 import styles from './Omnibar.module.css';
 import { SuggestionsList } from './SuggestionList.js';
 import { useSuggestions } from './useSuggestions';
+import { eventToTarget } from '../../../../../shared/handlers';
+import { usePlatformName } from '../../settings.provider';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -21,8 +23,11 @@ import { useSuggestions } from './useSuggestions';
  * @param {(term: string) => Promise<SuggestionsData>} props.getSuggestions
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.openSuggestion
  * @param {(params: {term: string, target: OpenTarget}) => void} props.submitSearch
+ * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
-export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, submitSearch }) {
+export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, submitSearch, submitChat }) {
+    const platformName = usePlatformName();
+
     const {
         suggestions,
         selectedSuggestion,
@@ -73,11 +78,21 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
                             onKeyDown={onInputKeyDown}
                         />
                         <div class={styles.inputActions}>
-                            <button class={cn(styles.inputAction)} aria-label="Web search" inert>
+                            <button type="submit" class={cn(styles.inputAction)} aria-label="Web search" inert>
                                 <SearchIcon />
                             </button>
                             <div class={styles.separator}></div>
-                            <button class={cn(styles.inputAction, styles.squareButton)} aria-label="Duck.ai" type="button">
+                            <button
+                                class={cn(styles.inputAction, styles.squareButton)}
+                                aria-label="Duck.ai"
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    submitChat({
+                                        chat: term,
+                                        target: eventToTarget(event, platformName),
+                                    });
+                                }}
+                            >
                                 <AiChatIcon className={styles.aiChatIcon} />
                             </button>
                         </div>

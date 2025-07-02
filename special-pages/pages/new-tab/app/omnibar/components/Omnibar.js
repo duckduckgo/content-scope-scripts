@@ -71,6 +71,7 @@ export function Omnibar({ mode, setMode, getSuggestions, openSuggestion, submitS
                     getSuggestions={getSuggestions}
                     openSuggestion={openSuggestion}
                     submitSearch={submitSearch}
+                    submitChat={submitChat}
                 />
             ) : (
                 <AiChatForm chat={query} setChat={setQuery} submitChat={submitChat} />
