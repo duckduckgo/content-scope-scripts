@@ -89,6 +89,8 @@ export function protectionsMockTransport() {
                         config.feed = 'activity';
                     }
 
+                    config.showBurnAnimation = false;
+
                     return Promise.resolve(config);
                 }
                 default: {
