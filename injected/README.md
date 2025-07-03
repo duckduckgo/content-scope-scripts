@@ -188,6 +188,30 @@ Everything within `integration-test` is integration tests controlled by Playwrig
 npm run test-int
 ```
 
+**Running specific tests:**
+
+To run a specific test or test suite, you can use the `--grep` flag to filter tests by name:
+
+```shell
+# Run tests containing "Test infra" in their name
+npx playwright test pages.spec.js --grep "Test infra"
+
+# Run tests containing "Conditional frame matching" in their name
+npx playwright test pages.spec.js --grep "Conditional frame matching"
+
+# Run tests in headed mode (shows browser window)
+npx playwright test pages.spec.js --grep "Test infra" --headed
+```
+
+**Debugging tests:**
+
+For debugging, you can run tests in headed mode and add debugging output:
+
+```shell
+# Run with browser visible and debugging enabled
+npx playwright test pages.spec.js --grep "Test infra" --headed --debug
+```
+
 #### Feature Build process
 
 To produce all artefacts that are used by platforms, just run the `npm run build` command.
