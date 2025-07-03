@@ -89,7 +89,9 @@ export function protectionsMockTransport() {
                         config.feed = 'activity';
                     }
 
-                    config.showBurnAnimation = false;
+                    if (url.searchParams.get('protections.burn') === 'false') {
+                        config.showBurnAnimation = false;
+                    }
 
                     return Promise.resolve(config);
                 }
