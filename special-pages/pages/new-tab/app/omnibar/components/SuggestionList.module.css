@@ -40,12 +40,6 @@
         fill-opacity: 1!important;
     }
 
-    &:hover {
-        background: var(--ddg-color-primary);
-        color: white;
-        border-radius: 4px;
-    }
-
     &[aria-selected="true"] {
         background: var(--ddg-color-primary);
         color: white;

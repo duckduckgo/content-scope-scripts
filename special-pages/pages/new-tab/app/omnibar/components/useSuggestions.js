@@ -17,7 +17,6 @@ import { usePlatformName } from '../../settings.provider.js';
 
 /**
  * @typedef {{
- *   caret: number | null,
  *   originalTerm: string | null,
  *   suggestions: SuggestionModel[],
  *   selectedIndex: number | null
@@ -26,7 +25,6 @@ import { usePlatformName } from '../../settings.provider.js';
 
 /**
  * @typedef {(
- *   | { type: 'setCaret', caret: number | null }
  *   | { type: 'setSuggestions', term: string, suggestions: SuggestionModel[] }
  *   | { type: 'resetSuggestions' }
  *   | { type: 'setSelectedSuggestion', suggestion: SuggestionModel }
@@ -40,7 +38,6 @@ import { usePlatformName } from '../../settings.provider.js';
  * @type {State}
  */
 const initialState = {
-    caret: null,
     originalTerm: null,
     suggestions: [],
     selectedIndex: null,
@@ -51,12 +48,6 @@ const initialState = {
  */
 function reducer(state, action) {
     switch (action.type) {
-        case 'setCaret': {
-            return {
-                ...state,
-                caret: action.caret,
-            };
-        }
         case 'setSuggestions':
             return {
                 ...state,
@@ -98,7 +89,6 @@ function reducer(state, action) {
             }
             return {
                 ...state,
-                caret: null,
                 selectedIndex: nextIndex,
             };
         }
@@ -113,7 +103,6 @@ function reducer(state, action) {
             }
             return {
                 ...state,
-                caret: null,
                 selectedIndex: nextIndex,
             };
         }
@@ -149,23 +138,20 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
         dispatch({ type: 'clearSelectedSuggestion' });
     };
 
-    const { inputValue, inputSelection } = useMemo(() => {
-        if (state.caret !== null) {
-            return { inputValue: term, inputSelection: { start: state.caret, end: state.caret } };
-        }
-        if (!selectedSuggestion) {
-            return { inputValue: term };
-        }
-        if ('url' in selectedSuggestion && startsWithIgnoreCase(selectedSuggestion.url, term)) {
-            const inputValue = term + selectedSuggestion.url.slice(term.length);
-            return { inputValue, inputSelection: { start: term.length, end: inputValue.length } };
-        }
-        if (startsWithIgnoreCase(selectedSuggestion.title, term)) {
-            const inputValue = term + selectedSuggestion.title.slice(term.length);
-            return { inputValue, inputSelection: { start: term.length, end: inputValue.length } };
-        }
-        return { inputValue: selectedSuggestion.title, inputSelection: { start: 0, end: selectedSuggestion.title.length } };
-    }, [term, state.caret, selectedSuggestion]);
+    let inputBase, inputSuggestion;
+    if (!selectedSuggestion) {
+        inputBase = term;
+        inputSuggestion = '';
+    } else if ('url' in selectedSuggestion && startsWithIgnoreCase(selectedSuggestion.url, term)) {
+        inputBase = term;
+        inputSuggestion = selectedSuggestion.url.slice(term.length);
+    } else if (startsWithIgnoreCase(selectedSuggestion.title, term)) {
+        inputBase = term;
+        inputSuggestion = selectedSuggestion.title.slice(term.length);
+    } else {
+        inputBase = '';
+        inputSuggestion = selectedSuggestion.title;
+    }
 
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
     const onInputChange = (event) => {
@@ -221,22 +207,13 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
                 }
                 dispatch({ type: 'nextSuggestion' });
                 break;
-            case 'ArrowLeft': {
-                if (term !== inputValue) {
-                    event.preventDefault();
-                    setTerm(inputValue);
-                    dispatch({ type: 'setCaret', caret: term.length });
+            case 'ArrowLeft':
+            case 'ArrowRight':
+                if (selectedSuggestion) {
+                    setTerm(inputBase + inputSuggestion);
+                    dispatch({ type: 'clearSelectedSuggestion' });
                 }
                 break;
-            }
-            case 'ArrowRight': {
-                if (term !== inputValue) {
-                    event.preventDefault();
-                    setTerm(inputValue);
-                    dispatch({ type: 'setCaret', caret: inputValue.length });
-                }
-                break;
-            }
             case 'Escape':
                 event.preventDefault();
                 dispatch({ type: 'resetSuggestions' });
@@ -250,15 +227,23 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
         }
     };
 
+    const onInputClick = () => {
+        if (selectedSuggestion) {
+            setTerm(inputBase + inputSuggestion);
+            dispatch({ type: 'clearSelectedSuggestion' });
+        }
+    };
+
     return {
         suggestions: state.suggestions,
         selectedSuggestion,
         setSelectedSuggestion,
         clearSelectedSuggestion,
-        inputValue,
-        inputSelection,
+        inputBase,
+        inputSuggestion,
         onInputChange,
         onInputKeyDown,
+        onInputClick,
     };
 }
 

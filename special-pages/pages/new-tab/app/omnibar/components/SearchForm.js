@@ -1,13 +1,13 @@
 import cn from 'classnames';
 import { h } from 'preact';
-import { useEffect, useRef } from 'preact/hooks';
-import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
-import styles from './Omnibar.module.css';
-import { SuggestionsList } from './SuggestionList.js';
-import { useSuggestions } from './useSuggestions';
 import { eventToTarget } from '../../../../../shared/handlers';
+import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
+import styles from './Omnibar.module.css';
+import { SuggestionInput } from './SuggestionInput.js';
+import { SuggestionsList } from './SuggestionList.js';
+import { useSuggestions } from './useSuggestions';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -35,10 +35,11 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
         selectedSuggestion,
         setSelectedSuggestion,
         clearSelectedSuggestion,
-        inputValue,
-        inputSelection,
+        inputBase,
+        inputSuggestion,
         onInputChange,
         onInputKeyDown,
+        onInputClick,
     } = useSuggestions({
         term,
         setTerm,
@@ -60,12 +61,12 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
             <form onSubmit={onSubmit} class={styles.form}>
                 <div class={styles.inputRoot} style={{ viewTransitionName: 'omnibar-input-transition' }}>
                     <div class={styles.inputContainer} style={{ viewTransitionName: 'omnibar-input-transition2' }}>
-                        <InputWithControlledSelection
+                        <SuggestionInput
                             type="text"
                             role="combobox"
                             class={styles.input}
-                            value={inputValue}
-                            selection={inputSelection}
+                            base={inputBase}
+                            suggestion={inputSuggestion}
                             placeholder={t('searchForm_placeholder')}
                             aria-label={t('searchForm_placeholder')}
                             aria-expanded={suggestions.length > 0}
@@ -78,6 +79,7 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
                             autoCapitalize="off"
                             onChange={onInputChange}
                             onKeyDown={onInputKeyDown}
+                            onClick={onInputClick}
                         />
                         <div class={styles.inputActions}>
                             <button type="submit" class={cn(styles.inputAction)} aria-label={t('searchForm_searchButtonLabel')} inert>
@@ -110,26 +112,4 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
             </form>
         </div>
     );
-}
-
-/** @typedef {Omit<import('preact').JSX.InputHTMLAttributes, 'value'> & {
-  *   value: string,
-  *   selection: { start: number, end: number } | undefined,
-  * }} InputWithControlledSelectionProps
-
-/**
- * @param {InputWithControlledSelectionProps} props
- */
-function InputWithControlledSelection({ value, selection, ...props }) {
-    const ref = useRef(/** @type {HTMLInputElement|null} */ (null));
-
-    useEffect(() => {
-        if (!ref.current) return;
-        ref.current.value = value;
-        if (selection) {
-            ref.current.setSelectionRange(selection.start, selection.end);
-        }
-    }, [value, selection]);
-
-    return <input {...props} ref={ref} />;
 }
