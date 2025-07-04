@@ -141,9 +141,9 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('disableDeviceEnumeration')) {
             this.preventDeviceEnumeration();
         }
-        // if (this.getFeatureSettingEnabled('deviceEnumeration')) {
+        if (this.getFeatureSettingEnabled('deviceEnumeration')) {
             this.deviceEnumerationFix();
-        // }
+        }
     }
 
     /**
@@ -893,20 +893,7 @@ export class WebCompat extends ContentFeature {
                 enumerable: true,
             },
         });
-        
-        // Set the prototype based on device type
-        if (kind === 'videoinput' || kind === 'audioinput') {
-            // Input devices should inherit from InputDeviceInfo.prototype if available
-            if (typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
-                Object.setPrototypeOf(deviceInfo, InputDeviceInfo.prototype);
-            } else {
-                Object.setPrototypeOf(deviceInfo, MediaDeviceInfo.prototype);
-            }
-        } else {
-            // Output devices inherit from MediaDeviceInfo.prototype
-            Object.setPrototypeOf(deviceInfo, MediaDeviceInfo.prototype);
-        }
-        
+
         return deviceInfo;
     }
 
