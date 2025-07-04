@@ -130,7 +130,7 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('disableDeviceEnumeration') || this.getFeatureSettingEnabled('disableDeviceEnumerationFrames')) {
             this.preventDeviceEnumeration();
         }
-        if (this.getFeatureSettingEnabled('deviceEnumeration')) {
+        if (this.getFeatureSettingEnabled('enumerateDevices')) {
             this.deviceEnumerationFix();
         }
     }
