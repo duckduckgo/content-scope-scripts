@@ -12,16 +12,17 @@ import styles from './SuggestionList.module.css';
 
 /**
  * @param {object} props
+ * @param {string} props.id
  * @param {SuggestionModel[]} props.suggestions
  * @param {SuggestionModel | null} props.selectedSuggestion
  * @param {(suggestion: SuggestionModel) => void} props.setSelectedSuggestion
  * @param {() => void} props.clearSelectedSuggestion
  */
-export function SuggestionsList({ suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion }) {
+export function SuggestionsList({ id, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion }) {
     const { openSuggestion } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     return (
-        <div role="listbox" id="suggestions-list" class={styles.list}>
+        <div role="listbox" id={id} class={styles.list}>
             {suggestions.map((suggestion) => {
                 return (
                     <button
