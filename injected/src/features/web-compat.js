@@ -789,9 +789,9 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
-     * Creates a valid MediaDeviceInfo object that passes instanceof checks
+     * Creates a valid MediaDeviceInfo or InputDeviceInfo object that passes instanceof checks
      * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
-     * @returns {MediaDeviceInfo}
+     * @returns {MediaDeviceInfo | InputDeviceInfo}
      */
     createMediaDeviceInfo(kind) {
         // Create a simple object that looks like MediaDeviceInfo
@@ -818,8 +818,18 @@ export class WebCompat extends ContentFeature {
             groupId: { writable: false, configurable: false }
         });
         
-        // Set the prototype to MediaDeviceInfo.prototype for instanceof checks
-        Object.setPrototypeOf(deviceInfo, MediaDeviceInfo.prototype);
+        // Set the prototype based on device type
+        if (kind === 'videoinput' || kind === 'audioinput') {
+            // Input devices should inherit from InputDeviceInfo.prototype if available
+            if (typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
+                Object.setPrototypeOf(deviceInfo, InputDeviceInfo.prototype);
+            } else {
+                Object.setPrototypeOf(deviceInfo, MediaDeviceInfo.prototype);
+            }
+        } else {
+            // Output devices inherit from MediaDeviceInfo.prototype
+            Object.setPrototypeOf(deviceInfo, MediaDeviceInfo.prototype);
+        }
         
         return deviceInfo;
     }
