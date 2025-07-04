@@ -33,5 +33,5 @@ export function OmnibarConsumer() {
  */
 function OmnibarReadyState({ config }) {
     const { setMode } = useContext(OmnibarContext);
-    return <Omnibar mode={config.mode} setMode={setMode} />;
+    return <Omnibar mode={config.mode} setMode={setMode} enableAi={config.enableAi ?? true} />;
 }
