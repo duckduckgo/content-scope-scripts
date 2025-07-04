@@ -1,5 +1,8 @@
 * @duckduckgo/content-scope-scripts-owners
 
+# Documentation - anyone can edit
+injected/docs/ *
+
 # Feature owners
 injected/src/features/fingerprinting-* @duckduckgo/content-scope-scripts-owners @jonathanKingston @englehardt
 injected/src/canvas.js @duckduckgo/content-scope-scripts-owners @jonathanKingston @englehardt
