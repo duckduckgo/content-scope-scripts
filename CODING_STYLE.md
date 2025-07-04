@@ -10,7 +10,7 @@ This document outlines the coding style and conventions used in the Content Scop
 
 We use [Prettier](https://prettier.io/) for automatic code formatting. This ensures consistent code style across the entire codebase.
 
-- **Configuration**: Prettier settings are configured in the project root
+- **Configuration**: See [`.prettierrc`](.prettierrc) for current formatting settings
 - **IDE Integration**: Enable Prettier in your IDE/editor for automatic formatting on save
 - **CI/CD**: Code formatting is checked in our continuous integration pipeline
 
@@ -232,20 +232,12 @@ Recommended extensions:
 - TypeScript and JavaScript Language Features (built-in)
 - ESLint
 
-### Settings
-
-```json
-{
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "typescript.preferences.includePackageJsonAutoImports": "off",
-    "js/ts.implicitProjectConfig.checkJs": true
-}
-```
 
 ## Linting
 
-We use ESLint for code quality checks. Run linting with:
+We use ESLint for code quality checks. See [`eslint.config.js`](eslint.config.js) for the current linting configuration.
+
+Run linting with:
 
 ```bash
 npm run lint
