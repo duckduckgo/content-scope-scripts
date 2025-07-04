@@ -18,6 +18,15 @@ Content Scope Scripts provides a unified API for browser privacy features across
 
 ## Key Concepts
 
+### Project Structure
+
+Content Scope Scripts contains two main sub-projects:
+
+- **[Special Pages](../special-pages/)** - HTML/CSS/JS applications loaded into browsers (DuckPlayer, Release Notes, New Tab page, etc.)
+- **Injected Features** - Features injected into websites (privacy protections, compatibility fixes)
+
+> **For Special Pages development**, see the [Special Pages README](../special-pages/README.md) for detailed getting started instructions.
+
 ### Features
 Features are JavaScript modules that implement privacy protections. Each feature:
 - Extends the `ConfigFeature` class for remote configuration support

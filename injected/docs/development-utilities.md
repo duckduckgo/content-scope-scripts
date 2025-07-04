@@ -6,6 +6,11 @@ To handle the difference in scope injection we expose multiple utilities which b
 
 ## Development Setup
 
+### Repository Access
+
+1. **Clone the repository**: `https://github.com/duckduckgo/content-scope-scripts`
+2. **Request write-access** (for contributors): Submit a request via [Internal Support README](https://app.asana.com/1/137249556945/project/908478224964033/task/1209367367171662?focus=true) asking for `https://github.com/orgs/duckduckgo/teams/core` group access
+
 ### Local Development Setup
 
 **Important**: Before cloning the repo on Windows, to avoid major headaches, make sure you clone it with unix-style line endings:
@@ -15,6 +20,24 @@ git clone --config core.autocrlf=false https://github.com/duckduckgo/content-sco
 ```
 
 The Content Scope Scripts repo includes the build artifacts, which need to be generated as part of your commit.
+
+### Initial Setup
+
+Inside the repo, run:
+
+```shell
+npm ci  # Preferred over 'npm install' for accurate lockfile updates
+```
+
+Ensure you have a version of node that matches what's in the `.nvmrc` file.
+
+Now, to ensure everything's setup, try a full build:
+
+```shell
+npm run build
+```
+
+This will place built files into the top-level `build` folder. If this command ran successfully, you can continue with development.
 
 ### Windows Development
 
