@@ -39,7 +39,7 @@ export async function initOverlays(settings, environment, messages) {
 
     // ad block detection
     let adBlockDestroy;
-    const adBlockSelector = 'Foo Figthers - Everlong';
+    const adBlockSelector = 'Ad blockers violate YouTube';
     const adBlockMessageName = 'didFindAdBlockNotice';
 
     /**
