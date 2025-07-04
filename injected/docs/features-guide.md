@@ -26,7 +26,7 @@ The `ConfigFeature` class is also exportable and can be used by other scripts to
 
 ### 1. Create Feature File
 
-Create a new content scope features file in [src/features/](../../src/features).
+Create a new content scope features file in `src/features/` and register it in [features.js](../src/features.js).
 
 ### 2. Register the Feature
 
