@@ -1,5 +1,5 @@
 import { h, createContext } from 'preact';
-import { useContext, useEffect } from 'preact/hooks';
+import { useCallback, useContext } from 'preact/hooks';
 import { batch, signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { ActivityInteractionsContext } from './ActivityInteractionsContext.js';
@@ -13,15 +13,20 @@ export const ActivityBurningSignalContext = createContext({
     exiting: signal([]),
     /** @type {import("@preact/signals").Signal<{state: 'loading' | 'ready' | 'error', data: null | Record<string, any>}>} */
     animation: signal({ state: 'loading', data: null }),
+    /** @type {boolean} */
+    showBurnAnimation: true,
+    /** @type {(url: string) => void} */
+    doneBurning: (_url) => {},
 });
 
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  * @param {{confirmBurn: (url: string) => Promise<{action: 'burn' | 'none'}>; disableBroadcast: () => void; enableBroadcast: () => void }} props.service
+ * @param {boolean} [props.showBurnAnimation] - defaults to true to match original implementation
  *
  */
-export function BurnProvider({ children, service }) {
+export function BurnProvider({ children, service, showBurnAnimation = true }) {
     const burning = useSignal(/** @type {string[]} */ ([]));
     const exiting = useSignal(/** @type {string[]} */ ([]));
     const animation = useSignal({ state: /** @type {'loading' | 'ready' | 'error'} */ ('loading'), data: null });
@@ -94,23 +99,21 @@ export function BurnProvider({ children, service }) {
         };
     });
 
-    useEffect(() => {
-        const handler = (e) => {
-            if (e.detail.url) {
+    /** @type {(url: string) => void} */
+    const doneBurning = useCallback(
+        (url) => {
+            if (url) {
                 batch(() => {
-                    burning.value = burning.value.filter((x) => x !== e.detail.url);
-                    exiting.value = exiting.value.concat(e.detail.url);
+                    burning.value = burning.value.filter((x) => x !== url);
+                    exiting.value = exiting.value.concat(url);
                 });
             }
-        };
-        window.addEventListener('done-burning', handler);
-        return () => {
-            window.removeEventListener('done-burning', handler);
-        };
-    }, [burning, exiting]);
+        },
+        [burning, exiting],
+    );
 
     return (
-        <ActivityBurningSignalContext.Provider value={{ burning, exiting, animation }}>
+        <ActivityBurningSignalContext.Provider value={{ burning, exiting, animation, showBurnAnimation, doneBurning }}>
             <ActivityInteractionsContext.Provider value={{ didClick }}>{children}</ActivityInteractionsContext.Provider>
         </ActivityBurningSignalContext.Provider>
     );

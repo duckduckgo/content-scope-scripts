@@ -9079,7 +9079,7 @@
   });
 
   // pages/new-tab/app/burning/BurnProvider.js
-  function BurnProvider({ children, service }) {
+  function BurnProvider({ children, service, showBurnAnimation = true }) {
     const burning = useSignal(
       /** @type {string[]} */
       []
@@ -9144,21 +9144,18 @@
         cancelled = true;
       };
     });
-    y2(() => {
-      const handler = (e4) => {
-        if (e4.detail.url) {
+    const doneBurning = q2(
+      (url7) => {
+        if (url7) {
           r3(() => {
-            burning.value = burning.value.filter((x3) => x3 !== e4.detail.url);
-            exiting.value = exiting.value.concat(e4.detail.url);
+            burning.value = burning.value.filter((x3) => x3 !== url7);
+            exiting.value = exiting.value.concat(url7);
           });
         }
-      };
-      window.addEventListener("done-burning", handler);
-      return () => {
-        window.removeEventListener("done-burning", handler);
-      };
-    }, [burning, exiting]);
-    return /* @__PURE__ */ _(ActivityBurningSignalContext.Provider, { value: { burning, exiting, animation } }, /* @__PURE__ */ _(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
+      },
+      [burning, exiting]
+    );
+    return /* @__PURE__ */ _(ActivityBurningSignalContext.Provider, { value: { burning, exiting, animation, showBurnAnimation, doneBurning } }, /* @__PURE__ */ _(ActivityInteractionsContext.Provider, { value: { didClick } }, children));
   }
   function toPromise(fn2) {
     return new Promise((resolve) => {
@@ -9279,7 +9276,12 @@
         /** @type {import("@preact/signals").Signal<string[]>} */
         exiting: d3([]),
         /** @type {import("@preact/signals").Signal<{state: 'loading' | 'ready' | 'error', data: null | Record<string, any>}>} */
-        animation: d3({ state: "loading", data: null })
+        animation: d3({ state: "loading", data: null }),
+        /** @type {boolean} */
+        showBurnAnimation: true,
+        /** @type {(url: string) => void} */
+        doneBurning: (_url) => {
+        }
       });
     }
   });
@@ -25930,7 +25932,7 @@
   __export(BurnAnimationLottieWeb_exports, {
     BurnAnimation: () => BurnAnimation
   });
-  function BurnAnimation({ url: url7 }) {
+  function BurnAnimation({ url: url7, doneBurning }) {
     const ref = A2(
       /** @type {Lottie} */
       null
@@ -25940,9 +25942,9 @@
       if (!ref.current) return;
       let finished = false;
       let timer2 = null;
-      const publish = (reason) => {
+      const publish = (_reason) => {
         if (finished) return;
-        window.dispatchEvent(new CustomEvent("done-burning", { detail: { url: url7, reason } }));
+        doneBurning(url7);
         finished = true;
         clearTimeout(timer2);
       };
@@ -25967,7 +25969,7 @@
           publish("unmount occurred");
         }
       };
-    }, [url7, json]);
+    }, [url7, json, doneBurning]);
     return /* @__PURE__ */ _("div", { ref, "data-lottie-player": true });
   }
   var import_lottie_web;
@@ -25987,7 +25989,7 @@
       /** @type {HTMLDivElement|null} */
       null
     );
-    const { exiting, burning } = x2(ActivityBurningSignalContext);
+    const { exiting, burning, showBurnAnimation, doneBurning } = x2(ActivityBurningSignalContext);
     const isBurning = useComputed(() => burning.value.some((x3) => x3 === url7));
     const isExiting = useComputed(() => exiting.value.some((x3) => x3 === url7));
     _2(() => {
@@ -26029,7 +26031,11 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url7]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url7 })));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url7, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url7, doneBurning }));
+  }
+  function NullBurner({ url: url7, doneBurning }) {
+    y2(() => doneBurning(url7), [url7]);
+    return null;
   }
   var import_classnames13, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
@@ -26181,7 +26187,7 @@
     });
     return /* @__PURE__ */ _(Activity, { batched, itemCount: itemCount.value }, children);
   }
-  function ActivityConsumer() {
+  function ActivityConsumer({ showBurnAnimation }) {
     const { state } = x2(ActivityContext);
     const service = x2(ActivityServiceContext);
     const platformName = usePlatformName();
@@ -26190,7 +26196,7 @@
       if (platformName === "windows") {
         return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(ActivityConfigured, null, /* @__PURE__ */ _(ActivityBody, { canBurn: false, visibility })));
       }
-      return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(BurnProvider, { service }, /* @__PURE__ */ _(ActivityConfigured, null, /* @__PURE__ */ _(ActivityBody, { canBurn: true, visibility }))));
+      return /* @__PURE__ */ _(SignalStateProvider, null, /* @__PURE__ */ _(BurnProvider, { service, showBurnAnimation }, /* @__PURE__ */ _(ActivityConfigured, null, /* @__PURE__ */ _(ActivityBody, { canBurn: true, visibility }))));
     }
     return null;
   }
@@ -26610,7 +26616,7 @@
         feed: config.feed,
         setFeed
       },
-      config.feed === "activity" && /* @__PURE__ */ _(ActivityProvider, null, /* @__PURE__ */ _(ActivityConsumer, null)),
+      config.feed === "activity" && /* @__PURE__ */ _(ActivityProvider, null, /* @__PURE__ */ _(ActivityConsumer, { showBurnAnimation: config.showBurnAnimation ?? true })),
       config.feed === "privacy-stats" && /* @__PURE__ */ _(PrivacyStatsProvider, null, /* @__PURE__ */ _(BodyExpanderProvider, null, /* @__PURE__ */ _(PrivacyStatsConsumer, null)))
     );
   }

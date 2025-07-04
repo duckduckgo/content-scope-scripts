@@ -1,4 +1,1 @@
-- Use useId() for stable unique ID in omnibar aria-controls (#1791)
-- Add enableAi config to control Duck.ai visibility (#1790)
-- NTP: Add Omnibar widget UI (#1786)
-- Add omnibar page to new tab children list (#1788)
+- ntp: support configurable burn animation (#1789)
