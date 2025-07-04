@@ -73,11 +73,14 @@ export async function init(messaging, telemetry, baseEnvironment) {
 
     console.log(settings);
 
-    const embed = createEmbedSettings(window.location.href, settings);
-    if (!embed) {
-        const message = 'Embed not found';
-        messaging.metrics.reportException({ message, kind: EXCEPTION_KIND_INIT_ERROR });
-        console.log(message);
+    let embed;
+    try {
+        embed = createEmbedSettings(window.location.href, settings);
+        if (!embed) {
+            throw new Error('Embed not found');
+        }
+    } catch (e) {
+        messaging.metrics.reportException({ message: e.message, kind: EXCEPTION_KIND_INIT_ERROR });
     }
 
     const didCatch = (error) => {
