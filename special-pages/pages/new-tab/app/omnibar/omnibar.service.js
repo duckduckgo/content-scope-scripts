@@ -1,4 +1,5 @@
 import { Service } from '../service.js';
+import { OmnibarSuggestionsService } from './omnibar.suggestions.service.js';
 
 /**
  * @typedef {import("../../types/new-tab.js").OmnibarConfig} OmnibarConfig
@@ -21,6 +22,8 @@ export class OmnibarService {
             subscribe: (cb) => ntp.messaging.subscribe('omnibar_onConfigUpdate', cb),
             persist: (data) => ntp.messaging.notify('omnibar_setConfig', data),
         });
+
+        this.suggestionsService = new OmnibarSuggestionsService(ntp);
     }
 
     name() {
@@ -69,7 +72,16 @@ export class OmnibarService {
      * @returns {Promise<SuggestionsData>}
      */
     getSuggestions(term) {
-        return this.ntp.messaging.request('omnibar_getSuggestions', { term });
+        return this.suggestionsService.triggerFetch(term);
+    }
+
+    /**
+     * Subscribe to suggestions updates. Returns a function to unsubscribe
+     * @param {(data: SuggestionsData) => void} cb
+     * @returns {() => void}
+     */
+    onSuggestions(cb) {
+        return this.suggestionsService.onData(cb);
     }
 
     /**
