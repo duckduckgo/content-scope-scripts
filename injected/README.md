@@ -36,6 +36,14 @@ The global `contentScopeFeatures` object provides:
 - `urlChanged()` - Handle Single Page App navigation
 - `update()` - Receive browser updates
 
+---
+
+## Architecture Overview
+
+![Content Scope Scripts architecture diagram](./docs/img/feature-explanation.png)
+
+*High-level overview of how Content Scope Scripts are built and integrated into platforms (example: macOS).* 
+
 ## Development
 
 ### Quick Test
