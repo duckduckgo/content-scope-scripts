@@ -1,4 +1,4 @@
-import { useReducer } from 'preact/hooks';
+import { useEffect, useReducer } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
 
@@ -116,9 +116,11 @@ function reducer(state, action) {
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
  * @param {(term: string) => Promise<SuggestionsData>} props.getSuggestions
+ * @param {(cb: (data: SuggestionsData) => void) => (() => void)} props.onSuggestions
+ * @param {(term: string) => Promise<SuggestionsData>} props.getSuggestions
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.openSuggestion
  */
-export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }) {
+export function useSuggestions({ term, setTerm, getSuggestions, onSuggestions, openSuggestion }) {
     const platformName = usePlatformName();
 
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -150,6 +152,25 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
         inputSuggestion = selectedSuggestion.title;
     }
 
+    useEffect(() => {
+        return onSuggestions((data) => {
+            const suggestions = [
+                ...data.suggestions.topHits,
+                ...data.suggestions.duckduckgoSuggestions,
+                ...data.suggestions.localSuggestions,
+            ].map((suggestion, index) => ({
+                ...suggestion,
+                id: `suggestion-${index}`,
+                title: getSuggestionTitle(suggestion),
+            }));
+            dispatch({
+                type: 'setSuggestions',
+                term,
+                suggestions,
+            });
+        });
+    }, [onSuggestions]);
+
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
     const onInputChange = (event) => {
         if (!(event.target instanceof HTMLInputElement)) return;
@@ -162,29 +183,7 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
             return;
         }
 
-        const fetchSuggestions = async () => {
-            try {
-                const data = await getSuggestions(term);
-                const suggestions = [
-                    ...data.suggestions.topHits,
-                    ...data.suggestions.duckduckgoSuggestions,
-                    ...data.suggestions.localSuggestions,
-                ].map((suggestion, index) => ({
-                    ...suggestion,
-                    id: `suggestion-${index}`,
-                    title: getSuggestionTitle(suggestion),
-                }));
-                dispatch({
-                    type: 'setSuggestions',
-                    term,
-                    suggestions,
-                });
-            } catch (error) {
-                console.error('Error fetching suggestions:', error);
-                dispatch({ type: 'resetSuggestions' });
-            }
-        };
-        fetchSuggestions();
+        getSuggestions(term);
     };
 
     /** @type {(event: KeyboardEvent) => void} */

@@ -27,6 +27,10 @@ export const OmnibarContext = createContext({
     getSuggestions: () => {
         throw new Error('must implement');
     },
+    /** @type {(cb: (data: SuggestionsData) => void) => (() => void)} */
+    onSuggestions: () => {
+        throw new Error('must implement');
+    },
     /** @type {(params: {suggestion: Suggestion, target: OpenTarget}) => void} */
     openSuggestion: () => {
         throw new Error('must implement');
@@ -84,6 +88,15 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(cb: (data: SuggestionsData) => void) => (() => void)} */
+    const onSuggestions = useCallback(
+        (cb) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current.onSuggestions(cb);
+        },
+        [service],
+    );
+
     /** @type {(params: {suggestion: Suggestion, target: OpenTarget}) => void} */
     const openSuggestion = useCallback(
         (params) => {
@@ -114,6 +127,7 @@ export function OmnibarProvider(props) {
                 state,
                 setMode,
                 getSuggestions,
+                onSuggestions,
                 openSuggestion,
                 submitSearch,
                 submitChat,

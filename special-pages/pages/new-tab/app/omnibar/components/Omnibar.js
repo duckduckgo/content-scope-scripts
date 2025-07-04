@@ -20,11 +20,12 @@ import { SearchForm } from './SearchForm';
  * @param {OmnibarConfig['mode']} props.mode
  * @param {(mode: OmnibarConfig['mode']) => void} props.setMode
  * @param {(term: string) => Promise<SuggestionsData>} props.getSuggestions
+ * @param {(cb: (data: SuggestionsData) => void) => (() => void)} props.onSuggestions
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.openSuggestion
  * @param {(params: {term: string, target: OpenTarget}) => void} props.submitSearch
  * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
-export function Omnibar({ mode, setMode, getSuggestions, openSuggestion, submitSearch, submitChat }) {
+export function Omnibar({ mode, setMode, getSuggestions, onSuggestions, openSuggestion, submitSearch, submitChat }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const [query, setQuery] = useState(/** @type {String} */ (''));
@@ -69,6 +70,7 @@ export function Omnibar({ mode, setMode, getSuggestions, openSuggestion, submitS
                     term={query}
                     setTerm={setQuery}
                     getSuggestions={getSuggestions}
+                    onSuggestions={onSuggestions}
                     openSuggestion={openSuggestion}
                     submitSearch={submitSearch}
                     submitChat={submitChat}

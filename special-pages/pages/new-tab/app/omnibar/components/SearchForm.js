@@ -22,11 +22,12 @@ import { useSuggestions } from './useSuggestions';
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
  * @param {(term: string) => Promise<SuggestionsData>} props.getSuggestions
+ * @param {(cb: (data: SuggestionsData) => void) => (() => void)} props.onSuggestions
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.openSuggestion
  * @param {(params: {term: string, target: OpenTarget}) => void} props.submitSearch
  * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
-export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, submitSearch, submitChat }) {
+export function SearchForm({ term, setTerm, getSuggestions, onSuggestions, openSuggestion, submitSearch, submitChat }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
@@ -44,6 +45,7 @@ export function SearchForm({ term, setTerm, getSuggestions, openSuggestion, subm
         term,
         setTerm,
         getSuggestions,
+        onSuggestions,
         openSuggestion,
     });
 
