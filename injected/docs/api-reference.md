@@ -1,6 +1,6 @@
 # Content Scope Features API Reference
 
-Each platform calls into the API exposed by content-scope-features.js where the relevant JavaScript file is included from features/. This file loads the relevant platform enabled features. The platform itself should adhere to the features lifecycle when implementing.
+Each platform calls into the API exposed by [content-scope-features.js](../src/content-scope-features.js) where the relevant JavaScript file is included from `features/`. This file loads the relevant platform enabled features. The platform itself should adhere to the features lifecycle when implementing.
 
 ## Global API: `contentScopeFeatures`
 

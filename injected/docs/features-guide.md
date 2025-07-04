@@ -30,7 +30,7 @@ Create a new content scope features file in [src/features/](../src/features).
 
 ### 2. Register the Feature
 
-Add the feature name to the [content-scope-features.js](../src/features.js) array.
+Add the feature name to the [features.js](../src/features.js) array.
 
 ### 3. Add Debug Flags
 
@@ -42,8 +42,6 @@ Add breakage debug flags at appropriate places by calling `ContentFeature.addDeb
 - **Integration tests**: Should be platform agnostic and run in the platform also
 
 ### 5. Follow Process Guidelines
-
-See the [Draft] New web feature guide for the complete development process.
 
 ## Features Lifecycle
 
