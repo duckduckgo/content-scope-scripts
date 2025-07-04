@@ -1,4 +1,5 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
+import { getMockSuggestions } from './omnibar.mocks.js';
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
@@ -36,7 +37,7 @@ export function omnibarMockTransport() {
             console.warn('unhandled sub', sub);
             return () => {};
         },
-        request(_msg) {
+        async request(_msg) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
@@ -45,10 +46,18 @@ export function omnibarMockTransport() {
                     if (modeOverride === 'search' || modeOverride === 'ai') {
                         config.mode = modeOverride;
                     }
-                    return Promise.resolve(config);
+                    const enableAiOverride = url.searchParams.get('omnibar.enableAi');
+                    if (enableAiOverride === 'true' || enableAiOverride === 'false') {
+                        config.enableAi = enableAiOverride === 'true';
+                    }
+                    return config;
+                }
+                case 'omnibar_getSuggestions': {
+                    await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate network delay
+                    return getMockSuggestions(msg.params.term);
                 }
                 default: {
-                    return Promise.reject(new Error('unhandled request' + msg));
+                    throw new Error('unhandled request' + msg);
                 }
             }
         },

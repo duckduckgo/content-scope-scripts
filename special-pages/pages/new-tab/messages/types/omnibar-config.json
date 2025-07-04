@@ -10,6 +10,11 @@
       "title": "Omnibar Mode",
       "type": "string",
       "enum": ["search", "ai"]
+    },
+    "enableAi": {
+      "title": "Enable Duck.ai",
+      "type": "boolean",
+      "default": true
     }
   }
 }
