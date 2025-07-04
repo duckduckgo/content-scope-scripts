@@ -127,9 +127,12 @@
                 results.push({
                     name: 'Device properties are read-only',
                     result: (() => {
-                        const originalValue = devices[0].deviceId;
-                        devices[0].deviceId = 'modified';
-                        return devices[0].deviceId === originalValue;
+                        try {
+                            devices[0].deviceId = 'modified';
+                            return false;
+                        } catch (e) {
+                            return true;
+                        }
                     })(),
                     expected: true
                 });
