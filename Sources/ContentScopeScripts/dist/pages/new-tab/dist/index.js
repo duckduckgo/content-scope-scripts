@@ -6,6 +6,9 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __typeError = (msg) => {
+    throw TypeError(msg);
+  };
   var __defNormalProp = (obj, key2, value2) => key2 in obj ? __defProp(obj, key2, { enumerable: true, configurable: true, writable: true, value: value2 }) : obj[key2] = value2;
   var __glob = (map) => (path) => {
     var fn2 = map[path];
@@ -39,6 +42,18 @@
     mod2
   ));
   var __publicField = (obj, key2, value2) => __defNormalProp(obj, typeof key2 !== "symbol" ? key2 + "" : key2, value2);
+  var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+  var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+  var __privateAdd = (obj, member, value2) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
+  var __privateSet = (obj, member, value2, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value2) : member.set(obj, value2), value2);
+  var __privateWrapper = (obj, member, setter, getter) => ({
+    set _(value2) {
+      __privateSet(obj, member, value2, setter);
+    },
+    get _() {
+      return __privateGet(obj, member, getter);
+    }
+  });
 
   // ../node_modules/preact/dist/preact.module.js
   function d(n3, l5) {
@@ -1557,6 +1572,80 @@
         "clip-rule": "evenodd"
       }
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Find-Search-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function AiChatIcon({ className }) {
+    return /* @__PURE__ */ _("svg", { className, fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#Ai-Chat-16_svg__a)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        d: "m10.54 12.57-.047.02c-.81.372-2.323.786-4.064 1.174a93 93 0 0 1-3.324.67l.297-.343c.781-.901.554-2.169-.215-2.85-1.22-1.08-1.937-2.539-1.937-4.116C1.25 4.013 4.132 1.25 8 1.25s6.75 2.763 6.75 5.875c0 2.372-1.644 4.514-4.161 5.427l-.049.017Zm.475 1.157c-1.891.868-6.545 1.75-9.2 2.206-.665.114-1.092-.66-.65-1.17l1.293-1.491c.28-.322.22-.813-.1-1.096C.902 10.886 0 9.1 0 7.125 0 3.19 3.582 0 8 0s8 3.19 8 7.125c0 2.985-2.061 5.541-4.985 6.602",
+        "clip-rule": "evenodd"
+      }
+    ), /* @__PURE__ */ _("path", { d: "M7.62 3.271c.099-.396.661-.396.76 0l.22.878a3.27 3.27 0 0 0 2.376 2.376l.878.22c.396.099.396.661 0 .76l-.878.22A3.27 3.27 0 0 0 8.6 10.102l-.219.877c-.099.396-.661.396-.76 0l-.22-.877a3.27 3.27 0 0 0-2.377-2.377l-.877-.22c-.396-.099-.396-.661 0-.76l.877-.22A3.27 3.27 0 0 0 7.4 4.15l.22-.878Z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function ArrowRightIcon({ className }) {
+    return /* @__PURE__ */ _("svg", { className, fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M8.187 1.689a.625.625 0 0 1 .885-.884l5.31 5.316c.83.83.83 2.174 0 3.004l-5.31 5.315a.625.625 0 0 1-.885-.884l5.305-5.308H.625a.625.625 0 1 1 0-1.25h12.867z"
+      }
+    ));
+  }
+  function GlobeIcon() {
+    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#Globe-16_svg__a)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "#000",
+        "fill-rule": "evenodd",
+        d: "M.017 7.482a8 8 0 0 1 15.967 0q.025.115.01.225a8 8 0 1 1-15.99 0 .6.6 0 0 1 .013-.225m1.247.951a6.75 6.75 0 0 0 4.197 5.823 7 7 0 0 1-.416-.781c-.555-1.213-.92-2.787-1.018-4.518a29 29 0 0 1-2.763-.524m2.739-.742a28 28 0 0 1-2.7-.535A6.76 6.76 0 0 1 5.46 1.744q-.229.372-.416.781c-.623 1.363-1.006 3.18-1.042 5.166Zm1.286 1.413c.109 1.516.436 2.852.893 3.85.59 1.292 1.28 1.796 1.818 1.796s1.228-.504 1.818-1.795c.457-1 .784-2.335.893-3.85-1.803.17-3.619.17-5.422 0Zm5.46-1.26a27.5 27.5 0 0 1-5.498 0c.018-1.904.38-3.596.93-4.799C6.774 1.755 7.462 1.25 8 1.25s1.228.504 1.818 1.795c.55 1.203.913 2.895.931 4.8Zm1.224 1.113c-.099 1.731-.463 3.305-1.018 4.518a7 7 0 0 1-.416.781 6.75 6.75 0 0 0 4.197-5.823q-1.372.33-2.763.524m2.725-1.801q-1.341.336-2.7.535c-.037-1.985-.42-3.803-1.043-5.166a7 7 0 0 0-.416-.781 6.76 6.76 0 0 1 4.159 5.412",
+        "clip-rule": "evenodd"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Globe-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function HistoryIcon() {
+    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { fill: "#000", "clip-path": "url(#History-16_svg__a)" }, /* @__PURE__ */ _("path", { d: "m2.072 4.918-.08-.004A6.753 6.753 0 1 1 1.246 8 .623.623 0 1 0 0 8a8 8 0 1 0 1.247-4.29V1.115a.623.623 0 0 0-1.247 0v2.977c0 1.145.928 2.072 2.072 2.072h2.486a.623.623 0 0 0 0-1.246z" }), /* @__PURE__ */ _("path", { d: "M8.625 3.625a.625.625 0 1 0-1.25 0V8c0 .166.066.325.183.442l2.375 2.375a.625.625 0 1 0 .884-.884L8.625 7.741z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "History-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function FavoriteIcon() {
+    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#Favorite-16_svg__a)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "#000",
+        "fill-rule": "evenodd",
+        d: "M6.042 1.35c.73-1.732 3.186-1.732 3.916 0l1.033 2.452a.63.63 0 0 0 .489.376l2.686.38c1.774.252 2.46 2.45 1.144 3.666l-2.046 1.889a.63.63 0 0 0-.194.552l.434 2.88c.272 1.812-1.72 3.096-3.258 2.1L8.34 14.409a.63.63 0 0 0-.68 0l-1.906 1.236c-1.537.996-3.53-.288-3.258-2.1l.434-2.88a.63.63 0 0 0-.194-.552L.69 8.223C-.626 7.009.06 4.81 1.834 4.56l2.686-.381a.63.63 0 0 0 .489-.376zm2.764.486c-.3-.714-1.312-.714-1.612 0L6.16 4.287a1.88 1.88 0 0 1-1.465 1.128l-2.687.381a.875.875 0 0 0-.47 1.51l2.045 1.889c.457.421.675 1.042.582 1.656l-.433 2.88a.875.875 0 0 0 1.34.865L6.98 13.36a1.88 1.88 0 0 1 2.04 0l1.906 1.236a.875.875 0 0 0 1.341-.864l-.433-2.881a1.88 1.88 0 0 1 .582-1.656l2.046-1.89a.875.875 0 0 0-.471-1.509l-2.687-.38a1.88 1.88 0 0 1-1.464-1.13z",
+        "clip-rule": "evenodd"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Favorite-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function BookmarkIcon() {
+    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#Bookmark-16_svg__a)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "#000",
+        "fill-rule": "evenodd",
+        d: "M2 4a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v9.684c0 1.857-2.079 2.957-3.614 1.912l-1.788-1.218a1.06 1.06 0 0 0-1.196 0l-1.788 1.218C4.08 16.64 2 15.54 2 13.684zm4-2.75A2.75 2.75 0 0 0 3.25 4v9.684c0 .854.955 1.359 1.66.878l1.788-1.217a2.31 2.31 0 0 1 2.604 0l1.787 1.217a1.063 1.063 0 0 0 1.661-.878V4A2.75 2.75 0 0 0 10 1.25z",
+        "clip-rule": "evenodd"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Bookmark-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+  }
+  function BrowserIcon() {
+    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "#000",
+        "fill-rule": "evenodd",
+        d: "M0 5a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v1.792c0 .478-.681.721-1.053.422a.52.52 0 0 1-.197-.4v-.819H1.25V11A2.75 2.75 0 0 0 4 13.75h2.135a.57.57 0 0 1 .497.312c.21.398-.055.938-.506.938H4a4 4 0 0 1-4-4zm1.262-.255h13.476A2.75 2.75 0 0 0 12 2.25H4a2.75 2.75 0 0 0-2.738 2.495",
+        "clip-rule": "evenodd"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "#000",
+        "fill-rule": "evenodd",
+        d: "M11.5 7a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9m-1.972 7.084A3.25 3.25 0 0 1 8.288 12h.85a7.6 7.6 0 0 0 .39 2.084M8.337 10.75h.818a7.5 7.5 0 0 1 .373-1.834 3.25 3.25 0 0 0-1.191 1.834m2.495 3.233c-.226-.5-.392-1.19-.441-1.983h2.218c-.05.793-.215 1.482-.441 1.983-.299.66-.583.767-.668.767s-.37-.106-.668-.767m0-4.966c-.202.447-.356 1.045-.422 1.733h2.18c-.066-.688-.22-1.286-.422-1.733-.299-.66-.583-.767-.668-.767s-.37.106-.668.767m2.64 5.067c.213-.606.348-1.32.39-2.084h.85a3.25 3.25 0 0 1-1.24 2.084m.373-3.334h.818a3.25 3.25 0 0 0-1.19-1.834c.188.54.316 1.164.371 1.834Z",
+        "clip-rule": "evenodd"
+      }
+    ));
   }
   var init_Icons2 = __esm({
     "pages/new-tab/app/components/Icons.js"() {
@@ -5408,14 +5497,14 @@
     const size = Math.min(faviconMax, defaultSize);
     const sizeClass = displayKind === "favorite-tile" ? FaviconWithState_default.faviconLarge : FaviconWithState_default.faviconSmall;
     const imgsrc = faviconSrc ? faviconSrc + "?preferredSize=" + size : null;
-    const initialState = (() => {
+    const initialState2 = (() => {
       if (imgsrc) return states.loading_favicon_src;
       if (etldPlusOne) return states.using_fallback_text;
       return states.loading_fallback_img;
     })();
     const [state, setState] = d2(
       /** @type {ImgState} */
-      initialState
+      initialState2
     );
     switch (state) {
       /**
@@ -7181,12 +7270,59 @@
     }
   });
 
+  // pages/new-tab/app/omnibar/omnibar.suggestions.service.js
+  var EVENT_DATA, _eventTarget, _lastFetchId, OmnibarSuggestionsService;
+  var init_omnibar_suggestions_service = __esm({
+    "pages/new-tab/app/omnibar/omnibar.suggestions.service.js"() {
+      "use strict";
+      EVENT_DATA = "data";
+      OmnibarSuggestionsService = class {
+        /**
+         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @internal
+         */
+        constructor(ntp) {
+          __privateAdd(this, _eventTarget, new EventTarget());
+          __privateAdd(this, _lastFetchId, 0);
+          this.ntp = ntp;
+        }
+        /**
+         * @param {string} term
+         * @returns {Promise<SuggestionsData>}
+         */
+        triggerFetch(term) {
+          const fetchId = ++__privateWrapper(this, _lastFetchId)._;
+          const fetch2 = async () => {
+            const data2 = await this.ntp.messaging.request("omnibar_getSuggestions", { term });
+            if (fetchId === __privateGet(this, _lastFetchId)) {
+              __privateGet(this, _eventTarget).dispatchEvent(new CustomEvent(EVENT_DATA, { detail: data2 }));
+            }
+            return data2;
+          };
+          return fetch2();
+        }
+        /**
+         * @param {(data: SuggestionsData) => void} cb
+         * @returns {() => void}
+         */
+        onData(cb) {
+          const handler = (event) => cb(event.detail);
+          __privateGet(this, _eventTarget).addEventListener(EVENT_DATA, handler);
+          return () => __privateGet(this, _eventTarget).removeEventListener(EVENT_DATA, handler);
+        }
+      };
+      _eventTarget = new WeakMap();
+      _lastFetchId = new WeakMap();
+    }
+  });
+
   // pages/new-tab/app/omnibar/omnibar.service.js
   var OmnibarService;
   var init_omnibar_service = __esm({
     "pages/new-tab/app/omnibar/omnibar.service.js"() {
       "use strict";
       init_service();
+      init_omnibar_suggestions_service();
       OmnibarService = class {
         /**
          * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
@@ -7199,6 +7335,7 @@
             subscribe: (cb) => ntp.messaging.subscribe("omnibar_onConfigUpdate", cb),
             persist: (data2) => ntp.messaging.notify("omnibar_setConfig", data2)
           });
+          this.suggestionsService = new OmnibarSuggestionsService(ntp);
         }
         name() {
           return "OmnibarService";
@@ -7241,7 +7378,15 @@
          * @returns {Promise<SuggestionsData>}
          */
         getSuggestions(term) {
-          return this.ntp.messaging.request("omnibar_getSuggestions", { term });
+          return this.suggestionsService.triggerFetch(term);
+        }
+        /**
+         * Subscribe to suggestions updates. Returns a function to unsubscribe
+         * @param {(data: SuggestionsData) => void} cb
+         * @returns {() => void}
+         */
+        onSuggestions(cb) {
+          return this.suggestionsService.onData(cb);
         }
         /**
          * Open a selected suggestion
@@ -7301,6 +7446,13 @@
       },
       [service]
     );
+    const onSuggestions = q2(
+      (cb) => {
+        if (!service.current) throw new Error("Service not available");
+        return service.current.onSuggestions(cb);
+      },
+      [service]
+    );
     const openSuggestion = q2(
       (params) => {
         service.current?.openSuggestion(params);
@@ -7326,6 +7478,7 @@
           state,
           setMode,
           getSuggestions,
+          onSuggestions,
           openSuggestion,
           submitSearch,
           submitChat
@@ -7369,6 +7522,10 @@
         getSuggestions: () => {
           throw new Error("must implement");
         },
+        /** @type {(cb: (data: SuggestionsData) => void) => (() => void)} */
+        onSuggestions: () => {
+          throw new Error("must implement");
+        },
         /** @type {(params: {suggestion: Suggestion, target: OpenTarget}) => void} */
         openSuggestion: () => {
           throw new Error("must implement");
@@ -7394,20 +7551,543 @@
   var init_Omnibar = __esm({
     "pages/new-tab/app/omnibar/components/Omnibar.module.css"() {
       Omnibar_default = {
-        root: "Omnibar_root"
+        root: "Omnibar_root",
+        logoWrap: "Omnibar_logoWrap",
+        tabListWrap: "Omnibar_tabListWrap",
+        formWrap: "Omnibar_formWrap",
+        form: "Omnibar_form",
+        tabList: "Omnibar_tabList",
+        tab: "Omnibar_tab",
+        searchIcon: "Omnibar_searchIcon",
+        aiChatIcon: "Omnibar_aiChatIcon",
+        inputRoot: "Omnibar_inputRoot",
+        "grow-y": "Omnibar_grow-y",
+        inputContainer: "Omnibar_inputContainer",
+        input: "Omnibar_input",
+        inputActions: "Omnibar_inputActions",
+        inputAction: "Omnibar_inputAction",
+        active: "Omnibar_active",
+        separator: "Omnibar_separator",
+        squareButton: "Omnibar_squareButton",
+        aiSubmitButton: "Omnibar_aiSubmitButton"
       };
     }
   });
 
+  // pages/new-tab/app/omnibar/components/AiChatForm.js
+  function AiChatForm({ chat, setChat }) {
+    const { submitChat } = x2(OmnibarContext);
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const onSubmit = (event) => {
+      event.preventDefault();
+      submitChat({
+        chat,
+        target: "same-tab"
+      });
+    };
+    return /* @__PURE__ */ _("div", { class: Omnibar_default.formWrap }, /* @__PURE__ */ _("form", { onSubmit, class: Omnibar_default.form }, /* @__PURE__ */ _("div", { class: Omnibar_default.inputRoot, style: { viewTransitionName: "omnibar-input-transition" } }, /* @__PURE__ */ _("div", { class: Omnibar_default.inputContainer, style: { viewTransitionName: "omnibar-input-transition2" } }, /* @__PURE__ */ _(
+      "input",
+      {
+        type: "text",
+        class: Omnibar_default.input,
+        value: chat,
+        placeholder: t4("aiChatForm_placeholder"),
+        "aria-label": t4("aiChatForm_placeholder"),
+        autoComplete: "off",
+        onChange: (event) => {
+          if (event.target instanceof HTMLInputElement) {
+            setChat(event.target.value);
+          }
+        }
+      }
+    ), /* @__PURE__ */ _("div", { class: Omnibar_default.inputActions }, /* @__PURE__ */ _(
+      "button",
+      {
+        class: (0, import_classnames8.default)(Omnibar_default.inputAction, Omnibar_default.squareButton, Omnibar_default.aiSubmitButton),
+        "aria-label": t4("aiChatForm_submitButtonLabel")
+      },
+      /* @__PURE__ */ _(ArrowRightIcon, null)
+    ))))));
+  }
+  var import_classnames8;
+  var init_AiChatForm = __esm({
+    "pages/new-tab/app/omnibar/components/AiChatForm.js"() {
+      "use strict";
+      import_classnames8 = __toESM(require_classnames(), 1);
+      init_preact_module();
+      init_hooks_module();
+      init_Icons2();
+      init_types();
+      init_Omnibar();
+      init_OmnibarProvider();
+    }
+  });
+
+  // shared/handlers.js
+  function eventToTarget2(event, platformName) {
+    const isControlClick = platformName === "macos" ? event.metaKey : event.ctrlKey;
+    if (isControlClick || "button" in event && event.button === 1) {
+      return "new-tab";
+    } else if (event.shiftKey) {
+      return "new-window";
+    }
+    return "same-tab";
+  }
+  var init_handlers = __esm({
+    "shared/handlers.js"() {
+      "use strict";
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/SuggestionList.module.css
+  var SuggestionList_default;
+  var init_SuggestionList = __esm({
+    "pages/new-tab/app/omnibar/components/SuggestionList.module.css"() {
+      SuggestionList_default = {
+        list: "SuggestionList_list",
+        item: "SuggestionList_item"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/SuggestionList.js
+  function SuggestionsList({ id, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion }) {
+    const { openSuggestion } = x2(OmnibarContext);
+    const platformName = usePlatformName();
+    return /* @__PURE__ */ _("div", { role: "listbox", id, class: SuggestionList_default.list }, suggestions.map((suggestion) => {
+      return /* @__PURE__ */ _(
+        "button",
+        {
+          key: suggestion.id,
+          role: "option",
+          id: suggestion.id,
+          class: SuggestionList_default.item,
+          "aria-selected": suggestion === selectedSuggestion,
+          onMouseOver: () => setSelectedSuggestion(suggestion),
+          onMouseLeave: () => clearSelectedSuggestion(),
+          onClick: (event) => {
+            event.preventDefault();
+            openSuggestion({ suggestion, target: eventToTarget2(event, platformName) });
+          }
+        },
+        /* @__PURE__ */ _(SuggestionIcon, { suggestion }),
+        suggestion.title
+      );
+    }));
+  }
+  function SuggestionIcon({ suggestion }) {
+    switch (suggestion.kind) {
+      case "phrase":
+        return /* @__PURE__ */ _(SearchIcon, null);
+      case "website":
+        return /* @__PURE__ */ _(GlobeIcon, null);
+      case "historyEntry":
+        return /* @__PURE__ */ _(HistoryIcon, null);
+      case "bookmark":
+        return suggestion.isFavorite ? /* @__PURE__ */ _(FavoriteIcon, null) : /* @__PURE__ */ _(BookmarkIcon, null);
+      case "openTab":
+      case "internalPage":
+        return /* @__PURE__ */ _(BrowserIcon, null);
+      default:
+        throw new Error("Unknown suggestion kind");
+    }
+  }
+  var init_SuggestionList2 = __esm({
+    "pages/new-tab/app/omnibar/components/SuggestionList.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_handlers();
+      init_Icons2();
+      init_settings_provider();
+      init_OmnibarProvider();
+      init_SuggestionList();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/useSuggestionInput.js
+  function useSuggestionInput(base, suggestion) {
+    const ref = A2(
+      /** @type {HTMLInputElement|null} */
+      null
+    );
+    y2(() => {
+      if (!ref.current) return;
+      const value2 = base + suggestion;
+      if (ref.current.value !== value2) {
+        ref.current.value = value2;
+        ref.current.setSelectionRange(base.length, value2.length);
+      }
+    }, [base, suggestion]);
+    return ref;
+  }
+  var init_useSuggestionInput = __esm({
+    "pages/new-tab/app/omnibar/components/useSuggestionInput.js"() {
+      "use strict";
+      init_hooks_module();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/useSuggestions.js
+  function reducer2(state, action) {
+    switch (action.type) {
+      case "setSuggestions":
+        return {
+          ...state,
+          originalTerm: action.term,
+          suggestions: action.suggestions,
+          selectedIndex: null
+        };
+      case "resetSuggestions":
+        return {
+          ...state,
+          originalTerm: null,
+          suggestions: [],
+          selectedIndex: null
+        };
+      case "setSelectedSuggestion": {
+        const nextIndex = state.suggestions.indexOf(action.suggestion);
+        if (nextIndex === -1) {
+          throw new Error(`Suggestion with id ${action.suggestion.id} not found`);
+        }
+        return {
+          ...state,
+          selectedIndex: nextIndex
+        };
+      }
+      case "clearSelectedSuggestion": {
+        return {
+          ...state,
+          selectedIndex: null
+        };
+      }
+      case "previousSuggestion": {
+        let nextIndex;
+        if (state.selectedIndex === null) {
+          nextIndex = state.suggestions.length - 1;
+        } else if (state.selectedIndex === 0) {
+          nextIndex = null;
+        } else {
+          nextIndex = state.selectedIndex - 1;
+        }
+        return {
+          ...state,
+          selectedIndex: nextIndex
+        };
+      }
+      case "nextSuggestion": {
+        let nextIndex;
+        if (state.selectedIndex === null) {
+          nextIndex = 0;
+        } else if (state.selectedIndex === state.suggestions.length - 1) {
+          nextIndex = null;
+        } else {
+          nextIndex = state.selectedIndex + 1;
+        }
+        return {
+          ...state,
+          selectedIndex: nextIndex
+        };
+      }
+      default:
+        throw new Error("Unknown action type");
+    }
+  }
+  function useSuggestions({ term, setTerm }) {
+    const { onSuggestions, getSuggestions, openSuggestion } = x2(OmnibarContext);
+    const platformName = usePlatformName();
+    const [state, dispatch] = h2(reducer2, initialState);
+    const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
+    const setSelectedSuggestion = (suggestion) => {
+      dispatch({ type: "setSelectedSuggestion", suggestion });
+    };
+    const clearSelectedSuggestion = () => {
+      dispatch({ type: "clearSelectedSuggestion" });
+    };
+    let inputBase, inputSuggestion;
+    if (!selectedSuggestion) {
+      inputBase = term;
+      inputSuggestion = "";
+    } else if ("url" in selectedSuggestion && startsWithIgnoreCase(selectedSuggestion.url, term)) {
+      inputBase = term;
+      inputSuggestion = selectedSuggestion.url.slice(term.length);
+    } else if (startsWithIgnoreCase(selectedSuggestion.title, term)) {
+      inputBase = term;
+      inputSuggestion = selectedSuggestion.title.slice(term.length);
+    } else {
+      inputBase = "";
+      inputSuggestion = selectedSuggestion.title;
+    }
+    y2(() => {
+      return onSuggestions((data2) => {
+        const suggestions = [
+          ...data2.suggestions.topHits,
+          ...data2.suggestions.duckduckgoSuggestions,
+          ...data2.suggestions.localSuggestions
+        ].map((suggestion, index2) => ({
+          ...suggestion,
+          id: `suggestion-${index2}`,
+          title: getSuggestionTitle(suggestion)
+        }));
+        dispatch({
+          type: "setSuggestions",
+          term,
+          suggestions
+        });
+      });
+    }, [onSuggestions]);
+    const onInputChange = (event) => {
+      if (!(event.target instanceof HTMLInputElement)) return;
+      const term2 = event.target.value;
+      setTerm(term2);
+      if (term2.length === 0) {
+        dispatch({ type: "resetSuggestions" });
+        return;
+      }
+      getSuggestions(term2);
+    };
+    const onInputKeyDown = (event) => {
+      switch (event.key) {
+        case "ArrowUp":
+          event.preventDefault();
+          if (state.originalTerm && term !== state.originalTerm) {
+            setTerm(state.originalTerm);
+          }
+          dispatch({ type: "previousSuggestion" });
+          break;
+        case "ArrowDown":
+          event.preventDefault();
+          if (state.originalTerm && term !== state.originalTerm) {
+            setTerm(state.originalTerm);
+          }
+          dispatch({ type: "nextSuggestion" });
+          break;
+        case "ArrowLeft":
+        case "ArrowRight":
+          if (selectedSuggestion) {
+            setTerm(inputBase + inputSuggestion);
+            dispatch({ type: "clearSelectedSuggestion" });
+          }
+          break;
+        case "Escape":
+          event.preventDefault();
+          dispatch({ type: "resetSuggestions" });
+          break;
+        case "Enter":
+          if (selectedSuggestion) {
+            event.preventDefault();
+            openSuggestion({ suggestion: selectedSuggestion, target: eventToTarget2(event, platformName) });
+          }
+          break;
+      }
+    };
+    const onInputClick = () => {
+      if (selectedSuggestion) {
+        setTerm(inputBase + inputSuggestion);
+        dispatch({ type: "clearSelectedSuggestion" });
+      }
+    };
+    return {
+      suggestions: state.suggestions,
+      selectedSuggestion,
+      setSelectedSuggestion,
+      clearSelectedSuggestion,
+      inputBase,
+      inputSuggestion,
+      onInputChange,
+      onInputKeyDown,
+      onInputClick
+    };
+  }
+  function getSuggestionTitle(suggestion) {
+    switch (suggestion.kind) {
+      case "bookmark":
+        return suggestion.title;
+      case "historyEntry":
+        return suggestion.title;
+      case "phrase":
+        return suggestion.phrase;
+      case "openTab":
+        return suggestion.title;
+      case "website": {
+        const url7 = new URL(suggestion.url);
+        return url7.host + url7.pathname + url7.search + url7.hash;
+      }
+      case "internalPage":
+        return suggestion.title;
+      default:
+        throw new Error("Unknown suggestion kind");
+    }
+  }
+  function startsWithIgnoreCase(text2, searchTerm) {
+    return text2.toLowerCase().startsWith(searchTerm.toLowerCase());
+  }
+  var initialState;
+  var init_useSuggestions = __esm({
+    "pages/new-tab/app/omnibar/components/useSuggestions.js"() {
+      "use strict";
+      init_hooks_module();
+      init_handlers();
+      init_settings_provider();
+      init_OmnibarProvider();
+      initialState = {
+        originalTerm: null,
+        suggestions: [],
+        selectedIndex: null
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/SearchForm.js
+  function SearchForm({ enableAi, term, setTerm }) {
+    const { submitSearch, submitChat } = x2(OmnibarContext);
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const platformName = usePlatformName();
+    const suggestionsListId = g2();
+    const {
+      suggestions,
+      selectedSuggestion,
+      setSelectedSuggestion,
+      clearSelectedSuggestion,
+      inputBase,
+      inputSuggestion,
+      onInputChange,
+      onInputKeyDown,
+      onInputClick
+    } = useSuggestions({
+      term,
+      setTerm
+    });
+    const inputRef = useSuggestionInput(inputBase, inputSuggestion);
+    const onSubmit = (event) => {
+      event.preventDefault();
+      submitSearch({
+        term,
+        target: "same-tab"
+      });
+    };
+    return /* @__PURE__ */ _("div", { class: Omnibar_default.formWrap }, /* @__PURE__ */ _("form", { onSubmit, class: Omnibar_default.form }, /* @__PURE__ */ _("div", { class: Omnibar_default.inputRoot, style: { viewTransitionName: "omnibar-input-transition" } }, /* @__PURE__ */ _("div", { class: Omnibar_default.inputContainer, style: { viewTransitionName: "omnibar-input-transition2" } }, /* @__PURE__ */ _(
+      "input",
+      {
+        ref: inputRef,
+        type: "text",
+        role: "combobox",
+        class: Omnibar_default.input,
+        placeholder: t4("searchForm_placeholder"),
+        "aria-label": t4("searchForm_placeholder"),
+        "aria-expanded": suggestions.length > 0,
+        "aria-haspopup": "listbox",
+        "aria-controls": suggestionsListId,
+        "aria-activedescendant": selectedSuggestion?.id,
+        spellcheck: false,
+        autoComplete: "off",
+        autoCorrect: "off",
+        autoCapitalize: "off",
+        onChange: onInputChange,
+        onKeyDown: onInputKeyDown,
+        onClick: onInputClick
+      }
+    ), /* @__PURE__ */ _("div", { class: Omnibar_default.inputActions }, /* @__PURE__ */ _("button", { type: "submit", class: (0, import_classnames9.default)(Omnibar_default.inputAction), "aria-label": t4("searchForm_searchButtonLabel"), inert: true }, /* @__PURE__ */ _(SearchIcon, null)), enableAi && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: Omnibar_default.separator }), /* @__PURE__ */ _(
+      "button",
+      {
+        class: (0, import_classnames9.default)(Omnibar_default.inputAction, Omnibar_default.squareButton),
+        "aria-label": t4("searchForm_aiButtonLabel"),
+        onClick: (event) => {
+          event.preventDefault();
+          submitChat({
+            chat: term,
+            target: eventToTarget2(event, platformName)
+          });
+        }
+      },
+      /* @__PURE__ */ _(AiChatIcon, { className: Omnibar_default.aiChatIcon })
+    ))))), /* @__PURE__ */ _(
+      SuggestionsList,
+      {
+        id: suggestionsListId,
+        suggestions,
+        selectedSuggestion,
+        setSelectedSuggestion,
+        clearSelectedSuggestion
+      }
+    )));
+  }
+  var import_classnames9;
+  var init_SearchForm = __esm({
+    "pages/new-tab/app/omnibar/components/SearchForm.js"() {
+      "use strict";
+      import_classnames9 = __toESM(require_classnames(), 1);
+      init_preact_module();
+      init_hooks_module();
+      init_handlers();
+      init_Icons2();
+      init_settings_provider();
+      init_types();
+      init_Omnibar();
+      init_OmnibarProvider();
+      init_SuggestionList2();
+      init_useSuggestionInput();
+      init_useSuggestions();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/Omnibar.js
-  function Omnibar(props) {
-    return /* @__PURE__ */ _("div", { class: Omnibar_default.root }, "Omnibar goes here. Mode = ", props.mode);
+  function Omnibar({ mode, setMode, enableAi }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const [query, setQuery] = d2(
+      /** @type {String} */
+      ""
+    );
+    return /* @__PURE__ */ _("div", { class: Omnibar_default.root, "data-mode": mode }, /* @__PURE__ */ _("div", { class: Omnibar_default.logoWrap }, /* @__PURE__ */ _("img", { src: "./icons/Logo-Stacked.svg", alt: t4("omnibar_logoAlt"), width: 144, height: 115.9 })), enableAi && /* @__PURE__ */ _("div", { class: Omnibar_default.tabListWrap }, /* @__PURE__ */ _("div", { class: Omnibar_default.tabList, role: "tablist", "aria-label": t4("omnibar_tabSwitcherLabel") }, /* @__PURE__ */ _(
+      "button",
+      {
+        class: Omnibar_default.tab,
+        role: "tab",
+        "aria-selected": mode === "search",
+        onClick: () => {
+          viewTransition(() => {
+            setMode("search");
+          });
+        }
+      },
+      /* @__PURE__ */ _(SearchIcon, { className: Omnibar_default.searchIcon }),
+      t4("omnibar_searchTabLabel")
+    ), /* @__PURE__ */ _(
+      "button",
+      {
+        class: Omnibar_default.tab,
+        role: "tab",
+        "aria-selected": mode === "ai",
+        onClick: () => {
+          viewTransition(() => {
+            setMode("ai");
+          });
+        }
+      },
+      /* @__PURE__ */ _(AiChatIcon, { className: Omnibar_default.aiChatIcon }),
+      t4("omnibar_aiTabLabel")
+    ))), mode === "search" ? /* @__PURE__ */ _(SearchForm, { enableAi, term: query, setTerm: setQuery }) : /* @__PURE__ */ _(AiChatForm, { chat: query, setChat: setQuery }));
   }
   var init_Omnibar2 = __esm({
     "pages/new-tab/app/omnibar/components/Omnibar.js"() {
       "use strict";
       init_preact_module();
+      init_hooks_module();
+      init_Icons2();
+      init_types();
+      init_utils2();
+      init_AiChatForm();
       init_Omnibar();
+      init_SearchForm();
     }
   });
 
@@ -7420,18 +8100,8 @@
     return null;
   }
   function OmnibarReadyState({ config }) {
-    const { setMode, getSuggestions, openSuggestion, submitSearch, submitChat } = x2(OmnibarContext);
-    return /* @__PURE__ */ _(
-      Omnibar,
-      {
-        mode: config.mode,
-        setMode,
-        getSuggestions,
-        openSuggestion,
-        submitSearch,
-        submitChat
-      }
-    );
+    const { setMode } = x2(OmnibarContext);
+    return /* @__PURE__ */ _(Omnibar, { mode: config.mode, setMode, enableAi: config.enableAi ?? true });
   }
   var init_OmnibarConsumer = __esm({
     "pages/new-tab/app/omnibar/components/OmnibarConsumer.js"() {
@@ -7768,9 +8438,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames8.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames10.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
   }
-  var import_classnames8;
+  var import_classnames10;
   var init_ProtectionsHeading = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
       "use strict";
@@ -7778,7 +8448,7 @@
       init_hooks_module();
       init_PrivacyStats();
       init_ShowHideButton();
-      import_classnames8 = __toESM(require_classnames(), 1);
+      import_classnames10 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
@@ -7815,25 +8485,25 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames9.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames11.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ _("button", { class: (0, import_classnames9.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ _("button", { class: (0, import_classnames11.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(Protections_default.block, Protections_default.empty) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Protections_default.block, Protections_default.empty) }, children);
   }
-  var import_classnames9;
+  var import_classnames11;
   var init_Protections2 = __esm({
     "pages/new-tab/app/protections/components/Protections.js"() {
       "use strict";
       init_hooks_module();
       init_preact_module();
-      import_classnames9 = __toESM(require_classnames(), 1);
+      import_classnames11 = __toESM(require_classnames(), 1);
       init_Protections();
       init_ProtectionsHeading();
       init_types();
@@ -8844,7 +9514,7 @@
     return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames10.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames12.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
@@ -8855,7 +9525,7 @@
     ), /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames10.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames12.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
         value: url7,
@@ -8864,13 +9534,13 @@
       canBurn ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(Cross, null)
     ));
   }
-  var import_classnames10, ActivityItem;
+  var import_classnames12, ActivityItem;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames10 = __toESM(require_classnames(), 1);
+      import_classnames12 = __toESM(require_classnames(), 1);
       init_Activity();
       init_FaviconWithState2();
       init_constants3();
@@ -8896,7 +9566,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url7, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url7, class: (0, import_classnames10.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url7, "data-url": url7 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url7 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+          return /* @__PURE__ */ _("li", { key: url7, class: (0, import_classnames12.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url7, "data-url": url7 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url7 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -25359,16 +26029,16 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url7]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url7 })));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url7 })));
   }
-  var import_classnames11, BurnAnimationLazy;
+  var import_classnames13, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames11 = __toESM(require_classnames(), 1);
+      import_classnames13 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
@@ -26172,7 +26842,7 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames12.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames14.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -26189,12 +26859,12 @@
     }
     return null;
   }
-  var import_classnames12;
+  var import_classnames14;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames12 = __toESM(require_classnames(), 1);
+      import_classnames14 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -26354,7 +27024,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames15.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -26416,12 +27086,12 @@
     }
     return null;
   }
-  var import_classnames13;
+  var import_classnames15;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames13 = __toESM(require_classnames(), 1);
+      import_classnames15 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -26461,7 +27131,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames23 = __toESM(require_classnames(), 1);
+  var import_classnames25 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -26931,7 +27601,7 @@
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames24 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -26964,7 +27634,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames14 = __toESM(require_classnames(), 1);
+  var import_classnames16 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -26989,7 +27659,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ _("ul", { class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
@@ -27023,7 +27693,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -27043,7 +27713,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -27065,7 +27735,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -27105,7 +27775,7 @@
       return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
         "button",
         {
-          class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -27120,7 +27790,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames16.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -27146,7 +27816,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames15 = __toESM(require_classnames(), 1);
+  var import_classnames17 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -27159,7 +27829,7 @@
     return /* @__PURE__ */ _("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames17.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -27170,7 +27840,7 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames17.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -27181,7 +27851,7 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames17.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -27198,7 +27868,7 @@
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
   init_preact_module();
-  var import_classnames16 = __toESM(require_classnames(), 1);
+  var import_classnames18 = __toESM(require_classnames(), 1);
   init_hooks_module();
   init_Icons2();
 
@@ -27251,8 +27921,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames16.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ _(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ _(Shield, null), row.icon === "search" && /* @__PURE__ */ _(SearchIcon, null)), /* @__PURE__ */ _("span", null, row.title ?? row.id), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames18.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ _(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ _(Shield, null), row.icon === "search" && /* @__PURE__ */ _(SearchIcon, null)), /* @__PURE__ */ _("span", null, row.title ?? row.id), /* @__PURE__ */ _(
         Switch,
         {
           theme: browser.value,
@@ -27292,7 +27962,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames17 = __toESM(require_classnames(), 1);
+  var import_classnames19 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -27321,7 +27991,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames17.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -27358,7 +28028,7 @@
     return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -27383,12 +28053,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ _("span", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
+    ), /* @__PURE__ */ _("span", { class: (0, import_classnames19.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames18 = __toESM(require_classnames(), 1);
+  var import_classnames20 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -27416,12 +28086,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames20.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ _(
         "button",
@@ -27449,7 +28119,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames19 = __toESM(require_classnames(), 1);
+  var import_classnames21 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -27493,7 +28163,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames21.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -27508,7 +28178,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: entry.id }, /* @__PURE__ */ _(
         "button",
         {
@@ -27542,7 +28212,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames21.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ _(PlusIcon, null),
@@ -27553,16 +28223,16 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames20 = __toESM(require_classnames(), 1);
+  var import_classnames22 = __toESM(require_classnames(), 1);
   function CustomizerSection({ title, children }) {
     return /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h3", { className: CustomizerDrawerInner_default.sectionTitle }, title), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames23 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_types();
 
@@ -27595,7 +28265,7 @@
       e4.preventDefault();
       messaging2.open({ target: "settings" });
     }
-    return /* @__PURE__ */ _("a", { href: "duck://settings", class: (0, import_classnames21.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ _("span", null, t4("customizer_settings_link")), /* @__PURE__ */ _(Open, null));
+    return /* @__PURE__ */ _("a", { href: "duck://settings", class: (0, import_classnames23.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ _("span", null, t4("customizer_settings_link")), /* @__PURE__ */ _(Open, null));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
@@ -27607,7 +28277,7 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames24.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
         onClick: close,
@@ -27663,7 +28333,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames24.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames24.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -27709,7 +28379,7 @@
     const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
     const { main, browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames23.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames25.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
       CustomizerButton,
       {
         buttonId,
@@ -27722,7 +28392,7 @@
     ))), /* @__PURE__ */ _(
       "aside",
       {
-        class: (0, import_classnames23.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+        class: (0, import_classnames25.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
         tabindex: tabIndex,
         "aria-hidden": hidden,
         "data-theme": browser,
@@ -27929,8 +28599,44 @@
       note: "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
     },
     omnibar_menuTitle: {
-      title: "Search & Duck.ai",
-      description: "The title of the omnibar widget as it appears in the customizer panel."
+      title: "Search",
+      description: "Title of the omnibar widget in the customizer panel."
+    },
+    aiChatForm_placeholder: {
+      title: "Chat privately with Duck.ai",
+      description: "Placeholder text for the AI chat input field."
+    },
+    aiChatForm_submitButtonLabel: {
+      title: "Duck.ai chat",
+      description: "Accesible label for the AI chat submit button."
+    },
+    omnibar_logoAlt: {
+      title: "DuckDuckGo",
+      description: "Alt text for the DuckDuckGo logo."
+    },
+    omnibar_tabSwitcherLabel: {
+      title: "Search & Duck.ai tab switcher",
+      description: "Accessible label for the tab switcher between search and AI modes."
+    },
+    omnibar_searchTabLabel: {
+      title: "Search",
+      description: "Label for the search tab."
+    },
+    omnibar_aiTabLabel: {
+      title: "Duck.ai",
+      description: "Label for the AI chat tab."
+    },
+    searchForm_placeholder: {
+      title: "Search or enter address",
+      description: "Placeholder text for the search input field."
+    },
+    searchForm_searchButtonLabel: {
+      title: "Web search",
+      description: "Accessible label for the web search submit button."
+    },
+    searchForm_aiButtonLabel: {
+      title: "Duck.ai",
+      description: "Accessible label for the AI chat button in search form."
     },
     nextSteps_sectionTitle: {
       title: "Next Steps",

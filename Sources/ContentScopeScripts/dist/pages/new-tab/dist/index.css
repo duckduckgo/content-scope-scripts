@@ -225,6 +225,7 @@ button {
   --ntp-drawer-width: calc(224 * var(--px-in-rem));
   --ntp-drawer-scroll-width: 12px;
   --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
+  --ntp-surface-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.13);
   --callout-font-size: 12px;
   --callout-font-weight: 400;
   --callout-line-height: 15px;
@@ -246,6 +247,9 @@ button {
   --border-radius-xs: 4px;
   --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
   --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px var(--color-white);
+  --duckai-purple: rgba(107, 78, 186, 1);
+  --duckai-purple-hover: rgb(128, 101, 208);
+  --duckai-purple-active: rgb(85, 64, 160);
 }
 body {
   --default-light-background-color: var(--color-gray-0);
@@ -1456,11 +1460,210 @@ body:not([data-platform-name]) .Button_button:active {
 
 /* pages/new-tab/app/omnibar/components/Omnibar.module.css */
 .Omnibar_root {
-  align-items: center;
-  border: 1px solid red;
+  margin-bottom: var(--ntp-gap);
+  position: relative;
+}
+.Omnibar_logoWrap {
   display: flex;
-  height: 96px;
+  flex-direction: column;
+  align-items: center;
+}
+.Omnibar_tabListWrap {
+  display: flex;
   justify-content: center;
+  margin-top: 24px;
+}
+.Omnibar_formWrap {
+  height: 48px;
+  margin-top: 16px;
+  position: relative;
+  z-index: 1;
+}
+[data-mode=ai] .Omnibar_formWrap {
+  height: 96px;
+}
+.Omnibar_form {
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: var(--ntp-surface-shadow);
+}
+.Omnibar_tabList {
+  display: flex;
+  background: var(--color-black-at-6);
+  padding: 4px;
+  border-radius: 999px;
+  gap: 4px;
+  width: auto;
+}
+.Omnibar_tab {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 99px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  transition: background .2s;
+}
+.Omnibar_tab svg {
+  width: 16px;
+  height: 16px;
+}
+.Omnibar_tab:hover {
+  background: var(--color-black-at-9);
+}
+.Omnibar_tab[aria-selected=true] {
+  background: var(--color-white);
+  box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.08), 0px 2px 4px 0px rgba(0, 0, 0, 0.10);
+}
+.Omnibar_tab[aria-selected=true] .Omnibar_searchIcon {
+  color: blue;
+}
+.Omnibar_tab[aria-selected=true] .Omnibar_aiChatIcon {
+  color: var(--duckai-purple);
+}
+.Omnibar_inputRoot {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  padding: 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+::view-transition-new(omnibar-input-transition) {
+  animation: 0.25s Omnibar_grow-y;
+}
+.Omnibar_inputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 32px;
+}
+.Omnibar_input {
+  flex: 1;
+  height: 32px;
+  padding: 0;
+  padding: 0 8px;
+  border: none;
+  font-size: 16px;
+  outline: none;
+  color: #202124;
+  background-color: transparent;
+}
+.Omnibar_input::placeholder {
+  color: #9aa0a6;
+}
+.Omnibar_inputActions {
+  display: flex;
+  align-items: center;
+}
+.Omnibar_inputAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 32px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 0;
+}
+.Omnibar_inputAction svg {
+  width: 16px;
+  height: 16px;
+}
+.Omnibar_inputAction .Omnibar_aiChatIcon {
+  color: var(--color-black-at-84);
+}
+.Omnibar_inputAction:hover {
+  background-color: rgba(60, 64, 67, 0.08);
+}
+.Omnibar_inputAction.Omnibar_active {
+  color: #1a73e8;
+}
+.Omnibar_separator {
+  height: 24px;
+  width: 1px;
+  background-color: #dadce0;
+  margin: 0 8px;
+}
+.Omnibar_squareButton {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 0;
+  border-radius: 8px;
+  position: relative;
+}
+.Omnibar_squareButton svg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.Omnibar_aiSubmitButton {
+  background-color: var(--duckai-purple);
+  color: #fff;
+  position: relative;
+  width: 32px;
+  height: 32px;
+}
+.Omnibar_aiSubmitButton:hover {
+  background-color: var(--duckai-purple-hover);
+}
+.Omnibar_aiSubmitButton:active {
+  background-color: var(--duckai-purple-active);
+}
+
+/* pages/new-tab/app/omnibar/components/SuggestionList.module.css */
+.SuggestionList_list {
+  top: 100%;
+  width: 100%;
+  background: white;
+  z-index: 1;
+  border-bottom-right-radius: 16px;
+  border-bottom-left-radius: 16px;
+  border-top: 1px solid var(--color-black-at-6);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.SuggestionList_list:not(:empty) {
+  padding: 8px;
+}
+.SuggestionList_item {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  font-size: var(--title-3-em-font-size);
+  padding: 4px 8px;
+  color: var(--ntp-text-normal);
+  background-color: transparent;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  gap: 8px;
+}
+.SuggestionList_item svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+.SuggestionList_item svg path {
+  fill-opacity: 1 !important;
+}
+.SuggestionList_item[aria-selected=true] {
+  background: var(--ddg-color-primary);
+  color: white;
+  border-radius: 4px;
 }
 
 /* pages/new-tab/app/protections/components/Protections.module.css */
