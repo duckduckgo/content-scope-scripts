@@ -789,12 +789,13 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
-     * Creates a valid MediaDeviceInfo object with required toJSON method
+     * Creates a valid MediaDeviceInfo object that passes instanceof checks
      * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
      * @returns {MediaDeviceInfo}
      */
     createMediaDeviceInfo(kind) {
-        return {
+        // Create a simple object that looks like MediaDeviceInfo
+        const deviceInfo = {
             deviceId: 'default',
             kind: kind,
             label: '',
@@ -808,6 +809,19 @@ export class WebCompat extends ContentFeature {
                 };
             }
         };
+        
+        // Make properties read-only to match MediaDeviceInfo behavior
+        Object.defineProperties(deviceInfo, {
+            deviceId: { writable: false, configurable: false },
+            kind: { writable: false, configurable: false },
+            label: { writable: false, configurable: false },
+            groupId: { writable: false, configurable: false }
+        });
+        
+        // Set the prototype to MediaDeviceInfo.prototype for instanceof checks
+        Object.setPrototypeOf(deviceInfo, MediaDeviceInfo.prototype);
+        
+        return deviceInfo;
     }
 
     /**
