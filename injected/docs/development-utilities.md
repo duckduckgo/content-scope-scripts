@@ -8,7 +8,7 @@ To handle the difference in scope injection we expose multiple utilities which b
 
 ### Local Development Setup
 
-**Important**: Before cloning the repo, to avoid major headaches, make sure you clone it with unix-style line endings:
+**Important**: Before cloning the repo on Windows, to avoid major headaches, make sure you clone it with unix-style line endings:
 
 ```shell
 git clone --config core.autocrlf=false https://github.com/duckduckgo/content-scope-scripts
