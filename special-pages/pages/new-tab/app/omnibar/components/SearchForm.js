@@ -1,6 +1,6 @@
 import cn from 'classnames';
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
+import { useContext, useId } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
 import { usePlatformName } from '../../settings.provider';
@@ -25,6 +25,7 @@ export function SearchForm({ term, setTerm }) {
 
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
+    const suggestionsListId = useId();
 
     const {
         suggestions,
@@ -66,7 +67,7 @@ export function SearchForm({ term, setTerm }) {
                             aria-label={t('searchForm_placeholder')}
                             aria-expanded={suggestions.length > 0}
                             aria-haspopup="listbox"
-                            aria-controls="suggestions-list"
+                            aria-controls={suggestionsListId}
                             aria-activedescendant={selectedSuggestion?.id}
                             spellcheck={false}
                             autoComplete="off"
@@ -98,6 +99,7 @@ export function SearchForm({ term, setTerm }) {
                     </div>
                 </div>
                 <SuggestionsList
+                    id={suggestionsListId}
                     suggestions={suggestions}
                     selectedSuggestion={selectedSuggestion}
                     setSelectedSuggestion={setSelectedSuggestion}
