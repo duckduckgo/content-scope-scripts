@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
@@ -17,10 +17,11 @@ import { useSuggestions } from './useSuggestions';
 
 /**
  * @param {object} props
+ * @param {boolean} props.enableAi
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
  */
-export function SearchForm({ term, setTerm }) {
+export function SearchForm({ enableAi, term, setTerm }) {
     const { submitSearch, submitChat } = useContext(OmnibarContext);
 
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
@@ -80,20 +81,24 @@ export function SearchForm({ term, setTerm }) {
                             <button type="submit" class={cn(styles.inputAction)} aria-label={t('searchForm_searchButtonLabel')} inert>
                                 <SearchIcon />
                             </button>
-                            <div class={styles.separator}></div>
-                            <button
-                                class={cn(styles.inputAction, styles.squareButton)}
-                                aria-label={t('searchForm_aiButtonLabel')}
-                                onClick={(event) => {
-                                    event.preventDefault();
-                                    submitChat({
-                                        chat: term,
-                                        target: eventToTarget(event, platformName),
-                                    });
-                                }}
-                            >
-                                <AiChatIcon className={styles.aiChatIcon} />
-                            </button>
+                            {enableAi && (
+                                <>
+                                    <div class={styles.separator}></div>
+                                    <button
+                                        class={cn(styles.inputAction, styles.squareButton)}
+                                        aria-label={t('searchForm_aiButtonLabel')}
+                                        onClick={(event) => {
+                                            event.preventDefault();
+                                            submitChat({
+                                                chat: term,
+                                                target: eventToTarget(event, platformName),
+                                            });
+                                        }}
+                                    >
+                                        <AiChatIcon className={styles.aiChatIcon} />
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

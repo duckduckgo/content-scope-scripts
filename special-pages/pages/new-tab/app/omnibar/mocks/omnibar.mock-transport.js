@@ -46,6 +46,10 @@ export function omnibarMockTransport() {
                     if (modeOverride === 'search' || modeOverride === 'ai') {
                         config.mode = modeOverride;
                     }
+                    const enableAiOverride = url.searchParams.get('omnibar.enableAi');
+                    if (enableAiOverride === 'true' || enableAiOverride === 'false') {
+                        config.enableAi = enableAiOverride === 'true';
+                    }
                     return config;
                 }
                 case 'omnibar_getSuggestions': {
