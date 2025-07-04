@@ -126,7 +126,7 @@
     "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
   },
   "omnibar_menuTitle": {
-    "title": "Search & Duck.ai",
+    "title": "Search",
     "description": "Title of the omnibar widget in the customizer panel."
   },
   "aiChatForm_placeholder": {
