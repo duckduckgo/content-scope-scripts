@@ -1,3 +1,68 @@
+# Special Pages
+
+## Overview
+
+Special Pages gives us a single place to implement isolated HTML/CSS/Javascript projects that can be loaded into a web context that has privileged access to API.
+
+## Getting Started with Special Pages Development
+
+### Prerequisites
+
+Before starting Special Pages development, ensure you have completed the initial setup:
+
+> **Repository access and initial setup**: See [Development Utilities - Development Setup](../injected/docs/development-utilities.md#development-setup) for repository access, cloning, and initial build setup.
+
+### Step 1: Make a Change to the 'Example' Special Page
+
+Edit the file `App.jsx` within `special-pages/pages/example/app/components`
+
+### Step 2: Rebuild
+
+Since Content Scope Scripts contains additional projects, you can just rebuild the special-pages parts:
+
+```shell
+cd special-pages
+npm run build
+```
+
+### Step 3: Review Your Change
+
+Still within `special-pages`, you can now serve the built pages:
+
+```shell
+npm run serve
+```
+
+Then access the Example page you edited via: `http://127.0.0.1:3210/example/`
+
+> **Note**: The output of the build command is just plain HTML/CSS/JS, so you can serve the build directory in any way that suits you.
+
+### Step 4: Watch Mode
+
+The build command builds every special page, but to run just 1 in isolation:
+
+```shell
+npm run watch -- --page=<page-directory-name>
+```
+
+Check the terminal for the dev URL, but it's normally `localhost:8000`.
+
+> **Note**: Any changes you make here will not be automatically reflected in the build folder output.
+
+### Step 5: Create a PR + Preview the Change
+
+Content Scope Scripts uses Netlify preview deployments, so opening a PR will create a preview URL.
+
+During the deployment:
+- Docs are generated
+- All special pages are built
+
+When you access the Netlify URL, you'll land on the docs homepage. Append `/build/pages/example` to the URL to see the changes you made to the Example application.
+
+**Example URLs:**
+- Preview: `https://content-scope-scripts.netlify.app/build/pages/example/`
+- Production: `https://content-scope-scripts.netlify.app`
+
 ## Architecture
 
 Special Pages gives us a single place to implement isolated HTML/CSS/Javascript projects that can be loaded into a web context that has privileged access to API.

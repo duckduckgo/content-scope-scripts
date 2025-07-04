@@ -46,3 +46,21 @@ To produce all artefacts that are used by platforms, just run the `npm run build
 ```shell
 npm run build
 ```
+
+## Test Builds for Ship Review
+
+Test builds are created with a GitHub workflow. The assets for Content Scope Scripts will be created on demand if they are absent (which they will be, if you're pointing to a branch of CSS).
+
+1. Commit any changes to CSS and push a branch to the remote
+2. Make sure you commit the submodule reference update in the Windows PR
+3. Continue with "Build an installer for ship review / test"
+
+## Debugging
+
+### Adding Breakpoints
+
+If you drop a `debugger;` line in the scripts and open DevTools window, the DevTools will breakpoint and navigate to that exact line in code when the debug point has been hit.
+
+### Verifying CSS is Loaded
+
+Open DevTools, go to the Console tab and enter `navigator.duckduckgo`. If it's defined, then Content Scope Scripts is running.
