@@ -19,17 +19,10 @@ import { SearchForm } from './SearchForm';
  * @param {object} props
  * @param {OmnibarConfig['mode']} props.mode
  * @param {(mode: OmnibarConfig['mode']) => void} props.setMode
- * @param {(term: string) => Promise<SuggestionsData>} props.getSuggestions
- * @param {(cb: (data: SuggestionsData) => void) => (() => void)} props.onSuggestions
- * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.openSuggestion
- * @param {(params: {term: string, target: OpenTarget}) => void} props.submitSearch
- * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
-export function Omnibar({ mode, setMode, getSuggestions, onSuggestions, openSuggestion, submitSearch, submitChat }) {
+export function Omnibar({ mode, setMode }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-
     const [query, setQuery] = useState(/** @type {String} */ (''));
-
     return (
         <div class={styles.root} data-mode={mode}>
             <div class={styles.logoWrap}>
@@ -65,19 +58,7 @@ export function Omnibar({ mode, setMode, getSuggestions, onSuggestions, openSugg
                     </button>
                 </div>
             </div>
-            {mode === 'search' ? (
-                <SearchForm
-                    term={query}
-                    setTerm={setQuery}
-                    getSuggestions={getSuggestions}
-                    onSuggestions={onSuggestions}
-                    openSuggestion={openSuggestion}
-                    submitSearch={submitSearch}
-                    submitChat={submitChat}
-                />
-            ) : (
-                <AiChatForm chat={query} setChat={setQuery} submitChat={submitChat} />
-            )}
+            {mode === 'search' ? <SearchForm term={query} setTerm={setQuery} /> : <AiChatForm chat={query} setChat={setQuery} />}
         </div>
     );
 }

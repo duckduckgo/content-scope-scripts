@@ -1,10 +1,12 @@
 import cn from 'classnames';
 import { h } from 'preact';
+import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import styles from './Omnibar.module.css';
+import { OmnibarContext } from './OmnibarProvider';
 import { SuggestionsList } from './SuggestionList.js';
 import { useSuggestionInput } from './useSuggestionInput.js';
 import { useSuggestions } from './useSuggestions';
@@ -21,13 +23,10 @@ import { useSuggestions } from './useSuggestions';
  * @param {object} props
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
- * @param {(term: string) => Promise<SuggestionsData>} props.getSuggestions
- * @param {(cb: (data: SuggestionsData) => void) => (() => void)} props.onSuggestions
- * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.openSuggestion
- * @param {(params: {term: string, target: OpenTarget}) => void} props.submitSearch
- * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
-export function SearchForm({ term, setTerm, getSuggestions, onSuggestions, openSuggestion, submitSearch, submitChat }) {
+export function SearchForm({ term, setTerm }) {
+    const { submitSearch, submitChat } = useContext(OmnibarContext);
+
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
@@ -44,9 +43,6 @@ export function SearchForm({ term, setTerm, getSuggestions, onSuggestions, openS
     } = useSuggestions({
         term,
         setTerm,
-        getSuggestions,
-        onSuggestions,
-        openSuggestion,
     });
 
     const inputRef = useSuggestionInput(inputBase, inputSuggestion);
@@ -110,7 +106,6 @@ export function SearchForm({ term, setTerm, getSuggestions, onSuggestions, openS
                     selectedSuggestion={selectedSuggestion}
                     setSelectedSuggestion={setSelectedSuggestion}
                     clearSelectedSuggestion={clearSelectedSuggestion}
-                    openSuggestion={openSuggestion}
                 />
             </form>
         </div>

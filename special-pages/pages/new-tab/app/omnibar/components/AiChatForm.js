@@ -1,8 +1,10 @@
-import { h } from 'preact';
 import cn from 'classnames';
-import styles from './Omnibar.module.css';
+import { h } from 'preact';
+import { useContext } from 'preact/hooks';
 import { ArrowRightIcon } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
+import styles from './Omnibar.module.css';
+import { OmnibarContext } from './OmnibarProvider';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -16,9 +18,9 @@ import { useTypedTranslationWith } from '../../types';
  * @param {object} props
  * @param {string} props.chat
  * @param {(chat: string) => void} props.setChat
- * @param {(params: {chat: string, target: OpenTarget}) => void} props.submitChat
  */
-export function AiChatForm({ chat, setChat, submitChat }) {
+export function AiChatForm({ chat, setChat }) {
+    const { submitChat } = useContext(OmnibarContext);
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     /** @type {(event: SubmitEvent) => void} */

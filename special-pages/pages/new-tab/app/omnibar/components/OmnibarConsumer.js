@@ -32,17 +32,6 @@ export function OmnibarConsumer() {
  * @param {OmnibarConfig} props.config
  */
 function OmnibarReadyState({ config }) {
-    const { setMode, getSuggestions, onSuggestions, openSuggestion, submitSearch, submitChat } = useContext(OmnibarContext);
-
-    return (
-        <Omnibar
-            mode={config.mode}
-            setMode={setMode}
-            getSuggestions={getSuggestions}
-            onSuggestions={onSuggestions}
-            openSuggestion={openSuggestion}
-            submitSearch={submitSearch}
-            submitChat={submitChat}
-        />
-    );
+    const { setMode } = useContext(OmnibarContext);
+    return <Omnibar mode={config.mode} setMode={setMode} />;
 }
