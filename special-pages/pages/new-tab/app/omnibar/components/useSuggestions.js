@@ -4,9 +4,7 @@ import { usePlatformName } from '../../settings.provider.js';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
- * @typedef {import('../../../types/new-tab.js').SuggestionsData} SuggestionsData
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
- * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**

@@ -9,8 +9,7 @@ import { OmnibarService } from '../omnibar.service.js';
  * @typedef {import('../../../types/new-tab.js').SuggestionsData} SuggestionsData
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
- * @typedef {import('../../service.hooks.js').State<null, OmnibarConfig>} State // @todo: could this be never?
- * @typedef {import('../../service.hooks.js').Events<null, OmnibarConfig>} Events // @todo: could this be never?
+ * @typedef {import('../../service.hooks.js').State<null, OmnibarConfig>} State
  */
 
 /**

@@ -7,8 +7,6 @@ import { OmnibarContext } from './OmnibarProvider';
 import styles from './SuggestionList.module.css';
 
 /**
- * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
- * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel
  */
 

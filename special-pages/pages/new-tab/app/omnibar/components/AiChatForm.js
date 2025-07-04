@@ -8,10 +8,6 @@ import { OmnibarContext } from './OmnibarProvider';
 
 /**
  * @typedef {import('../strings.json')} Strings
- * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
- * @typedef {import('../../../types/new-tab.js').SuggestionsData} SuggestionsData
- * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
- * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
