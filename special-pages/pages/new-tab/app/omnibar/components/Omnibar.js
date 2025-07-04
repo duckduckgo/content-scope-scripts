@@ -16,8 +16,9 @@ import { SearchForm } from './SearchForm';
  * @param {object} props
  * @param {OmnibarConfig['mode']} props.mode
  * @param {(mode: OmnibarConfig['mode']) => void} props.setMode
+ * @param {boolean} props.enableAi
  */
-export function Omnibar({ mode, setMode }) {
+export function Omnibar({ mode, setMode, enableAi }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [query, setQuery] = useState(/** @type {String} */ (''));
     return (
@@ -25,37 +26,43 @@ export function Omnibar({ mode, setMode }) {
             <div class={styles.logoWrap}>
                 <img src="./icons/Logo-Stacked.svg" alt={t('omnibar_logoAlt')} width={144} height={115.9} />
             </div>
-            <div class={styles.tabListWrap}>
-                <div class={styles.tabList} role="tablist" aria-label={t('omnibar_tabSwitcherLabel')}>
-                    <button
-                        class={styles.tab}
-                        role="tab"
-                        aria-selected={mode === 'search'}
-                        onClick={() => {
-                            viewTransition(() => {
-                                setMode('search');
-                            });
-                        }}
-                    >
-                        <SearchIcon className={styles.searchIcon} />
-                        {t('omnibar_searchTabLabel')}
-                    </button>
-                    <button
-                        class={styles.tab}
-                        role="tab"
-                        aria-selected={mode === 'ai'}
-                        onClick={() => {
-                            viewTransition(() => {
-                                setMode('ai');
-                            });
-                        }}
-                    >
-                        <AiChatIcon className={styles.aiChatIcon} />
-                        {t('omnibar_aiTabLabel')}
-                    </button>
+            {enableAi && (
+                <div class={styles.tabListWrap}>
+                    <div class={styles.tabList} role="tablist" aria-label={t('omnibar_tabSwitcherLabel')}>
+                        <button
+                            class={styles.tab}
+                            role="tab"
+                            aria-selected={mode === 'search'}
+                            onClick={() => {
+                                viewTransition(() => {
+                                    setMode('search');
+                                });
+                            }}
+                        >
+                            <SearchIcon className={styles.searchIcon} />
+                            {t('omnibar_searchTabLabel')}
+                        </button>
+                        <button
+                            class={styles.tab}
+                            role="tab"
+                            aria-selected={mode === 'ai'}
+                            onClick={() => {
+                                viewTransition(() => {
+                                    setMode('ai');
+                                });
+                            }}
+                        >
+                            <AiChatIcon className={styles.aiChatIcon} />
+                            {t('omnibar_aiTabLabel')}
+                        </button>
+                    </div>
                 </div>
-            </div>
-            {mode === 'search' ? <SearchForm term={query} setTerm={setQuery} /> : <AiChatForm chat={query} setChat={setQuery} />}
+            )}
+            {mode === 'search' ? (
+                <SearchForm enableAi={enableAi} term={query} setTerm={setQuery} />
+            ) : (
+                <AiChatForm chat={query} setChat={setQuery} />
+            )}
         </div>
     );
 }
