@@ -20,14 +20,16 @@ export class OmnibarSuggestionsService {
      * @param {string} term
      * @returns {Promise<SuggestionsData>}
      */
-    async triggerFetch(term) {
+    triggerFetch(term) {
         const fetchId = ++this.#lastFetchId;
-        return this.ntp.messaging.request('omnibar_getSuggestions', { term }).then((data) => {
+        const fetch = async () => {
+            const data = await this.ntp.messaging.request('omnibar_getSuggestions', { term });
             if (fetchId === this.#lastFetchId) {
                 this.#eventTarget.dispatchEvent(new CustomEvent(EVENT_DATA, { detail: data }));
             }
             return data;
-        });
+        };
+        return fetch();
     }
 
     /**
