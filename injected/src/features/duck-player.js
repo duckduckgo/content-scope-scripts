@@ -110,6 +110,7 @@ export default class DuckPlayerFeature extends ContentFeature {
     }
 }
 
+
 /**
  * @typedef {Omit<import("@duckduckgo/privacy-configuration/schema/features/duckplayer").DuckPlayerSettings['overlays']['youtube'], "state">} OverlaysFeatureSettings
  */
