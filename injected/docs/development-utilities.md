@@ -4,6 +4,54 @@
 
 To handle the difference in scope injection we expose multiple utilities which behave differently per browser in `src/utils.js` and `ContentFeature` base class. For Firefox the code exposed handles [xrays correctly](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Sharing_objects_with_page_scripts) without needing the features to be authored differently.
 
+## Development Setup
+
+### Local Development Setup
+
+**Important**: Before cloning the repo, to avoid major headaches, make sure you clone it with unix-style line endings:
+
+```shell
+git clone --config core.autocrlf=false https://github.com/duckduckgo/content-scope-scripts
+```
+
+The Content Scope Scripts repo includes the build artifacts, which need to be generated as part of your commit.
+
+### Windows Development
+
+Setting up the tools on Windows will be a pain (and really impossible without modifying the scripts, as the build-scripts are not OS-agnostic).
+
+**Recommended**: Use Windows Subsystem for Linux - [WSL Installation Guide](https://learn.microsoft.com/en-us/windows/wsl/install)
+
+Once you have WSL running, make sure you have node and make installed:
+
+```shell
+sudo apt update
+sudo apt install make
+```
+
+For Node.js installation: [How to Install Node.js on Ubuntu/Debian](https://computingforgeeks.com/how-to-install-node-js-on-ubuntu-debian/)
+
+Once node is installed, navigate to the repo path (e.g., `/mnt/c/dev/git/content-scope-scripts`) and:
+
+```shell
+npm install    # Install packages
+npm run build  # Build JS artifacts
+```
+
+After this, you can commit the generated files from your Windows environment through the usual git tools.
+
+### Docker Alternative
+
+If you don't want to install npm on your machine, you can use Docker instead:
+
+```shell
+docker run -it --rm -v "<repo root>/submodules/content-scope-scripts:/content-scope-scripts" node:latest /bin/bash
+
+root@<id>:/# cd /content-scope-scripts
+root@<id>:/content-scope-scripts# npm install
+root@<id>:/content-scope-scripts# npm run build
+```
+
 ## ContentFeature Utilities
 
 ### `ContentFeature.defineProperty(object, propertyName, descriptor)`

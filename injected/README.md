@@ -64,13 +64,9 @@ npm run build        # Build platform-specific artifacts
 - `unit-test/` - Unit test suite
 - `integration-test/` - Integration test suite
 
+> **For detailed development setup instructions, debugging tips, and test build workflows, see the [Development Utilities](./docs/development-utilities.md) and [Testing Guide](./docs/testing-guide.md).**
+
 ## Third-Party Libraries
 - [Adguard Scriptlets](https://github.com/AdguardTeam/Scriptlets)
-
----
-
-## Third-Party Libraries
-We make use of the following submodules:
-- [Adguard Scriptlets](https://github.com/AdguardTeam/Scriptlets) 
 
 For detailed information about any specific topic, please refer to the [documentation](./docs/).
