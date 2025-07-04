@@ -1,15 +1,10 @@
-import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 
-/** @typedef {Omit<import('preact').JSX.InputHTMLAttributes, 'value'> & {
-  *   base: string,
-  *   suggestion: string,
-  * }} SuggestionInputProps
-
 /**
- * @param {SuggestionInputProps} props
+ * @param {string} base
+ * @param {string} suggestion
  */
-export function SuggestionInput({ base, suggestion, ...props }) {
+export function useSuggestionInput(base, suggestion) {
     const ref = useRef(/** @type {HTMLInputElement|null} */ (null));
 
     useEffect(() => {
@@ -21,5 +16,5 @@ export function SuggestionInput({ base, suggestion, ...props }) {
         }
     }, [base, suggestion]);
 
-    return <input {...props} ref={ref} />;
+    return ref;
 }
