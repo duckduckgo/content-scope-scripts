@@ -1,4 +1,4 @@
-import { useMemo, useReducer } from 'preact/hooks';
+import { useReducer } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
 
@@ -123,10 +123,7 @@ export function useSuggestions({ term, setTerm, getSuggestions, openSuggestion }
 
     const [state, dispatch] = useReducer(reducer, initialState);
 
-    const selectedSuggestion = useMemo(
-        () => (state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null),
-        [state.suggestions, state.selectedIndex],
-    );
+    const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
 
     /** @type {(suggestion: SuggestionModel) => void} */
     const setSelectedSuggestion = (suggestion) => {
