@@ -130,9 +130,9 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('disableDeviceEnumeration') || this.getFeatureSettingEnabled('disableDeviceEnumerationFrames')) {
             this.preventDeviceEnumeration();
         }
-        // if (this.getFeatureSettingEnabled('deviceEnumeration')) {
+        if (this.getFeatureSettingEnabled('deviceEnumeration')) {
             this.deviceEnumerationFix();
-        // }
+        }
     }
 
     /** Shim Web Share API in Android WebView */
@@ -797,7 +797,7 @@ export class WebCompat extends ContentFeature {
         // Create a simple object that looks like MediaDeviceInfo
         const deviceInfo = {
             deviceId: 'default',
-            kind: kind,
+            kind,
             label: '',
             groupId: 'default-group',
             toJSON() {
@@ -805,19 +805,19 @@ export class WebCompat extends ContentFeature {
                     deviceId: this.deviceId,
                     kind: this.kind,
                     label: this.label,
-                    groupId: this.groupId
+                    groupId: this.groupId,
                 };
-            }
+            },
         };
-        
+
         // Make properties read-only to match MediaDeviceInfo behavior
         Object.defineProperties(deviceInfo, {
             deviceId: { writable: false, configurable: false },
             kind: { writable: false, configurable: false },
             label: { writable: false, configurable: false },
-            groupId: { writable: false, configurable: false }
+            groupId: { writable: false, configurable: false },
         });
-        
+
         // Set the prototype based on device type
         if (kind === 'videoinput' || kind === 'audioinput') {
             // Input devices should inherit from InputDeviceInfo.prototype if available
@@ -830,7 +830,7 @@ export class WebCompat extends ContentFeature {
             // Output devices inherit from MediaDeviceInfo.prototype
             Object.setPrototypeOf(deviceInfo, MediaDeviceInfo.prototype);
         }
-        
+
         return deviceInfo;
     }
 
