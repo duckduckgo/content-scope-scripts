@@ -1,3 +1,4 @@
+// Features must exist in either `baseFeatures` or `otherFeatures`
 export const baseFeatures = /** @type {const} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
@@ -28,12 +29,13 @@ const otherFeatures = /** @type {const} */ ([
     'breakageReporting',
     'autofillPasswordImport',
     'favicon',
+    'scriptlets',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures],
+    apple: ['webCompat', 'duckPlayerNative', 'scriptlets', ...baseFeatures],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
@@ -46,7 +48,16 @@ export const platformSupport = {
     android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-password-import': ['autofillPasswordImport'],
-    windows: ['cookie', ...baseFeatures, 'windowsPermissionUsage', 'duckPlayer', 'brokerProtection', 'breakageReporting', 'messageBridge'],
+    windows: [
+        'cookie',
+        ...baseFeatures,
+        'windowsPermissionUsage',
+        'duckPlayer',
+        'brokerProtection',
+        'breakageReporting',
+        'messageBridge',
+        'webCompat',
+    ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
     'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],

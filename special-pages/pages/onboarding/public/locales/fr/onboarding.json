@@ -344,6 +344,34 @@
     "title" : "Accédez plus rapidement à DuckDuckGo.",
     "note" : "Instructs the user to add DuckDuckGo to their taskbar by clicking Yes on a dialog screen."
   },
+  "row_placebo-ad-blocking_title_v3" : {
+    "title" : "Bloquez encore plus de publicités",
+    "note" : "Title for the enhanced ad blocking setting."
+  },
+  "row_aggressive-ad-blocking_title_v3" : {
+    "title" : "Bloquez encore plus de publicités, y compris sur YouTube",
+    "note" : "Title for the enhanced ad blocking setting."
+  },
+  "row_ad-blocking_desc_v3" : {
+    "title" : "Le blocage publicitaire amélioré arrête encore plus de publicités.",
+    "note" : "Description for the enhanced ad blocking setting."
+  },
+  "row_ad-blocking_accept_v3" : {
+    "title" : "Activer le blocage publicitaire amélioré",
+    "note" : "Button text to enable enhanced ad blocking."
+  },
+  "row_youtube-ad-blocking_title_v3" : {
+    "title" : "Regardez YouTube sans publicité",
+    "note" : "Title for the YouTube ad blocking setting."
+  },
+  "row_youtube-ad-blocking_desc_v3" : {
+    "title" : "Pas de publicités, juste votre vidéo.",
+    "note" : "Description for the YouTube ad blocking setting."
+  },
+  "row_youtube-ad-blocking_accept_v3" : {
+    "title" : "Bloquer les publicités",
+    "note" : "Button text to enable YouTube ad blocking."
+  },
   "comparison_searchPrivately" : {
     "title" : "Faire une recherche privée par défaut",
     "note" : "The description of a browser privacy feature in the comparison table."
@@ -353,11 +381,11 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies" : {
-    "title" : "Bloquez les demandes de cookies et les fenêtres contextuelles",
+    "title" : "Bloquez les fenêtres contextuelles de cookies",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Bloquez les publicités qui pistent",
+    "title" : "Bloquez les publicités ciblées",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {
@@ -367,6 +395,10 @@
   "comparison_privateYoutube" : {
     "title" : "Profitez de YouTube sans publicités ciblées",
     "note" : "The description of a browser privacy feature in the comparison table."
+  },
+  "comparison_youtubeAdFree" : {
+    "title" : "Regardez YouTube sans publicité",
+    "note" : "The description of a browser privacy feature in the comparison table when ad-blocking is enabled."
   },
   "comparison_fullSupport" : {
     "title" : "Protection importante",

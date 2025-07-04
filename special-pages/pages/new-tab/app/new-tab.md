@@ -1,6 +1,6 @@
 ---
 title: New Tab Page
-children: 
+children:
   - ./widget-list/widget-config.md
   - ./remote-messaging-framework/rmf.md
   - ./update-notification/update-notification.md
@@ -9,6 +9,8 @@ children:
   - ./favorites/favorites.md
   - ./next-steps/next-steps.md
   - ./customizer/customizer.md
+  - ./protections/protections.md
+  - ./omnibar/omnibar.md
 ---
 
 ## Requests
@@ -26,7 +28,7 @@ children:
 
 ## Notifications
 
-### `contextMenu` 
+### `contextMenu`
 - {@link "NewTab Messages".ContextMenuNotification}
 - Sent when the user right-clicks in the page
 - Note: Other widgets might prevent this (and send their own, eg: favorites)

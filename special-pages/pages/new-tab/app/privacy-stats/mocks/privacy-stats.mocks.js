@@ -17,7 +17,6 @@ import { DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
  */
 export const privacyStatsMocks = {
     few: {
-        totalCount: 481_113,
         trackerCompanies: [
             {
                 displayName: 'Facebook',
@@ -29,7 +28,7 @@ export const privacyStatsMocks = {
             },
             {
                 displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
-                count: 210,
+                count: 2100,
             },
             {
                 displayName: 'Amazon.com',
@@ -42,7 +41,6 @@ export const privacyStatsMocks = {
         ],
     },
     single: {
-        totalCount: 481_113,
         trackerCompanies: [
             {
                 displayName: 'Google',
@@ -51,15 +49,12 @@ export const privacyStatsMocks = {
         ],
     },
     norecent: {
-        totalCount: 481_113,
         trackerCompanies: [],
     },
     none: {
-        totalCount: 0,
         trackerCompanies: [],
     },
     onlyother: {
-        totalCount: 2,
         trackerCompanies: [
             {
                 displayName: DDG_STATS_OTHER_COMPANY_IDENTIFIER,
@@ -68,7 +63,6 @@ export const privacyStatsMocks = {
         ],
     },
     manyOnlyTop: {
-        totalCount: 2,
         trackerCompanies: [
             {
                 displayName: 'Facebook',
@@ -97,7 +91,6 @@ export const privacyStatsMocks = {
         ],
     },
     fewOnlyTop: {
-        totalCount: 2,
         trackerCompanies: [
             {
                 displayName: 'Facebook',
@@ -114,7 +107,6 @@ export const privacyStatsMocks = {
         ],
     },
     topAndOneOther: {
-        totalCount: 2,
         trackerCompanies: [
             {
                 displayName: 'Facebook',
@@ -143,7 +135,6 @@ export const privacyStatsMocks = {
         ],
     },
     manyTopAndOther: {
-        totalCount: 2,
         trackerCompanies: [
             {
                 displayName: 'Facebook',
@@ -176,7 +167,6 @@ export const privacyStatsMocks = {
         ],
     },
     many: {
-        totalCount: 890,
         trackerCompanies: [
             { displayName: 'Google', count: 153 },
             { displayName: 'Microsoft', count: 69 },

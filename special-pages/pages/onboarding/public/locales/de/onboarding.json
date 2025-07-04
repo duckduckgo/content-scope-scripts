@@ -344,6 +344,34 @@
     "title" : "Gelange schneller zu DuckDuckGo.",
     "note" : "Instructs the user to add DuckDuckGo to their taskbar by clicking Yes on a dialog screen."
   },
+  "row_placebo-ad-blocking_title_v3" : {
+    "title" : "Noch mehr Werbung blockieren",
+    "note" : "Title for the enhanced ad blocking setting."
+  },
+  "row_aggressive-ad-blocking_title_v3" : {
+    "title" : "Noch mehr Werbung blockieren, auch auf YouTube",
+    "note" : "Title for the enhanced ad blocking setting."
+  },
+  "row_ad-blocking_desc_v3" : {
+    "title" : "Verbesserte Werbeblocker stoppen noch mehr Werbung.",
+    "note" : "Description for the enhanced ad blocking setting."
+  },
+  "row_ad-blocking_accept_v3" : {
+    "title" : "Erweiterte Werbeblocker einschalten",
+    "note" : "Button text to enable enhanced ad blocking."
+  },
+  "row_youtube-ad-blocking_title_v3" : {
+    "title" : "YouTube ohne Werbung ansehen",
+    "note" : "Title for the YouTube ad blocking setting."
+  },
+  "row_youtube-ad-blocking_desc_v3" : {
+    "title" : "Keine Werbung, nur dein Video.",
+    "note" : "Description for the YouTube ad blocking setting."
+  },
+  "row_youtube-ad-blocking_accept_v3" : {
+    "title" : "Werbung blockieren",
+    "note" : "Button text to enable YouTube ad blocking."
+  },
   "comparison_searchPrivately" : {
     "title" : "Standardmäßig privat suchen",
     "note" : "The description of a browser privacy feature in the comparison table."
@@ -353,11 +381,11 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies" : {
-    "title" : "Cookie-Anfragen und Pop-ups blockieren",
+    "title" : "Cookie-Pop-ups blockieren",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Tracking-Anzeigen blockieren",
+    "title" : "Gezielte Werbung blockieren",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {
@@ -367,6 +395,10 @@
   "comparison_privateYoutube" : {
     "title" : "YouTube ohne gezielte Werbung abspielen",
     "note" : "The description of a browser privacy feature in the comparison table."
+  },
+  "comparison_youtubeAdFree" : {
+    "title" : "YouTube ohne Werbung ansehen",
+    "note" : "The description of a browser privacy feature in the comparison table when ad-blocking is enabled."
   },
   "comparison_fullSupport" : {
     "title" : "Erheblicher Schutz",

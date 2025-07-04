@@ -1,18 +1,17 @@
 import { createContext, h } from 'preact';
 import { useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../types.js';
-import { reducer, useConfigSubscription, useInitialDataAndConfig } from '../service.hooks.js';
+import { reducer, useInitialData } from '../service.hooks.js';
 import { useBatchedActivityApi } from '../settings.provider.js';
 import { BatchedActivityService } from './batched-activity.service.js';
 
 /**
  * @typedef {import('../../types/new-tab.js').ActivityData} ActivityData
- * @typedef {import('../../types/new-tab.js').ActivityConfig} ActivityConfig
  * @typedef {import('../../types/new-tab').TrackingStatus} TrackingStatus
  * @typedef {import('../../types/new-tab').HistoryEntry} HistoryEntry
  * @typedef {import('../../types/new-tab').DomainActivity} DomainActivity
- * @typedef {import('../service.hooks.js').State<import("./batched-activity.service.js").Incoming, ActivityConfig>} State
- * @typedef {import('../service.hooks.js').Events<ActivityData, ActivityConfig>} Events
+ * @typedef {import('../service.hooks.js').State<import("./batched-activity.service.js").Incoming, null>} State
+ * @typedef {import('../service.hooks.js').Events<ActivityData, null>} Events
  */
 
 /**
@@ -21,10 +20,6 @@ import { BatchedActivityService } from './batched-activity.service.js';
 export const ActivityContext = createContext({
     /** @type {State} */
     state: { status: 'idle', data: null, config: null },
-    /** @type {() => void} */
-    toggle: () => {
-        throw new Error('must implement');
-    },
 });
 
 export const ActivityServiceContext = createContext(/** @type {BatchedActivityService|null} */ ({}));
@@ -49,13 +44,10 @@ export function ActivityProvider(props) {
     const service = useService(batched);
 
     // get initial data
-    useInitialDataAndConfig({ dispatch, service });
-
-    // subscribe to toggle + expose a fn for sync toggling
-    const { toggle } = useConfigSubscription({ dispatch, service });
+    useInitialData({ dispatch, service });
 
     return (
-        <ActivityContext.Provider value={{ state, toggle }}>
+        <ActivityContext.Provider value={{ state }}>
             <ActivityServiceContext.Provider value={service.current}>{props.children}</ActivityServiceContext.Provider>
         </ActivityContext.Provider>
     );

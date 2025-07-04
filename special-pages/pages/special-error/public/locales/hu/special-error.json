@@ -33,7 +33,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "malwareWarningText" : {
-    "title" : "A DuckDuckGo blokkolta ezt az oldalt, mert lehetséges, hogy olyan rosszindulatú programokat terjeszt, amelyek veszélyeztethetik az eszközöd biztonságát vagy ellophatják a személyes adataidat.{newline}<a>További részletek</a>",
+    "title" : "A DuckDuckGo csalásblokkoló megakadályozta az oldal a betöltését, mert vélhetően olyan rosszindulatú programot terjeszt, amely veszélyeztetheti az eszközöd biztonságát vagy ellophatja a személyes adataidat.{newline}<a>További részletek</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
@@ -45,7 +45,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "phishingWarningText" : {
-    "title" : "Előfordulhat, hogy ez a webhely legitim webhelynek adja ki magát, hogy személyes adatok, például jelszavak vagy hitelkártyaszámok megadására vegyen rá.{newline}<a>További részletek</a>",
+    "title" : "A DuckDuckGo csalásblokkoló megakadályozta az oldal a betöltését, mivel előfordulhat, hogy valódi webhelynek adja ki magát, hogy megtévesszen és így személyes adatokat, például jelszavakat vagy bankkártyaszámokat szerezzen tőled.{newline}<a>További részletek</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
@@ -57,7 +57,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "scamWarningText" : {
-    "title" : "A DuckDuckGo letiltotta ezt az oldalt, mert feltehetően megtévesztő vagy manipulatív módon megpróbál rávenni pénz átutalására, hamisított termékek vásárlására, vagy rosszindulatú program telepítésére.{newline}<a>Tudj meg többet</a>",
+    "title" : "A DuckDuckGo csalásblokkoló megakadályozta az oldal a betöltését, mert feltehetően megtévesztő vagy manipulatív módon megpróbál rávenni pénz átutalására, hamisított termékek vásárlására, vagy rosszindulatú program telepítésére.{newline}<a>További részletek</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "scamAdvancedInfoHeading" : {

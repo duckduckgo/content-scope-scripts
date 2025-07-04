@@ -90,7 +90,7 @@ export class DDGVideoThumbnailOverlay extends HTMLElement {
  * @param {import("../../duckplayer/environment").Environment} environment
  * @param {() => void} [onClick] Optional callback to be called when the overlay is clicked
  */
-export function appendThumbnailOverlay(targetElement, environment, onClick) {
+export function showThumbnailOverlay(targetElement, environment, onClick) {
     const logger = new Logger({
         id: 'THUMBNAIL_OVERLAY',
         shouldLog: () => environment.isTestMode(),

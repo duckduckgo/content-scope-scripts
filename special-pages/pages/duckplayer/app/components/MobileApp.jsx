@@ -12,7 +12,7 @@ import { MobileButtons } from './MobileButtons.jsx';
 import { OrientationProvider } from '../providers/OrientationProvider.jsx';
 import { FocusMode } from './FocusMode.jsx';
 import { useTelemetry } from '../types.js';
-import { useYouTubeError } from '../providers/YouTubeErrorProvider';
+import { useShowCustomError } from '../providers/YouTubeErrorProvider';
 
 const DISABLED_HEIGHT = 450;
 
@@ -23,15 +23,15 @@ const DISABLED_HEIGHT = 450;
 export function MobileApp({ embed }) {
     const settings = useSettings();
     const telemetry = useTelemetry();
-    const youtubeError = useYouTubeError();
-
+    const showCustomError = useShowCustomError();
     const features = createAppFeaturesFrom(settings);
+
     return (
         <>
-            {!youtubeError && features.focusMode()}
+            {!showCustomError && features.focusMode()}
             <OrientationProvider
                 onChange={(orientation) => {
-                    if (youtubeError) return;
+                    if (showCustomError) return;
 
                     if (orientation === 'portrait') {
                         return FocusMode.enable();
@@ -57,28 +57,28 @@ export function MobileApp({ embed }) {
  */
 function MobileLayout({ embed }) {
     const platformName = usePlatformName();
-    const youtubeError = useYouTubeError();
-    const settings = useSettings();
-    const showCustomError = youtubeError && settings.customError?.state === 'enabled';
+    const showCustomError = useShowCustomError();
 
     return (
-        <main class={styles.main} data-youtube-error={!!youtubeError}>
+        <main class={styles.main} data-youtube-error={showCustomError}>
             <div class={cn(styles.filler, styles.hideInFocus)} />
             <div class={styles.embed}>
                 {embed === null && <PlayerError layout={'mobile'} kind={'invalid-id'} />}
-                {embed !== null && showCustomError && <YouTubeError layout={'mobile'} kind={youtubeError} />}
-                {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'mobile'} />}
+                {embed !== null && showCustomError && <YouTubeError layout={'mobile'} embed={embed} />}
+                {embed !== null && !showCustomError && <Player src={embed.toEmbedUrl()} layout={'mobile'} embed={embed} />}
             </div>
             <div class={cn(styles.logo, styles.hideInFocus)}>
                 <MobileWordmark />
             </div>
             <div class={cn(styles.switch, styles.hideInFocus)}>
-                <SwitchProvider>
-                    <SwitchBarMobile platformName={platformName} />
-                </SwitchProvider>
+                {!showCustomError && (
+                    <SwitchProvider>
+                        <SwitchBarMobile platformName={platformName} />
+                    </SwitchProvider>
+                )}
             </div>
             <div class={cn(styles.buttons, styles.hideInFocus)}>
-                <MobileButtons embed={embed} />
+                <MobileButtons embed={embed} accentedWatchButton={embed !== null && showCustomError} />
             </div>
         </main>
     );

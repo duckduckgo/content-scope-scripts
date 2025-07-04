@@ -2,20 +2,22 @@ import { expect, test } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { PrivacyStatsPage } from './privacy-stats.page.js';
 
+const defaultPageParams = {
+    'protections.feed': 'privacy-stats',
+};
+
 test.describe('newtab privacy stats', () => {
     test('fetches config + stats', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const psp = new PrivacyStatsPage(page, ntp);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { stats: 'few' } });
+        await ntp.openPage({ additional: { ...defaultPageParams, stats: 'few' } });
 
         const calls1 = await ntp.mocks.waitForCallCount({ method: 'initialSetup', count: 1 });
         const calls2 = await ntp.mocks.waitForCallCount({ method: 'stats_getData', count: 1 });
-        const calls3 = await ntp.mocks.waitForCallCount({ method: 'stats_getConfig', count: 1 });
 
         expect(calls1.length).toBe(1);
         expect(calls2.length).toBe(1);
-        expect(calls3.length).toBe(1);
 
         const listItems = page.getByTestId('CompanyList').locator('li');
         expect(await listItems.count()).toBe(4);
@@ -24,30 +26,17 @@ test.describe('newtab privacy stats', () => {
         expect(await listItems.nth(2).textContent()).toBe('Amazon67');
         expect(await listItems.nth(3).textContent()).toBe('Google Ads2');
 
-        await expect(psp.listFooter()).toHaveText('210 attempts from other networks');
+        await expect(psp.listFooter()).toHaveText('2,100 attempts from other networks');
 
         // show/hide
         await page.getByLabel('Hide recent activity').click();
         await page.getByLabel('Show recent activity').click();
     });
-    test('titles', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const psp = new PrivacyStatsPage(page, ntp);
-        await ntp.reducedMotion();
-        await ntp.openPage({ additional: { stats: 'none' } });
-        await psp.hasEmptyTrackersOnlyTitle();
-        await ntp.openPage({ additional: { stats: 'some' } });
-        await psp.hasPopulatedTrackersOnlyTitle();
-        await ntp.openPage({ additional: { stats: 'none', adBlocking: 'enabled' } });
-        await psp.hasEmptyAdsAndTrackersTitle();
-        await ntp.openPage({ additional: { stats: 'some', adBlocking: 'enabled' } });
-        await psp.hasPopulatedAdsAndTrackersTitle();
-    });
     test('sending a pixel when show more is clicked', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const psp = new PrivacyStatsPage(page, ntp);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { stats: 'many' } });
+        await ntp.openPage({ additional: { ...defaultPageParams, stats: 'many' } });
 
         // show + hide
         await psp.showMoreSecondary();
@@ -79,23 +68,6 @@ test.describe('newtab privacy stats', () => {
         // ]);
     });
     test(
-        'hiding the expander when empty',
-        {
-            annotation: {
-                type: 'issue',
-                description: 'https://app.asana.com/0/0/1208792040873366/f',
-            },
-        },
-        async ({ page }, workerInfo) => {
-            const ntp = NewtabPage.create(page, workerInfo);
-            await ntp.reducedMotion();
-            await ntp.openPage({ additional: { stats: 'none' } });
-            await page.getByText('Tracking protections active').waitFor();
-            await expect(page.getByLabel('Hide recent activity')).not.toBeVisible();
-            await expect(page.getByLabel('Show recent activity')).not.toBeVisible();
-        },
-    );
-    test(
         'bar width',
         {
             annotation: {
@@ -107,11 +79,11 @@ test.describe('newtab privacy stats', () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const psp = new PrivacyStatsPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { stats: 'none' } });
-            await page.getByText('Tracking protections active').waitFor();
+            await ntp.openPage({ additional: { ...defaultPageParams, stats: 'none' } });
+
+            await ntp.mocks.waitForCallCount({ method: 'stats_getData', count: 1 });
 
             await psp.receiveData({
-                totalCount: 2,
                 trackerCompanies: [
                     { displayName: 'Google', count: 1 },
                     { displayName: 'Facebook', count: 1 },
@@ -122,7 +94,6 @@ test.describe('newtab privacy stats', () => {
             await page.getByText('Facebook1').locator('[style="width: 100%;"]').waitFor();
 
             await psp.receiveData({
-                totalCount: 2,
                 trackerCompanies: [
                     { displayName: 'Google', count: 5 },
                     { displayName: 'Facebook', count: 1 },
@@ -146,7 +117,9 @@ test.describe('newtab privacy stats', () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const psp = new PrivacyStatsPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { stats: 'none' } });
+            await ntp.openPage({ additional: { ...defaultPageParams, stats: 'none' } });
+
+            await ntp.mocks.waitForCallCount({ method: 'stats_getData', count: 1 });
 
             // deliver enough companies to show the 'show more' toggle
             await psp.receive({ count: 6 });
@@ -173,9 +146,8 @@ test.describe('newtab privacy stats', () => {
             const ntp = NewtabPage.create(page, workerInfo);
             const psp = new PrivacyStatsPage(page, ntp);
             await ntp.reducedMotion();
-            await ntp.openPage({ additional: { stats: 'onlyother' } });
+            await ntp.openPage({ additional: { ...defaultPageParams, stats: 'onlyother' } });
             await psp.hasRows(0);
-            await psp.hasHeading('2 tracking attempts blocked');
         },
     );
     test('ui state: toggling when there is many top sites, but zero other', async ({ page }, workerInfo) => {

@@ -18,9 +18,16 @@ import { Logger } from './duckplayer/util.js';
  * @property {boolean} playbackPaused - Should video start playing or paused
  */
 
+/**
+ * @import localeStrings from '../locales/duckplayer/en/native.json'
+ * @typedef {(key: keyof localeStrings) => string} TranslationFn
+ */
+
 export class DuckPlayerNativeFeature extends ContentFeature {
     /** @type {DuckPlayerNativeSubFeature | null} */
     currentPage;
+    /** @type {TranslationFn} */
+    t;
 
     async init(args) {
         /**
@@ -42,10 +49,13 @@ export class DuckPlayerNativeFeature extends ContentFeature {
             locale,
         });
 
+        // Translation function to be used by view components
+        this.t = (key) => env.strings('native.json')[key];
+
         const messages = new DuckPlayerNativeMessages(this.messaging, env);
         messages.subscribeToURLChange(({ pageType }) => {
             const playbackPaused = false; // This can be added to the event data in the future if needed
-            this.urlChanged(pageType, selectors, playbackPaused, env, messages);
+            this.urlDidChange(pageType, selectors, playbackPaused, env, messages);
         });
 
         /** @type {InitialSettings} */
@@ -60,7 +70,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         if (initialSetup.pageType) {
             const playbackPaused = initialSetup.playbackPaused || false;
-            this.urlChanged(initialSetup.pageType, selectors, playbackPaused, env, messages);
+            this.urlDidChange(initialSetup.pageType, selectors, playbackPaused, env, messages);
         }
     }
 
@@ -72,7 +82,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
      * @param {Environment} env
      * @param {DuckPlayerNativeMessages} messages
      */
-    urlChanged(pageType, selectors, playbackPaused, env, messages) {
+    urlDidChange(pageType, selectors, playbackPaused, env, messages) {
         /** @type {DuckPlayerNativeSubFeature | null} */
         let nextPage = null;
 
@@ -83,7 +93,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         switch (pageType) {
             case 'NOCOOKIE':
-                nextPage = setupDuckPlayerForNoCookie(selectors, env, messages);
+                nextPage = setupDuckPlayerForNoCookie(selectors, env, messages, this.t);
                 break;
             case 'YOUTUBE':
                 nextPage = setupDuckPlayerForYouTube(selectors, playbackPaused, env, messages);

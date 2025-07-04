@@ -7,14 +7,6 @@
  */
 
 export type OpenTarget = "same-tab" | "new-tab" | "new-window";
-/**
- * Represents the expansion state of a widget
- */
-export type Expansion = "expanded" | "collapsed";
-/**
- * Generic Animation configuration
- */
-export type Animation = None | ViewTransitions | Auto;
 export type BackgroundVariant =
   | DefaultBackground
   | SolidColorBackground
@@ -56,6 +48,24 @@ export type PredefinedGradient =
 export type BackgroundColorScheme = "light" | "dark";
 export type BrowserTheme = "light" | "dark" | "system";
 /**
+ * Represents the expansion state of a widget
+ */
+export type Expansion = "expanded" | "collapsed";
+/**
+ * Generic Animation configuration
+ */
+export type Animation = None | ViewTransitions | Auto;
+export type Suggestion =
+  | BookmarkSuggestion
+  | OpenTabSuggestion
+  | PhraseSuggestion
+  | WebsiteSuggestion
+  | HistoryEntrySuggestion
+  | InternalPageSuggestion;
+export type OmnibarMode = "search" | "ai";
+export type EnableDuckAi = boolean;
+export type FeedType = "privacy-stats" | "activity";
+/**
  * The visibility state of the widget, as configured by the user
  */
 export type WidgetVisibility = "visible" | "hidden";
@@ -94,7 +104,6 @@ export interface NewTabMessages {
     | ActivityOpenNotification
     | ActivityRemoveFavoriteNotification
     | ActivityRemoveItemNotification
-    | ActivitySetConfigNotification
     | ContextMenuNotification
     | CustomizerContextMenuNotification
     | CustomizerDeleteImageNotification
@@ -111,13 +120,17 @@ export interface NewTabMessages {
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
+    | OmnibarOpenSuggestionNotification
+    | OmnibarSetConfigNotification
+    | OmnibarSubmitChatNotification
+    | OmnibarSubmitSearchNotification
     | OpenNotification
+    | ProtectionsSetConfigNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
     | RmfDismissNotification
     | RmfPrimaryActionNotification
     | RmfSecondaryActionNotification
-    | StatsSetConfigNotification
     | StatsShowLessNotification
     | StatsShowMoreNotification
     | TelemetryEventNotification
@@ -125,7 +138,6 @@ export interface NewTabMessages {
     | WidgetsSetConfigNotification;
   requests:
     | ActivityConfirmBurnRequest
-    | ActivityGetConfigRequest
     | ActivityGetDataRequest
     | ActivityGetDataForUrlsRequest
     | ActivityGetUrlsRequest
@@ -135,12 +147,14 @@ export interface NewTabMessages {
     | InitialSetupRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
+    | OmnibarGetConfigRequest
+    | OmnibarGetSuggestionsRequest
+    | ProtectionsGetConfigRequest
+    | ProtectionsGetDataRequest
     | RmfGetDataRequest
-    | StatsGetConfigRequest
     | StatsGetDataRequest;
   subscriptions:
     | ActivityOnBurnCompleteSubscription
-    | ActivityOnConfigUpdateSubscription
     | ActivityOnDataPatchSubscription
     | ActivityOnDataUpdateSubscription
     | CustomizerAutoOpenSubscription
@@ -150,11 +164,14 @@ export interface NewTabMessages {
     | CustomizerOnThemeUpdateSubscription
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
+    | FavoritesOnRefreshSubscription
     | FreemiumPIRBannerOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
+    | OmnibarOnConfigUpdateSubscription
+    | ProtectionsOnConfigUpdateSubscription
+    | ProtectionsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
-    | StatsOnConfigUpdateSubscription
     | StatsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription;
@@ -211,32 +228,6 @@ export interface ActivityRemoveItemNotify {
    * The History Entry url to be removed
    */
   url: string;
-}
-/**
- * Generated from @see "../messages/activity_setConfig.notify.json"
- */
-export interface ActivitySetConfigNotification {
-  method: "activity_setConfig";
-  params: ActivityConfig;
-}
-export interface ActivityConfig {
-  expansion: Expansion;
-  animation?: Animation;
-}
-export interface None {
-  kind: "none";
-}
-/**
- * Use CSS view transitions where available
- */
-export interface ViewTransitions {
-  kind: "view-transitions";
-}
-/**
- * Use the auto-animate library to provide default animation styles
- */
-export interface Auto {
-  kind: "auto-animate";
 }
 /**
  * Generated from @see "../messages/contextMenu.notify.json"
@@ -396,6 +387,21 @@ export interface FavoritesConfig {
   expansion: Expansion;
   animation?: Animation;
 }
+export interface None {
+  kind: "none";
+}
+/**
+ * Use CSS view transitions where available
+ */
+export interface ViewTransitions {
+  kind: "view-transitions";
+}
+/**
+ * Use the auto-animate library to provide default animation styles
+ */
+export interface Auto {
+  kind: "auto-animate";
+}
 /**
  * Generated from @see "../messages/freemiumPIRBanner_action.notify.json"
  */
@@ -448,6 +454,89 @@ export interface NextStepsConfig {
   animation?: Animation;
 }
 /**
+ * Generated from @see "../messages/omnibar_openSuggestion.notify.json"
+ */
+export interface OmnibarOpenSuggestionNotification {
+  method: "omnibar_openSuggestion";
+  params: OpenSuggestionAction;
+}
+export interface OpenSuggestionAction {
+  suggestion: Suggestion;
+  target: OpenTarget;
+}
+export interface BookmarkSuggestion {
+  kind: "bookmark";
+  title: string;
+  url: string;
+  isFavorite: boolean;
+  score: number;
+}
+export interface OpenTabSuggestion {
+  kind: "openTab";
+  title: string;
+  tabId: string;
+  score: number;
+}
+export interface PhraseSuggestion {
+  kind: "phrase";
+  phrase: string;
+}
+export interface WebsiteSuggestion {
+  kind: "website";
+  url: string;
+}
+export interface HistoryEntrySuggestion {
+  kind: "historyEntry";
+  title: string;
+  url: string;
+  score: number;
+}
+export interface InternalPageSuggestion {
+  kind: "internalPage";
+  title: string;
+  url: string;
+  score: number;
+}
+/**
+ * Generated from @see "../messages/omnibar_setConfig.notify.json"
+ */
+export interface OmnibarSetConfigNotification {
+  method: "omnibar_setConfig";
+  params: OmnibarConfig;
+}
+export interface OmnibarConfig {
+  mode: OmnibarMode;
+  enableAi?: EnableDuckAi;
+}
+/**
+ * Generated from @see "../messages/omnibar_submitChat.notify.json"
+ */
+export interface OmnibarSubmitChatNotification {
+  method: "omnibar_submitChat";
+  params: SubmitChatAction;
+}
+export interface SubmitChatAction {
+  /**
+   * The chat message to submit to Duck.ai
+   */
+  chat: string;
+  target: OpenTarget;
+}
+/**
+ * Generated from @see "../messages/omnibar_submitSearch.notify.json"
+ */
+export interface OmnibarSubmitSearchNotification {
+  method: "omnibar_submitSearch";
+  params: SubmitSearchAction;
+}
+export interface SubmitSearchAction {
+  /**
+   * The search term to submit
+   */
+  term: string;
+  target: OpenTarget;
+}
+/**
  * Generated from @see "../messages/open.notify.json"
  */
 export interface OpenNotification {
@@ -456,6 +545,21 @@ export interface OpenNotification {
 }
 export interface OpenAction {
   target: "settings";
+}
+/**
+ * Generated from @see "../messages/protections_setConfig.notify.json"
+ */
+export interface ProtectionsSetConfigNotification {
+  method: "protections_setConfig";
+  params: ProtectionsConfig;
+}
+export interface ProtectionsConfig {
+  expansion: Expansion;
+  feed: FeedType;
+  /**
+   * Boolean flag to explicitly enable or disable the burn animations
+   */
+  showBurnAnimation?: boolean;
 }
 /**
  * Generated from @see "../messages/reportInitException.notify.json"
@@ -506,17 +610,6 @@ export interface RmfSecondaryActionNotification {
 }
 export interface RMFSecondaryAction {
   id: string;
-}
-/**
- * Generated from @see "../messages/stats_setConfig.notify.json"
- */
-export interface StatsSetConfigNotification {
-  method: "stats_setConfig";
-  params: StatsConfig;
-}
-export interface StatsConfig {
-  expansion: Expansion;
-  animation?: Animation;
 }
 /**
  * Generated from @see "../messages/stats_showLess.notify.json"
@@ -583,13 +676,6 @@ export interface ConfirmBurnParams {
 }
 export interface ConfirmBurnResponse {
   action: "burn" | "none";
-}
-/**
- * Generated from @see "../messages/activity_getConfig.request.json"
- */
-export interface ActivityGetConfigRequest {
-  method: "activity_getConfig";
-  result: ActivityConfig;
 }
 /**
  * Generated from @see "../messages/activity_getData.request.json"
@@ -794,6 +880,54 @@ export interface NextStepsData {
   content: null | NextStepsCards;
 }
 /**
+ * Generated from @see "../messages/omnibar_getConfig.request.json"
+ */
+export interface OmnibarGetConfigRequest {
+  method: "omnibar_getConfig";
+  result: OmnibarConfig;
+}
+/**
+ * Generated from @see "../messages/omnibar_getSuggestions.request.json"
+ */
+export interface OmnibarGetSuggestionsRequest {
+  method: "omnibar_getSuggestions";
+  params: GetSuggestionsRequest;
+  result: SuggestionsData;
+}
+export interface GetSuggestionsRequest {
+  /**
+   * The search term to get suggestions for
+   */
+  term: string;
+}
+export interface SuggestionsData {
+  suggestions: {
+    topHits: Suggestion[];
+    duckduckgoSuggestions: Suggestion[];
+    localSuggestions: Suggestion[];
+  };
+}
+/**
+ * Generated from @see "../messages/protections_getConfig.request.json"
+ */
+export interface ProtectionsGetConfigRequest {
+  method: "protections_getConfig";
+  result: ProtectionsConfig;
+}
+/**
+ * Generated from @see "../messages/protections_getData.request.json"
+ */
+export interface ProtectionsGetDataRequest {
+  method: "protections_getData";
+  result: ProtectionsData;
+}
+export interface ProtectionsData {
+  /**
+   * Total number of trackers or ads blocked since install
+   */
+  totalCount: number;
+}
+/**
  * Generated from @see "../messages/rmf_getData.request.json"
  */
 export interface RmfGetDataRequest {
@@ -837,13 +971,6 @@ export interface BigTwoActionMessage {
   secondaryActionText: string;
 }
 /**
- * Generated from @see "../messages/stats_getConfig.request.json"
- */
-export interface StatsGetConfigRequest {
-  method: "stats_getConfig";
-  result: StatsConfig;
-}
-/**
  * Generated from @see "../messages/stats_getData.request.json"
  */
 export interface StatsGetDataRequest {
@@ -851,10 +978,6 @@ export interface StatsGetDataRequest {
   result: PrivacyStatsData;
 }
 export interface PrivacyStatsData {
-  /**
-   * Total number of trackers blocked since install
-   */
-  totalCount: number;
   trackerCompanies: TrackerCompany[];
 }
 export interface TrackerCompany {
@@ -866,13 +989,6 @@ export interface TrackerCompany {
  */
 export interface ActivityOnBurnCompleteSubscription {
   subscriptionEvent: "activity_onBurnComplete";
-}
-/**
- * Generated from @see "../messages/activity_onConfigUpdate.subscribe.json"
- */
-export interface ActivityOnConfigUpdateSubscription {
-  subscriptionEvent: "activity_onConfigUpdate";
-  params: ActivityConfig;
 }
 /**
  * Generated from @see "../messages/activity_onDataPatch.subscribe.json"
@@ -953,6 +1069,18 @@ export interface FavoritesOnDataUpdateSubscription {
   params: FavoritesData;
 }
 /**
+ * Generated from @see "../messages/favorites_onRefresh.subscribe.json"
+ */
+export interface FavoritesOnRefreshSubscription {
+  subscriptionEvent: "favorites_onRefresh";
+  params: FavoritesRefresh;
+}
+export interface FavoritesRefresh {
+  items: {
+    kind: "favicons";
+  }[];
+}
+/**
  * Generated from @see "../messages/freemiumPIRBanner_onDataUpdate.subscribe.json"
  */
 export interface FreemiumPIRBannerOnDataUpdateSubscription {
@@ -974,18 +1102,32 @@ export interface NextStepsOnDataUpdateSubscription {
   params: NextStepsData;
 }
 /**
+ * Generated from @see "../messages/omnibar_onConfigUpdate.subscribe.json"
+ */
+export interface OmnibarOnConfigUpdateSubscription {
+  subscriptionEvent: "omnibar_onConfigUpdate";
+  params: OmnibarConfig;
+}
+/**
+ * Generated from @see "../messages/protections_onConfigUpdate.subscribe.json"
+ */
+export interface ProtectionsOnConfigUpdateSubscription {
+  subscriptionEvent: "protections_onConfigUpdate";
+  params: ProtectionsConfig;
+}
+/**
+ * Generated from @see "../messages/protections_onDataUpdate.subscribe.json"
+ */
+export interface ProtectionsOnDataUpdateSubscription {
+  subscriptionEvent: "protections_onDataUpdate";
+  params: ProtectionsData;
+}
+/**
  * Generated from @see "../messages/rmf_onDataUpdate.subscribe.json"
  */
 export interface RmfOnDataUpdateSubscription {
   subscriptionEvent: "rmf_onDataUpdate";
   params: RMFData;
-}
-/**
- * Generated from @see "../messages/stats_onConfigUpdate.subscribe.json"
- */
-export interface StatsOnConfigUpdateSubscription {
-  subscriptionEvent: "stats_onConfigUpdate";
-  params: StatsConfig;
 }
 /**
  * Generated from @see "../messages/stats_onDataUpdate.subscribe.json"

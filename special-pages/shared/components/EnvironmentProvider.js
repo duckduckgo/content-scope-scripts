@@ -7,6 +7,8 @@ const EnvironmentContext = createContext({
     debugState: false,
     injectName: /** @type {import('../environment').Environment['injectName']} */ ('windows'),
     willThrow: false,
+    /** @type {keyof typeof import('../utils').translationsLocales} */
+    locale: 'en',
     /** @type {import('../environment').Environment['env']} */
     env: 'production',
 });
@@ -22,9 +24,17 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
  * @param {boolean} props.debugState - The flag indicating if debug state is enabled.
  * @param {ImportMeta['injectName']} [props.injectName] - The flag indicating if debug state is enabled.
  * @param {import('../environment').Environment['env']} [props.env] - The flag indicating production or development
+ * @param {keyof typeof import('../utils').translationsLocales} [props.locale] - The locale to use for the application
  * @param {boolean} [props.willThrow] - used to simulate a fatal exception
  */
-export function EnvironmentProvider({ children, debugState, env = 'production', willThrow = false, injectName = 'windows' }) {
+export function EnvironmentProvider({
+    children,
+    debugState,
+    env = 'production',
+    willThrow = false,
+    injectName = 'windows',
+    locale = 'en',
+}) {
     const [theme, setTheme] = useState(window.matchMedia(THEME_QUERY).matches ? 'dark' : 'light');
     const [isReducedMotion, setReducedMotion] = useState(window.matchMedia(REDUCED_MOTION_QUERY).matches);
 
@@ -70,6 +80,7 @@ export function EnvironmentProvider({ children, debugState, env = 'production', 
                 injectName,
                 willThrow,
                 env,
+                locale,
             }}
         >
             {children}
@@ -103,6 +114,10 @@ export function UpdateEnvironment({ search }) {
 
 export function useEnv() {
     return useContext(EnvironmentContext);
+}
+
+export function useLocale() {
+    return useContext(EnvironmentContext).locale;
 }
 
 export function WillThrow() {

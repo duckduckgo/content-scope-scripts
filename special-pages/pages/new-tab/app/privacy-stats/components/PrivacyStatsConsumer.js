@@ -1,8 +1,8 @@
 import { useContext } from 'preact/hooks';
 import { PrivacyStatsContext } from './PrivacyStatsProvider.js';
 import { h } from 'preact';
-import { PrivacyStats } from './PrivacyStats.js';
 import { useBodyExpansion } from './BodyExpansionProvider.js';
+import { PrivacyStats } from './PrivacyStats.js';
 
 /**
  * Use this when you want to render the UI from a context where
@@ -19,12 +19,10 @@ import { useBodyExpansion } from './BodyExpansionProvider.js';
  * ```
  */
 export function PrivacyStatsConsumer() {
-    const { state, toggle } = useContext(PrivacyStatsContext);
+    const { state } = useContext(PrivacyStatsContext);
     const secondaryExpansion = useBodyExpansion();
     if (state.status === 'ready') {
-        return (
-            <PrivacyStats expansion={state.config.expansion} secondaryExpansion={secondaryExpansion} data={state.data} toggle={toggle} />
-        );
+        return <PrivacyStats expansion={secondaryExpansion} trackerCompanies={state.data.trackerCompanies} />;
     }
     return null;
 }

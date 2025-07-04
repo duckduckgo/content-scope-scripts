@@ -1,13 +1,15 @@
 import { Fragment, h } from 'preact';
 import styles from './PrivacyStats.module.css';
 import { useTypedTranslationWith } from '../../types.js';
-import { useId, useMemo, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 import { ShowHideButtonPill } from '../../components/ShowHideButton.jsx';
 import { DDG_STATS_DEFAULT_ROWS, DDG_STATS_OTHER_COMPANY_IDENTIFIER } from '../constants.js';
 import { displayNameForCompany, sortStatsForDisplay } from '../privacy-stats.utils.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
-import { PrivacyStatsHeading } from './PrivacyStatsHeading.js';
 import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.js';
+import { ProtectionsEmpty } from '../../protections/components/Protections.js';
+import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
+import { useLocale } from '../../../../../shared/components/EnvironmentProvider';
 
 /**
  * @import enStrings from "../strings.json"
@@ -19,61 +21,12 @@ import { useBodyExpansion, useBodyExpansionApi } from './BodyExpansionProvider.j
 
 /**
  * @param {object} props
- * @param {Expansion} props.expansion
- * @param {Expansion} [props.secondaryExpansion="expanded"]
- * @param {PrivacyStatsData} props.data
- * @param {()=>void} props.toggle
- */
-export function PrivacyStats({ expansion = 'expanded', secondaryExpansion, data, toggle }) {
-    const expanded = expansion === 'expanded';
-
-    const { hasNamedCompanies, recent } = useMemo(() => {
-        let recent = 0;
-        let hasNamedCompanies = false;
-        for (let i = 0; i < data.trackerCompanies.length; i++) {
-            recent += data.trackerCompanies[i].count;
-            if (!hasNamedCompanies && data.trackerCompanies[i].displayName !== DDG_STATS_OTHER_COMPANY_IDENTIFIER) {
-                hasNamedCompanies = true;
-            }
-        }
-        return { hasNamedCompanies, recent };
-    }, [data.trackerCompanies]);
-
-    // see: https://www.w3.org/WAI/ARIA/apg/patterns/accordion/examples/accordion/
-    const WIDGET_ID = useId();
-    const TOGGLE_ID = useId();
-
-    const attrs = useMemo(() => {
-        return {
-            'aria-controls': WIDGET_ID,
-            id: TOGGLE_ID,
-        };
-    }, [WIDGET_ID, TOGGLE_ID]);
-
-    return (
-        <div class={styles.root}>
-            <PrivacyStatsHeading
-                recent={recent}
-                onToggle={toggle}
-                expansion={expansion}
-                canExpand={hasNamedCompanies}
-                buttonAttrs={attrs}
-            />
-            {hasNamedCompanies && expanded && (
-                <PrivacyStatsBody expansion={secondaryExpansion} trackerCompanies={data.trackerCompanies} id={WIDGET_ID} />
-            )}
-        </div>
-    );
-}
-
-/**
- * @param {object} props
  * @param {TrackerCompany[]} props.trackerCompanies
  * @param {Expansion} [props.expansion]
- * @param {string} props.id
  */
-export function PrivacyStatsBody({ trackerCompanies, expansion = 'expanded', id }) {
-    const [formatter] = useState(() => new Intl.NumberFormat());
+export function PrivacyStats({ trackerCompanies, expansion = 'expanded' }) {
+    const locale = useLocale();
+    const [formatter] = useState(() => getLocalizedNumberFormatter(locale));
     const sorted = sortStatsForDisplay(trackerCompanies);
     const largestTrackerCount = sorted[0]?.count ?? 0;
 
@@ -89,11 +42,17 @@ export function PrivacyStatsBody({ trackerCompanies, expansion = 'expanded', id 
         : sorted.slice(0, DDG_STATS_DEFAULT_ROWS);
 
     return (
-        <div id={id} data-testid="PrivacyStatsBody" class={styles.body}>
-            <CompanyList rows={visibleRows} largestTrackerCount={largestTrackerCount} formatter={formatter} />
-            <ListFooter all={sorted} />
+        <div class={styles.body}>
+            {sorted.length === 0 && <PrivacyStatsEmptyState />}
+            {sorted.length > 0 && <CompanyList rows={visibleRows} largestTrackerCount={largestTrackerCount} formatter={formatter} />}
+            {sorted.length > 0 && <ListFooter all={sorted} />}
         </div>
     );
+}
+
+export function PrivacyStatsEmptyState() {
+    const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
+    return <ProtectionsEmpty>{t('stats_noActivity')}</ProtectionsEmpty>;
 }
 
 /**
@@ -251,6 +210,10 @@ function PillShowMoreLess({ expansion }) {
  */
 export function OtherText({ count }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const otherText = t('stats_otherCount', { count: String(count) });
+    const locale = useLocale();
+    const [formatter] = useState(() => getLocalizedNumberFormatter(locale));
+    const formattedCount = formatter.format(count);
+
+    const otherText = t('stats_otherCount', { count: String(formattedCount) });
     return <div class={styles.otherTrackersRow}>{otherText}</div>;
 }

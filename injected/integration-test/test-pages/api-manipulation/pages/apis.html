@@ -89,6 +89,21 @@
             return result;
         });
 
+        test('Define property with define: true', async () => {
+            return [
+                {
+                    name: "Property defined by config (define: true)",
+                    result: window.definedByConfig,
+                    expected: "defined!"
+                },
+                {
+                    name: "Property not defined by config (define not set)",
+                    result: window.notDefinedByConfig,
+                    expected: undefined
+                }
+            ];
+        });
+
         // eslint-disable-next-line no-undef
         renderResults();
     </script>

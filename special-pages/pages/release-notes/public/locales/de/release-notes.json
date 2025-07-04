@@ -9,7 +9,7 @@
     }]
   },
   "browserReleaseNotes" : {
-    "title" : "Was gibt's Neues?",
+    "title" : "Versionshinweise",
     "note" : "Page title for the Browser Release Notes page showing what's new in the current release"
   },
   "versionNumber" : {
@@ -79,5 +79,21 @@
   "somethingWentWrong" : {
     "title" : "Etwas ist schiefgelaufen",
     "note" : "A message shown when the application experienced a crash"
+  },
+  "retryGettingReleaseNotes" : {
+    "title" : "Zusammenfassung neu laden",
+    "note" : "A button label that allows the user to retry getting the release notes after a loading error"
+  },
+  "loadingError" : {
+    "title" : "Fehler beim Laden der Update-Zusammenfassung",
+    "note" : "A message shown when the application experienced a loading error"
+  },
+  "thankyou" : {
+    "title" : "Vielen Dank, dass du dich für DuckDuckGo entschieden hast!",
+    "note" : "Subheader text for tag that appears above page header expressing gratitude for choosing DuckDuckGo"
+  },
+  "whatsNewAtDuckDuckGoLink" : {
+    "title" : "Sieh, woran wir sonst noch gearbeitet haben",
+    "note" : "Text for a link that opens the DuckDuckGo blog to show the latest news and updates"
   }
 }

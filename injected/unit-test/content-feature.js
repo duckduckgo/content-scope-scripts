@@ -295,6 +295,70 @@ describe('ContentFeature class', () => {
         me.callInit(args);
         expect(didRun).withContext('Should run').toBeTrue();
     });
+    it('Should respect minSupportedVersion as a condition', () => {
+        let didRun = false;
+        class MyTestFeature3 extends ContentFeature {
+            init() {
+                expect(this.getFeatureSetting('aiChat')).toBe('enabled');
+                expect(this.getFeatureSetting('subscriptions')).toBe('disabled');
+                didRun = true;
+            }
+        }
+
+        const args = {
+            site: {
+                domain: 'example.com',
+                url: 'http://example.com',
+            },
+            platform: {
+                version: '1.1.0',
+            },
+            bundledConfig: {
+                features: {
+                    test: {
+                        state: 'enabled',
+                        exceptions: [],
+                        settings: {
+                            aiChat: 'disabled',
+                            subscriptions: 'disabled',
+                            conditionalChanges: [
+                                {
+                                    condition: {
+                                        domain: 'example.com',
+                                        minSupportedVersion: '1.1.0',
+                                    },
+                                    patchSettings: [
+                                        {
+                                            op: 'replace',
+                                            path: '/aiChat',
+                                            value: 'enabled',
+                                        },
+                                    ],
+                                },
+                                {
+                                    condition: {
+                                        domain: 'example.com',
+                                        minSupportedVersion: '1.2.0',
+                                    },
+                                    patchSettings: [
+                                        {
+                                            op: 'replace',
+                                            path: '/subscriptions',
+                                            value: 'enabled',
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                },
+                unprotectedTemporary: [],
+            },
+        };
+        const me = new MyTestFeature3('test', {}, args);
+        me.callInit(args);
+        expect(didRun).withContext('Should run').toBeTrue();
+    });
 
     describe('addDebugFlag', () => {
         class MyTestFeature extends ContentFeature {

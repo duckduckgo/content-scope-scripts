@@ -41,6 +41,22 @@
     "title": "Dismiss",
     "note": "Button label text for an action that removes the widget from the screen."
   },
+  "protections_menuTitle": {
+    "title": "Protections Report",
+    "note": "Used as a label in the main navigation menu. 'Protections' refers to the privacy features that block trackers."
+  },
+  "protections_statsSwitchTitle": {
+    "title": "Summary",
+    "note": "Used as a label in a toggle switch that shows aggregated privacy statistics. This is one of two options in a view selector (the other is 'Details')."
+  },
+  "protections_activitySwitchTitle": {
+    "title": "Details",
+    "note": "Used as a label in a toggle switch that shows recent browsing activity with tracking information. This is one of two options in a view selector (the other is 'Summary')."
+  },
+  "protections_noRecent": {
+    "title": "No recent tracking activity",
+    "note": "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
+  },
   "stats_menuTitle": {
     "title": "Blocked Tracking Attempts",
     "note": "Used as a label in a customization menu"
@@ -108,6 +124,46 @@
   "stats_otherCount": {
     "title": "{count} attempts from other networks",
     "note": "An aggregated count of blocked entries not present in the main list. For example, '200 attempts from other networks'"
+  },
+  "omnibar_menuTitle": {
+    "title": "Search",
+    "description": "Title of the omnibar widget in the customizer panel."
+  },
+  "aiChatForm_placeholder": {
+    "title": "Chat privately with Duck.ai",
+    "description": "Placeholder text for the AI chat input field."
+  },
+  "aiChatForm_submitButtonLabel": {
+    "title": "Duck.ai chat",
+    "description": "Accesible label for the AI chat submit button."
+  },
+  "omnibar_logoAlt": {
+    "title": "DuckDuckGo",
+    "description": "Alt text for the DuckDuckGo logo."
+  },
+  "omnibar_tabSwitcherLabel": {
+    "title": "Search & Duck.ai tab switcher",
+    "description": "Accessible label for the tab switcher between search and AI modes."
+  },
+  "omnibar_searchTabLabel": {
+    "title": "Search",
+    "description": "Label for the search tab."
+  },
+  "omnibar_aiTabLabel": {
+    "title": "Duck.ai",
+    "description": "Label for the AI chat tab."
+  },
+  "searchForm_placeholder": {
+    "title": "Search or enter address",
+    "description": "Placeholder text for the search input field."
+  },
+  "searchForm_searchButtonLabel": {
+    "title": "Web search",
+    "description": "Accessible label for the web search submit button."
+  },
+  "searchForm_aiButtonLabel": {
+    "title": "Duck.ai",
+    "description": "Accessible label for the AI chat button in search form."
   },
   "nextSteps_sectionTitle": {
     "title": "Next Steps",
@@ -293,7 +349,7 @@
     "title": "No recent browsing activity",
     "note": "Placeholder to indicate that no browsing activity was seen in the last 7 days"
   },
-  "activity_noRecent_subtitle": {
+  "activity_empty": {
     "title": "Recently visited sites will appear here. Keep browsing to see how many trackers we block.",
     "note": "Shown in the place a list of browsing history entries will be displayed."
   },
@@ -314,16 +370,16 @@
     "note": "Shown in the place a list of browsing history entries will be displayed."
   },
   "activity_no_adsAndTrackers": {
-    "title": "No ads + Tracking attempts found",
+    "title": "No ads + tracking attempts found",
     "note": "Placeholder message indicating that no ads and trackers are detected"
   },
   "activity_no_adsAndTrackers_blocked": {
-    "title": "No ads + Tracking attempts blocked",
+    "title": "No ads + tracking attempts blocked",
     "note": "Placeholder message indicating that no ads and trackers are blocked"
   },
   "activity_countBlockedAdsAndTrackersPlural": {
-    "title": "<b>{count}</b> ads + Tracking attempts blocked",
-    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + Tracking attempts blocked'"
+    "title": "<b>{count}</b> ads + tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 ads + tracking attempts blocked'"
   },
   "activity_favoriteAdd": {
     "title": "Add {domain} to favorites",

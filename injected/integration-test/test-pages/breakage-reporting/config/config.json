@@ -1,4 +1,6 @@
 {
+  "readme": "This config is used to test the breakage reporting feature.",
+  "version": 1,
   "unprotectedTemporary": [],
   "features": {
     "breakageReporting": {

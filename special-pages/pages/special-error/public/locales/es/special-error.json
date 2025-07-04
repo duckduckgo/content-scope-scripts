@@ -33,7 +33,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "malwareWarningText" : {
-    "title" : "DuckDuckGo ha bloqueado esta página porque podría estar distribuyendo malware diseñado para comprometer tu dispositivo o robar tu información personal.{newline}<a>Más información</a>",
+    "title" : "El Scam Blocker de DuckDuckGo ha impedido que se cargue esta página porque es posible que distribuya malware diseñado para poner en peligro tu dispositivo o robar tu información personal.{newline}<a>Más información</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
@@ -45,7 +45,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "phishingWarningText" : {
-    "title" : "Este sitio web podría estar haciéndose pasar por un sitio legítimo con el fin de engañarte para que proporciones información personal, como contraseñas o números de tarjetas de crédito.{newline}<a>Más información</a>",
+    "title" : "El Scam Blocker de DuckDuckGo impidió que esta página se cargara, ya que podría estar haciéndose pasar por un sitio legítimo con el fin de engañarte y obtener información personal, como contraseñas o números de tarjetas de crédito.{newline}<a>Más información</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
@@ -57,7 +57,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "scamWarningText" : {
-    "title" : "DuckDuckGo ha bloqueado esta página porque podría estar intentando engañarte o manipularte para que transfieras dinero, compres productos falsificados o instales software malicioso bajo falsos argumentos.{newline}<a>Más información</a>",
+    "title" : "El Scam Blocker de DuckDuckGo ha impedido que se cargue esta página porque podría estar intentando engañarte o manipularte para que transfieras dinero, compres productos falsificados o instales malware bajo falsas argumentos.{newline}<a>Más información</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "scamAdvancedInfoHeading" : {

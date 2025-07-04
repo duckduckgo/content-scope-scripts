@@ -27,6 +27,26 @@
     },
     {
       "type": "object",
+      "title": "Release Notes loading Error State",
+      "description": "Error loading release notes from request",
+      "required": ["status", "currentVersion", "lastUpdate"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "const": "loadingError"
+        },
+        "currentVersion": {
+          "description": "Current version of the app",
+          "type": "string"
+        },
+        "lastUpdate": {
+          "description": "Timestamp of last check for version updates",
+          "type": "number"
+        }
+      }
+    },
+    {
+      "type": "object",
       "title": "Release Notes Loaded State",
       "description": "Release notes loaded. Browser is up-to-date",
       "required": ["status", "currentVersion", "latestVersion", "lastUpdate"],

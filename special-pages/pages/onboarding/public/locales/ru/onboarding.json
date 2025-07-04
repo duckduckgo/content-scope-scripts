@@ -344,6 +344,34 @@
     "title" : "Для быстрого запуска DuckDuckGo.",
     "note" : "Instructs the user to add DuckDuckGo to their taskbar by clicking Yes on a dialog screen."
   },
+  "row_placebo-ad-blocking_title_v3" : {
+    "title" : "Блокируйте еще больше рекламы",
+    "note" : "Title for the enhanced ad blocking setting."
+  },
+  "row_aggressive-ad-blocking_title_v3" : {
+    "title" : "Еще меньше рекламы, в том числе на YouTube",
+    "note" : "Title for the enhanced ad blocking setting."
+  },
+  "row_ad-blocking_desc_v3" : {
+    "title" : "Улучшенная функция блокировки останавливает еще больше рекламы.",
+    "note" : "Description for the enhanced ad blocking setting."
+  },
+  "row_ad-blocking_accept_v3" : {
+    "title" : "Включить расширенную блокировку рекламы",
+    "note" : "Button text to enable enhanced ad blocking."
+  },
+  "row_youtube-ad-blocking_title_v3" : {
+    "title" : "Смотреть YouTube без рекламы",
+    "note" : "Title for the YouTube ad blocking setting."
+  },
+  "row_youtube-ad-blocking_desc_v3" : {
+    "title" : "Никакой рекламы, только видео.",
+    "note" : "Description for the YouTube ad blocking setting."
+  },
+  "row_youtube-ad-blocking_accept_v3" : {
+    "title" : "Блокировать рекламу",
+    "note" : "Button text to enable YouTube ad blocking."
+  },
   "comparison_searchPrivately" : {
     "title" : "Конфиденциальный поиск по умолчанию",
     "note" : "The description of a browser privacy feature in the comparison table."
@@ -353,11 +381,11 @@
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockCookies" : {
-    "title" : "Блокирует запросы и всплывающие окна куки",
+    "title" : "Блокирует всплывающие окна куки",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_blockAds" : {
-    "title" : "Блокирует рекламу с отслеживанием",
+    "title" : "Блокировка целевой рекламы",
     "note" : "The description of a browser privacy feature in the comparison table."
   },
   "comparison_eraseData" : {
@@ -367,6 +395,10 @@
   "comparison_privateYoutube" : {
     "title" : "Позволяет смотреть YouTube без целевой рекламы",
     "note" : "The description of a browser privacy feature in the comparison table."
+  },
+  "comparison_youtubeAdFree" : {
+    "title" : "Смотреть YouTube без рекламы",
+    "note" : "The description of a browser privacy feature in the comparison table when ad-blocking is enabled."
   },
   "comparison_fullSupport" : {
     "title" : "Существенная защита",

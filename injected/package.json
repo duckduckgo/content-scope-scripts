@@ -3,7 +3,8 @@
   "scripts": {
     "postinstall": "npm run copy-sjcl",
     "copy-sjcl": "node scripts/generateSJCL.js",
-    "build": "npm run build-types && npm run build-locales && npm run bundle-trackers && npm run bundle-entry-points",
+    "checkout-submodules": "git submodule update --init --recursive --no-fetch",
+    "build": "npm run checkout-submodules && npm run build-types && npm run build-locales && npm run bundle-trackers && npm run bundle-entry-points",
     "bundle-config": "node scripts/bundleConfig.mjs",
     "bundle-entry-points": "node scripts/entry-points.js",
     "build-chrome-mv3": "node scripts/entry-points.js",
@@ -27,18 +28,20 @@
   "dependencies": {
     "parse-address": "^1.1.2",
     "seedrandom": "^3.0.5",
-    "sjcl": "^1.0.8"
+    "sjcl": "^1.0.8",
+    "minimist": "^1.2.8",
+    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#10be120b4630107863ef6ffa228ccabc831be1c2",
+    "esbuild": "^0.25.4",
+    "urlpattern-polyfill": "^10.1.0"
   },
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
-    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#b5c39e2b0592c044d609dfed624db31c3c5bca3b",
     "@fingerprintjs/fingerprintjs": "^4.6.2",
-    "@types/chrome": "^0.0.315",
-    "@types/jasmine": "^5.1.7",
-    "@types/node": "^22.14.1",
-    "@typescript-eslint/eslint-plugin": "^8.20.0",
+    "@types/chrome": "^0.0.326",
+    "@types/jasmine": "^5.1.8",
+    "@types/node": "^24.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
     "fast-check": "^4.1.1",
-    "jasmine": "^5.7.1",
-    "minimist": "^1.2.8"
+    "jasmine": "^5.7.1"
   }
 }
