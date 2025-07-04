@@ -1,11 +1,13 @@
 build/**/*
 docs/**/*
+!injected/docs/**/*
 injected/src/types
 special-pages/pages/**/types
 injected/integration-test/extension/contentScope.js
 injected/src/features/Scriptlets
 **/*.json
 **/*.md
+!injected/docs/**/*.md
 **/*.html
 **/*.har
 **/*.css

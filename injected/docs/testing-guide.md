@@ -16,12 +16,15 @@ npm test
 ## Individual Test Commands
 
 ### ESLint
+
 See root-level package for lint commands
 
 ### TypeScript
+
 See root-level package for TypeScript commands
 
 ### Unit Tests (Jasmine)
+
 Everything for unit-testing is located in the `unit-test` folder. Jasmine configuration is in `unit-test/jasmine.json`.
 
 ```shell
@@ -29,6 +32,7 @@ npm run test-unit
 ```
 
 ### Feature Integration Tests (Playwright)
+
 Everything within `integration-test` is integration tests controlled by Playwright.
 
 ```shell
@@ -36,6 +40,7 @@ npm run test-int
 ```
 
 ### Feature Build Process
+
 To produce all artefacts that are used by platforms, just run the `npm run build` command. This will create platform specific code within the `build` folder (that is not checked in).
 
 ```shell

@@ -7,14 +7,17 @@ The [injected/entry-points/](https://github.com/duckduckgo/content-scope-scripts
 ## Platform-Specific Implementation Details
 
 ### Firefox
+
 The code is loaded as a standard extension content script.
 
 ### Apple, Windows, and Android
+
 The code is a UserScript that has some string replacements for properties and loads in as the page scope.
 
 > **Note**: Currently we don't implement the update calls as it's only required by cookie protections which we don't implement.
 
 ### All Other Browsers
+
 The code is stringified, base64 encoded and injected in as a self deleting `<script>` tag.
 
 In the built output you will see these dramatic differences in the bundled code which is created into: `/build`
@@ -26,11 +29,11 @@ The following placeholders are replaced during the build process:
 - **`$CONTENT_SCOPE$`** - Raw remote config object
 - **`$USER_UNPROTECTED_DOMAINS$`** - An array of user allowlisted domains
 - **`$USER_PREFERENCES$`** - An object containing:
-  - `platform`: `{ name: '<ios | macos | extension | android>' }`
-  - `debug`: boolean
-  - `globalPrivacyControlValue`: boolean
-  - `sessionKey`: `<CSRNG UUID 4 string>` (used for fingerprinting) - this should regenerate on browser close or every 24 hours
-  - `features`: `[<string feature names>]`
+    - `platform`: `{ name: '<ios | macos | extension | android>' }`
+    - `debug`: boolean
+    - `globalPrivacyControlValue`: boolean
+    - `sessionKey`: `<CSRNG UUID 4 string>` (used for fingerprinting) - this should regenerate on browser close or every 24 hours
+    - `features`: `[<string feature names>]`
 
 ## Adding a New Platform
 
@@ -60,7 +63,7 @@ In your platform code:
 Inject the generated file into the page context of the website whilst replacing the placeholders with the relevant data:
 
 - **`$CONTENT_SCOPE$`** - Raw remote config object
-- **`$USER_UNPROTECTED_DOMAINS$`** - Array of user allowlisted domains  
+- **`$USER_UNPROTECTED_DOMAINS$`** - Array of user allowlisted domains
 - **`$USER_PREFERENCES$`** - Platform configuration object (see macOS integration for details)
 
 These should be passed into `processConfig` to make the data match the extension format.
@@ -79,5 +82,5 @@ Check that relevant Privacy Features are working as expected:
 - **Referrer trimming**: [Referrer Header Trimming Implementation Guidelines](https://app.asana.com/1/137249556945/project/1198207348643509/task/1200339587157290?focus=true)
 - **Fingerprint protection**: [Fingerprint Protection Implementation Guidelines](https://app.asana.com/1/137249556945/project/1198207348643509/task/1200511341201907?focus=true)
 - **Cookie protection**:
-  - [Block Third Party Tracking Cookies Implementation Guidelines](https://app.asana.com/1/137249556945/project/1198207348643509/task/1200539099112751?focus=true)
-  - [Expire First Party Script Cookies Implementation Guidelines](https://app.asana.com/1/137249556945/project/1198207348643509/task/1200364574828671?focus=true) 
+    - [Block Third Party Tracking Cookies Implementation Guidelines](https://app.asana.com/1/137249556945/project/1198207348643509/task/1200539099112751?focus=true)
+    - [Expire First Party Script Cookies Implementation Guidelines](https://app.asana.com/1/137249556945/project/1198207348643509/task/1200364574828671?focus=true)
