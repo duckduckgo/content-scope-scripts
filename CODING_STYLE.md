@@ -28,6 +28,11 @@ npm run format:check
 
 We use JSDoc comments to provide TypeScript-like type safety without requiring a TypeScript compilation step.
 
+### JSDoc Resources
+
+- https://devhints.io/jsdoc
+- https://docs.joshuatz.com/cheatsheets/js/jsdoc/
+
 ### Basic JSDoc Usage
 
 ```javascript
