@@ -19,6 +19,29 @@ Recomputes the site object for the feature, e.g. when the URL has changed
 
 The `ConfigFeature` class is also exportable and can be used by other scripts to build C-S-S like features that can handle remote configuration - currently used in [autofill.js](https://github.com/duckduckgo/duckduckgo-autofill/blob/main/src/site-specific-feature.js) to handle site specific autofill rules.
 
+## Implementing a New Feature
+
+### 1. Create Feature File
+
+Create a new content scope features file in [src/features/](../src/features).
+
+### 2. Register the Feature
+
+Add the feature name to the [content-scope-features.js](../src/features.js) array.
+
+### 3. Add Debug Flags
+
+Add breakage debug flags at appropriate places by calling `ContentFeature.addDebugFlag()`. This will help identify anomalies in breakage reports.
+
+### 4. Write Tests
+
+- **Unit tests**: Should be platform agnostic
+- **Integration tests**: Should be platform agnostic and run in the platform also
+
+### 5. Follow Process Guidelines
+
+See the [Draft] New web feature guide for the complete development process.
+
 ## Features Lifecycle
 
 There are three stages that the content scope code is hooked into the platform:
