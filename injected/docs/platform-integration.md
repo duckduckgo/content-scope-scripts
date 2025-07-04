@@ -4,6 +4,36 @@
 
 The [injected/entry-points/](https://github.com/duckduckgo/content-scope-scripts/tree/main/injected/entry-points) directory handles platform specific differences and is glue code into calling the contentScopeFeatures API.
 
+## Browser Compatibility
+
+The following is a guideline for when using native JavaScript syntax or built-in global DOM objects. Testing is always advised, but code authors might be unable to replicate the code on the correct application environments (due to hardware or an updated local environment).
+
+### Minimum Supported Engines
+
+#### iOS
+- **Safari 14** (minimum)
+- **Minimum support**: iOS 14 - [Review supported device and iOS versions](https://support.apple.com/en-us/102662)
+- **Engine**: WKWebView should behave like Safari 14 as this is the native engine
+
+#### macOS
+- **Safari 14** (minimum)
+- **Minimum support**: Catalina (potentially Safari 14 is native engine in non-updated device)
+- **Engine**: WKWebView should behave like Safari 14
+
+#### Android
+- **Android 23** (minimum) - [Product feedback request: Android - min supported version](https://app.asana.com/1/137249556945/project/908478224964033/task/1209367367171662?focus=true)
+- **Chrome 80+** (minimum)
+- **Reference**: See [pixel dashboard](https://app.asana.com/1/137249556945/project/908478224964033/task/1209367367171662?focus=true)
+
+#### Windows
+- **Edge-based** behavior expected
+- **Minimum**: Chrome 83 (if client has disabled all updates)
+- **Reference**: [Windows Browser: Minimum specs](https://app.asana.com/1/137249556945/project/908478224964033/task/1209367367171662?focus=true)
+
+#### Extensions
+- **Chrome**: Version 96+ - [Chrome manifest reference](https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/249d8d6ebe38b9b8265ba311909c8971c422122c/browsers/chrome/manifest.json#L6)
+- **Firefox**: Version 91+ - [Firefox manifest reference](https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/249d8d6ebe38b9b8265ba311909c8971c422122c/browsers/firefox/manifest.json#L6)
+
 ## Platform-Specific Implementation Details
 
 ### Firefox

@@ -6,7 +6,7 @@ When asked about Content Scope Scripts topics, refer to these documentation file
 
 - **API Reference**: `injected/docs/api-reference.md`
 - **Feature Development**: `injected/docs/features-guide.md`
-- **Platform Integration**: `injected/docs/platform-integration.md`
+- **Platform Integration and engine support**: `injected/docs/platform-integration.md`
 - **Development Utilities**: `injected/docs/development-utilities.md`
 - **Testing**: `injected/docs/testing-guide.md`
 - **Favicon**: `injected/docs/favicon.md`
