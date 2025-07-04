@@ -170,3 +170,13 @@ test.describe('Duck Player Native custom error view', () => {
         await duckPlayer.didShowUnknownError();
     });
 });
+
+test.describe('Reporting exceptions', () => {
+    test('initial setup error', async ({ page }, workerInfo) => {
+        const duckPlayer = DuckPlayerNative.create(page, workerInfo);
+        await duckPlayer.withRemoteConfig();
+        await duckPlayer.messagingError();
+        await duckPlayer.gotoBlankPage();
+        await duckPlayer.didSendMessagingException();
+    });
+});

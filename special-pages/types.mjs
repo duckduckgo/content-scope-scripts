@@ -29,6 +29,17 @@ for (const pageListElement of pageList) {
     };
 }
 
+/* Shared types */
+specialPagesTypes.shared = {
+    schemaDir: join(specialPagesRoot, 'shared', 'messages'),
+    typesDir: join(specialPagesRoot, 'shared', 'types'),
+    exclude: process.platform === 'win32',
+    kind: 'single',
+    resolve: (_dirname) => '../src/index.js',
+    className: () => null,
+    filename: `shared.ts`,
+};
+
 if (isLaunchFile(import.meta.url)) {
     buildTypes(specialPagesTypes).catch((error) => {
         console.error(error);

@@ -333,6 +333,20 @@ test.describe('reporting exceptions', () => {
         // load as normal
         await duckplayer.openWithException();
         await duckplayer.showsErrorMessage();
+        await duckplayer.didSendException('Error', 'Simulated Exception');
+    });
+    test('no embed error', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        // load as normal
+        await duckplayer.openWithNoEmbed();
+        await duckplayer.didSendException('InitError', 'Embed not found');
+    });
+    test('initial setup error', async ({ page }, workerInfo) => {
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        // load as normal
+        duckplayer.messagingError();
+        await duckplayer.openWithVideoID();
+        await duckplayer.didSendMessagingException();
     });
 });
 
