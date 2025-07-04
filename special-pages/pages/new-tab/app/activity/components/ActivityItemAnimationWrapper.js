@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useRef } from 'preact/hooks';
+import { useContext, useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { ActivityBurningSignalContext } from '../../burning/BurnProvider.js';
 import { useComputed } from '@preact/signals';
 import cn from 'classnames';
@@ -20,7 +20,7 @@ const BurnAnimationLazy = lazy(() => import('../../burning/BurnAnimationLottieWe
  */
 export function ActivityItemAnimationWrapper({ children, url }) {
     const ref = useRef(/** @type {HTMLDivElement|null} */ (null));
-    const { exiting, burning } = useContext(ActivityBurningSignalContext);
+    const { exiting, burning, showBurnAnimation, doneBurning } = useContext(ActivityBurningSignalContext);
     const isBurning = useComputed(() => burning.value.some((x) => x === url));
     const isExiting = useComputed(() => exiting.value.some((x) => x === url));
 
@@ -67,11 +67,17 @@ export function ActivityItemAnimationWrapper({ children, url }) {
     return (
         <div class={cn(styles.anim, isBurning.value && styles.burning)} ref={ref}>
             {!isExiting.value && children}
-            {!isExiting.value && isBurning.value && (
+            {!isExiting.value && isBurning.value && showBurnAnimation && (
                 <Suspense fallback={null}>
-                    <BurnAnimationLazy url={url} />
+                    <BurnAnimationLazy url={url} doneBurning={doneBurning} />
                 </Suspense>
             )}
+            {!isExiting.value && isBurning.value && !showBurnAnimation && <NullBurner url={url} doneBurning={doneBurning} />}
         </div>
     );
+}
+
+function NullBurner({ url, doneBurning }) {
+    useEffect(() => doneBurning(url), [url]);
+    return null;
 }

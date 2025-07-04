@@ -556,6 +556,10 @@ export interface ProtectionsSetConfigNotification {
 export interface ProtectionsConfig {
   expansion: Expansion;
   feed: FeedType;
+  /**
+   * Boolean flag to explicitly enable or disable the burn animations
+   */
+  showBurnAnimation?: boolean;
 }
 /**
  * Generated from @see "../messages/reportInitException.notify.json"
