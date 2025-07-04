@@ -34,4 +34,32 @@ There are three stages that the content scope code is hooked into the platform:
 
 ### `update`
 - This allows the feature to be sent updates from the browser
-- If this is triggered before init, these updates will be queued and triggered straight after 
+- If this is triggered before init, these updates will be queued and triggered straight after
+
+## Debug and Breakage Management
+
+### Debug Implementation
+
+When developing features that modify web pages, add debug flags at appropriate times to help identify anomalies in breakage reports:
+
+```javascript
+ContentFeature.addDebugFlag()
+```
+
+### Breakage Understanding
+
+**Key principles for feature development:**
+- Breakage is unpredictable - expect it rather than hope for the best
+- Exposing features to the web platform can have permanent impact
+- Removing features that pages depend on is difficult
+- Any web page modification impacts performance or security
+- Modifications to `window` or other globals should be avoided (pages could define same names)
+
+### Remote Configuration
+
+All features that modify web pages should use Privacy Remote Configuration where feasible. This allows:
+- Mitigating breakage remotely
+- Adjusting and disabling feature behavior without browser updates
+- Monitoring and controlling feature rollout
+
+The `ConfigFeature` class provides the infrastructure for this through `getFeatureSettingEnabled()` and `getFeatureSetting()` methods.

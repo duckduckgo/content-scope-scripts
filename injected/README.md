@@ -61,4 +61,8 @@ npm run build        # Build platform-specific artifacts
 
 ---
 
+## Third-Party Libraries
+We make use of the following submodules:
+- [Adguard Scriptlets](https://github.com/AdguardTeam/Scriptlets) 
+
 For detailed information about any specific topic, please refer to the [documentation](./docs/).
