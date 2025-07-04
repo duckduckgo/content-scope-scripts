@@ -132,7 +132,7 @@ export class WebCompat extends ContentFeature {
         }
         // if (this.getFeatureSettingEnabled('deviceEnumeration')) {
             this.deviceEnumerationFix();
-        //}
+        // }
     }
 
     /** Shim Web Share API in Android WebView */
@@ -761,6 +761,9 @@ export class WebCompat extends ContentFeature {
         }
     }
 
+    /**
+     * Prevents device enumeration by returning an empty array when enabled
+     */
     preventDeviceEnumeration() {
         if (!window.MediaDevices) {
             return;
@@ -774,6 +777,9 @@ export class WebCompat extends ContentFeature {
         }
         if (disableDeviceEnumeration) {
             const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
+                /**
+                 * @returns {Promise<MediaDeviceInfo[]>}
+                 */
                 apply() {
                     return Promise.resolve([]);
                 },
@@ -782,49 +788,66 @@ export class WebCompat extends ContentFeature {
         }
     }
 
+    /**
+     * Creates a valid MediaDeviceInfo object with required toJSON method
+     * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
+     * @returns {MediaDeviceInfo}
+     */
+    createMediaDeviceInfo(kind) {
+        return {
+            deviceId: 'default',
+            kind: kind,
+            label: '',
+            groupId: 'default-group',
+            toJSON() {
+                return {
+                    deviceId: this.deviceId,
+                    kind: this.kind,
+                    label: this.label,
+                    groupId: this.groupId
+                };
+            }
+        };
+    }
+
+    /**
+     * Fixes device enumeration to handle permission prompts gracefully
+     */
     deviceEnumerationFix() {
         if (!window.MediaDevices) {
             return;
         }
 
         const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
+            /**
+             * @param {MediaDevices['enumerateDevices']} target
+             * @param {MediaDevices} thisArg
+             * @param {Parameters<MediaDevices['enumerateDevices']>} args
+             * @returns {Promise<MediaDeviceInfo[]>}
+             */
             apply: async (target, thisArg, args) => {
                 try {
-                    debugger;
                     // Request device enumeration information from native
+                    /** @type {{willPrompt: boolean, videoInput: boolean, audioInput: boolean, audioOutput: boolean}} */
                     const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
 
                     // Check if native indicates that prompts would be required
                     if (response.willPrompt) {
                         // If prompts would be required, return a manipulated response
                         // that includes the device types that are available
+                        /** @type {MediaDeviceInfo[]} */
                         const devices = [];
 
                         if (response.videoInput) {
-                            devices.push({
-                                deviceId: 'default',
-                                kind: 'videoinput',
-                                label: '',
-                                groupId: 'default-group',
-                            });
+                            devices.push(this.createMediaDeviceInfo('videoinput'));
                         }
 
                         if (response.audioInput) {
-                            devices.push({
-                                deviceId: 'default',
-                                kind: 'audioinput',
-                                label: '',
-                                groupId: 'default-group',
-                            });
+                            devices.push(this.createMediaDeviceInfo('audioinput'));
                         }
 
                         if (response.audioOutput) {
-                            devices.push({
-                                deviceId: 'default',
-                                kind: 'audiooutput',
-                                label: '',
-                                groupId: 'default-group',
-                            });
+                            devices.push(this.createMediaDeviceInfo('audiooutput'));
                         }
 
                         return Promise.resolve(devices);
