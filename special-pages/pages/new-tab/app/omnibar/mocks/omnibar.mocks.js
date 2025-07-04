@@ -27,15 +27,6 @@ const pizzaRelatedData = {
 };
 
 /**
- * @param {string} text
- * @param {string} searchTerm
- * @returns {boolean}
- */
-function containsIgnoreCase(text, searchTerm) {
-    return text.toLowerCase().includes(searchTerm.toLowerCase());
-}
-
-/**
  * @param {string} term
  * @return {import("../../../types/new-tab").SuggestionsData}
  */
@@ -48,7 +39,7 @@ export function getMockSuggestions(term) {
                 .map((phrase) => ({
                     kind: /** @type {const} */ ('phrase'),
                     phrase,
-                    score: 95 + Math.floor(Math.random() * 5),
+                    score: random(95, 99),
                 })),
             duckduckgoSuggestions: [
                 ...pizzaRelatedData.websites
@@ -59,7 +50,7 @@ export function getMockSuggestions(term) {
                         title: website,
                         url: website,
                         isFavorite: index === 0,
-                        score: 95 + Math.floor(Math.random() * 5),
+                        score: random(95, 99),
                     })),
                 ...pizzaRelatedData.phrases
                     .filter((phrase) => containsIgnoreCase(phrase, term))
@@ -81,8 +72,26 @@ export function getMockSuggestions(term) {
                     kind: /** @type {const} */ ('historyEntry'),
                     title,
                     url: `https://example.com/search?q=${encodeURIComponent(title)}`,
-                    score: 80 + Math.floor(Math.random() * 10),
+                    score: random(80, 89),
                 })),
         },
     };
+}
+
+/**
+ * @param {string} text
+ * @param {string} searchTerm
+ * @returns {boolean}
+ */
+function containsIgnoreCase(text, searchTerm) {
+    return text.toLowerCase().includes(searchTerm.toLowerCase());
+}
+
+/**
+ * @param {number} min
+ * @param {number} max
+ * @returns {number}
+ */
+function random(min, max) {
+    return min + Math.floor(Math.random() * (max - min + 1));
 }
