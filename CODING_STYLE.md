@@ -18,10 +18,10 @@ We use [Prettier](https://prettier.io/) for automatic code formatting. This ensu
 
 ```bash
 # Format all files
-npm run format
+npm run lint-fix
 
 # Check formatting (without making changes)
-npm run format:check
+npm run lint
 ```
 
 ## TypeScript via JSDoc
