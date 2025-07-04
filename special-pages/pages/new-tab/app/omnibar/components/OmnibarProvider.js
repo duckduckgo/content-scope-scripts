@@ -9,8 +9,7 @@ import { OmnibarService } from '../omnibar.service.js';
  * @typedef {import('../../../types/new-tab.js').SuggestionsData} SuggestionsData
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
- * @typedef {import('../../service.hooks.js').State<null, OmnibarConfig>} State // @todo: could this be never?
- * @typedef {import('../../service.hooks.js').Events<null, OmnibarConfig>} Events // @todo: could this be never?
+ * @typedef {import('../../service.hooks.js').State<null, OmnibarConfig>} State
  */
 
 /**
@@ -25,6 +24,10 @@ export const OmnibarContext = createContext({
     },
     /** @type {(term: string) => Promise<SuggestionsData>} */
     getSuggestions: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(cb: (data: SuggestionsData) => void) => (() => void)} */
+    onSuggestions: () => {
         throw new Error('must implement');
     },
     /** @type {(params: {suggestion: Suggestion, target: OpenTarget}) => void} */
@@ -84,6 +87,15 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(cb: (data: SuggestionsData) => void) => (() => void)} */
+    const onSuggestions = useCallback(
+        (cb) => {
+            if (!service.current) throw new Error('Service not available');
+            return service.current.onSuggestions(cb);
+        },
+        [service],
+    );
+
     /** @type {(params: {suggestion: Suggestion, target: OpenTarget}) => void} */
     const openSuggestion = useCallback(
         (params) => {
@@ -114,6 +126,7 @@ export function OmnibarProvider(props) {
                 state,
                 setMode,
                 getSuggestions,
+                onSuggestions,
                 openSuggestion,
                 submitSearch,
                 submitChat,
