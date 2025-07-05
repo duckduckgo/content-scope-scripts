@@ -1,25 +1,25 @@
 /**
  *  Tests for shared pages.
  *  Note: these only run in the extension setup for now.
- * 
+ *
  *  IMPORTANT TESTING GUIDELINES:
- * 
+ *
  *  1. AVOID CUSTOM STATE IN SPEC FILES:
- *     It's unadvisable to add custom state for tests directly in .spec.js files as it makes 
- *     validation difficult and reduces test reliability. If custom state is absolutely required, 
- *     ensure this is clearly explained in the corresponding test HTML file with detailed 
+ *     It's unadvisable to add custom state for tests directly in .spec.js files as it makes
+ *     validation difficult and reduces test reliability. If custom state is absolutely required,
+ *     ensure this is clearly explained in the corresponding test HTML file with detailed
  *     comments about what state is being set and why it's necessary.
- * 
+ *
  *  2. PLATFORM CONFIGURATION:
- *     The 'Platform' parameter can be passed as an argument to testPage() to simulate different 
+ *     The 'Platform' parameter can be passed as an argument to testPage() to simulate different
  *     platform environments. This is demonstrated in the min-supported-version tests:
  *     - minSupportedVersion (string): Uses { version: '1.5.0' }
  *     - minSupportedVersion (int): Uses { version: 99 }
- *     
- *     This is needed when testing features that have platform-specific behavior or version 
- *     requirements. The platform object allows testing how features behave under different 
+ *
+ *     This is needed when testing features that have platform-specific behavior or version
+ *     requirements. The platform object allows testing how features behave under different
  *     version constraints without modifying the core test infrastructure.
- * 
+ *
  *  3. CONFIG-DRIVEN TESTING:
  *     Where possible, prefer purely config-driven testing to validate features. This approach:
  *     - Makes tests more maintainable and readable

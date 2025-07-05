@@ -29,21 +29,27 @@ injected/integration-test/test-pages/
 ### Key Components
 
 #### 1. Test Pages (`pages/*.html`)
+
 Individual HTML pages that implement specific test scenarios. Each page:
+
 - Loads the Content Scope Scripts
 - Defines test cases using the `test()` function
 - Validates expected outcomes against actual results
 - Renders results in a standardized format
 
 #### 2. Configuration Files (`config/*.json`)
+
 JSON files that define feature configurations for testing:
+
 - Feature states (enabled/disabled)
 - Settings and parameters
 - Conditional logic and exceptions
 - Platform-specific configurations
 
 #### 3. Shared Utilities (`shared/utils.js`)
+
 Provides the testing framework:
+
 - `test(name, testFunction)` - Define test cases
 - `renderResults()` - Execute tests and display results
 - Result collection and validation
@@ -64,31 +70,31 @@ Provides the testing framework:
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Conditional Matching Test</title>
-    <link rel="stylesheet" href="../../shared/style.css">
-</head>
-<body>
-    <script src="../../shared/utils.js"></script>
-    
-    <script>
-        test('Conditional matching', async () => {
-            const results = [
-                {
-                    name: "APIs changing, expecting to always match",
-                    result: navigator.hardwareConcurrency,
-                    expected: 222
-                }
-            ];
-            
-            // Test logic here...
-            
-            return results;
-        });
+    <head>
+        <title>Conditional Matching Test</title>
+        <link rel="stylesheet" href="../../shared/style.css" />
+    </head>
+    <body>
+        <script src="../../shared/utils.js"></script>
 
-        renderResults();
-    </script>
-</body>
+        <script>
+            test('Conditional matching', async () => {
+                const results = [
+                    {
+                        name: 'APIs changing, expecting to always match',
+                        result: navigator.hardwareConcurrency,
+                        expected: 222,
+                    },
+                ];
+
+                // Test logic here...
+
+                return results;
+            });
+
+            renderResults();
+        </script>
+    </body>
 </html>
 ```
 
@@ -153,13 +159,14 @@ The test framework automatically handles platform differences through the `Resul
 ### Local Development
 
 1. **Start the test server**:
-   ```bash
-   npm run serve
-   ```
+
+    ```bash
+    npm run serve
+    ```
 
 2. **Access test pages**:
-   - Navigate to `http://localhost:3220/` for the main index
-   - Browse to specific test categories and pages
+    - Navigate to `http://localhost:3220/` for the main index
+    - Browse to specific test categories and pages
 
 ### CI Integration
 
@@ -184,9 +191,11 @@ See [pages.spec.js](../integration-test/pages.spec.js) for complete CI test exam
 When writing integration tests, follow these important guidelines:
 
 ### 1. Avoid Custom State in Spec Files
+
 It's unadvisable to add custom state for tests directly in `.spec.js` files as it makes validation difficult and reduces test reliability. If custom state is absolutely required, ensure this is clearly explained in the corresponding test HTML file with detailed comments about what state is being set and why it's necessary.
 
 ### 2. Platform Configuration
+
 The `Platform` parameter can be passed to test functions to simulate different platform environments. This is demonstrated in the min-supported-version tests in [pages.spec.js](../integration-test/pages.spec.js):
 
 - `minSupportedVersion (string)`: Uses `{ version: '1.5.0' }`
@@ -195,7 +204,9 @@ The `Platform` parameter can be passed to test functions to simulate different p
 This is needed when testing features that have platform-specific behavior or version requirements. The platform object allows testing how features behave under different version constraints without modifying the core test infrastructure.
 
 ### 3. Config-Driven Testing
+
 Where possible, prefer purely config-driven testing to validate features. This approach:
+
 - Makes tests more maintainable and readable
 - Reduces coupling between test logic and implementation details
 - Allows for easier test data management and updates
@@ -206,11 +217,13 @@ For detailed testing guidelines and examples, see the [IMPORTANT TESTING GUIDELI
 ## Interactive and Automation Modes
 
 ### Interactive Mode
+
 - When the test page is loaded **without** `?automation=true` in the URL, a **"Run Tests" button** appears at the top of the page.
 - This allows a human tester or a platform test harness to decide when to start the tests, rather than running them immediately on page load.
 - Clicking the button will execute all defined tests and display the results.
 
 ### Automation Mode
+
 - When the test page is loaded **with** `?automation=true` in the URL, tests will run automatically as soon as the Content Scope Scripts are initialized.
 - This is used for CI and automated testing environments.
 - Tests wait for Content Scope Scripts initialization
@@ -258,21 +271,20 @@ When creating a new feature directory in the test pages system, it's best practi
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <title>Feature Name</title>
-</head>
-<body>
-<p><a href="../index.html">[Home]</a></p>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Feature Name</title>
+    </head>
+    <body>
+        <p><a href="../index.html">[Home]</a></p>
 
-<p>Feature Name</p>
-<ul>
-    <li><a href="./pages/test-page-1.html">Test Page 1</a></li>
-    <li><a href="./pages/test-page-2.html">Test Page 2</a></li>
-</ul>
-
-</body>
+        <p>Feature Name</p>
+        <ul>
+            <li><a href="./pages/test-page-1.html">Test Page 1</a></li>
+            <li><a href="./pages/test-page-2.html">Test Page 2</a></li>
+        </ul>
+    </body>
 </html>
 ```
 
