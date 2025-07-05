@@ -131,6 +131,8 @@ Provides the testing framework:
 }
 ```
 
+**Tip**: The `apiManipulation` feature is particularly useful for testing config conditions because it modifies browser APIs in predictable ways. You can use it to validate that conditional logic, URL patterns, and other config conditions are being applied correctly by checking if the expected API values are returned.
+
 ## Platform Integration
 
 ### Cross-Platform Testing
@@ -144,60 +146,7 @@ The test pages are designed to work across multiple platforms:
 
 ### Platform-Specific Handling
 
-The `ResultsCollector` class handles platform differences:
-
-```javascript
-// Platform-specific setup
-await this.build.switch({
-    windows: async () => {
-        await this.page.addInitScript(windowsGlobalPolyfills);
-    },
-    apple: async () => {
-        // WebKit-specific setup
-    },
-    android: async () => {
-        // Android-specific setup
-    }
-});
-```
-
-## Available Test Categories
-
-### 1. Infrastructure Tests (`infra/`)
-- **Conditional Matching**: Tests URL-based conditional feature activation
-- **Version Support**: Tests minimum supported version logic
-- **API Manipulation**: Tests browser API modifications
-
-### 2. Duck Player Tests (`duckplayer/`)
-- **Overlays**: Tests video player overlay functionality
-- **Player Integration**: Tests player component behavior
-- **Thumbnail Handling**: Tests video thumbnail modifications
-
-### 3. Broker Protection Tests (`broker-protection/`)
-- **Form Filling**: Tests automated form interaction
-- **Profile Extraction**: Tests user profile data collection
-- **Action Execution**: Tests broker protection actions
-
-### 4. API Manipulation Tests (`api-manipulation/`)
-- **Browser APIs**: Tests modification of browser APIs
-- **Message Handlers**: Tests communication between components
-
-### 5. Web Compatibility Tests (`webcompat/`)
-- **Shims**: Tests compatibility shims
-- **Storage**: Tests localStorage and cookie modifications
-- **HTTPS Upgrades**: Tests secure connection enforcement
-
-### 6. Message Bridge Tests (`message-bridge/`)
-- **Communication**: Tests message passing between components
-- **Feature Toggles**: Tests feature enable/disable functionality
-
-### 7. Autofill Tests (`autofill-password-import/`)
-- **Password Import**: Tests password manager integration
-- **Form Detection**: Tests automatic form detection and filling
-
-### 8. Breakage Reporting Tests (`breakage-reporting/`)
-- **Error Detection**: Tests detection and reporting of site breakages
-- **User Feedback**: Tests user reporting mechanisms
+The test framework automatically handles platform differences through the `ResultsCollector` class, which applies appropriate setup and polyfills for each platform during test execution.
 
 ## Running Tests
 
@@ -214,7 +163,7 @@ await this.build.switch({
 
 ### CI Integration
 
-Tests are automatically run in CI environments:
+Tests are ran in CI environments:
 
 ```javascript
 // Example CI test
@@ -228,18 +177,11 @@ test('Test infra', async ({ page }, testInfo) => {
 });
 ```
 
-### Automation Mode
-
-Test pages support automation mode for CI:
-
-- Add `?automation=true` to URL
-- Tests wait for Content Scope Scripts initialization
-- Results are collected programmatically
-- Standardized result format for validation
+See [pages.spec.js](../integration-test/pages.spec.js) for complete CI test examples.
 
 ## Interactive and Automation Modes
 
-### Manual (Interactive) Mode
+### Interactive Mode
 - When the test page is loaded **without** `?automation=true` in the URL, a **"Run Tests" button** appears at the top of the page.
 - This allows a human tester or a platform test harness to decide when to start the tests, rather than running them immediately on page load.
 - Clicking the button will execute all defined tests and display the results.
@@ -247,6 +189,9 @@ Test pages support automation mode for CI:
 ### Automation Mode
 - When the test page is loaded **with** `?automation=true` in the URL, tests will run automatically as soon as the Content Scope Scripts are initialized.
 - This is used for CI and automated testing environments.
+- Tests wait for Content Scope Scripts initialization
+- Results are collected programmatically
+- Standardized result format for validation
 
 ## Result Reporting and Visual Validation
 
