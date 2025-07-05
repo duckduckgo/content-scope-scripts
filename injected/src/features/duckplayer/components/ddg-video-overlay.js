@@ -5,6 +5,8 @@ import { appendImageAsBackground } from '../util.js';
 import { VideoOverlay } from '../video-overlay.js';
 import { createPolicy, html, trustedUnsafe } from '../../../dom-utils.js';
 
+const EXCEPTION_KIND_VIDEO_OVERLAY_ERROR = 'VideoOverlayError';
+
 /**
  * The custom element that we use to present our UI elements
  * over the YouTube player
@@ -22,7 +24,7 @@ export class DDGVideoOverlay extends HTMLElement {
      */
     constructor({ environment, params, ui, manager }) {
         super();
-        if (!(manager instanceof VideoOverlay)) throw new Error('invalid arguments');
+        if (!(manager instanceof VideoOverlay)) throw new Error('Invalid VideoOverlay manager');
         this.environment = environment;
         this.ui = ui;
         this.params = params;
@@ -121,7 +123,11 @@ export class DDGVideoOverlay extends HTMLElement {
         const optOutHandler = (e) => {
             if (e.isTrusted) {
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
-                if (!(remember instanceof HTMLInputElement)) throw new Error('cannot find our input');
+                if (!(remember instanceof HTMLInputElement)) {
+                    const error = new Error('Cannot find remember checkbox');
+                    error.name = EXCEPTION_KIND_VIDEO_OVERLAY_ERROR;
+                    throw error;
+                }
                 this.manager.userOptOut(remember.checked, params);
             }
         };
@@ -129,7 +135,11 @@ export class DDGVideoOverlay extends HTMLElement {
             if (e.isTrusted) {
                 e.preventDefault();
                 const remember = containerElement.querySelector('input[name="ddg-remember"]');
-                if (!(remember instanceof HTMLInputElement)) throw new Error('cannot find our input');
+                if (!(remember instanceof HTMLInputElement)) {
+                    const error = new Error('Cannot find remember checkbox');
+                    error.name = EXCEPTION_KIND_VIDEO_OVERLAY_ERROR;
+                    throw error;
+                }
                 this.manager.userOptIn(remember.checked, params);
             }
         };

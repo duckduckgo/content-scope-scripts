@@ -11,11 +11,15 @@ import { ResultsCollector } from './results-collector.js';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const configFiles = /** @type {const} */ (['native.json']);
 
-const defaultInitialSetup = {
+const featureName = 'duckPlayerNative';
+
+/** @type {PageType} */
+const DEFAULT_PAGE_TYPE = 'YOUTUBE';
+
+/** @type {import('../../src/features/duck-player-native.js').InitialSettings} */
+const DEFAULT_INITIAL_SETUP = {
     locale: 'en',
 };
-
-const featureName = 'duckPlayerNative';
 
 export class DuckPlayerNative {
     /** @type {Partial<Record<PageType, string>>} */
@@ -36,7 +40,7 @@ export class DuckPlayerNative {
         this.isMobile = platform.name === 'android' || platform.name === 'ios';
         this.collector = new ResultsCollector(page, build, platform);
         this.collector.withMockResponse({
-            initialSetup: defaultInitialSetup,
+            initialSetup: DEFAULT_INITIAL_SETUP,
             onCurrentTimestamp: {},
         });
         this.collector.withUserPreferences({
@@ -86,13 +90,22 @@ export class DuckPlayerNative {
     }
 
     /**
-     * @param {PageType} pageType
+     * Goes to the default page (YOUTUBE) without overriding initialSetup
+     * Useful for testing messaging errors
+     **/
+    async gotoBlankPage() {
+        await this.gotoPage();
+    }
+
+    /**
+     * @param {PageType} [pageType]
      * @param {object} [params]
      * @param {PlayerPageVariants} [params.variant]
      * @param {string} [params.videoID]
      */
     async gotoPage(pageType, params = {}) {
-        await this.withPageType(pageType);
+        if (pageType) await this.withPageType(pageType);
+        const page = this.pages[pageType || DEFAULT_PAGE_TYPE];
 
         const defaultVariant = this.isMobile ? 'mobile' : 'default';
         const { variant = defaultVariant, videoID = '123' } = params;
@@ -100,8 +113,6 @@ export class DuckPlayerNative {
             ['v', videoID],
             ['variant', variant],
         ]);
-
-        const page = this.pages[pageType];
 
         await this.page.goto(page + '?' + urlParams.toString());
     }
@@ -122,7 +133,7 @@ export class DuckPlayerNative {
      * @return {Promise<void>}
      */
     async withPageType(pageType) {
-        const initialSetup = this.collector.mockResponses?.initialSetup || defaultInitialSetup;
+        const initialSetup = this.collector.mockResponses?.initialSetup || DEFAULT_INITIAL_SETUP;
 
         await this.collector.updateMockResponse({
             initialSetup: { pageType, ...initialSetup },
@@ -134,7 +145,7 @@ export class DuckPlayerNative {
      * @return {Promise<void>}
      */
     async withPlaybackPaused(playbackPaused = true) {
-        const initialSetup = this.collector.mockResponses.initialSetup || defaultInitialSetup;
+        const initialSetup = this.collector.mockResponses.initialSetup || DEFAULT_INITIAL_SETUP;
 
         await this.collector.updateMockResponse({
             initialSetup: { playbackPaused, ...initialSetup },
@@ -206,6 +217,34 @@ export class DuckPlayerNative {
         await this.simulateSubscriptionMessage('onUrlChanged', { pageType });
     }
 
+    /**
+     * Simulates a messaging error by passing an empty initialSetup object
+     */
+    async messagingError() {
+        await this.build.switch({
+            android: async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: {},
+                });
+            },
+            apple: async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: null,
+                });
+            },
+            'apple-isolated': async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: null,
+                });
+            },
+            windows: async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: '',
+                });
+            },
+        });
+    }
+
     /* Messaging assertions */
 
     async didSendInitialHandshake() {
@@ -234,6 +273,42 @@ export class DuckPlayerNative {
                 },
             },
         ]);
+    }
+
+    /**
+     * @param {string} kind
+     * @param {string} message
+     */
+    async didSendException(kind, message, context = 'contentScopeScripts') {
+        const messages = await this.collector.waitForMessage('reportMetric');
+        expect(messages).toMatchObject([
+            {
+                payload: {
+                    context,
+                    featureName: 'duckPlayerNative',
+                    method: 'reportMetric',
+                    params: { metricName: 'exception', params: { kind, message } },
+                },
+            },
+        ]);
+    }
+
+    async didSendMessagingException() {
+        await this.build.switch({
+            android: async () => {
+                // Android produces a TypeError due to how its messaging lib is wired up
+                await this.didSendException('TypeError', "Cannot read properties of undefined (reading 'privatePlayerMode')");
+            },
+            apple: async () => {
+                await this.didSendException('MessagingError', 'an unknown error occurred');
+            },
+            'apple-isolated': async () => {
+                await this.didSendException('MessagingError', 'an unknown error occurred', 'contentScopeScriptsIsolated');
+            },
+            windows: async () => {
+                await this.didSendException('MessagingError', 'unknown error');
+            },
+        });
     }
 
     /* Thumbnail Overlay assertions */
