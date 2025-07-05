@@ -17,12 +17,12 @@ injected/integration-test/test-pages/
 │   ├── style.css                 # Common styling
 │   └── ...
 ├── {feature-name}/               # Feature-specific test directories
-│   ├── index.html               # Feature test index
-│   ├── pages/                   # Individual test pages
-│   │   └── {test-name}.html     # Test page implementations
-│   ├── config/                  # Feature configurations
-│   │   └── {config-name}.json   # JSON configuration files
-│   └── scripts/                 # Additional test scripts (optional)
+│   ├── index.html                # Feature test index
+│   ├── pages/                    # Individual test pages
+│   │   └── {test-name}.html      # Test page implementations
+│   ├── config/                   # Feature configurations
+│   │   └── {config-name}.json    # JSON configuration files
+│   └── scripts/                  # Additional test scripts (optional)
 └── ...
 ```
 
@@ -220,21 +220,58 @@ Results are displayed in HTML tables with pass/fail indicators and can be collec
 
 ## Best Practices
 
+### Creating Index Pages
+
+When creating a new feature directory in the test pages system, it's best practice to include an `index.html` file that serves as a navigation hub for that feature's tests. This provides several benefits:
+
+1. **Easy Navigation**: Developers can quickly browse available tests without digging through subdirectories
+2. **Clear Organization**: Each feature directory has a consistent entry point
+3. **Documentation**: The index page can include descriptions of what the feature tests cover
+4. **Maintainability**: Makes it easier for new team members to understand the test structure
+
+#### Index Page Template
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Feature Name</title>
+</head>
+<body>
+<p><a href="../index.html">[Home]</a></p>
+
+<p>Feature Name</p>
+<ul>
+    <li><a href="./pages/test-page-1.html">Test Page 1</a></li>
+    <li><a href="./pages/test-page-2.html">Test Page 2</a></li>
+</ul>
+
+</body>
+</html>
+```
+
+#### Key Elements
+
+- **Navigation Link**: Always include a link back to the parent index page
+- **Feature Title**: Clear heading indicating what feature is being tested
+- **Test Links**: Organized list of all test pages in the `pages/` subdirectory
+- **Consistent Structure**: Follow the same pattern as existing feature directories
+
 ### Writing Test Pages
 
 1. **Use descriptive test names** that clearly indicate what is being tested
-2. **Include multiple test cases** to cover different scenarios
-3. **Test both positive and negative cases** where applicable
-4. **Use realistic test data** that mimics real-world usage
-5. **Include proper cleanup** for tests that modify state
+2. **Include multiple test cases** to cover different scenarios and edge cases
+3. **Use realistic test data** that mimics real-world usage
+4. **Include proper cleanup** for tests that modify state
 
 ### Writing Configurations
 
 1. **Document the purpose** in the `readme` field
 2. **Use semantic feature names** that match the codebase
 3. **Include platform-specific configurations** when needed
-4. **Test edge cases** and error conditions
-5. **Keep configurations focused** on specific test scenarios
+4. **Keep configurations focused** on specific test scenarios
 
 ### Platform Compatibility
 
@@ -246,11 +283,4 @@ Results are displayed in HTML tables with pass/fail indicators and can be collec
 
 ## Integration with Privacy Test Pages
 
-The test pages are hosted at [https://privacy-test-pages.site/](https://privacy-test-pages.site/) and are used by:
-
-- **DuckDuckGo clients** for validation
-- **Platform teams** for cross-platform testing
-- **CI systems** for automated validation
-- **External developers** for integration testing
-
-This ensures that Content Scope Scripts work consistently across all platforms and environments. 
+The test pages are hosted at [https://privacy-test-pages.site/](https://privacy-test-pages.site/) and used by DuckDuckGo clients, platform teams, CI systems, and external developers to ensure consistent functionality across all platforms.
