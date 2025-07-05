@@ -1,4 +1,4 @@
-import { immutableJSONPatch } from 'immutable-json-patch';
+import { immutableJSONPatch, getIn, parseJSONPointer } from 'immutable-json-patch';
 import {
     camelcase,
     computeEnabledFeatures,
@@ -354,18 +354,14 @@ export default class ConfigFeature {
      * ```
      *
      * For boolean states you should consider using getFeatureSettingEnabled.
-     * @param {string} featureKeyName
+     * @param {string} featureKeyNameOrPointer
      * @param {string} [featureName]
      * @returns {any}
      */
-    getFeatureSetting(featureKeyName, featureName) {
+    getFeatureSetting(featureKeyNameOrPointer, featureName) {
         let result = this._getFeatureSettings(featureName);
-        if (featureKeyName in ['domains', 'conditionalChanges']) {
-            throw new Error(`${featureKeyName} is a reserved feature setting key name`);
-        }
-        // We only support one of these keys at a time, where conditionalChanges takes precedence
+        // Apply conditional patches first
         let conditionalMatches = [];
-        // Presence check using result to avoid the [] default response
         if (result?.conditionalChanges) {
             conditionalMatches = this.matchConditionalFeatureSetting('conditionalChanges');
         } else {
@@ -381,6 +377,20 @@ export default class ConfigFeature {
                 console.error('Error applying patch settings', e);
             }
         }
+        // Now resolve pointer or key
+        const isPointer = typeof featureKeyNameOrPointer === 'string' && featureKeyNameOrPointer.startsWith('/');
+        if (isPointer) {
+            try {
+                return getIn(result, parseJSONPointer(featureKeyNameOrPointer));
+            } catch (e) {
+                return undefined;
+            }
+        }
+        const featureKeyName = featureKeyNameOrPointer;
+        if (featureKeyName in ['domains', 'conditionalChanges']) {
+            throw new Error(`${featureKeyName} is a reserved feature setting key name`);
+        }
+        // We only support one of these keys at a time, where conditionalChanges takes precedence
         return result?.[featureKeyName];
     }
 

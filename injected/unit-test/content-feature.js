@@ -489,4 +489,36 @@ describe('ContentFeature class', () => {
             expect(object.someProp.toString.toString.toString()).not.toBe(fn.toString.toString.toString());
         });
     });
+
+    it('Should return the correct value for JSON Pointer lookups after conditional patching', () => {
+        let didRun = false;
+        class MyPointerTestFeature extends ContentFeature {
+            init() {
+                expect(this.getFeatureSetting('/nested/foo/bar')).toBe(42);
+                expect(this.getFeatureSetting('nested')).toEqual({ foo: { bar: 42 } });
+                didRun = true;
+            }
+        }
+        const args = {
+            site: {
+                domain: 'example.com',
+                url: 'http://example.com',
+            },
+            featureSettings: {
+                pointerTest: {
+                    nested: { foo: { bar: 1 } },
+                    conditionalChanges: [
+                        {
+                            patchSettings: [
+                                { op: 'replace', path: '/nested/foo/bar', value: 42 }
+                            ]
+                        }
+                    ]
+                }
+            }
+        };
+        const me = new MyPointerTestFeature('pointerTest', {}, args);
+        me.callInit(args);
+        expect(didRun).withContext('Should run').toBeTrue();
+    });
 });
