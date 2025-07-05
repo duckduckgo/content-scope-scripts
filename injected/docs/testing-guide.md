@@ -39,10 +39,6 @@ Everything within `integration-test` is integration tests controlled by Playwrig
 npm run test-int
 ```
 
-**Important**: When writing integration tests, follow the [testing best practices](../docs/test-pages-guide.md#testing-best-practices) outlined in the Test Pages Guide. These guidelines cover avoiding custom state in spec files, using platform configuration, and preferring config-driven testing approaches.
-
-**Preferred Testing Approach**: The [Test Pages Guide](../docs/test-pages-guide.md) describes the most preferred type of testing for the `/injected` directory. Test pages are the preferred approach where possible because they are **sharable with platforms** - the same test pages can be used by Android, Apple, Windows, and browser extension teams, ensuring consistent functionality validation across all platforms.
-
 ### Feature Build Process
 
 To produce all artefacts that are used by platforms, just run the `npm run build` command. This will create platform specific code within the `build` folder (that is not checked in).
