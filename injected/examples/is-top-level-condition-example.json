@@ -1,0 +1,108 @@
+{
+  "features": {
+    "fingerprintingCanvas": {
+      "state": "enabled",
+      "settings": {
+        "bloop": 12,
+        "conditionalChanges": [
+          {
+            "condition": {
+              "isTopLevel": true
+            },
+            "patchSettings": [
+              {
+                "op": "replace",
+                "path": "/bloop",
+                "value": 121
+              }
+            ]
+          },
+          {
+            "condition": {
+              "isTopLevel": false
+            },
+            "patchSettings": [
+              {
+                "op": "replace",
+                "path": "/bloop",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "elementHiding": {
+      "state": "enabled",
+      "settings": {
+        "rules": ["global-rule"],
+        "conditionalChanges": [
+          {
+            "condition": {
+              "isTopLevel": true,
+              "domain": "example.com"
+            },
+            "patchSettings": [
+              {
+                "op": "add",
+                "path": "/rules/-",
+                "value": "top-level-specific-rule"
+              }
+            ]
+          },
+          {
+            "condition": [
+              {
+                "isTopLevel": false
+              },
+              {
+                "domain": "ads.example.com"
+              }
+            ],
+            "patchSettings": [
+              {
+                "op": "add",
+                "path": "/rules/-",
+                "value": "frame-specific-rule"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "webCompat": {
+      "state": "enabled",
+      "settings": {
+        "disableDeviceEnumeration": false,
+        "conditionalChanges": [
+          {
+            "condition": {
+              "isTopLevel": false
+            },
+            "patchSettings": [
+              {
+                "op": "replace",
+                "path": "/disableDeviceEnumeration",
+                "value": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "documentContextExample": {
+      "state": "enabled",
+      "settings": {
+        "val": "default",
+        "conditionalChanges": [
+          { "condition": { "documentContext": { "top": true } }, "patchSettings": [ { "op": "replace", "path": "/val", "value": "top" } ] },
+          { "condition": { "documentContext": { "frame": true } }, "patchSettings": [ { "op": "replace", "path": "/val", "value": "frame" } ] },
+          { "condition": { "documentContext": { "top": true, "frame": true } }, "patchSettings": [ { "op": "replace", "path": "/val", "value": "invalid" } ] },
+          { "condition": { "documentContext": {} }, "patchSettings": [ { "op": "replace", "path": "/val", "value": "empty" } ] },
+          { "condition": { "documentContext": { "top": false } }, "patchSettings": [ { "op": "replace", "path": "/val", "value": "shouldNotMatch" } ] },
+          { "condition": { "documentContext": { "frame": false } }, "patchSettings": [ { "op": "replace", "path": "/val", "value": "shouldNotMatch" } ] }
+        ]
+      }
+    }
+  }
+} 

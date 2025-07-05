@@ -6,6 +6,7 @@ import {
     parseFeatureSettings,
     computeLimitedSiteObject,
     isSupportedVersion,
+    isTopLevel,
 } from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
@@ -119,6 +120,8 @@ export default class ConfigFeature {
      * @property {object} [experiment]
      * @property {string} [experiment.experimentName]
      * @property {string} [experiment.cohort]
+     * @property {boolean} [isTopLevel]
+     * @property {{top?: boolean, frame?: boolean}} [documentContext]
      */
 
     /**
@@ -147,6 +150,8 @@ export default class ConfigFeature {
             urlPattern: this._matchUrlPatternConditional,
             experiment: this._matchExperimentConditional,
             minSupportedVersion: this._matchMinSupportedVersion,
+            isTopLevel: this._matchIsTopLevelConditional,
+            documentContext: this._matchDocumentContextConditional,
         };
 
         for (const key in conditionBlock) {
@@ -248,6 +253,49 @@ export default class ConfigFeature {
     _matchMinSupportedVersion(conditionBlock) {
         if (!conditionBlock.minSupportedVersion) return false;
         return isSupportedVersion(conditionBlock.minSupportedVersion, this.#args?.platform?.version);
+    }
+
+    /**
+     * Takes a condition block and returns true if the current frame is top level.
+     * Expects:
+     * ```json
+     * {
+     *   "isTopLevel": true
+     * }
+     * ```
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchIsTopLevelConditional(conditionBlock) {
+        if (!('isTopLevel' in conditionBlock)) return false;
+        return isTopLevel() === conditionBlock.isTopLevel;
+    }
+
+    /**
+     * Takes a condition block and returns true if the current frame matches the documentContext condition.
+     * Expects:
+     *   { documentContext: { top: true } } or { documentContext: { frame: true } }
+     * - Only one of 'top' or 'frame' may be present. If both, returns false (invalid).
+     * - If neither present, matches all (returns true).
+     * - If value is false, never matches.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchDocumentContextConditional(conditionBlock) {
+        const ctx = conditionBlock.documentContext;
+        if (!ctx || (typeof ctx !== 'object')) return true; // matches all if absent or empty
+        const keys = Object.keys(ctx);
+        if (keys.length === 0) return true;
+        if (keys.length > 1) return false; // invalid if both top and frame present
+        if ('top' in ctx) {
+            if (ctx.top === false) return false;
+            return isTopLevel();
+        }
+        if ('frame' in ctx) {
+            if (ctx.frame === false) return false;
+            return !isTopLevel();
+        }
+        return true;
     }
 
     /**

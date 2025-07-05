@@ -489,4 +489,126 @@ describe('ContentFeature class', () => {
             expect(object.someProp.toString.toString.toString()).not.toBe(fn.toString.toString.toString());
         });
     });
+
+    it('Should match documentContext: { top: true } only for top-level', () => {
+        let didRun = false;
+        class DocCtxFeature extends ContentFeature {
+            init() {
+                expect(this.getFeatureSetting('val')).toBe('top');
+                didRun = true;
+            }
+        }
+        const args = {
+            site: { domain: 'example.com', url: 'http://example.com' },
+            featureSettings: {
+                test: {
+                    val: 'default',
+                    conditionalChanges: [
+                        { condition: { documentContext: { top: true } }, patchSettings: [{ op: 'replace', path: '/val', value: 'top' }] },
+                        { condition: { documentContext: { frame: true } }, patchSettings: [{ op: 'replace', path: '/val', value: 'frame' }] },
+                    ],
+                },
+            },
+        };
+        spyOn(globalThis, 'top', 'get').and.returnValue(globalThis.window); // Simulate top-level
+        const me = new DocCtxFeature('test', {}, args);
+        me.callInit(args);
+        expect(didRun).toBeTrue();
+    });
+    it('Should match documentContext: { frame: true } only for subframes', () => {
+        let didRun = false;
+        class DocCtxFeature extends ContentFeature {
+            init() {
+                expect(this.getFeatureSetting('val')).toBe('frame');
+                didRun = true;
+            }
+        }
+        const args = {
+            site: { domain: 'example.com', url: 'http://example.com' },
+            featureSettings: {
+                test: {
+                    val: 'default',
+                    conditionalChanges: [
+                        { condition: { documentContext: { top: true } }, patchSettings: [{ op: 'replace', path: '/val', value: 'top' }] },
+                        { condition: { documentContext: { frame: true } }, patchSettings: [{ op: 'replace', path: '/val', value: 'frame' }] },
+                    ],
+                },
+            },
+        };
+        spyOn(globalThis, 'top', 'get').and.returnValue({}); // Simulate subframe
+        spyOn(globalThis, 'window', 'get').and.returnValue({});
+        const me = new DocCtxFeature('test', {}, args);
+        me.callInit(args);
+        expect(didRun).toBeTrue();
+    });
+    it('Should not match documentContext with both top and frame present (invalid)', () => {
+        let didRun = false;
+        class DocCtxFeature extends ContentFeature {
+            init() {
+                expect(this.getFeatureSetting('val')).toBe('default');
+                didRun = true;
+            }
+        }
+        const args = {
+            site: { domain: 'example.com', url: 'http://example.com' },
+            featureSettings: {
+                test: {
+                    val: 'default',
+                    conditionalChanges: [
+                        { condition: { documentContext: { top: true, frame: true } }, patchSettings: [{ op: 'replace', path: '/val', value: 'invalid' }] },
+                    ],
+                },
+            },
+        };
+        const me = new DocCtxFeature('test', {}, args);
+        me.callInit(args);
+        expect(didRun).toBeTrue();
+    });
+    it('Should match documentContext: {} (empty object) as always', () => {
+        let didRun = false;
+        class DocCtxFeature extends ContentFeature {
+            init() {
+                expect(this.getFeatureSetting('val')).toBe('empty');
+                didRun = true;
+            }
+        }
+        const args = {
+            site: { domain: 'example.com', url: 'http://example.com' },
+            featureSettings: {
+                test: {
+                    val: 'default',
+                    conditionalChanges: [
+                        { condition: { documentContext: {} }, patchSettings: [{ op: 'replace', path: '/val', value: 'empty' }] },
+                    ],
+                },
+            },
+        };
+        const me = new DocCtxFeature('test', {}, args);
+        me.callInit(args);
+        expect(didRun).toBeTrue();
+    });
+    it('Should never match documentContext: { top: false } or { frame: false }', () => {
+        let didRun = false;
+        class DocCtxFeature extends ContentFeature {
+            init() {
+                expect(this.getFeatureSetting('val')).toBe('default');
+                didRun = true;
+            }
+        }
+        const args = {
+            site: { domain: 'example.com', url: 'http://example.com' },
+            featureSettings: {
+                test: {
+                    val: 'default',
+                    conditionalChanges: [
+                        { condition: { documentContext: { top: false } }, patchSettings: [{ op: 'replace', path: '/val', value: 'shouldNotMatch' }] },
+                        { condition: { documentContext: { frame: false } }, patchSettings: [{ op: 'replace', path: '/val', value: 'shouldNotMatch' }] },
+                    ],
+                },
+            },
+        };
+        const me = new DocCtxFeature('test', {}, args);
+        me.callInit(args);
+        expect(didRun).toBeTrue();
+    });
 });
