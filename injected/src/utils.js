@@ -64,6 +64,11 @@ export function nextRandom(v) {
 
 const exemptionLists = {};
 export function shouldExemptUrl(type, url) {
+    // Check if the type exists in exemptionLists to avoid null reference errors
+    if (!exemptionLists[type] || !Array.isArray(exemptionLists[type])) {
+        return false;
+    }
+    
     for (const regex of exemptionLists[type]) {
         if (regex.test(url)) {
             return true;
@@ -261,10 +266,15 @@ function isAppleSilicon() {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl');
 
+    // Check if WebGL context is available before calling methods on it
+    if (!gl) {
+        return false;
+    }
+
     // Best guess if the device is an Apple Silicon
     // https://stackoverflow.com/a/65412357
-    // @ts-expect-error - Object is possibly 'null'
-    return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1;
+    const supportedExtensions = gl.getSupportedExtensions();
+    return supportedExtensions && supportedExtensions.indexOf('WEBGL_compressed_texture_etc') !== -1;
 }
 
 /**

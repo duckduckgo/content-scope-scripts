@@ -27,11 +27,21 @@ export class Cookie {
         if (!this.maxAge && !this.expires) {
             return NaN;
         }
-        const expiry = this.maxAge
-            ? parseInt(this.maxAge)
-            : // @ts-expect-error expires is not defined in the type definition
-              (new Date(this.expires) - new Date()) / 1000;
-        return expiry;
+        
+        if (this.maxAge) {
+            const parsedMaxAge = parseInt(this.maxAge);
+            // Return NaN if maxAge is not a valid number
+            return isNaN(parsedMaxAge) ? NaN : parsedMaxAge;
+        }
+        
+        // @ts-expect-error expires is not defined in the type definition
+        const expiryDate = new Date(this.expires);
+        // Check if the date is valid before calculating expiry
+        if (isNaN(expiryDate.getTime())) {
+            return NaN;
+        }
+        
+        return (expiryDate.getTime() - new Date().getTime()) / 1000;
     }
 
     get maxAge() {
