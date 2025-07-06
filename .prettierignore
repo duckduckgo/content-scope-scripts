@@ -9,5 +9,6 @@ injected/src/features/Scriptlets
 **/*.md
 !injected/docs/**/*.md
 **/*.html
+!injected/integration-test/test-pages/*
 **/*.har
 **/*.css
