@@ -23,7 +23,7 @@
     "playwright-screenshots": "playwright test --grep '@screenshots'",
     "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",
     "playwright-e2e-headed": "npm run playwright-e2e -- --headed",
-    "fake-extension": "./scripts/run-fake-extension.sh"
+    "fake-extension": "node ./scripts/run-fake-extension.js"
   },
   "type": "module",
   "dependencies": {
