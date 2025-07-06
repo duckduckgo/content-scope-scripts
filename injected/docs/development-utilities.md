@@ -41,9 +41,9 @@ This will place built files into the top-level `build` folder. If this command r
 
 ### Windows Development
 
-Setting up the tools on Windows will be a pain (and really impossible without modifying the scripts, as the build-scripts are not OS-agnostic).
+The tools should work on Windows, but if you have problems you _may_ wish to try using WSL.
 
-**Recommended**: Use Windows Subsystem for Linux - [WSL Installation Guide](https://learn.microsoft.com/en-us/windows/wsl/install)
+**Optional:**: Use Windows Subsystem for Linux - [WSL Installation Guide](https://learn.microsoft.com/en-us/windows/wsl/install)
 
 Once you have WSL running, make sure you have node and make installed:
 
