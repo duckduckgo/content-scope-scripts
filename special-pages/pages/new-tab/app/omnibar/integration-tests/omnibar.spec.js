@@ -99,4 +99,165 @@ test.describe('omnibar widget', () => {
 
         await expect(omnibar.tabList()).toHaveCount(0);
     });
+
+    test('suggestions list arrow down navigation', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(2);
+
+        // Initially no selection
+        await omnibar.expectNoSelection();
+
+        // Press arrow down - select first item
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough recipe');
+
+        // Press arrow down again - select second item
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+
+        // Press arrow down again - clear selection
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectNoSelection();
+
+        // Press arrow down again - rotate back to first item
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough recipe');
+    });
+
+    test('suggestions list arrow up navigation', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(2);
+
+        // Initially no selection
+        await omnibar.expectNoSelection();
+
+        // Press arrow up - select last item (reverse direction)
+        await omnibar.searchInput().press('ArrowUp');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+
+        // Press arrow up again - select first item
+        await omnibar.searchInput().press('ArrowUp');
+        await omnibar.expectSelectedSuggestion('pizza dough recipe');
+
+        // Press arrow up again - clear selection
+        await omnibar.searchInput().press('ArrowUp');
+        await omnibar.expectNoSelection();
+
+        // Press arrow up again - rotate back to last item
+        await omnibar.searchInput().press('ArrowUp');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+    });
+
+    test('arrow down and enter should open selected suggestion', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(2);
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough recipe');
+
+        // Press enter to open selected suggestion
+        await omnibar.searchInput().press('Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_openSuggestion', {
+            suggestion: expect.objectContaining({
+                phrase: 'pizza dough recipe',
+                kind: 'phrase',
+            }),
+            target: 'same-tab',
+        });
+    });
+
+    test('clicking on a suggestion should open it', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(2);
+
+        // Click on the second suggestion
+        await omnibar.suggestions().nth(1).click();
+
+        await omnibar.expectMethodCalledWith('omnibar_openSuggestion', {
+            suggestion: expect.objectContaining({
+                title: 'Pizza Dough Calculator',
+                kind: 'historyEntry',
+            }),
+            target: 'same-tab',
+        });
+    });
+
+    test('mouse over should select suggestion, mouse out should clear selection', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(2);
+
+        // Initially no selection
+        await omnibar.expectNoSelection();
+
+        // Hover over first suggestion
+        await omnibar.suggestions().nth(0).hover();
+        await omnibar.expectSelectedSuggestion('pizza dough recipe');
+
+        // Hover over second suggestion
+        await omnibar.suggestions().nth(1).hover();
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+
+        // Mouse out to clear selection (hover outside suggestions)
+        await omnibar.searchInput().hover();
+        await omnibar.expectNoSelection();
+    });
+
+    test('pressing tab should move focus away from input', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Focus on search input
+        await omnibar.searchInput().focus();
+        await expect(omnibar.searchInput()).toBeFocused();
+
+        // Press tab to move focus away
+        await omnibar.searchInput().press('Tab');
+        await expect(omnibar.searchInput()).not.toBeFocused();
+    });
 });

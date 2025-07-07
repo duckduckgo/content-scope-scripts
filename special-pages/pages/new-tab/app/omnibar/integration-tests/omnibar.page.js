@@ -41,6 +41,36 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: /Duck\.ai/i });
     }
 
+    suggestionsList() {
+        return this.context().getByRole('listbox');
+    }
+
+    suggestions() {
+        return this.suggestionsList().getByRole('option');
+    }
+
+    /**
+     * @param {number} count
+     */
+    async expectSuggestionsCount(count) {
+        await expect(this.suggestions()).toHaveCount(count);
+    }
+
+    selectedSuggestion() {
+        return this.suggestionsList().getByRole('option', { selected: true });
+    }
+
+    /**
+     * @param {string} text
+     */
+    async expectSelectedSuggestion(text) {
+        await expect(this.selectedSuggestion()).toHaveText(text);
+    }
+
+    async expectNoSelection() {
+        await expect(this.selectedSuggestion()).toHaveCount(0);
+    }
+
     /**
      * @param {'search' | 'ai'} mode
      */
