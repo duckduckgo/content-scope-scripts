@@ -148,7 +148,7 @@ export function useSuggestions({ term, setTerm }) {
     }
 
     useEffect(() => {
-        return onSuggestions((data) => {
+        return onSuggestions((data, term) => {
             const suggestions = [
                 ...data.suggestions.topHits,
                 ...data.suggestions.duckduckgoSuggestions,

@@ -10,8 +10,8 @@ export function useSuggestionInput(base, suggestion) {
     useEffect(() => {
         if (!ref.current) return;
         const value = base + suggestion;
-        if (ref.current.value !== value) {
-            ref.current.value = value;
+        ref.current.value = value;
+        if (suggestion) {
             ref.current.setSelectionRange(base.length, value.length);
         }
     }, [base, suggestion]);
