@@ -32,6 +32,18 @@ jobs:
             - name: Run build
               run: npm run build
 
+            - name: Build XCFramework
+              run: |
+                  # Create xcframework build directory
+                  mkdir -p xcframework-build
+                  
+                  # The npm run build already creates everything in Sources/ContentScopeScripts/dist/
+                  # including contentScope.js, contentScopeIsolated.js, and pages/
+                  
+                  # Create the xcframework using the build script
+                  chmod +x scripts/build-xcframework.sh
+                  ./scripts/build-xcframework.sh "pr-${{ github.event.pull_request.number }}"
+
             - name: Create and push release branch
               id: create_branch
               env:
@@ -41,8 +53,8 @@ jobs:
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
                   git checkout -b pr-releases/pr-${PR_NUMBER}
-                  git add -f build Sources
-                  git commit -m "Add build folder for PR ${PR_NUMBER}"
+                  git add -f build Sources xcframework-build
+                  git commit -m "Add build folder and xcframework for PR ${PR_NUMBER}"
                   git push -u origin pr-releases/pr-${PR_NUMBER} --force
                   echo "BRANCH_NAME=pr-releases/pr-${PR_NUMBER}" >> $GITHUB_ENV
                   echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
@@ -84,8 +96,9 @@ jobs:
                         - **Commit Hash**: [${commitHash}](${commitUrl})
                         - **Last Updated**: ${lastUpdatedDate}
                         - **Install Command**: \`npm i github:duckduckgo/content-scope-scripts#${commitHash}\`
+                        - **XCFramework**: Available in \`xcframework-build/ContentScopeScripts.xcframework.zip\`
 
-                        Please use the above install command to update to the latest version.
+                        Please use the above install command to update to the latest version. The XCFramework is available for iOS/macOS integration testing.
                       `;
                       core.setOutput('comment_body', commentBody);
                       core.setOutput('pr_number', prNumber);
