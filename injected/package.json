@@ -22,7 +22,8 @@
     "playwright": "playwright test --grep-invert '@screenshots'",
     "playwright-screenshots": "playwright test --grep '@screenshots'",
     "playwright-e2e": "playwright test -c playwright-e2e.config.js --project duckplayer-e2e",
-    "playwright-e2e-headed": "npm run playwright-e2e -- --headed"
+    "playwright-e2e-headed": "npm run playwright-e2e -- --headed",
+    "fake-extension": "node ./scripts/run-fake-extension.js"
   },
   "type": "module",
   "dependencies": {
@@ -42,6 +43,7 @@
     "@types/node": "^24.0.3",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "fast-check": "^4.1.1",
-    "jasmine": "^5.7.1"
+    "jasmine": "^5.7.1",
+    "web-ext": "^8.8.0"
   }
 }
