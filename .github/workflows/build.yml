@@ -66,10 +66,7 @@ jobs:
               run: |
                   # Create xcframework build directory
                   mkdir -p xcframework-build
-                  
-                  # The npm run build already creates everything in Sources/ContentScopeScripts/dist/
-                  # including contentScope.js, contentScopeIsolated.js, and pages/
-                  
+
                   # Create the xcframework using the build script
                   chmod +x scripts/build-xcframework.sh
                   ./scripts/build-xcframework.sh ${{ github.event.inputs.version }}
