@@ -332,4 +332,43 @@ test.describe('omnibar widget', () => {
         await omnibar.expectInputSelectionText('Italian Pizza History');
         await omnibar.expectInputSelection(0, 21);
     });
+
+    test('arrow down after arrow left should restore suggestion selection', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+
+        // Input should show "pizza[ near me]" with " near me" selected
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+        await omnibar.expectInputSelection(5, 13);
+
+        // Press left arrow to move cursor
+        await omnibar.searchInput().press('ArrowLeft');
+
+        // Input should now show "pizza near me" with cursor after "pizza"
+        await omnibar.expectNoSelection();
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelection(5, 5);
+
+        // Press arrow down again
+        await omnibar.searchInput().press('ArrowDown');
+
+        // Should be back to "pizza[ near me]" with " near me" selected
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+        await omnibar.expectInputSelection(5, 13);
+    });
 });
