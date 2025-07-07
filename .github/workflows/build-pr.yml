@@ -49,7 +49,8 @@ jobs:
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
                   git checkout -b pr-releases/pr-${PR_NUMBER}
-                  git add -f build Sources xcframework-build
+                  git add -f build Sources
+                  git add -f ContentScopeScripts.xcframework.zip
                   git commit -m "Add build folder and xcframework for PR ${PR_NUMBER}"
                   git push -u origin pr-releases/pr-${PR_NUMBER} --force
                   echo "BRANCH_NAME=pr-releases/pr-${PR_NUMBER}" >> $GITHUB_ENV
@@ -92,7 +93,7 @@ jobs:
                         - **Commit Hash**: [${commitHash}](${commitUrl})
                         - **Last Updated**: ${lastUpdatedDate}
                         - **Install Command**: \`npm i github:duckduckgo/content-scope-scripts#${commitHash}\`
-                        - **XCFramework**: Available in \`xcframework-build/ContentScopeScripts.xcframework.zip\`
+                        - **XCFramework**: Available as \`ContentScopeScripts.xcframework.zip\`
 
                         Please use the above install command to update to the latest version. The XCFramework is available for iOS/macOS integration testing.
                       `;

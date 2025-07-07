@@ -13,142 +13,185 @@ fi
 
 echo "Building XCFramework for version: $VERSION"
 
+# Check if Swift is available for proper building
+if command -v swift &> /dev/null && command -v xcodebuild &> /dev/null; then
+    # Test if we can actually build for iOS by checking destinations
+    echo "Testing iOS build capability..."
+    if xcodebuild -scheme ContentScopeScripts -showdestinations 2>/dev/null | grep -q "platform:iOS" && \
+       ! (xcodebuild -scheme ContentScopeScripts -showdestinations 2>&1 | grep -q "error:iOS.*is not installed"); then
+        echo "Swift, xcodebuild, and iOS platforms found - building proper xcframework"
+        USE_SWIFT=true
+    else
+        echo "iOS platforms not properly available - falling back to resource-only framework"
+        USE_SWIFT=false
+    fi
+else
+    echo "Swift or xcodebuild not found - creating resource-only framework"
+    USE_SWIFT=false
+fi
+
 # Create build directory
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
-# Since this is a resource-only package, we don't need to compile Swift code
-# We'll create a framework structure that packages the JavaScript resources
-echo "Creating framework structure for resource-only package..."
+if [ "$USE_SWIFT" = true ]; then
+    echo "Building with Swift Package Manager..."
+    
+    # Copy Package.swift and Sources to build directory
+    cp ../Package.swift .
+    cp -r ../Sources .
+    
+    # Build frameworks for different platforms
+    echo "Building for iOS (arm64)..."
+    xcodebuild -scheme ContentScopeScripts \
+        -destination "generic/platform=iOS" \
+        -archivePath "ios-arm64.xcarchive" \
+        archive -skipPackagePluginValidation
+    
+    echo "Building for iOS Simulator (arm64 + x86_64)..."
+    xcodebuild -scheme ContentScopeScripts \
+        -destination "generic/platform=iOS Simulator" \
+        -archivePath "ios-simulator.xcarchive" \
+        archive -skipPackagePluginValidation
+    
+    echo "Building for macOS (arm64 + x86_64)..."
+    xcodebuild -scheme ContentScopeScripts \
+        -destination "generic/platform=macOS" \
+        -archivePath "macos.xcarchive" \
+        archive -skipPackagePluginValidation
+    
+    # Create XCFramework using xcodebuild
+    echo "Creating XCFramework from archives..."
+    xcodebuild -create-xcframework \
+        -framework "ios-arm64.xcarchive/Products/Library/Frameworks/${FRAMEWORK_NAME}.framework" \
+        -framework "ios-simulator.xcarchive/Products/Library/Frameworks/${FRAMEWORK_NAME}.framework" \
+        -framework "macos.xcarchive/Products/Library/Frameworks/${FRAMEWORK_NAME}.framework" \
+        -output "${FRAMEWORK_NAME}.xcframework"
 
-FRAMEWORK_DIR="${FRAMEWORK_NAME}.framework"
-mkdir -p "$FRAMEWORK_DIR"
+else
+    echo "Creating resource-only framework structure..."
 
-# Copy the built library (this is a simplified approach)
-# In a real scenario, you'd use the actual built libraries
-echo "Creating framework bundle..."
+    # Create frameworks for different platforms
+    PLATFORMS=("ios-arm64" "ios-arm64-simulator" "macos-arm64")
 
-# Create Info.plist
-cat > "$FRAMEWORK_DIR/Info.plist" << EOF
+    for PLATFORM in "${PLATFORMS[@]}"; do
+        FRAMEWORK_DIR="${FRAMEWORK_NAME}.framework"
+        PLATFORM_DIR="$PLATFORM"
+        
+        echo "Creating framework for $PLATFORM..."
+        
+        mkdir -p "$PLATFORM_DIR/$FRAMEWORK_DIR"
+        
+        # Copy resources from the built output
+        if [ -d "../Sources/ContentScopeScripts/dist" ]; then
+            cp -r ../Sources/ContentScopeScripts/dist "$PLATFORM_DIR/$FRAMEWORK_DIR/"
+            echo "Copied resources from Sources/ContentScopeScripts/dist"
+        else
+            echo "Warning: dist directory not found, creating empty resources"
+            mkdir -p "$PLATFORM_DIR/$FRAMEWORK_DIR/dist"
+        fi
+        
+        # Copy other necessary files
+        cp -r ../Sources/ContentScopeScripts/ContentScopeScripts.swift "$PLATFORM_DIR/$FRAMEWORK_DIR/" 2>/dev/null || true
+        
+        # For resource-only frameworks, we need a minimal binary stub
+        echo "Creating minimal binary stub..."
+        mkdir -p "$PLATFORM_DIR/$FRAMEWORK_DIR/Versions/A"
+        
+        # Create a proper empty static library for the platform
+        case "$PLATFORM" in
+            "ios-arm64")
+                echo "void ContentScopeScripts_dummy() {}" > dummy.c
+                xcrun -sdk iphoneos clang -arch arm64 -c dummy.c -o dummy.o
+                xcrun -sdk iphoneos ar rcs "$PLATFORM_DIR/$FRAMEWORK_DIR/Versions/A/$FRAMEWORK_NAME" dummy.o
+                rm dummy.c dummy.o
+                ;;
+            "ios-arm64-simulator")
+                echo "void ContentScopeScripts_dummy() {}" > dummy.c
+                xcrun -sdk iphonesimulator clang -arch arm64 -c dummy.c -o dummy_arm64.o
+                xcrun -sdk iphonesimulator clang -arch x86_64 -c dummy.c -o dummy_x86_64.o
+                xcrun -sdk iphonesimulator lipo -create dummy_arm64.o dummy_x86_64.o -output dummy_universal.o
+                xcrun -sdk iphonesimulator ar rcs "$PLATFORM_DIR/$FRAMEWORK_DIR/Versions/A/$FRAMEWORK_NAME" dummy_universal.o
+                rm dummy.c dummy_arm64.o dummy_x86_64.o dummy_universal.o
+                ;;
+            "macos-arm64")
+                echo "void ContentScopeScripts_dummy() {}" > dummy.c
+                xcrun -sdk macosx clang -arch arm64 -arch x86_64 -c dummy.c -o dummy.o
+                xcrun -sdk macosx ar rcs "$PLATFORM_DIR/$FRAMEWORK_DIR/Versions/A/$FRAMEWORK_NAME" dummy.o
+                rm dummy.c dummy.o
+                ;;
+        esac
+        
+        ln -sf "Versions/A/$FRAMEWORK_NAME" "$PLATFORM_DIR/$FRAMEWORK_DIR/$FRAMEWORK_NAME"
+        cd "$PLATFORM_DIR/$FRAMEWORK_DIR/Versions" && ln -sf "A" "Current" && cd ../../..
+        
+        # Create Info.plist
+        case "$PLATFORM" in
+            "ios-arm64")
+                MIN_OS="14.0"
+                PLATFORM_NAME="iPhoneOS"
+                ;;
+            "ios-arm64-simulator")
+                MIN_OS="14.0"
+                PLATFORM_NAME="iPhoneSimulator"
+                ;;
+            "macos-arm64")
+                MIN_OS="10.15"
+                PLATFORM_NAME="MacOSX"
+                ;;
+        esac
+        
+        cat > "$PLATFORM_DIR/$FRAMEWORK_DIR/Info.plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleName</key>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleExecutable</key>
     <string>$FRAMEWORK_NAME</string>
     <key>CFBundleIdentifier</key>
-    <string>com.duckduckgo.${FRAMEWORK_NAME}</string>
-    <key>CFBundleVersion</key>
-    <string>$VERSION</string>
-    <key>CFBundleShortVersionString</key>
-    <string>$VERSION</string>
+    <string>com.duckduckgo.ContentScopeScripts</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$FRAMEWORK_NAME</string>
     <key>CFBundlePackageType</key>
     <string>FMWK</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$VERSION</string>
+    <key>CFBundleVersion</key>
+    <string>$VERSION</string>
     <key>MinimumOSVersion</key>
-    <string>12.0</string>
+    <string>$MIN_OS</string>
     <key>CFBundleSupportedPlatforms</key>
     <array>
-        <string>iPhoneOS</string>
-        <string>iPhoneSimulator</string>
-        <string>MacOSX</string>
+        <string>$PLATFORM_NAME</string>
     </array>
 </dict>
 </plist>
 EOF
+    done
 
-# Copy resources from the built output
-if [ -d "../Sources/ContentScopeScripts/dist" ]; then
-    cp -r ../Sources/ContentScopeScripts/dist "$FRAMEWORK_DIR/"
-    echo "Copied resources from Sources/ContentScopeScripts/dist"
-else
-    echo "Warning: dist directory not found, creating empty resources"
-    mkdir -p "$FRAMEWORK_DIR/dist"
+    # Create the XCFramework using xcodebuild
+    XCFRAMEWORK_DIR="${FRAMEWORK_NAME}.xcframework"
+    echo "Creating XCFramework..."
+
+    xcodebuild -create-xcframework \
+        -framework "ios-arm64/${FRAMEWORK_NAME}.framework" \
+        -framework "ios-arm64-simulator/${FRAMEWORK_NAME}.framework" \
+        -framework "macos-arm64/${FRAMEWORK_NAME}.framework" \
+        -output "$XCFRAMEWORK_DIR"
 fi
-
-# Copy other necessary files
-cp -r ../Sources/ContentScopeScripts/ContentScopeScripts.swift "$FRAMEWORK_DIR/" 2>/dev/null || true
-
-# For resource-only frameworks, we need a minimal binary stub
-echo "Creating minimal binary stub..."
-mkdir -p "$FRAMEWORK_DIR/Versions/A"
-# Create a simple binary stub (empty file that satisfies framework requirements)
-echo '/* ContentScopeScripts Resource Bundle */' > "$FRAMEWORK_DIR/Versions/A/$FRAMEWORK_NAME"
-ln -sf "Versions/A/$FRAMEWORK_NAME" "$FRAMEWORK_DIR/$FRAMEWORK_NAME"
-cd "$FRAMEWORK_DIR/Versions" && ln -sf "A" "Current" && cd ../..
-
-# Create XCFramework structure manually
-XCFRAMEWORK_DIR="${FRAMEWORK_NAME}.xcframework"
-mkdir -p "$XCFRAMEWORK_DIR"
-
-# Create Info.plist for XCFramework
-cat > "$XCFRAMEWORK_DIR/Info.plist" << EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>AvailableLibraries</key>
-    <array>
-        <dict>
-            <key>LibraryIdentifier</key>
-            <string>macos-arm64_x86_64</string>
-            <key>LibraryPath</key>
-            <string>${FRAMEWORK_NAME}.framework</string>
-            <key>SupportedArchitectures</key>
-            <array>
-                <string>arm64</string>
-                <string>x86_64</string>
-            </array>
-            <key>SupportedPlatform</key>
-            <string>macos</string>
-        </dict>
-        <dict>
-            <key>LibraryIdentifier</key>
-            <string>ios-arm64</string>
-            <key>LibraryPath</key>
-            <string>${FRAMEWORK_NAME}.framework</string>
-            <key>SupportedArchitectures</key>
-            <array>
-                <string>arm64</string>
-            </array>
-            <key>SupportedPlatform</key>
-            <string>ios</string>
-        </dict>
-        <dict>
-            <key>LibraryIdentifier</key>
-            <string>ios-arm64_x86_64-simulator</string>
-            <key>LibraryPath</key>
-            <string>${FRAMEWORK_NAME}.framework</string>
-            <key>SupportedArchitectures</key>
-            <array>
-                <string>arm64</string>
-                <string>x86_64</string>
-            </array>
-            <key>SupportedPlatform</key>
-            <string>ios</string>
-            <key>SupportedPlatformVariant</key>
-            <string>simulator</string>
-        </dict>
-    </array>
-    <key>CFBundlePackageType</key>
-    <string>XFWK</string>
-    <key>XCFrameworkFormatVersion</key>
-    <string>1.0</string>
-</dict>
-</plist>
-EOF
-
-# Copy framework to each platform directory
-mkdir -p "$XCFRAMEWORK_DIR/macos-arm64_x86_64"
-mkdir -p "$XCFRAMEWORK_DIR/ios-arm64"
-mkdir -p "$XCFRAMEWORK_DIR/ios-arm64_x86_64-simulator"
-
-cp -r "$FRAMEWORK_DIR" "$XCFRAMEWORK_DIR/macos-arm64_x86_64/"
-cp -r "$FRAMEWORK_DIR" "$XCFRAMEWORK_DIR/ios-arm64/"
-cp -r "$FRAMEWORK_DIR" "$XCFRAMEWORK_DIR/ios-arm64_x86_64-simulator/"
 
 # Create zip file
 echo "Creating XCFramework zip..."
-zip -r "${FRAMEWORK_NAME}.xcframework.zip" "$XCFRAMEWORK_DIR"
+zip -r "${FRAMEWORK_NAME}.xcframework.zip" "${FRAMEWORK_NAME}.xcframework"
+
+# Copy to root directory for easy access
+cp "${FRAMEWORK_NAME}.xcframework.zip" "../${FRAMEWORK_NAME}.xcframework.zip"
 
 echo "XCFramework built successfully: ${FRAMEWORK_NAME}.xcframework.zip"
-ls -la "${FRAMEWORK_NAME}.xcframework.zip" 
+ls -la "${FRAMEWORK_NAME}.xcframework.zip"
+echo "Also available at: ../${FRAMEWORK_NAME}.xcframework.zip"
+ls -la "../${FRAMEWORK_NAME}.xcframework.zip" 
