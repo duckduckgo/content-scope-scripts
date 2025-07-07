@@ -36,7 +36,7 @@ jobs:
               run: |
                   # Create xcframework build directory
                   mkdir -p xcframework-build
-                  
+
                   # Create the xcframework using the build script
                   ./scripts/build-xcframework.sh "pr-${{ github.event.pull_request.number }}"
 
