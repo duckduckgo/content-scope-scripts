@@ -15,13 +15,9 @@
       "audioOutput": {
         "description": "Whether audio output devices are available",
         "type": "boolean"
-      },
-      "willPrompt": {
-        "description": "Whether the API would prompt for permissions",
-        "type": "boolean"
       }
     },
-    "required": ["videoInput", "audioInput", "audioOutput", "willPrompt"],
+    "required": ["videoInput", "audioInput", "audioOutput"],
     "type": "object"
   }
 } 

@@ -851,34 +851,38 @@ export class WebCompat extends ContentFeature {
              */
             apply: async (target, thisArg, args) => {
                 try {
+                    // Check permissions first using navigator.permissions.query
+                    if (navigator.permissions) {
+                        const cameraPermission = await navigator.permissions.query({ name: 'camera' });
+                        const microphonePermission = await navigator.permissions.query({ name: 'microphone' });
+
+                        // If permissions are denied, return empty array to avoid prompts
+                        if (cameraPermission.state === 'denied' && microphonePermission.state === 'denied') {
+                            return Promise.resolve([]);
+                        }
+                    }
+
                     // Request device enumeration information from native
-                    /** @type {{willPrompt: boolean, videoInput: boolean, audioInput: boolean, audioOutput: boolean}} */
+                    /** @type {{videoInput: boolean, audioInput: boolean, audioOutput: boolean}} */
                     const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
 
-                    // Check if native indicates that prompts would be required
-                    if (response.willPrompt) {
-                        // If prompts would be required, return a manipulated response
-                        // that includes the device types that are available
-                        /** @type {MediaDeviceInfo[]} */
-                        const devices = [];
+                    // Return a manipulated response that includes the device types that are available
+                    /** @type {MediaDeviceInfo[]} */
+                    const devices = [];
 
-                        if (response.videoInput) {
-                            devices.push(this.createMediaDeviceInfo('videoinput'));
-                        }
-
-                        if (response.audioInput) {
-                            devices.push(this.createMediaDeviceInfo('audioinput'));
-                        }
-
-                        if (response.audioOutput) {
-                            devices.push(this.createMediaDeviceInfo('audiooutput'));
-                        }
-
-                        return Promise.resolve(devices);
-                    } else {
-                        // If no prompts would be required, proceed with the regular device enumeration
-                        return DDGReflect.apply(target, thisArg, args);
+                    if (response.videoInput) {
+                        devices.push(this.createMediaDeviceInfo('videoinput'));
                     }
+
+                    if (response.audioInput) {
+                        devices.push(this.createMediaDeviceInfo('audioinput'));
+                    }
+
+                    if (response.audioOutput) {
+                        devices.push(this.createMediaDeviceInfo('audiooutput'));
+                    }
+
+                    return Promise.resolve(devices);
                 } catch (err) {
                     // If the native request fails, fall back to the original implementation
                     return DDGReflect.apply(target, thisArg, args);
