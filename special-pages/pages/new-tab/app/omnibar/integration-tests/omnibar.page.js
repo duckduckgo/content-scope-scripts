@@ -22,7 +22,7 @@ export class OmnibarPage {
     }
 
     chatInput() {
-        return this.context().getByRole('textbox', { name: /Chat privately with Duck\.ai/i });
+        return this.context().getByRole('textbox', { name: 'Chat privately with Duck.ai' });
     }
 
     tabList() {
@@ -30,15 +30,15 @@ export class OmnibarPage {
     }
 
     searchTab() {
-        return this.context().getByRole('tab', { name: /Search/i });
+        return this.context().getByRole('tab', { name: 'Search' });
     }
 
     aiTab() {
-        return this.context().getByRole('tab', { name: /Duck\.ai/i });
+        return this.context().getByRole('tab', { name: 'Duck.ai' });
     }
 
     aiChatButton() {
-        return this.context().getByRole('button', { name: /Duck\.ai/i });
+        return this.context().getByRole('button', { name: 'Duck.ai' });
     }
 
     suggestionsList() {
