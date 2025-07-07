@@ -49,6 +49,12 @@ export class NewtabPage {
             nextSteps_getData: {},
             rmf_getData: {},
             widgets_setConfig: {},
+            omnibar_getConfig: { mode: 'search', enableAi: false },
+            omnibar_getSuggestions: { suggestions: { topHits: [], duckduckgoSuggestions: [], localSuggestions: [] } },
+            omnibar_setConfig: {},
+            omnibar_openSuggestion: {},
+            omnibar_submitSearch: {},
+            omnibar_submitChat: {},
         });
     }
 
