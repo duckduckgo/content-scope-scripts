@@ -260,4 +260,76 @@ test.describe('omnibar widget', () => {
         await omnibar.searchInput().press('Tab');
         await expect(omnibar.searchInput()).not.toBeFocused();
     });
+
+    test('input suggestion when title begins with query', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Select "pizza near me" suggestion (starts with "pizza")
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+
+        // Input should show "pizza[ near me]" with " near me" selected
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+        await omnibar.expectInputSelection(5, 13);
+    });
+
+    test('input suggestion when url begins with query', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Navigate to find "pizzahut.com" suggestion (url starts with "pizza")
+        await omnibar.searchInput().press('ArrowDown'); // pizza near me
+        await omnibar.searchInput().press('ArrowDown'); // pizza delivery
+        await omnibar.searchInput().press('ArrowDown'); // pizza hut
+        await omnibar.searchInput().press('ArrowDown'); // pizzahut.com
+        await omnibar.expectSelectedSuggestion('pizzahut.com');
+
+        // Input should show "pizza[hut.com]" with "hut.com" selected
+        await omnibar.expectInputValue('pizzahut.com');
+        await omnibar.expectInputSelectionText('hut.com');
+        await omnibar.expectInputSelection(5, 12);
+    });
+
+    test('input suggestion when neither title nor url begins with query', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Navigate to find a history entry that doesn't start with "pizza"
+        // Keep pressing down until we get to "Italian Pizza History"
+        for (let i = 0; i < 15; i++) {
+            await omnibar.searchInput().press('ArrowDown');
+        }
+        await omnibar.expectSelectedSuggestion('Italian Pizza History');
+
+        // Input should show "[Italian Pizza History]" with entire text selected
+        await omnibar.expectInputValue('Italian Pizza History');
+        await omnibar.expectInputSelectionText('Italian Pizza History');
+        await omnibar.expectInputSelection(0, 21);
+    });
 });

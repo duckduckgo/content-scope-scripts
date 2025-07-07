@@ -71,6 +71,53 @@ export class OmnibarPage {
         await expect(this.selectedSuggestion()).toHaveCount(0);
     }
 
+    async waitForSuggestions() {
+        await expect(this.suggestions().first()).toBeVisible();
+    }
+
+    /**
+     * @param {string} value
+     */
+    async expectInputValue(value) {
+        await expect(this.searchInput()).toHaveValue(value);
+    }
+
+    /**
+     * @param {number} startIndex
+     * @param {number} endIndex
+     */
+    async expectInputSelection(startIndex, endIndex) {
+        const input = this.searchInput();
+        const selectionStart = await input.evaluate((el) => {
+            if (!(el instanceof HTMLInputElement)) {
+                throw new Error('Element is not an HTMLInputElement');
+            }
+            return el.selectionStart;
+        });
+        const selectionEnd = await input.evaluate((el) => {
+            if (!(el instanceof HTMLInputElement)) {
+                throw new Error('Element is not an HTMLInputElement');
+            }
+            return el.selectionEnd;
+        });
+        expect(selectionStart).toBe(startIndex);
+        expect(selectionEnd).toBe(endIndex);
+    }
+
+    /**
+     * @param {string} selectedText
+     */
+    async expectInputSelectionText(selectedText) {
+        const input = this.searchInput();
+        const selection = await input.evaluate((el) => {
+            if (!(el instanceof HTMLInputElement)) {
+                throw new Error('Element is not an HTMLInputElement');
+            }
+            return el.value.slice(el.selectionStart ?? 0, el.selectionEnd ?? 0);
+        });
+        expect(selection).toBe(selectedText);
+    }
+
     /**
      * @param {'search' | 'ai'} mode
      */
