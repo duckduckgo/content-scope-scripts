@@ -53,9 +53,10 @@ npm test
 
 ### Individual Commands
 ```shell
-npm run test-unit    # Unit tests (Jasmine)
-npm run test-int     # Integration tests (Playwright)  
-npm run build        # Build platform-specific artifacts
+npm run test-unit      # Unit tests (Jasmine)
+npm run test-int       # Integration tests (Playwright)  
+npm run build          # Build platform-specific artifacts
+npm run fake-extension # Runs an example extension used within the integration tests
 ```
 
 ### Project Structure
