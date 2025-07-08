@@ -578,4 +578,33 @@ test.describe('omnibar widget', () => {
         await omnibar.expectInputSelection(0, 0); // cursor at beginning
         await omnibar.expectSuggestionsCount(0); // still hidden
     });
+
+    test('clearing input field should reset selected suggestion index', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Clear the input field completely
+        await omnibar.searchInput().fill('');
+
+        // Input should be completely empty, not repopulated with suggestion
+        await omnibar.expectInputValue('');
+        await omnibar.expectSuggestionsCount(0);
+
+        // Verify no selection text remains
+        await omnibar.expectInputSelection(0, 0);
+    });
 });
