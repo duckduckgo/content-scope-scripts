@@ -371,4 +371,87 @@ test.describe('omnibar widget', () => {
         await omnibar.expectInputSelectionText(' near me');
         await omnibar.expectInputSelection(5, 13);
     });
+
+    test('arrow left when suggestion selected should place cursor to left of selection', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press left arrow to move cursor to left of selection
+        await omnibar.searchInput().press('ArrowLeft');
+
+        // Cursor should be positioned after "pizza" (no selection)
+        await omnibar.expectNoSelection();
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelection(5, 5);
+    });
+
+    test('arrow right when suggestion selected should place cursor to right of selection', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press right arrow to move cursor to right of selection
+        await omnibar.searchInput().press('ArrowRight');
+
+        // Cursor should be positioned at the end of input (no selection)
+        await omnibar.expectNoSelection();
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelection(13, 13);
+    });
+
+    test('delete when suggestion selected should remove selection and place cursor at end of original query', async ({
+        page,
+    }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press delete to remove selection
+        await omnibar.searchInput().press('Delete');
+
+        // Input should show "pizza" with cursor at end
+        await omnibar.expectNoSelection();
+        await omnibar.expectInputValue('pizza');
+        await omnibar.expectInputSelection(5, 5);
+    });
 });
