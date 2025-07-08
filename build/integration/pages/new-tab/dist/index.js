@@ -7300,18 +7300,18 @@
           const fetch2 = async () => {
             const data2 = await this.ntp.messaging.request("omnibar_getSuggestions", { term });
             if (fetchId === __privateGet(this, _lastFetchId)) {
-              __privateGet(this, _eventTarget).dispatchEvent(new CustomEvent(EVENT_DATA, { detail: data2 }));
+              __privateGet(this, _eventTarget).dispatchEvent(new CustomEvent(EVENT_DATA, { detail: { data: data2, term } }));
             }
             return data2;
           };
           return fetch2();
         }
         /**
-         * @param {(data: SuggestionsData) => void} cb
+         * @param {(data: SuggestionsData, term: string) => void} cb
          * @returns {() => void}
          */
         onData(cb) {
-          const handler = (event) => cb(event.detail);
+          const handler = (event) => cb(event.detail.data, event.detail.term);
           __privateGet(this, _eventTarget).addEventListener(EVENT_DATA, handler);
           return () => __privateGet(this, _eventTarget).removeEventListener(EVENT_DATA, handler);
         }
@@ -7387,7 +7387,7 @@
         }
         /**
          * Subscribe to suggestions updates. Returns a function to unsubscribe
-         * @param {(data: SuggestionsData) => void} cb
+         * @param {(data: SuggestionsData, term: string) => void} cb
          * @returns {() => void}
          */
         onSuggestions(cb) {
@@ -7527,7 +7527,7 @@
         getSuggestions: () => {
           throw new Error("must implement");
         },
-        /** @type {(cb: (data: SuggestionsData) => void) => (() => void)} */
+        /** @type {(cb: (data: SuggestionsData, term: string) => void) => (() => void)} */
         onSuggestions: () => {
           throw new Error("must implement");
         },
@@ -7602,11 +7602,7 @@
         placeholder: t4("aiChatForm_placeholder"),
         "aria-label": t4("aiChatForm_placeholder"),
         autoComplete: "off",
-        onChange: (event) => {
-          if (event.target instanceof HTMLInputElement) {
-            setChat(event.target.value);
-          }
-        }
+        onChange: (event) => setChat(event.currentTarget.value)
       }
     ), /* @__PURE__ */ _("div", { class: Omnibar_default.inputActions }, /* @__PURE__ */ _(
       "button",
@@ -7719,11 +7715,11 @@
       /** @type {HTMLInputElement|null} */
       null
     );
-    y2(() => {
+    _2(() => {
       if (!ref.current) return;
       const value2 = base + suggestion;
-      if (ref.current.value !== value2) {
-        ref.current.value = value2;
+      ref.current.value = value2;
+      if (suggestion) {
         ref.current.setSelectionRange(base.length, value2.length);
       }
     }, [base, suggestion]);
@@ -7744,14 +7740,13 @@
           ...state,
           originalTerm: action.term,
           suggestions: action.suggestions,
-          selectedIndex: null
+          selectedIndex: null,
+          suggestionsVisible: true
         };
-      case "resetSuggestions":
+      case "hideSuggestions":
         return {
           ...state,
-          originalTerm: null,
-          suggestions: [],
-          selectedIndex: null
+          suggestionsVisible: false
         };
       case "setSelectedSuggestion": {
         const nextIndex = state.suggestions.indexOf(action.suggestion);
@@ -7827,7 +7822,7 @@
       inputSuggestion = selectedSuggestion.title;
     }
     y2(() => {
-      return onSuggestions((data2) => {
+      return onSuggestions((data2, term2) => {
         const suggestions = [
           ...data2.suggestions.topHits,
           ...data2.suggestions.duckduckgoSuggestions,
@@ -7839,24 +7834,27 @@
         }));
         dispatch({
           type: "setSuggestions",
-          term,
+          term: term2,
           suggestions
         });
       });
     }, [onSuggestions]);
     const onInputChange = (event) => {
-      if (!(event.target instanceof HTMLInputElement)) return;
-      const term2 = event.target.value;
+      const term2 = event.currentTarget.value;
       setTerm(term2);
+      dispatch({ type: "clearSelectedSuggestion" });
       if (term2.length === 0) {
-        dispatch({ type: "resetSuggestions" });
-        return;
+        dispatch({ type: "hideSuggestions" });
+      } else {
+        getSuggestions(term2);
       }
-      getSuggestions(term2);
     };
     const onInputKeyDown = (event) => {
       switch (event.key) {
         case "ArrowUp":
+          if (!state.suggestionsVisible) {
+            return;
+          }
           event.preventDefault();
           if (state.originalTerm && term !== state.originalTerm) {
             setTerm(state.originalTerm);
@@ -7864,6 +7862,9 @@
           dispatch({ type: "previousSuggestion" });
           break;
         case "ArrowDown":
+          if (!state.suggestionsVisible) {
+            return;
+          }
           event.preventDefault();
           if (state.originalTerm && term !== state.originalTerm) {
             setTerm(state.originalTerm);
@@ -7879,7 +7880,7 @@
           break;
         case "Escape":
           event.preventDefault();
-          dispatch({ type: "resetSuggestions" });
+          dispatch({ type: "hideSuggestions" });
           break;
         case "Enter":
           if (selectedSuggestion) {
@@ -7895,8 +7896,14 @@
         dispatch({ type: "clearSelectedSuggestion" });
       }
     };
+    const onFormBlur = (event) => {
+      if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) {
+        return;
+      }
+      dispatch({ type: "hideSuggestions" });
+    };
     return {
-      suggestions: state.suggestions,
+      suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY,
       selectedSuggestion,
       setSelectedSuggestion,
       clearSelectedSuggestion,
@@ -7904,7 +7911,8 @@
       inputSuggestion,
       onInputChange,
       onInputKeyDown,
-      onInputClick
+      onInputClick,
+      onFormBlur
     };
   }
   function getSuggestionTitle(suggestion) {
@@ -7930,7 +7938,7 @@
   function startsWithIgnoreCase(text2, searchTerm) {
     return text2.toLowerCase().startsWith(searchTerm.toLowerCase());
   }
-  var initialState;
+  var initialState, EMPTY_ARRAY;
   var init_useSuggestions = __esm({
     "pages/new-tab/app/omnibar/components/useSuggestions.js"() {
       "use strict";
@@ -7941,8 +7949,10 @@
       initialState = {
         originalTerm: null,
         suggestions: [],
-        selectedIndex: null
+        selectedIndex: null,
+        suggestionsVisible: true
       };
+      EMPTY_ARRAY = [];
     }
   });
 
@@ -7964,20 +7974,21 @@
       inputSuggestion,
       onInputChange,
       onInputKeyDown,
-      onInputClick
+      onInputClick,
+      onFormBlur
     } = useSuggestions({
       term,
       setTerm
     });
     const inputRef = useSuggestionInput(inputBase, inputSuggestion);
-    const onSubmit = (event) => {
+    const onFormSubmit = (event) => {
       event.preventDefault();
       submitSearch({
         term,
         target: "same-tab"
       });
     };
-    return /* @__PURE__ */ _("div", { class: Omnibar_default.formWrap }, /* @__PURE__ */ _("form", { onSubmit, class: Omnibar_default.form }, /* @__PURE__ */ _("div", { class: Omnibar_default.inputRoot, style: { viewTransitionName: "omnibar-input-transition" } }, /* @__PURE__ */ _("div", { class: Omnibar_default.inputContainer, style: { viewTransitionName: "omnibar-input-transition2" } }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Omnibar_default.formWrap }, /* @__PURE__ */ _("form", { class: Omnibar_default.form, onBlur: onFormBlur, onSubmit: onFormSubmit }, /* @__PURE__ */ _("div", { class: Omnibar_default.inputRoot, style: { viewTransitionName: "omnibar-input-transition" } }, /* @__PURE__ */ _("div", { class: Omnibar_default.inputContainer, style: { viewTransitionName: "omnibar-input-transition2" } }, /* @__PURE__ */ _(
       "input",
       {
         ref: inputRef,

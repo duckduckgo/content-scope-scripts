@@ -18,14 +18,15 @@ import { OmnibarContext } from './OmnibarProvider.js';
  * @typedef {{
  *   originalTerm: string | null,
  *   suggestions: SuggestionModel[],
- *   selectedIndex: number | null
+ *   selectedIndex: number | null,
+ *   suggestionsVisible: boolean
  * }} State
  */
 
 /**
  * @typedef {(
  *   | { type: 'setSuggestions', term: string, suggestions: SuggestionModel[] }
- *   | { type: 'resetSuggestions' }
+ *   | { type: 'hideSuggestions' }
  *   | { type: 'setSelectedSuggestion', suggestion: SuggestionModel }
  *   | { type: 'clearSelectedSuggestion' }
  *   | { type: 'previousSuggestion' }
@@ -40,7 +41,11 @@ const initialState = {
     originalTerm: null,
     suggestions: [],
     selectedIndex: null,
+    suggestionsVisible: true,
 };
+
+/** @type {[]} */
+const EMPTY_ARRAY = [];
 
 /**
  * @type {import('preact/hooks').Reducer<State, Action>}
@@ -53,13 +58,13 @@ function reducer(state, action) {
                 originalTerm: action.term,
                 suggestions: action.suggestions,
                 selectedIndex: null,
+                suggestionsVisible: true,
             };
-        case 'resetSuggestions':
+
+        case 'hideSuggestions':
             return {
                 ...state,
-                originalTerm: null,
-                suggestions: [],
-                selectedIndex: null,
+                suggestionsVisible: false,
             };
         case 'setSelectedSuggestion': {
             const nextIndex = state.suggestions.indexOf(action.suggestion);
@@ -148,7 +153,7 @@ export function useSuggestions({ term, setTerm }) {
     }
 
     useEffect(() => {
-        return onSuggestions((data) => {
+        return onSuggestions((data, term) => {
             const suggestions = [
                 ...data.suggestions.topHits,
                 ...data.suggestions.duckduckgoSuggestions,
@@ -168,23 +173,25 @@ export function useSuggestions({ term, setTerm }) {
 
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
     const onInputChange = (event) => {
-        if (!(event.target instanceof HTMLInputElement)) return;
-
-        const term = event.target.value;
+        const term = event.currentTarget.value;
         setTerm(term);
 
-        if (term.length === 0) {
-            dispatch({ type: 'resetSuggestions' });
-            return;
-        }
+        dispatch({ type: 'clearSelectedSuggestion' });
 
-        getSuggestions(term);
+        if (term.length === 0) {
+            dispatch({ type: 'hideSuggestions' });
+        } else {
+            getSuggestions(term);
+        }
     };
 
     /** @type {(event: KeyboardEvent) => void} */
     const onInputKeyDown = (event) => {
         switch (event.key) {
             case 'ArrowUp':
+                if (!state.suggestionsVisible) {
+                    return;
+                }
                 event.preventDefault();
                 if (state.originalTerm && term !== state.originalTerm) {
                     setTerm(state.originalTerm);
@@ -192,6 +199,9 @@ export function useSuggestions({ term, setTerm }) {
                 dispatch({ type: 'previousSuggestion' });
                 break;
             case 'ArrowDown':
+                if (!state.suggestionsVisible) {
+                    return;
+                }
                 event.preventDefault();
                 if (state.originalTerm && term !== state.originalTerm) {
                     setTerm(state.originalTerm);
@@ -207,7 +217,7 @@ export function useSuggestions({ term, setTerm }) {
                 break;
             case 'Escape':
                 event.preventDefault();
-                dispatch({ type: 'resetSuggestions' });
+                dispatch({ type: 'hideSuggestions' });
                 break;
             case 'Enter':
                 if (selectedSuggestion) {
@@ -225,8 +235,18 @@ export function useSuggestions({ term, setTerm }) {
         }
     };
 
+    /** @type {(event: import('preact').JSX.TargetedFocusEvent<HTMLFormElement>) => void} */
+    const onFormBlur = (event) => {
+        // Ignore blur events cauesd by moving focus to an element inside the form
+        if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) {
+            return;
+        }
+
+        dispatch({ type: 'hideSuggestions' });
+    };
+
     return {
-        suggestions: state.suggestions,
+        suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY,
         selectedSuggestion,
         setSelectedSuggestion,
         clearSelectedSuggestion,
@@ -235,6 +255,7 @@ export function useSuggestions({ term, setTerm }) {
         onInputChange,
         onInputKeyDown,
         onInputClick,
+        onFormBlur,
     };
 }
 

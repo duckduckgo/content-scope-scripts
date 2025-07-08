@@ -27,8 +27,8 @@
     "lint-fix": "eslint . --fix && npx prettier . --write && npm run tsc",
     "stylelint": "npx stylelint \"**/*.css\"",
     "stylelint-fix": "npx stylelint \"**/*.css\" --fix",
-    "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
-    "serve-special-pages": "http-server -c-1 --port 3221 build/integration/pages"
+    "serve": "npm run serve --workspace=injected",
+    "serve-special-pages": "npm run serve --workspace=special-pages"
   },
   "type": "module",
   "workspaces": [
@@ -51,7 +51,8 @@
     "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.5",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.33.0"
+    "typescript-eslint": "^8.33.0",
+    "wait-on": "^8.0.3"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.1",
