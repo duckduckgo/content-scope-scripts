@@ -237,6 +237,16 @@ export function useSuggestions({ term, setTerm }) {
         }
     };
 
+    /** @type {(event: import('preact').JSX.TargetedFocusEvent<HTMLFormElement>) => void} */
+    const onFormBlur = (event) => {
+        // Ignore blur events cauesd by moving focus to an element inside the form
+        if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) {
+            return;
+        }
+
+        dispatch({ type: 'hideSuggestions' });
+    };
+
     return {
         suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY,
         selectedSuggestion,
@@ -247,6 +257,7 @@ export function useSuggestions({ term, setTerm }) {
         onInputChange,
         onInputKeyDown,
         onInputClick,
+        onFormBlur,
     };
 }
 
