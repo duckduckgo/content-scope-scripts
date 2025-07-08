@@ -178,6 +178,7 @@ export function useSuggestions({ term, setTerm }) {
             return;
         }
 
+        dispatch({ type: 'clearSelectedSuggestion' });
         getSuggestions(term);
     };
 

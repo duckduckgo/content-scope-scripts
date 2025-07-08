@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'preact/hooks';
+import { useLayoutEffect, useRef } from 'preact/hooks';
 
 /**
  * @param {string} base
@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'preact/hooks';
 export function useSuggestionInput(base, suggestion) {
     const ref = useRef(/** @type {HTMLInputElement|null} */ (null));
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!ref.current) return;
         const value = base + suggestion;
         ref.current.value = value;
