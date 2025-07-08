@@ -18,14 +18,15 @@ import { OmnibarContext } from './OmnibarProvider.js';
  * @typedef {{
  *   originalTerm: string | null,
  *   suggestions: SuggestionModel[],
- *   selectedIndex: number | null
+ *   selectedIndex: number | null,
+ *   suggestionsVisible: boolean
  * }} State
  */
 
 /**
  * @typedef {(
  *   | { type: 'setSuggestions', term: string, suggestions: SuggestionModel[] }
- *   | { type: 'resetSuggestions' }
+ *   | { type: 'hideSuggestions' }
  *   | { type: 'setSelectedSuggestion', suggestion: SuggestionModel }
  *   | { type: 'clearSelectedSuggestion' }
  *   | { type: 'previousSuggestion' }
@@ -40,7 +41,11 @@ const initialState = {
     originalTerm: null,
     suggestions: [],
     selectedIndex: null,
+    suggestionsVisible: true,
 };
+
+/** @type {[]} */
+const EMPTY_ARRAY = [];
 
 /**
  * @type {import('preact/hooks').Reducer<State, Action>}
@@ -53,13 +58,13 @@ function reducer(state, action) {
                 originalTerm: action.term,
                 suggestions: action.suggestions,
                 selectedIndex: null,
+                suggestionsVisible: true,
             };
-        case 'resetSuggestions':
+
+        case 'hideSuggestions':
             return {
                 ...state,
-                originalTerm: null,
-                suggestions: [],
-                selectedIndex: null,
+                suggestionsVisible: false,
             };
         case 'setSelectedSuggestion': {
             const nextIndex = state.suggestions.indexOf(action.suggestion);
@@ -174,7 +179,7 @@ export function useSuggestions({ term, setTerm }) {
         setTerm(term);
 
         if (term.length === 0) {
-            dispatch({ type: 'resetSuggestions' });
+            dispatch({ type: 'hideSuggestions' });
             return;
         }
 
@@ -208,7 +213,7 @@ export function useSuggestions({ term, setTerm }) {
                 break;
             case 'Escape':
                 event.preventDefault();
-                dispatch({ type: 'resetSuggestions' });
+                dispatch({ type: 'hideSuggestions' });
                 break;
             case 'Enter':
                 if (selectedSuggestion) {
@@ -227,7 +232,7 @@ export function useSuggestions({ term, setTerm }) {
     };
 
     return {
-        suggestions: state.suggestions,
+        suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY,
         selectedSuggestion,
         setSelectedSuggestion,
         clearSelectedSuggestion,
