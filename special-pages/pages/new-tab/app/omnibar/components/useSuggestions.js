@@ -173,9 +173,7 @@ export function useSuggestions({ term, setTerm }) {
 
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
     const onInputChange = (event) => {
-        if (!(event.target instanceof HTMLInputElement)) return;
-
-        const term = event.target.value;
+        const term = event.currentTarget.value;
         setTerm(term);
 
         dispatch({ type: 'clearSelectedSuggestion' });
