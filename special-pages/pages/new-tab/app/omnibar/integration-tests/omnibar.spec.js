@@ -533,4 +533,49 @@ test.describe('omnibar widget', () => {
         await omnibar.expectInputSelectionText(' near me');
         await omnibar.expectInputSelection(5, 13);
     });
+
+    test('arrow keys after ESC should move cursor, not navigate hidden suggestions', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press ESC to hide suggestions
+        await omnibar.searchInput().press('Escape');
+        await omnibar.expectSuggestionsCount(0);
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press arrow down - should move cursor to end, not navigate hidden suggestions
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelection(13, 13); // cursor at end
+        await omnibar.expectSuggestionsCount(0); // still hidden
+
+        // Clear input and test arrow up
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('Escape');
+        await omnibar.expectSuggestionsCount(0);
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press arrow up - should move cursor to beginning, not navigate hidden suggestions
+        await omnibar.searchInput().press('ArrowUp');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelection(0, 0); // cursor at beginning
+        await omnibar.expectSuggestionsCount(0); // still hidden
+    });
 });
