@@ -607,4 +607,54 @@ test.describe('omnibar widget', () => {
         // Verify no selection text remains
         await omnibar.expectInputSelection(0, 0);
     });
+
+    test('clicking outside search field should close suggestions', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Verify suggestions are visible
+        await omnibar.expectSuggestionsCount(17);
+
+        // Click outside the search field (on the page body)
+        await page.click('body', { position: { x: 100, y: 100 } });
+
+        // Suggestions should be closed
+        await omnibar.expectSuggestionsCount(0);
+
+        // Input should retain its value
+        await omnibar.expectInputValue('pizza');
+    });
+
+    test('focusing outside search field should close suggestions', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Verify suggestions are visible
+        await omnibar.expectSuggestionsCount(17);
+
+        // Focus outside the search form (press Shift+Tab to move focus to pill switcher)
+        await omnibar.searchInput().press('Shift+Tab');
+
+        // Suggestions should be closed
+        await omnibar.expectSuggestionsCount(0);
+
+        // Input should retain its value
+        await omnibar.expectInputValue('pizza');
+    });
 });
