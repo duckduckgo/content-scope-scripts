@@ -454,4 +454,33 @@ test.describe('omnibar widget', () => {
         await omnibar.expectInputValue('pizza');
         await omnibar.expectInputSelection(5, 5);
     });
+
+    test('typing when suggestion selected should replace selection with new text', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Type " mar" to replace selection - simulate actual typing behavior
+        await omnibar.searchInput().pressSequentially(' mar');
+        await omnibar.waitForSuggestions();
+
+        // Input should show "pizza mar" with cursor at end, no selection
+        await omnibar.expectNoSelection();
+        await omnibar.expectInputValue('pizza mar');
+        await omnibar.expectInputSelection(9, 9);
+        await omnibar.expectSuggestionsCount(2);
+    });
 });
