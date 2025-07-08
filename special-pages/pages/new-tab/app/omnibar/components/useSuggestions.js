@@ -178,13 +178,13 @@ export function useSuggestions({ term, setTerm }) {
         const term = event.target.value;
         setTerm(term);
 
+        dispatch({ type: 'clearSelectedSuggestion' });
+
         if (term.length === 0) {
             dispatch({ type: 'hideSuggestions' });
-            return;
+        } else {
+            getSuggestions(term);
         }
-
-        dispatch({ type: 'clearSelectedSuggestion' });
-        getSuggestions(term);
     };
 
     /** @type {(event: KeyboardEvent) => void} */
