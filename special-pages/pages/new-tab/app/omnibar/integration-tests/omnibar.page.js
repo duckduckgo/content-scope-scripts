@@ -88,18 +88,8 @@ export class OmnibarPage {
      */
     async expectInputSelection(startIndex, endIndex) {
         const input = this.searchInput();
-        const selectionStart = await input.evaluate((el) => {
-            if (!(el instanceof HTMLInputElement)) {
-                throw new Error('Element is not an HTMLInputElement');
-            }
-            return el.selectionStart;
-        });
-        const selectionEnd = await input.evaluate((el) => {
-            if (!(el instanceof HTMLInputElement)) {
-                throw new Error('Element is not an HTMLInputElement');
-            }
-            return el.selectionEnd;
-        });
+        const selectionStart = await input.evaluate((/** @type {HTMLInputElement} */ el) => el.selectionStart);
+        const selectionEnd = await input.evaluate((/** @type {HTMLInputElement} */ el) => el.selectionEnd);
         expect(selectionStart).toBe(startIndex);
         expect(selectionEnd).toBe(endIndex);
     }
@@ -109,12 +99,9 @@ export class OmnibarPage {
      */
     async expectInputSelectionText(selectedText) {
         const input = this.searchInput();
-        const selection = await input.evaluate((el) => {
-            if (!(el instanceof HTMLInputElement)) {
-                throw new Error('Element is not an HTMLInputElement');
-            }
-            return el.value.slice(el.selectionStart ?? 0, el.selectionEnd ?? 0);
-        });
+        const selection = await input.evaluate((/** @type {HTMLInputElement} */ el) =>
+            el.value.slice(el.selectionStart ?? 0, el.selectionEnd ?? 0),
+        );
         expect(selection).toBe(selectedText);
     }
 
