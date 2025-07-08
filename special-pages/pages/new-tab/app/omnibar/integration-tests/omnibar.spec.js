@@ -483,4 +483,26 @@ test.describe('omnibar widget', () => {
         await omnibar.expectInputSelection(9, 9);
         await omnibar.expectSuggestionsCount(2);
     });
+
+    test('clearing input field should hide suggestions', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.waitForSuggestions();
+
+        // Verify suggestions appear
+        await omnibar.expectSuggestionsCount(2);
+
+        // Clear the input field
+        await omnibar.searchInput().fill('');
+
+        // Verify suggestions are hidden
+        await omnibar.expectSuggestionsCount(0);
+    });
 });
