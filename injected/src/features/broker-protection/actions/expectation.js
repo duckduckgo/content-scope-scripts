@@ -38,5 +38,3 @@ export function expectation(action, root = document) {
 
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
 }
-
-
