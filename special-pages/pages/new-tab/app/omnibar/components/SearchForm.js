@@ -38,6 +38,7 @@ export function SearchForm({ enableAi, term, setTerm }) {
         onInputChange,
         onInputKeyDown,
         onInputClick,
+        onFormBlur,
     } = useSuggestions({
         term,
         setTerm,
@@ -46,7 +47,7 @@ export function SearchForm({ enableAi, term, setTerm }) {
     const inputRef = useSuggestionInput(inputBase, inputSuggestion);
 
     /** @type {(event: SubmitEvent) => void} */
-    const onSubmit = (event) => {
+    const onFormSubmit = (event) => {
         event.preventDefault();
         submitSearch({
             term,
@@ -56,7 +57,7 @@ export function SearchForm({ enableAi, term, setTerm }) {
 
     return (
         <div class={styles.formWrap}>
-            <form onSubmit={onSubmit} class={styles.form}>
+            <form class={styles.form} onBlur={onFormBlur} onSubmit={onFormSubmit}>
                 <div class={styles.inputRoot} style={{ viewTransitionName: 'omnibar-input-transition' }}>
                     <div class={styles.inputContainer} style={{ viewTransitionName: 'omnibar-input-transition2' }}>
                         <input

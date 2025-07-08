@@ -332,4 +332,329 @@ test.describe('omnibar widget', () => {
         await omnibar.expectInputSelectionText('Italian Pizza History');
         await omnibar.expectInputSelection(0, 21);
     });
+
+    test('arrow down after arrow left should restore suggestion selection', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+
+        // Input should show "pizza[ near me]" with " near me" selected
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+        await omnibar.expectInputSelection(5, 13);
+
+        // Press left arrow to move cursor
+        await omnibar.searchInput().press('ArrowLeft');
+
+        // Input should now show "pizza near me" with cursor after "pizza"
+        await omnibar.expectNoSelection();
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelection(5, 5);
+
+        // Press arrow down again
+        await omnibar.searchInput().press('ArrowDown');
+
+        // Should be back to "pizza[ near me]" with " near me" selected
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+        await omnibar.expectInputSelection(5, 13);
+    });
+
+    test('arrow left when suggestion selected should place cursor to left of selection', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press left arrow to move cursor to left of selection
+        await omnibar.searchInput().press('ArrowLeft');
+
+        // Cursor should be positioned after "pizza" (no selection)
+        await omnibar.expectNoSelection();
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelection(5, 5);
+    });
+
+    test('arrow right when suggestion selected should place cursor to right of selection', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press right arrow to move cursor to right of selection
+        await omnibar.searchInput().press('ArrowRight');
+
+        // Cursor should be positioned at the end of input (no selection)
+        await omnibar.expectNoSelection();
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelection(13, 13);
+    });
+
+    test('delete when suggestion selected should remove selection and place cursor at end of original query', async ({
+        page,
+    }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press delete to remove selection
+        await omnibar.searchInput().press('Delete');
+
+        // Input should show "pizza" with cursor at end
+        await omnibar.expectNoSelection();
+        await omnibar.expectInputValue('pizza');
+        await omnibar.expectInputSelection(5, 5);
+    });
+
+    test('typing when suggestion selected should replace selection with new text', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Type " mar" to replace selection - simulate actual typing behavior
+        await omnibar.searchInput().pressSequentially(' mar');
+        await omnibar.waitForSuggestions();
+
+        // Input should show "pizza mar" with cursor at end, no selection
+        await omnibar.expectNoSelection();
+        await omnibar.expectInputValue('pizza mar');
+        await omnibar.expectInputSelection(9, 9);
+        await omnibar.expectSuggestionsCount(2);
+    });
+
+    test('clearing input field should hide suggestions', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.waitForSuggestions();
+
+        // Verify suggestions appear
+        await omnibar.expectSuggestionsCount(2);
+
+        // Clear the input field
+        await omnibar.searchInput().fill('');
+
+        // Verify suggestions are hidden
+        await omnibar.expectSuggestionsCount(0);
+    });
+
+    test('pressing ESC should hide suggestions while preserving input suggestion', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press ESC to hide suggestions
+        await omnibar.searchInput().press('Escape');
+
+        // Suggestions should be hidden but input should remain "pizza[ near me]"
+        await omnibar.expectSuggestionsCount(0);
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+        await omnibar.expectInputSelection(5, 13);
+    });
+
+    test('arrow keys after ESC should move cursor, not navigate hidden suggestions', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press ESC to hide suggestions
+        await omnibar.searchInput().press('Escape');
+        await omnibar.expectSuggestionsCount(0);
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press arrow down - should move cursor to end, not navigate hidden suggestions
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelection(13, 13); // cursor at end
+        await omnibar.expectSuggestionsCount(0); // still hidden
+
+        // Clear input and test arrow up
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('Escape');
+        await omnibar.expectSuggestionsCount(0);
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press arrow up - should move cursor to beginning, not navigate hidden suggestions
+        await omnibar.searchInput().press('ArrowUp');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelection(0, 0); // cursor at beginning
+        await omnibar.expectSuggestionsCount(0); // still hidden
+    });
+
+    test('clearing input field should reset selected suggestion index', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Clear the input field completely
+        await omnibar.searchInput().fill('');
+
+        // Input should be completely empty, not repopulated with suggestion
+        await omnibar.expectInputValue('');
+        await omnibar.expectSuggestionsCount(0);
+
+        // Verify no selection text remains
+        await omnibar.expectInputSelection(0, 0);
+    });
+
+    test('clicking outside search field should close suggestions', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Verify suggestions are visible
+        await omnibar.expectSuggestionsCount(17);
+
+        // Click outside the search field (on the page body)
+        await page.click('body', { position: { x: 100, y: 100 } });
+
+        // Suggestions should be closed
+        await omnibar.expectSuggestionsCount(0);
+
+        // Input should retain its value
+        await omnibar.expectInputValue('pizza');
+    });
+
+    test('focusing outside search field should close suggestions', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Verify suggestions are visible
+        await omnibar.expectSuggestionsCount(17);
+
+        // Focus outside the search form (press Shift+Tab to move focus to pill switcher)
+        await omnibar.searchInput().press('Shift+Tab');
+
+        // Suggestions should be closed
+        await omnibar.expectSuggestionsCount(0);
+
+        // Input should retain its value
+        await omnibar.expectInputValue('pizza');
+    });
 });
