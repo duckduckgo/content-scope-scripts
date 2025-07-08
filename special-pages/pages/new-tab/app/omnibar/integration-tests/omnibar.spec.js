@@ -505,4 +505,32 @@ test.describe('omnibar widget', () => {
         // Verify suggestions are hidden
         await omnibar.expectSuggestionsCount(0);
     });
+
+    test('pressing ESC should hide suggestions while preserving input suggestion', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza" to get suggestions
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+
+        // Press arrow down to select first suggestion
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza near me');
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+
+        // Press ESC to hide suggestions
+        await omnibar.searchInput().press('Escape');
+
+        // Suggestions should be hidden but input should remain "pizza[ near me]"
+        await omnibar.expectSuggestionsCount(0);
+        await omnibar.expectInputValue('pizza near me');
+        await omnibar.expectInputSelectionText(' near me');
+        await omnibar.expectInputSelection(5, 13);
+    });
 });
