@@ -191,6 +191,9 @@ export function useSuggestions({ term, setTerm }) {
     const onInputKeyDown = (event) => {
         switch (event.key) {
             case 'ArrowUp':
+                if (!state.suggestionsVisible) {
+                    return;
+                }
                 event.preventDefault();
                 if (state.originalTerm && term !== state.originalTerm) {
                     setTerm(state.originalTerm);
@@ -198,6 +201,9 @@ export function useSuggestions({ term, setTerm }) {
                 dispatch({ type: 'previousSuggestion' });
                 break;
             case 'ArrowDown':
+                if (!state.suggestionsVisible) {
+                    return;
+                }
                 event.preventDefault();
                 if (state.originalTerm && term !== state.originalTerm) {
                     setTerm(state.originalTerm);
