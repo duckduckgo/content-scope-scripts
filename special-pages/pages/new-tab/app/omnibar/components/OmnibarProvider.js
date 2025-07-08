@@ -26,7 +26,7 @@ export const OmnibarContext = createContext({
     getSuggestions: () => {
         throw new Error('must implement');
     },
-    /** @type {(cb: (data: SuggestionsData) => void) => (() => void)} */
+    /** @type {(cb: (data: SuggestionsData, term: string) => void) => (() => void)} */
     onSuggestions: () => {
         throw new Error('must implement');
     },
@@ -87,7 +87,7 @@ export function OmnibarProvider(props) {
         [service],
     );
 
-    /** @type {(cb: (data: SuggestionsData) => void) => (() => void)} */
+    /** @type {(cb: (data: SuggestionsData, term: string) => void) => (() => void)} */
     const onSuggestions = useCallback(
         (cb) => {
             if (!service.current) throw new Error('Service not available');

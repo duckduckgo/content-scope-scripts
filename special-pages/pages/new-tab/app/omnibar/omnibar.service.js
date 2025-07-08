@@ -77,7 +77,7 @@ export class OmnibarService {
 
     /**
      * Subscribe to suggestions updates. Returns a function to unsubscribe
-     * @param {(data: SuggestionsData) => void} cb
+     * @param {(data: SuggestionsData, term: string) => void} cb
      * @returns {() => void}
      */
     onSuggestions(cb) {
