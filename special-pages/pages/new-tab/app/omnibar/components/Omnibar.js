@@ -22,7 +22,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
     const [query, setQuery] = useState(/** @type {String} */ (''));
     return (
         <div class={styles.root} data-mode={mode}>
-            <img class={styles.logo} src="./icons/Logo-Stacked.svg" alt={t('omnibar_logoAlt')} width={123} height={99} />
+            <img class={styles.logo} src="./icons/Logo-Stacked.svg" alt={t('omnibar_logoAlt')} />
             {enableAi && <TabSwitcher mode={mode} setMode={setMode} />}
             {mode === 'search' ? <SearchForm term={query} setTerm={setQuery} /> : <AiChatForm chat={query} setChat={setQuery} />}
         </div>
