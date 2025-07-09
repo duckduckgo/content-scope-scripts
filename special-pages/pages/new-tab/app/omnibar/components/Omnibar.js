@@ -58,11 +58,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
                     </div>
                 </div>
             )}
-            {mode === 'search' ? (
-                <SearchForm enableAi={enableAi} term={query} setTerm={setQuery} />
-            ) : (
-                <AiChatForm chat={query} setChat={setQuery} />
-            )}
+            {mode === 'search' ? <SearchForm term={query} setTerm={setQuery} /> : <AiChatForm chat={query} setChat={setQuery} />}
         </div>
     );
 }

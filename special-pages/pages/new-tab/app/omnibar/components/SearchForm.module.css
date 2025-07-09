@@ -1,0 +1,38 @@
+.form.hasSuggestions {
+    background: var(--ntp-surfaces-panel-background-color);
+    border-radius: 16px;
+    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 4px 8px 0px rgba(0, 0, 0, 0.16);
+}
+
+.container {
+    align-items: center;
+    display: flex;
+    padding: var(--sp-1);
+
+    .form:not(.hasSuggestions) & {
+        background: var(--ntp-surfaces-panel-background-color);
+        border-radius: var(--border-radius-lg);
+        box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.08);
+
+        &:has(.input:focus) {
+            border-radius: 14px;
+            box-shadow: 0 0 0 2px var(--ntp-color-primary), 0 0 0 4px rgba(57, 105, 239, 0.2);
+        }
+    }
+}
+
+.icon {
+    height: var(--sp-4);
+    margin: var(--sp-2);
+    width: var(--sp-4);
+}
+
+.input {
+    border: none;
+    flex: 1 0 0;
+    height: var(--sp-8);
+
+    &:focus {
+        outline: none;
+    }
+}

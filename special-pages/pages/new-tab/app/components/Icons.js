@@ -166,12 +166,11 @@ export function BackChevron() {
 
 /**
  * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Find-Search-16.svg. Inline SVG so that can be styled with CSS.
- * @param {object} params
- * @param {string} [params.className]
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function SearchIcon({ className }) {
+export function SearchIcon(props) {
     return (
-        <svg className={className} fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Find-Search-16_svg__a)">
                 <path
                     fill="currentColor"
@@ -238,7 +237,7 @@ export function GlobeIcon() {
         <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
             <g clip-path="url(#Globe-16_svg__a)">
                 <path
-                    fill="#000"
+                    fill="currentColor"
                     fill-rule="evenodd"
                     d="M.017 7.482a8 8 0 0 1 15.967 0q.025.115.01.225a8 8 0 1 1-15.99 0 .6.6 0 0 1 .013-.225m1.247.951a6.75 6.75 0 0 0 4.197 5.823 7 7 0 0 1-.416-.781c-.555-1.213-.92-2.787-1.018-4.518a29 29 0 0 1-2.763-.524m2.739-.742a28 28 0 0 1-2.7-.535A6.76 6.76 0 0 1 5.46 1.744q-.229.372-.416.781c-.623 1.363-1.006 3.18-1.042 5.166Zm1.286 1.413c.109 1.516.436 2.852.893 3.85.59 1.292 1.28 1.796 1.818 1.796s1.228-.504 1.818-1.795c.457-1 .784-2.335.893-3.85-1.803.17-3.619.17-5.422 0Zm5.46-1.26a27.5 27.5 0 0 1-5.498 0c.018-1.904.38-3.596.93-4.799C6.774 1.755 7.462 1.25 8 1.25s1.228.504 1.818 1.795c.55 1.203.913 2.895.931 4.8Zm1.224 1.113c-.099 1.731-.463 3.305-1.018 4.518a7 7 0 0 1-.416.781 6.75 6.75 0 0 0 4.197-5.823q-1.372.33-2.763.524m2.725-1.801q-1.341.336-2.7.535c-.037-1.985-.42-3.803-1.043-5.166a7 7 0 0 0-.416-.781 6.76 6.76 0 0 1 4.159 5.412"
                     clip-rule="evenodd"
@@ -259,7 +258,7 @@ export function GlobeIcon() {
 export function HistoryIcon() {
     return (
         <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-            <g fill="#000" clip-path="url(#History-16_svg__a)">
+            <g fill="currentColor" clip-path="url(#History-16_svg__a)">
                 <path d="m2.072 4.918-.08-.004A6.753 6.753 0 1 1 1.246 8 .623.623 0 1 0 0 8a8 8 0 1 0 1.247-4.29V1.115a.623.623 0 0 0-1.247 0v2.977c0 1.145.928 2.072 2.072 2.072h2.486a.623.623 0 0 0 0-1.246z" />
                 <path d="M8.625 3.625a.625.625 0 1 0-1.25 0V8c0 .166.066.325.183.442l2.375 2.375a.625.625 0 1 0 .884-.884L8.625 7.741z" />
             </g>
@@ -280,7 +279,7 @@ export function FavoriteIcon() {
         <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
             <g clip-path="url(#Favorite-16_svg__a)">
                 <path
-                    fill="#000"
+                    fill="currentColor"
                     fill-rule="evenodd"
                     d="M6.042 1.35c.73-1.732 3.186-1.732 3.916 0l1.033 2.452a.63.63 0 0 0 .489.376l2.686.38c1.774.252 2.46 2.45 1.144 3.666l-2.046 1.889a.63.63 0 0 0-.194.552l.434 2.88c.272 1.812-1.72 3.096-3.258 2.1L8.34 14.409a.63.63 0 0 0-.68 0l-1.906 1.236c-1.537.996-3.53-.288-3.258-2.1l.434-2.88a.63.63 0 0 0-.194-.552L.69 8.223C-.626 7.009.06 4.81 1.834 4.56l2.686-.381a.63.63 0 0 0 .489-.376zm2.764.486c-.3-.714-1.312-.714-1.612 0L6.16 4.287a1.88 1.88 0 0 1-1.465 1.128l-2.687.381a.875.875 0 0 0-.47 1.51l2.045 1.889c.457.421.675 1.042.582 1.656l-.433 2.88a.875.875 0 0 0 1.34.865L6.98 13.36a1.88 1.88 0 0 1 2.04 0l1.906 1.236a.875.875 0 0 0 1.341-.864l-.433-2.881a1.88 1.88 0 0 1 .582-1.656l2.046-1.89a.875.875 0 0 0-.471-1.509l-2.687-.38a1.88 1.88 0 0 1-1.464-1.13z"
                     clip-rule="evenodd"
@@ -303,7 +302,7 @@ export function BookmarkIcon() {
         <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
             <g clip-path="url(#Bookmark-16_svg__a)">
                 <path
-                    fill="#000"
+                    fill="currentColor"
                     fill-rule="evenodd"
                     d="M2 4a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v9.684c0 1.857-2.079 2.957-3.614 1.912l-1.788-1.218a1.06 1.06 0 0 0-1.196 0l-1.788 1.218C4.08 16.64 2 15.54 2 13.684zm4-2.75A2.75 2.75 0 0 0 3.25 4v9.684c0 .854.955 1.359 1.66.878l1.788-1.217a2.31 2.31 0 0 1 2.604 0l1.787 1.217a1.063 1.063 0 0 0 1.661-.878V4A2.75 2.75 0 0 0 10 1.25z"
                     clip-rule="evenodd"
