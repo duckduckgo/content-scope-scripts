@@ -100,9 +100,9 @@ export default class BrokerProtection extends ContentFeature {
             };
         }
         /**
-         * Special case for when expectation contains a check for an element, retry it
+         * Special case for when expectation or condition contains a check for an element, retry it
          */
-        if (!retryConfig && action.actionType === 'expectation') {
+        if (!retryConfig && (action.actionType === 'expectation' || action.actionType === 'condition')) {
             if (action.expectations.some((x) => x.type === 'element')) {
                 return {
                     interval: { ms: 1000 },
