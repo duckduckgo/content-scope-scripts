@@ -1,1 +1,1 @@
-- Duck Player: Change Playlist URL behavior (#1787)
+- Add conditional action type (#1799)
