@@ -13,7 +13,7 @@ import { baseEsbuildOptions } from './opts.mjs';
 const CWD = cwd(import.meta.url);
 const ROOT = join(CWD, '../');
 const BUILD = join(ROOT, 'build');
-const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist');
+const APPLE_BUILD = join(BUILD, 'apple');
 const args = parseArgs(process.argv.slice(2), []);
 const NODE_ENV = args.env || 'production';
 const DEBUG = Boolean(args.debug);
