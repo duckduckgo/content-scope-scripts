@@ -13,7 +13,6 @@ import { baseEsbuildOptions } from './opts.mjs';
 const CWD = cwd(import.meta.url);
 const ROOT = join(CWD, '../');
 const BUILD = join(ROOT, 'build');
-const APPLE_BUILD = join(BUILD, 'apple');
 const args = parseArgs(process.argv.slice(2), []);
 const NODE_ENV = args.env || 'production';
 const DEBUG = Boolean(args.debug);
@@ -84,7 +83,7 @@ for (const [pageName, injectNames] of Object.entries(support)) {
     }
     for (const [injectName, jobs] of Object.entries(injectNames)) {
         // output main dir
-        const buildDir = injectName === 'apple' ? APPLE_BUILD : join(BUILD, injectName);
+        const buildDir = join(BUILD, injectName);
 
         const pageOutputDirectory = join(buildDir, 'pages', pageName);
 
