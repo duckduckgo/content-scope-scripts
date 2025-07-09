@@ -7,7 +7,7 @@
             "state": "enabled",
             "exceptions": [],
             "settings": {
-                "deviceEnumeration": "enabled"
+                "enumerateDevices": "enabled"
             }
         }
     }
