@@ -18910,7 +18910,7 @@ ul.messages {
         response: { actions: action.actions }
       });
     }
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
+    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { actions: [] } });
   }
 
   // src/features/broker-protection/execute.js

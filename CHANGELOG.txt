@@ -1,1 +1,1 @@
-- Add conditional action type (#1799)
+- Change condition return signature (#1809)
