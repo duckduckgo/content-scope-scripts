@@ -35,5 +35,5 @@ export function condition(action, root = document) {
         });
     }
 
-    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
+    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { actions: [] }});
 }
