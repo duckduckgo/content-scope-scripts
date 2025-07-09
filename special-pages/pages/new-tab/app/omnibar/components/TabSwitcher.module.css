@@ -1,0 +1,50 @@
+.tabListWrap {
+    display: flex;
+    justify-content: center;
+    /* margin-top: 24px; */
+}
+
+.tabList {
+    display: flex;
+    background: var(--color-black-at-6);
+    padding: 4px;
+    border-radius: 999px;
+    gap: 4px;
+    width: auto;
+}
+
+.tab {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 99px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    transition: background .2s;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover {
+        background: var(--color-black-at-9);
+    }
+
+    &[aria-selected="true"] {
+        background: var(--color-white);
+        box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.08), 0px 2px 4px 0px rgba(0, 0, 0, 0.10);
+
+        .searchIcon {
+            color: blue;
+        }
+
+        .aiChatIcon {
+            color: var(--duckai-purple);
+        }
+    }
+}
