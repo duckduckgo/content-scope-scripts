@@ -52,14 +52,8 @@ export function SearchForm({ term, setTerm }) {
     };
 
     return (
-        <form
-            class={cn(styles.form, {
-                [styles.hasSuggestions]: suggestions.length > 0,
-            })}
-            onBlur={onFormBlur}
-            onSubmit={onFormSubmit}
-        >
-            <div class={styles.container} onClick={() => inputRef.current?.focus()}>
+        <form class={styles.form} onClick={() => inputRef.current?.focus()} onBlur={onFormBlur} onSubmit={onFormSubmit}>
+            <div class={styles.inputContainer}>
                 <SearchIcon inert />
                 <input
                     ref={inputRef}

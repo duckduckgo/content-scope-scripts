@@ -37,5 +37,5 @@
     left: 0;
     position: absolute;
     top: 0;
-    transition: translate 0.3s ease;
+    transition: translate 200ms ease;
 }

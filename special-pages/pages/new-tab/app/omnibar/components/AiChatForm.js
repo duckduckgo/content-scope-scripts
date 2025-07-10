@@ -31,43 +31,41 @@ export function AiChatForm({ chat, setChat }) {
     };
 
     return (
-        <form ref={formRef} class={styles.form} onSubmit={onSubmit}>
-            <div class={styles.container} onClick={() => textAreaRef.current?.focus()}>
-                <textarea
-                    ref={textAreaRef}
-                    class={styles.textarea}
-                    value={chat}
-                    placeholder={t('aiChatForm_placeholder')}
-                    aria-label={t('aiChatForm_placeholder')}
-                    autoComplete="off"
-                    rows={1}
-                    onChange={(event) => {
-                        const form = formRef.current;
-                        const textArea = event.currentTarget;
+        <form ref={formRef} class={styles.form} onClick={() => textAreaRef.current?.focus()} onSubmit={onSubmit}>
+            <textarea
+                ref={textAreaRef}
+                class={styles.textarea}
+                value={chat}
+                placeholder={t('aiChatForm_placeholder')}
+                aria-label={t('aiChatForm_placeholder')}
+                autoComplete="off"
+                rows={1}
+                onChange={(event) => {
+                    const form = formRef.current;
+                    const textArea = event.currentTarget;
 
-                        const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
-                        textArea.style.height = 'auto'; // Reset height
-                        textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
+                    const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
+                    textArea.style.height = 'auto'; // Reset height
+                    textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
 
-                        if (textArea.scrollHeight > textArea.clientHeight) {
-                            form?.classList.add(styles.hasScroll);
-                        } else {
-                            form?.classList.remove(styles.hasScroll);
-                        }
+                    if (textArea.scrollHeight > textArea.clientHeight) {
+                        form?.classList.add(styles.hasScroll);
+                    } else {
+                        form?.classList.remove(styles.hasScroll);
+                    }
 
-                        setChat(textArea.value);
-                    }}
-                />
-                <div class={styles.buttons}>
-                    <button
-                        type="submit"
-                        class={styles.submitButton}
-                        aria-label={t('aiChatForm_submitButtonLabel')}
-                        disabled={chat.length === 0}
-                    >
-                        <ArrowRightIcon />
-                    </button>
-                </div>
+                    setChat(textArea.value);
+                }}
+            />
+            <div class={styles.buttons}>
+                <button
+                    type="submit"
+                    class={styles.submitButton}
+                    aria-label={t('aiChatForm_submitButtonLabel')}
+                    disabled={chat.length === 0}
+                >
+                    <ArrowRightIcon />
+                </button>
             </div>
         </form>
     );

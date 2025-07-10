@@ -1,23 +1,9 @@
 .form {
-    align-self: stretch;
-    margin: 0 calc(-1 * var(--sp-1));
-}
-
-.container {
     align-items: center;
-    background: var(--ntp-surface-tertiary);
-    border-radius: 11px;
-    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-
-    &:has(.textarea:focus) {
-        border-radius: 14px;
-        box-shadow: 0 0 0 2px var(--ntp-color-primary), 0 0 0 4px rgba(57, 105, 239, 0.2);
-    }
+    padding-bottom: calc(14px + 9px + var(--sp-7)); /* Extra space to accomodate absolute positioned .buttons */
 }
-
 
 .textarea {
     align-self: stretch;
@@ -41,8 +27,13 @@
 
 .buttons {
     align-self: stretch;
+    bottom: 0;
     justify-content: space-between;
+    left: 0;
+    padding-bottom: calc(14px + 9px + var(--sp-7));
     padding: 14px 9px 9px;
+    position: absolute; /* Fix .buttons to <Container /> so that it animates smoothly when container resizes */
+    right: 0;
 
     .hasScroll & {
         padding-top: 9px;
