@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import styles from './Container.module.css';
-import { useRef, useEffect, useState } from 'preact/hooks';
+import { useRef, useLayoutEffect, useState } from 'preact/hooks';
 
 /**
  * @param {object} props
@@ -12,7 +12,7 @@ export function Container({ overflow, children }) {
     const initialHeight = useRef(/** @type {number|null} */ (null));
     const [contentHeight, setContentHeight] = useState(/** @type {number|null} */ (null));
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const content = contentRef.current;
         if (!content) return;
 
