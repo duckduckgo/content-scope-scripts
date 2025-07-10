@@ -810,32 +810,32 @@ export class WebCompat extends ContentFeature {
 
         // Define read-only properties from the start
         Object.defineProperties(deviceInfo, {
-            deviceId: { 
-                value: 'default', 
-                writable: false, 
+            deviceId: {
+                value: 'default',
+                writable: false,
                 configurable: false,
-                enumerable: true 
+                enumerable: true,
             },
-            kind: { 
-                value: kind, 
-                writable: false, 
+            kind: {
+                value: kind,
+                writable: false,
                 configurable: false,
-                enumerable: true 
+                enumerable: true,
             },
-            label: { 
-                value: '', 
-                writable: false, 
+            label: {
+                value: '',
+                writable: false,
                 configurable: false,
-                enumerable: true 
+                enumerable: true,
             },
-            groupId: { 
-                value: 'default-group', 
-                writable: false, 
+            groupId: {
+                value: 'default-group',
+                writable: false,
                 configurable: false,
-                enumerable: true 
+                enumerable: true,
             },
             toJSON: {
-                value: function() {
+                value: function () {
                     return {
                         deviceId: this.deviceId,
                         kind: this.kind,
@@ -845,8 +845,8 @@ export class WebCompat extends ContentFeature {
                 },
                 writable: false,
                 configurable: false,
-                enumerable: true
-            }
+                enumerable: true,
+            },
         });
 
         return deviceInfo;
