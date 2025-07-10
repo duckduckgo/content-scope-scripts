@@ -24,12 +24,12 @@
             box-shadow: 0 0 0 2px var(--ntp-color-primary), 0 0 0 4px rgba(57, 105, 239, 0.2);
         }
     }
-}
 
-.icon {
-    height: var(--sp-4);
-    margin: var(--sp-2);
-    width: var(--sp-4);
+    svg {
+        height: var(--sp-4);
+        margin: var(--sp-2);
+        width: var(--sp-4);
+    }
 }
 
 .input {

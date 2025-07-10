@@ -60,7 +60,7 @@ export function SearchForm({ term, setTerm }) {
             onSubmit={onFormSubmit}
         >
             <div class={styles.container} onClick={() => inputRef.current?.focus()}>
-                <SearchIcon className={styles.icon} inert />
+                <SearchIcon inert />
                 <input
                     ref={inputRef}
                     type="text"
