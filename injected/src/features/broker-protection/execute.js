@@ -1,4 +1,4 @@
-import { navigate, extract, click, expectation, fillForm, getCaptchaInfo, solveCaptcha } from './actions/actions';
+import { navigate, extract, click, expectation, fillForm, getCaptchaInfo, solveCaptcha, condition } from './actions/actions';
 import { ErrorResponse } from './types';
 
 /**
@@ -24,6 +24,8 @@ export async function execute(action, inputData, root = document) {
                 return await getCaptchaInfo(action, root);
             case 'solveCaptcha':
                 return solveCaptcha(action, data(action, inputData, 'token'), root);
+            case 'condition':
+                return condition(action, root);
             default: {
                 return new ErrorResponse({
                     actionID: action.id,

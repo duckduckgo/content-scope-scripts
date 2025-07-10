@@ -29,3 +29,41 @@ export function stopVideoFromPlaying(videoSelector) {
         }
     };
 }
+
+const MUTE_ELEMENTS_QUERY = 'audio, video';
+
+/**
+ * Mute all audio and video elements
+ *
+ * @returns {() => void} A function that allows the elements to be unmuted
+ */
+export function muteAllElements() {
+    /**
+     * Set up the interval
+     */
+    const int = setInterval(() => {
+        /** @type {(HTMLAudioElement | HTMLVideoElement)[]} */
+        const elements = Array.from(document.querySelectorAll(MUTE_ELEMENTS_QUERY));
+        elements.forEach((element) => {
+            if (element?.isConnected) {
+                element.muted = true;
+            }
+        });
+    }, 10);
+
+    /**
+     * To clean up, we need to stop the interval
+     * and then call .play() on the original element, if it's still connected
+     */
+    return () => {
+        clearInterval(int);
+
+        /** @type {(HTMLAudioElement | HTMLVideoElement)[]} */
+        const elements = Array.from(document.querySelectorAll(MUTE_ELEMENTS_QUERY));
+        elements.forEach((element) => {
+            if (element?.isConnected) {
+                element.muted = false;
+            }
+        });
+    };
+}

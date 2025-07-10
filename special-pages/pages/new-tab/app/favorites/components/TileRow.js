@@ -4,6 +4,7 @@ import { h } from 'preact';
 import { memo } from 'preact/compat';
 import { FavoritesThemeContext, ROW_CAPACITY } from './Favorites.js';
 import { useContext } from 'preact/hooks';
+import { useFaviconRefreshedCount } from './FavoritesProvider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Favorite} Favorite
@@ -21,6 +22,7 @@ export const TileRow = memo(
     function TileRow({ topOffset, items, add, visibility }) {
         const fillers = ROW_CAPACITY - items.length;
         const { theme, animateItems } = useContext(FavoritesThemeContext);
+        const count = useFaviconRefreshedCount();
         return (
             <ul className={styles.gridRow} style={{ transform: `translateY(${topOffset}px)` }}>
                 {items.map((item, index) => {
@@ -31,7 +33,7 @@ export const TileRow = memo(
                             faviconSrc={item.favicon?.src}
                             faviconMax={item.favicon?.maxAvailableSize}
                             title={item.title}
-                            key={item.id + item.favicon?.src + item.favicon?.maxAvailableSize + visibility}
+                            key={item.id + item.favicon?.src + item.favicon?.maxAvailableSize + visibility + count.value}
                             id={item.id}
                             index={index}
                             visibility={visibility}

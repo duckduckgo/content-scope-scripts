@@ -9,6 +9,7 @@ import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 import { activityMockTransport } from './activity/mocks/activity.mock-transport.js';
 import { protectionsMockTransport } from './protections/mocks/protections.mock-transport.js';
+import { omnibarMockTransport } from './omnibar/mocks/omnibar.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -117,6 +118,7 @@ export function mockTransport() {
         customizer: customizerMockTransport(),
         activity: activityMockTransport(),
         protections: protectionsMockTransport(),
+        omnibar: omnibarMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -374,6 +376,22 @@ export function mockTransport() {
                     );
                     return () => controller.abort();
                 }
+                case 'favorites_onRefresh': {
+                    if (url.searchParams.get('favoriteRefresh') === 'favicons') {
+                        const timer = setTimeout(() => {
+                            /** @type {import('../types/new-tab').FavoritesRefresh} */
+                            const payload = {
+                                items: [{ kind: 'favicons' }],
+                            };
+                            cb(payload);
+                        }, 1000);
+                        return () => {
+                            clearTimeout(timer);
+                        };
+                    } else {
+                        return () => {};
+                    }
+                }
             }
             return () => {};
         },
@@ -474,6 +492,7 @@ export function mockTransport() {
                     return Promise.resolve(fromStorage);
                 }
                 case 'initialSetup': {
+                    /** @type {import('../types/new-tab.ts').Widgets} */
                     const widgetsFromStorage = read('widgets') || [
                         { id: 'updateNotification' },
                         { id: 'rmf' },
@@ -482,6 +501,7 @@ export function mockTransport() {
                         { id: 'favorites' },
                     ];
 
+                    /** @type {import('../types/new-tab.ts').WidgetConfigs} */
                     const widgetConfigFromStorage = read('widget_config') || [{ id: 'favorites', visibility: 'visible' }];
 
                     /** @type {UpdateNotificationData} */
@@ -507,6 +527,13 @@ export function mockTransport() {
 
                     widgetsFromStorage.push({ id: 'protections' });
                     widgetConfigFromStorage.push({ id: 'protections', visibility: 'visible' });
+
+                    if (url.searchParams.has('omnibar')) {
+                        const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+                        widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'omnibar' });
+                        const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+                        widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: 'omnibar', visibility: 'visible' });
+                    }
 
                     initial.customizer = customizerData();
 

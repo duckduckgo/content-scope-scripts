@@ -59,8 +59,13 @@ export function NextStepsProvider(props) {
     // subscribe to data updates
     useDataSubscription({ dispatch, service });
 
-    // subscribe to toggle + expose a fn for sync toggling
-    const { toggle } = useConfigSubscription({ dispatch, service });
+    // subscribe to config updates
+    useConfigSubscription({ dispatch, service });
+
+    // expose a fn for sync toggling
+    const toggle = useCallback(() => {
+        service.current?.toggleExpansion();
+    }, [service]);
 
     /** @type {(id: string) => void} */
     const action = useCallback(

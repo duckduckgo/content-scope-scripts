@@ -1,3 +1,4 @@
+// Features must exist in either `baseFeatures` or `otherFeatures`
 export const baseFeatures = /** @type {const} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',

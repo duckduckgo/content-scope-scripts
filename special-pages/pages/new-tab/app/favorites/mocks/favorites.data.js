@@ -12,6 +12,7 @@
  *    "small-icon": {favorites: Favorite[]};
  *    "fallbacks": {favorites: Favorite[]};
  *    "titles": {favorites: Favorite[]};
+ *    "missing": {favorites: Favorite[]};
  * }}
  */
 export const favorites = {
@@ -52,6 +53,18 @@ export const favorites = {
     none: {
         /** @type {Favorite[]} */
         favorites: [],
+    },
+    missing: {
+        /** @type {Favorite[]} */
+        favorites: [
+            {
+                id: 'id-missing-1',
+                etldPlusOne: 'adobe.com',
+                url: 'https://adobe.com?id=id-many-3',
+                title: 'Adobe',
+                favicon: { src: './this-does-note-exist', maxAvailableSize: 16 },
+            },
+        ],
     },
     titles: {
         /** @type {Favorite[]} */

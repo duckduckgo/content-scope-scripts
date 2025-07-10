@@ -4,10 +4,10 @@
  *
  * @module API manipulation
  */
-import ContentFeature from '../content-feature';
+import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
-import { hasOwnProperty } from '../captured-globals';
-import { processAttr } from '../utils';
+import { hasOwnProperty } from '../captured-globals.js';
+import { processAttr } from '../utils.js';
 
 /**
  * @internal
@@ -51,6 +51,9 @@ export default class ApiManipulation extends ContentFeature {
             if (change.configurable && typeof change.configurable !== 'boolean') {
                 return false;
             }
+            if ('define' in change && typeof change.define !== 'boolean') {
+                return false;
+            }
             return typeof change.getterValue !== 'undefined';
         }
         return false;
@@ -65,6 +68,7 @@ export default class ApiManipulation extends ContentFeature {
      * @property {import('../utils.js').ConfigSetting} [getterValue] - The value returned from a getter.
      * @property {boolean} [enumerable] - Whether the property is enumerable.
      * @property {boolean} [configurable] - Whether the property is configurable.
+     * @property {boolean} [define] - Whether to define the property if it does not exist.
      */
 
     /**
@@ -116,6 +120,17 @@ export default class ApiManipulation extends ContentFeature {
             }
             if ('configurable' in change) {
                 descriptor.configurable = change.configurable;
+            }
+            // If 'define' is true and property does not exist, define it directly
+            if (change.define === true && !(key in api)) {
+                // Ensure descriptor has required boolean fields
+                const defineDescriptor = {
+                    ...descriptor,
+                    enumerable: typeof descriptor.enumerable !== 'boolean' ? true : descriptor.enumerable,
+                    configurable: typeof descriptor.configurable !== 'boolean' ? true : descriptor.configurable,
+                };
+                this.defineProperty(api, key, defineDescriptor);
+                return;
             }
             this.wrapProperty(api, key, descriptor);
         }

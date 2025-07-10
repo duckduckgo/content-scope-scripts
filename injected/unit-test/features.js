@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { readFile } from 'fs/promises';
 import * as glob from 'glob';
 import { formatErrors } from '@duckduckgo/privacy-configuration/tests/schema-validation.js';
+import ApiManipulation from '../src/features/api-manipulation.js';
 
 // TODO: Ignore eslint redeclare as we're linting for esm and cjs
 // eslint-disable-next-line no-redeclare
@@ -103,14 +104,66 @@ describe('test-pages/*/config/*.json schema validation', () => {
             xit(`LEGACY: skipped schema validation for ${path.relative(process.cwd(), configPath)}`, () => {});
             continue;
         }
-        it(`should match the GenericV4Config schema: ${path.relative(process.cwd(), configPath)}`, async () => {
+        it(`should match the CurrentGenericConfig schema: ${path.relative(process.cwd(), configPath)}`, async () => {
             let config = JSON.parse(await readFile(configPath, 'utf-8'));
             config = ensureHashOnFeatures(config);
-            const validate = createValidator('GenericV4Config');
+            const validate = createValidator('CurrentGenericConfig');
             const valid = validate(config);
             if (!valid) {
                 throw new Error(`Schema validation failed for ${configPath}: ` + formatErrors(validate.errors));
             }
         });
     }
+});
+
+describe('ApiManipulation', () => {
+    let apiManipulation;
+    let dummyTarget;
+
+    beforeEach(() => {
+        apiManipulation = new ApiManipulation(
+            'apiManipulation',
+            {},
+            {
+                bundledConfig: { features: { apiManipulation: { state: 'enabled', exceptions: [] } } },
+                site: { domain: 'test.com' },
+                platform: { version: '1.0.0' },
+            },
+        );
+        dummyTarget = {};
+    });
+
+    it('defines a new property if define: true is set and property does not exist', () => {
+        const change = {
+            type: 'descriptor',
+            getterValue: { type: 'string', value: 'defined!' },
+            define: true,
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'definedByConfig', change);
+        expect(dummyTarget.definedByConfig).toBe('defined!');
+    });
+
+    it('does not define a property if define is not set and property does not exist', () => {
+        const change = {
+            type: 'descriptor',
+            getterValue: { type: 'string', value: 'should not exist' },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'notDefinedByConfig', change);
+        expect(dummyTarget.notDefinedByConfig).toBeUndefined();
+    });
+
+    it('wraps an existing property if present', () => {
+        Object.defineProperty(dummyTarget, 'hardwareConcurrency', {
+            get: () => 4,
+            configurable: true,
+            enumerable: true,
+        });
+        const change = {
+            type: 'descriptor',
+            getterValue: { type: 'number', value: 222 },
+        };
+        apiManipulation.wrapApiDescriptor(dummyTarget, 'hardwareConcurrency', change);
+        // The getter should now return 222
+        expect(dummyTarget.hardwareConcurrency).toBe(222);
+    });
 });

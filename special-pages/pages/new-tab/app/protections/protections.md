@@ -40,7 +40,8 @@ title: Protections Report
 ```json
 {
    "expansion": "collapsed",
-   "feed": "privacy-stats"
+   "feed": "privacy-stats",
+   "showBurnAnimation": true
 }
 ```
 
@@ -63,6 +64,7 @@ title: Protections Report
 ```json
 {
    "expansion": "collapsed",
-   "feed": "privacy-stats"
+   "feed": "privacy-stats",
+   "showBurnAnimation": true
 }
 ```

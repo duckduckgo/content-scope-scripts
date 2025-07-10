@@ -16,6 +16,10 @@
         "privacy-stats",
         "activity"
       ]
+    },
+    "showBurnAnimation": {
+      "description": "Boolean flag to explicitly enable or disable the burn animations",
+      "type": "boolean"
     }
   }
 }

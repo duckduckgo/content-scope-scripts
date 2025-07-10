@@ -180,6 +180,38 @@ describe('Helpers checks', () => {
         });
     });
 
+    it('does not enable features with state "preview"', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                previewFeature: {
+                    state: 'preview',
+                    settings: {},
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'android',
+                },
+                versionNumber: 99,
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature']);
+        expect(processedConfig.featureSettings).toEqual({ testFeature: {} });
+    });
+
     describe('utils.satisfiesMinVersion', () => {
         // Min version, Extension version, outcome
         /** @type {[string, string, boolean][]} */

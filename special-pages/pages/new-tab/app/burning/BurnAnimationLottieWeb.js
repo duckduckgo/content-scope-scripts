@@ -8,8 +8,9 @@ import { ActivityBurningSignalContext } from './BurnProvider.js';
  *
  * @param {Object} props The properties object.
  * @param {string} props.url The URL associated with the animation, used to identify or provide additional context in the dispatched events.
+ * @param {(url: string) => void} props.doneBurning
  */
-export function BurnAnimation({ url }) {
+export function BurnAnimation({ url, doneBurning }) {
     const ref = useRef(/** @type {Lottie} */ null);
     const json = useContext(ActivityBurningSignalContext);
     useEffect(() => {
@@ -17,9 +18,9 @@ export function BurnAnimation({ url }) {
         let finished = false;
         let timer = null;
 
-        const publish = (reason) => {
+        const publish = (_reason) => {
             if (finished) return;
-            window.dispatchEvent(new CustomEvent('done-burning', { detail: { url, reason } }));
+            doneBurning(url);
             finished = true;
             clearTimeout(timer);
         };
@@ -52,6 +53,6 @@ export function BurnAnimation({ url }) {
                 publish('unmount occurred');
             }
         };
-    }, [url, json]);
+    }, [url, json, doneBurning]);
     return <div ref={ref} data-lottie-player></div>;
 }

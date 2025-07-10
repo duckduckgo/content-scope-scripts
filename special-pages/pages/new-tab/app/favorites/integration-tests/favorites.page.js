@@ -354,4 +354,8 @@ export class FavoritesPage {
         // Every tile should be shown
         await this.waitForNumFavorites(count);
     }
+
+    async receivesRefresh() {
+        await this.ntp.mocks.simulateSubscriptionMessage('favorites_onRefresh', { items: [{ kind: 'favicons' }] });
+    }
 }

@@ -68,6 +68,14 @@ export class FavoritesService {
         return this.configService.onData(cb);
     }
 
+    onFaviconsRefreshed(cb) {
+        return this.ntp.messaging.subscribe('favorites_onRefresh', (data) => {
+            if (data.items.some((item) => item.kind === 'favicons')) {
+                cb();
+            }
+        });
+    }
+
     /**
      * Update the in-memory data immediate and persist.
      * Any state changes will be broadcast to consumers synchronously
