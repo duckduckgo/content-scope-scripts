@@ -1,5 +1,6 @@
 .form {
     align-self: stretch;
+    margin: 0 calc(-1 * var(--sp-1));
 }
 
 .container {
