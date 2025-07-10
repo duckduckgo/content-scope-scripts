@@ -127,6 +127,15 @@ test.describe('Test integration pages', () => {
         );
     });
 
+    test('enumerateDevices API functionality', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'webcompat/pages/enumerate-devices-api-test.html',
+            './integration-test/test-pages/webcompat/config/enumerate-devices-api.json',
+        );
+    });
+
     test('minSupportedVersion (string)', async ({ page }, testInfo) => {
         await testPage(
             page,

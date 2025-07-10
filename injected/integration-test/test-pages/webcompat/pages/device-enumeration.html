@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Device Enumeration Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Webcompat shims]</a></p>
+
+    <p>This page tests the device enumeration feature</p>
+
+    <script>
+        test('Device Enumeration', async () => {
+            if (!navigator.mediaDevices) {
+                return [
+                    {
+                        name: 'MediaDevices not available',
+                        result: 'MediaDevices API not supported',
+                        expected: 'MediaDevices API not supported'
+                    }
+                ];
+            }
+
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                
+                // Check if we got a valid response
+                const hasVideoInput = devices.some(device => device.kind === 'videoinput');
+                const hasAudioInput = devices.some(device => device.kind === 'audioinput');
+                const hasAudioOutput = devices.some(device => device.kind === 'audiooutput');
+                
+                return [
+                    {
+                        name: 'enumerateDevices returns array',
+                        result: Array.isArray(devices),
+                        expected: true
+                    },
+                    {
+                        name: 'devices have correct structure',
+                        result: devices.every(device => 
+                            typeof device.deviceId === 'string' &&
+                            typeof device.kind === 'string' &&
+                            typeof device.label === 'string' &&
+                            typeof device.groupId === 'string'
+                        ),
+                        expected: true
+                    },
+                    {
+                        name: 'video input devices present',
+                        result: hasVideoInput,
+                        expected: true
+                    },
+                    {
+                        name: 'audio input devices present',
+                        result: hasAudioInput,
+                        expected: true
+                    },
+                    {
+                        name: 'audio output devices present',
+                        result: hasAudioOutput,
+                        expected: true
+                    }
+                ];
+            } catch (error) {
+                return [
+                    {
+                        name: 'enumerateDevices throws error',
+                        result: error.message,
+                        expected: 'Should not throw error'
+                    }
+                ];
+            }
+        });
+
+        renderResults();
+    </script>
+</body>
+</html> 

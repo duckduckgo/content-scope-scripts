@@ -10,7 +10,19 @@
  * Requests, Notifications and Subscriptions from the WebCompat feature
  */
 export interface WebCompatMessages {
-  requests: WebShareRequest;
+  requests: DeviceEnumerationRequest | WebShareRequest;
+}
+/**
+ * Generated from @see "../messages/web-compat/deviceEnumeration.request.json"
+ */
+export interface DeviceEnumerationRequest {
+  method: "deviceEnumeration";
+  /**
+   * Request device enumeration information from native layer
+   */
+  params: {
+    [k: string]: unknown;
+  };
 }
 /**
  * Generated from @see "../messages/web-compat/webShare.request.json"
