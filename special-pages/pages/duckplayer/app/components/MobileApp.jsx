@@ -60,7 +60,7 @@ function MobileLayout({ embed }) {
     const showCustomError = useShowCustomError();
 
     return (
-        <main class={styles.main} data-youtube-error={showCustomError}>
+        <main class={styles.main} data-youtube-error={showCustomError} id="mobile-layout-main">
             <div class={cn(styles.filler, styles.hideInFocus)} />
             <div class={styles.embed}>
                 {embed === null && <PlayerError layout={'mobile'} kind={'invalid-id'} />}
