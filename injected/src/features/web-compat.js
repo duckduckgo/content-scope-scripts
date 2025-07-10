@@ -794,42 +794,60 @@ export class WebCompat extends ContentFeature {
      * @returns {MediaDeviceInfo | InputDeviceInfo}
      */
     createMediaDeviceInfo(kind) {
-        // Create a simple object that looks like MediaDeviceInfo
-        const deviceInfo = {
-            deviceId: 'default',
-            kind,
-            label: '',
-            groupId: 'default-group',
-            toJSON() {
-                return {
-                    deviceId: this.deviceId,
-                    kind: this.kind,
-                    label: this.label,
-                    groupId: this.groupId,
-                };
-            },
-        };
-
-        // Make properties read-only to match MediaDeviceInfo behavior
-        Object.defineProperties(deviceInfo, {
-            deviceId: { writable: false, configurable: false },
-            kind: { writable: false, configurable: false },
-            label: { writable: false, configurable: false },
-            groupId: { writable: false, configurable: false },
-        });
-
-        // Set the prototype based on device type
+        // Create an empty object with the correct prototype
+        let deviceInfo;
         if (kind === 'videoinput' || kind === 'audioinput') {
             // Input devices should inherit from InputDeviceInfo.prototype if available
             if (typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
-                Object.setPrototypeOf(deviceInfo, InputDeviceInfo.prototype);
+                deviceInfo = Object.create(InputDeviceInfo.prototype);
             } else {
-                Object.setPrototypeOf(deviceInfo, MediaDeviceInfo.prototype);
+                deviceInfo = Object.create(MediaDeviceInfo.prototype);
             }
         } else {
             // Output devices inherit from MediaDeviceInfo.prototype
-            Object.setPrototypeOf(deviceInfo, MediaDeviceInfo.prototype);
+            deviceInfo = Object.create(MediaDeviceInfo.prototype);
         }
+
+        // Define read-only properties from the start
+        Object.defineProperties(deviceInfo, {
+            deviceId: { 
+                value: 'default', 
+                writable: false, 
+                configurable: false,
+                enumerable: true 
+            },
+            kind: { 
+                value: kind, 
+                writable: false, 
+                configurable: false,
+                enumerable: true 
+            },
+            label: { 
+                value: '', 
+                writable: false, 
+                configurable: false,
+                enumerable: true 
+            },
+            groupId: { 
+                value: 'default-group', 
+                writable: false, 
+                configurable: false,
+                enumerable: true 
+            },
+            toJSON: {
+                value: function() {
+                    return {
+                        deviceId: this.deviceId,
+                        kind: this.kind,
+                        label: this.label,
+                        groupId: this.groupId,
+                    };
+                },
+                writable: false,
+                configurable: false,
+                enumerable: true
+            }
+        });
 
         return deviceInfo;
     }
