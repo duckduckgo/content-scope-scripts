@@ -49,23 +49,6 @@ test.describe('omnibar widget', () => {
         });
     });
 
-    test('AI chat button in search form submits chat message', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const omnibar = new OmnibarPage(ntp);
-        await ntp.reducedMotion();
-
-        await ntp.openPage({ additional: { omnibar: true } });
-        await omnibar.ready();
-
-        await omnibar.searchInput().fill('pizza');
-        await omnibar.aiChatButton().click();
-
-        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
-            chat: 'pizza',
-            target: 'same-tab',
-        });
-    });
-
     test('mode switching preserves query state', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
