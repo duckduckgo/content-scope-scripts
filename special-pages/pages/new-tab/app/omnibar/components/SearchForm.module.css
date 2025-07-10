@@ -3,7 +3,7 @@
     margin: 0 calc(-1 * var(--sp-1));
 
     &.hasSuggestions {
-        background: var(--ntp-surfaces-panel-background-color);
+        background: var(--ntp-surface-tertiary);
         border-radius: 16px;
         box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 4px 8px 0px rgba(0, 0, 0, 0.16);
     }
@@ -15,7 +15,7 @@
     padding: var(--sp-1);
 
     .form:not(.hasSuggestions) & {
-        background: var(--ntp-surfaces-panel-background-color);
+        background: var(--ntp-surface-tertiary);
         border-radius: 11px;
         box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.08);
 
@@ -33,7 +33,9 @@
 }
 
 .input {
+    background: none;
     border: none;
+    color: var(--ntp-text-normal);
     flex: 1 0 0;
     height: var(--sp-8);
 

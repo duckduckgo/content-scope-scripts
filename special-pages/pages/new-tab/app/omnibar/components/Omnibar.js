@@ -5,6 +5,7 @@ import { AiChatForm } from './AiChatForm';
 import styles from './Omnibar.module.css';
 import { SearchForm } from './SearchForm';
 import { TabSwitcher } from './TabSwitcher';
+import { LogoStacked } from '../../components/Icons';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -22,7 +23,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
     const [query, setQuery] = useState(/** @type {String} */ (''));
     return (
         <div class={styles.root} data-mode={mode}>
-            <img class={styles.logo} src="./icons/Logo-Stacked.svg" alt={t('omnibar_logoAlt')} />
+            <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && <TabSwitcher mode={mode} setMode={setMode} />}
             {mode === 'search' ? <SearchForm term={query} setTerm={setQuery} /> : <AiChatForm chat={query} setChat={setQuery} />}
         </div>

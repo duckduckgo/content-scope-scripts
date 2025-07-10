@@ -7,8 +7,9 @@
 
 .item {
     align-items: center;
-    background: var(--ntp-surfaces-panel-background-color);
+    background: none;
     border: none;
+    color: var(--ntp-text-normal);
     cursor: pointer;
     display: flex;
     height: var(--sp-8);

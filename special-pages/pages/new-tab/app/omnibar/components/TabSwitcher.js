@@ -1,5 +1,7 @@
 import { h } from 'preact';
+import { useContext } from 'preact/hooks';
 import { AiChatColorIcon, AiChatIcon, SearchColorIcon, SearchIcon } from '../../components/Icons.js';
+import { CustomizerThemesContext } from '../../customizer/CustomizerProvider.js';
 import { useTypedTranslationWith } from '../../types';
 import styles from './TabSwitcher.module.css';
 
@@ -15,6 +17,8 @@ import styles from './TabSwitcher.module.css';
  */
 export function TabSwitcher({ mode, setMode }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const { main } = useContext(CustomizerThemesContext);
+    const Blob = main.value === 'light' ? BlobLight : BlobDark;
     return (
         <div class={styles.tabSwitcher} role="tablist" aria-label={t('omnibar_tabSwitcherLabel')}>
             <Blob class={styles.blob} style={{ translate: mode === 'search' ? 0 : 92 }} />
@@ -33,20 +37,20 @@ export function TabSwitcher({ mode, setMode }) {
 /**
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-function Blob(props) {
+function BlobLight(props) {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="108" height="48" viewBox="0 0 108 48" fill="none" {...props}>
-            <g filter="url(#filter0_ddi_26080_85978)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="102" height="36" viewBox="0 0 102 36" fill="none" {...props}>
+            <g filter="url(#filter0_ddi_9483_24565)">
                 <path
-                    d="M8 20C8 11.1634 15.1634 4 24 4H84C92.8366 4 100 11.1634 100 20C100 28.8366 92.8366 36 84 36H24C15.1634 36 8 28.8366 8 20Z"
+                    d="M2 18C2 9.16344 9.16344 2 18 2H78C86.8366 2 94 9.16344 94 18C94 26.8366 86.8366 34 78 34H18C9.16345 34 2 26.8366 2 18Z"
                     fill="white"
                 />
             </g>
             <defs>
                 <filter
-                    id="filter0_ddi_26080_85978"
-                    x="0"
-                    y="0"
+                    id="filter0_ddi_9483_24565"
+                    x="-6"
+                    y="-2"
                     width="108"
                     height="48"
                     filterUnits="userSpaceOnUse"
@@ -58,19 +62,66 @@ function Blob(props) {
                     <feGaussianBlur stdDeviation="4" />
                     <feComposite in2="hardAlpha" operator="out" />
                     <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0" />
-                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_26080_85978" />
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_9483_24565" />
                     <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
                     <feOffset dy="1" />
                     <feGaussianBlur stdDeviation="2" />
                     <feComposite in2="hardAlpha" operator="out" />
                     <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0" />
-                    <feBlend mode="normal" in2="effect1_dropShadow_26080_85978" result="effect2_dropShadow_26080_85978" />
-                    <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_26080_85978" result="shape" />
+                    <feBlend mode="normal" in2="effect1_dropShadow_9483_24565" result="effect2_dropShadow_9483_24565" />
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_9483_24565" result="shape" />
                     <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
                     <feOffset dy="1" />
                     <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
                     <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.48 0" />
-                    <feBlend mode="normal" in2="shape" result="effect3_innerShadow_26080_85978" />
+                    <feBlend mode="normal" in2="shape" result="effect3_innerShadow_9483_24565" />
+                </filter>
+            </defs>
+        </svg>
+    );
+}
+
+/**
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+function BlobDark(props) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="102" height="36" viewBox="0 0 102 36" fill="none" {...props}>
+            <g filter="url(#filter0_ddi_9483_35175)">
+                <path
+                    d="M2 18C2 9.16344 9.16344 2 18 2H78C86.8366 2 94 9.16344 94 18C94 26.8366 86.8366 34 78 34H18C9.16345 34 2 26.8366 2 18Z"
+                    fill="#6B6B6B"
+                />
+            </g>
+            <defs>
+                <filter
+                    id="filter0_ddi_9483_35175"
+                    x="-6"
+                    y="-2"
+                    width="108"
+                    height="48"
+                    filterUnits="userSpaceOnUse"
+                    color-interpolation-filters="sRGB"
+                >
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+                    <feOffset dy="4" />
+                    <feGaussianBlur stdDeviation="4" />
+                    <feComposite in2="hardAlpha" operator="out" />
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.24 0" />
+                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_9483_35175" />
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+                    <feOffset dy="1" />
+                    <feGaussianBlur stdDeviation="2" />
+                    <feComposite in2="hardAlpha" operator="out" />
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.24 0" />
+                    <feBlend mode="normal" in2="effect1_dropShadow_9483_35175" result="effect2_dropShadow_9483_35175" />
+                    <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_9483_35175" result="shape" />
+                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+                    <feOffset dy="1" />
+                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+                    <feColorMatrix type="matrix" values="0 0 0 0 0.976471 0 0 0 0 0.976471 0 0 0 0 0.976471 0 0 0 0.06 0" />
+                    <feBlend mode="normal" in2="shape" result="effect3_innerShadow_9483_35175" />
                 </filter>
             </defs>
         </svg>

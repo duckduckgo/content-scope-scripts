@@ -4,7 +4,7 @@
 
 .container {
     align-items: center;
-    background: var(--ntp-surfaces-panel-background-color);
+    background: var(--ntp-surface-tertiary);
     border-radius: 11px;
     box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.08);
     display: flex;
@@ -23,6 +23,7 @@
     background: none;
     border: none;
     box-sizing: content-box;
+    color: var(--ntp-text-normal);
     max-height: 10lh;
     padding: 11px 15px 0;
     resize: none;

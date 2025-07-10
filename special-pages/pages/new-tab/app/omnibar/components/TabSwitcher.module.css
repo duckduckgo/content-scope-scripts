@@ -1,5 +1,5 @@
 .tabSwitcher {
-    background: var(--color-black-at-9);
+    background: var(--ntp-controls-raised-backdrop);
     border-radius: 99px;
     box-shadow: 0px 1px 0px 0px  rgba(0, 0, 0, 0.05) inset;
     display: flex;
@@ -12,6 +12,7 @@
     background: none;
     border-radius: 99px;
     border: none;
+    color: var(--ntp-text-normal);
     display: flex;
     gap: 6px;
     height: var(--sp-8);
@@ -32,8 +33,9 @@
 }
 
 .blob {
-    left: -6px;
+    color: var(--ntp-controls-raised-fill-primary);
+    left: 0;
     position: absolute;
-    top: -2px;
+    top: 0;
     transition: translate 0.3s ease;
 }
