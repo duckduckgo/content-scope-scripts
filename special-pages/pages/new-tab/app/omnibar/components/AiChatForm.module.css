@@ -1,0 +1,78 @@
+.form {
+    align-self: stretch;
+}
+
+.container {
+    align-items: center;
+    background: var(--ntp-surfaces-panel-background-color);
+    border-radius: 11px;
+    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    &:has(.textarea:focus) {
+        border-radius: 14px;
+        box-shadow: 0 0 0 2px var(--ntp-color-primary), 0 0 0 4px rgba(57, 105, 239, 0.2);
+    }
+}
+
+
+.textarea {
+    align-self: stretch;
+    background: none;
+    border: none;
+    box-sizing: content-box;
+    max-height: 10lh;
+    padding: 11px 15px 0;
+    resize: none;
+
+    &:focus {
+        outline: none;
+    }
+
+    .hasScroll & {
+        border-bottom: 1px solid var(--ntp-surface-border-color);
+        padding-bottom: 11px;
+    }
+}
+
+.buttons {
+    align-self: stretch;
+    justify-content: space-between;
+    padding: 14px 9px 9px;
+
+    .hasScroll & {
+        padding-top: 9px;
+    }
+}
+
+.submitButton {
+    align-items: center;
+    background: var(--color-blue-50);
+    border-radius: 100%;
+    border: none;
+    color: var(--color-white);
+    cursor: pointer;
+    display: flex;
+    height: var(--sp-7);
+    justify-content: center;
+    margin-left: auto;
+    padding: 0;
+    width: var(--sp-7);
+
+    svg {
+        height: var(--sp-4);
+        width: var(--sp-4);
+    }
+
+    &[disabled] {
+        background: none;
+        color: var(--color-black-at-30);
+        cursor: default;
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+}
