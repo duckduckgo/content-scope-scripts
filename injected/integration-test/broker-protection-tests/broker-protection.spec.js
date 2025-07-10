@@ -664,4 +664,47 @@ test.describe('Broker Protection communications', () => {
             dbp.isErrorMessage(response);
         });
     });
+
+    test.describe('condition', () => {
+        test('a successful condition returns success with steps in the response', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('condition-success.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+
+            // Check that the response contains an actions array
+            const successResponse = await dbp.getSuccessResponse();
+
+            expect(successResponse).toHaveProperty('actions');
+            expect(Array.isArray(successResponse.actions)).toBe(true);
+            expect(successResponse.actions.length).toBeGreaterThan(0);
+        });
+
+        test('a condition with failSilently returns success with empty actions array', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('condition-fail-silently.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+
+            // Check that the response does not contain an actions array
+            const successResponse = await dbp.getSuccessResponse();
+
+            expect(successResponse).toHaveProperty('actions');
+            expect(Array.isArray(successResponse.actions)).toBe(true);
+            expect(successResponse.actions.length).toBe(0);
+        });
+
+        test('a failing condition returns error', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('condition-fail.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isErrorMessage(response);
+        });
+    });
 });

@@ -40,11 +40,7 @@ export function AiChatForm({ chat, setChat }) {
                             placeholder={t('aiChatForm_placeholder')}
                             aria-label={t('aiChatForm_placeholder')}
                             autoComplete="off"
-                            onChange={(event) => {
-                                if (event.target instanceof HTMLInputElement) {
-                                    setChat(event.target.value);
-                                }
-                            }}
+                            onChange={(event) => setChat(event.currentTarget.value)}
                         />
                         <div class={styles.inputActions}>
                             <button
