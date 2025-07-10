@@ -1,4 +1,3 @@
-import cn from 'classnames';
 import { h } from 'preact';
 import { useContext, useId } from 'preact/hooks';
 import { SearchIcon } from '../../components/Icons.js';
