@@ -1,50 +1,39 @@
-.tabListWrap {
+.tabSwitcher {
+    background: var(--color-black-at-9);
+    border-radius: 99px;
+    box-shadow: 0px 1px 0px 0px  rgba(0, 0, 0, 0.05) inset;
     display: flex;
-    justify-content: center;
-    /* margin-top: 24px; */
-}
-
-.tabList {
-    display: flex;
-    background: var(--color-black-at-6);
-    padding: 4px;
-    border-radius: 999px;
-    gap: 4px;
-    width: auto;
+    padding: var(--sp-0_5);
+    position: relative;
 }
 
 .tab {
-    padding: 8px 16px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    border-radius: 99px;
-    white-space: nowrap;
-    display: flex;
     align-items: center;
+    background: none;
+    border-radius: 99px;
+    border: none;
+    display: flex;
     gap: 6px;
-    font-weight: 600;
-    transition: background .2s;
+    height: var(--sp-8);
+    justify-content: center;
+    padding: 0 var(--sp-4);
+    padding: 0;
+    width: 92px;
+    z-index: 1;
 
     svg {
-        width: 16px;
-        height: 16px;
+        height: var(--sp-4);
+        width: var(--sp-4);
     }
+}
 
-    &:hover {
-        background: var(--color-black-at-9);
-    }
+.tabLabel {
+    padding-top: 1px;
+}
 
-    &[aria-selected="true"] {
-        background: var(--color-white);
-        box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.08), 0px 2px 4px 0px rgba(0, 0, 0, 0.10);
-
-        .searchIcon {
-            color: blue;
-        }
-
-        .aiChatIcon {
-            color: var(--duckai-purple);
-        }
-    }
+.blob {
+    left: -6px;
+    position: absolute;
+    top: -2px;
+    transition: translate 0.3s ease;
 }
