@@ -30,7 +30,7 @@ export class Telemetry extends ContentFeature {
                     };
                     seenUserInteractions.add(video);
                     console.log('video playback', message);
-                    this.messaging.request(MSG_VIDEO_PLAYBACK, message);
+                    this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
                 }
             });
         }
