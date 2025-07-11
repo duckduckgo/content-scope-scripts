@@ -16,6 +16,7 @@
     color: var(--ntp-text-normal);
     flex: 1 0 0;
     height: var(--sp-8);
+    padding: 0;
 
     &:focus {
         outline: none;
