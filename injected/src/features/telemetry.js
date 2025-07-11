@@ -7,6 +7,9 @@ export class Telemetry extends ContentFeature {
         if (this.getFeatureSettingEnabled('videoPlayback')) {
             this.videoPlaybackObserve();
         }
+        document.addEventListener('DOMContentLoaded', () => {
+            this.videoPlaybackObserveInner();
+        });
     }
 
     videoPlaybackObserve() {
@@ -36,6 +39,9 @@ export class Telemetry extends ContentFeature {
         }
 
         function addListenersToAllVideos(node) {
+            if (!node) {
+                return;
+            }
             const videos = node.querySelectorAll('video');
             videos.forEach((video) => {
                 addPlayObserver(video);
