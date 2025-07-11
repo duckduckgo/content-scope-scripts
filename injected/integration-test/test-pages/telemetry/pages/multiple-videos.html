@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Telemetry - Multiple Videos</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+<p><a href="../index.html">[Telemetry Home]</a></p>
+<h2>Multiple Videos</h2>
+<p>This page contains multiple video elements. Play any video to test if Telemetry observes the playback event for each.</p>
+<video width="320" controls>
+    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+<video width="320" controls>
+    <source src="https://www.w3schools.com/html/movie.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+<video width="320" controls>
+    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+<script>
+    document.querySelectorAll('video').forEach((video, idx) => {
+        video.addEventListener('play', () => {
+            const log = document.createElement('div');
+            log.textContent = `Video ${idx+1} play event fired.`;
+            document.body.appendChild(log);
+        });
+    });
+</script>
+</body>
+</html> 
