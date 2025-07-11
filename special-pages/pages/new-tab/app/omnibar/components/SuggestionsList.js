@@ -4,7 +4,7 @@ import { eventToTarget } from '../../../../../shared/handlers';
 import { BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { OmnibarContext } from './OmnibarProvider';
-import styles from './SuggestionList.module.css';
+import styles from './SuggestionsList.module.css';
 
 /**
  * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel

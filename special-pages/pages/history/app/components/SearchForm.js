@@ -1,9 +1,9 @@
-import styles from './Header.module.css';
-import { h } from 'preact';
-import { usePlatformName, useTypedTranslation } from '../types.js';
 import { useComputed, useSignalEffect } from '@preact/signals';
-import { SearchIcon } from '../icons/Search.js';
+import { h } from 'preact';
 import { useQueryDispatch } from '../global/Providers/QueryProvider.js';
+import { SearchIcon } from '../icons/Search.js';
+import { usePlatformName, useTypedTranslation } from '../types.js';
+import styles from './Header.module.css';
 
 const INPUT_FIELD_NAME = 'q';
 
