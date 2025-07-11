@@ -1,5 +1,7 @@
 import ContentFeature from '../content-feature.js';
 
+const MSG_VIDEO_PLAYBACK = 'video-playback';
+
 export class Telemetry extends ContentFeature {
     init() {
         if (this.getFeatureSettingEnabled('videoPlayback')) {
@@ -18,14 +20,20 @@ export class Telemetry extends ContentFeature {
 
     videoPlaybackObserveInner() {
         const seenVideoElements = new WeakSet();
+        const seenUserInteractions = new WeakSet();
         function addPlayObserver(video) {
             if (seenVideoElements.has(video)) {
                 return; // already observed
             }
             seenVideoElements.add(video);
             video.addEventListener('play', () => {
-                if (navigator.userActivation.isActive) {
-                    console.log('user interaction');
+                if (!seenUserInteractions.has(video)) {
+                    const message = {
+                        userInteraction: navigator.userActivation.isActive,
+                    };
+                    seenUserInteractions.add(video);
+                    console.log('video playback', message);
+                    this.messaging.request(MSG_VIDEO_PLAYBACK, message);
                 }
             });
         }
