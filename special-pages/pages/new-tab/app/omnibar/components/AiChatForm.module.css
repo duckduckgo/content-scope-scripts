@@ -30,7 +30,6 @@
     bottom: 0;
     justify-content: space-between;
     left: 0;
-    padding-bottom: calc(14px + 9px + var(--sp-7));
     padding: 14px 9px 9px;
     position: absolute; /* Fix .buttons to <Container /> so that it animates smoothly when container resizes */
     right: 0;
