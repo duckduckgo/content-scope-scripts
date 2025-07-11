@@ -49,6 +49,29 @@ describe('Messaging Transports', () => {
             }),
         );
     });
+    it("calls transport with a NotificationMessage and doesn't throw (but does log)", () => {
+        const { messaging, transport } = createMessaging();
+        const notifySpy = spyOn(transport, 'notify').and.throwError('Test error 1');
+        const errorLoggingSpy = spyOn(console, 'error');
+
+        try {
+            messaging.notify('helloWorld', { foo: 'bar' });
+        } catch (e) {
+            fail('Should not throw');
+        }
+
+        expect(notifySpy).toHaveBeenCalledWith(
+            new NotificationMessage({
+                context: 'contentScopeScripts',
+                featureName: 'hello-world',
+                method: 'helloWorld',
+                params: { foo: 'bar' },
+            }),
+        );
+
+        expect(errorLoggingSpy.calls.first().args[0]).toContain('[Messaging] Failed to send notification:');
+        expect(errorLoggingSpy.calls.first().args[1].message).toEqual('Test error 1');
+    });
     it('calls transport with a Subscription', () => {
         const { messaging, transport } = createMessaging();
 
