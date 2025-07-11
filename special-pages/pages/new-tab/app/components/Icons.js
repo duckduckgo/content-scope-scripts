@@ -165,7 +165,7 @@ export function BackChevron() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Find-Search-16.svg. Inline SVG so that can be styled with CSS.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Find-Search-16.svg
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
 export function SearchIcon(props) {
@@ -189,11 +189,12 @@ export function SearchIcon(props) {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Color/16px/Search-Find-Color-16.svg. Inline SVG so that can be styled with CSS.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Color/16px/Search-Find-Color-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function SearchColorIcon() {
+export function SearchColorIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Search-Find-Color-16_svg__a)">
                 <path fill="#ADC2FC" d="M12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0Z" />
                 <path fill="#fff" d="M7 2a4.98 4.98 0 0 1 3.403 1.338 5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z" opacity=".5" />
@@ -212,13 +213,12 @@ export function SearchColorIcon() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Ai-Chat-16.svg. Inline SVG so that can be styled with CSS.
- * @param {object} params
- * @param {string} [params.className]
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Ai-Chat-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function AiChatIcon({ className }) {
+export function AiChatIcon(props) {
     return (
-        <svg className={className} fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g fill="currentColor" clip-path="url(#Ai-Chat-16_svg__a)">
                 <path
                     fill-rule="evenodd"
@@ -237,11 +237,12 @@ export function AiChatIcon({ className }) {
 }
 
 /**
- * https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Color/16px/Ai-Chat-Gradient-Color-16.svg.
+ * https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Color/16px/Ai-Chat-Gradient-Color-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function AiChatColorIcon() {
+export function AiChatColorIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Ai-Chat-Gradient-Color-16_svg__a)">
                 <path
                     fill="url(#Ai-Chat-Gradient-Color-16_svg__b)"
@@ -286,13 +287,12 @@ export function AiChatColorIcon() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Arrow-Right-16.svg. Inline SVG so that can be styled with CSS.
- * @param {object} params
- * @param {string} [params.className]
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/ArrowRight-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function ArrowRightIcon({ className }) {
+export function ArrowRightIcon(props) {
     return (
-        <svg className={className} fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <path
                 fill="currentColor"
                 d="M8.187 1.689a.625.625 0 0 1 .885-.884l5.31 5.316c.83.83.83 2.174 0 3.004l-5.31 5.315a.625.625 0 0 1-.885-.884l5.305-5.308H.625a.625.625 0 1 1 0-1.25h12.867z"
@@ -302,11 +302,12 @@ export function ArrowRightIcon({ className }) {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Globe-16.svg.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Globe-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function GlobeIcon() {
+export function GlobeIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Globe-16_svg__a)">
                 <path
                     fill="currentColor"
@@ -325,11 +326,12 @@ export function GlobeIcon() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/History-16.svg.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/History-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function HistoryIcon() {
+export function HistoryIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g fill="currentColor" clip-path="url(#History-16_svg__a)">
                 <path d="m2.072 4.918-.08-.004A6.753 6.753 0 1 1 1.246 8 .623.623 0 1 0 0 8a8 8 0 1 0 1.247-4.29V1.115a.623.623 0 0 0-1.247 0v2.977c0 1.145.928 2.072 2.072 2.072h2.486a.623.623 0 0 0 0-1.246z" />
                 <path d="M8.625 3.625a.625.625 0 1 0-1.25 0V8c0 .166.066.325.183.442l2.375 2.375a.625.625 0 1 0 .884-.884L8.625 7.741z" />
@@ -344,11 +346,12 @@ export function HistoryIcon() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Favorite-16.svg.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Favorite-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function FavoriteIcon() {
+export function FavoriteIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Favorite-16_svg__a)">
                 <path
                     fill="currentColor"
@@ -367,11 +370,12 @@ export function FavoriteIcon() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Bookmark-16.svg.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Bookmark-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function BookmarkIcon() {
+export function BookmarkIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Bookmark-16_svg__a)">
                 <path
                     fill="currentColor"
@@ -390,11 +394,12 @@ export function BookmarkIcon() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Browser-16.svg.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Browser-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function BrowserIcon() {
+export function BrowserIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <path
                 fill="#000"
                 fill-rule="evenodd"
