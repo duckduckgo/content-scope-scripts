@@ -3,8 +3,8 @@ import ContentFeature from '../content-feature.js';
 const MSG_VIDEO_PLAYBACK = 'video-playback';
 
 export class Telemetry extends ContentFeature {
-    constructor() {
-        super();
+    constructor(featureName, importConfig, args) {
+        super(featureName, importConfig, args);
         this.seenVideoElements = new WeakSet();
     }
 
