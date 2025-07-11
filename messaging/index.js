@@ -89,8 +89,12 @@ export class Messaging {
         try {
             this.transport.notify(message);
         } catch (e) {
-            // Silently ignoring any transport errors here as per section 4.1 of https://www.jsonrpc.org/specification
+            // Silently ignoring any transport errors in production, as per section 4.1 of https://www.jsonrpc.org/specification
             // Notifications are fire+forget and should be able to be sent without any knowledge of the receiving ends support
+            if (this.messagingContext.env === 'development') {
+                console.error('[Messaging] Failed to send notification:', e);
+                console.error('[Messaging] Message details:', { name, data });
+            }
         }
     }
 
