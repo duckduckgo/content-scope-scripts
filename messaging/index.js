@@ -69,7 +69,6 @@ export class Messaging {
 
     /**
      * Send a 'fire-and-forget' message.
-     * @throws {MissingHandler}
      *
      * @example
      *
@@ -87,12 +86,17 @@ export class Messaging {
             method: name,
             params: data,
         });
-        this.transport.notify(message);
+        try {
+            this.transport.notify(message);
+        } catch (e) {
+            // Silently ignoring any transport errors here as per section 4.1 of https://www.jsonrpc.org/specification
+            // Notifications are fire+forget and should be able to be sent without any knowledge of the receiving ends support
+        }
     }
 
     /**
-     * Send a request, and wait for a response
-     * @throws {MissingHandler}
+     * Send a request and wait for a response
+     * @throws {Error}
      *
      * @example
      * ```

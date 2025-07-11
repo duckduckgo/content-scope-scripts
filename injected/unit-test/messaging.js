@@ -49,6 +49,26 @@ describe('Messaging Transports', () => {
             }),
         );
     });
+    it("calls transport with a NotificationMessage and doesn't throw", () => {
+        const { messaging, transport } = createMessaging();
+
+        const spy = spyOn(transport, 'notify').and.throwError('Test error 1');
+
+        try {
+            messaging.notify('helloWorld', { foo: 'bar' });
+        } catch (e) {
+            fail('Should not throw');
+        }
+
+        expect(spy).toHaveBeenCalledWith(
+            new NotificationMessage({
+                context: 'contentScopeScripts',
+                featureName: 'hello-world',
+                method: 'helloWorld',
+                params: { foo: 'bar' },
+            }),
+        );
+    });
     it('calls transport with a Subscription', () => {
         const { messaging, transport } = createMessaging();
 
