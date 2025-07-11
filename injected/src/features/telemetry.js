@@ -6,7 +6,6 @@ export class Telemetry extends ContentFeature {
     constructor() {
         super();
         this.seenVideoElements = new WeakSet();
-        this.seenUserInteractions = new WeakSet();
     }
 
     init() {
@@ -20,16 +19,17 @@ export class Telemetry extends ContentFeature {
             return; // already observed
         }
         this.seenVideoElements.add(video);
-        video.addEventListener('play', () => {
-            if (!this.seenUserInteractions.has(video)) {
+        video.addEventListener(
+            'play',
+            () => {
                 const message = {
                     userInteraction: navigator.userActivation.isActive,
                 };
-                this.seenUserInteractions.add(video);
                 console.log('video playback', message);
                 this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
-            }
-        });
+            },
+            { once: true },
+        );
     }
 
     addListenersToAllVideos(node) {
