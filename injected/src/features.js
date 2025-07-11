@@ -1,3 +1,4 @@
+// Features must exist in either `baseFeatures` or `otherFeatures`
 export const baseFeatures = /** @type {const} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
@@ -29,12 +30,13 @@ const otherFeatures = /** @type {const} */ ([
     'autofillPasswordImport',
     'favicon',
     'telemetry',
+    'scriptlets',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures],
+    apple: ['webCompat', 'duckPlayerNative', 'scriptlets', ...baseFeatures],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
@@ -56,6 +58,7 @@ export const platformSupport = {
         'brokerProtection',
         'breakageReporting',
         'messageBridge',
+        'webCompat',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],

@@ -33,7 +33,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "malwareWarningText" : {
-    "title" : "„DuckDuckGo“ užblokavo šį puslapį, nes jame gali būti platinama kenkėjiška programinė įranga, kuria siekiama pakenkti jūsų įrenginiui arba pavogti jūsų asmeninę informaciją.{newline}<a>Sužinokite daugiau</a>",
+    "title" : "„DuckDuckGo“ sukčiavimo blokatorius neleido šiam puslapiui įkelti, nes jis gali platinti kenkėjišką programinę įrangą, skirtą pakenkti tavo įrenginiui arba pavogti tavo asmeninę informaciją.{newline}<a>Sužinok daugiau</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to malware distribution. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "malwareAdvancedInfoHeading" : {
@@ -45,7 +45,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "phishingWarningText" : {
-    "title" : "Ši svetainė gali apsimesti teisėta svetaine, siekiant apgauti jus pateikti asmeninę informaciją, pvz., slaptažodžius ar kredito kortelių numerius.{newline}<a>Sužinokite daugiau</a>",
+    "title" : "„DuckDuckGo“ sukčiavimo blokatorius neleido šiam puslapiui įsikelti, nes jis gali apsimesti teisėta svetaine, kad apgaulės būdu išviliotų iš tavęs asmeninę informaciją, pvz., slaptažodžius ar kredito kortelių numerius.{newline}<a>Sužinok daugiau</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to Phishing issues. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "phishingAdvancedInfoHeading" : {
@@ -57,7 +57,7 @@
     "note" : "Title shown in an error page that warn users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed within the sentence to avoid having a single word hanging on the last line"
   },
   "scamWarningText" : {
-    "title" : "„DuckDuckGo“ užblokavo šį puslapį, nes jis gali bandyti apgauti ar manipuliuoti tavimi, siekdamas, kad pervestum pinigus, pirktum padirbtas prekes arba įdiegtum kenkėjiškas programas prisidengiant melagingais pretekstais.{newline}<a>Sužinokite daugiau</a>",
+    "title" : "„DuckDuckGo“ sukčiavimo blokatorius neleido šiam puslapiui įkelti, nes jis gali bandyti apgauti ar manipuliuoti tavimi, siekdamas, kad pervestum pinigus, pirktum padirbtas prekes arba įdiegtum kenkėjiškas programas prisidengiant melagingais pretekstais.{newline}<a>Sužinokite daugiau</a>",
     "note" : "Error description shown in an error page that warns users of security risks on a website due to suspected scam attempts. The {newline} tag should not be translated. It should be placed before the translated <a>Learn More</a> text."
   },
   "scamAdvancedInfoHeading" : {

@@ -1,0 +1,12 @@
+.root {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: var(--sp-15);
+}
+
+.logo {
+    margin-bottom: var(--sp-4);
+    width: 123px;
+}

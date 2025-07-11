@@ -51,8 +51,13 @@ export function ProtectionsProvider(props) {
     // get initial data
     useInitialDataAndConfig({ dispatch, service });
 
-    // subscribe to toggle + expose a fn for sync toggling
-    const { toggle } = useConfigSubscription({ dispatch, service });
+    // subscribe to config updates
+    useConfigSubscription({ dispatch, service });
+
+    // expose a fn for sync toggling
+    const toggle = useCallback(() => {
+        service.current?.toggleExpansion();
+    }, [service]);
 
     /** @type {(feed: ProtectionsConfig['feed']) => void} */
     const setFeed = useCallback(

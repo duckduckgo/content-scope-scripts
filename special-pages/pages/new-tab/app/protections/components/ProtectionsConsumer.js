@@ -50,7 +50,7 @@ function ProtectionsReadyState({ data, config }) {
         >
             {config.feed === 'activity' && (
                 <ActivityProvider>
-                    <ActivityConsumer />
+                    <ActivityConsumer showBurnAnimation={config.showBurnAnimation ?? true} />
                 </ActivityProvider>
             )}
             {config.feed === 'privacy-stats' && (

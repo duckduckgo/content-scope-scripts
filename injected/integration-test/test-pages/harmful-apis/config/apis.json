@@ -1,8 +1,11 @@
 {
+  "readme": "This config is used to test the harmful APIs feature.",
+  "version": 1,
   "unprotectedTemporary": [],
   "features": {
     "windowsPermissionUsage": {
-      "state": "disabled"
+      "state": "disabled",
+      "exceptions": []
     },
     "harmfulApis": {
       "state": "enabled",

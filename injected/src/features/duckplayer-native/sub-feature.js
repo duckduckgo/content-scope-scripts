@@ -5,6 +5,7 @@ import { DuckPlayerNativeSerp } from './sub-features/duck-player-native-serp.js'
 /**
  * @import {DuckPlayerNativeMessages} from './messages.js'
  * @import {Environment} from '../duckplayer/environment.js'
+ * @import {TranslationFn} from '../duck-player-native.js'
  * @import {DuckPlayerNativeSettings} from "@duckduckgo/privacy-configuration/schema/features/duckplayer-native.js"
  * @typedef {DuckPlayerNativeSettings['selectors']} DuckPlayerNativeSelectors
  */
@@ -51,13 +52,15 @@ export function setupDuckPlayerForYouTube(selectors, paused, environment, messag
  * @param {DuckPlayerNativeSelectors} selectors
  * @param {Environment} environment
  * @param {DuckPlayerNativeMessages} messages
+ * @param {TranslationFn} t
  * @return {DuckPlayerNativeSubFeature}
  */
-export function setupDuckPlayerForNoCookie(selectors, environment, messages) {
+export function setupDuckPlayerForNoCookie(selectors, environment, messages, t) {
     return new DuckPlayerNativeNoCookie({
         selectors,
         environment,
         messages,
+        t,
     });
 }
 

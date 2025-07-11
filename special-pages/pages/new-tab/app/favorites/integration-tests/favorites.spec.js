@@ -122,6 +122,25 @@ test.describe('newtab favorites', () => {
         await ntp.reducedMotion();
         await favorites.hasFallbackIcons(() => ntp.openPage({ favorites: 'fallbacks' }));
     });
+    test('handling missing icons (responding to a "refresh" message)', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const favorites = new FavoritesPage(ntp);
+        await ntp.reducedMotion();
+
+        // wait for the first failed request
+        const firstRequest = page.waitForResponse((res) => {
+            return res.url().includes('this-does-note-exist');
+        });
+        await ntp.openPage({ favorites: 'missing' });
+        await firstRequest;
+
+        // now, we set another wait, assuming this request is re-tried as expected
+        const secondRequest = page.waitForResponse((res) => res.url().includes('this-does-note-exist'));
+
+        // comment out this line to see that the test can fail
+        await favorites.receivesRefresh();
+        await secondRequest;
+    });
     test('expansion works with expanded items above', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();

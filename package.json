@@ -27,8 +27,8 @@
     "lint-fix": "eslint . --fix && npx prettier . --write && npm run tsc",
     "stylelint": "npx stylelint \"**/*.css\"",
     "stylelint-fix": "npx stylelint \"**/*.css\" --fix",
-    "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
-    "serve-special-pages": "http-server -c-1 --port 3221 build/integration/pages"
+    "serve": "npm run serve --workspace=injected",
+    "serve-special-pages": "npm run serve --workspace=special-pages"
   },
   "type": "module",
   "workspaces": [
@@ -40,19 +40,22 @@
   "devDependencies": {
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
     "@playwright/test": "^1.52.0",
-    "esbuild": "^0.25.4",
-    "eslint": "^9.27.0",
+    "ajv": "^8.17.1",
+    "esbuild": "^0.25.6",
+    "eslint": "^9.29.0",
     "minimist": "^1.2.8",
-    "prettier": "3.5.3",
+    "prettier": "3.6.1",
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
     "stylelint-csstree-validator": "^3.0.0",
+    "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.5",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.33.0",
-    "urlpattern-polyfill": "^10.1.0"
+    "wait-on": "^8.0.3"
   },
   "dependencies": {
-    "immutable-json-patch": "^6.0.1"
+    "immutable-json-patch": "^6.0.1",
+    "urlpattern-polyfill": "^10.1.0"
   }
 }

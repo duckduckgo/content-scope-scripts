@@ -1,4 +1,6 @@
 {
+  "readme": "This config is used to test disabling the message bridge feature.",
+  "version": 1,
   "unprotectedTemporary": [],
   "features": {
     "favicon": {

@@ -109,6 +109,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
             injectName={environment.injectName}
             willThrow={environment.willThrow}
             env={environment.env}
+            locale={environment.locale}
         >
             <InlineErrorBoundary
                 context={'App entry point'}
@@ -201,7 +202,12 @@ async function resolveEntryPoints(widgets, didCatch) {
 function renderComponents(root, environment, settings, strings) {
     // eslint-disable-next-line no-labels,no-unused-labels
     $INTEGRATION: render(
-        <EnvironmentProvider debugState={environment.debugState} injectName={environment.injectName} willThrow={environment.willThrow}>
+        <EnvironmentProvider
+            debugState={environment.debugState}
+            injectName={environment.injectName}
+            willThrow={environment.willThrow}
+            locale={environment.locale}
+        >
             <SettingsProvider settings={settings}>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <Components />

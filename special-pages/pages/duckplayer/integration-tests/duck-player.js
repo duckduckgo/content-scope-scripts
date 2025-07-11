@@ -246,10 +246,11 @@ export class DuckPlayerPage {
     /**
      * @param {import('../types/duckplayer.ts').YouTubeError} [youtubeError]
      * @param {string} [videoID]
+     * @param {string} [locale]
      * @returns {Promise<void>}
      */
-    async openWithYouTubeError(youtubeError = 'unknown', videoID = 'e90eWYPNtJ8') {
-        const params = new URLSearchParams({ youtubeError, videoID, customError: 'enabled', focusMode: 'disabled' });
+    async openWithYouTubeError(youtubeError = 'unknown', videoID = 'e90eWYPNtJ8', locale = 'en') {
+        const params = new URLSearchParams({ youtubeError, videoID, customError: 'enabled', focusMode: 'disabled', locale });
         await this.openPage(params);
     }
 
@@ -612,5 +613,70 @@ export class DuckPlayerPage {
     async openInfo() {
         const { page } = this;
         await page.getByRole('button', { name: 'Open Info' }).click();
+    }
+
+    /* Aria Snapshots */
+    async didShowGenericError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Duck Player can’t load this video" [level=1]
+            - paragraph: This video can’t be viewed outside of YouTube.
+            - paragraph: You can still watch this video on YouTube, but without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowGenericErrorInSpanish() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Duck Player no puede cargar este vídeo" [level=1]
+            - paragraph: Este vídeo no se puede ver fuera de YouTube.
+            - paragraph: Sigues pudiendo ver este vídeo en YouTube, pero sin la privacidad adicional que ofrece Duck Player.
+          `);
+    }
+
+    async didShowAgeRestrictedError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Sorry, this video is age-restricted" [level=1]
+            - paragraph: To watch age-restricted videos, you need to sign in to YouTube to verify your age.
+            - paragraph: You can still watch this video, but you’ll have to sign in and watch it on YouTube without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowAgeRestrictedErrorInSpanish() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Lo sentimos, este vídeo está restringido por edad" [level=1]
+            - paragraph: Para ver vídeos con restricción de edad, necesitas iniciar sesión en YouTube para verificar tu edad.
+            - paragraph: Todavía puedes ver este vídeo, pero tendrás que iniciar sesión y verlo en YouTube sin la privacidad adicional de Duck Player.
+          `);
+    }
+
+    async didShowNoEmbedError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Sorry, this video can only be played on YouTube" [level=1]
+            - paragraph: The creator of this video has chosen not to allow it to be viewed on other sites.
+            - paragraph: You can still watch it on YouTube, but without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowNoEmbedErrorInSpanish() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Lo sentimos, este vídeo solo se puede reproducir en YouTube" [level=1]
+            - paragraph: El creador de este vídeo ha decidido no permitir que se vea en otros sitios.
+            - paragraph: Sigues pudiendo verlo en YouTube, pero sin la privacidad adicional que ofrece Duck Player.
+          `);
+    }
+
+    async didShowSignInRequiredError() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Sorry, YouTube thinks you’re a bot" [level=1]
+            - paragraph: This can happen if you’re using a VPN. Try turning the VPN off or switching server locations and reloading this page.
+            - paragraph: If that doesn’t work, you’ll have to sign in and watch this video on YouTube without the added privacy of Duck Player.
+          `);
+    }
+
+    async didShowSignInRequiredErrorInSpanish() {
+        await expect(this.page.getByTestId('YouTubeErrorContent')).toMatchAriaSnapshot(`
+            - heading "Lo sentimos, YouTube piensa que eres un bot" [level=1]
+            - paragraph: Esto puede ocurrir si estás usando una VPN. Intenta desactivar la VPN o cambiar la ubicación del servidor y recarga la página.
+            - paragraph: Si eso no funciona, tendrás que iniciar sesión y ver el vídeo en YouTube sin la privacidad adicional que ofrece Duck Player.
+          `);
     }
 }

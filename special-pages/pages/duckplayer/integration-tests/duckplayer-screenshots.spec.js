@@ -24,17 +24,33 @@ test.describe('screenshots @screenshots', () => {
         await duckplayer.hasShownErrorMessage();
         await expect(page).toHaveScreenshot('error-layout.png', { maxDiffPixels: 20 });
     });
-    test('youtube generic error', async ({ page }, workerInfo) => {
-        const duckplayer = DuckPlayerPage.create(page, workerInfo);
-        await duckplayer.openWithYouTubeError('unknown');
-        await duckplayer.hasShownErrorMessage('YouTube won’t let Duck Player load this video');
-        await expect(page).toHaveScreenshot('youtube-error-unknown.png', { maxDiffPixels: 20 });
-    });
     test('youtube sign-in error', async ({ page }, workerInfo) => {
+        test.skip(!isApple(workerInfo));
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
         await duckplayer.openWithYouTubeError('sign-in-required');
-        await duckplayer.hasShownErrorMessage('YouTube won’t let Duck Player load this video');
+        await duckplayer.didShowSignInRequiredError();
         await expect(page).toHaveScreenshot('youtube-error-sign-in-required.png', { maxDiffPixels: 20 });
+    });
+    test('youtube age-restricted error', async ({ page }, workerInfo) => {
+        test.skip(!isApple(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('age-restricted');
+        await duckplayer.didShowAgeRestrictedError();
+        await expect(page).toHaveScreenshot('youtube-error-age-restricted.png', { maxDiffPixels: 20 });
+    });
+    test('youtube no-embed error', async ({ page }, workerInfo) => {
+        test.skip(!isApple(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('no-embed');
+        await duckplayer.didShowNoEmbedError();
+        await expect(page).toHaveScreenshot('youtube-error-no-embed.png', { maxDiffPixels: 20 });
+    });
+    test('youtube generic error', async ({ page }, workerInfo) => {
+        test.skip(!isApple(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithYouTubeError('unknown');
+        await duckplayer.didShowGenericError();
+        await expect(page).toHaveScreenshot('youtube-error-unknown.png', { maxDiffPixels: 20 });
     });
     test('tooltip shown on hover', async ({ page }, workerInfo) => {
         test.skip(isMobile(workerInfo));
@@ -54,4 +70,12 @@ test.describe('screenshots @screenshots', () => {
 function isMobile(testInfo) {
     const u = /** @type {any} */ (testInfo.project.use);
     return u?.platform === 'android' || u?.platform === 'ios';
+}
+
+/**
+ * @param {import("@playwright/test").TestInfo} testInfo
+ */
+function isApple(testInfo) {
+    const u = /** @type {any} */ (testInfo.project.use);
+    return u?.platform === 'macos' || u?.platform === 'ios';
 }

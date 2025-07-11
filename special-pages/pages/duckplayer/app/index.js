@@ -86,7 +86,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
                     <TelemetryContext.Provider value={telemetry}>
                         <MessagingContext.Provider value={messaging}>
                             <SettingsProvider settings={settings}>
-                                <YouTubeErrorProvider initial={initialYouTubeError}>
+                                <YouTubeErrorProvider initial={initialYouTubeError} locale={environment.locale}>
                                     <UserValuesProvider initial={init.userValues}>
                                         {settings.layout === 'desktop' && (
                                             <TranslationProvider

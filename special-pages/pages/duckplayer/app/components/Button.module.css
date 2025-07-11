@@ -1,7 +1,13 @@
 .button {
+    --button-background: rgba(255, 255, 255, 0.18);
+    --button-color: rgba(255, 255, 255, 1);
+    --button-background-hover: rgba(255, 255, 255, 0.2);
+
+    align-items: center;
     border: none;
     outline: none;
     display: flex;
+    gap: 8px;
     height: 44px;
     line-height: 44px;
     font-size: 15px;
@@ -9,20 +15,19 @@
     padding: 0 20px;
     flex-shrink: 0;
     box-shadow: none;
-    background: rgba(255, 255, 255, 0.18);
+    background: var(--button-background);
     border-radius: var(--inner-radius);
-    color: rgba(255, 255, 255, 1);
+    color: var(--button-color);
     text-decoration: none;
 
     [data-layout="mobile"] & {
-        background-color: rgba(255, 255, 255, 0.12);
+        --button-background: rgba(255, 255, 255, 0.12);
     }
 }
 
-
 .button:hover, .button:focus-visible {
+    background: var(--button-background-hover);
     cursor: pointer;
-    background: rgba(255, 255, 255, 0.2);
 }
 
 .fill {
@@ -59,7 +64,6 @@
     transform: translateY(-50%) translateX(-50%);
 }
 
-.icon {}
 .icon img {
     display: block;
     width: 100%;
@@ -79,4 +83,18 @@
     transition: all .3s ease-in-out;
     transition-delay: 2s;
     transform: scale(1.1);
+}
+
+/* Accent variant */
+
+.button.accent {
+    --button-background: #3969ef;
+    --button-color: #fff;
+    --button-background-hover: #2b55ca;
+}
+
+.svgIcon {
+    width: 16px;
+    height: 16px;
+    margin-left: -8px;
 }

@@ -1,4 +1,4 @@
-import { YOUTUBE_ERROR_EVENT, YOUTUBE_ERRORS } from '../providers/YouTubeErrorProvider';
+import { YOUTUBE_ERROR_EVENT, checkForError, getErrorType } from '../../../../../injected/src/features/duckplayer-native/youtube-errors.js';
 
 /**
  * @typedef {import("./iframe").IframeFeature} IframeFeature
@@ -23,6 +23,8 @@ export class ErrorDetection {
      */
     constructor(options) {
         this.options = options;
+        this.errorSelector = options?.settings?.youtubeErrorSelector || '.ytp-error';
+        console.log('options', options);
     }
 
     /**
@@ -36,11 +38,12 @@ export class ErrorDetection {
             return null;
         }
 
-        const documentBody = iframe.contentWindow?.document?.body;
-        if (documentBody) {
+        const contentWindow = iframe.contentWindow;
+        const documentBody = contentWindow?.document?.body;
+        if (contentWindow && documentBody) {
             // Check if iframe already contains error
-            if (this.checkForError(documentBody)) {
-                const error = this.getErrorType();
+            if (checkForError(this.errorSelector, documentBody)) {
+                const error = getErrorType(contentWindow, this.options.settings?.signInRequiredSelector);
                 window.dispatchEvent(new CustomEvent(YOUTUBE_ERROR_EVENT, { detail: { error } }));
 
                 return null;
@@ -72,74 +75,14 @@ export class ErrorDetection {
         for (const mutation of mutationsList) {
             if (mutation.type === 'childList') {
                 mutation.addedNodes.forEach((node) => {
-                    if (this.checkForError(node)) {
+                    if (checkForError(this.errorSelector, node)) {
                         console.log('A node with an error has been added to the document:', node);
-                        const error = this.getErrorType();
+                        const error = getErrorType(this.iframe.contentWindow, this.options.settings?.signInRequiredSelector);
 
                         window.dispatchEvent(new CustomEvent(YOUTUBE_ERROR_EVENT, { detail: { error } }));
                     }
                 });
             }
         }
-    }
-
-    /**
-     * Attempts to detect the type of error in the YouTube embed iframe
-     * @returns {YouTubeError}
-     */
-    getErrorType() {
-        const iframeWindow = /** @type {Window & { ytcfg: object }} */ (this.iframe.contentWindow);
-        let playerResponse;
-
-        try {
-            playerResponse = JSON.parse(iframeWindow.ytcfg?.get('PLAYER_VARS')?.embedded_player_response);
-        } catch (e) {
-            console.log('Could not parse player response', e);
-        }
-
-        if (typeof playerResponse === 'object') {
-            const {
-                previewPlayabilityStatus: { desktopLegacyAgeGateReason, status },
-            } = playerResponse;
-
-            // 1. Check for UNPLAYABLE status
-            if (status === 'UNPLAYABLE') {
-                // 1.1. Check for presence of desktopLegacyAgeGateReason
-                if (desktopLegacyAgeGateReason === 1) {
-                    return YOUTUBE_ERRORS.ageRestricted;
-                }
-
-                // 1.2. Fall back to embed not allowed error
-                return YOUTUBE_ERRORS.noEmbed;
-            }
-
-            // 2. Check for sign-in support link
-            try {
-                const { settings } = this.options;
-                if (settings?.signInRequiredSelector && !!iframeWindow.document.querySelector(settings.signInRequiredSelector)) {
-                    return YOUTUBE_ERRORS.signInRequired;
-                }
-            } catch (e) {
-                console.log('Sign-in required query failed', e);
-            }
-        }
-
-        // 3. Fall back to unknown error
-        return YOUTUBE_ERRORS.unknown;
-    }
-
-    /**
-     * Analyses a node and its children to determine if it contains an error state
-     *
-     * @param {Node} [node]
-     */
-    checkForError(node) {
-        if (node?.nodeType === Node.ELEMENT_NODE) {
-            const element = /** @type {HTMLElement} */ (node);
-            // Check if element has the error class or contains any children with that class
-            return element.classList.contains('ytp-error') || !!element.querySelector('.ytp-error');
-        }
-
-        return false;
     }
 }

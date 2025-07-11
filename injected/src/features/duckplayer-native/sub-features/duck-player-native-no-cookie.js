@@ -8,6 +8,7 @@ import { ErrorDetection } from '../error-detection.js';
  * @import {Environment} from '../../duckplayer/environment.js'
  * @import {ErrorDetectionSettings} from '../error-detection.js'
  * @import {DuckPlayerNativeSelectors} from '../sub-feature.js'
+ * @import {TranslationFn} from '../../duck-player-native.js'
  */
 /**
  * @import {DuckPlayerNativeSubFeature} from "../sub-feature.js"
@@ -19,11 +20,13 @@ export class DuckPlayerNativeNoCookie {
      * @param {Environment} options.environment
      * @param {DuckPlayerNativeMessages} options.messages
      * @param {DuckPlayerNativeSelectors} options.selectors
+     * @param {TranslationFn} options.t
      */
-    constructor({ environment, messages, selectors }) {
+    constructor({ environment, messages, selectors, t }) {
         this.environment = environment;
         this.selectors = selectors;
         this.messages = messages;
+        this.t = t;
         this.sideEffects = new SideEffects({
             debug: environment.isTestMode(),
         });
@@ -61,7 +64,7 @@ export class DuckPlayerNativeNoCookie {
 
             const targetElement = document.querySelector(errorContainer);
             if (targetElement) {
-                showError(/** @type {HTMLElement} */ (targetElement), errorId, this.environment);
+                showError(/** @type {HTMLElement} */ (targetElement), errorId, this.environment, this.t);
             }
         };
 
