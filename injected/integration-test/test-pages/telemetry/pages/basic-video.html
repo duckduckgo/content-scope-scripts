@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Telemetry - Basic Video</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+<p><a href="../index.html">[Telemetry Home]</a></p>
+<h2>Basic Video Playback</h2>
+<p>This page contains a single video element. Play the video to test if Telemetry observes the playback event.</p>
+<video id="test-video" width="480" controls>
+    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+<script>
+    // Optionally, log to the page for manual verification
+    document.getElementById('test-video').addEventListener('play', () => {
+        const log = document.createElement('div');
+        log.textContent = 'Video play event fired.';
+        document.body.appendChild(log);
+    });
+</script>
+</body>
+</html> 

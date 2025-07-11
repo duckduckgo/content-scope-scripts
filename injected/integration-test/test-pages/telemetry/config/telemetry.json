@@ -1,0 +1,12 @@
+{
+  "unprotectedTemporary": [],
+  "features": {
+    "telemetry": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "videoPlayback": true
+      }
+    }
+  }
+} 
