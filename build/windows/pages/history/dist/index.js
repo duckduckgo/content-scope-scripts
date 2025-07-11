@@ -2284,6 +2284,110 @@
     }, []);
   }
 
+  // pages/history/app/global/Providers/QueryProvider.js
+  var QueryContext = K(
+    /** @type {import('@preact/signals').ReadonlySignal<QueryState>} */
+    d3({
+      term: (
+        /** @type {string|null} */
+        null
+      ),
+      range: (
+        /** @type {RangeId|null} */
+        null
+      ),
+      domain: (
+        /** @type {string|null} */
+        null
+      ),
+      source: (
+        /** @type {Source} */
+        "initial"
+      )
+    })
+  );
+  var QueryDispatch = K(
+    /** @type {(a: Action) => void} */
+    (_5) => {
+      throw new Error("missing QueryDispatch");
+    }
+  );
+  function QueryProvider({ children, query = { term: "" } }) {
+    const initial = {
+      term: "term" in query ? query.term : null,
+      range: "range" in query ? query.range : null,
+      domain: "domain" in query ? query.domain : null,
+      source: (
+        /** @type {Source} */
+        "initial"
+      )
+    };
+    const queryState = useSignal(initial);
+    function dispatch(action) {
+      queryState.value = (() => {
+        switch (action.kind) {
+          case "reset": {
+            return { term: "", domain: null, range: null, source: (
+              /** @type {const} */
+              "auto"
+            ) };
+          }
+          case "search-by-domain": {
+            return { term: null, domain: action.value, range: null, source: (
+              /** @type {const} */
+              "user"
+            ) };
+          }
+          case "search-by-range": {
+            return {
+              term: null,
+              domain: null,
+              range: (
+                /** @type {RangeId} */
+                action.value
+              ),
+              source: (
+                /** @type {const} */
+                "user"
+              )
+            };
+          }
+          case "search-by-term": {
+            return { term: action.value, domain: null, range: null, source: (
+              /** @type {const} */
+              "user"
+            ) };
+          }
+          default:
+            return { term: "", domain: null, range: null, source: (
+              /** @type {const} */
+              "auto"
+            ) };
+        }
+      })();
+    }
+    const dispatcher = q2(dispatch, [queryState]);
+    return /* @__PURE__ */ _(QueryContext.Provider, { value: queryState }, /* @__PURE__ */ _(QueryDispatch.Provider, { value: dispatcher }, children));
+  }
+  function useQueryContext() {
+    return x2(QueryContext);
+  }
+  function useQueryDispatch() {
+    return x2(QueryDispatch);
+  }
+
+  // pages/history/app/icons/Search.js
+  function SearchIcon() {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M14.8 13.7L10.9 9.8C11.6 8.9 12 7.7 12 6.5C12 3.5 9.5 1 6.5 1C3.5 1 1 3.5 1 6.5C1 9.5 3.5 12 6.5 12C7.7 12 8.9 11.6 9.8 10.9L13.7 14.8C13.8 14.9 14 15 14.2 15C14.4 15 14.6 14.9 14.7 14.8C15.1 14.5 15.1 14 14.8 13.7ZM2.5 6.5C2.5 4.3 4.3 2.5 6.5 2.5C8.7 2.5 10.5 4.3 10.5 6.5C10.5 8.7 8.7 10.5 6.5 10.5C4.3 10.5 2.5 8.7 2.5 6.5Z",
+        fill: "currentColor",
+        "fill-opacity": "0.6"
+      }
+    ));
+  }
+
   // shared/translations.js
   function apply(subject, replacements, textLength = 1) {
     if (typeof subject !== "string" || subject.length === 0) return "";
@@ -2510,110 +2614,6 @@
   var useSettings = () => x2(SettingsContext);
   function usePlatformName() {
     return x2(SettingsContext).platform.name;
-  }
-
-  // pages/history/app/icons/Search.js
-  function SearchIcon() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M14.8 13.7L10.9 9.8C11.6 8.9 12 7.7 12 6.5C12 3.5 9.5 1 6.5 1C3.5 1 1 3.5 1 6.5C1 9.5 3.5 12 6.5 12C7.7 12 8.9 11.6 9.8 10.9L13.7 14.8C13.8 14.9 14 15 14.2 15C14.4 15 14.6 14.9 14.7 14.8C15.1 14.5 15.1 14 14.8 13.7ZM2.5 6.5C2.5 4.3 4.3 2.5 6.5 2.5C8.7 2.5 10.5 4.3 10.5 6.5C10.5 8.7 8.7 10.5 6.5 10.5C4.3 10.5 2.5 8.7 2.5 6.5Z",
-        fill: "currentColor",
-        "fill-opacity": "0.6"
-      }
-    ));
-  }
-
-  // pages/history/app/global/Providers/QueryProvider.js
-  var QueryContext = K(
-    /** @type {import('@preact/signals').ReadonlySignal<QueryState>} */
-    d3({
-      term: (
-        /** @type {string|null} */
-        null
-      ),
-      range: (
-        /** @type {RangeId|null} */
-        null
-      ),
-      domain: (
-        /** @type {string|null} */
-        null
-      ),
-      source: (
-        /** @type {Source} */
-        "initial"
-      )
-    })
-  );
-  var QueryDispatch = K(
-    /** @type {(a: Action) => void} */
-    (_5) => {
-      throw new Error("missing QueryDispatch");
-    }
-  );
-  function QueryProvider({ children, query = { term: "" } }) {
-    const initial = {
-      term: "term" in query ? query.term : null,
-      range: "range" in query ? query.range : null,
-      domain: "domain" in query ? query.domain : null,
-      source: (
-        /** @type {Source} */
-        "initial"
-      )
-    };
-    const queryState = useSignal(initial);
-    function dispatch(action) {
-      queryState.value = (() => {
-        switch (action.kind) {
-          case "reset": {
-            return { term: "", domain: null, range: null, source: (
-              /** @type {const} */
-              "auto"
-            ) };
-          }
-          case "search-by-domain": {
-            return { term: null, domain: action.value, range: null, source: (
-              /** @type {const} */
-              "user"
-            ) };
-          }
-          case "search-by-range": {
-            return {
-              term: null,
-              domain: null,
-              range: (
-                /** @type {RangeId} */
-                action.value
-              ),
-              source: (
-                /** @type {const} */
-                "user"
-              )
-            };
-          }
-          case "search-by-term": {
-            return { term: action.value, domain: null, range: null, source: (
-              /** @type {const} */
-              "user"
-            ) };
-          }
-          default:
-            return { term: "", domain: null, range: null, source: (
-              /** @type {const} */
-              "auto"
-            ) };
-        }
-      })();
-    }
-    const dispatcher = q2(dispatch, [queryState]);
-    return /* @__PURE__ */ _(QueryContext.Provider, { value: queryState }, /* @__PURE__ */ _(QueryDispatch.Provider, { value: dispatcher }, children));
-  }
-  function useQueryContext() {
-    return x2(QueryContext);
-  }
-  function useQueryDispatch() {
-    return x2(QueryDispatch);
   }
 
   // pages/history/app/components/SearchForm.js

@@ -1,2 +1,1 @@
-- Device enum support (#1806)
-- build(deps): bump esbuild from 0.25.4 to 0.25.6 (#1815)
+- NTP: Style Omnibar to match specs (#1811)
