@@ -132,4 +132,12 @@ export class OmnibarPage {
         const calls = await this.ntp.mocks.waitForCallCount({ method, count: 1 });
         expect(calls[0].payload.params).toEqual(expectedParams);
     }
+
+    /**
+     * @param {string} method
+     */
+    async expectMethodNotCalled(method) {
+        const calls = await this.ntp.mocks.outgoing({ names: [method] });
+        expect(calls).toHaveLength(0);
+    }
 }

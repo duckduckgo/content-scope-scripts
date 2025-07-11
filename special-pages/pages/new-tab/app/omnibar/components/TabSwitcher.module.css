@@ -38,4 +38,8 @@
     position: absolute;
     top: 0;
     transition: translate 200ms ease;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
 }

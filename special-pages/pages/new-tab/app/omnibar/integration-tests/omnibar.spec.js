@@ -49,6 +49,28 @@ test.describe('omnibar widget', () => {
         });
     });
 
+    test('AI chat form shift+enter creates new line', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        await omnibar.chatInput().fill('first line');
+        await omnibar.chatInput().press('Shift+Enter');
+        await omnibar.chatInput().pressSequentially('second line');
+
+        // Check that the textarea contains both lines with a newline
+        await expect(omnibar.chatInput()).toHaveValue('first line\nsecond line');
+
+        // Verify that the form was not submitted (no method call should have been made)
+        await omnibar.expectMethodNotCalled('omnibar_submitChat');
+    });
+
     test('mode switching preserves query state', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
