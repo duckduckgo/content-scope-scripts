@@ -3,6 +3,12 @@ import ContentFeature from '../content-feature.js';
 const MSG_VIDEO_PLAYBACK = 'video-playback';
 
 export class Telemetry extends ContentFeature {
+    constructor() {
+        super();
+        this.seenVideoElements = new WeakSet();
+        this.seenUserInteractions = new WeakSet();
+    }
+
     init() {
         if (this.getFeatureSettingEnabled('videoPlayback')) {
             this.videoPlaybackObserve();
@@ -14,42 +20,39 @@ export class Telemetry extends ContentFeature {
         this.videoPlaybackObserveInner();
     }
 
+    addPlayObserver(video) {
+        if (this.seenVideoElements.has(video)) {
+            return; // already observed
+        }
+        this.seenVideoElements.add(video);
+        video.addEventListener('play', () => {
+            if (!this.seenUserInteractions.has(video)) {
+                const message = {
+                    userInteraction: navigator.userActivation.isActive,
+                };
+                this.seenUserInteractions.add(video);
+                console.log('video playback', message);
+                this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
+            }
+        });
+    }
+
+    addListenersToAllVideos(node) {
+        if (!node) {
+            return;
+        }
+        const videos = node.querySelectorAll('video');
+        videos.forEach((video) => {
+            this.addPlayObserver(video);
+        });
+    }
+
     videoPlaybackObserveInner() {
-        const seenVideoElements = new WeakSet();
-        const seenUserInteractions = new WeakSet();
-
-        function addPlayObserver(video) {
-            if (seenVideoElements.has(video)) {
-                return; // already observed
-            }
-            seenVideoElements.add(video);
-            video.addEventListener('play', () => {
-                if (!seenUserInteractions.has(video)) {
-                    const message = {
-                        userInteraction: navigator.userActivation.isActive,
-                    };
-                    seenUserInteractions.add(video);
-                    console.log('video playback', message);
-                    this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
-                }
-            });
-        }
-
-        function addListenersToAllVideos(node) {
-            if (!node) {
-                return;
-            }
-            const videos = node.querySelectorAll('video');
-            videos.forEach((video) => {
-                addPlayObserver(video);
-            });
-        }
-
         const documentBody = document?.body;
         const targetElement = documentBody || document.documentElement;
 
         if (documentBody) {
-            addListenersToAllVideos(documentBody);
+            this.addListenersToAllVideos(documentBody);
         }
 
         const observerCallback = (mutationsList) => {
@@ -58,9 +61,9 @@ export class Telemetry extends ContentFeature {
                     mutation.addedNodes.forEach((node) => {
                         if (node.nodeType === Node.ELEMENT_NODE) {
                             if (node.tagName === 'VIDEO') {
-                                addPlayObserver(node);
+                                this.addPlayObserver(node);
                             } else {
-                                addListenersToAllVideos(node);
+                                this.addListenersToAllVideos(node);
                             }
                         }
                     });
