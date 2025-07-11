@@ -50,7 +50,9 @@ export class Telemetry extends ContentFeature {
         if (document.body) {
             this.setup();
         } else {
-            window.addEventListener('DOMContentLoaded', this.setup, { once: true });
+            window.addEventListener('DOMContentLoaded', () => {
+                this.setup();
+            }, { once: true });
         }
     }
 
