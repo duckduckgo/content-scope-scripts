@@ -87,6 +87,7 @@ export class Messaging {
             method: name,
             params: data,
         });
+        console.log('notify', message);
         this.transport.notify(message);
     }
 
