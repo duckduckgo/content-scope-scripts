@@ -25,6 +25,10 @@ export class OmnibarPage {
         return this.context().getByRole('textbox', { name: 'Chat privately with Duck.ai' });
     }
 
+    chatSubmitButton() {
+        return this.context().getByRole('button', { name: 'Send' });
+    }
+
     tabList() {
         return this.context().getByRole('tablist');
     }
@@ -35,10 +39,6 @@ export class OmnibarPage {
 
     aiTab() {
         return this.context().getByRole('tab', { name: 'Duck.ai' });
-    }
-
-    aiChatButton() {
-        return this.context().getByRole('button', { name: 'Duck.ai' });
     }
 
     suggestionsList() {
@@ -131,5 +131,13 @@ export class OmnibarPage {
     async expectMethodCalledWith(method, expectedParams) {
         const calls = await this.ntp.mocks.waitForCallCount({ method, count: 1 });
         expect(calls[0].payload.params).toEqual(expectedParams);
+    }
+
+    /**
+     * @param {string} method
+     */
+    async expectMethodNotCalled(method) {
+        const calls = await this.ntp.mocks.outgoing({ names: [method] });
+        expect(calls).toHaveLength(0);
     }
 }

@@ -1,0 +1,29 @@
+.list {
+    border-top: 1px solid var(--ntp-surface-border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 7px;
+}
+
+.item {
+    align-items: center;
+    background: none;
+    border: none;
+    color: var(--ntp-text-normal);
+    cursor: pointer;
+    display: flex;
+    height: var(--sp-8);
+    justify-content: flex-start;
+
+    svg {
+        height: var(--sp-4);
+        margin: var(--sp-2);
+        width: var(--sp-4);
+    }
+
+    &[aria-selected="true"] {
+        background: var(--ddg-color-primary);
+        border-radius: 4px;
+        color: var(--color-white);
+    }
+}

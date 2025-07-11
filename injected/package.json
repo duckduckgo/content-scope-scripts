@@ -27,10 +27,10 @@
   },
   "type": "module",
   "dependencies": {
+    "minimist": "^1.2.8",
     "parse-address": "^1.1.2",
     "seedrandom": "^3.0.5",
     "sjcl": "^1.0.8",
-    "minimist": "^1.2.8",
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1752154773643",
     "esbuild": "^0.25.6",
     "urlpattern-polyfill": "^10.1.0"
