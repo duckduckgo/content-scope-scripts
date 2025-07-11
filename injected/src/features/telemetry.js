@@ -14,6 +14,16 @@ export class Telemetry extends ContentFeature {
         }
     }
 
+    fireTelemetryForVideo(video) {
+        // This is for backfilled videos that were playing before the observer was set up
+        this.seenVideoElements.add(video);
+        const message = {
+            userInteraction: navigator.userActivation.isActive,
+        };
+        console.log('video playback', message);
+        this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
+    }
+
     addPlayObserver(video) {
         if (this.seenVideoElements.has(video)) {
             return; // already observed
@@ -21,13 +31,7 @@ export class Telemetry extends ContentFeature {
         this.seenVideoElements.add(video);
         video.addEventListener(
             'play',
-            () => {
-                const message = {
-                    userInteraction: navigator.userActivation.isActive,
-                };
-                console.log('video playback', message);
-                this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
-            },
+            () => this.fireTelemetryForVideo(video),
             { once: true },
         );
     }
@@ -43,12 +47,25 @@ export class Telemetry extends ContentFeature {
     }
 
     videoPlaybackObserve() {
-        const documentBody = document?.body;
-        const targetElement = documentBody || document.documentElement;
-
-        if (documentBody) {
-            this.addListenersToAllVideos(documentBody);
+        if (document.body) {
+            this.setup();
+        } else {
+            window.addEventListener('DOMContentLoaded', this.setup, { once: true });
         }
+    }
+
+    setup() {
+        const documentBody = document.body;
+        if (!documentBody) return;
+
+        this.addListenersToAllVideos(documentBody);
+
+        // Backfill: fire telemetry for already playing videos
+        documentBody.querySelectorAll('video').forEach(video => {
+            if (!video.paused && !video.ended) {
+                this.fireTelemetryForVideo(video);
+            }
+        });
 
         const observerCallback = (mutationsList) => {
             for (const mutation of mutationsList) {
@@ -66,11 +83,13 @@ export class Telemetry extends ContentFeature {
             }
         };
         const observer = new MutationObserver(observerCallback);
-        observer.observe(targetElement, {
+        observer.observe(documentBody, {
             childList: true,
             subtree: true,
         });
     }
+
+
 }
 
 export default Telemetry;
