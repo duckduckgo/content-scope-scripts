@@ -12,7 +12,7 @@ import { useSuggestions } from './useSuggestions';
  * @typedef {import('../strings.json')} Strings
  */
 
-/*
+/**
  * @param {object} props
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
