@@ -15,11 +15,6 @@ export class Telemetry extends ContentFeature {
         }
     }
 
-    videoPlaybackObserve() {
-        // Set up observers immediately to catch videos that might start playing early
-        this.videoPlaybackObserveInner();
-    }
-
     addPlayObserver(video) {
         if (this.seenVideoElements.has(video)) {
             return; // already observed
@@ -47,7 +42,7 @@ export class Telemetry extends ContentFeature {
         });
     }
 
-    videoPlaybackObserveInner() {
+    videoPlaybackObserve() {
         const documentBody = document?.body;
         const targetElement = documentBody || document.documentElement;
 
