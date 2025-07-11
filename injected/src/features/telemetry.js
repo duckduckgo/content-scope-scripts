@@ -7,9 +7,6 @@ export class Telemetry extends ContentFeature {
         if (this.getFeatureSettingEnabled('videoPlayback')) {
             this.videoPlaybackObserve();
         }
-        document.addEventListener('DOMContentLoaded', () => {
-            this.videoPlaybackObserveInner();
-        });
     }
 
     videoPlaybackObserve() {
@@ -47,7 +44,14 @@ export class Telemetry extends ContentFeature {
                 addPlayObserver(video);
             });
         }
-        addListenersToAllVideos(document.body);
+
+        const documentBody = document?.body;
+        const targetElement = documentBody || document.documentElement;
+
+        if (documentBody) {
+            addListenersToAllVideos(documentBody);
+        }
+
         const observerCallback = (mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'childList') {
@@ -64,7 +68,7 @@ export class Telemetry extends ContentFeature {
             }
         };
         const observer = new MutationObserver(observerCallback);
-        observer.observe(document.body, {
+        observer.observe(targetElement, {
             childList: true,
             subtree: true,
         });
