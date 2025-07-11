@@ -29,7 +29,7 @@ test.describe('omnibar widget', () => {
         });
     });
 
-    test('AI chat form submission', async ({ page }, workerInfo) => {
+    test('AI chat form submission via button click', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
@@ -41,7 +41,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMode('ai');
 
         await omnibar.chatInput().fill('pizza');
-        await omnibar.chatInput().press('Enter');
+        await omnibar.chatSubmitButton().click();
 
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
@@ -49,7 +49,7 @@ test.describe('omnibar widget', () => {
         });
     });
 
-    test('AI chat form shift+enter creates new line', async ({ page }, workerInfo) => {
+    test('AI chat keyboard behavior', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
@@ -60,6 +60,7 @@ test.describe('omnibar widget', () => {
         await omnibar.aiTab().click();
         await omnibar.expectMode('ai');
 
+        // Test shift+enter creates new line
         await omnibar.chatInput().fill('first line');
         await omnibar.chatInput().press('Shift+Enter');
         await omnibar.chatInput().pressSequentially('second line');
@@ -69,6 +70,14 @@ test.describe('omnibar widget', () => {
 
         // Verify that the form was not submitted (no method call should have been made)
         await omnibar.expectMethodNotCalled('omnibar_submitChat');
+
+        // Test enter key submits form
+        await omnibar.chatInput().press('Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'first line\nsecond line',
+            target: 'same-tab',
+        });
     });
 
     test('mode switching preserves query state', async ({ page }, workerInfo) => {
