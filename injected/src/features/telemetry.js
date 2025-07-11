@@ -10,17 +10,14 @@ export class Telemetry extends ContentFeature {
     }
 
     videoPlaybackObserve() {
-        if (document.readyState === 'loading') {
-            // if the document is not ready wait until it is
-            document.addEventListener('DOMContentLoaded', () => this.videoPlaybackObserveInner());
-        } else {
-            this.videoPlaybackObserveInner();
-        }
+        // Set up observers immediately to catch videos that might start playing early
+        this.videoPlaybackObserveInner();
     }
 
     videoPlaybackObserveInner() {
         const seenVideoElements = new WeakSet();
         const seenUserInteractions = new WeakSet();
+
         function addPlayObserver(video) {
             if (seenVideoElements.has(video)) {
                 return; // already observed
@@ -52,8 +49,9 @@ export class Telemetry extends ContentFeature {
                         if (node.nodeType === Node.ELEMENT_NODE) {
                             if (node.tagName === 'VIDEO') {
                                 addPlayObserver(node);
+                            } else {
+                                addListenersToAllVideos(node);
                             }
-                            addListenersToAllVideos(node);
                         }
                     });
                 }
