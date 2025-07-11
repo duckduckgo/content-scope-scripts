@@ -162,3 +162,107 @@ historyMethodProxy.overload();
 ### `DDGReflect`
 
 Calls into `wrappedJSObject.Reflect` for Firefox but otherwise exactly the same as [window.Reflect](../../Sources/ContentScopeScripts/ContentScopeScripts.swift)
+
+## Fake Extension Testing
+
+The `npm run fake-extension` command now supports flexible feature and config testing for development and debugging.
+
+### Usage
+
+```sh
+npm run fake-extension [options]
+```
+
+**Options:**
+- `-c, --config <path>`: Path to a config JSON file (relative to `integration-test/test-pages/`)
+- `-f, --features <list>`: Comma-separated list of features to enable (e.g. `telemetry,duckPlayer`)
+- `-u, --start-url <url>`: Start URL for the extension (default: `http://localhost:3220/index.html`)
+- `-h, --help`: Show help information
+
+### Examples
+
+**Test telemetry feature:**
+```sh
+npm run fake-extension --features telemetry --start-url http://localhost:3220/telemetry/pages/telemetry-test.html
+```
+
+**Test with specific config file:**
+```sh
+npm run fake-extension --config telemetry/config/telemetry.json --start-url http://localhost:3220/telemetry/pages/telemetry-test.html
+```
+
+**Test multiple features:**
+```sh
+npm run fake-extension --features telemetry,duckPlayer,webCompat
+```
+
+**Test with custom start URL:**
+```sh
+npm run fake-extension --start-url http://localhost:3220/duckplayer/pages/player.html
+```
+
+### How it works
+
+1. The script builds the content scope scripts
+2. Starts the test server on `localhost:3220`
+3. Generates a background script with embedded configuration
+4. Launches a Chromium extension using `web-ext`
+5. The background script sets configuration in `chrome.storage`
+6. Content scripts request configuration from the background script
+7. Features are initialized with the specified configuration
+8. Falls back to URL parameters if no background config is available
+
+### Configuration
+
+The extension supports two configuration modes:
+
+**Feature-only mode:**
+```sh
+npm run fake-extension --features telemetry
+```
+Creates a minimal config with the specified features enabled.
+
+**Full config mode:**
+```sh
+npm run fake-extension --config telemetry/config/telemetry.json
+```
+Uses the complete configuration from the specified JSON file.
+
+### Testing Specific Features
+
+**Telemetry Testing:**
+- Use the simple test page: `http://localhost:3220/telemetry/pages/telemetry-test.html`
+- Features: video playback detection, user interaction tracking
+- Console logs: "video playback" messages with userInteraction status
+
+**DuckPlayer Testing:**
+- Use: `http://localhost:3220/duckplayer/pages/player.html`
+- Configs available in: `integration-test/test-pages/duckplayer/config/`
+
+**WebCompat Testing:**
+- Use: `http://localhost:3220/webcompat/index.html`
+- Features: various web compatibility fixes
+
+### Debugging
+
+- Enable debug mode by adding `debug: true` to your config
+- Check browser console for feature initialization messages
+- Use browser dev tools to inspect the extension's content scripts
+- Monitor network requests to see config loading
+
+### Troubleshooting
+
+**Extension not loading:**
+- Ensure the test server is running (`npm run serve`)
+- Check that the build completed successfully
+- Verify the start URL is accessible
+
+**Features not enabled:**
+- Check the config file format matches the expected schema
+- Verify feature names are correct (see `src/features.js`)
+- Ensure the config path is relative to `integration-test/test-pages/`
+
+**Configuration not loading:**
+- Check browser console for fetch errors
+- Verify the config file exists and is valid JSON
+- Ensure the extension has permission to access the test server
