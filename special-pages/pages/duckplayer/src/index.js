@@ -4,6 +4,7 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 import { init } from '../app/index.js';
 import { initStorage } from './storage.js';
 import '../../../shared/live-reload.js';
+import { MetricsReporter, EXCEPTION_KIND_MESSAGING_ERROR } from '../../../shared/metrics-reporter.js';
 
 export class DuckplayerPage {
     /**
@@ -12,6 +13,7 @@ export class DuckplayerPage {
     constructor(messaging, injectName) {
         this.messaging = createTypedMessages(this, messaging);
         this.injectName = injectName;
+        this.metrics = new MetricsReporter(messaging);
     }
 
     /**
@@ -19,7 +21,7 @@ export class DuckplayerPage {
      * has occurred that cannot be recovered from
      * @returns {Promise<import("../types/duckplayer.ts").InitialSetupResponse>}
      */
-    initialSetup() {
+    async initialSetup() {
         if (this.injectName === 'integration') {
             return Promise.resolve({
                 platform: { name: 'ios' },
@@ -36,7 +38,12 @@ export class DuckplayerPage {
                 locale: 'en',
             });
         }
-        return this.messaging.request('initialSetup');
+        try {
+            return await this.messaging.request('initialSetup');
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+            throw e;
+        }
     }
 
     /**
@@ -44,8 +51,13 @@ export class DuckplayerPage {
      *
      * @param {import("../types/duckplayer.ts").UserValues} userValues
      */
-    setUserValues(userValues) {
-        return this.messaging.request('setUserValues', userValues);
+    async setUserValues(userValues) {
+        try {
+            return await this.messaging.request('setUserValues', userValues);
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+            throw e;
+        }
     }
 
     /**
@@ -117,6 +129,8 @@ export class DuckplayerPage {
     }
 }
 
+// TODO: Remove telemetry
+
 /**
  * Events that occur in the client-side application
  */
@@ -178,10 +192,12 @@ const duckplayerPage = new DuckplayerPage(messaging, import.meta.injectName);
 const telemetry = new Telemetry(messaging);
 
 init(duckplayerPage, telemetry, baseEnvironment).catch((e) => {
-    // messages.
     console.error(e);
-    const msg = typeof e?.message === 'string' ? e.message : 'unknown init error';
-    duckplayerPage.reportInitException({ message: msg });
+    duckplayerPage.metrics.reportExceptionWithError(e);
+
+    // TODO: Remove this event once all native platforms are responding to 'reportMetric: exception'
+    const message = typeof e?.message === 'string' ? e.message : 'unknown error';
+    duckplayerPage.reportInitException({ message });
 });
 
 initStorage();
