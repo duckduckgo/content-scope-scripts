@@ -13,11 +13,11 @@ export const baseFeatures = /** @type {const} */ ([
     'elementHiding',
     'exceptionHandler',
     'apiManipulation',
+    'cookie',
 ]);
 
 const otherFeatures = /** @type {const} */ ([
     'clickToLoad',
-    'cookie',
     'messageBridge',
     'duckPlayer',
     'duckPlayerNative',
@@ -49,7 +49,6 @@ export const platformSupport = {
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-password-import': ['autofillPasswordImport'],
     windows: [
-        'cookie',
         ...baseFeatures,
         'windowsPermissionUsage',
         'duckPlayer',
@@ -58,8 +57,8 @@ export const platformSupport = {
         'messageBridge',
         'webCompat',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
-    chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
+    firefox: [...baseFeatures, 'clickToLoad'],
+    chrome: [...baseFeatures, 'clickToLoad'],
+    'chrome-mv3': [...baseFeatures, 'clickToLoad'],
     integration: [...baseFeatures, ...otherFeatures],
 };
