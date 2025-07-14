@@ -671,4 +671,61 @@ test.describe('omnibar widget', () => {
         // Input should retain its value
         await omnibar.expectInputValue('pizza');
     });
+
+    test('form resets to blank state after submission and suggestion selection', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Test 1: Search form submission resets the form
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.searchInput().press('Enter');
+        
+        await omnibar.expectMethodCalledWith('omnibar_submitSearch', {
+            term: 'pizza',
+            target: 'same-tab',
+        });
+        
+        // Form should be reset to blank state
+        await omnibar.expectInputValue('');
+
+        // Test 2: AI chat form submission resets the form
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+        
+        await omnibar.chatInput().fill('hello ai');
+        await omnibar.chatInput().press('Enter');
+        
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'hello ai',
+            target: 'same-tab',
+        });
+        
+        // Form should be reset to blank state
+        await expect(omnibar.chatInput()).toHaveValue('');
+
+        // Test 3: Suggestion selection resets the form
+        await omnibar.searchTab().click();
+        await omnibar.expectMode('search');
+        
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.waitForSuggestions();
+        
+        // Click on a suggestion to select it
+        await omnibar.suggestions().first().click();
+        
+        await omnibar.expectMethodCalledWith('omnibar_openSuggestion', {
+            suggestion: expect.objectContaining({
+                phrase: 'pizza near me',
+                kind: 'phrase',
+            }),
+            target: 'same-tab',
+        });
+        
+        // Form should be reset to blank state
+        await omnibar.expectInputValue('');
+    });
 });
