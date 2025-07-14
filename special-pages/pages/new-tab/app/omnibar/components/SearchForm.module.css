@@ -11,6 +11,7 @@
 }
 
 .input {
+    --focus-state: 0; /* see useBlurWorkaround.js */
     background: none;
     border: none;
     color: var(--ntp-text-normal);
@@ -19,6 +20,7 @@
     padding: 0;
 
     &:focus {
+        --focus-state: 1; /* see useBlurWorkaround.js */
         outline: none;
     }
 }
