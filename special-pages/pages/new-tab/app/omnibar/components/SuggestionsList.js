@@ -33,7 +33,10 @@ export function SuggestionsList({ id, suggestions, selectedSuggestion, onSelectS
                         aria-selected={suggestion === selectedSuggestion}
                         onMouseOver={() => onSelectSuggestion(suggestion)}
                         onMouseLeave={() => onClearSuggestion()}
-                        onClick={(event) => onOpenSuggestion({ suggestion, target: eventToTarget(event, platformName) })}
+                        onClick={(event) => {
+                            event.preventDefault();
+                            onOpenSuggestion({ suggestion, target: eventToTarget(event, platformName) });
+                        }}
                     >
                         <SuggestionIcon suggestion={suggestion} />
                         {suggestion.title}
