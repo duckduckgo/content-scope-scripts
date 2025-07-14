@@ -35,19 +35,19 @@ export function Omnibar({ mode, setMode, enableAi }) {
     };
 
     /** @type {(params: {suggestion: Suggestion, target: OpenTarget}) => void} */
-    const onOpenSuggestion = (params) => {
+    const handleOpenSuggestion = (params) => {
         openSuggestion(params);
         resetForm();
     };
 
     /** @type {(params: {term: string, target: OpenTarget}) => void} */
-    const onSubmitSearch = (params) => {
+    const handleSubmitSearch = (params) => {
         submitSearch(params);
         resetForm();
     };
 
     /** @type {(params: {chat: string, target: OpenTarget}) => void} */
-    const onSubmitChat = (params) => {
+    const handleSubmitChat = (params) => {
         submitChat(params);
         resetForm();
     };
@@ -55,18 +55,18 @@ export function Omnibar({ mode, setMode, enableAi }) {
     return (
         <div class={styles.root} data-mode={mode}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
-            {enableAi && <TabSwitcher mode={mode} setMode={setMode} />}
+            {enableAi && <TabSwitcher mode={mode} onChange={setMode} />}
             <Container overflow={mode === 'search'}>
                 {mode === 'search' ? (
                     <SearchForm
                         key={`search-${resetKey}`}
                         term={query}
-                        setTerm={setQuery}
-                        onOpenSuggestion={onOpenSuggestion}
-                        onSubmitSearch={onSubmitSearch}
+                        onChangeTerm={setQuery}
+                        onOpenSuggestion={handleOpenSuggestion}
+                        onSubmitSearch={handleSubmitSearch}
                     />
                 ) : (
-                    <AiChatForm key={`chat-${resetKey}`} chat={query} setChat={setQuery} onSubmitChat={onSubmitChat} />
+                    <AiChatForm key={`chat-${resetKey}`} chat={query} onChange={setQuery} onSubmit={handleSubmitChat} />
                 )}
             </Container>
         </div>

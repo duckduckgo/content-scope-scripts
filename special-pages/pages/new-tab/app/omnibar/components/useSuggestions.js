@@ -119,10 +119,10 @@ function reducer(state, action) {
 /**
  * @param {object} props
  * @param {string} props.term
- * @param {(term: string) => void} props.setTerm
+ * @param {(term: string) => void} props.onChangeTerm
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  */
-export function useSuggestions({ term, setTerm, onOpenSuggestion }) {
+export function useSuggestions({ term, onChangeTerm: setTerm, onOpenSuggestion }) {
     const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -139,19 +139,19 @@ export function useSuggestions({ term, setTerm, onOpenSuggestion }) {
         dispatch({ type: 'clearSelectedSuggestion' });
     };
 
-    let inputBase, inputSuggestion;
+    let termBase, termSuggestion;
     if (!selectedSuggestion) {
-        inputBase = term;
-        inputSuggestion = '';
+        termBase = term;
+        termSuggestion = '';
     } else if ('url' in selectedSuggestion && startsWithIgnoreCase(selectedSuggestion.url, term)) {
-        inputBase = term;
-        inputSuggestion = selectedSuggestion.url.slice(term.length);
+        termBase = term;
+        termSuggestion = selectedSuggestion.url.slice(term.length);
     } else if (startsWithIgnoreCase(selectedSuggestion.title, term)) {
-        inputBase = term;
-        inputSuggestion = selectedSuggestion.title.slice(term.length);
+        termBase = term;
+        termSuggestion = selectedSuggestion.title.slice(term.length);
     } else {
-        inputBase = '';
-        inputSuggestion = selectedSuggestion.title;
+        termBase = '';
+        termSuggestion = selectedSuggestion.title;
     }
 
     useEffect(() => {
@@ -174,7 +174,7 @@ export function useSuggestions({ term, setTerm, onOpenSuggestion }) {
     }, [onSuggestions]);
 
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
-    const onInputChange = (event) => {
+    const handleChange = (event) => {
         const term = event.currentTarget.value;
         setTerm(term);
 
@@ -188,7 +188,7 @@ export function useSuggestions({ term, setTerm, onOpenSuggestion }) {
     };
 
     /** @type {(event: KeyboardEvent) => void} */
-    const onInputKeyDown = (event) => {
+    const handleKeyDown = (event) => {
         switch (event.key) {
             case 'ArrowUp':
                 if (!state.suggestionsVisible) {
@@ -213,7 +213,7 @@ export function useSuggestions({ term, setTerm, onOpenSuggestion }) {
             case 'ArrowLeft':
             case 'ArrowRight':
                 if (selectedSuggestion) {
-                    setTerm(inputBase + inputSuggestion);
+                    setTerm(termBase + termSuggestion);
                     dispatch({ type: 'clearSelectedSuggestion' });
                 }
                 break;
@@ -230,15 +230,15 @@ export function useSuggestions({ term, setTerm, onOpenSuggestion }) {
         }
     };
 
-    const onInputClick = () => {
+    const handleClick = () => {
         if (selectedSuggestion) {
-            setTerm(inputBase + inputSuggestion);
+            setTerm(termBase + termSuggestion);
             dispatch({ type: 'clearSelectedSuggestion' });
         }
     };
 
     /** @type {(event: import('preact').JSX.TargetedFocusEvent<HTMLFormElement>) => void} */
-    const onFormBlur = (event) => {
+    const handleBlur = (event) => {
         // Ignore blur events cauesd by moving focus to an element inside the form
         if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) {
             return;
@@ -252,12 +252,12 @@ export function useSuggestions({ term, setTerm, onOpenSuggestion }) {
         selectedSuggestion,
         setSelectedSuggestion,
         clearSelectedSuggestion,
-        inputBase,
-        inputSuggestion,
-        onInputChange,
-        onInputKeyDown,
-        onInputClick,
-        onFormBlur,
+        termBase,
+        termSuggestion,
+        handleChange,
+        handleKeyDown,
+        handleClick,
+        handleBlur,
     };
 }
 

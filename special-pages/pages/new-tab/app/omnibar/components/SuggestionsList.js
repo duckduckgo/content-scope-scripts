@@ -15,11 +15,11 @@ import styles from './SuggestionsList.module.css';
  * @param {string} props.id
  * @param {SuggestionModel[]} props.suggestions
  * @param {SuggestionModel | null} props.selectedSuggestion
- * @param {(suggestion: SuggestionModel) => void} props.setSelectedSuggestion
- * @param {() => void} props.clearSelectedSuggestion
+ * @param {(suggestion: SuggestionModel) => void} props.onSelectSuggestion
+ * @param {() => void} props.onClearSuggestion
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  */
-export function SuggestionsList({ id, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion, onOpenSuggestion }) {
+export function SuggestionsList({ id, suggestions, selectedSuggestion, onSelectSuggestion, onClearSuggestion, onOpenSuggestion }) {
     const platformName = usePlatformName();
     return (
         <div role="listbox" id={id} class={styles.list}>
@@ -31,12 +31,9 @@ export function SuggestionsList({ id, suggestions, selectedSuggestion, setSelect
                         id={suggestion.id}
                         class={styles.item}
                         aria-selected={suggestion === selectedSuggestion}
-                        onMouseOver={() => setSelectedSuggestion(suggestion)}
-                        onMouseLeave={() => clearSelectedSuggestion()}
-                        onClick={(event) => {
-                            event.preventDefault();
-                            onOpenSuggestion({ suggestion, target: eventToTarget(event, platformName) });
-                        }}
+                        onMouseOver={() => onSelectSuggestion(suggestion)}
+                        onMouseLeave={() => onClearSuggestion()}
+                        onClick={(event) => onOpenSuggestion({ suggestion, target: eventToTarget(event, platformName) })}
                     >
                         <SuggestionIcon suggestion={suggestion} />
                         {suggestion.title}

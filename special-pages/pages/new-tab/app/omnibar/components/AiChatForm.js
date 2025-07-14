@@ -14,10 +14,10 @@ import styles from './AiChatForm.module.css';
 /**
  * @param {object} props
  * @param {string} props.chat
- * @param {(chat: string) => void} props.setChat
- * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmitChat
+ * @param {(chat: string) => void} props.onChange
+ * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
  */
-export function AiChatForm({ chat, setChat, onSubmitChat }) {
+export function AiChatForm({ chat, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
@@ -27,21 +27,21 @@ export function AiChatForm({ chat, setChat, onSubmitChat }) {
     const disabled = chat.length === 0;
 
     /** @type {(event: SubmitEvent) => void} */
-    const onSubmit = (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
         if (disabled) return;
-        onSubmitChat({
+        onSubmit({
             chat,
             target: 'same-tab',
         });
     };
 
     /** @type {(event: KeyboardEvent) => void} */
-    const onKeyDown = (event) => {
+    const handleKeyDown = (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             if (disabled) return;
-            onSubmitChat({
+            onSubmit({
                 chat,
                 target: eventToTarget(event, platformName),
             });
@@ -49,7 +49,7 @@ export function AiChatForm({ chat, setChat, onSubmitChat }) {
     };
 
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLTextAreaElement>) => void} */
-    const onChange = (event) => {
+    const handleChange = (event) => {
         const form = formRef.current;
         const textArea = event.currentTarget;
 
@@ -63,11 +63,11 @@ export function AiChatForm({ chat, setChat, onSubmitChat }) {
             form?.classList.remove(styles.hasScroll);
         }
 
-        setChat(textArea.value);
+        onChange(textArea.value);
     };
 
     return (
-        <form ref={formRef} class={styles.form} onClick={() => textAreaRef.current?.focus()} onSubmit={onSubmit}>
+        <form ref={formRef} class={styles.form} onClick={() => textAreaRef.current?.focus()} onSubmit={handleSubmit}>
             <textarea
                 ref={textAreaRef}
                 class={styles.textarea}
@@ -76,8 +76,8 @@ export function AiChatForm({ chat, setChat, onSubmitChat }) {
                 aria-label={t('aiChatForm_placeholder')}
                 autoComplete="off"
                 rows={1}
-                onKeyDown={onKeyDown}
-                onChange={onChange}
+                onKeyDown={handleKeyDown}
+                onChange={handleChange}
             />
             <div class={styles.buttons}>
                 <button
