@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useContext, useId } from 'preact/hooks';
+import { useContext, useId, useRef } from 'preact/hooks';
 import { SearchIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types';
 import { OmnibarContext } from './OmnibarProvider';
@@ -7,6 +7,8 @@ import styles from './SearchForm.module.css';
 import { SuggestionsList } from './SuggestionsList.js';
 import { useSuggestionInput } from './useSuggestionInput.js';
 import { useSuggestions } from './useSuggestions';
+import { mergeRefs } from '../../utils.js';
+import { useBlurWorkaround } from './useBlurWorkaround.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -39,7 +41,8 @@ export function SearchForm({ term, setTerm }) {
         setTerm,
     });
 
-    const inputRef = useSuggestionInput(inputBase, inputSuggestion);
+    const inputRef = useRef(/** @type {HTMLInputElement|null} */ (null));
+    const mergedInputRef = mergeRefs(inputRef, useSuggestionInput(inputBase, inputSuggestion), useBlurWorkaround());
 
     /** @type {(event: SubmitEvent) => void} */
     const onFormSubmit = (event) => {
@@ -55,7 +58,7 @@ export function SearchForm({ term, setTerm }) {
             <div class={styles.inputContainer}>
                 <SearchIcon inert />
                 <input
-                    ref={inputRef}
+                    ref={mergedInputRef}
                     type="text"
                     role="combobox"
                     class={styles.input}

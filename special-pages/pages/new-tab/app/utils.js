@@ -97,3 +97,20 @@ export function useOnMiddleClick(ref, handler) {
         };
     }, [ref, handler]);
 }
+
+/**
+ * @template T
+ * @param  {...import('preact').Ref<T>} refs
+ * @returns {import('preact').RefCallback<T>}
+ */
+export function mergeRefs(...refs) {
+    return (value) => {
+        refs.forEach((ref) => {
+            if (typeof ref === 'function') {
+                ref(value);
+            } else if (ref) {
+                ref.current = value;
+            }
+        });
+    };
+}
