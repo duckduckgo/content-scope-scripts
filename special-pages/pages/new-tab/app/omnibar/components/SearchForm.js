@@ -1,8 +1,7 @@
 import { h } from 'preact';
-import { useContext, useId } from 'preact/hooks';
+import { useId } from 'preact/hooks';
 import { SearchIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types';
-import { OmnibarContext } from './OmnibarProvider';
 import styles from './SearchForm.module.css';
 import { SuggestionsList } from './SuggestionsList.js';
 import { useSuggestionInput } from './useSuggestionInput.js';
@@ -16,10 +15,12 @@ import { useSuggestions } from './useSuggestions';
  * @param {object} props
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
+ * @param {(params: {term: string, target: string}) => void} props.submitSearch
+ * @param {(params: {suggestion: any, target: string}) => void} props.openSuggestion
+ * @param {(term: string) => Promise<any>} props.getSuggestions
+ * @param {(cb: (data: any, term: string) => void) => (() => void)} props.onSuggestions
  */
-export function SearchForm({ term, setTerm }) {
-    const { submitSearch } = useContext(OmnibarContext);
-
+export function SearchForm({ term, setTerm, submitSearch, openSuggestion, getSuggestions, onSuggestions }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const suggestionsListId = useId();
 
@@ -37,6 +38,9 @@ export function SearchForm({ term, setTerm }) {
     } = useSuggestions({
         term,
         setTerm,
+        openSuggestion,
+        getSuggestions,
+        onSuggestions,
     });
 
     const inputRef = useSuggestionInput(inputBase, inputSuggestion);
@@ -81,6 +85,7 @@ export function SearchForm({ term, setTerm }) {
                     selectedSuggestion={selectedSuggestion}
                     setSelectedSuggestion={setSelectedSuggestion}
                     clearSelectedSuggestion={clearSelectedSuggestion}
+                    openSuggestion={openSuggestion}
                 />
             )}
         </form>

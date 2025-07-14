@@ -24,48 +24,62 @@ export function Omnibar({ mode, setMode, enableAi }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [query, setQuery] = useState(/** @type {String} */ (''));
     const [resetKey, setResetKey] = useState(0);
-    const { submitSearch, submitChat, openSuggestion, ...otherContextValues } = useContext(OmnibarContext);
+    
+    // Get all context values
+    const { 
+        submitSearch, 
+        submitChat, 
+        openSuggestion, 
+        getSuggestions, 
+        onSuggestions 
+    } = useContext(OmnibarContext);
 
-    // Wrap the context functions to reset form state after they're called
-    const handleSubmitSearch = useCallback((params) => {
-        submitSearch(params);
+    // Reset function
+    const resetForm = useCallback(() => {
         setQuery('');
         setResetKey(prev => prev + 1);
-    }, [submitSearch]);
+    }, []);
+
+    // Wrap context functions to reset form after they're called
+    const handleSubmitSearch = useCallback((params) => {
+        submitSearch(params);
+        resetForm();
+    }, [submitSearch, resetForm]);
 
     const handleSubmitChat = useCallback((params) => {
         submitChat(params);
-        setQuery('');
-        setResetKey(prev => prev + 1);
-    }, [submitChat]);
+        resetForm();
+    }, [submitChat, resetForm]);
 
     const handleOpenSuggestion = useCallback((params) => {
         openSuggestion(params);
-        setQuery('');
-        setResetKey(prev => prev + 1);
-    }, [openSuggestion]);
-
-    // Create a custom context with the wrapped functions
-    const customContext = {
-        ...otherContextValues,
-        submitSearch: handleSubmitSearch,
-        submitChat: handleSubmitChat,
-        openSuggestion: handleOpenSuggestion,
-    };
+        resetForm();
+    }, [openSuggestion, resetForm]);
 
     return (
-        <OmnibarContext.Provider value={customContext}>
-            <div class={styles.root} data-mode={mode}>
-                <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
-                {enableAi && <TabSwitcher mode={mode} setMode={setMode} />}
-                <Container overflow={mode === 'search'}>
-                    {mode === 'search' ? (
-                        <SearchForm key={`search-${resetKey}`} term={query} setTerm={setQuery} />
-                    ) : (
-                        <AiChatForm key={`chat-${resetKey}`} chat={query} setChat={setQuery} />
-                    )}
-                </Container>
-            </div>
-        </OmnibarContext.Provider>
+        <div class={styles.root} data-mode={mode}>
+            <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
+            {enableAi && <TabSwitcher mode={mode} setMode={setMode} />}
+            <Container overflow={mode === 'search'}>
+                {mode === 'search' ? (
+                    <SearchForm 
+                        key={`search-${resetKey}`}
+                        term={query} 
+                        setTerm={setQuery}
+                        submitSearch={handleSubmitSearch}
+                        openSuggestion={handleOpenSuggestion}
+                        getSuggestions={getSuggestions}
+                        onSuggestions={onSuggestions}
+                    />
+                ) : (
+                    <AiChatForm 
+                        key={`chat-${resetKey}`}
+                        chat={query} 
+                        setChat={setQuery}
+                        submitChat={handleSubmitChat}
+                    />
+                )}
+            </Container>
+        </div>
     );
 }

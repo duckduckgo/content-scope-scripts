@@ -1,7 +1,6 @@
-import { useContext, useEffect, useReducer } from 'preact/hooks';
+import { useEffect, useReducer } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
-import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
@@ -119,9 +118,11 @@ function reducer(state, action) {
  * @param {object} props
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
+ * @param {(params: {suggestion: any, target: string}) => void} props.openSuggestion
+ * @param {(term: string) => Promise<any>} props.getSuggestions
+ * @param {(cb: (data: any, term: string) => void) => (() => void)} props.onSuggestions
  */
-export function useSuggestions({ term, setTerm }) {
-    const { onSuggestions, getSuggestions, openSuggestion } = useContext(OmnibarContext);
+export function useSuggestions({ term, setTerm, openSuggestion, getSuggestions, onSuggestions }) {
     const platformName = usePlatformName();
     const [state, dispatch] = useReducer(reducer, initialState);
 

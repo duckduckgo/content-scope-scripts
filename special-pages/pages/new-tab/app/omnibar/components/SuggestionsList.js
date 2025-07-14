@@ -1,9 +1,7 @@
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
-import { OmnibarContext } from './OmnibarProvider';
 import styles from './SuggestionsList.module.css';
 
 /**
@@ -17,9 +15,9 @@ import styles from './SuggestionsList.module.css';
  * @param {SuggestionModel | null} props.selectedSuggestion
  * @param {(suggestion: SuggestionModel) => void} props.setSelectedSuggestion
  * @param {() => void} props.clearSelectedSuggestion
+ * @param {(params: {suggestion: any, target: string}) => void} props.openSuggestion
  */
-export function SuggestionsList({ id, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion }) {
-    const { openSuggestion } = useContext(OmnibarContext);
+export function SuggestionsList({ id, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion, openSuggestion }) {
     const platformName = usePlatformName();
     return (
         <div role="listbox" id={id} class={styles.list}>

@@ -1,11 +1,10 @@
 import { h } from 'preact';
-import { useContext, useRef } from 'preact/hooks';
+import { useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { ArrowRightIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import styles from './AiChatForm.module.css';
-import { OmnibarContext } from './OmnibarProvider';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -15,9 +14,9 @@ import { OmnibarContext } from './OmnibarProvider';
  * @param {object} props
  * @param {string} props.chat
  * @param {(chat: string) => void} props.setChat
+ * @param {(params: {chat: string, target: string}) => void} props.submitChat
  */
-export function AiChatForm({ chat, setChat }) {
-    const { submitChat } = useContext(OmnibarContext);
+export function AiChatForm({ chat, setChat, submitChat }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
