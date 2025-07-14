@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState, useContext, useCallback } from 'preact/hooks';
+import { useState, useContext } from 'preact/hooks';
 import { LogoStacked } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
@@ -27,34 +27,34 @@ export function Omnibar({ mode, setMode, enableAi }) {
     
     // Get all context values
     const { 
-        submitSearch, 
-        submitChat, 
-        openSuggestion, 
+        submitSearch: _submitSearch, 
+        submitChat: _submitChat, 
+        openSuggestion: _openSuggestion, 
         getSuggestions, 
         onSuggestions 
     } = useContext(OmnibarContext);
 
     // Reset function
-    const resetForm = useCallback(() => {
+    const resetForm = () => {
         setQuery('');
         setResetKey(prev => prev + 1);
-    }, []);
+    };
 
     // Wrap context functions to reset form after they're called
-    const handleSubmitSearch = useCallback((params) => {
-        submitSearch(params);
+    const onSubmitSearch = (params) => {
+        _submitSearch(params);
         resetForm();
-    }, [submitSearch, resetForm]);
+    };
 
-    const handleSubmitChat = useCallback((params) => {
-        submitChat(params);
+    const onSubmitChat = (params) => {
+        _submitChat(params);
         resetForm();
-    }, [submitChat, resetForm]);
+    };
 
-    const handleOpenSuggestion = useCallback((params) => {
-        openSuggestion(params);
+    const onOpenSuggestion = (params) => {
+        _openSuggestion(params);
         resetForm();
-    }, [openSuggestion, resetForm]);
+    };
 
     return (
         <div class={styles.root} data-mode={mode}>
@@ -66,8 +66,8 @@ export function Omnibar({ mode, setMode, enableAi }) {
                         key={`search-${resetKey}`}
                         term={query} 
                         setTerm={setQuery}
-                        submitSearch={handleSubmitSearch}
-                        openSuggestion={handleOpenSuggestion}
+                        submitSearch={onSubmitSearch}
+                        openSuggestion={onOpenSuggestion}
                         getSuggestions={getSuggestions}
                         onSuggestions={onSuggestions}
                     />
@@ -76,7 +76,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
                         key={`chat-${resetKey}`}
                         chat={query} 
                         setChat={setQuery}
-                        submitChat={handleSubmitChat}
+                        submitChat={onSubmitChat}
                     />
                 )}
             </Container>

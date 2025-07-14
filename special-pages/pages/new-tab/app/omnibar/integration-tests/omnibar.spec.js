@@ -27,6 +27,9 @@ test.describe('omnibar widget', () => {
             term: 'pizza',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
     });
 
     test('AI chat form submission via button click', async ({ page }, workerInfo) => {
@@ -47,6 +50,9 @@ test.describe('omnibar widget', () => {
             chat: 'pizza',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await expect(omnibar.chatInput()).toHaveValue('');
     });
 
     test('AI chat keyboard behavior', async ({ page }, workerInfo) => {
@@ -78,6 +84,9 @@ test.describe('omnibar widget', () => {
             chat: 'first line\nsecond line',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await expect(omnibar.chatInput()).toHaveValue('');
     });
 
     test('mode switching preserves query state', async ({ page }, workerInfo) => {
@@ -204,6 +213,9 @@ test.describe('omnibar widget', () => {
             }),
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after suggestion selection
+        await omnibar.expectInputValue('');
     });
 
     test('clicking on a suggestion should open it', async ({ page }, workerInfo) => {
@@ -228,6 +240,9 @@ test.describe('omnibar widget', () => {
             }),
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after suggestion selection
+        await omnibar.expectInputValue('');
     });
 
     test('mouse over should select suggestion, mouse out should clear selection', async ({ page }, workerInfo) => {
@@ -672,60 +687,5 @@ test.describe('omnibar widget', () => {
         await omnibar.expectInputValue('pizza');
     });
 
-    test('form resets to blank state after submission and suggestion selection', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const omnibar = new OmnibarPage(ntp);
-        await ntp.reducedMotion();
 
-        await ntp.openPage({ additional: { omnibar: true } });
-        await omnibar.ready();
-
-        // Test 1: Search form submission resets the form
-        await omnibar.searchInput().fill('pizza');
-        await omnibar.searchInput().press('Enter');
-        
-        await omnibar.expectMethodCalledWith('omnibar_submitSearch', {
-            term: 'pizza',
-            target: 'same-tab',
-        });
-        
-        // Form should be reset to blank state
-        await omnibar.expectInputValue('');
-
-        // Test 2: AI chat form submission resets the form
-        await omnibar.aiTab().click();
-        await omnibar.expectMode('ai');
-        
-        await omnibar.chatInput().fill('hello ai');
-        await omnibar.chatInput().press('Enter');
-        
-        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
-            chat: 'hello ai',
-            target: 'same-tab',
-        });
-        
-        // Form should be reset to blank state
-        await expect(omnibar.chatInput()).toHaveValue('');
-
-        // Test 3: Suggestion selection resets the form
-        await omnibar.searchTab().click();
-        await omnibar.expectMode('search');
-        
-        await omnibar.searchInput().fill('pizza');
-        await omnibar.waitForSuggestions();
-        
-        // Click on a suggestion to select it
-        await omnibar.suggestions().first().click();
-        
-        await omnibar.expectMethodCalledWith('omnibar_openSuggestion', {
-            suggestion: expect.objectContaining({
-                phrase: 'pizza near me',
-                kind: 'phrase',
-            }),
-            target: 'same-tab',
-        });
-        
-        // Form should be reset to blank state
-        await omnibar.expectInputValue('');
-    });
 });
