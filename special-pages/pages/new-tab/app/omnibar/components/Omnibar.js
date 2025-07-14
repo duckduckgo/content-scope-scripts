@@ -25,7 +25,6 @@ export function Omnibar({ mode, setMode, enableAi }) {
     const [query, setQuery] = useState(/** @type {String} */ (''));
     const [resetKey, setResetKey] = useState(0);
     
-    // Get all context values
     const { 
         submitSearch: _submitSearch, 
         submitChat: _submitChat, 
@@ -34,13 +33,11 @@ export function Omnibar({ mode, setMode, enableAi }) {
         onSuggestions 
     } = useContext(OmnibarContext);
 
-    // Reset function
     const resetForm = () => {
         setQuery('');
         setResetKey(prev => prev + 1);
     };
 
-    // Wrap context functions to reset form after they're called
     const onSubmitSearch = (params) => {
         _submitSearch(params);
         resetForm();
