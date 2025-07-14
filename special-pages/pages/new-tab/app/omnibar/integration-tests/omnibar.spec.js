@@ -27,6 +27,9 @@ test.describe('omnibar widget', () => {
             term: 'pizza',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
     });
 
     test('AI chat form submission via button click', async ({ page }, workerInfo) => {
@@ -47,6 +50,9 @@ test.describe('omnibar widget', () => {
             chat: 'pizza',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await expect(omnibar.chatInput()).toHaveValue('');
     });
 
     test('AI chat keyboard behavior', async ({ page }, workerInfo) => {
@@ -78,6 +84,9 @@ test.describe('omnibar widget', () => {
             chat: 'first line\nsecond line',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await expect(omnibar.chatInput()).toHaveValue('');
     });
 
     test('mode switching preserves query state', async ({ page }, workerInfo) => {
@@ -204,6 +213,9 @@ test.describe('omnibar widget', () => {
             }),
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after suggestion selection
+        await omnibar.expectInputValue('');
     });
 
     test('clicking on a suggestion should open it', async ({ page }, workerInfo) => {
@@ -228,6 +240,9 @@ test.describe('omnibar widget', () => {
             }),
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after suggestion selection
+        await omnibar.expectInputValue('');
     });
 
     test('mouse over should select suggestion, mouse out should clear selection', async ({ page }, workerInfo) => {

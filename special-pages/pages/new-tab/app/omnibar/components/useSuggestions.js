@@ -5,6 +5,7 @@ import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
@@ -119,9 +120,10 @@ function reducer(state, action) {
  * @param {object} props
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
+ * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  */
-export function useSuggestions({ term, setTerm }) {
-    const { onSuggestions, getSuggestions, openSuggestion } = useContext(OmnibarContext);
+export function useSuggestions({ term, setTerm, onOpenSuggestion }) {
+    const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -222,7 +224,7 @@ export function useSuggestions({ term, setTerm }) {
             case 'Enter':
                 if (selectedSuggestion) {
                     event.preventDefault();
-                    openSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
+                    onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
                 }
                 break;
         }

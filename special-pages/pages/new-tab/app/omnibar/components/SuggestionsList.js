@@ -1,13 +1,13 @@
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
-import { OmnibarContext } from './OmnibarProvider';
 import styles from './SuggestionsList.module.css';
 
 /**
  * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel
+ * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
@@ -17,9 +17,9 @@ import styles from './SuggestionsList.module.css';
  * @param {SuggestionModel | null} props.selectedSuggestion
  * @param {(suggestion: SuggestionModel) => void} props.setSelectedSuggestion
  * @param {() => void} props.clearSelectedSuggestion
+ * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  */
-export function SuggestionsList({ id, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion }) {
-    const { openSuggestion } = useContext(OmnibarContext);
+export function SuggestionsList({ id, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion, onOpenSuggestion }) {
     const platformName = usePlatformName();
     return (
         <div role="listbox" id={id} class={styles.list}>
@@ -35,7 +35,7 @@ export function SuggestionsList({ id, suggestions, selectedSuggestion, setSelect
                         onMouseLeave={() => clearSelectedSuggestion()}
                         onClick={(event) => {
                             event.preventDefault();
-                            openSuggestion({ suggestion, target: eventToTarget(event, platformName) });
+                            onOpenSuggestion({ suggestion, target: eventToTarget(event, platformName) });
                         }}
                     >
                         <SuggestionIcon suggestion={suggestion} />

@@ -1,23 +1,23 @@
 import { h } from 'preact';
-import { useContext, useRef } from 'preact/hooks';
+import { useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { ArrowRightIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import { useTypedTranslationWith } from '../../types';
 import styles from './AiChatForm.module.css';
-import { OmnibarContext } from './OmnibarProvider';
 
 /**
  * @typedef {import('../strings.json')} Strings
+ * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
  * @param {object} props
  * @param {string} props.chat
  * @param {(chat: string) => void} props.setChat
+ * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmitChat
  */
-export function AiChatForm({ chat, setChat }) {
-    const { submitChat } = useContext(OmnibarContext);
+export function AiChatForm({ chat, setChat, onSubmitChat }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
@@ -30,7 +30,7 @@ export function AiChatForm({ chat, setChat }) {
     const onSubmit = (event) => {
         event.preventDefault();
         if (disabled) return;
-        submitChat({
+        onSubmitChat({
             chat,
             target: 'same-tab',
         });
@@ -41,7 +41,7 @@ export function AiChatForm({ chat, setChat }) {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             if (disabled) return;
-            submitChat({
+            onSubmitChat({
                 chat,
                 target: eventToTarget(event, platformName),
             });

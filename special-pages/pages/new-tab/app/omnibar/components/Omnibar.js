@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useContext, useState } from 'preact/hooks';
 import { LogoStacked } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
@@ -7,10 +7,13 @@ import styles from './Omnibar.module.css';
 import { SearchForm } from './SearchForm';
 import { TabSwitcher } from './TabSwitcher';
 import { Container } from './Container';
+import { OmnibarContext } from './OmnibarProvider';
 
 /**
  * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
+ * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
@@ -22,12 +25,49 @@ import { Container } from './Container';
 export function Omnibar({ mode, setMode, enableAi }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [query, setQuery] = useState(/** @type {String} */ (''));
+    const [resetKey, setResetKey] = useState(0);
+
+    const { openSuggestion, submitSearch, submitChat } = useContext(OmnibarContext);
+
+    const resetForm = () => {
+        setQuery('');
+        setResetKey((prev) => prev + 1);
+    };
+
+    /** @type {(params: {suggestion: Suggestion, target: OpenTarget}) => void} */
+    const onOpenSuggestion = (params) => {
+        openSuggestion(params);
+        resetForm();
+    };
+
+    /** @type {(params: {term: string, target: OpenTarget}) => void} */
+    const onSubmitSearch = (params) => {
+        submitSearch(params);
+        resetForm();
+    };
+
+    /** @type {(params: {chat: string, target: OpenTarget}) => void} */
+    const onSubmitChat = (params) => {
+        submitChat(params);
+        resetForm();
+    };
+
     return (
         <div class={styles.root} data-mode={mode}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && <TabSwitcher mode={mode} setMode={setMode} />}
             <Container overflow={mode === 'search'}>
-                {mode === 'search' ? <SearchForm term={query} setTerm={setQuery} /> : <AiChatForm chat={query} setChat={setQuery} />}
+                {mode === 'search' ? (
+                    <SearchForm
+                        key={`search-${resetKey}`}
+                        term={query}
+                        setTerm={setQuery}
+                        onOpenSuggestion={onOpenSuggestion}
+                        onSubmitSearch={onSubmitSearch}
+                    />
+                ) : (
+                    <AiChatForm key={`chat-${resetKey}`} chat={query} setChat={setQuery} onSubmitChat={onSubmitChat} />
+                )}
             </Container>
         </div>
     );

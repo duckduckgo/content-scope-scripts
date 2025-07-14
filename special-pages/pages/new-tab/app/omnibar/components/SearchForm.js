@@ -1,8 +1,7 @@
 import { h } from 'preact';
-import { useContext, useId } from 'preact/hooks';
+import { useId } from 'preact/hooks';
 import { SearchIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types';
-import { OmnibarContext } from './OmnibarProvider';
 import styles from './SearchForm.module.css';
 import { SuggestionsList } from './SuggestionsList.js';
 import { useSuggestionInput } from './useSuggestionInput.js';
@@ -10,16 +9,18 @@ import { useSuggestions } from './useSuggestions';
 
 /**
  * @typedef {import('../strings.json')} Strings
+ * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
  * @param {object} props
  * @param {string} props.term
  * @param {(term: string) => void} props.setTerm
+ * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
+ * @param {(params: {term: string, target: OpenTarget}) => void} props.onSubmitSearch
  */
-export function SearchForm({ term, setTerm }) {
-    const { submitSearch } = useContext(OmnibarContext);
-
+export function SearchForm({ term, setTerm, onOpenSuggestion, onSubmitSearch }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const suggestionsListId = useId();
 
@@ -37,6 +38,7 @@ export function SearchForm({ term, setTerm }) {
     } = useSuggestions({
         term,
         setTerm,
+        onOpenSuggestion,
     });
 
     const inputRef = useSuggestionInput(inputBase, inputSuggestion);
@@ -44,7 +46,7 @@ export function SearchForm({ term, setTerm }) {
     /** @type {(event: SubmitEvent) => void} */
     const onFormSubmit = (event) => {
         event.preventDefault();
-        submitSearch({
+        onSubmitSearch({
             term,
             target: 'same-tab',
         });
@@ -81,6 +83,7 @@ export function SearchForm({ term, setTerm }) {
                     selectedSuggestion={selectedSuggestion}
                     setSelectedSuggestion={setSelectedSuggestion}
                     clearSelectedSuggestion={clearSelectedSuggestion}
+                    onOpenSuggestion={onOpenSuggestion}
                 />
             )}
         </form>
