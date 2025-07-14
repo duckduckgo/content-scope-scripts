@@ -24,31 +24,31 @@ export function Omnibar({ mode, setMode, enableAi }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [query, setQuery] = useState(/** @type {String} */ (''));
     const [resetKey, setResetKey] = useState(0);
-    
-    const { 
-        submitSearch: _submitSearch, 
-        submitChat: _submitChat, 
-        openSuggestion: _openSuggestion, 
-        getSuggestions, 
-        onSuggestions 
+
+    const {
+        submitSearch: _submitSearch,
+        submitChat: _submitChat,
+        openSuggestion: _openSuggestion,
+        getSuggestions,
+        onSuggestions,
     } = useContext(OmnibarContext);
 
     const resetForm = () => {
         setQuery('');
-        setResetKey(prev => prev + 1);
+        setResetKey((prev) => prev + 1);
     };
 
-    const onSubmitSearch = (params) => {
+    const submitSearch = (params) => {
         _submitSearch(params);
         resetForm();
     };
 
-    const onSubmitChat = (params) => {
+    const submitChat = (params) => {
         _submitChat(params);
         resetForm();
     };
 
-    const onOpenSuggestion = (params) => {
+    const openSuggestion = (params) => {
         _openSuggestion(params);
         resetForm();
     };
@@ -59,22 +59,17 @@ export function Omnibar({ mode, setMode, enableAi }) {
             {enableAi && <TabSwitcher mode={mode} setMode={setMode} />}
             <Container overflow={mode === 'search'}>
                 {mode === 'search' ? (
-                    <SearchForm 
+                    <SearchForm
                         key={`search-${resetKey}`}
-                        term={query} 
+                        term={query}
                         setTerm={setQuery}
-                        submitSearch={onSubmitSearch}
-                        openSuggestion={onOpenSuggestion}
+                        submitSearch={submitSearch}
+                        openSuggestion={openSuggestion}
                         getSuggestions={getSuggestions}
                         onSuggestions={onSuggestions}
                     />
                 ) : (
-                    <AiChatForm 
-                        key={`chat-${resetKey}`}
-                        chat={query} 
-                        setChat={setQuery}
-                        submitChat={onSubmitChat}
-                    />
+                    <AiChatForm key={`chat-${resetKey}`} chat={query} setChat={setQuery} submitChat={submitChat} />
                 )}
             </Container>
         </div>

@@ -686,5 +686,4 @@ test.describe('omnibar widget', () => {
         // Input should retain its value
         await omnibar.expectInputValue('pizza');
     });
-
 });
