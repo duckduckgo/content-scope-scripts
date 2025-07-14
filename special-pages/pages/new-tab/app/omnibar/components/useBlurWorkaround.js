@@ -14,7 +14,7 @@ export function useBlurWorkaround() {
         if (!element) return;
 
         let lastFocusState = '0';
-        let rafId = null;
+        let rafId = 0;
 
         const checkFocusState = () => {
             const currentFocusState = getComputedStyle(element).getPropertyValue('--focus-state').trim();
