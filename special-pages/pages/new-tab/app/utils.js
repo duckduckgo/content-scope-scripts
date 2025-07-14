@@ -108,7 +108,7 @@ export function mergeRefs(...refs) {
         refs.forEach((ref) => {
             if (typeof ref === 'function') {
                 ref(value);
-            } else if (ref !== null) {
+            } else if (ref) {
                 ref.current = value;
             }
         });
