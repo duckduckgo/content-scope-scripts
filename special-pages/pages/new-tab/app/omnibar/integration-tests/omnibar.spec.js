@@ -27,6 +27,9 @@ test.describe('omnibar widget', () => {
             term: 'pizza',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
     });
 
     test('search form submission with shift+enter submits to new-window', async ({ page }, workerInfo) => {
@@ -81,6 +84,9 @@ test.describe('omnibar widget', () => {
             chat: 'pizza',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await expect(omnibar.chatInput()).toHaveValue('');
     });
 
     test('AI chat submit button with shift+click submits to new-window', async ({ page }, workerInfo) => {
@@ -152,6 +158,9 @@ test.describe('omnibar widget', () => {
             chat: 'first line\nsecond line',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await expect(omnibar.chatInput()).toHaveValue('');
     });
 
     test('AI chat sumission with cmd+enter submits to new-tab', async ({ page }, workerInfo) => {
@@ -298,6 +307,9 @@ test.describe('omnibar widget', () => {
             }),
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after suggestion selection
+        await omnibar.expectInputValue('');
     });
 
     test('clicking on a suggestion should open it', async ({ page }, workerInfo) => {
@@ -322,6 +334,9 @@ test.describe('omnibar widget', () => {
             }),
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after suggestion selection
+        await omnibar.expectInputValue('');
     });
 
     test('mouse over should select suggestion, mouse out should clear selection', async ({ page }, workerInfo) => {
