@@ -53,7 +53,7 @@ export function AiChatForm({ chat, onChange, onSubmit }) {
         event.preventDefault();
         if (disabled) return;
         event.stopPropagation();
-        submitChat({
+        onSubmit({
             chat,
             target: eventToTarget(event, platformName),
         });

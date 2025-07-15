@@ -39,6 +39,7 @@ export function SearchForm({ term, onChangeTerm, onOpenSuggestion, onSubmitSearc
         term,
         onChangeTerm,
         onOpenSuggestion,
+        onSubmitSearch,
     });
 
     const inputRef = useSuggestionInput(termBase, termSuggestion);
