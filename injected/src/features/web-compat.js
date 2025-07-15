@@ -851,7 +851,7 @@ export class WebCompat extends ContentFeature {
             // Output devices inherit from MediaDeviceInfo.prototype
             Object.setPrototypeOf(deviceInfo, MediaDeviceInfo.prototype);
         }
-
+ 
         return /** @type {MediaDeviceInfo} */ (deviceInfo);
     }
 

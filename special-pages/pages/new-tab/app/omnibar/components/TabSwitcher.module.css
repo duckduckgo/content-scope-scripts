@@ -1,0 +1,45 @@
+.tabSwitcher {
+    background: var(--ntp-controls-raised-backdrop);
+    border-radius: 99px;
+    box-shadow: 0px 1px 0px 0px  rgba(0, 0, 0, 0.05) inset;
+    display: flex;
+    padding: var(--sp-0_5);
+    position: relative;
+}
+
+.tab {
+    align-items: center;
+    background: none;
+    border-radius: 99px;
+    border: none;
+    color: var(--ntp-text-normal);
+    display: flex;
+    gap: 6px;
+    height: var(--sp-8);
+    justify-content: center;
+    padding: 0;
+    width: 92px;
+    z-index: 1;
+
+    svg {
+        height: var(--sp-4);
+        width: var(--sp-4);
+    }
+}
+
+.tabLabel {
+    padding-top: 1px;
+}
+
+.blob {
+    color: var(--ntp-controls-raised-fill-primary);
+    left: 0;
+    position: absolute;
+    top: 0;
+    transition: translate 200ms ease;
+    will-change: translate;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}

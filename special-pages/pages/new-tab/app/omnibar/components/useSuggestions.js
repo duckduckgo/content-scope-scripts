@@ -1,10 +1,12 @@
 import { useContext, useEffect, useReducer } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
+import { getSuggestionTitle } from '../utils.js';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
@@ -118,10 +120,12 @@ function reducer(state, action) {
 /**
  * @param {object} props
  * @param {string} props.term
- * @param {(term: string) => void} props.setTerm
+ * @param {(term: string) => void} props.onChangeTerm
+ * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
+ * @param {(params: {term: string, target: OpenTarget}) => void} props.onSubmitSearch
  */
-export function useSuggestions({ term, setTerm }) {
-    const { onSuggestions, getSuggestions, openSuggestion } = useContext(OmnibarContext);
+export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitSearch }) {
+    const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -137,19 +141,19 @@ export function useSuggestions({ term, setTerm }) {
         dispatch({ type: 'clearSelectedSuggestion' });
     };
 
-    let inputBase, inputSuggestion;
+    let termBase, termSuggestion;
     if (!selectedSuggestion) {
-        inputBase = term;
-        inputSuggestion = '';
+        termBase = term;
+        termSuggestion = '';
     } else if ('url' in selectedSuggestion && startsWithIgnoreCase(selectedSuggestion.url, term)) {
-        inputBase = term;
-        inputSuggestion = selectedSuggestion.url.slice(term.length);
+        termBase = term;
+        termSuggestion = selectedSuggestion.url.slice(term.length);
     } else if (startsWithIgnoreCase(selectedSuggestion.title, term)) {
-        inputBase = term;
-        inputSuggestion = selectedSuggestion.title.slice(term.length);
+        termBase = term;
+        termSuggestion = selectedSuggestion.title.slice(term.length);
     } else {
-        inputBase = '';
-        inputSuggestion = selectedSuggestion.title;
+        termBase = '';
+        termSuggestion = selectedSuggestion.title;
     }
 
     useEffect(() => {
@@ -172,9 +176,9 @@ export function useSuggestions({ term, setTerm }) {
     }, [onSuggestions]);
 
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
-    const onInputChange = (event) => {
+    const handleChange = (event) => {
         const term = event.currentTarget.value;
-        setTerm(term);
+        onChangeTerm(term);
 
         dispatch({ type: 'clearSelectedSuggestion' });
 
@@ -186,7 +190,7 @@ export function useSuggestions({ term, setTerm }) {
     };
 
     /** @type {(event: KeyboardEvent) => void} */
-    const onInputKeyDown = (event) => {
+    const handleKeyDown = (event) => {
         switch (event.key) {
             case 'ArrowUp':
                 if (!state.suggestionsVisible) {
@@ -194,7 +198,7 @@ export function useSuggestions({ term, setTerm }) {
                 }
                 event.preventDefault();
                 if (state.originalTerm && term !== state.originalTerm) {
-                    setTerm(state.originalTerm);
+                    onChangeTerm(state.originalTerm);
                 }
                 dispatch({ type: 'previousSuggestion' });
                 break;
@@ -204,14 +208,14 @@ export function useSuggestions({ term, setTerm }) {
                 }
                 event.preventDefault();
                 if (state.originalTerm && term !== state.originalTerm) {
-                    setTerm(state.originalTerm);
+                    onChangeTerm(state.originalTerm);
                 }
                 dispatch({ type: 'nextSuggestion' });
                 break;
             case 'ArrowLeft':
             case 'ArrowRight':
                 if (selectedSuggestion) {
-                    setTerm(inputBase + inputSuggestion);
+                    onChangeTerm(termBase + termSuggestion);
                     dispatch({ type: 'clearSelectedSuggestion' });
                 }
                 break;
@@ -220,23 +224,25 @@ export function useSuggestions({ term, setTerm }) {
                 dispatch({ type: 'hideSuggestions' });
                 break;
             case 'Enter':
+                event.preventDefault();
                 if (selectedSuggestion) {
-                    event.preventDefault();
-                    openSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
+                    onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
+                } else {
+                    onSubmitSearch({ term, target: eventToTarget(event, platformName) });
                 }
                 break;
         }
     };
 
-    const onInputClick = () => {
+    const handleClick = () => {
         if (selectedSuggestion) {
-            setTerm(inputBase + inputSuggestion);
+            onChangeTerm(termBase + termSuggestion);
             dispatch({ type: 'clearSelectedSuggestion' });
         }
     };
 
     /** @type {(event: import('preact').JSX.TargetedFocusEvent<HTMLFormElement>) => void} */
-    const onFormBlur = (event) => {
+    const handleBlur = (event) => {
         // Ignore blur events cauesd by moving focus to an element inside the form
         if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) {
             return;
@@ -250,38 +256,13 @@ export function useSuggestions({ term, setTerm }) {
         selectedSuggestion,
         setSelectedSuggestion,
         clearSelectedSuggestion,
-        inputBase,
-        inputSuggestion,
-        onInputChange,
-        onInputKeyDown,
-        onInputClick,
-        onFormBlur,
+        termBase,
+        termSuggestion,
+        handleChange,
+        handleKeyDown,
+        handleClick,
+        handleBlur,
     };
-}
-
-/**
- * @param {Suggestion} suggestion
- * @returns {string}
- */
-function getSuggestionTitle(suggestion) {
-    switch (suggestion.kind) {
-        case 'bookmark':
-            return suggestion.title;
-        case 'historyEntry':
-            return suggestion.title;
-        case 'phrase':
-            return suggestion.phrase;
-        case 'openTab':
-            return suggestion.title;
-        case 'website': {
-            const url = new URL(suggestion.url);
-            return url.host + url.pathname + url.search + url.hash;
-        }
-        case 'internalPage':
-            return suggestion.title;
-        default:
-            throw new Error('Unknown suggestion kind');
-    }
 }
 
 /**
