@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useId } from 'preact/hooks';
+import { useEffect, useId } from 'preact/hooks';
 import { SearchIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types';
 import styles from './SearchForm.module.css';
@@ -16,11 +16,12 @@ import { useSuggestions } from './useSuggestions';
 /**
  * @param {object} props
  * @param {string} props.term
+ * @param {boolean} [props.autoFocus]
  * @param {(term: string) => void} props.onChangeTerm
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  * @param {(params: {term: string, target: OpenTarget}) => void} props.onSubmitSearch
  */
-export function SearchForm({ term, onChangeTerm, onOpenSuggestion, onSubmitSearch }) {
+export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, onSubmitSearch }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const suggestionsListId = useId();
 
@@ -43,6 +44,12 @@ export function SearchForm({ term, onChangeTerm, onOpenSuggestion, onSubmitSearc
     });
 
     const inputRef = useSuggestionInput(termBase, termSuggestion);
+
+    useEffect(() => {
+        if (autoFocus && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [autoFocus]);
 
     /** @type {(event: SubmitEvent) => void} */
     const handleSubmit = (event) => {
