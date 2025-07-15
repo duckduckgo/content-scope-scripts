@@ -20,7 +20,6 @@ export class Telemetry extends ContentFeature {
         const message = {
             userInteraction: navigator.userActivation.isActive,
         };
-        console.log('video playback', message);
         this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
     }
 
@@ -29,11 +28,7 @@ export class Telemetry extends ContentFeature {
             return; // already observed
         }
         this.seenVideoElements.add(video);
-        video.addEventListener(
-            'play',
-            () => this.fireTelemetryForVideo(video),
-            { once: true },
-        );
+        video.addEventListener('play', () => this.fireTelemetryForVideo(video), { once: true });
     }
 
     addListenersToAllVideos(node) {
@@ -50,9 +45,13 @@ export class Telemetry extends ContentFeature {
         if (document.body) {
             this.setup();
         } else {
-            window.addEventListener('DOMContentLoaded', () => {
-                this.setup();
-            }, { once: true });
+            window.addEventListener(
+                'DOMContentLoaded',
+                () => {
+                    this.setup();
+                },
+                { once: true },
+            );
         }
     }
 
@@ -63,7 +62,7 @@ export class Telemetry extends ContentFeature {
         this.addListenersToAllVideos(documentBody);
 
         // Backfill: fire telemetry for already playing videos
-        documentBody.querySelectorAll('video').forEach(video => {
+        documentBody.querySelectorAll('video').forEach((video) => {
             if (!video.paused && !video.ended) {
                 this.fireTelemetryForVideo(video);
             }
@@ -90,8 +89,6 @@ export class Telemetry extends ContentFeature {
             subtree: true,
         });
     }
-
-
 }
 
 export default Telemetry;
