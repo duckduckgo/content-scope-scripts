@@ -1,8 +1,7 @@
 import { h } from 'preact';
-import { useContext, useId } from 'preact/hooks';
+import { useId } from 'preact/hooks';
 import { SearchIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types';
-import { OmnibarContext } from './OmnibarProvider';
 import styles from './SearchForm.module.css';
 import { SuggestionsList } from './SuggestionsList.js';
 import { useSuggestionInput } from './useSuggestionInput.js';
@@ -10,16 +9,18 @@ import { useSuggestions } from './useSuggestions';
 
 /**
  * @typedef {import('../strings.json')} Strings
+ * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
  * @param {object} props
  * @param {string} props.term
- * @param {(term: string) => void} props.setTerm
+ * @param {(term: string) => void} props.onChangeTerm
+ * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
+ * @param {(params: {term: string, target: OpenTarget}) => void} props.onSubmitSearch
  */
-export function SearchForm({ term, setTerm }) {
-    const { submitSearch } = useContext(OmnibarContext);
-
+export function SearchForm({ term, onChangeTerm, onOpenSuggestion, onSubmitSearch }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const suggestionsListId = useId();
 
@@ -28,30 +29,32 @@ export function SearchForm({ term, setTerm }) {
         selectedSuggestion,
         setSelectedSuggestion,
         clearSelectedSuggestion,
-        inputBase,
-        inputSuggestion,
-        onInputChange,
-        onInputKeyDown,
-        onInputClick,
-        onFormBlur,
+        termBase,
+        termSuggestion,
+        handleChange,
+        handleKeyDown,
+        handleClick,
+        handleBlur,
     } = useSuggestions({
         term,
-        setTerm,
+        onChangeTerm,
+        onOpenSuggestion,
+        onSubmitSearch,
     });
 
-    const inputRef = useSuggestionInput(inputBase, inputSuggestion);
+    const inputRef = useSuggestionInput(termBase, termSuggestion);
 
     /** @type {(event: SubmitEvent) => void} */
-    const onFormSubmit = (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
-        submitSearch({
+        onSubmitSearch({
             term,
             target: 'same-tab',
         });
     };
 
     return (
-        <form class={styles.form} onClick={() => inputRef.current?.focus()} onBlur={onFormBlur} onSubmit={onFormSubmit}>
+        <form class={styles.form} onClick={() => inputRef.current?.focus()} onBlur={handleBlur} onSubmit={handleSubmit}>
             <div class={styles.inputContainer}>
                 <SearchIcon inert />
                 <input
@@ -69,9 +72,9 @@ export function SearchForm({ term, setTerm }) {
                     autoComplete="off"
                     autoCorrect="off"
                     autoCapitalize="off"
-                    onChange={onInputChange}
-                    onKeyDown={onInputKeyDown}
-                    onClick={onInputClick}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    onClick={handleClick}
                 />
             </div>
             {suggestions.length > 0 && (
@@ -79,8 +82,9 @@ export function SearchForm({ term, setTerm }) {
                     id={suggestionsListId}
                     suggestions={suggestions}
                     selectedSuggestion={selectedSuggestion}
-                    setSelectedSuggestion={setSelectedSuggestion}
-                    clearSelectedSuggestion={clearSelectedSuggestion}
+                    onSelectSuggestion={setSelectedSuggestion}
+                    onClearSuggestion={clearSelectedSuggestion}
+                    onOpenSuggestion={onOpenSuggestion}
                 />
             )}
         </form>
