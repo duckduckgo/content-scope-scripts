@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import { equal, throws } from 'node:assert/strict';
-import { getSuggestionTitle } from '../app/omnibar/components/useSuggestions.js';
+import { getSuggestionTitle } from '../utils.js';
 
 /**
- * @typedef {import('../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  */
 
 test.describe('getSuggestionTitle', () => {
@@ -15,7 +15,7 @@ test.describe('getSuggestionTitle', () => {
 
     test('returns display URL for bookmark without title', () => {
         /** @type {Suggestion} */
-        const suggestion = { kind: 'bookmark', title: '', url: 'dominos.com/order?pizza#special', isFavorite: false, score: 96 };
+        const suggestion = { kind: 'bookmark', title: '', url: 'https://dominos.com/order?pizza#special', isFavorite: false, score: 96 };
         equal(getSuggestionTitle(suggestion), 'dominos.com/order?pizza#special');
     });
 
