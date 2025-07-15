@@ -48,6 +48,17 @@ export function AiChatForm({ chat, onChange, onSubmit }) {
         }
     };
 
+    /** @type {(event: MouseEvent) => void} */
+    const handleClickSubmit = (event) => {
+        event.preventDefault();
+        if (disabled) return;
+        event.stopPropagation();
+        submitChat({
+            chat,
+            target: eventToTarget(event, platformName),
+        });
+    };
+
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLTextAreaElement>) => void} */
     const handleChange = (event) => {
         const form = formRef.current;
@@ -85,6 +96,8 @@ export function AiChatForm({ chat, onChange, onSubmit }) {
                     class={styles.submitButton}
                     aria-label={t('aiChatForm_submitButtonLabel')}
                     disabled={chat.length === 0}
+                    onClick={handleClickSubmit}
+                    onAuxClick={handleClickSubmit}
                 >
                     <ArrowRightIcon />
                 </button>

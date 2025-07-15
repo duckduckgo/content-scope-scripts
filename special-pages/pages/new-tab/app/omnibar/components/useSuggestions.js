@@ -123,7 +123,7 @@ function reducer(state, action) {
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  */
 export function useSuggestions({ term, onChangeTerm: setTerm, onOpenSuggestion }) {
-    const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
+    const { onSuggestions, getSuggestions, submitSearch } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -222,9 +222,11 @@ export function useSuggestions({ term, onChangeTerm: setTerm, onOpenSuggestion }
                 dispatch({ type: 'hideSuggestions' });
                 break;
             case 'Enter':
+                event.preventDefault();
                 if (selectedSuggestion) {
-                    event.preventDefault();
                     onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
+                } else {
+                    submitSearch({ term, target: eventToTarget(event, platformName) });
                 }
                 break;
         }

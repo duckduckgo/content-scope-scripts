@@ -32,7 +32,41 @@ test.describe('omnibar widget', () => {
         await omnibar.expectInputValue('');
     });
 
-    test('AI chat form submission via button click', async ({ page }, workerInfo) => {
+    test('search form submission with shift+enter submits to new-window', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.searchInput().press('Shift+Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitSearch', {
+            term: 'pizza',
+            target: 'new-window',
+        });
+    });
+
+    test('search form submission with cmd+enter submits to new-tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.searchInput().press('Meta+Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitSearch', {
+            term: 'pizza',
+            target: 'new-tab',
+        });
+    });
+
+    test('AI chat submit button', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
@@ -53,6 +87,46 @@ test.describe('omnibar widget', () => {
 
         // Form should be reset to blank state after submission
         await expect(omnibar.chatInput()).toHaveValue('');
+    });
+
+    test('AI chat submit button with shift+click submits to new-window', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        await omnibar.chatInput().fill('pizza');
+        await omnibar.chatSubmitButton().click({ modifiers: ['Shift'] });
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza',
+            target: 'new-window',
+        });
+    });
+
+    test('AI chat submit button with cmd+click submits to new-tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        await omnibar.chatInput().fill('pizza');
+        await omnibar.chatSubmitButton().click({ modifiers: ['Meta'] });
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza',
+            target: 'new-tab',
+        });
     });
 
     test('AI chat keyboard behavior', async ({ page }, workerInfo) => {
@@ -87,6 +161,26 @@ test.describe('omnibar widget', () => {
 
         // Form should be reset to blank state after submission
         await expect(omnibar.chatInput()).toHaveValue('');
+    });
+
+    test('AI chat sumission with cmd+enter submits to new-tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        await omnibar.chatInput().fill('pizza');
+        await omnibar.chatInput().press('Meta+Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza',
+            target: 'new-tab',
+        });
     });
 
     test('mode switching preserves query state', async ({ page }, workerInfo) => {
