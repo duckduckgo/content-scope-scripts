@@ -1,6 +1,7 @@
 import { useContext, useEffect, useReducer } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
+import { getSuggestionTitle } from '../utils.js';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
@@ -262,31 +263,6 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
         handleClick,
         handleBlur,
     };
-}
-
-/**
- * @param {Suggestion} suggestion
- * @returns {string}
- */
-function getSuggestionTitle(suggestion) {
-    switch (suggestion.kind) {
-        case 'bookmark':
-            return suggestion.title;
-        case 'historyEntry':
-            return suggestion.title;
-        case 'phrase':
-            return suggestion.phrase;
-        case 'openTab':
-            return suggestion.title;
-        case 'website': {
-            const url = new URL(suggestion.url);
-            return url.host + url.pathname + url.search + url.hash;
-        }
-        case 'internalPage':
-            return suggestion.title;
-        default:
-            throw new Error('Unknown suggestion kind');
-    }
 }
 
 /**
