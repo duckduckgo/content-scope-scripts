@@ -13,20 +13,20 @@ import styles from './TabSwitcher.module.css';
 /**
  * @param {object} props
  * @param {OmnibarConfig['mode']} props.mode
- * @param {(mode: OmnibarConfig['mode']) => void} props.setMode
+ * @param {(mode: OmnibarConfig['mode']) => void} props.onChange
  */
-export function TabSwitcher({ mode, setMode }) {
+export function TabSwitcher({ mode, onChange }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { main } = useContext(CustomizerThemesContext);
     const Blob = main.value === 'light' ? BlobLight : BlobDark;
     return (
         <div class={styles.tabSwitcher} role="tablist" aria-label={t('omnibar_tabSwitcherLabel')}>
             <Blob class={styles.blob} style={{ translate: mode === 'search' ? 0 : 92 }} />
-            <button class={styles.tab} role="tab" aria-selected={mode === 'search'} onClick={() => setMode('search')}>
+            <button class={styles.tab} role="tab" aria-selected={mode === 'search'} onClick={() => onChange('search')}>
                 {mode === 'search' ? <SearchColorIcon /> : <SearchIcon />}
                 <span class={styles.tabLabel}>{t('omnibar_searchTabLabel')}</span>
             </button>
-            <button class={styles.tab} role="tab" aria-selected={mode === 'ai'} onClick={() => setMode('ai')}>
+            <button class={styles.tab} role="tab" aria-selected={mode === 'ai'} onClick={() => onChange('ai')}>
                 {mode === 'ai' ? <AiChatColorIcon /> : <AiChatIcon />}
                 <span class={styles.tabLabel}>{t('omnibar_aiTabLabel')}</span>
             </button>

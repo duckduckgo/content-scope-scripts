@@ -7679,8 +7679,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/AiChatForm.js
-  function AiChatForm({ chat, setChat }) {
-    const { submitChat } = x2(OmnibarContext);
+  function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -7694,26 +7693,40 @@
       /** @type {HTMLTextAreaElement|null} */
       null
     );
+    y2(() => {
+      if (autoFocus && textAreaRef.current) {
+        textAreaRef.current.focus();
+      }
+    }, [autoFocus]);
     const disabled = chat.length === 0;
-    const onSubmit = (event) => {
+    const handleSubmit = (event) => {
       event.preventDefault();
       if (disabled) return;
-      submitChat({
+      onSubmit({
         chat,
         target: "same-tab"
       });
     };
-    const onKeyDown = (event) => {
+    const handleKeyDown = (event) => {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         if (disabled) return;
-        submitChat({
+        onSubmit({
           chat,
           target: eventToTarget2(event, platformName)
         });
       }
     };
-    const onChange = (event) => {
+    const handleClickSubmit = (event) => {
+      event.preventDefault();
+      if (disabled) return;
+      event.stopPropagation();
+      onSubmit({
+        chat,
+        target: eventToTarget2(event, platformName)
+      });
+    };
+    const handleChange = (event) => {
       const form = formRef.current;
       const textArea = event.currentTarget;
       const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
@@ -7724,9 +7737,9 @@
       } else {
         form?.classList.remove(AiChatForm_default.hasScroll);
       }
-      setChat(textArea.value);
+      onChange(textArea.value);
     };
-    return /* @__PURE__ */ _("form", { ref: formRef, class: AiChatForm_default.form, onClick: () => textAreaRef.current?.focus(), onSubmit }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("form", { ref: formRef, class: AiChatForm_default.form, onClick: () => textAreaRef.current?.focus(), onSubmit: handleSubmit }, /* @__PURE__ */ _(
       "textarea",
       {
         ref: textAreaRef,
@@ -7736,8 +7749,8 @@
         "aria-label": t4("aiChatForm_placeholder"),
         autoComplete: "off",
         rows: 1,
-        onKeyDown,
-        onChange
+        onKeyDown: handleKeyDown,
+        onChange: handleChange
       }
     ), /* @__PURE__ */ _("div", { class: AiChatForm_default.buttons }, /* @__PURE__ */ _(
       "button",
@@ -7745,7 +7758,9 @@
         type: "submit",
         class: AiChatForm_default.submitButton,
         "aria-label": t4("aiChatForm_submitButtonLabel"),
-        disabled: chat.length === 0
+        disabled: chat.length === 0,
+        onClick: handleClickSubmit,
+        onAuxClick: handleClickSubmit
       },
       /* @__PURE__ */ _(ArrowRightIcon, null)
     )));
@@ -7760,7 +7775,51 @@
       init_settings_provider();
       init_types();
       init_AiChatForm();
-      init_OmnibarProvider();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/Container.module.css
+  var Container_default;
+  var init_Container = __esm({
+    "pages/new-tab/app/omnibar/components/Container.module.css"() {
+      Container_default = {
+        outer: "Container_outer",
+        inner: "Container_inner"
+      };
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/Container.js
+  function Container({ overflow, children }) {
+    const contentRef = A2(
+      /** @type {HTMLDivElement|null} */
+      null
+    );
+    const initialHeight = A2(
+      /** @type {number|null} */
+      null
+    );
+    const [contentHeight, setContentHeight] = d2(
+      /** @type {number|null} */
+      null
+    );
+    _2(() => {
+      const content2 = contentRef.current;
+      if (!content2) return;
+      initialHeight.current = content2.scrollHeight;
+      setContentHeight(content2.scrollHeight);
+      const resizeObserver = new ResizeObserver(() => setContentHeight(content2.scrollHeight));
+      resizeObserver.observe(content2);
+      return () => resizeObserver.disconnect();
+    }, []);
+    return /* @__PURE__ */ _("div", { class: Container_default.outer, style: { height: overflow && initialHeight.current ? initialHeight.current : "auto" } }, /* @__PURE__ */ _("div", { class: Container_default.inner, style: { height: contentHeight ?? "auto" } }, /* @__PURE__ */ _("div", { ref: contentRef }, children)));
+  }
+  var init_Container2 = __esm({
+    "pages/new-tab/app/omnibar/components/Container.js"() {
+      "use strict";
+      init_preact_module();
+      init_Container();
+      init_hooks_module();
     }
   });
 
@@ -7798,8 +7857,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/SuggestionsList.js
-  function SuggestionsList({ id, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion }) {
-    const { openSuggestion } = x2(OmnibarContext);
+  function SuggestionsList({ id, suggestions, selectedSuggestion, onSelectSuggestion, onClearSuggestion, onOpenSuggestion }) {
     const platformName = usePlatformName();
     return /* @__PURE__ */ _("div", { role: "listbox", id, class: SuggestionsList_default.list }, suggestions.map((suggestion) => {
       return /* @__PURE__ */ _(
@@ -7809,12 +7867,13 @@
           role: "option",
           id: suggestion.id,
           class: SuggestionsList_default.item,
+          tabIndex: suggestion === selectedSuggestion ? 0 : -1,
           "aria-selected": suggestion === selectedSuggestion,
-          onMouseOver: () => setSelectedSuggestion(suggestion),
-          onMouseLeave: () => clearSelectedSuggestion(),
+          onMouseOver: () => onSelectSuggestion(suggestion),
+          onMouseLeave: () => onClearSuggestion(),
           onClick: (event) => {
             event.preventDefault();
-            openSuggestion({ suggestion, target: eventToTarget2(event, platformName) });
+            onOpenSuggestion({ suggestion, target: eventToTarget2(event, platformName) });
           }
         },
         /* @__PURE__ */ _(SuggestionIcon, { suggestion }),
@@ -7843,11 +7902,9 @@
     "pages/new-tab/app/omnibar/components/SuggestionsList.js"() {
       "use strict";
       init_preact_module();
-      init_hooks_module();
       init_handlers();
       init_Icons2();
       init_settings_provider();
-      init_OmnibarProvider();
       init_SuggestionsList();
     }
   });
@@ -7872,6 +7929,33 @@
     "pages/new-tab/app/omnibar/components/useSuggestionInput.js"() {
       "use strict";
       init_hooks_module();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/utils.js
+  function getSuggestionTitle(suggestion) {
+    switch (suggestion.kind) {
+      case "bookmark":
+      case "historyEntry":
+      case "internalPage":
+        return suggestion.title || getDisplayURL(suggestion.url);
+      case "phrase":
+        return suggestion.phrase;
+      case "openTab":
+        return suggestion.title;
+      case "website":
+        return getDisplayURL(suggestion.url);
+      default:
+        throw new Error("Unknown suggestion kind");
+    }
+  }
+  function getDisplayURL(url7) {
+    const { host, pathname, search, hash } = new URL(url7);
+    return host + pathname + search + hash;
+  }
+  var init_utils3 = __esm({
+    "pages/new-tab/app/omnibar/utils.js"() {
+      "use strict";
     }
   });
 
@@ -7939,8 +8023,8 @@
         throw new Error("Unknown action type");
     }
   }
-  function useSuggestions({ term, setTerm }) {
-    const { onSuggestions, getSuggestions, openSuggestion } = x2(OmnibarContext);
+  function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitSearch }) {
+    const { onSuggestions, getSuggestions } = x2(OmnibarContext);
     const platformName = usePlatformName();
     const [state, dispatch] = h2(reducer2, initialState);
     const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
@@ -7950,19 +8034,19 @@
     const clearSelectedSuggestion = () => {
       dispatch({ type: "clearSelectedSuggestion" });
     };
-    let inputBase, inputSuggestion;
+    let termBase, termSuggestion;
     if (!selectedSuggestion) {
-      inputBase = term;
-      inputSuggestion = "";
+      termBase = term;
+      termSuggestion = "";
     } else if ("url" in selectedSuggestion && startsWithIgnoreCase(selectedSuggestion.url, term)) {
-      inputBase = term;
-      inputSuggestion = selectedSuggestion.url.slice(term.length);
+      termBase = term;
+      termSuggestion = selectedSuggestion.url.slice(term.length);
     } else if (startsWithIgnoreCase(selectedSuggestion.title, term)) {
-      inputBase = term;
-      inputSuggestion = selectedSuggestion.title.slice(term.length);
+      termBase = term;
+      termSuggestion = selectedSuggestion.title.slice(term.length);
     } else {
-      inputBase = "";
-      inputSuggestion = selectedSuggestion.title;
+      termBase = "";
+      termSuggestion = selectedSuggestion.title;
     }
     y2(() => {
       return onSuggestions((data2, term2) => {
@@ -7982,9 +8066,9 @@
         });
       });
     }, [onSuggestions]);
-    const onInputChange = (event) => {
+    const handleChange = (event) => {
       const term2 = event.currentTarget.value;
-      setTerm(term2);
+      onChangeTerm(term2);
       dispatch({ type: "clearSelectedSuggestion" });
       if (term2.length === 0) {
         dispatch({ type: "hideSuggestions" });
@@ -7992,7 +8076,7 @@
         getSuggestions(term2);
       }
     };
-    const onInputKeyDown = (event) => {
+    const handleKeyDown = (event) => {
       switch (event.key) {
         case "ArrowUp":
           if (!state.suggestionsVisible) {
@@ -8000,7 +8084,7 @@
           }
           event.preventDefault();
           if (state.originalTerm && term !== state.originalTerm) {
-            setTerm(state.originalTerm);
+            onChangeTerm(state.originalTerm);
           }
           dispatch({ type: "previousSuggestion" });
           break;
@@ -8010,14 +8094,14 @@
           }
           event.preventDefault();
           if (state.originalTerm && term !== state.originalTerm) {
-            setTerm(state.originalTerm);
+            onChangeTerm(state.originalTerm);
           }
           dispatch({ type: "nextSuggestion" });
           break;
         case "ArrowLeft":
         case "ArrowRight":
           if (selectedSuggestion) {
-            setTerm(inputBase + inputSuggestion);
+            onChangeTerm(termBase + termSuggestion);
             dispatch({ type: "clearSelectedSuggestion" });
           }
           break;
@@ -8026,20 +8110,22 @@
           dispatch({ type: "hideSuggestions" });
           break;
         case "Enter":
+          event.preventDefault();
           if (selectedSuggestion) {
-            event.preventDefault();
-            openSuggestion({ suggestion: selectedSuggestion, target: eventToTarget2(event, platformName) });
+            onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget2(event, platformName) });
+          } else {
+            onSubmitSearch({ term, target: eventToTarget2(event, platformName) });
           }
           break;
       }
     };
-    const onInputClick = () => {
+    const handleClick = () => {
       if (selectedSuggestion) {
-        setTerm(inputBase + inputSuggestion);
+        onChangeTerm(termBase + termSuggestion);
         dispatch({ type: "clearSelectedSuggestion" });
       }
     };
-    const onFormBlur = (event) => {
+    const handleBlur = (event) => {
       if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) {
         return;
       }
@@ -8050,33 +8136,13 @@
       selectedSuggestion,
       setSelectedSuggestion,
       clearSelectedSuggestion,
-      inputBase,
-      inputSuggestion,
-      onInputChange,
-      onInputKeyDown,
-      onInputClick,
-      onFormBlur
+      termBase,
+      termSuggestion,
+      handleChange,
+      handleKeyDown,
+      handleClick,
+      handleBlur
     };
-  }
-  function getSuggestionTitle(suggestion) {
-    switch (suggestion.kind) {
-      case "bookmark":
-        return suggestion.title;
-      case "historyEntry":
-        return suggestion.title;
-      case "phrase":
-        return suggestion.phrase;
-      case "openTab":
-        return suggestion.title;
-      case "website": {
-        const url7 = new URL(suggestion.url);
-        return url7.host + url7.pathname + url7.search + url7.hash;
-      }
-      case "internalPage":
-        return suggestion.title;
-      default:
-        throw new Error("Unknown suggestion kind");
-    }
   }
   function startsWithIgnoreCase(text2, searchTerm) {
     return text2.toLowerCase().startsWith(searchTerm.toLowerCase());
@@ -8088,6 +8154,7 @@
       init_hooks_module();
       init_handlers();
       init_settings_provider();
+      init_utils3();
       init_OmnibarProvider();
       initialState = {
         originalTerm: null,
@@ -8100,8 +8167,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/SearchForm.js
-  function SearchForm({ term, setTerm }) {
-    const { submitSearch } = x2(OmnibarContext);
+  function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, onSubmitSearch }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -8112,25 +8178,32 @@
       selectedSuggestion,
       setSelectedSuggestion,
       clearSelectedSuggestion,
-      inputBase,
-      inputSuggestion,
-      onInputChange,
-      onInputKeyDown,
-      onInputClick,
-      onFormBlur
+      termBase,
+      termSuggestion,
+      handleChange,
+      handleKeyDown,
+      handleClick,
+      handleBlur
     } = useSuggestions({
       term,
-      setTerm
+      onChangeTerm,
+      onOpenSuggestion,
+      onSubmitSearch
     });
-    const inputRef = useSuggestionInput(inputBase, inputSuggestion);
-    const onFormSubmit = (event) => {
+    const inputRef = useSuggestionInput(termBase, termSuggestion);
+    y2(() => {
+      if (autoFocus && inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, [autoFocus]);
+    const handleSubmit = (event) => {
       event.preventDefault();
-      submitSearch({
+      onSubmitSearch({
         term,
         target: "same-tab"
       });
     };
-    return /* @__PURE__ */ _("form", { class: SearchForm_default.form, onClick: () => inputRef.current?.focus(), onBlur: onFormBlur, onSubmit: onFormSubmit }, /* @__PURE__ */ _("div", { class: SearchForm_default.inputContainer }, /* @__PURE__ */ _(SearchIcon, { inert: true }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("form", { class: SearchForm_default.form, onClick: () => inputRef.current?.focus(), onBlur: handleBlur, onSubmit: handleSubmit }, /* @__PURE__ */ _("div", { class: SearchForm_default.inputContainer }, /* @__PURE__ */ _(SearchIcon, { inert: true }), /* @__PURE__ */ _(
       "input",
       {
         ref: inputRef,
@@ -8147,9 +8220,9 @@
         autoComplete: "off",
         autoCorrect: "off",
         autoCapitalize: "off",
-        onChange: onInputChange,
-        onKeyDown: onInputKeyDown,
-        onClick: onInputClick
+        onChange: handleChange,
+        onKeyDown: handleKeyDown,
+        onClick: handleClick
       }
     )), suggestions.length > 0 && /* @__PURE__ */ _(
       SuggestionsList,
@@ -8157,8 +8230,9 @@
         id: suggestionsListId,
         suggestions,
         selectedSuggestion,
-        setSelectedSuggestion,
-        clearSelectedSuggestion
+        onSelectSuggestion: setSelectedSuggestion,
+        onClearSuggestion: clearSelectedSuggestion,
+        onOpenSuggestion
       }
     ));
   }
@@ -8169,7 +8243,6 @@
       init_hooks_module();
       init_Icons2();
       init_types();
-      init_OmnibarProvider();
       init_SearchForm();
       init_SuggestionsList2();
       init_useSuggestionInput();
@@ -8191,14 +8264,14 @@
   });
 
   // pages/new-tab/app/omnibar/components/TabSwitcher.js
-  function TabSwitcher({ mode, setMode }) {
+  function TabSwitcher({ mode, onChange }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
     const { main } = x2(CustomizerThemesContext);
     const Blob2 = main.value === "light" ? BlobLight : BlobDark;
-    return /* @__PURE__ */ _("div", { class: TabSwitcher_default.tabSwitcher, role: "tablist", "aria-label": t4("omnibar_tabSwitcherLabel") }, /* @__PURE__ */ _(Blob2, { class: TabSwitcher_default.blob, style: { translate: mode === "search" ? 0 : 92 } }), /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "search", onClick: () => setMode("search") }, mode === "search" ? /* @__PURE__ */ _(SearchColorIcon, null) : /* @__PURE__ */ _(SearchIcon, null), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_searchTabLabel"))), /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "ai", onClick: () => setMode("ai") }, mode === "ai" ? /* @__PURE__ */ _(AiChatColorIcon, null) : /* @__PURE__ */ _(AiChatIcon, null), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_aiTabLabel"))));
+    return /* @__PURE__ */ _("div", { class: TabSwitcher_default.tabSwitcher, role: "tablist", "aria-label": t4("omnibar_tabSwitcherLabel") }, /* @__PURE__ */ _(Blob2, { class: TabSwitcher_default.blob, style: { translate: mode === "search" ? 0 : 92 } }), /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "search", onClick: () => onChange("search") }, mode === "search" ? /* @__PURE__ */ _(SearchColorIcon, null) : /* @__PURE__ */ _(SearchIcon, null), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_searchTabLabel"))), /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "ai", onClick: () => onChange("ai") }, mode === "ai" ? /* @__PURE__ */ _(AiChatColorIcon, null) : /* @__PURE__ */ _(AiChatIcon, null), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_aiTabLabel"))));
   }
   function BlobLight(props) {
     return /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "102", height: "36", viewBox: "0 0 102 36", fill: "none", ...props }, /* @__PURE__ */ _("g", { filter: "url(#filter0_ddi_9483_24565)" }, /* @__PURE__ */ _(
@@ -8290,51 +8363,6 @@
     }
   });
 
-  // pages/new-tab/app/omnibar/components/Container.module.css
-  var Container_default;
-  var init_Container = __esm({
-    "pages/new-tab/app/omnibar/components/Container.module.css"() {
-      Container_default = {
-        outer: "Container_outer",
-        inner: "Container_inner"
-      };
-    }
-  });
-
-  // pages/new-tab/app/omnibar/components/Container.js
-  function Container({ overflow, children }) {
-    const contentRef = A2(
-      /** @type {HTMLDivElement|null} */
-      null
-    );
-    const initialHeight = A2(
-      /** @type {number|null} */
-      null
-    );
-    const [contentHeight, setContentHeight] = d2(
-      /** @type {number|null} */
-      null
-    );
-    _2(() => {
-      const content2 = contentRef.current;
-      if (!content2) return;
-      initialHeight.current = content2.scrollHeight;
-      setContentHeight(content2.scrollHeight);
-      const resizeObserver = new ResizeObserver(() => setContentHeight(content2.scrollHeight));
-      resizeObserver.observe(content2);
-      return () => resizeObserver.disconnect();
-    }, []);
-    return /* @__PURE__ */ _("div", { class: Container_default.outer, style: { height: overflow && initialHeight.current ? initialHeight.current : "auto" } }, /* @__PURE__ */ _("div", { class: Container_default.inner, style: { height: contentHeight ?? "auto" } }, /* @__PURE__ */ _("div", { ref: contentRef }, children)));
-  }
-  var init_Container2 = __esm({
-    "pages/new-tab/app/omnibar/components/Container.js"() {
-      "use strict";
-      init_preact_module();
-      init_Container();
-      init_hooks_module();
-    }
-  });
-
   // pages/new-tab/app/omnibar/components/Omnibar.js
   function Omnibar({ mode, setMode, enableAi }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -8345,7 +8373,49 @@
       /** @type {String} */
       ""
     );
-    return /* @__PURE__ */ _("div", { class: Omnibar_default.root, "data-mode": mode }, /* @__PURE__ */ _(LogoStacked, { class: Omnibar_default.logo, "aria-label": t4("omnibar_logoAlt") }), enableAi && /* @__PURE__ */ _(TabSwitcher, { mode, setMode }), /* @__PURE__ */ _(Container, { overflow: mode === "search" }, mode === "search" ? /* @__PURE__ */ _(SearchForm, { term: query, setTerm: setQuery }) : /* @__PURE__ */ _(AiChatForm, { chat: query, setChat: setQuery })));
+    const [resetKey, setResetKey] = d2(0);
+    const [autoFocus, setAutoFocus] = d2(false);
+    const { openSuggestion, submitSearch, submitChat } = x2(OmnibarContext);
+    const resetForm = () => {
+      setQuery("");
+      setResetKey((prev) => prev + 1);
+    };
+    const handleOpenSuggestion = (params) => {
+      openSuggestion(params);
+      resetForm();
+    };
+    const handleSubmitSearch = (params) => {
+      submitSearch(params);
+      resetForm();
+    };
+    const handleSubmitChat = (params) => {
+      submitChat(params);
+      resetForm();
+    };
+    const handleChangeMode = (nextMode) => {
+      setAutoFocus(true);
+      setMode(nextMode);
+    };
+    return /* @__PURE__ */ _("div", { class: Omnibar_default.root, "data-mode": mode }, /* @__PURE__ */ _(LogoStacked, { class: Omnibar_default.logo, "aria-label": t4("omnibar_logoAlt") }), enableAi && /* @__PURE__ */ _(TabSwitcher, { mode, onChange: handleChangeMode }), /* @__PURE__ */ _(Container, { overflow: mode === "search" }, mode === "search" ? /* @__PURE__ */ _(
+      SearchForm,
+      {
+        key: `search-${resetKey}`,
+        term: query,
+        autoFocus,
+        onChangeTerm: setQuery,
+        onOpenSuggestion: handleOpenSuggestion,
+        onSubmitSearch: handleSubmitSearch
+      }
+    ) : /* @__PURE__ */ _(
+      AiChatForm,
+      {
+        key: `chat-${resetKey}`,
+        chat: query,
+        autoFocus,
+        onChange: setQuery,
+        onSubmit: handleSubmitChat
+      }
+    )));
   }
   var init_Omnibar2 = __esm({
     "pages/new-tab/app/omnibar/components/Omnibar.js"() {
@@ -8355,10 +8425,11 @@
       init_Icons2();
       init_types();
       init_AiChatForm2();
+      init_Container2();
       init_Omnibar();
+      init_OmnibarProvider();
       init_SearchForm2();
       init_TabSwitcher2();
-      init_Container2();
     }
   });
 
@@ -8658,7 +8729,7 @@
 
   // shared/utils.js
   var translationsLocales, getLocalizedNumberFormatter;
-  var init_utils3 = __esm({
+  var init_utils4 = __esm({
     "shared/utils.js"() {
       "use strict";
       translationsLocales = {
@@ -8723,7 +8794,7 @@
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
-      init_utils3();
+      init_utils4();
       init_EnvironmentProvider();
     }
   });
@@ -26842,7 +26913,7 @@
       init_CompanyIcon2();
       init_BodyExpansionProvider();
       init_Protections2();
-      init_utils3();
+      init_utils4();
       init_EnvironmentProvider();
     }
   });
@@ -30889,7 +30960,6 @@
     }
     /**
      * Send a 'fire-and-forget' message.
-     * @throws {MissingHandler}
      *
      * @example
      *
@@ -30907,11 +30977,18 @@
         method: name2,
         params: data2
       });
-      this.transport.notify(message);
+      try {
+        this.transport.notify(message);
+      } catch (e4) {
+        if (this.messagingContext.env === "development") {
+          console.error("[Messaging] Failed to send notification:", e4);
+          console.error("[Messaging] Message details:", { name: name2, data: data2 });
+        }
+      }
     }
     /**
-     * Send a request, and wait for a response
-     * @throws {MissingHandler}
+     * Send a request and wait for a response
+     * @throws {Error}
      *
      * @example
      * ```

@@ -4403,7 +4403,6 @@
     }
     /**
      * Send a 'fire-and-forget' message.
-     * @throws {MissingHandler}
      *
      * @example
      *
@@ -4421,11 +4420,18 @@
         method: name,
         params: data2
       });
-      this.transport.notify(message);
+      try {
+        this.transport.notify(message);
+      } catch (e) {
+        if (this.messagingContext.env === "development") {
+          console.error("[Messaging] Failed to send notification:", e);
+          console.error("[Messaging] Message details:", { name, data: data2 });
+        }
+      }
     }
     /**
-     * Send a request, and wait for a response
-     * @throws {MissingHandler}
+     * Send a request and wait for a response
+     * @throws {Error}
      *
      * @example
      * ```

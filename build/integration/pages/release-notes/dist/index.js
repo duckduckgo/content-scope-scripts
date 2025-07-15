@@ -2091,7 +2091,6 @@
     }
     /**
      * Send a 'fire-and-forget' message.
-     * @throws {MissingHandler}
      *
      * @example
      *
@@ -2109,11 +2108,18 @@
         method: name,
         params: data
       });
-      this.transport.notify(message);
+      try {
+        this.transport.notify(message);
+      } catch (e3) {
+        if (this.messagingContext.env === "development") {
+          console.error("[Messaging] Failed to send notification:", e3);
+          console.error("[Messaging] Message details:", { name, data });
+        }
+      }
     }
     /**
-     * Send a request, and wait for a response
-     * @throws {MissingHandler}
+     * Send a request and wait for a response
+     * @throws {Error}
      *
      * @example
      * ```
