@@ -30,6 +30,7 @@ export function SuggestionsList({ id, suggestions, selectedSuggestion, onSelectS
                         role="option"
                         id={suggestion.id}
                         class={styles.item}
+                        tabIndex={suggestion === selectedSuggestion ? 0 : -1}
                         aria-selected={suggestion === selectedSuggestion}
                         onMouseOver={() => onSelectSuggestion(suggestion)}
                         onMouseLeave={() => onClearSuggestion()}
