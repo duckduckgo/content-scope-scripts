@@ -29,7 +29,7 @@ const otherFeatures = /** @type {const} */ ([
     'breakageReporting',
     'autofillPasswordImport',
     'favicon',
-    'telemetry',
+    'webTelemetry',
     'scriptlets',
 ]);
 
@@ -52,7 +52,7 @@ export const platformSupport = {
     windows: [
         'cookie',
         ...baseFeatures,
-        'telemetry',
+        'webTelemetry',
         'windowsPermissionUsage',
         'duckPlayer',
         'brokerProtection',

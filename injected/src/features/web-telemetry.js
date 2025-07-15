@@ -2,7 +2,7 @@ import ContentFeature from '../content-feature.js';
 
 const MSG_VIDEO_PLAYBACK = 'video-playback';
 
-export class Telemetry extends ContentFeature {
+export class WebTelemetry extends ContentFeature {
     constructor(featureName, importConfig, args) {
         super(featureName, importConfig, args);
         this.seenVideoElements = new WeakSet();
@@ -91,4 +91,4 @@ export class Telemetry extends ContentFeature {
     }
 }
 
-export default Telemetry;
+export default WebTelemetry;
