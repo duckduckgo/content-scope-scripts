@@ -3,11 +3,11 @@ import { useContext, useState } from 'preact/hooks';
 import { LogoStacked } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
+import { Container } from './Container';
 import styles from './Omnibar.module.css';
+import { OmnibarContext } from './OmnibarProvider';
 import { SearchForm } from './SearchForm';
 import { TabSwitcher } from './TabSwitcher';
-import { Container } from './Container';
-import { OmnibarContext } from './OmnibarProvider';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -26,6 +26,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [query, setQuery] = useState(/** @type {String} */ (''));
     const [resetKey, setResetKey] = useState(0);
+    const [autoFocus, setAutoFocus] = useState(false);
 
     const { openSuggestion, submitSearch, submitChat } = useContext(OmnibarContext);
 
@@ -52,21 +53,34 @@ export function Omnibar({ mode, setMode, enableAi }) {
         resetForm();
     };
 
+    /** @type {(mode: OmnibarConfig['mode']) => void} */
+    const handleChangeMode = (nextMode) => {
+        setAutoFocus(true);
+        setMode(nextMode);
+    };
+
     return (
         <div class={styles.root} data-mode={mode}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
-            {enableAi && <TabSwitcher mode={mode} onChange={setMode} />}
+            {enableAi && <TabSwitcher mode={mode} onChange={handleChangeMode} />}
             <Container overflow={mode === 'search'}>
                 {mode === 'search' ? (
                     <SearchForm
                         key={`search-${resetKey}`}
                         term={query}
+                        autoFocus={autoFocus}
                         onChangeTerm={setQuery}
                         onOpenSuggestion={handleOpenSuggestion}
                         onSubmitSearch={handleSubmitSearch}
                     />
                 ) : (
-                    <AiChatForm key={`chat-${resetKey}`} chat={query} onChange={setQuery} onSubmit={handleSubmitChat} />
+                    <AiChatForm
+                        key={`chat-${resetKey}`}
+                        chat={query}
+                        autoFocus={autoFocus}
+                        onChange={setQuery}
+                        onSubmit={handleSubmitChat}
+                    />
                 )}
             </Container>
         </div>

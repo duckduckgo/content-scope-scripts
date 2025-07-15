@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useRef } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { ArrowRightIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
@@ -14,15 +14,22 @@ import styles from './AiChatForm.module.css';
 /**
  * @param {object} props
  * @param {string} props.chat
+ * @param {boolean} [props.autoFocus]
  * @param {(chat: string) => void} props.onChange
  * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
  */
-export function AiChatForm({ chat, onChange, onSubmit }) {
+export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
     const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
+
+    useEffect(() => {
+        if (autoFocus && textAreaRef.current) {
+            textAreaRef.current.focus();
+        }
+    }, [autoFocus]);
 
     const disabled = chat.length === 0;
 

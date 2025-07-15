@@ -249,6 +249,28 @@ test.describe('omnibar widget', () => {
         await omnibar.expectSelectedSuggestion('pizza dough recipe');
     });
 
+    test('focus is moved to the active input on tab switch', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Initial state: Search tab is selected and the input should NOT be focused
+        await omnibar.expectMode('search');
+        await expect(omnibar.searchInput()).not.toBeFocused();
+
+        // Switch to Duck.ai tab and expect focus to move
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+        await expect(omnibar.chatInput()).toBeFocused();
+
+        // Then switch back to Search tab and expect focus to move
+        await omnibar.searchTab().click();
+        await omnibar.expectMode('search');
+        await expect(omnibar.searchInput()).toBeFocused();
+    });
+
     test('suggestions list arrow up navigation', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
