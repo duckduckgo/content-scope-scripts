@@ -268,7 +268,7 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
  * @param {Suggestion} suggestion
  * @returns {string}
  */
-function getSuggestionTitle(suggestion) {
+export function getSuggestionTitle(suggestion) {
     switch (suggestion.kind) {
         case 'bookmark':
         case 'historyEntry':
