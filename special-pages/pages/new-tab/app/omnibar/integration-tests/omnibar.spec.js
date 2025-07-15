@@ -46,7 +46,7 @@ test.describe('omnibar widget', () => {
         });
     });
 
-    test('search form submission with cmd+enter (mac) or ctrl+enter (non-mac) submits to new-tab', async ({ page }, workerInfo) => {
+    test('search form submission with cmd+enter submits to new-tab', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
 
@@ -55,13 +55,7 @@ test.describe('omnibar widget', () => {
         await omnibar.ready();
 
         await omnibar.searchInput().fill('pizza');
-
-        const isMac = process.platform === 'darwin';
-        if (isMac) {
-            await omnibar.searchInput().press('Meta+Enter');
-        } else {
-            await omnibar.searchInput().press('Control+Enter');
-        }
+        await omnibar.searchInput().press('Meta+Enter');
 
         await omnibar.expectMethodCalledWith('omnibar_submitSearch', {
             term: 'pizza',
@@ -109,7 +103,7 @@ test.describe('omnibar widget', () => {
         });
     });
 
-    test('AI chat submit button with cmd+click (mac) or ctrl+click (non-mac) submits to new-tab', async ({ page }, workerInfo) => {
+    test('AI chat submit button with cmd+click submits to new-tab', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
@@ -121,13 +115,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMode('ai');
 
         await omnibar.chatInput().fill('pizza');
-
-        const isMac = process.platform === 'darwin';
-        if (isMac) {
-            await omnibar.chatSubmitButton().click({ modifiers: ['Meta'] });
-        } else {
-            await omnibar.chatSubmitButton().click({ modifiers: ['Control'] });
-        }
+        await omnibar.chatSubmitButton().click({ modifiers: ['Meta'] });
 
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
@@ -166,7 +154,7 @@ test.describe('omnibar widget', () => {
         });
     });
 
-    test('AI chat sumission with cmd+enter (mac) or ctrl+enter (non-mac) submits to new-tab', async ({ page }, workerInfo) => {
+    test('AI chat sumission with cmd+enter submits to new-tab', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
@@ -178,13 +166,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMode('ai');
 
         await omnibar.chatInput().fill('pizza');
-
-        const isMac = process.platform === 'darwin';
-        if (isMac) {
-            await omnibar.chatInput().press('Meta+Enter');
-        } else {
-            await omnibar.chatInput().press('Control+Enter');
-        }
+        await omnibar.chatInput().press('Meta+Enter');
 
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
