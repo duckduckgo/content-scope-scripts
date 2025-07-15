@@ -122,7 +122,7 @@ function reducer(state, action) {
  * @param {(term: string) => void} props.onChangeTerm
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  */
-export function useSuggestions({ term, onChangeTerm: setTerm, onOpenSuggestion }) {
+export function useSuggestions({ term, onChangeTerm, onOpenSuggestion }) {
     const { onSuggestions, getSuggestions, submitSearch } = useContext(OmnibarContext);
     const platformName = usePlatformName();
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -176,7 +176,7 @@ export function useSuggestions({ term, onChangeTerm: setTerm, onOpenSuggestion }
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
     const handleChange = (event) => {
         const term = event.currentTarget.value;
-        setTerm(term);
+        onChangeTerm(term);
 
         dispatch({ type: 'clearSelectedSuggestion' });
 
@@ -196,7 +196,7 @@ export function useSuggestions({ term, onChangeTerm: setTerm, onOpenSuggestion }
                 }
                 event.preventDefault();
                 if (state.originalTerm && term !== state.originalTerm) {
-                    setTerm(state.originalTerm);
+                    onChangeTerm(state.originalTerm);
                 }
                 dispatch({ type: 'previousSuggestion' });
                 break;
@@ -206,14 +206,14 @@ export function useSuggestions({ term, onChangeTerm: setTerm, onOpenSuggestion }
                 }
                 event.preventDefault();
                 if (state.originalTerm && term !== state.originalTerm) {
-                    setTerm(state.originalTerm);
+                    onChangeTerm(state.originalTerm);
                 }
                 dispatch({ type: 'nextSuggestion' });
                 break;
             case 'ArrowLeft':
             case 'ArrowRight':
                 if (selectedSuggestion) {
-                    setTerm(termBase + termSuggestion);
+                    onChangeTerm(termBase + termSuggestion);
                     dispatch({ type: 'clearSelectedSuggestion' });
                 }
                 break;
@@ -234,7 +234,7 @@ export function useSuggestions({ term, onChangeTerm: setTerm, onOpenSuggestion }
 
     const handleClick = () => {
         if (selectedSuggestion) {
-            setTerm(termBase + termSuggestion);
+            onChangeTerm(termBase + termSuggestion);
             dispatch({ type: 'clearSelectedSuggestion' });
         }
     };
