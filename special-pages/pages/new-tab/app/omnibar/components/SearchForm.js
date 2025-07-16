@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useEffect, useId } from 'preact/hooks';
 import { SearchIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types';
@@ -42,6 +42,8 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
         onOpenSuggestion,
         onSubmitSearch,
     });
+    let hint = '';
+    hint = ' – Search DuckDuckGo';
 
     const inputRef = useSuggestionInput(termBase, termSuggestion);
 
@@ -61,8 +63,8 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
     };
 
     return (
-        <form class={styles.form} onClick={() => inputRef.current?.focus()} onBlur={handleBlur} onSubmit={handleSubmit}>
-            <div class={styles.inputContainer}>
+        <form class={styles.form} onBlur={handleBlur} onSubmit={handleSubmit}>
+            <div class={styles.inputContainer} style={{ '--hint-text-width': `${measureText(hint)}px` }}>
                 <SearchIcon inert />
                 <input
                     ref={inputRef}
@@ -83,6 +85,16 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
                     onKeyDown={handleKeyDown}
                     onClick={handleClick}
                 />
+                {hint && (
+                    <>
+                        <span class={styles.hintSpacer} inert>
+                            {termBase + termSuggestion || t('searchForm_placeholder')}
+                        </span>
+                        <span class={styles.hint} inert>
+                            {hint}
+                        </span>
+                    </>
+                )}
             </div>
             {suggestions.length > 0 && (
                 <SuggestionsList
@@ -96,4 +108,16 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
             )}
         </form>
     );
+}
+
+/**
+ * @param {string} text
+ * @returns {number}
+ */
+function measureText(text) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) return 0;
+    context.font = '13px / 16px system-ui';
+    return context.measureText(text).width;
 }
