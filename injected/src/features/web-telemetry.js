@@ -33,6 +33,9 @@ export class WebTelemetry extends ContentFeature {
 
     fireTelemetryForVideo(video) {
         const videoUrl = this.getVideoUrl(video);
+        if (this.seenVideoUrls.has(videoUrl)) {
+            return;
+        }
         // If we have a URL, store it just to deduplicate
         // This will clear on page change and isn't sent to native/server.
         if (videoUrl) {
