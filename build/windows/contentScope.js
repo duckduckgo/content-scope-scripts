@@ -2822,6 +2822,7 @@
       "breakageReporting",
       "autofillPasswordImport",
       "favicon",
+      "webTelemetry",
       "scriptlets"
     ]
   );
@@ -2842,6 +2843,7 @@
     windows: [
       "cookie",
       ...baseFeatures,
+      "webTelemetry",
       "windowsPermissionUsage",
       "duckPlayer",
       "brokerProtection",
@@ -8007,6 +8009,108 @@
       return [obj, lastPart];
     }
   };
+
+  // src/features/web-telemetry.js
+  init_define_import_meta_trackerLookup();
+  var MSG_VIDEO_PLAYBACK = "video-playback";
+  var WebTelemetry = class extends ContentFeature {
+    constructor(featureName, importConfig, args) {
+      super(featureName, importConfig, args);
+      this.seenVideoElements = /* @__PURE__ */ new WeakSet();
+      this.seenVideoUrls = /* @__PURE__ */ new Set();
+    }
+    init() {
+      if (this.getFeatureSettingEnabled("videoPlayback")) {
+        this.videoPlaybackObserve();
+      }
+    }
+    getVideoUrl(video) {
+      if (video.src) {
+        return video.src;
+      }
+      if (video.currentSrc) {
+        return video.currentSrc;
+      }
+      const source = video.querySelector("source");
+      if (source && source.src) {
+        return source.src;
+      }
+      return null;
+    }
+    fireTelemetryForVideo(video) {
+      const videoUrl = this.getVideoUrl(video);
+      if (this.seenVideoUrls.has(videoUrl)) {
+        return;
+      }
+      if (videoUrl) {
+        this.seenVideoUrls.add(videoUrl);
+      }
+      const message = {
+        userInteraction: navigator.userActivation.isActive
+      };
+      this.messaging.notify(MSG_VIDEO_PLAYBACK, message);
+    }
+    addPlayObserver(video) {
+      if (this.seenVideoElements.has(video)) {
+        return;
+      }
+      this.seenVideoElements.add(video);
+      video.addEventListener("play", () => this.fireTelemetryForVideo(video));
+    }
+    addListenersToAllVideos(node) {
+      if (!node) {
+        return;
+      }
+      const videos = node.querySelectorAll("video");
+      videos.forEach((video) => {
+        this.addPlayObserver(video);
+      });
+    }
+    videoPlaybackObserve() {
+      if (document.body) {
+        this.setup();
+      } else {
+        window.addEventListener(
+          "DOMContentLoaded",
+          () => {
+            this.setup();
+          },
+          { once: true }
+        );
+      }
+    }
+    setup() {
+      const documentBody = document.body;
+      if (!documentBody) return;
+      this.addListenersToAllVideos(documentBody);
+      documentBody.querySelectorAll("video").forEach((video) => {
+        if (!video.paused && !video.ended) {
+          this.fireTelemetryForVideo(video);
+        }
+      });
+      const observerCallback = (mutationsList) => {
+        for (const mutation of mutationsList) {
+          if (mutation.type === "childList") {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                if (node.tagName === "VIDEO") {
+                  this.addPlayObserver(node);
+                } else {
+                  this.addListenersToAllVideos(node);
+                }
+              }
+            });
+          }
+        }
+      };
+      const observer = new MutationObserver(observerCallback);
+      observer.observe(documentBody, {
+        childList: true,
+        subtree: true
+      });
+    }
+  };
+  var web_telemetry_default = WebTelemetry;
 
   // src/features/windows-permission-usage.js
   init_define_import_meta_trackerLookup();
@@ -15009,6 +15113,7 @@
     ddg_feature_elementHiding: ElementHiding,
     ddg_feature_exceptionHandler: ExceptionHandler,
     ddg_feature_apiManipulation: ApiManipulation,
+    ddg_feature_webTelemetry: web_telemetry_default,
     ddg_feature_windowsPermissionUsage: WindowsPermissionUsage,
     ddg_feature_duckPlayer: DuckPlayerFeature,
     ddg_feature_brokerProtection: BrokerProtection,

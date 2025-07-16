@@ -1,6 +1,2 @@
-- NTP: Display URL in if Omnibar suggestion title is empty (#1825)
-- Move focus to input when switching Omnibar tabs (#1823)
-- NTP: Reset omnibar after form submission (#1819)
-- NTP: Set target to 'new-tab' and 'new-window' properly when submitting Omnibar (#1824)
-- Fix TabSwitcher icon shifting by 1px when animating in WebKit (#1822)
-- messaging: move docs to Markdown and never throw on calls to .notify (#1817)
+- Add video playback observer (#1721)
+- NTP: Omnibar i18n (#1827)

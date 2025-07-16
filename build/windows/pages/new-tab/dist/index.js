@@ -7745,8 +7745,8 @@
         ref: textAreaRef,
         class: AiChatForm_default.textarea,
         value: chat,
-        placeholder: t4("aiChatForm_placeholder"),
-        "aria-label": t4("aiChatForm_placeholder"),
+        placeholder: t4("omnibar_aiChatFormPlaceholder"),
+        "aria-label": t4("omnibar_aiChatFormPlaceholder"),
         autoComplete: "off",
         rows: 1,
         onKeyDown: handleKeyDown,
@@ -7757,7 +7757,7 @@
       {
         type: "submit",
         class: AiChatForm_default.submitButton,
-        "aria-label": t4("aiChatForm_submitButtonLabel"),
+        "aria-label": t4("omnibar_aiChatFormSubmitButtonLabel"),
         disabled: chat.length === 0,
         onClick: handleClickSubmit,
         onAuxClick: handleClickSubmit
@@ -8210,8 +8210,8 @@
         type: "text",
         role: "combobox",
         class: SearchForm_default.input,
-        placeholder: t4("searchForm_placeholder"),
-        "aria-label": t4("searchForm_placeholder"),
+        placeholder: t4("omnibar_searchFormPlaceholder"),
+        "aria-label": t4("omnibar_searchFormPlaceholder"),
         "aria-expanded": suggestions.length > 0,
         "aria-haspopup": "listbox",
         "aria-controls": suggestionsListId,
@@ -28950,11 +28950,11 @@
       title: "Search",
       description: "Title of the omnibar widget in the customizer panel."
     },
-    aiChatForm_placeholder: {
+    omnibar_aiChatFormPlaceholder: {
       title: "Chat privately with Duck.ai",
       description: "Placeholder text for the AI chat input field."
     },
-    aiChatForm_submitButtonLabel: {
+    omnibar_aiChatFormSubmitButtonLabel: {
       title: "Send",
       description: "Accesible label for the AI chat submit button."
     },
@@ -28974,17 +28974,9 @@
       title: "Duck.ai",
       description: "Label for the AI chat tab."
     },
-    searchForm_placeholder: {
+    omnibar_searchFormPlaceholder: {
       title: "Search or enter address",
       description: "Placeholder text for the search input field."
-    },
-    searchForm_searchButtonLabel: {
-      title: "Web search",
-      description: "Accessible label for the web search submit button."
-    },
-    searchForm_aiButtonLabel: {
-      title: "Duck.ai",
-      description: "Accessible label for the AI chat button in search form."
     },
     nextSteps_sectionTitle: {
       title: "Next Steps",
