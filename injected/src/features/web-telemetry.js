@@ -6,6 +6,7 @@ export class WebTelemetry extends ContentFeature {
     constructor(featureName, importConfig, args) {
         super(featureName, importConfig, args);
         this.seenVideoElements = new WeakSet();
+        this.seenVideoUrls = new Set();
     }
 
     init() {
@@ -14,9 +15,29 @@ export class WebTelemetry extends ContentFeature {
         }
     }
 
+    getVideoUrl(video) {
+        // Try to get the video URL from various sources
+        if (video.src) {
+            return video.src;
+        }
+        if (video.currentSrc) {
+            return video.currentSrc;
+        }
+        // Check for source elements
+        const source = video.querySelector('source');
+        if (source && source.src) {
+            return source.src;
+        }
+        return null;
+    }
+
     fireTelemetryForVideo(video) {
-        // This is for backfilled videos that were playing before the observer was set up
-        this.seenVideoElements.add(video);
+        const videoUrl = this.getVideoUrl(video);
+        // If we have a URL, store it just to deduplicate
+        // This will clear on page change and isn't sent to native/server.
+        if (videoUrl) {
+            this.seenVideoUrls.add(videoUrl);
+        }
         const message = {
             userInteraction: navigator.userActivation.isActive,
         };
@@ -28,7 +49,7 @@ export class WebTelemetry extends ContentFeature {
             return; // already observed
         }
         this.seenVideoElements.add(video);
-        video.addEventListener('play', () => this.fireTelemetryForVideo(video), { once: true });
+        video.addEventListener('play', () => this.fireTelemetryForVideo(video));
     }
 
     addListenersToAllVideos(node) {
