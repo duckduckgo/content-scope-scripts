@@ -90,8 +90,8 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
                 ref={textAreaRef}
                 class={styles.textarea}
                 value={chat}
-                placeholder={t('aiChatForm_placeholder')}
-                aria-label={t('aiChatForm_placeholder')}
+                placeholder={t('omnibar_aiChatFormPlaceholder')}
+                aria-label={t('omnibar_aiChatFormPlaceholder')}
                 autoComplete="off"
                 rows={1}
                 onKeyDown={handleKeyDown}
@@ -101,7 +101,7 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
                 <button
                     type="submit"
                     class={styles.submitButton}
-                    aria-label={t('aiChatForm_submitButtonLabel')}
+                    aria-label={t('omnibar_aiChatFormSubmitButtonLabel')}
                     disabled={chat.length === 0}
                     onClick={handleClickSubmit}
                     onAuxClick={handleClickSubmit}
