@@ -27,3 +27,20 @@
         color: var(--color-white);
     }
 }
+
+.badge {
+    align-items: center;
+    background: var(--ntp-controls-raised-backdrop);
+    border-radius: var(--border-radius-sm);
+    display: flex;
+    gap: 6px;
+    height: 22px;
+    margin-left: auto;
+    padding: 0px var(--sp-3);
+
+    svg {
+        height: 9px;
+        margin: 0;
+        width: 9px;
+    }
+}

@@ -766,7 +766,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions are visible
-        await omnibar.expectSuggestionsCount(17);
+        await omnibar.expectSuggestionsCount(18);
 
         // Click outside the search field (on the page body)
         await page.click('body', { position: { x: 100, y: 100 } });
@@ -791,7 +791,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions are visible
-        await omnibar.expectSuggestionsCount(17);
+        await omnibar.expectSuggestionsCount(18);
 
         // Focus outside the search form (press Shift+Tab to move focus to pill switcher)
         await omnibar.searchInput().press('Shift+Tab');

@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
+import { ArrowRightIcon, BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import styles from './SuggestionsList.module.css';
 
@@ -41,6 +41,11 @@ export function SuggestionsList({ id, suggestions, selectedSuggestion, onSelectS
                     >
                         <SuggestionIcon suggestion={suggestion} />
                         {suggestion.title}
+                        {suggestion.kind === 'openTab' && (
+                            <span class={styles.badge}>
+                                Switch to Tab <ArrowRightIcon />
+                            </span>
+                        )}
                     </button>
                 );
             })}
