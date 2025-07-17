@@ -238,7 +238,7 @@ test.describe('omnibar widget', () => {
 
         // Press arrow down again - select second item
         await omnibar.searchInput().press('ArrowDown');
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
 
         // Press arrow down again - clear selection
         await omnibar.searchInput().press('ArrowDown');
@@ -288,7 +288,7 @@ test.describe('omnibar widget', () => {
 
         // Press arrow up - select last item (reverse direction)
         await omnibar.searchInput().press('ArrowUp');
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
 
         // Press arrow up again - select first item
         await omnibar.searchInput().press('ArrowUp');
@@ -300,7 +300,7 @@ test.describe('omnibar widget', () => {
 
         // Press arrow up again - rotate back to last item
         await omnibar.searchInput().press('ArrowUp');
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
     });
 
     test('arrow down and enter should open selected suggestion', async ({ page }, workerInfo) => {
@@ -382,7 +382,7 @@ test.describe('omnibar widget', () => {
 
         // Hover over second suggestion
         await omnibar.suggestions().nth(1).hover();
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
 
         // Mouse out to clear selection (hover outside suggestions)
         await omnibar.searchInput().hover();
@@ -445,7 +445,7 @@ test.describe('omnibar widget', () => {
         await omnibar.searchInput().press('ArrowDown'); // pizza delivery
         await omnibar.searchInput().press('ArrowDown'); // pizza hut
         await omnibar.searchInput().press('ArrowDown'); // pizzahut.com
-        await omnibar.expectSelectedSuggestion('pizzahut.com');
+        await omnibar.expectSelectedSuggestion('pizzahut.com – pizzahut.com');
 
         // Input should show "pizza[hut.com]" with "hut.com" selected
         await omnibar.expectInputValue('pizzahut.com');
@@ -470,7 +470,7 @@ test.describe('omnibar widget', () => {
         for (let i = 0; i < 15; i++) {
             await omnibar.searchInput().press('ArrowDown');
         }
-        await omnibar.expectSelectedSuggestion('Italian Pizza History');
+        await omnibar.expectSelectedSuggestion('Italian Pizza History – example.com/search?q=Italian%20Pizza%20History');
 
         // Input should show "[Italian Pizza History]" with entire text selected
         await omnibar.expectInputValue('Italian Pizza History');

@@ -3,7 +3,7 @@ import { eventToTarget } from '../../../../../shared/handlers';
 import { ArrowRightIcon, BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import styles from './SuggestionsList.module.css';
-import { getSuggestionSuffix, getSuggestionTitle, sliceAfterIgnoreCase, startsWithIgnoreCase } from '../utils';
+import { getSuggestionSuffix, getSuggestionTitle, startsWithIgnoreCase } from '../utils';
 import { SuffixText } from './SuffixText';
 
 /**
@@ -48,8 +48,8 @@ export function SuggestionsList({ id, term, suggestions, selectedSuggestion, onS
                         <span class={styles.title}>
                             {startsWithIgnoreCase(title, term) ? (
                                 <>
-                                    <b>{term}</b>
-                                    {sliceAfterIgnoreCase(title, term)}
+                                    <b>{title.slice(0, term.length)}</b>
+                                    {title.slice(term.length)}
                                 </>
                             ) : (
                                 title

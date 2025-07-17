@@ -165,7 +165,6 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
                 ...suggestion,
                 id: `suggestion-${index}`,
             }));
-            console.log('suggestions:', suggestions);
             dispatch({
                 type: 'setSuggestions',
                 term,
