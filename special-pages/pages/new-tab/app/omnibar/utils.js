@@ -12,6 +12,13 @@
  * )} Suffix
  */
 
+// The logic for determining the input suffix, suggestion suffix, suggestion
+// title, and suggestion completion string is largely based on the macOS app's
+// implementation:
+// https://github.com/duckduckgo/apple-browsers/blob/2d7b002a666f87023c3cae8011c7ff7093f367eb/macOS/DuckDuckGo/NavigationBar/View/AddressBarTextField.swift#L756
+// https://github.com/duckduckgo/apple-browsers/blob/2d7b002a666f87023c3cae8011c7ff7093f367eb/macOS/DuckDuckGo/NavigationBar/View/AddressBarTextField.swift#L856
+// https://github.com/duckduckgo/apple-browsers/blob/2d7b002a666f87023c3cae8011c7ff7093f367eb/macOS/DuckDuckGo/Suggestions/ViewModel/SuggestionViewModel.swift
+
 /**
  * @param {string} term
  * @param {Suggestion|null} selectedSuggestion
