@@ -46,6 +46,7 @@ export function getInputSuffix(term, selectedSuggestion) {
 
     if (isURLish(term)) {
         const url = parseURL(term);
+        if (!url) throw new Error('isURLish returned true but parseURL failed');
         return ` – Visit ${formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false })}`;
     } else {
         return ' – Search DuckDuckGo';

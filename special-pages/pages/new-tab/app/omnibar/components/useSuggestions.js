@@ -1,7 +1,7 @@
 import { useContext, useEffect, useReducer } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
-import { getInputSuffix, getSuggestionCompletionString, getSuggestionTitle, sliceAfter, startsWith } from '../utils.js';
+import { getInputSuffix, getSuggestionCompletionString, sliceAfter, startsWith } from '../utils.js';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
