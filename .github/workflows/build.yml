@@ -69,7 +69,7 @@ jobs:
 
             - name: Check in files
               run: |
-                  git add -f . ':!CHANGELOG.txt' ':!node_modules' ':!apple-release-build'
+                  git add -f . ':!CHANGELOG.txt' ':!node_modules' ':!apple-release-build' ':!build'
                   # Ensure the Apple release zip is included
                   git add -f ContentScopeScripts-apple.zip
 
