@@ -12,6 +12,7 @@ export default tseslint.config(
             '**/docs/',
             'injected/lib',
             'injected/playwright-report/',
+            'apple/',
             'injected/integration-test/extension/contentScope.js',
             'injected/integration-test/test-pages/duckplayer/scripts/dist',
             'special-pages/pages/**/public',
