@@ -54,13 +54,13 @@ export function getErrorType(windowObject, signInRequiredSelector, logger) {
 
     if (!currentWindow.ytcfg) {
         logger?.warn('ytcfg missing!');
-        setTimeout(() => {
+        setInterval(() => {
             if (currentWindow.ytcfg) {
                 logger?.log('Got ytcfg', currentWindow.ytcfg);
             } else {
                 logger?.warn('ytcfg still missing!');
             }
-        }, 3000);
+        }, 300);
     } else {
         logger?.log('Got ytcfg', currentWindow.ytcfg);
     }
