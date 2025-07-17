@@ -269,7 +269,8 @@ function isAppleSilicon() {
 
     // Best guess if the device is an Apple Silicon
     // https://stackoverflow.com/a/65412357
-    isAppleSiliconCache = gl?.getSupportedExtensions()?.indexOf('WEBGL_compressed_texture_etc') !== -1;
+    const compressedTextureValue = gl?.getSupportedExtensions()?.indexOf('WEBGL_compressed_texture_etc');
+    isAppleSiliconCache = typeof compressedTextureValue === 'number' && compressedTextureValue !== -1;
     return isAppleSiliconCache;
 }
 
