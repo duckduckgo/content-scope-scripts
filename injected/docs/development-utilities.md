@@ -161,4 +161,4 @@ historyMethodProxy.overload();
 
 ### `DDGReflect`
 
-Calls into `wrappedJSObject.Reflect` for Firefox but otherwise exactly the same as [window.Reflect](../../Sources/ContentScopeScripts/ContentScopeScripts.swift)
+Calls into `wrappedJSObject.Reflect` for Firefox but otherwise exactly the same as `window.Reflect`
