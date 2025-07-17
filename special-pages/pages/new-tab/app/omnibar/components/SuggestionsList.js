@@ -1,9 +1,9 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { ArrowRightIcon, BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import styles from './SuggestionsList.module.css';
-import { getSuggestionTitle } from '../utils';
+import { getSuggestionTitle, sliceAfter, startsWith } from '../utils';
 
 /**
  * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel
@@ -26,6 +26,7 @@ export function SuggestionsList({ id, term, suggestions, selectedSuggestion, onS
     return (
         <div role="listbox" id={id} class={styles.list}>
             {suggestions.map((suggestion) => {
+                const title = getSuggestionTitle(suggestion, term);
                 return (
                     <button
                         key={suggestion.id}
@@ -42,7 +43,17 @@ export function SuggestionsList({ id, term, suggestions, selectedSuggestion, onS
                         }}
                     >
                         <SuggestionIcon suggestion={suggestion} />
-                        {getSuggestionTitle(suggestion, term)}
+                        <span class={styles.title}>
+                            {startsWith(title, term) ? (
+                                <>
+                                    <b>{term}</b>
+                                    {sliceAfter(title, term)}
+                                </>
+                            ) : (
+                                title
+                            )}
+                        </span>
+                        <span class={styles.suffix}>{' – Suffix'}</span>
                         {suggestion.kind === 'openTab' && (
                             <span class={styles.badge}>
                                 Switch to Tab <ArrowRightIcon />

@@ -25,7 +25,20 @@
         background: var(--ddg-color-primary);
         border-radius: 4px;
         color: var(--color-white);
+
+        .suffix {
+            color: var(--color-white);
+        }
     }
+}
+
+.title {
+    white-space: pre;
+}
+
+.suffix {
+    color: var(--ntp-text-muted);
+    font-size: 12px;
 }
 
 .badge {
