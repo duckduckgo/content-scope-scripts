@@ -27,9 +27,46 @@ test.describe('omnibar widget', () => {
             term: 'pizza',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
     });
 
-    test('AI chat form submission', async ({ page }, workerInfo) => {
+    test('search form submission with shift+enter submits to new-window', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.searchInput().press('Shift+Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitSearch', {
+            term: 'pizza',
+            target: 'new-window',
+        });
+    });
+
+    test('search form submission with cmd+enter submits to new-tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.searchInput().fill('pizza');
+        await omnibar.searchInput().press('Meta+Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitSearch', {
+            term: 'pizza',
+            target: 'new-tab',
+        });
+    });
+
+    test('AI chat submit button', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
@@ -41,15 +78,18 @@ test.describe('omnibar widget', () => {
         await omnibar.expectMode('ai');
 
         await omnibar.chatInput().fill('pizza');
-        await omnibar.chatInput().press('Enter');
+        await omnibar.chatSubmitButton().click();
 
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after submission
+        await expect(omnibar.chatInput()).toHaveValue('');
     });
 
-    test('AI chat button in search form submits chat message', async ({ page }, workerInfo) => {
+    test('AI chat submit button with shift+click submits to new-window', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
         await ntp.reducedMotion();
@@ -57,12 +97,89 @@ test.describe('omnibar widget', () => {
         await ntp.openPage({ additional: { omnibar: true } });
         await omnibar.ready();
 
-        await omnibar.searchInput().fill('pizza');
-        await omnibar.aiChatButton().click();
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        await omnibar.chatInput().fill('pizza');
+        await omnibar.chatSubmitButton().click({ modifiers: ['Shift'] });
 
         await omnibar.expectMethodCalledWith('omnibar_submitChat', {
             chat: 'pizza',
+            target: 'new-window',
+        });
+    });
+
+    test('AI chat submit button with cmd+click submits to new-tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        await omnibar.chatInput().fill('pizza');
+        await omnibar.chatSubmitButton().click({ modifiers: ['Meta'] });
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza',
+            target: 'new-tab',
+        });
+    });
+
+    test('AI chat keyboard behavior', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        // Test shift+enter creates new line
+        await omnibar.chatInput().fill('first line');
+        await omnibar.chatInput().press('Shift+Enter');
+        await omnibar.chatInput().pressSequentially('second line');
+
+        // Check that the textarea contains both lines with a newline
+        await expect(omnibar.chatInput()).toHaveValue('first line\nsecond line');
+
+        // Verify that the form was not submitted (no method call should have been made)
+        await omnibar.expectMethodNotCalled('omnibar_submitChat');
+
+        // Test enter key submits form
+        await omnibar.chatInput().press('Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'first line\nsecond line',
             target: 'same-tab',
+        });
+
+        // Form should be reset to blank state after submission
+        await expect(omnibar.chatInput()).toHaveValue('');
+    });
+
+    test('AI chat sumission with cmd+enter submits to new-tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        await omnibar.chatInput().fill('pizza');
+        await omnibar.chatInput().press('Meta+Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza',
+            target: 'new-tab',
         });
     });
 
@@ -132,6 +249,28 @@ test.describe('omnibar widget', () => {
         await omnibar.expectSelectedSuggestion('pizza dough recipe');
     });
 
+    test('focus is moved to the active input on tab switch', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Initial state: Search tab is selected and the input should NOT be focused
+        await omnibar.expectMode('search');
+        await expect(omnibar.searchInput()).not.toBeFocused();
+
+        // Switch to Duck.ai tab and expect focus to move
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+        await expect(omnibar.chatInput()).toBeFocused();
+
+        // Then switch back to Search tab and expect focus to move
+        await omnibar.searchTab().click();
+        await omnibar.expectMode('search');
+        await expect(omnibar.searchInput()).toBeFocused();
+    });
+
     test('suggestions list arrow up navigation', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
@@ -190,6 +329,9 @@ test.describe('omnibar widget', () => {
             }),
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after suggestion selection
+        await omnibar.expectInputValue('');
     });
 
     test('clicking on a suggestion should open it', async ({ page }, workerInfo) => {
@@ -214,6 +356,9 @@ test.describe('omnibar widget', () => {
             }),
             target: 'same-tab',
         });
+
+        // Form should be reset to blank state after suggestion selection
+        await omnibar.expectInputValue('');
     });
 
     test('mouse over should select suggestion, mouse out should clear selection', async ({ page }, workerInfo) => {
