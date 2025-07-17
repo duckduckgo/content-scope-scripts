@@ -1,7 +1,7 @@
 import { useContext, useEffect, useReducer } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
-import { getInputSuffix, getSuggestionCompletionString, sliceAfter, startsWith } from '../utils.js';
+import { getSuggestionCompletionString, sliceAfterIgnoreCase, startsWithIgnoreCase } from '../utils.js';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
@@ -140,13 +140,12 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
         dispatch({ type: 'clearSelectedSuggestion' });
     };
 
-    // @todo: move any/all of this out to SearchForm?
     let inputBase, inputCompletion;
     if (selectedSuggestion) {
         const completionString = getSuggestionCompletionString(selectedSuggestion, term);
-        if (startsWith(completionString, term)) {
+        if (startsWithIgnoreCase(completionString, term)) {
             inputBase = term;
-            inputCompletion = sliceAfter(completionString, term);
+            inputCompletion = sliceAfterIgnoreCase(completionString, term);
         } else {
             inputBase = '';
             inputCompletion = completionString;
@@ -155,7 +154,6 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
         inputBase = term;
         inputCompletion = '';
     }
-    const inputSuffix = getInputSuffix(term, selectedSuggestion);
 
     useEffect(() => {
         return onSuggestions((data, term) => {
@@ -259,7 +257,6 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
         clearSelectedSuggestion,
         inputBase,
         inputCompletion,
-        inputSuffix,
         handleChange,
         handleKeyDown,
         handleClick,

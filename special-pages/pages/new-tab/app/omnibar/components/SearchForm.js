@@ -7,6 +7,7 @@ import { SuggestionsList } from './SuggestionsList.js';
 import { useCompletionInput } from './useSuggestionInput.js';
 import { useSuggestions } from './useSuggestions';
 import { useSuffixText } from './SuffixText.js';
+import { getInputSuffix } from '../utils.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -33,7 +34,6 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
         clearSelectedSuggestion,
         inputBase,
         inputCompletion,
-        inputSuffix,
         handleChange,
         handleKeyDown,
         handleClick,
@@ -45,6 +45,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
         onSubmitSearch,
     });
 
+    const inputSuffix = getInputSuffix(term, selectedSuggestion);
     const inputSuffixText = useSuffixText(inputSuffix);
 
     const inputRef = useCompletionInput(inputBase, inputCompletion);
@@ -101,7 +102,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
             {suggestions.length > 0 && (
                 <SuggestionsList
                     id={suggestionsListId}
-                    term={term} // @todo: this belong here?
+                    term={term}
                     suggestions={suggestions}
                     selectedSuggestion={selectedSuggestion}
                     onSelectSuggestion={setSelectedSuggestion}

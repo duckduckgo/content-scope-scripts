@@ -8,15 +8,14 @@
  *  | { kind: 'duckDuckGo' }
  *  | { kind: 'visit', url: string }
  *  | { kind: 'raw', text: string }
+ *  | null
  * )} Suffix
  */
-
-// @todo: move to suggestion-utils.js?
 
 /**
  * @param {string} term
  * @param {Suggestion|null} selectedSuggestion
- * @returns {Suffix|null}
+ * @returns {Suffix}
  */
 export function getInputSuffix(term, selectedSuggestion) {
     if (!term) {
@@ -39,7 +38,7 @@ export function getInputSuffix(term, selectedSuggestion) {
 /**
  * @param {Suggestion} suggestion
  * @param {string} term
- * @returns {Suffix|null}
+ * @returns {Suffix}
  */
 function getSuggestionInputSuffix(suggestion, term) {
     switch (suggestion.kind) {
@@ -111,7 +110,7 @@ export function getSuggestionCompletionString(suggestion, term) {
         case 'bookmark': {
             const url = parseURL(suggestion.url);
             const urlString = url ? formatURLForTerm(url, term) : '';
-            if (startsWith(urlString, term)) {
+            if (startsWithIgnoreCase(urlString, term)) {
                 return urlString;
             } else {
                 return getSuggestionTitle(suggestion, term);
@@ -126,7 +125,7 @@ export function getSuggestionCompletionString(suggestion, term) {
  *
  * @param {Suggestion} suggestion
  * @param {string} term
- * @returns {Suffix|null}
+ * @returns {Suffix}
  */
 export function getSuggestionSuffix(suggestion, term) {
     switch (suggestion.kind) {
@@ -205,7 +204,7 @@ function formatURL(url, options = { protocol: true, www: true, trailingSlash: tr
         result += `${url.protocol}://`;
     }
     if (options.www || !url.host.startsWith('www.')) {
-        result += sliceAfter(url.host, 'www.');
+        result += sliceAfterIgnoreCase(url.host, 'www.');
     } else {
         result += url.host;
     }
@@ -228,12 +227,12 @@ function formatURL(url, options = { protocol: true, www: true, trailingSlash: tr
  * @param {string} term
  */
 function formatURLForTerm(url, term) {
-    const isTypingProtocol = startsWith(url.protocol, term);
-    const isTypingWww = startsWith('www.', sliceAfter(term, url.protocol));
-    const isTypingHost = startsWith(url.host, term);
+    const isTypingProtocol = startsWithIgnoreCase(url.protocol, term);
+    const isTypingWww = startsWithIgnoreCase('www.', sliceAfterIgnoreCase(term, url.protocol));
+    const isTypingHost = startsWithIgnoreCase(url.host, term);
     return formatURL(url, {
         protocol: term !== '' && isTypingProtocol && !isTypingHost,
-        www: sliceAfter(term, url.protocol) !== '' && isTypingWww,
+        www: sliceAfterIgnoreCase(term, url.protocol) !== '' && isTypingWww,
         trailingSlash: !term.endsWith('/'),
     });
 }
@@ -247,14 +246,12 @@ function getDuckDuckGoSearchQuery(url) {
     return isDuckDuckGoSearch ? (url.searchParams.get('q') ?? '') : '';
 }
 
-// @todo: rename these to include ignoreCase? move to string-utils.js?
-
 /**
  * @param {string} string
  * @param {string} searchString
  * @returns {boolean}
  */
-export function startsWith(string, searchString) {
+export function startsWithIgnoreCase(string, searchString) {
     return string.toLowerCase().startsWith(searchString.toLowerCase());
 }
 
@@ -263,8 +260,8 @@ export function startsWith(string, searchString) {
  * @param {string} searchString
  * @returns {string}
  */
-export function sliceAfter(string, searchString) {
-    if (startsWith(string, searchString)) {
+export function sliceAfterIgnoreCase(string, searchString) {
+    if (startsWithIgnoreCase(string, searchString)) {
         return string.slice(searchString.length);
     }
     return string;

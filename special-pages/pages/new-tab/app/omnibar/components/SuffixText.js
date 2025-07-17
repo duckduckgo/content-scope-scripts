@@ -6,7 +6,7 @@ import { useTypedTranslationWith } from '../../types';
  */
 
 /**
- * @param {Suffix|null} suffix
+ * @param {Suffix} suffix
  * @returns {string}
  */
 export function useSuffixText(suffix) {
@@ -26,7 +26,7 @@ export function useSuffixText(suffix) {
 
 /**
  * @param {object} props
- * @param {Suffix|null} props.suffix
+ * @param {Suffix} props.suffix
  */
 export function SuffixText({ suffix }) {
     return useSuffixText(suffix);
