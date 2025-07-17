@@ -70,8 +70,8 @@ jobs:
             - name: Check in files
               run: |
                   git add -f . ':!CHANGELOG.txt' ':!node_modules' ':!apple-release-build'
-                                  # Ensure the Apple release zip is included
-                git add -f ContentScopeScripts-apple.zip
+                  # Ensure the Apple release zip is included
+                  git add -f ContentScopeScripts-apple.zip
 
             - name: Commit build files
               uses: stefanzweifel/git-auto-commit-action@v5
@@ -96,5 +96,5 @@ jobs:
                   prerelease: false
                   tag_name: ${{ github.event.inputs.version }}
                   target_commitish: 'releases'
-                                  files: |
-                    ContentScopeScripts-apple.zip
+                  files: |
+                      ContentScopeScripts-apple.zip
