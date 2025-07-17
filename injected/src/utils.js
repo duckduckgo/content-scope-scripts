@@ -305,7 +305,7 @@ const functionMap = {
         debugger;
     },
 
-    noop: () => { },
+    noop: () => {},
 };
 
 /**
