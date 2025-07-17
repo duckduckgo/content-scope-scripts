@@ -2,54 +2,70 @@
  * @typedef {import('../../types/new-tab.js').Suggestion} Suggestion
  */
 
+/**
+ * @typedef {(
+ *  | { kind: 'searchDuckDuckGo' }
+ *  | { kind: 'duckDuckGo' }
+ *  | { kind: 'visit', url: string }
+ *  | { kind: 'raw', text: string }
+ * )} Suffix
+ */
+
 // @todo: move to suggestion-utils.js?
 
 /**
  * @param {string} term
  * @param {Suggestion|null} selectedSuggestion
- * @returns {string}
+ * @returns {Suffix|null}
  */
 export function getInputSuffix(term, selectedSuggestion) {
-    // @todo: i18n
-
-    if (selectedSuggestion) {
-        switch (selectedSuggestion.kind) {
-            case 'phrase':
-                return ` – Search DuckDuckGo`;
-            case 'website': {
-                const url = parseURL(selectedSuggestion.url);
-                if (!url) return '';
-                return ` – Visit ${formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false })}`;
-            }
-            case 'bookmark':
-            case 'historyEntry':
-            case 'internalPage': {
-                const title = getSuggestionTitle(selectedSuggestion, term);
-                const autocompletion = getSuggestionCompletionString(selectedSuggestion, term);
-                const url = parseURL(selectedSuggestion.url);
-                if (title && title !== autocompletion) {
-                    return ` – ${title}`;
-                } else if (url) {
-                    return ` – Visit ${formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false })}`;
-                } else {
-                    return '';
-                }
-            }
-            case 'openTab':
-                return ' – DuckDuckGo';
-        }
+    if (!term) {
+        return null;
     }
 
-    if (!term) {
-        return '';
+    if (selectedSuggestion) {
+        return getSuggestionInputSuffix(selectedSuggestion, term);
     }
 
     if (isURLish(term)) {
         const url = parseURL(term);
         if (!url) throw new Error('isURLish returned true but parseURL failed');
-        return ` – Visit ${formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false })}`;
+        return { kind: 'visit', url: formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false }) };
     } else {
-        return ' – Search DuckDuckGo';
+        return { kind: 'searchDuckDuckGo' };
+    }
+}
+
+/**
+ * @param {Suggestion} suggestion
+ * @param {string} term
+ * @returns {Suffix|null}
+ */
+function getSuggestionInputSuffix(suggestion, term) {
+    switch (suggestion.kind) {
+        case 'phrase':
+            return { kind: 'searchDuckDuckGo' };
+        case 'website': {
+            const url = parseURL(suggestion.url);
+            if (!url) return null;
+            return { kind: 'visit', url: formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false }) };
+        }
+        case 'bookmark':
+        case 'historyEntry':
+        case 'internalPage': {
+            const title = getSuggestionTitle(suggestion, term);
+            const autocompletion = getSuggestionCompletionString(suggestion, term);
+            const url = parseURL(suggestion.url);
+            if (title && title !== autocompletion) {
+                return { kind: 'raw', text: title };
+            } else if (url) {
+                return { kind: 'visit', url: formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false }) };
+            } else {
+                return null;
+            }
+        }
+        case 'openTab':
+            return { kind: 'duckDuckGo' };
     }
 }
 
@@ -110,33 +126,32 @@ export function getSuggestionCompletionString(suggestion, term) {
  *
  * @param {Suggestion} suggestion
  * @param {string} term
- * @returns {string}
+ * @returns {Suffix|null}
  */
 export function getSuggestionSuffix(suggestion, term) {
-    // @todo: i18n
     switch (suggestion.kind) {
         case 'website': {
             const url = parseURL(suggestion.url);
-            if (!url) return '';
+            if (!url) return null;
             const urlString = formatURLForTerm(url, term);
             const title = getSuggestionTitle(suggestion, term);
-            if (urlString === title) return '';
-            return ` – ${formatURL(url, { protocol: false, trailingSlash: false })}`;
+            if (urlString === title) return null;
+            return { kind: 'raw', text: formatURL(url, { protocol: false, trailingSlash: false }) };
         }
         case 'phrase':
-            return '';
+            return null;
         case 'openTab':
             // @todo: openTab suggestions don't have a url property, so not sure how to handle this
             // In the macoS app, we return 'DuckDuckGo' for duck:// tabs, 'DuckDuckGo Search' for search tabs, and the URL for other tabs.
-            return '';
+            return null;
         case 'historyEntry':
         case 'bookmark': {
             const url = parseURL(suggestion.url);
-            if (!url) return '';
-            return ` – ${formatURL(url, { protocol: false, www: false, trailingSlash: false })}`;
+            if (!url) return null;
+            return { kind: 'raw', text: formatURL(url, { protocol: false, www: false, trailingSlash: false }) };
         }
         case 'internalPage':
-            return ' – DuckDuckGo';
+            return { kind: 'duckDuckGo' };
     }
 }
 

@@ -38,5 +38,17 @@
   "searchForm_aiButtonLabel": {
     "title": "Duck.ai",
     "description": "Accessible label for the AI chat button in search form."
+  },
+  "omnibar_searchDuckDuckGoSuffix": {
+    "title": "Search DuckDuckGo",
+    "description": "Text placed after suggestions that will search DuckDuckGo."
+  },
+  "omnibar_duckDuckGoSuffix": {
+    "title": "DuckDuckGo",
+    "description": "Text placed after suggestions that will open a DuckDuckGo page."
+  },
+  "omnibar_visitSuffix": {
+    "title": "Visit {url}",
+    "description": "Text placed after suggestions that will open a webpage."
   }
 }

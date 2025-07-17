@@ -4,6 +4,7 @@ import { ArrowRightIcon, BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, His
 import { usePlatformName } from '../../settings.provider';
 import styles from './SuggestionsList.module.css';
 import { getSuggestionSuffix, getSuggestionTitle, sliceAfter, startsWith } from '../utils';
+import { SuffixText } from './SuffixText';
 
 /**
  * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel
@@ -54,7 +55,11 @@ export function SuggestionsList({ id, term, suggestions, selectedSuggestion, onS
                                 title
                             )}
                         </span>
-                        {suffix && <span class={styles.suffix}>{suffix}</span>}
+                        {suffix && (
+                            <span class={styles.suffix}>
+                                <SuffixText suffix={suffix} />
+                            </span>
+                        )}
                         {suggestion.kind === 'openTab' && (
                             <span class={styles.badge}>
                                 Switch to Tab <ArrowRightIcon />

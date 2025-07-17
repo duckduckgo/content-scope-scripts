@@ -6,6 +6,7 @@ import styles from './SearchForm.module.css';
 import { SuggestionsList } from './SuggestionsList.js';
 import { useCompletionInput } from './useSuggestionInput.js';
 import { useSuggestions } from './useSuggestions';
+import { useSuffixText } from './SuffixText.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -44,6 +45,8 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
         onSubmitSearch,
     });
 
+    const inputSuffixText = useSuffixText(inputSuffix);
+
     const inputRef = useCompletionInput(inputBase, inputCompletion);
 
     useEffect(() => {
@@ -63,7 +66,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
 
     return (
         <form class={styles.form} onBlur={handleBlur} onSubmit={handleSubmit}>
-            <div class={styles.inputContainer} style={{ '--suffix-text-width': `${measureText(inputSuffix)}px` }}>
+            <div class={styles.inputContainer} style={{ '--suffix-text-width': `${measureText(inputSuffixText)}px` }}>
                 <SearchIcon inert />
                 <input
                     ref={inputRef}
@@ -90,7 +93,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
                             {inputBase + inputCompletion || t('searchForm_placeholder')}
                         </span>
                         <span class={styles.suffix} inert>
-                            {inputSuffix}
+                            {inputSuffixText}
                         </span>
                     </>
                 )}
