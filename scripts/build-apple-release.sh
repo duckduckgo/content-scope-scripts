@@ -4,7 +4,8 @@ set -e
 
 VERSION="$1"
 BUILD_DIR="apple-release-build"
-OUTPUT_NAME="ContentScopeScripts-Apple"
+OUTPUT_NAME="ContentScopeScripts-apple"
+OUTPUT_FILE="ContentScopeScripts-apple.zip"
 
 if [ -z "$VERSION" ]; then
     echo "Error: Version parameter is required"
@@ -30,15 +31,16 @@ echo "Copying Apple build contents..."
 cp -r "../build/apple/"* "./"
 
 echo "Creating release zip..."
-zip -r "${OUTPUT_NAME}-${VERSION}.zip" .
+zip -r "${OUTPUT_FILE}" .
 
 # Copy to root directory for easy access
-cp "${OUTPUT_NAME}-${VERSION}.zip" "../${OUTPUT_NAME}-${VERSION}.zip"
+cp "${OUTPUT_FILE}" "../${OUTPUT_FILE}"
 
-echo "Apple release built successfully: ${OUTPUT_NAME}-${VERSION}.zip"
+echo "Apple release built successfully: ${OUTPUT_FILE}"
 echo "Contents:"
 echo "  - contentScope.js ($(du -h contentScope.js | cut -f1))"
 echo "  - contentScopeIsolated.js ($(du -h contentScopeIsolated.js | cut -f1))"
 echo "  - pages/ directory with $(ls pages/ | wc -l) special pages"
+echo "  - Install command: ./scripts/update_content_scope_scripts.sh ${VERSION}"
 
-ls -la "${OUTPUT_NAME}-${VERSION}.zip" 
+ls -la "../${OUTPUT_FILE}" 
