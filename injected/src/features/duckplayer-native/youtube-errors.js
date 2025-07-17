@@ -59,7 +59,7 @@ export function getErrorType(windowObject, signInRequiredSelector, logger) {
                 logger?.log('Got ytcfg', currentWindow.ytcfg);
             } else {
                 logger?.warn('ytcfg still missing!');
-                console.log('window.screenX, window.screenY', currentWindow.screenX, currentWindow.screenY);
+                console.log('window.client', currentWindow.clientInformation);
             }
         }, 300);
     } else {
