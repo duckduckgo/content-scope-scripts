@@ -46,8 +46,8 @@ jobs:
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
                   git checkout -b pr-releases/pr-${PR_NUMBER}
-                  git add -f build
-                  git commit -m "Add build folder for PR ${PR_NUMBER}"
+                  git add -f build ContentScopeScripts-Apple-pr-${PR_NUMBER}.zip
+                  git commit -m "Add build folder and Apple release for PR ${PR_NUMBER}"
                   git push -u origin pr-releases/pr-${PR_NUMBER} --force
                   echo "BRANCH_NAME=pr-releases/pr-${PR_NUMBER}" >> $GITHUB_ENV
                   echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
@@ -73,6 +73,8 @@ jobs:
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
                       const branchUrl = `${repoUrl}/tree/${branchName}`;
                       const commitUrl = `${repoUrl}/commit/${commitHash}`;
+                      const zipFileName = `ContentScopeScripts-Apple-pr-${prNumber}.zip`;
+                      const zipUrl = `${repoUrl}/blob/${branchName}/${zipFileName}`;
 
                       // Get the current date
                       const lastUpdatedDate = (new Date()).toLocaleString('en-US', {
@@ -88,8 +90,8 @@ jobs:
                         - **Branch Name**: [${branchName}](${branchUrl})
                         - **Commit Hash**: [${commitHash}](${commitUrl})
                         - **Last Updated**: ${lastUpdatedDate}
+                        - **Apple Release**: [${zipFileName}](${zipUrl})
                         - **Install Command**: \`npm i github:duckduckgo/content-scope-scripts#${commitHash}\`
-                        - **Apple Release**: Available as \`ContentScopeScripts-Apple-pr-${prNumber}.zip\`
 
                         Please use the above install command to update to the latest version. The Apple release contains the built distribution files for iOS/macOS integration.
                       `;
