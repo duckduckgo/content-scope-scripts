@@ -28,7 +28,7 @@ export function SuggestionsList({ id, term, suggestions, selectedSuggestion, onS
         <div role="listbox" id={id} class={styles.list}>
             {suggestions.map((suggestion) => {
                 const title = getSuggestionTitle(suggestion, term);
-                const suffix = getSuggestionSuffix(suggestion, term);
+                const suffix = getSuggestionSuffix(suggestion);
                 return (
                     <button
                         key={suggestion.id}

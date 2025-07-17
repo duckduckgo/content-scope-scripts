@@ -29,7 +29,7 @@ export function getInputSuffix(term, selectedSuggestion) {
     if (isURLish(term)) {
         const url = parseURL(term);
         if (!url) throw new Error('isURLish returned true but parseURL failed');
-        return { kind: 'visit', url: formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false }) };
+        return { kind: 'visit', url: formatURL(url, { scheme: false, trailingSlash: false, search: false, hash: false }) };
     } else {
         return { kind: 'searchDuckDuckGo' };
     }
@@ -47,7 +47,7 @@ function getSuggestionInputSuffix(suggestion, term) {
         case 'website': {
             const url = parseURL(suggestion.url);
             if (!url) return null;
-            return { kind: 'visit', url: formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false }) };
+            return { kind: 'visit', url: formatURL(url, { scheme: false, trailingSlash: false, search: false, hash: false }) };
         }
         case 'bookmark':
         case 'historyEntry':
@@ -58,7 +58,7 @@ function getSuggestionInputSuffix(suggestion, term) {
             if (title && title !== autocompletion) {
                 return { kind: 'raw', text: title };
             } else if (url) {
-                return { kind: 'visit', url: formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false }) };
+                return { kind: 'visit', url: formatURL(url, { scheme: false, trailingSlash: false, search: false, hash: false }) };
             } else {
                 return null;
             }
@@ -79,17 +79,23 @@ export function getSuggestionTitle(suggestion, term) {
             return suggestion.phrase;
         case 'website': {
             const url = parseURL(suggestion.url);
-            if (!url) return '';
-            return formatURLForTerm(url, term);
+            if (url) {
+                return formatURLForTerm(url, term);
+            } else {
+                return '';
+            }
         }
         case 'historyEntry': {
             const url = parseURL(suggestion.url);
-            if (!url) return '';
-            const searchQuery = getDuckDuckGoSearchQuery(url);
+            const searchQuery = url ? getDuckDuckGoSearchQuery(url) : '';
             if (searchQuery) {
                 return searchQuery;
+            } else if (suggestion.title) {
+                return suggestion.title;
+            } else if (url) {
+                return formatURLForTerm(url, term);
             } else {
-                return suggestion.title || formatURLForTerm(url, term);
+                return '';
             }
         }
         case 'bookmark':
@@ -107,7 +113,8 @@ export function getSuggestionTitle(suggestion, term) {
 export function getSuggestionCompletionString(suggestion, term) {
     switch (suggestion.kind) {
         case 'historyEntry':
-        case 'bookmark': {
+        case 'bookmark':
+        case 'internalPage': {
             const url = parseURL(suggestion.url);
             const urlString = url ? formatURLForTerm(url, term) : '';
             if (startsWithIgnoreCase(urlString, term)) {
@@ -124,19 +131,11 @@ export function getSuggestionCompletionString(suggestion, term) {
 /**
  *
  * @param {Suggestion} suggestion
- * @param {string} term
  * @returns {Suffix}
  */
-export function getSuggestionSuffix(suggestion, term) {
+export function getSuggestionSuffix(suggestion) {
     switch (suggestion.kind) {
-        case 'website': {
-            const url = parseURL(suggestion.url);
-            if (!url) return null;
-            const urlString = formatURLForTerm(url, term);
-            const title = getSuggestionTitle(suggestion, term);
-            if (urlString === title) return null;
-            return { kind: 'raw', text: formatURL(url, { protocol: false, trailingSlash: false }) };
-        }
+        case 'website':
         case 'phrase':
             return null;
         case 'openTab':
@@ -147,7 +146,7 @@ export function getSuggestionSuffix(suggestion, term) {
         case 'bookmark': {
             const url = parseURL(suggestion.url);
             if (!url) return null;
-            return { kind: 'raw', text: formatURL(url, { protocol: false, www: false, trailingSlash: false }) };
+            return { kind: 'raw', text: formatURL(url, { scheme: false, www: false, trailingSlash: false }) };
         }
         case 'internalPage':
             return { kind: 'duckDuckGo' };
@@ -158,7 +157,7 @@ export function getSuggestionSuffix(suggestion, term) {
  * @param {string} string
  * @returns {URL|null}
  */
-function parseURL(string) {
+export function parseURL(string) {
     try {
         return new URL(string);
     } catch {}
@@ -172,51 +171,40 @@ function parseURL(string) {
  * @param {string} string
  * @returns {boolean}
  */
-function isURLish(string) {
-    if (!parseURL(string)) return false;
-    if (!string.includes('.')) return false;
-
-    const hostnameRegex = /^(((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)*[A-Za-z0-9-]{2,63})$/i;
-    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
-    const ipv6Regex = /^([a-fA-F0-9]{0,4}:){2,7}[a-fA-F0-9]{0,4}$/;
-    const mathFormulaRegex = /^[\s$]*([\d]+(\.[\d]+)?|\.[\d]+)([\s]*[+\-*/][\s]*([\d]+(\.[\d]+)?|\.[\d]+))*[\s$]*$/;
-
-    const isValidHostname = hostnameRegex.test(string);
-    const isValidIp = ipv4Regex.test(string) || ipv6Regex.test(string);
-    const isMathFormula = mathFormulaRegex.test(string);
-
-    return (isValidHostname || isValidIp) && !isMathFormula;
+export function isURLish(string) {
+    // @todo: This is overly simplistic.
+    return string.includes('.') && parseURL(string) !== null;
 }
 
 /**
  * @param {URL} url
- * @param {object} options
- * @param {boolean} [options.protocol=true]
+ * @param {object} [options]
+ * @param {boolean} [options.scheme=true]
  * @param {boolean} [options.www=true]
  * @param {boolean} [options.trailingSlash=true]
  * @param {boolean} [options.search=true]
  * @param {boolean} [options.hash=true]
  * @returns {string}
  */
-function formatURL(url, options = { protocol: true, www: true, trailingSlash: true, search: true, hash: true }) {
+export function formatURL(url, { scheme = true, www = true, trailingSlash = true, search = true, hash = true } = {}) {
     let result = '';
-    if (options.protocol) {
-        result += `${url.protocol}://`;
+    if (scheme) {
+        result += `${url.protocol}//`;
     }
-    if (options.www || !url.host.startsWith('www.')) {
+    if (!www && startsWithIgnoreCase(url.host, 'www.')) {
         result += sliceAfterIgnoreCase(url.host, 'www.');
     } else {
         result += url.host;
     }
-    if (!options.trailingSlash && url.pathname.endsWith('/')) {
+    if (!trailingSlash && url.pathname.endsWith('/')) {
         result += url.pathname.slice(0, -1);
     } else {
         result += url.pathname;
     }
-    if (options.search) {
+    if (search) {
         result += url.search;
     }
-    if (options.hash) {
+    if (hash) {
         result += url.hash;
     }
     return result;
@@ -226,14 +214,16 @@ function formatURL(url, options = { protocol: true, www: true, trailingSlash: tr
  * @param {URL} url
  * @param {string} term
  */
-function formatURLForTerm(url, term) {
-    const isTypingProtocol = startsWithIgnoreCase(url.protocol, term);
-    const isTypingWww = startsWithIgnoreCase('www.', sliceAfterIgnoreCase(term, url.protocol));
-    const isTypingHost = startsWithIgnoreCase(url.host, term);
+export function formatURLForTerm(url, term) {
+    const scheme = `${url.protocol}//`;
+    const isTypingScheme = startsWithIgnoreCase(scheme, term) || startsWithIgnoreCase(term, scheme);
+    const termWithoutScheme = sliceAfterIgnoreCase(term, scheme);
+    const isTypingWww = startsWithIgnoreCase('www.', termWithoutScheme) || startsWithIgnoreCase(termWithoutScheme, 'www.');
+    const isTypingHost = startsWithIgnoreCase(url.host, term) || startsWithIgnoreCase(term, url.host);
     return formatURL(url, {
-        protocol: term !== '' && isTypingProtocol && !isTypingHost,
-        www: sliceAfterIgnoreCase(term, url.protocol) !== '' && isTypingWww,
-        trailingSlash: !term.endsWith('/'),
+        scheme: term !== '' && isTypingScheme && !isTypingHost,
+        www: termWithoutScheme !== '' && isTypingWww,
+        trailingSlash: termWithoutScheme.endsWith('/'),
     });
 }
 
@@ -241,7 +231,7 @@ function formatURLForTerm(url, term) {
  * @param {URL} url
  * @returns {string}
  */
-function getDuckDuckGoSearchQuery(url) {
+export function getDuckDuckGoSearchQuery(url) {
     const isDuckDuckGoSearch = url.hostname === 'duckduckgo.com' && (url.pathname === '/' || !url.pathname) && url.searchParams.has('q');
     return isDuckDuckGoSearch ? (url.searchParams.get('q') ?? '') : '';
 }
