@@ -102,6 +102,41 @@ export function getSuggestionCompletionString(suggestion, term) {
 }
 
 /**
+ *
+ * @param {Suggestion} suggestion
+ * @param {string} term
+ * @returns {string}
+ */
+export function getSuggestionSuffix(suggestion, term) {
+    // @todo: i18n
+    switch (suggestion.kind) {
+        case 'website': {
+            const url = parseURL(suggestion.url);
+            if (!url) return '';
+            const urlString = formatURLForTerm(url, term);
+            const title = getSuggestionTitle(suggestion, term);
+            if (urlString === title) return '';
+            return ` – ${formatURL(url, { protocol: false, trailingSlash: false })}`;
+        }
+        case 'phrase':
+        case 'website':
+            return '';
+        case 'openTab':
+            // @todo: openTab suggestions don't have a url property, so not sure how to handle this
+            // In the macoS app, we return 'DuckDuckGo' for duck:// tabs, 'DuckDuckGo Search' for search tabs, and the URL for other tabs.
+            return '';
+        case 'historyEntry':
+        case 'bookmark': {
+            const url = parseURL(suggestion.url);
+            if (!url) return '';
+            return ` – ${formatURL(url, { protocol: false, www: false, trailingSlash: false })}`;
+        }
+        case 'internalPage':
+            return ' – DuckDuckGo';
+    }
+}
+
+/**
  * @param {string} string
  * @returns {URL|null}
  */

@@ -3,7 +3,7 @@ import { eventToTarget } from '../../../../../shared/handlers';
 import { ArrowRightIcon, BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import styles from './SuggestionsList.module.css';
-import { getSuggestionTitle, sliceAfter, startsWith } from '../utils';
+import { getSuggestionSuffix, getSuggestionTitle, sliceAfter, startsWith } from '../utils';
 
 /**
  * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel
@@ -27,6 +27,7 @@ export function SuggestionsList({ id, term, suggestions, selectedSuggestion, onS
         <div role="listbox" id={id} class={styles.list}>
             {suggestions.map((suggestion) => {
                 const title = getSuggestionTitle(suggestion, term);
+                const suffix = getSuggestionSuffix(suggestion, term);
                 return (
                     <button
                         key={suggestion.id}
@@ -53,7 +54,7 @@ export function SuggestionsList({ id, term, suggestions, selectedSuggestion, onS
                                 title
                             )}
                         </span>
-                        <span class={styles.suffix}>{' – Suffix'}</span>
+                        {suffix && <span class={styles.suffix}>{suffix}</span>}
                         {suggestion.kind === 'openTab' && (
                             <span class={styles.badge}>
                                 Switch to Tab <ArrowRightIcon />
