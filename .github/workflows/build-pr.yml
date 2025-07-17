@@ -32,13 +32,10 @@ jobs:
             - name: Run build
               run: npm run build
 
-            - name: Build XCFramework
+            - name: Build Apple Release
               run: |
-                  # Create xcframework build directory
-                  mkdir -p xcframework-build
-
-                  # Create the xcframework using the build script
-                  ./scripts/build-xcframework.sh "pr-${{ github.event.pull_request.number }}"
+                  # Create the Apple release using the build script
+                  ./scripts/build-apple-release.sh "pr-${{ github.event.pull_request.number }}"
 
             - name: Create and push release branch
               id: create_branch
@@ -92,9 +89,9 @@ jobs:
                         - **Commit Hash**: [${commitHash}](${commitUrl})
                         - **Last Updated**: ${lastUpdatedDate}
                         - **Install Command**: \`npm i github:duckduckgo/content-scope-scripts#${commitHash}\`
-                        - **XCFramework**: Available as \`ContentScopeScripts.xcframework.zip\`
+                        - **Apple Release**: Available as \`ContentScopeScripts-Apple-pr-${prNumber}.zip\`
 
-                        Please use the above install command to update to the latest version. The XCFramework is available for iOS/macOS integration testing.
+                        Please use the above install command to update to the latest version. The Apple release contains the built distribution files for iOS/macOS integration.
                       `;
                       core.setOutput('comment_body', commentBody);
                       core.setOutput('pr_number', prNumber);
