@@ -62,17 +62,14 @@ jobs:
                   npm ci
                   npm run build
 
-            - name: Build XCFramework
+            - name: Build Apple Release
               run: |
-                  # Create xcframework build directory
-                  mkdir -p xcframework-build
-
-                  # Create the xcframework using the build script
-                  ./scripts/build-xcframework.sh ${{ github.event.inputs.version }}
+                  # Create the Apple release using the build script
+                  ./scripts/build-apple-release.sh ${{ github.event.inputs.version }}
 
             - name: Check in files
               run: |
-                  git add -f . ':!CHANGELOG.txt' ':!node_modules' ':!xcframework-build'
+                  git add -f . ':!CHANGELOG.txt' ':!node_modules' ':!apple-release-build'
 
             - name: Commit build files
               uses: stefanzweifel/git-auto-commit-action@v5
@@ -98,4 +95,4 @@ jobs:
                   tag_name: ${{ github.event.inputs.version }}
                   target_commitish: 'releases'
                   files: |
-                      xcframework-build/ContentScopeScripts.xcframework.zip
+                      ContentScopeScripts-Apple-${{ github.event.inputs.version }}.zip
