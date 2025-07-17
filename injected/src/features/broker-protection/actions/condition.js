@@ -6,7 +6,7 @@ import { expectMany } from '../utils/expectations.js';
  * @param {Document} root
  * @return {import('../types.js').ActionResponse}
  */
-export function expectation(action, root = document) {
+export function condition(action, root = document) {
     const results = expectMany(action.expectations, root);
 
     // filter out good results + silent failures, leaving only fatal errors
@@ -24,15 +24,14 @@ export function expectation(action, root = document) {
         return new ErrorResponse({ actionID: action.id, message: errors.join(', ') });
     }
 
-    // only run later actions if every expectation was met
-    const runActions = results.every((x) => x.result === true);
+    // only return actions if every expectation was met (these actions will be executed by the native clients)
+    const returnActions = results.every((x) => x.result === true);
 
-    if (action.actions?.length && runActions) {
+    if (action.actions?.length && returnActions) {
         return new SuccessResponse({
             actionID: action.id,
             actionType: action.actionType,
-            response: null,
-            next: action.actions,
+            response: { actions: action.actions },
         });
     }
 

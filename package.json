@@ -6,8 +6,7 @@
     "injected",
     "special-pages",
     "messaging",
-    "build",
-    "Sources/ContentScopeScripts/dist"
+    "build"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
@@ -22,7 +21,7 @@
     "tsc": "tsc",
     "tsc-watch": "tsc --watch",
     "lint": "eslint . && npm run tsc && npm run lint-no-output-globals && npx prettier . --check",
-    "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js Sources/ContentScopeScripts/dist/contentScope.js",
+    "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js build/apple/contentScope.js",
     "postlint": "npm run lint --workspaces --if-present",
     "lint-fix": "eslint . --fix && npx prettier . --write && npm run tsc",
     "stylelint": "npx stylelint \"**/*.css\"",
@@ -51,7 +50,8 @@
     "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.5",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.33.0"
+    "typescript-eslint": "^8.33.0",
+    "wait-on": "^8.0.3"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.1",
