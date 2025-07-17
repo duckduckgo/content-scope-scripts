@@ -40,8 +40,12 @@ export function getInputSuffix(term, selectedSuggestion) {
         }
     }
 
-    const url = parseURL(term);
-    if (url) {
+    if (!term) {
+        return '';
+    }
+
+    if (isURLish(term)) {
+        const url = parseURL(term);
         return ` – Visit ${formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false })}`;
     } else {
         return ' – Search DuckDuckGo';
@@ -148,6 +152,26 @@ function parseURL(string) {
         return new URL(`https://${string}`);
     } catch {}
     return null;
+}
+
+/**
+ * @param {string} string
+ * @returns {boolean}
+ */
+function isURLish(string) {
+    if (!parseURL(string)) return false;
+    if (!string.includes('.')) return false;
+
+    const hostnameRegex = /^(((?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)*[A-Za-z0-9-]{2,63})$/i;
+    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+    const ipv6Regex = /^([a-fA-F0-9]{0,4}:){2,7}[a-fA-F0-9]{0,4}$/;
+    const mathFormulaRegex = /^[\s$]*([\d]+(\.[\d]+)?|\.[\d]+)([\s]*[+\-*/][\s]*([\d]+(\.[\d]+)?|\.[\d]+))*[\s$]*$/;
+
+    const isValidHostname = hostnameRegex.test(string);
+    const isValidIp = ipv4Regex.test(string) || ipv6Regex.test(string);
+    const isMathFormula = mathFormulaRegex.test(string);
+
+    return (isValidHostname || isValidIp) && !isMathFormula;
 }
 
 /**
