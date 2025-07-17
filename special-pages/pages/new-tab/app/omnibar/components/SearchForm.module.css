@@ -19,7 +19,7 @@
     left: var(--sp-1);
     padding-bottom: 0;
     padding-left: calc(var(--sp-2) + var(--sp-4) + var(--sp-2));
-    padding-right: var(--hint-text-width);
+    padding-right: var(--suffix-text-width);
     padding-top: 0;
     position: absolute;
     right: var(--sp-1);
@@ -29,13 +29,13 @@
     }
 }
 
-.hintSpacer {
+.suffixSpacer {
     overflow: hidden;
     visibility: hidden;
     white-space: pre;
 }
 
-.hint {
+.suffix {
     color: var(--ntp-color-primary);
     flex-shrink: 0;
 }

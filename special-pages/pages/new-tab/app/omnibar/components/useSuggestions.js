@@ -1,7 +1,7 @@
 import { useContext, useEffect, useReducer } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
-import { getSuggestionTitle } from '../utils.js';
+import { getInputSuffix, getSuggestionCompletionString, getSuggestionTitle, sliceAfter, startsWith } from '../utils.js';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
@@ -12,7 +12,6 @@ import { OmnibarContext } from './OmnibarProvider.js';
 /**
  * @typedef {Suggestion & {
  *   id: string,
- *   title: string,
  * }} SuggestionModel
  */
 
@@ -141,20 +140,22 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
         dispatch({ type: 'clearSelectedSuggestion' });
     };
 
-    let termBase, termSuggestion;
-    if (!selectedSuggestion) {
-        termBase = term;
-        termSuggestion = '';
-    } else if ('url' in selectedSuggestion && startsWithIgnoreCase(selectedSuggestion.url, term)) {
-        termBase = term;
-        termSuggestion = selectedSuggestion.url.slice(term.length);
-    } else if (startsWithIgnoreCase(selectedSuggestion.title, term)) {
-        termBase = term;
-        termSuggestion = selectedSuggestion.title.slice(term.length);
+    // @todo: move any/all of this out to SearchForm?
+    let inputBase, inputCompletion;
+    if (selectedSuggestion) {
+        const completionString = getSuggestionCompletionString(selectedSuggestion, term);
+        if (startsWith(completionString, term)) {
+            inputBase = term;
+            inputCompletion = sliceAfter(completionString, term);
+        } else {
+            inputBase = '';
+            inputCompletion = completionString;
+        }
     } else {
-        termBase = '';
-        termSuggestion = selectedSuggestion.title;
+        inputBase = term;
+        inputCompletion = '';
     }
+    const inputSuffix = getInputSuffix(term, selectedSuggestion);
 
     useEffect(() => {
         return onSuggestions((data, term) => {
@@ -165,7 +166,6 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
             ].map((suggestion, index) => ({
                 ...suggestion,
                 id: `suggestion-${index}`,
-                title: getSuggestionTitle(suggestion),
             }));
             dispatch({
                 type: 'setSuggestions',
@@ -215,7 +215,7 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
             case 'ArrowLeft':
             case 'ArrowRight':
                 if (selectedSuggestion) {
-                    onChangeTerm(termBase + termSuggestion);
+                    onChangeTerm(inputBase + inputCompletion);
                     dispatch({ type: 'clearSelectedSuggestion' });
                 }
                 break;
@@ -236,7 +236,7 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
 
     const handleClick = () => {
         if (selectedSuggestion) {
-            onChangeTerm(termBase + termSuggestion);
+            onChangeTerm(inputBase + inputCompletion);
             dispatch({ type: 'clearSelectedSuggestion' });
         }
     };
@@ -256,20 +256,12 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
         selectedSuggestion,
         setSelectedSuggestion,
         clearSelectedSuggestion,
-        termBase,
-        termSuggestion,
+        inputBase,
+        inputCompletion,
+        inputSuffix,
         handleChange,
         handleKeyDown,
         handleClick,
         handleBlur,
     };
-}
-
-/**
- * @param {string} text
- * @param {string} searchTerm
- * @returns {boolean}
- */
-function startsWithIgnoreCase(text, searchTerm) {
-    return text.toLowerCase().startsWith(searchTerm.toLowerCase());
 }

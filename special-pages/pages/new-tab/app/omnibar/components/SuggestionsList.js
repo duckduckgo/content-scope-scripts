@@ -3,6 +3,7 @@ import { eventToTarget } from '../../../../../shared/handlers';
 import { ArrowRightIcon, BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import styles from './SuggestionsList.module.css';
+import { getSuggestionTitle } from '../utils';
 
 /**
  * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel
@@ -13,13 +14,14 @@ import styles from './SuggestionsList.module.css';
 /**
  * @param {object} props
  * @param {string} props.id
+ * @param {string} props.term
  * @param {SuggestionModel[]} props.suggestions
  * @param {SuggestionModel | null} props.selectedSuggestion
  * @param {(suggestion: SuggestionModel) => void} props.onSelectSuggestion
  * @param {() => void} props.onClearSuggestion
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  */
-export function SuggestionsList({ id, suggestions, selectedSuggestion, onSelectSuggestion, onClearSuggestion, onOpenSuggestion }) {
+export function SuggestionsList({ id, term, suggestions, selectedSuggestion, onSelectSuggestion, onClearSuggestion, onOpenSuggestion }) {
     const platformName = usePlatformName();
     return (
         <div role="listbox" id={id} class={styles.list}>
@@ -40,7 +42,7 @@ export function SuggestionsList({ id, suggestions, selectedSuggestion, onSelectS
                         }}
                     >
                         <SuggestionIcon suggestion={suggestion} />
-                        {suggestion.title}
+                        {getSuggestionTitle(suggestion, term)}
                         {suggestion.kind === 'openTab' && (
                             <span class={styles.badge}>
                                 Switch to Tab <ArrowRightIcon />

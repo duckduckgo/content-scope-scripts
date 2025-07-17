@@ -4,7 +4,7 @@ import { SearchIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types';
 import styles from './SearchForm.module.css';
 import { SuggestionsList } from './SuggestionsList.js';
-import { useSuggestionInput } from './useSuggestionInput.js';
+import { useCompletionInput } from './useSuggestionInput.js';
 import { useSuggestions } from './useSuggestions';
 
 /**
@@ -30,8 +30,9 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
         selectedSuggestion,
         setSelectedSuggestion,
         clearSelectedSuggestion,
-        termBase,
-        termSuggestion,
+        inputBase,
+        inputCompletion,
+        inputSuffix,
         handleChange,
         handleKeyDown,
         handleClick,
@@ -42,10 +43,8 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
         onOpenSuggestion,
         onSubmitSearch,
     });
-    let hint = '';
-    hint = ' – Search DuckDuckGo';
 
-    const inputRef = useSuggestionInput(termBase, termSuggestion);
+    const inputRef = useCompletionInput(inputBase, inputCompletion);
 
     useEffect(() => {
         if (autoFocus && inputRef.current) {
@@ -64,7 +63,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
 
     return (
         <form class={styles.form} onBlur={handleBlur} onSubmit={handleSubmit}>
-            <div class={styles.inputContainer} style={{ '--hint-text-width': `${measureText(hint)}px` }}>
+            <div class={styles.inputContainer} style={{ '--suffix-text-width': `${measureText(inputSuffix)}px` }}>
                 <SearchIcon inert />
                 <input
                     ref={inputRef}
@@ -85,13 +84,13 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
                     onKeyDown={handleKeyDown}
                     onClick={handleClick}
                 />
-                {hint && (
+                {inputSuffix && (
                     <>
-                        <span class={styles.hintSpacer} inert>
-                            {termBase + termSuggestion || t('searchForm_placeholder')}
+                        <span class={styles.suffixSpacer} inert>
+                            {inputBase + inputCompletion || t('searchForm_placeholder')}
                         </span>
-                        <span class={styles.hint} inert>
-                            {hint}
+                        <span class={styles.suffix} inert>
+                            {inputSuffix}
                         </span>
                     </>
                 )}
@@ -99,6 +98,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
             {suggestions.length > 0 && (
                 <SuggestionsList
                     id={suggestionsListId}
+                    term={term} // @todo: this belong here?
                     suggestions={suggestions}
                     selectedSuggestion={selectedSuggestion}
                     onSelectSuggestion={setSelectedSuggestion}

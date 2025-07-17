@@ -2,32 +2,196 @@
  * @typedef {import('../../types/new-tab.js').Suggestion} Suggestion
  */
 
+// @todo: move to suggestion-utils.js?
+
 /**
- * @param {Suggestion} suggestion
+ * @param {string} term
+ * @param {Suggestion|null} selectedSuggestion
  * @returns {string}
  */
-export function getSuggestionTitle(suggestion) {
-    switch (suggestion.kind) {
-        case 'bookmark':
-        case 'historyEntry':
-        case 'internalPage':
-            return suggestion.title || getDisplayURL(suggestion.url);
-        case 'phrase':
-            return suggestion.phrase;
-        case 'openTab':
-            return suggestion.title;
-        case 'website':
-            return getDisplayURL(suggestion.url);
-        default:
-            throw new Error('Unknown suggestion kind');
+export function getInputSuffix(term, selectedSuggestion) {
+    // @todo: i18n
+
+    if (selectedSuggestion) {
+        switch (selectedSuggestion.kind) {
+            case 'phrase':
+                return ` – Search DuckDuckGo`;
+            case 'website': {
+                const url = parseURL(selectedSuggestion.url);
+                if (!url) return '';
+                return ` – Visit ${formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false })}`;
+            }
+            case 'bookmark':
+            case 'historyEntry':
+            case 'internalPage': {
+                const title = getSuggestionTitle(selectedSuggestion, term);
+                const autocompletion = getSuggestionCompletionString(selectedSuggestion, term);
+                const url = parseURL(selectedSuggestion.url);
+                if (title && title !== autocompletion) {
+                    return ` – ${title}`;
+                } else if (url) {
+                    return ` – Visit ${formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false })}`;
+                } else {
+                    return '';
+                }
+            }
+            case 'openTab':
+                return ' – DuckDuckGo';
+        }
+    }
+
+    const url = parseURL(term);
+    if (url) {
+        return ` – Visit ${formatURL(url, { protocol: false, trailingSlash: false, search: false, hash: false })}`;
+    } else {
+        return ' – Search DuckDuckGo';
     }
 }
 
 /**
- * @param {string} url
+ * @param {Suggestion} suggestion
+ * @param {string} term
  * @returns {string}
  */
-function getDisplayURL(url) {
-    const { host, pathname, search, hash } = new URL(url);
-    return host + pathname + search + hash;
+export function getSuggestionTitle(suggestion, term) {
+    switch (suggestion.kind) {
+        case 'phrase':
+            return suggestion.phrase;
+        case 'website': {
+            const url = parseURL(suggestion.url);
+            if (!url) return '';
+            return formatURLForTerm(url, term);
+        }
+        case 'historyEntry': {
+            const url = parseURL(suggestion.url);
+            if (!url) return '';
+            const searchQuery = getDuckDuckGoSearchQuery(url);
+            if (searchQuery) {
+                return searchQuery;
+            } else {
+                return suggestion.title || formatURLForTerm(url, term);
+            }
+        }
+        case 'bookmark':
+        case 'internalPage':
+        case 'openTab':
+            return suggestion.title;
+    }
+}
+
+/**
+ * @param {Suggestion} suggestion
+ * @param {string} term
+ * @returns {string}
+ */
+export function getSuggestionCompletionString(suggestion, term) {
+    switch (suggestion.kind) {
+        case 'historyEntry':
+        case 'bookmark': {
+            const url = parseURL(suggestion.url);
+            const urlString = url ? formatURLForTerm(url, term) : '';
+            if (startsWith(urlString, term)) {
+                return urlString;
+            } else {
+                return getSuggestionTitle(suggestion, term);
+            }
+        }
+        default:
+            return getSuggestionTitle(suggestion, term);
+    }
+}
+
+/**
+ * @param {string} string
+ * @returns {URL|null}
+ */
+function parseURL(string) {
+    try {
+        return new URL(string);
+    } catch {}
+    try {
+        return new URL(`https://${string}`);
+    } catch {}
+    return null;
+}
+
+/**
+ * @param {URL} url
+ * @param {object} options
+ * @param {boolean} [options.protocol=true]
+ * @param {boolean} [options.www=true]
+ * @param {boolean} [options.trailingSlash=true]
+ * @param {boolean} [options.search=true]
+ * @param {boolean} [options.hash=true]
+ * @returns {string}
+ */
+function formatURL(url, options = { protocol: true, www: true, trailingSlash: true, search: true, hash: true }) {
+    let result = '';
+    if (options.protocol) {
+        result += `${url.protocol}://`;
+    }
+    if (options.www || !url.host.startsWith('www.')) {
+        result += sliceAfter(url.host, 'www.');
+    } else {
+        result += url.host;
+    }
+    if (!options.trailingSlash && url.pathname.endsWith('/')) {
+        result += url.pathname.slice(0, -1);
+    } else {
+        result += url.pathname;
+    }
+    if (options.search) {
+        result += url.search;
+    }
+    if (options.hash) {
+        result += url.hash;
+    }
+    return result;
+}
+
+/**
+ * @param {URL} url
+ * @param {string} term
+ */
+function formatURLForTerm(url, term) {
+    const isTypingProtocol = startsWith(url.protocol, term);
+    const isTypingWww = startsWith('www.', sliceAfter(term, url.protocol));
+    const isTypingHost = startsWith(url.host, term);
+    return formatURL(url, {
+        protocol: term !== '' && isTypingProtocol && !isTypingHost,
+        www: sliceAfter(term, url.protocol) !== '' && isTypingWww,
+        trailingSlash: !term.endsWith('/'),
+    });
+}
+
+/**
+ * @param {URL} url
+ * @returns {string}
+ */
+function getDuckDuckGoSearchQuery(url) {
+    const isDuckDuckGoSearch = url.hostname === 'duckduckgo.com' && (url.pathname === '/' || !url.pathname) && url.searchParams.has('q');
+    return isDuckDuckGoSearch ? (url.searchParams.get('q') ?? '') : '';
+}
+
+// @todo: rename these to include ignoreCase? move to string-utils.js?
+
+/**
+ * @param {string} string
+ * @param {string} searchString
+ * @returns {boolean}
+ */
+export function startsWith(string, searchString) {
+    return string.toLowerCase().startsWith(searchString.toLowerCase());
+}
+
+/**
+ * @param {string} string
+ * @param {string} searchString
+ * @returns {string}
+ */
+export function sliceAfter(string, searchString) {
+    if (startsWith(string, searchString)) {
+        return string.slice(searchString.length);
+    }
+    return string;
 }
