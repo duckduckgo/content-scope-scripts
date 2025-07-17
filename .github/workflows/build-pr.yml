@@ -91,6 +91,7 @@ jobs:
                         - **Commit Hash**: [${commitHash}](${commitUrl})
                         - **Last Updated**: ${lastUpdatedDate}
                         - **Apple Release**: [${zipFileName}](${zipUrl})
+                          - Install command: \`./scripts/update_content_scope_scripts.sh ${commitHash}\`
                         - **Install Command**: \`npm i github:duckduckgo/content-scope-scripts#${commitHash}\`
 
                         Please use the above install command to update to the latest version. The Apple release contains the built distribution files for iOS/macOS integration.
