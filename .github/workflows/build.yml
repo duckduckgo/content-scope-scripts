@@ -62,9 +62,17 @@ jobs:
                   npm ci
                   npm run build
 
+            - name: Build Apple Release
+              run: |
+                  # Create the Apple release using the build script
+                  ./scripts/build-apple-release.sh ${{ github.event.inputs.version }}
+
+            
             - name: Check in files
               run: |
-                  git add -f . ':!CHANGELOG.txt' ':!node_modules'
+                  git add -f . ':!CHANGELOG.txt' ':!node_modules' ':!build'
+                  # Ensure the Apple release zip is included
+                  git add -f ContentScopeScripts-apple.zip
 
             - name: Commit build files
               uses: stefanzweifel/git-auto-commit-action@v5
@@ -89,3 +97,5 @@ jobs:
                   prerelease: false
                   tag_name: ${{ github.event.inputs.version }}
                   target_commitish: 'releases'
+                  files: |
+                      ContentScopeScripts-apple.zip
