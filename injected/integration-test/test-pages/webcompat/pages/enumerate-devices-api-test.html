@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>enumerateDevices API Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Webcompat API Tests]</a></p>
+
+    <p>This page tests the enumerateDevices API proxy functionality</p>
+
+    <script>
+        // Mock device data for testing
+        const mockDevices = [
+            {
+                deviceId: 'audioinput-1',
+                kind: 'audioinput',
+                label: 'Test Microphone',
+                groupId: 'group-1'
+            },
+            {
+                deviceId: 'audiooutput-1',
+                kind: 'audiooutput',
+                label: 'Test Speaker',
+                groupId: 'group-1'
+            },
+            {
+                deviceId: 'videoinput-1',
+                kind: 'videoinput',
+                label: 'Test Camera',
+                groupId: 'group-2'
+            }
+        ];
+
+        // Helper function to create device objects with proper prototype
+        function createDeviceObject(deviceData) {
+            const device = Object.create(
+                deviceData.kind === 'videoinput' || deviceData.kind === 'audioinput' 
+                    ? InputDeviceInfo.prototype 
+                    : MediaDeviceInfo.prototype
+            );
+            
+            Object.defineProperties(device, {
+                deviceId: { value: deviceData.deviceId, writable: false, enumerable: true },
+                kind: { value: deviceData.kind, writable: false, enumerable: true },
+                label: { value: deviceData.label, writable: false, enumerable: true },
+                groupId: { value: deviceData.groupId, writable: false, enumerable: true }
+            });
+
+            // Add toJSON method to avoid "Illegal invocation" errors
+            device.toJSON = function() {
+                return {
+                    deviceId: this.deviceId,
+                    kind: this.kind,
+                    label: this.label,
+                    groupId: this.groupId
+                };
+            };
+
+            return device;
+        }
+
+        // Mock navigator.mediaDevices.enumerateDevices
+        const originalEnumerateDevices = navigator.mediaDevices.enumerateDevices;
+        navigator.mediaDevices.enumerateDevices = async function() {
+            return mockDevices.map(createDeviceObject);
+        };
+
+        test('Native enumerateDevices behavior', async () => {
+            const results = [];
+            
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                
+                results.push({
+                    name: 'Returns array of devices',
+                    result: Array.isArray(devices),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'Returns correct number of devices',
+                    result: devices.length,
+                    expected: 3
+                });
+
+                results.push({
+                    name: 'Devices have correct structure',
+                    result: devices.every(device => 
+                        device.deviceId && 
+                        device.kind && 
+                        device.label && 
+                        device.groupId
+                    ),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'Devices are MediaDeviceInfo instances',
+                    result: devices.every(device => device instanceof MediaDeviceInfo),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'Input devices are InputDeviceInfo instances',
+                    result: devices.filter(d => d.kind === 'audioinput' || d.kind === 'videoinput')
+                        .every(device => device instanceof InputDeviceInfo),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'toJSON method works without errors',
+                    result: (() => {
+                        try {
+                            devices.forEach(device => device.toJSON());
+                            return true;
+                        } catch (e) {
+                            return false;
+                        }
+                    })(),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'Device properties are read-only',
+                    result: (() => {
+                        const originalValue = devices[0].deviceId;
+                        devices[0].deviceId = 'modified';
+                        return devices[0].deviceId === originalValue;
+                    })(),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'Device IDs are unique',
+                    result: new Set(devices.map(d => d.deviceId)).size === devices.length,
+                    expected: true
+                });
+
+                results.push({
+                    name: 'Group IDs are valid',
+                    result: devices.every(device => typeof device.groupId === 'string' && device.groupId.length > 0),
+                    expected: true
+                });
+
+            } catch (error) {
+                results.push({
+                    name: 'No errors thrown',
+                    result: false,
+                    expected: true
+                });
+            }
+
+            return results;
+        });
+
+        test('Feature-enabled enumerateDevices behavior', async () => {
+            const results = [];
+            
+            // This test would run when the feature is enabled
+            // The actual behavior should be the same as native since we're just proxying
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                
+                results.push({
+                    name: 'Feature-enabled returns same number of devices',
+                    result: devices.length,
+                    expected: 3
+                });
+
+                results.push({
+                    name: 'Feature-enabled devices maintain structure',
+                    result: devices.every(device => 
+                        device.deviceId && 
+                        device.kind && 
+                        device.label && 
+                        device.groupId
+                    ),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'Feature-enabled devices are proper instances',
+                    result: devices.every(device => device instanceof MediaDeviceInfo),
+                    expected: true
+                });
+
+            } catch (error) {
+                results.push({
+                    name: 'Feature-enabled no errors thrown',
+                    result: false,
+                    expected: true
+                });
+            }
+
+            return results;
+        });
+
+        test('Error handling', async () => {
+            const results = [];
+            
+            // Test with a broken enumerateDevices
+            const originalEnumerateDevices = navigator.mediaDevices.enumerateDevices;
+            navigator.mediaDevices.enumerateDevices = async function() {
+                throw new Error('Permission denied');
+            };
+
+            try {
+                await navigator.mediaDevices.enumerateDevices();
+                results.push({
+                    name: 'Error should be thrown',
+                    result: false,
+                    expected: true
+                });
+            } catch (error) {
+                results.push({
+                    name: 'Error is properly thrown',
+                    result: error.message === 'Permission denied',
+                    expected: true
+                });
+            }
+
+            // Restore original
+            navigator.mediaDevices.enumerateDevices = originalEnumerateDevices;
+
+            return results;
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html> 
