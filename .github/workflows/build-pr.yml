@@ -37,7 +37,6 @@ jobs:
                   # Create the Apple release using the build script
                   ./scripts/build-apple-release.sh "pr-${{ github.event.pull_request.number }}"
 
-
             - name: Create and push release branch
               id: create_branch
               env:
