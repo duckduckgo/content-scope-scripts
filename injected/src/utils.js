@@ -7,6 +7,8 @@ let globalObj = typeof window === 'undefined' ? globalThis : window;
 let Error = globalObj.Error;
 let messageSecret;
 
+let isAppleSiliconCache = null;
+
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
 export const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
@@ -258,13 +260,17 @@ export function camelcase(dashCaseText) {
 
 // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections
 function isAppleSilicon() {
+    // Cache the result since hardware doesn't change
+    if (isAppleSiliconCache !== null) {
+        return isAppleSiliconCache;
+    }
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl');
 
     // Best guess if the device is an Apple Silicon
     // https://stackoverflow.com/a/65412357
-    // @ts-expect-error - Object is possibly 'null'
-    return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1;
+    isAppleSiliconCache = gl?.getSupportedExtensions()?.indexOf('WEBGL_compressed_texture_etc') !== -1;
+    return isAppleSiliconCache;
 }
 
 /**
@@ -299,7 +305,7 @@ const functionMap = {
         debugger;
     },
 
-    noop: () => {},
+    noop: () => { },
 };
 
 /**
