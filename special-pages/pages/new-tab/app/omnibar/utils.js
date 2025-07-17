@@ -192,7 +192,7 @@ export function formatURL(url, { scheme = true, www = true, trailingSlash = true
         result += `${url.protocol}//`;
     }
     if (!www && startsWithIgnoreCase(url.host, 'www.')) {
-        result += sliceAfterIgnoreCase(url.host, 'www.');
+        result += url.host.slice(4);
     } else {
         result += url.host;
     }
@@ -217,7 +217,7 @@ export function formatURL(url, { scheme = true, www = true, trailingSlash = true
 export function formatURLForTerm(url, term) {
     const scheme = `${url.protocol}//`;
     const isTypingScheme = startsWithIgnoreCase(scheme, term) || startsWithIgnoreCase(term, scheme);
-    const termWithoutScheme = sliceAfterIgnoreCase(term, scheme);
+    const termWithoutScheme = startsWithIgnoreCase(term, scheme) ? term.slice(scheme.length) : term;
     const isTypingWww = startsWithIgnoreCase('www.', termWithoutScheme) || startsWithIgnoreCase(termWithoutScheme, 'www.');
     const isTypingHost = startsWithIgnoreCase(url.host, term) || startsWithIgnoreCase(term, url.host);
     return formatURL(url, {
@@ -243,16 +243,4 @@ export function getDuckDuckGoSearchQuery(url) {
  */
 export function startsWithIgnoreCase(string, searchString) {
     return string.toLowerCase().startsWith(searchString.toLowerCase());
-}
-
-/**
- * @param {string} string
- * @param {string} searchString
- * @returns {string}
- */
-export function sliceAfterIgnoreCase(string, searchString) {
-    if (startsWithIgnoreCase(string, searchString)) {
-        return string.slice(searchString.length);
-    }
-    return string;
 }

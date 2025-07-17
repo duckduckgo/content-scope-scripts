@@ -1,7 +1,7 @@
 import { useContext, useEffect, useReducer } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
 import { usePlatformName } from '../../settings.provider.js';
-import { getSuggestionCompletionString, sliceAfterIgnoreCase, startsWithIgnoreCase } from '../utils.js';
+import { getSuggestionCompletionString, startsWithIgnoreCase } from '../utils.js';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
@@ -145,7 +145,7 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
         const completionString = getSuggestionCompletionString(selectedSuggestion, term);
         if (startsWithIgnoreCase(completionString, term)) {
             inputBase = term;
-            inputCompletion = sliceAfterIgnoreCase(completionString, term);
+            inputCompletion = completionString.slice(term.length);
         } else {
             inputBase = '';
             inputCompletion = completionString;

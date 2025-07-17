@@ -11,7 +11,6 @@ import {
     formatURLForTerm,
     getDuckDuckGoSearchQuery,
     startsWithIgnoreCase,
-    sliceAfterIgnoreCase,
 } from '../utils.js';
 
 /**
@@ -590,29 +589,5 @@ test.describe('startsWithIgnoreCase', () => {
         equal(startsWithIgnoreCase('!@#Test', '!@#'), true);
         equal(startsWithIgnoreCase('Test!', 'test!'), true);
         equal(startsWithIgnoreCase('Test!', 'Test!@#'), false);
-    });
-});
-
-test.describe('sliceAfterIgnoreCase', () => {
-    test('returns string without searchString prefix (case insensitive)', () => {
-        equal(sliceAfterIgnoreCase('Foobar', 'foo'), 'bar');
-        equal(sliceAfterIgnoreCase('FOOBAR', 'foo'), 'BAR');
-        equal(sliceAfterIgnoreCase('hello world', 'hello'), ' world');
-        equal(sliceAfterIgnoreCase('Hello World', 'hello'), ' World');
-    });
-
-    test('returns original string if searchString does not match prefix', () => {
-        equal(sliceAfterIgnoreCase('foobar', 'baz'), 'foobar');
-        equal(sliceAfterIgnoreCase('hello world', 'world'), 'hello world');
-        equal(sliceAfterIgnoreCase('abc', 'abcd'), 'abc');
-    });
-
-    test('handles empty searchString', () => {
-        equal(sliceAfterIgnoreCase('foobar', ''), 'foobar');
-        equal(sliceAfterIgnoreCase('', ''), '');
-    });
-
-    test('returns original string if searchString is longer', () => {
-        equal(sliceAfterIgnoreCase('abc', 'abcdef'), 'abc');
     });
 });
