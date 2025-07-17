@@ -53,6 +53,8 @@ export class ErrorDetection {
         if (documentBody) {
             // Check if iframe already contains error
             if (checkForError(this.selectors.youtubeError, documentBody)) {
+                // @ts-expect-error ytcfg is not typed
+                console.log('Window Object', window, window.ytcfg);
                 const error = getErrorType(window, this.selectors.signInRequiredError, this.logger);
                 this.handleError(error);
                 return;
@@ -97,6 +99,8 @@ export class ErrorDetection {
                 mutation.addedNodes.forEach((node) => {
                     if (checkForError(this.selectors.youtubeError, node)) {
                         this.logger.log('A node with an error has been added to the document:', node);
+                        // @ts-expect-error ytcfg is not typed
+                        console.log('Window Object', window, window.ytcfg);
                         const error = getErrorType(window, this.selectors.signInRequiredError, this.logger);
                         this.handleError(error);
                     }
