@@ -54,6 +54,13 @@ export function getErrorType(windowObject, signInRequiredSelector, logger) {
 
     if (!currentWindow.ytcfg) {
         logger?.warn('ytcfg missing!');
+        setTimeout(() => {
+            if (currentWindow.ytcfg) {
+                logger?.log('Got ytcfg', currentWindow.ytcfg);
+            } else {
+                logger?.warn('ytcfg still missing!');
+            }
+        }, 3000);
     } else {
         logger?.log('Got ytcfg', currentWindow.ytcfg);
     }
@@ -72,16 +79,20 @@ export function getErrorType(windowObject, signInRequiredSelector, logger) {
             previewPlayabilityStatus: { desktopLegacyAgeGateReason, status },
         } = playerResponse;
 
+        console.log('playerResponse', playerResponse);
         // 1. Check for UNPLAYABLE status
         if (status === 'UNPLAYABLE') {
+            console.log('UNPLAYABLE');
             // 1.1. Check for presence of desktopLegacyAgeGateReason
             if (desktopLegacyAgeGateReason === 1) {
+                console.log('AGE RESTRICTED');
                 logger?.log('AGE RESTRICTED ERROR');
                 return YOUTUBE_ERRORS.ageRestricted;
             }
 
             // 1.2. Fall back to embed not allowed error
             logger?.log('NO EMBED ERROR');
+            console.log('NO EMBED');
             return YOUTUBE_ERRORS.noEmbed;
         }
     }
