@@ -123,7 +123,6 @@ export function getSuggestionSuffix(suggestion, term) {
             return ` – ${formatURL(url, { protocol: false, trailingSlash: false })}`;
         }
         case 'phrase':
-        case 'website':
             return '';
         case 'openTab':
             // @todo: openTab suggestions don't have a url property, so not sure how to handle this
