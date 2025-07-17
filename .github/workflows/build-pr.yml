@@ -46,7 +46,7 @@ jobs:
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
                   git checkout -b pr-releases/pr-${PR_NUMBER}
-                  git add -f build ContentScopeScripts-Apple-pr-${PR_NUMBER}.zip
+                  git add -f build ContentScopeScripts-apple.zip
                   git commit -m "Add build folder and Apple release for PR ${PR_NUMBER}"
                   git push -u origin pr-releases/pr-${PR_NUMBER} --force
                   echo "BRANCH_NAME=pr-releases/pr-${PR_NUMBER}" >> $GITHUB_ENV
@@ -73,7 +73,7 @@ jobs:
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
                       const branchUrl = `${repoUrl}/tree/${branchName}`;
                       const commitUrl = `${repoUrl}/commit/${commitHash}`;
-                      const zipFileName = `ContentScopeScripts-Apple-pr-${prNumber}.zip`;
+                      const zipFileName = `ContentScopeScripts-apple.zip`;
                       const zipUrl = `${repoUrl}/blob/${branchName}/${zipFileName}`;
 
                       // Get the current date
