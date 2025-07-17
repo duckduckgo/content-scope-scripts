@@ -113,11 +113,8 @@ function sortFiles(dirFiles, dirName) {
 }
 
 const buildDir = '/build';
-const sourcesOutput = '/Sources/ContentScopeScripts/';
 sortFiles(readFilesRecursively(dir1 + buildDir), 'dir1');
 sortFiles(readFilesRecursively(dir2 + buildDir), 'dir2');
-sortFiles(readFilesRecursively(dir1 + sourcesOutput), 'dir1');
-sortFiles(readFilesRecursively(dir2 + sourcesOutput), 'dir2');
 
 // console.log(Object.keys(files))
 const fileOut = displayDiffs(sections.dir1, sections.dir2);
