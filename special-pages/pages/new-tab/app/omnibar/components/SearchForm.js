@@ -91,7 +91,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
                 {inputSuffix && (
                     <>
                         <span class={styles.suffixSpacer} inert>
-                            {inputBase + inputCompletion || t('searchForm_placeholder')}
+                            {inputBase + inputCompletion || t('omnibar_searchFormPlaceholder')}
                         </span>
                         <span class={styles.suffix} inert>
                             {inputSuffixText}

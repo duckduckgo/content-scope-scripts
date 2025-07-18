@@ -418,7 +418,7 @@ export function BrowserIcon(props) {
 
 /**
  * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Tab-Desktop-16.svg
- * @param {import('preact').JSX.SVGAttributes<SVGSVGElement} props
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
 export function TabDesktopIcon(props) {
     return (
