@@ -1,10 +1,11 @@
-import { useContext, useEffect } from 'preact/hooks';
+import { useContext, useMemo } from 'preact/hooks';
 import { OmnibarContext } from './OmnibarProvider.js';
-import { h } from 'preact';
+import { Fragment, h } from 'preact';
 import { Omnibar } from './Omnibar.js';
-import { CustomizerContext } from '../../customizer/CustomizerProvider.js';
 import { AiChatIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types.js';
+import { SettingsLink } from '../../customizer/components/SettingsLink.js';
+import { Fill } from '../../customizer/components/SlotFill.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -38,23 +39,20 @@ export function OmnibarConsumer() {
 function OmnibarReadyState({ config: { enableAi = true, mode } }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
-    const { settingsLinks } = useContext(CustomizerContext);
     const { setMode, setEnableAi } = useContext(OmnibarContext);
 
-    useEffect(() => {
-        settingsLinks.value = {
-            ...settingsLinks.value,
-            duckAi: {
-                title: enableAi ? t('omnibar_hideDuckAi') : t('omnibar_showDuckAi'),
-                icon: <AiChatIcon />,
-                onClick: () => setEnableAi(!enableAi),
-            },
-        };
-        return () => {
-            const { duckAi: _, ...rest } = settingsLinks.value;
-            settingsLinks.value = rest;
-        };
-    }, [enableAi]);
-
-    return <Omnibar mode={mode} setMode={setMode} enableAi={enableAi} />;
+    return (
+        <Fragment>
+            <Omnibar mode={mode} setMode={setMode} enableAi={enableAi} />
+            <Fill name="SettingLinks" index={0} id={'duck-ai-toggle'}>
+                <SettingsLink
+                    title={enableAi ? t('omnibar_hideDuckAi') : t('omnibar_showDuckAi')}
+                    icon={<AiChatIcon />}
+                    onClick={() => {
+                        setEnableAi(!enableAi);
+                    }}
+                />
+            </Fill>
+        </Fragment>
+    );
 }

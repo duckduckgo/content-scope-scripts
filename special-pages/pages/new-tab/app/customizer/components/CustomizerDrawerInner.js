@@ -15,6 +15,7 @@ import { DismissButton } from '../../components/DismissButton.jsx';
 import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
 import { useMessaging, useTypedTranslationWith } from '../../types.js';
 import { Open } from '../../components/icons/Open.js';
+import { Slot } from './SlotFill.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, UserImageContextMenu } from '../../../types/new-tab.js'
@@ -30,9 +31,8 @@ import { Open } from '../../components/icons/Open.js';
  * @param {(theme: import('../../../types/new-tab').ThemeData) => void} props.setTheme
  * @param {(id: string) => void} props.deleteImage
  * @param {(p: UserImageContextMenu) => void} props.customizerContextMenu
- * @param {import('@preact/signals').Signal<Record<string, SettingsLinkData>>} props.settingsLinks
  */
-export function CustomizerDrawerInner({ data, select, onUpload, setTheme, deleteImage, customizerContextMenu, settingsLinks }) {
+export function CustomizerDrawerInner({ data, select, onUpload, setTheme, deleteImage, customizerContextMenu }) {
     const { close } = useDrawerControls();
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const messaging = useMessaging();
@@ -69,9 +69,7 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                                 <VisibilityMenuSection />
                             </CustomizerSection>
                             <BorderedSection>
-                                {Object.entries(settingsLinks.value).map(([key, link]) => (
-                                    <SettingsLink key={key} title={link.title} icon={link.icon} onClick={() => link.onClick()} />
-                                ))}
+                                <Slot name="SettingLinks" />
                                 <SettingsLink
                                     title={t('customizer_settings_link')}
                                     icon={<Open />}
