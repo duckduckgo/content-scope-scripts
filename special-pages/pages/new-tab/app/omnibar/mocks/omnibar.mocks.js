@@ -24,6 +24,7 @@ const pizzaRelatedData = {
         'Homemade Pizza Guide',
         'Pizza Dough Calculator',
     ],
+    openTabs: ['Chicago vs New York Pizza'],
 };
 
 /**
@@ -66,14 +67,24 @@ export function getMockSuggestions(term) {
                         url: `https://${url}`,
                     })),
             ],
-            localSuggestions: pizzaRelatedData.historyEntries
-                .filter((title) => containsIgnoreCase(title, term))
-                .map((title) => ({
-                    kind: /** @type {const} */ ('historyEntry'),
-                    title,
-                    url: `https://example.com/search?q=${encodeURIComponent(title)}`,
-                    score: random(80, 89),
-                })),
+            localSuggestions: [
+                ...pizzaRelatedData.historyEntries
+                    .filter((title) => containsIgnoreCase(title, term))
+                    .map((title) => ({
+                        kind: /** @type {const} */ ('historyEntry'),
+                        title,
+                        url: `https://example.com/search?q=${encodeURIComponent(title)}`,
+                        score: random(80, 89),
+                    })),
+                ...pizzaRelatedData.openTabs
+                    .filter((title) => containsIgnoreCase(title, term))
+                    .map((title) => ({
+                        kind: /** @type {const} */ ('openTab'),
+                        title,
+                        tabId: `tab-${random(1000, 9999)}`,
+                        score: random(80, 89),
+                    })),
+            ],
         },
     };
 }

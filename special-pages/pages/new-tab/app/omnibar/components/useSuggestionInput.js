@@ -2,19 +2,19 @@ import { useLayoutEffect, useRef } from 'preact/hooks';
 
 /**
  * @param {string} base
- * @param {string} suggestion
+ * @param {string} completion
  */
-export function useSuggestionInput(base, suggestion) {
+export function useCompletionInput(base, completion) {
     const ref = useRef(/** @type {HTMLInputElement|null} */ (null));
 
     useLayoutEffect(() => {
         if (!ref.current) return;
-        const value = base + suggestion;
+        const value = base + completion;
         ref.current.value = value;
-        if (suggestion) {
+        if (completion) {
             ref.current.setSelectionRange(base.length, value.length);
         }
-    }, [base, suggestion]);
+    }, [base, completion]);
 
     return ref;
 }
