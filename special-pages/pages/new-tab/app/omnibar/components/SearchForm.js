@@ -74,8 +74,8 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
                     type="text"
                     role="combobox"
                     class={styles.input}
-                    placeholder={t('searchForm_placeholder')}
-                    aria-label={t('searchForm_placeholder')}
+                    placeholder={t('omnibar_searchFormPlaceholder')}
+                    aria-label={t('omnibar_searchFormPlaceholder')}
                     aria-expanded={suggestions.length > 0}
                     aria-haspopup="listbox"
                     aria-controls={suggestionsListId}
