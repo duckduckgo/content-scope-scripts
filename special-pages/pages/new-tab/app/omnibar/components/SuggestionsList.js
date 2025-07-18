@@ -1,6 +1,15 @@
 import { h, Fragment } from 'preact';
 import { eventToTarget } from '../../../../../shared/handlers';
-import { ArrowRightIcon, BookmarkIcon, BrowserIcon, FavoriteIcon, GlobeIcon, HistoryIcon, SearchIcon } from '../../components/Icons';
+import {
+    ArrowRightIcon,
+    BookmarkIcon,
+    BrowserIcon,
+    FavoriteIcon,
+    GlobeIcon,
+    HistoryIcon,
+    SearchIcon,
+    TabDesktopIcon,
+} from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
 import styles from './SuggestionsList.module.css';
 import { getSuggestionSuffix, getSuggestionTitle, startsWithIgnoreCase } from '../utils';
@@ -87,6 +96,7 @@ function SuggestionIcon({ suggestion }) {
         case 'bookmark':
             return suggestion.isFavorite ? <FavoriteIcon /> : <BookmarkIcon />;
         case 'openTab':
+            return <TabDesktopIcon />;
         case 'internalPage':
             return <BrowserIcon />;
         default:
