@@ -217,6 +217,61 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.tabList()).toHaveCount(0);
     });
 
+    test('can toggle Duck.ai on', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': false } });
+        await omnibar.ready();
+
+        // Start out with no tab selector
+        await expect(omnibar.tabList()).toHaveCount(0);
+
+        // Enable Duck.ai via Customize panel
+        await omnibar.customizeButton().click();
+        await omnibar.showDuckAiButton().click();
+
+        // Tab selector is now visible
+        await expect(omnibar.tabList()).toBeVisible();
+    });
+
+    test('can toggle Duck.ai off', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Start out with a tab selector
+        await expect(omnibar.tabList()).toBeVisible();
+
+        // Disable Duck.ai via Customize panel
+        await omnibar.customizeButton().click();
+        await omnibar.hideDuckAiButton().click();
+
+        // Tab selector is now gone
+        await expect(omnibar.tabList()).toHaveCount(0);
+    });
+
+    test('hiding Omnibar widget hides Duck.ai toggle', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Open Customize panel - Duck.ai toggle should be visible
+        await omnibar.customizeButton().click();
+        await expect(omnibar.hideDuckAiButton()).toBeVisible();
+
+        // Hide the Omnibar widget - Duck.ai toggle should be hidden
+        await omnibar.toggleSearchButton().click();
+        await expect(omnibar.hideDuckAiButton()).toHaveCount(0);
+    });
+
     test('suggestions list arrow down navigation', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);

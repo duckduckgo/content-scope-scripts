@@ -49,15 +49,31 @@ export class OmnibarPage {
         return this.suggestionsList().getByRole('option');
     }
 
+    selectedSuggestion() {
+        return this.suggestionsList().getByRole('option', { selected: true });
+    }
+
+    customizeButton() {
+        return this.page.getByRole('button', { name: 'Customize' });
+    }
+
+    toggleSearchButton() {
+        return this.page.getByRole('switch', { name: 'Toggle Search' });
+    }
+
+    showDuckAiButton() {
+        return this.page.getByRole('link', { name: 'Show Duck.ai' });
+    }
+
+    hideDuckAiButton() {
+        return this.page.getByRole('link', { name: 'Hide Duck.ai' });
+    }
+
     /**
      * @param {number} count
      */
     async expectSuggestionsCount(count) {
         await expect(this.suggestions()).toHaveCount(count);
-    }
-
-    selectedSuggestion() {
-        return this.suggestionsList().getByRole('option', { selected: true });
     }
 
     /**

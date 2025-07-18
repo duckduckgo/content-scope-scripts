@@ -4,9 +4,7 @@
     padding: var(--sp-1);
 
     svg {
-        height: var(--sp-4);
         margin: var(--sp-2);
-        width: var(--sp-4);
     }
 }
 

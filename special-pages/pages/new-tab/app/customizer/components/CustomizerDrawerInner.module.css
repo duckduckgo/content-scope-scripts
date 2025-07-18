@@ -257,6 +257,7 @@
     align-items: center;
     text-decoration: none;
     color: var(--ntp-color-primary);
+    margin-bottom: var(--sp-3);
 
     &:focus {
         outline: none;
