@@ -30,7 +30,7 @@
   "devDependencies": {
     "@duckduckgo/messaging": "*",
     "chokidar": "^4.0.3",
-    "fast-check": "^4.1.1",
+    "fast-check": "^4.2.0",
     "http-server": "^14.1.1",
     "web-resource-inliner": "^6.0.1"
   },
