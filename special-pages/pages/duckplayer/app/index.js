@@ -73,7 +73,7 @@ export async function init(messaging, telemetry, baseEnvironment) {
 
     console.log(settings);
 
-    let embed;
+    let embed = null;
     try {
         embed = createEmbedSettings(window.location.href, settings);
         if (!embed) {
