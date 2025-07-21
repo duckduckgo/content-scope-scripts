@@ -640,6 +640,34 @@ test.describe('Broker Protection communications', () => {
             const response = await dbp.collector.waitForMessage('actionCompleted');
             dbp.isSuccessMessage(response);
         });
+        test('retrying a solveCaptcha', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('captcha-retry.html?failAttempts=2');
+
+            await dbp.simulateSubscriptionMessage('onActionReceived', {
+                state: {
+                    action: {
+                        actionType: 'solveCaptcha',
+                        id: '2',
+                        selector: '#svgCaptchaInputId',
+                        retry: {
+                            environment: 'web',
+                            maxAttempts: 3,
+                            interval: { ms: 100 },
+                        },
+                    },
+                    data: {
+                        token: 'ABC123',
+                    },
+                },
+            });
+
+            // Wait for the action to complete (should succeed after retries)
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+        });
+
         test('ensuring retry doesnt apply everywhere', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();

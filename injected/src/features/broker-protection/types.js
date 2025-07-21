@@ -12,6 +12,7 @@
  * @property {string} [captchaType]
  * @property {string} [injectCaptchaHandler]
  * @property {string} [dataSource]
+ * @property {{environment: string, maxAttempts: number, interval: {ms: number}}} [retry]
  */
 
 /**

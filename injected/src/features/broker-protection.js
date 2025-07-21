@@ -110,6 +110,7 @@ export default class BrokerProtection extends ContentFeature {
                 };
             }
         }
+
         return retryConfig;
     }
 }
