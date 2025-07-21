@@ -138,6 +138,36 @@ test.describe('Broker Protection Captcha', () => {
 
                 await dbp.isCaptchaTokenFilled(imageCaptchaResponseSelector);
             });
+
+            test('solves the captcha with retry configuration', async ({ createConfiguredDbp }) => {
+                const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
+                await dbp.navigatesTo(imageCaptchaTargetPage);
+
+                // Create action manually to ensure retry field is properly included
+                const retryAction = {
+                    state: {
+                        action: {
+                            id: 'retry-test',
+                            actionType: 'solveCaptcha',
+                            captchaType: 'image',
+                            selector: imageCaptchaResponseSelector,
+                            retry: {
+                                environment: 'web',
+                                maxAttempts: 3,
+                                interval: { ms: 200 },
+                            },
+                        },
+                        data: {
+                            token: 'test_token',
+                        },
+                    },
+                };
+
+                await dbp.receivesInlineAction(retryAction);
+                await dbp.getSuccessResponse();
+
+                await dbp.isCaptchaTokenFilled(imageCaptchaResponseSelector);
+            });
         });
     });
 

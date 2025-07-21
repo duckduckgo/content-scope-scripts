@@ -76,7 +76,7 @@
 </head>
 <body>
     <h1>Captcha Retry Test</h1>
-    <p>This page simulates a captcha that fails the first few attempts before succeeding.</p>
+    <p>This page simulates a captcha for retry testing.</p>
 
     <div class="captcha-container">
         <div class="captcha-image">
@@ -88,15 +88,8 @@
         <!-- Hidden elements for deprecated captcha provider -->
         <textarea name="g-recaptcha-response" style="display: none;"></textarea>
         <textarea name="h-captcha-response" style="display: none;"></textarea>
-        <div id="status" class="status hidden"></div>
-    </div>
 
-    <div>
-        <h3>Configuration</h3>
-        <label>
-            Fail first <input type="number" id="failAttempts" value="2" min="0" max="10" /> attempts
-        </label>
-        <button onclick="reset()">Reset Test</button>
+        <div id="status" class="status hidden"></div>
     </div>
 
     <script>
@@ -125,7 +118,7 @@
         window.solveCaptcha = solveCaptcha;
         document.getElementById('svgCaptchaButtonId').onclick = solveCaptcha;
 
-        // For automated testing - simulate token injection
+        // For automated testing - simple token injection
         window.injectCaptchaToken = function(token) {
             document.getElementById('svgCaptchaInputId').value = token;
         };
