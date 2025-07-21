@@ -156,6 +156,18 @@
     "title" : "Rechercher ou saisir une adresse",
     "description" : "Placeholder text for the search input field."
   },
+  "omnibar_searchDuckDuckGoSuffix" : {
+    "title" : "Rechercher avec DuckDuckGo",
+    "description" : "Text placed after suggestions that will search DuckDuckGo."
+  },
+  "omnibar_duckDuckGoSuffix" : {
+    "title" : "DuckDuckGo",
+    "description" : "Text placed after suggestions that will open a DuckDuckGo page."
+  },
+  "omnibar_visitSuffix" : {
+    "title" : "Visiter {url}",
+    "description" : "Text placed after suggestions that will open a webpage."
+  },
   "nextSteps_sectionTitle" : {
     "title" : "Étapes suivantes",
     "note" : "Text that goes in the Next Steps bubble above the first card"

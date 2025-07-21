@@ -156,6 +156,18 @@
     "title" : "Zoek of voer een adres in",
     "description" : "Placeholder text for the search input field."
   },
+  "omnibar_searchDuckDuckGoSuffix" : {
+    "title" : "Zoek in DuckDuckGo",
+    "description" : "Text placed after suggestions that will search DuckDuckGo."
+  },
+  "omnibar_duckDuckGoSuffix" : {
+    "title" : "DuckDuckGo",
+    "description" : "Text placed after suggestions that will open a DuckDuckGo page."
+  },
+  "omnibar_visitSuffix" : {
+    "title" : "{url} bezoeken",
+    "description" : "Text placed after suggestions that will open a webpage."
+  },
   "nextSteps_sectionTitle" : {
     "title" : "Volgende stappen",
     "note" : "Text that goes in the Next Steps bubble above the first card"
