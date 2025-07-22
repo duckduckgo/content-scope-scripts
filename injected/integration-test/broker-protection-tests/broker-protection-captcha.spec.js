@@ -130,27 +130,38 @@ test.describe('Broker Protection Captcha', () => {
         });
 
         test.describe('solveCaptchaInfo', () => {
-            test('solves the captcha for the correct action data', async ({ createConfiguredDbp }) => {
+            test('solves the captcha for the correct action data', async ({ page, createConfiguredDbp }) => {
                 const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
                 await dbp.navigatesTo(imageCaptchaTargetPage);
                 await dbp.receivesInlineAction(createSolveImageCaptchaAction({ selector: imageCaptchaResponseSelector }));
                 dbp.getSuccessResponse();
 
                 await dbp.isCaptchaTokenFilled(imageCaptchaResponseSelector);
+
+                await page.pause();
             });
 
-            test('solves the captcha with retry configuration', async ({ createConfiguredDbp }) => {
+            test('retry fails with permanently invalid element type', async ({ page, createConfiguredDbp }) => {
                 const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
-                await dbp.navigatesTo(imageCaptchaTargetPage);
+                await dbp.navigatesTo('image-captcha.html');
 
-                // Create action manually to ensure retry field is properly included
-                const retryAction = {
+                // Replace input with a div element which cannot accept token injection
+                await page.evaluate(() => {
+                    const element = document.getElementById('svgCaptchaInputId');
+                    if (element) {
+                        const div = document.createElement('div');
+                        div.id = 'svgCaptchaInputId';
+                        div.textContent = 'This is a div, not an input';
+                        element.parentNode?.replaceChild(div, element);
+                    }
+                });
+
+                await dbp.simulateSubscriptionMessage('onActionReceived', {
                     state: {
                         action: {
-                            id: 'retry-test',
                             actionType: 'solveCaptcha',
-                            captchaType: 'image',
-                            selector: imageCaptchaResponseSelector,
+                            id: 'retry-invalid-element',
+                            selector: '#svgCaptchaInputId',
                             retry: {
                                 environment: 'web',
                                 maxAttempts: 3,
@@ -158,15 +169,14 @@ test.describe('Broker Protection Captcha', () => {
                             },
                         },
                         data: {
-                            token: 'test_token',
+                            token: 'RETRY_FAIL_TOKEN',
                         },
                     },
-                };
+                });
 
-                await dbp.receivesInlineAction(retryAction);
-                await dbp.getSuccessResponse();
-
-                await dbp.isCaptchaTokenFilled(imageCaptchaResponseSelector);
+                // Should fail after all retry attempts because div is invalid for token injection
+                const response = await dbp.collector.waitForMessage('actionCompleted');
+                dbp.isErrorMessage(response);
             });
         });
     });
