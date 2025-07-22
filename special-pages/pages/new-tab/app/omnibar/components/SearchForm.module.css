@@ -5,9 +5,7 @@
 
     svg {
         flex-shrink: 0;
-        height: var(--sp-4);
         margin: var(--sp-2);
-        width: var(--sp-4);
     }
 }
 

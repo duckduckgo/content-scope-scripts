@@ -67,6 +67,18 @@ export class OmnibarService {
     }
 
     /**
+     * @param {NonNullable<OmnibarConfig['enableAi']>} enableAi
+     */
+    setEnableAi(enableAi) {
+        this.configService.update((old) => {
+            return {
+                ...old,
+                enableAi,
+            };
+        });
+    }
+
+    /**
      * Get suggestions for the given search term
      * @param {string} term
      * @returns {Promise<SuggestionsData>}
