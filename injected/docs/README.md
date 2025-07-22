@@ -9,6 +9,7 @@ This directory contains detailed documentation for the Content Scope Scripts pro
 - **[API Reference](./api-reference.md)** - Complete reference for the Content Scope Features API
 - **[Features Guide](./features-guide.md)** - How to develop features and understand the feature lifecycle
 - **[Platform Integration](./platform-integration.md)** - Platform-specific implementation details and integration patterns
+- **[Platform-Specific Build & Troubleshooting Tips](./build-and-troubleshooting.md)** - Troubleshooting and setup tips for iOS, macOS, Android, Windows, and Extensions
 
 ### Development Resources
 
@@ -25,7 +26,7 @@ This directory contains detailed documentation for the Content Scope Scripts pro
 If you're new to Content Scope Scripts, start with the main [README](../README.md) for a high-level overview, then dive into the specific documentation based on your needs:
 
 - **Building features?** → [Features Guide](./features-guide.md)
-- **Integrating with a platform?** → [Platform Integration](./platform-integration.md)
+- **Integrating with a platform?** → [Platform Integration](./platform-integration.md) and [Platform-Specific Build & Troubleshooting Tips](./build-and-troubleshooting.md)
 - **Using the API?** → [API Reference](./api-reference.md)
 - **Developing utilities?** → [Development Utilities](./development-utilities.md)
 - **Testing your changes?** → [Testing Guide](./testing-guide.md)

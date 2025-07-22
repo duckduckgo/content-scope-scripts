@@ -119,3 +119,5 @@ Check that relevant Privacy Features are working as expected:
 - **Cookie protection**:
     - [Block Third Party Tracking Cookies Implementation Guidelines](https://app.asana.com/1/137249556945/project/1198207348643509/task/1200539099112751?focus=true)
     - [Expire First Party Script Cookies Implementation Guidelines](https://app.asana.com/1/137249556945/project/1198207348643509/task/1200364574828671?focus=true)
+
+See [Platform-Specific Build & Troubleshooting Tips](./build-and-troubleshooting.md) for detailed troubleshooting and setup instructions.
