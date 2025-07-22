@@ -15,6 +15,14 @@ import { applyDefaultStyles } from './utils.js';
  */
 
 /**
+ * @typedef {{
+ *   title: string,
+ *   icon: import('preact').ComponentChild,
+ *   onClick: () => void,
+ * }} SettingsLinkData
+ */
+
+/**
  * These are the values exposed to consumers.
  */
 export const CustomizerThemesContext = createContext({
@@ -47,6 +55,10 @@ export const CustomizerContext = createContext({
      * @param {UserImageContextMenu} _params
      */
     customizerContextMenu: (_params) => {},
+    /**
+     * @type {import('@preact/signals').Signal<Record<string, SettingsLinkData>>}
+     */
+    settingsLinks: signal({}),
 });
 
 /**
@@ -126,8 +138,11 @@ export function CustomizerProvider({ service, initialData, children }) {
     /** @type {(p: UserImageContextMenu) => void} */
     const customizerContextMenu = useCallback((params) => service.contextMenu(params), [service]);
 
+    /** @type {import('@preact/signals').Signal<Record<string, SettingsLinkData>>} */
+    const settingsLinks = useSignal({});
+
     return (
-        <CustomizerContext.Provider value={{ data, select, upload, setTheme, deleteImage, customizerContextMenu }}>
+        <CustomizerContext.Provider value={{ data, select, upload, setTheme, deleteImage, customizerContextMenu, settingsLinks }}>
             <CustomizerThemesContext.Provider value={{ main, browser }}>{children}</CustomizerThemesContext.Provider>
         </CustomizerContext.Provider>
     );
