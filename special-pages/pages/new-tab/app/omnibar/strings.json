@@ -38,5 +38,17 @@
   "omnibar_showDuckAi": {
     "title": "Show Duck.ai",
     "description": "Label for the button to show the Duck.ai chat interface."
+  },
+  "omnibar_searchDuckDuckGoSuffix": {
+    "title": "Search DuckDuckGo",
+    "description": "Text placed after suggestions that will search DuckDuckGo."
+  },
+  "omnibar_duckDuckGoSuffix": {
+    "title": "DuckDuckGo",
+    "description": "Text placed after suggestions that will open a DuckDuckGo page."
+  },
+  "omnibar_visitSuffix": {
+    "title": "Visit {url}",
+    "description": "Text placed after suggestions that will open a webpage."
   }
 }
