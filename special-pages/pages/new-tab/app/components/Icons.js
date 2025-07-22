@@ -422,7 +422,7 @@ export function BrowserIcon(props) {
  */
 export function TabDesktopIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <path
                 fill="currentColor"
                 d="M11 2a4 4 0 0 1 4 4v4c0 .854.39 1.617 1 2.121v.357c0 .517-.541.841-.925.495A4 4 0 0 1 13.75 10V6A2.75 2.75 0 0 0 11 3.25H5A2.75 2.75 0 0 0 2.25 6v4a4 4 0 0 1-1.325 2.973c-.384.346-.925.022-.925-.495v-.357c.61-.504 1-1.267 1-2.121V6a4 4 0 0 1 4-4z"
