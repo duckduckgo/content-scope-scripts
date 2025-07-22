@@ -16,9 +16,7 @@
     justify-content: flex-start;
 
     svg {
-        height: var(--sp-4);
         margin: var(--sp-2);
-        width: var(--sp-4);
     }
 
     &[aria-selected="true"] {

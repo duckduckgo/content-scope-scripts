@@ -20,11 +20,6 @@
     padding: 0;
     width: 92px;
     z-index: 1;
-
-    svg {
-        height: var(--sp-4);
-        width: var(--sp-4);
-    }
 }
 
 .tabLabel {
