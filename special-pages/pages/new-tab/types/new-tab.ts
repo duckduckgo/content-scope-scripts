@@ -64,6 +64,7 @@ export type Suggestion =
   | InternalPageSuggestion;
 export type OmnibarMode = "search" | "ai";
 export type EnableDuckAi = boolean;
+export type ShowAISettingButton = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -507,6 +508,7 @@ export interface OmnibarSetConfigNotification {
 export interface OmnibarConfig {
   mode: OmnibarMode;
   enableAi?: EnableDuckAi;
+  showAiSetting?: ShowAISettingButton;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"

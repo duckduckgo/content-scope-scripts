@@ -35,26 +35,28 @@ export function OmnibarConsumer() {
  * @param {object} props
  * @param {OmnibarConfig} props.config
  */
-function OmnibarReadyState({ config: { enableAi = true, mode } }) {
+function OmnibarReadyState({ config: { enableAi = true, showAiSetting = true, mode } }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const { settingsLinks } = useContext(CustomizerContext);
     const { setMode, setEnableAi } = useContext(OmnibarContext);
 
     useEffect(() => {
-        settingsLinks.value = {
-            ...settingsLinks.value,
-            duckAi: {
-                title: enableAi ? t('omnibar_hideDuckAi') : t('omnibar_showDuckAi'),
-                icon: <AiChatIcon />,
-                onClick: () => setEnableAi(!enableAi),
-            },
-        };
+        if (showAiSetting) {
+            settingsLinks.value = {
+                ...settingsLinks.value,
+                duckAi: {
+                    title: enableAi ? t('omnibar_hideDuckAi') : t('omnibar_showDuckAi'),
+                    icon: <AiChatIcon />,
+                    onClick: () => setEnableAi(!enableAi),
+                },
+            };
+        }
         return () => {
             const { duckAi: _, ...rest } = settingsLinks.value;
             settingsLinks.value = rest;
         };
-    }, [enableAi]);
+    }, [enableAi, showAiSetting]);
 
     return <Omnibar mode={mode} setMode={setMode} enableAi={enableAi} />;
 }

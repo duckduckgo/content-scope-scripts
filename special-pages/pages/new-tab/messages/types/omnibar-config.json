@@ -15,6 +15,11 @@
       "title": "Enable Duck.ai",
       "type": "boolean",
       "default": true
+    },
+    "showAiSetting": {
+      "title": "Show AI Setting Button",
+      "type": "boolean",
+      "default": true
     }
   }
 }
