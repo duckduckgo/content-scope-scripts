@@ -1,5 +1,6 @@
 .outer {
     align-self: stretch;
+    width: 620px;
     z-index: 1;
 }
 
