@@ -53,14 +53,9 @@
     padding: 0;
     width: var(--sp-7);
 
-    svg {
-        height: var(--sp-4);
-        width: var(--sp-4);
-    }
-
     &[disabled] {
         background: none;
-        color: var(--color-black-at-30);
+        color: rgba(0, 0, 0, 0.3);
         cursor: default;
     }
 

@@ -1,27 +1,25 @@
 import cn from 'classnames';
 import styles from './CustomizerDrawerInner.module.css';
 import { h } from 'preact';
-import { useMessaging, useTypedTranslationWith } from '../../types.js';
-import { Open } from '../../components/icons/Open.js';
 
 /**
- * @import enStrings from '../strings.json';
+ * @param {object} props
+ * @param {string} props.title
+ * @param {import('preact').ComponentChild} props.icon
+ * @param {() => void} props.onClick
  */
-
-/**
- * Settings link
- */
-export function SettingsLink() {
-    const messaging = useMessaging();
-    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
-    function onClick(e) {
-        e.preventDefault();
-        messaging.open({ target: 'settings' });
-    }
+export function SettingsLink({ title, icon, onClick }) {
     return (
-        <a href="duck://settings" class={cn(styles.settingsLink)} onClick={onClick}>
-            <span>{t('customizer_settings_link')}</span>
-            <Open />
+        <a
+            href="duck://settings"
+            class={cn(styles.settingsLink)}
+            onClick={(event) => {
+                event.preventDefault();
+                onClick();
+            }}
+        >
+            <span>{title}</span>
+            {icon}
         </a>
     );
 }
