@@ -1510,13 +1510,9 @@ body:not([data-platform-name]) .Button_button:active {
   padding: 0;
   width: var(--sp-7);
 }
-.AiChatForm_submitButton svg {
-  height: var(--sp-4);
-  width: var(--sp-4);
-}
 .AiChatForm_submitButton[disabled] {
   background: none;
-  color: var(--color-black-at-30);
+  color: rgba(0, 0, 0, 0.3);
   cursor: default;
 }
 .AiChatForm_submitButton:focus-visible {
@@ -1530,7 +1526,7 @@ body:not([data-platform-name]) .Button_button:active {
 }
 .Container_inner {
   background: var(--ntp-surface-tertiary);
-  border-radius: 11px;
+  border-radius: 12px;
   box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.08);
   margin: 0 calc(-1 * var(--sp-1));
   overflow: hidden;
@@ -1542,13 +1538,20 @@ body:not([data-platform-name]) .Button_button:active {
     transition: none;
   }
 }
-.Container_inner:focus-within {
-  border-radius: 14px;
-  box-shadow: 0 0 0 2px var(--ntp-color-primary), 0 0 0 4px rgba(57, 105, 239, 0.2);
+.Container_inner:not(:has([role=listbox])).Container_focusRing,
+.Container_inner:not(:has([role=listbox])):focus-within:not(.Container_noFocusRing) {
+  border-radius: 15px;
+  box-shadow:
+    0 0 0 1px var(--ntp-surface-tertiary),
+    0 0 0 3px var(--ntp-color-primary),
+    0 0 0 7px rgba(57, 105, 239, 0.2);
 }
 .Container_inner:has([role=listbox]) {
-  border-radius: 16px;
-  box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 4px 8px 0px rgba(0, 0, 0, 0.16);
+  border-radius: 15px;
+  box-shadow:
+    0 0 0 3px var(--ntp-surface-tertiary),
+    0px 4px 12px 3px rgba(0, 0, 0, 0.10),
+    0px 20px 40px 3px rgba(0, 0, 0, 0.08);
 }
 
 /* pages/new-tab/app/omnibar/components/Omnibar.module.css */
@@ -1571,20 +1574,33 @@ body:not([data-platform-name]) .Button_button:active {
   padding: var(--sp-1);
 }
 .SearchForm_inputContainer svg {
-  height: var(--sp-4);
+  flex-shrink: 0;
   margin: var(--sp-2);
-  width: var(--sp-4);
 }
 .SearchForm_input {
   background: none;
   border: none;
   color: var(--ntp-text-normal);
-  flex: 1 0 0;
   height: var(--sp-8);
-  padding: 0;
+  left: var(--sp-1);
+  padding-bottom: 0;
+  padding-left: calc(var(--sp-2) + var(--sp-4) + var(--sp-2));
+  padding-right: var(--suffix-text-width);
+  padding-top: 0;
+  position: absolute;
+  right: var(--sp-1);
 }
 .SearchForm_input:focus {
   outline: none;
+}
+.SearchForm_suffixSpacer {
+  overflow: hidden;
+  visibility: hidden;
+  white-space: pre;
+}
+.SearchForm_suffix {
+  color: var(--ntp-color-primary);
+  flex-shrink: 0;
 }
 
 /* pages/new-tab/app/omnibar/components/SuggestionsList.module.css */
@@ -1605,14 +1621,38 @@ body:not([data-platform-name]) .Button_button:active {
   justify-content: flex-start;
 }
 .SuggestionsList_item svg {
-  height: var(--sp-4);
+  flex-shrink: 0;
   margin: var(--sp-2);
-  width: var(--sp-4);
 }
 .SuggestionsList_item[aria-selected=true] {
   background: var(--ddg-color-primary);
   border-radius: 4px;
   color: var(--color-white);
+}
+.SuggestionsList_item[aria-selected=true] .SuggestionsList_suffix {
+  color: var(--color-white);
+}
+.SuggestionsList_title {
+  white-space: pre;
+}
+.SuggestionsList_suffix {
+  color: var(--ntp-text-muted);
+  font-size: 12px;
+}
+.SuggestionsList_badge {
+  align-items: center;
+  background: var(--ntp-controls-raised-backdrop);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  gap: 6px;
+  height: 22px;
+  margin-left: auto;
+  padding: 0px var(--sp-3);
+}
+.SuggestionsList_badge svg {
+  height: 9px;
+  margin: 0;
+  width: 9px;
 }
 
 /* pages/new-tab/app/omnibar/components/TabSwitcher.module.css */
@@ -1620,7 +1660,9 @@ body:not([data-platform-name]) .Button_button:active {
   background: var(--ntp-controls-raised-backdrop);
   border-radius: 99px;
   box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.05) inset;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(var(--tab-count), 1fr);
+  overflow: hidden;
   padding: var(--sp-0_5);
   position: relative;
 }
@@ -1634,24 +1676,35 @@ body:not([data-platform-name]) .Button_button:active {
   gap: 6px;
   height: var(--sp-8);
   justify-content: center;
-  padding: 0;
-  width: 92px;
+  padding: 0 var(--sp-3);
   z-index: 1;
-}
-.TabSwitcher_tab svg {
-  height: var(--sp-4);
-  width: var(--sp-4);
 }
 .TabSwitcher_tabLabel {
   padding-top: 1px;
 }
 .TabSwitcher_blob {
+  background-color: var(--color-white);
+  border-radius: 18px;
+  box-shadow:
+    0 4px 4px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.48);
   color: var(--ntp-controls-raised-fill-primary);
+  height: var(--sp-8);
   left: 0;
   position: absolute;
-  top: 0;
+  top: 2px;
   transition: translate 200ms ease;
+  translate: calc(2px + var(--tab-index) * 100%);
+  width: calc((100% - 4px) / var(--tab-count));
   will-change: translate;
+}
+[data-theme=dark] .TabSwitcher_blob {
+  background-color: #6B6B6B;
+  box-shadow:
+    0 4px 4px rgba(0, 0, 0, 0.24),
+    0 1px 2px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 @media (prefers-reduced-motion: reduce) {
   .TabSwitcher_blob {
@@ -2560,6 +2613,7 @@ body:not([data-platform-name]) .Button_button:active {
   align-items: center;
   text-decoration: none;
   color: var(--ntp-color-primary);
+  margin-bottom: var(--sp-3);
 }
 .CustomizerDrawerInner_settingsLink:focus {
   outline: none;

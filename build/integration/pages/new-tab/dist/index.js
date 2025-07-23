@@ -1563,7 +1563,7 @@
     ));
   }
   function SearchIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Find-Search-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Find-Search-16_svg__a)" }, /* @__PURE__ */ _(
       "path",
       {
         fill: "currentColor",
@@ -1574,7 +1574,7 @@
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Find-Search-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function SearchColorIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Search-Find-Color-16_svg__a)" }, /* @__PURE__ */ _("path", { fill: "#ADC2FC", d: "M12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0Z" }), /* @__PURE__ */ _("path", { fill: "#fff", d: "M7 2a4.98 4.98 0 0 1 3.403 1.338 5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z", opacity: ".5" }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Search-Find-Color-16_svg__a)" }, /* @__PURE__ */ _("path", { fill: "#ADC2FC", d: "M12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0Z" }), /* @__PURE__ */ _("path", { fill: "#fff", d: "M7 2a4.98 4.98 0 0 1 3.403 1.338 5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z", opacity: ".5" }), /* @__PURE__ */ _(
       "path",
       {
         fill: "#557FF3",
@@ -1583,7 +1583,7 @@
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Search-Find-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function AiChatIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#Ai-Chat-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#Ai-Chat-16_svg__a)" }, /* @__PURE__ */ _(
       "path",
       {
         "fill-rule": "evenodd",
@@ -1593,7 +1593,7 @@
     ), /* @__PURE__ */ _("path", { d: "M7.62 3.271c.099-.396.661-.396.76 0l.22.878a3.27 3.27 0 0 0 2.376 2.376l.878.22c.396.099.396.661 0 .76l-.878.22A3.27 3.27 0 0 0 8.6 10.102l-.219.877c-.099.396-.661.396-.76 0l-.22-.877a3.27 3.27 0 0 0-2.377-2.377l-.877-.22c-.396-.099-.396-.661 0-.76l.877-.22A3.27 3.27 0 0 0 7.4 4.15l.22-.878Z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function AiChatColorIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Ai-Chat-Gradient-Color-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Ai-Chat-Gradient-Color-16_svg__a)" }, /* @__PURE__ */ _(
       "path",
       {
         fill: "url(#Ai-Chat-Gradient-Color-16_svg__b)",
@@ -1626,7 +1626,7 @@
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Gradient-Color-16_svg__b", x1: "8", x2: "8", y1: "0", y2: "15.944", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#A7B7FD" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#5981F3" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Gradient-Color-16_svg__c", x1: "8", x2: "8", y1: "0", y2: "15.944", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#7C99F7" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#4B74EE" })), /* @__PURE__ */ _("linearGradient", { id: "Ai-Chat-Gradient-Color-16_svg__d", x1: "8", x2: "8", y1: "2.5", y2: "11.5", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ _("stop", { "stop-color": "#8EA6FA" }), /* @__PURE__ */ _("stop", { offset: "1", "stop-color": "#6186F4" })), /* @__PURE__ */ _("clipPath", { id: "Ai-Chat-Gradient-Color-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function ArrowRightIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
       "path",
       {
         fill: "currentColor",
@@ -1635,7 +1635,7 @@
     ));
   }
   function GlobeIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Globe-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Globe-16_svg__a)" }, /* @__PURE__ */ _(
       "path",
       {
         fill: "currentColor",
@@ -1646,10 +1646,10 @@
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Globe-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function HistoryIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#History-16_svg__a)" }, /* @__PURE__ */ _("path", { d: "m2.072 4.918-.08-.004A6.753 6.753 0 1 1 1.246 8 .623.623 0 1 0 0 8a8 8 0 1 0 1.247-4.29V1.115a.623.623 0 0 0-1.247 0v2.977c0 1.145.928 2.072 2.072 2.072h2.486a.623.623 0 0 0 0-1.246z" }), /* @__PURE__ */ _("path", { d: "M8.625 3.625a.625.625 0 1 0-1.25 0V8c0 .166.066.325.183.442l2.375 2.375a.625.625 0 1 0 .884-.884L8.625 7.741z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "History-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { fill: "currentColor", "clip-path": "url(#History-16_svg__a)" }, /* @__PURE__ */ _("path", { d: "m2.072 4.918-.08-.004A6.753 6.753 0 1 1 1.246 8 .623.623 0 1 0 0 8a8 8 0 1 0 1.247-4.29V1.115a.623.623 0 0 0-1.247 0v2.977c0 1.145.928 2.072 2.072 2.072h2.486a.623.623 0 0 0 0-1.246z" }), /* @__PURE__ */ _("path", { d: "M8.625 3.625a.625.625 0 1 0-1.25 0V8c0 .166.066.325.183.442l2.375 2.375a.625.625 0 1 0 .884-.884L8.625 7.741z" })), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "History-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function FavoriteIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Favorite-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Favorite-16_svg__a)" }, /* @__PURE__ */ _(
       "path",
       {
         fill: "currentColor",
@@ -1660,7 +1660,7 @@
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Favorite-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function BookmarkIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Bookmark-16_svg__a)" }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _("g", { "clip-path": "url(#Bookmark-16_svg__a)" }, /* @__PURE__ */ _(
       "path",
       {
         fill: "currentColor",
@@ -1671,10 +1671,10 @@
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "Bookmark-16_svg__a" }, /* @__PURE__ */ _("path", { fill: "#fff", d: "M0 0h16v16H0z" }))));
   }
   function BrowserIcon(props) {
-    return /* @__PURE__ */ _("svg", { fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
       "path",
       {
-        fill: "#000",
+        fill: "currentColor",
         "fill-rule": "evenodd",
         d: "M0 5a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v1.792c0 .478-.681.721-1.053.422a.52.52 0 0 1-.197-.4v-.819H1.25V11A2.75 2.75 0 0 0 4 13.75h2.135a.57.57 0 0 1 .497.312c.21.398-.055.938-.506.938H4a4 4 0 0 1-4-4zm1.262-.255h13.476A2.75 2.75 0 0 0 12 2.25H4a2.75 2.75 0 0 0-2.738 2.495",
         "clip-rule": "evenodd"
@@ -1682,10 +1682,19 @@
     ), /* @__PURE__ */ _(
       "path",
       {
-        fill: "#000",
+        fill: "currentColor",
         "fill-rule": "evenodd",
         d: "M11.5 7a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9m-1.972 7.084A3.25 3.25 0 0 1 8.288 12h.85a7.6 7.6 0 0 0 .39 2.084M8.337 10.75h.818a7.5 7.5 0 0 1 .373-1.834 3.25 3.25 0 0 0-1.191 1.834m2.495 3.233c-.226-.5-.392-1.19-.441-1.983h2.218c-.05.793-.215 1.482-.441 1.983-.299.66-.583.767-.668.767s-.37-.106-.668-.767m0-4.966c-.202.447-.356 1.045-.422 1.733h2.18c-.066-.688-.22-1.286-.422-1.733-.299-.66-.583-.767-.668-.767s-.37.106-.668.767m2.64 5.067c.213-.606.348-1.32.39-2.084h.85a3.25 3.25 0 0 1-1.24 2.084m.373-3.334h.818a3.25 3.25 0 0 0-1.19-1.834c.188.54.316 1.164.371 1.834Z",
         "clip-rule": "evenodd"
+      }
+    ));
+  }
+  function TabDesktopIcon(props) {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", fill: "none", viewBox: "0 0 16 16", xmlns: "http://www.w3.org/2000/svg", ...props }, /* @__PURE__ */ _(
+      "path",
+      {
+        fill: "currentColor",
+        d: "M11 2a4 4 0 0 1 4 4v4c0 .854.39 1.617 1 2.121v.357c0 .517-.541.841-.925.495A4 4 0 0 1 13.75 10V6A2.75 2.75 0 0 0 11 3.25H5A2.75 2.75 0 0 0 2.25 6v4a4 4 0 0 1-1.325 2.973c-.384.346-.925.022-.925-.495v-.357c.61-.504 1-1.267 1-2.121V6a4 4 0 0 1 4-4z"
       }
     ));
   }
@@ -6205,7 +6214,8 @@
       [service]
     );
     const customizerContextMenu = q2((params) => service.contextMenu(params), [service]);
-    return /* @__PURE__ */ _(CustomizerContext.Provider, { value: { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu } }, /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser } }, children));
+    const settingsLinks = useSignal({});
+    return /* @__PURE__ */ _(CustomizerContext.Provider, { value: { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu, settingsLinks } }, /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser } }, children));
   }
   var CustomizerThemesContext, CustomizerContext;
   var init_CustomizerProvider = __esm({
@@ -6249,7 +6259,11 @@
          * @param {UserImageContextMenu} _params
          */
         customizerContextMenu: (_params) => {
-        }
+        },
+        /**
+         * @type {import('@preact/signals').Signal<Record<string, SettingsLinkData>>}
+         */
+        settingsLinks: d3({})
       });
     }
   });
@@ -7480,6 +7494,17 @@
           });
         }
         /**
+         * @param {NonNullable<OmnibarConfig['enableAi']>} enableAi
+         */
+        setEnableAi(enableAi) {
+          this.configService.update((old) => {
+            return {
+              ...old,
+              enableAi
+            };
+          });
+        }
+        /**
          * Get suggestions for the given search term
          * @param {string} term
          * @returns {Promise<SuggestionsData>}
@@ -7546,6 +7571,12 @@
       },
       [service]
     );
+    const setEnableAi = q2(
+      (enableAi) => {
+        service.current?.setEnableAi(enableAi);
+      },
+      [service]
+    );
     const getSuggestions = q2(
       (term) => {
         if (!service.current) throw new Error("Service not available");
@@ -7584,6 +7615,7 @@
         value: {
           state,
           setMode,
+          setEnableAi,
           getSuggestions,
           onSuggestions,
           openSuggestion,
@@ -7623,6 +7655,10 @@
         state: { status: "idle", data: null, config: null },
         /** @type {(mode: OmnibarConfig['mode']) => void} */
         setMode: () => {
+          throw new Error("must implement");
+        },
+        /** @type {(enableAi: NonNullable<OmnibarConfig['enableAi']>) => void} */
+        setEnableAi: () => {
           throw new Error("must implement");
         },
         /** @type {(term: string) => Promise<SuggestionsData>} */
@@ -7684,7 +7720,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/AiChatForm.js
-  function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
+  function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange, onSubmit }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -7754,6 +7790,9 @@
         "aria-label": t4("omnibar_aiChatFormPlaceholder"),
         autoComplete: "off",
         rows: 1,
+        onFocus,
+        onBlur,
+        onInput,
         onKeyDown: handleKeyDown,
         onChange: handleChange
       }
@@ -7789,13 +7828,29 @@
     "pages/new-tab/app/omnibar/components/Container.module.css"() {
       Container_default = {
         outer: "Container_outer",
-        inner: "Container_inner"
+        inner: "Container_inner",
+        focusRing: "Container_focusRing",
+        noFocusRing: "Container_noFocusRing"
       };
     }
   });
 
   // pages/new-tab/app/omnibar/components/Container.js
-  function Container({ overflow, children }) {
+  function Container({ overflow, focusRing, children }) {
+    const { contentRef, initialHeight, currentHeight } = useContentHeight();
+    return /* @__PURE__ */ _("div", { class: Container_default.outer, style: { height: overflow && initialHeight ? initialHeight : "auto" } }, /* @__PURE__ */ _(
+      "div",
+      {
+        class: (0, import_classnames8.default)(Container_default.inner, {
+          [Container_default.focusRing]: focusRing === true,
+          [Container_default.noFocusRing]: focusRing === false
+        }),
+        style: { height: currentHeight ?? "auto" }
+      },
+      /* @__PURE__ */ _("div", { ref: contentRef }, children)
+    ));
+  }
+  function useContentHeight() {
     const contentRef = A2(
       /** @type {HTMLDivElement|null} */
       null
@@ -7804,7 +7859,7 @@
       /** @type {number|null} */
       null
     );
-    const [contentHeight, setContentHeight] = d2(
+    const [currentHeight, setCurrentHeight] = d2(
       /** @type {number|null} */
       null
     );
@@ -7812,16 +7867,18 @@
       const content2 = contentRef.current;
       if (!content2) return;
       initialHeight.current = content2.scrollHeight;
-      setContentHeight(content2.scrollHeight);
-      const resizeObserver = new ResizeObserver(() => setContentHeight(content2.scrollHeight));
+      setCurrentHeight(content2.scrollHeight);
+      const resizeObserver = new ResizeObserver(() => setCurrentHeight(content2.scrollHeight));
       resizeObserver.observe(content2);
       return () => resizeObserver.disconnect();
     }, []);
-    return /* @__PURE__ */ _("div", { class: Container_default.outer, style: { height: overflow && initialHeight.current ? initialHeight.current : "auto" } }, /* @__PURE__ */ _("div", { class: Container_default.inner, style: { height: contentHeight ?? "auto" } }, /* @__PURE__ */ _("div", { ref: contentRef }, children)));
+    return { contentRef, initialHeight: initialHeight.current, currentHeight };
   }
+  var import_classnames8;
   var init_Container2 = __esm({
     "pages/new-tab/app/omnibar/components/Container.js"() {
       "use strict";
+      import_classnames8 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Container();
       init_hooks_module();
@@ -7845,7 +7902,9 @@
     "pages/new-tab/app/omnibar/components/SearchForm.module.css"() {
       SearchForm_default = {
         inputContainer: "SearchForm_inputContainer",
-        input: "SearchForm_input"
+        input: "SearchForm_input",
+        suffixSpacer: "SearchForm_suffixSpacer",
+        suffix: "SearchForm_suffix"
       };
     }
   });
@@ -7856,15 +7915,218 @@
     "pages/new-tab/app/omnibar/components/SuggestionsList.module.css"() {
       SuggestionsList_default = {
         list: "SuggestionsList_list",
-        item: "SuggestionsList_item"
+        item: "SuggestionsList_item",
+        suffix: "SuggestionsList_suffix",
+        title: "SuggestionsList_title",
+        badge: "SuggestionsList_badge"
       };
     }
   });
 
+  // pages/new-tab/app/omnibar/utils.js
+  function getInputSuffix(term, selectedSuggestion) {
+    if (!term) {
+      return null;
+    }
+    if (selectedSuggestion) {
+      return getSuggestionInputSuffix(selectedSuggestion, term);
+    }
+    if (isURLish(term)) {
+      const url7 = parseURL(term);
+      if (!url7) throw new Error("isURLish returned true but parseURL failed");
+      return { kind: "visit", url: formatURL(url7, { scheme: false, trailingSlash: false, search: false, hash: false }) };
+    } else {
+      return { kind: "searchDuckDuckGo" };
+    }
+  }
+  function getSuggestionInputSuffix(suggestion, term) {
+    switch (suggestion.kind) {
+      case "phrase":
+        return { kind: "searchDuckDuckGo" };
+      case "website": {
+        const url7 = parseURL(suggestion.url);
+        if (!url7) return null;
+        return { kind: "visit", url: formatURL(url7, { scheme: false, trailingSlash: false, search: false, hash: false }) };
+      }
+      case "bookmark":
+      case "historyEntry":
+      case "internalPage": {
+        const title = getSuggestionTitle(suggestion, term);
+        const autocompletion = getSuggestionCompletionString(suggestion, term);
+        const url7 = parseURL(suggestion.url);
+        if (title && title !== autocompletion) {
+          return { kind: "raw", text: title };
+        } else if (url7) {
+          return { kind: "visit", url: formatURL(url7, { scheme: false, trailingSlash: false, search: false, hash: false }) };
+        } else {
+          return null;
+        }
+      }
+      case "openTab":
+        return { kind: "duckDuckGo" };
+    }
+  }
+  function getSuggestionTitle(suggestion, term) {
+    switch (suggestion.kind) {
+      case "phrase":
+        return suggestion.phrase;
+      case "website": {
+        const url7 = parseURL(suggestion.url);
+        if (url7) {
+          return formatURLForTerm(url7, term);
+        } else {
+          return "";
+        }
+      }
+      case "historyEntry": {
+        const url7 = parseURL(suggestion.url);
+        const searchQuery = url7 ? getDuckDuckGoSearchQuery(url7) : "";
+        if (searchQuery) {
+          return searchQuery;
+        } else if (suggestion.title) {
+          return suggestion.title;
+        } else if (url7) {
+          return formatURLForTerm(url7, term);
+        } else {
+          return "";
+        }
+      }
+      case "bookmark":
+      case "internalPage":
+      case "openTab":
+        return suggestion.title;
+    }
+  }
+  function getSuggestionCompletionString(suggestion, term) {
+    switch (suggestion.kind) {
+      case "historyEntry":
+      case "bookmark":
+      case "internalPage": {
+        const url7 = parseURL(suggestion.url);
+        const urlString = url7 ? formatURLForTerm(url7, term) : "";
+        if (startsWithIgnoreCase(urlString, term)) {
+          return urlString;
+        } else {
+          return getSuggestionTitle(suggestion, term);
+        }
+      }
+      default:
+        return getSuggestionTitle(suggestion, term);
+    }
+  }
+  function getSuggestionSuffix(suggestion) {
+    switch (suggestion.kind) {
+      case "website":
+      case "phrase":
+        return null;
+      case "openTab":
+        return null;
+      case "historyEntry":
+      case "bookmark": {
+        const url7 = parseURL(suggestion.url);
+        if (!url7) return null;
+        return { kind: "raw", text: formatURL(url7, { scheme: false, www: false, trailingSlash: false }) };
+      }
+      case "internalPage":
+        return { kind: "duckDuckGo" };
+    }
+  }
+  function parseURL(string) {
+    try {
+      return new URL(string);
+    } catch {
+    }
+    try {
+      return new URL(`https://${string}`);
+    } catch {
+    }
+    return null;
+  }
+  function isURLish(string) {
+    return string.includes(".") && parseURL(string) !== null;
+  }
+  function formatURL(url7, { scheme = true, www = true, trailingSlash = true, search = true, hash = true } = {}) {
+    let result = "";
+    if (scheme) {
+      result += `${url7.protocol}//`;
+    }
+    if (!www && startsWithIgnoreCase(url7.host, "www.")) {
+      result += url7.host.slice(4);
+    } else {
+      result += url7.host;
+    }
+    if (!trailingSlash && url7.pathname.endsWith("/")) {
+      result += url7.pathname.slice(0, -1);
+    } else {
+      result += url7.pathname;
+    }
+    if (search) {
+      result += url7.search;
+    }
+    if (hash) {
+      result += url7.hash;
+    }
+    return result;
+  }
+  function formatURLForTerm(url7, term) {
+    const scheme = `${url7.protocol}//`;
+    const isTypingScheme = startsWithIgnoreCase(scheme, term) || startsWithIgnoreCase(term, scheme);
+    const termWithoutScheme = startsWithIgnoreCase(term, scheme) ? term.slice(scheme.length) : term;
+    const isTypingWww = startsWithIgnoreCase("www.", termWithoutScheme) || startsWithIgnoreCase(termWithoutScheme, "www.");
+    const isTypingHost = startsWithIgnoreCase(url7.host, term) || startsWithIgnoreCase(term, url7.host);
+    return formatURL(url7, {
+      scheme: term !== "" && isTypingScheme && !isTypingHost,
+      www: termWithoutScheme !== "" && isTypingWww,
+      trailingSlash: termWithoutScheme.endsWith("/")
+    });
+  }
+  function getDuckDuckGoSearchQuery(url7) {
+    const isDuckDuckGoSearch = url7.hostname === "duckduckgo.com" && (url7.pathname === "/" || !url7.pathname) && url7.searchParams.has("q");
+    return isDuckDuckGoSearch ? url7.searchParams.get("q") ?? "" : "";
+  }
+  function startsWithIgnoreCase(string, searchString) {
+    return string.toLowerCase().startsWith(searchString.toLowerCase());
+  }
+  var init_utils3 = __esm({
+    "pages/new-tab/app/omnibar/utils.js"() {
+      "use strict";
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/SuffixText.js
+  function useSuffixText(suffix) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    if (!suffix) return "";
+    switch (suffix.kind) {
+      case "searchDuckDuckGo":
+        return "\xA0\u2013\xA0" + t4("omnibar_searchDuckDuckGoSuffix");
+      case "duckDuckGo":
+        return "\xA0\u2013\xA0" + t4("omnibar_duckDuckGoSuffix");
+      case "visit":
+        return "\xA0\u2013\xA0" + t4("omnibar_visitSuffix", { url: suffix.url });
+      case "raw":
+        return "\xA0\u2013\xA0" + suffix.text;
+    }
+  }
+  function SuffixText({ suffix }) {
+    return useSuffixText(suffix);
+  }
+  var init_SuffixText = __esm({
+    "pages/new-tab/app/omnibar/components/SuffixText.js"() {
+      "use strict";
+      init_types();
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/SuggestionsList.js
-  function SuggestionsList({ id, suggestions, selectedSuggestion, onSelectSuggestion, onClearSuggestion, onOpenSuggestion }) {
+  function SuggestionsList({ id, term, suggestions, selectedSuggestion, onSelectSuggestion, onClearSuggestion, onOpenSuggestion }) {
     const platformName = usePlatformName();
     return /* @__PURE__ */ _("div", { role: "listbox", id, class: SuggestionsList_default.list }, suggestions.map((suggestion) => {
+      const title = getSuggestionTitle(suggestion, term);
+      const suffix = getSuggestionSuffix(suggestion);
       return /* @__PURE__ */ _(
         "button",
         {
@@ -7882,7 +8144,9 @@
           }
         },
         /* @__PURE__ */ _(SuggestionIcon, { suggestion }),
-        suggestion.title
+        /* @__PURE__ */ _("span", { class: SuggestionsList_default.title }, startsWithIgnoreCase(title, term) ? /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("b", null, title.slice(0, term.length)), title.slice(term.length)) : title),
+        suffix && /* @__PURE__ */ _("span", { class: SuggestionsList_default.suffix }, /* @__PURE__ */ _(SuffixText, { suffix })),
+        suggestion.kind === "openTab" && /* @__PURE__ */ _("span", { class: SuggestionsList_default.badge }, "Switch to Tab ", /* @__PURE__ */ _(ArrowRightIcon, null))
       );
     }));
   }
@@ -7897,6 +8161,7 @@
       case "bookmark":
         return suggestion.isFavorite ? /* @__PURE__ */ _(FavoriteIcon, null) : /* @__PURE__ */ _(BookmarkIcon, null);
       case "openTab":
+        return /* @__PURE__ */ _(TabDesktopIcon, null);
       case "internalPage":
         return /* @__PURE__ */ _(BrowserIcon, null);
       default:
@@ -7911,56 +8176,31 @@
       init_Icons2();
       init_settings_provider();
       init_SuggestionsList();
+      init_utils3();
+      init_SuffixText();
     }
   });
 
   // pages/new-tab/app/omnibar/components/useSuggestionInput.js
-  function useSuggestionInput(base, suggestion) {
+  function useCompletionInput(base, completion) {
     const ref = A2(
       /** @type {HTMLInputElement|null} */
       null
     );
     _2(() => {
       if (!ref.current) return;
-      const value2 = base + suggestion;
+      const value2 = base + completion;
       ref.current.value = value2;
-      if (suggestion) {
+      if (completion) {
         ref.current.setSelectionRange(base.length, value2.length);
       }
-    }, [base, suggestion]);
+    }, [base, completion]);
     return ref;
   }
   var init_useSuggestionInput = __esm({
     "pages/new-tab/app/omnibar/components/useSuggestionInput.js"() {
       "use strict";
       init_hooks_module();
-    }
-  });
-
-  // pages/new-tab/app/omnibar/utils.js
-  function getSuggestionTitle(suggestion) {
-    switch (suggestion.kind) {
-      case "bookmark":
-      case "historyEntry":
-      case "internalPage":
-        return suggestion.title || getDisplayURL(suggestion.url);
-      case "phrase":
-        return suggestion.phrase;
-      case "openTab":
-        return suggestion.title;
-      case "website":
-        return getDisplayURL(suggestion.url);
-      default:
-        throw new Error("Unknown suggestion kind");
-    }
-  }
-  function getDisplayURL(url7) {
-    const { host, pathname, search, hash } = new URL(url7);
-    return host + pathname + search + hash;
-  }
-  var init_utils3 = __esm({
-    "pages/new-tab/app/omnibar/utils.js"() {
-      "use strict";
     }
   });
 
@@ -8039,19 +8279,19 @@
     const clearSelectedSuggestion = () => {
       dispatch({ type: "clearSelectedSuggestion" });
     };
-    let termBase, termSuggestion;
-    if (!selectedSuggestion) {
-      termBase = term;
-      termSuggestion = "";
-    } else if ("url" in selectedSuggestion && startsWithIgnoreCase(selectedSuggestion.url, term)) {
-      termBase = term;
-      termSuggestion = selectedSuggestion.url.slice(term.length);
-    } else if (startsWithIgnoreCase(selectedSuggestion.title, term)) {
-      termBase = term;
-      termSuggestion = selectedSuggestion.title.slice(term.length);
+    let inputBase, inputCompletion;
+    if (selectedSuggestion) {
+      const completionString = getSuggestionCompletionString(selectedSuggestion, term);
+      if (startsWithIgnoreCase(completionString, term)) {
+        inputBase = term;
+        inputCompletion = completionString.slice(term.length);
+      } else {
+        inputBase = "";
+        inputCompletion = completionString;
+      }
     } else {
-      termBase = "";
-      termSuggestion = selectedSuggestion.title;
+      inputBase = term;
+      inputCompletion = "";
     }
     y2(() => {
       return onSuggestions((data2, term2) => {
@@ -8061,8 +8301,7 @@
           ...data2.suggestions.localSuggestions
         ].map((suggestion, index2) => ({
           ...suggestion,
-          id: `suggestion-${index2}`,
-          title: getSuggestionTitle(suggestion)
+          id: `suggestion-${index2}`
         }));
         dispatch({
           type: "setSuggestions",
@@ -8106,7 +8345,7 @@
         case "ArrowLeft":
         case "ArrowRight":
           if (selectedSuggestion) {
-            onChangeTerm(termBase + termSuggestion);
+            onChangeTerm(inputBase + inputCompletion);
             dispatch({ type: "clearSelectedSuggestion" });
           }
           break;
@@ -8126,7 +8365,7 @@
     };
     const handleClick = () => {
       if (selectedSuggestion) {
-        onChangeTerm(termBase + termSuggestion);
+        onChangeTerm(inputBase + inputCompletion);
         dispatch({ type: "clearSelectedSuggestion" });
       }
     };
@@ -8141,16 +8380,13 @@
       selectedSuggestion,
       setSelectedSuggestion,
       clearSelectedSuggestion,
-      termBase,
-      termSuggestion,
+      inputBase,
+      inputCompletion,
       handleChange,
       handleKeyDown,
       handleClick,
       handleBlur
     };
-  }
-  function startsWithIgnoreCase(text2, searchTerm) {
-    return text2.toLowerCase().startsWith(searchTerm.toLowerCase());
   }
   var initialState, EMPTY_ARRAY;
   var init_useSuggestions = __esm({
@@ -8183,8 +8419,8 @@
       selectedSuggestion,
       setSelectedSuggestion,
       clearSelectedSuggestion,
-      termBase,
-      termSuggestion,
+      inputBase,
+      inputCompletion,
       handleChange,
       handleKeyDown,
       handleClick,
@@ -8195,7 +8431,9 @@
       onOpenSuggestion,
       onSubmitSearch
     });
-    const inputRef = useSuggestionInput(termBase, termSuggestion);
+    const inputSuffix = getInputSuffix(term, selectedSuggestion);
+    const inputSuffixText = useSuffixText(inputSuffix);
+    const inputRef = useCompletionInput(inputBase, inputCompletion);
     y2(() => {
       if (autoFocus && inputRef.current) {
         inputRef.current.focus();
@@ -8208,7 +8446,7 @@
         target: "same-tab"
       });
     };
-    return /* @__PURE__ */ _("form", { class: SearchForm_default.form, onClick: () => inputRef.current?.focus(), onBlur: handleBlur, onSubmit: handleSubmit }, /* @__PURE__ */ _("div", { class: SearchForm_default.inputContainer }, /* @__PURE__ */ _(SearchIcon, { inert: true }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("form", { class: SearchForm_default.form, onBlur: handleBlur, onSubmit: handleSubmit }, /* @__PURE__ */ _("div", { class: SearchForm_default.inputContainer, style: { "--suffix-text-width": `${measureText(inputSuffixText)}px` } }, /* @__PURE__ */ _(SearchIcon, { inert: true }), /* @__PURE__ */ _(
       "input",
       {
         ref: inputRef,
@@ -8229,10 +8467,11 @@
         onKeyDown: handleKeyDown,
         onClick: handleClick
       }
-    )), suggestions.length > 0 && /* @__PURE__ */ _(
+    ), inputSuffix && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("span", { class: SearchForm_default.suffixSpacer, inert: true }, inputBase + inputCompletion || t4("omnibar_searchFormPlaceholder")), /* @__PURE__ */ _("span", { class: SearchForm_default.suffix, inert: true }, inputSuffixText))), suggestions.length > 0 && /* @__PURE__ */ _(
       SuggestionsList,
       {
         id: suggestionsListId,
+        term,
         suggestions,
         selectedSuggestion,
         onSelectSuggestion: setSelectedSuggestion,
@@ -8240,6 +8479,13 @@
         onOpenSuggestion
       }
     ));
+  }
+  function measureText(text2) {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) return 0;
+    context.font = "13px / 16px system-ui";
+    return context.measureText(text2).width;
   }
   var init_SearchForm2 = __esm({
     "pages/new-tab/app/omnibar/components/SearchForm.js"() {
@@ -8252,6 +8498,8 @@
       init_SuggestionsList2();
       init_useSuggestionInput();
       init_useSuggestions();
+      init_SuffixText();
+      init_utils3();
     }
   });
 
@@ -8274,95 +8522,24 @@
       /** @type {Strings} */
       {}
     );
-    const { main } = x2(CustomizerThemesContext);
-    const Blob2 = main.value === "light" ? BlobLight : BlobDark;
-    return /* @__PURE__ */ _("div", { class: TabSwitcher_default.tabSwitcher, role: "tablist", "aria-label": t4("omnibar_tabSwitcherLabel") }, /* @__PURE__ */ _(Blob2, { class: TabSwitcher_default.blob, style: { translate: mode === "search" ? 0 : 92 } }), /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "search", onClick: () => onChange("search") }, mode === "search" ? /* @__PURE__ */ _(SearchColorIcon, null) : /* @__PURE__ */ _(SearchIcon, null), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_searchTabLabel"))), /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "ai", onClick: () => onChange("ai") }, mode === "ai" ? /* @__PURE__ */ _(AiChatColorIcon, null) : /* @__PURE__ */ _(AiChatIcon, null), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_aiTabLabel"))));
-  }
-  function BlobLight(props) {
-    return /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "102", height: "36", viewBox: "0 0 102 36", fill: "none", ...props }, /* @__PURE__ */ _("g", { filter: "url(#filter0_ddi_9483_24565)" }, /* @__PURE__ */ _(
-      "path",
+    return /* @__PURE__ */ _(
+      "div",
       {
-        d: "M2 18C2 9.16344 9.16344 2 18 2H78C86.8366 2 94 9.16344 94 18C94 26.8366 86.8366 34 78 34H18C9.16345 34 2 26.8366 2 18Z",
-        fill: "white"
-      }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _(
-      "filter",
-      {
-        id: "filter0_ddi_9483_24565",
-        x: "-6",
-        y: "-2",
-        width: "108",
-        height: "48",
-        filterUnits: "userSpaceOnUse",
-        "color-interpolation-filters": "sRGB"
+        class: TabSwitcher_default.tabSwitcher,
+        style: { "--tab-count": 2, "--tab-index": mode === "search" ? 0 : 1 },
+        role: "tablist",
+        "aria-label": t4("omnibar_tabSwitcherLabel")
       },
-      /* @__PURE__ */ _("feFlood", { "flood-opacity": "0", result: "BackgroundImageFix" }),
-      /* @__PURE__ */ _("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0", result: "hardAlpha" }),
-      /* @__PURE__ */ _("feOffset", { dy: "4" }),
-      /* @__PURE__ */ _("feGaussianBlur", { stdDeviation: "4" }),
-      /* @__PURE__ */ _("feComposite", { in2: "hardAlpha", operator: "out" }),
-      /* @__PURE__ */ _("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0" }),
-      /* @__PURE__ */ _("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow_9483_24565" }),
-      /* @__PURE__ */ _("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0", result: "hardAlpha" }),
-      /* @__PURE__ */ _("feOffset", { dy: "1" }),
-      /* @__PURE__ */ _("feGaussianBlur", { stdDeviation: "2" }),
-      /* @__PURE__ */ _("feComposite", { in2: "hardAlpha", operator: "out" }),
-      /* @__PURE__ */ _("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0" }),
-      /* @__PURE__ */ _("feBlend", { mode: "normal", in2: "effect1_dropShadow_9483_24565", result: "effect2_dropShadow_9483_24565" }),
-      /* @__PURE__ */ _("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect2_dropShadow_9483_24565", result: "shape" }),
-      /* @__PURE__ */ _("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0", result: "hardAlpha" }),
-      /* @__PURE__ */ _("feOffset", { dy: "1" }),
-      /* @__PURE__ */ _("feComposite", { in2: "hardAlpha", operator: "arithmetic", k2: "-1", k3: "1" }),
-      /* @__PURE__ */ _("feColorMatrix", { type: "matrix", values: "0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.48 0" }),
-      /* @__PURE__ */ _("feBlend", { mode: "normal", in2: "shape", result: "effect3_innerShadow_9483_24565" })
-    )));
-  }
-  function BlobDark(props) {
-    return /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "102", height: "36", viewBox: "0 0 102 36", fill: "none", ...props }, /* @__PURE__ */ _("g", { filter: "url(#filter0_ddi_9483_35175)" }, /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M2 18C2 9.16344 9.16344 2 18 2H78C86.8366 2 94 9.16344 94 18C94 26.8366 86.8366 34 78 34H18C9.16345 34 2 26.8366 2 18Z",
-        fill: "#6B6B6B"
-      }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _(
-      "filter",
-      {
-        id: "filter0_ddi_9483_35175",
-        x: "-6",
-        y: "-2",
-        width: "108",
-        height: "48",
-        filterUnits: "userSpaceOnUse",
-        "color-interpolation-filters": "sRGB"
-      },
-      /* @__PURE__ */ _("feFlood", { "flood-opacity": "0", result: "BackgroundImageFix" }),
-      /* @__PURE__ */ _("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0", result: "hardAlpha" }),
-      /* @__PURE__ */ _("feOffset", { dy: "4" }),
-      /* @__PURE__ */ _("feGaussianBlur", { stdDeviation: "4" }),
-      /* @__PURE__ */ _("feComposite", { in2: "hardAlpha", operator: "out" }),
-      /* @__PURE__ */ _("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.24 0" }),
-      /* @__PURE__ */ _("feBlend", { mode: "normal", in2: "BackgroundImageFix", result: "effect1_dropShadow_9483_35175" }),
-      /* @__PURE__ */ _("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0", result: "hardAlpha" }),
-      /* @__PURE__ */ _("feOffset", { dy: "1" }),
-      /* @__PURE__ */ _("feGaussianBlur", { stdDeviation: "2" }),
-      /* @__PURE__ */ _("feComposite", { in2: "hardAlpha", operator: "out" }),
-      /* @__PURE__ */ _("feColorMatrix", { type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.24 0" }),
-      /* @__PURE__ */ _("feBlend", { mode: "normal", in2: "effect1_dropShadow_9483_35175", result: "effect2_dropShadow_9483_35175" }),
-      /* @__PURE__ */ _("feBlend", { mode: "normal", in: "SourceGraphic", in2: "effect2_dropShadow_9483_35175", result: "shape" }),
-      /* @__PURE__ */ _("feColorMatrix", { in: "SourceAlpha", type: "matrix", values: "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0", result: "hardAlpha" }),
-      /* @__PURE__ */ _("feOffset", { dy: "1" }),
-      /* @__PURE__ */ _("feComposite", { in2: "hardAlpha", operator: "arithmetic", k2: "-1", k3: "1" }),
-      /* @__PURE__ */ _("feColorMatrix", { type: "matrix", values: "0 0 0 0 0.976471 0 0 0 0 0.976471 0 0 0 0 0.976471 0 0 0 0.06 0" }),
-      /* @__PURE__ */ _("feBlend", { mode: "normal", in2: "shape", result: "effect3_innerShadow_9483_35175" })
-    )));
+      /* @__PURE__ */ _("div", { class: TabSwitcher_default.blob }),
+      /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "search", onClick: () => onChange("search") }, mode === "search" ? /* @__PURE__ */ _(SearchColorIcon, null) : /* @__PURE__ */ _(SearchIcon, null), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_searchTabLabel"))),
+      /* @__PURE__ */ _("button", { class: TabSwitcher_default.tab, role: "tab", "aria-selected": mode === "ai", onClick: () => onChange("ai") }, mode === "ai" ? /* @__PURE__ */ _(AiChatColorIcon, null) : /* @__PURE__ */ _(AiChatIcon, null), /* @__PURE__ */ _("span", { class: TabSwitcher_default.tabLabel }, t4("omnibar_aiTabLabel")))
+    );
   }
   var init_TabSwitcher2 = __esm({
     "pages/new-tab/app/omnibar/components/TabSwitcher.js"() {
       "use strict";
       init_preact_module();
-      init_hooks_module();
       init_Icons2();
-      init_CustomizerProvider();
       init_types();
       init_TabSwitcher();
     }
@@ -8380,6 +8557,10 @@
     );
     const [resetKey, setResetKey] = d2(0);
     const [autoFocus, setAutoFocus] = d2(false);
+    const [focusRing, setFocusRing] = d2(
+      /** @type {boolean|undefined} */
+      void 0
+    );
     const { openSuggestion, submitSearch, submitChat } = x2(OmnibarContext);
     const resetForm = () => {
       setQuery("");
@@ -8399,9 +8580,10 @@
     };
     const handleChangeMode = (nextMode) => {
       setAutoFocus(true);
+      setFocusRing(void 0);
       setMode(nextMode);
     };
-    return /* @__PURE__ */ _("div", { class: Omnibar_default.root, "data-mode": mode }, /* @__PURE__ */ _(LogoStacked, { class: Omnibar_default.logo, "aria-label": t4("omnibar_logoAlt") }), enableAi && /* @__PURE__ */ _(TabSwitcher, { mode, onChange: handleChangeMode }), /* @__PURE__ */ _(Container, { overflow: mode === "search" }, mode === "search" ? /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Omnibar_default.root, "data-mode": mode }, /* @__PURE__ */ _(LogoStacked, { class: Omnibar_default.logo, "aria-label": t4("omnibar_logoAlt") }), enableAi && /* @__PURE__ */ _(TabSwitcher, { mode, onChange: handleChangeMode }), /* @__PURE__ */ _(Container, { overflow: mode === "search", focusRing }, mode === "search" ? /* @__PURE__ */ _(
       SearchForm,
       {
         key: `search-${resetKey}`,
@@ -8417,6 +8599,9 @@
         key: `chat-${resetKey}`,
         chat: query,
         autoFocus,
+        onFocus: () => setFocusRing(true),
+        onBlur: () => setFocusRing(false),
+        onInput: () => setFocusRing(false),
         onChange: setQuery,
         onSubmit: handleSubmitChat
       }
@@ -8446,9 +8631,28 @@
     }
     return null;
   }
-  function OmnibarReadyState({ config }) {
-    const { setMode } = x2(OmnibarContext);
-    return /* @__PURE__ */ _(Omnibar, { mode: config.mode, setMode, enableAi: config.enableAi ?? true });
+  function OmnibarReadyState({ config: { enableAi = true, mode } }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const { settingsLinks } = x2(CustomizerContext);
+    const { setMode, setEnableAi } = x2(OmnibarContext);
+    y2(() => {
+      settingsLinks.value = {
+        ...settingsLinks.value,
+        duckAi: {
+          title: enableAi ? t4("omnibar_hideDuckAi") : t4("omnibar_showDuckAi"),
+          icon: /* @__PURE__ */ _(AiChatIcon, null),
+          onClick: () => setEnableAi(!enableAi)
+        }
+      };
+      return () => {
+        const { duckAi: _5, ...rest } = settingsLinks.value;
+        settingsLinks.value = rest;
+      };
+    }, [enableAi]);
+    return /* @__PURE__ */ _(Omnibar, { mode, setMode, enableAi });
   }
   var init_OmnibarConsumer = __esm({
     "pages/new-tab/app/omnibar/components/OmnibarConsumer.js"() {
@@ -8457,6 +8661,9 @@
       init_OmnibarProvider();
       init_preact_module();
       init_Omnibar2();
+      init_CustomizerProvider();
+      init_Icons2();
+      init_types();
     }
   });
 
@@ -8785,9 +8992,9 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames8.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, none && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, t4("protections_noRecent")), some && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, " ", /* @__PURE__ */ _(Trans, { str: alltimeTitle, values: { count: alltime } })), /* @__PURE__ */ _("p", { class: (0, import_classnames9.default)(PrivacyStats_default.subtitle, PrivacyStats_default.indented) }, t4("stats_feedCountBlockedPeriod"))));
   }
-  var import_classnames8;
+  var import_classnames9;
   var init_ProtectionsHeading = __esm({
     "pages/new-tab/app/protections/components/ProtectionsHeading.js"() {
       "use strict";
@@ -8795,7 +9002,7 @@
       init_hooks_module();
       init_PrivacyStats();
       init_ShowHideButton();
-      import_classnames8 = __toESM(require_classnames(), 1);
+      import_classnames9 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_settings_provider();
       init_TranslationsProvider();
@@ -8832,25 +9039,25 @@
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: Protections_default.body, id, "aria-hidden": hidden, "aria-expanded": showing }, expansion === "expanded" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: (0, import_classnames10.default)(Protections_default.switcher, Protections_default.block) }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames9.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
+        class: (0, import_classnames10.default)(Protections_default.button, feed === "privacy-stats" && Protections_default.active),
         onClick: () => setFeed("privacy-stats")
       },
       t4("protections_statsSwitchTitle")
-    ), /* @__PURE__ */ _("button", { class: (0, import_classnames9.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
+    ), /* @__PURE__ */ _("button", { class: (0, import_classnames10.default)(Protections_default.button, feed === "activity" && Protections_default.active), onClick: () => setFeed("activity") }, t4("protections_activitySwitchTitle"))), /* @__PURE__ */ _("div", { class: Protections_default.feed }, children)));
   }
   function ProtectionsEmpty({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(Protections_default.block, Protections_default.empty) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames10.default)(Protections_default.block, Protections_default.empty) }, children);
   }
-  var import_classnames9;
+  var import_classnames10;
   var init_Protections2 = __esm({
     "pages/new-tab/app/protections/components/Protections.js"() {
       "use strict";
       init_hooks_module();
       init_preact_module();
-      import_classnames9 = __toESM(require_classnames(), 1);
+      import_classnames10 = __toESM(require_classnames(), 1);
       init_Protections();
       init_ProtectionsHeading();
       init_types();
@@ -9868,7 +10075,7 @@
     return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames10.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames11.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
@@ -9879,7 +10086,7 @@
     ), /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames10.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
+        class: (0, import_classnames11.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
         value: url7,
@@ -9888,13 +10095,13 @@
       canBurn ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(Cross, null)
     ));
   }
-  var import_classnames10, ActivityItem;
+  var import_classnames11, ActivityItem;
   var init_ActivityItem = __esm({
     "pages/new-tab/app/activity/components/ActivityItem.js"() {
       "use strict";
       init_preact_module();
       init_types();
-      import_classnames10 = __toESM(require_classnames(), 1);
+      import_classnames11 = __toESM(require_classnames(), 1);
       init_Activity();
       init_FaviconWithState2();
       init_constants3();
@@ -9920,7 +10127,7 @@
          * @param {string} props.etldPlusOne
          */
         function ActivityItem2({ canBurn, documentVisibility, title, url: url7, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url7, class: (0, import_classnames10.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url7, "data-url": url7 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url7 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+          return /* @__PURE__ */ _("li", { key: url7, class: (0, import_classnames11.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url7, "data-url": url7 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url7 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -16096,7 +16303,7 @@
             }
             return emptyChar;
           }
-          function measureText(_char2, fontName, size) {
+          function measureText2(_char2, fontName, size) {
             var fontData = this.getFontByName(fontName);
             var index2 = _char2;
             if (!fontData.cache[index2]) {
@@ -16199,7 +16406,7 @@
             addFonts,
             getCharData,
             getFontByName,
-            measureText,
+            measureText: measureText2,
             checkLoadedFonts,
             setIsLoaded
           };
@@ -26383,20 +26590,20 @@
         canceled = true;
       };
     }, [isBurning.value, isExiting.value, url7]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url7, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url7, doneBurning }));
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames12.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url7, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url7, doneBurning }));
   }
   function NullBurner({ url: url7, doneBurning }) {
     y2(() => doneBurning(url7), [url7]);
     return null;
   }
-  var import_classnames11, BurnAnimationLazy;
+  var import_classnames12, BurnAnimationLazy;
   var init_ActivityItemAnimationWrapper = __esm({
     "pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js"() {
       "use strict";
       init_hooks_module();
       init_BurnProvider();
       init_signals_module();
-      import_classnames11 = __toESM(require_classnames(), 1);
+      import_classnames12 = __toESM(require_classnames(), 1);
       init_Activity();
       init_compat_module();
       init_preact_module();
@@ -27200,7 +27407,7 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames12.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames13.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -27217,12 +27424,12 @@
     }
     return null;
   }
-  var import_classnames12;
+  var import_classnames13;
   var init_RemoteMessagingFramework2 = __esm({
     "pages/new-tab/app/remote-messaging-framework/components/RemoteMessagingFramework.js"() {
       "use strict";
       init_preact_module();
-      import_classnames12 = __toESM(require_classnames(), 1);
+      import_classnames13 = __toESM(require_classnames(), 1);
       init_RemoteMessagingFramework();
       init_hooks_module();
       init_RMFProvider();
@@ -27382,7 +27589,7 @@
 
   // pages/new-tab/app/update-notification/components/UpdateNotification.js
   function UpdateNotification({ notes, dismiss, version }) {
-    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames13.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
+    return /* @__PURE__ */ _("div", { class: UpdateNotification_default.root, "data-reset-layout": "true" }, /* @__PURE__ */ _("div", { class: (0, import_classnames14.default)("layout-centered", UpdateNotification_default.body) }, notes.length > 0 ? /* @__PURE__ */ _(WithNotes, { notes, version }) : /* @__PURE__ */ _(WithoutNotes, { version })), /* @__PURE__ */ _(DismissButton, { onClick: dismiss, className: UpdateNotification_default.dismiss }));
   }
   function WithNotes({ notes, version }) {
     const id = g2();
@@ -27444,12 +27651,12 @@
     }
     return null;
   }
-  var import_classnames13;
+  var import_classnames14;
   var init_UpdateNotification2 = __esm({
     "pages/new-tab/app/update-notification/components/UpdateNotification.js"() {
       "use strict";
       init_preact_module();
-      import_classnames13 = __toESM(require_classnames(), 1);
+      import_classnames14 = __toESM(require_classnames(), 1);
       init_UpdateNotification();
       init_hooks_module();
       init_UpdateNotificationProvider();
@@ -27489,7 +27696,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames23 = __toESM(require_classnames(), 1);
+  var import_classnames24 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -27959,7 +28166,7 @@
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames23 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -27992,7 +28199,7 @@
 
   // pages/new-tab/app/customizer/components/BackgroundSection.js
   init_preact_module();
-  var import_classnames14 = __toESM(require_classnames(), 1);
+  var import_classnames15 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -28017,7 +28224,7 @@
     } else {
       gradient = values.gradients.gradient02;
     }
-    return /* @__PURE__ */ _("ul", { class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup" }, /* @__PURE__ */ _("li", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       DefaultPanel,
       {
         checked: data2.value.background.kind === "default",
@@ -28051,7 +28258,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": main,
         "aria-checked": checked,
         "aria-labelledby": id,
@@ -28071,7 +28278,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.color.colorScheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -28093,7 +28300,7 @@
       "button",
       {
         onClick: props.onClick,
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": props.gradient.colorScheme,
         "aria-checked": props.checked,
         tabindex: props.checked ? -1 : 0,
@@ -28133,7 +28340,7 @@
       return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
         "button",
         {
-          class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": props.browserTheme,
           "aria-checked": props.checked,
           "aria-labelledby": id,
@@ -28148,7 +28355,7 @@
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames14.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
+        class: (0, import_classnames15.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.dynamicIconColor),
         "data-color-mode": scheme,
         onClick: props.onClick,
         "aria-checked": props.checked,
@@ -28174,7 +28381,7 @@
   };
 
   // pages/new-tab/app/customizer/components/BrowserThemeSection.js
-  var import_classnames15 = __toESM(require_classnames(), 1);
+  var import_classnames16 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_signals_module();
   init_types();
@@ -28187,7 +28394,7 @@
     return /* @__PURE__ */ _("ul", { class: BrowserThemeSection_default.themeList }, /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
+        class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonLight),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "light",
@@ -28198,7 +28405,7 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
+        class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonDark),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "dark",
@@ -28209,7 +28416,7 @@
     ), /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))), /* @__PURE__ */ _("li", { class: BrowserThemeSection_default.themeItem }, /* @__PURE__ */ _(
       "button",
       {
-        class: (0, import_classnames15.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
+        class: (0, import_classnames16.default)(BrowserThemeSection_default.themeButton, BrowserThemeSection_default.themeButtonSystem),
         role: "radio",
         type: "button",
         "aria-checked": current.value === "system",
@@ -28226,7 +28433,7 @@
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
   init_preact_module();
-  var import_classnames16 = __toESM(require_classnames(), 1);
+  var import_classnames17 = __toESM(require_classnames(), 1);
   init_hooks_module();
   init_Icons2();
 
@@ -28279,8 +28486,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames16.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames16.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ _(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ _(Shield, null), row.icon === "search" && /* @__PURE__ */ _(SearchIcon, null)), /* @__PURE__ */ _("span", null, row.title ?? row.id), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames17.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { className: VisibilityMenu_default.svg }, row.icon === "shield" && /* @__PURE__ */ _(DuckFoot, null), row.icon === "star" && /* @__PURE__ */ _(Shield, null), row.icon === "search" && /* @__PURE__ */ _(SearchIcon, null)), /* @__PURE__ */ _("span", null, row.title ?? row.id), /* @__PURE__ */ _(
         Switch,
         {
           theme: browser.value,
@@ -28320,7 +28527,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames17 = __toESM(require_classnames(), 1);
+  var import_classnames18 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -28349,7 +28556,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames17.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -28386,7 +28593,7 @@
     return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames17.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -28411,12 +28618,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ _("span", { class: (0, import_classnames17.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
+    ), /* @__PURE__ */ _("span", { class: (0, import_classnames18.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames18 = __toESM(require_classnames(), 1);
+  var import_classnames19 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -28444,12 +28651,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames18.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames18.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ _(
         "button",
@@ -28477,7 +28684,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames19 = __toESM(require_classnames(), 1);
+  var import_classnames20 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -28521,7 +28728,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames19.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames20.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -28536,7 +28743,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       $INTEGRATION: (() => {
         if (entry.id === "__will_throw__") throw new Error("Simulated error");
       })();
@@ -28573,7 +28780,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames19.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames20.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ _(PlusIcon, null),
@@ -28584,17 +28791,35 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames20 = __toESM(require_classnames(), 1);
+  var import_classnames21 = __toESM(require_classnames(), 1);
   function CustomizerSection({ title, children }) {
     return /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h3", { className: CustomizerDrawerInner_default.sectionTitle }, title), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames20.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames22 = __toESM(require_classnames(), 1);
   init_preact_module();
+  function SettingsLink({ title, icon, onClick }) {
+    return /* @__PURE__ */ _(
+      "a",
+      {
+        href: "duck://settings",
+        class: (0, import_classnames22.default)(CustomizerDrawerInner_default.settingsLink),
+        onClick: (event) => {
+          event.preventDefault();
+          onClick();
+        }
+      },
+      /* @__PURE__ */ _("span", null, title),
+      icon
+    );
+  }
+
+  // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
+  init_DismissButton2();
   init_types();
 
   // pages/new-tab/app/components/icons/Open.js
@@ -28615,30 +28840,15 @@
     ));
   }
 
-  // pages/new-tab/app/customizer/components/SettingsLink.js
-  function SettingsLink() {
-    const messaging2 = useMessaging();
-    const { t: t4 } = useTypedTranslationWith(
-      /** @type {enStrings} */
-      {}
-    );
-    function onClick(e4) {
-      e4.preventDefault();
-      messaging2.open({ target: "settings" });
-    }
-    return /* @__PURE__ */ _("a", { href: "duck://settings", class: (0, import_classnames21.default)(CustomizerDrawerInner_default.settingsLink), onClick }, /* @__PURE__ */ _("span", null, t4("customizer_settings_link")), /* @__PURE__ */ _(Open, null));
-  }
-
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
-  init_DismissButton2();
-  init_types();
-  function CustomizerDrawerInner({ data: data2, select, onUpload, setTheme, deleteImage, customizerContextMenu }) {
+  function CustomizerDrawerInner({ data: data2, select, onUpload, setTheme, deleteImage, customizerContextMenu, settingsLinks }) {
     const { close } = useDrawerControls();
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
+    const messaging2 = useMessaging();
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
         onClick: close,
@@ -28656,7 +28866,14 @@
       /* @__PURE__ */ _(
         TwoCol,
         {
-          left: ({ push }) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sections }, /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_background") }, /* @__PURE__ */ _(BackgroundSection, { data: data2, onNav: push, onUpload, select })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_theme") }, /* @__PURE__ */ _(BrowserThemeSection, { data: data2, setTheme })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_sections") }, /* @__PURE__ */ _(VisibilityMenuSection, null)), /* @__PURE__ */ _(BorderedSection, null, /* @__PURE__ */ _(SettingsLink, null))),
+          left: ({ push }) => /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sections }, /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_background") }, /* @__PURE__ */ _(BackgroundSection, { data: data2, onNav: push, onUpload, select })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_theme") }, /* @__PURE__ */ _(BrowserThemeSection, { data: data2, setTheme })), /* @__PURE__ */ _(CustomizerSection, { title: t4("customizer_section_title_sections") }, /* @__PURE__ */ _(VisibilityMenuSection, null)), /* @__PURE__ */ _(BorderedSection, null, Object.entries(settingsLinks.value).map(([key2, link]) => /* @__PURE__ */ _(SettingsLink, { key: key2, title: link.title, icon: link.icon, onClick: () => link.onClick() })), /* @__PURE__ */ _(
+            SettingsLink,
+            {
+              title: t4("customizer_settings_link"),
+              icon: /* @__PURE__ */ _(Open, null),
+              onClick: () => messaging2.open({ target: "settings" })
+            }
+          ))),
           right: ({ id, pop }) => /* @__PURE__ */ _(k, null, id === "color" && /* @__PURE__ */ _(ColorSelection, { data: data2, select, back: pop }), id === "gradient" && /* @__PURE__ */ _(GradientSelection, { data: data2, select, back: pop }), id === "image" && /* @__PURE__ */ _(
             ImageSelection,
             {
@@ -28694,7 +28911,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -28702,7 +28919,7 @@
     return /* @__PURE__ */ _("div", { class: CustomizerDrawer_default.root }, displayChildren.value === true && /* @__PURE__ */ _(CustomizerConsumer, null));
   }
   function CustomizerConsumer() {
-    const { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu } = x2(CustomizerContext);
+    const { data: data2, select, upload, setTheme, deleteImage, customizerContextMenu, settingsLinks } = x2(CustomizerContext);
     return /* @__PURE__ */ _(
       CustomizerDrawerInner,
       {
@@ -28711,7 +28928,8 @@
         onUpload: upload,
         setTheme,
         deleteImage,
-        customizerContextMenu
+        customizerContextMenu,
+        settingsLinks
       }
     );
   }
@@ -28740,7 +28958,7 @@
     const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
     const { main, browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames23.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames24.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
       CustomizerButton,
       {
         buttonId,
@@ -28753,7 +28971,7 @@
     ))), /* @__PURE__ */ _(
       "aside",
       {
-        class: (0, import_classnames23.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+        class: (0, import_classnames24.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
         tabindex: tabIndex,
         "aria-hidden": hidden,
         "data-theme": browser,
@@ -28990,6 +29208,26 @@
     omnibar_searchFormPlaceholder: {
       title: "Search or enter address",
       description: "Placeholder text for the search input field."
+    },
+    omnibar_hideDuckAi: {
+      title: "Hide Duck.ai",
+      description: "Label for the button to hide the Duck.ai chat interface."
+    },
+    omnibar_showDuckAi: {
+      title: "Show Duck.ai",
+      description: "Label for the button to show the Duck.ai chat interface."
+    },
+    omnibar_searchDuckDuckGoSuffix: {
+      title: "Search DuckDuckGo",
+      description: "Text placed after suggestions that will search DuckDuckGo."
+    },
+    omnibar_duckDuckGoSuffix: {
+      title: "DuckDuckGo",
+      description: "Text placed after suggestions that will open a DuckDuckGo page."
+    },
+    omnibar_visitSuffix: {
+      title: "Visit {url}",
+      description: "Text placed after suggestions that will open a webpage."
     },
     nextSteps_sectionTitle: {
       title: "Next Steps",
@@ -32806,7 +33044,8 @@
       "Italian Pizza History",
       "Homemade Pizza Guide",
       "Pizza Dough Calculator"
-    ]
+    ],
+    openTabs: ["Chicago vs New York Pizza"]
   };
   function getMockSuggestions(term) {
     return {
@@ -32845,15 +33084,26 @@
             url: `https://${url7}`
           }))
         ],
-        localSuggestions: pizzaRelatedData.historyEntries.filter((title) => containsIgnoreCase(title, term)).map((title) => ({
-          kind: (
-            /** @type {const} */
-            "historyEntry"
-          ),
-          title,
-          url: `https://example.com/search?q=${encodeURIComponent(title)}`,
-          score: random2(80, 89)
-        }))
+        localSuggestions: [
+          ...pizzaRelatedData.historyEntries.filter((title) => containsIgnoreCase(title, term)).map((title) => ({
+            kind: (
+              /** @type {const} */
+              "historyEntry"
+            ),
+            title,
+            url: `https://example.com/search?q=${encodeURIComponent(title)}`,
+            score: random2(80, 89)
+          })),
+          ...pizzaRelatedData.openTabs.filter((title) => containsIgnoreCase(title, term)).map((title) => ({
+            kind: (
+              /** @type {const} */
+              "openTab"
+            ),
+            title,
+            tabId: `tab-${random2(1e3, 9999)}`,
+            score: random2(80, 89)
+          }))
+        ]
       }
     };
   }
