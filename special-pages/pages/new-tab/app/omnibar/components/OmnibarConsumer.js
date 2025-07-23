@@ -42,16 +42,18 @@ function OmnibarReadyState({ config: { enableAi = true, showAiSetting = true, mo
     const { setMode, setEnableAi } = useContext(OmnibarContext);
 
     useEffect(() => {
-        if (showAiSetting) {
-            settingsLinks.value = {
-                ...settingsLinks.value,
-                duckAi: {
-                    title: enableAi ? t('omnibar_hideDuckAi') : t('omnibar_showDuckAi'),
-                    icon: <AiChatIcon />,
-                    onClick: () => setEnableAi(!enableAi),
-                },
-            };
+        if (!showAiSetting) {
+            return;
         }
+        
+        settingsLinks.value = {
+            ...settingsLinks.value,
+            duckAi: {
+                title: enableAi ? t('omnibar_hideDuckAi') : t('omnibar_showDuckAi'),
+                icon: <AiChatIcon />,
+                onClick: () => setEnableAi(!enableAi),
+            },
+        };
         return () => {
             const { duckAi: _, ...rest } = settingsLinks.value;
             settingsLinks.value = rest;

@@ -7,7 +7,6 @@ export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
     const config = {
         mode: 'search',
-        showAiSetting: true,
     };
 
     /** @type {Map<string, (d: any) => void>} */
