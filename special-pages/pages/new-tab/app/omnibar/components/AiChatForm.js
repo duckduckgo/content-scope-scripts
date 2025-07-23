@@ -15,10 +15,13 @@ import styles from './AiChatForm.module.css';
  * @param {object} props
  * @param {string} props.chat
  * @param {boolean} [props.autoFocus]
+ * @param {(event: FocusEvent) => void} props.onFocus
+ * @param {(event: FocusEvent) => void} props.onBlur
+ * @param {(event: InputEvent) => void} props.onInput
  * @param {(chat: string) => void} props.onChange
  * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
  */
-export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
+export function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
@@ -94,6 +97,9 @@ export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
                 aria-label={t('omnibar_aiChatFormPlaceholder')}
                 autoComplete="off"
                 rows={1}
+                onFocus={onFocus}
+                onBlur={onBlur}
+                onInput={onInput}
                 onKeyDown={handleKeyDown}
                 onChange={handleChange}
             />
