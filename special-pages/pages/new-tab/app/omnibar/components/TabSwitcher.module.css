@@ -2,7 +2,9 @@
     background: var(--ntp-controls-raised-backdrop);
     border-radius: 99px;
     box-shadow: 0px 1px 0px 0px  rgba(0, 0, 0, 0.05) inset;
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(var(--tab-count), 1fr);
+    overflow: hidden;
     padding: var(--sp-0_5);
     position: relative;
 }
@@ -17,14 +19,8 @@
     gap: 6px;
     height: var(--sp-8);
     justify-content: center;
-    padding: 0;
-    width: 92px;
+    padding: 0 var(--sp-3);
     z-index: 1;
-
-    svg {
-        height: var(--sp-4);
-        width: var(--sp-4);
-    }
 }
 
 .tabLabel {
@@ -32,12 +28,23 @@
 }
 
 .blob {
+    background-color: var(--color-white);
+    border-radius: 18px;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.48);
     color: var(--ntp-controls-raised-fill-primary);
+    height: var(--sp-8);
     left: 0;
     position: absolute;
-    top: 0;
+    top: 2px;
     transition: translate 200ms ease;
+    translate: calc(2px + var(--tab-index) * 100%);
+    width: calc((100% - 4px) / var(--tab-count));
     will-change: translate;
+
+    [data-theme="dark"] & {
+        background-color: #6B6B6B;
+        box-shadow: 0 4px 4px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
 
     @media (prefers-reduced-motion: reduce) {
         transition: none;
