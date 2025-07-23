@@ -30,5 +30,25 @@
   "omnibar_searchFormPlaceholder": {
     "title": "Search or enter address",
     "description": "Placeholder text for the search input field."
+  },
+  "omnibar_hideDuckAi": {
+    "title": "Hide Duck.ai",
+    "description": "Label for the button to hide the Duck.ai chat interface."
+  },
+  "omnibar_showDuckAi": {
+    "title": "Show Duck.ai",
+    "description": "Label for the button to show the Duck.ai chat interface."
+  },
+  "omnibar_searchDuckDuckGoSuffix": {
+    "title": "Search DuckDuckGo",
+    "description": "Text placed after suggestions that will search DuckDuckGo."
+  },
+  "omnibar_duckDuckGoSuffix": {
+    "title": "DuckDuckGo",
+    "description": "Text placed after suggestions that will open a DuckDuckGo page."
+  },
+  "omnibar_visitSuffix": {
+    "title": "Visit {url}",
+    "description": "Text placed after suggestions that will open a webpage."
   }
 }

@@ -22,6 +22,10 @@ export const OmnibarContext = createContext({
     setMode: () => {
         throw new Error('must implement');
     },
+    /** @type {(enableAi: NonNullable<OmnibarConfig['enableAi']>) => void} */
+    setEnableAi: () => {
+        throw new Error('must implement');
+    },
     /** @type {(term: string) => Promise<SuggestionsData>} */
     getSuggestions: () => {
         throw new Error('must implement');
@@ -78,6 +82,14 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(enableAi: NonNullable<OmnibarConfig['enableAi']>) => void} */
+    const setEnableAi = useCallback(
+        (enableAi) => {
+            service.current?.setEnableAi(enableAi);
+        },
+        [service],
+    );
+
     /** @type {(term: string) => Promise<SuggestionsData>} */
     const getSuggestions = useCallback(
         (term) => {
@@ -125,6 +137,7 @@ export function OmnibarProvider(props) {
             value={{
                 state,
                 setMode,
+                setEnableAi,
                 getSuggestions,
                 onSuggestions,
                 openSuggestion,

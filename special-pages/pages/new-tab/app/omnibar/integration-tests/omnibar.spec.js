@@ -217,6 +217,61 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.tabList()).toHaveCount(0);
     });
 
+    test('can toggle Duck.ai on', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': false } });
+        await omnibar.ready();
+
+        // Start out with no tab selector
+        await expect(omnibar.tabList()).toHaveCount(0);
+
+        // Enable Duck.ai via Customize panel
+        await omnibar.customizeButton().click();
+        await omnibar.showDuckAiButton().click();
+
+        // Tab selector is now visible
+        await expect(omnibar.tabList()).toBeVisible();
+    });
+
+    test('can toggle Duck.ai off', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Start out with a tab selector
+        await expect(omnibar.tabList()).toBeVisible();
+
+        // Disable Duck.ai via Customize panel
+        await omnibar.customizeButton().click();
+        await omnibar.hideDuckAiButton().click();
+
+        // Tab selector is now gone
+        await expect(omnibar.tabList()).toHaveCount(0);
+    });
+
+    test('hiding Omnibar widget hides Duck.ai toggle', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Open Customize panel - Duck.ai toggle should be visible
+        await omnibar.customizeButton().click();
+        await expect(omnibar.hideDuckAiButton()).toBeVisible();
+
+        // Hide the Omnibar widget - Duck.ai toggle should be hidden
+        await omnibar.toggleSearchButton().click();
+        await expect(omnibar.hideDuckAiButton()).toHaveCount(0);
+    });
+
     test('suggestions list arrow down navigation', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
@@ -238,7 +293,7 @@ test.describe('omnibar widget', () => {
 
         // Press arrow down again - select second item
         await omnibar.searchInput().press('ArrowDown');
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
 
         // Press arrow down again - clear selection
         await omnibar.searchInput().press('ArrowDown');
@@ -288,7 +343,7 @@ test.describe('omnibar widget', () => {
 
         // Press arrow up - select last item (reverse direction)
         await omnibar.searchInput().press('ArrowUp');
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
 
         // Press arrow up again - select first item
         await omnibar.searchInput().press('ArrowUp');
@@ -300,7 +355,7 @@ test.describe('omnibar widget', () => {
 
         // Press arrow up again - rotate back to last item
         await omnibar.searchInput().press('ArrowUp');
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
     });
 
     test('arrow down and enter should open selected suggestion', async ({ page }, workerInfo) => {
@@ -382,7 +437,7 @@ test.describe('omnibar widget', () => {
 
         // Hover over second suggestion
         await omnibar.suggestions().nth(1).hover();
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
 
         // Mouse out to clear selection (hover outside suggestions)
         await omnibar.searchInput().hover();
@@ -445,7 +500,7 @@ test.describe('omnibar widget', () => {
         await omnibar.searchInput().press('ArrowDown'); // pizza delivery
         await omnibar.searchInput().press('ArrowDown'); // pizza hut
         await omnibar.searchInput().press('ArrowDown'); // pizzahut.com
-        await omnibar.expectSelectedSuggestion('pizzahut.com');
+        await omnibar.expectSelectedSuggestion('pizzahut.com – pizzahut.com');
 
         // Input should show "pizza[hut.com]" with "hut.com" selected
         await omnibar.expectInputValue('pizzahut.com');
@@ -470,7 +525,7 @@ test.describe('omnibar widget', () => {
         for (let i = 0; i < 15; i++) {
             await omnibar.searchInput().press('ArrowDown');
         }
-        await omnibar.expectSelectedSuggestion('Italian Pizza History');
+        await omnibar.expectSelectedSuggestion('Italian Pizza History – example.com/search?q=Italian%20Pizza%20History');
 
         // Input should show "[Italian Pizza History]" with entire text selected
         await omnibar.expectInputValue('Italian Pizza History');
@@ -766,7 +821,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions are visible
-        await omnibar.expectSuggestionsCount(17);
+        await omnibar.expectSuggestionsCount(18);
 
         // Click outside the search field (on the page body)
         await page.click('body', { position: { x: 100, y: 100 } });
@@ -791,7 +846,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions are visible
-        await omnibar.expectSuggestionsCount(17);
+        await omnibar.expectSuggestionsCount(18);
 
         // Focus outside the search form (press Shift+Tab to move focus to pill switcher)
         await omnibar.searchInput().press('Shift+Tab');

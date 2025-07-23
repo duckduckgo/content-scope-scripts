@@ -156,6 +156,18 @@
     "title" : "Введите поисковый запрос или адрес сайта",
     "description" : "Placeholder text for the search input field."
   },
+  "omnibar_searchDuckDuckGoSuffix" : {
+    "title" : "Поиск в DuckDuckGo",
+    "description" : "Text placed after suggestions that will search DuckDuckGo."
+  },
+  "omnibar_duckDuckGoSuffix" : {
+    "title" : "DuckDuckGo",
+    "description" : "Text placed after suggestions that will open a DuckDuckGo page."
+  },
+  "omnibar_visitSuffix" : {
+    "title" : "Посетить {url}",
+    "description" : "Text placed after suggestions that will open a webpage."
+  },
   "nextSteps_sectionTitle" : {
     "title" : "Дальнейшие шаги",
     "note" : "Text that goes in the Next Steps bubble above the first card"

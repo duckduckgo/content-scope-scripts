@@ -13,10 +13,12 @@ import { BorderedSection, CustomizerSection } from './CustomizerSection.js';
 import { SettingsLink } from './SettingsLink.js';
 import { DismissButton } from '../../components/DismissButton.jsx';
 import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
-import { useTypedTranslationWith } from '../../types.js';
+import { useMessaging, useTypedTranslationWith } from '../../types.js';
+import { Open } from '../../components/icons/Open.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, UserImageContextMenu } from '../../../types/new-tab.js'
+ * @import { SettingsLinkData } from '../CustomizerProvider';
  * @import enStrings from '../strings.json';
  */
 
@@ -28,10 +30,12 @@ import { useTypedTranslationWith } from '../../types.js';
  * @param {(theme: import('../../../types/new-tab').ThemeData) => void} props.setTheme
  * @param {(id: string) => void} props.deleteImage
  * @param {(p: UserImageContextMenu) => void} props.customizerContextMenu
+ * @param {import('@preact/signals').Signal<Record<string, SettingsLinkData>>} props.settingsLinks
  */
-export function CustomizerDrawerInner({ data, select, onUpload, setTheme, deleteImage, customizerContextMenu }) {
+export function CustomizerDrawerInner({ data, select, onUpload, setTheme, deleteImage, customizerContextMenu, settingsLinks }) {
     const { close } = useDrawerControls();
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const messaging = useMessaging();
     return (
         <div class={styles.root}>
             <header class={cn(styles.header, styles.internal)}>
@@ -65,7 +69,14 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                                 <VisibilityMenuSection />
                             </CustomizerSection>
                             <BorderedSection>
-                                <SettingsLink />
+                                {Object.entries(settingsLinks.value).map(([key, link]) => (
+                                    <SettingsLink key={key} title={link.title} icon={link.icon} onClick={() => link.onClick()} />
+                                ))}
+                                <SettingsLink
+                                    title={t('customizer_settings_link')}
+                                    icon={<Open />}
+                                    onClick={() => messaging.open({ target: 'settings' })}
+                                />
                             </BorderedSection>
                         </div>
                     )}

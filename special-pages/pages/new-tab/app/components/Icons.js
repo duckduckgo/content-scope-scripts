@@ -170,7 +170,7 @@ export function BackChevron() {
  */
 export function SearchIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Find-Search-16_svg__a)">
                 <path
                     fill="currentColor"
@@ -194,7 +194,7 @@ export function SearchIcon(props) {
  */
 export function SearchColorIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Search-Find-Color-16_svg__a)">
                 <path fill="#ADC2FC" d="M12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0Z" />
                 <path fill="#fff" d="M7 2a4.98 4.98 0 0 1 3.403 1.338 5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z" opacity=".5" />
@@ -218,7 +218,7 @@ export function SearchColorIcon(props) {
  */
 export function AiChatIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g fill="currentColor" clip-path="url(#Ai-Chat-16_svg__a)">
                 <path
                     fill-rule="evenodd"
@@ -242,7 +242,7 @@ export function AiChatIcon(props) {
  */
 export function AiChatColorIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Ai-Chat-Gradient-Color-16_svg__a)">
                 <path
                     fill="url(#Ai-Chat-Gradient-Color-16_svg__b)"
@@ -292,7 +292,7 @@ export function AiChatColorIcon(props) {
  */
 export function ArrowRightIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <path
                 fill="currentColor"
                 d="M8.187 1.689a.625.625 0 0 1 .885-.884l5.31 5.316c.83.83.83 2.174 0 3.004l-5.31 5.315a.625.625 0 0 1-.885-.884l5.305-5.308H.625a.625.625 0 1 1 0-1.25h12.867z"
@@ -307,7 +307,7 @@ export function ArrowRightIcon(props) {
  */
 export function GlobeIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Globe-16_svg__a)">
                 <path
                     fill="currentColor"
@@ -331,7 +331,7 @@ export function GlobeIcon(props) {
  */
 export function HistoryIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g fill="currentColor" clip-path="url(#History-16_svg__a)">
                 <path d="m2.072 4.918-.08-.004A6.753 6.753 0 1 1 1.246 8 .623.623 0 1 0 0 8a8 8 0 1 0 1.247-4.29V1.115a.623.623 0 0 0-1.247 0v2.977c0 1.145.928 2.072 2.072 2.072h2.486a.623.623 0 0 0 0-1.246z" />
                 <path d="M8.625 3.625a.625.625 0 1 0-1.25 0V8c0 .166.066.325.183.442l2.375 2.375a.625.625 0 1 0 .884-.884L8.625 7.741z" />
@@ -351,7 +351,7 @@ export function HistoryIcon(props) {
  */
 export function FavoriteIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Favorite-16_svg__a)">
                 <path
                     fill="currentColor"
@@ -375,7 +375,7 @@ export function FavoriteIcon(props) {
  */
 export function BookmarkIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Bookmark-16_svg__a)">
                 <path
                     fill="currentColor"
@@ -399,18 +399,33 @@ export function BookmarkIcon(props) {
  */
 export function BrowserIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <path
-                fill="#000"
+                fill="currentColor"
                 fill-rule="evenodd"
                 d="M0 5a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v1.792c0 .478-.681.721-1.053.422a.52.52 0 0 1-.197-.4v-.819H1.25V11A2.75 2.75 0 0 0 4 13.75h2.135a.57.57 0 0 1 .497.312c.21.398-.055.938-.506.938H4a4 4 0 0 1-4-4zm1.262-.255h13.476A2.75 2.75 0 0 0 12 2.25H4a2.75 2.75 0 0 0-2.738 2.495"
                 clip-rule="evenodd"
             />
             <path
-                fill="#000"
+                fill="currentColor"
                 fill-rule="evenodd"
                 d="M11.5 7a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9m-1.972 7.084A3.25 3.25 0 0 1 8.288 12h.85a7.6 7.6 0 0 0 .39 2.084M8.337 10.75h.818a7.5 7.5 0 0 1 .373-1.834 3.25 3.25 0 0 0-1.191 1.834m2.495 3.233c-.226-.5-.392-1.19-.441-1.983h2.218c-.05.793-.215 1.482-.441 1.983-.299.66-.583.767-.668.767s-.37-.106-.668-.767m0-4.966c-.202.447-.356 1.045-.422 1.733h2.18c-.066-.688-.22-1.286-.422-1.733-.299-.66-.583-.767-.668-.767s-.37.106-.668.767m2.64 5.067c.213-.606.348-1.32.39-2.084h.85a3.25 3.25 0 0 1-1.24 2.084m.373-3.334h.818a3.25 3.25 0 0 0-1.19-1.834c.188.54.316 1.164.371 1.834Z"
                 clip-rule="evenodd"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Tab-Desktop-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function TabDesktopIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M11 2a4 4 0 0 1 4 4v4c0 .854.39 1.617 1 2.121v.357c0 .517-.541.841-.925.495A4 4 0 0 1 13.75 10V6A2.75 2.75 0 0 0 11 3.25H5A2.75 2.75 0 0 0 2.25 6v4a4 4 0 0 1-1.325 2.973c-.384.346-.925.022-.925-.495v-.357c.61-.504 1-1.267 1-2.121V6a4 4 0 0 1 4-4z"
             />
         </svg>
     );
