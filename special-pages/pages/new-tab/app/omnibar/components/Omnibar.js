@@ -27,6 +27,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
     const [query, setQuery] = useState(/** @type {String} */ (''));
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
+    const [focusRing, setFocusRing] = useState(/** @type {boolean|undefined} */ (undefined));
 
     const { openSuggestion, submitSearch, submitChat } = useContext(OmnibarContext);
 
@@ -56,6 +57,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
     /** @type {(mode: OmnibarConfig['mode']) => void} */
     const handleChangeMode = (nextMode) => {
         setAutoFocus(true);
+        setFocusRing(undefined);
         setMode(nextMode);
     };
 
@@ -63,7 +65,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
         <div class={styles.root} data-mode={mode}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && <TabSwitcher mode={mode} onChange={handleChangeMode} />}
-            <Container overflow={mode === 'search'}>
+            <Container overflow={mode === 'search'} focusRing={focusRing}>
                 {mode === 'search' ? (
                     <SearchForm
                         key={`search-${resetKey}`}
@@ -78,6 +80,9 @@ export function Omnibar({ mode, setMode, enableAi }) {
                         key={`chat-${resetKey}`}
                         chat={query}
                         autoFocus={autoFocus}
+                        onFocus={() => setFocusRing(true)}
+                        onBlur={() => setFocusRing(false)}
+                        onInput={() => setFocusRing(false)}
                         onChange={setQuery}
                         onSubmit={handleSubmitChat}
                     />

@@ -5,7 +5,7 @@
 
 .inner {
     background: var(--ntp-surface-tertiary);
-    border-radius: 11px;
+    border-radius: 12px;
     box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.08);
     margin: 0 calc(-1 * var(--sp-1));
     overflow: hidden;
@@ -16,15 +16,14 @@
         transition: none;
     }
 
-    &:focus-within {
-        border-radius: 14px;
-        box-shadow: 0 0 0 2px var(--ntp-color-primary), 0 0 0 4px rgba(57, 105, 239, 0.2);
-        margin: 0 calc(-1 * var(--sp-1) - 3px);
-        padding: 0 3px;
+    &:not(:has([role="listbox"])).focusRing,
+    &:not(:has([role="listbox"])):focus-within:not(.noFocusRing) {
+        border-radius: 15px;
+        box-shadow: 0 0 0 1px var(--ntp-surface-tertiary), 0 0 0 3px var(--ntp-color-primary), 0 0 0 7px rgba(57, 105, 239, 0.2);
     }
 
     &:has([role="listbox"]) {
-        border-radius: 16px;
-        box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.08), 0px 4px 8px 0px rgba(0, 0, 0, 0.16);
+        border-radius: 15px;
+        box-shadow: 0 0 0 3px var(--ntp-surface-tertiary), 0px 4px 12px 3px rgba(0, 0, 0, 0.10), 0px 20px 40px 3px rgba(0, 0, 0, 0.08);
     }
 }
