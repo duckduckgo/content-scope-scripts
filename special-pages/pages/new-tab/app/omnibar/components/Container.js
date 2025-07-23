@@ -6,20 +6,20 @@ import { useRef, useLayoutEffect, useState } from 'preact/hooks';
 /**
  * @param {object} props
  * @param {boolean} props.overflow
+ * @param {boolean} [props.focusRing]
  * @param {import('preact').ComponentChildren} props.children
  */
-export function Container({ overflow, children }) {
-    const [hasFocus, setHasFocus] = useState(false);
+export function Container({ overflow, focusRing, children }) {
     const { contentRef, initialHeight, currentHeight } = useContentHeight();
     return (
-        <div
-            class={cn(styles.outer, { [styles.focused]: hasFocus })}
-            style={{ height: overflow && initialHeight ? initialHeight : 'auto' }}
-            onFocus={() => setHasFocus(true)}
-            onBlur={() => setHasFocus(false)}
-            onInput={() => setHasFocus(false)}
-        >
-            <div class={styles.inner} style={{ height: currentHeight ?? 'auto' }}>
+        <div class={styles.outer} style={{ height: overflow && initialHeight ? initialHeight : 'auto' }}>
+            <div
+                class={cn(styles.inner, {
+                    [styles.focusRing]: focusRing === true,
+                    [styles.noFocusRing]: focusRing === false,
+                })}
+                style={{ height: currentHeight ?? 'auto' }}
+            >
                 <div ref={contentRef}>{children}</div>
             </div>
         </div>
