@@ -13,6 +13,7 @@
     background: none;
     border: none;
     color: var(--ntp-text-normal);
+    font-weight: 500;
     height: var(--sp-8);
     left: var(--sp-1);
     padding-bottom: 0;

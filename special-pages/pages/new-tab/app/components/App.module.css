@@ -29,7 +29,7 @@ body[data-animate-background="true"] {
 :global(.layout-centered) {
     margin-inline: auto;
     width: 100%;
-    max-width: calc(504 * var(--px-in-rem));
+    max-width: calc(620 * var(--px-in-rem));
 }
 
 :global(.vertical-space) {
