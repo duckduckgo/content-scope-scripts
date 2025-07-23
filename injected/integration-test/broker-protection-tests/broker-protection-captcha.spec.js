@@ -137,8 +137,6 @@ test.describe('Broker Protection Captcha', () => {
                 dbp.getSuccessResponse();
 
                 await dbp.isCaptchaTokenFilled(imageCaptchaResponseSelector);
-
-                await page.pause();
             });
 
             test('retry fails with permanently invalid element type', async ({ page, createConfiguredDbp }) => {
