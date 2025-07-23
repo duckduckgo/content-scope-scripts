@@ -19,6 +19,8 @@
     .focused & {
         border-radius: 14px;
         box-shadow: 0 0 0 2px var(--ntp-color-primary), 0 0 0 4px rgba(57, 105, 239, 0.2);
+        margin: 0 calc(-1 * var(--sp-1) - 3px);
+        padding: 0 3px;
     }
 
     &:has([role="listbox"]) {
