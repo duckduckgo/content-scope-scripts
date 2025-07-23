@@ -8,6 +8,7 @@ on:
         branches: [develop]
     schedule:
         - cron: '40 11 * * 5'
+    merge_group:
 
 jobs:
     analyze:
