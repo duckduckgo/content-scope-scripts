@@ -130,7 +130,7 @@ test.describe('Broker Protection Captcha', () => {
         });
 
         test.describe('solveCaptchaInfo', () => {
-            test('solves the captcha for the correct action data', async ({ page, createConfiguredDbp }) => {
+            test('solves the captcha for the correct action data', async ({ createConfiguredDbp }) => {
                 const dbp = await createConfiguredDbp(BROKER_PROTECTION_CONFIGS.default);
                 await dbp.navigatesTo(imageCaptchaTargetPage);
                 await dbp.receivesInlineAction(createSolveImageCaptchaAction({ selector: imageCaptchaResponseSelector }));
