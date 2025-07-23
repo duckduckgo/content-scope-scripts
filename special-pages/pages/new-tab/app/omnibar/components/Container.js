@@ -43,5 +43,5 @@ function useContentHeight() {
         return () => resizeObserver.disconnect();
     }, []);
 
-    return { ref: contentRef, initialHeight: initialHeight.current, currentHeight };
+    return { contentRef, initialHeight: initialHeight.current, currentHeight };
 }
