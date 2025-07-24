@@ -22,7 +22,7 @@ export class OmnibarPage {
     }
 
     chatInput() {
-        return this.context().getByRole('textbox', { name: 'Chat privately with Duck.ai' });
+        return this.context().getByRole('textbox', { name: 'Ask privately' });
     }
 
     chatSubmitButton() {
