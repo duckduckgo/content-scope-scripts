@@ -37,6 +37,7 @@ Then access the Example page you edited via: `http://127.0.0.1:3210/example/`
 
 > **Note**: The output of the build command is just plain HTML/CSS/JS, so you can serve the build directory in any way that suits you.
 
+
 ### Step 4: Watch Mode
 
 The build command builds every special page, but to run just 1 in isolation:

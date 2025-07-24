@@ -17,11 +17,11 @@ const builds = {
     },
     apple: {
         input: 'entry-points/apple.js',
-        output: ['../Sources/ContentScopeScripts/dist/contentScope.js'],
+        output: ['../build/apple/contentScope.js'],
     },
     'apple-isolated': {
         input: 'entry-points/apple.js',
-        output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
+        output: ['../build/apple/contentScopeIsolated.js'],
     },
     android: {
         input: 'entry-points/android.js',
