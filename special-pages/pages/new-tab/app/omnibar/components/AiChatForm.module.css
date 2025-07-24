@@ -16,6 +16,10 @@
     padding: 11px 15px 0;
     resize: none;
 
+    &::placeholder {
+        color: var(--ntp-text-muted);
+    }
+
     &:focus {
         outline: none;
     }
