@@ -13,6 +13,7 @@
     background: none;
     border: none;
     color: var(--ntp-text-normal);
+    font-weight: 500;
     height: var(--sp-8);
     left: var(--sp-1);
     padding-bottom: 0;
@@ -21,6 +22,10 @@
     padding-top: 0;
     position: absolute;
     right: var(--sp-1);
+
+    &::placeholder {
+        color: var(--ntp-text-muted);
+    }
 
     &:focus {
         outline: none;

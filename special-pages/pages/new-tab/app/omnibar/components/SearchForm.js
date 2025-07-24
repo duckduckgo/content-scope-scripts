@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact';
 import { useEffect, useId } from 'preact/hooks';
-import { SearchIcon } from '../../components/Icons.js';
+import { SearchIcon, GlobeIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types';
 import styles from './SearchForm.module.css';
 import { SuggestionsList } from './SuggestionsList.js';
@@ -68,7 +68,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
     return (
         <form class={styles.form} onBlur={handleBlur} onSubmit={handleSubmit}>
             <div class={styles.inputContainer} style={{ '--suffix-text-width': `${measureText(inputSuffixText)}px` }}>
-                <SearchIcon inert />
+                {inputSuffix?.kind === 'visit' ? <GlobeIcon inert /> : <SearchIcon inert />}
                 <input
                     ref={inputRef}
                     type="text"

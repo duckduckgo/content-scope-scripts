@@ -32,6 +32,10 @@ body[data-animate-background="true"] {
     max-width: calc(504 * var(--px-in-rem));
 }
 
+:global([data-entry-point="omnibar"]) {
+    max-width: calc(620 * var(--px-in-rem));
+}
+
 :global(.vertical-space) {
     padding-top: 1rem;
     padding-bottom: 1rem;
