@@ -130,7 +130,7 @@
     "description": "Title of the omnibar widget in the customizer panel."
   },
   "omnibar_aiChatFormPlaceholder": {
-    "title": "Chat privately with Duck.ai",
+    "title": "Ask privately",
     "description": "Placeholder text for the AI chat input field."
   },
   "omnibar_aiChatFormSubmitButtonLabel": {
@@ -154,7 +154,7 @@
     "description": "Label for the AI chat tab."
   },
   "omnibar_searchFormPlaceholder": {
-    "title": "Search or enter address",
+    "title": "Search privately",
     "description": "Placeholder text for the search input field."
   },
   "omnibar_hideDuckAi": {
