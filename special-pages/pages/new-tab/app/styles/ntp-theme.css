@@ -72,9 +72,9 @@ body {
     --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
     --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ntp-color-primary);
-    --ntp-surface-tertiary: #474747;
-    --ntp-controls-raised-backdrop: var(--color-white-at-12);
-    --ntp-controls-raised-fill-primary: #6B6B6B;
+    --ntp-surface-tertiary: rgba(71, 71, 71, 0.66);
+    --ntp-controls-raised-backdrop: var(--color-black-at-60);
+    --ntp-controls-raised-fill-primary: var(--color-white-at-18);
 }
 
 /* This comes from the application settings */
