@@ -272,6 +272,22 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.hideDuckAiButton()).toHaveCount(0);
     });
 
+    test('Duck.ai toggle is hidden when showAiSetting is false', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showAiSetting': false } });
+        await omnibar.ready();
+
+        // Open Customize panel
+        await omnibar.customizeButton().click();
+
+        // The Duck.ai toggle button should not be visible
+        await expect(omnibar.hideDuckAiButton()).toHaveCount(0);
+        await expect(omnibar.showDuckAiButton()).toHaveCount(0);
+    });
+
     test('suggestions list arrow down navigation', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
@@ -856,28 +872,5 @@ test.describe('omnibar widget', () => {
 
         // Input should retain its value
         await omnibar.expectInputValue('pizza');
-    });
-
-    test('AI setting button is hidden when showAiSetting is false', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const omnibar = new OmnibarPage(ntp);
-        await ntp.reducedMotion();
-
-        // Enable AI but disable the setting button via URL parameter
-        await ntp.openPage({ 
-            additional: { 
-                omnibar: true, 
-                'omnibar.enableAi': true,
-                'omnibar.showAiSetting': false
-            } 
-        });
-        await omnibar.ready();
-
-        // Open customizer to check if AI setting button is hidden
-        await omnibar.customizeButton().click();
-        
-        // The AI toggle buttons should not be visible
-        await expect(omnibar.hideDuckAiButton()).not.toBeVisible();
-        await expect(omnibar.showDuckAiButton()).not.toBeVisible();
     });
 });

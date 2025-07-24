@@ -45,7 +45,7 @@ function OmnibarReadyState({ config: { enableAi = true, showAiSetting = true, mo
         if (!showAiSetting) {
             return;
         }
-        
+
         settingsLinks.value = {
             ...settingsLinks.value,
             duckAi: {

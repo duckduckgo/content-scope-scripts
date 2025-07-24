@@ -17,7 +17,7 @@
       "default": true
     },
     "showAiSetting": {
-      "title": "Show AI Setting Button",
+      "title": "Show Duck.ai Setting",
       "type": "boolean",
       "default": true
     }
