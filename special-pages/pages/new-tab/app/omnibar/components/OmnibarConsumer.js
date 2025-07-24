@@ -35,13 +35,17 @@ export function OmnibarConsumer() {
  * @param {object} props
  * @param {OmnibarConfig} props.config
  */
-function OmnibarReadyState({ config: { enableAi = true, mode } }) {
+function OmnibarReadyState({ config: { enableAi = true, showAiSetting = true, mode } }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
     const { settingsLinks } = useContext(CustomizerContext);
     const { setMode, setEnableAi } = useContext(OmnibarContext);
 
     useEffect(() => {
+        if (!showAiSetting) {
+            return;
+        }
+
         settingsLinks.value = {
             ...settingsLinks.value,
             duckAi: {
@@ -54,7 +58,7 @@ function OmnibarReadyState({ config: { enableAi = true, mode } }) {
             const { duckAi: _, ...rest } = settingsLinks.value;
             settingsLinks.value = rest;
         };
-    }, [enableAi]);
+    }, [enableAi, showAiSetting]);
 
     return <Omnibar mode={mode} setMode={setMode} enableAi={enableAi} />;
 }
