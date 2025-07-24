@@ -272,6 +272,22 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.hideDuckAiButton()).toHaveCount(0);
     });
 
+    test('Duck.ai toggle is hidden when showAiSetting is false', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showAiSetting': false } });
+        await omnibar.ready();
+
+        // Open Customize panel
+        await omnibar.customizeButton().click();
+
+        // The Duck.ai toggle button should not be visible
+        await expect(omnibar.hideDuckAiButton()).toHaveCount(0);
+        await expect(omnibar.showDuckAiButton()).toHaveCount(0);
+    });
+
     test('suggestions list arrow down navigation', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);

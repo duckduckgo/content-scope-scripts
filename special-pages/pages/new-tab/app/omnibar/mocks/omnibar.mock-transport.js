@@ -50,6 +50,10 @@ export function omnibarMockTransport() {
                     if (enableAiOverride === 'true' || enableAiOverride === 'false') {
                         config.enableAi = enableAiOverride === 'true';
                     }
+                    const showAiSettingOverride = url.searchParams.get('omnibar.showAiSetting');
+                    if (showAiSettingOverride === 'true' || showAiSettingOverride === 'false') {
+                        config.showAiSetting = showAiSettingOverride === 'true';
+                    }
                     return config;
                 }
                 case 'omnibar_getSuggestions': {

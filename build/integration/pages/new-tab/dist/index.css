@@ -321,6 +321,9 @@ body[data-animate-background=true] {
   width: 100%;
   max-width: calc(504 * var(--px-in-rem));
 }
+[data-entry-point=omnibar] {
+  max-width: calc(620 * var(--px-in-rem));
+}
 .vertical-space {
   padding-top: 1rem;
   padding-bottom: 1rem;
@@ -1473,6 +1476,7 @@ body:not([data-platform-name]) .Button_button:active {
   border: none;
   box-sizing: content-box;
   color: var(--ntp-text-normal);
+  font-weight: 500;
   max-height: 10lh;
   padding: 11px 15px 0;
   resize: none;
@@ -1528,7 +1532,6 @@ body:not([data-platform-name]) .Button_button:active {
   background: var(--ntp-surface-tertiary);
   border-radius: 12px;
   box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.08);
-  margin: 0 calc(-1 * var(--sp-1));
   overflow: hidden;
   position: relative;
   transition: height 200ms ease;
@@ -1564,7 +1567,7 @@ body:not([data-platform-name]) .Button_button:active {
 }
 .Omnibar_logo {
   margin-bottom: var(--sp-4);
-  width: 123px;
+  width: 164px;
 }
 
 /* pages/new-tab/app/omnibar/components/SearchForm.module.css */
@@ -1581,6 +1584,7 @@ body:not([data-platform-name]) .Button_button:active {
   background: none;
   border: none;
   color: var(--ntp-text-normal);
+  font-weight: 500;
   height: var(--sp-8);
   left: var(--sp-1);
   padding-bottom: 0;

@@ -8441,7 +8441,7 @@
         target: "same-tab"
       });
     };
-    return /* @__PURE__ */ _("form", { class: SearchForm_default.form, onBlur: handleBlur, onSubmit: handleSubmit }, /* @__PURE__ */ _("div", { class: SearchForm_default.inputContainer, style: { "--suffix-text-width": `${measureText(inputSuffixText)}px` } }, /* @__PURE__ */ _(SearchIcon, { inert: true }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("form", { class: SearchForm_default.form, onBlur: handleBlur, onSubmit: handleSubmit }, /* @__PURE__ */ _("div", { class: SearchForm_default.inputContainer, style: { "--suffix-text-width": `${measureText(inputSuffixText)}px` } }, inputSuffix?.kind === "visit" ? /* @__PURE__ */ _(GlobeIcon, { inert: true }) : /* @__PURE__ */ _(SearchIcon, { inert: true }), /* @__PURE__ */ _(
       "input",
       {
         ref: inputRef,
@@ -8626,7 +8626,7 @@
     }
     return null;
   }
-  function OmnibarReadyState({ config: { enableAi = true, mode } }) {
+  function OmnibarReadyState({ config: { enableAi = true, showAiSetting = true, mode } }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -8634,6 +8634,9 @@
     const { settingsLinks } = x2(CustomizerContext);
     const { setMode, setEnableAi } = x2(OmnibarContext);
     y2(() => {
+      if (!showAiSetting) {
+        return;
+      }
       settingsLinks.value = {
         ...settingsLinks.value,
         duckAi: {
@@ -8646,7 +8649,7 @@
         const { duckAi: _5, ...rest } = settingsLinks.value;
         settingsLinks.value = rest;
       };
-    }, [enableAi]);
+    }, [enableAi, showAiSetting]);
     return /* @__PURE__ */ _(Omnibar, { mode, setMode, enableAi });
   }
   var init_OmnibarConsumer = __esm({
@@ -29169,7 +29172,7 @@
       description: "Title of the omnibar widget in the customizer panel."
     },
     omnibar_aiChatFormPlaceholder: {
-      title: "Chat privately with Duck.ai",
+      title: "Ask privately",
       description: "Placeholder text for the AI chat input field."
     },
     omnibar_aiChatFormSubmitButtonLabel: {
@@ -29193,7 +29196,7 @@
       description: "Label for the AI chat tab."
     },
     omnibar_searchFormPlaceholder: {
-      title: "Search or enter address",
+      title: "Search privately",
       description: "Placeholder text for the search input field."
     },
     omnibar_hideDuckAi: {
