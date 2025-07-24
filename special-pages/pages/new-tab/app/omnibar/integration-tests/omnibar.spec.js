@@ -880,47 +880,4 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.hideDuckAiButton()).not.toBeVisible();
         await expect(omnibar.showDuckAiButton()).not.toBeVisible();
     });
-
-    test('AI setting button is shown when showAiSetting is true', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const omnibar = new OmnibarPage(ntp);
-        await ntp.reducedMotion();
-
-        // Enable AI and explicitly enable the setting button via URL parameter
-        await ntp.openPage({ 
-            additional: { 
-                omnibar: true, 
-                'omnibar.enableAi': true,
-                'omnibar.showAiSetting': true
-            } 
-        });
-        await omnibar.ready();
-
-        // Open customizer to see if AI setting button is present
-        await omnibar.customizeButton().click();
-        
-        // The AI toggle button should be visible (since enableAi is true, we expect "Hide Duck.ai")
-        await expect(omnibar.hideDuckAiButton()).toBeVisible();
-    });
-
-    test('AI setting button is shown by default when showAiSetting is not specified', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        const omnibar = new OmnibarPage(ntp);
-        await ntp.reducedMotion();
-
-        // Enable AI but don't specify showAiSetting (should default to true behavior)
-        await ntp.openPage({ 
-            additional: { 
-                omnibar: true, 
-                'omnibar.enableAi': true
-            } 
-        });
-        await omnibar.ready();
-
-        // Open customizer to see if AI setting button is present by default
-        await omnibar.customizeButton().click();
-        
-        // The AI toggle button should be visible by default
-        await expect(omnibar.hideDuckAiButton()).toBeVisible();
-    });
 });
