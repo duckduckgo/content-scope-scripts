@@ -49,7 +49,7 @@
     "stylelint-config-standard": "^34.0.0",
     "stylelint-csstree-validator": "^3.0.0",
     "ts-json-schema-generator": "^2.4.0",
-    "typedoc": "^0.28.5",
+    "typedoc": "^0.28.7",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.36.0",
     "wait-on": "^8.0.3"
