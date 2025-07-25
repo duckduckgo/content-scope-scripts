@@ -67,7 +67,7 @@ jobs:
                   git add -f . ':!CHANGELOG.txt' ':!node_modules'
 
             - name: Commit build files
-              uses: stefanzweifel/git-auto-commit-action@v5
+              uses: stefanzweifel/git-auto-commit-action@v6
               with:
                   commit_message: 'Release build ${{ github.event.inputs.version }} [ci release]'
                   commit_options: '--allow-empty'
