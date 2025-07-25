@@ -369,3 +369,13 @@ test.describe('serp proxy', () => {
         await overlays.userValuesCallIsProxied();
     });
 });
+
+test.describe('Reporting exceptions', () => {
+    test('initial setup error', async ({ page }, workerInfo) => {
+        const overlays = DuckplayerOverlays.create(page, workerInfo);
+        await overlays.withRemoteConfig({ locale: 'en' });
+        await overlays.messagingError();
+        await overlays.gotoPlayerPage();
+        await overlays.didSendMessagingException();
+    });
+});
