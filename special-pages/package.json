@@ -39,7 +39,7 @@
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.1.0",
     "@formkit/auto-animate": "^0.8.2",
     "@preact/signals": "^2.0.5",
-    "@rive-app/canvas-single": "^2.28.0",
+    "@rive-app/canvas-single": "^2.30.4",
     "classnames": "^2.5.1",
     "lottie-web": "^5.12.2",
     "preact": "^10.26.7"
