@@ -43,7 +43,7 @@
     "@types/node": "^24.0.3",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "fast-check": "^4.1.1",
-    "jasmine": "^5.7.1",
+    "jasmine": "^5.9.0",
     "web-ext": "^8.9.0"
   }
 }
