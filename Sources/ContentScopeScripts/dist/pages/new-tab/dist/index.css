@@ -279,9 +279,9 @@ body {
   --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
   --focus-ring-thin: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
   --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ntp-color-primary);
-  --ntp-surface-tertiary: #474747;
-  --ntp-controls-raised-backdrop: var(--color-white-at-12);
-  --ntp-controls-raised-fill-primary: #6B6B6B;
+  --ntp-surface-tertiary: rgba(71, 71, 71, 0.66);
+  --ntp-controls-raised-backdrop: var(--color-black-at-60);
+  --ntp-controls-raised-fill-primary: var(--color-white-at-18);
 }
 :root:has(body[data-platform-name=windows]) {
   --body-font-size: 14px;
@@ -1481,6 +1481,9 @@ body:not([data-platform-name]) .Button_button:active {
   padding: 11px 15px 0;
   resize: none;
 }
+.AiChatForm_textarea::placeholder {
+  color: var(--ntp-text-muted);
+}
 .AiChatForm_textarea:focus {
   outline: none;
 }
@@ -1594,6 +1597,9 @@ body:not([data-platform-name]) .Button_button:active {
   position: absolute;
   right: var(--sp-1);
 }
+.SearchForm_input::placeholder {
+  color: var(--ntp-text-muted);
+}
 .SearchForm_input:focus {
   outline: none;
 }
@@ -1670,6 +1676,9 @@ body:not([data-platform-name]) .Button_button:active {
   padding: var(--sp-0_5);
   position: relative;
 }
+[data-theme=dark] .TabSwitcher_tabSwitcher {
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.16) inset;
+}
 .TabSwitcher_tab {
   align-items: center;
   background: none;
@@ -1687,13 +1696,12 @@ body:not([data-platform-name]) .Button_button:active {
   padding-top: 1px;
 }
 .TabSwitcher_blob {
-  background-color: var(--color-white);
+  background-color: var(--ntp-controls-raised-fill-primary);
   border-radius: 18px;
   box-shadow:
     0 4px 4px rgba(0, 0, 0, 0.08),
     0 1px 2px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.48);
-  color: var(--ntp-controls-raised-fill-primary);
   height: var(--sp-8);
   left: 0;
   position: absolute;
@@ -1704,7 +1712,6 @@ body:not([data-platform-name]) .Button_button:active {
   will-change: translate;
 }
 [data-theme=dark] .TabSwitcher_blob {
-  background-color: #6B6B6B;
   box-shadow:
     0 4px 4px rgba(0, 0, 0, 0.24),
     0 1px 2px rgba(0, 0, 0, 0.24),

@@ -66,7 +66,7 @@
   function _(l5, u4, t4) {
     var i5, r4, o4, e4 = {};
     for (o4 in u4) "key" == o4 ? i5 = u4[o4] : "ref" == o4 ? r4 = u4[o4] : e4[o4] = u4[o4];
-    if (arguments.length > 2 && (e4.children = arguments.length > 3 ? n.call(arguments, 2) : t4), "function" == typeof l5 && null != l5.defaultProps) for (o4 in l5.defaultProps) null == e4[o4] && (e4[o4] = l5.defaultProps[o4]);
+    if (arguments.length > 2 && (e4.children = arguments.length > 3 ? n.call(arguments, 2) : t4), "function" == typeof l5 && null != l5.defaultProps) for (o4 in l5.defaultProps) void 0 === e4[o4] && (e4[o4] = l5.defaultProps[o4]);
     return m(l5, e4, i5, r4, null);
   }
   function m(n3, t4, i5, r4, o4) {
@@ -102,8 +102,8 @@
     $.__r = 0;
   }
   function I(n3, l5, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
-    var a4, h5, v4, w5, d5, g6, _5 = t4 && t4.__k || y, m4 = l5.length;
-    for (f4 = P(u4, l5, _5, f4, m4), a4 = 0; a4 < m4; a4++) null != (v4 = u4.__k[a4]) && (h5 = -1 == v4.__i ? p : _5[v4.__i] || p, v4.__i = a4, g6 = O(n3, v4, h5, i5, r4, o4, e4, f4, c4, s4), w5 = v4.__e, v4.ref && h5.ref != v4.ref && (h5.ref && q(h5.ref, null, v4), s4.push(v4.ref, v4.__c || w5, v4)), null == d5 && null != w5 && (d5 = w5), 4 & v4.__u || h5.__k === v4.__k ? f4 = A(v4, f4, n3) : "function" == typeof v4.type && void 0 !== g6 ? f4 = g6 : w5 && (f4 = w5.nextSibling), v4.__u &= -7);
+    var a4, h5, y5, w5, d5, g6, _5 = t4 && t4.__k || v, m4 = l5.length;
+    for (f4 = P(u4, l5, _5, f4, m4), a4 = 0; a4 < m4; a4++) null != (y5 = u4.__k[a4]) && (h5 = -1 == y5.__i ? p : _5[y5.__i] || p, y5.__i = a4, g6 = O(n3, y5, h5, i5, r4, o4, e4, f4, c4, s4), w5 = y5.__e, y5.ref && h5.ref != y5.ref && (h5.ref && q(h5.ref, null, y5), s4.push(y5.ref, y5.__c || w5, y5)), null == d5 && null != w5 && (d5 = w5), 4 & y5.__u || h5.__k === y5.__k ? f4 = A(y5, f4, n3) : "function" == typeof y5.type && void 0 !== g6 ? f4 = g6 : w5 && (f4 = w5.nextSibling), y5.__u &= -7);
     return u4.__e = d5, f4;
   }
   function P(n3, l5, u4, t4, i5) {
@@ -145,7 +145,7 @@
     return -1;
   }
   function T(n3, l5, u4) {
-    "-" == l5[0] ? n3.setProperty(l5, null == u4 ? "" : u4) : n3[l5] = null == u4 ? "" : "number" != typeof u4 || v.test(l5) ? u4 : u4 + "px";
+    "-" == l5[0] ? n3.setProperty(l5, null == u4 ? "" : u4) : n3[l5] = null == u4 ? "" : "number" != typeof u4 || y.test(l5) ? u4 : u4 + "px";
   }
   function j(n3, l5, u4, t4, i5) {
     var r4, o4;
@@ -176,13 +176,13 @@
     };
   }
   function O(n3, u4, t4, i5, r4, o4, e4, f4, c4, s4) {
-    var a4, h5, p5, y5, v4, _5, m4, b4, S2, C3, M3, $2, P4, A5, H3, L2, T5, j4 = u4.type;
+    var a4, h5, p5, v4, y5, _5, m4, b4, S2, C3, M3, $2, P4, A5, H3, L2, T5, j4 = u4.type;
     if (null != u4.constructor) return null;
     128 & t4.__u && (c4 = !!(32 & t4.__u), o4 = [f4 = u4.__e = t4.__e]), (a4 = l.__b) && a4(u4);
     n: if ("function" == typeof j4) try {
-      if (b4 = u4.props, S2 = "prototype" in j4 && j4.prototype.render, C3 = (a4 = j4.contextType) && i5[a4.__c], M3 = a4 ? C3 ? C3.props.value : a4.__ : i5, t4.__c ? m4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (S2 ? u4.__c = h5 = new j4(b4, M3) : (u4.__c = h5 = new x(b4, M3), h5.constructor = j4, h5.render = D), C3 && C3.sub(h5), h5.props = b4, h5.state || (h5.state = {}), h5.context = M3, h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), S2 && null == h5.__s && (h5.__s = h5.state), S2 && null != j4.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = d({}, h5.__s)), d(h5.__s, j4.getDerivedStateFromProps(b4, h5.__s))), y5 = h5.props, v4 = h5.state, h5.__v = u4, p5) S2 && null == j4.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), S2 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
+      if (b4 = u4.props, S2 = "prototype" in j4 && j4.prototype.render, C3 = (a4 = j4.contextType) && i5[a4.__c], M3 = a4 ? C3 ? C3.props.value : a4.__ : i5, t4.__c ? m4 = (h5 = u4.__c = t4.__c).__ = h5.__E : (S2 ? u4.__c = h5 = new j4(b4, M3) : (u4.__c = h5 = new x(b4, M3), h5.constructor = j4, h5.render = D), C3 && C3.sub(h5), h5.props = b4, h5.state || (h5.state = {}), h5.context = M3, h5.__n = i5, p5 = h5.__d = true, h5.__h = [], h5._sb = []), S2 && null == h5.__s && (h5.__s = h5.state), S2 && null != j4.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = d({}, h5.__s)), d(h5.__s, j4.getDerivedStateFromProps(b4, h5.__s))), v4 = h5.props, y5 = h5.state, h5.__v = u4, p5) S2 && null == j4.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), S2 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
       else {
-        if (S2 && null == j4.getDerivedStateFromProps && b4 !== y5 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(b4, M3), !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(b4, h5.__s, M3) || u4.__v == t4.__v) {
+        if (S2 && null == j4.getDerivedStateFromProps && b4 !== v4 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(b4, M3), !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(b4, h5.__s, M3) || u4.__v == t4.__v) {
           for (u4.__v != t4.__v && (h5.props = b4, h5.state = h5.__s, h5.__d = false), u4.__e = t4.__e, u4.__k = t4.__k, u4.__k.some(function(n4) {
             n4 && (n4.__ = u4);
           }), $2 = 0; $2 < h5._sb.length; $2++) h5.__h.push(h5._sb[$2]);
@@ -190,7 +190,7 @@
           break n;
         }
         null != h5.componentWillUpdate && h5.componentWillUpdate(b4, h5.__s, M3), S2 && null != h5.componentDidUpdate && h5.__h.push(function() {
-          h5.componentDidUpdate(y5, v4, _5);
+          h5.componentDidUpdate(v4, y5, _5);
         });
       }
       if (h5.context = M3, h5.props = b4, h5.__P = n3, h5.__e = false, P4 = l.__r, A5 = 0, S2) {
@@ -199,7 +199,7 @@
       } else do {
         h5.__d = false, P4 && P4(u4), a4 = h5.render(h5.props, h5.state, h5.context), h5.state = h5.__s;
       } while (h5.__d && ++A5 < 25);
-      h5.state = h5.__s, null != h5.getChildContext && (i5 = d(d({}, i5), h5.getChildContext())), S2 && !p5 && null != h5.getSnapshotBeforeUpdate && (_5 = h5.getSnapshotBeforeUpdate(y5, v4)), L2 = a4, null != a4 && a4.type === k && null == a4.key && (L2 = N(a4.props.children)), f4 = I(n3, w(L2) ? L2 : [L2], u4, t4, i5, r4, o4, e4, f4, c4, s4), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e4.push(h5), m4 && (h5.__E = h5.__ = null);
+      h5.state = h5.__s, null != h5.getChildContext && (i5 = d(d({}, i5), h5.getChildContext())), S2 && !p5 && null != h5.getSnapshotBeforeUpdate && (_5 = h5.getSnapshotBeforeUpdate(v4, y5)), L2 = a4, null != a4 && a4.type === k && null == a4.key && (L2 = N(a4.props.children)), f4 = I(n3, w(L2) ? L2 : [L2], u4, t4, i5, r4, o4, e4, f4, c4, s4), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e4.push(h5), m4 && (h5.__E = h5.__ = null);
     } catch (n4) {
       if (u4.__v = null, c4 || null != o4) if (n4.then) {
         for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
@@ -227,7 +227,7 @@
     return "object" != typeof n3 || null == n3 || n3.__b && n3.__b > 0 ? n3 : w(n3) ? n3.map(N) : d({}, n3);
   }
   function V(u4, t4, i5, r4, o4, e4, f4, c4, s4) {
-    var a4, h5, y5, v4, d5, _5, m4, b4 = i5.props, k4 = t4.props, x3 = t4.type;
+    var a4, h5, v4, y5, d5, _5, m4, b4 = i5.props, k4 = t4.props, x3 = t4.type;
     if ("svg" == x3 ? o4 = "http://www.w3.org/2000/svg" : "math" == x3 ? o4 = "http://www.w3.org/1998/Math/MathML" : o4 || (o4 = "http://www.w3.org/1999/xhtml"), null != e4) {
       for (a4 = 0; a4 < e4.length; a4++) if ((d5 = e4[a4]) && "setAttribute" in d5 == !!x3 && (x3 ? d5.localName == x3 : 3 == d5.nodeType)) {
         u4 = d5, e4[a4] = null;
@@ -242,14 +242,14 @@
     else {
       if (e4 = e4 && n.call(u4.childNodes), b4 = i5.props || p, !c4 && null != e4) for (b4 = {}, a4 = 0; a4 < u4.attributes.length; a4++) b4[(d5 = u4.attributes[a4]).name] = d5.value;
       for (a4 in b4) if (d5 = b4[a4], "children" == a4) ;
-      else if ("dangerouslySetInnerHTML" == a4) y5 = d5;
+      else if ("dangerouslySetInnerHTML" == a4) v4 = d5;
       else if (!(a4 in k4)) {
         if ("value" == a4 && "defaultValue" in k4 || "checked" == a4 && "defaultChecked" in k4) continue;
         j(u4, a4, null, d5, o4);
       }
-      for (a4 in k4) d5 = k4[a4], "children" == a4 ? v4 = d5 : "dangerouslySetInnerHTML" == a4 ? h5 = d5 : "value" == a4 ? _5 = d5 : "checked" == a4 ? m4 = d5 : c4 && "function" != typeof d5 || b4[a4] === d5 || j(u4, a4, d5, b4[a4], o4);
-      if (h5) c4 || y5 && (h5.__html == y5.__html || h5.__html == u4.innerHTML) || (u4.innerHTML = h5.__html), t4.__k = [];
-      else if (y5 && (u4.innerHTML = ""), I("template" == t4.type ? u4.content : u4, w(v4) ? v4 : [v4], t4, i5, r4, "foreignObject" == x3 ? "http://www.w3.org/1999/xhtml" : o4, e4, f4, e4 ? e4[0] : i5.__k && S(i5, 0), c4, s4), null != e4) for (a4 = e4.length; a4--; ) g(e4[a4]);
+      for (a4 in k4) d5 = k4[a4], "children" == a4 ? y5 = d5 : "dangerouslySetInnerHTML" == a4 ? h5 = d5 : "value" == a4 ? _5 = d5 : "checked" == a4 ? m4 = d5 : c4 && "function" != typeof d5 || b4[a4] === d5 || j(u4, a4, d5, b4[a4], o4);
+      if (h5) c4 || v4 && (h5.__html == v4.__html || h5.__html == u4.innerHTML) || (u4.innerHTML = h5.__html), t4.__k = [];
+      else if (v4 && (u4.innerHTML = ""), I("template" == t4.type ? u4.content : u4, w(y5) ? y5 : [y5], t4, i5, r4, "foreignObject" == x3 ? "http://www.w3.org/1999/xhtml" : o4, e4, f4, e4 ? e4[0] : i5.__k && S(i5, 0), c4, s4), null != e4) for (a4 = e4.length; a4--; ) g(e4[a4]);
       c4 || (a4 = "value", "progress" == x3 && null == _5 ? u4.removeAttribute("value") : null != _5 && (_5 !== u4[a4] || "progress" == x3 && !_5 || "option" == x3 && _5 != b4[a4]) && j(u4, a4, _5, b4[a4], o4), a4 = "checked", null != m4 && m4 != u4[a4] && j(u4, a4, m4, b4[a4], o4));
     }
     return u4;
@@ -307,14 +307,14 @@
       return n4.children(l6);
     }).contextType = l5, l5;
   }
-  var n, l, u, t, i, r, o, e, f, c, s, a, h, p, y, v, w;
+  var n, l, u, t, i, r, o, e, f, c, s, a, h, p, v, y, w;
   var init_preact_module = __esm({
     "../node_modules/preact/dist/preact.module.js"() {
       p = {};
-      y = [];
-      v = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
+      v = [];
+      y = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
       w = Array.isArray;
-      n = y.slice, l = { __e: function(n3, l5, u4, t4) {
+      n = v.slice, l = { __e: function(n3, l5, u4, t4) {
         for (var i5, r4, o4; l5 = l5.__; ) if ((i5 = l5.__c) && !i5.__) try {
           if ((r4 = i5.constructor) && null != r4.getDerivedStateFromError && (i5.setState(r4.getDerivedStateFromError(n3)), o4 = i5.__d), null != i5.componentDidCatch && (i5.componentDidCatch(n3, t4 || {}), o4 = i5.__d), o4) return i5.__E = i5;
         } catch (l6) {
@@ -625,6 +625,15 @@
       t3();
     }
   }
+  function n2(i5) {
+    var t4 = o3;
+    o3 = void 0;
+    try {
+      return i5();
+    } finally {
+      o3 = t4;
+    }
+  }
   function e3(i5) {
     if (void 0 !== o3) {
       var t4 = i5.n;
@@ -649,14 +658,16 @@
       }
     }
   }
-  function u3(i5) {
+  function u3(i5, t4) {
     this.v = i5;
     this.i = 0;
     this.n = void 0;
     this.t = void 0;
+    this.W = null == t4 ? void 0 : t4.watched;
+    this.Z = null == t4 ? void 0 : t4.unwatched;
   }
-  function d3(i5) {
-    return new u3(i5);
+  function d3(i5, t4) {
+    return new u3(i5, t4);
   }
   function c3(i5) {
     for (var t4 = i5.s; void 0 !== t4; t4 = t4.n) if (t4.S.i !== t4.i || !t4.S.h() || t4.S.i !== t4.i) return true;
@@ -689,15 +700,17 @@
     }
     i5.s = r4;
   }
-  function y3(i5) {
+  function y3(i5, t4) {
     u3.call(this, void 0);
     this.x = i5;
     this.s = void 0;
     this.g = v3 - 1;
     this.f = 4;
+    this.W = null == t4 ? void 0 : t4.watched;
+    this.Z = null == t4 ? void 0 : t4.unwatched;
   }
-  function w3(i5) {
-    return new y3(i5);
+  function w3(i5, t4) {
+    return new y3(i5, t4);
   }
   function _3(i5) {
     var r4 = i5.u;
@@ -711,7 +724,7 @@
       } catch (t4) {
         i5.f &= -2;
         i5.f |= 8;
-        g3(i5);
+        b(i5);
         throw t4;
       } finally {
         o3 = n3;
@@ -719,21 +732,21 @@
       }
     }
   }
-  function g3(i5) {
+  function b(i5) {
     for (var t4 = i5.s; void 0 !== t4; t4 = t4.n) t4.S.U(t4);
     i5.x = void 0;
     i5.s = void 0;
     _3(i5);
   }
-  function p3(i5) {
+  function g3(i5) {
     if (o3 !== this) throw new Error("Out-of-order effect");
     l3(this);
     o3 = i5;
     this.f &= -2;
-    if (8 & this.f) g3(this);
+    if (8 & this.f) b(this);
     t3();
   }
-  function b(i5) {
+  function p3(i5) {
     this.x = i5;
     this.u = void 0;
     this.s = void 0;
@@ -741,14 +754,16 @@
     this.f = 32;
   }
   function E2(i5) {
-    var t4 = new b(i5);
+    var t4 = new p3(i5);
     try {
       t4.c();
     } catch (i6) {
       t4.d();
       throw i6;
     }
-    return t4.d.bind(t4);
+    var r4 = t4.d.bind(t4);
+    r4[Symbol.dispose] = r4;
+    return r4;
   }
   var i4, o3, h3, s3, f3, v3;
   var init_signals_core_module = __esm({
@@ -764,24 +779,36 @@
         return true;
       };
       u3.prototype.S = function(i5) {
-        if (this.t !== i5 && void 0 === i5.e) {
-          i5.x = this.t;
-          if (void 0 !== this.t) this.t.e = i5;
+        var t4 = this, r4 = this.t;
+        if (r4 !== i5 && void 0 === i5.e) {
+          i5.x = r4;
           this.t = i5;
+          if (void 0 !== r4) r4.e = i5;
+          else n2(function() {
+            var i6;
+            null == (i6 = t4.W) || i6.call(t4);
+          });
         }
       };
       u3.prototype.U = function(i5) {
+        var t4 = this;
         if (void 0 !== this.t) {
-          var t4 = i5.e, r4 = i5.x;
-          if (void 0 !== t4) {
-            t4.x = r4;
+          var r4 = i5.e, o4 = i5.x;
+          if (void 0 !== r4) {
+            r4.x = o4;
             i5.e = void 0;
           }
-          if (void 0 !== r4) {
-            r4.e = t4;
+          if (void 0 !== o4) {
+            o4.e = r4;
             i5.x = void 0;
           }
-          if (i5 === this.t) this.t = r4;
+          if (i5 === this.t) {
+            this.t = o4;
+            if (void 0 === o4) n2(function() {
+              var i6;
+              null == (i6 = t4.Z) || i6.call(t4);
+            });
+          }
         }
       };
       u3.prototype.subscribe = function(i5) {
@@ -832,7 +859,8 @@
           }
         }
       } });
-      (y3.prototype = new u3()).h = function() {
+      y3.prototype = new u3();
+      y3.prototype.h = function() {
         this.f &= -3;
         if (1 & this.f) return false;
         if (32 == (36 & this.f)) return true;
@@ -894,7 +922,7 @@
         if (16 & this.f) throw this.v;
         return this.v;
       } });
-      b.prototype.c = function() {
+      p3.prototype.c = function() {
         var i5 = this.S();
         try {
           if (8 & this.f) return;
@@ -905,7 +933,7 @@
           i5();
         }
       };
-      b.prototype.S = function() {
+      p3.prototype.S = function() {
         if (1 & this.f) throw new Error("Cycle detected");
         this.f |= 1;
         this.f &= -9;
@@ -914,18 +942,21 @@
         s3++;
         var i5 = o3;
         o3 = this;
-        return p3.bind(this, i5);
+        return g3.bind(this, i5);
       };
-      b.prototype.N = function() {
+      p3.prototype.N = function() {
         if (!(2 & this.f)) {
           this.f |= 2;
           this.o = h3;
           h3 = this;
         }
       };
-      b.prototype.d = function() {
+      p3.prototype.d = function() {
         this.f |= 8;
-        if (!(1 & this.f)) g3(this);
+        if (!(1 & this.f)) b(this);
+      };
+      p3.prototype.dispose = function() {
+        this.d();
       };
     }
   });
@@ -984,19 +1015,19 @@
       }
     }) };
   }
-  function useSignal(i5) {
+  function useSignal(i5, n3) {
     return T2(function() {
-      return d3(i5);
+      return d3(i5, n3);
     }, []);
   }
-  function useComputed(i5) {
-    var n3 = A2(i5);
-    n3.current = i5;
+  function useComputed(i5, n3) {
+    var r4 = A2(i5);
+    r4.current = i5;
     l4.__$f |= 4;
     return T2(function() {
       return w3(function() {
-        return n3.current();
-      });
+        return r4.current();
+      }, n3);
     }, []);
   }
   function A3() {
@@ -3868,10 +3899,11 @@
           console.warn("\n            We recommend not registering <iframe> elements as drop targets\n            as it can result in some strange browser event ordering.\n          ".replace(/\s{2,}/g, " ").trim());
         }
       }
-      return combine(addAttribute(args.element, {
+      var cleanup = combine(addAttribute(args.element, {
         attribute: dropTargetDataAtt,
         value: "true"
       }), addToRegistry2(args));
+      return once(cleanup);
     }
     function getActualDropTargets(_ref2) {
       var _args$getData, _args$getData2, _args$getDropEffect, _args$getDropEffect2;
@@ -4071,6 +4103,7 @@
       init_defineProperty();
       init_toConsumableArray();
       init_combine();
+      init_once();
       init_add_attribute();
     }
   });
@@ -4155,12 +4188,13 @@
       var entry = _objectSpread3({}, args);
       registry.add(entry);
       tryAddToActive(entry);
-      return function cleanup() {
+      function cleanup() {
         registry.delete(entry);
         if (dragging) {
           dragging.active.delete(entry);
         }
-      };
+      }
+      return once(cleanup);
     }
     function dispatchEvent(_ref) {
       var eventName = _ref.eventName, payload = _ref.payload;
@@ -4208,6 +4242,7 @@
   var init_make_monitor = __esm({
     "../node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-monitor.js"() {
       init_defineProperty();
+      init_once();
     }
   });
 
@@ -4323,7 +4358,7 @@
         });
       }
     }
-    return combine(
+    var cleanup = combine(
       // making the draggable register the adapter rather than drop targets
       // this is because you *must* have a draggable element to start a drag
       // but you _might_ not have any drop targets immediately
@@ -4335,6 +4370,7 @@
         value: "true"
       })
     );
+    return once(cleanup);
   }
   var import_bind_event_listener4, draggableRegistry, honeyPotFix, adapter, dropTargetForElements, monitorForElements;
   var init_element_adapter = __esm({
@@ -4345,6 +4381,7 @@
       init_make_honey_pot_fix();
       init_make_adapter();
       init_combine();
+      init_once();
       init_add_attribute();
       init_android();
       init_get_input();
@@ -10151,7 +10188,7 @@
   // ../node_modules/lottie-web/build/player/lottie.js
   var require_lottie = __commonJS({
     "../node_modules/lottie-web/build/player/lottie.js"(exports, module) {
-      typeof navigator !== "undefined" && function(global, factory10) {
+      typeof document !== "undefined" && typeof navigator !== "undefined" && function(global, factory10) {
         typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory10() : typeof define === "function" && define.amd ? define(factory10) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.lottie = factory10());
       }(exports, function() {
         "use strict";
@@ -10322,18 +10359,13 @@
             length: len
           });
         }
-        function _typeof$6(obj) {
+        function _typeof$6(o4) {
           "@babel/helpers - typeof";
-          if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-            _typeof$6 = function _typeof3(obj2) {
-              return typeof obj2;
-            };
-          } else {
-            _typeof$6 = function _typeof3(obj2) {
-              return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-            };
-          }
-          return _typeof$6(obj);
+          return _typeof$6 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
+            return typeof o5;
+          } : function(o5) {
+            return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
+          }, _typeof$6(o4);
         }
         var subframeEnabled = true;
         var expressionsPlugin = null;
@@ -10604,18 +10636,13 @@
         function createNS(type) {
           return document.createElementNS(svgNS, type);
         }
-        function _typeof$5(obj) {
+        function _typeof$5(o4) {
           "@babel/helpers - typeof";
-          if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-            _typeof$5 = function _typeof3(obj2) {
-              return typeof obj2;
-            };
-          } else {
-            _typeof$5 = function _typeof3(obj2) {
-              return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-            };
-          }
-          return _typeof$5(obj);
+          return _typeof$5 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
+            return typeof o5;
+          } : function(o5) {
+            return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
+          }, _typeof$5(o4);
         }
         var dataManager = /* @__PURE__ */ function() {
           var _counterId = 1;
@@ -11572,18 +11599,13 @@
           }
           return "";
         }
-        function _typeof$4(obj) {
+        function _typeof$4(o4) {
           "@babel/helpers - typeof";
-          if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-            _typeof$4 = function _typeof3(obj2) {
-              return typeof obj2;
-            };
-          } else {
-            _typeof$4 = function _typeof3(obj2) {
-              return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-            };
-          }
-          return _typeof$4(obj);
+          return _typeof$4 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
+            return typeof o5;
+          } : function(o5) {
+            return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
+          }, _typeof$4(o4);
         }
         var AnimationItem = function AnimationItem2() {
           this._cbs = [];
@@ -14346,18 +14368,13 @@
             this.reset();
           };
         }();
-        function _typeof$3(obj) {
+        function _typeof$3(o4) {
           "@babel/helpers - typeof";
-          if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-            _typeof$3 = function _typeof3(obj2) {
-              return typeof obj2;
-            };
-          } else {
-            _typeof$3 = function _typeof3(obj2) {
-              return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-            };
-          }
-          return _typeof$3(obj);
+          return _typeof$3 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
+            return typeof o5;
+          } : function(o5) {
+            return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
+          }, _typeof$3(o4);
         }
         var lottie = {};
         var standalone = "__[STANDALONE]__";
@@ -14454,7 +14471,7 @@
         lottie.useWebWorker = setWebWorker;
         lottie.setIDPrefix = setPrefix;
         lottie.__getFactory = getFactory;
-        lottie.version = "5.12.2";
+        lottie.version = "5.13.0";
         function checkReady() {
           if (document.readyState === "complete") {
             clearInterval(readyStateCheckInterval);
@@ -17052,7 +17069,7 @@
                 }
               }
             }
-            if (this.finalTransform._matMdf) {
+            if (!this.localTransforms || this.finalTransform._matMdf) {
               this.finalTransform._localMatMdf = this.finalTransform._matMdf;
             }
             if (this.finalTransform._opMdf) {
@@ -18290,7 +18307,7 @@
                   itemData.of.setAttribute("r", rad);
                 }
               }
-              if (itemData.e._mdf || itemData.h._mdf || itemData.a._mdf || isFirstFrame) {
+              if (itemData.s._mdf || itemData.e._mdf || itemData.h._mdf || itemData.a._mdf || isFirstFrame) {
                 if (!rad) {
                   rad = Math.sqrt(Math.pow(pt1[0] - pt2[0], 2) + Math.pow(pt1[1] - pt2[1], 2));
                 }
@@ -18487,7 +18504,7 @@
           var j4;
           var jLen = this.stylesList.length;
           for (j4 = 0; j4 < jLen; j4 += 1) {
-            if (!this.stylesList[j4].closed) {
+            if (arr.indexOf(this.stylesList[j4]) === -1 && !this.stylesList[j4].closed) {
               arr.push(this.stylesList[j4]);
             }
           }
@@ -18529,7 +18546,7 @@
               if (!processedPos) {
                 itemsData[i5] = this.createStyleElement(arr[i5], level);
               } else {
-                itemsData[i5].style.closed = false;
+                itemsData[i5].style.closed = arr[i5].hd;
               }
               if (arr[i5]._render) {
                 if (itemsData[i5].style.pElem.parentNode !== container) {
@@ -23373,18 +23390,13 @@
             return _thisLayerFunction;
           };
         }();
-        function _typeof$2(obj) {
+        function _typeof$2(o4) {
           "@babel/helpers - typeof";
-          if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-            _typeof$2 = function _typeof3(obj2) {
-              return typeof obj2;
-            };
-          } else {
-            _typeof$2 = function _typeof3(obj2) {
-              return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-            };
-          }
-          return _typeof$2(obj);
+          return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
+            return typeof o5;
+          } : function(o5) {
+            return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
+          }, _typeof$2(o4);
         }
         function seedRandom(pool, math) {
           var global = this, width2 = 256, chunks = 6, digits = 52, rngname = "random", startdenom = math.pow(width2, chunks), significance = math.pow(2, digits), overflow = significance * 2, mask2 = width2 - 1, nodecrypto;
@@ -23506,18 +23518,13 @@
         var propTypes = {
           SHAPE: "shape"
         };
-        function _typeof$1(obj) {
+        function _typeof$1(o4) {
           "@babel/helpers - typeof";
-          if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-            _typeof$1 = function _typeof3(obj2) {
-              return typeof obj2;
-            };
-          } else {
-            _typeof$1 = function _typeof3(obj2) {
-              return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-            };
-          }
-          return _typeof$1(obj);
+          return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
+            return typeof o5;
+          } : function(o5) {
+            return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
+          }, _typeof$1(o4);
         }
         var ExpressionManager = function() {
           "use strict";
@@ -23888,6 +23895,7 @@
             var content;
             var effect;
             var thisProperty = property;
+            thisProperty._name = elem.data.nm;
             thisProperty.valueAtTime = thisProperty.getValueAtTime;
             Object.defineProperty(thisProperty, "value", {
               get: function get() {
@@ -24324,6 +24332,7 @@
               if (expressionValue.value !== val2) {
                 expressionValue = new Number(val2);
                 expressionValue.value = val2;
+                expressionValue[0] = val2;
                 completeProperty(expressionValue, property2, "unidimensional");
               }
               return expressionValue;
@@ -25366,18 +25375,13 @@
             return _thisLayerFunction;
           };
         }();
-        function _typeof(obj) {
+        function _typeof(o4) {
           "@babel/helpers - typeof";
-          if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-            _typeof = function _typeof3(obj2) {
-              return typeof obj2;
-            };
-          } else {
-            _typeof = function _typeof3(obj2) {
-              return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-            };
-          }
-          return _typeof(obj);
+          return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o5) {
+            return typeof o5;
+          } : function(o5) {
+            return o5 && "function" == typeof Symbol && o5.constructor === Symbol && o5 !== Symbol.prototype ? "symbol" : typeof o5;
+          }, _typeof(o4);
         }
         var FootageInterface = /* @__PURE__ */ function() {
           var outlineInterfaceFactory = function outlineInterfaceFactory2(elem2) {
@@ -27689,7 +27693,7 @@
   // ../node_modules/preact/devtools/dist/devtools.module.js
   init_preact_module();
   var i2;
-  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.26.7", l, { Fragment: k, Component: x });
+  null != (i2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof window ? window : void 0) && i2.__PREACT_DEVTOOLS__ && i2.__PREACT_DEVTOOLS__.attachPreact("10.26.9", l, { Fragment: k, Component: x });
 
   // pages/new-tab/src/index.js
   init_preact_module();
