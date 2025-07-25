@@ -2,6 +2,8 @@ import { DDGPromise } from '../utils';
 import ContentFeature from '../content-feature';
 import { createPageWorldBridge } from './message-bridge/create-page-world-bridge.js';
 
+const store = {};
+
 export default class NavigatorInterface extends ContentFeature {
     load(args) {
         if (this.matchConditionalFeatureSetting('privilegedDomains').length) {
@@ -35,7 +37,17 @@ export default class NavigatorInterface extends ContentFeature {
                      * @throws {Error}
                      */
                     createMessageBridge(featureName) {
-                        return createPageWorldBridge(featureName, args.messageSecret);
+                        const existingBridge = store[featureName];
+                        if (existingBridge) return existingBridge;
+
+                        const bridge = createPageWorldBridge(featureName, args.messageSecret);
+
+                        if (!bridge) {
+                            throw new Error('Unable to create bridge');
+                        }
+
+                        store[featureName] = bridge;
+                        return bridge;
                     },
                 },
                 enumerable: true,
