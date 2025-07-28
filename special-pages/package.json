@@ -10,7 +10,7 @@
     "build": "node index.mjs",
     "build.dev": "npm run build -- --env development",
     "lint-fix": "cd ../ && npm run lint-fix",
-    "test-unit": "node --test \"unit-test/*\" \"pages/history/unit-tests/*\" \"pages/duckplayer/unit-tests/*\" \"pages/new-tab/app/freemium-pir-banner/unit-tests/*\"",
+    "test-unit": "node --test \"unit-test/*\" \"pages/history/unit-tests/*\" \"pages/duckplayer/unit-tests/*\" \"pages/new-tab/app/freemium-pir-banner/unit-tests/*\" \"pages/new-tab/app/omnibar/unit-tests/*\"",
     "test-int": "playwright test --grep-invert '@screenshots'",
     "test-int-x": "npm run test-int",
     "test-int-snapshots": "playwright test --grep '@screenshots'",
@@ -30,18 +30,18 @@
   "devDependencies": {
     "@duckduckgo/messaging": "*",
     "chokidar": "^4.0.3",
-    "fast-check": "^4.1.1",
+    "fast-check": "^4.2.0",
     "http-server": "^14.1.1",
     "web-resource-inliner": "^6.0.1"
   },
   "dependencies": {
-    "@atlaskit/pragmatic-drag-and-drop": "^1.5.2",
+    "@atlaskit/pragmatic-drag-and-drop": "^1.7.4",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.1.0",
     "@formkit/auto-animate": "^0.8.2",
-    "@preact/signals": "^2.0.5",
-    "@rive-app/canvas-single": "^2.28.0",
+    "@preact/signals": "^2.2.1",
+    "@rive-app/canvas-single": "^2.30.4",
     "classnames": "^2.5.1",
-    "lottie-web": "^5.12.2",
-    "preact": "^10.26.7"
+    "lottie-web": "^5.13.0",
+    "preact": "^10.26.9"
   }
 }

@@ -165,13 +165,12 @@ export function BackChevron() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Find-Search-16.svg. Inline SVG so that can be styled with CSS.
- * @param {object} params
- * @param {string} [params.className]
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Find-Search-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function SearchIcon({ className }) {
+export function SearchIcon(props) {
     return (
-        <svg className={className} fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Find-Search-16_svg__a)">
                 <path
                     fill="currentColor"
@@ -190,13 +189,36 @@ export function SearchIcon({ className }) {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Ai-Chat-16.svg. Inline SVG so that can be styled with CSS.
- * @param {object} params
- * @param {string} [params.className]
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Color/16px/Search-Find-Color-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function AiChatIcon({ className }) {
+export function SearchColorIcon(props) {
     return (
-        <svg className={className} fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <g clip-path="url(#Search-Find-Color-16_svg__a)">
+                <path fill="#ADC2FC" d="M12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0Z" />
+                <path fill="#fff" d="M7 2a4.98 4.98 0 0 1 3.403 1.338 5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z" opacity=".5" />
+                <path
+                    fill="#557FF3"
+                    d="M7 0a7 7 0 0 1 5.372 11.488l3.445 3.445.043.047a.625.625 0 0 1-.88.88l-.047-.043-3.445-3.445A7 7 0 1 1 7 0Zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 7 1Z"
+                />
+            </g>
+            <defs>
+                <clipPath id="Search-Find-Color-16_svg__a">
+                    <path fill="#fff" d="M0 0h16v16H0z" />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Ai-Chat-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function AiChatIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g fill="currentColor" clip-path="url(#Ai-Chat-16_svg__a)">
                 <path
                     fill-rule="evenodd"
@@ -215,13 +237,62 @@ export function AiChatIcon({ className }) {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Arrow-Right-16.svg. Inline SVG so that can be styled with CSS.
- * @param {object} params
- * @param {string} [params.className]
+ * https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Color/16px/Ai-Chat-Gradient-Color-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function ArrowRightIcon({ className }) {
+export function AiChatColorIcon(props) {
     return (
-        <svg className={className} fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <g clip-path="url(#Ai-Chat-Gradient-Color-16_svg__a)">
+                <path
+                    fill="url(#Ai-Chat-Gradient-Color-16_svg__b)"
+                    d="M1.164 14.763c-.441.51-.014 1.284.65 1.17 2.655-.457 7.306-1.338 9.199-2.206C13.938 12.667 16 10.111 16 7.125 16 3.19 12.418 0 8 0S0 3.19 0 7.125c0 1.974.902 3.76 2.358 5.051.32.283.38.773.1 1.095l-1.294 1.492Z"
+                />
+                <path
+                    fill="url(#Ai-Chat-Gradient-Color-16_svg__c)"
+                    d="M15 7.125c0 2.495-1.729 4.72-4.328 5.662l-.039.014-.037.017c-.838.384-2.376.803-4.114 1.19a98.74 98.74 0 0 1-4.03.797l.762-.878c.68-.785.487-1.898-.193-2.5-1.227-1.087-1.973-2.55-2.019-4.147L1 7.125C1 3.848 4.022 1 8 1V0l-.207.003C3.54.099.11 3.153.003 6.94L0 7.125c0 1.913.846 3.649 2.223 4.929l.135.122c.32.283.38.773.1 1.096l-1.293 1.491c-.442.51-.015 1.284.65 1.17 2.654-.456 7.305-1.338 9.198-2.206C13.938 12.667 16 10.111 16 7.125l-.002-.184C15.888 3.091 12.349.001 8 .001v1c3.916 0 6.905 2.759 6.998 5.97l.002.154Z"
+                />
+                <path
+                    fill="#fff"
+                    d="M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
+                />
+                <path
+                    fill="url(#Ai-Chat-Gradient-Color-16_svg__d)"
+                    d="M6.662 2.544C7 1.195 8.867 1.154 9.3 2.418l.038.126.438 1.753c.114.457.47.813.927.927l1.753.438c1.392.348 1.392 2.328 0 2.676l-1.753.438c-.457.114-.813.47-.927.927l-.438 1.753c-.348 1.392-2.328 1.392-2.676 0l-.438-1.753a1.274 1.274 0 0 0-.927-.927l-1.753-.438c-1.392-.348-1.392-2.328 0-2.676l1.753-.438c.457-.114.813-.47.927-.927l.438-1.753ZM8 5.271A3.273 3.273 0 0 1 6.27 7 3.273 3.273 0 0 1 8 8.729 3.274 3.274 0 0 1 9.729 7 3.273 3.273 0 0 1 8 5.27Z"
+                />
+                <path
+                    fill="#fff"
+                    d="M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
+                />
+            </g>
+            <defs>
+                <linearGradient id="Ai-Chat-Gradient-Color-16_svg__b" x1="8" x2="8" y1="0" y2="15.944" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#A7B7FD" />
+                    <stop offset="1" stop-color="#5981F3" />
+                </linearGradient>
+                <linearGradient id="Ai-Chat-Gradient-Color-16_svg__c" x1="8" x2="8" y1="0" y2="15.944" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#7C99F7" />
+                    <stop offset="1" stop-color="#4B74EE" />
+                </linearGradient>
+                <linearGradient id="Ai-Chat-Gradient-Color-16_svg__d" x1="8" x2="8" y1="2.5" y2="11.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#8EA6FA" />
+                    <stop offset="1" stop-color="#6186F4" />
+                </linearGradient>
+                <clipPath id="Ai-Chat-Gradient-Color-16_svg__a">
+                    <path fill="#fff" d="M0 0h16v16H0z" />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/ArrowRight-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function ArrowRightIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <path
                 fill="currentColor"
                 d="M8.187 1.689a.625.625 0 0 1 .885-.884l5.31 5.316c.83.83.83 2.174 0 3.004l-5.31 5.315a.625.625 0 0 1-.885-.884l5.305-5.308H.625a.625.625 0 1 1 0-1.25h12.867z"
@@ -231,14 +302,15 @@ export function ArrowRightIcon({ className }) {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Globe-16.svg.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Globe-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function GlobeIcon() {
+export function GlobeIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Globe-16_svg__a)">
                 <path
-                    fill="#000"
+                    fill="currentColor"
                     fill-rule="evenodd"
                     d="M.017 7.482a8 8 0 0 1 15.967 0q.025.115.01.225a8 8 0 1 1-15.99 0 .6.6 0 0 1 .013-.225m1.247.951a6.75 6.75 0 0 0 4.197 5.823 7 7 0 0 1-.416-.781c-.555-1.213-.92-2.787-1.018-4.518a29 29 0 0 1-2.763-.524m2.739-.742a28 28 0 0 1-2.7-.535A6.76 6.76 0 0 1 5.46 1.744q-.229.372-.416.781c-.623 1.363-1.006 3.18-1.042 5.166Zm1.286 1.413c.109 1.516.436 2.852.893 3.85.59 1.292 1.28 1.796 1.818 1.796s1.228-.504 1.818-1.795c.457-1 .784-2.335.893-3.85-1.803.17-3.619.17-5.422 0Zm5.46-1.26a27.5 27.5 0 0 1-5.498 0c.018-1.904.38-3.596.93-4.799C6.774 1.755 7.462 1.25 8 1.25s1.228.504 1.818 1.795c.55 1.203.913 2.895.931 4.8Zm1.224 1.113c-.099 1.731-.463 3.305-1.018 4.518a7 7 0 0 1-.416.781 6.75 6.75 0 0 0 4.197-5.823q-1.372.33-2.763.524m2.725-1.801q-1.341.336-2.7.535c-.037-1.985-.42-3.803-1.043-5.166a7 7 0 0 0-.416-.781 6.76 6.76 0 0 1 4.159 5.412"
                     clip-rule="evenodd"
@@ -254,12 +326,13 @@ export function GlobeIcon() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/History-16.svg.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/History-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function HistoryIcon() {
+export function HistoryIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-            <g fill="#000" clip-path="url(#History-16_svg__a)">
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <g fill="currentColor" clip-path="url(#History-16_svg__a)">
                 <path d="m2.072 4.918-.08-.004A6.753 6.753 0 1 1 1.246 8 .623.623 0 1 0 0 8a8 8 0 1 0 1.247-4.29V1.115a.623.623 0 0 0-1.247 0v2.977c0 1.145.928 2.072 2.072 2.072h2.486a.623.623 0 0 0 0-1.246z" />
                 <path d="M8.625 3.625a.625.625 0 1 0-1.25 0V8c0 .166.066.325.183.442l2.375 2.375a.625.625 0 1 0 .884-.884L8.625 7.741z" />
             </g>
@@ -273,14 +346,15 @@ export function HistoryIcon() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Favorite-16.svg.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Favorite-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function FavoriteIcon() {
+export function FavoriteIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Favorite-16_svg__a)">
                 <path
-                    fill="#000"
+                    fill="currentColor"
                     fill-rule="evenodd"
                     d="M6.042 1.35c.73-1.732 3.186-1.732 3.916 0l1.033 2.452a.63.63 0 0 0 .489.376l2.686.38c1.774.252 2.46 2.45 1.144 3.666l-2.046 1.889a.63.63 0 0 0-.194.552l.434 2.88c.272 1.812-1.72 3.096-3.258 2.1L8.34 14.409a.63.63 0 0 0-.68 0l-1.906 1.236c-1.537.996-3.53-.288-3.258-2.1l.434-2.88a.63.63 0 0 0-.194-.552L.69 8.223C-.626 7.009.06 4.81 1.834 4.56l2.686-.381a.63.63 0 0 0 .489-.376zm2.764.486c-.3-.714-1.312-.714-1.612 0L6.16 4.287a1.88 1.88 0 0 1-1.465 1.128l-2.687.381a.875.875 0 0 0-.47 1.51l2.045 1.889c.457.421.675 1.042.582 1.656l-.433 2.88a.875.875 0 0 0 1.34.865L6.98 13.36a1.88 1.88 0 0 1 2.04 0l1.906 1.236a.875.875 0 0 0 1.341-.864l-.433-2.881a1.88 1.88 0 0 1 .582-1.656l2.046-1.89a.875.875 0 0 0-.471-1.509l-2.687-.38a1.88 1.88 0 0 1-1.464-1.13z"
                     clip-rule="evenodd"
@@ -296,14 +370,15 @@ export function FavoriteIcon() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Bookmark-16.svg.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Bookmark-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function BookmarkIcon() {
+export function BookmarkIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Bookmark-16_svg__a)">
                 <path
-                    fill="#000"
+                    fill="currentColor"
                     fill-rule="evenodd"
                     d="M2 4a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v9.684c0 1.857-2.079 2.957-3.614 1.912l-1.788-1.218a1.06 1.06 0 0 0-1.196 0l-1.788 1.218C4.08 16.64 2 15.54 2 13.684zm4-2.75A2.75 2.75 0 0 0 3.25 4v9.684c0 .854.955 1.359 1.66.878l1.788-1.217a2.31 2.31 0 0 1 2.604 0l1.787 1.217a1.063 1.063 0 0 0 1.661-.878V4A2.75 2.75 0 0 0 10 1.25z"
                     clip-rule="evenodd"
@@ -319,22 +394,92 @@ export function BookmarkIcon() {
 }
 
 /**
- * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Browser-16.svg.
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Browser-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function BrowserIcon() {
+export function BrowserIcon(props) {
     return (
-        <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <path
-                fill="#000"
+                fill="currentColor"
                 fill-rule="evenodd"
                 d="M0 5a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v1.792c0 .478-.681.721-1.053.422a.52.52 0 0 1-.197-.4v-.819H1.25V11A2.75 2.75 0 0 0 4 13.75h2.135a.57.57 0 0 1 .497.312c.21.398-.055.938-.506.938H4a4 4 0 0 1-4-4zm1.262-.255h13.476A2.75 2.75 0 0 0 12 2.25H4a2.75 2.75 0 0 0-2.738 2.495"
                 clip-rule="evenodd"
             />
             <path
-                fill="#000"
+                fill="currentColor"
                 fill-rule="evenodd"
                 d="M11.5 7a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9m-1.972 7.084A3.25 3.25 0 0 1 8.288 12h.85a7.6 7.6 0 0 0 .39 2.084M8.337 10.75h.818a7.5 7.5 0 0 1 .373-1.834 3.25 3.25 0 0 0-1.191 1.834m2.495 3.233c-.226-.5-.392-1.19-.441-1.983h2.218c-.05.793-.215 1.482-.441 1.983-.299.66-.583.767-.668.767s-.37-.106-.668-.767m0-4.966c-.202.447-.356 1.045-.422 1.733h2.18c-.066-.688-.22-1.286-.422-1.733-.299-.66-.583-.767-.668-.767s-.37.106-.668.767m2.64 5.067c.213-.606.348-1.32.39-2.084h.85a3.25 3.25 0 0 1-1.24 2.084m.373-3.334h.818a3.25 3.25 0 0 0-1.19-1.834c.188.54.316 1.164.371 1.834Z"
                 clip-rule="evenodd"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Tab-Desktop-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function TabDesktopIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M11 2a4 4 0 0 1 4 4v4c0 .854.39 1.617 1 2.121v.357c0 .517-.541.841-.925.495A4 4 0 0 1 13.75 10V6A2.75 2.75 0 0 0 11 3.25H5A2.75 2.75 0 0 0 2.25 6v4a4 4 0 0 1-1.325 2.973c-.384.346-.925.022-.925-.495v-.357c.61-.504 1-1.267 1-2.121V6a4 4 0 0 1 4-4z"
+            />
+        </svg>
+    );
+}
+
+/**
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function LogoStacked(props) {
+    return (
+        <svg fill="none" viewBox="0 0 206 165" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="#DE5833"
+                fill-rule="evenodd"
+                d="M103 120c33.137 0 60-26.863 60-60S136.137 0 103 0 43 26.863 43 60s26.863 60 60 60Z"
+                clip-rule="evenodd"
+            />
+            <path
+                fill="#DDD"
+                fill-rule="evenodd"
+                d="M111.438 104.766c0-.469.115-.576-1.375-3.546-3.96-7.93-7.94-19.11-6.13-26.32.33-1.31-3.73-48.51-6.6-50.03-3.19-1.7-7.115-4.397-10.705-4.997-1.822-.291-4.21-.153-6.077.098-.332.045-.346.641-.029.749 1.226.415 2.715 1.136 3.592 2.226.166.206-.057.531-.322.54-.827.031-2.326.378-4.305 2.059-.23.194-.04.555.255.497 4.253-.841 8.597-.427 11.156 1.9.167.15.08.422-.137.48-22.213 6.037-17.816 25.36-11.902 49.073 5.248 21.047 7.235 27.881 7.867 29.981a.716.716 0 0 0 .424.468c7.656 3.037 24.288 3.168 24.288-2.007v-1.171Z"
+                clip-rule="evenodd"
+            />
+            <path
+                fill="#fff"
+                fill-rule="evenodd"
+                d="M158.078 60c0 30.419-24.659 55.078-55.078 55.078-30.419 0-55.078-24.66-55.078-55.078 0-30.419 24.66-55.078 55.078-55.078 30.419 0 55.078 24.66 55.078 55.078Zm-67.932 48.736c-1.522-4.701-5.775-18.329-9.977-35.55l-.419-1.713-.003-.014c-5.085-20.772-9.239-37.737 13.525-43.067.209-.049.31-.297.172-.46-2.611-3.1-7.504-4.115-13.691-1.98-.254.087-.474-.169-.317-.386 1.213-1.672 3.584-2.958 4.755-3.522.242-.116.227-.47-.03-.55a26.04 26.04 0 0 0-3.535-.844c-.347-.056-.378-.65-.03-.697 8.771-1.18 17.93 1.453 22.527 7.243a.305.305 0 0 0 .174.107c16.83 3.614 18.035 30.22 16.097 31.432-.383.239-1.608.102-3.224-.079-6.548-.733-19.516-2.184-8.814 17.763.106.197-.034.458-.255.492-6.015.936 1.646 19.72 7.324 32.179 22.327-5.176 38.966-25.19 38.966-49.09 0-27.83-22.561-50.39-50.391-50.39S52.61 32.17 52.61 60c0 23.388 15.932 43.054 37.536 48.736Z"
+                clip-rule="evenodd"
+            />
+            <path
+                fill="#3CA82B"
+                d="M122.013 85.03c-1.281-.594-6.208 2.939-9.478 5.65-.683-.966-1.972-1.669-4.878-1.163-2.544.442-3.949 1.055-4.575 2.113-4.015-1.523-10.77-3.872-12.402-1.603-1.784 2.48.446 14.213 2.815 15.736 1.237.796 7.154-3.007 10.243-5.63.499.702 1.301 1.104 2.951 1.066 2.495-.058 6.543-.638 7.171-1.8.038-.071.071-.154.099-.25 3.175 1.187 8.765 2.444 10.013 2.256 3.254-.489-.453-15.678-1.959-16.376Z"
+            />
+            <path
+                fill="#4CBA3C"
+                d="M112.835 91.028c.134.24.243.494.335.751.452 1.267 1.19 5.294.632 6.29-.558.994-4.18 1.475-6.415 1.513-2.235.039-2.738-.778-3.191-2.045-.362-1.013-.541-3.394-.536-4.758-.092-2.022.647-2.733 4.063-3.286 2.528-.409 3.864.067 4.635.88 3.589-2.678 9.577-6.457 10.161-5.767 2.912 3.445 3.28 11.645 2.649 14.944-.206 1.078-9.848-1.069-9.848-2.232 0-4.83-1.253-6.154-2.485-6.29ZM91.713 89.52c.79-1.25 7.194.304 10.709 1.869 0 0-.722 3.273.428 7.129.336 1.127-8.088 6.147-9.187 5.284-1.271-.999-3.61-11.655-1.95-14.282Z"
+            />
+            <path
+                fill="#FC3"
+                fill-rule="evenodd"
+                d="M94.815 64.131c.518-2.253 2.931-6.499 11.551-6.395 4.357-.019 9.77-.002 13.358-.41a48.043 48.043 0 0 0 11.931-2.902c3.731-1.423 5.055-1.106 5.52-.254.51.936-.091 2.552-1.395 4.04-2.49 2.841-6.967 5.043-14.873 5.696-7.907.654-13.145-1.467-15.4 1.986-.972 1.489-.22 4.999 7.426 6.104 10.332 1.491 18.818-1.796 19.866.19 1.048 1.985-4.991 6.025-15.34 6.11-10.349.084-16.813-3.624-19.105-5.467-2.909-2.338-4.21-5.749-3.54-8.698Z"
+                clip-rule="evenodd"
+            />
+            <g fill="#14307E" opacity=".8">
+                <path d="M107.994 39.494c.577-.945 1.857-1.675 3.952-1.675 2.095 0 3.08.834 3.763 1.763.138.19-.072.412-.287.319l-.158-.069c-.766-.334-1.707-.745-3.318-.768-1.724-.024-2.81.407-3.495.78-.23.125-.594-.126-.457-.35ZM84.41 40.703c2.034-.85 3.633-.74 4.763-.472.238.056.403-.2.213-.354-.877-.707-2.84-1.586-5.401-.63-2.284.85-3.36 2.62-3.367 3.784-.002.274.563.297.708.065.395-.627 1.05-1.542 3.084-2.393Z" />
+                <path
+                    fill-rule="evenodd"
+                    d="M113.725 52.425a3.253 3.253 0 0 1-3.257-3.245 3.253 3.253 0 0 1 3.257-3.245 3.252 3.252 0 0 1 3.257 3.245 3.252 3.252 0 0 1-3.257 3.245Zm2.294-4.32a.842.842 0 0 0-1.686 0c0 .464.379.84.843.84a.84.84 0 0 0 .843-.84Zm-23.872 3.321a3.79 3.79 0 0 1-3.797 3.784 3.792 3.792 0 0 1-3.796-3.784 3.792 3.792 0 0 1 3.796-3.785 3.792 3.792 0 0 1 3.797 3.785Zm-1.12-1.255a.981.981 0 0 0-1.965 0 .982.982 0 0 0 1.966-.001Z"
+                    clip-rule="evenodd"
+                />
+            </g>
+            <path
+                fill="currentColor"
+                d="M78.35 144.8h-3.9l-7.1 7.3v-14.6h-3v24.9h3v-8.2l8.1 8.1.1.1h3.6v-.3l-9.1-9 8.3-8.3Zm-19.2 13.3c-1.1 1.1-2.7 1.7-4.5 1.7-3.1 0-6.2-1.9-6.2-6.3 0-3.7 2.6-6.3 6.2-6.3 1.6 0 3.1.6 4.3 1.7l.1.1 1.9-2-.1-.1c-1.8-1.7-3.9-2.5-6.3-2.5-5.5 0-9.2 3.7-9.2 9.1 0 6.3 4.6 9.1 9.2 9.1h.1c2.4 0 4.7-.9 6.3-2.6l.1-.1-2-2 .1.2Zm-20.3-3.9c0 3.2-2.2 5.6-5.3 5.7-3.3 0-5.3-2-5.3-5.4v-9.7h-3v9.7c0 5 3 8.2 7.7 8.2h.1c2.3 0 4.4-1.1 5.8-2.8l.1-.2.1 2.7h2.8v-17.6h-3v9.4Zm-29.5-16.8H.25v25h9.1c8.7 0 12.5-6.4 12.5-12.7 0-5.9-3.9-12.3-12.5-12.3Zm9.4 12.2c0 4.8-2.9 9.6-9.3 9.6h-6v-18.7h5.9c6.4 0 9.4 4.7 9.4 9.1Zm154.9 1.9h7.7v5.8c-1.9 1.6-4.2 2.5-6.7 2.5-6.8 0-9.9-4.9-9.9-9.7 0-4.9 3.1-10.2 9.8-10.2 2.7 0 5.2 1 7.2 2.8l.1.1 1.8-2.1-.1-.1c-2.4-2.4-5.6-3.6-9.1-3.6-3.8 0-7 1.2-9.3 3.6-2.4 2.4-3.7 5.8-3.6 9.6 0 5.9 3.4 12.7 13 12.7h.2c3.6 0 7-1.5 9.4-4.2v-9.9h-10.6v2.7h.1Zm-82.6-14.1h-9.1v25h9.1c8.7 0 12.5-6.4 12.5-12.7 0-5.9-3.9-12.3-12.5-12.3Zm9.4 12.2c0 4.8-2.9 9.6-9.3 9.6h-5.9v-18.7h5.9c6.3 0 9.3 4.7 9.3 9.1Zm95.9-5.2c-5.3 0-9.1 3.9-9.1 9.2 0 5.3 3.8 9.1 9.1 9.1s9.2-3.8 9.2-9.1c0-5.4-3.8-9.2-9.2-9.2Zm6.2 9.2c0 3.7-2.6 6.3-6.2 6.3-3.5 0-6.1-2.6-6.1-6.3 0-3.8 2.5-6.5 6.2-6.5 3.5.1 6.1 2.8 6.1 6.5Zm-82 .6c0 3.2-2.2 5.6-5.3 5.7-3.3 0-5.3-2-5.3-5.4v-9.7h-3v9.7c0 5 3 8.2 7.6 8.2h.1c2.3 0 4.4-1.1 5.8-2.8l.1-.2.1 2.7h2.8v-17.6h-3v9.4h.1Zm20.3 3.9c-1.1 1.1-2.7 1.7-4.5 1.7-3.1 0-6.2-1.9-6.2-6.3 0-3.7 2.6-6.3 6.2-6.3 1.6 0 3.1.6 4.3 1.7l.1.1 1.9-2-.1-.1c-1.8-1.7-3.9-2.5-6.3-2.5-5.5 0-9.2 3.7-9.2 9.1 0 6.3 4.6 9.1 9.2 9.1h.1c2.4 0 4.7-.9 6.3-2.6l.1-.1-2-2 .1.2Zm19.2-13.3h-3.9l-7.1 7.3v-14.6h-3v24.9h3v-8.2l8.1 8.1.1.1h3.6v-.3l-9.1-9 8.3-8.3Z"
             />
         </svg>
     );

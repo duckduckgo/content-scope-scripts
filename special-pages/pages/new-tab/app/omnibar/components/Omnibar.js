@@ -1,15 +1,19 @@
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
-import { AiChatIcon, SearchIcon } from '../../components/Icons.js';
+import { useContext, useState } from 'preact/hooks';
+import { LogoStacked } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
-import { viewTransition } from '../../utils';
 import { AiChatForm } from './AiChatForm';
+import { Container } from './Container';
 import styles from './Omnibar.module.css';
+import { OmnibarContext } from './OmnibarProvider';
 import { SearchForm } from './SearchForm';
+import { TabSwitcher } from './TabSwitcher';
 
 /**
  * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
+ * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
  */
 
 /**
@@ -21,48 +25,69 @@ import { SearchForm } from './SearchForm';
 export function Omnibar({ mode, setMode, enableAi }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const [query, setQuery] = useState(/** @type {String} */ (''));
+    const [resetKey, setResetKey] = useState(0);
+    const [autoFocus, setAutoFocus] = useState(false);
+    const [focusRing, setFocusRing] = useState(/** @type {boolean|undefined} */ (undefined));
+
+    const { openSuggestion, submitSearch, submitChat } = useContext(OmnibarContext);
+
+    const resetForm = () => {
+        setQuery('');
+        setResetKey((prev) => prev + 1);
+    };
+
+    /** @type {(params: {suggestion: Suggestion, target: OpenTarget}) => void} */
+    const handleOpenSuggestion = (params) => {
+        openSuggestion(params);
+        resetForm();
+    };
+
+    /** @type {(params: {term: string, target: OpenTarget}) => void} */
+    const handleSubmitSearch = (params) => {
+        submitSearch(params);
+        resetForm();
+    };
+
+    /** @type {(params: {chat: string, target: OpenTarget}) => void} */
+    const handleSubmitChat = (params) => {
+        submitChat(params);
+        resetForm();
+    };
+
+    /** @type {(mode: OmnibarConfig['mode']) => void} */
+    const handleChangeMode = (nextMode) => {
+        setAutoFocus(true);
+        setFocusRing(undefined);
+        setMode(nextMode);
+    };
+
     return (
         <div class={styles.root} data-mode={mode}>
-            <div class={styles.logoWrap}>
-                <img src="./icons/Logo-Stacked.svg" alt={t('omnibar_logoAlt')} width={144} height={115.9} />
-            </div>
-            {enableAi && (
-                <div class={styles.tabListWrap}>
-                    <div class={styles.tabList} role="tablist" aria-label={t('omnibar_tabSwitcherLabel')}>
-                        <button
-                            class={styles.tab}
-                            role="tab"
-                            aria-selected={mode === 'search'}
-                            onClick={() => {
-                                viewTransition(() => {
-                                    setMode('search');
-                                });
-                            }}
-                        >
-                            <SearchIcon className={styles.searchIcon} />
-                            {t('omnibar_searchTabLabel')}
-                        </button>
-                        <button
-                            class={styles.tab}
-                            role="tab"
-                            aria-selected={mode === 'ai'}
-                            onClick={() => {
-                                viewTransition(() => {
-                                    setMode('ai');
-                                });
-                            }}
-                        >
-                            <AiChatIcon className={styles.aiChatIcon} />
-                            {t('omnibar_aiTabLabel')}
-                        </button>
-                    </div>
-                </div>
-            )}
-            {mode === 'search' ? (
-                <SearchForm enableAi={enableAi} term={query} setTerm={setQuery} />
-            ) : (
-                <AiChatForm chat={query} setChat={setQuery} />
-            )}
+            <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
+            {enableAi && <TabSwitcher mode={mode} onChange={handleChangeMode} />}
+            <Container overflow={mode === 'search'} focusRing={focusRing}>
+                {mode === 'search' ? (
+                    <SearchForm
+                        key={`search-${resetKey}`}
+                        term={query}
+                        autoFocus={autoFocus}
+                        onChangeTerm={setQuery}
+                        onOpenSuggestion={handleOpenSuggestion}
+                        onSubmitSearch={handleSubmitSearch}
+                    />
+                ) : (
+                    <AiChatForm
+                        key={`chat-${resetKey}`}
+                        chat={query}
+                        autoFocus={autoFocus}
+                        onFocus={() => setFocusRing(true)}
+                        onBlur={() => setFocusRing(false)}
+                        onInput={() => setFocusRing(false)}
+                        onChange={setQuery}
+                        onSubmit={handleSubmitChat}
+                    />
+                )}
+            </Container>
         </div>
     );
 }

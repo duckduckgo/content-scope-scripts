@@ -22,7 +22,11 @@ export class OmnibarPage {
     }
 
     chatInput() {
-        return this.context().getByRole('textbox', { name: 'Chat privately with Duck.ai' });
+        return this.context().getByRole('textbox', { name: 'Ask privately' });
+    }
+
+    chatSubmitButton() {
+        return this.context().getByRole('button', { name: 'Send' });
     }
 
     tabList() {
@@ -37,10 +41,6 @@ export class OmnibarPage {
         return this.context().getByRole('tab', { name: 'Duck.ai' });
     }
 
-    aiChatButton() {
-        return this.context().getByRole('button', { name: 'Duck.ai' });
-    }
-
     suggestionsList() {
         return this.context().getByRole('listbox');
     }
@@ -49,15 +49,31 @@ export class OmnibarPage {
         return this.suggestionsList().getByRole('option');
     }
 
+    selectedSuggestion() {
+        return this.suggestionsList().getByRole('option', { selected: true });
+    }
+
+    customizeButton() {
+        return this.page.getByRole('button', { name: 'Customize' });
+    }
+
+    toggleSearchButton() {
+        return this.page.getByRole('switch', { name: 'Toggle Search' });
+    }
+
+    showDuckAiButton() {
+        return this.page.getByRole('link', { name: 'Show Duck.ai' });
+    }
+
+    hideDuckAiButton() {
+        return this.page.getByRole('link', { name: 'Hide Duck.ai' });
+    }
+
     /**
      * @param {number} count
      */
     async expectSuggestionsCount(count) {
         await expect(this.suggestions()).toHaveCount(count);
-    }
-
-    selectedSuggestion() {
-        return this.suggestionsList().getByRole('option', { selected: true });
     }
 
     /**
@@ -131,5 +147,13 @@ export class OmnibarPage {
     async expectMethodCalledWith(method, expectedParams) {
         const calls = await this.ntp.mocks.waitForCallCount({ method, count: 1 });
         expect(calls[0].payload.params).toEqual(expectedParams);
+    }
+
+    /**
+     * @param {string} method
+     */
+    async expectMethodNotCalled(method) {
+        const calls = await this.ntp.mocks.outgoing({ names: [method] });
+        expect(calls).toHaveLength(0);
     }
 }
