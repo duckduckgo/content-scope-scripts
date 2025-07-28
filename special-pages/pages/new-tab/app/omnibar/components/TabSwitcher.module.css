@@ -47,8 +47,8 @@
     position: absolute;
     top: 2px;
     transition: translate 200ms ease;
-    translate: calc(2px + var(--tab-index) * 100%);
-    width: calc((100% - 4px) / var(--tab-count));
+    translate: calc(2px + var(--tab-index) * (100% + 2px));
+    width: calc((100% - 4px - (var(--tab-count) - 1) * 2px) / var(--tab-count));
     will-change: translate;
 
     [data-theme="dark"] & {
