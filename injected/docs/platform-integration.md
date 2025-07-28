@@ -24,7 +24,7 @@ The following is a guideline for when using native JavaScript syntax or built-in
 
 #### Android
 
-- **Android 23** (minimum) - [Product feedback request: Android - min supported version](https://app.asana.com/1/137249556945/project/908478224964033/task/1209367367171662?focus=true)
+- **Android 23** (minimum) - [Product feedback request: Android - min supported version](https://app.asana.com/1/137249556945/project/1175293949586521/task/1200982924050797?focus=true)
 - **Chrome 80+** (minimum)
 - **Reference**: See [pixel dashboard](https://app.asana.com/1/137249556945/project/908478224964033/task/1209367367171662?focus=true)
 
