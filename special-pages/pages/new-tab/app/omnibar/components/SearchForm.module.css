@@ -23,6 +23,10 @@
     position: absolute;
     right: var(--sp-1);
 
+    &::placeholder {
+        color: var(--ntp-text-muted);
+    }
+
     &:focus {
         outline: none;
     }
