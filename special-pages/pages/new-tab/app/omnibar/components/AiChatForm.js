@@ -97,8 +97,9 @@ export function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange
                 aria-label={t('omnibar_aiChatFormPlaceholder')}
                 autoComplete="off"
                 rows={1}
-                onFocus={onFocus}
-                onBlur={onBlur}
+                // Using capture to work around WebKit which doesn't fire focus/blur event when user moves focus from/to address bar.
+                onFocusCapture={onFocus}
+                onBlurCapture={onBlur}
                 onInput={onInput}
                 onKeyDown={handleKeyDown}
                 onChange={handleChange}

@@ -129,7 +129,7 @@
     "description" : "Title of the omnibar widget in the customizer panel."
   },
   "omnibar_aiChatFormPlaceholder" : {
-    "title" : "Czatuj prywatnie z Duck.ai",
+    "title" : "Zapytaj prywatnie",
     "description" : "Placeholder text for the AI chat input field."
   },
   "omnibar_aiChatFormSubmitButtonLabel" : {
@@ -153,8 +153,16 @@
     "description" : "Label for the AI chat tab."
   },
   "omnibar_searchFormPlaceholder" : {
-    "title" : "Wyszukaj lub wprowadź adres",
+    "title" : "Szukaj prywatnie",
     "description" : "Placeholder text for the search input field."
+  },
+  "omnibar_hideDuckAi" : {
+    "title" : "Ukryj Duck.ai",
+    "description" : "Label for the button to hide the Duck.ai chat interface."
+  },
+  "omnibar_showDuckAi" : {
+    "title" : "Pokaż Duck.ai",
+    "description" : "Label for the button to show the Duck.ai chat interface."
   },
   "omnibar_searchDuckDuckGoSuffix" : {
     "title" : "Szukaj w DuckDuckGo",

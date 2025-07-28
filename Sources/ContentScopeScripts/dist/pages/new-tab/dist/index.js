@@ -7822,8 +7822,8 @@
         "aria-label": t4("omnibar_aiChatFormPlaceholder"),
         autoComplete: "off",
         rows: 1,
-        onFocus,
-        onBlur,
+        onFocusCapture: onFocus,
+        onBlurCapture: onBlur,
         onInput,
         onKeyDown: handleKeyDown,
         onChange: handleChange
@@ -8478,39 +8478,48 @@
         target: "same-tab"
       });
     };
-    return /* @__PURE__ */ _("form", { class: SearchForm_default.form, onBlur: handleBlur, onSubmit: handleSubmit }, /* @__PURE__ */ _("div", { class: SearchForm_default.inputContainer, style: { "--suffix-text-width": `${measureText(inputSuffixText)}px` } }, inputSuffix?.kind === "visit" ? /* @__PURE__ */ _(GlobeIcon, { inert: true }) : /* @__PURE__ */ _(SearchIcon, { inert: true }), /* @__PURE__ */ _(
-      "input",
+    return /* @__PURE__ */ _(
+      "form",
       {
-        ref: inputRef,
-        type: "text",
-        role: "combobox",
-        class: SearchForm_default.input,
-        placeholder: t4("omnibar_searchFormPlaceholder"),
-        "aria-label": t4("omnibar_searchFormPlaceholder"),
-        "aria-expanded": suggestions.length > 0,
-        "aria-haspopup": "listbox",
-        "aria-controls": suggestionsListId,
-        "aria-activedescendant": selectedSuggestion?.id,
-        spellcheck: false,
-        autoComplete: "off",
-        autoCorrect: "off",
-        autoCapitalize: "off",
-        onChange: handleChange,
-        onKeyDown: handleKeyDown,
-        onClick: handleClick
-      }
-    ), inputSuffix && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("span", { class: SearchForm_default.suffixSpacer, inert: true }, inputBase + inputCompletion || t4("omnibar_searchFormPlaceholder")), /* @__PURE__ */ _("span", { class: SearchForm_default.suffix, inert: true }, inputSuffixText))), suggestions.length > 0 && /* @__PURE__ */ _(
-      SuggestionsList,
-      {
-        id: suggestionsListId,
-        term,
-        suggestions,
-        selectedSuggestion,
-        onSelectSuggestion: setSelectedSuggestion,
-        onClearSuggestion: clearSelectedSuggestion,
-        onOpenSuggestion
-      }
-    ));
+        class: SearchForm_default.form,
+        onBlurCapture: handleBlur,
+        onSubmit: handleSubmit
+      },
+      /* @__PURE__ */ _("div", { class: SearchForm_default.inputContainer, style: { "--suffix-text-width": `${measureText(inputSuffixText)}px` } }, inputSuffix?.kind === "visit" ? /* @__PURE__ */ _(GlobeIcon, { inert: true }) : /* @__PURE__ */ _(SearchIcon, { inert: true }), /* @__PURE__ */ _(
+        "input",
+        {
+          ref: inputRef,
+          type: "text",
+          role: "combobox",
+          class: SearchForm_default.input,
+          placeholder: t4("omnibar_searchFormPlaceholder"),
+          "aria-label": t4("omnibar_searchFormPlaceholder"),
+          "aria-expanded": suggestions.length > 0,
+          "aria-haspopup": "listbox",
+          "aria-controls": suggestionsListId,
+          "aria-activedescendant": selectedSuggestion?.id,
+          spellcheck: false,
+          autoComplete: "off",
+          autoCorrect: "off",
+          autoCapitalize: "off",
+          onChange: handleChange,
+          onKeyDown: handleKeyDown,
+          onClick: handleClick
+        }
+      ), inputSuffix && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("span", { class: SearchForm_default.suffixSpacer, inert: true }, inputBase + inputCompletion || t4("omnibar_searchFormPlaceholder")), /* @__PURE__ */ _("span", { class: SearchForm_default.suffix, inert: true }, inputSuffixText))),
+      suggestions.length > 0 && /* @__PURE__ */ _(
+        SuggestionsList,
+        {
+          id: suggestionsListId,
+          term,
+          suggestions,
+          selectedSuggestion,
+          onSelectSuggestion: setSelectedSuggestion,
+          onClearSuggestion: clearSelectedSuggestion,
+          onOpenSuggestion
+        }
+      )
+    );
   }
   function measureText(text2) {
     const canvas = document.createElement("canvas");
