@@ -42,10 +42,6 @@ export default class NavigatorInterface extends ContentFeature {
 
                         const bridge = createPageWorldBridge(featureName, args.messageSecret);
 
-                        if (!bridge) {
-                            throw new Error('Unable to create bridge');
-                        }
-
                         store[featureName] = bridge;
                         return bridge;
                     },
