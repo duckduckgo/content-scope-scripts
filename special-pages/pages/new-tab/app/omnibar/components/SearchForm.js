@@ -66,7 +66,12 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
     };
 
     return (
-        <form class={styles.form} onBlur={handleBlur} onSubmit={handleSubmit}>
+        <form
+            class={styles.form}
+            // Using onBlurCapture to work around WebKit which doesn't fire blur event when user selects address bar.
+            onBlurCapture={handleBlur}
+            onSubmit={handleSubmit}
+        >
             <div class={styles.inputContainer} style={{ '--suffix-text-width': `${measureText(inputSuffixText)}px` }}>
                 {inputSuffix?.kind === 'visit' ? <GlobeIcon inert /> : <SearchIcon inert />}
                 <input
@@ -122,6 +127,6 @@ function measureText(text) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     if (!context) return 0;
-    context.font = '13px / 16px system-ui';
+    context.font = '500 13px / 16px system-ui';
     return context.measureText(text).width;
 }
