@@ -1,0 +1,66 @@
+.form {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: calc(var(--sp-3) + var(--sp-7) + var(--sp-3)); /* Extra space to accomodate absolute positioned .buttons */
+}
+
+.textarea {
+    align-self: stretch;
+    background: none;
+    border: none;
+    box-sizing: content-box;
+    color: var(--ntp-text-normal);
+    font-weight: 500;
+    max-height: 10lh;
+    padding: 11px 15px 0;
+    resize: none;
+
+    &::placeholder {
+        color: var(--ntp-text-muted);
+    }
+
+    &:focus {
+        outline: none;
+    }
+
+    .hasScroll & {
+        border-bottom: 1px solid var(--ntp-surface-border-color);
+        padding-bottom: 11px;
+    }
+}
+
+.buttons {
+    align-self: stretch;
+    bottom: 0;
+    justify-content: space-between;
+    left: 0;
+    padding: var(--sp-3);
+    position: absolute; /* Fix .buttons to <Container /> so that it animates smoothly when container resizes */
+    right: 0;
+}
+
+.submitButton {
+    align-items: center;
+    background: var(--color-blue-50);
+    border-radius: 100%;
+    border: none;
+    color: var(--color-white);
+    cursor: pointer;
+    display: flex;
+    height: var(--sp-7);
+    justify-content: center;
+    margin-left: auto;
+    padding: 0;
+    width: var(--sp-7);
+
+    &[disabled] {
+        background: none;
+        color: rgba(0, 0, 0, 0.3);
+        cursor: default;
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+}

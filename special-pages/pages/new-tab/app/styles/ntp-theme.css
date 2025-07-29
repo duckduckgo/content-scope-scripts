@@ -3,7 +3,6 @@
     --ntp-drawer-width: calc(224 * var(--px-in-rem));
     --ntp-drawer-scroll-width: 12px;
     --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
-    --ntp-surface-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.13);
 
     /* Mac/System/Callout */
     --callout-font-size: 12px;
@@ -36,10 +35,6 @@
     --border-radius-xs: 4px;
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
-
-    --duckai-purple: rgba(107, 78, 186, 1);
-    --duckai-purple-hover: rgb(128, 101, 208);
-    --duckai-purple-active: rgb(85, 64, 160);
 }
 
 body {
@@ -60,6 +55,9 @@ body {
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
     --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-color-primary);
+    --ntp-surface-tertiary: var(--color-white);
+    --ntp-controls-raised-backdrop: var(--color-black-at-9);
+    --ntp-controls-raised-fill-primary: var(--color-white);
 }
 
 [data-theme=dark] {
@@ -74,6 +72,9 @@ body {
     --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
     --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ntp-color-primary);
+    --ntp-surface-tertiary: rgba(71, 71, 71, 0.66);
+    --ntp-controls-raised-backdrop: var(--color-black-at-60);
+    --ntp-controls-raised-fill-primary: var(--color-white-at-18);
 }
 
 /* This comes from the application settings */
