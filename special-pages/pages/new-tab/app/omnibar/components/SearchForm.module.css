@@ -4,7 +4,7 @@
     padding: var(--sp-1) 7px;
 
     svg {
-        flex-shrink: 0;
+        flex: none;
         margin: var(--sp-2);
     }
 }
@@ -33,12 +33,13 @@
 }
 
 .suffixSpacer {
+    font-weight: 500;
     overflow: hidden;
     visibility: hidden;
-    white-space: pre;
+    white-space: nowrap;
 }
 
 .suffix {
     color: var(--ntp-color-primary);
-    flex-shrink: 0;
+    flex: none;
 }
