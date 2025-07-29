@@ -127,6 +127,6 @@ function measureText(text) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     if (!context) return 0;
-    context.font = '13px / 16px system-ui';
+    context.font = '500 13px / 16px system-ui';
     return context.measureText(text).width;
 }
