@@ -8,36 +8,57 @@
 .item {
     align-items: center;
     background: none;
+    border-radius: 4px;
     border: none;
     color: var(--ntp-text-normal);
     cursor: pointer;
     display: flex;
     height: var(--sp-8);
     justify-content: flex-start;
+    padding: 0 var(--sp-2) 0 0;
 
     svg {
-        flex-shrink: 0;
+        flex: none;
         margin: var(--sp-2);
     }
 
-    &[aria-selected="true"] {
-        background: var(--ddg-color-primary);
-        border-radius: 4px;
+    &[aria-selected="true"],
+    &:active {
         color: var(--color-white);
 
         .suffix {
             color: var(--color-white);
         }
+
+        .badge {
+            background: var(--color-white-at-30);
+        }
+    }
+
+    &[aria-selected="true"] {
+        background: var(--ddg-color-primary);
+    }
+
+    &:active {
+        background: var(--color-blue-60);
     }
 }
 
 .title {
-    white-space: pre;
+    flex: none;
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .suffix {
     color: var(--ntp-text-muted);
+    flex: initial;
     font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .badge {
@@ -45,6 +66,7 @@
     background: var(--ntp-controls-raised-backdrop);
     border-radius: var(--border-radius-sm);
     display: flex;
+    flex: none;
     gap: 6px;
     height: 22px;
     margin-left: auto;

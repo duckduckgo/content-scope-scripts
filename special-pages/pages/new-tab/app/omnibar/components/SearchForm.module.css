@@ -1,7 +1,7 @@
 .inputContainer {
     align-items: center;
     display: flex;
-    padding: var(--sp-1);
+    padding: var(--sp-1) 7px;
 
     svg {
         flex-shrink: 0;
@@ -15,13 +15,13 @@
     color: var(--ntp-text-normal);
     font-weight: 500;
     height: var(--sp-8);
-    left: var(--sp-1);
+    left: 7px;
     padding-bottom: 0;
     padding-left: calc(var(--sp-2) + var(--sp-4) + var(--sp-2));
     padding-right: var(--suffix-text-width);
     padding-top: 0;
     position: absolute;
-    right: var(--sp-1);
+    right: 7px;
 
     &::placeholder {
         color: var(--ntp-text-muted);
