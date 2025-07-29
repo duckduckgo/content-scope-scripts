@@ -30,7 +30,7 @@
     z-index: 1;
 
     &:hover:not([aria-selected="true"])::before {
-        background: var(--ntp-controls-raised-backdrop);
+        background: var(--ntp-controls-fill-primary);
         border-radius: 99px;
         content: '';
         inset: 0;
