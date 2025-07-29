@@ -27,6 +27,11 @@
         color: var(--ntp-text-muted);
     }
 
+    [data-platform="windows"] &::selection {
+        background: var(--ntp-selection-background-color);
+        color: var(--ntp-selection-color);
+    }
+
     &:focus {
         outline: none;
     }
