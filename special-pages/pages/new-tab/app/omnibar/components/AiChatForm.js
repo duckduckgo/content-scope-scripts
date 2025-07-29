@@ -28,11 +28,40 @@ export function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange
     const formRef = useRef(/** @type {HTMLFormElement|null} */ (null));
     const textAreaRef = useRef(/** @type {HTMLTextAreaElement|null} */ (null));
 
+    /**
+     * Calculate and apply the appropriate height for the textarea based on its content
+     * @param {HTMLTextAreaElement} textArea
+     */
+    const resizeTextArea = (textArea) => {
+        const form = formRef.current;
+        
+        const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
+        textArea.style.height = 'auto'; // Reset height
+        textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
+
+        if (textArea.scrollHeight > textArea.clientHeight) {
+            form?.classList.add(styles.hasScroll);
+        } else {
+            form?.classList.remove(styles.hasScroll);
+        }
+    };
+
     useEffect(() => {
         if (autoFocus && textAreaRef.current) {
             textAreaRef.current.focus();
         }
     }, [autoFocus]);
+
+    // Recalculate textarea height when chat content changes or component mounts
+    useEffect(() => {
+        const textArea = textAreaRef.current;
+        if (textArea && chat) {
+            // Use setTimeout to ensure the textarea has rendered with the new value
+            setTimeout(() => {
+                resizeTextArea(textArea);
+            }, 0);
+        }
+    }, [chat]);
 
     const disabled = chat.length === 0;
 
@@ -71,19 +100,8 @@ export function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange
 
     /** @type {(event: import('preact').JSX.TargetedEvent<HTMLTextAreaElement>) => void} */
     const handleChange = (event) => {
-        const form = formRef.current;
         const textArea = event.currentTarget;
-
-        const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
-        textArea.style.height = 'auto'; // Reset height
-        textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
-
-        if (textArea.scrollHeight > textArea.clientHeight) {
-            form?.classList.add(styles.hasScroll);
-        } else {
-            form?.classList.remove(styles.hasScroll);
-        }
-
+        resizeTextArea(textArea);
         onChange(textArea.value);
     };
 
