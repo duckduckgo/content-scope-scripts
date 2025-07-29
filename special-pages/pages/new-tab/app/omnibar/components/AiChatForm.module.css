@@ -2,7 +2,7 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    padding-bottom: calc(14px + 9px + var(--sp-7)); /* Extra space to accomodate absolute positioned .buttons */
+    padding-bottom: calc(var(--sp-3) + var(--sp-7) + var(--sp-3)); /* Extra space to accomodate absolute positioned .buttons */
 }
 
 .textarea {
@@ -35,13 +35,9 @@
     bottom: 0;
     justify-content: space-between;
     left: 0;
-    padding: 14px 9px 9px;
+    padding: var(--sp-3);
     position: absolute; /* Fix .buttons to <Container /> so that it animates smoothly when container resizes */
     right: 0;
-
-    .hasScroll & {
-        padding-top: 9px;
-    }
 }
 
 .submitButton {
