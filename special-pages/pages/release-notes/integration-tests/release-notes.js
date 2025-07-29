@@ -68,7 +68,7 @@ export class ReleaseNotesPage {
     get basePath() {
         return this.build.switch({
             // windows: () => '../../build/windows/pages/release-notes',
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/release-notes',
+            apple: () => '../build/apple/pages/release-notes',
         });
     }
 
