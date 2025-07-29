@@ -118,6 +118,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
         </form>
     );
 }
+
 /**
  * @param {string} text
  * @returns {number}

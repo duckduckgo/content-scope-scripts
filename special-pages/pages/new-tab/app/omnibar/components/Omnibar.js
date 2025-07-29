@@ -69,7 +69,8 @@ export function Omnibar({ mode, setMode, enableAi }) {
                 {mode === 'search' ? (
                     <SearchForm
                         key={`search-${resetKey}`}
-                        term={query}
+                        // Remove any newlines that come from switching from chat to search
+                        term={query.replace(/\n/g, '')}
                         autoFocus={autoFocus}
                         onChangeTerm={setQuery}
                         onOpenSuggestion={handleOpenSuggestion}
