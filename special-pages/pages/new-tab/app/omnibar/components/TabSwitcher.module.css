@@ -26,6 +26,7 @@
     justify-content: center;
     padding: 0 var(--sp-3);
     position: relative;
+    transform: translateZ(0); /* Force .tab into its own stacking context. Workaround for WebKit mistakenly layering .blob on top of .tab when .App_mainLayout animates. */
     z-index: 1;
 
     &:hover:not([aria-selected="true"])::before {
@@ -53,6 +54,7 @@
     translate: calc(2px + var(--tab-index) * (100% + 2px));
     width: calc((100% - 4px - (var(--tab-count) - 1) * 2px) / var(--tab-count));
     will-change: translate;
+    z-index: 0;
 
     [data-theme="dark"] & {
         box-shadow: 0 4px 4px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06);

@@ -1468,7 +1468,7 @@ body:not([data-platform-name]) .Button_button:active {
   align-items: center;
   display: flex;
   flex-direction: column;
-  padding-bottom: calc(14px + 9px + var(--sp-7));
+  padding-bottom: calc(var(--sp-3) + var(--sp-7) + var(--sp-3));
 }
 .AiChatForm_textarea {
   align-self: stretch;
@@ -1496,12 +1496,9 @@ body:not([data-platform-name]) .Button_button:active {
   bottom: 0;
   justify-content: space-between;
   left: 0;
-  padding: 14px 9px 9px;
+  padding: var(--sp-3);
   position: absolute;
   right: 0;
-}
-.AiChatForm_hasScroll .AiChatForm_buttons {
-  padding-top: 9px;
 }
 .AiChatForm_submitButton {
   align-items: center;
@@ -1533,7 +1530,7 @@ body:not([data-platform-name]) .Button_button:active {
 }
 .Container_inner {
   background: var(--ntp-surface-tertiary);
-  border-radius: 12px;
+  border-radius: 15px;
   box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   position: relative;
@@ -1546,14 +1543,12 @@ body:not([data-platform-name]) .Button_button:active {
 }
 .Container_inner:not(:has([role=listbox])).Container_focusRing,
 .Container_inner:not(:has([role=listbox])):focus-within:not(.Container_noFocusRing) {
-  border-radius: 15px;
   box-shadow:
     0 0 0 1px var(--ntp-surface-tertiary),
     0 0 0 3px var(--ntp-color-primary),
-    0 0 0 7px rgba(57, 105, 239, 0.2);
+    0 0 0 5px rgba(57, 105, 239, 0.2);
 }
 .Container_inner:has([role=listbox]) {
-  border-radius: 15px;
   box-shadow:
     0 0 0 3px var(--ntp-surface-tertiary),
     0px 4px 12px 3px rgba(0, 0, 0, 0.10),
@@ -1577,10 +1572,10 @@ body:not([data-platform-name]) .Button_button:active {
 .SearchForm_inputContainer {
   align-items: center;
   display: flex;
-  padding: var(--sp-1);
+  padding: var(--sp-1) 7px;
 }
 .SearchForm_inputContainer svg {
-  flex-shrink: 0;
+  flex: none;
   margin: var(--sp-2);
 }
 .SearchForm_input {
@@ -1589,13 +1584,13 @@ body:not([data-platform-name]) .Button_button:active {
   color: var(--ntp-text-normal);
   font-weight: 500;
   height: var(--sp-8);
-  left: var(--sp-1);
+  left: 7px;
   padding-bottom: 0;
   padding-left: calc(var(--sp-2) + var(--sp-4) + var(--sp-2));
   padding-right: var(--suffix-text-width);
   padding-top: 0;
   position: absolute;
-  right: var(--sp-1);
+  right: 7px;
 }
 .SearchForm_input::placeholder {
   color: var(--ntp-text-muted);
@@ -1604,13 +1599,14 @@ body:not([data-platform-name]) .Button_button:active {
   outline: none;
 }
 .SearchForm_suffixSpacer {
+  font-weight: 500;
   overflow: hidden;
   visibility: hidden;
-  white-space: pre;
+  white-space: nowrap;
 }
 .SearchForm_suffix {
   color: var(--ntp-color-primary);
-  flex-shrink: 0;
+  flex: none;
 }
 
 /* pages/new-tab/app/omnibar/components/SuggestionsList.module.css */
@@ -1623,37 +1619,56 @@ body:not([data-platform-name]) .Button_button:active {
 .SuggestionsList_item {
   align-items: center;
   background: none;
+  border-radius: 4px;
   border: none;
   color: var(--ntp-text-normal);
   cursor: pointer;
   display: flex;
   height: var(--sp-8);
   justify-content: flex-start;
+  padding: 0 var(--sp-2) 0 0;
 }
 .SuggestionsList_item svg {
-  flex-shrink: 0;
+  flex: none;
   margin: var(--sp-2);
+}
+.SuggestionsList_item[aria-selected=true],
+.SuggestionsList_item:active {
+  color: var(--color-white);
+}
+:is(.SuggestionsList_item[aria-selected=true], .SuggestionsList_item:active) .SuggestionsList_suffix {
+  color: var(--color-white);
+}
+:is(.SuggestionsList_item[aria-selected=true], .SuggestionsList_item:active) .SuggestionsList_badge {
+  background: var(--color-white-at-30);
 }
 .SuggestionsList_item[aria-selected=true] {
   background: var(--ddg-color-primary);
-  border-radius: 4px;
-  color: var(--color-white);
 }
-.SuggestionsList_item[aria-selected=true] .SuggestionsList_suffix {
-  color: var(--color-white);
+.SuggestionsList_item:active {
+  background: var(--color-blue-60);
 }
 .SuggestionsList_title {
-  white-space: pre;
+  flex: none;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .SuggestionsList_suffix {
   color: var(--ntp-text-muted);
+  flex: initial;
   font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .SuggestionsList_badge {
   align-items: center;
   background: var(--ntp-controls-raised-backdrop);
   border-radius: var(--border-radius-sm);
   display: flex;
+  flex: none;
   gap: 6px;
   height: 22px;
   margin-left: auto;
@@ -1692,6 +1707,7 @@ body:not([data-platform-name]) .Button_button:active {
   justify-content: center;
   padding: 0 var(--sp-3);
   position: relative;
+  transform: translateZ(0);
   z-index: 1;
 }
 .TabSwitcher_tab:hover:not([aria-selected=true])::before {
@@ -1722,6 +1738,7 @@ body:not([data-platform-name]) .Button_button:active {
   translate: calc(2px + var(--tab-index) * (100% + 2px));
   width: calc((100% - 4px - (var(--tab-count) - 1) * 2px) / var(--tab-count));
   will-change: translate;
+  z-index: 0;
 }
 [data-theme=dark] .TabSwitcher_blob {
   box-shadow:

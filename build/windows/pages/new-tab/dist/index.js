@@ -7771,6 +7771,19 @@
         textAreaRef.current.focus();
       }
     }, [autoFocus]);
+    _2(() => {
+      const textArea = textAreaRef.current;
+      const form = formRef.current;
+      if (!textArea || !form) return;
+      const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
+      textArea.style.height = "auto";
+      textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
+      if (textArea.scrollHeight > textArea.clientHeight) {
+        form.classList.add(AiChatForm_default.hasScroll);
+      } else {
+        form.classList.remove(AiChatForm_default.hasScroll);
+      }
+    }, [chat]);
     const disabled = chat.length === 0;
     const handleSubmit = (event) => {
       event.preventDefault();
@@ -7799,19 +7812,6 @@
         target: eventToTarget2(event, platformName)
       });
     };
-    const handleChange = (event) => {
-      const form = formRef.current;
-      const textArea = event.currentTarget;
-      const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
-      textArea.style.height = "auto";
-      textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
-      if (textArea.scrollHeight > textArea.clientHeight) {
-        form?.classList.add(AiChatForm_default.hasScroll);
-      } else {
-        form?.classList.remove(AiChatForm_default.hasScroll);
-      }
-      onChange(textArea.value);
-    };
     return /* @__PURE__ */ _("form", { ref: formRef, class: AiChatForm_default.form, onClick: () => textAreaRef.current?.focus(), onSubmit: handleSubmit }, /* @__PURE__ */ _(
       "textarea",
       {
@@ -7826,7 +7826,7 @@
         onBlurCapture: onBlur,
         onInput,
         onKeyDown: handleKeyDown,
-        onChange: handleChange
+        onChange: (event) => onChange(event.currentTarget.value)
       }
     ), /* @__PURE__ */ _("div", { class: AiChatForm_default.buttons }, /* @__PURE__ */ _(
       "button",
@@ -7949,8 +7949,8 @@
         list: "SuggestionsList_list",
         item: "SuggestionsList_item",
         suffix: "SuggestionsList_suffix",
-        title: "SuggestionsList_title",
-        badge: "SuggestionsList_badge"
+        badge: "SuggestionsList_badge",
+        title: "SuggestionsList_title"
       };
     }
   });
@@ -8525,7 +8525,7 @@
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
     if (!context) return 0;
-    context.font = "13px / 16px system-ui";
+    context.font = "500 13px / 16px system-ui";
     return context.measureText(text2).width;
   }
   var init_SearchForm2 = __esm({
@@ -8628,7 +8628,7 @@
       SearchForm,
       {
         key: `search-${resetKey}`,
-        term: query,
+        term: query.replace(/\n/g, ""),
         autoFocus,
         onChangeTerm: setQuery,
         onOpenSuggestion: handleOpenSuggestion,

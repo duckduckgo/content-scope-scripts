@@ -873,4 +873,40 @@ test.describe('omnibar widget', () => {
         // Input should retain its value
         await omnibar.expectInputValue('pizza');
     });
+
+    test('AI chat textarea height is preserved when switching tabs', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.enableAi': true } });
+        await omnibar.ready();
+
+        // Switch to AI tab
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        // Type multiline content to expand textarea
+        const multilineText = 'This is line 1\nThis is line 2\nThis is line 3';
+        await omnibar.chatInput().fill(multilineText);
+
+        // Get initial textarea height after expansion
+        const originalHeight = await omnibar.chatInput().evaluate((el) => el.style.height);
+        expect(originalHeight).not.toBe(''); // Should have some height set
+
+        // Switch to search tab
+        await omnibar.searchTab().click();
+        await omnibar.expectMode('search');
+
+        // Switch back to AI tab
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        // Textarea should preserve its expanded height
+        const newHeight = await omnibar.chatInput().evaluate((el) => el.style.height);
+        expect(newHeight).toBe(originalHeight);
+
+        // Content should still be there
+        await expect(omnibar.chatInput()).toHaveValue(multilineText);
+    });
 });
