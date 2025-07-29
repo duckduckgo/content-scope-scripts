@@ -11,10 +11,13 @@
     border: none;
     box-sizing: content-box;
     color: var(--ntp-text-normal);
-    font-weight: 500;
     max-height: 10lh;
     padding: 11px 15px 0;
     resize: none;
+
+    [data-platform="macos"] & {
+        font-weight: 500;
+    }
 
     &::placeholder {
         color: var(--ntp-text-muted);
