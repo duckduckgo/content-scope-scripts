@@ -17,7 +17,7 @@
 
     &:not(:has([role="listbox"])).focusRing,
     &:not(:has([role="listbox"])):focus-within:not(.noFocusRing) {
-        box-shadow: 0 0 0 1px var(--ntp-surface-tertiary), 0 0 0 3px var(--ntp-color-primary), 0 0 0 5px rgba(57, 105, 239, 0.2);
+        box-shadow: 0 0 0 1px var(--ntp-surface-tertiary), 0 0 0 3px var(--ntp-accent-primary), 0 0 0 5px var(--ntp-accent-glow);
     }
 
     &:has([role="listbox"]) {

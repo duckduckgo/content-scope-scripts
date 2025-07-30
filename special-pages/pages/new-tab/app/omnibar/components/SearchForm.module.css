@@ -12,7 +12,7 @@
 .input {
     background: none;
     border: none;
-    color: var(--ntp-text-normal);
+    color: var(--ntp-text-primary);
     font-weight: 500;
     height: var(--sp-8);
     left: 7px;
@@ -24,7 +24,7 @@
     right: 7px;
 
     &::placeholder {
-        color: var(--ntp-text-muted);
+        color: var(--ntp-text-tertiary);
     }
 
     &:focus {
@@ -40,6 +40,6 @@
 }
 
 .suffix {
-    color: var(--ntp-color-primary);
+    color: var(--ntp-accent-primary);
     flex: none;
 }

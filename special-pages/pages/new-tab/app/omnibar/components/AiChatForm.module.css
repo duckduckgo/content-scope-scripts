@@ -10,14 +10,14 @@
     background: none;
     border: none;
     box-sizing: content-box;
-    color: var(--ntp-text-normal);
+    color: var(--ntp-text-primary);
     font-weight: 500;
     max-height: 10lh;
     padding: 11px 15px 0;
     resize: none;
 
     &::placeholder {
-        color: var(--ntp-text-muted);
+        color: var(--ntp-text-tertiary);
     }
 
     &:focus {
@@ -25,7 +25,7 @@
     }
 
     .hasScroll & {
-        border-bottom: 1px solid var(--ntp-surface-border-color);
+        border-bottom: 1px solid var(--ntp-decoration-tertiary);
         padding-bottom: 11px;
     }
 }
