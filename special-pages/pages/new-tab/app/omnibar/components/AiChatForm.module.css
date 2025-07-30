@@ -42,10 +42,10 @@
 
 .submitButton {
     align-items: center;
-    background: var(--color-blue-50);
+    background: var(--ntp-accent-primary);
     border-radius: 100%;
     border: none;
-    color: var(--color-white);
+    color: var(--ntp-accent-content-primary);
     cursor: pointer;
     display: flex;
     height: var(--sp-7);
@@ -56,8 +56,9 @@
 
     &[disabled] {
         background: none;
-        color: rgba(0, 0, 0, 0.3);
+        color: var(--ntp-icons-primary);
         cursor: default;
+        opacity: 0.3;
     }
 
     &:focus-visible {

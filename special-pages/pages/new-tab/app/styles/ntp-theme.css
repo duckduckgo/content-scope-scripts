@@ -55,7 +55,13 @@ body {
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
     --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-color-primary);
+
+    /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
+    /* @todo: This palette is what the native apps use, we should gradually move over to it */
     --ntp-surface-tertiary: var(--color-white);
+    --ntp-icons-primary: rgba(31, 31, 31, 0.84);
+    --ntp-accent-primary: var(--color-blue-50);
+    --ntp-accent-content-primary: var(--color-white);
     --ntp-controls-fill-primary: rgba(31, 31, 31, 0.09);
     --ntp-controls-raised-backdrop: var(--color-black-at-9);
     --ntp-controls-raised-fill-primary: var(--color-white);
@@ -73,7 +79,13 @@ body {
     --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
     --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ntp-color-primary);
+
+    /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
+    /* @todo: This palette is what the native apps use, we should gradually move over to it */
     --ntp-surface-tertiary: rgba(71, 71, 71, 0.66);
+    --ntp-icons-primary: rgba(255, 255, 255, 0.78);
+    --ntp-accent-primary: var(--color-blue-20);
+    --ntp-accent-content-primary: var(--color-blue-80);
     --ntp-controls-fill-primary: rgba(249, 249, 249, 0.12);
     --ntp-controls-raised-backdrop: var(--color-black-at-60);
     --ntp-controls-raised-fill-primary: var(--color-white-at-18);
