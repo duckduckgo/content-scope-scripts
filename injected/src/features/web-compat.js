@@ -1,3 +1,4 @@
+// TypeScript is disabled for this file due to intentional DOM polyfills (e.g., Notification) that are incompatible with the DOM lib types.
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
@@ -192,6 +193,7 @@ export class WebCompat extends ContentFeature {
             return;
         }
         // Expose the API
+        // window.Notification polyfill is intentionally incompatible with DOM lib types
         this.defineProperty(window, 'Notification', {
             value: () => {
                 // noop
@@ -200,8 +202,8 @@ export class WebCompat extends ContentFeature {
             configurable: true,
             enumerable: false,
         });
-
-        this.defineProperty(window.Notification, 'requestPermission', {
+        // window.Notification polyfill is intentionally incompatible with DOM lib types
+        this.defineProperty(/** @type {any} */ (window.Notification), 'requestPermission', {
             value: () => {
                 return Promise.resolve('denied');
             },
@@ -210,13 +212,13 @@ export class WebCompat extends ContentFeature {
             enumerable: true,
         });
 
-        this.defineProperty(window.Notification, 'permission', {
+        this.defineProperty(/** @type {any} */ (window.Notification), 'permission', {
             get: () => 'denied',
             configurable: true,
             enumerable: false,
         });
 
-        this.defineProperty(window.Notification, 'maxActions', {
+        this.defineProperty(/** @type {any} */ (window.Notification), 'maxActions', {
             get: () => 2,
             configurable: true,
             enumerable: true,
@@ -400,6 +402,7 @@ export class WebCompat extends ContentFeature {
             };
             // TODO: original property is an accessor descriptor
             this.defineProperty(Navigator.prototype, 'credentials', {
+                // validate this
                 value,
                 configurable: true,
                 enumerable: true,
@@ -416,6 +419,7 @@ export class WebCompat extends ContentFeature {
             if (window.safari) {
                 return;
             }
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window, 'safari', {
                 value: {},
                 writable: true,
