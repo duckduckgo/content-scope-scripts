@@ -11,13 +11,21 @@
     border: none;
     box-sizing: content-box;
     color: var(--ntp-text-primary);
-    font-weight: 500;
     max-height: 10lh;
     padding: 11px 15px 0;
     resize: none;
 
+    [data-platform="macos"] & {
+        font-weight: 500;
+    }
+
     &::placeholder {
         color: var(--ntp-text-tertiary);
+    }
+
+    [data-platform="windows"] &::selection {
+        background: var(--ntp-selection-background-color);
+        color: var(--ntp-selection-color);
     }
 
     &:focus {

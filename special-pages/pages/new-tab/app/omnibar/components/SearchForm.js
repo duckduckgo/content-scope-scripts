@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useEffect, useId } from 'preact/hooks';
+import { useEffect, useId, useMemo } from 'preact/hooks';
 import { SearchIcon, GlobeIcon } from '../../components/Icons.js';
 import { useTypedTranslationWith } from '../../types';
 import styles from './SearchForm.module.css';
@@ -8,6 +8,7 @@ import { useCompletionInput } from './useSuggestionInput.js';
 import { useSuggestions } from './useSuggestions';
 import { useSuffixText } from './SuffixText.js';
 import { getInputSuffix } from '../utils.js';
+import { usePlatformName } from '../../settings.provider.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -26,6 +27,7 @@ import { getInputSuffix } from '../utils.js';
 export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, onSubmitSearch }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const suggestionsListId = useId();
+    const platformName = usePlatformName();
 
     const {
         suggestions,
@@ -45,10 +47,12 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
         onSubmitSearch,
     });
 
+    const inputRef = useCompletionInput(inputBase, inputCompletion);
+
     const inputSuffix = getInputSuffix(term, selectedSuggestion);
     const inputSuffixText = useSuffixText(inputSuffix);
-
-    const inputRef = useCompletionInput(inputBase, inputCompletion);
+    const inputFont = platformName === 'windows' ? '400 13px / 16px system-ui' : '500 13px / 16px system-ui';
+    const inputSuffixWidth = useMemo(() => measureText(inputSuffixText, inputFont), [inputSuffixText, inputFont]);
 
     useEffect(() => {
         if (autoFocus && inputRef.current) {
@@ -72,7 +76,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
             onBlurCapture={handleBlur}
             onSubmit={handleSubmit}
         >
-            <div class={styles.inputContainer} style={{ '--suffix-text-width': `${measureText(inputSuffixText)}px` }}>
+            <div class={styles.inputContainer} style={{ '--input-font': inputFont, '--suffix-text-width': `${inputSuffixWidth}px` }}>
                 {inputSuffix?.kind === 'visit' ? <GlobeIcon inert /> : <SearchIcon inert />}
                 <input
                     ref={inputRef}
@@ -121,12 +125,14 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
 
 /**
  * @param {string} text
+ * @param {string} font
  * @returns {number}
  */
-function measureText(text) {
+function measureText(text, font) {
+    if (!text) return 0;
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-    if (!context) return 0;
-    context.font = '500 13px / 16px system-ui';
+    if (!context) throw new Error('Failed to get canvas context');
+    context.font = font;
     return context.measureText(text).width;
 }

@@ -55,6 +55,8 @@ body {
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
     --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-color-primary);
+    --ntp-selection-color: var(--color-white);
+    --ntp-selection-background-color: #3A69EF;
 
     /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
     /* @todo: This palette is what the native apps use, we should gradually move over to it */
@@ -86,6 +88,8 @@ body {
     --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
     --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ntp-color-primary);
+    --ntp-selection-color: var(--color-white);
+    --ntp-selection-background-color: var(--color-blue-30);
 
     /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
     /* @todo: This palette is what the native apps use, we should gradually move over to it */
