@@ -4,7 +4,7 @@ import { DuckPlayerNativeMessages } from './duckplayer-native/messages.js';
 import { setupDuckPlayerForNoCookie, setupDuckPlayerForSerp, setupDuckPlayerForYouTube } from './duckplayer-native/sub-feature.js';
 import { Environment } from './duckplayer/environment.js';
 import { Logger } from './duckplayer/util.js';
-import { MetricsReporter, EXCEPTION_KIND_INITIAL_SETUP_ERROR } from '../../../special-pages/shared/metrics/metrics-reporter.js';
+import { MetricsReporter, EXCEPTION_KIND_INITIAL_SETUP_ERROR } from '../../../metrics/metrics-reporter.js';
 
 /**
  * @import {DuckPlayerNativeSubFeature} from './duckplayer-native/sub-feature.js'

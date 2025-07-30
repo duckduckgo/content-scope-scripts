@@ -29,17 +29,6 @@ for (const pageListElement of pageList) {
     };
 }
 
-/* Shared types */
-specialPagesTypes.metrics = {
-    schemaDir: join(specialPagesRoot, 'shared', 'metrics', 'messages'),
-    typesDir: join(specialPagesRoot, 'shared', 'metrics', 'types'),
-    exclude: process.platform === 'win32',
-    kind: 'single',
-    resolve: (_dirname) => '../metrics-reporter.js',
-    className: (_top) => 'MetricsReporter',
-    filename: `metrics.ts`,
-};
-
 if (isLaunchFile(import.meta.url)) {
     buildTypes(specialPagesTypes).catch((error) => {
         console.error(error);

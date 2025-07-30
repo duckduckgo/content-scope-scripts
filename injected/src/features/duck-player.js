@@ -37,7 +37,7 @@ import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckpla
 import { isBeingFramed } from '../utils.js';
 import { initOverlays } from './duckplayer/overlays.js';
 import { Environment } from './duckplayer/environment.js';
-import { MetricsReporter } from '../../../special-pages/shared/metrics/metrics-reporter.js';
+import { MetricsReporter } from '../../../metrics/metrics-reporter.js';
 
 /**
  * @typedef UserValues - A way to communicate user settings

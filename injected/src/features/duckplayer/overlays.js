@@ -2,7 +2,7 @@ import { DomState } from './util.js';
 import { ClickInterception, Thumbnails } from './thumbnails.js';
 import { VideoOverlay } from './video-overlay.js';
 import { registerCustomElements } from './components/index.js';
-import { EXCEPTION_KIND_INITIAL_SETUP_ERROR } from 'special-pages/shared/metrics/metrics-reporter.js';
+import { EXCEPTION_KIND_INITIAL_SETUP_ERROR } from '../../../../metrics/metrics-reporter.js';
 
 /**
  * @typedef {object} OverlayOptions

@@ -34,7 +34,8 @@
     "injected",
     "special-pages",
     "messaging",
-    "types-generator"
+    "types-generator",
+    "metrics"
   ],
   "devDependencies": {
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",

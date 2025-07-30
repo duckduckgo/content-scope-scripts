@@ -568,7 +568,7 @@ export class DuckPlayerPage {
     }
 
     /**
-     * @param {import('../../../shared/metrics/types/metrics.js').ReportMetricEvent} evt
+     * @param {import('../../../../metrics/types/metrics.js').ReportMetricEvent} evt
      */
     async didSendReportMetric(evt) {
         const events = await this.mocks.waitForCallCount({ method: 'reportMetric', count: 1 });

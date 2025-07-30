@@ -1,43 +1,7 @@
 /**
- * Utility class for reporting metrics and exceptions to the native layer.
- *
- * This class provides standardized methods for sending metric events and exception reports
- * through the messaging system. It includes predefined metric names for common error types
- * and helper methods to construct and send metric events.
- *
- * Please see https://duckduckgo.github.io/content-scope-scripts/interfaces/shared_messages.reportmetricnotification
- * for the message schema
- *
- * @example
- * ```javascript
- * import { MetricsReporter } from './metrics-reporter.js';
- *
- * const metrics = new MetricsReporter(messaging);
- *
- * // Report a custom metric
- * metrics.reportMetric({
- *     metricName: 'userAction',
- *     params: { action: 'buttonClick', page: 'home' }
- * });
- *
- * // Report an exception
- * metrics.reportException({
- *     message: 'Failed to load user data',
- *     kind: 'NetworkError'
- * });
- *
- * // Report an exception by passing an Error object
- * metrics.reportExceptionWithError(new Error('Missing params'));
- * ```
- *
- * @module Metrics Reporter
- */
-
-/**
  * @typedef {import('./types/metrics.ts').ExceptionMetric} ExceptionMetric
  * @typedef {import('./types/metrics.ts').ReportMetricEvent} ReportMetricEvent
  */
-
 import { createTypedMessages } from '@duckduckgo/messaging/lib/typed-messages.js';
 
 /** Exception kind for generic errors */
