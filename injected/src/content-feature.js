@@ -241,10 +241,12 @@ export default class ContentFeature extends ConfigFeature {
     /**
      * Define a property descriptor with debug flags.
      * Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
-     * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
-     * @param {string} propertyName
-     * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
-     */
+     * @template Obj
+     * @template {keyof Obj} Key
+     * @param {Obj} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
+     * @param {Key} propertyName
+     * @param {import('./wrapper-utils.js').StrictPropertyDescriptorGeneric<Obj, Key>} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
+    */
     defineProperty(object, propertyName, descriptor) {
         // make sure to send a debug flag when the property is used
         // NOTE: properties passing data in `value` would not be caught by this
@@ -253,16 +255,16 @@ export default class ContentFeature extends ConfigFeature {
             if (typeof descriptorProp === 'function') {
                 const addDebugFlag = this.addDebugFlag.bind(this);
                 const wrapper = new Proxy(descriptorProp, {
-                    apply(_, thisArg, argumentsList) {
+                    apply(target, thisArg, argumentsList) {
                         addDebugFlag();
-                        return Reflect.apply(descriptorProp, thisArg, argumentsList);
+                        return target.apply(thisArg, argumentsList);
                     },
                 });
                 descriptor[k] = wrapToString(wrapper, descriptorProp);
             }
         });
 
-        return defineProperty(object, propertyName, descriptor);
+        return defineProperty(object, String(propertyName), /** @type {any} */ (descriptor));
     }
 
     /**
