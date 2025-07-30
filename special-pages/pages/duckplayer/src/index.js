@@ -19,7 +19,7 @@ export class DuckplayerPage {
     /**
      * This will be sent if the application has loaded, but a client-side error
      * has occurred that cannot be recovered from
-     * @returns {Promise<import("../types/duckplayer.ts").InitialSetupResponse>}
+     * @returns {Promise<import("../types/duckplayer.ts").InitialSetupResponse|null>}
      */
     async initialSetup() {
         if (this.injectName === 'integration') {
@@ -42,7 +42,7 @@ export class DuckplayerPage {
             return await this.messaging.request('initialSetup');
         } catch (e) {
             this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
-            throw e;
+            return null;
         }
     }
 
@@ -56,7 +56,7 @@ export class DuckplayerPage {
             return await this.messaging.request('setUserValues', userValues);
         } catch (e) {
             this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
-            throw e;
+            return null;
         }
     }
 

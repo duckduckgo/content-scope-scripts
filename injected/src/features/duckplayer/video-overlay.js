@@ -452,9 +452,11 @@ export class VideoOverlay {
                     overlayInteracted: true,
                 })
                 .then((values) => {
-                    this.userValues = values;
+                    if (values) {
+                        this.userValues = values;
+                        this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' });
+                    }
                 })
-                .then(() => this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' }))
                 .catch((e) => {
                     console.error(e);
                     this.messages.metrics.reportExceptionWithError(e);
@@ -517,7 +519,9 @@ export class VideoOverlay {
         const updatedValues = await this.messages.setUserValues(next);
 
         // this is needed to ensure any future page navigations respect the new settings
-        this.userValues = updatedValues;
+        if (updatedValues) {
+            this.userValues = updatedValues;
+        }
 
         if (this.environment.debug) {
             console.log('user values response:', updatedValues);

@@ -47,14 +47,14 @@ export class DuckPlayerNativeMessages {
     }
 
     /**
-     * @returns {Promise<import('../duck-player-native.js').InitialSettings>}
+     * @returns {Promise<import('../duck-player-native.js').InitialSettings|null>}
      */
     async initialSetup() {
         try {
             return await this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
         } catch (e) {
             this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
-            throw e;
+            return null;
         }
     }
 
