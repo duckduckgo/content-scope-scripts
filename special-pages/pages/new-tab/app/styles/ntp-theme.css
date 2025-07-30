@@ -58,6 +58,8 @@ body {
     --ntp-surface-tertiary: var(--color-white);
     --ntp-controls-raised-backdrop: var(--color-black-at-9);
     --ntp-controls-raised-fill-primary: var(--color-white);
+    --ntp-selection-color: var(--color-white);
+    --ntp-selection-background-color: #3A69EF;
 }
 
 [data-theme=dark] {
@@ -75,6 +77,8 @@ body {
     --ntp-surface-tertiary: rgba(71, 71, 71, 0.66);
     --ntp-controls-raised-backdrop: var(--color-black-at-60);
     --ntp-controls-raised-fill-primary: var(--color-white-at-18);
+    --ntp-selection-color: var(--color-white);
+    --ntp-selection-background-color: var(--color-blue-30);
 }
 
 /* This comes from the application settings */

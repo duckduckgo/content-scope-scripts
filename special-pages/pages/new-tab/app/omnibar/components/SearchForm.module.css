@@ -13,7 +13,7 @@
     background: none;
     border: none;
     color: var(--ntp-text-normal);
-    font-weight: 500;
+    font: var(--input-font);
     height: var(--sp-8);
     left: 7px;
     padding-bottom: 0;
@@ -27,13 +27,18 @@
         color: var(--ntp-text-muted);
     }
 
+    [data-platform="windows"] &::selection {
+        background: var(--ntp-selection-background-color);
+        color: var(--ntp-selection-color);
+    }
+
     &:focus {
         outline: none;
     }
 }
 
 .suffixSpacer {
-    font-weight: 500;
+    font: var(--input-font);
     overflow: hidden;
     visibility: hidden;
     white-space: nowrap;
@@ -42,4 +47,5 @@
 .suffix {
     color: var(--ntp-color-primary);
     flex: none;
+    font: var(--input-font);
 }
