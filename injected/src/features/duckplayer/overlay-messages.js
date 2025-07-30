@@ -1,6 +1,6 @@
 /* eslint-disable promise/prefer-await-to-then */
 import * as constants from './constants.js';
-import { MetricsReporter, EXCEPTION_KIND_MESSAGING_ERROR } from '../../../../special-pages/shared/metrics-reporter.js';
+import { MetricsReporter, EXCEPTION_KIND_MESSAGING_ERROR } from 'special-pages/shared/metrics/metrics-reporter.js';
 
 /**
  * @typedef {import("@duckduckgo/messaging").Messaging} Messaging

@@ -3,15 +3,15 @@
  * scripts/build-types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
  *
- * @module Shared Messages
+ * @module Metrics Messages
  */
 
 export type ReportMetricEvent = ExceptionMetric;
 
 /**
- * Requests, Notifications and Subscriptions from the Shared feature
+ * Requests, Notifications and Subscriptions from the Metrics feature
  */
-export interface SharedMessages {
+export interface MetricsMessages {
   notifications: ReportMetricNotification;
 }
 /**
@@ -27,4 +27,10 @@ export interface ExceptionMetric {
     message: string;
     kind?: string;
   };
+}
+
+declare module "../metrics-reporter.js" {
+  export interface MetricsReporter {
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<MetricsMessages>['notify']
+  }
 }

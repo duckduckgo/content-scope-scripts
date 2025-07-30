@@ -173,10 +173,6 @@ export function generateSchema(featureName, fileList) {
  * @return {string}
  */
 export function createMessagingTypes(job, { featurePath, className }) {
-    if (!className) {
-        return '';
-    }
-
     const json = job.schema;
     const notifications = (json.properties?.notifications?.oneOf?.length ?? 0) > 0;
     const requests = (json.properties?.requests?.oneOf?.length ?? 0) > 0;
