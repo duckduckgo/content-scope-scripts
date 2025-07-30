@@ -10,7 +10,7 @@
     background: none;
     border: none;
     box-sizing: content-box;
-    color: var(--ntp-text-normal);
+    color: var(--ntp-text-primary);
     max-height: 10lh;
     padding: 11px 15px 0;
     resize: none;
@@ -20,7 +20,7 @@
     }
 
     &::placeholder {
-        color: var(--ntp-text-muted);
+        color: var(--ntp-text-tertiary);
     }
 
     [data-platform="windows"] &::selection {
@@ -33,7 +33,7 @@
     }
 
     .hasScroll & {
-        border-bottom: 1px solid var(--ntp-surface-border-color);
+        border-bottom: 1px solid var(--ntp-decoration-tertiary);
         padding-bottom: 11px;
     }
 }
@@ -50,10 +50,10 @@
 
 .submitButton {
     align-items: center;
-    background: var(--color-blue-50);
+    background: var(--ntp-accent-primary);
     border-radius: 100%;
     border: none;
-    color: var(--color-white);
+    color: var(--ntp-accent-content-primary);
     cursor: pointer;
     display: flex;
     height: var(--sp-7);
@@ -64,8 +64,9 @@
 
     &[disabled] {
         background: none;
-        color: rgba(0, 0, 0, 0.3);
+        color: var(--ntp-icons-primary);
         cursor: default;
+        opacity: 0.3;
     }
 
     &:focus-visible {

@@ -12,7 +12,7 @@
 .input {
     background: none;
     border: none;
-    color: var(--ntp-text-normal);
+    color: var(--ntp-text-primary);
     font: var(--input-font);
     height: var(--sp-8);
     left: 7px;
@@ -24,7 +24,7 @@
     right: 7px;
 
     &::placeholder {
-        color: var(--ntp-text-muted);
+        color: var(--ntp-text-tertiary);
     }
 
     [data-platform="windows"] &::selection {
@@ -45,7 +45,7 @@
 }
 
 .suffix {
-    color: var(--ntp-color-primary);
+    color: var(--ntp-accent-primary);
     flex: none;
     font: var(--input-font);
 }
