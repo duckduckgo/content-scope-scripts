@@ -4,6 +4,7 @@
 }
 
 .inner {
+    backdrop-filter: blur(48px);
     background: var(--ntp-surface-tertiary);
     border-radius: var(--border-radius-lg);
     box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.1), 0px 4px 8px 0px rgba(0, 0, 0, 0.08);
