@@ -8,6 +8,7 @@ import styles from './Omnibar.module.css';
 import { OmnibarContext } from './OmnibarProvider';
 import { SearchForm } from './SearchForm';
 import { TabSwitcher } from './TabSwitcher';
+import { SuggestionsContext, SuggestionsProvider } from './SuggestionsProvider';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -67,15 +68,22 @@ export function Omnibar({ mode, setMode, enableAi }) {
             {enableAi && <TabSwitcher mode={mode} onChange={handleChangeMode} />}
             <Container overflow={mode === 'search'} focusRing={focusRing}>
                 {mode === 'search' ? (
-                    <SearchForm
+                    <SuggestionsProvider
                         key={`search-${resetKey}`}
                         // Remove any newlines that come from switching from chat to search
                         term={query.replace(/\n/g, '')}
-                        autoFocus={autoFocus}
                         onChangeTerm={setQuery}
                         onOpenSuggestion={handleOpenSuggestion}
                         onSubmitSearch={handleSubmitSearch}
-                    />
+                    >
+                        <SearchForm
+                            // Remove any newlines that come from switching from chat to search
+                            term={query.replace(/\n/g, '')}
+                            autoFocus={autoFocus}
+                            onOpenSuggestion={handleOpenSuggestion}
+                            onSubmitSearch={handleSubmitSearch}
+                        />
+                    </SuggestionsProvider>
                 ) : (
                     <AiChatForm
                         key={`chat-${resetKey}`}

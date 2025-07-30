@@ -1,14 +1,14 @@
-import { h, Fragment } from 'preact';
-import { useEffect, useId, useMemo } from 'preact/hooks';
-import { SearchIcon, GlobeIcon } from '../../components/Icons.js';
-import { useTypedTranslationWith } from '../../types';
-import styles from './SearchForm.module.css';
-import { SuggestionsList } from './SuggestionsList.js';
-import { useCompletionInput } from './useSuggestionInput.js';
-import { useSuggestions } from './useSuggestions';
-import { useSuffixText } from './SuffixText.js';
-import { getInputSuffix } from '../utils.js';
+import { Fragment, h } from 'preact';
+import { useContext, useEffect, useId, useMemo } from 'preact/hooks';
+import { GlobeIcon, SearchIcon } from '../../components/Icons.js';
 import { usePlatformName } from '../../settings.provider.js';
+import { useTypedTranslationWith } from '../../types';
+import { getInputSuffix } from '../utils.js';
+import styles from './SearchForm.module.css';
+import { useSuffixText } from './SuffixText.js';
+import { SuggestionsList } from './SuggestionsList.js';
+import { SuggestionsContext } from './SuggestionsProvider.js';
+import { useCompletionInput } from './useSuggestionInput.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -20,11 +20,10 @@ import { usePlatformName } from '../../settings.provider.js';
  * @param {object} props
  * @param {string} props.term
  * @param {boolean} [props.autoFocus]
- * @param {(term: string) => void} props.onChangeTerm
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  * @param {(params: {term: string, target: OpenTarget}) => void} props.onSubmitSearch
  */
-export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, onSubmitSearch }) {
+export function SearchForm({ term, autoFocus, onOpenSuggestion, onSubmitSearch }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const suggestionsListId = useId();
     const platformName = usePlatformName();
@@ -40,12 +39,7 @@ export function SearchForm({ term, autoFocus, onChangeTerm, onOpenSuggestion, on
         handleKeyDown,
         handleClick,
         handleBlur,
-    } = useSuggestions({
-        term,
-        onChangeTerm,
-        onOpenSuggestion,
-        onSubmitSearch,
-    });
+    } = useContext(SuggestionsContext);
 
     const inputRef = useCompletionInput(inputBase, inputCompletion);
 
