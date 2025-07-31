@@ -30,7 +30,7 @@ function listenForURLChanges() {
         const navigations = new WeakMap();
         globalThis.navigation.addEventListener('navigate', (event) => {
             navigations.set(event.target, event.navigationType);
-        });      
+        });
         globalThis.navigation.addEventListener('navigatesuccess', (event) => {
             const navigationType = navigations.get(event.target) || 'unknown';
             handleURLChange(navigationType);

@@ -77,7 +77,7 @@ export async function init(args) {
             featureInstance.callInit(args);
             // Either listenForUrlChanges or urlChanged ensures the feature listens.
             if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
-                registerForURLChanges(navigationType => {
+                registerForURLChanges((navigationType) => {
                     // The rationale for the two separate call here is to ensure that
                     // extensions to the class don't need to call super.urlChanged()
                     featureInstance.recomputeSiteObject();

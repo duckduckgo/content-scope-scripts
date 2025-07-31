@@ -43,7 +43,7 @@ export class WebTelemetry extends ContentFeature {
     fireTelemetryForUrlChanged(navigationType) {
         this.messaging.notify(MSG_URL_CHANGED, {
             url: window.location.href,
-            navigationType
+            navigationType,
         });
     }
 
