@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { Fragment, h } from 'preact';
 import { eventToTarget } from '../../../../../shared/handlers';
 import {
     ArrowRightIcon,
@@ -11,11 +11,10 @@ import {
     TabDesktopIcon,
 } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
-import styles from './SuggestionsList.module.css';
 import { getSuggestionSuffix, getSuggestionTitle, startsWithIgnoreCase } from '../utils';
+import { useSearchFormContext } from './SearchFormProvider';
 import { SuffixText } from './SuffixText';
-import { useContext } from 'preact/hooks';
-import { SuggestionsContext } from './SuggestionsProvider';
+import styles from './SuggestionsList.module.css';
 
 /**
  * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel
@@ -25,19 +24,18 @@ import { SuggestionsContext } from './SuggestionsProvider';
 
 /**
  * @param {object} props
- * @param {string} props.id
- * @param {string} props.term
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  */
-export function SuggestionsList({ id, term, onOpenSuggestion }) {
+export function SuggestionsList({ onOpenSuggestion }) {
     const platformName = usePlatformName();
 
-    const { suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useContext(SuggestionsContext);
+    const { term, suggestionsListId, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } =
+        useSearchFormContext();
 
     if (suggestions.length === 0) return null;
 
     return (
-        <div role="listbox" id={id} class={styles.list}>
+        <div role="listbox" id={suggestionsListId} class={styles.list}>
             {suggestions.map((suggestion) => {
                 const title = getSuggestionTitle(suggestion, term);
                 const suffix = getSuggestionSuffix(suggestion);

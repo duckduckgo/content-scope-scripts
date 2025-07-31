@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useContext, useId, useState } from 'preact/hooks';
+import { useContext, useState } from 'preact/hooks';
 import { LogoStacked } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
@@ -7,8 +7,8 @@ import styles from './Omnibar.module.css';
 import { OmnibarContext } from './OmnibarProvider';
 import { ResizingContainer } from './ResizingContainer';
 import { SearchForm } from './SearchForm';
+import { SearchFormProvider } from './SearchFormProvider';
 import { SuggestionsList } from './SuggestionsList';
-import { SuggestionsProvider } from './SuggestionsProvider';
 import { TabSwitcher } from './TabSwitcher';
 
 /**
@@ -26,7 +26,6 @@ import { TabSwitcher } from './TabSwitcher';
  */
 export function Omnibar({ mode, setMode, enableAi }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const suggestionsListId = useId();
 
     const [query, setQuery] = useState(/** @type {String} */ (''));
     const [resetKey, setResetKey] = useState(0);
@@ -66,31 +65,21 @@ export function Omnibar({ mode, setMode, enableAi }) {
     };
 
     return (
-        <div class={styles.root} data-mode={mode}>
+        <div key={resetKey} class={styles.root}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && <TabSwitcher mode={mode} onChange={handleChangeMode} />}
-            <SuggestionsProvider
-                key={`search-${resetKey}`}
+            <SearchFormProvider
                 // Remove any newlines that come from switching from chat to search
                 term={query.replace(/\n/g, '')}
-                onChangeTerm={setQuery}
-                onOpenSuggestion={handleOpenSuggestion}
-                onSubmitSearch={handleSubmitSearch}
+                setTerm={setQuery}
             >
                 <div class={styles.spacer} style={{ height: mode === 'search' ? 40 : 80 }}>
                     <div class={styles.popup}>
                         <ResizingContainer className={styles.field} data-focus-ring={focusRing}>
                             {mode === 'search' ? (
-                                <SearchForm
-                                    // Remove any newlines that come from switching from chat to search
-                                    term={query.replace(/\n/g, '')}
-                                    autoFocus={autoFocus}
-                                    suggestionsListId={suggestionsListId}
-                                    onSubmitSearch={handleSubmitSearch}
-                                />
+                                <SearchForm autoFocus={autoFocus} onOpenSuggestion={handleOpenSuggestion} onSubmit={handleSubmitSearch} />
                             ) : (
                                 <AiChatForm
-                                    key={`chat-${resetKey}`}
                                     chat={query}
                                     autoFocus={autoFocus}
                                     onFocus={() => setFocusRing(true)}
@@ -101,12 +90,10 @@ export function Omnibar({ mode, setMode, enableAi }) {
                                 />
                             )}
                         </ResizingContainer>
-                        {mode === 'search' && (
-                            <SuggestionsList id={suggestionsListId} term={query} onOpenSuggestion={handleOpenSuggestion} />
-                        )}
+                        {mode === 'search' && <SuggestionsList onOpenSuggestion={handleOpenSuggestion} />}
                     </div>
                 </div>
-            </SuggestionsProvider>
+            </SearchFormProvider>
         </div>
     );
 }

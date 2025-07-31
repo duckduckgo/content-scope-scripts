@@ -1,7 +1,4 @@
 import { useContext, useEffect, useReducer } from 'preact/hooks';
-import { eventToTarget } from '../../../../../shared/handlers.js';
-import { usePlatformName } from '../../settings.provider.js';
-import { getSuggestionCompletionString, startsWithIgnoreCase } from '../utils.js';
 import { OmnibarContext } from './OmnibarProvider.js';
 
 /**
@@ -119,41 +116,11 @@ function reducer(state, action) {
 /**
  * @param {object} props
  * @param {string} props.term
- * @param {(term: string) => void} props.onChangeTerm
- * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
- * @param {(params: {term: string, target: OpenTarget}) => void} props.onSubmitSearch
+ * @param {(term: string) => void} props.setTerm
  */
-export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitSearch }) {
+export function useSuggestions({ term, setTerm }) {
     const { onSuggestions, getSuggestions } = useContext(OmnibarContext);
-    const platformName = usePlatformName();
     const [state, dispatch] = useReducer(reducer, initialState);
-
-    const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
-
-    /** @type {(suggestion: SuggestionModel) => void} */
-    const setSelectedSuggestion = (suggestion) => {
-        dispatch({ type: 'setSelectedSuggestion', suggestion });
-    };
-
-    /** @type {() => void} */
-    const clearSelectedSuggestion = () => {
-        dispatch({ type: 'clearSelectedSuggestion' });
-    };
-
-    let inputBase, inputCompletion;
-    if (selectedSuggestion) {
-        const completionString = getSuggestionCompletionString(selectedSuggestion, term);
-        if (startsWithIgnoreCase(completionString, term)) {
-            inputBase = term;
-            inputCompletion = completionString.slice(term.length);
-        } else {
-            inputBase = '';
-            inputCompletion = completionString;
-        }
-    } else {
-        inputBase = term;
-        inputCompletion = '';
-    }
 
     useEffect(() => {
         return onSuggestions((data, term) => {
@@ -173,92 +140,61 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
         });
     }, [onSuggestions]);
 
-    /** @type {(event: import('preact').JSX.TargetedEvent<HTMLInputElement>) => void} */
-    const handleChange = (event) => {
-        const term = event.currentTarget.value;
-        onChangeTerm(term);
+    const selectedSuggestion = state.selectedIndex !== null ? state.suggestions[state.selectedIndex] : null;
 
-        dispatch({ type: 'clearSelectedSuggestion' });
-
+    /** @type {(term: string) => void} */
+    const updateSuggestions = (term) => {
+        clearSelectedSuggestion();
         if (term.length === 0) {
-            dispatch({ type: 'hideSuggestions' });
+            hideSuggestions();
         } else {
             getSuggestions(term);
         }
     };
 
-    /** @type {(event: KeyboardEvent) => void} */
-    const handleKeyDown = (event) => {
-        switch (event.key) {
-            case 'ArrowUp':
-                if (!state.suggestionsVisible) {
-                    return;
-                }
-                event.preventDefault();
-                if (state.originalTerm && term !== state.originalTerm) {
-                    onChangeTerm(state.originalTerm);
-                }
-                dispatch({ type: 'previousSuggestion' });
-                break;
-            case 'ArrowDown':
-                if (!state.suggestionsVisible) {
-                    return;
-                }
-                event.preventDefault();
-                if (state.originalTerm && term !== state.originalTerm) {
-                    onChangeTerm(state.originalTerm);
-                }
-                dispatch({ type: 'nextSuggestion' });
-                break;
-            case 'ArrowLeft':
-            case 'ArrowRight':
-                if (selectedSuggestion) {
-                    onChangeTerm(inputBase + inputCompletion);
-                    dispatch({ type: 'clearSelectedSuggestion' });
-                }
-                break;
-            case 'Escape':
-                event.preventDefault();
-                dispatch({ type: 'hideSuggestions' });
-                break;
-            case 'Enter':
-                event.preventDefault();
-                if (selectedSuggestion) {
-                    onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
-                } else {
-                    onSubmitSearch({ term, target: eventToTarget(event, platformName) });
-                }
-                break;
+    const selectPreviousSuggestion = () => {
+        if (!state.suggestionsVisible) {
+            return false;
         }
+        if (state.originalTerm && term !== state.originalTerm) {
+            setTerm(state.originalTerm);
+        }
+        dispatch({ type: 'previousSuggestion' });
+        return true;
     };
 
-    const handleClick = () => {
-        if (selectedSuggestion) {
-            onChangeTerm(inputBase + inputCompletion);
-            dispatch({ type: 'clearSelectedSuggestion' });
+    const selectNextSuggestion = () => {
+        if (!state.suggestionsVisible) {
+            return false;
         }
+        if (state.originalTerm && term !== state.originalTerm) {
+            setTerm(state.originalTerm);
+        }
+        dispatch({ type: 'nextSuggestion' });
+        return true;
     };
 
-    /** @type {(event: import('preact').JSX.TargetedFocusEvent<HTMLFormElement>) => void} */
-    const handleBlur = (event) => {
-        // Ignore blur events caused by clicking on a suggestion
-        if (event.relatedTarget instanceof Element && event.relatedTarget.role === 'option') {
-            return;
-        }
+    /** @type {(suggestion: SuggestionModel) => void} */
+    const setSelectedSuggestion = (suggestion) => {
+        dispatch({ type: 'setSelectedSuggestion', suggestion });
+    };
 
+    const clearSelectedSuggestion = () => {
+        dispatch({ type: 'clearSelectedSuggestion' });
+    };
+
+    const hideSuggestions = () => {
         dispatch({ type: 'hideSuggestions' });
     };
 
     return {
         suggestions: state.suggestionsVisible ? state.suggestions : EMPTY_ARRAY,
         selectedSuggestion,
+        updateSuggestions,
+        selectPreviousSuggestion,
+        selectNextSuggestion,
         setSelectedSuggestion,
         clearSelectedSuggestion,
-        inputBase,
-        inputCompletion,
-        handleChange,
-        handleKeyDown,
-        handleClick,
-        handleBlur,
+        hideSuggestions,
     };
 }
