@@ -152,7 +152,8 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
             {inputSuffix && (
                 <>
                     <span class={styles.suffixSpacer} inert>
-                        {inputBase + inputCompletion || t('omnibar_searchFormPlaceholder')}
+                        {/* Strip newlines to match <input> behaviour which doesn't render them */}
+                        {(inputBase + inputCompletion).replace(/\n/g, '') || t('omnibar_searchFormPlaceholder')}
                     </span>
                     <span class={styles.suffix} inert>
                         {inputSuffixText}

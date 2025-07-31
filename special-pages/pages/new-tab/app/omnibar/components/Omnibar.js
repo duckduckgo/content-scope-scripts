@@ -68,11 +68,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
         <div key={resetKey} class={styles.root} data-mode={mode}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && <TabSwitcher mode={mode} onChange={handleChangeMode} />}
-            <SearchFormProvider
-                // Strip newlines for search input display while preserving them in state
-                term={query.replace(/\n/g, '')}
-                setTerm={setQuery}
-            >
+            <SearchFormProvider term={query} setTerm={setQuery}>
                 <div class={styles.spacer}>
                     <div class={styles.popup}>
                         <ResizingContainer className={styles.field} data-focus-ring={focusRing}>
