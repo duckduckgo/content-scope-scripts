@@ -10,7 +10,7 @@
     background: none;
     border-radius: 4px;
     border: none;
-    color: var(--ntp-text-normal);
+    color: var(--ntp-text-primary);
     cursor: pointer;
     display: flex;
     height: var(--sp-8);
@@ -24,23 +24,23 @@
 
     &[aria-selected="true"],
     &:active {
-        color: var(--color-white);
+        color: var(--ntp-accent-content-primary);
 
         .suffix {
-            color: var(--color-white);
+            color: var(--ntp-accent-content-primary);
         }
 
         .badge {
-            background: var(--color-white-at-30);
+            background: var(--color-white-at-30); /* @fixme: Should use a --ntp theme variable for this. This pill design differs from Figma, though */
         }
     }
 
     &[aria-selected="true"] {
-        background: var(--ddg-color-primary);
+        background: var(--ntp-accent-primary);
     }
 
     &:active {
-        background: var(--color-blue-60);
+        background: var(--ntp-accent-secondary);
     }
 }
 
@@ -53,7 +53,7 @@
 }
 
 .suffix {
-    color: var(--ntp-text-muted);
+    color: var(--ntp-text-tertiary);
     flex: initial;
     font-size: 12px;
     overflow: hidden;

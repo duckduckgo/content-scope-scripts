@@ -7313,6 +7313,7 @@
   }
 
   // src/features/navigator-interface.js
+  var store = {};
   var NavigatorInterface = class extends ContentFeature {
     load(args) {
       if (this.matchConditionalFeatureSetting("privilegedDomains").length) {
@@ -7343,7 +7344,11 @@
              * @throws {Error}
              */
             createMessageBridge(featureName) {
-              return createPageWorldBridge(featureName, args.messageSecret);
+              const existingBridge = store[featureName];
+              if (existingBridge) return existingBridge;
+              const bridge = createPageWorldBridge(featureName, args.messageSecret);
+              store[featureName] = bridge;
+              return bridge;
             }
           },
           enumerable: true,

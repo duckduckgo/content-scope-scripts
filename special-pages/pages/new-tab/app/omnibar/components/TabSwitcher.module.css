@@ -1,24 +1,21 @@
 .tabSwitcher {
+    backdrop-filter: blur(48px);
     background: var(--ntp-controls-raised-backdrop);
     border-radius: 99px;
-    box-shadow: 0px 1px 0px 0px  rgba(0, 0, 0, 0.05) inset;
+    box-shadow: 0px 1px 0px 0px var(--ntp-shadow-primary) inset;
     display: grid;
-    gap: 2px;
+    gap: var(--sp-0_5);
     grid-template-columns: repeat(var(--tab-count), 1fr);
     overflow: hidden;
     padding: var(--sp-0_5);
     position: relative;
-
-    [data-theme="dark"] & {
-        box-shadow: 0 1px 0 0  rgba(0, 0, 0, 0.16) inset;
-    }
 }
 
 .tab {
     align-items: center;
     background: none;
     border: none;
-    color: var(--ntp-text-normal);
+    color: var(--ntp-text-primary);
     cursor: pointer;
     display: flex;
     gap: 6px;
@@ -30,7 +27,7 @@
     z-index: 1;
 
     &:hover:not([aria-selected="true"])::before {
-        background: var(--ntp-controls-raised-backdrop);
+        background: var(--ntp-controls-fill-primary);
         border-radius: 99px;
         content: '';
         inset: 0;
@@ -45,7 +42,7 @@
 .blob {
     background-color: var(--ntp-controls-raised-fill-primary);
     border-radius: 18px;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.48);
+    box-shadow: 0 4px 4px var(--ntp-shadow-secondary), 0 1px 2px var(--ntp-shadow-secondary), inset 0 1px 0 rgba(255, 255, 255, 0.48);
     height: var(--sp-8);
     left: 0;
     position: absolute;
@@ -57,7 +54,7 @@
     z-index: 0;
 
     [data-theme="dark"] & {
-        box-shadow: 0 4px 4px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        box-shadow: 0 4px 4px var(--ntp-shadow-secondary), 0 1px 2px var(--ntp-shadow-secondary), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
     @media (prefers-reduced-motion: reduce) {

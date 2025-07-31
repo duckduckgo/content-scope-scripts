@@ -55,9 +55,25 @@ body {
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
     --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-color-primary);
-    --ntp-surface-tertiary: var(--color-white);
-    --ntp-controls-raised-backdrop: var(--color-black-at-9);
-    --ntp-controls-raised-fill-primary: var(--color-white);
+    --ntp-selection-color: var(--color-white);
+    --ntp-selection-background-color: #3A69EF;
+
+    /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
+    /* @todo: This palette is what the native apps use, we should gradually move over to it */
+    --ntp-surface-tertiary: #FFFFFF;
+    --ntp-text-primary: #1F1F1F;
+    --ntp-text-tertiary: rgba(31, 31, 31, 0.4);
+    --ntp-icons-primary: rgba(31, 31, 31, 0.84);
+    --ntp-accent-primary: var(--color-blue-50);
+    --ntp-accent-secondary: var(--color-blue-60);
+    --ntp-accent-glow: rgba(57, 105, 239, 0.2);
+    --ntp-accent-content-primary: #FFFFFF;
+    --ntp-controls-fill-primary: rgba(31, 31, 31, 0.09);
+    --ntp-controls-raised-backdrop: rgba(0, 0, 0, 0.09);
+    --ntp-controls-raised-fill-primary: #FFFFFF;
+    --ntp-decoration-tertiary: rgba(0, 0, 0, 0.09);
+    --ntp-shadow-primary: rgba(0, 0, 0, 0.05);
+    --ntp-shadow-secondary: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme=dark] {
@@ -72,9 +88,25 @@ body {
     --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
     --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ntp-color-primary);
-    --ntp-surface-tertiary: rgba(71, 71, 71, 0.66);
-    --ntp-controls-raised-backdrop: var(--color-black-at-60);
-    --ntp-controls-raised-fill-primary: var(--color-white-at-18);
+    --ntp-selection-color: var(--color-white);
+    --ntp-selection-background-color: var(--color-blue-30);
+
+    /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
+    /* @todo: This palette is what the native apps use, we should gradually move over to it */
+    --ntp-surface-tertiary: rgba(71, 71, 71, 0.66); /* @fixme: This differs from Figma. We're adding alpha so that surfaces blend with custom backgrounds. */
+    --ntp-text-primary: rgba(255, 255, 255, 0.9);
+    --ntp-text-tertiary: rgba(255, 255, 255, 0.4);
+    --ntp-icons-primary: rgba(255, 255, 255, 0.78);
+    --ntp-accent-primary: var(--color-blue-20);
+    --ntp-accent-secondary: var(--color-blue-30);
+    --ntp-accent-glow: rgba(114, 149, 246, 0.2);
+    --ntp-accent-content-primary: var(--color-blue-80);
+    --ntp-controls-fill-primary: rgba(249, 249, 249, 0.12);
+    --ntp-controls-raised-backdrop: rgba(0, 0, 0, 0.6);
+    --ntp-controls-raised-fill-primary: rgba(255, 255, 255, 0.18);
+    --ntp-decoration-tertiary: rgba(255, 255, 255, 0.12);
+    --ntp-shadow-primary: rgba(0, 0, 0, 0.16);
+    --ntp-shadow-secondary: rgba(0, 0, 0, 0.24);
 }
 
 /* This comes from the application settings */
