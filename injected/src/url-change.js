@@ -34,6 +34,7 @@ function listenForURLChanges() {
         globalThis.navigation.addEventListener('navigatesuccess', (event) => {
             const navigationType = navigations.get(event.target) || 'unknown';
             handleURLChange(navigationType);
+            navigations.delete(event.target);
         });
         // Exit early if the navigation API is supported, i.e. history proxy and popState listener aren't created.
         return;
