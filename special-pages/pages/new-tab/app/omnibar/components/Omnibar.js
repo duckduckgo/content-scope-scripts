@@ -3,9 +3,9 @@ import { useContext, useId, useState } from 'preact/hooks';
 import { LogoStacked } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
-import { Container } from './Container';
 import styles from './Omnibar.module.css';
 import { OmnibarContext } from './OmnibarProvider';
+import { ResizingContainer } from './ResizingContainer';
 import { SearchForm } from './SearchForm';
 import { SuggestionsList } from './SuggestionsList';
 import { SuggestionsProvider } from './SuggestionsProvider';
@@ -77,36 +77,35 @@ export function Omnibar({ mode, setMode, enableAi }) {
                 onOpenSuggestion={handleOpenSuggestion}
                 onSubmitSearch={handleSubmitSearch}
             >
-                <Container
-                    mode={mode}
-                    focusRing={focusRing}
-                    suggestions={
-                        mode === 'search' ? (
+                <div class={styles.spacer} style={{ height: mode === 'search' ? 40 : 80 }}>
+                    <div class={styles.popup}>
+                        <ResizingContainer className={styles.field} data-focus-ring={focusRing}>
+                            {mode === 'search' ? (
+                                <SearchForm
+                                    // Remove any newlines that come from switching from chat to search
+                                    term={query.replace(/\n/g, '')}
+                                    autoFocus={autoFocus}
+                                    suggestionsListId={suggestionsListId}
+                                    onSubmitSearch={handleSubmitSearch}
+                                />
+                            ) : (
+                                <AiChatForm
+                                    key={`chat-${resetKey}`}
+                                    chat={query}
+                                    autoFocus={autoFocus}
+                                    onFocus={() => setFocusRing(true)}
+                                    onBlur={() => setFocusRing(false)}
+                                    onInput={() => setFocusRing(false)}
+                                    onChange={setQuery}
+                                    onSubmit={handleSubmitChat}
+                                />
+                            )}
+                        </ResizingContainer>
+                        {mode === 'search' && (
                             <SuggestionsList id={suggestionsListId} term={query} onOpenSuggestion={handleOpenSuggestion} />
-                        ) : null
-                    }
-                >
-                    {mode === 'search' ? (
-                        <SearchForm
-                            // Remove any newlines that come from switching from chat to search
-                            term={query.replace(/\n/g, '')}
-                            autoFocus={autoFocus}
-                            suggestionsListId={suggestionsListId}
-                            onSubmitSearch={handleSubmitSearch}
-                        />
-                    ) : (
-                        <AiChatForm
-                            key={`chat-${resetKey}`}
-                            chat={query}
-                            autoFocus={autoFocus}
-                            onFocus={() => setFocusRing(true)}
-                            onBlur={() => setFocusRing(false)}
-                            onInput={() => setFocusRing(false)}
-                            onChange={setQuery}
-                            onSubmit={handleSubmitChat}
-                        />
-                    )}
-                </Container>
+                        )}
+                    </div>
+                </div>
             </SuggestionsProvider>
         </div>
     );
