@@ -2,9 +2,9 @@ import { h } from 'preact';
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 
 /**
- * @param {import('preact').JSX.HTMLAttributes<HTMLDivElement>} props
+ * @param {Omit<import('preact').JSX.HTMLAttributes<HTMLDivElement>, 'style'>} props
  */
-export function ResizingContainer(props) {
+export function ResizingContainer({ children, ...props }) {
     const contentRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const [currentHeight, setCurrentHeight] = useState(/** @type {number|null} */ (null));
 
@@ -21,7 +21,7 @@ export function ResizingContainer(props) {
 
     return (
         <div {...props} style={{ height: currentHeight ?? 'auto' }}>
-            <div ref={contentRef}>{props.children}</div>
+            <div ref={contentRef}>{children}</div>
         </div>
     );
 }
