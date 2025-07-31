@@ -56,21 +56,22 @@
     }
 }
 
-.root:has([role="listbox"]) .popup {
-    backdrop-filter: blur(48px);
-    background: var(--ntp-surface-tertiary);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--box-shadow-suggestions);
-}
-
+.root:has([role="listbox"]) .popup,
 .root:not(:has([role="listbox"])) .field {
     backdrop-filter: blur(48px);
     background: var(--ntp-surface-tertiary);
     border-radius: var(--border-radius-lg);
+}
+
+.root:not(:has([role="listbox"])) .field {
     box-shadow: var(--box-shadow-rest);
 }
 
 .root:not(:has([role="listbox"])) .field[data-focus-ring="true"],
 .root:not(:has([role="listbox"])) .field:focus-within:not([data-focus-ring="false"]) {
     box-shadow: var(--box-shadow-focused);
+}
+
+.root:has([role="listbox"]) .popup {
+    box-shadow: var(--box-shadow-suggestions);
 }
