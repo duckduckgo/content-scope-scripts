@@ -36,6 +36,14 @@
     @media (prefers-reduced-motion: reduce) {
         transition: none;
     }
+
+    [data-mode="search"] & {
+        height: var(--sp-10);
+    }
+
+    [data-mode="ai"] & {
+        height: var(--sp-20);
+    }
 }
 
 .field {
@@ -62,7 +70,7 @@
     box-shadow: var(--box-shadow-rest);
 }
 
-.root:not(:has([role="listbox"])) .field.focusRing,
-.root:not(:has([role="listbox"])) .field:focus-within:not(.noFocusRing) {
+.root:not(:has([role="listbox"])) .field[data-focus-ring="true"],
+.root:not(:has([role="listbox"])) .field:focus-within:not([data-focus-ring="false"]) {
     box-shadow: var(--box-shadow-focused);
 }
