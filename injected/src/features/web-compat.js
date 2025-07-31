@@ -38,6 +38,17 @@ function canShare(data) {
     return true;
 }
 
+// Shadowned class for PermissionStatus for use in shimming
+// eslint-disable-next-line no-redeclare
+class PermissionStatus extends EventTarget {
+    constructor(name, state) {
+        super();
+        this.name = name;
+        this.state = state;
+        this.onchange = null; // noop
+    }
+}
+
 /**
  * Clean data before sending to the Android side
  * @returns {ShareRequestData}
@@ -263,22 +274,44 @@ export class WebCompat extends ContentFeature {
         });
     }
 
+    permissionsPresentFix(settings) {
+        const originalQuery = window.navigator.permissions.query;
+        window.navigator.permissions.query = new Proxy(originalQuery, {
+            apply: async (target, thisArg, args) => {
+                this.addDebugFlag();
+
+                // Let the original method handle validation and exceptions
+                const query = args[0];
+
+                // Only intercept if we have settings and the permission is configured as native
+                if (query && query.name && settings?.supportedPermissions?.[query.name]?.native) {
+                    try {
+                        const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
+                        const returnStatus = response.state || 'prompt';
+                        return Promise.resolve(new PermissionStatus(query.name, returnStatus));
+                    } catch (err) {
+                        // If messaging fails, fall through to original method
+                        return Reflect.apply(target, thisArg, args);
+                    }
+                }
+
+                // Fall through to original method for all other cases
+                return Reflect.apply(target, thisArg, args);
+            },
+        });
+    }
+
     /**
      * Adds missing permissions API for Android WebView.
      */
     permissionsFix(settings) {
         if (window.navigator.permissions) {
+            if (this.getFeatureSettingEnabled('permissionsPresent')) {
+                this.permissionsPresentFix(settings);
+            }
             return;
         }
         const permissions = {};
-        class PermissionStatus extends EventTarget {
-            constructor(name, state) {
-                super();
-                this.name = name;
-                this.state = state;
-                this.onchange = null; // noop
-            }
-        }
         permissions.query = new Proxy(
             async (query) => {
                 this.addDebugFlag();
