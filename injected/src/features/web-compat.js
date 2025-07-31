@@ -274,6 +274,28 @@ export class WebCompat extends ContentFeature {
         });
     }
 
+    /**
+     * Handles permission query with native messaging support.
+     * @param {Object} query - The permission query object
+     * @param {Object} settings - The permission settings
+     * @returns {Promise<PermissionStatus|null>} - Returns PermissionStatus if handled, null to fall through
+     */
+    async handlePermissionQuery(query, settings) {
+        if (!query?.name || !settings?.supportedPermissions?.[query.name]?.native) {
+            return null;
+        }
+
+        try {
+            const permSetting = settings.supportedPermissions[query.name];
+            const returnName = permSetting.name || query.name;
+            const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
+            const returnStatus = response.state || 'prompt';
+            return new PermissionStatus(returnName, returnStatus);
+        } catch (err) {
+            return null; // Fall through to original method
+        }
+    }
+
     permissionsPresentFix(settings) {
         const originalQuery = window.navigator.permissions.query;
         window.navigator.permissions.query = new Proxy(originalQuery, {
@@ -283,16 +305,10 @@ export class WebCompat extends ContentFeature {
                 // Let the original method handle validation and exceptions
                 const query = args[0];
 
-                // Only intercept if we have settings and the permission is configured as native
-                if (query && query.name && settings?.supportedPermissions?.[query.name]?.native) {
-                    try {
-                        const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
-                        const returnStatus = response.state || 'prompt';
-                        return Promise.resolve(new PermissionStatus(query.name, returnStatus));
-                    } catch (err) {
-                        // If messaging fails, fall through to original method
-                        return Reflect.apply(target, thisArg, args);
-                    }
+                // Try to handle with native messaging
+                const result = await this.handlePermissionQuery(query, settings);
+                if (result) {
+                    return result;
                 }
 
                 // Fall through to original method for all other cases
@@ -315,6 +331,8 @@ export class WebCompat extends ContentFeature {
         permissions.query = new Proxy(
             async (query) => {
                 this.addDebugFlag();
+
+                // Validate required arguments
                 if (!query) {
                     throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.");
                 }
@@ -328,17 +346,17 @@ export class WebCompat extends ContentFeature {
                         `Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`,
                     );
                 }
+
+                // Try to handle with native messaging
+                const result = await this.handlePermissionQuery(query, settings);
+                if (result) {
+                    return result;
+                }
+
+                // Fall back to default behavior
                 const permSetting = settings.supportedPermissions[query.name];
                 const returnName = permSetting.name || query.name;
-                let returnStatus = settings.permissionResponse || 'prompt';
-                if (permSetting.native) {
-                    try {
-                        const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
-                        returnStatus = response.state || 'prompt';
-                    } catch (err) {
-                        // do nothing - keep returnStatus as-is
-                    }
-                }
+                const returnStatus = settings.permissionResponse || 'prompt';
                 return Promise.resolve(new PermissionStatus(returnName, returnStatus));
             },
             {
