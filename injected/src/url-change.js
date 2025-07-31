@@ -13,21 +13,30 @@ export function registerForURLChanges(listener) {
     urlChangeListeners.add(listener);
 }
 
-function handleURLChange() {
+function handleURLChange(navigationType = 'unknown') {
     for (const listener of urlChangeListeners) {
-        listener();
+        listener(navigationType);
     }
 }
 
 function listenForURLChanges() {
     const urlChangedInstance = new ContentFeature('urlChanged', {}, {});
+    // if the browser supports the navigation API, use that to listen for URL changes
     if ('navigation' in globalThis && 'addEventListener' in globalThis.navigation) {
-        // if the browser supports the navigation API, we can use that to listen for URL changes
-        // Listening to navigatesuccess instead of navigate to ensure the navigation is committed.
-        globalThis.navigation.addEventListener('navigatesuccess', () => {
-            handleURLChange();
+        // We listen to `navigatesuccess` instead of `navigate` to ensure the navigation is committed.
+        // But, `navigatesuccess` does not provide the navigationType, so we capture it at `navigate` time
+        // then look it up later.  This allows consumers to filter on navigationType.
+        // WeakMap ensures we don't hold onto the event.target longer than necessary and can be freed.
+        const navigations = new WeakMap();
+        globalThis.navigation.addEventListener('navigate', (event) => {
+            navigations.set(event.target, event.navigationType);
         });
-        // Exit early if the navigation API is supported
+        globalThis.navigation.addEventListener('navigatesuccess', (event) => {
+            const navigationType = navigations.get(event.target) || 'unknown';
+            handleURLChange(navigationType);
+            navigations.delete(event.target);
+        });
+        // Exit early if the navigation API is supported, i.e. history proxy and popState listener aren't created.
         return;
     }
     if (isBeingFramed()) {
@@ -39,13 +48,14 @@ function listenForURLChanges() {
     const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, 'pushState', {
         apply(target, thisArg, args) {
             const changeResult = DDGReflect.apply(target, thisArg, args);
-            handleURLChange();
+            console.log('pushstate event');
+            handleURLChange('push');
             return changeResult;
         },
     });
     historyMethodProxy.overload();
     // listen for popstate events in order to run on back/forward navigations
     window.addEventListener('popstate', () => {
-        handleURLChange();
+        handleURLChange('popState');
     });
 }
