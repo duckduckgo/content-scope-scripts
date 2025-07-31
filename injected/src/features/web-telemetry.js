@@ -19,7 +19,9 @@ export class WebTelemetry extends ContentFeature {
     }
 
     urlChanged(navigationType = 'unknown') {
-        this.fireTelemetryForUrlChanged(navigationType);
+        if (this.getFeatureSettingEnabled('urlChanged')) {
+            this.fireTelemetryForUrlChanged(navigationType);
+        }
     }
 
     getVideoUrl(video) {
