@@ -8024,15 +8024,22 @@
   // src/features/web-telemetry.js
   init_define_import_meta_trackerLookup();
   var MSG_VIDEO_PLAYBACK = "video-playback";
+  var MSG_URL_CHANGED = "url-changed";
   var WebTelemetry = class extends ContentFeature {
     constructor(featureName, importConfig, args) {
       super(featureName, importConfig, args);
+      __publicField(this, "listenForUrlChanges", true);
       this.seenVideoElements = /* @__PURE__ */ new WeakSet();
       this.seenVideoUrls = /* @__PURE__ */ new Set();
     }
     init() {
       if (this.getFeatureSettingEnabled("videoPlayback")) {
         this.videoPlaybackObserve();
+      }
+    }
+    urlChanged(navigationType = "unknown") {
+      if (this.getFeatureSettingEnabled("urlChanged")) {
+        this.fireTelemetryForUrlChanged(navigationType);
       }
     }
     getVideoUrl(video) {
@@ -8047,6 +8054,12 @@
         return source.src;
       }
       return null;
+    }
+    fireTelemetryForUrlChanged(navigationType) {
+      this.messaging.notify(MSG_URL_CHANGED, {
+        url: window.location.href,
+        navigationType
+      });
     }
     fireTelemetryForVideo(video) {
       const videoUrl = this.getVideoUrl(video);
@@ -15142,16 +15155,22 @@
     }
     urlChangeListeners.add(listener);
   }
-  function handleURLChange() {
+  function handleURLChange(navigationType = "unknown") {
     for (const listener of urlChangeListeners) {
-      listener();
+      listener(navigationType);
     }
   }
   function listenForURLChanges() {
     const urlChangedInstance = new ContentFeature("urlChanged", {}, {});
     if ("navigation" in globalThis && "addEventListener" in globalThis.navigation) {
-      globalThis.navigation.addEventListener("navigatesuccess", () => {
-        handleURLChange();
+      const navigations = /* @__PURE__ */ new WeakMap();
+      globalThis.navigation.addEventListener("navigate", (event) => {
+        navigations.set(event.target, event.navigationType);
+      });
+      globalThis.navigation.addEventListener("navigatesuccess", (event) => {
+        const navigationType = navigations.get(event.target) || "unknown";
+        handleURLChange(navigationType);
+        navigations.delete(event.target);
       });
       return;
     }
@@ -15161,13 +15180,14 @@
     const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, "pushState", {
       apply(target, thisArg, args) {
         const changeResult = DDGReflect.apply(target, thisArg, args);
-        handleURLChange();
+        console.log("pushstate event");
+        handleURLChange("push");
         return changeResult;
       }
     });
     historyMethodProxy.overload();
     window.addEventListener("popstate", () => {
-      handleURLChange();
+      handleURLChange("popState");
     });
   }
 
@@ -15212,9 +15232,9 @@
       if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
         featureInstance2.callInit(args);
         if (featureInstance2.listenForUrlChanges || featureInstance2.urlChanged) {
-          registerForURLChanges(() => {
+          registerForURLChanges((navigationType) => {
             featureInstance2.recomputeSiteObject();
-            featureInstance2?.urlChanged();
+            featureInstance2?.urlChanged(navigationType);
           });
         }
       }

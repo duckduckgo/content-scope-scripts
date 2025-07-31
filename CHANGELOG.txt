@@ -1,4 +1,1 @@
-- NTP: Make omnibar always overflow (#1866)
-- NTP: Adjust omnibar colours to match native apps and Figma (#1863)
-- NTP: Fix input styling on Windows (#1862)
-- Handle multiple bridge instances within navigator interface (#1848)
+- Add `url-changed` to `WebTelemetry` (#1865)

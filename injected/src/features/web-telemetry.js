@@ -1,8 +1,11 @@
 import ContentFeature from '../content-feature.js';
 
 const MSG_VIDEO_PLAYBACK = 'video-playback';
+const MSG_URL_CHANGED = 'url-changed';
 
 export class WebTelemetry extends ContentFeature {
+    listenForUrlChanges = true;
+
     constructor(featureName, importConfig, args) {
         super(featureName, importConfig, args);
         this.seenVideoElements = new WeakSet();
@@ -12,6 +15,12 @@ export class WebTelemetry extends ContentFeature {
     init() {
         if (this.getFeatureSettingEnabled('videoPlayback')) {
             this.videoPlaybackObserve();
+        }
+    }
+
+    urlChanged(navigationType = 'unknown') {
+        if (this.getFeatureSettingEnabled('urlChanged')) {
+            this.fireTelemetryForUrlChanged(navigationType);
         }
     }
 
@@ -29,6 +38,13 @@ export class WebTelemetry extends ContentFeature {
             return source.src;
         }
         return null;
+    }
+
+    fireTelemetryForUrlChanged(navigationType) {
+        this.messaging.notify(MSG_URL_CHANGED, {
+            url: window.location.href,
+            navigationType,
+        });
     }
 
     fireTelemetryForVideo(video) {
