@@ -14,6 +14,8 @@ import { usePlatformName } from '../../settings.provider';
 import styles from './SuggestionsList.module.css';
 import { getSuggestionSuffix, getSuggestionTitle, startsWithIgnoreCase } from '../utils';
 import { SuffixText } from './SuffixText';
+import { useContext } from 'preact/hooks';
+import { SuggestionsContext } from './SuggestionsProvider';
 
 /**
  * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel
@@ -25,14 +27,15 @@ import { SuffixText } from './SuffixText';
  * @param {object} props
  * @param {string} props.id
  * @param {string} props.term
- * @param {SuggestionModel[]} props.suggestions
- * @param {SuggestionModel | null} props.selectedSuggestion
- * @param {(suggestion: SuggestionModel) => void} props.onSelectSuggestion
- * @param {() => void} props.onClearSuggestion
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  */
-export function SuggestionsList({ id, term, suggestions, selectedSuggestion, onSelectSuggestion, onClearSuggestion, onOpenSuggestion }) {
+export function SuggestionsList({ id, term, onOpenSuggestion }) {
     const platformName = usePlatformName();
+
+    const { suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useContext(SuggestionsContext);
+
+    if (suggestions.length === 0) return null;
+
     return (
         <div role="listbox" id={id} class={styles.list}>
             {suggestions.map((suggestion) => {
@@ -46,8 +49,8 @@ export function SuggestionsList({ id, term, suggestions, selectedSuggestion, onS
                         class={styles.item}
                         tabIndex={suggestion === selectedSuggestion ? 0 : -1}
                         aria-selected={suggestion === selectedSuggestion}
-                        onMouseOver={() => onSelectSuggestion(suggestion)}
-                        onMouseLeave={() => onClearSuggestion()}
+                        onMouseOver={() => setSelectedSuggestion(suggestion)}
+                        onMouseLeave={() => clearSelectedSuggestion()}
                         onClick={(event) => {
                             event.preventDefault();
                             onOpenSuggestion({ suggestion, target: eventToTarget(event, platformName) });

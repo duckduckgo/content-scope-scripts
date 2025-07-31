@@ -241,8 +241,8 @@ export function useSuggestions({ term, onChangeTerm, onOpenSuggestion, onSubmitS
 
     /** @type {(event: import('preact').JSX.TargetedFocusEvent<HTMLFormElement>) => void} */
     const handleBlur = (event) => {
-        // Ignore blur events cauesd by moving focus to an element inside the form
-        if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) {
+        // Ignore blur events caused by clicking on a suggestion
+        if (event.relatedTarget instanceof Element && event.relatedTarget.role === 'option') {
             return;
         }
 

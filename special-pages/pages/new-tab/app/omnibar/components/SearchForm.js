@@ -1,12 +1,11 @@
 import { Fragment, h } from 'preact';
-import { useContext, useEffect, useId, useMemo } from 'preact/hooks';
+import { useContext, useEffect, useMemo } from 'preact/hooks';
 import { GlobeIcon, SearchIcon } from '../../components/Icons.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { useTypedTranslationWith } from '../../types';
 import { getInputSuffix } from '../utils.js';
 import styles from './SearchForm.module.css';
 import { useSuffixText } from './SuffixText.js';
-import { SuggestionsList } from './SuggestionsList.js';
 import { SuggestionsContext } from './SuggestionsProvider.js';
 import { useCompletionInput } from './useSuggestionInput.js';
 
@@ -20,26 +19,15 @@ import { useCompletionInput } from './useSuggestionInput.js';
  * @param {object} props
  * @param {string} props.term
  * @param {boolean} [props.autoFocus]
- * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
+ * @param {string} props.suggestionsListId
  * @param {(params: {term: string, target: OpenTarget}) => void} props.onSubmitSearch
  */
-export function SearchForm({ term, autoFocus, onOpenSuggestion, onSubmitSearch }) {
+export function SearchForm({ term, autoFocus, suggestionsListId, onSubmitSearch }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const suggestionsListId = useId();
     const platformName = usePlatformName();
 
-    const {
-        suggestions,
-        selectedSuggestion,
-        setSelectedSuggestion,
-        clearSelectedSuggestion,
-        inputBase,
-        inputCompletion,
-        handleChange,
-        handleKeyDown,
-        handleClick,
-        handleBlur,
-    } = useContext(SuggestionsContext);
+    const { suggestions, selectedSuggestion, inputBase, inputCompletion, handleChange, handleKeyDown, handleClick, handleBlur } =
+        useContext(SuggestionsContext);
 
     const inputRef = useCompletionInput(inputBase, inputCompletion);
 
@@ -102,17 +90,6 @@ export function SearchForm({ term, autoFocus, onOpenSuggestion, onSubmitSearch }
                     </>
                 )}
             </div>
-            {suggestions.length > 0 && (
-                <SuggestionsList
-                    id={suggestionsListId}
-                    term={term}
-                    suggestions={suggestions}
-                    selectedSuggestion={selectedSuggestion}
-                    onSelectSuggestion={setSelectedSuggestion}
-                    onClearSuggestion={clearSelectedSuggestion}
-                    onOpenSuggestion={onOpenSuggestion}
-                />
-            )}
         </form>
     );
 }
