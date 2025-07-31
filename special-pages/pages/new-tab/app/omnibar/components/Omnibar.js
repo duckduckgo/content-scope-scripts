@@ -69,7 +69,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && <TabSwitcher mode={mode} onChange={handleChangeMode} />}
             <SearchFormProvider
-                // Remove any newlines that come from switching from chat to search
+                // Strip newlines for search input display while preserving them in state
                 term={query.replace(/\n/g, '')}
                 setTerm={setQuery}
             >
