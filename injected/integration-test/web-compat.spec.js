@@ -277,6 +277,144 @@ test.describe('Permissions API', () => {
     });
 });
 
+test.describe('Permissions API - when present', () => {
+    function checkForPermissions() {
+        return !!window.navigator.permissions;
+    }
+
+    test.describe('disabled feature', () => {
+        test('should not modify existing permissions API', async ({ page }) => {
+            await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } });
+            const hasPermissions = await page.evaluate(checkForPermissions);
+            expect(hasPermissions).toEqual(true);
+
+            // Test that the original API behavior is preserved
+            const originalQuery = await page.evaluate(() => {
+                return window.navigator.permissions.query;
+            });
+            expect(typeof originalQuery).toBe('function');
+        });
+    });
+
+    test.describe('enabled feature', () => {
+        /**
+         * @param {import("@playwright/test").Page} page
+         */
+        async function before(page) {
+            await gotoAndWait(page, '/blank.html', {
+                site: {
+                    enabledFeatures: ['webCompat'],
+                },
+                featureSettings: {
+                    webCompat: {
+                        permissionsPresent: {
+                            state: 'enabled',
+                        },
+                        permissions: {
+                            state: 'enabled',
+                            supportedPermissions: {
+                                geolocation: {},
+                                push: {
+                                    name: 'notifications',
+                                },
+                                camera: {
+                                    name: 'video_capture',
+                                    native: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+        }
+
+        /**
+         * @param {import("@playwright/test").Page} page
+         * @param {any} name
+         * @return {Promise<{result: any, message: *}>}
+         */
+        async function checkPermission(page, name) {
+            const payload = `window.navigator.permissions.query(${JSON.stringify({ name })})`;
+            const result = await page.evaluate(payload).catch((e) => {
+                return { threw: e };
+            });
+            const message = await page.evaluate(() => {
+                return globalThis.shareReq;
+            });
+            return { result, message };
+        }
+
+        test('should preserve existing permissions API', async ({ page }) => {
+            await before(page);
+            const hasPermissions = await page.evaluate(checkForPermissions);
+            expect(hasPermissions).toEqual(true);
+        });
+
+        test('should fall through to original API for non-native permissions', async ({ page }) => {
+            await before(page);
+            const { result } = await checkPermission(page, 'geolocation');
+            // Should use original API behavior, not our custom implementation
+            expect(result).toBeDefined();
+            // The result should be a native PermissionStatus, not our custom one
+            expect(result.constructor.name).toBe('PermissionStatus');
+        });
+
+        test('should fall through to original API for unsupported permissions', async ({ page }) => {
+            await before(page);
+            const { result } = await checkPermission(page, 'notexistent');
+            // Should use original API behavior for validation
+            expect(result.threw).not.toBeUndefined();
+        });
+
+        test('should intercept native permissions and return custom result', async ({ page }) => {
+            await before(page);
+            // Fake result from native
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = (req) => {
+                    globalThis.shareReq = req;
+                    return Promise.resolve({ state: 'granted' });
+                };
+            });
+            const { result, message } = await checkPermission(page, 'camera');
+            expect(result).toMatchObject({ name: 'video_capture', state: 'granted' });
+            expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } });
+        });
+
+        test('should fall through to original API when native messaging fails', async ({ page }) => {
+            await before(page);
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = (message) => {
+                    globalThis.shareReq = message;
+                    return Promise.reject(new Error('something wrong'));
+                };
+            });
+            const { result, message } = await checkPermission(page, 'camera');
+            // Should fall through to original API when messaging fails
+            expect(result).toBeDefined();
+            expect(message).toMatchObject({ featureName: 'webCompat', method: 'permissionsQuery', params: { name: 'camera' } });
+        });
+
+        test('should fall through to original API for invalid arguments', async ({ page }) => {
+            await before(page);
+            const { result } = await checkPermission(page, null);
+            // Should use original API validation
+            expect(result.threw).not.toBeUndefined();
+        });
+
+        test('should use configured name override for native permissions', async ({ page }) => {
+            await before(page);
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = (req) => {
+                    globalThis.shareReq = req;
+                    return Promise.resolve({ state: 'denied' });
+                };
+            });
+            const { result } = await checkPermission(page, 'push');
+            expect(result).toMatchObject({ name: 'notifications', state: 'denied' });
+        });
+    });
+});
+
 test.describe('ScreenOrientation API', () => {
     test.describe('disabled feature', () => {
         /**
