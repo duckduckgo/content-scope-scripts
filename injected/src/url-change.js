@@ -21,7 +21,6 @@ function handleURLChange(navigationType = 'unknown') {
 
 function listenForURLChanges() {
     const urlChangedInstance = new ContentFeature('urlChanged', {}, {});
-    //
     // if the browser supports the navigation API, use that to listen for URL changes
     if ('navigation' in globalThis && 'addEventListener' in globalThis.navigation) {
         // We listen to `navigatesuccess` instead of `navigate` to ensure the navigation is committed.
@@ -33,7 +32,7 @@ function listenForURLChanges() {
             navigations.set(event.target, event.navigationType);
         });      
         globalThis.navigation.addEventListener('navigatesuccess', (event) => {
-            const navigationType = navigations.get(event.target) || 'navigate';
+            const navigationType = navigations.get(event.target) || 'unknown';
             handleURLChange(navigationType);
         });
         // Exit early if the navigation API is supported, i.e. history proxy and popState listener aren't created.
@@ -49,14 +48,13 @@ function listenForURLChanges() {
         apply(target, thisArg, args) {
             const changeResult = DDGReflect.apply(target, thisArg, args);
             console.log('pushstate event');
-            handleURLChange('pushState');
+            handleURLChange('push');
             return changeResult;
         },
     });
     historyMethodProxy.overload();
     // listen for popstate events in order to run on back/forward navigations
     window.addEventListener('popstate', () => {
-        console.log('popstate event');
         handleURLChange('popState');
     });
 }
