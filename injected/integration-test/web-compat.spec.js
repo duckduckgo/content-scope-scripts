@@ -316,7 +316,10 @@ test.describe('Permissions API', () => {
             expect(initialPermissions).toEqual(true);
             const initialDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent);
             expect(initialDescriptorSerialization).toEqual(true);
-            await setupPermissionsTest(page, { removePermissions: true });
+            // Remove permissions API without enabling webCompat feature
+            await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } }, `
+                Object.defineProperty(window.navigator, 'permissions', { writable: true, value: undefined })
+            `);
             const noPermissions = await page.evaluate(checkForPermissions);
             expect(noPermissions).toEqual(false);
         });
