@@ -4,6 +4,7 @@ docs/**/*
 injected/src/types
 special-pages/pages/**/types
 special-pages/shared/**/types
+metrics/types
 injected/integration-test/extension/contentScope.js
 injected/src/features/Scriptlets
 **/*.json
