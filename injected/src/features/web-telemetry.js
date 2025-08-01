@@ -1,7 +1,7 @@
 import ContentFeature from '../content-feature.js';
 
 /**
- * @import { NavigationType } from '../url-change.types.d.ts'
+ * @typedef {import('../url-change.js').NavigationType} NavigationType
  */
 
 const MSG_VIDEO_PLAYBACK = 'video-playback';
