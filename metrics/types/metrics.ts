@@ -12,25 +12,25 @@ export type ReportMetricEvent = ExceptionMetric;
  * Requests, Notifications and Subscriptions from the MetricsMessages feature
  */
 export interface MetricsMessagesMessages {
-    notifications: ReportMetricNotification;
+  notifications: ReportMetricNotification;
 }
 /**
  * Generated from @see "../messages/reportMetric.notify.json"
  */
 export interface ReportMetricNotification {
-    method: 'reportMetric';
-    params: ReportMetricEvent;
+  method: "reportMetric";
+  params: ReportMetricEvent;
 }
 export interface ExceptionMetric {
-    metricName: 'exception';
-    params: {
-        message: string;
-        kind?: string;
-    };
+  metricName: "exception";
+  params: {
+    message: string;
+    kind?: string;
+  };
 }
 
-declare module '../metrics-reporter.js' {
-    export interface MetricsReporter {
-        notify: import('@duckduckgo/messaging/lib/shared-types').MessagingBase<MetricsMessagesMessages>['notify'];
-    }
+declare module "../metrics-reporter.js" {
+  export interface MetricsReporter {
+    notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<MetricsMessagesMessages>['notify']
+  }
 }
