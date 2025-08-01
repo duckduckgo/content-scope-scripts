@@ -1,5 +1,9 @@
 import ContentFeature from '../content-feature.js';
 
+/**
+ * @import { NavigationType } from '../url-change.types.d.ts'
+ */
+
 const MSG_VIDEO_PLAYBACK = 'video-playback';
 const MSG_URL_CHANGED = 'url-changed';
 
@@ -18,7 +22,10 @@ export class WebTelemetry extends ContentFeature {
         }
     }
 
-    urlChanged(navigationType = 'unknown') {
+    /**
+     * @param {NavigationType} navigationType
+     */
+    urlChanged(navigationType) {
         if (this.getFeatureSettingEnabled('urlChanged')) {
             this.fireTelemetryForUrlChanged(navigationType);
         }
@@ -40,6 +47,9 @@ export class WebTelemetry extends ContentFeature {
         return null;
     }
 
+    /**
+     * @param {NavigationType} navigationType
+     */
     fireTelemetryForUrlChanged(navigationType) {
         this.messaging.notify(MSG_URL_CHANGED, {
             url: window.location.href,
