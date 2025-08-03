@@ -201,6 +201,14 @@ export class WebCompat extends ContentFeature {
             configurable: true,
             enumerable: false,
         });
+
+        this.defineProperty(/** @type {any} */ (window.Notification), 'toString', {
+            value: () => 'function Notification() { [native code] }',
+            writable: false,
+            configurable: false,
+            enumerable: false,
+        });
+        
         // window.Notification polyfill is intentionally incompatible with DOM lib types
         this.defineProperty(/** @type {any} */ (window.Notification), 'requestPermission', {
             value: () => {
@@ -209,6 +217,13 @@ export class WebCompat extends ContentFeature {
             writable: true,
             configurable: true,
             enumerable: true,
+        });
+
+        this.defineProperty(/** @type {any} */ (window.Notification).requestPermission, 'toString', {
+            value: () => 'function requestPermission() { [native code] }',
+            writable: false,
+            configurable: false,
+            enumerable: false,
         });
 
         this.defineProperty(/** @type {any} */ (window.Notification), 'permission', {
