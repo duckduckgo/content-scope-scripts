@@ -41,7 +41,7 @@ function OmnibarReadyState({ config: { enableAi = true, showAiSetting = true, mo
     return (
         <>
             {showAiSetting && <AiSetting enableAi={enableAi} setEnableAi={setEnableAi} />}
-            <Omnibar mode={mode} setMode={setMode} enableAi={enableAi} />
+            <Omnibar mode={mode} setMode={setMode} enableAi={showAiSetting && enableAi} />
         </>
     );
 }
