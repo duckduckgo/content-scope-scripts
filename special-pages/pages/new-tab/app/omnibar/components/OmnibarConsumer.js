@@ -57,7 +57,7 @@ function AiSetting({ enableAi, setEnableAi }) {
     useCustomizer({
         title: t('omnibar_toggleDuckAi'),
         id: `_${id}-toggleAi`,
-        icon: <ArrowIndentCenteredIcon />,
+        icon: <ArrowIndentCenteredIcon style={{ color: 'var(--ntp-icons-tertiary)' }} />,
         toggle: () => setEnableAi(!enableAi),
         visibility: enableAi ? 'visible' : 'hidden',
         index: index + 0.1,
