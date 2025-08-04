@@ -1,12 +1,8 @@
 .form {
     align-items: center;
     display: flex;
-    padding: var(--sp-1) 7px;
-
-    svg {
-        flex: none;
-        margin: var(--sp-2);
-    }
+    height: var(--sp-10);
+    padding: var(--sp-1) 7px var(--sp-1) calc(7px + var(--sp-2));
 }
 
 .input {
@@ -17,7 +13,7 @@
     height: var(--sp-8);
     left: 7px;
     padding-bottom: 0;
-    padding-left: calc(var(--sp-2) + var(--sp-4) + var(--sp-2));
+    padding-left: var(--sp-2);
     padding-right: var(--suffix-text-width);
     padding-top: 0;
     position: absolute;
