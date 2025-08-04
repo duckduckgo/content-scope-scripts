@@ -156,7 +156,10 @@
     "title" : "Privat suchen",
     "description" : "Placeholder text for the search input field."
   },
-
+  "omnibar_toggleDuckAi" : {
+    "title" : "Duck.ai",
+    "description" : "Label for the button to toggle the Duck.ai chat interface."
+  },
   "omnibar_searchDuckDuckGoSuffix" : {
     "title" : "Mit DuckDuckGo suchen",
     "description" : "Text placed after suggestions that will search DuckDuckGo."
