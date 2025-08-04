@@ -6,7 +6,6 @@ import {
     getSuggestionCompletionString,
     getSuggestionSuffix,
     parseURL,
-    isURLish,
     formatURL,
     formatURLForTerm,
     getDuckDuckGoSearchQuery,
@@ -343,50 +342,6 @@ test.describe('parseURL', () => {
     test('returns null for invalid url', () => {
         const url = parseURL('?');
         equal(url, null);
-    });
-});
-
-test.describe('isURLish', () => {
-    test('returns true for simple domain with dot', () => {
-        equal(isURLish('example.com'), true);
-        equal(isURLish('foo.bar'), true);
-        equal(isURLish('some.site'), true);
-        equal(isURLish('my-site.org'), true);
-    });
-
-    test('returns true for full url', () => {
-        equal(isURLish('https://example.com'), true);
-        equal(isURLish('http://www.example.com'), true);
-        equal(isURLish('ftp://files.example.com'), true);
-    });
-
-    test('returns true for domain with path/params/hash', () => {
-        equal(isURLish('example.com/path'), true);
-        equal(isURLish('example.com/index.html'), true);
-        equal(isURLish('example.com?q=search'), true);
-        equal(isURLish('example.com/path#hash'), true);
-        equal(isURLish('example.com:8080'), true);
-    });
-
-    test('returns false for regular strings', () => {
-        equal(isURLish('localhost'), false);
-        equal(isURLish('duck'), false);
-        equal(isURLish('what time is it'), false);
-    });
-
-    test('returns false for empty string', () => {
-        equal(isURLish(''), false);
-    });
-
-    test('returns true for IP addresses', () => {
-        equal(isURLish('127.0.0.1'), true);
-        equal(isURLish('192.168.1.1'), true);
-        equal(isURLish('8.8.8.8:53'), true);
-    });
-
-    test('returns true for URLs with subdomains', () => {
-        equal(isURLish('www.example.com'), true);
-        equal(isURLish('a.b.c.domain.co.uk'), true);
     });
 });
 

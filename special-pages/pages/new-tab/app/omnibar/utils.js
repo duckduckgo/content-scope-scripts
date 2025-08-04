@@ -156,15 +156,6 @@ export function parseURL(string) {
 }
 
 /**
- * @param {string} string
- * @returns {boolean}
- */
-export function isURLish(string) {
-    // @todo: This is overly simplistic.
-    return string.includes('.') && parseURL(string) !== null;
-}
-
-/**
  * @param {URL} url
  * @param {object} [options]
  * @param {boolean} [options.scheme=true]
