@@ -5,7 +5,17 @@ import { CustomizeIcon } from '../../components/Icons.js';
 import { useMessaging, useTypedTranslation } from '../../types.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
+ * @import { WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
+ */
+
+/**
+ * @typedef {object} VisibilityRowData
+ * @property {string} id - a unique id
+ * @property {string} title - the title as it should appear in the menu
+ * @property {import('preact').ComponentChild} icon - icon to display in the menu
+ * @property {(id: string) => void} toggle - toggle function for this item
+ * @property {number} index - position in the menu
+ * @property {WidgetVisibility} visibility - known icon name, maps to an SVG
  */
 
 export const OPEN_EVENT = 'ntp-customizer-open';
@@ -83,26 +93,6 @@ export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonR
 
 export function CustomizerMenuPositionedFixed({ children }) {
     return <div class={styles.lowerRightFixed}>{children}</div>;
-}
-
-export class VisibilityRowData {
-    /**
-     * @param {object} params
-     * @param {string} params.id - a unique id
-     * @param {string} params.title - the title as it should appear in the menu
-     * @param {'shield' | 'star' | 'search' | 'arrow-indent'} params.icon - known icon name, maps to an SVG
-     * @param {(id: string) => void} params.toggle - toggle function for this item
-     * @param {number} params.index - position in the menu
-     * @param {WidgetVisibility} params.visibility - known icon name, maps to an SVG
-     */
-    constructor({ id, title, icon, toggle, visibility, index }) {
-        this.id = id;
-        this.title = title;
-        this.icon = icon;
-        this.toggle = toggle;
-        this.index = index;
-        this.visibility = visibility;
-    }
 }
 
 /**

@@ -5,6 +5,7 @@ import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { Omnibar } from './Omnibar.js';
 import { OmnibarContext } from './OmnibarProvider.js';
+import { ArrowIndentCenteredIcon } from '../../components/Icons.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -56,7 +57,7 @@ function AiSetting({ enableAi, setEnableAi }) {
     useCustomizer({
         title: t('omnibar_toggleDuckAi'),
         id: `_${id}-toggleAi`,
-        icon: 'arrow-indent',
+        icon: <ArrowIndentCenteredIcon />,
         toggle: () => setEnableAi(!enableAi),
         visibility: enableAi ? 'visible' : 'hidden',
         index: index + 0.1,
