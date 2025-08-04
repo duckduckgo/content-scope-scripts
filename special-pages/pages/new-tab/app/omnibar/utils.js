@@ -25,43 +25,24 @@
  * @returns {Suffix}
  */
 export function getInputSuffix(term, selectedSuggestion) {
-    if (!term) {
-        return null;
-    }
+    // Intentionally differs from the macOS app's implementation, which returns
+    // "Search DuckDuckGo" or "Visit $url" when there is a term and no selection
+    if (!term || !selectedSuggestion) return null;
 
-    if (selectedSuggestion) {
-        return getSuggestionInputSuffix(selectedSuggestion, term);
-    }
-
-    if (isURLish(term)) {
-        const url = parseURL(term);
-        if (!url) throw new Error('isURLish returned true but parseURL failed');
-        return { kind: 'visit', url: formatURL(url, { scheme: false, trailingSlash: false, search: false, hash: false }) };
-    } else {
-        return { kind: 'searchDuckDuckGo' };
-    }
-}
-
-/**
- * @param {Suggestion} suggestion
- * @param {string} term
- * @returns {Suffix}
- */
-function getSuggestionInputSuffix(suggestion, term) {
-    switch (suggestion.kind) {
+    switch (selectedSuggestion.kind) {
         case 'phrase':
             return { kind: 'searchDuckDuckGo' };
         case 'website': {
-            const url = parseURL(suggestion.url);
+            const url = parseURL(selectedSuggestion.url);
             if (!url) return null;
             return { kind: 'visit', url: formatURL(url, { scheme: false, trailingSlash: false, search: false, hash: false }) };
         }
         case 'bookmark':
         case 'historyEntry':
         case 'internalPage': {
-            const title = getSuggestionTitle(suggestion, term);
-            const autocompletion = getSuggestionCompletionString(suggestion, term);
-            const url = parseURL(suggestion.url);
+            const title = getSuggestionTitle(selectedSuggestion, term);
+            const autocompletion = getSuggestionCompletionString(selectedSuggestion, term);
+            const url = parseURL(selectedSuggestion.url);
             if (title && title !== autocompletion) {
                 return { kind: 'raw', text: title };
             } else if (url) {

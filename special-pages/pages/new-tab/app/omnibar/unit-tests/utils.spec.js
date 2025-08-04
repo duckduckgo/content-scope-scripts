@@ -22,23 +22,8 @@ test.describe('getInputSuffix', () => {
         equal(getInputSuffix('', null), null);
     });
 
-    test('returns "Visit $url" for url-like input', () => {
-        let suffix = getInputSuffix('example.com', null);
-        equal(suffix?.kind, 'visit');
-        equal(suffix?.url, 'example.com');
-
-        suffix = getInputSuffix('https://foobar.com/path', null);
-        equal(suffix?.kind, 'visit');
-        equal(suffix?.url, 'foobar.com/path');
-
-        suffix = getInputSuffix('www.foo.com/bar/?q=yes#frag', null);
-        equal(suffix?.kind, 'visit');
-        equal(suffix?.url, 'www.foo.com/bar');
-    });
-
-    test('returns "Search DuckDuckGo" for non-url terms', () => {
-        const suffix = getInputSuffix('pizza delivery near me', null);
-        equal(suffix?.kind, 'searchDuckDuckGo');
+    test('returns null when there is no selected suggestion', () => {
+        equal(getInputSuffix('pizza', null), null);
     });
 
     test('returns "Search DuckDuckGo" if selected suggestion is a phrase', () => {
