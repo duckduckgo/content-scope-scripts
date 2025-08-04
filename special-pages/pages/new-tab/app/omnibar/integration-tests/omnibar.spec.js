@@ -230,7 +230,7 @@ test.describe('omnibar widget', () => {
 
         // Enable Duck.ai via Customize panel
         await omnibar.customizeButton().click();
-        await omnibar.showDuckAiButton().click();
+        await omnibar.toggleDuckAiButton().click();
 
         // Tab selector is now visible
         await expect(omnibar.tabList()).toBeVisible();
@@ -249,7 +249,7 @@ test.describe('omnibar widget', () => {
 
         // Disable Duck.ai via Customize panel
         await omnibar.customizeButton().click();
-        await omnibar.hideDuckAiButton().click();
+        await omnibar.toggleDuckAiButton().click();
 
         // Tab selector is now gone
         await expect(omnibar.tabList()).toHaveCount(0);
@@ -265,11 +265,11 @@ test.describe('omnibar widget', () => {
 
         // Open Customize panel - Duck.ai toggle should be visible
         await omnibar.customizeButton().click();
-        await expect(omnibar.hideDuckAiButton()).toBeVisible();
+        await expect(omnibar.toggleDuckAiButton()).toBeVisible();
 
         // Hide the Omnibar widget - Duck.ai toggle should be hidden
         await omnibar.toggleSearchButton().click();
-        await expect(omnibar.hideDuckAiButton()).toHaveCount(0);
+        await expect(omnibar.toggleDuckAiButton()).toHaveCount(0);
     });
 
     test('Duck.ai toggle is hidden when showAiSetting is false', async ({ page }, workerInfo) => {
@@ -284,8 +284,7 @@ test.describe('omnibar widget', () => {
         await omnibar.customizeButton().click();
 
         // The Duck.ai toggle button should not be visible
-        await expect(omnibar.hideDuckAiButton()).toHaveCount(0);
-        await expect(omnibar.showDuckAiButton()).toHaveCount(0);
+        await expect(omnibar.toggleDuckAiButton()).toHaveCount(0);
     });
 
     test('suggestions list arrow down navigation', async ({ page }, workerInfo) => {
