@@ -5,6 +5,7 @@ import { OmnibarProvider } from './OmnibarProvider.js';
 import { h } from 'preact';
 
 import { OmnibarConsumer } from './OmnibarConsumer.js';
+import { SearchIcon } from '../../components/Icons.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -27,7 +28,7 @@ export function OmnibarCustomized() {
 
     const { visibility, id, toggle, index } = useVisibility();
 
-    useCustomizer({ title: sectionTitle, id, icon: 'search', toggle, visibility: visibility.value, index });
+    useCustomizer({ title: sectionTitle, id, icon: <SearchIcon />, toggle, visibility: visibility.value, index });
 
     if (visibility.value === 'hidden') {
         return null;
