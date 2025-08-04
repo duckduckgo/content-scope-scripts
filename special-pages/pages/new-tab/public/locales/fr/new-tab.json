@@ -156,14 +156,6 @@
     "title" : "Faites une recherche privée",
     "description" : "Placeholder text for the search input field."
   },
-  "omnibar_hideDuckAi" : {
-    "title" : "Masquer Duck.ai",
-    "description" : "Label for the button to hide the Duck.ai chat interface."
-  },
-  "omnibar_showDuckAi" : {
-    "title" : "Afficher Duck.ai",
-    "description" : "Label for the button to show the Duck.ai chat interface."
-  },
   "omnibar_searchDuckDuckGoSuffix" : {
     "title" : "Rechercher avec DuckDuckGo",
     "description" : "Text placed after suggestions that will search DuckDuckGo."
