@@ -157,6 +157,10 @@
     "title": "Search privately",
     "description": "Placeholder text for the search input field."
   },
+  "omnibar_toggleDuckAi": {
+    "title": "Duck.ai",
+    "description": "Label for the button to toggle the Duck.ai chat interface."
+  },
   "omnibar_hideDuckAi": {
     "title": "Hide Duck.ai",
     "description": "Label for the button to hide the Duck.ai chat interface."

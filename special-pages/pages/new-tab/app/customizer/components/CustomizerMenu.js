@@ -90,7 +90,7 @@ export class VisibilityRowData {
      * @param {object} params
      * @param {string} params.id - a unique id
      * @param {string} params.title - the title as it should appear in the menu
-     * @param {'shield' | 'star' | 'search'} params.icon - known icon name, maps to an SVG
+     * @param {'shield' | 'star' | 'search' | 'arrow-indent'} params.icon - known icon name, maps to an SVG
      * @param {(id: string) => void} params.toggle - toggle function for this item
      * @param {number} params.index - position in the menu
      * @param {WidgetVisibility} params.visibility - known icon name, maps to an SVG

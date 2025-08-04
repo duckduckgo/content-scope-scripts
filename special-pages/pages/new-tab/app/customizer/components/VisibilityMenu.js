@@ -2,7 +2,7 @@ import { h } from 'preact';
 import cn from 'classnames';
 import { useContext } from 'preact/hooks';
 
-import { DuckFoot, SearchIcon, Shield } from '../../components/Icons.js';
+import { ArrowIndentCenteredIcon, DuckFoot, SearchIcon, Shield } from '../../components/Icons.js';
 import styles from './VisibilityMenu.module.css';
 import { Switch } from '../../../../../shared/components/Switch/Switch.js';
 import { usePlatformName } from '../../settings.provider.js';
@@ -30,6 +30,7 @@ export function EmbeddedVisibilityMenu({ rows }) {
                                 {row.icon === 'shield' && <DuckFoot />}
                                 {row.icon === 'star' && <Shield />}
                                 {row.icon === 'search' && <SearchIcon />}
+                                {row.icon === 'arrow-indent' && <ArrowIndentCenteredIcon />}
                             </span>
                             <span>{row.title ?? row.id}</span>
                             <Switch
