@@ -167,13 +167,36 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             });
         });
 
-        test('ai disabled', async ({ page }, workerInfo) => {
-            const ntp = NewtabPage.create(page, workerInfo);
-            const omnibar = new OmnibarPage(ntp);
-            await ntp.reducedMotion();
-            await ntp.openPage({ additional: { omnibar: 'true', 'omnibar.enableAi': 'false' } });
-            await omnibar.ready();
-            await expect(page).toHaveScreenshot('omnibar-ai-disabled.png', { maxDiffPixels });
+        test.describe('sidebar', () => {
+            test('ai enabled', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+                await ntp.openPage({ additional: { omnibar: 'true' } });
+                await omnibar.ready();
+                await omnibar.customizeButton().click();
+                await expect(page).toHaveScreenshot('omnibar-sidebar-ai-enabled.png', { maxDiffPixels });
+            });
+
+            test('ai disabled', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+                await ntp.openPage({ additional: { omnibar: 'true', 'omnibar.enableAi': 'false' } });
+                await omnibar.ready();
+                await omnibar.customizeButton().click();
+                await expect(page).toHaveScreenshot('omnibar-sidebar-ai-disabled.png', { maxDiffPixels });
+            });
+
+            test('hide ai setting', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+                await ntp.openPage({ additional: { omnibar: 'true', 'omnibar.showAiSetting': 'false' } });
+                await omnibar.ready();
+                await omnibar.customizeButton().click();
+                await expect(page).toHaveScreenshot('omnibar-sidebar-hide-ai-setting.png', { maxDiffPixels });
+            });
         });
     });
 });

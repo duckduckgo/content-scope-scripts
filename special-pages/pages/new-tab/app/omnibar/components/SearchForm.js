@@ -1,7 +1,6 @@
 import { Fragment, h } from 'preact';
 import { useEffect, useMemo } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers.js';
-import { GlobeIcon, SearchIcon } from '../../components/Icons.js';
 import { usePlatformName } from '../../settings.provider.js';
 import { useTypedTranslationWith } from '../../types';
 import { getInputSuffix, getSuggestionCompletionString, startsWithIgnoreCase } from '../utils.js';
@@ -125,7 +124,6 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
                 });
             }}
         >
-            {inputSuffix?.kind === 'visit' ? <GlobeIcon inert /> : <SearchIcon inert />}
             <input
                 ref={inputRef}
                 type="text"

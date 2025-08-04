@@ -58,7 +58,7 @@
 
 .root:has([role="listbox"]) .popup,
 .root:not(:has([role="listbox"])) .field {
-    backdrop-filter: blur(48px);
+    backdrop-filter: blur(16px);
     background: var(--ntp-surface-tertiary);
     border-radius: var(--border-radius-lg);
 }
