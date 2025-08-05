@@ -50,6 +50,7 @@
 
 .submitButton {
     align-items: center;
+    animation: fadeIn 0.3s ease-in-out;
     background: var(--ntp-accent-primary);
     border-radius: 100%;
     border: none;
@@ -64,9 +65,8 @@
 
     &[disabled] {
         background: none;
-        color: var(--ntp-icons-primary);
+        color: color-mix(in srgb, var(--ntp-icons-primary) 30%, transparent);
         cursor: default;
-        opacity: 0.3;
     }
 
     &:hover:not([disabled]) {
@@ -79,5 +79,14 @@
 
     &:focus-visible {
         box-shadow: var(--focus-ring);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }
