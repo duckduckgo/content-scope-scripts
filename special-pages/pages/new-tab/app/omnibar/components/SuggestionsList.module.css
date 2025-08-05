@@ -2,7 +2,8 @@
     border-top: 1px solid var(--ntp-surface-border-color);
     display: flex;
     flex-direction: column;
-    padding: 7px;
+    padding: calc(3px + var(--sp-1)); /* 3px for popup borders + 1sp of padding */
+    padding-top: calc(3px + var(--sp-1) - 1px); /* - 1px to account for the border-top */
 }
 
 .item {
