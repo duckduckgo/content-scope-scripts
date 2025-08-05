@@ -34,11 +34,11 @@
     }
 
     [data-mode="search"] & {
-        height: var(--sp-10);
+        height: calc(var(--sp-10) + 3px * 2);
     }
 
     [data-mode="ai"] & {
-        height: var(--sp-20);
+        height: calc(var(--sp-20) + 3px * 2);
     }
 }
 
