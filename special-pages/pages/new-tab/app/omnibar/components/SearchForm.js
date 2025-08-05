@@ -8,6 +8,7 @@ import styles from './SearchForm.module.css';
 import { useSearchFormContext } from './SearchFormProvider.js';
 import { useSuffixText } from './SuffixText.js';
 import { useCompletionInput } from './useSuggestionInput.js';
+import { CloseSmallIcon } from '../../components/Icons.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -108,14 +109,6 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
         <form
             class={styles.form}
             style={{ '--input-font': inputFont, '--suffix-text-width': `${inputSuffixWidth}px` }}
-            // Using onBlurCapture to work around WebKit which doesn't fire blur event when user selects address bar.
-            onBlurCapture={(event) => {
-                // Ignore blur events caused by clicking on a suggestion
-                if (event.relatedTarget instanceof Element && event.relatedTarget.role === 'option') {
-                    return;
-                }
-                hideSuggestions();
-            }}
             onSubmit={(event) => {
                 event.preventDefault();
                 onSubmit({
@@ -146,6 +139,16 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
                     updateSuggestions(term);
                 }}
                 onClick={() => acceptSuggestion()}
+                // Using onBlurCapture to work around WebKit which doesn't fire blur event when user selects address bar.
+                onBlurCapture={(event) => {
+                    if (event.relatedTarget instanceof Element) {
+                        // Ignore blur events caused by clicking on a suggestion
+                        if (event.relatedTarget.role === 'option') return;
+                        // Ignore blur events caused by clicking on the close button
+                        if (event.relatedTarget.classList.contains(styles.closeButton)) return;
+                    }
+                    hideSuggestions();
+                }}
             />
             {inputSuffix && (
                 <>
@@ -157,6 +160,23 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
                         {inputSuffixText}
                     </span>
                 </>
+            )}
+            {term.length > 0 && (
+                <button
+                    class={styles.closeButton}
+                    aria-label={t('omnibar_searchFormCloseButtonLabel')}
+                    tabIndex={0} // Needed so that WebKit sets event.relatedTarget when firing blur event
+                    onClick={(event) => {
+                        event.preventDefault();
+                        if (suggestions.length > 0) {
+                            hideSuggestions();
+                        } else {
+                            setTerm('');
+                        }
+                    }}
+                >
+                    <CloseSmallIcon />
+                </button>
             )}
         </form>
     );
