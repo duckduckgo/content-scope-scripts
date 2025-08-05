@@ -8,6 +8,7 @@ import styles from './SearchForm.module.css';
 import { useSearchFormContext } from './SearchFormProvider.js';
 import { useSuffixText } from './SuffixText.js';
 import { useCompletionInput } from './useSuggestionInput.js';
+import { CloseSmallIcon } from '../../components/Icons.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -114,6 +115,10 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
                 if (event.relatedTarget instanceof Element && event.relatedTarget.role === 'option') {
                     return;
                 }
+                // Ignore blur events caused by clicking on something in the form
+                if (event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) {
+                    return;
+                }
                 hideSuggestions();
             }}
             onSubmit={(event) => {
@@ -157,6 +162,22 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
                         {inputSuffixText}
                     </span>
                 </>
+            )}
+            {term.length > 0 && (
+                <button
+                    class={styles.closeButton}
+                    aria-label={t('omnibar_searchFormCloseButtonLabel')}
+                    onClick={(event) => {
+                        event.preventDefault();
+                        if (suggestions.length > 0) {
+                            hideSuggestions();
+                        } else {
+                            setTerm('');
+                        }
+                    }}
+                >
+                    <CloseSmallIcon />
+                </button>
             )}
         </form>
     );

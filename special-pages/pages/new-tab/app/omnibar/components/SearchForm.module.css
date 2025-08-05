@@ -11,7 +11,8 @@
     color: var(--ntp-text-primary);
     font: var(--input-font);
     left: 0;
-    padding: var(--sp-3) calc(var(--sp-3) + var(--suffix-text-width)) var(--sp-3) var(--sp-3);
+    padding: var(--sp-3);
+    padding-right: calc(var(--suffix-text-width) + var(--sp-8) + var(--sp-3)); /* Suffix + close button + padding */
     position: absolute;
     right: 0;
 
@@ -40,4 +41,43 @@
     color: var(--ntp-accent-primary);
     flex: none;
     font: var(--input-font);
+}
+
+.closeButton {
+    align-items: center;
+    background: none;
+    border-radius: 9px;
+    border: none;
+    color: var(--ntp-text-primary);
+    cursor: pointer;
+    display: flex;
+    flex: none;
+    height: var(--sp-8);
+    justify-content: center;
+    margin-left: auto;
+    outline: none;
+    padding: 0;
+    width: var(--sp-8);
+    z-index: 1;
+    visibility: hidden;
+
+    &:hover {
+        background: var(--ntp-controls-fill-primary);
+    }
+
+    &:active {
+        background: var(--ntp-controls-fill-secondary);
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+
+    .form:hover & {
+        visibility: visible;
+    }
+
+    [data-entry-point="omnibar"]:has([role="listbox"]) & {
+        visibility: visible;
+    }
 }

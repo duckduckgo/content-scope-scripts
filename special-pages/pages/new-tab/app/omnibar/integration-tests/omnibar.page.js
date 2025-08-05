@@ -65,6 +65,10 @@ export class OmnibarPage {
         return this.page.getByRole('switch', { name: 'Toggle Duck.ai' });
     }
 
+    closeButton() {
+        return this.context().getByRole('button', { name: 'Close' });
+    }
+
     /**
      * @param {number} count
      */

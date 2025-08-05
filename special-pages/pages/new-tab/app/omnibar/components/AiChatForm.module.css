@@ -69,6 +69,14 @@
         opacity: 0.3;
     }
 
+    &:hover:not([disabled]) {
+        background: var(--ntp-accent-secondary);
+    }
+
+    &:active:not([disabled]) {
+        background: var(--ntp-accent-tertiary);
+    }
+
     &:focus-visible {
         box-shadow: var(--focus-ring);
     }
