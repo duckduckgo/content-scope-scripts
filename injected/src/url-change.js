@@ -1,10 +1,29 @@
 import { DDGProxy, DDGReflect, isBeingFramed } from './utils.js';
 import ContentFeature from './content-feature.js';
 
+/**
+ * @typedef {'push' | 'replace' | 'reload' | 'traverse' | 'unknown'} NavigationType
+ * An enumerated value representing the type of navigation.
+ *
+ * Possible values:
+ * - `'push'`     - A new location is navigated to, causing a new entry to be pushed onto the history list.
+ * - `'replace'`  - The Navigation.currentEntry is replaced with a new history entry.
+ * - `'reload'`   - The Navigation.currentEntry is reloaded.
+ * - `'traverse'` - The browser navigates from one existing history entry to another existing history entry.
+ * - `'unknown'`  - Fallback but highly unlikely. If the WeakMap lookup fails that means the navigate event wasn't captured.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/NavigateEvent/navigationType
+ */
+
+/**
+ * @typedef {(navigationType: NavigationType) => void} URLChangeListener
+ */
+
 const urlChangeListeners = new Set();
+
 /**
  * Register a listener to be called when the URL changes.
- * @param {function} listener
+ * @param {URLChangeListener} listener - Callback function that receives the navigation type
  */
 export function registerForURLChanges(listener) {
     if (urlChangeListeners.size === 0) {
@@ -13,6 +32,9 @@ export function registerForURLChanges(listener) {
     urlChangeListeners.add(listener);
 }
 
+/**
+ * @param {NavigationType} navigationType - The type of navigation that occurred
+ */
 function handleURLChange(navigationType = 'unknown') {
     for (const listener of urlChangeListeners) {
         listener(navigationType);
@@ -32,7 +54,7 @@ function listenForURLChanges() {
             navigations.set(event.target, event.navigationType);
         });
         globalThis.navigation.addEventListener('navigatesuccess', (event) => {
-            const navigationType = navigations.get(event.target) || 'unknown';
+            const navigationType = navigations.get(event.target);
             handleURLChange(navigationType);
             navigations.delete(event.target);
         });
@@ -56,6 +78,6 @@ function listenForURLChanges() {
     historyMethodProxy.overload();
     // listen for popstate events in order to run on back/forward navigations
     window.addEventListener('popstate', () => {
-        handleURLChange('popState');
+        handleURLChange('traverse');
     });
 }

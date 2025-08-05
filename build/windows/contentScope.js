@@ -8037,7 +8037,10 @@
         this.videoPlaybackObserve();
       }
     }
-    urlChanged(navigationType = "unknown") {
+    /**
+     * @param {NavigationType} navigationType
+     */
+    urlChanged(navigationType) {
       if (this.getFeatureSettingEnabled("urlChanged")) {
         this.fireTelemetryForUrlChanged(navigationType);
       }
@@ -8055,6 +8058,9 @@
       }
       return null;
     }
+    /**
+     * @param {NavigationType} navigationType
+     */
     fireTelemetryForUrlChanged(navigationType) {
       this.messaging.notify(MSG_URL_CHANGED, {
         url: window.location.href,
@@ -15168,7 +15174,7 @@
         navigations.set(event.target, event.navigationType);
       });
       globalThis.navigation.addEventListener("navigatesuccess", (event) => {
-        const navigationType = navigations.get(event.target) || "unknown";
+        const navigationType = navigations.get(event.target);
         handleURLChange(navigationType);
         navigations.delete(event.target);
       });
@@ -15187,7 +15193,7 @@
     });
     historyMethodProxy.overload();
     window.addEventListener("popstate", () => {
-      handleURLChange("popState");
+      handleURLChange("traverse");
     });
   }
 

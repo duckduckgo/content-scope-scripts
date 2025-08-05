@@ -1,1 +1,5 @@
-- Add `url-changed` to `WebTelemetry` (#1865)
+- NTP: More omnibar design feedback (#1876)
+- NTP: Remove search icon and input suffix from omnibar, tweak surface colours (#1871)
+- NTP: Swap “Show Duck.ai” / “Hide Duck.ai” link for a Duck.ai toggle (#1870)
+- Add typing method to urlChanged method (#1869)
+- Add screenshot tests for omnibar widget states (#1868)

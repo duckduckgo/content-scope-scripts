@@ -61,12 +61,12 @@ export class OmnibarPage {
         return this.page.getByRole('switch', { name: 'Toggle Search' });
     }
 
-    showDuckAiButton() {
-        return this.page.getByRole('link', { name: 'Show Duck.ai' });
+    toggleDuckAiButton() {
+        return this.page.getByRole('switch', { name: 'Toggle Duck.ai' });
     }
 
-    hideDuckAiButton() {
-        return this.page.getByRole('link', { name: 'Hide Duck.ai' });
+    closeButton() {
+        return this.context().getByRole('button', { name: 'Close' });
     }
 
     /**
