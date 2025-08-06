@@ -2,7 +2,7 @@
     align-items: center;
     display: flex;
     flex-direction: column;
-    padding-bottom: calc(14px + 9px + var(--sp-7)); /* Extra space to accomodate absolute positioned .buttons */
+    padding-bottom: calc(var(--sp-3) + var(--sp-7) + var(--sp-3)); /* Extra space to accomodate absolute positioned .buttons */
 }
 
 .textarea {
@@ -10,14 +10,22 @@
     background: none;
     border: none;
     box-sizing: content-box;
-    color: var(--ntp-text-normal);
-    font-weight: 500;
+    color: var(--ntp-text-primary);
     max-height: 10lh;
-    padding: 11px 15px 0;
+    padding: var(--sp-3) var(--sp-3) 0;
     resize: none;
 
+    [data-platform="macos"] & {
+        font-weight: 500;
+    }
+
     &::placeholder {
-        color: var(--ntp-text-muted);
+        color: var(--ntp-text-tertiary);
+    }
+
+    [data-platform="windows"] &::selection {
+        background: var(--ntp-selection-background-color);
+        color: var(--ntp-selection-color);
     }
 
     &:focus {
@@ -25,8 +33,8 @@
     }
 
     .hasScroll & {
-        border-bottom: 1px solid var(--ntp-surface-border-color);
-        padding-bottom: 11px;
+        border-bottom: 1px solid var(--ntp-decoration-tertiary);
+        padding-bottom: var(--sp-3);
     }
 }
 
@@ -35,21 +43,18 @@
     bottom: 0;
     justify-content: space-between;
     left: 0;
-    padding: 14px 9px 9px;
+    padding: var(--sp-3);
     position: absolute; /* Fix .buttons to <Container /> so that it animates smoothly when container resizes */
     right: 0;
-
-    .hasScroll & {
-        padding-top: 9px;
-    }
 }
 
 .submitButton {
     align-items: center;
-    background: var(--color-blue-50);
+    animation: fadeIn 0.3s ease-in-out;
+    background: var(--ntp-accent-primary);
     border-radius: 100%;
     border: none;
-    color: var(--color-white);
+    color: var(--ntp-accent-content-primary);
     cursor: pointer;
     display: flex;
     height: var(--sp-7);
@@ -60,11 +65,28 @@
 
     &[disabled] {
         background: none;
-        color: rgba(0, 0, 0, 0.3);
+        color: color-mix(in srgb, var(--ntp-icons-primary) 30%, transparent);
         cursor: default;
+    }
+
+    &:hover:not([disabled]) {
+        background: var(--ntp-accent-secondary);
+    }
+
+    &:active:not([disabled]) {
+        background: var(--ntp-accent-tertiary);
     }
 
     &:focus-visible {
         box-shadow: var(--focus-ring);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }

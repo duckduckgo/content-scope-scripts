@@ -484,3 +484,33 @@ export function LogoStacked(props) {
         </svg>
     );
 }
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Arrow-Indent-Centerd-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function ArrowIndentCenteredIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M3.625 1c.345 0 .625.28.625.625V5c0 1.52 1.23 2.75 2.749 2.75h7.117l-2.683-2.683a.625.625 0 0 1 .86-.906l.024.022 2.69 2.69c.83.83.83 2.175 0 3.005l-2.69 2.689a.625.625 0 1 1-.884-.884L14.116 9H7a3.999 3.999 0 0 1-4-4V1.625C3 1.28 3.28 1 3.625 1Z"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Close-Small-16.svg.
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function CloseSmallIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M10.433 4.683a.625.625 0 1 1 .884.884L8.884 8l2.433 2.433a.625.625 0 1 1-.884.884L8 8.884l-2.433 2.433a.625.625 0 1 1-.884-.884L7.116 8 4.683 5.567a.625.625 0 1 1 .884-.884L8 7.116l2.433-2.433Z"
+            />
+        </svg>
+    );
+}

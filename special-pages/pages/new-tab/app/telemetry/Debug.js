@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { useTelemetry } from '../types.js';
 import { useCustomizer } from '../customizer/components/CustomizerMenu.js';
 import { Telemetry } from './telemetry.js';
+import { DuckFoot } from '../components/Icons.js';
 
 export function DebugCustomized({ index, isOpenInitially = false }) {
     const [isOpen, setOpen] = useState(isOpenInitially);
@@ -10,7 +11,7 @@ export function DebugCustomized({ index, isOpenInitially = false }) {
     useCustomizer({
         title: '🐞 Debug',
         id: 'debug',
-        icon: 'shield',
+        icon: <DuckFoot />,
         visibility: isOpen ? 'visible' : 'hidden',
         toggle: (_id) => setOpen((prev) => !prev),
         index,

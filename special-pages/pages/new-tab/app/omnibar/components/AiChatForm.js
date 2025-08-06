@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { eventToTarget } from '../../../../../shared/handlers';
 import { ArrowRightIcon } from '../../components/Icons';
 import { usePlatformName } from '../../settings.provider';
@@ -33,6 +33,23 @@ export function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange
             textAreaRef.current.focus();
         }
     }, [autoFocus]);
+
+    useLayoutEffect(() => {
+        const textArea = textAreaRef.current;
+        const form = formRef.current;
+
+        if (!textArea || !form) return;
+
+        const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
+        textArea.style.height = 'auto'; // Reset height
+        textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
+
+        if (textArea.scrollHeight > textArea.clientHeight) {
+            form.classList.add(styles.hasScroll);
+        } else {
+            form.classList.remove(styles.hasScroll);
+        }
+    }, [chat]);
 
     const disabled = chat.length === 0;
 
@@ -69,24 +86,6 @@ export function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange
         });
     };
 
-    /** @type {(event: import('preact').JSX.TargetedEvent<HTMLTextAreaElement>) => void} */
-    const handleChange = (event) => {
-        const form = formRef.current;
-        const textArea = event.currentTarget;
-
-        const { paddingTop, paddingBottom } = window.getComputedStyle(textArea);
-        textArea.style.height = 'auto'; // Reset height
-        textArea.style.height = `calc(${textArea.scrollHeight}px - ${paddingTop} - ${paddingBottom})`;
-
-        if (textArea.scrollHeight > textArea.clientHeight) {
-            form?.classList.add(styles.hasScroll);
-        } else {
-            form?.classList.remove(styles.hasScroll);
-        }
-
-        onChange(textArea.value);
-    };
-
     return (
         <form ref={formRef} class={styles.form} onClick={() => textAreaRef.current?.focus()} onSubmit={handleSubmit}>
             <textarea
@@ -97,11 +96,12 @@ export function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange
                 aria-label={t('omnibar_aiChatFormPlaceholder')}
                 autoComplete="off"
                 rows={1}
-                onFocus={onFocus}
-                onBlur={onBlur}
+                // Using capture to work around WebKit which doesn't fire focus/blur event when user moves focus from/to address bar.
+                onFocusCapture={onFocus}
+                onBlurCapture={onBlur}
                 onInput={onInput}
                 onKeyDown={handleKeyDown}
-                onChange={handleChange}
+                onChange={(event) => onChange(event.currentTarget.value)}
             />
             <div class={styles.buttons}>
                 <button
