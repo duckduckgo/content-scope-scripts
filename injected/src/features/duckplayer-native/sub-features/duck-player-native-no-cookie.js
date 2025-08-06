@@ -83,6 +83,19 @@ export class DuckPlayerNativeNoCookie {
                 if (destroy) destroy();
             };
         });
+
+        this.sideEffects.add('continuously play video', () => {
+            const interval = setInterval(() => {
+                const video = document.querySelector('video');
+                if (video && video.paused) {
+                    video.play();
+                }
+            }, 10);
+
+            return () => {
+                clearInterval(interval);
+            };
+        });
     }
 
     destroy() {
