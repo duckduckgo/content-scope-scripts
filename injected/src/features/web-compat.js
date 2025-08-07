@@ -206,8 +206,8 @@ export class WebCompat extends ContentFeature {
         // Expose the API
         // window.Notification polyfill is intentionally incompatible with DOM lib types
         this.defineProperty(window, 'Notification', {
-            value: () => {
-                // noop
+            value: function Notification(_title, _options) {
+                throw new TypeError("Failed to construct 'Notification': Illegal constructor");
             },
             writable: true,
             configurable: true,
