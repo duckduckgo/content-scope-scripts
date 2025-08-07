@@ -2,6 +2,10 @@ import { Logger, SideEffects } from '../../duckplayer/util.js';
 import { pollTimestamp } from '../get-current-timestamp.js';
 import { showError } from '../custom-error/custom-error.js';
 import { ErrorDetection } from '../error-detection.js';
+import { stopVideoFromPausing } from '../playback-control.js';
+
+const PLAY_VIDEO_INTERVAL = 1;
+const PLAY_VIDEO_TIMEOUT = 3000;
 
 /**
  * @import {DuckPlayerNativeMessages} from '../messages.js'
@@ -84,18 +88,15 @@ export class DuckPlayerNativeNoCookie {
             };
         });
 
-        this.sideEffects.add('continuously play video', () => {
-            const interval = setInterval(() => {
-                const video = document.querySelector('video');
-                console.log('found video', video, video?.paused);
-                if (video && video.paused) {
-                    video.play();
-                }
-            }, 10);
+        this.sideEffects.add(`continuously play video for the first ${PLAY_VIDEO_TIMEOUT / 1000} seconds`, () => {
+            // This prevents background audio playback from pausing the frontmost video before the muting script has kicked in
+            const videoElement = this.selectors?.videoElement;
+            if (!videoElement) {
+                this.logger.warn('Missing video element selector in config');
+                return () => {};
+            }
 
-            return () => {
-                clearInterval(interval);
-            };
+            return stopVideoFromPausing(videoElement, PLAY_VIDEO_INTERVAL, PLAY_VIDEO_TIMEOUT);
         });
     }
 

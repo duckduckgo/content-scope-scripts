@@ -1,7 +1,7 @@
 import { Logger, SideEffects } from '../../duckplayer/util.js';
 import { muteAudio } from '../mute-audio.js';
 import { pollTimestamp } from '../get-current-timestamp.js';
-import { stopVideoFromPlaying, muteAllElements } from '../pause-video.js';
+import { stopVideoFromPlaying, muteAllElements } from '../playback-control.js';
 import { showThumbnailOverlay } from '../overlays/thumbnail-overlay.js';
 
 /**
