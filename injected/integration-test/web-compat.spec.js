@@ -130,6 +130,16 @@ test.describe('Ensure Notification interface is injected', () => {
             return window.Notification.maxActions;
         });
         expect(maxActionsPropDenied).toEqual(2);
+
+        const notificationToString = await page.evaluate(() => {
+            return window.Notification.toString();
+        });
+        expect(notificationToString).toEqual('function Notification() { [native code] }');
+
+        const requestPermissionToString = await page.evaluate(() => {
+            return window.Notification.requestPermission.toString();
+        });
+        expect(requestPermissionToString).toEqual('function requestPermission() { [native code] }');
     });
 });
 
