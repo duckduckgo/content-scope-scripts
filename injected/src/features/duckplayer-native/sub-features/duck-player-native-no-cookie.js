@@ -87,6 +87,7 @@ export class DuckPlayerNativeNoCookie {
         this.sideEffects.add('continuously play video', () => {
             const interval = setInterval(() => {
                 const video = document.querySelector('video');
+                console.log('found video', video, video?.paused);
                 if (video && video.paused) {
                     video.play();
                 }
