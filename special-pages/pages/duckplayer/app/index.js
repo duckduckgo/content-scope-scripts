@@ -15,6 +15,7 @@ import { Components } from './components/Components.jsx';
 import { MobileApp } from './components/MobileApp.jsx';
 import { DesktopApp } from './components/DesktopApp.jsx';
 import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
+import { EXCEPTION_KIND_INIT_ERROR, EXCEPTION_KIND_INITIAL_SETUP_ERROR } from '../../../../metrics/metrics-reporter.js';
 
 /** @typedef {import('../types/duckplayer').YouTubeError} YouTubeError */
 
@@ -27,11 +28,17 @@ import { YouTubeErrorProvider } from './providers/YouTubeErrorProvider';
 export async function init(messaging, telemetry, baseEnvironment) {
     const result = await callWithRetry(() => messaging.initialSetup());
     if ('error' in result) {
-        throw new Error(result.error);
+        const error = new Error(result.error);
+        error.name = EXCEPTION_KIND_INITIAL_SETUP_ERROR;
+        throw error;
     }
 
     const init = result.value;
-    console.log('INITIAL DATA', init);
+    if (!init) {
+        const error = new Error('missing initialSetup data');
+        error.name = EXCEPTION_KIND_INITIAL_SETUP_ERROR;
+        throw error;
+    }
 
     // update the 'env' in case it was changed by native sides
     const environment = baseEnvironment
@@ -66,17 +73,32 @@ export async function init(messaging, telemetry, baseEnvironment) {
 
     console.log(settings);
 
-    const embed = createEmbedSettings(window.location.href, settings);
+    let embed = null;
+    try {
+        embed = createEmbedSettings(window.location.href, settings);
+        if (!embed) {
+            throw new Error('Embed not found');
+        }
+    } catch (e) {
+        messaging.metrics.reportException({ message: e.message, kind: EXCEPTION_KIND_INIT_ERROR });
+    }
 
     const didCatch = (error) => {
-        const message = error?.message || 'unknown';
-        messaging.reportPageException({ message });
+        const message = error?.message;
+        messaging.metrics.reportExceptionWithError(error?.error);
+
+        // TODO: Remove the following event once all native platforms are responding to 'reportMetric: exception'
+        messaging.reportPageException({ message: message || 'unknown error' });
     };
 
     document.body.dataset.layout = settings.layout;
 
     const root = document.querySelector('body');
-    if (!root) throw new Error('could not render, root element missing');
+    if (!root) {
+        const error = new Error('could not render, root element missing');
+        error.name = EXCEPTION_KIND_INIT_ERROR;
+        throw error;
+    }
 
     if (environment.display === 'app') {
         render(

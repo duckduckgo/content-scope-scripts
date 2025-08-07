@@ -306,6 +306,34 @@ export class DuckplayerOverlays {
     }
 
     /**
+     * Simulates a messaging error by passing an empty initialSetup object
+     */
+    async messagingError() {
+        await this.build.switch({
+            android: async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: {},
+                });
+            },
+            apple: async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: null,
+                });
+            },
+            'apple-isolated': async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: null,
+                });
+            },
+            windows: async () => {
+                await this.collector.updateMockResponse({
+                    initialSetup: '',
+                });
+            },
+        });
+    }
+
+    /**
      * @param {keyof userValues} setting
      */
     async userChangedSettingTo(setting) {
@@ -475,6 +503,42 @@ export class DuckplayerOverlays {
                 },
             },
         ]);
+    }
+
+    /**
+     * @param {string} kind
+     * @param {string} message
+     */
+    async didSendException(kind, message, context = 'contentScopeScripts') {
+        const messages = await this.collector.waitForMessage('reportMetric');
+        expect(messages).toMatchObject([
+            {
+                payload: {
+                    context,
+                    featureName: 'duckPlayer',
+                    method: 'reportMetric',
+                    params: { metricName: 'exception', params: { kind, message } },
+                },
+            },
+        ]);
+    }
+
+    async didSendMessagingException() {
+        await this.build.switch({
+            android: async () => {
+                // Android produces a TypeError due to how its messaging lib is wired up
+                await this.didSendException('TypeError', "Cannot read properties of undefined (reading 'privatePlayerMode')");
+            },
+            apple: async () => {
+                await this.didSendException('MessagingError', 'an unknown error occurred');
+            },
+            'apple-isolated': async () => {
+                await this.didSendException('MessagingError', 'an unknown error occurred', 'contentScopeScriptsIsolated');
+            },
+            windows: async () => {
+                await this.didSendException('MessagingError', 'unknown error');
+            },
+        });
     }
 
     /**
