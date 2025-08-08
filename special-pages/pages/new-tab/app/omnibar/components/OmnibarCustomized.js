@@ -6,6 +6,7 @@ import { h } from 'preact';
 
 import { OmnibarConsumer } from './OmnibarConsumer.js';
 import { SearchIcon } from '../../components/Icons.js';
+import { PruneInitialTerms } from './PersistentTermsProvider.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -37,6 +38,7 @@ export function OmnibarCustomized() {
     return (
         <OmnibarProvider>
             <OmnibarConsumer />
+            <PruneInitialTerms />
         </OmnibarProvider>
     );
 }

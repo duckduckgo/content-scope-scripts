@@ -156,4 +156,29 @@ export class OmnibarPage {
         const calls = await this.ntp.mocks.outgoing({ names: [method] });
         expect(calls).toHaveLength(0);
     }
+
+    async didSwitchToTab(id, tabs) {
+        await this.ntp.mocks.simulateSubscriptionMessage(
+            sub('omnibar_onConfigUpdate'),
+            config({
+                tabId: id,
+                tabIds: tabs,
+                mode: 'search',
+            }),
+        );
+    }
+}
+
+/**
+ * @param {import("../../../types/new-tab.js").NewTabMessages["subscriptions"]["subscriptionEvent"]} name
+ */
+function sub(name) {
+    return name;
+}
+
+/**
+ * @param {import("../../../types/new-tab.js").OmnibarConfig} c
+ */
+function config(c) {
+    return c;
 }

@@ -62,6 +62,8 @@ export type Suggestion =
   | WebsiteSuggestion
   | HistoryEntrySuggestion
   | InternalPageSuggestion;
+export type OptionalTabId = string;
+export type OptionalListOfTabIds = string[];
 export type OmnibarMode = "search" | "ai";
 export type EnableDuckAi = boolean;
 export type ShowDuckAiSetting = boolean;
@@ -506,6 +508,8 @@ export interface OmnibarSetConfigNotification {
   params: OmnibarConfig;
 }
 export interface OmnibarConfig {
+  tabId?: null | OptionalTabId;
+  tabIds?: null | OptionalListOfTabIds;
   mode: OmnibarMode;
   enableAi?: EnableDuckAi;
   showAiSetting?: ShowDuckAiSetting;
