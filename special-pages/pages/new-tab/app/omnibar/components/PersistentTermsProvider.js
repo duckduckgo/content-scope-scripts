@@ -50,8 +50,8 @@ export function useQueryWithPersistence() {
         (term) => {
             if (state.config.tabId) {
                 terms?.update({ id: state.config.tabId, term });
-                _setQuery(term);
             }
+            _setQuery(term);
         },
         [state.config.tabId],
     );
