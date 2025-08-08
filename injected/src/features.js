@@ -56,7 +56,7 @@ export const platformSupport = {
         'fingerprintingTemporaryStorage',
         'fingerprintingAudio',
         'fingerprintingBattery',
-        'gpc'
+        'gpc',
     ],
     windows: [
         'cookie',
