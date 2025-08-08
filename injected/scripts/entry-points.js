@@ -36,7 +36,7 @@ const builds = {
         output: ['../build/android/autofillPasswordImport.js'],
     },
     'android-adsjs': {
-        input: 'entry-points/android.js',
+        input: 'entry-points/android-adsjs.js',
         output: ['../build/android/adsjsContentScope.js'],
     },
     windows: {
