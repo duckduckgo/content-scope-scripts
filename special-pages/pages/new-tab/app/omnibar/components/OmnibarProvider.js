@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { reducer, useInitialDataAndConfig, useConfigSubscription } from '../../service.hooks.js';
 import { OmnibarService } from '../omnibar.service.js';
@@ -153,7 +153,7 @@ export function OmnibarProvider(props) {
 /**
  * @return {import("preact").RefObject<OmnibarService>}
  */
-export function useService() {
+function useService() {
     const service = useRef(/** @type {OmnibarService|null} */ (null));
     const ntp = useMessaging();
     useEffect(() => {
@@ -164,4 +164,8 @@ export function useService() {
         };
     }, [ntp]);
     return service;
+}
+
+export function useOmnibarService() {
+    return useContext(OmnibarServiceContext);
 }
