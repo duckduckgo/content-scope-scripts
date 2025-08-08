@@ -37,7 +37,7 @@ const builds = {
     },
     'android-adsjs': {
         input: 'entry-points/android.js',
-        output: ['../build/android/adsjs.js'],
+        output: ['../build/android/adsjsContentScope.js'],
     },
     windows: {
         input: 'entry-points/windows.js',
