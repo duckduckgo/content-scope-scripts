@@ -27,7 +27,7 @@ import { ArrowIndentCenteredIcon } from '../../components/Icons.js';
 export function OmnibarConsumer() {
     const { state } = useContext(OmnibarContext);
     if (state.status === 'ready') {
-        return <OmnibarReadyState config={state.config} />;
+        return <OmnibarReadyState config={state.config} key={state.config.tabId} />;
     }
     return null;
 }

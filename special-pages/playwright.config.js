@@ -38,6 +38,7 @@ export default defineConfig({
                 'protections.spec.js',
                 'protections.screenshots.spec.js',
                 'omnibar.spec.js',
+                'omnibar.persistence.spec.js',
             ],
             use: {
                 ...devices['Desktop Chrome'],
