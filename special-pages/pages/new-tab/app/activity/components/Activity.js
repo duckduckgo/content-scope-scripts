@@ -261,8 +261,10 @@ export function ActivityConfigured({ children }) {
  *     <ActivityConsumer />
  * </ActivityProvider>
  * ```
+ * @param {object} props
+ * @param {boolean} props.showBurnAnimation
  */
-export function ActivityConsumer() {
+export function ActivityConsumer({ showBurnAnimation }) {
     const { state } = useContext(ActivityContext);
     const service = useContext(ActivityServiceContext);
     const platformName = usePlatformName();
@@ -279,7 +281,7 @@ export function ActivityConsumer() {
         }
         return (
             <SignalStateProvider>
-                <BurnProvider service={service}>
+                <BurnProvider service={service} showBurnAnimation={showBurnAnimation}>
                     <ActivityConfigured>
                         <ActivityBody canBurn={true} visibility={visibility} />
                     </ActivityConfigured>

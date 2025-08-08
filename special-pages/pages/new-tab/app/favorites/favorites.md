@@ -43,6 +43,11 @@ There are three representations of a favicon: image source, letters, or fallback
 - The widget config
 - returns {@link "NewTab Messages".FavoritesConfig}
 
+### `favorites_onRefresh`
+- {@link "NewTab Messages".FavoritesOnRefreshSubscription}.
+- Used to indicate potential updates, like when a favicon DB is ready
+- returns {@link "NewTab Messages".FavoritesRefresh}
+
 
 ## Notifications:
 

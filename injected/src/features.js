@@ -1,3 +1,4 @@
+// Features must exist in either `baseFeatures` or `otherFeatures`
 export const baseFeatures = /** @type {const} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
@@ -28,6 +29,7 @@ const otherFeatures = /** @type {const} */ ([
     'breakageReporting',
     'autofillPasswordImport',
     'favicon',
+    'webTelemetry',
     'scriptlets',
 ]);
 
@@ -50,6 +52,7 @@ export const platformSupport = {
     windows: [
         'cookie',
         ...baseFeatures,
+        'webTelemetry',
         'windowsPermissionUsage',
         'duckPlayer',
         'brokerProtection',

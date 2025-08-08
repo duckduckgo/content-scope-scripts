@@ -1,7 +1,7 @@
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
-import { DDGProxy } from '../utils';
+import { DDGProxy, DDGReflect } from '../utils';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
@@ -17,6 +17,7 @@ const MSG_WEB_SHARE = 'webShare';
 const MSG_PERMISSIONS_QUERY = 'permissionsQuery';
 const MSG_SCREEN_LOCK = 'screenLock';
 const MSG_SCREEN_UNLOCK = 'screenUnlock';
+const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 
 function canShare(data) {
     if (typeof data !== 'object') return false;
@@ -128,6 +129,9 @@ export class WebCompat extends ContentFeature {
         }
         if (this.getFeatureSettingEnabled('disableDeviceEnumeration')) {
             this.preventDeviceEnumeration();
+        }
+        if (this.getFeatureSettingEnabled('enumerateDevices')) {
+            this.deviceEnumerationFix();
         }
     }
 
@@ -757,15 +761,149 @@ export class WebCompat extends ContentFeature {
         }
     }
 
+    /**
+     * Prevents device enumeration by returning an empty array when enabled
+     */
     preventDeviceEnumeration() {
         if (!window.MediaDevices) {
             return;
         }
-        const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
-            apply() {
-                return Promise.resolve([]);
+        let disableDeviceEnumeration = false;
+        const isFrame = window.self !== window.top;
+        if (isFrame) {
+            disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumerationFrames');
+        } else {
+            disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumeration');
+        }
+        if (disableDeviceEnumeration) {
+            const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
+                /**
+                 * @returns {Promise<MediaDeviceInfo[]>}
+                 */
+                apply() {
+                    return Promise.resolve([]);
+                },
+            });
+            enumerateDevicesProxy.overload();
+        }
+    }
+
+    /**
+     * Creates a valid MediaDeviceInfo or InputDeviceInfo object that passes instanceof checks
+     * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
+     * @returns {MediaDeviceInfo | InputDeviceInfo}
+     */
+    createMediaDeviceInfo(kind) {
+        // Create an empty object with the correct prototype
+        let deviceInfo;
+        if (kind === 'videoinput' || kind === 'audioinput') {
+            // Input devices should inherit from InputDeviceInfo.prototype if available
+            if (typeof InputDeviceInfo !== 'undefined' && InputDeviceInfo.prototype) {
+                deviceInfo = Object.create(InputDeviceInfo.prototype);
+            } else {
+                deviceInfo = Object.create(MediaDeviceInfo.prototype);
+            }
+        } else {
+            // Output devices inherit from MediaDeviceInfo.prototype
+            deviceInfo = Object.create(MediaDeviceInfo.prototype);
+        }
+
+        // Define read-only properties from the start
+        Object.defineProperties(deviceInfo, {
+            deviceId: {
+                value: 'default',
+                writable: false,
+                configurable: false,
+                enumerable: true,
+            },
+            kind: {
+                value: kind,
+                writable: false,
+                configurable: false,
+                enumerable: true,
+            },
+            label: {
+                value: '',
+                writable: false,
+                configurable: false,
+                enumerable: true,
+            },
+            groupId: {
+                value: 'default-group',
+                writable: false,
+                configurable: false,
+                enumerable: true,
+            },
+            toJSON: {
+                value: function () {
+                    return {
+                        deviceId: this.deviceId,
+                        kind: this.kind,
+                        label: this.label,
+                        groupId: this.groupId,
+                    };
+                },
+                writable: false,
+                configurable: false,
+                enumerable: true,
             },
         });
+
+        return deviceInfo;
+    }
+
+    /**
+     * Fixes device enumeration to handle permission prompts gracefully
+     */
+    deviceEnumerationFix() {
+        if (!window.MediaDevices) {
+            return;
+        }
+
+        const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
+            /**
+             * @param {MediaDevices['enumerateDevices']} target
+             * @param {MediaDevices} thisArg
+             * @param {Parameters<MediaDevices['enumerateDevices']>} args
+             * @returns {Promise<MediaDeviceInfo[]>}
+             */
+            apply: async (target, thisArg, args) => {
+                try {
+                    // Request device enumeration information from native
+                    /** @type {{willPrompt: boolean, videoInput: boolean, audioInput: boolean, audioOutput: boolean}} */
+                    const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+
+                    // Check if native indicates that prompts would be required
+                    if (response.willPrompt) {
+                        // If prompts would be required, return a manipulated response
+                        // that includes the device types that are available
+                        /** @type {MediaDeviceInfo[]} */
+                        const devices = [];
+
+                        if (response.videoInput) {
+                            devices.push(this.createMediaDeviceInfo('videoinput'));
+                        }
+
+                        if (response.audioInput) {
+                            devices.push(this.createMediaDeviceInfo('audioinput'));
+                        }
+
+                        if (response.audioOutput) {
+                            devices.push(this.createMediaDeviceInfo('audiooutput'));
+                        }
+
+                        return Promise.resolve(devices);
+                    } else {
+                        // If no prompts would be required, proceed with the regular device enumeration
+                        return DDGReflect.apply(target, thisArg, args);
+                    }
+                } catch (err) {
+                    // If the native request fails, fall back to the original implementation
+                    return DDGReflect.apply(target, thisArg, args);
+                }
+            },
+        });
+
         enumerateDevicesProxy.overload();
     }
 }

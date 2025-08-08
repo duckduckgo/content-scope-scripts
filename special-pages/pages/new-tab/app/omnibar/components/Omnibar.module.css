@@ -1,0 +1,92 @@
+.root {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: var(--sp-15);
+}
+
+.logo {
+    margin-bottom: var(--sp-4);
+    width: 164px;
+}
+
+/*
+ * There are three containers:
+ * 1) .spacer - Pushes other widgets away. Fixed height. Contents overflow. Height animates.
+ * 2) .popup - Has border. Auto height. No animation.
+ * 3) .field - Fixed height set to scrollHeight of children. Height animates.
+ *
+ * The intention is that:
+ * - Other widgets are smoothly pushed away when switching to the Duck.ai tab.
+ * - Suggestions list and expanded Duck.ai textarea always overflows over other widgets.
+ * - Omnibar height expands smoothly when switching tab or entering mutiline text into Duck.ai textarea.
+ * - Omnibar height does NOT animate when suggestions list opens or changes.
+ */
+
+.spacer {
+    align-self: stretch;
+    transition: height 200ms ease;
+    z-index: 1;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+
+    [data-mode="search"] & {
+        height: calc(var(--sp-10) + 3px * 2);
+    }
+
+    [data-mode="ai"] & {
+        height: calc(var(--sp-20) + 3px * 2);
+    }
+}
+
+.popup {
+    backdrop-filter: blur(16px);
+    background: var(--ntp-surface-tertiary);
+    display: flow-root; /* Prevent margin collapse on .field */
+}
+
+.field {
+    box-sizing: content-box;
+    overflow: hidden;
+    position: relative;
+    transition: height 200ms ease;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
+/* Rest */
+.root:not(:has([role="listbox"])) .popup {
+    border-radius: 12px;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
+    margin: 3px;
+}
+
+/* Focused */
+.root:not(:has([role="listbox"])):focus-within:not([data-focus-ring="false"]) .popup,
+.root:not(:has([role="listbox"]))[data-focus-ring="true"] .popup {
+    border-radius: 15px;
+    border: 2px solid var(--ntp-accent-primary);
+    box-shadow: none;
+    margin: 0;
+    outline: 2px solid var(--ntp-accent-glow);
+
+    .field {
+        margin: 1px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */
+    }
+}
+
+/* Suggestions */
+.root:has([role="listbox"]) .popup {
+    border-radius: 15px;
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08);
+    margin: 0;
+
+    .field {
+        margin: 3px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */
+    }
+}

@@ -20,8 +20,7 @@ The main HTML file is located at `src/index.html`. You can edit this file direct
 ### CSS
 The main stylesheet is located at `src/style.css`. You can edit this file directly
 
-The build process will create a bundle and place it inside `Sources/ContentScopeScripts/dist/pages/onboarding` 
-on macOS - other platforms will be under `build/<PLATFORM>/pages/errorpage`
+The build process will create a bundle and place it under `build/<PLATFORM>/pages/errorpage`
 
 Don't edit the generated files directly - any changes you make will not be reflected in the final build output. 
 
