@@ -49,6 +49,15 @@ export const platformSupport = {
     android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-password-import': ['autofillPasswordImport'],
+    'android-adsjs': [
+        'webCompat',
+        'fingerprintingHardware',
+        'fingerprintingScreenSize',
+        'fingerprintingTemporaryStorage',
+        'fingerprintingAudio',
+        'fingerprintingBattery',
+        'gpc'
+    ],
     windows: [
         'cookie',
         ...baseFeatures,
