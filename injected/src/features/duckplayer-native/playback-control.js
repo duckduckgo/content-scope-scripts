@@ -67,3 +67,41 @@ export function muteAllElements() {
         });
     };
 }
+
+/**
+ * Makes sure video keeps playing even if a media event in the background forces it to pause
+ *
+ * @param {string} videoSelector
+ * @param {number} interval - The interval in milliseconds to check if the video is paused
+ * @param {number} timeout - How long this function should run for (0 = forever)
+ * @returns {() => void} A function that allows the video to play again
+ */
+export function stopVideoFromPausing(videoSelector, interval = 10, timeout = 1000) {
+    const maxLoops = timeout / interval;
+    let loops = 0;
+    /**
+     * Set up the interval - keep calling .play() to prevent
+     * the video from pausing
+     */
+    const int = setInterval(() => {
+        if (maxLoops) {
+            loops++;
+            if (maxLoops && loops > maxLoops) {
+                clearInterval(int);
+                return;
+            }
+        }
+
+        const video = /** @type {HTMLVideoElement} */ (document.querySelector(videoSelector));
+        if (video?.isConnected) {
+            video.play();
+        }
+    }, interval);
+
+    /**
+     * To clean up, we need to stop the interval
+     */
+    return () => {
+        clearInterval(int);
+    };
+}
