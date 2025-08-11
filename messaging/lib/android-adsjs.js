@@ -200,7 +200,7 @@ export class AndroidAdsjsMessagingConfig {
         // Use postMessage to send to the native side
         // The native Android code will have set up addWebMessageListener to receive this
         if (this._capturedHandler && this._capturedHandler.postMessage) {
-            this._capturedHandler.postMessage(JSON.stringify(message), '*');
+            this._capturedHandler.postMessage(JSON.stringify(message));
         } else {
             throw new Error('postMessage not available');
         }
