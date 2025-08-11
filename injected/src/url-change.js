@@ -70,7 +70,6 @@ function listenForURLChanges() {
     const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, 'pushState', {
         apply(target, thisArg, args) {
             const changeResult = DDGReflect.apply(target, thisArg, args);
-            console.log('pushstate event');
             handleURLChange('push');
             return changeResult;
         },
