@@ -205,6 +205,7 @@ describe('ContentFeature class', () => {
                 expect(this.getFeatureSetting('otherTest4')).toBe('expected');
                 expect(this.getFeatureSetting('test5')).toBe('yep');
                 expect(this.getFeatureSetting('otherTest5')).toBe('expected');
+                expect(this.getFeatureSetting('notPresent')).toBeUndefined();
                 didRun = true;
             }
         }
@@ -285,6 +286,8 @@ describe('ContentFeature class', () => {
                             patchSettings: [
                                 { op: 'add', path: '/test5', value: 'yep' },
                                 { op: 'add', path: '/otherTest5', value: 'expected' },
+                                // This should not be added as replace state
+                                { op: 'replace', path: '/notPresent', value: 'notpresent' },
                             ],
                         },
                     ],
