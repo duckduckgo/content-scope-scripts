@@ -76,7 +76,41 @@ npm run fake-extension # Runs an example extension used within the integration t
 
 > **For detailed development setup instructions, debugging tips, and test build workflows, see the [Development Utilities](./docs/development-utilities.md) and [Testing Guide](./docs/testing-guide.md).**
 
+**Running specific tests:**
+
+To run a specific test or test suite, you can use the `--grep` flag to filter tests by name:
+
+```shell
+# Run tests containing "Test infra" in their name
+npx playwright test pages.spec.js --grep "Test infra"
+
+# Run tests containing "Conditional frame matching" in their name
+npx playwright test pages.spec.js --grep "Conditional frame matching"
+
+# Run tests in headed mode (shows browser window)
+npx playwright test pages.spec.js --grep "Test infra" --headed
+```
+
+**Debugging tests:**
+
+For debugging, you can run tests in headed mode and add debugging output:
+
+```shell
+# Run with browser visible and debugging enabled
+npx playwright test pages.spec.js --grep "Test infra" --headed --debug
+```
+
+#### Feature Build process
+
+To produce all artefacts that are used by platforms, just run the `npm run build` command.
+This will create platform specific code within the `build` folder (that is not checked in)
+
+```shell
+npm run build
+```
+
 ## Third-Party Libraries
+We make use of the following submodules:
 - [Adguard Scriptlets](https://github.com/AdguardTeam/Scriptlets)
 
 For detailed information about any specific topic, please refer to the [documentation](./docs/).

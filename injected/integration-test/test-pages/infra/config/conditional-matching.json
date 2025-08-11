@@ -13,6 +13,22 @@
                             "type": "number",
                             "value": 222
                         }
+                    },
+                    "testApi1": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "number",
+                            "value": 100
+                        },
+                        "define": true
+                    },
+                    "testApi2": {
+                        "type": "descriptor",
+                        "getterValue": {
+                            "type": "number",
+                            "value": 200
+                        },
+                        "define": true
                     }
                 },
                 "conditionalChanges": [
@@ -27,11 +43,39 @@
                                 "value": 333
                             }
                         ]
+                    },
+                    {
+                        "condition": {
+                            "context": {
+                                "top": true
+                            }
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "replace",
+                                "path": "/apiChanges/testApi1/getterValue/value",
+                                "value": 43339
+                            }
+                        ]
+                    },
+                    {
+                        "condition": {
+                            "context": {
+                                "frame": true
+                            }
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "replace",
+                                "path": "/apiChanges/testApi1/getterValue/value",
+                                "value": 43338
+                            }
+                        ]
                     }
                 ]
             }
         }
     },
     "unprotectedTemporary": []
-  }
+}
   
