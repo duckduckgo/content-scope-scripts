@@ -144,7 +144,10 @@ export class AndroidAdsjsMessagingTransport {
  * addEventListener on the captured handler.
  */
 export class AndroidAdsjsMessagingConfig {
-    /** @type {EventTarget | null} */
+    /** @type {{
+     * postMessage: (message: string) => void,
+     * addEventListener: (type: string, listener: (event: MessageEvent) => void) => void,
+     * } | null} */
     _capturedHandler;
 
     /**
