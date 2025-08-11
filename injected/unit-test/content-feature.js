@@ -489,4 +489,108 @@ describe('ContentFeature class', () => {
             expect(object.someProp.toString.toString.toString()).not.toBe(fn.toString.toString.toString());
         });
     });
+
+    describe('injectName condition', () => {
+        it('should match when injectName condition is met', () => {
+            class MyTestFeature extends ContentFeature {
+                /** @returns {'apple-isolated'} */
+                get injectName() {
+                    return 'apple-isolated';
+                }
+
+                testMatchInjectNameConditional(conditionBlock) {
+                    return this._matchInjectNameConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInjectNameConditional({
+                injectName: 'apple-isolated',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when injectName condition is not met', () => {
+            class MyTestFeature extends ContentFeature {
+                /** @returns {'apple-isolated'} */
+                get injectName() {
+                    return 'apple-isolated';
+                }
+
+                testMatchInjectNameConditional(conditionBlock) {
+                    return this._matchInjectNameConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInjectNameConditional({
+                injectName: 'firefox',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle undefined injectName gracefully', () => {
+            class MyTestFeature extends ContentFeature {
+                /** @returns {undefined} */
+                get injectName() {
+                    return undefined;
+                }
+
+                testMatchInjectNameConditional(conditionBlock) {
+                    return this._matchInjectNameConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInjectNameConditional({
+                injectName: 'apple-isolated',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle missing injectName condition', () => {
+            class MyTestFeature extends ContentFeature {
+                /** @returns {'apple-isolated'} */
+                get injectName() {
+                    return 'apple-isolated';
+                }
+
+                testMatchInjectNameConditional(conditionBlock) {
+                    return this._matchInjectNameConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInjectNameConditional({});
+            expect(result).toBe(false);
+        });
+    });
 });

@@ -79,6 +79,14 @@ export default class ConfigFeature {
     }
 
     /**
+     * Getter for injectName, can be overridden by subclasses
+     * @returns {string | undefined}
+     */
+    get injectName() {
+        return undefined;
+    }
+
+    /**
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
@@ -122,6 +130,7 @@ export default class ConfigFeature {
      * @property {object} [context]
      * @property {boolean} [context.frame] - true if the condition applies to frames
      * @property {boolean} [context.top] - true if the condition applies to the top frame
+     * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
      */
 
     /**
@@ -151,6 +160,7 @@ export default class ConfigFeature {
             urlPattern: this._matchUrlPatternConditional,
             experiment: this._matchExperimentConditional,
             minSupportedVersion: this._matchMinSupportedVersion,
+            injectName: this._matchInjectNameConditional,
         };
 
         for (const key in conditionBlock) {
@@ -259,6 +269,19 @@ export default class ConfigFeature {
             return false;
         }
         return matchHostname(domain, conditionBlock.domain);
+    }
+
+    /**
+     * Takes a condition block and returns true if the current inject name matches the injectName.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchInjectNameConditional(conditionBlock) {
+        if (!conditionBlock.injectName) return false;
+        // Access injectName through the ContentFeature's getter
+        const currentInjectName = this.injectName;
+        if (!currentInjectName) return false;
+        return conditionBlock.injectName === currentInjectName;
     }
 
     /**
