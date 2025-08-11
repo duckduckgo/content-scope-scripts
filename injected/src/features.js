@@ -62,6 +62,6 @@ export const platformSupport = {
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webCompat'],
+    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
     integration: [...baseFeatures, ...otherFeatures],
 };
