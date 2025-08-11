@@ -12,7 +12,7 @@
     box-sizing: content-box;
     color: var(--ntp-text-primary);
     max-height: 10lh;
-    padding: 11px 15px 0;
+    padding: var(--sp-3) var(--sp-3) 0;
     resize: none;
 
     [data-platform="macos"] & {
@@ -34,7 +34,7 @@
 
     .hasScroll & {
         border-bottom: 1px solid var(--ntp-decoration-tertiary);
-        padding-bottom: 11px;
+        padding-bottom: var(--sp-3);
     }
 }
 
@@ -50,6 +50,7 @@
 
 .submitButton {
     align-items: center;
+    animation: fadeIn 0.3s ease-in-out;
     background: var(--ntp-accent-primary);
     border-radius: 100%;
     border: none;
@@ -64,12 +65,28 @@
 
     &[disabled] {
         background: none;
-        color: var(--ntp-icons-primary);
+        color: color-mix(in srgb, var(--ntp-icons-primary) 30%, transparent);
         cursor: default;
-        opacity: 0.3;
+    }
+
+    &:hover:not([disabled]) {
+        background: var(--ntp-accent-secondary);
+    }
+
+    &:active:not([disabled]) {
+        background: var(--ntp-accent-tertiary);
     }
 
     &:focus-visible {
         box-shadow: var(--focus-ring);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }

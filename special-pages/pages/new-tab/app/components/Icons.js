@@ -499,3 +499,18 @@ export function ArrowIndentCenteredIcon(props) {
         </svg>
     );
 }
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Close-Small-16.svg.
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function CloseSmallIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M10.433 4.683a.625.625 0 1 1 .884.884L8.884 8l2.433 2.433a.625.625 0 1 1-.884.884L8 8.884l-2.433 2.433a.625.625 0 1 1-.884-.884L7.116 8 4.683 5.567a.625.625 0 1 1 .884-.884L8 7.116l2.433-2.433Z"
+            />
+        </svg>
+    );
+}

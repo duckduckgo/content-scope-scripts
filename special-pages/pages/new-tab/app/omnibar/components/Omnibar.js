@@ -65,13 +65,13 @@ export function Omnibar({ mode, setMode, enableAi }) {
     };
 
     return (
-        <div key={resetKey} class={styles.root} data-mode={mode}>
+        <div key={resetKey} class={styles.root} data-mode={mode} data-focus-ring={focusRing}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && <TabSwitcher mode={mode} onChange={handleChangeMode} />}
             <SearchFormProvider term={query} setTerm={setQuery}>
                 <div class={styles.spacer}>
                     <div class={styles.popup}>
-                        <ResizingContainer className={styles.field} data-focus-ring={focusRing}>
+                        <ResizingContainer className={styles.field}>
                             {mode === 'search' ? (
                                 <SearchForm autoFocus={autoFocus} onOpenSuggestion={handleOpenSuggestion} onSubmit={handleSubmitSearch} />
                             ) : (

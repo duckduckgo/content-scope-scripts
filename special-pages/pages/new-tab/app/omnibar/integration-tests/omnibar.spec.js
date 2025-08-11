@@ -908,4 +908,32 @@ test.describe('omnibar widget', () => {
         // Content should still be there
         await expect(omnibar.chatInput()).toHaveValue(multilineText);
     });
+
+    test('close button hides suggestions then clears input', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Select the input and type 'pizza'
+        await omnibar.searchInput().click();
+        await omnibar.searchInput().fill('pizza');
+
+        // Wait for suggestions to appear
+        await omnibar.waitForSuggestions();
+        await omnibar.expectSuggestionsCount(18);
+
+        // Click close button - should hide suggestions
+        await omnibar.closeButton().click();
+        await expect(omnibar.suggestionsList()).not.toBeVisible();
+
+        // Input should still have 'pizza'
+        await omnibar.expectInputValue('pizza');
+
+        // Click close button again - should clear input
+        await omnibar.closeButton().click();
+        await omnibar.expectInputValue('');
+    });
 });

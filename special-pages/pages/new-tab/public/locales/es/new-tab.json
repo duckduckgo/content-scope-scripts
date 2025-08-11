@@ -156,6 +156,10 @@
     "title" : "Busca de manera privada",
     "description" : "Placeholder text for the search input field."
   },
+  "omnibar_searchFormCloseButtonLabel" : {
+    "title" : "Cerrar",
+    "description" : "Accessible label for the close button in the search form."
+  },
   "omnibar_toggleDuckAi" : {
     "title" : "Duck.ai",
     "description" : "Label for the button to toggle the Duck.ai chat interface."
