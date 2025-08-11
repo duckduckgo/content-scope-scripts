@@ -79,7 +79,7 @@ export default class ConfigFeature {
     }
 
     /**
-     * Getter for injectName, can be overridden by subclasses
+     * Getter for injectName, will be overridden by subclasses (namely ContentFeature)
      * @returns {string | undefined}
      */
     get injectName() {
