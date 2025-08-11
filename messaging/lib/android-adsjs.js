@@ -40,7 +40,7 @@ export class AndroidAdsjsMessagingTransport {
      */
     notify(msg) {
         try {
-            this.config.sendMessageThrows?.(JSON.stringify(msg));
+            this.config.sendMessageThrows?.(msg);
         } catch (e) {
             console.error('.notify failed', e);
         }
@@ -56,7 +56,7 @@ export class AndroidAdsjsMessagingTransport {
             const unsub = this.config.subscribe(msg.id, handler);
 
             try {
-                this.config.sendMessageThrows?.(JSON.stringify(msg));
+                this.config.sendMessageThrows?.(msg);
             } catch (e) {
                 unsub();
                 reject(new Error('request failed to send: ' + e.message || 'unknown error'));
@@ -183,19 +183,14 @@ export class AndroidAdsjsMessagingConfig {
      *
      * Note: This can throw - it's up to the transport to handle the error.
      *
-     * @type {(json: string) => void}
+     * @type {(json: object) => void}
      * @throws
      * @internal
      */
-    sendMessageThrows(json) {
+    sendMessageThrows(message) {
         if (!this.objectName) {
             throw new Error('Object name not set for WebMessageListener');
         }
-
-        // Send message via postMessage to the object
-        const message = {
-            message: json
-        };
 
         // Use postMessage to send to the native side
         // The native Android code will have set up addWebMessageListener to receive this
