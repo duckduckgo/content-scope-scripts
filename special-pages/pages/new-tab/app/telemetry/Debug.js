@@ -10,7 +10,7 @@ export function DebugCustomized({ index, isOpenInitially = false }) {
     const telemetry = useTelemetry();
     useCustomizer({
         title: '🐞 Debug',
-        id: 'debug',
+        id: '_debug',
         icon: <DuckFoot />,
         visibility: isOpen ? 'visible' : 'hidden',
         toggle: (_id) => setOpen((prev) => !prev),
