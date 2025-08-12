@@ -83,7 +83,7 @@ export function stopVideoFromPausing(videoSelector, interval = 10, timeout = 100
      */
     const startTime = Date.now();
     const int = setInterval(() => {
-        if (timeout > 0 && (Date.now() - startTime) >= timeout) {
+        if (timeout > 0 && Date.now() - startTime >= timeout) {
             clearInterval(int);
             return;
         }
