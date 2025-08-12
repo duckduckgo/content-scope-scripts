@@ -73,8 +73,8 @@ body {
     --ntp-accent-content-primary: #FFFFFF;
     --ntp-controls-fill-primary: rgba(31, 31, 31, 0.09);
     --ntp-controls-fill-secondary: rgba(31, 31, 31, 0.12);
-    --ntp-controls-raised-backdrop: rgba(0, 0, 0, 0.09);
     --ntp-controls-raised-fill-primary: #FFFFFF;
+    --ntp-controls-raised-backdrop: rgba(0, 0, 0, 0.09);
     --ntp-decoration-tertiary: rgba(0, 0, 0, 0.09);
     --ntp-shadow-primary: rgba(0, 0, 0, 0.05);
     --ntp-shadow-secondary: rgba(0, 0, 0, 0.08);
@@ -110,8 +110,8 @@ body {
     --ntp-accent-content-primary: var(--color-blue-80);
     --ntp-controls-fill-primary: rgba(249, 249, 249, 0.12);
     --ntp-controls-fill-secondary: rgba(249, 249, 249, 0.18);
-    --ntp-controls-raised-backdrop: rgba(0, 0, 0, 0.6);
     --ntp-controls-raised-fill-primary: rgba(255, 255, 255, 0.18);
+    --ntp-controls-raised-backdrop: rgba(255, 255, 255, 0.12);
     --ntp-decoration-tertiary: rgba(255, 255, 255, 0.12);
     --ntp-shadow-primary: rgba(0, 0, 0, 0.16);
     --ntp-shadow-secondary: rgba(0, 0, 0, 0.24);
