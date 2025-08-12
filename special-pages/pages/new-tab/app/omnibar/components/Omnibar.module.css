@@ -13,12 +13,11 @@
 
 /*
  * There are three containers:
- * 1) .spacer - Pushes other widgets away. Fixed height. Contents overflow. Height animates.
+ * 1) .spacer - Pushes other widgets away. Fixed height to accommodate largest tab (Duck.ai). Contents overflow. No animation.
  * 2) .popup - Has border. Auto height. No animation.
  * 3) .field - Fixed height set to scrollHeight of children. Height animates.
  *
  * The intention is that:
- * - Other widgets are smoothly pushed away when switching to the Duck.ai tab.
  * - Suggestions list and expanded Duck.ai textarea always overflows over other widgets.
  * - Omnibar height expands smoothly when switching tab or entering mutiline text into Duck.ai textarea.
  * - Omnibar height does NOT animate when suggestions list opens or changes.
@@ -26,19 +25,11 @@
 
 .spacer {
     align-self: stretch;
-    transition: height 200ms ease;
+    height: calc(var(--sp-16) + 3px * 2);
     z-index: 1;
 
     @media (prefers-reduced-motion: reduce) {
         transition: none;
-    }
-
-    [data-mode="search"] & {
-        height: calc(var(--sp-10) + 3px * 2);
-    }
-
-    [data-mode="ai"] & {
-        height: calc(var(--sp-20) + 3px * 2);
     }
 }
 
