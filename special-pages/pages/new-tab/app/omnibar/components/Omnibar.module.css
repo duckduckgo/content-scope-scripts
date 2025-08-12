@@ -4,6 +4,14 @@
     flex-direction: column;
     gap: 10px;
     padding-bottom: var(--sp-15);
+
+    [data-theme="light"] & {
+        --omnibar-translucent-background-color: rgba(255, 255, 255, 0.54);
+    }
+
+    [data-theme="dark"] & {
+        --omnibar-translucent-background-color: rgba(0, 0, 0, 0.3);
+    }
 }
 
 .logo {
@@ -42,7 +50,7 @@
 
     body:not([data-background-kind="default"]) & {
         backdrop-filter: blur(48px);
-        background: var(--ntp-surface-background-color);
+        background: var(--omnibar-translucent-background-color);
         outline: 1px solid var(--ntp-surface-border-color);
     }
 }
