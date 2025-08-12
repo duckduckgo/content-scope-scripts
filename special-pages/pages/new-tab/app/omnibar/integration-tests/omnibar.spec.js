@@ -909,7 +909,7 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.chatInput()).toHaveValue(multilineText);
     });
 
-    test('close button hides suggestions then clears input', async ({ page }, workerInfo) => {
+    test('close button clears input and hides suggestions', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
 
@@ -925,15 +925,9 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
         await omnibar.expectSuggestionsCount(18);
 
-        // Click close button - should hide suggestions
+        // Click close button - should clear input and hide suggestions in one click
         await omnibar.closeButton().click();
         await expect(omnibar.suggestionsList()).not.toBeVisible();
-
-        // Input should still have 'pizza'
-        await omnibar.expectInputValue('pizza');
-
-        // Click close button again - should clear input
-        await omnibar.closeButton().click();
         await omnibar.expectInputValue('');
     });
 });
