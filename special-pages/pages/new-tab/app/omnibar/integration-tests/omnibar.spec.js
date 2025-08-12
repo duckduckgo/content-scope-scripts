@@ -925,9 +925,12 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
         await omnibar.expectSuggestionsCount(18);
 
-        // Click close button - should clear input and hide suggestions in one click
+        // Click close button
         await omnibar.closeButton().click();
+
+        // Should clear input, hide suggestions, and focus the search input
         await expect(omnibar.suggestionsList()).not.toBeVisible();
         await omnibar.expectInputValue('');
+        await expect(omnibar.searchInput()).toBeFocused();
     });
 });

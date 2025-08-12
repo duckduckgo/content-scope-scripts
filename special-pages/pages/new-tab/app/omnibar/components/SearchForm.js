@@ -170,6 +170,7 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
                         event.preventDefault();
                         hideSuggestions();
                         setTerm('');
+                        inputRef.current?.focus();
                     }}
                 >
                     <CloseSmallIcon />
