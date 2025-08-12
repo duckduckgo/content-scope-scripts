@@ -127,7 +127,7 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('modifyCookies')) {
             this.modifyCookies();
         }
-        if (this.getFeatureSettingEnabled('disableDeviceEnumeration') || this.getFeatureSettingEnabled('disableDeviceEnumerationFrames')) {
+        if (this.getFeatureSettingEnabled('disableDeviceEnumeration')) {
             this.preventDeviceEnumeration();
         }
         if (this.getFeatureSettingEnabled('enumerateDevices')) {

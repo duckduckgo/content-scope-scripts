@@ -3,6 +3,7 @@
     display: flex;
     height: var(--sp-10);
     padding: var(--sp-3);
+    padding-right: var(--sp-1);
 }
 
 .input {
@@ -12,7 +13,7 @@
     font: var(--input-font);
     left: 0;
     padding: var(--sp-3);
-    padding-right: calc(var(--suffix-text-width) + var(--sp-1) + var(--sp-8) + var(--sp-3)); /* Suffix + padding + close button + padding */
+    padding-right: calc(var(--suffix-text-width) + var(--sp-1) + var(--sp-8) + var(--sp-1)); /* Suffix + padding + close button + padding */
     position: absolute;
     right: 0;
 

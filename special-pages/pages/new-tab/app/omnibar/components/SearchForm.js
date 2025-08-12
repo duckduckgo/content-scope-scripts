@@ -168,11 +168,9 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
                     tabIndex={0} // Needed so that WebKit sets event.relatedTarget when firing blur event
                     onClick={(event) => {
                         event.preventDefault();
-                        if (suggestions.length > 0) {
-                            hideSuggestions();
-                        } else {
-                            setTerm('');
-                        }
+                        hideSuggestions();
+                        setTerm('');
+                        inputRef.current?.focus();
                     }}
                 >
                     <CloseSmallIcon />

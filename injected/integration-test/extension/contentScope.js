@@ -4659,9 +4659,6 @@
   // ../node_modules/immutable-json-patch/lib/esm/index.js
   init_define_import_meta_trackerLookup();
 
-  // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
-  init_define_import_meta_trackerLookup();
-
   // ../node_modules/immutable-json-patch/lib/esm/immutabilityHelpers.js
   init_define_import_meta_trackerLookup();
 
@@ -4698,7 +4695,8 @@
         copy2[symbol] = value[symbol];
       });
       return copy2;
-    } else if (isJSONObject(value)) {
+    }
+    if (isJSONObject(value)) {
       const copy2 = {
         ...value
       };
@@ -4706,18 +4704,16 @@
         copy2[symbol] = value[symbol];
       });
       return copy2;
-    } else {
-      return value;
     }
+    return value;
   }
   function applyProp(object, key, value) {
     if (object[key] === value) {
       return object;
-    } else {
-      const updatedObject = shallowClone(object);
-      updatedObject[key] = value;
-      return updatedObject;
     }
+    const updatedObject = shallowClone(object);
+    updatedObject[key] = value;
+    return updatedObject;
   }
   function getIn(object, path) {
     let value = object;
@@ -4726,7 +4722,7 @@
       if (isJSONObject(value)) {
         value = value[path[i]];
       } else if (isJSONArray(value)) {
-        value = value[parseInt(path[i])];
+        value = value[Number.parseInt(path[i])];
       } else {
         value = void 0;
       }
@@ -4743,15 +4739,13 @@
     const updatedValue = setIn(object ? object[key] : void 0, path.slice(1), value, createPath);
     if (isJSONObject(object) || isJSONArray(object)) {
       return applyProp(object, key, updatedValue);
-    } else {
-      if (createPath) {
-        const newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
-        newObject[key] = updatedValue;
-        return newObject;
-      } else {
-        throw new Error("Path does not exist");
-      }
     }
+    if (createPath) {
+      const newObject = IS_INTEGER_REGEX.test(key) ? [] : {};
+      newObject[key] = updatedValue;
+      return newObject;
+    }
+    throw new Error("Path does not exist");
   }
   var IS_INTEGER_REGEX = /^\d+$/;
   function updateIn(object, path, transform) {
@@ -4776,16 +4770,15 @@
       const key2 = path[0];
       if (!(key2 in object)) {
         return object;
-      } else {
-        const updatedObject = shallowClone(object);
-        if (isJSONArray(updatedObject)) {
-          updatedObject.splice(parseInt(key2), 1);
-        }
-        if (isJSONObject(updatedObject)) {
-          delete updatedObject[key2];
-        }
-        return updatedObject;
       }
+      const updatedObject = shallowClone(object);
+      if (isJSONArray(updatedObject)) {
+        updatedObject.splice(Number.parseInt(key2), 1);
+      }
+      if (isJSONObject(updatedObject)) {
+        delete updatedObject[key2];
+      }
+      return updatedObject;
     }
     const key = path[0];
     const updatedValue = deleteIn(object[key], path.slice(1));
@@ -4796,10 +4789,10 @@
     const index = path[path.length - 1];
     return updateIn(document2, parentPath, (items) => {
       if (!Array.isArray(items)) {
-        throw new TypeError("Array expected at path " + JSON.stringify(parentPath));
+        throw new TypeError(`Array expected at path ${JSON.stringify(parentPath)}`);
       }
       const updatedItems = shallowClone(items);
-      updatedItems.splice(parseInt(index), 0, value);
+      updatedItems.splice(Number.parseInt(index), 0, value);
       return updatedItems;
     });
   }
@@ -4816,6 +4809,9 @@
     return existsIn(document2[path[0]], path.slice(1));
   }
 
+  // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
+  init_define_import_meta_trackerLookup();
+
   // ../node_modules/immutable-json-patch/lib/esm/jsonPointer.js
   init_define_import_meta_trackerLookup();
   function parseJSONPointer(pointer) {
@@ -4827,7 +4823,7 @@
     return path.map(compileJSONPointerProp).join("");
   }
   function compileJSONPointerProp(pathProp) {
-    return "/" + String(pathProp).replace(/~/g, "~0").replace(/\//g, "~1");
+    return `/${String(pathProp).replace(/~/g, "~0").replace(/\//g, "~1")}`;
   }
 
   // ../node_modules/immutable-json-patch/lib/esm/immutableJSONPatch.js
@@ -4836,7 +4832,7 @@
     for (let i = 0; i < operations.length; i++) {
       validateJSONPatchOperation(operations[i]);
       let operation = operations[i];
-      if (options && options.before) {
+      if (options?.before) {
         const result = options.before(updatedDocument, operation);
         if (result !== void 0) {
           if (result.document !== void 0) {
@@ -4865,9 +4861,9 @@
       } else if (operation.op === "test") {
         test(updatedDocument, path, operation.value);
       } else {
-        throw new Error("Unknown JSONPatch operation " + JSON.stringify(operation));
+        throw new Error(`Unknown JSONPatch operation ${JSON.stringify(operation)}`);
       }
-      if (options && options.after) {
+      if (options?.after) {
         const result = options.after(updatedDocument, operation, previousDocument);
         if (result !== void 0) {
           updatedDocument = result;
@@ -4877,7 +4873,7 @@
     return updatedDocument;
   }
   function replace(document2, path, value) {
-    return setIn(document2, path, value);
+    return existsIn(document2, path) ? setIn(document2, path, value) : document2;
   }
   function remove(document2, path) {
     return deleteIn(document2, path);
@@ -4885,18 +4881,15 @@
   function add(document2, path, value) {
     if (isArrayItem(document2, path)) {
       return insertAt(document2, path, value);
-    } else {
-      return setIn(document2, path, value);
     }
+    return setIn(document2, path, value);
   }
   function copy(document2, path, from) {
     const value = getIn(document2, from);
     if (isArrayItem(document2, path)) {
       return insertAt(document2, path, value);
-    } else {
-      const value2 = getIn(document2, from);
-      return setIn(document2, path, value2);
     }
+    return setIn(document2, path, value);
   }
   function move(document2, path, from) {
     const value = getIn(document2, from);
@@ -4933,14 +4926,14 @@
   function validateJSONPatchOperation(operation) {
     const ops = ["add", "remove", "replace", "copy", "move", "test"];
     if (!ops.includes(operation.op)) {
-      throw new Error("Unknown JSONPatch op " + JSON.stringify(operation.op));
+      throw new Error(`Unknown JSONPatch op ${JSON.stringify(operation.op)}`);
     }
     if (typeof operation.path !== "string") {
-      throw new Error('Required property "path" missing or not a string in operation ' + JSON.stringify(operation));
+      throw new Error(`Required property "path" missing or not a string in operation ${JSON.stringify(operation)}`);
     }
     if (operation.op === "copy" || operation.op === "move") {
       if (typeof operation.from !== "string") {
-        throw new Error('Required property "from" missing or not a string in operation ' + JSON.stringify(operation));
+        throw new Error(`Required property "from" missing or not a string in operation ${JSON.stringify(operation)}`);
       }
     }
   }
@@ -5774,6 +5767,13 @@
       return __privateGet(this, _args)?.featureSettings;
     }
     /**
+     * Getter for injectName, will be overridden by subclasses (namely ContentFeature)
+     * @returns {string | undefined}
+     */
+    get injectName() {
+      return void 0;
+    }
+    /**
      * Given a config key, interpret the value as a list of conditionals objects, and return the elements that match the current page
      * Consider in your feature using patchSettings instead as per `getFeatureSetting`.
      * @param {string} featureKeyName
@@ -5811,6 +5811,10 @@
      * @property {object} [experiment]
      * @property {string} [experiment.experimentName]
      * @property {string} [experiment.cohort]
+     * @property {object} [context]
+     * @property {boolean} [context.frame] - true if the condition applies to frames
+     * @property {boolean} [context.top] - true if the condition applies to the top frame
+     * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
      */
     /**
      * Takes multiple conditional blocks and returns true if any apply.
@@ -5832,9 +5836,11 @@
     _matchConditionalBlock(conditionBlock) {
       const conditionChecks = {
         domain: this._matchDomainConditional,
+        context: this._matchContextConditional,
         urlPattern: this._matchUrlPatternConditional,
         experiment: this._matchExperimentConditional,
-        minSupportedVersion: this._matchMinSupportedVersion
+        minSupportedVersion: this._matchMinSupportedVersion,
+        injectName: this._matchInjectNameConditional
       };
       for (const key in conditionBlock) {
         if (!conditionChecks[key]) {
@@ -5871,6 +5877,22 @@
       });
     }
     /**
+     * Takes a condition block and returns true if the current context matches the context.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchContextConditional(conditionBlock) {
+      if (!conditionBlock.context) return false;
+      const isFrame = window.self !== window.top;
+      if (conditionBlock.context.frame && isFrame) {
+        return true;
+      }
+      if (conditionBlock.context.top && !isFrame) {
+        return true;
+      }
+      return false;
+    }
+    /**
      * Takes a condtion block and returns true if the current url matches the urlPattern.
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
@@ -5897,6 +5919,17 @@
         return false;
       }
       return matchHostname(domain, conditionBlock.domain);
+    }
+    /**
+     * Takes a condition block and returns true if the current inject name matches the injectName.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchInjectNameConditional(conditionBlock) {
+      if (!conditionBlock.injectName) return false;
+      const currentInjectName = this.injectName;
+      if (!currentInjectName) return false;
+      return conditionBlock.injectName === currentInjectName;
     }
     /**
      * Takes a condition block and returns true if the platform version satisfies the `minSupportedFeature`
@@ -14574,7 +14607,7 @@ ul.messages {
       if (this.getFeatureSettingEnabled("modifyCookies")) {
         this.modifyCookies();
       }
-      if (this.getFeatureSettingEnabled("disableDeviceEnumeration") || this.getFeatureSettingEnabled("disableDeviceEnumerationFrames")) {
+      if (this.getFeatureSettingEnabled("disableDeviceEnumeration")) {
         this.preventDeviceEnumeration();
       }
       if (this.getFeatureSettingEnabled("enumerateDevices")) {
@@ -22282,7 +22315,6 @@ Only "elements" is supported.`);
     const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, "pushState", {
       apply(target, thisArg, args) {
         const changeResult = DDGReflect.apply(target, thisArg, args);
-        console.log("pushstate event");
         handleURLChange("push");
         return changeResult;
       }
@@ -22363,19 +22395,8 @@ Only "elements" is supported.`);
   }
 
   // entry-points/integration.js
-  function getTopLevelURL() {
-    try {
-      if (window.location !== window.parent.location) {
-        return new URL(window.location.href !== "about:blank" ? document.referrer : window.parent.location.href);
-      } else {
-        return new URL(window.location.href);
-      }
-    } catch (error) {
-      return new URL(location.href);
-    }
-  }
   function generateConfig() {
-    const topLevelUrl = getTopLevelURL();
+    const topLevelUrl = getTabUrl();
     return {
       debug: false,
       sessionKey: "randomVal",
@@ -22395,8 +22416,8 @@ Only "elements" is supported.`);
         }
       ],
       site: {
-        domain: topLevelUrl.hostname,
-        url: topLevelUrl.href,
+        domain: topLevelUrl?.hostname || "",
+        url: topLevelUrl?.href || "",
         isBroken: false,
         allowlisted: false,
         enabledFeatures: [
@@ -22431,7 +22452,7 @@ Only "elements" is supported.`);
     return mergeDeep(target, ...sources);
   }
   async function initCode() {
-    const topLevelUrl = getTopLevelURL();
+    const topLevelUrl = getTabUrl();
     const processedConfig = generateConfig();
     globalThis.cssMessaging = processedConfig.messagingConfig = new TestTransportConfig({
       notify() {
@@ -22452,7 +22473,7 @@ Only "elements" is supported.`);
       currentCohorts: processedConfig.currentCohorts
     });
     setStatus("loaded");
-    if (!topLevelUrl.searchParams.has("wait-for-init-args")) {
+    if (!topLevelUrl?.searchParams.has("wait-for-init-args")) {
       await init(processedConfig);
       setStatus("initialized");
       return;
@@ -22461,8 +22482,10 @@ Only "elements" is supported.`);
       "content-scope-init-args",
       async (evt) => {
         const merged = mergeDeep(processedConfig, evt.detail);
+        window.__testContentScopeArgs = merged;
         await init(merged);
         setStatus("initialized");
+        document.dispatchEvent(new CustomEvent("content-scope-init-completed"));
       },
       { once: true }
     );

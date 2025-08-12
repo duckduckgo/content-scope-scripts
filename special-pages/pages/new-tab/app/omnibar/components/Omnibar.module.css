@@ -4,6 +4,14 @@
     flex-direction: column;
     gap: 10px;
     padding-bottom: var(--sp-15);
+
+    [data-theme="light"] & {
+        --omnibar-translucent-background-color: rgba(255, 255, 255, 0.54);
+    }
+
+    [data-theme="dark"] & {
+        --omnibar-translucent-background-color: rgba(0, 0, 0, 0.3);
+    }
 }
 
 .logo {
@@ -13,12 +21,11 @@
 
 /*
  * There are three containers:
- * 1) .spacer - Pushes other widgets away. Fixed height. Contents overflow. Height animates.
+ * 1) .spacer - Pushes other widgets away. Fixed height to accommodate largest tab (Duck.ai). Contents overflow. No animation.
  * 2) .popup - Has border. Auto height. No animation.
  * 3) .field - Fixed height set to scrollHeight of children. Height animates.
  *
  * The intention is that:
- * - Other widgets are smoothly pushed away when switching to the Duck.ai tab.
  * - Suggestions list and expanded Duck.ai textarea always overflows over other widgets.
  * - Omnibar height expands smoothly when switching tab or entering mutiline text into Duck.ai textarea.
  * - Omnibar height does NOT animate when suggestions list opens or changes.
@@ -26,26 +33,26 @@
 
 .spacer {
     align-self: stretch;
-    transition: height 200ms ease;
+    height: calc(var(--sp-16) + 3px * 2);
     z-index: 1;
 
     @media (prefers-reduced-motion: reduce) {
         transition: none;
     }
-
-    [data-mode="search"] & {
-        height: calc(var(--sp-10) + 3px * 2);
-    }
-
-    [data-mode="ai"] & {
-        height: calc(var(--sp-20) + 3px * 2);
-    }
 }
 
 .popup {
-    backdrop-filter: blur(16px);
     background: var(--ntp-surface-tertiary);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
     display: flow-root; /* Prevent margin collapse on .field */
+    margin: 3px;
+
+    body:not([data-background-kind="default"]) & {
+        backdrop-filter: blur(48px);
+        background: var(--omnibar-translucent-background-color);
+        outline: 1px solid var(--ntp-surface-border-color);
+    }
 }
 
 .field {
@@ -59,16 +66,8 @@
     }
 }
 
-/* Rest */
-.root:not(:has([role="listbox"])) .popup {
-    border-radius: 12px;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
-    margin: 3px;
-}
-
 /* Focused */
-.root:not(:has([role="listbox"])):focus-within:not([data-focus-ring="false"]) .popup,
-.root:not(:has([role="listbox"]))[data-focus-ring="true"] .popup {
+.root:focus-within:has(input:placeholder-shown, textarea:placeholder-shown) .popup {
     border-radius: 15px;
     border: 2px solid var(--ntp-accent-primary);
     box-shadow: none;
