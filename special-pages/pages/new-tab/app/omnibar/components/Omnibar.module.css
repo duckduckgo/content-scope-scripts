@@ -45,7 +45,10 @@
 .popup {
     backdrop-filter: blur(16px);
     background: var(--ntp-surface-tertiary);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
     display: flow-root; /* Prevent margin collapse on .field */
+    margin: 3px;
 }
 
 .field {
@@ -59,16 +62,8 @@
     }
 }
 
-/* Rest */
-.root:not(:has([role="listbox"])) .popup {
-    border-radius: 12px;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
-    margin: 3px;
-}
-
 /* Focused */
-.root:not(:has([role="listbox"])):focus-within:not([data-focus-ring="false"]) .popup,
-.root:not(:has([role="listbox"]))[data-focus-ring="true"] .popup {
+.root:focus-within:has(input:placeholder-shown, textarea:placeholder-shown) .popup {
     border-radius: 15px;
     border: 2px solid var(--ntp-accent-primary);
     box-shadow: none;
