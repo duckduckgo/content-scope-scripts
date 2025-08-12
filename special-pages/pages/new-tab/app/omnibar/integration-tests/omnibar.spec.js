@@ -933,4 +933,25 @@ test.describe('omnibar widget', () => {
         await omnibar.expectInputValue('');
         await expect(omnibar.searchInput()).toBeFocused();
     });
+
+    test('context menu only includes real widgets, not fake ones', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Right-click on the page to trigger context menu
+        await page.click('body', { button: 'right' });
+
+        // Assert that contextMenu notification is sent with real widgets and not e.g. the Duck.ai toggle
+        await omnibar.expectMethodCalledWith('contextMenu', {
+            visibilityMenuItems: [
+                { id: 'omnibar', title: 'Search' },
+                { id: 'favorites', title: 'Favorites' },
+                { id: 'protections', title: 'Protections Report' },
+            ],
+        });
+    });
 });
