@@ -77,14 +77,13 @@ export function muteAllElements() {
  * @returns {() => void} A function that allows the video to play again
  */
 export function stopVideoFromPausing(videoSelector, interval = 10, timeout = 1000) {
-    const maxLoops = timeout / interval;
-    let loops = 0;
     /**
      * Set up the interval - keep calling .play() to prevent
      * the video from pausing
      */
+    const startTime = Date.now();
     const int = setInterval(() => {
-        if (maxLoops && ++loops >= maxLoops) {
+        if (timeout > 0 && (Date.now() - startTime) >= timeout) {
             clearInterval(int);
             return;
         }
