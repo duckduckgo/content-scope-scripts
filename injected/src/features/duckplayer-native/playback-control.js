@@ -84,12 +84,9 @@ export function stopVideoFromPausing(videoSelector, interval = 10, timeout = 100
      * the video from pausing
      */
     const int = setInterval(() => {
-        if (maxLoops) {
-            loops++;
-            if (maxLoops && loops > maxLoops) {
-                clearInterval(int);
-                return;
-            }
+        if (maxLoops && ++loops >= maxLoops) {
+            clearInterval(int);
+            return;
         }
 
         const video = /** @type {HTMLVideoElement} */ (document.querySelector(videoSelector));
