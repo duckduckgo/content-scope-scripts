@@ -53,16 +53,4 @@ export const rmfDataExamples = {
             secondaryActionText: 'Remind me later, but only if I’m actually going to update soon',
         },
     },
-    big_two_action_overflow2: {
-        content: {
-            id: 'big-two-overflow',
-            messageType: 'big_two_action',
-            icon: 'AppUpdate',
-            titleText: 'Windows Update Recommended',
-            descriptionText:
-                'Support for Windows 10 is ending soon. Update to Windows 11 or newer before July 8, 2024, to keep getting the latest browser updates and improvements.',
-            primaryActionText: 'How to update Windows',
-            secondaryActionText: 'Remind me later, but only if I’m actually going to update soon',
-        },
-    },
 };

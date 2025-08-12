@@ -44,14 +44,4 @@ export const otherRMFExamples = {
             />
         ),
     },
-    'rmf.big-two-action-overflow2': {
-        factory: () => (
-            <RemoteMessagingFramework
-                message={rmfDataExamples.big_two_action_overflow2.content}
-                dismiss={noop('rmf_dismiss')}
-                primaryAction={noop('rmf_primaryAction')}
-                secondaryAction={noop('rmf_secondaryAction')}
-            />
-        ),
-    },
 };
