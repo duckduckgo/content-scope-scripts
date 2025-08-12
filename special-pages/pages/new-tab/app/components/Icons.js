@@ -213,6 +213,39 @@ export function SearchColorIcon(props) {
 }
 
 /**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Color/16px/Search-Find-Color-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function SearchOnDarkColorIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <g clip-path="url(#Search-Find-OnDark-Color-16_svg__a)">
+                <path fill="#444" d="M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z" />
+                <path
+                    fill="#fff"
+                    fill-opacity=".4"
+                    d="M7 2c1.315 0 2.512.508 3.404 1.339a5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z"
+                    opacity=".5"
+                />
+                <path
+                    fill="url(#Search-Find-OnDark-Color-16_svg__b)"
+                    d="M7 0a7 7 0 0 1 5.371 11.486l3.446 3.447.08.098a.626.626 0 0 1-.866.867l-.098-.08-3.447-3.447A7 7 0 1 1 7 0Zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 7 1Z"
+                />
+            </g>
+            <defs>
+                <linearGradient id="Search-Find-OnDark-Color-16_svg__b" x1="8" x2="8" y1="0" y2="16" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#CCDAFF" />
+                    <stop offset="1" stop-color="#8FABF9" />
+                </linearGradient>
+                <clipPath id="Search-Find-OnDark-Color-16_svg__a">
+                    <path fill="#fff" d="M0 0h16v16H0z" />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
+
+/**
  * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Ai-Chat-16.svg
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
@@ -279,6 +312,56 @@ export function AiChatColorIcon(props) {
                     <stop offset="1" stop-color="#6186F4" />
                 </linearGradient>
                 <clipPath id="Ai-Chat-Gradient-Color-16_svg__a">
+                    <path fill="#fff" d="M0 0h16v16H0z" />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
+
+/**
+ * https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Color/16px/Ai-Chat-OnDark-Color-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function AiChatOnDarkColorIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <g clip-path="url(#Ai-Chat-OnDark-Color-16_svg__a)">
+                <path
+                    fill="url(#Ai-Chat-OnDark-Color-16_svg__b)"
+                    d="M1.164 14.763c-.441.51-.014 1.284.65 1.17 2.655-.457 7.306-1.338 9.199-2.206C13.938 12.667 16 10.111 16 7.125 16 3.19 12.418 0 8 0S0 3.19 0 7.125c0 1.974.902 3.76 2.358 5.051.32.283.38.773.1 1.095l-1.294 1.492Z"
+                />
+                <path
+                    fill="url(#Ai-Chat-OnDark-Color-16_svg__c)"
+                    d="M15 7.125c0 2.495-1.729 4.72-4.328 5.662l-.039.014-.037.017c-.838.384-2.376.803-4.114 1.19a98.74 98.74 0 0 1-4.03.797l.762-.878c.68-.785.487-1.898-.193-2.5-1.227-1.087-1.973-2.55-2.019-4.147L1 7.125C1 3.848 4.022 1 8 1V0l-.207.003C3.54.099.11 3.153.003 6.94L0 7.125c0 1.913.846 3.649 2.223 4.929l.135.122c.32.283.38.773.1 1.096l-1.293 1.491c-.442.51-.015 1.284.65 1.17 2.654-.456 7.305-1.338 9.198-2.206C13.938 12.667 16 10.111 16 7.125l-.002-.184C15.888 3.091 12.349.001 8 .001v1c3.916 0 6.905 2.759 6.998 5.97l.002.154Z"
+                />
+                <path
+                    fill="#fff"
+                    d="M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
+                />
+                <path
+                    fill="url(#Ai-Chat-OnDark-Color-16_svg__d)"
+                    d="M6.662 2.544C7 1.195 8.867 1.154 9.3 2.418l.038.126.438 1.753c.114.457.47.813.927.927l1.753.438c1.392.348 1.392 2.328 0 2.676l-1.753.438c-.457.114-.813.47-.927.927l-.438 1.753c-.348 1.392-2.328 1.392-2.676 0l-.438-1.753a1.274 1.274 0 0 0-.927-.927l-1.753-.438c-1.392-.348-1.392-2.328 0-2.676l1.753-.438c.457-.114.813-.47.927-.927l.438-1.753ZM8 5.271A3.273 3.273 0 0 1 6.27 7 3.273 3.273 0 0 1 8 8.729 3.274 3.274 0 0 1 9.729 7 3.273 3.273 0 0 1 8 5.27Z"
+                />
+                <path
+                    fill="#2B55CA"
+                    d="M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
+                />
+            </g>
+            <defs>
+                <linearGradient id="Ai-Chat-OnDark-Color-16_svg__b" x1="8" x2="8" y1="0" y2="15.944" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#CCDAFF" />
+                    <stop offset="1" stop-color="#8FABF9" />
+                </linearGradient>
+                <linearGradient id="Ai-Chat-OnDark-Color-16_svg__c" x1="8" x2="8" y1="15.944" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#557FF3" />
+                    <stop offset="1" stop-color="#ADC2FC" />
+                </linearGradient>
+                <linearGradient id="Ai-Chat-OnDark-Color-16_svg__d" x1="8" x2="8" y1="2.5" y2="11.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#CCDAFF" />
+                    <stop offset="1" stop-color="#ADC2FC" />
+                </linearGradient>
+                <clipPath id="Ai-Chat-OnDark-Color-16_svg__a">
                     <path fill="#fff" d="M0 0h16v16H0z" />
                 </clipPath>
             </defs>
