@@ -23,10 +23,11 @@ export const rmfDataExamples = {
         content: {
             messageType: 'big_single_action',
             id: 'id-big-single',
-            titleText: 'Tell Us Your Thoughts on Privacy Pro',
-            descriptionText: 'Take our short anonymous survey and share your feedback.',
-            icon: 'PrivacyPro',
-            primaryActionText: 'Take Survey',
+            titleText: 'New! Advanced AI for Subscribers',
+            descriptionText:
+                'Your subscription now includes access to more advanced models in Duck.ai, our private AI chat service. Always optional. No extra cost.',
+            icon: 'DuckAi',
+            primaryActionText: 'Try Duck.ai',
         },
     },
     big_two_action: {
