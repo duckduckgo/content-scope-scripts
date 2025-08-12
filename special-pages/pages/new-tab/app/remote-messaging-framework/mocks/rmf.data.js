@@ -23,10 +23,11 @@ export const rmfDataExamples = {
         content: {
             messageType: 'big_single_action',
             id: 'id-big-single',
-            titleText: 'Tell Us Your Thoughts on Privacy Pro',
-            descriptionText: 'Take our short anonymous survey and share your feedback.',
-            icon: 'PrivacyPro',
-            primaryActionText: 'Take Survey',
+            titleText: 'New! Advanced AI for Subscribers',
+            descriptionText:
+                'Your subscription now includes access to more advanced models in Duck.ai, our private AI chat service. Always optional. No extra cost.',
+            icon: 'DuckAi',
+            primaryActionText: 'Try Duck.ai',
         },
     },
     big_two_action: {
@@ -45,6 +46,18 @@ export const rmfDataExamples = {
             id: 'big-two-overflow',
             messageType: 'big_two_action',
             icon: 'CriticalUpdate',
+            titleText: 'Windows Update Recommended',
+            descriptionText:
+                'Support for Windows 10 is ending soon. Update to Windows 11 or newer before July 8, 2024, to keep getting the latest browser updates and improvements.',
+            primaryActionText: 'How to update Windows',
+            secondaryActionText: 'Remind me later, but only if I’m actually going to update soon',
+        },
+    },
+    big_two_action_overflow2: {
+        content: {
+            id: 'big-two-overflow',
+            messageType: 'big_two_action',
+            icon: 'AppUpdate',
             titleText: 'Windows Update Recommended',
             descriptionText:
                 'Support for Windows 10 is ending soon. Update to Windows 11 or newer before July 8, 2024, to keep getting the latest browser updates and improvements.',
