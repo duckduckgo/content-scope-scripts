@@ -34,12 +34,17 @@
 }
 
 .popup {
-    backdrop-filter: blur(16px);
     background: var(--ntp-surface-tertiary);
     border-radius: 12px;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08);
     display: flow-root; /* Prevent margin collapse on .field */
     margin: 3px;
+
+    body:not([data-background-kind="default"]) & {
+        backdrop-filter: blur(48px);
+        background: var(--ntp-surface-background-color);
+        outline: 1px solid var(--ntp-surface-border-color);
+    }
 }
 
 .field {

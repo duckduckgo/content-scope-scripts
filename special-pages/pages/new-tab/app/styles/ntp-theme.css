@@ -60,11 +60,12 @@ body {
 
     /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
     /* @todo: This palette is what the native apps use, we should gradually move over to it */
-    --ntp-surface-tertiary: rgba(255, 255, 255, 0.88); /* This differs from Figma. We're adding alpha so that surfaces blend with custom backgrounds. */
+    --ntp-surface-tertiary: #FFFFFF;
     --ntp-text-primary: rgba(0, 0, 0, 0.96);
     --ntp-text-tertiary: rgba(0, 0, 0, 0.42);
     --ntp-icons-primary: rgba(0, 0, 0, 0.84);
     --ntp-icons-tertiary: rgba(0, 0, 0, 0.36);
+    --ntp-tone-tint: rgba(255, 255, 255, 0.48);
     --ntp-accent-primary: var(--color-blue-50);
     --ntp-accent-secondary: var(--color-blue-60);
     --ntp-accent-tertiary: var(--color-blue-70);
@@ -96,11 +97,12 @@ body {
 
     /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
     /* @todo: This palette is what the native apps use, we should gradually move over to it */
-    --ntp-surface-tertiary: rgba(0, 0, 0, 0.72); /* This differs from Figma. We're adding alpha so that surfaces blend with custom backgrounds. */
+    --ntp-surface-tertiary: #474747;
     --ntp-text-primary: rgba(255, 255, 255, 0.96);
     --ntp-text-tertiary: rgba(255, 255, 255, 0.36);
     --ntp-icons-primary: rgba(255, 255, 255, 0.78);
     --ntp-icons-tertiary: rgba(255, 255, 255, 0.24);
+    --ntp-tone-tint: rgba(249, 249, 249, 0.12);
     --ntp-accent-primary: var(--color-blue-20);
     --ntp-accent-secondary: var(--color-blue-30);
     --ntp-accent-tertiary: var(--color-blue-40);
