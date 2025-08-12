@@ -9,9 +9,9 @@ This document provides platform-specific build instructions, troubleshooting ste
 - **Check Xcode Version:**
     - [.xcode-version](https://github.com/duckduckgo/apple-browsers/tree/main/.xcode-version)
 - **Set up C-S-S as a Local Dependency:**
-  - Run `npm link` in your C-S-S check out.
-  - Run `npm link @duckduckgo/content-scope-scripts` in your `apple-browsers` project.
-  - Whenever files change run: `npm run build-content-scope-scripts`
+    - Run `npm link` in your C-S-S check out.
+    - Run `npm link @duckduckgo/content-scope-scripts` in your `apple-browsers` project.
+    - Whenever files change run: `npm run build-content-scope-scripts`
 - **Set up Autofill as a Local Dependency:**
     - Drag the folder from Finder into the directory panel in Xcode.
 - **Privacy Config Files:**
