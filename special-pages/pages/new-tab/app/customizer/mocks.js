@@ -119,38 +119,44 @@ export function customizerData() {
     };
 
     if (url.searchParams.has('background')) {
-        const value = url.searchParams.get('background');
-        if (value && value in values.colors) {
+        const backgroundParam = url.searchParams.get('background');
+        if (backgroundParam && backgroundParam in values.colors) {
+            /** @type {import('../../types/new-tab').PredefinedColor} */
+            const value = /** @type {any} */ (backgroundParam);
             customizer.background = {
                 kind: 'color',
-                value: /** @type {import('../../types/new-tab').PredefinedColor} */ (value),
+                value,
             };
-        } else if (value && value in values.gradients) {
+        } else if (backgroundParam && backgroundParam in values.gradients) {
+            /** @type {import('../../types/new-tab').PredefinedGradient} */
+            const value = /** @type {any} */ (backgroundParam);
             customizer.background = {
                 kind: 'gradient',
-                value: /** @type {import('../../types/new-tab').PredefinedGradient} */ (value),
+                value,
             };
-        } else if (value && value.startsWith('hex:')) {
-            const hex = value.slice(4);
+        } else if (backgroundParam && backgroundParam.startsWith('hex:')) {
+            const hex = backgroundParam.slice(4);
             if (hex.length === 6 || hex.length === 8) {
+                const value = `#${hex.slice(0, 6)}`;
                 customizer.background = {
                     kind: 'hex',
-                    value: `#${hex.slice(0, 6)}`,
+                    value,
                 };
             } else {
                 console.warn('invalid hex values');
             }
-        } else if (value && value.startsWith('userImage:')) {
-            const image = value.slice(10);
+        } else if (backgroundParam && backgroundParam.startsWith('userImage:')) {
+            const image = backgroundParam.slice(10);
             if (image in values.userImages) {
+                const value = values.userImages[image];
                 customizer.background = {
                     kind: 'userImage',
-                    value: values.userImages[image],
+                    value,
                 };
             } else {
                 console.warn('unknown user image');
             }
-        } else if (value && value === 'default') {
+        } else if (backgroundParam && backgroundParam === 'default') {
             customizer.background = { kind: 'default' };
         }
     }
