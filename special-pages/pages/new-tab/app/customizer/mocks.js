@@ -121,18 +121,14 @@ export function customizerData() {
     if (url.searchParams.has('background')) {
         const backgroundParam = url.searchParams.get('background');
         if (backgroundParam && backgroundParam in values.colors) {
-            /** @type {import('../../types/new-tab').PredefinedColor} */
-            const value = /** @type {any} */ (backgroundParam);
             customizer.background = {
                 kind: 'color',
-                value,
+                value: /** @type {import('../../types/new-tab').PredefinedColor} */ (backgroundParam),
             };
         } else if (backgroundParam && backgroundParam in values.gradients) {
-            /** @type {import('../../types/new-tab').PredefinedGradient} */
-            const value = /** @type {any} */ (backgroundParam);
             customizer.background = {
                 kind: 'gradient',
-                value,
+                value: /** @type {import('../../types/new-tab').PredefinedGradient} */ (backgroundParam),
             };
         } else if (backgroundParam && backgroundParam.startsWith('hex:')) {
             const hex = backgroundParam.slice(4);
