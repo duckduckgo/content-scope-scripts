@@ -81,9 +81,9 @@ for (const [pageName, injectNames] of Object.entries(support)) {
         errors.push(`${publicDir} does not exist. Each page must have a 'src' directory`);
         continue;
     }
-    for (const [injectName, jobs] of Object.entries(injectNames)) {
+    for (const [injectNameKey, jobs] of Object.entries(injectNames)) {
         // output main dir
-        const buildDir = join(BUILD, injectName);
+        const buildDir = join(BUILD, injectNameKey);
 
         const pageOutputDirectory = join(buildDir, 'pages', pageName);
 
@@ -93,14 +93,14 @@ for (const [pageName, injectNames] of Object.entries(support)) {
                     src: publicDir,
                     dist: join(publicDir, 'dist'),
                     dest: pageOutputDirectory,
-                    injectName,
+                    injectName: injectNameKey,
                 });
             }
             if (job === 'build-js') {
                 const outputDir = join(pageOutputDirectory, 'dist');
                 buildJobs.push({
                     outputDir,
-                    injectName: /** @type {ImportMeta['injectName']} */ (injectName),
+                    injectName: /** @type {ImportMeta['injectName']} */ (injectNameKey),
                     pageName,
                 });
             }
