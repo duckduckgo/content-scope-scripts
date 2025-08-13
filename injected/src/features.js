@@ -31,6 +31,7 @@ const otherFeatures = /** @type {const} */ ([
     'favicon',
     'webTelemetry',
     'scriptlets',
+    'pageContext',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -45,6 +46,7 @@ export const platformSupport = {
         'clickToLoad',
         'messageBridge',
         'favicon',
+        'pageContext',
     ],
     android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
