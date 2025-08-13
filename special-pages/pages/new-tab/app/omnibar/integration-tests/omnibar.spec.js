@@ -909,7 +909,7 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.chatInput()).toHaveValue(multilineText);
     });
 
-    test('close button hides suggestions then clears input', async ({ page }, workerInfo) => {
+    test('close button clears input and hides suggestions', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
 
@@ -925,15 +925,33 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
         await omnibar.expectSuggestionsCount(18);
 
-        // Click close button - should hide suggestions
+        // Click close button
         await omnibar.closeButton().click();
+
+        // Should clear input, hide suggestions, and focus the search input
         await expect(omnibar.suggestionsList()).not.toBeVisible();
-
-        // Input should still have 'pizza'
-        await omnibar.expectInputValue('pizza');
-
-        // Click close button again - should clear input
-        await omnibar.closeButton().click();
         await omnibar.expectInputValue('');
+        await expect(omnibar.searchInput()).toBeFocused();
+    });
+
+    test('context menu only includes real widgets, not fake ones', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Right-click on the page to trigger context menu
+        await page.click('body', { button: 'right' });
+
+        // Assert that contextMenu notification is sent with real widgets and not e.g. the Duck.ai toggle
+        await omnibar.expectMethodCalledWith('contextMenu', {
+            visibilityMenuItems: [
+                { id: 'omnibar', title: 'Search' },
+                { id: 'favorites', title: 'Favorites' },
+                { id: 'protections', title: 'Protections Report' },
+            ],
+        });
     });
 });

@@ -15,13 +15,10 @@ import styles from './AiChatForm.module.css';
  * @param {object} props
  * @param {string} props.chat
  * @param {boolean} [props.autoFocus]
- * @param {(event: FocusEvent) => void} props.onFocus
- * @param {(event: FocusEvent) => void} props.onBlur
- * @param {(event: InputEvent) => void} props.onInput
  * @param {(chat: string) => void} props.onChange
  * @param {(params: { chat: string, target: OpenTarget }) => void} props.onSubmit
  */
-export function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange, onSubmit }) {
+export function AiChatForm({ chat, autoFocus, onChange, onSubmit }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
@@ -96,10 +93,6 @@ export function AiChatForm({ chat, autoFocus, onFocus, onBlur, onInput, onChange
                 aria-label={t('omnibar_aiChatFormPlaceholder')}
                 autoComplete="off"
                 rows={1}
-                // Using capture to work around WebKit which doesn't fire focus/blur event when user moves focus from/to address bar.
-                onFocusCapture={onFocus}
-                onBlurCapture={onBlur}
-                onInput={onInput}
                 onKeyDown={handleKeyDown}
                 onChange={(event) => onChange(event.currentTarget.value)}
             />

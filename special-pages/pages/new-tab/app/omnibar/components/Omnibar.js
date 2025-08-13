@@ -30,7 +30,6 @@ export function Omnibar({ mode, setMode, enableAi }) {
     const [query, setQuery] = useState(/** @type {String} */ (''));
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
-    const [focusRing, setFocusRing] = useState(/** @type {boolean|undefined} */ (undefined));
 
     const { openSuggestion, submitSearch, submitChat } = useContext(OmnibarContext);
 
@@ -60,12 +59,11 @@ export function Omnibar({ mode, setMode, enableAi }) {
     /** @type {(mode: OmnibarConfig['mode']) => void} */
     const handleChangeMode = (nextMode) => {
         setAutoFocus(true);
-        setFocusRing(undefined);
         setMode(nextMode);
     };
 
     return (
-        <div key={resetKey} class={styles.root} data-mode={mode} data-focus-ring={focusRing}>
+        <div key={resetKey} class={styles.root} data-mode={mode}>
             <LogoStacked class={styles.logo} aria-label={t('omnibar_logoAlt')} />
             {enableAi && <TabSwitcher mode={mode} onChange={handleChangeMode} />}
             <SearchFormProvider term={query} setTerm={setQuery}>
@@ -75,15 +73,7 @@ export function Omnibar({ mode, setMode, enableAi }) {
                             {mode === 'search' ? (
                                 <SearchForm autoFocus={autoFocus} onOpenSuggestion={handleOpenSuggestion} onSubmit={handleSubmitSearch} />
                             ) : (
-                                <AiChatForm
-                                    chat={query}
-                                    autoFocus={autoFocus}
-                                    onFocus={() => setFocusRing(true)}
-                                    onBlur={() => setFocusRing(false)}
-                                    onInput={() => setFocusRing(false)}
-                                    onChange={setQuery}
-                                    onSubmit={handleSubmitChat}
-                                />
+                                <AiChatForm chat={query} autoFocus={autoFocus} onChange={setQuery} onSubmit={handleSubmitChat} />
                             )}
                         </ResizingContainer>
                         {mode === 'search' && <SuggestionsList onOpenSuggestion={handleOpenSuggestion} />}

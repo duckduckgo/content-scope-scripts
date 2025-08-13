@@ -47,7 +47,7 @@ export function useContextMenu() {
             const items = getItems();
             /** @type {VisibilityMenuItem[]} */
             const simplified = items
-                .filter((x) => x.id !== 'debug')
+                .filter((x) => !x.id.startsWith('_'))
                 .map((item) => {
                     return {
                         id: item.id,
