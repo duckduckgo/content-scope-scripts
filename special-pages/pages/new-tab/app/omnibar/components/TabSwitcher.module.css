@@ -10,8 +10,6 @@
 
     body:not([data-background-kind="default"]) & {
         backdrop-filter: blur(48px);
-        background: var(--omnibar-translucent-background-color);
-        outline: 1px solid var(--ntp-surface-border-color);
     }
 }
 

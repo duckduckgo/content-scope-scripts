@@ -1853,7 +1853,7 @@
       "path",
       {
         fill: "currentColor",
-        d: "M10.433 4.683a.625.625 0 1 1 .884.884L8.884 8l2.433 2.433a.625.625 0 1 1-.884.884L8 8.884l-2.433 2.433a.625.625 0 1 1-.884-.884L7.116 8 4.683 5.567a.625.625 0 1 1 .884-.884L8 7.116l2.433-2.433Z"
+        d: "M11.933 3.183a.625.625 0 1 1 .884.884L8.884 8l3.933 3.933a.625.625 0 1 1-.884.884L8 8.884l-3.933 3.933a.625.625 0 1 1-.884-.884L7.116 8 3.183 4.067a.625.625 0 1 1 .884-.884L8 7.116l3.933-3.933Z"
       }
     ));
   }
@@ -8368,7 +8368,7 @@
     );
     const platformName = usePlatformName();
     const {
-      term,
+      term: _term,
       setTerm,
       suggestionsListId,
       suggestions,
@@ -8379,6 +8379,7 @@
       clearSelectedSuggestion,
       hideSuggestions
     } = useSearchFormContext();
+    const term = _term.replace(/\n/g, " ");
     let inputBase, inputCompletion;
     if (selectedSuggestion) {
       const completionString = getSuggestionCompletionString(selectedSuggestion, term);
@@ -8485,7 +8486,7 @@
           }
         }
       ),
-      inputSuffix && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("span", { class: SearchForm_default.suffixSpacer, inert: true }, (inputBase + inputCompletion).replace(/\n/g, "") || t4("omnibar_searchFormPlaceholder")), /* @__PURE__ */ _("span", { class: SearchForm_default.suffix, inert: true }, inputSuffixText)),
+      inputSuffix && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("span", { class: SearchForm_default.suffixSpacer, inert: true }, inputBase + inputCompletion || t4("omnibar_searchFormPlaceholder")), /* @__PURE__ */ _("span", { class: SearchForm_default.suffix, inert: true }, inputSuffixText)),
       term.length > 0 && /* @__PURE__ */ _(
         "button",
         {
@@ -30370,10 +30371,10 @@
       content: {
         messageType: "big_single_action",
         id: "id-big-single",
-        titleText: "Tell Us Your Thoughts on Privacy Pro",
-        descriptionText: "Take our short anonymous survey and share your feedback.",
-        icon: "PrivacyPro",
-        primaryActionText: "Take Survey"
+        titleText: "New! Advanced AI for Subscribers",
+        descriptionText: "Your subscription now includes access to more advanced models in Duck.ai, our private AI chat service. Always optional. No extra cost.",
+        icon: "DuckAi",
+        primaryActionText: "Try Duck.ai"
       }
     },
     big_two_action: {
