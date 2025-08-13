@@ -27,7 +27,7 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
     const platformName = usePlatformName();
 
     const {
-        term,
+        term: _term,
         setTerm,
         suggestionsListId,
         suggestions,
@@ -38,6 +38,9 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
         clearSelectedSuggestion,
         hideSuggestions,
     } = useSearchFormContext();
+
+    // When switching from Duck.ai to Search, there may be newlines in the term. Remove these.
+    const term = _term.replace(/\n/g, ' ');
 
     let inputBase, inputCompletion;
     if (selectedSuggestion) {
@@ -153,8 +156,7 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
             {inputSuffix && (
                 <>
                     <span class={styles.suffixSpacer} inert>
-                        {/* Strip newlines to match <input> behaviour which doesn't render them */}
-                        {(inputBase + inputCompletion).replace(/\n/g, '') || t('omnibar_searchFormPlaceholder')}
+                        {inputBase + inputCompletion || t('omnibar_searchFormPlaceholder')}
                     </span>
                     <span class={styles.suffix} inert>
                         {inputSuffixText}
