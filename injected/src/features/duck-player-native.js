@@ -37,7 +37,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
 
         const selectors = this.getFeatureSetting('selectors');
         if (!selectors) {
-            console.warn('No selectors found. Check remote config. Feature will not be initialized.');
+            if (this.isDebug) console.warn('No selectors found. Check remote config. Feature will not be initialized.');
             return;
         }
 
@@ -64,7 +64,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
         try {
             initialSetup = await messages.initialSetup();
         } catch (e) {
-            console.warn('Failed to get initial setup', e);
+            if (this.isDebug) console.warn('Failed to get initial setup', e);
             return;
         }
 
@@ -103,7 +103,7 @@ export class DuckPlayerNativeFeature extends ContentFeature {
                 break;
             case 'UNKNOWN':
             default:
-                console.warn('No known pageType');
+                logger.warn('No known pageType');
         }
 
         if (this.currentPage) {
