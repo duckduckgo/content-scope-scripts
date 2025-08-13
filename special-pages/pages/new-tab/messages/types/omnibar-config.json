@@ -6,6 +6,25 @@
     "mode"
   ],
   "properties": {
+    "tabId": {
+      "oneOf": [{
+        "type": "null"
+      }, {
+        "title": "Optional Tab Id",
+        "type": "string"
+      }]
+    },
+    "tabIds": {
+      "oneOf": [{
+        "type": "null"
+      }, {
+        "title": "Optional List of tab Ids",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }]
+    },
     "mode": {
       "title": "Omnibar Mode",
       "type": "string",

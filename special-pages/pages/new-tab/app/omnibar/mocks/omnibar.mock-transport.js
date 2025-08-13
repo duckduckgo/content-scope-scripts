@@ -54,6 +54,10 @@ export function omnibarMockTransport() {
                     if (showAiSettingOverride === 'true' || showAiSettingOverride === 'false') {
                         config.showAiSetting = showAiSettingOverride === 'true';
                     }
+                    if (url.searchParams.has('omnibar.tabs')) {
+                        config.tabId = '01';
+                        config.tabIds = ['01'];
+                    }
                     return config;
                 }
                 case 'omnibar_getSuggestions': {

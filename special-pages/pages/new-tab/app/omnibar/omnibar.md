@@ -34,6 +34,16 @@ title: Omnibar Widget
 }
 ```
 
+Note: On Windows `tabId` and `tabIds` are required: 
+
+```json
+{
+  "mode": "search",
+  "tabId": "01",
+  "tabIds": ["01"]
+}
+```
+
 ### `omnibar_getSuggestions` 
 - {@link "NewTab Messages".OmnibarGetSuggestionsRequest}
 - Used to fetch search suggestions based on user input
@@ -75,6 +85,25 @@ title: Omnibar Widget
 - {@link "NewTab Messages".OmnibarOnConfigUpdateSubscription}
 - The omnibar widget configuration updates
 - returns {@link "NewTab Messages".OmnibarConfig}
+- Note: tabId and tabIds are required fields on Windows
+
+```json
+{
+   "mode": "ai",
+   "tabId": "01",
+   "tabIds": ["01"]
+}
+```
+
+You can force the frontend to switch to data for a particular tab like this:
+
+```json
+{
+   "mode": "ai",
+   "tabId": "01",
+   "tabIds": ["01", "02", "03"]
+}
+```
 
 ## Notifications:
 
