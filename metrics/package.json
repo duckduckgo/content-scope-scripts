@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "metrics",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/types.mjs",
+    "test-unit": "node --test unit-test/*"
+  },
+  "dependencies": {
+    "@duckduckgo/messaging": "*"
+  }
+}

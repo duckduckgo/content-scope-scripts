@@ -254,10 +254,16 @@ export class VideoOverlay {
             elem.text = mobileStrings(this.environment.strings('overlays.json'));
             elem.addEventListener(DDGVideoOverlayMobile.OPEN_INFO, () => this.messages.openInfo());
             elem.addEventListener(DDGVideoOverlayMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                return this.mobileOptOut(e.detail.remember).catch(console.error);
+                return this.mobileOptOut(e.detail.remember).catch((e) => {
+                    console.error(e);
+                    this.messages.metrics.reportExceptionWithError(e);
+                });
             });
             elem.addEventListener(DDGVideoOverlayMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                return this.mobileOptIn(e.detail.remember, params).catch(console.error);
+                return this.mobileOptIn(e.detail.remember, params).catch((e) => {
+                    console.error(e);
+                    this.messages.metrics.reportExceptionWithError(e);
+                });
             });
             targetElement.appendChild(elem);
 
@@ -289,7 +295,10 @@ export class VideoOverlay {
                 drawer.text = mobileStrings(this.environment.strings('overlays.json'));
                 drawer.addEventListener(DDGVideoDrawerMobile.OPEN_INFO, () => this.messages.openInfo());
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_OUT, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                    return this.mobileOptOut(e.detail.remember).catch(console.error);
+                    return this.mobileOptOut(e.detail.remember).catch((e) => {
+                        console.error(e);
+                        this.messages.metrics.reportExceptionWithError(e);
+                    });
                 });
                 drawer.addEventListener(DDGVideoDrawerMobile.DISMISS, () => {
                     return this.dismissOverlay();
@@ -298,7 +307,10 @@ export class VideoOverlay {
                     return this.dismissOverlay();
                 });
                 drawer.addEventListener(DDGVideoDrawerMobile.OPT_IN, (/** @type {CustomEvent<{remember: boolean}>} */ e) => {
-                    return this.mobileOptIn(e.detail.remember, params).catch(console.error);
+                    return this.mobileOptIn(e.detail.remember, params).catch((e) => {
+                        console.error(e);
+                        this.messages.metrics.reportExceptionWithError(e);
+                    });
                 });
                 drawerTargetElement.appendChild(drawer);
 
@@ -412,7 +424,10 @@ export class VideoOverlay {
                 }
                 return this.environment.setHref(params.toPrivatePlayerUrl());
             })
-            .catch((e) => console.error('error setting user choice', e));
+            .catch((e) => {
+                console.error(e);
+                this.messages.metrics.reportExceptionWithError(e);
+            });
     }
 
     /**
@@ -437,10 +452,15 @@ export class VideoOverlay {
                     overlayInteracted: true,
                 })
                 .then((values) => {
-                    this.userValues = values;
+                    if (values) {
+                        this.userValues = values;
+                        this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' });
+                    }
                 })
-                .then(() => this.watchForVideoBeingAdded({ ignoreCache: true, via: 'userOptOut' }))
-                .catch((e) => console.error('could not set userChoice for opt-out', e));
+                .catch((e) => {
+                    console.error(e);
+                    this.messages.metrics.reportExceptionWithError(e);
+                });
         } else {
             this.messages.sendPixel(new Pixel({ name: 'play.do_not_use', remember: '0' }));
             this.destroy();
@@ -499,7 +519,9 @@ export class VideoOverlay {
         const updatedValues = await this.messages.setUserValues(next);
 
         // this is needed to ensure any future page navigations respect the new settings
-        this.userValues = updatedValues;
+        if (updatedValues) {
+            this.userValues = updatedValues;
+        }
 
         if (this.environment.debug) {
             console.log('user values response:', updatedValues);
