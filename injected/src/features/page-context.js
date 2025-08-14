@@ -110,7 +110,7 @@ export default class PageContext extends ContentFeature {
     getMainContent(options = {}) {
         const maxLength = options.maxContentLength || this.getFeatureSetting('maxContentLength') || 10000;
         const selectors = options.contentSelectors || this.getFeatureSetting('contentSelectors') || ['p', 'h1', 'h2', 'h3', 'article', 'section'];
-        const excludeSelectors = options.excludeSelectors || this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
+        const excludeSelectors = options.excludeSelectors || this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header', 'script', 'style', 'link', 'meta', 'noscript', 'svg', 'canvas'];
 
         let content = '';
 
