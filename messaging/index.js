@@ -30,6 +30,7 @@ import {
 import { WebkitMessagingConfig, WebkitMessagingTransport } from './lib/webkit.js';
 import { NotificationMessage, RequestMessage, Subscription, MessageResponse, MessageError, SubscriptionEvent } from './schema.js';
 import { AndroidMessagingConfig, AndroidMessagingTransport } from './lib/android.js';
+import { AndroidAdsjsMessagingConfig, AndroidAdsjsMessagingTransport } from './lib/android-adsjs.js';
 import { createTypedMessages } from './lib/typed-messages.js';
 
 /**
@@ -51,7 +52,7 @@ export class MessagingContext {
 }
 
 /**
- * @typedef {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} MessagingConfig
+ * @typedef {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | AndroidAdsjsMessagingConfig | TestTransportConfig} MessagingConfig
  */
 
 /**
@@ -215,7 +216,7 @@ export class TestTransport {
 }
 
 /**
- * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | TestTransportConfig} config
+ * @param {WebkitMessagingConfig | WindowsMessagingConfig | AndroidMessagingConfig | AndroidAdsjsMessagingConfig | TestTransportConfig} config
  * @param {MessagingContext} messagingContext
  * @returns {MessagingTransport}
  */
@@ -228,6 +229,9 @@ function getTransport(config, messagingContext) {
     }
     if (config instanceof AndroidMessagingConfig) {
         return new AndroidMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof AndroidAdsjsMessagingConfig) {
+        return new AndroidAdsjsMessagingTransport(config, messagingContext);
     }
     if (config instanceof TestTransportConfig) {
         return new TestTransport(config, messagingContext);
@@ -268,5 +272,7 @@ export {
     WindowsRequestMessage,
     AndroidMessagingConfig,
     AndroidMessagingTransport,
+    AndroidAdsjsMessagingConfig,
+    AndroidAdsjsMessagingTransport,
     createTypedMessages,
 };
