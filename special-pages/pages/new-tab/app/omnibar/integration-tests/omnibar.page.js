@@ -69,6 +69,10 @@ export class OmnibarPage {
         return this.context().getByRole('button', { name: 'Close' });
     }
 
+    root() {
+        return this.context().locator('[data-mode]');
+    }
+
     /**
      * @param {number} count
      */
@@ -130,6 +134,13 @@ export class OmnibarPage {
         } else {
             await expect(this.aiTab()).toHaveAttribute('aria-selected', 'true');
         }
+    }
+
+    /**
+     * @param {'search' | 'ai'} mode
+     */
+    async expectDataMode(mode) {
+        await expect(this.root()).toHaveAttribute('data-mode', mode);
     }
 
     /**

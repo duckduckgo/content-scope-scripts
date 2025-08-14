@@ -74,6 +74,8 @@ export class OmnibarService {
             return {
                 ...old,
                 enableAi,
+                // Force mode to 'search' when Duck.ai is disabled to prevent getting stuck in 'ai' mode
+                mode: enableAi ? old.mode : 'search',
             };
         });
     }
