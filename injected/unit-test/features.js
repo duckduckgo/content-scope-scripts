@@ -98,6 +98,13 @@ describe('test-pages/*/config/*.json schema validation', () => {
         // Message bridge configs
         path.resolve(__dirname, '../integration-test/test-pages/message-bridge/config/message-bridge-enabled.json'),
         path.resolve(__dirname, '../integration-test/test-pages/message-bridge/config/message-bridge-disabled.json'),
+        // Element hiding configs (feature not yet implemented in schema)
+        path.resolve(__dirname, '../integration-test/test-pages/element-hiding/config/basic-hiding.json'),
+        path.resolve(__dirname, '../integration-test/test-pages/element-hiding/config/disabled.json'),
+        path.resolve(__dirname, '../integration-test/test-pages/element-hiding/config/empty-elements.json'),
+        path.resolve(__dirname, '../integration-test/test-pages/element-hiding/config/modify-attributes.json'),
+        path.resolve(__dirname, '../integration-test/test-pages/element-hiding/config/modify-styles.json'),
+        path.resolve(__dirname, '../integration-test/test-pages/element-hiding/config/privacy-test-pages-match.json'),
     ];
     for (const configPath of configFiles) {
         if (legacyAllowlist.includes(configPath)) {
