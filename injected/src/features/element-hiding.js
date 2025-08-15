@@ -199,7 +199,7 @@ function isDomNodeEmpty(node) {
     }
     // use a clonedNode to remove all metadata elements before checking if
     // the node is empty.
-    const parsedNode = /** @type {Element} */(node.cloneNode());
+    const parsedNode = /** @type {HTMLElement} */(node.cloneNode());
     if (!parsedNode) {
         return false;
     }
