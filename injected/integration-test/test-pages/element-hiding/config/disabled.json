@@ -1,0 +1,12 @@
+{
+    "readme": "Configuration with element hiding disabled to test baseline behavior",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "elementHiding": {
+            "state": "disabled",
+            "exceptions": [],
+            "rules": []
+        }
+    }
+}

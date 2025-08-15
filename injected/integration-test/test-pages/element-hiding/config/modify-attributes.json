@@ -1,0 +1,29 @@
+{
+    "readme": "Configuration for testing modify-attr rule type that modifies element attributes",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "elementHiding": {
+            "state": "enabled",
+            "exceptions": [],
+            "rules": [
+                {
+                    "selector": "img.ad-image",
+                    "type": "modify-attr",
+                    "values": {
+                        "name": "src",
+                        "value": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                    }
+                },
+                {
+                    "selector": ".tracking-link",
+                    "type": "modify-attr", 
+                    "values": {
+                        "name": "href",
+                        "value": "#blocked"
+                    }
+                }
+            ]
+        }
+    }
+}

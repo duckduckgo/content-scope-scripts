@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Modify Attributes Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        .test-section { 
+            border: 1px solid #ccc; 
+            margin: 10px; 
+            padding: 10px; 
+        }
+        img { 
+            max-width: 200px; 
+            max-height: 100px; 
+            margin: 5px; 
+            border: 1px solid #ddd; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Modify Attributes Test</h1>
+    
+    <div class="test-section">
+        <h2>Elements with modified attributes</h2>
+        <img class="ad-image" 
+             src="https://via.placeholder.com/200x100/ff0000/ffffff?text=AD+IMAGE" 
+             alt="Ad image that should be modified">
+        
+        <p><a class="tracking-link" 
+              href="https://tracker.example.com/click?ref=test" 
+              target="_blank">Tracking link that should be modified</a></p>
+    </div>
+    
+    <div class="test-section">
+        <h2>Elements that should remain unchanged</h2>
+        <img class="content-image" 
+             src="https://via.placeholder.com/200x100/00ff00/ffffff?text=CONTENT" 
+             alt="Content image">
+        
+        <p><a class="regular-link" 
+              href="https://example.com/page" 
+              target="_blank">Regular link</a></p>
+    </div>
+    
+    <script src="../../shared/utils.js"></script>
+    <script>
+        test('Modify Attributes', async () => {
+            // Wait for attribute modifications to be applied
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const results = [];
+            
+            // Test modified ad image
+            const adImage = document.querySelector('img.ad-image');
+            const expectedBlankImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            
+            results.push({
+                name: 'ad-image src modified',
+                result: adImage ? adImage.src : null,
+                expected: expectedBlankImage
+            });
+            
+            // Test modified tracking link
+            const trackingLink = document.querySelector('a.tracking-link');
+            
+            results.push({
+                name: 'tracking-link href modified',
+                result: trackingLink ? trackingLink.href : null,
+                expected: window.location.origin + window.location.pathname + '#blocked'
+            });
+            
+            // Test unmodified content image
+            const contentImage = document.querySelector('img.content-image');
+            
+            results.push({
+                name: 'content-image src unchanged',
+                result: contentImage && contentImage.src.includes('00ff00'),
+                expected: true
+            });
+            
+            // Test unmodified regular link
+            const regularLink = document.querySelector('a.regular-link');
+            
+            results.push({
+                name: 'regular-link href unchanged',
+                result: regularLink && regularLink.href.includes('example.com/page'),
+                expected: true
+            });
+            
+            return results;
+        });
+        
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html>
