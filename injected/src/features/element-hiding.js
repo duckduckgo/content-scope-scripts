@@ -200,7 +200,7 @@ function isDomNodeEmpty(node) {
     }
     // use a DOMParser to remove all metadata elements before checking if
     // the node is empty.
-    const parsedNode = parser.parseFromString(node.outerHTML, 'text/html').documentElement;
+    const parsedNode = node.cloneNode();
     parsedNode.querySelectorAll('base,link,meta,script,style,template,title,desc').forEach((el) => {
         el.remove();
     });
