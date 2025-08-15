@@ -222,7 +222,10 @@ test.describe('Element Hiding Integration Tests', () => {
     test('Forgiving selectors handle invalid CSS gracefully', async ({ page }, testInfo) => {
         // Use a simple test page
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        await collector.load('/element-hiding/pages/basic-hiding.html', './integration-test/test-pages/element-hiding/config/basic-hiding.json');
+        await collector.load(
+            '/element-hiding/pages/basic-hiding.html',
+            './integration-test/test-pages/element-hiding/config/basic-hiding.json',
+        );
 
         // The page should load without errors, even with invalid selectors
         const title = await page.title();
