@@ -1,23 +1,35 @@
 import ContentFeature from '../content-feature.js';
-
+//import { convertElementToMarkdown } from 'dom-to-semantic-markdown'; 
+import { Readability } from '@mozilla/readability';
 const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
 
 export default class PageContext extends ContentFeature {
     collectionCache = new Map();
+    lastSentContent = null;
+    listenForUrlChanges = true;
+
 
     init() {
         console.log('PageContextFeature init');
         this.setupMessageHandlers();
         this.setupContentCollection();
-        /*
         window.addEventListener('DOMContentLoaded', () => {
             this.handleContentCollectionRequest({});
         });
-        */
+        window.addEventListener('hashchange', () => {
+            this.handleContentCollectionRequest({});
+        });
     }
 
+    /**
+     * @param {NavigationType} navigationType
+     */
+    urlChanged(navigationType) {
+        this.handleContentCollectionRequest({});
+    }
+    
     setupMessageHandlers() {
         // Listen for content collection requests from macOS browser
         this.messaging.subscribe(MSG_PAGE_CONTEXT_COLLECT, (data) => {
@@ -77,8 +89,10 @@ export default class PageContext extends ContentFeature {
                 return cached.data;
             }
         }
+        const article = new Readability(document.cloneNode(true)).parse();
 
         const content = {
+            article,
             title: this.getPageTitle(),
             metaDescription: this.getMetaDescription(),
             content: this.getMainContent(options),
@@ -108,7 +122,7 @@ export default class PageContext extends ContentFeature {
     }
 
     getMainContent(options = {}) {
-        const maxLength = options.maxContentLength || this.getFeatureSetting('maxContentLength') || 10000;
+        const maxLength = options.maxContentLength || this.getFeatureSetting('maxContentLength') || 100000;
         const selectors = options.contentSelectors || this.getFeatureSetting('contentSelectors') || ['p', 'h1', 'h2', 'h3', 'article', 'section'];
         const excludeSelectors = options.excludeSelectors || this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header', 'script', 'style', 'link', 'meta', 'noscript', 'svg', 'canvas'];
 
@@ -121,7 +135,7 @@ export default class PageContext extends ContentFeature {
         if (contentRoot) {
             // Create a clone to work with
             const clone = contentRoot.cloneNode(true);
-            
+
             // Remove excluded elements
             excludeSelectors.forEach(selector => {
                 const elements = clone.querySelectorAll(selector);
@@ -138,6 +152,9 @@ export default class PageContext extends ContentFeature {
                     }
                 });
             });
+
+            //content = convertElementToMarkdown(clone);
+            //console.log('markdown',content);
         }
 
         // Limit content length
@@ -205,6 +222,10 @@ export default class PageContext extends ContentFeature {
     }
 
     sendContentResponse(content) {
+        if (this.lastSentContent && this.lastSentContent === content) {
+            return;
+        }
+        this.lastSentContent = content;
         this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
             // TODO: This is a hack to get the data to the browser. We should probably not be paying this cost.
             serializedPageData: JSON.stringify(content)
