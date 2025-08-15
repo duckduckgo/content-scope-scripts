@@ -9,7 +9,7 @@ describe('ElementHiding', () => {
         mockArgs = {
             site: {
                 domain: 'example.com',
-                url: 'https://example.com'
+                url: 'https://example.com',
             },
             bundledConfig: {
                 version: 1,
@@ -20,22 +20,22 @@ describe('ElementHiding', () => {
                         rules: [
                             {
                                 selector: '.ad-element',
-                                type: 'hide'
-                            }
+                                type: 'hide',
+                            },
                         ],
                         adLabelStrings: ['ad', 'advertisement', 'sponsored'],
                         useStrictHideStyleTag: false,
                         hideTimeouts: [0, 100, 300, 500],
                         unhideTimeouts: [1250, 2250],
                         mediaAndFormSelectors: 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button',
-                        domains: []
-                    }
+                        domains: [],
+                    },
                 },
-                unprotectedDomains: []
+                unprotectedDomains: [],
             },
             platform: {
-                version: '1.0.0'
-            }
+                version: '1.0.0',
+            },
         };
 
         elementHiding = new ElementHiding('elementHiding', {}, mockArgs);
@@ -65,16 +65,16 @@ describe('ElementHiding', () => {
         it('should handle missing optional settings with defaults', () => {
             const minimalArgs = {
                 site: { domain: 'test.com', url: 'https://test.com' },
-                bundledConfig: { 
+                bundledConfig: {
                     version: 1,
                     features: { elementHiding: { state: 'enabled', exceptions: [] } },
-                    unprotectedDomains: []
+                    unprotectedDomains: [],
                 },
-                platform: { version: '1.0.0' }
+                platform: { version: '1.0.0' },
             };
             const minimalElementHiding = new ElementHiding('elementHiding', {}, minimalArgs);
             minimalElementHiding.callInit(minimalArgs);
-            
+
             expect(minimalElementHiding.getFeatureSetting('rules')).toBeFalsy();
             expect(minimalElementHiding.getFeatureSetting('adLabelStrings')).toBeFalsy();
         });
@@ -87,7 +87,7 @@ describe('ElementHiding', () => {
                 { selector: '.empty-container', type: 'hide-empty' },
                 { selector: '.parent', type: 'closest-empty' },
                 { selector: 'img[src]', type: 'modify-attr', values: { name: 'src', value: 'blank.gif' } },
-                { selector: '.banner', type: 'modify-style', values: { name: 'display', value: 'none' } }
+                { selector: '.banner', type: 'modify-style', values: { name: 'display', value: 'none' } },
             ];
 
             expect(rules[0].type).toBe('hide');
@@ -103,8 +103,8 @@ describe('ElementHiding', () => {
                 type: 'modify-attr',
                 values: {
                     name: 'src',
-                    value: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-                }
+                    value: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+                },
             };
 
             const modifyStyleRule = {
@@ -112,8 +112,8 @@ describe('ElementHiding', () => {
                 type: 'modify-style',
                 values: {
                     name: 'width',
-                    value: '0px'
-                }
+                    value: '0px',
+                },
             };
 
             expect(modifyAttrRule.values.name).toBe('src');
@@ -127,21 +127,23 @@ describe('ElementHiding', () => {
         it('should handle rule objects with required properties', () => {
             const sampleRules = [
                 { selector: '.ad', type: 'hide' },
-                { selector: '.banner', type: 'modify-style', values: { name: 'display', value: 'none' } }
+                { selector: '.banner', type: 'modify-style', values: { name: 'display', value: 'none' } },
             ];
 
-            sampleRules.forEach(rule => {
+            sampleRules.forEach((rule) => {
                 expect(rule.selector).toBeDefined();
                 expect(rule.type).toBeDefined();
                 expect(typeof rule.selector).toBe('string');
-                expect(['hide', 'hide-empty', 'closest-empty', 'modify-attr', 'modify-style', 'override', 'disable-default']).toContain(rule.type);
+                expect(['hide', 'hide-empty', 'closest-empty', 'modify-attr', 'modify-style', 'override', 'disable-default']).toContain(
+                    rule.type,
+                );
             });
         });
 
         it('should recognize special rule types', () => {
             const specialRules = [
                 { selector: '.ad', type: 'override' },
-                { selector: '.all', type: 'disable-default' }
+                { selector: '.all', type: 'disable-default' },
             ];
 
             expect(specialRules[0].type).toBe('override');
@@ -157,10 +159,10 @@ describe('ElementHiding', () => {
                 'adLabelStrings',
                 'hideTimeouts',
                 'unhideTimeouts',
-                'mediaAndFormSelectors'
+                'mediaAndFormSelectors',
             ];
 
-            configOptions.forEach(option => {
+            configOptions.forEach((option) => {
                 expect(typeof option).toBe('string');
                 expect(option.length).toBeGreaterThan(0);
             });
@@ -177,14 +179,16 @@ describe('ElementHiding', () => {
         it('should validate rule structure', () => {
             const validRules = [
                 { selector: '.ad', type: 'hide' },
-                { selector: '.banner', type: 'modify-style', values: { name: 'display', value: 'none' } }
+                { selector: '.banner', type: 'modify-style', values: { name: 'display', value: 'none' } },
             ];
 
-            validRules.forEach(rule => {
+            validRules.forEach((rule) => {
                 expect(rule.selector).toBeDefined();
                 expect(rule.type).toBeDefined();
                 expect(typeof rule.selector).toBe('string');
-                expect(['hide', 'hide-empty', 'closest-empty', 'modify-attr', 'modify-style', 'override', 'disable-default']).toContain(rule.type);
+                expect(['hide', 'hide-empty', 'closest-empty', 'modify-attr', 'modify-style', 'override', 'disable-default']).toContain(
+                    rule.type,
+                );
             });
         });
 
@@ -192,7 +196,7 @@ describe('ElementHiding', () => {
             const invalidRules = [
                 { type: 'hide' }, // missing selector
                 { selector: '.ad' }, // missing type
-                { selector: '.banner', type: 'modify-attr' } // missing values for modify-attr
+                { selector: '.banner', type: 'modify-attr' }, // missing values for modify-attr
             ];
 
             expect(() => {
