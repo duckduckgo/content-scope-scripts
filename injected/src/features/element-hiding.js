@@ -54,7 +54,6 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  */
 
 let adLabelStrings = [];
-const parser = new DOMParser();
 let hiddenElements = new WeakMap();
 let modifiedElements = new WeakMap();
 let appliedRules = new Set();
@@ -200,7 +199,7 @@ function isDomNodeEmpty(node) {
     }
     // use a DOMParser to remove all metadata elements before checking if
     // the node is empty.
-    const parsedNode = node.cloneNode();
+    const parsedNode = /** @type {Element} */(node.cloneNode());
     parsedNode.querySelectorAll('base,link,meta,script,style,template,title,desc').forEach((el) => {
         el.remove();
     });
