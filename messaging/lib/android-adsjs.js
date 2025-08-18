@@ -8,12 +8,12 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MessagingTransport, MessageResponse, SubscriptionEvent } from '../index.js';
-import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
+import { isResponseFor, isSubscriptionEventFor, RequestMessage } from '../schema.js';
+import { isBeingFramed } from '../../injected/src/utils.js';
 
 /**
  * @typedef {import('../index.js').Subscription} Subscription
  * @typedef {import('../index.js').MessagingContext} MessagingContext
- * @typedef {import('../index.js').RequestMessage} RequestMessage
  * @typedef {import('../index.js').NotificationMessage} NotificationMessage
  */
 
@@ -33,6 +33,9 @@ export class AndroidAdsjsMessagingTransport {
     constructor(config, messagingContext) {
         this.messagingContext = messagingContext;
         this.config = config;
+
+        // Send initial ping when transport is first created.
+        this.config.sendInitialPing(messagingContext);
     }
 
     /**
@@ -138,7 +141,7 @@ export class AndroidAdsjsMessagingTransport {
  *     }
  * );
  * ```
- * 
+ *
  * The JavaScript side uses postMessage() to send messages, which the native side receives
  * through the WebMessageListener. Responses from the native side are delivered through
  * addEventListener on the captured handler.
@@ -177,8 +180,6 @@ export class AndroidAdsjsMessagingConfig {
          */
         this._setupEventListener();
     }
-
-
 
     /**
      * The transport can call this to transmit a JSON payload along with a secret
@@ -319,5 +320,36 @@ export class AndroidAdsjsMessagingConfig {
                 this._log('Error processing incoming message:', e);
             }
         });
+    }
+
+    /**
+     * Send an initial ping message to the platform to establish communication.
+     * This is a fire-and-forget notification that signals the JavaScript side is ready.
+     * Only sends in top context (not in frames) and if the messaging interface is available.
+     *
+     * @param {MessagingContext} messagingContext
+     * @returns {boolean} true if ping was sent, false if in frame or interface not ready
+     */
+    sendInitialPing(messagingContext) {
+        // Only send ping in top context, not in frames
+        if (isBeingFramed()) {
+            this._log('Skipping initial ping - running in frame context');
+            return false;
+        }
+
+        try {
+            const message = new RequestMessage({
+                id: 'initialPing',
+                context: messagingContext.context,
+                featureName: 'messaging',
+                method: 'initialPing',
+            });
+            this.sendMessageThrows(message);
+            this._log('Initial ping sent successfully');
+            return true;
+        } catch (e) {
+            this._log('Failed to send initial ping:', e);
+            return false;
+        }
     }
 }

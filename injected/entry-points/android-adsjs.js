@@ -17,7 +17,7 @@ function initCode() {
 
     const configConstruct = processedConfig;
     const objectName = configConstruct.objectName || 'contentScopeAdsjs';
-    
+
     processedConfig.messagingConfig = new AndroidAdsjsMessagingConfig({
         objectName,
         target: globalThis,
