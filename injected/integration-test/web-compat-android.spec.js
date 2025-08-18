@@ -152,7 +152,6 @@ test.describe('Web Share API', () => {
                 });
                 expect(canShare).toEqual(true);
             });
-
         });
 
         test.describe('navigator.share()', () => {
@@ -250,7 +249,10 @@ test.describe('Web Share API', () => {
                 test('should throw when sharing non-empty files arrays', async ({ page }) => {
                     await navigate(page);
                     await beforeEach(page);
-                    const { result, message } = await checkShare(page, { title: 'title', files: [new File([''], 'test.txt', { type: 'text/plain' })] });
+                    const { result, message } = await checkShare(page, {
+                        title: 'title',
+                        files: [new File([''], 'test.txt', { type: 'text/plain' })],
+                    });
                     expect(message).toBeNull();
                     expect(result.threw.message).toContain('TypeError: Invalid share data');
                 });
