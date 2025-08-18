@@ -22,7 +22,10 @@ const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 function canShare(data) {
     if (typeof data !== 'object') return false;
     if (!('url' in data) && !('title' in data) && !('text' in data)) return false; // At least one of these is required
-    if ('files' in data) return false; // File sharing is not supported at the moment
+    if ('files' in data) {
+        if (!Array.isArray(data.files)) return false;
+        if (data.files.length > 0) return false; // File sharing is not supported at the moment
+    }
     if ('title' in data && typeof data.title !== 'string') return false;
     if ('text' in data && typeof data.text !== 'string') return false;
     if ('url' in data) {
