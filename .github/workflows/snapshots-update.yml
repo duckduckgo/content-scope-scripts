@@ -21,7 +21,7 @@ jobs:
         name: Update PR With Snapshots
         runs-on: macos-14
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - name: Checkout PR ${{ github.event.inputs.pr_number }}
               if: github.event_name == 'workflow_dispatch'
               run: gh pr checkout ${{ github.event.inputs.pr_number }}

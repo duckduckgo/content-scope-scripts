@@ -1266,7 +1266,7 @@
         return global ? result || [] : result && result[0];
       };
       XRegExp.matchChain = function(str, chain) {
-        return function recurseChain(values, level) {
+        return (function recurseChain(values, level) {
           var item = chain[level].regex ? chain[level] : { regex: chain[level] };
           var matches = [];
           function addMatch(match) {
@@ -1283,7 +1283,7 @@
             XRegExp.forEach(values[i], item.regex, addMatch);
           }
           return level === chain.length - 1 || !matches.length ? matches : recurseChain(matches, level + 1);
-        }([str], 0);
+        })([str], 0);
       };
       XRegExp.replace = function(str, search, replacement, scope) {
         var isRegex = XRegExp.isRegExp(search);
@@ -14416,7 +14416,10 @@
   function canShare(data2) {
     if (typeof data2 !== "object") return false;
     if (!("url" in data2) && !("title" in data2) && !("text" in data2)) return false;
-    if ("files" in data2) return false;
+    if ("files" in data2) {
+      if (!Array.isArray(data2.files)) return false;
+      if (data2.files.length > 0) return false;
+    }
     if ("title" in data2 && typeof data2.title !== "string") return false;
     if ("text" in data2 && typeof data2.text !== "string") return false;
     if ("url" in data2) {
