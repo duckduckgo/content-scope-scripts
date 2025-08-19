@@ -39,7 +39,7 @@ export function Components() {
         },
         {
             icon: 'PrivacyPro',
-            title: t('forPrivacyProSubscribers'),
+            title: t('forDuckDuckGoSubscribers'),
             notes: [
                 'Cras egestas, dui eu sodales congue, ex augue vehicula ipsum, sed egestas est justo in enim.',
                 'Duis varius in ex at vestibulum. Morbi finibus fringilla urna, ac varius quam vestibulum sit amet.',
