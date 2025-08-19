@@ -57,6 +57,7 @@ export const platformSupport = {
         'fingerprintingAudio',
         'fingerprintingBattery',
         'gpc',
+        'breakageReporting',
     ],
     windows: [
         'cookie',
