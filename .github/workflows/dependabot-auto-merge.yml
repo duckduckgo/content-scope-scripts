@@ -16,8 +16,14 @@ jobs:
               with:
                   github-token: '${{ secrets.GITHUB_TOKEN }}'
 
-            - name: Auto-approve and enable auto-merge for npm patch updates
-              if: steps.metadata.outputs.package-ecosystem == 'npm' && steps.metadata.outputs.update-type == 'version-update:semver-patch'
+            - name: Auto-approve and enable auto-merge for npm patch updates (except ignored packages)
+              if: |
+                  steps.metadata.outputs.package-ecosystem == 'npm' &&
+                  steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
+                  !contains(steps.metadata.outputs.dependency-names, '@atlaskit/pragmatic-drag-and-drop') &&
+                  !contains(steps.metadata.outputs.dependency-names, 'preact') &&
+                  !contains(steps.metadata.outputs.dependency-names, '@preact/signals') &&
+                  !contains(steps.metadata.outputs.dependency-names, 'lottie-web')
               run: |
                   gh pr review --approve "$PR_URL"
                   gh pr merge --auto --merge "$PR_URL"
