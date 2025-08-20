@@ -27,6 +27,10 @@ window.addEventListener(secret, ({ detail: encodedMessage }) => {
         case 'register':
             if (message.argumentsObject) {
                 message.argumentsObject.messageSecret = secret;
+                if (!message.argumentsObject?.site?.enabledFeatures) {
+                    // Potentially corrupted site object, don't init
+                    return;
+                }
                 init(message.argumentsObject);
             }
             break;

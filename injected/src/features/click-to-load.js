@@ -1778,6 +1778,8 @@ export default class ClickToLoad extends ContentFeature {
     /** @type {MessagingContext} */
     #messagingContext;
 
+    listenForUpdateChanges = true;
+
     async init(args) {
         /**
          * Bail if no messaging backend - this is a debugging feature to ensure we don't
