@@ -2,7 +2,7 @@ import ContentFeature from '../src/content-feature.js';
 
 /**
  * Test the additionalCheck conditional logic in content-scope-features.js
- * 
+ *
  * This tests the logic at lines 60-62 and 82-84:
  * if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
  *     return;
@@ -15,7 +15,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             const args = {
                 site: {
                     domain: 'example.com',
-                    url: 'http://example.com'
+                    url: 'http://example.com',
                 },
                 platform: { name: 'test' },
                 bundledConfig: {
@@ -28,18 +28,16 @@ describe('content-scope-features additionalCheck conditional', () => {
                                 conditionalChanges: [
                                     {
                                         condition: {
-                                            domain: 'example.com'
+                                            domain: 'example.com',
                                         },
-                                        patchSettings: [
-                                            { op: 'replace', path: '/additionalCheck', value: 'disabled' }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
+                                        patchSettings: [{ op: 'replace', path: '/additionalCheck', value: 'disabled' }],
+                                    },
+                                ],
+                            },
+                        },
                     },
-                    unprotectedTemporary: []
-                }
+                    unprotectedTemporary: [],
+                },
             };
 
             // Create feature instance with conditional patching
@@ -57,7 +55,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             const args = {
                 site: {
                     domain: 'trusted-site.com',
-                    url: 'http://trusted-site.com'
+                    url: 'http://trusted-site.com',
                 },
                 platform: { name: 'test' },
                 bundledConfig: {
@@ -70,18 +68,16 @@ describe('content-scope-features additionalCheck conditional', () => {
                                 conditionalChanges: [
                                     {
                                         condition: {
-                                            domain: 'trusted-site.com'
+                                            domain: 'trusted-site.com',
                                         },
-                                        patchSettings: [
-                                            { op: 'replace', path: '/additionalCheck', value: 'enabled' }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
+                                        patchSettings: [{ op: 'replace', path: '/additionalCheck', value: 'enabled' }],
+                                    },
+                                ],
+                            },
+                        },
                     },
-                    unprotectedTemporary: []
-                }
+                    unprotectedTemporary: [],
+                },
             };
 
             // Create feature instance with conditional patching
@@ -99,7 +95,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             const args = {
                 site: {
                     domain: 'example.com',
-                    url: 'http://example.com/sensitive/path'
+                    url: 'http://example.com/sensitive/path',
                 },
                 platform: { name: 'test' },
                 bundledConfig: {
@@ -112,18 +108,16 @@ describe('content-scope-features additionalCheck conditional', () => {
                                 conditionalChanges: [
                                     {
                                         condition: {
-                                            urlPattern: 'http://example.com/sensitive/*'
+                                            urlPattern: 'http://example.com/sensitive/*',
                                         },
-                                        patchSettings: [
-                                            { op: 'replace', path: '/additionalCheck', value: 'disabled' }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
+                                        patchSettings: [{ op: 'replace', path: '/additionalCheck', value: 'disabled' }],
+                                    },
+                                ],
+                            },
+                        },
                     },
-                    unprotectedTemporary: []
-                }
+                    unprotectedTemporary: [],
+                },
             };
 
             // Create feature instance with conditional patching
@@ -141,7 +135,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             const args = {
                 site: {
                     domain: 'example.com',
-                    url: 'http://example.com/public/path'
+                    url: 'http://example.com/public/path',
                 },
                 platform: { name: 'test' },
                 bundledConfig: {
@@ -154,18 +148,16 @@ describe('content-scope-features additionalCheck conditional', () => {
                                 conditionalChanges: [
                                     {
                                         condition: {
-                                            urlPattern: 'http://example.com/sensitive/*'
+                                            urlPattern: 'http://example.com/sensitive/*',
                                         },
-                                        patchSettings: [
-                                            { op: 'replace', path: '/additionalCheck', value: 'disabled' }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
+                                        patchSettings: [{ op: 'replace', path: '/additionalCheck', value: 'disabled' }],
+                                    },
+                                ],
+                            },
+                        },
                     },
-                    unprotectedTemporary: []
-                }
+                    unprotectedTemporary: [],
+                },
             };
 
             // Create feature instance with conditional patching
@@ -183,7 +175,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             const args = {
                 site: {
                     domain: 'example.com',
-                    url: 'http://example.com'
+                    url: 'http://example.com',
                 },
                 platform: { name: 'test' },
                 bundledConfig: {
@@ -192,14 +184,13 @@ describe('content-scope-features additionalCheck conditional', () => {
                             state: 'enabled',
                             exceptions: [],
                             settings: {
-                                someOtherSetting: 'value'
+                                someOtherSetting: 'value',
                                 // No additionalCheck setting
-                            }
-                        }
+                            },
+                        },
                     },
-                    unprotectedTemporary: []
+                    unprotectedTemporary: [],
                 },
-
             };
 
             // Create feature instance without additionalCheck
@@ -219,7 +210,7 @@ describe('content-scope-features additionalCheck conditional', () => {
             const args = {
                 site: {
                     domain: 'trusted-site.com',
-                    url: 'http://trusted-site.com/app/dashboard'
+                    url: 'http://trusted-site.com/app/dashboard',
                 },
                 platform: { name: 'test' },
                 bundledConfig: {
@@ -233,22 +224,20 @@ describe('content-scope-features additionalCheck conditional', () => {
                                     {
                                         condition: [
                                             {
-                                                domain: 'trusted-site.com'
+                                                domain: 'trusted-site.com',
                                             },
                                             {
-                                                urlPattern: 'http://trusted-site.com/app/*'
-                                            }
+                                                urlPattern: 'http://trusted-site.com/app/*',
+                                            },
                                         ],
-                                        patchSettings: [
-                                            { op: 'replace', path: '/additionalCheck', value: 'enabled' }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
+                                        patchSettings: [{ op: 'replace', path: '/additionalCheck', value: 'enabled' }],
+                                    },
+                                ],
+                            },
+                        },
                     },
-                    unprotectedTemporary: []
-                }
+                    unprotectedTemporary: [],
+                },
             };
 
             // Create feature instance with conditional patching
@@ -266,7 +255,7 @@ describe('content-scope-features additionalCheck conditional', () => {
         it('should demonstrate how additionalCheck gates feature loading', () => {
             // This test demonstrates the pattern used in content-scope-features.js
             // Lines 60-62: if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) { return; }
-            
+
             class MockFeature extends ContentFeature {
                 constructor(featureName, importConfig, args) {
                     super(featureName, importConfig, args);
@@ -283,7 +272,7 @@ describe('content-scope-features additionalCheck conditional', () => {
                 }
 
                 callInit() {
-                    // Simulate the additionalCheck gate in content-scope-features.js init function  
+                    // Simulate the additionalCheck gate in content-scope-features.js init function
                     if (!this.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                         return; // Early return when disabled
                     }
@@ -305,18 +294,16 @@ describe('content-scope-features additionalCheck conditional', () => {
                                 conditionalChanges: [
                                     {
                                         condition: {
-                                            domain: 'blocked-site.com'
+                                            domain: 'blocked-site.com',
                                         },
-                                        patchSettings: [
-                                            { op: 'replace', path: '/additionalCheck', value: 'disabled' }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
+                                        patchSettings: [{ op: 'replace', path: '/additionalCheck', value: 'disabled' }],
+                                    },
+                                ],
+                            },
+                        },
                     },
-                    unprotectedTemporary: []
-                }
+                    unprotectedTemporary: [],
+                },
             };
 
             const disabledFeature = new MockFeature('testFeature', {}, disabledArgs);
@@ -340,18 +327,16 @@ describe('content-scope-features additionalCheck conditional', () => {
                                 conditionalChanges: [
                                     {
                                         condition: {
-                                            domain: 'trusted-site.com'
+                                            domain: 'trusted-site.com',
                                         },
-                                        patchSettings: [
-                                            { op: 'replace', path: '/additionalCheck', value: 'enabled' }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
+                                        patchSettings: [{ op: 'replace', path: '/additionalCheck', value: 'enabled' }],
+                                    },
+                                ],
+                            },
+                        },
                     },
-                    unprotectedTemporary: []
-                }
+                    unprotectedTemporary: [],
+                },
             };
 
             const enabledFeature = new MockFeature('testFeature', {}, enabledArgs);
