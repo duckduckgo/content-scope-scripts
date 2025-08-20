@@ -68,7 +68,7 @@
     "title" : "Update nochmal versuchen",
     "note" : "Label for a button that retries applying the failed update"
   },
-  "forDuckDuckGoSubscribers" : {
+  "forSubscribers" : {
     "title" : "Für Privacy Pro-Abonnenten",
     "note" : "Heading label for release notes specific to Privacy Pro Subscribers (do not translate Privacy Pro)"
   },

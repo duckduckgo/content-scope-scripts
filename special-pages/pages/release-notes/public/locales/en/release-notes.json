@@ -68,8 +68,8 @@
         "title": "Retry Update",
         "note": "Label for a button that retries applying the failed update"
     },
-    "forDuckDuckGoSubscribers": {
-        "title": "For DuckDuckGo subscribers",
+    "forSubscribers": {
+        "title": "For DuckDuckGo Subscribers",
         "note": "Heading label for release notes specific to DuckDuckGo Subscribers"
     },
     "new": {

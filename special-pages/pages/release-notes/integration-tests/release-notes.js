@@ -197,7 +197,7 @@ export class ReleaseNotesPage {
         await expect(page.getByTestId('placeholder')).toBeVisible();
 
         await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
-        await expect(page.getByRole('heading', { name: 'For DuckDuckGo subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).not.toBeVisible();
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
@@ -209,7 +209,7 @@ export class ReleaseNotesPage {
         await expect(page.getByRole('button', { name: 'Reload Summary' })).toBeVisible();
 
         await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
-        await expect(page.getByRole('heading', { name: 'For DuckDuckGo subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).not.toBeVisible();
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
@@ -221,7 +221,7 @@ export class ReleaseNotesPage {
         await expect(page.getByTestId('placeholder')).toBeVisible();
 
         await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
-        await expect(page.getByRole('heading', { name: 'For DuckDuckGo subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).not.toBeVisible();
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
@@ -233,7 +233,7 @@ export class ReleaseNotesPage {
         await expect(page.getByTestId('placeholder')).toBeVisible();
 
         await expect(page.getByRole('heading', { name: 'May 20 2024 New' })).not.toBeVisible();
-        await expect(page.getByRole('heading', { name: 'For DuckDuckGo subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).not.toBeVisible();
         await expect(page.getByRole('button', { name: 'Restart To Update' })).not.toBeVisible();
     }
 
@@ -326,14 +326,14 @@ export class ReleaseNotesPage {
         ).not.toBeVisible();
         await expect(page.getByText('Privacy Pro is currently available to U.S. residents only')).not.toBeVisible();
 
-        await expect(page.getByRole('heading', { name: 'For DuckDuckGo subscribers' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).not.toBeVisible();
         await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).not.toBeVisible();
     }
 
     async didShowReleaseNotesList() {
         const { page } = this;
 
-        await expect(page.getByRole('heading', { name: 'For DuckDuckGo subscribers' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'For DuckDuckGo Subscribers' })).toBeVisible();
         await expect(page.getByRole('link', { name: 'duckduckgo.com/pro' })).toBeVisible();
 
         await expect(
