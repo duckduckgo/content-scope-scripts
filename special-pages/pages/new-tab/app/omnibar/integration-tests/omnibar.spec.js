@@ -206,6 +206,31 @@ test.describe('omnibar widget', () => {
         await expect(omnibar.searchInput()).toHaveValue('pizza');
     });
 
+    test('mode switching preserves multiline text with proper formatting', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Start in Duck.ai mode, type multiline text
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+        await omnibar.chatInput().fill('hello\nworld');
+        await expect(omnibar.chatInput()).toHaveValue('hello\nworld');
+
+        // Switch to Search mode - newlines should become spaces
+        await omnibar.searchTab().click();
+        await omnibar.expectMode('search');
+        await expect(omnibar.searchInput()).toHaveValue('hello world');
+
+        // Switch back to Duck.ai mode - newlines should be restored
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+        await expect(omnibar.chatInput()).toHaveValue('hello\nworld');
+    });
+
     test('omnibar without AI enabled does not show tab list', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
@@ -252,6 +277,29 @@ test.describe('omnibar widget', () => {
         await omnibar.toggleDuckAiButton().click();
 
         // Tab selector is now gone
+        await expect(omnibar.tabList()).toHaveCount(0);
+    });
+
+    test('forces mode to search when Duck.ai is disabled while in ai mode', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Switch to AI mode
+        await omnibar.aiTab().click();
+        await omnibar.expectMode('ai');
+
+        // Disable Duck.ai via Customize panel
+        await omnibar.customizeButton().click();
+        await omnibar.toggleDuckAiButton().click();
+
+        // Mode should be forced back to search since tab switcher is now hidden
+        await omnibar.expectDataMode('search');
+
+        // Tab selector should be gone
         await expect(omnibar.tabList()).toHaveCount(0);
     });
 
