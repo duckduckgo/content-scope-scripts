@@ -58,7 +58,7 @@ export function load(args) {
             const featureInstance = new ContentFeature(featureName, importConfig, args);
             // Short term fix to disable the feature whilst we roll out Android adsjs
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
-                return;
+                continue;
             }
             featureInstance.callLoad();
             features.push({ featureName, featureInstance });
