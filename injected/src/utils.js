@@ -254,11 +254,11 @@ export function iterateDataKey(key, callback) {
  */
 export function isFeatureBroken(args, feature) {
     const isFeatureEnabled = args.site.enabledFeatures?.includes(feature) ?? false;
-    
+
     if (isPlatformSpecificFeature(feature)) {
         return !isFeatureEnabled;
     }
-    
+
     return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
 }
 
