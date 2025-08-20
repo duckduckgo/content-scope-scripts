@@ -10,34 +10,6 @@ import ContentFeature from '../src/content-feature.js';
  */
 describe('content-scope-features additionalCheck conditional', () => {
     describe('additionalCheck feature setting with conditional patching', () => {
-        let testFeature;
-        
-        beforeEach(() => {
-            // Create a test args object similar to what content-scope-features.js uses
-            const args = {
-                site: {
-                    domain: 'example.com',
-                    url: 'http://example.com'
-                },
-                platform: { name: 'test' },
-                bundledConfig: {
-                    features: {
-                        testFeature: {
-                            state: 'enabled',
-                            exceptions: [],
-                            settings: {
-                                additionalCheck: 'enabled'
-                            }
-                        }
-                    },
-                    unprotectedTemporary: []
-                }
-            };
-            
-            // Create a test feature instance
-            testFeature = new ContentFeature('testFeature', {}, args);
-        });
-
         it('should return false when additionalCheck is disabled via conditional patching', () => {
             // Setup: Create new feature instance with conditional patching that disables additionalCheck
             const args = {
