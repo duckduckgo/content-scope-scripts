@@ -8,9 +8,11 @@ Features are files stored in the `features/` directory that must include an `ini
 
 The [ConfigFeature](https://github.com/duckduckgo/content-scope-scripts/blob/main/injected/src/config-feature.js) class is extended by each feature to implement remote config handling. It provides the following methods:
 
-### `getFeatureSettingEnabled()`
+### `getFeatureSettingEnabled(settingKeyName)`
 
 For simple boolean settings, returns `true` if the setting is 'enabled'
+
+For default Enabled use: `this.getFeatureSettingEnabled(settingKeyName, 'enabled')`
 
 ### `getFeatureSetting()`
 

@@ -56,6 +56,10 @@ export function load(args) {
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
             const featureInstance = new ContentFeature(featureName, importConfig, args);
+            // Short term fix to disable the feature whilst we roll out Android adsjs
+            if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
+                return;
+            }
             featureInstance.callLoad();
             features.push({ featureName, featureInstance });
         }
@@ -74,6 +78,10 @@ export async function init(args) {
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+            // Short term fix to disable the feature whilst we roll out Android adsjs
+            if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
+                return;
+            }
             featureInstance.callInit(args);
             // Either listenForUrlChanges or urlChanged ensures the feature listens.
             if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
