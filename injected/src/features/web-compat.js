@@ -214,9 +214,8 @@ export class WebCompat extends ContentFeature {
             enumerable: false,
         });
 
-        const toStringFunc = function toString() { return "function Notification() { [native code] }"; };
         this.defineProperty(/** @type {any} */ (window.Notification), 'toString', {
-            value: toStringFunc,
+            value: () => 'function Notification() { [native code] }',
             writable: false,
             configurable: false,
             enumerable: false,

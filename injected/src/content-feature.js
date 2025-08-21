@@ -7,6 +7,7 @@ import { Messaging, MessagingContext } from '../../messaging/index.js';
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js';
 import { isTrackerOrigin } from './trackers.js';
 import ConfigFeature from './config-feature.js';
+import { mock } from 'node:test';
 
 /**
  * @typedef {object} AssetConfig
@@ -260,7 +261,12 @@ export default class ContentFeature extends ConfigFeature {
                         return target.apply(thisArg, argumentsList);
                     },
                 });
-                descriptor[k] = wrapToString(wrapper, descriptorProp);
+                if (propertyName === 'toString') {
+                    const mockValue = descriptorProp();
+                    descriptor[k] = wrapToString(wrapper, descriptorProp, mockValue);
+                } else {
+                    descriptor[k] = wrapToString(wrapper, descriptorProp);
+                }
             }
         });
 
