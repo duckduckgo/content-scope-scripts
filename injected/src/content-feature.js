@@ -253,6 +253,10 @@ export default class ContentFeature extends ConfigFeature {
         ['value', 'get', 'set'].forEach((k) => {
             const descriptorProp = descriptor[k];
             if (typeof descriptorProp === 'function') {
+                if (propertyName === 'toString' && object?.constructor?.name === 'Function' && object.name === 'Notification') {
+                    // Don't wrap toString for Notification
+                    return;
+                }
                 const addDebugFlag = this.addDebugFlag.bind(this);
                 const wrapper = new Proxy(descriptorProp, {
                     apply(target, thisArg, argumentsList) {
@@ -260,12 +264,7 @@ export default class ContentFeature extends ConfigFeature {
                         return target.apply(thisArg, argumentsList);
                     },
                 });
-                if (propertyName === 'toString') {
-                    const mockValue = descriptorProp();
-                    descriptor[k] = wrapToString(wrapper, descriptorProp, mockValue);
-                } else {
-                    descriptor[k] = wrapToString(wrapper, descriptorProp);
-                }
+                descriptor[k] = wrapToString(wrapper, descriptorProp);
             }
         });
 
