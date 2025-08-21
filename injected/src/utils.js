@@ -652,8 +652,26 @@ export function isSupportedVersion(minSupportedVersion, currentVersion) {
 }
 
 /**
+ * @param {string | number | undefined} maxSupportedVersion
+ * @param {string | number | undefined} currentVersion
+ * @returns {boolean}
+ */
+export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
+    if (typeof currentVersion === 'string' && typeof maxSupportedVersion === 'string') {
+        if (satisfiesMinVersion(currentVersion, maxSupportedVersion)) {
+            return true;
+        }
+    } else if (typeof currentVersion === 'number' && typeof maxSupportedVersion === 'number') {
+        if (maxSupportedVersion >= currentVersion) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * @typedef RemoteConfig
- * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number }>} features
+ * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number, maxSupportedVersion?: string|number }>} features
  * @property {string[]} unprotectedTemporary
  */
 
@@ -709,6 +727,12 @@ export function computeEnabledFeatures(data, topLevelHostname, platformVersion, 
             // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
             if (feature.minSupportedVersion && platformVersion) {
                 if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
+                    return false;
+                }
+            }
+            // Check that the platform supports maxSupportedVersion checks and that the feature has a maxSupportedVersion
+            if (feature.maxSupportedVersion && platformVersion) {
+                if (!isMaxSupportedVersion(feature.maxSupportedVersion, platformVersion)) {
                     return false;
                 }
             }

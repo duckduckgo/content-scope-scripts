@@ -6,6 +6,7 @@ import {
     parseFeatureSettings,
     computeLimitedSiteObject,
     isSupportedVersion,
+    isMaxSupportedVersion,
 } from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
@@ -124,6 +125,7 @@ export default class ConfigFeature {
      * @property {string[] | string} [domain]
      * @property {object} [urlPattern]
      * @property {object} [minSupportedVersion]
+     * @property {object} [maxSupportedVersion]
      * @property {object} [experiment]
      * @property {string} [experiment.experimentName]
      * @property {string} [experiment.cohort]
@@ -160,6 +162,7 @@ export default class ConfigFeature {
             urlPattern: this._matchUrlPatternConditional,
             experiment: this._matchExperimentConditional,
             minSupportedVersion: this._matchMinSupportedVersion,
+            maxSupportedVersion: this._matchMaxSupportedVersion,
             injectName: this._matchInjectNameConditional,
         };
 
@@ -292,6 +295,16 @@ export default class ConfigFeature {
     _matchMinSupportedVersion(conditionBlock) {
         if (!conditionBlock.minSupportedVersion) return false;
         return isSupportedVersion(conditionBlock.minSupportedVersion, this.#args?.platform?.version);
+    }
+
+    /**
+     * Takes a condition block and returns true if the platform version satisfies the `maxSupportedFeature`
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMaxSupportedVersion(conditionBlock) {
+        if (!conditionBlock.maxSupportedVersion) return false;
+        return isMaxSupportedVersion(conditionBlock.maxSupportedVersion, this.#args?.platform?.version);
     }
 
     /**

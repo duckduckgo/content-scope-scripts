@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Max Supported Version (int)</title>
+        <link rel="stylesheet" href="../../shared/style.css" />
+    </head>
+    <body>
+        <script src="../../shared/utils.js"></script>
+        <p><a href="../index.html">[Infra]</a></p>
+        <p>This page verifies maxSupportedVersion (int) conditional patching. Load with 99 as the version number.</p>
+        <script>
+            test('maxSupportedVersion (int)', async () => {
+                const results = [];
+                results.push({
+                    name: 'versionIntTestAbove should always be true',
+                    result: window.versionIntTestAbove,
+                    expected: true,
+                });
+                results.push({
+                    name: 'versionIntTestSame should always be true',
+                    result: window.versionIntTestSame,
+                    expected: true,
+                });
+                results.push({
+                    name: 'versionIntTestBelow should always be false/undefined',
+                    result: window.versionIntTestBelow,
+                    expected: false,
+                });
+                return results;
+            });
+        </script>
+    </body>
+</html>
