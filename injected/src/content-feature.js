@@ -7,7 +7,6 @@ import { Messaging, MessagingContext } from '../../messaging/index.js';
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js';
 import { isTrackerOrigin } from './trackers.js';
 import ConfigFeature from './config-feature.js';
-import { mock } from 'node:test';
 
 /**
  * @typedef {object} AssetConfig
