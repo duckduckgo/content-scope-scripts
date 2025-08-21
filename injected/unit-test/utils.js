@@ -4,6 +4,7 @@ import {
     initStringExemptionLists,
     processConfig,
     satisfiesMinVersion,
+    isMaxSupportedVersion,
     getTabHostname,
 } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
@@ -247,6 +248,62 @@ describe('Helpers checks', () => {
             const [versionString, extensionVersionString, expectedOutcome] = testCase;
             it(`returns ${JSON.stringify(expectedOutcome)} for ${versionString} compared to ${extensionVersionString}`, () => {
                 expect(satisfiesMinVersion(versionString, extensionVersionString)).toEqual(expectedOutcome);
+            });
+        }
+    });
+
+    describe('utils.isMaxSupportedVersion', () => {
+        // Max version, Current version, outcome (should current version be allowed)
+        /** @type {[string, string, boolean][]} */
+        const stringCases = [
+            ['12', '13', false],
+            ['12', '12', true],
+            ['12', '11', true],
+            ['12.1', '12.1', true],
+            ['12.1.1', '12.1.1', true],
+            ['12.2.0', '12.1.1', true],
+            ['12.12.12', '13.12.12', false],
+            ['12.12.12', '12.13.12', false],
+            ['12.12.12', '12.12.13', false],
+            ['102.12.11', '102.12.12', false],
+            ['102.12.12', '102.12.12', true],
+            ['102.12.13', '102.12.12', true],
+            ['101', '102.12.12.1', false],
+            ['103', '102.12.12.1', true],
+            ['104', '102.12.12.1', true],
+            ['102.12.12.1', '103', false],
+            ['102.12.12.1', '101', true],
+            ['102.13.12', '102.12.12.1', true],
+            ['102.12.12', '102.12.12.1', false],
+            ['102.12.12.1', '102.12.12.2', false],
+            ['102.12.12.2', '102.12.12.1', true],
+            ['102.12.12.1', '102.12.12.1', true],
+            ['102.12.12.3', '102.12.12.1', true],
+            ['102.12.12.1.1', '102.12.12.1', true],
+            ['102.12.12.2.1', '102.12.12.1', true],
+            ['102.12.12.1.1.1.1.1.1.1', '102.12.12.1', true],
+        ];
+        for (const testCase of stringCases) {
+            const [maxVersionString, currentVersionString, expectedOutcome] = testCase;
+            it(`returns ${JSON.stringify(expectedOutcome)} for max version ${maxVersionString} with current ${currentVersionString}`, () => {
+                expect(isMaxSupportedVersion(maxVersionString, currentVersionString)).toEqual(expectedOutcome);
+            });
+        }
+
+        // Max version, Current version, outcome (integers)
+        /** @type {[number, number, boolean][]} */
+        const intCases = [
+            [100, 99, true],
+            [100, 100, true],
+            [100, 101, false],
+            [99, 99, true],
+            [99, 98, true],
+            [98, 99, false],
+        ];
+        for (const testCase of intCases) {
+            const [maxVersion, currentVersion, expectedOutcome] = testCase;
+            it(`returns ${JSON.stringify(expectedOutcome)} for max version ${maxVersion} with current ${currentVersion} (integers)`, () => {
+                expect(isMaxSupportedVersion(maxVersion, currentVersion)).toEqual(expectedOutcome);
             });
         }
     });

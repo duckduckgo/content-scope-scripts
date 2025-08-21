@@ -665,4 +665,129 @@ describe('ContentFeature class', () => {
             expect(result).toBe(false);
         });
     });
+
+    describe('maxSupportedVersion condition', () => {
+        it('should match when current version is less than max', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchMaxSupportedVersion(conditionBlock) {
+                    return this._matchMaxSupportedVersion(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    version: '1.5.0',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchMaxSupportedVersion({
+                maxSupportedVersion: '2.0.0',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should match when current version equals max', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchMaxSupportedVersion(conditionBlock) {
+                    return this._matchMaxSupportedVersion(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    version: '1.5.0',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchMaxSupportedVersion({
+                maxSupportedVersion: '1.5.0',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when current version is greater than max', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchMaxSupportedVersion(conditionBlock) {
+                    return this._matchMaxSupportedVersion(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    version: '1.5.0',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchMaxSupportedVersion({
+                maxSupportedVersion: '1.0.0',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle integer versions', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchMaxSupportedVersion(conditionBlock) {
+                    return this._matchMaxSupportedVersion(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    version: 99,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchMaxSupportedVersion({
+                maxSupportedVersion: 100,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should handle missing maxSupportedVersion condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchMaxSupportedVersion(conditionBlock) {
+                    return this._matchMaxSupportedVersion(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    version: '1.5.0',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchMaxSupportedVersion({});
+            expect(result).toBe(false);
+        });
+    });
 });
