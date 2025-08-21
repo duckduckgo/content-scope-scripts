@@ -116,7 +116,7 @@ function alwaysInitExtensionFeatures(args, featureName) {
 async function updateFeaturesInner(args) {
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
-        if (!isFeatureBroken(initArgs, featureName) && featureInstance.update) {
+        if (!isFeatureBroken(initArgs, featureName) && featureInstance.listenForUpdateChanges) {
             featureInstance.update(args);
         }
     });
