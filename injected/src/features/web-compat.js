@@ -222,14 +222,14 @@ export class WebCompat extends ContentFeature {
                 return 'function toString() { [native code] }';
             },
             writable: false,
-            configurable: false,
+            configurable: true,
             enumerable: false,
         });
 
         this.defineProperty(/** @type {any} */ (window.Notification), 'toString', {
             value: toStringFunc,
             writable: false,
-            configurable: false,
+            configurable: true,
             enumerable: false,
         });
         
