@@ -11,9 +11,13 @@ describe('ContentFeature class', () => {
                 expect(this.getFeatureSetting('arrayTest')).toBe('enabledArray');
                 // Following key doesn't exist so it should return false
                 expect(this.getFeatureSettingEnabled('someNonExistantKey')).toBe(false);
+                expect(this.getFeatureSettingEnabled('someNonExistantKey', 'enabled')).toBe(true);
+                expect(this.getFeatureSettingEnabled('someNonExistantKey', 'disabled')).toBe(false);
                 expect(this.getFeatureSettingEnabled('disabledStatus')).toBe(false);
                 expect(this.getFeatureSettingEnabled('internalStatus')).toBe(false);
                 expect(this.getFeatureSettingEnabled('enabledStatus')).toBe(true);
+                expect(this.getFeatureSettingEnabled('enabledStatus', 'enabled')).toBe(true);
+                expect(this.getFeatureSettingEnabled('enabledStatus', 'disabled')).toBe(true);
                 expect(this.getFeatureSettingEnabled('overridenStatus')).toBe(false);
                 expect(this.getFeatureSettingEnabled('disabledOverridenStatus')).toBe(true);
                 expect(this.getFeatureSettingEnabled('statusObject')).toBe(true);

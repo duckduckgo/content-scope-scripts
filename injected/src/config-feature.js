@@ -325,11 +325,12 @@ export default class ConfigFeature {
      * ```
      * This also supports domain overrides as per `getFeatureSetting`.
      * @param {string} featureKeyName
+     * @param {'enabled' | 'disabled'} [defaultState]
      * @param {string} [featureName]
      * @returns {boolean}
      */
-    getFeatureSettingEnabled(featureKeyName, featureName) {
-        const result = this.getFeatureSetting(featureKeyName, featureName);
+    getFeatureSettingEnabled(featureKeyName, defaultState, featureName) {
+        const result = this.getFeatureSetting(featureKeyName, featureName) || defaultState;
         if (typeof result === 'object') {
             return result.state === 'enabled';
         }
