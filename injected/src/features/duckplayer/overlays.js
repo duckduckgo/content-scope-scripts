@@ -2,6 +2,7 @@ import { DomState } from './util.js';
 import { ClickInterception, Thumbnails } from './thumbnails.js';
 import { VideoOverlay } from './video-overlay.js';
 import { registerCustomElements } from './components/index.js';
+import { EXCEPTION_KIND_INITIAL_SETUP_ERROR } from '../../../../metrics/metrics-reporter.js';
 
 /**
  * @typedef {object} OverlayOptions
@@ -21,17 +22,18 @@ export async function initOverlays(settings, environment, messages) {
     // bind early to attach all listeners
     const domState = new DomState();
 
-    /** @type {import("../duck-player.js").OverlaysInitialSettings} */
+    /** @type {import("../duck-player.js").OverlaysInitialSettings|null} */
     let initialSetup;
     try {
         initialSetup = await messages.initialSetup();
     } catch (e) {
-        console.warn(e);
+        // console.warn(e);
         return;
     }
 
     if (!initialSetup) {
-        console.warn('cannot continue without user settings');
+        const message = 'InitialSetup data is missing';
+        messages.metrics.reportException({ message, kind: EXCEPTION_KIND_INITIAL_SETUP_ERROR });
         return;
     }
 

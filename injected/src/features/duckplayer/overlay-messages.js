@@ -1,5 +1,6 @@
 /* eslint-disable promise/prefer-await-to-then */
 import * as constants from './constants.js';
+import { MetricsReporter, EXCEPTION_KIND_MESSAGING_ERROR } from '../../../../metrics/metrics-reporter.js';
 
 /**
  * @typedef {import("@duckduckgo/messaging").Messaging} Messaging
@@ -21,12 +22,13 @@ export class DuckPlayerOverlayMessages {
          */
         this.messaging = messaging;
         this.environment = environment;
+        this.metrics = new MetricsReporter(messaging);
     }
 
     /**
-     * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings>}
+     * @returns {Promise<import("../duck-player.js").OverlaysInitialSettings|null>}
      */
-    initialSetup() {
+    async initialSetup() {
         if (this.environment.isIntegrationMode()) {
             return Promise.resolve({
                 userValues: {
@@ -36,23 +38,38 @@ export class DuckPlayerOverlayMessages {
                 ui: {},
             });
         }
-        return this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
+        try {
+            return await this.messaging.request(constants.MSG_NAME_INITIAL_SETUP);
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+            return null;
+        }
     }
 
     /**
      * Inform the native layer that an interaction occurred
      * @param {import("../duck-player.js").UserValues} userValues
-     * @returns {Promise<import("../duck-player.js").UserValues>}
+     * @returns {Promise<import("../duck-player.js").UserValues|null>}
      */
-    setUserValues(userValues) {
-        return this.messaging.request(constants.MSG_NAME_SET_VALUES, userValues);
+    async setUserValues(userValues) {
+        try {
+            return await this.messaging.request(constants.MSG_NAME_SET_VALUES, userValues);
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+            return null;
+        }
     }
 
     /**
-     * @returns {Promise<import("../duck-player.js").UserValues>}
+     * @returns {Promise<import("../duck-player.js").UserValues|null>}
      */
-    getUserValues() {
-        return this.messaging.request(constants.MSG_NAME_READ_VALUES, {});
+    async getUserValues() {
+        try {
+            return await this.messaging.request(constants.MSG_NAME_READ_VALUES, {});
+        } catch (e) {
+            this.metrics.reportException({ message: e?.message, kind: EXCEPTION_KIND_MESSAGING_ERROR });
+            return null;
+        }
     }
 
     /**

@@ -37,6 +37,7 @@ import { DuckPlayerOverlayMessages, OpenInDuckPlayerMsg, Pixel } from './duckpla
 import { isBeingFramed } from '../utils.js';
 import { initOverlays } from './duckplayer/overlays.js';
 import { Environment } from './duckplayer/environment.js';
+import { MetricsReporter } from '../../../metrics/metrics-reporter.js';
 
 /**
  * @typedef UserValues - A way to communicate user settings
@@ -92,20 +93,32 @@ export default class DuckPlayerFeature extends ContentFeature {
         if (!this.messaging) {
             throw new Error('cannot operate duck player without a messaging backend');
         }
+        const metrics = new MetricsReporter(this.messaging);
 
-        const locale = args?.locale || args?.language || 'en';
-        const env = new Environment({
-            debug: this.isDebug,
-            injectName: import.meta.injectName,
-            platform: this.platform,
-            locale,
-        });
-        const comms = new DuckPlayerOverlayMessages(this.messaging, env);
+        try {
+            const locale = args?.locale || args?.language || 'en';
+            const env = new Environment({
+                debug: this.isDebug,
+                injectName: import.meta.injectName,
+                platform: this.platform,
+                locale,
+            });
+            const comms = new DuckPlayerOverlayMessages(this.messaging, env);
 
-        if (overlaysEnabled) {
-            initOverlays(overlaySettings.youtube, env, comms);
-        } else if (serpProxyEnabled) {
-            comms.serpProxy();
+            if (overlaysEnabled) {
+                initOverlays(overlaySettings.youtube, env, comms)
+                    // Using then instead of await because this is the public interface of the parent, which doesn't explicitly wait for promises to be resolved.
+                    // eslint-disable-next-line promise/prefer-await-to-then
+                    .catch((e) => {
+                        console.error(e);
+                        metrics.reportExceptionWithError(e);
+                    });
+            } else if (serpProxyEnabled) {
+                comms.serpProxy();
+            }
+        } catch (e) {
+            console.error(e);
+            metrics.reportExceptionWithError(e);
         }
     }
 }

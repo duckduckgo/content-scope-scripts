@@ -146,6 +146,31 @@ export class DuckPlayerPage {
     }
 
     /**
+     * Simulates a messaging error by passing an empty initialSetup object
+     */
+    messagingError() {
+        const clone = structuredClone(this.defaults);
+
+        this.build.switch({
+            android: () => {
+                // @ts-expect-error - this is a test
+                clone.initialSetup = {};
+                this.mocks.defaultResponses(clone);
+            },
+            apple: () => {
+                // @ts-expect-error - this is a test
+                clone.initialSetup = null;
+                this.mocks.defaultResponses(clone);
+            },
+            windows: () => {
+                // @ts-expect-error - this is a test
+                clone.initialSetup = '';
+                this.mocks.defaultResponses(clone);
+            },
+        });
+    }
+
+    /**
      * We don't need to actually load the content for these tests.
      * By mocking the response, we make the tests about 10x faster and also ensure they work offline.
      * @param {URLSearchParams} urlParams
@@ -256,6 +281,11 @@ export class DuckPlayerPage {
 
     async openWithException() {
         const params = new URLSearchParams({ willThrow: String(true) });
+        await this.openPage(params);
+    }
+
+    async openWithNoEmbed() {
+        const params = new URLSearchParams({ videoID: '' });
         await this.openPage(params);
     }
 
@@ -535,6 +565,44 @@ export class DuckPlayerPage {
                 },
             },
         ]);
+    }
+
+    /**
+     * @param {import('../../../../metrics/types/metrics.js').ReportMetricEvent} evt
+     */
+    async didSendReportMetric(evt) {
+        const events = await this.mocks.waitForCallCount({ method: 'reportMetric', count: 1 });
+        expect(events).toContainEqual({
+            payload: {
+                context: 'specialPages',
+                featureName: 'duckPlayerPage',
+                method: 'reportMetric',
+                params: evt,
+            },
+        });
+    }
+
+    /**
+     * @param {string} kind
+     * @param {string} message
+     */
+    didSendException(kind, message) {
+        return this.didSendReportMetric({ metricName: 'exception', params: { kind, message } });
+    }
+
+    async didSendMessagingException() {
+        await this.build.switch({
+            android: async () => {
+                // Android produces a TypeError due to how its messaging lib is wired up
+                await this.didSendException('TypeError', "undefined is not an object (evaluating 'init2.settings.pip')");
+            },
+            apple: async () => {
+                await this.didSendException('MessagingError', 'an unknown error occurred');
+            },
+            windows: async () => {
+                await this.didSendException('MessagingError', 'unknown error');
+            },
+        });
     }
 
     async withStorageValues() {

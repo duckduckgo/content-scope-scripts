@@ -7,6 +7,7 @@ const config = {
         'special-pages/pages/new-tab/app/new-tab.md',
         'special-pages/pages/history/app/history.md',
         'injected/docs/*.md',
+        'metrics/docs/*.md',
         'messaging/docs/messaging.md',
 
     ],
@@ -35,6 +36,7 @@ const config = {
         'special-pages/pages/special-error/app/types.js',
         'special-pages/pages/new-tab/app/favorites/constants.js',
         'special-pages/pages/**/types/*.ts',
+        'metrics/metrics-reporter.js',
     ],
     categoryOrder: ['Special Pages', 'Content Scope Scripts Integrations', 'Other'],
     out: 'docs',
