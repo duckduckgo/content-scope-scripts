@@ -230,12 +230,11 @@ describe('Helpers checks', () => {
                 sessionKey: 'testSessionKey',
             },
             [],
-            'example.com',
         );
         expect(processedConfig).toEqual({
             site: {
-                domain: 'example.com',
-                url: 'http://example.com/',
+                domain: 'localhost',
+                url: 'http://localhost:8080/',
                 isBroken: false,
                 allowlisted: false,
                 // testFeatureTooLow and testFeatureOutlier are not enabled because maxSupportedVersion is < 99
@@ -311,12 +310,11 @@ describe('Helpers checks', () => {
                 sessionKey: 'testSessionKey',
             },
             [],
-            'example.com',
         );
         expect(processedConfig).toEqual({
             site: {
-                domain: 'example.com',
-                url: 'http://example.com/',
+                domain: 'localhost',
+                url: 'http://localhost:8080/',
                 isBroken: false,
                 allowlisted: false,
                 // testFeatureTooLow and testFeatureOutlier are not enabled because maxSupportedVersion is < '0.9.9'
