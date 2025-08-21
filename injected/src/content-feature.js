@@ -253,7 +253,11 @@ export default class ContentFeature extends ConfigFeature {
         ['value', 'get', 'set'].forEach((k) => {
             const descriptorProp = descriptor[k];
             if (typeof descriptorProp === 'function') {
-                if (propertyName === 'toString' && object?.constructor?.name === 'Function' && object.name === 'Notification') {
+                if (
+                    propertyName === 'toString' &&
+                    object?.constructor?.name === 'Function' &&
+                    /** @type {any} */ (object).name === 'Notification'
+                ) {
                     // Don't wrap toString for Notification
                     return;
                 }
@@ -264,6 +268,10 @@ export default class ContentFeature extends ConfigFeature {
                         return target.apply(thisArg, argumentsList);
                     },
                 });
+                if (propertyName === 'toString') {
+                    console.log('About to wrap toString:', descriptorProp.name);
+                    console.trace('toString wrap stack trace');
+                }
                 descriptor[k] = wrapToString(wrapper, descriptorProp);
             }
         });
