@@ -978,7 +978,11 @@
     }
   }
   function isFeatureBroken(args, feature) {
-    return isPlatformSpecificFeature(feature) ? !args.site.enabledFeatures.includes(feature) : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
+    const isFeatureEnabled = args.site.enabledFeatures?.includes(feature) ?? false;
+    if (isPlatformSpecificFeature(feature)) {
+      return !isFeatureEnabled;
+    }
+    return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
   }
   function camelcase(dashCaseText) {
     return dashCaseText.replace(/-(.)/g, (_2, letter) => {
@@ -3908,11 +3912,12 @@
      * ```
      * This also supports domain overrides as per `getFeatureSetting`.
      * @param {string} featureKeyName
+     * @param {'enabled' | 'disabled'} [defaultState]
      * @param {string} [featureName]
      * @returns {boolean}
      */
-    getFeatureSettingEnabled(featureKeyName, featureName) {
-      const result = this.getFeatureSetting(featureKeyName, featureName);
+    getFeatureSettingEnabled(featureKeyName, defaultState, featureName) {
+      const result = this.getFeatureSetting(featureKeyName, featureName) || defaultState;
       if (typeof result === "object") {
         return result.state === "enabled";
       }
@@ -4033,6 +4038,11 @@
        * @type {boolean}
        */
       __publicField(this, "listenForUrlChanges", false);
+      /**
+       * Set this to true if you wish to get update calls (legacy).
+       * @type {boolean}
+       */
+      __publicField(this, "listenForUpdateChanges", false);
       /** @type {ImportMeta} */
       __privateAdd(this, _importConfig);
       this.setArgs(this.args);
@@ -8994,6 +9004,7 @@
       super(...arguments);
       /** @type {MessagingContext} */
       __privateAdd(this, _messagingContext);
+      __publicField(this, "listenForUpdateChanges", true);
     }
     async init(args) {
       if (!this.messaging) {
@@ -9243,6 +9254,9 @@
       if (featuresToLoad.includes(featureName)) {
         const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
         const featureInstance2 = new ContentFeature2(featureName, importConfig, args);
+        if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
+          continue;
+        }
         featureInstance2.callLoad();
         features.push({ featureName, featureInstance: featureInstance2 });
       }
@@ -9260,6 +9274,9 @@
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance: featureInstance2, featureName }) => {
       if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+        if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
+          return;
+        }
         featureInstance2.callInit(args);
         if (featureInstance2.listenForUrlChanges || featureInstance2.urlChanged) {
           registerForURLChanges((navigationType) => {
@@ -9294,7 +9311,7 @@
   async function updateFeaturesInner(args) {
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance: featureInstance2, featureName }) => {
-      if (!isFeatureBroken(initArgs, featureName) && featureInstance2.update) {
+      if (!isFeatureBroken(initArgs, featureName) && featureInstance2.listenForUpdateChanges) {
         featureInstance2.update(args);
       }
     });
@@ -9320,6 +9337,9 @@
       case "register":
         if (message.argumentsObject) {
           message.argumentsObject.messageSecret = secret;
+          if (!message.argumentsObject?.site?.enabledFeatures) {
+            return;
+          }
           init(message.argumentsObject);
         }
         break;

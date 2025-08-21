@@ -246,10 +246,20 @@ export function iterateDataKey(key, callback) {
     }
 }
 
+/**
+ * Check if a feature is considered broken/disabled for the current site
+ * @param {import('./content-scope-features.js').LoadArgs} args - Configuration arguments containing site information
+ * @param {string} feature - The feature name to check
+ * @returns {boolean} True if the feature is broken/disabled, false if it should be enabled
+ */
 export function isFeatureBroken(args, feature) {
-    return isPlatformSpecificFeature(feature)
-        ? !args.site.enabledFeatures.includes(feature)
-        : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
+    const isFeatureEnabled = args.site.enabledFeatures?.includes(feature) ?? false;
+
+    if (isPlatformSpecificFeature(feature)) {
+        return !isFeatureEnabled;
+    }
+
+    return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
 }
 
 export function camelcase(dashCaseText) {
