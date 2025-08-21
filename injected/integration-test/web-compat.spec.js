@@ -153,6 +153,10 @@ async function setupPermissionsTest(page, options = {}) {
             permissions: {
                 state: 'enabled',
                 supportedPermissions: {
+                    // Non-native permissions (should fall through to original API)
+                    geolocation: {},
+                    notification: {},
+                    // Native permissions (handled by our implementation)
                     push: {
                         name: 'notifications',
                         native: true,
@@ -236,8 +240,8 @@ const permissionsTestCases = {
      * @param {import("@playwright/test").Page} page
      */
     async testDefaultPrompt(page) {
-        const { result } = await checkPermission(page, 'camera');
-        expect(result).toMatchObject({ name: 'video_capture', state: 'prompt' });
+        const { result } = await checkPermission(page, 'geolocation');
+        expect(result).toMatchObject({ name: 'geolocation', state: 'prompt' });
     },
 
     /**
@@ -398,6 +402,20 @@ test.describe('Permissions API - when present', () => {
             await permissionsTestCases.testPermissionsExposed(page);
         });
 
+        test('should fall through to original API for non-native permissions', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            const { result } = await checkPermission(page, 'geolocation');
+
+            // Should use original API behavior, not our custom implementation
+            expect(result).toBeDefined();
+
+            // The result should be a native PermissionStatus, not our custom one
+            // This verifies that non-native permissions bypass our shim entirely
+            expect(result.constructor.name).toBe('PermissionStatus');
+
+            // Should have the original permission name (not overridden)
+            expect(result.name).toBe('geolocation');
+        });
 
         test('should fall through to original API for unsupported permissions', async ({ page }) => {
             await setupPermissionsTest(page, { enablePermissionsPresent: true });
@@ -407,6 +425,26 @@ test.describe('Permissions API - when present', () => {
         test('should intercept native permissions and return custom result', async ({ page }) => {
             await setupPermissionsTest(page, { enablePermissionsPresent: true });
             await permissionsTestCases.testNativePermissionSuccess(page);
+        });
+
+        test('should apply name overrides for native permissions', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            await page.evaluate(() => {
+                globalThis.cssMessaging.impl.request = (req) => {
+                    globalThis.shareReq = req;
+                    return Promise.resolve({ state: 'granted' });
+                };
+            });
+
+            const { result } = await checkPermission(page, 'camera');
+
+            // Should use our custom implementation for native permissions
+            expect(result).toBeDefined();
+            expect(result.constructor.name).toBe('PermissionStatus');
+
+            // Should use the overridden name from config
+            expect(result.name).toBe('video_capture');
+            expect(result.state).toBe('granted');
         });
 
         test('should fall through to original API when native messaging fails', async ({ page }) => {
