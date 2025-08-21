@@ -97,6 +97,15 @@ test.describe('Test integration pages', () => {
         );
     });
 
+    test('Element hiding functionality', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/element-hiding/index.html',
+            './integration-test/test-pages/element-hiding/config/element-hiding.json',
+        );
+    });
+
     test('Web compat shims correctness', async ({ page }, testInfo) => {
         // prettier-ignore
         await testPage(

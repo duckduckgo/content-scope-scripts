@@ -1,0 +1,46 @@
+{
+    "readme": "This config is used to test the element hiding feature functionality.",
+    "version": 1,
+    "features": {
+        "elementHiding": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "useStrictHideStyleTag": false,
+                "rules": [
+                    {
+                        "selector": ".hide-test",
+                        "type": "hide"
+                    },
+                    {
+                        "selector": ".hide-empty-test",
+                        "type": "hide-empty"
+                    },
+                    {
+                        "selector": ".closest-empty-test",
+                        "type": "closest-empty"
+                    }
+                ],
+                "hideTimeouts": [0, 100, 300, 500, 1000],
+                "unhideTimeouts": [1250, 2250, 3000],
+                "adLabelStrings": [
+                    "advertisement",
+                    "sponsored",
+                    "ad"
+                ],
+                "domains": [
+                    {
+                        "domain": "localhost:3000",
+                        "rules": [
+                            {
+                                "selector": "[class^='ad-container']",
+                                "type": "override"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

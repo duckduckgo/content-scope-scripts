@@ -1,0 +1,228 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Element Hiding</title>
+        <link rel="stylesheet" href="../../shared/style.css" />
+        <style>
+            .container {
+                width: 400px;
+                height: 200px;
+                display: block;
+                background-color: rgb(249, 251, 251);
+                color: rgb(88, 104, 113);
+                font-size: 16px;
+                line-height: 28px;
+                padding: 20px;
+                margin: 25px;
+                border: 2px solid #ddd;
+            }
+            .test-element {
+                margin: 10px 0;
+                padding: 10px;
+                border: 1px solid #ccc;
+            }
+            .frame-container iframe {
+                width: 400px;
+                height: 200px;
+                border: none;
+            }
+        </style>
+    </head>
+    <body>
+        <script src="../../shared/utils.js"></script>
+        <p><a href="../index.html">[Test Pages]</a></p>
+
+        <p>This page verifies that element hiding rules work correctly</p>
+
+        <!-- Elements for basic hide test -->
+        <div id="hide">
+            <div class="container hide-test" id="hide-basic">
+                This element should be hidden by 'hide' rule.
+            </div>
+        </div>
+
+        <!-- Elements for hide-empty test -->
+        <div id="hide-empty">
+            <div class="container hide-empty-test" id="hide-empty-no-content">
+                <!-- Empty element - should be hidden -->
+            </div>
+            <div class="container hide-empty-test" id="hide-empty-ad-label">
+                <span>Advertisement</span>
+            </div>
+            <div class="container hide-empty-test" id="hide-empty-text-content">
+                This element should not be hidden because it has text content.
+            </div>
+            <div class="container hide-empty-test" id="hide-empty-img-element">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width="25" height="25" />
+            </div>
+        </div>
+
+        <!-- Elements for closest-empty test -->
+        <div id="closest-empty">
+            <div class="container closest-empty-test" id="closest-empty-single-div">
+                <!-- Empty element - parent should be found -->
+            </div>
+            <div id="closest-empty-single-nested-div">
+                <div class="container closest-empty-test">
+                    <!-- Empty nested element -->
+                </div>
+            </div>
+            <div id="closest-empty-siblings-nested-div">
+                <div class="container closest-empty-test">
+                    <!-- Empty element with sibling -->
+                </div>
+                <div>
+                    <span>Advertisement</span>
+                </div>
+            </div>
+            <div id="closest-empty-siblings-content-nested-div">
+                <div class="container closest-empty-test">
+                    <!-- Empty element with content sibling -->
+                </div>
+                <div class="container">
+                    <span>Lorem Ipsum</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Elements for override test -->
+        <div id="override">
+            <div class="container ad-container" id="override-basic">
+                This element should not be hidden due to override rule.
+            </div>
+        </div>
+
+        <script>
+            // Wait for element hiding to be applied
+            async function waitForElementHiding() {
+                // Wait for timeouts to apply
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+
+            function isElementHidden(element) {
+                if (!element) return true;
+                
+                const computedStyle = window.getComputedStyle(element);
+                return computedStyle.display === 'none' || 
+                       element.hidden === true ||
+                       element.offsetHeight === 0;
+            }
+
+            function isElementVisible(element) {
+                if (!element) return false;
+                
+                const computedStyle = window.getComputedStyle(element);
+                return computedStyle.display !== 'none' && 
+                       !element.hidden &&
+                       element.offsetHeight > 0;
+            }
+
+            test('Basic hide functionality', async () => {
+                const results = [];
+                
+                await waitForElementHiding();
+                
+                const hideBasic = document.getElementById('hide-basic');
+                results.push({
+                    name: 'Basic hide rule should hide element',
+                    result: isElementHidden(hideBasic),
+                    expected: true
+                });
+
+                return results;
+            });
+
+            test('Hide-empty functionality', async () => {
+                const results = [];
+                
+                await waitForElementHiding();
+                
+                const emptyElement = document.getElementById('hide-empty-no-content');
+                results.push({
+                    name: 'Empty element should be hidden',
+                    result: isElementHidden(emptyElement),
+                    expected: true
+                });
+
+                const adLabelElement = document.getElementById('hide-empty-ad-label');
+                results.push({
+                    name: 'Element with ad label should be hidden',
+                    result: isElementHidden(adLabelElement),
+                    expected: true
+                });
+
+                const textContentElement = document.getElementById('hide-empty-text-content');
+                results.push({
+                    name: 'Element with text content should not be hidden',
+                    result: isElementVisible(textContentElement),
+                    expected: true
+                });
+
+                const imgElement = document.getElementById('hide-empty-img-element');
+                results.push({
+                    name: 'Element with image should not be hidden',
+                    result: isElementVisible(imgElement),
+                    expected: true
+                });
+
+                return results;
+            });
+
+            test('Closest-empty functionality', async () => {
+                const results = [];
+                
+                await waitForElementHiding();
+                
+                const singleDiv = document.getElementById('closest-empty-single-div');
+                results.push({
+                    name: 'Single empty div should be hidden',
+                    result: isElementHidden(singleDiv),
+                    expected: true
+                });
+
+                const nestedParent = document.getElementById('closest-empty-single-nested-div');
+                results.push({
+                    name: 'Parent of empty nested element should be hidden',
+                    result: isElementHidden(nestedParent),
+                    expected: true
+                });
+
+                const siblingsParent = document.getElementById('closest-empty-siblings-nested-div');
+                results.push({
+                    name: 'Parent with empty child and ad sibling should be hidden',
+                    result: isElementHidden(siblingsParent),
+                    expected: true
+                });
+
+                const contentSiblingsParent = document.getElementById('closest-empty-siblings-content-nested-div');
+                results.push({
+                    name: 'Parent with empty child but content sibling should not be hidden',
+                    result: isElementVisible(contentSiblingsParent),
+                    expected: true
+                });
+
+                return results;
+            });
+
+            test('Override functionality', async () => {
+                const results = [];
+                
+                await waitForElementHiding();
+                
+                const overrideElement = document.getElementById('override-basic');
+                results.push({
+                    name: 'Element with override rule should not be hidden',
+                    result: isElementVisible(overrideElement),
+                    expected: true
+                });
+
+                return results;
+            });
+
+            // eslint-disable-next-line no-undef
+            renderResults();
+        </script>
+    </body>
+</html>
