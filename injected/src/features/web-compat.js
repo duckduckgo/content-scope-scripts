@@ -314,13 +314,15 @@ export class WebCompat extends ContentFeature {
             apply: async (target, thisArg, args) => {
                 this.addDebugFlag();
 
-                // Let the original method handle validation and exceptions
                 const query = args[0];
 
-                // Try to handle with native messaging
-                const result = await this.handlePermissionQuery(query, settings);
-                if (result) {
-                    return result;
+                // Only attempt to handle if query is valid and permission is marked as native
+                if (query?.name && settings?.supportedPermissions?.[query.name]?.native) {
+                    // Try to handle with native messaging
+                    const result = await this.handlePermissionQuery(query, settings);
+                    if (result) {
+                        return result;
+                    }
                 }
 
                 // Fall through to original method for all other cases
