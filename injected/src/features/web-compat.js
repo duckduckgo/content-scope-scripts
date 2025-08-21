@@ -213,22 +213,35 @@ export class WebCompat extends ContentFeature {
             enumerable: false,
         });
 
-        const toStringFunc = function toString() {
-            return 'function Notification() { [native code] }';
-        };
+        // const toStringFunc = function toString() {
+        //     return 'function Notification() { [native code] }';
+        // };
 
-        Object.defineProperty(toStringFunc, 'toString', {
-            value: function toString() {
-                return 'function toString() { [native code] }';
-            },
+        // Object.defineProperty(toStringFunc, 'toString', {
+        //     value: function toString() {
+        //         return 'function toString() { [native code] }';
+        //     },
+        //     writable: false,
+        //     configurable: true,
+        //     enumerable: false,
+        // });
+
+        // this.defineProperty(/** @type {any} */ (window.Notification), 'toString', {
+        //     value: toStringFunc,
+        //     writable: false,
+        //     configurable: true,
+        //     enumerable: false,
+        // });
+        this.defineProperty(/** @type {any} */ (window.Notification), 'prototype', {
+            value: {},
             writable: false,
-            configurable: true,
+            configurable: false,
             enumerable: false,
         });
 
-        this.defineProperty(/** @type {any} */ (window.Notification), 'toString', {
-            value: toStringFunc,
-            writable: false,
+        this.defineProperty(/** @type {any} */ (window.Notification).prototype, 'constructor', {
+            value: window.Notification,
+            writable: true,
             configurable: true,
             enumerable: false,
         });
@@ -243,17 +256,10 @@ export class WebCompat extends ContentFeature {
             enumerable: true,
         });
 
-        this.defineProperty(/** @type {any} */ (window.Notification).requestPermission, 'toString', {
-            value: () => 'function requestPermission() { [native code] }',
-            writable: false,
-            configurable: false,
-            enumerable: false,
-        });
-
         this.defineProperty(/** @type {any} */ (window.Notification), 'permission', {
             get: () => 'denied',
             configurable: true,
-            enumerable: false,
+            enumerable: true,
         });
 
         this.defineProperty(/** @type {any} */ (window.Notification), 'maxActions', {
