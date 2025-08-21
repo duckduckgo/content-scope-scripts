@@ -153,9 +153,9 @@ async function setupPermissionsTest(page, options = {}) {
             permissions: {
                 state: 'enabled',
                 supportedPermissions: {
-                    geolocation: {},
                     push: {
                         name: 'notifications',
+                        native: true,
                     },
                     camera: {
                         name: 'video_capture',
@@ -236,8 +236,8 @@ const permissionsTestCases = {
      * @param {import("@playwright/test").Page} page
      */
     async testDefaultPrompt(page) {
-        const { result } = await checkPermission(page, 'geolocation');
-        expect(result).toMatchObject({ name: 'geolocation', state: 'prompt' });
+        const { result } = await checkPermission(page, 'camera');
+        expect(result).toMatchObject({ name: 'video_capture', state: 'prompt' });
     },
 
     /**
@@ -398,15 +398,6 @@ test.describe('Permissions API - when present', () => {
             await permissionsTestCases.testPermissionsExposed(page);
         });
 
-        test('should fall through to original API for non-native permissions', async ({ page }) => {
-            await setupPermissionsTest(page, { enablePermissionsPresent: true });
-            const { result } = await checkPermission(page, 'geolocation');
-            // Should use original API behavior, not our custom implementation
-            expect(result).toBeDefined();
-            // The result should be a native PermissionStatus, not our custom one
-            // TODO fix this
-            // expect(result.constructor.name).toBe('PermissionStatus');
-        });
 
         test('should fall through to original API for unsupported permissions', async ({ page }) => {
             await setupPermissionsTest(page, { enablePermissionsPresent: true });
