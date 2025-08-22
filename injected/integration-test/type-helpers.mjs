@@ -63,6 +63,7 @@ export class Build {
             'apple-isolated': () => '../build/apple/contentScopeIsolated.js',
             'android-autofill-password-import': () => '../build/android/autofillPasswordImport.js',
             'android-broker-protection': () => '../build/android/brokerProtection.js',
+            integration: () => '../build/integration/contentScope.js',
         });
         return readFileSync(path, 'utf8');
     }

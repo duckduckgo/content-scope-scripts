@@ -77,6 +77,11 @@ export default defineConfig({
             testMatch: 'integration-test/remote-pages.spec.js',
             use: { injectName: 'firefox', platform: 'extension', ...devices['Desktop Firefox'] },
         },
+        {
+            name: 'integration',
+            testMatch: ['integration-test/pages.spec.js'],
+            use: { injectName: 'integration', platform: 'macos', ...devices['Desktop Chrome'] },
+        },
     ],
     timeout: 30 * 1000,
     expect: {

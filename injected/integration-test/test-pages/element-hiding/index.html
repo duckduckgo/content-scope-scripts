@@ -97,8 +97,8 @@
         <script>
             // Wait for element hiding to be applied
             async function waitForElementHiding() {
-                // Wait for timeouts to apply
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                // Wait for timeouts to apply - longest timeout is 5000ms plus buffer
+                await new Promise(resolve => setTimeout(resolve, 6000));
             }
 
             function isElementHidden(element) {
@@ -125,6 +125,121 @@
                 await waitForElementHiding();
                 
                 const hideBasic = document.getElementById('hide-basic');
+                
+                // Add comprehensive debugging info
+                const debugInfo = {
+                    elementExists: !!hideBasic,
+                    display: hideBasic ? window.getComputedStyle(hideBasic).display : 'N/A',
+                    hidden: hideBasic ? hideBasic.hidden : false,
+                    offsetHeight: hideBasic ? hideBasic.offsetHeight : 0,
+                    offsetWidth: hideBasic ? hideBasic.offsetWidth : 0,
+                    isBeingFramed: window.parent !== window,
+                    topEqualsWindow: window.top === window,
+                    ancestorOrigins: window.location.ancestorOrigins ? window.location.ancestorOrigins.length : 'undefined',
+                    contentScopeStatus: window.__content_scope_status,
+                    features: window.__testContentScopeArgs?.features ? Object.keys(window.__testContentScopeArgs.features) : 'undefined',
+                    enabledFeatures: window.__testContentScopeArgs?.site?.enabledFeatures || 'undefined',
+                    featureSettings: window.__testContentScopeArgs?.featureSettings ? Object.keys(window.__testContentScopeArgs.featureSettings) : 'undefined',
+                    bundledConfig: window.__testContentScopeArgs?.bundledConfig?.features ? Object.keys(window.__testContentScopeArgs.bundledConfig.features) : 'undefined'
+                };
+                
+                results.push({
+                    name: 'Debug info (for troubleshooting)',
+                    result: JSON.stringify(debugInfo, null, 2),
+                    expected: JSON.stringify(debugInfo, null, 2)
+                });
+                
+                // Check if element hiding feature is actually loaded
+                const isElementHidingLoaded = window.__testContentScopeArgs?.site?.enabledFeatures?.includes('elementHiding');
+                const hasElementHidingSettings = window.__testContentScopeArgs?.featureSettings?.elementHiding !== undefined;
+                
+                // Check our debug flags
+                const elementHidingModuleLoaded = window.__elementHidingModuleLoaded === true;
+                const elementHidingConstructorCalled = window.__elementHidingLoaded === true;
+                const elementHidingInitCalled = window.__elementHidingInitialized === true;
+                
+                results.push({
+                    name: 'Element hiding feature should be enabled',
+                    result: isElementHidingLoaded,
+                    expected: true
+                });
+                
+                results.push({
+                    name: 'Element hiding settings should exist',
+                    result: hasElementHidingSettings,
+                    expected: true
+                });
+                
+                results.push({
+                    name: 'Element hiding module should be loaded',
+                    result: elementHidingModuleLoaded,
+                    expected: true
+                });
+                
+                results.push({
+                    name: 'Element hiding constructor should be called',
+                    result: elementHidingConstructorCalled,
+                    expected: true
+                });
+                
+                results.push({
+                    name: 'Element hiding init should be called',
+                    result: elementHidingInitCalled,
+                    expected: true
+                });
+                
+                // Check isBeingFramed logic
+                const hasAutomationParam = window.location.search.includes('automation=true');
+                const isFramed = window.parent !== window;
+                const shouldBypassFrameCheck = hasAutomationParam;
+                
+                results.push({
+                    name: 'Has automation parameter',
+                    result: hasAutomationParam,
+                    expected: true
+                });
+                
+                results.push({
+                    name: 'Is being framed',
+                    result: isFramed,
+                    expected: false
+                });
+                
+                results.push({
+                    name: 'Should bypass frame check',
+                    result: shouldBypassFrameCheck,
+                    expected: true
+                });
+                
+                // Additional debugging for element hiding
+                const computedStyle = window.getComputedStyle(hideBasic);
+                const hasHideTestClass = hideBasic.classList.contains('hide-test');
+                const matchesSelector = hideBasic.matches('.hide-test');
+                
+                results.push({
+                    name: 'Element has hide-test class',
+                    result: hasHideTestClass,
+                    expected: true
+                });
+                
+                results.push({
+                    name: 'Element matches hide selector',
+                    result: matchesSelector,
+                    expected: true
+                });
+                
+                results.push({
+                    name: 'Element computed display style',
+                    result: computedStyle.display,
+                    expected: 'none'
+                });
+                
+                results.push({
+                    name: 'Element hidden attribute',
+                    result: hideBasic.hidden,
+                    expected: true
+                });
+                
                 results.push({
                     name: 'Basic hide rule should hide element',
                     result: isElementHidden(hideBasic),
@@ -226,3 +341,4 @@
         </script>
     </body>
 </html>
+

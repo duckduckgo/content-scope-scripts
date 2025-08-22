@@ -6,7 +6,8 @@
             "state": "enabled",
             "exceptions": [],
             "settings": {
-                "useStrictHideStyleTag": false,
+                "additionalCheck": "enabled",
+                "useStrictHideStyleTag": true,
                 "rules": [
                     {
                         "selector": ".hide-test",
@@ -21,12 +22,20 @@
                         "type": "closest-empty"
                     }
                 ],
-                "hideTimeouts": [0, 100, 300, 500, 1000],
-                "unhideTimeouts": [1250, 2250, 3000],
+                "hideTimeouts": [0, 100, 300, 500, 1000, 1500, 2000, 3000, 5000],
+                "unhideTimeouts": [1250, 2250, 3250, 5250],
+                "mediaAndFormSelectors": "video,canvas,embed,object,audio,map,form,input,textarea,select,option",
                 "adLabelStrings": [
+                    "ad",
+                    "advert", 
                     "advertisement",
+                    "advertisements",
+                    "advertising",
+                    "sponsor message",
                     "sponsored",
-                    "ad"
+                    "close",
+                    "close ad",
+                    "skip ad"
                 ],
                 "domains": [
                     {
