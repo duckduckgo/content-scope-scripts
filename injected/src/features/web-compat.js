@@ -46,7 +46,6 @@ function canShare(data) {
             return false;
         }
     }
-    if (window !== window.top) return false; // Not supported in iframes
     return true;
 }
 
