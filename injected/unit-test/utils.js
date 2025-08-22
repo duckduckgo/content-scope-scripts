@@ -9,6 +9,10 @@ import {
 } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
+/**
+ * @typedef {import('../src/utils.js').ConfigSetting} ConfigSetting
+ */
+
 polyfillProcessGlobals();
 
 describe('Helpers checks', () => {
@@ -322,43 +326,43 @@ describe('Helpers checks', () => {
             });
 
             it('handles undefined type', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = { type: 'undefined' };
                 expect(processAttr(configSetting)).toBe(undefined);
             });
 
             it('handles string type', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = { type: 'string', value: 'hello' };
                 expect(processAttr(configSetting)).toBe('hello');
             });
 
             it('handles number type', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = { type: 'number', value: 42 };
                 expect(processAttr(configSetting)).toBe(42);
             });
 
             it('handles boolean type', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = { type: 'boolean', value: true };
                 expect(processAttr(configSetting)).toBe(true);
             });
 
             it('handles null type', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = { type: 'null', value: null };
                 expect(processAttr(configSetting)).toBe(null);
             });
 
             it('handles array type', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = { type: 'array', value: [1, 2, 3] };
                 expect(processAttr(configSetting)).toEqual([1, 2, 3]);
             });
 
             it('handles object type', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = { type: 'object', value: { key: 'value' } };
                 expect(processAttr(configSetting)).toEqual({ key: 'value' });
             });
@@ -366,7 +370,7 @@ describe('Helpers checks', () => {
 
         describe('Function type', () => {
             it('handles function type with functionName', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = { type: 'function', functionName: 'noop' };
                 const result = processAttr(configSetting);
                 expect(typeof result).toBe('function');
@@ -374,7 +378,7 @@ describe('Helpers checks', () => {
             });
 
             it('handles function type with functionValue', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'function',
                     functionValue: {
@@ -388,7 +392,7 @@ describe('Helpers checks', () => {
             });
 
             it('handles function type with complex functionValue', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'function',
                     functionValue: {
@@ -402,7 +406,7 @@ describe('Helpers checks', () => {
             });
 
             it('handles function type with nested object functionValue', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'function',
                     functionValue: {
@@ -416,7 +420,7 @@ describe('Helpers checks', () => {
             });
 
             it('handles function type with array functionValue', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'function',
                     functionValue: {
@@ -430,7 +434,7 @@ describe('Helpers checks', () => {
             });
 
             it('prefers functionName over functionValue when both are present', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'function',
                     functionName: 'noop',
@@ -447,7 +451,7 @@ describe('Helpers checks', () => {
 
         describe('Async support', () => {
             it('handles async string', async () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'string',
                     value: 'boop',
@@ -460,7 +464,7 @@ describe('Helpers checks', () => {
             });
 
             it('handles async number', async () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'number',
                     value: 123,
@@ -473,7 +477,7 @@ describe('Helpers checks', () => {
             });
 
             it('handles async boolean', async () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'boolean',
                     value: false,
@@ -486,7 +490,7 @@ describe('Helpers checks', () => {
             });
 
             it('handles async array', async () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'array',
                     value: [1, 2, 'test'],
@@ -499,7 +503,7 @@ describe('Helpers checks', () => {
             });
 
             it('handles async object', async () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'object',
                     value: { key: 'async-value', nested: { prop: 'test' } },
@@ -512,7 +516,7 @@ describe('Helpers checks', () => {
             });
 
             it('handles async null', async () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'null',
                     value: null,
@@ -525,7 +529,7 @@ describe('Helpers checks', () => {
             });
 
             it('non-async values should not be wrapped in Promise', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'string',
                     value: 'not async',
@@ -538,7 +542,7 @@ describe('Helpers checks', () => {
 
         describe('Criteria support', () => {
             it('handles array with criteria selection - fallback case', () => {
-                /** @type {import('../src/utils.js').ConfigSetting[]} */
+                /** @type {ConfigSetting[]} */
                 const configSetting = [
                     {
                         type: 'string',
@@ -555,7 +559,7 @@ describe('Helpers checks', () => {
             });
 
             it('handles async array with criteria selection - fallback case', async () => {
-                /** @type {import('../src/utils.js').ConfigSetting[]} */
+                /** @type {ConfigSetting[]} */
                 const configSetting = [
                     {
                         type: 'string',
@@ -578,7 +582,7 @@ describe('Helpers checks', () => {
 
         describe('Complex combinations', () => {
             it('handles function with async functionValue', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'function',
                     functionValue: {
@@ -594,7 +598,7 @@ describe('Helpers checks', () => {
             });
 
             it('function returns correct async value', async () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'function',
                     functionValue: {
@@ -610,7 +614,7 @@ describe('Helpers checks', () => {
             });
 
             it('nested function with nested processAttr calls', () => {
-                /** @type {import('../src/utils.js').ConfigSetting} */
+                /** @type {ConfigSetting} */
                 const configSetting = {
                     type: 'function',
                     functionValue: {
