@@ -166,6 +166,9 @@ export class ResultsCollector {
             'android-autofill-password-import': async () => {
                 // noop
             },
+            integration: async () => {
+                // noop
+            },
         });
 
         const messagingMock = this.build.switch({
@@ -174,6 +177,7 @@ export class ResultsCollector {
             windows: () => mockWindowsMessaging,
             android: () => mockAndroidMessaging,
             'android-autofill-password-import': () => mockAndroidMessaging,
+            integration: () => mockResponses,
         });
 
         await this.page.addInitScript(messagingMock, {
@@ -189,6 +193,7 @@ export class ResultsCollector {
             android: () => wrapWebkitScripts,
             'android-autofill-password-import': () => wrapWebkitScripts,
             windows: () => wrapWindowsScripts,
+            integration: () => wrapWebkitScripts,
         });
 
         // read the built file from disk and do replacements
