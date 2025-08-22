@@ -324,6 +324,8 @@ const functionMap = {
  * @property {'undefined' | 'number' | 'string' | 'function' | 'boolean' | 'null' | 'array' | 'object'} type
  * @property {string} [functionName]
  * @property {boolean | string | number} value
+ * @property {ConfigSetting} [functionValue] - For function type, the value to return from the function
+ * @property {boolean} [async] - Whether to wrap the value in a Promise
  * @property {object} [criteria]
  * @property {string} criteria.arch
  */
@@ -357,14 +359,27 @@ export function processAttr(configSetting, defaultValue) {
                 if (configSetting.functionName && functionMap[configSetting.functionName]) {
                     return functionMap[configSetting.functionName];
                 }
+                if (configSetting.functionValue) {
+                    const functionValue = configSetting.functionValue;
+                    // Return a function that processes the functionValue using processAttr
+                    return () => processAttr(functionValue, undefined);
+                }
             }
 
             if (configSetting.type === 'undefined') {
                 return undefined;
             }
 
+            // Get the final value
+            let finalValue = configSetting.value;
+
+            // Handle async wrapping for all types including arrays
+            if (configSetting.async) {
+                return DDGPromise.resolve(finalValue);
+            }
+
             // All JSON expressable types are handled here
-            return configSetting.value;
+            return finalValue;
         default:
             return defaultValue;
     }
