@@ -133,6 +133,7 @@ export default class ConfigFeature {
      * @property {boolean} [context.frame] - true if the condition applies to frames
      * @property {boolean} [context.top] - true if the condition applies to the top frame
      * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
+     * @property {boolean} [internal] - true if the condition applies to internal builds
      */
 
     /**
@@ -164,6 +165,7 @@ export default class ConfigFeature {
             minSupportedVersion: this._matchMinSupportedVersion,
             maxSupportedVersion: this._matchMaxSupportedVersion,
             injectName: this._matchInjectNameConditional,
+            internal: this._matchInternalConditional,
         };
 
         for (const key in conditionBlock) {
@@ -285,6 +287,18 @@ export default class ConfigFeature {
         const currentInjectName = this.injectName;
         if (!currentInjectName) return false;
         return conditionBlock.injectName === currentInjectName;
+    }
+
+    /**
+     * Takes a condition block and returns true if the internal state matches the condition.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchInternalConditional(conditionBlock) {
+        if (conditionBlock.internal === undefined) return false;
+        const isInternal = this.#args?.platform?.internal;
+        if (isInternal === undefined) return false;
+        return Boolean(conditionBlock.internal) === Boolean(isInternal);
     }
 
     /**

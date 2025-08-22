@@ -64,7 +64,7 @@ The following placeholders are replaced during the build process:
 - **`$CONTENT_SCOPE$`** - Raw remote config object
 - **`$USER_UNPROTECTED_DOMAINS$`** - An array of user allowlisted domains
 - **`$USER_PREFERENCES$`** - An object containing:
-    - `platform`: `{ name: '<ios | macos | extension | android>' }`
+    - `platform`: `{ name: '<ios | macos | extension | android | windows>', internal: <boolean> }`
     - `debug`: boolean
     - `globalPrivacyControlValue`: boolean
     - `sessionKey`: `<CSRNG UUID 4 string>` (used for fingerprinting) - this should regenerate on browser close or every 24 hours

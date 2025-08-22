@@ -790,4 +790,204 @@ describe('ContentFeature class', () => {
             expect(result).toBe(false);
         });
     });
+
+    describe('internal condition', () => {
+        it('should match when internal is true and condition is true', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: true,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should match when internal is false and condition is false', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: false,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: false,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when internal is true but condition is false', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: false,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should not match when internal is false but condition is true', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: false,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: true,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle undefined internal state gracefully', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    // internal not set
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: true,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle missing internal condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({});
+            expect(result).toBe(false);
+        });
+
+        it('should handle truthy values for internal condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: 1, // truthy value
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: true,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should handle falsy values for internal condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: 0, // falsy value
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: false,
+            });
+            expect(result).toBe(true);
+        });
+    });
 });
