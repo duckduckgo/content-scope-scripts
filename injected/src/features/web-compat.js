@@ -21,9 +21,18 @@ const MSG_DEVICE_ENUMERATION = 'deviceEnumeration';
 
 function canShare(data) {
     if (typeof data !== 'object') return false;
-    if (!('url' in data) && !('title' in data) && !('text' in data)) return false; // At least one of these is required
+    // Make an in-place shallow copy of the data
+    data = Object.assign({}, data);
+    // Delete undefined or null values
+    for (const key of ['url', 'title', 'text', 'files']) {
+        if (data[key] === undefined || data[key] === null) {
+            delete data[key];
+        }
+    }
+    // After pruning we should still have at least one of these
+    if (!('url' in data) && !('title' in data) && !('text' in data)) return false;
     if ('files' in data) {
-        if (!Array.isArray(data.files)) return false;
+        if (!(Array.isArray(data.files) || data.files instanceof FileList)) return false;
         if (data.files.length > 0) return false; // File sharing is not supported at the moment
     }
     if ('title' in data && typeof data.title !== 'string') return false;
@@ -37,7 +46,6 @@ function canShare(data) {
             return false;
         }
     }
-    if (window !== window.top) return false; // Not supported in iframes
     return true;
 }
 

@@ -1,0 +1,73 @@
+{
+    "readme": "Test maxSupportedVersion (string) with apiManipulation and conditionalPatching.",
+    "version": 1,
+    "features": {
+        "apiManipulation": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "apiChanges": {},
+                "conditionalChanges": [
+                    {
+                        "condition": {
+                            "maxSupportedVersion": "2.0.0"
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "add",
+                                "path": "/apiChanges/versionStringTestAbove",
+                                "value": {
+                                    "type": "descriptor",
+                                    "getterValue": {
+                                        "type": "boolean",
+                                        "value": true
+                                    },
+                                    "define": true
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "condition": {
+                            "maxSupportedVersion": "1.5.0"
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "add",
+                                "path": "/apiChanges/versionStringTestSame",
+                                "value": {
+                                    "type": "descriptor",
+                                    "getterValue": {
+                                        "type": "boolean",
+                                        "value": true
+                                    },
+                                    "define": true
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "condition": {
+                            "maxSupportedVersion": "1.0.0"
+                        },
+                        "patchSettings": [
+                            {
+                                "op": "add",
+                                "path": "/apiChanges/versionStringTestBelow",
+                                "value": {
+                                    "type": "descriptor",
+                                    "getterValue": {
+                                        "type": "boolean",
+                                        "value": true
+                                    },
+                                    "define": true
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}

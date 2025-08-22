@@ -1050,10 +1050,11 @@
     switch (configSettingType) {
       case "object":
         if (Array.isArray(configSetting)) {
-          configSetting = processAttrByCriteria(configSetting);
-          if (configSetting === void 0) {
+          const selectedSetting = processAttrByCriteria(configSetting);
+          if (selectedSetting === void 0) {
             return defaultValue;
           }
+          return processAttr(selectedSetting, defaultValue);
         }
         if (!configSetting.type) {
           return defaultValue;
@@ -1062,9 +1063,16 @@
           if (configSetting.functionName && functionMap[configSetting.functionName]) {
             return functionMap[configSetting.functionName];
           }
+          if (configSetting.functionValue) {
+            const functionValue = configSetting.functionValue;
+            return () => processAttr(functionValue, void 0);
+          }
         }
         if (configSetting.type === "undefined") {
           return void 0;
+        }
+        if (configSetting.async) {
+          return DDGPromise.resolve(configSetting.value);
         }
         return configSetting.value;
       default:
@@ -1239,6 +1247,18 @@
     }
     return false;
   }
+  function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
+    if (typeof currentVersion === "string" && typeof maxSupportedVersion === "string") {
+      if (satisfiesMinVersion(currentVersion, maxSupportedVersion)) {
+        return true;
+      }
+    } else if (typeof currentVersion === "number" && typeof maxSupportedVersion === "number") {
+      if (maxSupportedVersion >= currentVersion) {
+        return true;
+      }
+    }
+    return false;
+  }
   function processConfig(data, userList, preferences, platformSpecificFeatures2 = []) {
     const topLevelHostname = getTabHostname();
     const site = computeLimitedSiteObject();
@@ -1358,6 +1378,17 @@
     android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-password-import": ["autofillPasswordImport"],
+    "android-adsjs": [
+      "apiManipulation",
+      "webCompat",
+      "fingerprintingHardware",
+      "fingerprintingScreenSize",
+      "fingerprintingTemporaryStorage",
+      "fingerprintingAudio",
+      "fingerprintingBattery",
+      "gpc",
+      "breakageReporting"
+    ],
     windows: [
       "cookie",
       ...baseFeatures,
@@ -2372,6 +2403,247 @@
     }
   };
 
+  // ../messaging/lib/android-adsjs.js
+  init_define_import_meta_trackerLookup();
+  var AndroidAdsjsMessagingTransport = class {
+    /**
+     * @param {AndroidAdsjsMessagingConfig} config
+     * @param {MessagingContext} messagingContext
+     * @internal
+     */
+    constructor(config, messagingContext) {
+      this.messagingContext = messagingContext;
+      this.config = config;
+      this.config.sendInitialPing(messagingContext);
+    }
+    /**
+     * @param {NotificationMessage} msg
+     */
+    notify(msg) {
+      try {
+        this.config.sendMessageThrows?.(msg);
+      } catch (e) {
+        console.error(".notify failed", e);
+      }
+    }
+    /**
+     * @param {RequestMessage} msg
+     * @return {Promise<any>}
+     */
+    request(msg) {
+      return new Promise((resolve, reject) => {
+        const unsub = this.config.subscribe(msg.id, handler);
+        try {
+          this.config.sendMessageThrows?.(msg);
+        } catch (e) {
+          unsub();
+          reject(new Error("request failed to send: " + e.message || "unknown error"));
+        }
+        function handler(data) {
+          if (isResponseFor(msg, data)) {
+            if (data.result) {
+              resolve(data.result || {});
+              return unsub();
+            }
+            if (data.error) {
+              reject(new Error(data.error.message));
+              return unsub();
+            }
+            unsub();
+            throw new Error("unreachable: must have `result` or `error` key by this point");
+          }
+        }
+      });
+    }
+    /**
+     * @param {Subscription} msg
+     * @param {(value: unknown | undefined) => void} callback
+     */
+    subscribe(msg, callback) {
+      const unsub = this.config.subscribe(msg.subscriptionName, (data) => {
+        if (isSubscriptionEventFor(msg, data)) {
+          callback(data.params || {});
+        }
+      });
+      return () => {
+        unsub();
+      };
+    }
+  };
+  var AndroidAdsjsMessagingConfig = class {
+    /**
+     * @param {object} params
+     * @param {Record<string, any>} params.target
+     * @param {boolean} params.debug
+     * @param {string} params.objectName - the object name for addWebMessageListener
+     */
+    constructor(params) {
+      /** @type {{
+       * postMessage: (message: string) => void,
+       * addEventListener: (type: string, listener: (event: MessageEvent) => void) => void,
+       * } | null} */
+      __publicField(this, "_capturedHandler");
+      this.target = params.target;
+      this.debug = params.debug;
+      this.objectName = params.objectName;
+      this.listeners = new globalThis.Map();
+      this._captureGlobalHandler();
+      this._setupEventListener();
+    }
+    /**
+     * The transport can call this to transmit a JSON payload along with a secret
+     * to the native Android handler via postMessage.
+     *
+     * Note: This can throw - it's up to the transport to handle the error.
+     *
+     * @type {(json: object) => void}
+     * @throws
+     * @internal
+     */
+    sendMessageThrows(message) {
+      if (!this.objectName) {
+        throw new Error("Object name not set for WebMessageListener");
+      }
+      if (this._capturedHandler && this._capturedHandler.postMessage) {
+        this._capturedHandler.postMessage(JSON.stringify(message));
+      } else {
+        throw new Error("postMessage not available");
+      }
+    }
+    /**
+     * A subscription on Android is just a named listener. All messages from
+     * android -> are delivered through a single function, and this mapping is used
+     * to route the messages to the correct listener.
+     *
+     * Note: Use this to implement request->response by unsubscribing after the first
+     * response.
+     *
+     * @param {string} id
+     * @param {(msg: MessageResponse | SubscriptionEvent) => void} callback
+     * @returns {() => void}
+     * @internal
+     */
+    subscribe(id, callback) {
+      this.listeners.set(id, callback);
+      return () => {
+        this.listeners.delete(id);
+      };
+    }
+    /**
+     * Accept incoming messages and try to deliver it to a registered listener.
+     *
+     * This code is defensive to prevent any single handler from affecting another if
+     * it throws (producer interference).
+     *
+     * @param {MessageResponse | SubscriptionEvent} payload
+     * @internal
+     */
+    _dispatch(payload) {
+      if (!payload) return this._log("no response");
+      if ("id" in payload) {
+        if (this.listeners.has(payload.id)) {
+          this._tryCatch(() => this.listeners.get(payload.id)?.(payload));
+        } else {
+          this._log("no listeners for ", payload);
+        }
+      }
+      if ("subscriptionName" in payload) {
+        if (this.listeners.has(payload.subscriptionName)) {
+          this._tryCatch(() => this.listeners.get(payload.subscriptionName)?.(payload));
+        } else {
+          this._log("no subscription listeners for ", payload);
+        }
+      }
+    }
+    /**
+     *
+     * @param {(...args: any[]) => any} fn
+     * @param {string} [context]
+     */
+    _tryCatch(fn, context = "none") {
+      try {
+        return fn();
+      } catch (e) {
+        if (this.debug) {
+          console.error("AndroidAdsjsMessagingConfig error:", context);
+          console.error(e);
+        }
+      }
+    }
+    /**
+     * @param {...any} args
+     */
+    _log(...args) {
+      if (this.debug) {
+        console.log("AndroidAdsjsMessagingConfig", ...args);
+      }
+    }
+    /**
+     * Capture the global handler and remove it from the global object.
+     */
+    _captureGlobalHandler() {
+      const { target, objectName } = this;
+      if (Object.prototype.hasOwnProperty.call(target, objectName)) {
+        this._capturedHandler = target[objectName];
+        delete target[objectName];
+      } else {
+        this._capturedHandler = null;
+        this._log("Android adsjs messaging interface not available", objectName);
+      }
+    }
+    /**
+     * Set up event listener for incoming messages from the captured handler.
+     */
+    _setupEventListener() {
+      if (!this._capturedHandler || !this._capturedHandler.addEventListener) {
+        this._log("No event listener support available");
+        return;
+      }
+      this._capturedHandler.addEventListener("message", (event) => {
+        try {
+          const data = (
+            /** @type {MessageEvent} */
+            event.data
+          );
+          if (typeof data === "string") {
+            const parsedData = JSON.parse(data);
+            this._dispatch(parsedData);
+          }
+        } catch (e) {
+          this._log("Error processing incoming message:", e);
+        }
+      });
+    }
+    /**
+     * Send an initial ping message to the platform to establish communication.
+     * This is a fire-and-forget notification that signals the JavaScript side is ready.
+     * Only sends in top context (not in frames) and if the messaging interface is available.
+     *
+     * @param {MessagingContext} messagingContext
+     * @returns {boolean} true if ping was sent, false if in frame or interface not ready
+     */
+    sendInitialPing(messagingContext) {
+      if (isBeingFramed()) {
+        this._log("Skipping initial ping - running in frame context");
+        return false;
+      }
+      try {
+        const message = new RequestMessage({
+          id: "initialPing",
+          context: messagingContext.context,
+          featureName: "messaging",
+          method: "initialPing"
+        });
+        this.sendMessageThrows(message);
+        this._log("Initial ping sent successfully");
+        return true;
+      } catch (e) {
+        this._log("Failed to send initial ping:", e);
+        return false;
+      }
+    }
+  };
+
   // ../messaging/lib/typed-messages.js
   init_define_import_meta_trackerLookup();
 
@@ -2502,6 +2774,9 @@
     }
     if (config instanceof AndroidMessagingConfig) {
       return new AndroidMessagingTransport(config, messagingContext);
+    }
+    if (config instanceof AndroidAdsjsMessagingConfig) {
+      return new AndroidAdsjsMessagingTransport(config, messagingContext);
     }
     if (config instanceof TestTransportConfig) {
       return new TestTransport(config, messagingContext);
@@ -3798,6 +4073,7 @@
      * @property {string[] | string} [domain]
      * @property {object} [urlPattern]
      * @property {object} [minSupportedVersion]
+     * @property {object} [maxSupportedVersion]
      * @property {object} [experiment]
      * @property {string} [experiment.experimentName]
      * @property {string} [experiment.cohort]
@@ -3805,6 +4081,7 @@
      * @property {boolean} [context.frame] - true if the condition applies to frames
      * @property {boolean} [context.top] - true if the condition applies to the top frame
      * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
+     * @property {boolean} [internal] - true if the condition applies to internal builds
      */
     /**
      * Takes multiple conditional blocks and returns true if any apply.
@@ -3830,7 +4107,9 @@
         urlPattern: this._matchUrlPatternConditional,
         experiment: this._matchExperimentConditional,
         minSupportedVersion: this._matchMinSupportedVersion,
-        injectName: this._matchInjectNameConditional
+        maxSupportedVersion: this._matchMaxSupportedVersion,
+        injectName: this._matchInjectNameConditional,
+        internal: this._matchInternalConditional
       };
       for (const key in conditionBlock) {
         if (!conditionChecks[key]) {
@@ -3922,6 +4201,17 @@
       return conditionBlock.injectName === currentInjectName;
     }
     /**
+     * Takes a condition block and returns true if the internal state matches the condition.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchInternalConditional(conditionBlock) {
+      if (conditionBlock.internal === void 0) return false;
+      const isInternal = __privateGet(this, _args)?.platform?.internal;
+      if (isInternal === void 0) return false;
+      return Boolean(conditionBlock.internal) === Boolean(isInternal);
+    }
+    /**
      * Takes a condition block and returns true if the platform version satisfies the `minSupportedFeature`
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
@@ -3929,6 +4219,15 @@
     _matchMinSupportedVersion(conditionBlock) {
       if (!conditionBlock.minSupportedVersion) return false;
       return isSupportedVersion(conditionBlock.minSupportedVersion, __privateGet(this, _args)?.platform?.version);
+    }
+    /**
+     * Takes a condition block and returns true if the platform version satisfies the `maxSupportedFeature`
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMaxSupportedVersion(conditionBlock) {
+      if (!conditionBlock.maxSupportedVersion) return false;
+      return isMaxSupportedVersion(conditionBlock.maxSupportedVersion, __privateGet(this, _args)?.platform?.version);
     }
     /**
      * Return the settings object for a feature
@@ -4345,9 +4644,15 @@
   var MSG_DEVICE_ENUMERATION = "deviceEnumeration";
   function canShare(data) {
     if (typeof data !== "object") return false;
+    data = Object.assign({}, data);
+    for (const key of ["url", "title", "text", "files"]) {
+      if (data[key] === void 0 || data[key] === null) {
+        delete data[key];
+      }
+    }
     if (!("url" in data) && !("title" in data) && !("text" in data)) return false;
     if ("files" in data) {
-      if (!Array.isArray(data.files)) return false;
+      if (!(Array.isArray(data.files) || data.files instanceof FileList)) return false;
       if (data.files.length > 0) return false;
     }
     if ("title" in data && typeof data.title !== "string") return false;
@@ -4361,7 +4666,6 @@
         return false;
       }
     }
-    if (window !== window.top) return false;
     return true;
   }
   function cleanShareData(data) {
