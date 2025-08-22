@@ -50,6 +50,7 @@ export const platformSupport = {
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-password-import': ['autofillPasswordImport'],
     'android-adsjs': [
+        'apiManipulation',
         'webCompat',
         'fingerprintingHardware',
         'fingerprintingScreenSize',
