@@ -652,6 +652,24 @@ export function isSupportedVersion(minSupportedVersion, currentVersion) {
 }
 
 /**
+ * @param {string | number | undefined} maxSupportedVersion
+ * @param {string | number | undefined} currentVersion
+ * @returns {boolean}
+ */
+export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
+    if (typeof currentVersion === 'string' && typeof maxSupportedVersion === 'string') {
+        if (satisfiesMinVersion(currentVersion, maxSupportedVersion)) {
+            return true;
+        }
+    } else if (typeof currentVersion === 'number' && typeof maxSupportedVersion === 'number') {
+        if (maxSupportedVersion >= currentVersion) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * @typedef RemoteConfig
  * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number }>} features
  * @property {string[]} unprotectedTemporary
