@@ -323,14 +323,16 @@ const functionMap = {
  * @typedef {object} ConfigSetting
  * @property {'undefined' | 'number' | 'string' | 'function' | 'boolean' | 'null' | 'array' | 'object'} type
  * @property {string} [functionName]
- * @property {boolean | string | number} value
+ * @property {*} [value] - Any value type (string, number, boolean, object, array, null, undefined)
+ * @property {ConfigSetting} [functionValue] - For function type, the value to return from the function
+ * @property {boolean} [async] - Whether to wrap the value in a Promise
  * @property {object} [criteria]
- * @property {string} criteria.arch
+ * @property {string} [criteria.arch]
  */
 
 /**
  * Processes a structured config setting and returns the value according to its type
- * @param {ConfigSetting} configSetting
+ * @param {ConfigSetting | ConfigSetting[]} configSetting
  * @param {*} [defaultValue]
  * @returns
  */
@@ -343,10 +345,12 @@ export function processAttr(configSetting, defaultValue) {
     switch (configSettingType) {
         case 'object':
             if (Array.isArray(configSetting)) {
-                configSetting = processAttrByCriteria(configSetting);
-                if (configSetting === undefined) {
+                const selectedSetting = processAttrByCriteria(configSetting);
+                if (selectedSetting === undefined) {
                     return defaultValue;
                 }
+                // Now process the selected setting as a single ConfigSetting
+                return processAttr(selectedSetting, defaultValue);
             }
 
             if (!configSetting.type) {
@@ -357,10 +361,20 @@ export function processAttr(configSetting, defaultValue) {
                 if (configSetting.functionName && functionMap[configSetting.functionName]) {
                     return functionMap[configSetting.functionName];
                 }
+                if (configSetting.functionValue) {
+                    const functionValue = configSetting.functionValue;
+                    // Return a function that processes the functionValue using processAttr
+                    return () => processAttr(functionValue, undefined);
+                }
             }
 
             if (configSetting.type === 'undefined') {
                 return undefined;
+            }
+
+            // Handle async wrapping for all types including arrays
+            if (configSetting.async) {
+                return DDGPromise.resolve(configSetting.value);
             }
 
             // All JSON expressable types are handled here
