@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Modify Styles Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        .test-section { 
+            border: 1px solid #ccc; 
+            margin: 10px; 
+            padding: 10px; 
+        }
+        .ad-container { 
+            background: red; 
+            color: white; 
+            padding: 20px; 
+            margin: 10px;
+            display: block; /* Should be overridden to none */
+        }
+        .banner-ad { 
+            background: orange; 
+            color: white; 
+            padding: 15px; 
+            margin: 10px;
+            visibility: visible; /* Should be overridden to hidden */
+        }
+        .resize-ad { 
+            background: purple; 
+            color: white; 
+            padding: 10px; 
+            margin: 10px;
+            width: 300px; /* Should be overridden to 0px */
+            height: 100px;
+        }
+        .normal-content { 
+            background: green; 
+            color: white; 
+            padding: 15px; 
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Modify Styles Test</h1>
+    
+    <div class="test-section">
+        <h2>Elements with modified styles</h2>
+        <div class="ad-container">Ad container - display should be set to none</div>
+        <div class="banner-ad">Banner ad - visibility should be set to hidden</div>
+        <div class="resize-ad">Resize ad - width should be set to 0px</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Elements that should remain unchanged</h2>
+        <div class="normal-content">Normal content that should remain visible</div>
+        <div class="regular-element" style="width: 250px; padding: 10px; background: blue; color: white; margin: 10px;">
+            Regular element with unchanged styles
+        </div>
+    </div>
+    
+    <script src="../../shared/utils.js"></script>
+    <script>
+        test('Modify Styles', async () => {
+            // Wait for style modifications to be applied
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const results = [];
+            
+            // Test ad-container display modification
+            const adContainer = document.querySelector('.ad-container');
+            const adContainerStyle = adContainer ? window.getComputedStyle(adContainer) : null;
+            
+            results.push({
+                name: 'ad-container display modified',
+                result: adContainerStyle ? adContainerStyle.display : null,
+                expected: 'none'
+            });
+            
+            // Test banner-ad visibility modification
+            const bannerAd = document.querySelector('.banner-ad');
+            const bannerStyle = bannerAd ? window.getComputedStyle(bannerAd) : null;
+            
+            results.push({
+                name: 'banner-ad visibility modified',
+                result: bannerStyle ? bannerStyle.visibility : null,
+                expected: 'hidden'
+            });
+            
+            // Test resize-ad width modification
+            const resizeAd = document.querySelector('.resize-ad');
+            const resizeStyle = resizeAd ? window.getComputedStyle(resizeAd) : null;
+            
+            results.push({
+                name: 'resize-ad width modified',
+                result: resizeStyle ? resizeStyle.width : null,
+                expected: '0px'
+            });
+            
+            // Test normal content remains unchanged
+            const normalContent = document.querySelector('.normal-content');
+            const normalStyle = normalContent ? window.getComputedStyle(normalContent) : null;
+            
+            results.push({
+                name: 'normal-content display unchanged',
+                result: normalStyle && normalStyle.display !== 'none',
+                expected: true
+            });
+            
+            // Test regular element remains unchanged
+            const regularElement = document.querySelector('.regular-element');
+            const regularStyle = regularElement ? window.getComputedStyle(regularElement) : null;
+            
+            results.push({
+                name: 'regular-element width unchanged',
+                result: regularStyle && regularStyle.width === '250px',
+                expected: true
+            });
+            
+            return results;
+        });
+        
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html>
