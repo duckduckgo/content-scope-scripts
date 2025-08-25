@@ -71,7 +71,6 @@ export function customizerMockTransport() {
                 case 'customizer_onBackgroundUpdate':
                 case 'customizer_onImagesUpdate': {
                     subscriptions.set(sub, cb);
-                    console.log('did add sub', sub);
                     return () => {
                         console.log('-- did remove sub', sub);
                         return subscriptions.delete(sub);

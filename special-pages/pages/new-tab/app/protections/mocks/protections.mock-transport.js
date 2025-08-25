@@ -68,6 +68,9 @@ export function protectionsMockTransport() {
                 subs.set(sub, cb);
                 return () => {};
             }
+            if (sub === 'protections_onDataUpdate') {
+                return () => {};
+            }
             console.warn('unhandled sub', sub);
             return () => {};
         },
