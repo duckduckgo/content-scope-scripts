@@ -9,6 +9,6 @@
   },
   "devDependencies": {
     "jasmine": "^5.9.0",
-    "@types/jasmine": "^5.1.8"
+    "@types/jasmine": "^5.1.9"
   }
 }
