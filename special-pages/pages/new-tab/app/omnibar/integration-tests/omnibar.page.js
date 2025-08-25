@@ -1,4 +1,8 @@
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+
+/**
+ * @typedef {import("../../../types/new-tab.js").OmnibarMode} Mode
+ */
 
 export class OmnibarPage {
     /**
@@ -7,6 +11,7 @@ export class OmnibarPage {
     constructor(ntp) {
         this.ntp = ntp;
         this.page = this.ntp.page;
+        this.page.on('console', (msg) => console.log(msg.text()));
     }
 
     context() {
@@ -103,6 +108,13 @@ export class OmnibarPage {
     }
 
     /**
+     * @param {string} value
+     */
+    async expectChatValue(value) {
+        await expect(this.chatInput()).toHaveValue(value);
+    }
+
+    /**
      * @param {number} startIndex
      * @param {number} endIndex
      */
@@ -167,4 +179,46 @@ export class OmnibarPage {
         const calls = await this.ntp.mocks.outgoing({ names: [method] });
         expect(calls).toHaveLength(0);
     }
+
+    /**
+     * @param {string} tabId
+     * @param {string[]} tabIds
+     * @returns {Promise<void>}
+     */
+    async didSwitchToTab(tabId, tabIds) {
+        await test.step('simulate tab change event', async () => {
+            await this.ntp.mocks.simulateSubscriptionMessage(sub('tabs_onDataUpdate'), tabs({ tabId, tabIds }));
+        });
+    }
+
+    /**
+     * @param {object} props
+     * @param {Mode} props.mode
+     * @param {string} props.value
+     * @returns {Promise<void>}
+     */
+    input({ mode, value }) {
+        switch (mode) {
+            case 'ai': {
+                return this.chatInput().fill(value);
+            }
+            case 'search': {
+                return this.searchInput().fill(value);
+            }
+        }
+    }
+}
+
+/**
+ * @param {import("../../../types/new-tab.js").NewTabMessages["subscriptions"]["subscriptionEvent"]} name
+ */
+function sub(name) {
+    return name;
+}
+
+/**
+ * @param {import("../../../types/new-tab.js").Tabs} t
+ */
+function tabs(t) {
+    return t;
 }

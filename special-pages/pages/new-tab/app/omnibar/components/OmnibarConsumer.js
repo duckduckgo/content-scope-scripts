@@ -6,6 +6,8 @@ import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { Omnibar } from './Omnibar.js';
 import { OmnibarContext } from './OmnibarProvider.js';
 import { ArrowIndentCenteredIcon } from '../../components/Icons.js';
+import { useModeWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
+import { useTabState } from '../../tabs/TabsProvider.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -26,8 +28,9 @@ import { ArrowIndentCenteredIcon } from '../../components/Icons.js';
  */
 export function OmnibarConsumer() {
     const { state } = useContext(OmnibarContext);
+    const { current } = useTabState();
     if (state.status === 'ready') {
-        return <OmnibarReadyState config={state.config} />;
+        return <OmnibarReadyState config={state.config} key={current.value} tabId={current.value} />;
     }
     return null;
 }
@@ -35,13 +38,16 @@ export function OmnibarConsumer() {
 /**
  * @param {object} props
  * @param {OmnibarConfig} props.config
+ * @param {string} props.tabId
  */
-function OmnibarReadyState({ config: { enableAi = true, showAiSetting = true, mode } }) {
+function OmnibarReadyState({ config, tabId }) {
+    const { enableAi = true, showAiSetting = true, mode: defaultMode } = config;
     const { setEnableAi, setMode } = useContext(OmnibarContext);
+    const mode = useModeWithLocalPersistence(tabId, defaultMode);
     return (
         <>
             {showAiSetting && <AiSetting enableAi={enableAi} setEnableAi={setEnableAi} />}
-            <Omnibar mode={mode} setMode={setMode} enableAi={showAiSetting && enableAi} />
+            <Omnibar mode={mode} setMode={setMode} enableAi={showAiSetting && enableAi} tabId={tabId} />
         </>
     );
 }
