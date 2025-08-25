@@ -237,7 +237,7 @@ export function CardContents({ releaseData }) {
     if (releaseNotesPrivacyPro?.length) {
         notes.push({
             icon: 'PrivacyPro',
-            title: t('forPrivacyProSubscribers'),
+            title: t('forSubscribers'),
             notes: [
                 ...releaseNotesPrivacyPro,
                 /* The following should only get translated when the contents of the Release Notes update message are localized */
