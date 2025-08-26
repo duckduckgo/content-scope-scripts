@@ -1,19 +1,19 @@
 /**
  * @module Android AdsJS integration
  */
-import { load, init } from '../src/content-scope-features.js';
+import { load, init, updateFeatureArgs } from '../src/content-scope-features.js';
 import { processConfig, isBeingFramed } from './../src/utils';
 import { AndroidAdsjsMessagingConfig, MessagingContext, Messaging } from '../../messaging/index.js';
 
 /**
  * Send initial ping once per frame to establish communication with the platform.
  * This replaces the per-feature ping that was previously sent in AndroidAdsjsMessagingTransport.
- * Listens for response to update all content feature configurations.
+ * When response is received, updates all loaded feature configurations.
  *
  * @param {AndroidAdsjsMessagingConfig} messagingConfig
- * @param {object} processedConfig - The processed configuration that may be updated by the response
+ * @param {object} processedConfig - The base configuration
  */
-async function sendInitialPing(messagingConfig, processedConfig) {
+async function sendInitialPingAndUpdate(messagingConfig, processedConfig) {
     // Only send ping in top context, not in frames
     if (isBeingFramed()) {
         return;
@@ -30,14 +30,23 @@ async function sendInitialPing(messagingConfig, processedConfig) {
         // Create messaging instance - handles all the subscription/error boilerplate
         const messaging = new Messaging(messagingContext, messagingConfig);
 
-        // Use the request method - it handles subscription/unsubscription automatically
+        if (processedConfig.debug) {
+            console.log('AndroidAdsjs: Sending initial ping...');
+        }
+
+        // Send the ping request
         const response = await messaging.request('initialPing', {});
 
-        // Update processedConfig with response data if available
+        // Update all loaded features with merged configuration
         if (response && typeof response === 'object') {
-            Object.assign(processedConfig, response);
+            const updatedConfig = { ...processedConfig, ...response };
+
+            await updateFeatureArgs(updatedConfig);
         }
     } catch (error) {
+        if (processedConfig.debug) {
+            console.error('AndroidAdsjs: Initial ping failed:', error);
+        }
     }
 }
 
@@ -60,14 +69,10 @@ function initCode() {
         debug: processedConfig.debug,
     });
 
-    // Send initial ping once per frame to establish communication and get config updates
-    // Fire-and-forget - don't block initialization
-    sendInitialPing(processedConfig.messagingConfig, processedConfig).catch((error) => {
-        if (processedConfig.debug) {
-            console.error('AndroidAdsjs: Initial ping failed:', error);
-        }
-    });
+    // Send initial ping asynchronously to update feature configurations when response arrives
+    sendInitialPingAndUpdate(processedConfig.messagingConfig, processedConfig);
 
+    // Load and init features immediately with base configuration
     load({
         platform: processedConfig.platform,
         site: processedConfig.site,

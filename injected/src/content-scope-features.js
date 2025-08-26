@@ -117,6 +117,25 @@ export function update(args) {
     updateFeaturesInner(args);
 }
 
+/**
+ * Update the args for all loaded feature instances.
+ * This is useful for applying configuration updates received after initial loading.
+ *
+ * @param {object} updatedArgs - The new arguments to apply to all features
+ */
+export async function updateFeatureArgs(updatedArgs) {
+    if (!isHTMLDocument) {
+        return;
+    }
+
+    const resolvedFeatures = await Promise.all(features);
+    resolvedFeatures.forEach(({ featureInstance }) => {
+        if (featureInstance && typeof featureInstance.setArgs === 'function') {
+            featureInstance.setArgs(updatedArgs);
+        }
+    });
+}
+
 function alwaysInitExtensionFeatures(args, featureName) {
     return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
 }
