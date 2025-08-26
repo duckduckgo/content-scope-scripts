@@ -44,9 +44,7 @@ Since this data is global in nature, you must add the initial tab state to {@lin
 Once the page is running, you can send `tabs_onDataUpdate` updates as often as you need to.
 
 ### `tabs_onDataUpdate` 
-- {@link "NewTab Messages".TabsOnDataUpdateSubscription}.
-- Updates for tab information including active tab ID and list of available tab IDs.
-- returns {@link "NewTab Messages".Tabs} 
+- {@link "NewTab Messages".TabsOnDataUpdateSubscription}. 
 ```json
 {
    "tabId": "string",
