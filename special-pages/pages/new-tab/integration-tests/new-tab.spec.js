@@ -149,4 +149,27 @@ test.describe('newtab widgets', () => {
             await ntp.hasBackgroundColor({ hex: '#000000' });
         });
     });
+
+    test.describe('scroll restoration', () => {
+        test.use({ viewport: { height: 400, width: 800 } });
+        test('restores to previous position', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { tabs: true, 'tabs.debug': true } });
+
+            // initial
+            await ntp.scrollIs({ y: 0 });
+
+            // scroll to end
+            const tab1 = await ntp.didScrollToEnd();
+
+            // new tab = should be back to 0 for scroll
+            await ntp.didSwitchToTab('02', ['01', '02']);
+            await ntp.scrollIs({ y: 0 });
+
+            // now back to original
+            await ntp.didSwitchToTab('01', ['01', '02']);
+            await ntp.scrollIs({ y: tab1.y });
+        });
+    });
 });

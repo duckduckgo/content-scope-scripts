@@ -189,6 +189,39 @@ export class NewtabPage {
             await this.mocks.simulateSubscriptionMessage(sub('tabs_onDataUpdate'), tabs({ tabId, tabIds }));
         });
     }
+
+    /**
+     * @return {Promise<{y: number}>}
+     */
+    async didScrollToEnd() {
+        const { page } = this;
+        return await test.step(`manually setting scroll position to end of element`, async () => {
+            const y = await page.evaluate(() => {
+                const scroller = document.querySelector('[data-main-scroller]');
+                if (!scroller) throw new Error('missing element');
+                scroller.scrollTop = scroller.scrollHeight - scroller.clientHeight;
+                return scroller.scrollTop;
+            });
+            expect(y).toBeGreaterThan(0);
+            return { y };
+        });
+    }
+
+    /**
+     * @param {object} props
+     * @param {number} props.y
+     * @returns {Promise<void>}
+     */
+    async scrollIs({ y }) {
+        const { page } = this;
+        await test.step(`fetching the scroll position and comparing to ${y}`, async () => {
+            await page.waitForFunction(
+                ({ y }) => (document.querySelector('[data-main-scroller]')?.scrollTop ?? 0) === y,
+                { y },
+                { timeout: 1000 },
+            );
+        });
+    }
 }
 
 /**
