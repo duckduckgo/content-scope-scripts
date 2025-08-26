@@ -32,15 +32,6 @@ export class TabsService {
     }
 
     /**
-     * @returns {Promise<{data: Tabs; config: null}>}
-     * @internal
-     */
-    async getInitial() {
-        const tabs = await this.tabsService.fetchInitial();
-        return { data: tabs, config: null };
-    }
-
-    /**
      * @param {(evt: {data: Tabs, source: import('../service.js').InvocationSource}) => void} cb
      * @internal
      */
@@ -60,7 +51,6 @@ export class TabsService {
      */
     snapshot() {
         if (!this.tabsService.data) throw new Error('unreachable');
-        console.log('did read');
         return this.tabsService.data;
     }
 }

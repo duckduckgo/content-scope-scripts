@@ -50,7 +50,7 @@ export function useQueryWithLocalPersistence(tabId) {
 
     invariant(
         useContext(OmnibarContext).state.status === 'ready',
-        'Cannot use `useQueryWithPersistence` without Omnibar Service being ready.',
+        'Cannot use `useQueryWithLocalPersistence` without Omnibar Service being ready.',
     );
 
     const [query, setQuery] = useState(() => terms?.byId(tabId) || '');
@@ -63,7 +63,7 @@ export function useQueryWithLocalPersistence(tabId) {
             }
             setQuery(term);
         },
-        [tabId],
+        [tabId, terms],
     );
 
     return /** @type {const} */ ([query, setter]);
@@ -106,7 +106,7 @@ export function useModeWithLocalPersistence(tabId, defaultMode) {
             }
             setState(v.data.mode);
         });
-    }, [service, tabId]);
+    }, [service, tabId, values]);
 
     return mode;
 }
