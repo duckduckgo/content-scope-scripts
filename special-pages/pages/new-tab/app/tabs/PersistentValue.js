@@ -1,5 +1,5 @@
 /**
- * @template {string} T - the value to hold.
+ * @template {string|number} T - the value to hold.
  */
 export class PersistentValue {
     /** @type {Map<string, T>} */
@@ -17,7 +17,7 @@ export class PersistentValue {
      * @param {T} args.value
      */
     update({ id, value }) {
-        if (string(id) && string(value)) {
+        if (string(id) && value !== null && value !== undefined) {
             this.#values.set(id, value);
         }
     }
@@ -63,7 +63,7 @@ export class PersistentValue {
     byId(id) {
         if (typeof id !== 'string') return null;
         const value = this.#values.get(id);
-        if (!value || !string(value)) return null;
+        if (value === null || value === undefined) return null;
         return value;
     }
 
@@ -71,12 +71,12 @@ export class PersistentValue {
         for (const [key, value] of this.#values) {
             console.log(`key: ${key}, value: ${value}`);
         }
-        console.log('--');
     }
 }
 
 /**
  * @param {unknown} input
+ * @returns {string}
  */
 function string(input) {
     if (typeof input !== 'string') return '';

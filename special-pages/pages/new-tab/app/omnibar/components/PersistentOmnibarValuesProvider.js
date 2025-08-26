@@ -3,6 +3,7 @@ import { useCallback, useContext, useEffect, useState } from 'preact/hooks';
 import { OmnibarContext, useOmnibarService } from './OmnibarProvider.js';
 import { useTabState } from '../../tabs/TabsProvider.js';
 import { PersistentValue } from '../../tabs/PersistentValue.js';
+import { invariant } from '../../utils.js';
 
 /**
  * @typedef {import("../../../types/new-tab.js").OmnibarConfig["mode"]} Mode
@@ -118,15 +119,4 @@ export function useModeWithLocalPersistence(tabId, defaultMode) {
     }, [service, tabId, values, defaultMode]);
 
     return mode;
-}
-
-/**
- * @param {any} condition
- * @param {string} [message]
- * @return {asserts condition}
- */
-export function invariant(condition, message) {
-    if (condition) return;
-    if (message) throw new Error('Invariant failed: ' + message);
-    throw new Error('Invariant failed');
 }

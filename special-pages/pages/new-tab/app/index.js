@@ -18,6 +18,7 @@ import { DocumentVisibilityProvider } from '../../../shared/components/DocumentV
 import { applyDefaultStyles } from './customizer/utils.js';
 import { TabsService } from './tabs/tabs.service.js';
 import { TabsDebug, TabsProvider } from './tabs/TabsProvider.js';
+import { PersistentScrollProvider } from './tabs/ScrollRestore.js';
 
 /**
  * @import {Telemetry} from "./telemetry/telemetry.js"
@@ -133,6 +134,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
                                                 entryPoints={entryPoints}
                                             >
                                                 <TabsProvider service={tabs}>
+                                                    <PersistentScrollProvider />
                                                     {environment.urlParams.has('tabs.debug') && <TabsDebug />}
                                                     <App />
                                                 </TabsProvider>

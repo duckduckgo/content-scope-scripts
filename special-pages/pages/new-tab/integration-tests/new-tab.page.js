@@ -178,4 +178,29 @@ export class NewtabPage {
         const rgb = `rgb(${[r, g, b].join(', ')})`;
         await expect(this.page.locator('body')).toHaveCSS('background-color', rgb, { timeout: 1000 });
     }
+
+    /**
+     * @param {string} tabId
+     * @param {string[]} tabIds
+     * @returns {Promise<void>}
+     */
+    async didSwitchToTab(tabId, tabIds) {
+        await test.step('simulate tab change event', async () => {
+            await this.mocks.simulateSubscriptionMessage(sub('tabs_onDataUpdate'), tabs({ tabId, tabIds }));
+        });
+    }
+}
+
+/**
+ * @param {import("../types/new-tab.js").NewTabMessages["subscriptions"]["subscriptionEvent"]} name
+ */
+function sub(name) {
+    return name;
+}
+
+/**
+ * @param {import("../types/new-tab.js").Tabs} t
+ */
+function tabs(t) {
+    return t;
 }
