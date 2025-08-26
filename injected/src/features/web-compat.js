@@ -126,10 +126,6 @@ export class WebCompat extends ContentFeature {
             this.shimWebShare();
         }
 
-        if (this.getFeatureSettingEnabled('viewportWidth')) {
-        //    this.viewportWidthFix();
-        }
-
         if (this.getFeatureSettingEnabled('screenLock')) {
             this.screenLockFix();
         }
@@ -157,7 +153,10 @@ export class WebCompat extends ContentFeature {
     configUpdated(_updatedConfig) {
         // Re-apply viewport width fix if viewport settings might have changed
         if (this.getFeatureSettingEnabled('viewportWidth')) {
-            this.viewportWidthFix();
+            if (!this._viewportWidthFixApplied) {
+                this.viewportWidthFix();
+                this._viewportWidthFixApplied = true;
+            }
         }
     }
 
