@@ -42,6 +42,12 @@ export default class ContentFeature extends ConfigFeature {
      */
     listenForUpdateChanges = false;
 
+    /**
+     * Set this to true if you wish to receive configuration updates from initial ping responses.
+     * @type {boolean}
+     */
+    listenForConfigUpdates = false;
+
     /** @type {ImportMeta} */
     #importConfig;
 
@@ -222,6 +228,16 @@ export default class ContentFeature extends ConfigFeature {
      * @deprecated - use messaging instead.
      */
     update() {}
+
+    /**
+     * Called when configuration is updated from initial ping response.
+     * Override this method in your feature to handle configuration changes.
+     * @param {object} _updatedConfig - The new configuration
+     */
+    configUpdated(_updatedConfig) {
+        // Default implementation does nothing
+        // Features can override this to handle config updates
+    }
 
     /**
      * Register a flag that will be added to page breakage reports

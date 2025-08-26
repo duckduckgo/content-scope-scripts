@@ -118,10 +118,10 @@ export function update(args) {
 }
 
 /**
- * Update the args for all loaded feature instances.
+ * Update the args for feature instances that opt in to configuration updates.
  * This is useful for applying configuration updates received after initial loading.
  *
- * @param {object} updatedArgs - The new arguments to apply to all features
+ * @param {object} updatedArgs - The new arguments to apply to opted-in features
  */
 export async function updateFeatureArgs(updatedArgs) {
     if (!isHTMLDocument) {
@@ -130,8 +130,17 @@ export async function updateFeatureArgs(updatedArgs) {
 
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance }) => {
-        if (featureInstance && typeof featureInstance.setArgs === 'function') {
-            featureInstance.setArgs(updatedArgs);
+        // Only update features that have opted in to config updates
+        if (featureInstance && featureInstance.listenForConfigUpdates) {
+            // Update the feature's args
+            if (typeof featureInstance.setArgs === 'function') {
+                featureInstance.setArgs(updatedArgs);
+            }
+
+            // Call the optional configUpdated method if it exists
+            if (typeof featureInstance.configUpdated === 'function') {
+                featureInstance.configUpdated(updatedArgs);
+            }
         }
     });
 }
