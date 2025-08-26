@@ -102,11 +102,15 @@ export function useModeWithLocalPersistence(tabId, defaultMode) {
         if (!service) return;
         return service.onConfig((v) => {
             if (tabId && v.source === 'manual') {
-                values?.update({ id: tabId, value: v.data.mode });
+                if (v.data.enableAi === false) {
+                    values?.updateAll({ value: 'search' });
+                } else {
+                    values?.update({ id: tabId, value: v.data.mode });
+                }
             }
             setState(v.data.mode);
         });
-    }, [service, tabId, values]);
+    }, [service, tabId, values, defaultMode]);
 
     return mode;
 }

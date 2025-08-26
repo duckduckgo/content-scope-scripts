@@ -23,6 +23,18 @@ export class PersistentValue {
     }
 
     /**
+     * Updates the value with every entry
+     *
+     * @param {object} args
+     * @param {T} args.value
+     */
+    updateAll({ value }) {
+        for (const [key] of this.#values) {
+            this.#values.set(key, value);
+        }
+    }
+
+    /**
      * @param {object} params
      * @param {string[]} params.preserve
      */

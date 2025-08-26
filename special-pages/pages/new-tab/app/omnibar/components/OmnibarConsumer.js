@@ -46,21 +46,10 @@ function OmnibarReadyState({ config, tabId }) {
     const { setEnableAi, setMode } = useContext(OmnibarContext);
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
 
-    /**
-     * Respect the current tab's mode only if 'enableAi' is on.
-     * Otherwise always search
-     *
-     * @type {Mode}
-     */
-    const mode = (() => {
-        if (enableAi) return modeForCurrentTab;
-        return /** @type {const} */ ('search');
-    })();
-
     return (
         <>
             {showAiSetting && <AiSetting enableAi={enableAi} setEnableAi={setEnableAi} />}
-            <Omnibar mode={mode} setMode={setMode} enableAi={showAiSetting && enableAi} tabId={tabId} />
+            <Omnibar mode={modeForCurrentTab} setMode={setMode} enableAi={showAiSetting && enableAi} tabId={tabId} />
         </>
     );
 }
