@@ -891,7 +891,7 @@
     if (releaseNotesPrivacyPro?.length) {
       notes.push({
         icon: "PrivacyPro",
-        title: t3("forPrivacyProSubscribers"),
+        title: t3("forSubscribers"),
         notes: [
           ...releaseNotesPrivacyPro,
           /* The following should only get translated when the contents of the Release Notes update message are localized */
@@ -1081,7 +1081,7 @@
       },
       {
         icon: "PrivacyPro",
-        title: t3("forPrivacyProSubscribers"),
+        title: t3("forSubscribers"),
         notes: [
           "Cras egestas, dui eu sodales congue, ex augue vehicula ipsum, sed egestas est justo in enim.",
           "Duis varius in ex at vestibulum. Morbi finibus fringilla urna, ac varius quam vestibulum sit amet.",
@@ -1201,9 +1201,9 @@
       title: "Retry Update",
       note: "Label for a button that retries applying the failed update"
     },
-    forPrivacyProSubscribers: {
-      title: "For Privacy Pro Subscribers",
-      note: "Heading label for release notes specific to Privacy Pro Subscribers (do not translate Privacy Pro)"
+    forSubscribers: {
+      title: "For DuckDuckGo Subscribers",
+      note: "Heading label for release notes specific to DuckDuckGo Subscribers"
     },
     new: {
       title: "New",

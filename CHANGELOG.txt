@@ -1,5 +1,1 @@
-- Add support for internal conditional matching (#1913)
-- adsjs messaging (#1883)
-- Add support for async values and function responses (#1916)
-- Add support for maxSupportedVersion (#1912)
-- Open up canShare some more (#1906)
+- Release Notes copy change - remove Privacy Pro from heading (#1917)
