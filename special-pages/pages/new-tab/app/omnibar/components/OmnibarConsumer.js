@@ -12,6 +12,7 @@ import { useTabState } from '../../tabs/TabsProvider.js';
 /**
  * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
+ * @typedef {import('../../../types/new-tab.js').OmnibarMode} Mode
  */
 
 /**
@@ -43,7 +44,19 @@ export function OmnibarConsumer() {
 function OmnibarReadyState({ config, tabId }) {
     const { enableAi = true, showAiSetting = true, mode: defaultMode } = config;
     const { setEnableAi, setMode } = useContext(OmnibarContext);
-    const mode = useModeWithLocalPersistence(tabId, defaultMode);
+    const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
+
+    /**
+     * Respect the current tab's mode only if 'enableAi' is on.
+     * Otherwise always search
+     *
+     * @type {Mode}
+     */
+    const mode = (() => {
+        if (enableAi) return modeForCurrentTab;
+        return /** @type {const} */ ('search');
+    })();
+
     return (
         <>
             {showAiSetting && <AiSetting enableAi={enableAi} setEnableAi={setEnableAi} />}

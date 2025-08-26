@@ -186,9 +186,41 @@ export class OmnibarPage {
      * @returns {Promise<void>}
      */
     async didSwitchToTab(tabId, tabIds) {
-        await test.step('simulate tab change event', async () => {
+        await test.step(`simulate tab change event, to: ${tabId} `, async () => {
             await this.ntp.mocks.simulateSubscriptionMessage(sub('tabs_onDataUpdate'), tabs({ tabId, tabIds }));
         });
+    }
+
+    /**
+     * @param {object} props
+     * @param {Mode} props.mode
+     * @returns {Promise<void>}
+     */
+    switchMode({ mode }) {
+        switch (mode) {
+            case 'ai': {
+                return this.aiTab().click();
+            }
+            case 'search': {
+                return this.searchTab().click();
+            }
+        }
+    }
+
+    /**
+     * @param {object} props
+     * @param {Mode} props.mode
+     * @param {string} props.value
+     */
+    async expectValue({ mode, value }) {
+        switch (mode) {
+            case 'ai': {
+                return await expect(this.chatInput()).toHaveValue(value);
+            }
+            case 'search': {
+                return await expect(this.searchInput()).toHaveValue(value);
+            }
+        }
     }
 
     /**
@@ -197,7 +229,7 @@ export class OmnibarPage {
      * @param {string} props.value
      * @returns {Promise<void>}
      */
-    input({ mode, value }) {
+    types({ mode, value }) {
         switch (mode) {
             case 'ai': {
                 return this.chatInput().fill(value);
