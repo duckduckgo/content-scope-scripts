@@ -3,6 +3,19 @@ import { test as base, expect } from '@playwright/test';
 
 const test = testContextForExtension(base);
 
+// Shared test runner for running the same test suite with different API states
+function createApiTestRunner(testName, testFunction) {
+    test.describe(testName, () => {
+        test.describe('with API deleted', () => {
+            testFunction({ removeApi: true });
+        });
+        
+        test.describe('with API shimmed', () => {
+            testFunction({ removeApi: false });
+        });
+    });
+}
+
 test.describe('Ensure safari interface is injected', () => {
     test('should expose window.safari when enabled', async ({ page }) => {
         await gotoAndWait(page, '/blank.html', { site: { enabledFeatures: [] } });
@@ -306,7 +319,7 @@ const permissionsTestCases = {
     },
 };
 
-test.describe('Permissions API', () => {
+createApiTestRunner('Permissions API', async ({ removeApi }) => {
     function checkObjectDescriptorIsNotPresent() {
         const descriptor = Object.getOwnPropertyDescriptor(window.navigator, 'permissions');
         return descriptor === undefined;
@@ -336,7 +349,7 @@ test.describe('Permissions API', () => {
 
     test.describe('enabled feature', () => {
         test('should expose window.navigator.permissions when enabled', async ({ page }) => {
-            await setupPermissionsTest(page, { removePermissions: true });
+            await setupPermissionsTest(page, { removePermissions: removeApi });
             await permissionsTestCases.testPermissionsExposed(page);
             const modifiedDescriptorSerialization = await page.evaluate(checkObjectDescriptorIsNotPresent);
             // This fails in a test condition purely because we have to add a descriptor to modify the prop
@@ -344,32 +357,32 @@ test.describe('Permissions API', () => {
         });
 
         test('should throw error when permission not supported', async ({ page }) => {
-            await setupPermissionsTest(page, { removePermissions: true });
+            await setupPermissionsTest(page, { removePermissions: removeApi });
             await permissionsTestCases.testUnsupportedPermission(page);
         });
 
         test('should return prompt by default', async ({ page }) => {
-            await setupPermissionsTest(page, { removePermissions: true });
+            await setupPermissionsTest(page, { removePermissions: removeApi });
             await permissionsTestCases.testDefaultPrompt(page);
         });
 
         test('should return updated name when configured', async ({ page }) => {
-            await setupPermissionsTest(page, { removePermissions: true });
+            await setupPermissionsTest(page, { removePermissions: removeApi });
             await permissionsTestCases.testNameOverride(page);
         });
 
         test('should propagate result from native when configured', async ({ page }) => {
-            await setupPermissionsTest(page, { removePermissions: true });
+            await setupPermissionsTest(page, { removePermissions: removeApi });
             await permissionsTestCases.testNativePermissionSuccess(page);
         });
 
         test('should default to prompt when native sends unexpected response', async ({ page }) => {
-            await setupPermissionsTest(page, { removePermissions: true });
+            await setupPermissionsTest(page, { removePermissions: removeApi });
             await permissionsTestCases.testNativePermissionUnexpectedResponse(page);
         });
 
         test('should default to prompt when native error occurs', async ({ page }) => {
-            await setupPermissionsTest(page, { removePermissions: true });
+            await setupPermissionsTest(page, { removePermissions: removeApi });
             await permissionsTestCases.testNativePermissionError(page);
         });
     });
