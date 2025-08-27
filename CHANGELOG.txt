@@ -1,1 +1,1 @@
-- Release Notes copy change - remove Privacy Pro from heading (#1917)
+- Add 'navigatorInterface' to platformSpecificFeatures (#1923)
