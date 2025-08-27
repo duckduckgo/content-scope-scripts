@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-//import { convertElementToMarkdown } from 'dom-to-semantic-markdown'; 
+// import { convertElementToMarkdown } from 'dom-to-semantic-markdown';
 import { Readability } from '@mozilla/readability';
 const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
@@ -9,7 +9,6 @@ export default class PageContext extends ContentFeature {
     collectionCache = new Map();
     lastSentContent = null;
     listenForUrlChanges = true;
-
 
     init() {
         console.log('PageContextFeature init');
@@ -29,7 +28,7 @@ export default class PageContext extends ContentFeature {
     urlChanged(navigationType) {
         this.handleContentCollectionRequest({});
     }
-    
+
     setupMessageHandlers() {
         // Listen for content collection requests from macOS browser
         this.messaging.subscribe(MSG_PAGE_CONTEXT_COLLECT, (data) => {
@@ -42,9 +41,13 @@ export default class PageContext extends ContentFeature {
         if (document.body) {
             this.setup();
         } else {
-            window.addEventListener('DOMContentLoaded', () => {
-                this.setup();
-            }, { once: true });
+            window.addEventListener(
+                'DOMContentLoaded',
+                () => {
+                    this.setup();
+                },
+                { once: true },
+            );
         }
     }
 
@@ -64,7 +67,7 @@ export default class PageContext extends ContentFeature {
             observer.observe(document.body, {
                 childList: true,
                 subtree: true,
-                characterData: true
+                characterData: true,
             });
         }
     }
@@ -81,11 +84,12 @@ export default class PageContext extends ContentFeature {
 
     collectPageContent(options = {}) {
         const cacheKey = this.getCacheKey(options);
-        
+
         // Check cache first
         if (this.collectionCache.has(cacheKey)) {
             const cached = this.collectionCache.get(cacheKey);
-            if (Date.now() - cached.timestamp < 30000) { // 30 second cache
+            if (Date.now() - cached.timestamp < 30000) {
+                // 30 second cache
                 return cached.data;
             }
         }
@@ -100,13 +104,13 @@ export default class PageContext extends ContentFeature {
             links: this.getLinks(),
             images: options.includeImages !== false ? this.getImages() : undefined,
             timestamp: Date.now(),
-            url: window.location.href
+            url: window.location.href,
         };
 
         // Cache the result
         this.collectionCache.set(cacheKey, {
             data: content,
-            timestamp: Date.now()
+            timestamp: Date.now(),
         });
 
         return content;
@@ -123,8 +127,23 @@ export default class PageContext extends ContentFeature {
 
     getMainContent(options = {}) {
         const maxLength = options.maxContentLength || this.getFeatureSetting('maxContentLength') || 100000;
-        const selectors = options.contentSelectors || this.getFeatureSetting('contentSelectors') || ['p', 'h1', 'h2', 'h3', 'article', 'section'];
-        const excludeSelectors = options.excludeSelectors || this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header', 'script', 'style', 'link', 'meta', 'noscript', 'svg', 'canvas'];
+        const selectors = options.contentSelectors ||
+            this.getFeatureSetting('contentSelectors') || ['p', 'h1', 'h2', 'h3', 'article', 'section'];
+        const excludeSelectors = options.excludeSelectors ||
+            this.getFeatureSetting('excludeSelectors') || [
+                '.ad',
+                '.sidebar',
+                '.footer',
+                '.nav',
+                '.header',
+                'script',
+                'style',
+                'link',
+                'meta',
+                'noscript',
+                'svg',
+                'canvas',
+            ];
 
         let content = '';
 
@@ -137,24 +156,25 @@ export default class PageContext extends ContentFeature {
             const clone = contentRoot.cloneNode(true);
 
             // Remove excluded elements
-            excludeSelectors.forEach(selector => {
+            excludeSelectors.forEach((selector) => {
                 const elements = clone.querySelectorAll(selector);
-                elements.forEach(el => el.remove());
+                elements.forEach((el) => el.remove());
             });
 
             // Extract text from selected elements
-            selectors.forEach(selector => {
+            selectors.forEach((selector) => {
                 const elements = clone.querySelectorAll(selector);
-                elements.forEach(el => {
+                elements.forEach((el) => {
                     const text = el.textContent?.trim();
-                    if (text && text.length > 10) { // Only include substantial text
+                    if (text && text.length > 10) {
+                        // Only include substantial text
                         content += text + '\n\n';
                     }
                 });
             });
 
-            //content = convertElementToMarkdown(clone);
-            //console.log('markdown',content);
+            // content = convertElementToMarkdown(clone);
+            // console.log('markdown',content);
         }
 
         // Limit content length
@@ -168,8 +188,8 @@ export default class PageContext extends ContentFeature {
     getHeadings() {
         const headings = [];
         const headingElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        
-        headingElements.forEach(heading => {
+
+        headingElements.forEach((heading) => {
             const level = parseInt(heading.tagName.charAt(1));
             const text = heading.textContent?.trim();
             if (text) {
@@ -183,8 +203,8 @@ export default class PageContext extends ContentFeature {
     getLinks() {
         const links = [];
         const linkElements = document.querySelectorAll('a[href]');
-        
-        linkElements.forEach(link => {
+
+        linkElements.forEach((link) => {
             const text = link.textContent?.trim();
             const href = link.getAttribute('href');
             if (text && href && text.length > 0) {
@@ -198,8 +218,8 @@ export default class PageContext extends ContentFeature {
     getImages() {
         const images = [];
         const imgElements = document.querySelectorAll('img');
-        
-        imgElements.forEach(img => {
+
+        imgElements.forEach((img) => {
             const alt = img.getAttribute('alt') || '';
             const src = img.getAttribute('src') || '';
             if (src) {
@@ -213,7 +233,7 @@ export default class PageContext extends ContentFeature {
     getCacheKey(options) {
         return JSON.stringify({
             url: window.location.href,
-            options: options
+            options,
         });
     }
 
@@ -228,7 +248,7 @@ export default class PageContext extends ContentFeature {
         this.lastSentContent = content;
         this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
             // TODO: This is a hack to get the data to the browser. We should probably not be paying this cost.
-            serializedPageData: JSON.stringify(content)
+            serializedPageData: JSON.stringify(content),
         });
     }
 
@@ -236,7 +256,7 @@ export default class PageContext extends ContentFeature {
         this.messaging.notify(MSG_PAGE_CONTEXT_ERROR, {
             success: false,
             error: error.message || 'Unknown error occurred',
-            timestamp: Date.now()
+            timestamp: Date.now(),
         });
     }
 }

@@ -21,6 +21,7 @@ const otherFeatures = /** @type {const} */ ([
     'messageBridge',
     'duckPlayer',
     'duckPlayerNative',
+    'duckAiListener',
     'harmfulApis',
     'webCompat',
     'windowsPermissionUsage',
@@ -41,6 +42,7 @@ export const platformSupport = {
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
+        'duckAiListener',
         'brokerProtection',
         'performanceMetrics',
         'clickToLoad',
