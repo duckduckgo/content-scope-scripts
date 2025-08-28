@@ -33,10 +33,10 @@ function generateConfig() {
                 'navigatorInterface',
                 'cookie',
                 'webCompat',
+                'scriptlets',
                 'apiManipulation',
                 'duckPlayer',
                 'duckPlayerNative',
-                'scriptlets',
             ],
         },
     };
