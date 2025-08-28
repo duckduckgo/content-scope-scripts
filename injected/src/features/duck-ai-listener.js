@@ -11,17 +11,11 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {HTMLInputElement | HTMLTextAreaElement | null} */
     textBox = null;
 
-    /** @type {MutationObserver | null} */
-    observer = null;
-
     /** @type {Object | null} */
     pageData = null;
 
     /** @type {any} */
     bridge = null;
-
-    /** @type {boolean} */
-    listenForUrlChanges = true;
 
     init() {
         // Only activate on duckduckgo.com
@@ -194,54 +188,5 @@ export default class DuckAiListener extends ContentFeature {
         // Calculate number of lines
         const lines = Math.ceil(textarea.value.length / 50) || 1;
         textarea.style.height = lines * 24 + 'px'; // Approximate line height
-    }
-
-    /**
-     * Start observing DOM changes to detect new text box
-     */
-    startObservingDom() {
-        if (this.observer) {
-            this.observer.disconnect();
-        }
-
-        this.observer = new MutationObserver(() => {
-            // Debounce text box detection
-            clearTimeout(this.detectionTimeout);
-            this.detectionTimeout = setTimeout(() => {
-                this.findTextBox();
-            }, 500);
-        });
-
-        this.observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-        });
-    }
-
-    /**
-     * Handle URL changes
-     */
-    urlChanged() {
-        // Refresh text box detection when URL changes
-        setTimeout(() => {
-            this.setupTextBoxDetection();
-        }, 1000);
-    }
-
-    /**
-     * Cleanup when feature is destroyed
-     */
-    destroy() {
-        if (this.observer) {
-            this.observer.disconnect();
-            this.observer = null;
-        }
-
-        if (this.detectionTimeout) {
-            clearTimeout(this.detectionTimeout);
-        }
-
-        this.textBox = null;
-        this.pageData = null;
     }
 }
