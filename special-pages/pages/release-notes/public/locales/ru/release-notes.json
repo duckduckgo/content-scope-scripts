@@ -9,7 +9,7 @@
     }]
   },
   "browserReleaseNotes" : {
-    "title" : "Что нового",
+    "title" : "Примечания к релизу",
     "note" : "Page title for the Browser Release Notes page showing what's new in the current release"
   },
   "versionNumber" : {
@@ -68,9 +68,9 @@
     "title" : "Повторить попытку обновления",
     "note" : "Label for a button that retries applying the failed update"
   },
-  "forPrivacyProSubscribers" : {
-    "title" : "Для подписчиков Privacy Pro",
-    "note" : "Heading label for release notes specific to Privacy Pro Subscribers (do not translate Privacy Pro)"
+  "forSubscribers" : {
+    "title" : "Для подписчиков DuckDuckGo",
+    "note" : "Heading label for release notes specific to DuckDuckGo Subscribers"
   },
   "new" : {
     "title" : "Новая вкладка",

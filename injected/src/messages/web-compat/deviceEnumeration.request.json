@@ -1,0 +1,27 @@
+{
+  "description": "Request device enumeration information from native layer",
+  "params": {},
+  "response": {
+    "description": "Device enumeration information from native layer",
+    "properties": {
+      "videoInput": {
+        "description": "Whether video input devices are available",
+        "type": "boolean"
+      },
+      "audioInput": {
+        "description": "Whether audio input devices are available", 
+        "type": "boolean"
+      },
+      "audioOutput": {
+        "description": "Whether audio output devices are available",
+        "type": "boolean"
+      },
+      "willPrompt": {
+        "description": "Whether the API would prompt for permissions",
+        "type": "boolean"
+      }
+    },
+    "required": ["videoInput", "audioInput", "audioOutput", "willPrompt"],
+    "type": "object"
+  }
+} 

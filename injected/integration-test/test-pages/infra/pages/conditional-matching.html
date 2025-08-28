@@ -1,64 +1,204 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>Conditional Matching</title>
-  <link rel="stylesheet" href="../../shared/style.css">
-</head>
-<body>
-    <script src="../../shared/utils.js"></script>
-    <p><a href="../index.html">[Infra]</a></p>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Conditional Matching</title>
+        <link rel="stylesheet" href="../../shared/style.css" />
+    </head>
+    <body>
+        <script src="../../shared/utils.js"></script>
+        <p><a href="../index.html">[Infra]</a></p>
 
-    <p>This page verifies that APIs get modified</p>
+        <p>This page verifies that APIs get modified</p>
 
-    <script>
-        test('Conditional matching', async () => {
-            const results = [
-                {
-                    name: "APIs changing, expecting to always match",
+        <script>
+            test('Conditional matching', async () => {
+                const results = [
+                    {
+                        name: 'APIs changing, expecting to always match',
+                        result: navigator.hardwareConcurrency,
+                        expected: 222,
+                    },
+                ];
+
+                const oldPathname = window.location.pathname;
+                const newUrl = new URL(window.location.href);
+                newUrl.pathname = '/test/test/path';
+                window.history.pushState(null, '', newUrl.href);
+                await new Promise((resolve) => requestIdleCallback(resolve));
+
+                results.push({
+                    name: 'Expect URL to be changed',
+                    result: window.location.pathname,
+                    expected: '/test/test/path',
+                });
+                results.push({
+                    name: 'APIs changing, expecting to match only when the URL is correct',
                     result: navigator.hardwareConcurrency,
-                    expected: 222
-                }
-            ];
-            const oldPathname = window.location.pathname;
-            const newUrl = new URL(window.location.href);
-            newUrl.pathname = "/test/test/path";
-            window.history.pushState(null, '', newUrl.href);
-            await new Promise(resolve => requestIdleCallback(resolve));
-            results.push({
-                name: "Expect URL to be changed",
-                result: window.location.pathname,
-                expected: '/test/test/path'
-            })
-            results.push({
-                name: "APIs changing, expecting to match only when the URL is correct",
-                result: navigator.hardwareConcurrency,
-                expected: 333
-            })
-            const popStatePromise = new Promise(resolve => {
-                window.addEventListener('popstate', resolve, { once: true });
+                    expected: 333,
+                });
+
+                const popStatePromise = new Promise((resolve) => {
+                    window.addEventListener('popstate', resolve, { once: true });
+                });
+                // Call pop state to revert the URL
+                window.history.back();
+                await popStatePromise;
+
+                results.push({
+                    name: 'Expect URL to be reverted',
+                    result: window.location.pathname,
+                    expected: oldPathname,
+                });
+                results.push({
+                    name: 'APIs changing, expecting to match only when the URL is correct',
+                    result: navigator.hardwareConcurrency,
+                    expected: 222,
+                });
+
+                return results;
             });
-            // Call pop state to revert the URL
-            window.history.back();
-            await popStatePromise;
-            results.push({
-                name: "Expect URL to be reverted",
-                result: window.location.pathname,
-                expected: oldPathname
-            })
-            results.push({
-                name: "APIs changing, expecting to match only when the URL is correct",
-                result: navigator.hardwareConcurrency,
-                expected: 222
-            })
 
-            return results;
-        });
+            test('Conditional frame matching', async () => {
+                const results = [];
+                const frame = document.createElement('iframe');
+                const scriptTag = 'script';
 
+                // Set up listener for iframe-ready-for-init before the iframe loads
+                const iframeReadyPromise = new Promise((resolve) => {
+                    const handler = (event) => {
+                        if (event.data && event.data.type === 'iframe-ready-for-init') {
+                            window.removeEventListener('message', handler);
+                            resolve();
+                        }
+                    };
+                    window.addEventListener('message', handler);
+                });
 
-        // eslint-disable-next-line no-undef
-        renderResults();
-    </script>
-</body>
+                frame.srcdoc = `
+                <!DOCTYPE html>
+                <html>
+                    <head></head>
+                    <body>
+                        <${scriptTag}>
+                            // Wait for parent to signal when to load content scope script
+                            window.addEventListener('message', function handler(event) {
+                                if (event.data && event.data.type === 'load-content-scope') {
+                                    window.removeEventListener('message', handler);
+                                    
+                                    // Now load the content scope script
+                                    const script = document.createElement('script');
+                                    script.src = '/build/contentScope.js';
+                                    script.onload = () => {
+                                        // Immediately dispatch the init args
+                                        document.dispatchEvent(new CustomEvent('content-scope-init-args', { detail: event.data.args }));
+                                    };
+                                    document.head.appendChild(script);
+                                }
+                            });
+                            
+                            // Notify parent we're ready to receive load signal
+                            window.parent.postMessage({ type: 'iframe-ready-for-init' }, '*');
+                            
+                            window.addEventListener('message', (event) => {
+                                if (event.data === 'getTestApi1') {
+                                    console.log('[iframe] testApi1 value:', window.testApi1);
+                                    event.source.postMessage({ type: 'testApi1', value: window.testApi1 }, event.origin);
+                                }
+                                if (event.data === 'getTestApi2') {
+                                    console.log('[iframe] testApi2 value:', window.testApi2);
+                                    event.source.postMessage({ type: 'testApi2', value: window.testApi2 }, event.origin);
+                                }
+                            });
+                            // Listen for content-scope-init-args event and signal completion
+                            document.addEventListener('content-scope-init-args', function (evt) {
+                                // Signal complete
+                                window.parent.postMessage('content-scope-init-completed', '*');
+                            });
+                            
+                            // Also listen for the content scope status to be 'initialized'
+                            const checkStatus = () => {
+                                if (window.__content_scope_status === 'initialized') {
+                                    window.parent.postMessage('content-scope-fully-initialized', '*');
+                                } else {
+                                    setTimeout(checkStatus, 10);
+                                }
+                            };
+                            checkStatus();
+                        </${scriptTag}>
+                    </body>
+                </html>
+            `;
+                document.body.appendChild(frame);
+                await new Promise((resolve) => (frame.onload = resolve));
+                // Wait for the iframe to signal it's ready for init
+                await iframeReadyPromise;
+
+                // Send content-scope-init-args to the iframe (use parent's args if available)
+                const args = window.__testContentScopeArgs || null;
+                if (!args) {
+                    throw new Error('args is blank');
+                }
+
+                // Filter out non-serializable properties for postMessage
+                const serializableArgs = JSON.parse(JSON.stringify(args));
+                frame.contentWindow.postMessage({ type: 'load-content-scope', args: serializableArgs }, '*');
+                // Wait for the content-scope script to be initialized in the iframe
+                await new Promise((resolve) => {
+                    window.addEventListener('message', function handler(event) {
+                        if (event.data === 'content-scope-init-completed') {
+                            window.removeEventListener('message', handler);
+                            resolve();
+                        }
+                    });
+                });
+
+                // Wait for content scope to be fully initialized
+                await new Promise((resolve) => {
+                    window.addEventListener('message', function handler(event) {
+                        if (event.data === 'content-scope-fully-initialized') {
+                            window.removeEventListener('message', handler);
+                            resolve();
+                        }
+                    });
+                });
+
+                // Add a small delay to ensure API modifications are applied
+                await new Promise((resolve) => setTimeout(resolve, 100));
+
+                const testApi1Promise = new Promise((resolve) => {
+                    window.addEventListener(
+                        'message',
+                        (event) => {
+                            // Only resolve for testApi1 responses
+                            if (event.data && event.data.type === 'testApi1') {
+                                resolve(event.data.value);
+                            }
+                        },
+                        { once: true },
+                    );
+                    frame.contentWindow.postMessage('getTestApi1', '*');
+                });
+                const testApi1Value = await testApi1Promise;
+                console.log('[parent] testApi1 from iframe:', testApi1Value);
+                console.log('[parent] testApi1 in parent:', window.testApi1);
+
+                results.push({
+                    name: 'Ensure iframe changes work',
+                    result: testApi1Value,
+                    expected: 43338,
+                });
+                results.push({
+                    name: 'Expect frame top modification works',
+                    result: window.testApi1,
+                    expected: 43339,
+                });
+                return results;
+            });
+
+            // eslint-disable-next-line no-undef
+            renderResults();
+        </script>
+    </body>
 </html>

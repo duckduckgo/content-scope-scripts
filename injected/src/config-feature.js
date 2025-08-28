@@ -1,5 +1,13 @@
 import { immutableJSONPatch } from 'immutable-json-patch';
-import { camelcase, computeEnabledFeatures, matchHostname, parseFeatureSettings, computeLimitedSiteObject } from './utils.js';
+import {
+    camelcase,
+    computeEnabledFeatures,
+    matchHostname,
+    parseFeatureSettings,
+    computeLimitedSiteObject,
+    isSupportedVersion,
+    isMaxSupportedVersion,
+} from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
 /**
@@ -19,6 +27,7 @@ export default class ConfigFeature {
     /**
      * @type {{
      *   debug?: boolean,
+     *   platform: import('./utils.js').Platform,
      *   desktopModeEnabled?: boolean,
      *   forcedZoomEnabled?: boolean,
      *   featureSettings?: Record<string, unknown>,
@@ -39,6 +48,7 @@ export default class ConfigFeature {
         const { bundledConfig, site, platform } = args;
         this.#bundledConfig = bundledConfig;
         this.#args = args;
+
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig && this.#args) {
@@ -67,6 +77,14 @@ export default class ConfigFeature {
 
     get featureSettings() {
         return this.#args?.featureSettings;
+    }
+
+    /**
+     * Getter for injectName, will be overridden by subclasses (namely ContentFeature)
+     * @returns {string | undefined}
+     */
+    get injectName() {
+        return undefined;
     }
 
     /**
@@ -106,9 +124,16 @@ export default class ConfigFeature {
      * @typedef {object} ConditionBlock
      * @property {string[] | string} [domain]
      * @property {object} [urlPattern]
+     * @property {object} [minSupportedVersion]
+     * @property {object} [maxSupportedVersion]
      * @property {object} [experiment]
      * @property {string} [experiment.experimentName]
      * @property {string} [experiment.cohort]
+     * @property {object} [context]
+     * @property {boolean} [context.frame] - true if the condition applies to frames
+     * @property {boolean} [context.top] - true if the condition applies to the top frame
+     * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
+     * @property {boolean} [internal] - true if the condition applies to internal builds
      */
 
     /**
@@ -134,8 +159,13 @@ export default class ConfigFeature {
         /** @type {Record<string, (conditionBlock: ConditionBlock) => boolean>} */
         const conditionChecks = {
             domain: this._matchDomainConditional,
+            context: this._matchContextConditional,
             urlPattern: this._matchUrlPatternConditional,
             experiment: this._matchExperimentConditional,
+            minSupportedVersion: this._matchMinSupportedVersion,
+            maxSupportedVersion: this._matchMaxSupportedVersion,
+            injectName: this._matchInjectNameConditional,
+            internal: this._matchInternalConditional,
         };
 
         for (const key in conditionBlock) {
@@ -198,6 +228,23 @@ export default class ConfigFeature {
     }
 
     /**
+     * Takes a condition block and returns true if the current context matches the context.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchContextConditional(conditionBlock) {
+        if (!conditionBlock.context) return false;
+        const isFrame = window.self !== window.top;
+        if (conditionBlock.context.frame && isFrame) {
+            return true;
+        }
+        if (conditionBlock.context.top && !isFrame) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Takes a condtion block and returns true if the current url matches the urlPattern.
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
@@ -227,6 +274,51 @@ export default class ConfigFeature {
             return false;
         }
         return matchHostname(domain, conditionBlock.domain);
+    }
+
+    /**
+     * Takes a condition block and returns true if the current inject name matches the injectName.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchInjectNameConditional(conditionBlock) {
+        if (!conditionBlock.injectName) return false;
+        // Access injectName through the ContentFeature's getter
+        const currentInjectName = this.injectName;
+        if (!currentInjectName) return false;
+        return conditionBlock.injectName === currentInjectName;
+    }
+
+    /**
+     * Takes a condition block and returns true if the internal state matches the condition.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchInternalConditional(conditionBlock) {
+        if (conditionBlock.internal === undefined) return false;
+        const isInternal = this.#args?.platform?.internal;
+        if (isInternal === undefined) return false;
+        return Boolean(conditionBlock.internal) === Boolean(isInternal);
+    }
+
+    /**
+     * Takes a condition block and returns true if the platform version satisfies the `minSupportedFeature`
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMinSupportedVersion(conditionBlock) {
+        if (!conditionBlock.minSupportedVersion) return false;
+        return isSupportedVersion(conditionBlock.minSupportedVersion, this.#args?.platform?.version);
+    }
+
+    /**
+     * Takes a condition block and returns true if the platform version satisfies the `maxSupportedFeature`
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchMaxSupportedVersion(conditionBlock) {
+        if (!conditionBlock.maxSupportedVersion) return false;
+        return isMaxSupportedVersion(conditionBlock.maxSupportedVersion, this.#args?.platform?.version);
     }
 
     /**
@@ -260,11 +352,12 @@ export default class ConfigFeature {
      * ```
      * This also supports domain overrides as per `getFeatureSetting`.
      * @param {string} featureKeyName
+     * @param {'enabled' | 'disabled'} [defaultState]
      * @param {string} [featureName]
      * @returns {boolean}
      */
-    getFeatureSettingEnabled(featureKeyName, featureName) {
-        const result = this.getFeatureSetting(featureKeyName, featureName);
+    getFeatureSettingEnabled(featureKeyName, defaultState, featureName) {
+        const result = this.getFeatureSetting(featureKeyName, featureName) || defaultState;
         if (typeof result === 'object') {
             return result.state === 'enabled';
         }

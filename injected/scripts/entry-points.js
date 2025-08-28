@@ -17,11 +17,11 @@ const builds = {
     },
     apple: {
         input: 'entry-points/apple.js',
-        output: ['../Sources/ContentScopeScripts/dist/contentScope.js'],
+        output: ['../build/apple/contentScope.js'],
     },
     'apple-isolated': {
         input: 'entry-points/apple.js',
-        output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
+        output: ['../build/apple/contentScopeIsolated.js'],
     },
     android: {
         input: 'entry-points/android.js',
@@ -34,6 +34,10 @@ const builds = {
     'android-autofill-password-import': {
         input: 'entry-points/android.js',
         output: ['../build/android/autofillPasswordImport.js'],
+    },
+    'android-adsjs': {
+        input: 'entry-points/android-adsjs.js',
+        output: ['../build/android/adsjsContentScope.js'],
     },
     windows: {
         input: 'entry-points/windows.js',

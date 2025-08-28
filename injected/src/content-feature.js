@@ -36,6 +36,12 @@ export default class ContentFeature extends ConfigFeature {
      */
     listenForUrlChanges = false;
 
+    /**
+     * Set this to true if you wish to get update calls (legacy).
+     * @type {boolean}
+     */
+    listenForUpdateChanges = false;
+
     /** @type {ImportMeta} */
     #importConfig;
 

@@ -7,6 +7,8 @@ let globalObj = typeof window === 'undefined' ? globalThis : window;
 let Error = globalObj.Error;
 let messageSecret;
 
+let isAppleSiliconCache = null;
+
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
 export const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
@@ -244,10 +246,20 @@ export function iterateDataKey(key, callback) {
     }
 }
 
+/**
+ * Check if a feature is considered broken/disabled for the current site
+ * @param {import('./content-scope-features.js').LoadArgs} args - Configuration arguments containing site information
+ * @param {string} feature - The feature name to check
+ * @returns {boolean} True if the feature is broken/disabled, false if it should be enabled
+ */
 export function isFeatureBroken(args, feature) {
-    return isPlatformSpecificFeature(feature)
-        ? !args.site.enabledFeatures.includes(feature)
-        : args.site.isBroken || args.site.allowlisted || !args.site.enabledFeatures.includes(feature);
+    const isFeatureEnabled = args.site.enabledFeatures?.includes(feature) ?? false;
+
+    if (isPlatformSpecificFeature(feature)) {
+        return !isFeatureEnabled;
+    }
+
+    return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
 }
 
 export function camelcase(dashCaseText) {
@@ -258,13 +270,18 @@ export function camelcase(dashCaseText) {
 
 // We use this method to detect M1 macs and set appropriate API values to prevent sites from detecting fingerprinting protections
 function isAppleSilicon() {
+    // Cache the result since hardware doesn't change
+    if (isAppleSiliconCache !== null) {
+        return isAppleSiliconCache;
+    }
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl');
 
     // Best guess if the device is an Apple Silicon
     // https://stackoverflow.com/a/65412357
-    // @ts-expect-error - Object is possibly 'null'
-    return gl.getSupportedExtensions().indexOf('WEBGL_compressed_texture_etc') !== -1;
+    const compressedTextureValue = gl?.getSupportedExtensions()?.indexOf('WEBGL_compressed_texture_etc');
+    isAppleSiliconCache = typeof compressedTextureValue === 'number' && compressedTextureValue !== -1;
+    return isAppleSiliconCache;
 }
 
 /**
@@ -306,14 +323,16 @@ const functionMap = {
  * @typedef {object} ConfigSetting
  * @property {'undefined' | 'number' | 'string' | 'function' | 'boolean' | 'null' | 'array' | 'object'} type
  * @property {string} [functionName]
- * @property {boolean | string | number} value
+ * @property {*} [value] - Any value type (string, number, boolean, object, array, null, undefined)
+ * @property {ConfigSetting} [functionValue] - For function type, the value to return from the function
+ * @property {boolean} [async] - Whether to wrap the value in a Promise
  * @property {object} [criteria]
- * @property {string} criteria.arch
+ * @property {string} [criteria.arch]
  */
 
 /**
  * Processes a structured config setting and returns the value according to its type
- * @param {ConfigSetting} configSetting
+ * @param {ConfigSetting | ConfigSetting[]} configSetting
  * @param {*} [defaultValue]
  * @returns
  */
@@ -326,10 +345,12 @@ export function processAttr(configSetting, defaultValue) {
     switch (configSettingType) {
         case 'object':
             if (Array.isArray(configSetting)) {
-                configSetting = processAttrByCriteria(configSetting);
-                if (configSetting === undefined) {
+                const selectedSetting = processAttrByCriteria(configSetting);
+                if (selectedSetting === undefined) {
                     return defaultValue;
                 }
+                // Now process the selected setting as a single ConfigSetting
+                return processAttr(selectedSetting, defaultValue);
             }
 
             if (!configSetting.type) {
@@ -340,10 +361,20 @@ export function processAttr(configSetting, defaultValue) {
                 if (configSetting.functionName && functionMap[configSetting.functionName]) {
                     return functionMap[configSetting.functionName];
                 }
+                if (configSetting.functionValue) {
+                    const functionValue = configSetting.functionValue;
+                    // Return a function that processes the functionValue using processAttr
+                    return () => processAttr(functionValue, undefined);
+                }
             }
 
             if (configSetting.type === 'undefined') {
                 return undefined;
+            }
+
+            // Handle async wrapping for all types including arrays
+            if (configSetting.async) {
+                return DDGPromise.resolve(configSetting.value);
             }
 
             // All JSON expressable types are handled here
@@ -530,6 +561,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @typedef {object} Platform
  * @property {'ios' | 'macos' | 'extension' | 'android' | 'windows'} name
  * @property {string | number } [version]
+ * @property {boolean} [internal] - Internal build flag
  */
 
 /**
@@ -621,13 +653,31 @@ export function satisfiesMinVersion(minVersionString, applicationVersionString) 
  * @param {string | number | undefined} currentVersion
  * @returns {boolean}
  */
-function isSupportedVersion(minSupportedVersion, currentVersion) {
+export function isSupportedVersion(minSupportedVersion, currentVersion) {
     if (typeof currentVersion === 'string' && typeof minSupportedVersion === 'string') {
         if (satisfiesMinVersion(minSupportedVersion, currentVersion)) {
             return true;
         }
     } else if (typeof currentVersion === 'number' && typeof minSupportedVersion === 'number') {
         if (minSupportedVersion <= currentVersion) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * @param {string | number | undefined} maxSupportedVersion
+ * @param {string | number | undefined} currentVersion
+ * @returns {boolean}
+ */
+export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
+    if (typeof currentVersion === 'string' && typeof maxSupportedVersion === 'string') {
+        if (satisfiesMinVersion(currentVersion, maxSupportedVersion)) {
+            return true;
+        }
+    } else if (typeof currentVersion === 'number' && typeof maxSupportedVersion === 'number') {
+        if (maxSupportedVersion >= currentVersion) {
             return true;
         }
     }
@@ -729,7 +779,7 @@ export function isGloballyDisabled(args) {
  * @import {FeatureName} from "./features";
  * @type {FeatureName[]}
  */
-export const platformSpecificFeatures = ['windowsPermissionUsage', 'messageBridge', 'favicon'];
+export const platformSpecificFeatures = ['navigatorInterface', 'windowsPermissionUsage', 'messageBridge', 'favicon'];
 
 export function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(featureName);

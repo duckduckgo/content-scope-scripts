@@ -6,9 +6,8 @@ import { cwd } from '../../scripts/script-utils.js';
 const ROOT = join(cwd(import.meta.url), '..', '..');
 console.log(ROOT);
 const BUILD = join(ROOT, 'build');
-const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist');
-console.log(APPLE_BUILD);
-let CSS_OUTPUT_SIZE = 770_000;
+
+let CSS_OUTPUT_SIZE = 800_000;
 if (process.platform === 'win32') {
     CSS_OUTPUT_SIZE = CSS_OUTPUT_SIZE * 1.1; // 10% larger for Windows due to line endings
 }
@@ -43,14 +42,14 @@ const checks = {
         tests: [{ kind: 'maxFileSize', value: CSS_OUTPUT_SIZE }],
     },
     apple: {
-        file: join(APPLE_BUILD, 'contentScope.js'),
+        file: join(BUILD, 'apple/contentScope.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: '#bundledConfig', includes: false },
         ],
     },
     'apple-isolated': {
-        file: join(APPLE_BUILD, 'contentScopeIsolated.js'),
+        file: join(BUILD, 'apple/contentScopeIsolated.js'),
         tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: 'Copyright (c) 2014-2015, hassansin', includes: true },

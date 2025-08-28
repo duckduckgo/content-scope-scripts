@@ -1,3 +1,4 @@
+// Features must exist in either `baseFeatures` or `otherFeatures`
 export const baseFeatures = /** @type {const} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
@@ -28,6 +29,7 @@ const otherFeatures = /** @type {const} */ ([
     'breakageReporting',
     'autofillPasswordImport',
     'favicon',
+    'webTelemetry',
     'scriptlets',
 ]);
 
@@ -47,9 +49,21 @@ export const platformSupport = {
     android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-password-import': ['autofillPasswordImport'],
+    'android-adsjs': [
+        'apiManipulation',
+        'webCompat',
+        'fingerprintingHardware',
+        'fingerprintingScreenSize',
+        'fingerprintingTemporaryStorage',
+        'fingerprintingAudio',
+        'fingerprintingBattery',
+        'gpc',
+        'breakageReporting',
+    ],
     windows: [
         'cookie',
         ...baseFeatures,
+        'webTelemetry',
         'windowsPermissionUsage',
         'duckPlayer',
         'brokerProtection',

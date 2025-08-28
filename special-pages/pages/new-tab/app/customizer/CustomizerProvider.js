@@ -15,6 +15,14 @@ import { applyDefaultStyles } from './utils.js';
  */
 
 /**
+ * @typedef {{
+ *   title: string,
+ *   icon: import('preact').ComponentChild,
+ *   onClick: () => void,
+ * }} SettingsLinkData
+ */
+
+/**
  * These are the values exposed to consumers.
  */
 export const CustomizerThemesContext = createContext({

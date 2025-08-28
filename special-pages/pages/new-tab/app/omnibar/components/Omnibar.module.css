@@ -1,0 +1,96 @@
+.root {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: var(--sp-15);
+
+    [data-theme="light"] & {
+        --omnibar-translucent-background-color: rgba(255, 255, 255, 0.54);
+    }
+
+    [data-theme="dark"] & {
+        --omnibar-translucent-background-color: rgba(0, 0, 0, 0.3);
+    }
+}
+
+.logo {
+    margin-bottom: var(--sp-4);
+    width: 164px;
+}
+
+/*
+ * There are three containers:
+ * 1) .spacer - Pushes other widgets away. Fixed height to accommodate largest tab (Duck.ai). Contents overflow. No animation.
+ * 2) .popup - Has border. Auto height. No animation.
+ * 3) .field - Fixed height set to scrollHeight of children. Height animates.
+ *
+ * The intention is that:
+ * - Suggestions list and expanded Duck.ai textarea always overflows over other widgets.
+ * - Omnibar height expands smoothly when switching tab or entering mutiline text into Duck.ai textarea.
+ * - Omnibar height does NOT animate when suggestions list opens or changes.
+ */
+
+.spacer {
+    align-self: stretch;
+    height: calc(var(--sp-16) + 3px * 2);
+    z-index: 1;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
+/* Rest */
+.popup {
+    background: var(--ntp-surface-tertiary);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08); /* Elevation 30 */
+    display: flow-root; /* Prevent margin collapse on .field */
+    margin: 3px;
+    outline: 1px solid var(--ntp-controls-raised-backdrop);
+
+    body:not([data-background-kind="default"]) & {
+        backdrop-filter: blur(48px);
+        background: var(--omnibar-translucent-background-color);
+    }
+}
+
+/* Typing */
+.root:focus-within .popup {
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */
+}
+
+/* Focused */
+.root:focus-within:has(input:placeholder-shown, textarea:placeholder-shown) .popup {
+    border-radius: 15px;
+    border: 2px solid var(--ntp-accent-primary);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */
+    margin: 0;
+    outline: 2px solid var(--ntp-accent-glow);
+
+    .field {
+        margin: 1px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */
+    }
+}
+
+/* Suggestions */
+.root:has([role="listbox"]) .popup {
+    border-radius: 15px;
+    margin: 0;
+
+    .field {
+        margin: 3px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */
+    }
+}
+
+.field {
+    box-sizing: content-box;
+    overflow: hidden;
+    position: relative;
+    transition: height 200ms ease;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}

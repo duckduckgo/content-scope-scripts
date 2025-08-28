@@ -1,0 +1,32 @@
+name: Dependabot auto-approve and auto-merge
+on: pull_request
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    dependabot:
+        runs-on: ubuntu-latest
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        steps:
+            - name: Dependabot metadata
+              id: metadata
+              uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b
+              with:
+                  github-token: '${{ secrets.GITHUB_TOKEN }}'
+
+            - name: Auto-approve and enable auto-merge for npm patch updates (except ignored packages)
+              if: |
+                  steps.metadata.outputs.package-ecosystem == 'npm' &&
+                  steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
+                  !contains(steps.metadata.outputs.dependency-names, '@atlaskit/pragmatic-drag-and-drop') &&
+                  !contains(steps.metadata.outputs.dependency-names, 'preact') &&
+                  !contains(steps.metadata.outputs.dependency-names, '@preact/signals') &&
+                  !contains(steps.metadata.outputs.dependency-names, 'lottie-web')
+              run: |
+                  gh pr review --approve "$PR_URL"
+                  gh pr merge --auto --merge "$PR_URL"
+              env:
+                  PR_URL: ${{ github.event.pull_request.html_url }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

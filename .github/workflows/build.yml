@@ -12,7 +12,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - uses: actions/setup-node@v4
               with:
                   node-version-file: '.nvmrc'
@@ -49,9 +49,12 @@ jobs:
                   cat ${{ github.workspace }}/CHANGELOG.txt
                   echo "Current tag is: $(git rev-list --tags --max-count=1)"
 
-            - name: Checkout code from main into release branch
+            - name: Ensure clean release branch from main
               run: |
-                  # Checkout the code of main onto releases
+                  # Remove all tracked and untracked files except .git and .github
+                  find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.github' ! -name 'CHANGELOG.txt' -exec rm -rf {} +
+
+                  # Copy files from main branch
                   git checkout main -- .
 
             - name: Build release
@@ -61,7 +64,7 @@ jobs:
 
             - name: Check in files
               run: |
-                  git add -f build/ Sources/
+                  git add -f . ':!CHANGELOG.txt' ':!node_modules'
 
             - name: Commit build files
               uses: stefanzweifel/git-auto-commit-action@v5

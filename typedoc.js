@@ -7,6 +7,8 @@ const config = {
         'special-pages/pages/new-tab/app/new-tab.md',
         'special-pages/pages/history/app/history.md',
         'injected/docs/*.md',
+        'messaging/docs/messaging.md',
+
     ],
     entryPoints: [
         'injected/entry-points/android.js',
@@ -42,7 +44,7 @@ const config = {
     treatWarningsAsErrors: true,
     searchInComments: true,
     modifierTags: [...OptionDefaults.modifierTags, '@implements'],
-    highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid'],
+    highlightLanguages: [...OptionDefaults.highlightLanguages, 'mermaid', 'java'],
 };
 
 export default config;

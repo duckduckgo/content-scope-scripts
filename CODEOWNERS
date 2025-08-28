@@ -1,5 +1,8 @@
 * @duckduckgo/content-scope-scripts-owners
 
+# Documentation - anyone can edit
+injected/docs/
+
 # Feature owners
 injected/src/features/fingerprinting-* @duckduckgo/content-scope-scripts-owners @jonathanKingston @englehardt
 injected/src/canvas.js @duckduckgo/content-scope-scripts-owners @jonathanKingston @englehardt
@@ -18,10 +21,10 @@ injected/integration-test/mocks/broker-protection/ @duckduckgo/content-scope-scr
 injected/integration-test/test-pages/broker-protection/ @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection
 
 # Platform owners
-injected/src/features.js @duckduckgo/content-scope-scripts-owners @duckduckgo/apple-devs @duckduckgo/android-devs @duckduckgo/team-windows-development @kzar @sammacbeth
+injected/src/features.js @duckduckgo/content-scope-scripts-owners @duckduckgo/apple-devs @duckduckgo/android-devs @duckduckgo/team-windows-development @duckduckgo/extension-owners
 Sources/ @duckduckgo/content-scope-scripts-owners @duckduckgo/apple-devs
 injected/entry-points/android.js @duckduckgo/content-scope-scripts-owners @duckduckgo/android-devs
-injected/entry-points/extension-mv3.js @duckduckgo/content-scope-scripts-owners @kzar @sammacbeth
+injected/entry-points/extension-mv3.js @duckduckgo/content-scope-scripts-owners @duckduckgo/extension-owners
 injected/entry-points/windows.js @duckduckgo/content-scope-scripts-owners @duckduckgo/team-windows-development
 
 # Test owners

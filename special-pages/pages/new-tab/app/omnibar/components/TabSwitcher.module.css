@@ -1,0 +1,65 @@
+.tabSwitcher {
+    background: var(--ntp-controls-raised-backdrop);
+    border-radius: 99px;
+    display: grid;
+    gap: var(--sp-0_5);
+    grid-template-columns: repeat(var(--tab-count), 1fr);
+    overflow: hidden;
+    padding: var(--sp-0_5);
+    position: relative;
+
+    body:not([data-background-kind="default"]) & {
+        backdrop-filter: blur(48px);
+    }
+}
+
+.tab {
+    align-items: center;
+    background: none;
+    border: none;
+    color: var(--ntp-text-primary);
+    cursor: pointer;
+    display: flex;
+    gap: 6px;
+    height: var(--sp-8);
+    justify-content: center;
+    padding: 0 var(--sp-3);
+    position: relative;
+    transform: translateZ(0); /* Force .tab into its own stacking context. Workaround for WebKit mistakenly layering .blob on top of .tab when .App_mainLayout animates. */
+    z-index: 1;
+
+    &:hover:not([aria-selected="true"])::before {
+        background: var(--ntp-controls-fill-primary);
+        border-radius: 99px;
+        content: '';
+        inset: 0;
+        position: absolute;
+    }
+}
+
+.tabLabel {
+    padding-top: 1px;
+}
+
+.blob {
+    background-color: var(--ntp-controls-raised-fill-primary);
+    border-radius: 18px;
+    box-shadow: 0 1px 0 0 var(--ntp-tone-tint) inset, 0 1px 4px 0 var(--ntp-shadow-secondary), 0 4px 8px 0 var(--ntp-shadow-secondary);
+    height: var(--sp-8);
+    left: 0;
+    position: absolute;
+    top: 2px;
+    transition: translate 200ms ease;
+    translate: calc(2px + var(--tab-index) * (100% + 2px));
+    width: calc((100% - 4px - (var(--tab-count) - 1) * 2px) / var(--tab-count));
+    will-change: translate;
+    z-index: 0;
+
+    [data-theme="dark"] & {
+        box-shadow: 0 4px 4px var(--ntp-shadow-secondary), 0 1px 2px var(--ntp-shadow-secondary), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}

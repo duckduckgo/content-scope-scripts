@@ -68,6 +68,9 @@ export function protectionsMockTransport() {
                 subs.set(sub, cb);
                 return () => {};
             }
+            if (sub === 'protections_onDataUpdate') {
+                return () => {};
+            }
             console.warn('unhandled sub', sub);
             return () => {};
         },
@@ -87,6 +90,10 @@ export function protectionsMockTransport() {
                 case 'protections_getConfig': {
                     if (url.searchParams.get('protections.feed') === 'activity') {
                         config.feed = 'activity';
+                    }
+
+                    if (url.searchParams.get('protections.burn') === 'false') {
+                        config.showBurnAnimation = false;
                     }
 
                     return Promise.resolve(config);

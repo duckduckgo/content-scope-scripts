@@ -6,8 +6,7 @@
     "injected",
     "special-pages",
     "messaging",
-    "build",
-    "Sources/ContentScopeScripts/dist"
+    "build"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
@@ -22,13 +21,13 @@
     "tsc": "npm run --workspace=injected extract-scriptlets && tsc",
     "tsc-watch": "tsc --watch",
     "lint": "eslint . && npm run tsc && npm run lint-no-output-globals && npx prettier . --check",
-    "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js Sources/ContentScopeScripts/dist/contentScope.js",
+    "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js build/apple/contentScope.js",
     "postlint": "npm run lint --workspaces --if-present",
     "lint-fix": "eslint . --fix && npx prettier . --write && npm run tsc",
     "stylelint": "npx stylelint \"**/*.css\"",
     "stylelint-fix": "npx stylelint \"**/*.css\" --fix",
-    "serve": "http-server -c-1 --port 3220 integration-test/test-pages",
-    "serve-special-pages": "http-server -c-1 --port 3221 build/integration/pages"
+    "serve": "npm run serve --workspace=injected",
+    "serve-special-pages": "npm run serve --workspace=special-pages"
   },
   "type": "module",
   "workspaces": [
@@ -41,21 +40,21 @@
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
     "@playwright/test": "^1.52.0",
     "ajv": "^8.17.1",
-    "esbuild": "^0.25.4",
-    "eslint": "^9.29.0",
+    "esbuild": "^0.25.9",
+    "eslint": "^9.33.0",
     "minimist": "^1.2.8",
-    "prettier": "3.5.3",
+    "prettier": "3.6.2",
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
     "stylelint-csstree-validator": "^3.0.0",
     "ts-json-schema-generator": "^2.4.0",
-    "typedoc": "^0.28.5",
+    "typedoc": "^0.28.8",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.33.0"
+    "typescript-eslint": "^8.36.0",
+    "wait-on": "^8.0.4"
   },
   "dependencies": {
-    "@adguard/scriptlets": "^2.1.6",
-    "immutable-json-patch": "^6.0.1",
+    "immutable-json-patch": "^6.0.2",
     "urlpattern-polyfill": "^10.1.0"
   }
 }

@@ -5,6 +5,7 @@ on:
         branches:
             - main
     pull_request:
+    merge_group:
 
 permissions:
     contents: read
@@ -19,7 +20,7 @@ jobs:
             matrix:
                 os: [ubuntu-latest, windows-latest]
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - name: Use Node.js
               uses: actions/setup-node@v4
               with:
@@ -41,7 +42,7 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 10
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - name: Use Node.js
               uses: actions/setup-node@v4
               with:
@@ -88,7 +89,7 @@ jobs:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - name: Use Node.js
               uses: actions/setup-node@v4
               with:
@@ -102,7 +103,7 @@ jobs:
             - name: Setup Github Pages
               uses: actions/configure-pages@v5
             - name: Upload artifact
-              uses: actions/upload-pages-artifact@v3
+              uses: actions/upload-pages-artifact@v4
               with:
                   path: docs
             - name: Deploy to GitHub Pages
@@ -114,7 +115,7 @@ jobs:
     production-deps:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
             - name: Use Node.js
               uses: actions/setup-node@v4
               with:
