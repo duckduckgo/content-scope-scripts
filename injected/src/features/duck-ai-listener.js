@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature.js';
+import { isBeingFramed } from '../utils.js';
 
 /**
  * Duck AI Listener Feature
@@ -29,7 +30,14 @@ export default class DuckAiListener extends ContentFeature {
         }
 
         console.log('DuckAiListener: Initializing on duckduckgo.com');
+        if (document.readyState === 'complete') {
+            this.setup();
+        } else {
+            document.addEventListener('DOMContentLoaded', this.setup.bind(this));
+        }
+    }
 
+    async setup() {
         this.setupMessageBridge();
         this.setupTextBoxDetection();
         this.startObservingDom();
@@ -40,6 +48,9 @@ export default class DuckAiListener extends ContentFeature {
      * @returns {boolean}
      */
     shouldActivate() {
+        if (isBeingFramed()) {
+            return false;
+        }
         const hostname = window.location.hostname;
         return hostname === 'duckduckgo.com' || hostname.endsWith('.duckduckgo.com');
     }
