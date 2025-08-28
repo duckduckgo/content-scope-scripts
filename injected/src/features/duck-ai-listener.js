@@ -28,7 +28,6 @@ export default class DuckAiListener extends ContentFeature {
         if (!this.shouldActivate()) {
             return;
         }
-
         console.log('DuckAiListener: Initializing on duckduckgo.com');
         if (document.readyState === 'complete') {
             this.setup();
@@ -82,6 +81,17 @@ export default class DuckAiListener extends ContentFeature {
 
             console.log('DuckAiListener: Created message bridge successfully');
 
+            // Try to get initial page context
+            try {
+                const getPageContext = await this.bridge.request('getPageContext');
+                console.log('DuckAiListener: Initial page context:', getPageContext);
+                if (getPageContext.serializedPageData) {
+                    this.handlePageContextData(getPageContext);
+                }
+            } catch (error) {
+                console.log('DuckAiListener: No initial page context available:', error);
+            }
+
             // Subscribe to page context updates (matches fake-duck-ai exactly)
             this.bridge.subscribe('submitPageContext', (event) => {
                 console.log('DuckAiListener: Received page context update:', event);
@@ -102,7 +112,6 @@ export default class DuckAiListener extends ContentFeature {
                 const pageDataParsed = JSON.parse(data.serializedPageData);
                 console.log('DuckAiListener: Parsed page data:', pageDataParsed);
 
-                // Match fake-duck-ai logic exactly
                 if (pageDataParsed.content) {
                     this.pageData = pageDataParsed;
                     this.insertContextIntoTextBox(pageDataParsed.content);
@@ -118,11 +127,9 @@ export default class DuckAiListener extends ContentFeature {
      */
     setupTextBoxDetection() {
         this.findTextBox();
-
-        // Set up periodic checking for the text box
-        setInterval(() => {
-            this.findTextBox();
-        }, 2000);
+        if (this.textBox && this.pageData) {
+            this.insertContextIntoTextBox(this.pageData.content);
+        }
     }
 
     /**
