@@ -19,7 +19,7 @@
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
     "docs": "typedoc",
     "docs-watch": "typedoc --watch",
-    "tsc": "npm run --workspace=injected extract-scriptlets && tsc",
+    "tsc": "tsc",
     "tsc-watch": "tsc --watch",
     "lint": "eslint . && npm run tsc && npm run lint-no-output-globals && npx prettier . --check",
     "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js Sources/ContentScopeScripts/dist/contentScope.js",
@@ -40,22 +40,19 @@
   "devDependencies": {
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
     "@playwright/test": "^1.52.0",
-    "ajv": "^8.17.1",
     "esbuild": "^0.25.4",
-    "eslint": "^9.29.0",
+    "eslint": "^9.28.0",
     "minimist": "^1.2.8",
     "prettier": "3.5.3",
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
     "stylelint-csstree-validator": "^3.0.0",
-    "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.5",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.33.0",
     "urlpattern-polyfill": "^10.1.0"
   },
   "dependencies": {
-    "@adguard/scriptlets": "^2.1.6",
     "immutable-json-patch": "^6.0.1"
   }
 }

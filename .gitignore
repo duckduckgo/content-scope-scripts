@@ -16,6 +16,3 @@ test-results
 .netlify
 # VS Code user config
 .vscode
-
-# Auto-generated scriptlets file (built from @adguard/scriptlets)
-injected/src/features/scriptlets-minimal.js
