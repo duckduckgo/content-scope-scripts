@@ -174,6 +174,7 @@ export interface NewTabMessages {
     | ProtectionsOnDataUpdateSubscription
     | RmfOnDataUpdateSubscription
     | StatsOnDataUpdateSubscription
+    | TabsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription;
 }
@@ -821,6 +822,7 @@ export interface InitialSetupResponse {
   };
   customizer?: CustomizerData;
   updateNotification: null | UpdateNotificationData;
+  tabs?: null | Tabs;
 }
 export interface WidgetListItem {
   /**
@@ -863,6 +865,10 @@ export interface UpdateNotificationData {
 export interface UpdateNotification {
   version: string;
   notes: string[];
+}
+export interface Tabs {
+  tabId: string;
+  tabIds: string[];
 }
 /**
  * Generated from @see "../messages/nextSteps_getConfig.request.json"
@@ -1137,6 +1143,13 @@ export interface RmfOnDataUpdateSubscription {
 export interface StatsOnDataUpdateSubscription {
   subscriptionEvent: "stats_onDataUpdate";
   params: PrivacyStatsData;
+}
+/**
+ * Generated from @see "../messages/tabs_onDataUpdate.subscribe.json"
+ */
+export interface TabsOnDataUpdateSubscription {
+  subscriptionEvent: "tabs_onDataUpdate";
+  params: Tabs;
 }
 /**
  * Generated from @see "../messages/updateNotification_onDataUpdate.subscribe.json"

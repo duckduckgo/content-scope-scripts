@@ -11,6 +11,7 @@ children:
   - ./customizer/customizer.md
   - ./protections/protections.md
   - ./omnibar/omnibar.md
+  - ./tabs/tabs.md
 ---
 
 ## Requests

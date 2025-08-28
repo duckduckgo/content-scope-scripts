@@ -110,5 +110,8 @@ export function useCustomizer({ title, id, icon, toggle, visibility, index }) {
 
     useEffect(() => {
         window.dispatchEvent(new Event(UPDATE_EVENT));
+        return () => {
+            window.dispatchEvent(new Event(UPDATE_EVENT));
+        };
     }, [visibility]);
 }
