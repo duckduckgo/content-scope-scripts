@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 /**
  * @typedef {import("../../../types/new-tab.js").OmnibarMode} Mode
+ * @typedef {import("../../../types/new-tab.js").OmnibarConfig} Config
  */
 
 export class OmnibarPage {
@@ -193,10 +194,11 @@ export class OmnibarPage {
     }
 
     /**
+     * @param {Config} config
      * @returns {Promise<void>}
      */
-    async didDisableGlobally() {
-        const event = sub('omnibar_onConfigUpdate').payload({ mode: 'search', enableAi: false, showAiSetting: false });
+    async didReceiveConfig(config) {
+        const event = sub('omnibar_onConfigUpdate').payload(config);
         await test.step(`simulates global disabled (eg: settings): ${JSON.stringify(event.name)} ${JSON.stringify(event.payload)} `, async () => {
             await this.ntp.mocks.simulateSubscriptionEvent(event);
         });
@@ -229,7 +231,6 @@ export class OmnibarPage {
                 return await expect(this.chatInput()).toHaveValue(value);
             }
             case 'search': {
-                await this.searchInput().waitFor({ timeout: 1000 });
                 return await expect(this.searchInput()).toHaveValue(value);
             }
         }

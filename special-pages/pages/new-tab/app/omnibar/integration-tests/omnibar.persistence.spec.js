@@ -76,6 +76,7 @@ test.describe('omnibar widget persistence', () => {
     test('adjusts mode of other tabs when duck.ai is globally disabled', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
+        const customizer = new CustomizerPage(ntp);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { omnibar: true, tabs: true, 'tabs.debug': true } });
         await omnibar.ready();
@@ -87,12 +88,25 @@ test.describe('omnibar widget persistence', () => {
         await omnibar.didSwitchToTab('02', ['01', '02']);
         await omnibar.expectValue({ value: '', mode: 'ai' });
 
-        // disable globally
-        await omnibar.didDisableGlobally();
+        // open sidebar
+        await customizer.opensCustomizer();
+
+        // control: make sure the Duck.ai toggle is there
+        await customizer.hasSwitch('Toggle Duck.ai');
+
+        // now receive global config settings...
+        await omnibar.didReceiveConfig({ mode: 'search', enableAi: false, showAiSetting: false });
+
+        // ...and expect search box to be empty, but still on search mode.
         await omnibar.expectValue({ value: '', mode: 'search' });
 
-        // back to first tab, should now also be search
-        await omnibar.didSwitchToTab('01', ['01', '02']);
-        await omnibar.expectValue({ value: '', mode: 'search' });
+        // also, expect menu in sidebar to be updated (eg: switch is removed)
+        await customizer.doesntHaveSwitch('Toggle Duck.ai');
+
+        // Second config, disable globally, but keep 'showAiSetting: true'
+        await omnibar.didReceiveConfig({ mode: 'search', enableAi: false, showAiSetting: true });
+
+        // Ensure the toggle is back and is unchecked
+        await customizer.isUnchecked('Toggle Duck.ai');
     });
 });
