@@ -73,4 +73,26 @@ test.describe('omnibar widget persistence', () => {
         await omnibar.didSwitchToTab('01', ['01', '02']);
         await omnibar.expectValue({ value: '', mode: 'search' });
     });
+    test('adjusts mode of other tabs when duck.ai is globally disabled', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, tabs: true, 'tabs.debug': true } });
+        await omnibar.ready();
+
+        // first tab, switch to ai mode
+        await omnibar.switchMode({ mode: 'ai' });
+
+        // switch to second tab, should be empty but still on duck.ai
+        await omnibar.didSwitchToTab('02', ['01', '02']);
+        await omnibar.expectValue({ value: '', mode: 'ai' });
+
+        // disable globally
+        await omnibar.didDisableGlobally();
+        await omnibar.expectValue({ value: '', mode: 'search' });
+
+        // back to first tab, should now also be search
+        await omnibar.didSwitchToTab('01', ['01', '02']);
+        await omnibar.expectValue({ value: '', mode: 'search' });
+    });
 });

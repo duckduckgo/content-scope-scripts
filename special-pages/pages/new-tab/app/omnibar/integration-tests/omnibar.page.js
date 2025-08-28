@@ -187,7 +187,18 @@ export class OmnibarPage {
      */
     async didSwitchToTab(tabId, tabIds) {
         await test.step(`simulate tab change event, to: ${tabId} `, async () => {
-            await this.ntp.mocks.simulateSubscriptionMessage(sub('tabs_onDataUpdate'), tabs({ tabId, tabIds }));
+            const event = sub('tabs_onDataUpdate').payload({ tabId, tabIds });
+            await this.ntp.mocks.simulateSubscriptionEvent(event);
+        });
+    }
+
+    /**
+     * @returns {Promise<void>}
+     */
+    async didDisableGlobally() {
+        const event = sub('omnibar_onConfigUpdate').payload({ mode: 'search', enableAi: false, showAiSetting: false });
+        await test.step(`simulates global disabled (eg: settings): ${JSON.stringify(event.name)} ${JSON.stringify(event.payload)} `, async () => {
+            await this.ntp.mocks.simulateSubscriptionEvent(event);
         });
     }
 
@@ -218,6 +229,7 @@ export class OmnibarPage {
                 return await expect(this.chatInput()).toHaveValue(value);
             }
             case 'search': {
+                await this.searchInput().waitFor({ timeout: 1000 });
                 return await expect(this.searchInput()).toHaveValue(value);
             }
         }
@@ -242,15 +254,14 @@ export class OmnibarPage {
 }
 
 /**
- * @param {import("../../../types/new-tab.js").NewTabMessages["subscriptions"]["subscriptionEvent"]} name
+ * @template {import("../../../types/new-tab.js").NewTabMessages["subscriptions"]["subscriptionEvent"]} SubName
+ * @param {SubName} name
+ * @return {{payload: (payload: Extract<import("../../../types/new-tab.js").NewTabMessages["subscriptions"], {subscriptionEvent: SubName}>['params']) => {name: string, payload: any}}}
  */
 function sub(name) {
-    return name;
-}
-
-/**
- * @param {import("../../../types/new-tab.js").Tabs} t
- */
-function tabs(t) {
-    return t;
+    return {
+        payload: (payload) => {
+            return { name, payload };
+        },
+    };
 }

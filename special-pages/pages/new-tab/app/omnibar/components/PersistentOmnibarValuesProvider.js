@@ -101,13 +101,18 @@ export function useModeWithLocalPersistence(tabId, defaultMode) {
     useEffect(() => {
         if (!service) return;
         return service.onConfig((v) => {
-            if (tabId && v.source === 'manual') {
-                if (v.data.enableAi === false) {
-                    values?.updateAll({ value: 'search' });
-                } else {
-                    values?.update({ id: tabId, value: v.data.mode });
-                }
+            if (!tabId) return;
+
+            // when manually updated + enableAi === 'true', allow this tab to be recorded
+            if (v.source === 'manual') {
+                values?.update({ id: tabId, value: v.data.mode });
             }
+
+            // when `enableAi` is false, we reset ALL tabs to 'search'
+            if (v.data.enableAi === false) {
+                values?.updateAll({ value: 'search' });
+            }
+
             setState(v.data.mode);
         });
     }, [service, tabId, values, defaultMode]);
