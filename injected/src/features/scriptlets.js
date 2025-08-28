@@ -25,7 +25,7 @@ export class Scriptlets extends ContentFeature {
             verbose: false,
         };
 
-        const scriptlets = this.getFeatureSetting('scriptlets');
+        const scriptlets = this.getFeatureSetting('scriptlets') || [];
         for (const scriptlet of scriptlets) {
             source.name = scriptlet.name;
             source.args = Object.values(scriptlet.attrs);
