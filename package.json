@@ -18,7 +18,7 @@
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
     "docs": "typedoc",
     "docs-watch": "typedoc --watch",
-    "tsc": "npm run --workspace=injected extract-scriptlets && tsc",
+    "tsc": "tsc",
     "tsc-watch": "tsc --watch",
     "lint": "eslint . && npm run tsc && npm run lint-no-output-globals && npx prettier . --check",
     "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js build/apple/contentScope.js",
