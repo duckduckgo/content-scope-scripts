@@ -10,6 +10,7 @@ import { SearchForm } from './SearchForm';
 import { SearchFormProvider } from './SearchFormProvider';
 import { SuggestionsList } from './SuggestionsList';
 import { TabSwitcher } from './TabSwitcher';
+import { useQueryWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -23,11 +24,12 @@ import { TabSwitcher } from './TabSwitcher';
  * @param {OmnibarConfig['mode']} props.mode
  * @param {(mode: OmnibarConfig['mode']) => void} props.setMode
  * @param {boolean} props.enableAi
+ * @param {string|null|undefined} props.tabId
  */
-export function Omnibar({ mode, setMode, enableAi }) {
+export function Omnibar({ mode, setMode, enableAi, tabId }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
 
-    const [query, setQuery] = useState(/** @type {String} */ (''));
+    const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = useState(0);
     const [autoFocus, setAutoFocus] = useState(false);
 

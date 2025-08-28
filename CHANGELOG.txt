@@ -1,1 +1,1 @@
-- Add 'navigatorInterface' to platformSpecificFeatures (#1923)
+- ntp: omnibar states (#1882)

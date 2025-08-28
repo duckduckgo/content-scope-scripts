@@ -6,6 +6,7 @@ import { h } from 'preact';
 
 import { OmnibarConsumer } from './OmnibarConsumer.js';
 import { SearchIcon } from '../../components/Icons.js';
+import { PersistentModeProvider, PersistentTextInputProvider } from './PersistentOmnibarValuesProvider.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -30,13 +31,15 @@ export function OmnibarCustomized() {
 
     useCustomizer({ title: sectionTitle, id, icon: <SearchIcon />, toggle, visibility: visibility.value, index });
 
-    if (visibility.value === 'hidden') {
-        return null;
-    }
-
     return (
-        <OmnibarProvider>
-            <OmnibarConsumer />
-        </OmnibarProvider>
+        <PersistentTextInputProvider>
+            <PersistentModeProvider>
+                {visibility.value === 'visible' && (
+                    <OmnibarProvider>
+                        <OmnibarConsumer />
+                    </OmnibarProvider>
+                )}
+            </PersistentModeProvider>
+        </PersistentTextInputProvider>
     );
 }

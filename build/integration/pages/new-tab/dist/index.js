@@ -1930,6 +1930,9 @@
     }, [title, id, icon, toggle, visibility, index2]);
     y2(() => {
       window.dispatchEvent(new Event(UPDATE_EVENT));
+      return () => {
+        window.dispatchEvent(new Event(UPDATE_EVENT));
+      };
     }, [visibility]);
   }
   var OPEN_EVENT, UPDATE_EVENT;
@@ -2342,8 +2345,8 @@
          * @param {FavoritesOpenAction['target']} target
          * @internal
          */
-        openFavorite(id, url7, target) {
-          this.ntp.messaging.notify("favorites_open", { id, url: url7, target });
+        openFavorite(id, url8, target) {
+          this.ntp.messaging.notify("favorites_open", { id, url: url8, target });
         }
         /**
          * @internal
@@ -2524,9 +2527,9 @@
       [service]
     );
     const openFavorite = q2(
-      (id, url7, target) => {
+      (id, url8, target) => {
         if (!service.current) return;
-        service.current.openFavorite(id, url7, target);
+        service.current.openFavorite(id, url8, target);
       },
       [service]
     );
@@ -5139,7 +5142,7 @@
       );
     }, [instanceId, favorites2]);
   }
-  function useItemState(url7, id, opts) {
+  function useItemState(url8, id, opts) {
     const instanceId = x2(InstanceIdContext);
     const ref = A2(null);
     const [state, setState] = d2(
@@ -5154,9 +5157,9 @@
       if (opts.kind === "draggable") {
         draggableCleanup = draggable({
           element: el,
-          getInitialData: () => ({ type: "grid-item", url: url7, id, instanceId }),
+          getInitialData: () => ({ type: "grid-item", url: url8, id, instanceId }),
           getInitialDataForExternal: () => ({
-            "text/plain": url7,
+            "text/plain": url8,
             [DDG_MIME_TYPE]: id
           }),
           onDragStart: () => setState({ type: "dragging" }),
@@ -5192,7 +5195,7 @@
           },
           getData: ({ input }) => {
             return attachClosestEdge(
-              { url: url7, id },
+              { url: url8, id },
               {
                 element: el,
                 input,
@@ -5218,7 +5221,7 @@
           element: el,
           getData: ({ input }) => {
             return attachClosestEdge(
-              { url: url7, id },
+              { url: url8, id },
               {
                 element: el,
                 input,
@@ -5247,7 +5250,7 @@
           onDrop: () => setState({ type: "idle" })
         })
       );
-    }, [instanceId, url7, id, opts.kind, opts.class, opts.theme]);
+    }, [instanceId, url8, id, opts.kind, opts.class, opts.theme]);
     return { ref, state };
   }
   function getInstanceId() {
@@ -5677,14 +5680,14 @@
     const index2 = hash % BigInt(arrayLength);
     return Number(index2 < 0 ? -index2 : index2);
   }
-  function urlToColor(url7) {
-    if (typeof url7 !== "string") return null;
-    if (urlToColorCache.has(url7)) {
-      return urlToColorCache.get(url7);
+  function urlToColor(url8) {
+    if (typeof url8 !== "string") return null;
+    if (urlToColorCache.has(url8)) {
+      return urlToColorCache.get(url8);
     }
-    const index2 = getArrayIndex(url7, EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
+    const index2 = getArrayIndex(url8, EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES.length);
     const color = EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES[index2];
-    urlToColorCache.set(url7, color);
+    urlToColorCache.set(url8, color);
     return color;
   }
   var EMPTY_FAVICON_TEXT_BACKGROUND_COLOR_BRUSHES, urlToColorCache;
@@ -5859,8 +5862,8 @@
          * @param {number} props.index
          * @param {boolean} props.animateItems
          */
-        function Tile2({ url: url7, etldPlusOne, faviconSrc, faviconMax, theme, index: index2, title, id, visibility, animateItems }) {
-          const { state, ref } = useItemState(url7, id, {
+        function Tile2({ url: url8, etldPlusOne, faviconSrc, faviconMax, theme, index: index2, title, id, visibility, animateItems }) {
+          const { state, ref } = useItemState(url8, id, {
             kind: "draggable",
             class: Tile_default.preview,
             theme
@@ -5871,7 +5874,7 @@
             {
               class: Tile_default.item,
               tabindex: 0,
-              href: url7,
+              href: url8,
               "data-id": id,
               "data-index": index2,
               "data-edge": "closestEdge" in state && state.closestEdge,
@@ -7744,6 +7747,9 @@
     }, [ntp]);
     return service;
   }
+  function useOmnibarService() {
+    return x2(OmnibarServiceContext);
+  }
   var OmnibarContext, OmnibarServiceContext;
   var init_OmnibarProvider = __esm({
     "pages/new-tab/app/omnibar/components/OmnibarProvider.js"() {
@@ -7972,20 +7978,20 @@
       case "phrase":
         return { kind: "searchDuckDuckGo" };
       case "website": {
-        const url7 = parseURL(selectedSuggestion.url);
-        if (!url7) return null;
-        return { kind: "visit", url: formatURL(url7, { scheme: false, trailingSlash: false, search: false, hash: false }) };
+        const url8 = parseURL(selectedSuggestion.url);
+        if (!url8) return null;
+        return { kind: "visit", url: formatURL(url8, { scheme: false, trailingSlash: false, search: false, hash: false }) };
       }
       case "bookmark":
       case "historyEntry":
       case "internalPage": {
         const title = getSuggestionTitle(selectedSuggestion, term);
         const autocompletion = getSuggestionCompletionString(selectedSuggestion, term);
-        const url7 = parseURL(selectedSuggestion.url);
+        const url8 = parseURL(selectedSuggestion.url);
         if (title && title !== autocompletion) {
           return { kind: "raw", text: title };
-        } else if (url7) {
-          return { kind: "visit", url: formatURL(url7, { scheme: false, trailingSlash: false, search: false, hash: false }) };
+        } else if (url8) {
+          return { kind: "visit", url: formatURL(url8, { scheme: false, trailingSlash: false, search: false, hash: false }) };
         } else {
           return null;
         }
@@ -7999,22 +8005,22 @@
       case "phrase":
         return suggestion.phrase;
       case "website": {
-        const url7 = parseURL(suggestion.url);
-        if (url7) {
-          return formatURLForTerm(url7, term);
+        const url8 = parseURL(suggestion.url);
+        if (url8) {
+          return formatURLForTerm(url8, term);
         } else {
           return "";
         }
       }
       case "historyEntry": {
-        const url7 = parseURL(suggestion.url);
-        const searchQuery = url7 ? getDuckDuckGoSearchQuery(url7) : "";
+        const url8 = parseURL(suggestion.url);
+        const searchQuery = url8 ? getDuckDuckGoSearchQuery(url8) : "";
         if (searchQuery) {
           return searchQuery;
         } else if (suggestion.title) {
           return suggestion.title;
-        } else if (url7) {
-          return formatURLForTerm(url7, term);
+        } else if (url8) {
+          return formatURLForTerm(url8, term);
         } else {
           return "";
         }
@@ -8030,8 +8036,8 @@
       case "historyEntry":
       case "bookmark":
       case "internalPage": {
-        const url7 = parseURL(suggestion.url);
-        const urlString = url7 ? formatURLForTerm(url7, term) : "";
+        const url8 = parseURL(suggestion.url);
+        const urlString = url8 ? formatURLForTerm(url8, term) : "";
         if (startsWithIgnoreCase(urlString, term)) {
           return urlString;
         } else {
@@ -8051,66 +8057,66 @@
         return null;
       case "historyEntry":
       case "bookmark": {
-        const url7 = parseURL(suggestion.url);
-        if (!url7) return null;
-        return { kind: "raw", text: formatURL(url7, { scheme: false, www: false, trailingSlash: false }) };
+        const url8 = parseURL(suggestion.url);
+        if (!url8) return null;
+        return { kind: "raw", text: formatURL(url8, { scheme: false, www: false, trailingSlash: false }) };
       }
       case "internalPage":
         return { kind: "duckDuckGo" };
     }
   }
-  function parseURL(string) {
+  function parseURL(string2) {
     try {
-      return new URL(string);
+      return new URL(string2);
     } catch {
     }
     try {
-      return new URL(`https://${string}`);
+      return new URL(`https://${string2}`);
     } catch {
     }
     return null;
   }
-  function formatURL(url7, { scheme = true, www = true, trailingSlash = true, search = true, hash = true } = {}) {
+  function formatURL(url8, { scheme = true, www = true, trailingSlash = true, search = true, hash = true } = {}) {
     let result = "";
     if (scheme) {
-      result += `${url7.protocol}//`;
+      result += `${url8.protocol}//`;
     }
-    if (!www && startsWithIgnoreCase(url7.host, "www.")) {
-      result += url7.host.slice(4);
+    if (!www && startsWithIgnoreCase(url8.host, "www.")) {
+      result += url8.host.slice(4);
     } else {
-      result += url7.host;
+      result += url8.host;
     }
-    if (!trailingSlash && url7.pathname.endsWith("/")) {
-      result += url7.pathname.slice(0, -1);
+    if (!trailingSlash && url8.pathname.endsWith("/")) {
+      result += url8.pathname.slice(0, -1);
     } else {
-      result += url7.pathname;
+      result += url8.pathname;
     }
     if (search) {
-      result += url7.search;
+      result += url8.search;
     }
     if (hash) {
-      result += url7.hash;
+      result += url8.hash;
     }
     return result;
   }
-  function formatURLForTerm(url7, term) {
-    const scheme = `${url7.protocol}//`;
+  function formatURLForTerm(url8, term) {
+    const scheme = `${url8.protocol}//`;
     const isTypingScheme = startsWithIgnoreCase(scheme, term) || startsWithIgnoreCase(term, scheme);
     const termWithoutScheme = startsWithIgnoreCase(term, scheme) ? term.slice(scheme.length) : term;
     const isTypingWww = startsWithIgnoreCase("www.", termWithoutScheme) || startsWithIgnoreCase(termWithoutScheme, "www.");
-    const isTypingHost = startsWithIgnoreCase(url7.host, term) || startsWithIgnoreCase(term, url7.host);
-    return formatURL(url7, {
+    const isTypingHost = startsWithIgnoreCase(url8.host, term) || startsWithIgnoreCase(term, url8.host);
+    return formatURL(url8, {
       scheme: term !== "" && isTypingScheme && !isTypingHost,
       www: termWithoutScheme !== "" && isTypingWww,
       trailingSlash: termWithoutScheme.endsWith("/")
     });
   }
-  function getDuckDuckGoSearchQuery(url7) {
-    const isDuckDuckGoSearch = url7.hostname === "duckduckgo.com" && (url7.pathname === "/" || !url7.pathname) && url7.searchParams.has("q");
-    return isDuckDuckGoSearch ? url7.searchParams.get("q") ?? "" : "";
+  function getDuckDuckGoSearchQuery(url8) {
+    const isDuckDuckGoSearch = url8.hostname === "duckduckgo.com" && (url8.pathname === "/" || !url8.pathname) && url8.searchParams.has("q");
+    return isDuckDuckGoSearch ? url8.searchParams.get("q") ?? "" : "";
   }
-  function startsWithIgnoreCase(string, searchString) {
-    return string.toLowerCase().startsWith(searchString.toLowerCase());
+  function startsWithIgnoreCase(string2, searchString) {
+    return string2.toLowerCase().startsWith(searchString.toLowerCase());
   }
   var init_utils3 = __esm({
     "pages/new-tab/app/omnibar/utils.js"() {
@@ -8667,16 +8673,288 @@
     }
   });
 
+  // pages/new-tab/app/tabs/tabs.service.js
+  var TabsService;
+  var init_tabs_service = __esm({
+    "pages/new-tab/app/tabs/tabs.service.js"() {
+      "use strict";
+      init_service();
+      TabsService = class {
+        /**
+         * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
+         * @param {Tabs} tabs
+         * @internal
+         */
+        constructor(ntp, tabs) {
+          this.ntp = ntp;
+          this.tabsService = new Service(
+            {
+              subscribe: (cb) => ntp.messaging.subscribe("tabs_onDataUpdate", cb)
+            },
+            tabs
+          );
+        }
+        name() {
+          return "TabsService";
+        }
+        /**
+         * @param {(evt: {data: Tabs, source: import('../service.js').InvocationSource}) => void} cb
+         * @internal
+         */
+        onData(cb) {
+          return this.tabsService.onData(cb);
+        }
+        /**
+         * @internal
+         */
+        destroy() {
+          this.tabsService.destroy();
+        }
+        /**
+         * @returns {Tabs}
+         */
+        snapshot() {
+          if (!this.tabsService.data) throw new Error("unreachable");
+          return this.tabsService.data;
+        }
+      };
+      /** @type {Tabs} */
+      __publicField(TabsService, "DEFAULT", {
+        tabId: "unknown",
+        tabIds: ["unknown"]
+      });
+    }
+  });
+
+  // pages/new-tab/app/tabs/TabsProvider.js
+  function TabsProvider({ children, service }) {
+    const tabs = useSignal(service.snapshot());
+    y2(() => {
+      return service.onData(({ data: data2 }) => {
+        tabs.value = data2;
+      });
+    }, [service, tabs]);
+    return /* @__PURE__ */ _(TabsStateContext.Provider, { value: tabs }, children);
+  }
+  function useTabState() {
+    const tabs = x2(TabsStateContext);
+    const current = useComputed(() => tabs.value.tabId);
+    const all2 = useComputed(() => tabs.value.tabIds);
+    return { current, all: all2 };
+  }
+  function TabsDebug() {
+    const theme = x2(CustomizerThemesContext);
+    const state = useTabState();
+    return /* @__PURE__ */ _("pre", { style: "width: 200px; position: fixed; top: 0; left: 0;", "data-theme": theme.main }, /* @__PURE__ */ _("code", { style: "color: var(--ntp-text-normal)" }, JSON.stringify(state, null, 2)));
+  }
+  var TabsStateContext;
+  var init_TabsProvider = __esm({
+    "pages/new-tab/app/tabs/TabsProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_CustomizerProvider();
+      init_signals_module();
+      init_tabs_service();
+      TabsStateContext = K(d3(
+        /** @type {Tabs} */
+        TabsService.DEFAULT
+      ));
+    }
+  });
+
+  // pages/new-tab/app/tabs/PersistentValue.js
+  function string(input) {
+    if (typeof input !== "string") return "";
+    if (input.trim().length < 1) return "";
+    return input;
+  }
+  var _values, PersistentValue;
+  var init_PersistentValue = __esm({
+    "pages/new-tab/app/tabs/PersistentValue.js"() {
+      "use strict";
+      PersistentValue = class {
+        constructor() {
+          /** @type {Map<string, T>} */
+          __privateAdd(this, _values, /* @__PURE__ */ new Map());
+        }
+        name() {
+          return "PersistentValue";
+        }
+        /**
+         * Updates the value associated with a given identifier.
+         *
+         * @param {object} args
+         * @param {string} args.id
+         * @param {T} args.value
+         */
+        update({ id, value: value2 }) {
+          if (string(id) && string(value2)) {
+            __privateGet(this, _values).set(id, value2);
+          }
+        }
+        /**
+         * Updates the value with every entry
+         *
+         * @param {object} args
+         * @param {T} args.value
+         */
+        updateAll({ value: value2 }) {
+          for (const [key2] of __privateGet(this, _values)) {
+            __privateGet(this, _values).set(key2, value2);
+          }
+        }
+        /**
+         * @param {object} params
+         * @param {string[]} params.preserve
+         */
+        prune({ preserve }) {
+          for (const key2 of __privateGet(this, _values).keys()) {
+            if (!preserve.includes(key2)) {
+              __privateGet(this, _values).delete(key2);
+            }
+          }
+        }
+        /**
+         * @param {object} args
+         * @param {string} args.id
+         */
+        remove({ id }) {
+          if (string(id)) {
+            __privateGet(this, _values).delete(id);
+          }
+        }
+        /**
+         * @param {string|null|undefined} id
+         * @return {T | null}
+         */
+        byId(id) {
+          if (typeof id !== "string") return null;
+          const value2 = __privateGet(this, _values).get(id);
+          if (!value2 || !string(value2)) return null;
+          return value2;
+        }
+        print() {
+          for (const [key2, value2] of __privateGet(this, _values)) {
+            console.log(`key: ${key2}, value: ${value2}`);
+          }
+          console.log("--");
+        }
+      };
+      _values = new WeakMap();
+    }
+  });
+
+  // pages/new-tab/app/omnibar/components/PersistentOmnibarValuesProvider.js
+  function PersistentTextInputProvider({ children }) {
+    const [value2] = d2(() => (
+      /** @type {PersistentValue<string>} */
+      new PersistentValue()
+    ));
+    const { all: all2 } = useTabState();
+    y2(() => {
+      return all2.subscribe((tabIds) => {
+        value2?.prune({ preserve: tabIds });
+      });
+    }, [all2, value2]);
+    return /* @__PURE__ */ _(TextInputContext.Provider, { value: value2 }, children);
+  }
+  function PersistentModeProvider({ children }) {
+    const [value2] = d2(() => (
+      /** @type {PersistentValue<Mode>} */
+      new PersistentValue()
+    ));
+    const { all: all2 } = useTabState();
+    y2(() => {
+      return all2.subscribe((tabIds) => {
+        value2?.prune({ preserve: tabIds });
+      });
+    }, [all2, value2]);
+    return /* @__PURE__ */ _(ModeContext.Provider, { value: value2 }, children);
+  }
+  function useQueryWithLocalPersistence(tabId) {
+    const terms = x2(TextInputContext);
+    invariant(
+      x2(OmnibarContext).state.status === "ready",
+      "Cannot use `useQueryWithLocalPersistence` without Omnibar Service being ready."
+    );
+    const [query, setQuery] = d2(() => terms?.byId(tabId) || "");
+    const setter = q2(
+      (term) => {
+        if (tabId) {
+          terms?.update({ id: tabId, value: term });
+        }
+        setQuery(term);
+      },
+      [tabId, terms]
+    );
+    return (
+      /** @type {const} */
+      [query, setter]
+    );
+  }
+  function useModeWithLocalPersistence(tabId, defaultMode) {
+    const values2 = x2(ModeContext);
+    const [mode, setState] = d2(() => {
+      const prev = values2?.byId(tabId);
+      if (prev) return prev;
+      if (tabId && defaultMode) {
+        values2?.update({ id: tabId, value: defaultMode });
+      }
+      return defaultMode;
+    });
+    invariant(
+      x2(OmnibarContext).state.status === "ready",
+      "Cannot use `useQueryWithPersistence` without Omnibar Service being ready."
+    );
+    const service = useOmnibarService();
+    y2(() => {
+      if (!service) return;
+      return service.onConfig((v4) => {
+        if (!tabId) return;
+        if (v4.source === "manual") {
+          values2?.update({ id: tabId, value: v4.data.mode });
+        }
+        if (v4.data.enableAi === false) {
+          values2?.updateAll({ value: "search" });
+        }
+        setState(v4.data.mode);
+      });
+    }, [service, tabId, values2, defaultMode]);
+    return mode;
+  }
+  function invariant(condition, message) {
+    if (condition) return;
+    if (message) throw new Error("Invariant failed: " + message);
+    throw new Error("Invariant failed");
+  }
+  var TextInputContext, ModeContext;
+  var init_PersistentOmnibarValuesProvider = __esm({
+    "pages/new-tab/app/omnibar/components/PersistentOmnibarValuesProvider.js"() {
+      "use strict";
+      init_preact_module();
+      init_hooks_module();
+      init_OmnibarProvider();
+      init_TabsProvider();
+      init_PersistentValue();
+      TextInputContext = K(
+        /** @type {PersistentValue<string>|null} */
+        null
+      );
+      ModeContext = K(
+        /** @type {PersistentValue<Mode>|null} */
+        null
+      );
+    }
+  });
+
   // pages/new-tab/app/omnibar/components/Omnibar.js
-  function Omnibar({ mode, setMode, enableAi }) {
+  function Omnibar({ mode, setMode, enableAi, tabId }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
     );
-    const [query, setQuery] = d2(
-      /** @type {String} */
-      ""
-    );
+    const [query, setQuery] = useQueryWithLocalPersistence(tabId);
     const [resetKey, setResetKey] = d2(0);
     const [autoFocus, setAutoFocus] = d2(false);
     const { openSuggestion, submitSearch, submitChat } = x2(OmnibarContext);
@@ -8717,20 +8995,24 @@
       init_SearchFormProvider();
       init_SuggestionsList2();
       init_TabSwitcher2();
+      init_PersistentOmnibarValuesProvider();
     }
   });
 
   // pages/new-tab/app/omnibar/components/OmnibarConsumer.js
   function OmnibarConsumer() {
     const { state } = x2(OmnibarContext);
+    const { current } = useTabState();
     if (state.status === "ready") {
-      return /* @__PURE__ */ _(OmnibarReadyState, { config: state.config });
+      return /* @__PURE__ */ _(OmnibarReadyState, { config: state.config, key: current.value, tabId: current.value });
     }
     return null;
   }
-  function OmnibarReadyState({ config: { enableAi = true, showAiSetting = true, mode } }) {
+  function OmnibarReadyState({ config, tabId }) {
+    const { enableAi = true, showAiSetting = true, mode: defaultMode } = config;
     const { setEnableAi, setMode } = x2(OmnibarContext);
-    return /* @__PURE__ */ _(k, null, showAiSetting && /* @__PURE__ */ _(AiSetting, { enableAi, setEnableAi }), /* @__PURE__ */ _(Omnibar, { mode, setMode, enableAi: showAiSetting && enableAi }));
+    const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
+    return /* @__PURE__ */ _(k, null, showAiSetting && /* @__PURE__ */ _(AiSetting, { enableAi, setEnableAi }), /* @__PURE__ */ _(Omnibar, { mode: modeForCurrentTab, setMode, enableAi: showAiSetting && enableAi, tabId }));
   }
   function AiSetting({ enableAi, setEnableAi }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -8759,6 +9041,8 @@
       init_Omnibar2();
       init_OmnibarProvider();
       init_Icons2();
+      init_PersistentOmnibarValuesProvider();
+      init_TabsProvider();
     }
   });
 
@@ -8771,10 +9055,7 @@
     const sectionTitle = t4("omnibar_menuTitle");
     const { visibility, id, toggle, index: index2 } = useVisibility();
     useCustomizer({ title: sectionTitle, id, icon: /* @__PURE__ */ _(SearchIcon, null), toggle, visibility: visibility.value, index: index2 });
-    if (visibility.value === "hidden") {
-      return null;
-    }
-    return /* @__PURE__ */ _(OmnibarProvider, null, /* @__PURE__ */ _(OmnibarConsumer, null));
+    return /* @__PURE__ */ _(PersistentTextInputProvider, null, /* @__PURE__ */ _(PersistentModeProvider, null, visibility.value === "visible" && /* @__PURE__ */ _(OmnibarProvider, null, /* @__PURE__ */ _(OmnibarConsumer, null))));
   }
   var init_OmnibarCustomized = __esm({
     "pages/new-tab/app/omnibar/components/OmnibarCustomized.js"() {
@@ -8786,6 +9067,7 @@
       init_preact_module();
       init_OmnibarConsumer();
       init_Icons2();
+      init_PersistentOmnibarValuesProvider();
     }
   });
 
@@ -9297,61 +9579,61 @@
         /**
          * @param {string} url
          */
-        addFavorite(url7) {
+        addFavorite(url8) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.map((item) => {
-                if (item.url === url7) return { ...item, favorite: true };
+                if (item.url === url8) return { ...item, favorite: true };
                 return item;
               })
             };
           });
-          this.ntp.messaging.notify("activity_addFavorite", { url: url7 });
+          this.ntp.messaging.notify("activity_addFavorite", { url: url8 });
         }
         /**
          * @param {string} url
          */
-        removeFavorite(url7) {
+        removeFavorite(url8) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.map((item) => {
-                if (item.url === url7) return { ...item, favorite: false };
+                if (item.url === url8) return { ...item, favorite: false };
                 return item;
               })
             };
           });
-          this.ntp.messaging.notify("activity_removeFavorite", { url: url7 });
+          this.ntp.messaging.notify("activity_removeFavorite", { url: url8 });
         }
         /**
          * @param {string} url
          * @return {Promise<import('../../types/new-tab.js').ConfirmBurnResponse>}
          */
-        confirmBurn(url7) {
-          return this.ntp.messaging.request("activity_confirmBurn", { url: url7 });
+        confirmBurn(url8) {
+          return this.ntp.messaging.request("activity_confirmBurn", { url: url8 });
         }
         /**
          * @param {string} url
          */
-        remove(url7) {
+        remove(url8) {
           this.dataService.update((old) => {
             return {
               ...old,
               activity: old.activity.filter((item) => {
-                return item.url !== url7;
+                return item.url !== url8;
               }),
-              urls: old.urls.filter((x3) => x3 !== url7)
+              urls: old.urls.filter((x3) => x3 !== url8)
             };
           });
-          this.ntp.messaging.notify("activity_removeItem", { url: url7 });
+          this.ntp.messaging.notify("activity_removeItem", { url: url8 });
         }
         /**
          * @param {string} url
          * @param {import('../../types/new-tab.js').OpenTarget} target
          */
-        openUrl(url7, target) {
-          this.ntp.messaging.notify("activity_open", { url: url7, target });
+        openUrl(url8, target) {
+          this.ntp.messaging.notify("activity_open", { url: url8, target });
         }
         onBurnComplete(cb) {
           if (!this.burns) throw new Error("unreachable");
@@ -9795,11 +10077,11 @@
       };
     });
     const doneBurning = q2(
-      (url7) => {
-        if (url7) {
+      (url8) => {
+        if (url8) {
           r3(() => {
-            burning.value = burning.value.filter((x3) => x3 !== url7);
-            exiting.value = exiting.value.concat(url7);
+            burning.value = burning.value.filter((x3) => x3 !== url8);
+            exiting.value = exiting.value.concat(url8);
           });
         }
       },
@@ -10018,12 +10300,12 @@
         target.closest("button[value][data-action]")
       );
       if (anchor) {
-        const url7 = anchor.dataset.url;
-        if (!url7) return;
+        const url8 = anchor.dataset.url;
+        if (!url8) return;
         event.preventDefault();
         event.stopImmediatePropagation();
         const openTarget = eventToTarget(event, platformName);
-        service.openUrl(url7, openTarget);
+        service.openUrl(url8, openTarget);
       } else if (button) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -10159,13 +10441,13 @@
   });
 
   // pages/new-tab/app/activity/components/ActivityItem.js
-  function Controls({ canBurn, url: url7, title }) {
+  function Controls({ canBurn, url: url8, title }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {enStrings} */
       {}
     );
     const { activity } = x2(NormalizedDataContext);
-    const favorite = useComputed(() => activity.value.favorites[url7]);
+    const favorite = useComputed(() => activity.value.favorites[url8]);
     const favoriteTitle = favorite.value ? t4("activity_favoriteRemove", { domain: title }) : t4("activity_favoriteAdd", { domain: title });
     const secondaryTitle = canBurn ? t4("activity_burn", { domain: title }) : t4("activity_itemRemove", { domain: title });
     return /* @__PURE__ */ _("div", { className: Activity_default.controls }, /* @__PURE__ */ _(
@@ -10175,7 +10457,7 @@
         title: favoriteTitle,
         "data-action": favorite.value ? ACTION_REMOVE_FAVORITE : ACTION_ADD_FAVORITE,
         "data-title": title,
-        value: url7,
+        value: url8,
         type: "button"
       },
       favorite.value ? /* @__PURE__ */ _(StarFilled, null) : /* @__PURE__ */ _(Star, null)
@@ -10185,7 +10467,7 @@
         class: (0, import_classnames10.default)(Activity_default.icon, Activity_default.controlIcon, Activity_default.disableWhenBusy),
         title: secondaryTitle,
         "data-action": canBurn ? ACTION_BURN : ACTION_REMOVE,
-        value: url7,
+        value: url8,
         type: "button"
       },
       canBurn ? /* @__PURE__ */ _(Fire, null) : /* @__PURE__ */ _(Cross, null)
@@ -10222,8 +10504,8 @@
          * @param {number} props.faviconMax
          * @param {string} props.etldPlusOne
          */
-        function ActivityItem2({ canBurn, documentVisibility, title, url: url7, favoriteSrc, faviconMax, etldPlusOne, children }) {
-          return /* @__PURE__ */ _("li", { key: url7, class: (0, import_classnames10.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url7, "data-url": url7 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url7 }, documentVisibility === "visible" && /* @__PURE__ */ _(
+        function ActivityItem2({ canBurn, documentVisibility, title, url: url8, favoriteSrc, faviconMax, etldPlusOne, children }) {
+          return /* @__PURE__ */ _("li", { key: url8, class: (0, import_classnames10.default)(Activity_default.item), "data-testid": "ActivityItem" }, /* @__PURE__ */ _("div", { class: Activity_default.heading }, /* @__PURE__ */ _("a", { class: Activity_default.title, href: url8, "data-url": url8 }, /* @__PURE__ */ _("span", { className: Activity_default.favicon, "data-url": url8 }, documentVisibility === "visible" && /* @__PURE__ */ _(
             FaviconWithState,
             {
               faviconSrc: favoriteSrc,
@@ -10235,7 +10517,7 @@
               fallback: DDG_FALLBACK_ICON,
               fallbackDark: DDG_FALLBACK_ICON_DARK
             }
-          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url7, title })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
+          )), title), /* @__PURE__ */ _(Controls, { canBurn, url: url8, title })), /* @__PURE__ */ _("div", { class: Activity_default.body }, children));
         }
       );
     }
@@ -10726,8 +11008,8 @@
               var blob = new Blob(["var _workerSelf = self; self.onmessage = ", fn2.toString()], {
                 type: "text/javascript"
               });
-              var url7 = URL.createObjectURL(blob);
-              return new Worker(url7);
+              var url8 = URL.createObjectURL(blob);
+              return new Worker(url8);
             }
             workerFn = fn2;
             return workerProxy;
@@ -16405,11 +16687,11 @@
             }
             return this.fonts[0];
           }
-          function getCodePoint(string) {
+          function getCodePoint(string2) {
             var codePoint = 0;
-            var first = string.charCodeAt(0);
+            var first = string2.charCodeAt(0);
             if (first >= 55296 && first <= 56319) {
-              var second = string.charCodeAt(1);
+              var second = string2.charCodeAt(1);
               if (second >= 56320 && second <= 57343) {
                 codePoint = (first - 55296) * 1024 + second - 56320 + 65536;
               }
@@ -16426,15 +16708,15 @@
           function isVariationSelector(charCode) {
             return charCode === VARIATION_SELECTOR_16_CODE_POINT;
           }
-          function isRegionalCode(string) {
-            var codePoint = getCodePoint(string);
+          function isRegionalCode(string2) {
+            var codePoint = getCodePoint(string2);
             if (codePoint >= REGIONAL_CHARACTER_A_CODE_POINT && codePoint <= REGIONAL_CHARACTER_Z_CODE_POINT) {
               return true;
             }
             return false;
           }
-          function isFlagEmoji(string) {
-            return isRegionalCode(string.substr(0, 2)) && isRegionalCode(string.substr(2, 2));
+          function isFlagEmoji(string2) {
+            return isRegionalCode(string2.substr(0, 2)) && isRegionalCode(string2.substr(2, 2));
           }
           function isCombinedCharacter(_char3) {
             return combinedCharacters.indexOf(_char3) !== -1;
@@ -26554,7 +26836,7 @@
   __export(BurnAnimationLottieWeb_exports, {
     BurnAnimation: () => BurnAnimation
   });
-  function BurnAnimation({ url: url7, doneBurning }) {
+  function BurnAnimation({ url: url8, doneBurning }) {
     const ref = A2(
       /** @type {Lottie} */
       null
@@ -26566,7 +26848,7 @@
       let timer2 = null;
       const publish = (_reason) => {
         if (finished) return;
-        doneBurning(url7);
+        doneBurning(url8);
         finished = true;
         clearTimeout(timer2);
       };
@@ -26591,7 +26873,7 @@
           publish("unmount occurred");
         }
       };
-    }, [url7, json, doneBurning]);
+    }, [url8, json, doneBurning]);
     return /* @__PURE__ */ _("div", { ref, "data-lottie-player": true });
   }
   var import_lottie_web;
@@ -26606,14 +26888,14 @@
   });
 
   // pages/new-tab/app/activity/components/ActivityItemAnimationWrapper.js
-  function ActivityItemAnimationWrapper({ children, url: url7 }) {
+  function ActivityItemAnimationWrapper({ children, url: url8 }) {
     const ref = A2(
       /** @type {HTMLDivElement|null} */
       null
     );
     const { exiting, burning, showBurnAnimation, doneBurning } = x2(ActivityBurningSignalContext);
-    const isBurning = useComputed(() => burning.value.some((x3) => x3 === url7));
-    const isExiting = useComputed(() => exiting.value.some((x3) => x3 === url7));
+    const isBurning = useComputed(() => burning.value.some((x3) => x3 === url8));
+    const isExiting = useComputed(() => exiting.value.some((x3) => x3 === url8));
     _2(() => {
       let canceled = false;
       let sent = false;
@@ -26636,7 +26918,7 @@
           window.dispatchEvent(
             new CustomEvent("done-exiting", {
               detail: {
-                url: url7,
+                url: url8,
                 reason: "animation completed"
               }
             })
@@ -26652,11 +26934,11 @@
       return () => {
         canceled = true;
       };
-    }, [isBurning.value, isExiting.value, url7]);
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url7, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url7, doneBurning }));
+    }, [isBurning.value, isExiting.value, url8]);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames11.default)(Activity_default.anim, isBurning.value && Activity_default.burning), ref }, !isExiting.value && children, !isExiting.value && isBurning.value && showBurnAnimation && /* @__PURE__ */ _(P3, { fallback: null }, /* @__PURE__ */ _(BurnAnimationLazy, { url: url8, doneBurning })), !isExiting.value && isBurning.value && !showBurnAnimation && /* @__PURE__ */ _(NullBurner, { url: url8, doneBurning }));
   }
-  function NullBurner({ url: url7, doneBurning }) {
-    y2(() => doneBurning(url7), [url7]);
+  function NullBurner({ url: url8, doneBurning }) {
+    y2(() => doneBurning(url8), [url8]);
     return null;
   }
   var import_classnames11, BurnAnimationLazy;
@@ -32175,10 +32457,10 @@
         console.log(msg);
         switch (msg.method) {
           case "activity_confirmBurn": {
-            const url7 = msg.params.url;
+            const url8 = msg.params.url;
             let response = { action: "burn" };
             if (!window.__playwright_01) {
-              const fireproof = url7.startsWith("https://fireproof.");
+              const fireproof = url8.startsWith("https://fireproof.");
               if (fireproof) {
                 if (!confirm("are you sure?")) {
                   response = { action: "none" };
@@ -32188,13 +32470,13 @@
             if (response.action === "burn" && !window.__playwright_01) {
               setTimeout(() => {
                 const cb = subs.get("activity_onDataUpdate");
-                console.log("will send updated data after 500ms", url7);
-                const next = activityMocks.few.activity.filter((x3) => x3.url !== url7);
+                console.log("will send updated data after 500ms", url8);
+                const next = activityMocks.few.activity.filter((x3) => x3.url !== url8);
                 cb?.({ activity: next });
               }, 500);
               setTimeout(() => {
                 const cb = subs.get("activity_onBurnComplete");
-                console.log("will send updated data after 600ms", url7);
+                console.log("will send updated data after 600ms", url8);
                 cb?.();
               }, 600);
             }
@@ -32536,8 +32818,8 @@
       const matching = current.filter((x3) => x3 === id);
       const matchingMinus1 = matching.length === 1 ? [] : matching.slice(0, -1);
       without.searchParams.delete("id");
-      for (let string of [...others, ...matchingMinus1]) {
-        without.searchParams.append("id", string);
+      for (let string2 of [...others, ...matchingMinus1]) {
+        without.searchParams.append("id", string2);
       }
       return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: Components_default.itemInfo }, /* @__PURE__ */ _("div", { class: Components_default.itemLinks }, /* @__PURE__ */ _("code", null, id), /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank", title: "open in new tab" }, "Open \u{1F517}"), " ", /* @__PURE__ */ _("a", { href: without.toString(), hidden: current.length === 0 }, "Remove")), /* @__PURE__ */ _("div", { class: Components_default.itemLinks }, /* @__PURE__ */ _("a", { href: selected.toString(), class: Components_default.itemLink, title: "show this component only" }, "select"), " ", /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "isolate"), " ", /* @__PURE__ */ _("a", { href: e2e.toString(), target: "_blank", class: Components_default.itemLink, title: "isolate this component" }, "edge-to-edge"))), /* @__PURE__ */ _("div", { className: Components_default.item, key: id }, item.factory()));
     }));
@@ -32575,9 +32857,9 @@
   }
   function ExampleSelector({ entries: entries4, id }) {
     function onReset() {
-      const url7 = new URL(window.location.href);
-      url7.searchParams.delete("id");
-      window.location.href = url7.toString();
+      const url8 = new URL(window.location.href);
+      url8.searchParams.delete("id");
+      window.location.href = url8.toString();
     }
     function onChange(event) {
       if (!event.target) return;
@@ -32585,9 +32867,9 @@
       const selectedId = event.target.value;
       if (selectedId) {
         if (selectedId === "none") return onReset();
-        const url7 = new URL(window.location.href);
-        url7.searchParams.set("id", selectedId);
-        window.location.href = url7.toString();
+        const url8 = new URL(window.location.href);
+        url8.searchParams.set("id", selectedId);
+        window.location.href = url8.toString();
       }
     }
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("label", null, "Single:", " ", /* @__PURE__ */ _("select", { value: id || "none", onChange }, /* @__PURE__ */ _("option", { value: "none" }, "Select an example"), entries4.map(([id2]) => /* @__PURE__ */ _("option", { key: id2, value: id2 }, id2)))), /* @__PURE__ */ _("button", { onClick: onReset }, "RESET \u{1F501}")));
@@ -32597,9 +32879,9 @@
   }
   function Append({ entries: entries4 }) {
     function onReset() {
-      const url7 = new URL(window.location.href);
-      url7.searchParams.delete("id");
-      window.location.href = url7.toString();
+      const url8 = new URL(window.location.href);
+      url8.searchParams.delete("id");
+      window.location.href = url8.toString();
     }
     function onSubmit(event) {
       if (!event.target) return;
@@ -32608,9 +32890,9 @@
       const data2 = new FormData(form);
       const value2 = data2.get("add-id");
       if (typeof value2 !== "string") return;
-      const url7 = new URL(window.location.href);
-      url7.searchParams.append("id", value2);
-      window.location.href = url7.toString();
+      const url8 = new URL(window.location.href);
+      url8.searchParams.append("id", value2);
+      window.location.href = url8.toString();
     }
     return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("form", { class: Components_default.buttonRow, onSubmit }, /* @__PURE__ */ _("label", null, "Append:", " ", /* @__PURE__ */ _("select", { value: "none", name: "add-id" }, /* @__PURE__ */ _("option", { value: "none" }, "Select an example"), entries4.map(([id]) => /* @__PURE__ */ _("option", { key: id, value: id }, id)))), /* @__PURE__ */ _("button", null, "Confirm")));
   }
@@ -32763,6 +33045,8 @@
   // pages/new-tab/app/index.js
   init_DocumentVisibility();
   init_utils();
+  init_tabs_service();
+  init_TabsProvider();
   async function init(root2, messaging2, telemetry2, baseEnvironment2) {
     const result = await callWithRetry(() => messaging2.initialSetup());
     if ("error" in result) {
@@ -32793,6 +33077,7 @@
       return renderComponents(root2, environment, settings, strings);
     }
     const entryPoints = await resolveEntryPoints(init2.widgets, didCatch);
+    const tabs = new TabsService(messaging2, init2.tabs || TabsService.DEFAULT);
     const widgetConfigAPI = new WidgetConfigService(messaging2, init2.widgetConfigs);
     const customizerData2 = init2.customizer || {
       userColor: null,
@@ -32826,7 +33111,7 @@
               widgets: init2.widgets,
               entryPoints
             },
-            /* @__PURE__ */ _(App, null)
+            /* @__PURE__ */ _(TabsProvider, { service: tabs }, environment.urlParams.has("tabs.debug") && /* @__PURE__ */ _(TabsDebug, null), /* @__PURE__ */ _(App, null))
           ))))))))
         )
       ),
@@ -33145,7 +33430,6 @@
           case "customizer_onBackgroundUpdate":
           case "customizer_onImagesUpdate": {
             subscriptions.set(sub2, cb);
-            console.log("did add sub", sub2);
             return () => {
               console.log("-- did remove sub", sub2);
               return subscriptions.delete(sub2);
@@ -33325,6 +33609,10 @@
           return () => {
           };
         }
+        if (sub2 === "protections_onDataUpdate") {
+          return () => {
+          };
+        }
         console.warn("unhandled sub", sub2);
         return () => {
         };
@@ -33419,12 +33707,12 @@
             ),
             phrase
           })),
-          ...pizzaRelatedData.websites.filter((site) => containsIgnoreCase(site, term)).map((url7) => ({
+          ...pizzaRelatedData.websites.filter((site) => containsIgnoreCase(site, term)).map((url8) => ({
             kind: (
               /** @type {const} */
               "website"
             ),
-            url: `https://${url7}`
+            url: `https://${url8}`
           }))
         ],
         localSuggestions: [
@@ -33528,9 +33816,59 @@
     });
   }
 
+  // pages/new-tab/app/tabs/tabs.mock-transport.js
+  init_tabs_service();
+  var url6 = new URL(window.location.href);
+  function tabsMockTransport() {
+    const initial = initialSetup(url6);
+    const memory = initial.tabs ? structuredClone(initial.tabs) : TabsService.DEFAULT;
+    return new TestTransportConfig({
+      request() {
+        return Promise.reject(new Error("not implemented yet"));
+      },
+      notify() {
+        return Promise.reject(new Error("not implemented yet"));
+      },
+      /**
+       * @template {Names} K
+       * @template {{ subscriptionName: K, context: string, featureName: string }} Msg
+       * @param {Msg} msg
+       */
+      subscribe(msg, cb) {
+        if (msg.subscriptionName === "tabs_onDataUpdate") {
+          window._tabs = {
+            add: (id) => {
+              memory.tabId = id;
+              memory.tabIds.push(id);
+              memory.tabIds = [...new Set(memory.tabIds)];
+              cb(structuredClone(memory));
+            },
+            tabs: ({ tabId, tabIds }) => {
+              memory.tabId = tabId;
+              memory.tabIds = tabIds;
+              cb(structuredClone(memory));
+            },
+            delete: (id) => {
+              memory.tabIds = memory.tabIds.filter((x3) => x3 !== id);
+              cb(structuredClone(memory));
+            },
+            switch: (id) => {
+              memory.tabId = id;
+              cb(structuredClone(memory));
+            }
+          };
+          return () => {
+          };
+        }
+        return () => {
+        };
+      }
+    });
+  }
+
   // pages/new-tab/app/mock-transport.js
   var VERSION_PREFIX = "__ntp_31__.";
-  var url6 = new URL(window.location.href);
+  var url7 = new URL(window.location.href);
   function mockTransport() {
     let channel;
     if (typeof globalThis.BroadcastChannel !== "undefined") {
@@ -33553,7 +33891,7 @@
     }
     function read(name2) {
       try {
-        if (url6.searchParams.has("skip-read")) {
+        if (url7.searchParams.has("skip-read")) {
           console.warn("not reading from localstorage, because skip-read was in the search");
           return null;
         }
@@ -33567,7 +33905,7 @@
     }
     function write(name2, value2) {
       try {
-        if (url6.searchParams.has("skip-write")) {
+        if (url7.searchParams.has("skip-write")) {
           console.warn("not writing to localstorage, because skip-write was in the search");
           return;
         }
@@ -33599,7 +33937,8 @@
       customizer: customizerMockTransport(),
       activity: activityMockTransport(),
       protections: protectionsMockTransport(),
-      omnibar: omnibarMockTransport()
+      omnibar: omnibarMockTransport(),
+      tabs: tabsMockTransport()
     };
     return new TestTransportConfig({
       notify(_msg) {
@@ -33722,7 +34061,7 @@
             const next = [...prev];
             next.push(cb);
             freemiumPIRBannerSubscriptions.set("freemiumPIRBanner_onDataUpdate", next);
-            const freemiumPIRBannerParam = url6.searchParams.get("pir");
+            const freemiumPIRBannerParam = url7.searchParams.get("pir");
             if (freemiumPIRBannerParam !== null && freemiumPIRBannerParam in freemiumPIRDataExamples) {
               const message = freemiumPIRDataExamples[freemiumPIRBannerParam];
               cb(message);
@@ -33735,7 +34074,7 @@
             const next = [...prev];
             next.push(cb);
             nextStepsSubscriptions.set("nextSteps_onDataUpdate", next);
-            const params = url6.searchParams.get("next-steps");
+            const params = url7.searchParams.get("next-steps");
             if (params && params in variants) {
               const data2 = read("nextSteps_data");
               cb(data2);
@@ -33748,8 +34087,8 @@
             const next = [...prev];
             next.push(cb);
             rmfSubscriptions.set("rmf_onDataUpdate", next);
-            const delay = url6.searchParams.get("rmf-delay");
-            const rmfParam = url6.searchParams.get("rmf");
+            const delay = url7.searchParams.get("rmf-delay");
+            const rmfParam = url7.searchParams.get("rmf");
             if (delay !== null && rmfParam !== null && rmfParam in rmfDataExamples) {
               const ms = parseInt(delay, 10);
               const timeout = setTimeout(() => {
@@ -33762,8 +34101,8 @@
             };
           }
           case "updateNotification_onDataUpdate": {
-            const update = url6.searchParams.get("update-notification");
-            const delay = url6.searchParams.get("update-notification-delay");
+            const update = url7.searchParams.get("update-notification");
+            const delay = url7.searchParams.get("update-notification-delay");
             if (update && delay && update in updateNotificationExamples2) {
               const ms = parseInt(delay, 10);
               const timeout = setTimeout(() => {
@@ -33792,8 +34131,8 @@
             return () => controller.abort();
           }
           case "stats_onDataUpdate": {
-            const statsVariant = url6.searchParams.get("stats");
-            const count = url6.searchParams.get("stats-update-count");
+            const statsVariant = url7.searchParams.get("stats");
+            const count = url7.searchParams.get("stats-update-count");
             const updateMaxCount = parseInt(count || "0");
             if (updateMaxCount === 0) return () => {
             };
@@ -33854,7 +34193,7 @@
             return () => controller.abort();
           }
           case "favorites_onRefresh": {
-            if (url6.searchParams.get("favoriteRefresh") === "favicons") {
+            if (url7.searchParams.get("favoriteRefresh") === "favicons") {
               const timer2 = setTimeout(() => {
                 const payload = {
                   items: [{ kind: "favicons" }]
@@ -33886,7 +34225,7 @@
         }
         switch (msg.method) {
           case "stats_getData": {
-            const statsVariant = url6.searchParams.get("stats");
+            const statsVariant = url7.searchParams.get("stats");
             if (statsVariant && statsVariant in privacyStatsMocks) {
               return Promise.resolve(privacyStatsMocks[statsVariant]);
             }
@@ -33898,7 +34237,7 @@
           }
           case "nextSteps_getData": {
             let data2 = { content: null };
-            const ids = url6.searchParams.getAll("next-steps");
+            const ids = url7.searchParams.getAll("next-steps");
             if (ids.length) {
               data2 = {
                 content: ids.filter((id) => {
@@ -33920,8 +34259,8 @@
           }
           case "rmf_getData": {
             let message = { content: void 0 };
-            const rmfParam = url6.searchParams.get("rmf");
-            const delayed = url6.searchParams.has("rmf-delay");
+            const rmfParam = url7.searchParams.get("rmf");
+            const delayed = url7.searchParams.has("rmf-delay");
             if (delayed) return Promise.resolve(message);
             if (rmfParam && rmfParam in rmfDataExamples) {
               message = rmfDataExamples[rmfParam];
@@ -33930,19 +34269,19 @@
           }
           case "freemiumPIRBanner_getData": {
             let freemiumPIRBannerMessage = { content: null };
-            const freemiumPIRBannerParam = url6.searchParams.get("pir");
+            const freemiumPIRBannerParam = url7.searchParams.get("pir");
             if (freemiumPIRBannerParam && freemiumPIRBannerParam in freemiumPIRDataExamples) {
               freemiumPIRBannerMessage = freemiumPIRDataExamples[freemiumPIRBannerParam];
             }
             return Promise.resolve(freemiumPIRBannerMessage);
           }
           case "favorites_getData": {
-            const param = url6.searchParams.get("favorites");
+            const param = url7.searchParams.get("favorites");
             let data2;
             if (param && param in favorites) {
               data2 = favorites[param];
             } else {
-              data2 = param ? gen(Number(url6.searchParams.get("favorites"))) : read("favorites_data") || favorites.many;
+              data2 = param ? gen(Number(url7.searchParams.get("favorites"))) : read("favorites_data") || favorites.many;
             }
             write("favorites_data", data2);
             return Promise.resolve(data2);
@@ -33950,56 +34289,13 @@
           case "favorites_getConfig": {
             const defaultConfig = { expansion: "collapsed", animation: { kind: "view-transitions" } };
             const fromStorage = read("favorites_config") || defaultConfig;
-            if (url6.searchParams.get("favorites.config.expansion") === "expanded") {
+            if (url7.searchParams.get("favorites.config.expansion") === "expanded") {
               defaultConfig.expansion = "expanded";
             }
             return Promise.resolve(fromStorage);
           }
           case "initialSetup": {
-            const widgetsFromStorage = read("widgets") || [
-              { id: "updateNotification" },
-              { id: "rmf" },
-              { id: "freemiumPIRBanner" },
-              { id: "nextSteps" },
-              { id: "favorites" }
-            ];
-            const widgetConfigFromStorage = read("widget_config") || [{ id: "favorites", visibility: "visible" }];
-            let updateNotification = { content: null };
-            const isDelayed = url6.searchParams.has("update-notification-delay");
-            if (!isDelayed && url6.searchParams.has("update-notification")) {
-              const value2 = url6.searchParams.get("update-notification");
-              if (value2 && value2 in updateNotificationExamples2) {
-                updateNotification = updateNotificationExamples2[value2];
-              }
-            }
-            const initial = {
-              widgets: widgetsFromStorage,
-              widgetConfigs: widgetConfigFromStorage,
-              platform: { name: "integration" },
-              env: "development",
-              locale: "en",
-              updateNotification
-            };
-            widgetsFromStorage.push({ id: "protections" });
-            widgetConfigFromStorage.push({ id: "protections", visibility: "visible" });
-            if (url6.searchParams.has("omnibar")) {
-              const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === "favorites") ?? 0;
-              widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: "omnibar" });
-              const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === "favorites") ?? 0;
-              widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: "omnibar", visibility: "visible" });
-            }
-            initial.customizer = customizerData();
-            const settings = {
-              customizerDrawer: { state: "enabled" }
-            };
-            if (url6.searchParams.get("autoOpen") === "true" && settings.customizerDrawer) {
-              settings.customizerDrawer.autoOpen = true;
-            }
-            if (url6.searchParams.get("adBlocking") === "enabled") {
-              settings.adBlocking = { state: "enabled" };
-            }
-            initial.settings = settings;
-            return Promise.resolve(initial);
+            return Promise.resolve(initialSetup(url7));
           }
           default: {
             return Promise.reject(new Error("unhandled request" + msg));
@@ -34007,6 +34303,55 @@
         }
       }
     });
+  }
+  function initialSetup(url8) {
+    const widgetsFromStorage = [
+      { id: "updateNotification" },
+      { id: "rmf" },
+      { id: "freemiumPIRBanner" },
+      { id: "nextSteps" },
+      { id: "favorites" }
+    ];
+    const widgetConfigFromStorage = [{ id: "favorites", visibility: "visible" }];
+    let updateNotification = { content: null };
+    const isDelayed = url8.searchParams.has("update-notification-delay");
+    if (!isDelayed && url8.searchParams.has("update-notification")) {
+      const value2 = url8.searchParams.get("update-notification");
+      if (value2 && value2 in updateNotificationExamples2) {
+        updateNotification = updateNotificationExamples2[value2];
+      }
+    }
+    const initial = {
+      widgets: widgetsFromStorage,
+      widgetConfigs: widgetConfigFromStorage,
+      platform: { name: "integration" },
+      env: "development",
+      locale: "en",
+      updateNotification
+    };
+    widgetsFromStorage.push({ id: "protections" });
+    widgetConfigFromStorage.push({ id: "protections", visibility: "visible" });
+    if (url8.searchParams.has("omnibar")) {
+      const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === "favorites") ?? 0;
+      widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: "omnibar" });
+      const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === "favorites") ?? 0;
+      widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: "omnibar", visibility: "visible" });
+    }
+    initial.customizer = customizerData();
+    const settings = {
+      customizerDrawer: { state: "enabled" }
+    };
+    if (url8.searchParams.get("autoOpen") === "true" && settings.customizerDrawer) {
+      settings.customizerDrawer.autoOpen = true;
+    }
+    if (url8.searchParams.get("adBlocking") === "enabled") {
+      settings.adBlocking = { state: "enabled" };
+    }
+    if (url8.searchParams.has("tabs")) {
+      initial.tabs = { tabId: "01", tabIds: ["01"] };
+    }
+    initial.settings = settings;
+    return initial;
   }
   function reorderArray(array, id, toIndex) {
     const fromIndex = array.findIndex((item) => item.id === id);
