@@ -41,41 +41,6 @@ export default class DuckAiListener extends ContentFeature {
         this.setupMessageBridge();
         this.setupTextBoxDetection();
         this.startObservingDom();
-        // this.injectScript();
-    }
-
-    async injectScript() {
-        const script = document.createElement('script');
-        // Nobody said code should be clean, right? (this is temporary)
-        script.textContent = `
-            console.log('DuckAiListener: Injecting script');
-            /*
-            const featureName = 'aiChat2';
-            console.log('DuckAiListener: featureName', featureName);
-            // @ts-expect-error - createMessageBridge is injected by the browser
-            if (!navigator.duckduckgo.createMessageBridge) {
-                console.warn('DuckAiListener: createMessageBridge not available');
-                return;
-            }
-            // @ts-expect-error - createMessageBridge is injected by the browser
-            this.bridge = navigator.duckduckgo.createMessageBridge(featureName);
-            if (!this.bridge) {
-                console.warn('DuckAiListener: Failed to create message bridge');
-                return;
-            }
-            console.log('DuckAiListener: Created message bridge successfully');
-            this.bridge.subscribe('submitPageContext', (event) => {
-                console.log('DuckAiListener: Received page context update:', event);
-                this.handlePageContextData(event);
-            });
-            this.bridge.request('getPageContext').then((event) => {
-                console.log('DuckAiListener: Initial page context:', event);
-                if (event.serializedPageData) {
-                    this.handlePageContextData(event);
-                }
-            });*/
-        `;
-        document.head.appendChild(script);
     }
 
     /**
@@ -116,19 +81,6 @@ export default class DuckAiListener extends ContentFeature {
             }
 
             console.log('DuckAiListener: Created message bridge successfully');
-
-            /*
-            // Try to get initial page context
-            try {
-                const getPageContext = await this.bridge.request('getPageContext');
-                console.log('DuckAiListener: Initial page context:', getPageContext);
-                if (getPageContext.serializedPageData) {
-                    this.handlePageContextData(getPageContext);
-                }
-            } catch (error) {
-                console.log('DuckAiListener: No initial page context available:', error);
-            }
-            */
 
             // Subscribe to page context updates (matches fake-duck-ai exactly)
             this.bridge.subscribe('submitPageContext', (event) => {
