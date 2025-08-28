@@ -129,6 +129,124 @@ test.describe('Test integration pages', () => {
         );
     });
 
+    // Scriptlet integration page tests
+    test('Set Cookie Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/set-cookie.html',
+            './integration-test/test-pages/scriptlets/config/set-cookie.json',
+        );
+    });
+
+    test('Set Local Storage Item Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/set-local-storage-item.html',
+            './integration-test/test-pages/scriptlets/config/set-local-storage-item.json',
+        );
+    });
+
+    test('Set Constant Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/set-constant.html',
+            './integration-test/test-pages/scriptlets/config/set-constant.json',
+        );
+    });
+
+    test('Trusted Set Cookie Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/trusted-set-cookie.html',
+            './integration-test/test-pages/scriptlets/config/trusted-set-cookie.json',
+        );
+    });
+
+    test('Remove Cookie Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/remove-cookie.html',
+            './integration-test/test-pages/scriptlets/config/remove-cookie.json',
+        );
+    });
+
+    test('Abort on Property Read Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/abort-on-property-read.html',
+            './integration-test/test-pages/scriptlets/config/abort-on-property-read.json',
+        );
+    });
+
+    test('Abort on Property Write Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/abort-on-property-write.html',
+            './integration-test/test-pages/scriptlets/config/abort-on-property-write.json',
+        );
+    });
+
+    test('Prevent Add Event Listener Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/prevent-addEventListener.html',
+            './integration-test/test-pages/scriptlets/config/prevent-addEventListener.json',
+        );
+    });
+
+    test('Prevent Set Timeout Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/prevent-setTimeout.html',
+            './integration-test/test-pages/scriptlets/config/prevent-setTimeout.json',
+        );
+    });
+
+    test('Prevent Window Open Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/prevent-window-open.html',
+            './integration-test/test-pages/scriptlets/config/prevent-window-open.json',
+        );
+    });
+
+    test('Prevent Fetch Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/prevent-fetch.html',
+            './integration-test/test-pages/scriptlets/config/prevent-fetch.json',
+        );
+    });
+
+    test('Remove Node Text Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/remove-node-text.html',
+            './integration-test/test-pages/scriptlets/config/remove-node-text.json',
+        );
+    });
+
+    test('Abort Current Inline Script Scriptlet', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            'scriptlets/pages/abort-current-inline-script.html',
+            './integration-test/test-pages/scriptlets/config/abort-current-inline-script.json',
+        );
+    });
+
     test('enumerateDevices API functionality', async ({ page }, testInfo) => {
         await testPage(
             page,

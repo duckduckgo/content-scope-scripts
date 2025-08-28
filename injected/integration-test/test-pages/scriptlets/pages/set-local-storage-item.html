@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Set Local Storage Item Scriptlet Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Scriptlets]</a></p>
+
+    <p>This page verifies that the set-local-storage-item scriptlet works properly given the <a href="../config/set-local-storage-item.json">config</a>.</p>
+
+    <script>
+        // eslint-disable-next-line no-undef
+        test('Set-local-storage-item scriptlet should set localStorage items', async () => {
+            // Wait a bit for scriptlets to execute
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const storageValue = localStorage.getItem('testKey');
+            const hasStorageItem = storageValue !== null;
+
+            return [
+                { name: 'testKey should be set in localStorage', result: hasStorageItem, expected: true },
+                { name: 'testKey should have correct value', result: storageValue, expected: 'true' }
+            ];
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html> 

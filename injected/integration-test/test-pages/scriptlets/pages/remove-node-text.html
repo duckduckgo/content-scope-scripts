@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Remove Node Text Scriptlet Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Scriptlets]</a></p>
+
+    <p>This page verifies that the remove-node-text scriptlet works properly given the <a href="../config/remove-node-text.json">config</a>.</p>
+
+    <!-- This div should have its content removed because it contains "badTextContent" -->
+    <div id="badText">
+        badTextContent
+    </div>
+
+    <!-- This div shouldn't be touched -->
+    <div id="goodText">
+        goodTextContent
+    </div>
+
+    <script>
+        // eslint-disable-next-line no-undef
+        test('Remove-node-text scriptlet should remove matching text content', async () => {
+            // Wait a bit for scriptlets to execute
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Check if text content was removed from DOM by the scriptlet
+            const badText = document.getElementById('badText');
+            const goodText = document.getElementById('goodText');
+            
+            const badTextRemoved = !badText.textContent || !badText.textContent.includes('badTextContent');
+            const goodTextRemains = goodText.textContent && goodText.textContent.includes('goodTextContent');
+
+            return [
+                { name: 'Bad text content should be removed from DOM', result: badTextRemoved, expected: true },
+                { name: 'Good text content should remain in DOM', result: goodTextRemains, expected: true }
+            ];
+        });
+
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html> 
