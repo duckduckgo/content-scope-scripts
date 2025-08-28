@@ -97,3 +97,14 @@ export function useOnMiddleClick(ref, handler) {
         };
     }, [ref, handler]);
 }
+
+/**
+ * @param {any} condition
+ * @param {string} [message]
+ * @return {asserts condition}
+ */
+export function invariant(condition, message) {
+    if (condition) return;
+    if (message) throw new Error('Invariant failed: ' + message);
+    throw new Error('Invariant failed');
+}
