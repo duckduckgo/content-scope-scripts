@@ -11,6 +11,9 @@ export default class PageContext extends ContentFeature {
     listenForUrlChanges = true;
 
     init() {
+        if (this.isDuckAi()) {
+            return;
+        }
         console.log('PageContextFeature init');
         this.setupMessageHandlers();
         this.setupContentCollection();
@@ -20,6 +23,17 @@ export default class PageContext extends ContentFeature {
         window.addEventListener('hashchange', () => {
             this.handleContentCollectionRequest({});
         });
+    }
+
+    isDuckAi() {
+        if (window?.top?.location?.hostname === 'duckduckgo.com') {
+            return true;
+        }
+        if (window.location.hostname === 'duckduckgo.com') {
+            const url = new URL(window.location.href);
+            return url.searchParams.has('duckai');
+        }
+        return false;
     }
 
     /**
