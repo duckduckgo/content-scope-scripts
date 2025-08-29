@@ -44,7 +44,7 @@ export default class DuckAiListener extends ContentFeature {
             if (this.isDebug) {
                 console.error('DuckAiListener:', ...args);
             }
-        }
+        },
     };
 
     init() {
@@ -110,12 +110,12 @@ export default class DuckAiListener extends ContentFeature {
 
         observer.observe(document.body, {
             childList: true,
-            subtree: true
+            subtree: true,
         });
     }
 
     /**
-     * Insert the page context button after the image input
+     * Insert the page context button adjacent to existing button container
      * @param {HTMLElement} imageInput - The input[name="image"] element to position after
      */
     insertButton(imageInput) {
@@ -124,6 +124,46 @@ export default class DuckAiListener extends ContentFeature {
         if (!inputContainer) {
             this.log.warn('Could not find input container');
             return;
+        }
+
+        // Find the parent of the input container to create wrapper structure
+        const parentContainer = inputContainer.parentNode;
+        if (!parentContainer) {
+            this.log.warn('Could not find parent container');
+            return;
+        }
+
+        // Check if we've already created the wrapper structure
+        let buttonGroupWrapper = /** @type {HTMLElement | null} */ (parentContainer.querySelector('#duck-ai-button-group-wrapper'));
+        if (buttonGroupWrapper) {
+            this.log.info('Button wrapper already exists, updating button');
+            const existingButton = buttonGroupWrapper.querySelector('#duck-ai-context-button');
+            if (existingButton) {
+                existingButton.remove();
+            }
+        } else {
+            // Create wrapper structure
+            buttonGroupWrapper = document.createElement('div');
+            buttonGroupWrapper.id = 'duck-ai-button-group-wrapper';
+            buttonGroupWrapper.style.cssText = `
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            `;
+
+            // Create wrapper for existing buttons/inputs
+            const existingWrapper = document.createElement('div');
+            existingWrapper.id = 'duck-ai-existing-controls-wrapper';
+            existingWrapper.style.cssText = 'flex: 1;';
+
+            // Move the existing input container into the existing wrapper
+            existingWrapper.appendChild(inputContainer);
+
+            // Add both wrappers to the button group wrapper
+            buttonGroupWrapper.appendChild(existingWrapper);
+
+            // Insert the button group wrapper where the input container was
+            parentContainer.appendChild(buttonGroupWrapper);
         }
 
         // Create the page context button
@@ -136,7 +176,7 @@ export default class DuckAiListener extends ContentFeature {
             </svg>
         `;
         this.button.title = 'Toggle page context injection';
-        
+
         // Style the button to match existing input field buttons
         this.button.style.cssText = `
             box-sizing: border-box;
@@ -171,6 +211,7 @@ export default class DuckAiListener extends ContentFeature {
             background: transparent;
             padding: 0;
             border-radius: 50%;
+            flex-shrink: 0;
         `;
 
         // Add hover effect
@@ -189,15 +230,13 @@ export default class DuckAiListener extends ContentFeature {
         // Add click handler
         this.button.addEventListener('click', this.handleButtonClick.bind(this));
 
-        // Insert button after the image input
-        if (imageInput.parentNode) {
-            imageInput.parentNode.insertBefore(this.button, imageInput.nextSibling);
-        }
+        // Insert button as adjacent to the existing control group
+        buttonGroupWrapper.appendChild(this.button);
 
         // Set initial appearance based on enabled state
         this.updateButtonAppearance();
 
-        this.log.info('Created page context button');
+        this.log.info('Created page context button with wrapper structure');
     }
 
     /**
@@ -208,7 +247,7 @@ export default class DuckAiListener extends ContentFeature {
 
         // Toggle the page context enabled state
         this.isPageContextEnabled = !this.isPageContextEnabled;
-        
+
         if (this.isPageContextEnabled) {
             // Page context is now enabled - inject context if available
             if (this.pageData && this.pageData.content) {
@@ -225,7 +264,7 @@ export default class DuckAiListener extends ContentFeature {
      */
     updateButtonAppearance() {
         if (!this.button) return;
-        
+
         if (this.isPageContextEnabled) {
             // Button is selected - show active state
             this.button.style.backgroundColor = 'rgba(255, 255, 255, 0.18)';
