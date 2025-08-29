@@ -37,9 +37,9 @@
   "devDependencies": {
     "@canvas/image-data": "^1.0.0",
     "@fingerprintjs/fingerprintjs": "^4.6.2",
-    "@types/chrome": "^0.1.1",
-    "@types/jasmine": "^5.1.8",
-    "@types/node": "^24.1.0",
+    "@types/chrome": "^0.1.4",
+    "@types/jasmine": "^5.1.9",
+    "@types/node": "^24.3.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "fast-check": "^4.2.0",
     "jasmine": "^5.9.0",
