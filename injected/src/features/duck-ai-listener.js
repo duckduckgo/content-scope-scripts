@@ -17,6 +17,15 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {any} */
     bridge = null;
 
+    /** @type {HTMLInputElement | null} */
+    checkbox = null;
+
+    /** @type {HTMLDivElement | null} */
+    checkboxContainer = null;
+
+    /** @type {string | null} */
+    lastInjectedContext = null;
+
     init() {
         // Only activate on duckduckgo.com
         if (!this.shouldActivate()) {
@@ -31,7 +40,8 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     async setup() {
-        this.setupMessageBridge();
+        this.createCheckboxUI();
+        await this.setupMessageBridge();
         this.setupTextBoxDetection();
     }
 
@@ -43,8 +53,104 @@ export default class DuckAiListener extends ContentFeature {
         if (isBeingFramed()) {
             return false;
         }
-        const hostname = window.location.hostname;
-        return hostname === 'duckduckgo.com' || hostname.endsWith('.duckduckgo.com');
+        if (window?.top?.location?.hostname === 'duckduckgo.com') {
+            return true;
+        }
+        if (window.location.hostname === 'duckduckgo.com') {
+            const url = new URL(window.location.href);
+            return url.searchParams.has('duckai');
+        }
+        return false;
+    }
+
+    /**
+     * Create the floating checkbox UI element
+     */
+    createCheckboxUI() {
+        // Create container div
+        this.checkboxContainer = document.createElement('div');
+        this.checkboxContainer.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+
+        // Create checkbox
+        this.checkbox = document.createElement('input');
+        this.checkbox.type = 'checkbox';
+        this.checkbox.id = 'duck-ai-context-inject';
+        this.checkbox.checked = true; // Default to checked for auto-injection
+        this.checkbox.style.cssText = `
+            margin: 0;
+            cursor: pointer;
+        `;
+
+        // Create label
+        const label = document.createElement('label');
+        label.htmlFor = 'duck-ai-context-inject';
+        label.textContent = 'Auto-inject page context';
+        label.style.cssText = `
+            cursor: pointer;
+            user-select: none;
+        `;
+
+        // Add event listener for checkbox changes
+        this.checkbox.addEventListener('change', this.handleCheckboxChange.bind(this));
+
+        // Assemble UI
+        this.checkboxContainer.appendChild(this.checkbox);
+        this.checkboxContainer.appendChild(label);
+        document.body.appendChild(this.checkboxContainer);
+
+        console.log('DuckAiListener: Created checkbox UI');
+    }
+
+    /**
+     * Handle checkbox state changes
+     */
+    handleCheckboxChange() {
+        if (!this.checkbox) return;
+
+        if (this.checkbox.checked) {
+            // Checkbox is now checked - inject context if available
+            if (this.pageData && this.pageData.content) {
+                this.insertContextIntoTextBox(this.pageData.content);
+            }
+        } else {
+            // Checkbox is now unchecked - clear input if it matches current context
+            this.clearContextFromTextBox();
+        }
+    }
+
+    /**
+     * Clear context from text box if it matches the current context
+     */
+    clearContextFromTextBox() {
+        this.findTextBox(); // Refresh text box reference
+
+        if (!this.textBox || !this.lastInjectedContext) {
+            return;
+        }
+
+        // Check if current value matches the last injected context
+        const currentValue = this.textBox.value.trim();
+        const lastContext = this.lastInjectedContext.trim();
+
+        if (currentValue === lastContext) {
+            console.log('DuckAiListener: Clearing injected context from text box');
+            this.setReactTextAreaValue(this.textBox, '');
+        }
     }
 
     /**
@@ -176,6 +282,12 @@ export default class DuckAiListener extends ContentFeature {
             return;
         }
 
+        // Check if checkbox is unchecked - if so, don't inject
+        if (!this.checkbox || !this.checkbox.checked) {
+            console.log('DuckAiListener: Context injection disabled via checkbox');
+            return;
+        }
+
         this.findTextBox(); // Refresh text box
 
         if (!this.textBox) {
@@ -189,11 +301,14 @@ export default class DuckAiListener extends ContentFeature {
         const contextValue = context.slice(0, 2000);
         this.setReactTextAreaValue(this.textBox, contextValue);
 
+        // Track the last injected context for clearing later
+        this.lastInjectedContext = contextValue;
+
         // Focus the text box
         this.textBox.focus();
 
         console.log('DuckAiListener: Successfully inserted context', this.textBox.value);
-        console.log(this.textBox)
+        console.log(this.textBox);
     }
 
     /**
@@ -206,7 +321,7 @@ export default class DuckAiListener extends ContentFeature {
         try {
             // Access the original setter to bypass React's controlled component behavior
             const originalSet = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
-            
+
             if (!originalSet || typeof originalSet.call !== 'function') {
                 console.warn('DuckAiListener: Cannot access original value setter, falling back to direct assignment');
                 textarea.value = value;
@@ -216,18 +331,17 @@ export default class DuckAiListener extends ContentFeature {
             // Set the textarea value using the original setter and trigger React events
             textarea.dispatchEvent(new Event('keydown', { bubbles: true }));
             originalSet.call(textarea, value);
-            
+
             const events = [
                 new Event('input', { bubbles: true }),
                 new Event('keyup', { bubbles: true }),
                 new Event('change', { bubbles: true }),
             ];
-            
+
             // Dispatch events twice to ensure React picks up the change
             events.forEach((ev) => textarea.dispatchEvent(ev));
             originalSet.call(textarea, value);
             events.forEach((ev) => textarea.dispatchEvent(ev));
-            
         } catch (error) {
             console.error('DuckAiListener: Error setting React textarea value:', error);
             // Fallback to direct assignment
