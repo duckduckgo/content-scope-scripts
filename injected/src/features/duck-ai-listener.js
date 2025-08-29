@@ -8,7 +8,7 @@ import { isBeingFramed } from '../utils.js';
  * enters it into text boxes on duckduckgo.com, particularly for AI chat functionality.
  */
 export default class DuckAiListener extends ContentFeature {
-    /** @type {HTMLInputElement | HTMLTextAreaElement | null} */
+    /** @type {HTMLTextAreaElement | null} */
     textBox = null;
 
     /** @type {Object | null} */
@@ -121,6 +121,32 @@ export default class DuckAiListener extends ContentFeature {
         if (this.textBox && this.pageData) {
             this.insertContextIntoTextBox(this.pageData.content);
         }
+        if (!this.textBox) {
+            this.setupTextBoxMutationObserver();
+        }
+    }
+    /**
+     * Set up mutation observer for text box detection
+     */
+    setupTextBoxMutationObserver() {
+        const config = { childList: true, subtree: true };
+        this.mutationObserver = null;
+
+        // Callback function to execute when mutations are observed
+        const callback = (mutationList, observer) => {
+            this.findTextBox();
+            if (this.textBox && this.pageData) {
+                this.insertContextIntoTextBox(this.pageData.content);
+                // No longer needed, we've found the text box.
+                observer.disconnect();
+            }
+        };
+
+        // Create an observer instance linked to the callback function
+        this.mutationObserver = new MutationObserver(callback);
+
+        // Start observing the target node for configured mutations
+        this.mutationObserver.observe(document.body, config);
     }
 
     /**
@@ -159,22 +185,54 @@ export default class DuckAiListener extends ContentFeature {
 
         console.log('DuckAiListener: Inserting context into text box');
 
-        // Set the value (limit to 2000 chars like fake-duck-ai)
-        this.textBox.value = context.slice(0, 2000);
-
-        // Trigger events to ensure the input is properly processed
-        this.textBox.dispatchEvent(new Event('input', { bubbles: true }));
-        this.textBox.dispatchEvent(new Event('change', { bubbles: true }));
+        // Set the value using React-compatible approach (limit to 2000 chars like fake-duck-ai)
+        const contextValue = context.slice(0, 2000);
+        this.setReactTextAreaValue(this.textBox, contextValue);
 
         // Focus the text box
         this.textBox.focus();
 
-        // Auto-resize if it's a textarea
-        if (this.textBox instanceof HTMLTextAreaElement) {
-            this.autoResizeTextArea(this.textBox);
-        }
+        console.log('DuckAiListener: Successfully inserted context', this.textBox.value);
+        console.log(this.textBox)
+    }
 
-        console.log('DuckAiListener: Successfully inserted context');
+    /**
+     * Set textarea value in a React-compatible way
+     * Based on the approach from broker-protection/actions/fill-form.js
+     * @param {HTMLTextAreaElement} textarea - The textarea element
+     * @param {string} value - The value to set
+     */
+    setReactTextAreaValue(textarea, value) {
+        try {
+            // Access the original setter to bypass React's controlled component behavior
+            const originalSet = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
+            
+            if (!originalSet || typeof originalSet.call !== 'function') {
+                console.warn('DuckAiListener: Cannot access original value setter, falling back to direct assignment');
+                textarea.value = value;
+                return;
+            }
+
+            // Set the textarea value using the original setter and trigger React events
+            textarea.dispatchEvent(new Event('keydown', { bubbles: true }));
+            originalSet.call(textarea, value);
+            
+            const events = [
+                new Event('input', { bubbles: true }),
+                new Event('keyup', { bubbles: true }),
+                new Event('change', { bubbles: true }),
+            ];
+            
+            // Dispatch events twice to ensure React picks up the change
+            events.forEach((ev) => textarea.dispatchEvent(ev));
+            originalSet.call(textarea, value);
+            events.forEach((ev) => textarea.dispatchEvent(ev));
+            
+        } catch (error) {
+            console.error('DuckAiListener: Error setting React textarea value:', error);
+            // Fallback to direct assignment
+            textarea.value = value;
+        }
     }
 
     /**
