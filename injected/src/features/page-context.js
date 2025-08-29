@@ -104,10 +104,8 @@ export default class PageContext extends ContentFeature {
                 return cached.data;
             }
         }
-        const article = new Readability(/** @type {Document} */ (document.cloneNode(true))).parse();
 
         const content = {
-            article,
             title: this.getPageTitle(),
             metaDescription: this.getMetaDescription(),
             content: this.getMainContent(options),
