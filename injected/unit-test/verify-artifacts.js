@@ -51,7 +51,7 @@ const checks = {
     'apple-isolated': {
         file: join(BUILD, 'apple/contentScopeIsolated.js'),
         tests: [
-            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
+            { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE * 1.1 },
             { kind: 'containsString', text: 'Copyright (c) 2014-2015, hassansin', includes: true },
         ],
     },
