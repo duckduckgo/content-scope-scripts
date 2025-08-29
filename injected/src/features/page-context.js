@@ -1,6 +1,4 @@
 import ContentFeature from '../content-feature.js';
-// import { convertElementToMarkdown } from 'dom-to-semantic-markdown';
-import { Readability } from '@mozilla/readability';
 const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
@@ -14,7 +12,6 @@ export default class PageContext extends ContentFeature {
         if (this.isDuckAi()) {
             return;
         }
-        console.log('PageContextFeature init');
         this.setupMessageHandlers();
         this.setupContentCollection();
         window.addEventListener('DOMContentLoaded', () => {
@@ -186,9 +183,6 @@ export default class PageContext extends ContentFeature {
                     }
                 });
             });
-
-            // content = convertElementToMarkdown(clone);
-            // console.log('markdown',content);
         }
 
         // Limit content length
