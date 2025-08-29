@@ -53,9 +53,6 @@ export default class DuckAiListener extends ContentFeature {
         if (isBeingFramed()) {
             return false;
         }
-        if (window?.top?.location?.hostname === 'duckduckgo.com') {
-            return true;
-        }
         if (window.location.hostname === 'duckduckgo.com') {
             const url = new URL(window.location.href);
             return url.searchParams.has('duckai');
