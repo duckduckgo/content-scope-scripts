@@ -33,7 +33,6 @@ export default class DuckAiListener extends ContentFeature {
     async setup() {
         this.setupMessageBridge();
         this.setupTextBoxDetection();
-        this.startObservingDom();
     }
 
     /**
@@ -79,9 +78,7 @@ export default class DuckAiListener extends ContentFeature {
             try {
                 const getPageContext = await this.bridge.request('getPageContext');
                 console.log('DuckAiListener: Initial page context:', getPageContext);
-                if (getPageContext.serializedPageData) {
-                    this.handlePageContextData(getPageContext);
-                }
+                this.handlePageContextData(getPageContext);
             } catch (error) {
                 console.log('DuckAiListener: No initial page context available:', error);
             }
