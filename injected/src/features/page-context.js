@@ -37,9 +37,9 @@ export default class PageContext extends ContentFeature {
     }
 
     /**
-     * @param {NavigationType} navigationType
+     * @param {NavigationType} _navigationType
      */
-    urlChanged(navigationType) {
+    urlChanged(_navigationType) {
         this.handleContentCollectionRequest({});
     }
 
@@ -73,7 +73,7 @@ export default class PageContext extends ContentFeature {
     observeContentChanges() {
         // Use MutationObserver to detect content changes
         if (window.MutationObserver) {
-            const observer = new MutationObserver((mutations) => {
+            const observer = new MutationObserver((_mutations) => {
                 // Invalidate cache when content changes
                 this.invalidateCache();
             });
@@ -107,7 +107,7 @@ export default class PageContext extends ContentFeature {
                 return cached.data;
             }
         }
-        const article = new Readability(document.cloneNode(true)).parse();
+        const article = new Readability(/** @type {Document} */ (document.cloneNode(true))).parse();
 
         const content = {
             article,
@@ -167,7 +167,7 @@ export default class PageContext extends ContentFeature {
 
         if (contentRoot) {
             // Create a clone to work with
-            const clone = contentRoot.cloneNode(true);
+            const clone = /** @type {Element} */ (contentRoot.cloneNode(true));
 
             // Remove excluded elements
             excludeSelectors.forEach((selector) => {
