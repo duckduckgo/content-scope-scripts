@@ -9,6 +9,7 @@
     "build"
   ],
   "scripts": {
+    "preinstall": "node scripts/preinstall.js",
     "build": "npm run build --workspaces --if-present",
     "test-unit": "npm run test-unit --workspaces --if-present",
     "test-int": "npm run test-int --workspaces --if-present",
