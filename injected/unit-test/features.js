@@ -31,6 +31,7 @@ describe('Features definition', () => {
             'elementHiding',
             'exceptionHandler',
             'apiManipulation',
+            'duckAiListener',
         ]);
     });
 });
