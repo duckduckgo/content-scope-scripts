@@ -187,7 +187,7 @@ export default class DuckAiListener extends ContentFeature {
             display: flex;
             align-items: center;
             justify-content: center;
-            fill: rgb(204, 204, 204);
+            fill: currentColor;
             fill-rule: evenodd;
             font-feature-settings: normal;
             font-kerning: auto;
@@ -212,12 +212,29 @@ export default class DuckAiListener extends ContentFeature {
             padding: 0;
             border-radius: 50%;
             flex-shrink: 0;
+            color: rgb(102, 102, 102); /* Default light mode color */
         `;
+
+        // Listen for theme changes to update button appearance
+        if (window.matchMedia) {
+            const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            colorSchemeQuery.addEventListener('change', () => {
+                this.updateButtonAppearance();
+            });
+        }
 
         // Add hover effect
         this.button.addEventListener('mouseenter', () => {
             if (this.button) {
-                this.button.style.backgroundColor = 'rgba(255, 255, 255, 0.18)';
+                const isDark = this.isDarkMode();
+
+                if (isDark) {
+                    this.button.style.backgroundColor = 'rgba(255, 255, 255, 0.18)';
+                    this.button.style.color = 'rgb(255, 255, 255)';
+                } else {
+                    this.button.style.backgroundColor = 'rgba(0, 0, 0, 0.08)';
+                    this.button.style.color = 'rgb(51, 51, 51)';
+                }
             }
         });
         this.button.addEventListener('mouseleave', () => {
@@ -260,17 +277,38 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
-     * Update button appearance based on enabled state
+     * Determine if dark mode is preferred
+     * @returns {boolean}
+     */
+    isDarkMode() {
+        return window?.matchMedia('(prefers-color-scheme: dark)')?.matches;
+    }
+
+    /**
+     * Update button appearance based on enabled state and theme
      */
     updateButtonAppearance() {
         if (!this.button) return;
 
+        const isDark = this.isDarkMode();
+
         if (this.isPageContextEnabled) {
             // Button is selected - show active state
-            this.button.style.backgroundColor = 'rgba(255, 255, 255, 0.18)';
+            if (isDark) {
+                this.button.style.backgroundColor = 'rgba(255, 255, 255, 0.18)';
+                this.button.style.color = 'rgb(255, 255, 255)';
+            } else {
+                this.button.style.backgroundColor = 'rgba(0, 0, 0, 0.08)';
+                this.button.style.color = 'rgb(51, 51, 51)';
+            }
         } else {
             // Button is not selected - show default state
             this.button.style.backgroundColor = 'transparent';
+            if (isDark) {
+                this.button.style.color = 'rgb(204, 204, 204)';
+            } else {
+                this.button.style.color = 'rgb(102, 102, 102)';
+            }
         }
     }
 
