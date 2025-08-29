@@ -2803,7 +2803,7 @@
   function isGloballyDisabled(args) {
     return args.site.allowlisted || args.site.isBroken;
   }
-  var platformSpecificFeatures = ["navigatorInterface", "windowsPermissionUsage", "messageBridge", "favicon"];
+  var platformSpecificFeatures = ["navigatorInterface", "duckAiListener", "windowsPermissionUsage", "messageBridge", "favicon"];
   function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(featureName);
   }
@@ -2844,6 +2844,7 @@
       "messageBridge",
       "duckPlayer",
       "duckPlayerNative",
+      "duckAiListener",
       "harmfulApis",
       "webCompat",
       "windowsPermissionUsage",
@@ -2853,11 +2854,11 @@
       "autofillPasswordImport",
       "favicon",
       "webTelemetry",
-      "scriptlets"
+      "pageContext"
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", "scriptlets", ...baseFeatures],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
@@ -2865,7 +2866,8 @@
       "performanceMetrics",
       "clickToLoad",
       "messageBridge",
-      "favicon"
+      "favicon",
+      "pageContext"
     ],
     android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],

@@ -1,1 +1,4 @@
-- ntp: omnibar states (#1882)
+- Page context (#1928)
+- revert scriptlet feature (#1927)
+- build(deps): bump @formkit/auto-animate from 0.8.2 to 0.8.4 (#1924)
+- build(deps): bump actions/upload-pages-artifact from 3 to 4 (#1919)
