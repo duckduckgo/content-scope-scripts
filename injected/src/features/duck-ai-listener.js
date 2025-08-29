@@ -301,8 +301,9 @@ export default class DuckAiListener extends ContentFeature {
         // Track the last injected context for clearing later
         this.lastInjectedContext = contextValue;
 
-        // Focus the text box
+        // Focus the text box and scroll to top
         this.textBox.focus();
+        this.textBox.scrollTop = 0;
 
         console.log('DuckAiListener: Successfully inserted context', this.textBox.value);
         console.log(this.textBox);
