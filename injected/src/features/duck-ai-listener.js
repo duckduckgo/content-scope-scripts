@@ -17,11 +17,11 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {any} */
     bridge = null;
 
-    /** @type {HTMLInputElement | null} */
-    checkbox = null;
+    /** @type {HTMLButtonElement | null} */
+    button = null;
 
-    /** @type {HTMLDivElement | null} */
-    checkboxContainer = null;
+    /** @type {boolean} */
+    isPageContextEnabled = true;
 
     /** @type {string | null} */
     lastInjectedContext = null;
@@ -40,7 +40,7 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     async setup() {
-        this.createCheckboxUI();
+        this.createButtonUI();
         await this.setupMessageBridge();
         this.setupTextBoxDetection();
     }
@@ -61,71 +61,120 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
-     * Create the floating checkbox UI element
+     * Create the page context button in the input field
      */
-    createCheckboxUI() {
-        // Create container div
-        this.checkboxContainer = document.createElement('div');
-        this.checkboxContainer.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10000;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 8px 12px;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        `;
+    createButtonUI() {
+        // Try to find the input[name="image"] element to position button after it
+        const imageInput = document.querySelector('input[name="image"]');
+        if (!imageInput) {
+            // If not found immediately, set up observer to try again later
+            this.setupButtonInsertionObserver();
+            return;
+        }
 
-        // Create checkbox
-        this.checkbox = document.createElement('input');
-        this.checkbox.type = 'checkbox';
-        this.checkbox.id = 'duck-ai-context-inject';
-        this.checkbox.checked = true; // Default to checked for auto-injection
-        this.checkbox.style.cssText = `
-            margin: 0;
-            cursor: pointer;
-        `;
-
-        // Create label
-        const label = document.createElement('label');
-        label.htmlFor = 'duck-ai-context-inject';
-        label.textContent = 'Auto-inject page context';
-        label.style.cssText = `
-            cursor: pointer;
-            user-select: none;
-        `;
-
-        // Add event listener for checkbox changes
-        this.checkbox.addEventListener('change', this.handleCheckboxChange.bind(this));
-
-        // Assemble UI
-        this.checkboxContainer.appendChild(this.checkbox);
-        this.checkboxContainer.appendChild(label);
-        document.body.appendChild(this.checkboxContainer);
-
-        console.log('DuckAiListener: Created checkbox UI');
+        this.insertButton(/** @type {HTMLElement} */ (imageInput));
     }
 
     /**
-     * Handle checkbox state changes
+     * Set up mutation observer to find input[name="image"] and insert button
      */
-    handleCheckboxChange() {
-        if (!this.checkbox) return;
+    setupButtonInsertionObserver() {
+        const observer = new MutationObserver((_, obs) => {
+            const imageInput = document.querySelector('input[name="image"]');
+            if (imageInput) {
+                this.insertButton(/** @type {HTMLElement} */ (imageInput));
+                obs.disconnect();
+            }
+        });
 
-        if (this.checkbox.checked) {
-            // Checkbox is now checked - inject context if available
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    /**
+     * Insert the page context button after the image input
+     * @param {HTMLElement} imageInput - The input[name="image"] element to position after
+     */
+    insertButton(imageInput) {
+        // Find the parent container that holds the input controls
+        const inputContainer = imageInput.closest('div');
+        if (!inputContainer) {
+            console.warn('DuckAiListener: Could not find input container');
+            return;
+        }
+
+        // Create the page context button
+        this.button = document.createElement('button');
+        this.button.type = 'button';
+        this.button.id = 'duck-ai-context-button';
+        this.button.innerHTML = `
+            <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 0C14.2091 4.27829e-08 16 1.79086 16 4V10C16 12.2091 14.2091 14 12 14H4C1.79086 14 9.6639e-08 12.2091 0 10V4C9.66449e-08 1.79086 1.79086 8.05326e-08 4 0H12ZM4 1.25C2.48122 1.25 1.25 2.48122 1.25 4V10C1.25 11.5188 2.48122 12.75 4 12.75H12C13.5188 12.75 14.75 11.5188 14.75 10V5.3125C14.75 4.7257 14.2743 4.25 13.6875 4.25H10.427C9.1625 4.24998 8.00656 3.53554 7.44104 2.40454C7.08727 1.697 6.36405 1.25002 5.573 1.25H4ZM7.375 9C7.72018 9 8 9.27982 8 9.625C8 9.97018 7.72018 10.25 7.375 10.25H3.625C3.27982 10.25 3 9.97018 3 9.625C3 9.27982 3.27982 9 3.625 9H7.375ZM9.375 6C9.72018 6 10 6.27982 10 6.625C10 6.97018 9.72018 7.25 9.375 7.25H3.625C3.27982 7.25 3 6.97018 3 6.625C3 6.27982 3.27982 6 3.625 6H9.375ZM8.17761 1.25C8.3237 1.43222 8.45191 1.63137 8.55896 1.84546C8.91273 2.553 9.63595 2.99998 10.427 3H13.6875C14.0239 3 14.3435 3.07189 14.6318 3.20105C14.2895 2.07196 13.2409 1.25 12 1.25H8.17761Z" fill="black" fill-opacity="0.84"/>
+            </svg>
+        `;
+        this.button.title = 'Toggle page context injection';
+        
+        // Style the button to match existing input field buttons
+        this.button.style.cssText = `
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            color: ${this.isPageContextEnabled ? '#0969da' : '#656d76'};
+            opacity: 1;
+            font-size: 16px;
+            line-height: 1;
+            border-radius: 4px;
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+
+        // Add hover effect
+        this.button.addEventListener('mouseenter', () => {
+            if (this.button) {
+                this.button.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+            }
+        });
+        this.button.addEventListener('mouseleave', () => {
+            if (this.button) {
+                this.button.style.backgroundColor = 'transparent';
+            }
+        });
+
+        // Add click handler
+        this.button.addEventListener('click', this.handleButtonClick.bind(this));
+
+        // Insert button after the image input
+        if (imageInput.parentNode) {
+            imageInput.parentNode.insertBefore(this.button, imageInput.nextSibling);
+        }
+
+        console.log('DuckAiListener: Created page context button');
+    }
+
+    /**
+     * Handle button click to toggle page context
+     */
+    handleButtonClick() {
+        if (!this.button) return;
+
+        // Toggle the page context enabled state
+        this.isPageContextEnabled = !this.isPageContextEnabled;
+        
+        // Update button appearance based on state
+        this.button.style.color = this.isPageContextEnabled ? '#0969da' : '#656d76';
+
+        if (this.isPageContextEnabled) {
+            // Page context is now enabled - inject context if available
             if (this.pageData && this.pageData.content) {
                 this.insertContextIntoTextBox(this.pageData.content);
             }
         } else {
-            // Checkbox is now unchecked - clear input if it matches current context
+            // Page context is now disabled - clear input if it matches current context
             this.clearContextFromTextBox();
         }
     }
@@ -236,7 +285,7 @@ export default class DuckAiListener extends ContentFeature {
         this.mutationObserver = null;
 
         // Callback function to execute when mutations are observed
-        const callback = (mutationList, observer) => {
+        const callback = (_, observer) => {
             this.findTextBox();
             if (this.textBox && this.pageData) {
                 this.insertContextIntoTextBox(this.pageData.content);
@@ -279,9 +328,9 @@ export default class DuckAiListener extends ContentFeature {
             return;
         }
 
-        // Check if checkbox is unchecked - if so, don't inject
-        if (!this.checkbox || !this.checkbox.checked) {
-            console.log('DuckAiListener: Context injection disabled via checkbox');
+        // Check if page context is disabled - if so, don't inject
+        if (!this.isPageContextEnabled) {
+            console.log('DuckAiListener: Context injection disabled');
             return;
         }
 
