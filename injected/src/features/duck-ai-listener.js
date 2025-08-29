@@ -26,12 +26,33 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {string | null} */
     lastInjectedContext = null;
 
+    /**
+     * Logging utility for this feature
+     */
+    log = {
+        info: (...args) => {
+            if (this.isDebug) {
+                console.log('DuckAiListener:', ...args);
+            }
+        },
+        warn: (...args) => {
+            if (this.isDebug) {
+                console.warn('DuckAiListener:', ...args);
+            }
+        },
+        error: (...args) => {
+            if (this.isDebug) {
+                console.error('DuckAiListener:', ...args);
+            }
+        }
+    };
+
     init() {
         // Only activate on duckduckgo.com
         if (!this.shouldActivate()) {
             return;
         }
-        console.log('DuckAiListener: Initializing on duckduckgo.com');
+        this.log.info('Initializing on duckduckgo.com');
         if (document.readyState === 'complete') {
             this.setup();
         } else {
@@ -101,7 +122,7 @@ export default class DuckAiListener extends ContentFeature {
         // Find the parent container that holds the input controls
         const inputContainer = imageInput.closest('div');
         if (!inputContainer) {
-            console.warn('DuckAiListener: Could not find input container');
+            this.log.warn('Could not find input container');
             return;
         }
 
@@ -176,7 +197,7 @@ export default class DuckAiListener extends ContentFeature {
         // Set initial appearance based on enabled state
         this.updateButtonAppearance();
 
-        console.log('DuckAiListener: Created page context button');
+        this.log.info('Created page context button');
     }
 
     /**
@@ -229,7 +250,7 @@ export default class DuckAiListener extends ContentFeature {
         const lastContext = this.lastInjectedContext.trim();
 
         if (currentValue === lastContext) {
-            console.log('DuckAiListener: Clearing injected context from text box');
+            this.log.info('Clearing injected context from text box');
             this.setReactTextAreaValue(this.textBox, '');
         }
     }
@@ -241,42 +262,42 @@ export default class DuckAiListener extends ContentFeature {
         try {
             // @ts-expect-error - navigator.duckduckgo is injected by the browser
             if (!navigator.duckduckgo) {
-                console.warn('DuckAiListener: navigator.duckduckgo not available');
+                this.log.warn('navigator.duckduckgo not available');
                 return;
             }
 
             const featureName = 'aiChat';
             // @ts-expect-error - createMessageBridge is injected by the browser
             if (!navigator.duckduckgo.createMessageBridge) {
-                console.warn('DuckAiListener: createMessageBridge not available');
+                this.log.warn('createMessageBridge not available');
                 return;
             }
 
             // @ts-expect-error - createMessageBridge is injected by the browser
             this.bridge = navigator.duckduckgo.createMessageBridge(featureName);
             if (!this.bridge) {
-                console.warn('DuckAiListener: Failed to create message bridge');
+                this.log.warn('Failed to create message bridge');
                 return;
             }
 
-            console.log('DuckAiListener: Created message bridge successfully');
+            this.log.info('Created message bridge successfully');
 
             // Try to get initial page context
             try {
                 const getPageContext = await this.bridge.request('getPageContext');
-                console.log('DuckAiListener: Initial page context:', getPageContext);
+                this.log.info('Initial page context:', getPageContext);
                 this.handlePageContextData(getPageContext);
             } catch (error) {
-                console.log('DuckAiListener: No initial page context available:', error);
+                this.log.info('No initial page context available:', error);
             }
 
             // Subscribe to page context updates (matches fake-duck-ai exactly)
             this.bridge.subscribe('submitPageContext', (event) => {
-                console.log('DuckAiListener: Received page context update:', event);
+                this.log.info('Received page context update:', event);
                 this.handlePageContextData(event);
             });
         } catch (error) {
-            console.error('DuckAiListener: Error setting up message bridge:', error);
+            this.log.error('Error setting up message bridge:', error);
         }
     }
 
@@ -288,7 +309,7 @@ export default class DuckAiListener extends ContentFeature {
         try {
             if (data.serializedPageData) {
                 const pageDataParsed = JSON.parse(data.serializedPageData);
-                console.log('DuckAiListener: Parsed page data:', pageDataParsed);
+                this.log.info('Parsed page data:', pageDataParsed);
 
                 if (pageDataParsed.content) {
                     this.pageData = pageDataParsed;
@@ -296,7 +317,7 @@ export default class DuckAiListener extends ContentFeature {
                 }
             }
         } catch (error) {
-            console.error('DuckAiListener: Error parsing page context data:', error);
+            this.log.error('Error parsing page context data:', error);
         }
     }
 
@@ -345,11 +366,11 @@ export default class DuckAiListener extends ContentFeature {
         if (element && element instanceof HTMLTextAreaElement) {
             if (this.textBox !== element) {
                 this.textBox = element;
-                console.log('DuckAiListener: Found AI text box');
+                this.log.info('Found AI text box');
             }
         } else if (this.textBox) {
             this.textBox = null;
-            console.log('DuckAiListener: AI text box not found');
+            this.log.info('AI text box not found');
         }
     }
 
@@ -359,24 +380,24 @@ export default class DuckAiListener extends ContentFeature {
      */
     insertContextIntoTextBox(context) {
         if (!context || typeof context !== 'string') {
-            console.warn('DuckAiListener: Invalid context provided for insertion');
+            this.log.warn('Invalid context provided for insertion');
             return;
         }
 
         // Check if page context is disabled - if so, don't inject
         if (!this.isPageContextEnabled) {
-            console.log('DuckAiListener: Context injection disabled');
+            this.log.info('Context injection disabled');
             return;
         }
 
         this.findTextBox(); // Refresh text box
 
         if (!this.textBox) {
-            console.log('DuckAiListener: No text box found for context insertion');
+            this.log.info('No text box found for context insertion');
             return;
         }
 
-        console.log('DuckAiListener: Inserting context into text box');
+        this.log.info('Inserting context into text box');
 
         // Set the value using React-compatible approach (limit to 2000 chars like fake-duck-ai)
         const contextValue = context.slice(0, 2000);
@@ -389,8 +410,8 @@ export default class DuckAiListener extends ContentFeature {
         this.textBox.focus();
         this.textBox.scrollTop = 0;
 
-        console.log('DuckAiListener: Successfully inserted context', this.textBox.value);
-        console.log(this.textBox);
+        this.log.info('Successfully inserted context', this.textBox.value);
+        this.log.info(this.textBox);
     }
 
     /**
@@ -405,7 +426,7 @@ export default class DuckAiListener extends ContentFeature {
             const originalSet = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
 
             if (!originalSet || typeof originalSet.call !== 'function') {
-                console.warn('DuckAiListener: Cannot access original value setter, falling back to direct assignment');
+                this.log.warn('Cannot access original value setter, falling back to direct assignment');
                 textarea.value = value;
                 return;
             }
@@ -425,7 +446,7 @@ export default class DuckAiListener extends ContentFeature {
             originalSet.call(textarea, value);
             events.forEach((ev) => textarea.dispatchEvent(ev));
         } catch (error) {
-            console.error('DuckAiListener: Error setting React textarea value:', error);
+            this.log.error('Error setting React textarea value:', error);
             // Fallback to direct assignment
             textarea.value = value;
         }
