@@ -111,37 +111,57 @@ export default class DuckAiListener extends ContentFeature {
         this.button.id = 'duck-ai-context-button';
         this.button.innerHTML = `
             <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0C14.2091 4.27829e-08 16 1.79086 16 4V10C16 12.2091 14.2091 14 12 14H4C1.79086 14 9.6639e-08 12.2091 0 10V4C9.66449e-08 1.79086 1.79086 8.05326e-08 4 0H12ZM4 1.25C2.48122 1.25 1.25 2.48122 1.25 4V10C1.25 11.5188 2.48122 12.75 4 12.75H12C13.5188 12.75 14.75 11.5188 14.75 10V5.3125C14.75 4.7257 14.2743 4.25 13.6875 4.25H10.427C9.1625 4.24998 8.00656 3.53554 7.44104 2.40454C7.08727 1.697 6.36405 1.25002 5.573 1.25H4ZM7.375 9C7.72018 9 8 9.27982 8 9.625C8 9.97018 7.72018 10.25 7.375 10.25H3.625C3.27982 10.25 3 9.97018 3 9.625C3 9.27982 3.27982 9 3.625 9H7.375ZM9.375 6C9.72018 6 10 6.27982 10 6.625C10 6.97018 9.72018 7.25 9.375 7.25H3.625C3.27982 7.25 3 6.97018 3 6.625C3 6.27982 3.27982 6 3.625 6H9.375ZM8.17761 1.25C8.3237 1.43222 8.45191 1.63137 8.55896 1.84546C8.91273 2.553 9.63595 2.99998 10.427 3H13.6875C14.0239 3 14.3435 3.07189 14.6318 3.20105C14.2895 2.07196 13.2409 1.25 12 1.25H8.17761Z" fill="black" fill-opacity="0.84"/>
+                <path d="M12 0C14.2091 4.27829e-08 16 1.79086 16 4V10C16 12.2091 14.2091 14 12 14H4C1.79086 14 9.6639e-08 12.2091 0 10V4C9.66449e-08 1.79086 1.79086 8.05326e-08 4 0H12ZM4 1.25C2.48122 1.25 1.25 2.48122 1.25 4V10C1.25 11.5188 2.48122 12.75 4 12.75H12C13.5188 12.75 14.75 11.5188 14.75 10V5.3125C14.75 4.7257 14.2743 4.25 13.6875 4.25H10.427C9.1625 4.24998 8.00656 3.53554 7.44104 2.40454C7.08727 1.697 6.36405 1.25002 5.573 1.25H4ZM7.375 9C7.72018 9 8 9.27982 8 9.625C8 9.97018 7.72018 10.25 7.375 10.25H3.625C3.27982 10.25 3 9.97018 3 9.625C3 9.27982 3.27982 9 3.625 9H7.375ZM9.375 6C9.72018 6 10 6.27982 10 6.625C10 6.97018 9.72018 7.25 9.375 7.25H3.625C3.27982 7.25 3 6.97018 3 6.625C3 6.27982 3.27982 6 3.625 6H9.375ZM8.17761 1.25C8.3237 1.43222 8.45191 1.63137 8.55896 1.84546C8.91273 2.553 9.63595 2.99998 10.427 3H13.6875C14.0239 3 14.3435 3.07189 14.6318 3.20105C14.2895 2.07196 13.2409 1.25 12 1.25H8.17761Z" fill="currentColor"/>
             </svg>
         `;
         this.button.title = 'Toggle page context injection';
         
         // Style the button to match existing input field buttons
         this.button.style.cssText = `
-            background: none;
-            border: none;
-            padding: 8px;
+            box-sizing: border-box;
+            clip-rule: evenodd;
+            color: rgb(204, 204, 204);
+            color-scheme: light dark;
             cursor: pointer;
-            color: ${this.isPageContextEnabled ? '#0969da' : '#656d76'};
-            opacity: 1;
-            font-size: 16px;
-            line-height: 1;
-            border-radius: 4px;
-            transition: color 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            fill: rgb(204, 204, 204);
+            fill-rule: evenodd;
+            font-feature-settings: normal;
+            font-kerning: auto;
+            font-optical-sizing: auto;
+            font-size: 14.4px;
+            font-size-adjust: none;
+            font-style: normal;
+            font-weight: 700;
+            font-width: 100%;
+            height: 28px;
+            letter-spacing: -0.00875px;
+            line-height: 14.4px;
+            text-align: center;
+            text-indent: 0px;
+            text-shadow: none;
+            text-transform: none;
+            transform-box: view-box;
+            width: 28px;
+            word-spacing: 0px;
+            border: none;
+            background: transparent;
+            padding: 0;
+            border-radius: 50%;
         `;
 
         // Add hover effect
         this.button.addEventListener('mouseenter', () => {
             if (this.button) {
-                this.button.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+                this.button.style.backgroundColor = 'rgba(255, 255, 255, 0.18)';
             }
         });
         this.button.addEventListener('mouseleave', () => {
             if (this.button) {
-                this.button.style.backgroundColor = 'transparent';
+                // Restore the state-based appearance instead of always transparent
+                this.updateButtonAppearance();
             }
         });
 
@@ -152,6 +172,9 @@ export default class DuckAiListener extends ContentFeature {
         if (imageInput.parentNode) {
             imageInput.parentNode.insertBefore(this.button, imageInput.nextSibling);
         }
+
+        // Set initial appearance based on enabled state
+        this.updateButtonAppearance();
 
         console.log('DuckAiListener: Created page context button');
     }
@@ -165,9 +188,6 @@ export default class DuckAiListener extends ContentFeature {
         // Toggle the page context enabled state
         this.isPageContextEnabled = !this.isPageContextEnabled;
         
-        // Update button appearance based on state
-        this.button.style.color = this.isPageContextEnabled ? '#0969da' : '#656d76';
-
         if (this.isPageContextEnabled) {
             // Page context is now enabled - inject context if available
             if (this.pageData && this.pageData.content) {
@@ -176,6 +196,21 @@ export default class DuckAiListener extends ContentFeature {
         } else {
             // Page context is now disabled - clear input if it matches current context
             this.clearContextFromTextBox();
+        }
+    }
+
+    /**
+     * Update button appearance based on enabled state
+     */
+    updateButtonAppearance() {
+        if (!this.button) return;
+        
+        if (this.isPageContextEnabled) {
+            // Button is selected - show active state
+            this.button.style.backgroundColor = 'rgba(255, 255, 255, 0.18)';
+        } else {
+            // Button is not selected - show default state
+            this.button.style.backgroundColor = 'transparent';
         }
     }
 
