@@ -6,6 +6,7 @@ import { h } from 'preact';
 
 import { OmnibarConsumer } from './OmnibarConsumer.js';
 import { SearchIcon } from '../../components/Icons.js';
+import { useContextMenuItem } from '../../context-menu.js';
 import { PersistentModeProvider, PersistentTextInputProvider } from './PersistentOmnibarValuesProvider.js';
 
 /**
@@ -30,6 +31,12 @@ export function OmnibarCustomized() {
     const { visibility, id, toggle, index } = useVisibility();
 
     useCustomizer({ title: sectionTitle, id, icon: <SearchIcon />, toggle, visibility: visibility.value, index });
+    useContextMenuItem({ title: sectionTitle, id, index });
+    useContextMenuItem({
+        title: t('omnibar_toggleDuckAi'),
+        id: `${id}-toggleAi`,
+        index: index + 0.1,
+    });
 
     return (
         <PersistentTextInputProvider>

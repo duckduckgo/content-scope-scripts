@@ -4,7 +4,7 @@ import styles from './App.module.css';
 import { useCustomizerDrawerSettings, usePlatformName } from '../settings.provider.js';
 import { WidgetList } from '../widget-list/WidgetList.js';
 import { useGlobalDropzone } from '../dropzone.js';
-import { CustomizerButton, CustomizerMenuPositionedFixed, useContextMenu } from '../customizer/components/CustomizerMenu.js';
+import { CustomizerButton, CustomizerMenuPositionedFixed } from '../customizer/components/CustomizerMenu.js';
 import { useDrawer, useDrawerControls } from './Drawer.js';
 import { CustomizerDrawer } from '../customizer/components/CustomizerDrawer.js';
 import { BackgroundConsumer } from './BackgroundProvider.js';
@@ -12,6 +12,7 @@ import { useComputed } from '@preact/signals';
 import { CustomizerThemesContext } from '../customizer/CustomizerProvider.js';
 import { useContext } from 'preact/hooks';
 import { InlineErrorBoundary } from '../InlineErrorBoundary.js';
+import { useContextMenu } from '../context-menu.js';
 
 /**
  * Renders the App component.

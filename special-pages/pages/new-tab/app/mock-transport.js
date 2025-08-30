@@ -25,7 +25,7 @@ import { tabsMockTransport } from './tabs/tabs.mock-transport.js';
  * @typedef {import('@duckduckgo/messaging/lib/test-utils.mjs').SubscriptionEvent} SubscriptionEvent
  */
 
-const VERSION_PREFIX = '__ntp_31__.';
+const VERSION_PREFIX = '__ntp_32__.';
 const url = new URL(window.location.href);
 
 export function mockTransport() {

@@ -11,6 +11,7 @@ import { FavoritesMemo } from './Favorites.js';
 import { viewTransition } from '../../utils.js';
 import { CustomizerContext } from '../../customizer/CustomizerProvider.js';
 import { Shield } from '../../components/Icons.js';
+import { useContextMenuItem } from '../../context-menu.js';
 
 /**
  * @typedef {import('../../../types/new-tab.ts').Favorite} Favorite
@@ -68,6 +69,7 @@ export function FavoritesCustomized() {
     // register with the visibility menu
     const title = t('favorites_menu_title');
     useCustomizer({ title, id, icon: <Shield />, toggle, visibility: visibility.value, index });
+    useContextMenuItem({ title, id, index });
 
     if (visibility.value === 'hidden') {
         return null;
