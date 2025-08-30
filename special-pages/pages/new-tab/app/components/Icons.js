@@ -224,7 +224,7 @@ export function SearchOnDarkColorIcon(props) {
     return (
         <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Search-Find-OnDark-Color-16_svg__a)">
-                <path fill="#444" d="M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z" />
+                <path fill="#000" d="M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z" opacity=".2" />
                 <path
                     fill="#fff"
                     fill-opacity=".4"
