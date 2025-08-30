@@ -8,6 +8,7 @@ export default class GlobalPrivacyControl extends ContentFeature {
             if (args.globalPrivacyControlValue) {
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 if (navigator.globalPrivacyControl) return;
+                // @ts-expect-error This doesn't exist in the DOM lib
                 this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                     get: () => true,
                     configurable: true,
@@ -18,6 +19,7 @@ export default class GlobalPrivacyControl extends ContentFeature {
                 // this may be overwritten by the user agent or other extensions
                 // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                 if (typeof navigator.globalPrivacyControl !== 'undefined') return;
+                // @ts-expect-error This doesn't exist in the DOM lib
                 this.defineProperty(Navigator.prototype, 'globalPrivacyControl', {
                     get: () => false,
                     configurable: true,
