@@ -33,9 +33,6 @@ export class AndroidAdsjsMessagingTransport {
     constructor(config, messagingContext) {
         this.messagingContext = messagingContext;
         this.config = config;
-
-        // Send initial ping when transport is first created.
-        this.config.sendInitialPing(messagingContext);
     }
 
     /**
