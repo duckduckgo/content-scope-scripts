@@ -21,6 +21,7 @@ const otherFeatures = /** @type {const} */ ([
     'messageBridge',
     'duckPlayer',
     'duckPlayerNative',
+    'duckAiListener',
     'harmfulApis',
     'webCompat',
     'windowsPermissionUsage',
@@ -30,13 +31,13 @@ const otherFeatures = /** @type {const} */ ([
     'autofillPasswordImport',
     'favicon',
     'webTelemetry',
-    'scriptlets',
+    'pageContext',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', 'scriptlets', ...baseFeatures],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'duckAiListener'],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
@@ -45,6 +46,7 @@ export const platformSupport = {
         'clickToLoad',
         'messageBridge',
         'favicon',
+        'pageContext',
     ],
     android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
