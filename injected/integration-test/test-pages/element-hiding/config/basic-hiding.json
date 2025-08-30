@@ -1,0 +1,25 @@
+{
+    "readme": "Configuration for basic element hiding tests with simple hide rules",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "elementHiding": {
+            "state": "enabled",
+            "exceptions": [],
+            "rules": [
+                {
+                    "selector": ".ad-banner",
+                    "type": "hide"
+                },
+                {
+                    "selector": "#sidebar-ad",
+                    "type": "hide"
+                },
+                {
+                    "selector": "[data-ad='true']",
+                    "type": "hide"
+                }
+            ]
+        }
+    }
+}
