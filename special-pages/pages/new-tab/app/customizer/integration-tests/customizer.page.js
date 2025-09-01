@@ -20,6 +20,8 @@ export class CustomizerPage {
         this.ntp = ntp;
     }
 
+    context = () => this.ntp.page.locator('aside');
+
     async showsColorSelectionPanel() {
         const { page } = this.ntp;
         await page.locator('aside').getByLabel('Solid Colors').click();
@@ -458,5 +460,49 @@ export class CustomizerPage {
         await page.getByRole('radio', { name: 'Select image 1' }).click({
             button: 'right',
         });
+    }
+
+    /**
+     * @param {string} name
+     * @returns {Promise<void>}
+     */
+    async isChecked(name) {
+        await expect(this.context().getByRole('switch', { name })).toBeChecked();
+    }
+
+    /**
+     * @param {string} name
+     * @returns {Promise<void>}
+     */
+    async isUnchecked(name) {
+        await expect(this.context().getByRole('switch', { name })).not.toBeChecked({ timeout: 1000 });
+    }
+
+    /**
+     * @param {string} name
+     */
+    async hasSwitch(name) {
+        await expect(this.context().getByRole('switch', { name })).toBeVisible();
+    }
+
+    /**
+     * @param {string} name
+     */
+    async switchIsDisabled(name) {
+        await expect(this.context().getByRole('switch', { name })).toBeDisabled();
+    }
+
+    /**
+     * @param {string} name
+     */
+    async switchIsEnabled(name) {
+        await expect(this.context().getByRole('switch', { name })).toBeEnabled();
+    }
+
+    /**
+     * @param {string} name
+     */
+    async doesntHaveSwitch(name) {
+        await expect(this.context().getByRole('switch', { name })).not.toBeVisible();
     }
 }

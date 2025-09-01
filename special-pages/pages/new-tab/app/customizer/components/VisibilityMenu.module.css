@@ -19,6 +19,10 @@
     gap: 10px;
     white-space: nowrap;
     height: calc(28 * var(--px-in-rem));
+
+    &:has(input[disabled]) .title {
+        color: var(--ntp-text-tertiary)
+    }
 }
 
 .menuItemLabelEmbedded {

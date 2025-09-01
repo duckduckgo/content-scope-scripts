@@ -11,6 +11,7 @@ import { useMessaging, useTypedTranslation } from '../../types.js';
 /**
  * @typedef {object} VisibilityRowData
  * @property {string} id - a unique id
+ * @property {boolean} enabled - whether this row can be interacted with
  * @property {string} title - the title as it should appear in the menu
  * @property {import('preact').ComponentChild} icon - icon to display in the menu
  * @property {(id: string) => void} toggle - toggle function for this item
@@ -99,16 +100,19 @@ export function CustomizerMenuPositionedFixed({ children }) {
  * Call this to opt-in to the visibility menu
  * @param {VisibilityRowData} row
  */
-export function useCustomizer({ title, id, icon, toggle, visibility, index }) {
+export function useCustomizer({ title, id, icon, toggle, visibility, index, enabled }) {
     useEffect(() => {
-        const handler = (/** @type {CustomEvent<any>} */ e) => {
-            e.detail.register({ title, id, icon, toggle, visibility, index });
+        const handler = (/** @type {CustomEvent<{register: (d: VisibilityRowData) => void}>} */ e) => {
+            e.detail.register({ title, id, icon, toggle, visibility, index, enabled });
         };
         window.addEventListener(OPEN_EVENT, handler);
         return () => window.removeEventListener(OPEN_EVENT, handler);
-    }, [title, id, icon, toggle, visibility, index]);
+    }, [title, id, icon, toggle, visibility, index, enabled]);
 
     useEffect(() => {
         window.dispatchEvent(new Event(UPDATE_EVENT));
+        return () => {
+            window.dispatchEvent(new Event(UPDATE_EVENT));
+        };
     }, [visibility]);
 }

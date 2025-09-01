@@ -18,7 +18,6 @@ describe('Features definition', () => {
         expect(platformSupport.apple).toEqual([
             'webCompat',
             'duckPlayerNative',
-            'scriptlets',
             'fingerprintingAudio',
             'fingerprintingBattery',
             'fingerprintingCanvas',
@@ -32,6 +31,7 @@ describe('Features definition', () => {
             'elementHiding',
             'exceptionHandler',
             'apiManipulation',
+            'duckAiListener',
         ]);
     });
 });
