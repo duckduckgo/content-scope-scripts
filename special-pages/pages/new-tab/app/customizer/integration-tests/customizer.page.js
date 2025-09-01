@@ -488,6 +488,20 @@ export class CustomizerPage {
     /**
      * @param {string} name
      */
+    async switchIsDisabled(name) {
+        await expect(this.context().getByRole('switch', { name })).toBeDisabled();
+    }
+
+    /**
+     * @param {string} name
+     */
+    async switchIsEnabled(name) {
+        await expect(this.context().getByRole('switch', { name })).toBeEnabled();
+    }
+
+    /**
+     * @param {string} name
+     */
     async doesntHaveSwitch(name) {
         await expect(this.context().getByRole('switch', { name })).not.toBeVisible();
     }
