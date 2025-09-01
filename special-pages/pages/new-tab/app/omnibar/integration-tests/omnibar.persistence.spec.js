@@ -28,6 +28,17 @@ test.describe('omnibar widget persistence', () => {
         // back to second again
         await omnibar.didSwitchToTab('02', ['01', '02']);
         await omnibar.expectInputValue('dresses');
+
+        // now clear the input
+        await omnibar.clearsInput();
+
+        // first tab is all good...
+        await omnibar.didSwitchToTab('01', ['01', '02']);
+        await omnibar.expectInputValue('shoes');
+
+        /// ...but the tab where we cleared is still empty
+        await omnibar.didSwitchToTab('02', ['01', '02']);
+        await omnibar.expectInputValue('');
     });
     test('remembers `mode` across tabs', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
