@@ -254,7 +254,7 @@ export class WebCompat extends ContentFeature {
             value: () => {
                 return Promise.resolve('denied');
             },
-            writable: false,
+            writable: true,
             configurable: true,
             enumerable: true,
         });
