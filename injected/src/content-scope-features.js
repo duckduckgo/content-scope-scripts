@@ -137,9 +137,9 @@ export async function updateFeatureArgs(updatedArgs) {
                 featureInstance.setArgs(updatedArgs);
             }
 
-            // Call the optional configUpdated method if it exists
-            if (typeof featureInstance.configUpdated === 'function') {
-                featureInstance.configUpdated(updatedArgs);
+            // Call the optional onUserPreferencesMerged method if it exists
+            if (typeof featureInstance.onUserPreferencesMerged === 'function') {
+                featureInstance.onUserPreferencesMerged(updatedArgs);
             }
         }
     });

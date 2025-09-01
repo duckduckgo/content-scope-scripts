@@ -43,7 +43,7 @@ export default class ContentFeature extends ConfigFeature {
     listenForUpdateChanges = false;
 
     /**
-     * Set this to true if you wish to receive configuration updates from initial ping responses.
+     * Set this to true if you wish to receive configuration updates from initial ping responses (Android only).
      * @type {boolean}
      */
     listenForConfigUpdates = false;
@@ -230,13 +230,14 @@ export default class ContentFeature extends ConfigFeature {
     update() {}
 
     /**
-     * Called when configuration is updated from initial ping response.
-     * Override this method in your feature to handle configuration changes.
-     * @param {object} _updatedConfig - The new configuration
+     * Called when user preferences are merged from initial ping response. (Android only)
+     * Override this method in your feature to handle user preference updates.
+     * This only happens once during initialization when the platform responds with user-specific settings.
+     * @param {object} _updatedConfig - The configuration with merged user preferences
      */
-    configUpdated(_updatedConfig) {
+    onUserPreferencesMerged(_updatedConfig) {
         // Default implementation does nothing
-        // Features can override this to handle config updates
+        // Features can override this to handle user preference updates
     }
 
     /**

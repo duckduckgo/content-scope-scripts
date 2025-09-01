@@ -146,11 +146,11 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
-     * Handle configuration updates from initial ping responses.
+     * Handle user preference updates when merged during initialization.
      * Re-applies viewport fixes if viewport configuration has changed.
-     * @param {object} _updatedConfig - The updated configuration
+     * @param {object} _updatedConfig - The configuration with merged user preferences
      */
-    configUpdated(_updatedConfig) {
+    onUserPreferencesMerged(_updatedConfig) {
         // Re-apply viewport width fix if viewport settings might have changed
         if (this.getFeatureSettingEnabled('viewportWidth')) {
             if (!this._viewportWidthFixApplied) {
