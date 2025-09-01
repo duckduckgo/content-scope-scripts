@@ -17,7 +17,7 @@ export class PersistentValue {
      * @param {T} args.value
      */
     update({ id, value }) {
-        if (string(id) && string(value)) {
+        if (string(id)) {
             this.#values.set(id, value);
         }
     }

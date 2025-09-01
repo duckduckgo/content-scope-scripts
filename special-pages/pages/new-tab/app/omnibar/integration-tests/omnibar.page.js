@@ -252,6 +252,11 @@ export class OmnibarPage {
             }
         }
     }
+
+    async clearsInput() {
+        await this.searchInput().hover();
+        await this.closeButton().click();
+    }
 }
 
 /**
