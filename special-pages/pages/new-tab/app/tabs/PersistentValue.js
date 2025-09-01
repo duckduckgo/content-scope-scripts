@@ -63,7 +63,7 @@ export class PersistentValue {
     byId(id) {
         if (typeof id !== 'string') return null;
         const value = this.#values.get(id);
-        if (!value || !string(value)) return null;
+        if (value === undefined) return null;
         return value;
     }
 
