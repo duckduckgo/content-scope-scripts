@@ -3,6 +3,7 @@ const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
 import { getFaviconList } from './favicon.js';
+import { getTabUrl } from '../utils.js';
 
 export default class PageContext extends ContentFeature {
     collectionCache = new Map();
@@ -27,12 +28,9 @@ export default class PageContext extends ContentFeature {
     }
 
     isDuckAi() {
-        if (window?.top?.location?.hostname === 'duckduckgo.com') {
-            return true;
-        }
-        if (window.location.hostname === 'duckduckgo.com') {
-            const url = new URL(window.location.href);
-            return url.searchParams.has('duckai');
+        const tabUrl = getTabUrl();
+        if (tabUrl?.hostname === 'duckduckgo.com') {
+            return tabUrl.searchParams.has('duckai');
         }
         return false;
     }
