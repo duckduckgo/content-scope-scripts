@@ -1,9 +1,9 @@
 import ContentFeature from '../content-feature.js';
+import { getFaviconList } from './favicon.js';
+import { getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
-import { getFaviconList } from './favicon.js';
-import { getTabUrl } from '../utils.js';
 
 export default class PageContext extends ContentFeature {
     collectionCache = new Map();
