@@ -1,16 +1,16 @@
 import { useLayoutEffect, useState } from 'preact/hooks';
-import { getItems, UPDATE_EVENT } from './CustomizerMenu.js';
+import { getCustomizerItems, UPDATE_EVENT } from './CustomizerMenu.js';
 import { EmbeddedVisibilityMenu } from './VisibilityMenu.js';
 import { h } from 'preact';
 
 export function VisibilityMenuSection() {
     const [rowData, setRowData] = useState(() => {
-        const items = /** @type {import("./CustomizerMenu.js").VisibilityRowData[]} */ (getItems());
+        const items = /** @type {import("./CustomizerMenu.js").VisibilityRowData[]} */ (getCustomizerItems());
         return items;
     });
     useLayoutEffect(() => {
         function handler() {
-            setRowData(getItems());
+            setRowData(getCustomizerItems());
         }
 
         window.addEventListener(UPDATE_EVENT, handler);

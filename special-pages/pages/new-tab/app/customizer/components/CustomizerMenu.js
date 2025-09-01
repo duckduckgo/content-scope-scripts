@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useEffect } from 'preact/hooks';
 import styles from './Customizer.module.css';
 import { CustomizeIcon } from '../../components/Icons.js';
-import { useMessaging, useTypedTranslation } from '../../types.js';
+import { useTypedTranslation } from '../../types.js';
 
 /**
  * @import { WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
@@ -21,7 +21,10 @@ import { useMessaging, useTypedTranslation } from '../../types.js';
 export const OPEN_EVENT = 'ntp-customizer-open';
 export const UPDATE_EVENT = 'ntp-customizer-update';
 
-export function getItems() {
+/**
+ * @returns {VisibilityRowData[]}
+ */
+export function getCustomizerItems() {
     /** @type {VisibilityRowData[]} */
     const next = [];
     const detail = {
@@ -33,34 +36,6 @@ export function getItems() {
     window.dispatchEvent(event);
     next.sort((a, b) => a.index - b.index);
     return next;
-}
-
-/**
- * Forward the contextmenu event
- */
-export function useContextMenu() {
-    const messaging = useMessaging();
-    useEffect(() => {
-        function handler(e) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            const items = getItems();
-            /** @type {VisibilityMenuItem[]} */
-            const simplified = items
-                .filter((x) => !x.id.startsWith('_'))
-                .map((item) => {
-                    return {
-                        id: item.id,
-                        title: item.title,
-                    };
-                });
-            messaging.contextMenu({ visibilityMenuItems: simplified });
-        }
-        document.body.addEventListener('contextmenu', handler);
-        return () => {
-            document.body.removeEventListener('contextmenu', handler);
-        };
-    }, [messaging]);
 }
 
 /**

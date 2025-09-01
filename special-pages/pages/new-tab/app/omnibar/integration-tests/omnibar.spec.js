@@ -993,10 +993,11 @@ test.describe('omnibar widget', () => {
         // Right-click on the page to trigger context menu
         await page.click('body', { button: 'right' });
 
-        // Assert that contextMenu notification is sent with real widgets and not e.g. the Duck.ai toggle
+        // Assert that contextMenu notification is sent with an additional widget.
         await omnibar.expectMethodCalledWith('contextMenu', {
             visibilityMenuItems: [
                 { id: 'omnibar', title: 'Search' },
+                { id: 'omnibar-toggleAi', title: 'Duck.ai' },
                 { id: 'favorites', title: 'Favorites' },
                 { id: 'protections', title: 'Protections Report' },
             ],
