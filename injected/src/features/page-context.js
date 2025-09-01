@@ -2,6 +2,7 @@ import ContentFeature from '../content-feature.js';
 const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
+import { getFaviconList } from './favicon.js';
 
 export default class PageContext extends ContentFeature {
     collectionCache = new Map();
@@ -18,6 +19,9 @@ export default class PageContext extends ContentFeature {
             this.handleContentCollectionRequest({});
         });
         window.addEventListener('hashchange', () => {
+            this.handleContentCollectionRequest({});
+        });
+        window.addEventListener('pageshow', () => {
             this.handleContentCollectionRequest({});
         });
     }
@@ -106,6 +110,7 @@ export default class PageContext extends ContentFeature {
         }
 
         const content = {
+            favicon: getFaviconList(),
             title: this.getPageTitle(),
             metaDescription: this.getMetaDescription(),
             content: this.getMainContent(options),
