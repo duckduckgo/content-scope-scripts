@@ -20,7 +20,7 @@ export const DELAY_BEFORE_ANIMATION = 300;
 /**
  * @typedef ElementConfig
  * @property {HTMLElement|Element|SVGElement} element
- * @property {ButtonAnimationStyle} animationStyle
+ * @property {ButtonAnimationStyle|null} animationStyle
  * @property {boolean} shouldTap
  * @property {boolean} shouldWatchForRemoval
  * @property {boolean} tapOnce
@@ -35,6 +35,8 @@ export const DELAY_BEFORE_ANIMATION = 300;
  */
 export default class AutofillPasswordImport extends ContentFeature {
     #exportButtonSettings;
+
+    #exportConfirmButtonSettings;
 
     #settingsButtonSettings;
 
@@ -148,16 +150,28 @@ export default class AutofillPasswordImport extends ContentFeature {
                   }
                 : null;
         } else if (path === '/options') {
-            const element = await this.findExportElement();
-            return element != null
-                ? {
-                      animationStyle: this.exportButtonAnimationStyle,
-                      element,
-                      shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
-                      shouldWatchForRemoval: true,
-                      tapOnce: true,
-                  }
-                : null;
+            const exportConfirmElement = await this.findExportConfirmElement();
+            // If we have found the popup element, then we return that early.
+            if (exportConfirmElement != null && this.#exportButtonSettings?.shouldAutotap) {
+                return {
+                    animationStyle: null,
+                    element: exportConfirmElement,
+                    shouldTap: true,
+                    shouldWatchForRemoval: false,
+                    tapOnce: false,
+                };
+            } else {
+                const element = await this.findExportElement();
+                return element != null
+                    ? {
+                          animationStyle: this.exportButtonAnimationStyle,
+                          element,
+                          shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
+                          shouldWatchForRemoval: true,
+                          tapOnce: true,
+                      }
+                    : null;
+            }
         } else if (path === '/intro') {
             const element = await this.findSignInButton();
             return element != null
@@ -338,6 +352,14 @@ export default class AutofillPasswordImport extends ContentFeature {
         element.click();
     }
 
+    async findExportConfirmElement() {
+        try {
+            return await withExponentialBackoff(() => document.querySelector(this.exportConfirmButtonSelector));
+        } catch {
+            return null;
+        }
+    }
+
     /**
      * On passwords.google.com the export button is in a container that is quite ambiguious.
      * To solve for that we first try to find the container and then the button inside it.
@@ -354,7 +376,11 @@ export default class AutofillPasswordImport extends ContentFeature {
             return document.querySelector(this.exportButtonLabelTextSelector);
         };
 
-        return await withExponentialBackoff(() => findInContainer() ?? findWithLabel());
+        try {
+            return await withExponentialBackoff(() => findInContainer() ?? findWithLabel());
+        } catch {
+            return null;
+        }
     }
 
     /**
@@ -365,14 +391,22 @@ export default class AutofillPasswordImport extends ContentFeature {
             const settingsButton = document.querySelector(this.settingsButtonSelector);
             return settingsButton;
         };
-        return await withExponentialBackoff(fn);
+        try {
+            return await withExponentialBackoff(fn);
+        } catch {
+            return null;
+        }
     }
 
     /**
      * @returns {Promise<HTMLElement|Element|null>}
      */
     async findSignInButton() {
-        return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector));
+        try {
+            return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector));
+        } catch {
+            return null;
+        }
     }
 
     /**
@@ -390,7 +424,8 @@ export default class AutofillPasswordImport extends ContentFeature {
     setCurrentElementConfig(config) {
         if (config != null) {
             this.#currentElementConfig = config;
-            this.setElementToCenterOn(config.element, config.animationStyle);
+
+            if (config.animationStyle != null) this.setElementToCenterOn(config.element, config.animationStyle);
         }
     }
 
@@ -452,6 +487,13 @@ export default class AutofillPasswordImport extends ContentFeature {
     /**
      * @returns {string}
      */
+    get exportConfirmButtonSelector() {
+        return this.#exportConfirmButtonSettings?.selectors?.join(',');
+    }
+
+    /**
+     * @returns {string}
+     */
     get exportButtonLabelTextSelector() {
         return this.#exportButtonSettings?.labelTexts.map((text) => `button[aria-label="${text}"]`).join(',');
     }
@@ -488,6 +530,7 @@ export default class AutofillPasswordImport extends ContentFeature {
         this.#exportButtonSettings = this.getFeatureSetting('exportButton');
         this.#signInButtonSettings = this.getFeatureSetting('signInButton');
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
+        this.#exportConfirmButtonSettings = this.getFeatureSetting('exportConfirmButton');
     }
 
     urlChanged() {
