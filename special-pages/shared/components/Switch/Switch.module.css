@@ -109,6 +109,10 @@
         background-color: var(--track-bg-color-checked-active);
         border-color: var(--track-border-color-checked-active);
     }
+
+    &[disabled] {
+        cursor: not-allowed;
+    }
 }
 
 

@@ -29,16 +29,14 @@ export function OmnibarCustomized() {
 
     const { visibility, id, toggle, index } = useVisibility();
 
-    useCustomizer({ title: sectionTitle, id, icon: <SearchIcon />, toggle, visibility: visibility.value, index });
+    useCustomizer({ title: sectionTitle, id, icon: <SearchIcon />, toggle, visibility: visibility.value, index, enabled: true });
 
     return (
         <PersistentTextInputProvider>
             <PersistentModeProvider>
-                {visibility.value === 'visible' && (
-                    <OmnibarProvider>
-                        <OmnibarConsumer />
-                    </OmnibarProvider>
-                )}
+                <OmnibarProvider>
+                    <OmnibarConsumer />
+                </OmnibarProvider>
             </PersistentModeProvider>
         </PersistentTextInputProvider>
     );

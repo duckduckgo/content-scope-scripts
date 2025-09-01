@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { OmnibarPage } from './omnibar.page.js';
+import { CustomizerPage } from '../../customizer/integration-tests/customizer.page.js';
 
 test.describe('omnibar widget', () => {
     test('fetches config on load', async ({ page }, workerInfo) => {
@@ -306,18 +307,19 @@ test.describe('omnibar widget', () => {
     test('hiding Omnibar widget hides Duck.ai toggle', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
+        const customizer = new CustomizerPage(ntp);
         await ntp.reducedMotion();
 
         await ntp.openPage({ additional: { omnibar: true } });
         await omnibar.ready();
 
         // Open Customize panel - Duck.ai toggle should be visible
-        await omnibar.customizeButton().click();
-        await expect(omnibar.toggleDuckAiButton()).toBeVisible();
+        await customizer.opensCustomizer();
+        await customizer.switchIsEnabled('Duck.ai');
 
         // Hide the Omnibar widget - Duck.ai toggle should be hidden
         await omnibar.toggleSearchButton().click();
-        await expect(omnibar.toggleDuckAiButton()).toHaveCount(0);
+        await customizer.switchIsDisabled('Duck.ai');
     });
 
     test('Duck.ai toggle is hidden when showAiSetting is false', async ({ page }, workerInfo) => {

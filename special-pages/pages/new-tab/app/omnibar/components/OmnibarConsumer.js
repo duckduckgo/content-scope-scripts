@@ -28,12 +28,20 @@ import { useTabState } from '../../tabs/TabsProvider.js';
  * ```
  */
 export function OmnibarConsumer() {
-    const { state } = useContext(OmnibarContext);
+    const { state, setEnableAi } = useContext(OmnibarContext);
     const { current } = useTabState();
-    if (state.status === 'ready') {
-        return <OmnibarReadyState config={state.config} key={current.value} tabId={current.value} />;
-    }
-    return null;
+    const { visibility } = useVisibility();
+    if (state.status !== 'ready') return null;
+
+    const visible = visibility.value === 'visible';
+    return (
+        <>
+            {state.config.showAiSetting && (
+                <AiSetting enableAi={state.config?.enableAi === true} setEnableAi={setEnableAi} omnibarVisible={visible} />
+            )}
+            {visible && <OmnibarReadyState config={state.config} key={current.value} tabId={current.value} />}
+        </>
+    );
 }
 
 /**
@@ -43,23 +51,19 @@ export function OmnibarConsumer() {
  */
 function OmnibarReadyState({ config, tabId }) {
     const { enableAi = true, showAiSetting = true, mode: defaultMode } = config;
-    const { setEnableAi, setMode } = useContext(OmnibarContext);
+    const { setMode } = useContext(OmnibarContext);
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
 
-    return (
-        <>
-            {showAiSetting && <AiSetting enableAi={enableAi} setEnableAi={setEnableAi} />}
-            <Omnibar mode={modeForCurrentTab} setMode={setMode} enableAi={showAiSetting && enableAi} tabId={tabId} />
-        </>
-    );
+    return <Omnibar mode={modeForCurrentTab} setMode={setMode} enableAi={showAiSetting && enableAi} tabId={tabId} />;
 }
 
 /**
  * @param {object} props
  * @param {boolean} props.enableAi
  * @param {(enable: boolean) => void} props.setEnableAi
+ * @param {boolean} props.omnibarVisible
  */
-function AiSetting({ enableAi, setEnableAi }) {
+export function AiSetting({ enableAi, setEnableAi, omnibarVisible }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const { id, index } = useVisibility();
     useCustomizer({
@@ -67,8 +71,12 @@ function AiSetting({ enableAi, setEnableAi }) {
         id: `_${id}-toggleAi`,
         icon: <ArrowIndentCenteredIcon style={{ color: 'var(--ntp-icons-tertiary)' }} />,
         toggle: () => setEnableAi(!enableAi),
-        visibility: enableAi ? 'visible' : 'hidden',
+        /**
+         * Duck.ai is only ever shown as 'visible' (eg: switch is checked) if the omnibar is also visible.
+         */
+        visibility: omnibarVisible && enableAi ? 'visible' : 'hidden',
         index: index + 0.1,
+        enabled: omnibarVisible,
     });
     return null;
 }
