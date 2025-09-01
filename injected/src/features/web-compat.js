@@ -204,27 +204,10 @@ export class WebCompat extends ContentFeature {
         }
         // Expose the API
         // window.Notification polyfill is intentionally incompatible with DOM lib types
-        // this.defineProperty(window, 'Notification', {
-        //     value: function Notification(_title, _options) {
-        //         throw new TypeError("Failed to construct 'Notification': Illegal constructor");
-        //     },
-        //     writable: true,
-        //     configurable: true,
-        //     enumerable: false,
-        // });
 
-        const NotificationConstructor = function Notification(_title, _options) {
+        const NotificationConstructor = function Notification(title) {
             throw new TypeError("Failed to construct 'Notification': Illegal constructor");
         };
-
-        Object.defineProperty(NotificationConstructor, 'toString', {
-            value: function toString() {
-                return 'function Notification() { [native code] }';
-            },
-            writable: false,
-            configurable: true,
-            enumerable: false,
-        });
 
         this.defineProperty(window, 'Notification', {
             value: NotificationConstructor,
@@ -233,9 +216,9 @@ export class WebCompat extends ContentFeature {
             enumerable: false,
         });
 
-        // const toStringFunc = function toString() {
-        //     return 'function Notification() { [native code] }';
-        // };
+        const toStringFunc = function toString() {
+            return 'function Notification() { [native code] }';
+        };
 
         // Object.defineProperty(toStringFunc, 'toString', {
         //     value: function toString() {
@@ -246,12 +229,13 @@ export class WebCompat extends ContentFeature {
         //     enumerable: false,
         // });
 
-        // this.defineProperty(/** @type {any} */ (window.Notification), 'toString', {
-        //     value: toStringFunc,
-        //     writable: false,
-        //     configurable: true,
-        //     enumerable: false,
-        // });
+        this.defineProperty(/** @type {any} */ (window.Notification), 'toString', {
+            value: toStringFunc,
+            writable: false,
+            configurable: true,
+            enumerable: false,
+        });
+
         this.defineProperty(/** @type {any} */ (window.Notification), 'prototype', {
             value: {},
             writable: false,
@@ -265,25 +249,28 @@ export class WebCompat extends ContentFeature {
             configurable: true,
             enumerable: false,
         });
-        
-        // window.Notification polyfill is intentionally incompatible with DOM lib types
-        this.defineProperty(/** @type {any} */ (window.Notification), 'requestPermission', {
+
+        this.defineProperty(/** @type {any} */ (window.Notification), 'permission', {
             value: () => {
                 return Promise.resolve('denied');
             },
-            writable: true,
-            configurable: true,
-            enumerable: true,
-        });
-
-        this.defineProperty(/** @type {any} */ (window.Notification), 'permission', {
-            get: () => 'denied',
+            writable: false,
             configurable: true,
             enumerable: true,
         });
 
         this.defineProperty(/** @type {any} */ (window.Notification), 'maxActions', {
             get: () => 2,
+            configurable: true,
+            enumerable: true,
+        });
+
+        // window.Notification polyfill is intentionally incompatible with DOM lib types
+        this.defineProperty(/** @type {any} */ (window.Notification), 'requestPermission', {
+            value: () => {
+                return Promise.resolve('denied');
+            },
+            writable: true,
             configurable: true,
             enumerable: true,
         });

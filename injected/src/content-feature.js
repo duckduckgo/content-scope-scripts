@@ -260,45 +260,13 @@ export default class ContentFeature extends ConfigFeature {
                         return target.apply(thisArg, argumentsList);
                     },
                 });
-                // Skip wrapToString for toString to prevent double wrapping
-                if (propertyName === 'toString') {
-                    descriptor[k] = wrapper;
-                } else {
-                    descriptor[k] = wrapToString(wrapper, descriptorProp);
-                }
+                descriptor[k] = wrapToString(wrapper, descriptorProp);
             }
         });
 
-        // Build complete strict descriptor all at once so TS doesn't complain about missing properties
-        let strictDescriptor;
-
-        if (descriptor.value !== undefined || descriptor.writable !== undefined) {
-            // Data descriptor
-            strictDescriptor = {
-                configurable: descriptor.configurable ?? false,
-                enumerable: descriptor.enumerable ?? false,
-                value: descriptor.value,
-                writable: descriptor.writable ?? false,
-            };
-        } else if (descriptor.get !== undefined || descriptor.set !== undefined) {
-            // Accessor descriptor
-            strictDescriptor = {
-                configurable: descriptor.configurable ?? false,
-                enumerable: descriptor.enumerable ?? false,
-                get: descriptor.get ?? (() => undefined),
-                set: descriptor.set ?? (() => {}),
-            };
-        } else {
-            // Default data descriptor
-            strictDescriptor = {
-                configurable: descriptor.configurable ?? false,
-                enumerable: descriptor.enumerable ?? false,
-                value: undefined,
-                writable: false,
-            };
-        }
-
-        return defineProperty(object, String(propertyName), strictDescriptor);
+        return defineProperty(
+            object, String(propertyName),/** @type {import('./wrapper-utils.js').StrictPropertyDescriptor} */ (descriptor),
+        );
     }
 
     /**
