@@ -1,7 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { isBeingFramed, isDuckAi } from '../utils.js';
 
-
 /**
  * Duck AI Listener Feature
  *
@@ -605,9 +604,7 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     findSendButton() {
-        return document.querySelector(
-            'main button[type="submit"], main button[aria-label*="send"], main button[aria-label*="Send"]',
-        );
+        return document.querySelector('main button[type="submit"], main button[aria-label*="send"], main button[aria-label*="Send"]');
     }
 
     /**
