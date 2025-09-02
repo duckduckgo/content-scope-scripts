@@ -36,26 +36,39 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {string | null} */
     globalPageContext = null;
 
+    /** @type {HTMLButtonElement | null} */
+    sendButton = null;
+
+    get shouldLog() {
+        return this.isDebug;
+    }
+
     /**
      * Logging utility for this feature
      */
-    log = {
-        info: (...args) => {
-            if (this.isDebug) {
-                console.log('DuckAiListener:', ...args);
-            }
-        },
-        warn: (...args) => {
-            if (this.isDebug) {
-                console.warn('DuckAiListener:', ...args);
-            }
-        },
-        error: (...args) => {
-            if (this.isDebug) {
-                console.error('DuckAiListener:', ...args);
-            }
-        },
-    };
+    get log() {
+        const shouldLog = this.shouldLog;
+        return {
+            get info() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return console.log;
+            },
+            get warn() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return console.warn;
+            },
+            get error() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return console.error;
+            },
+        };
+    }
 
     init() {
         if (this.args && this?.args?.debug) {
@@ -275,13 +288,13 @@ export default class DuckAiListener extends ContentFeature {
     createContextChip() {
         // Guard clause: only proceed if we have page data and haven't used context yet
         if (!this.pageData) {
-            console.log('createContextChip: No page data available, skipping');
+            this.log.info('createContextChip: No page data available, skipping');
             return;
         }
 
         // Don't create chip if context has already been used
         if (this.hasContextBeenUsed) {
-            console.log('createContextChip: Context already used, skipping');
+            this.log.info('createContextChip: Context already used, skipping');
             return;
         }
 
@@ -332,11 +345,11 @@ export default class DuckAiListener extends ContentFeature {
         `;
 
         // Debug logging to see what's happening
-        console.log('createContextChip called, this.pageData:', this.pageData);
-        console.log('this.pageData?.favicon:', this.pageData?.favicon);
+        this.log.info('createContextChip called, this.pageData:', this.pageData);
+        this.log.info('this.pageData?.favicon:', this.pageData?.favicon);
 
         const favicon = this.pageData?.favicon?.[0]?.href;
-        console.log('favicon extracted:', favicon);
+        this.log.info('favicon extracted:', favicon);
 
         // Build the inner content based on whether we have a favicon
         let innerContent;
@@ -438,16 +451,16 @@ export default class DuckAiListener extends ContentFeature {
         this.contextChip.appendChild(contentInfo);
         this.contextChip.appendChild(infoIcon);
 
-        console.log('Context chip assembled, about to insert into DOM');
+        this.log.info('Context chip assembled, about to insert into DOM');
 
         // Insert the chip below the textarea
         const textareaParent = textarea.parentNode;
-        console.log('textareaParent found:', !!textareaParent);
+        this.log.info('textareaParent found:', !!textareaParent);
         if (textareaParent) {
             textareaParent.insertBefore(this.contextChip, textarea.nextSibling);
-            console.log('Context chip inserted into DOM');
+            this.log.info('Context chip inserted into DOM');
         } else {
-            console.error('No textarea parent found for context chip insertion');
+            this.log.error('No textarea parent found for context chip insertion');
         }
 
         this.log.info('Created context chip');
@@ -597,38 +610,43 @@ export default class DuckAiListener extends ContentFeature {
         }
     }
 
+    findSendButton() {
+        const buttons = document.querySelectorAll(
+            'main button[type="submit"], main button[aria-label*="send"], main button[aria-label*="Send"]',
+        );
+
+        // Return the second button if it exists, otherwise the first one
+        return buttons.length >= 2 ? buttons[1] : buttons[0] || null;
+    }
+
     /**
      * Set up interception of the send button to append context
      */
     setupMessageInterception() {
-        // Find the send button
-        const sendButton = document.querySelector('button[type="submit"], button[aria-label*="send"], button[aria-label*="Send"]');
-        if (sendButton) {
-            sendButton.addEventListener('click', this.handleSendMessage.bind(this));
-            this.log.info('Set up message interception');
-        } else {
-            // If send button not found immediately, set up observer
-            this.setupSendButtonObserver();
+        if (this.sendButton) {
+            return;
         }
-    }
+        const sendButton = this.findSendButton();
+        if (sendButton && sendButton instanceof HTMLButtonElement) {
+            this.sendButton = sendButton;
 
-    /**
-     * Set up observer to find the send button
-     */
-    setupSendButtonObserver() {
-        const observer = new MutationObserver((_, obs) => {
-            const sendButton = document.querySelector('button[type="submit"], button[aria-label*="send"], button[aria-label*="Send"]');
-            if (sendButton) {
-                sendButton.addEventListener('click', this.handleSendMessage.bind(this));
-                this.log.info('Set up message interception via observer');
-                obs.disconnect();
-            }
-        });
+            // Use multiple event listeners to catch React's event handling
+            const handleClick = this.handleSendMessage.bind(this);
 
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-        });
+            // Add event listeners with different capture phases
+            sendButton.addEventListener('click', handleClick, true); // Capture phase
+            sendButton.addEventListener('click', handleClick, false); // Bubble phase
+
+            // Also listen for mousedown as a fallback
+            sendButton.addEventListener('mousedown', () => {
+                // Small delay to let React handle the event first
+                setTimeout(() => {
+                    this.handleSendMessage();
+                }, 10);
+            });
+
+            this.log.info('Set up message interception with multiple event listeners', sendButton);
+        }
     }
 
     /**
@@ -636,9 +654,6 @@ export default class DuckAiListener extends ContentFeature {
      */
     handleSendMessage() {
         this.log.info('handleSendMessage called');
-        this.log.info('isPageContextEnabled:', this.isPageContextEnabled);
-        this.log.info('hasContextBeenUsed:', this.hasContextBeenUsed);
-        this.log.info('pageData:', this.pageData);
 
         if (!this.isPageContextEnabled || this.hasContextBeenUsed || !this.pageData?.content) {
             this.log.info('Context attachment blocked:', {
@@ -650,30 +665,8 @@ export default class DuckAiListener extends ContentFeature {
             return;
         }
 
-        // Find the textarea
-        const textarea = document.querySelector('textarea[name="user-prompt"]');
-        if (!textarea || !(textarea instanceof HTMLTextAreaElement)) {
-            this.log.warn('Textarea not found for context attachment');
-            return;
-        }
-
-        const userMessage = textarea.value.trim();
-        if (!userMessage) {
-            this.log.info('No user message to attach context to');
-            return;
-        }
-
-        this.log.info('User message found:', userMessage);
-        this.log.info('About to append context:', this.pageData.content);
-
-        // Get the value with context (this will trigger the getter)
-        const messageWithContext = textarea.value;
-
-        // Mark context as used - this prevents future context chips from being created
+        // Mark context as used first to prevent multiple calls
         this.hasContextBeenUsed = true;
-
-        // Clear the textarea after sending
-        this.setReactTextAreaValue(textarea, '');
 
         // Remove the context chip
         if (this.contextChip) {
@@ -685,7 +678,6 @@ export default class DuckAiListener extends ContentFeature {
         this.updateButtonAppearance();
 
         this.log.info('Successfully appended context to message');
-        this.log.info('Final message value:', messageWithContext);
     }
 
     /**
@@ -711,7 +703,8 @@ export default class DuckAiListener extends ContentFeature {
         // Callback function to execute when mutations are observed
         const callback = (_, observer) => {
             this.findTextBox();
-            if (this.textBox && this.pageData) {
+            this.setupMessageInterception();
+            if (this.textBox && this.pageData && this.sendButton) {
                 this.createContextChip();
                 // No longer needed, we've found the text box.
                 observer.disconnect();
