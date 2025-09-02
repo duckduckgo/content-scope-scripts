@@ -446,7 +446,6 @@ export class WebCompat extends ContentFeature {
             };
             // TODO: original property is an accessor descriptor
             this.defineProperty(Navigator.prototype, 'credentials', {
-                // validate this
                 value,
                 configurable: true,
                 enumerable: true,
