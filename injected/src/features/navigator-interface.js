@@ -24,7 +24,6 @@ export default class NavigatorInterface extends ContentFeature {
             if (!args.platform || !args.platform.name) {
                 return;
             }
-            // @ts-expect-error This doesn't exist in the DOM lib
             this.defineProperty(Navigator.prototype, 'duckduckgo', {
                 value: {
                     platform: args.platform.name,

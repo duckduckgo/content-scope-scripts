@@ -464,7 +464,6 @@ export class WebCompat extends ContentFeature {
             if (window.safari) {
                 return;
             }
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window, 'safari', {
                 value: {},
                 writable: true,
