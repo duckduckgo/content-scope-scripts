@@ -254,7 +254,6 @@ export class WebCompat extends ContentFeature {
             enumerable: true,
         });
 
-        // window.Notification polyfill is intentionally incompatible with DOM lib types
         this.defineProperty(/** @type {any} */ (window.Notification), 'requestPermission', {
             value: Object.assign(
                 function requestPermission() {
