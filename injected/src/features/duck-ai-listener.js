@@ -299,7 +299,7 @@ export default class DuckAiListener extends ContentFeature {
             this.contextChip.remove();
         }
 
-        if (!this.pageData || !this.pageData.content) {
+        if (!this.pageData.content) {
             return;
         }
 
@@ -608,12 +608,9 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     findSendButton() {
-        const buttons = document.querySelectorAll(
+        return document.querySelector(
             'main button[type="submit"], main button[aria-label*="send"], main button[aria-label*="Send"]',
         );
-
-        // Return the second button if it exists, otherwise the first one
-        return buttons.length >= 2 ? buttons[1] : buttons[0] || null;
     }
 
     /**
@@ -726,10 +723,13 @@ export default class DuckAiListener extends ContentFeature {
                 this.textBox = element;
                 this.log.info('Found AI text box');
 
-                // Set placeholder text
-                if (this.pageData?.content) {
-                    element.placeholder = 'Summarize this Page';
-                }
+                // Add enter key handler to call handleSendMessage
+                element.addEventListener('keyup', (event) => {
+                    if (event.key === 'Enter' && !event.shiftKey) {
+                        this.log.info('Enter key pressed');
+                        this.handleSendMessage();
+                    }
+                });
 
                 // Set up property descriptor to intercept value reads for context appending
                 this.setupValuePropertyDescriptor(element);
@@ -756,7 +756,7 @@ export default class DuckAiListener extends ContentFeature {
                     const currentValue = originalDescriptor.get.call(textarea) || '';
                     const pageContext = this.globalPageContext || '';
 
-                    if (pageContext && currentValue && !currentValue.includes('Page Context:')) {
+                    if (pageContext && currentValue) {
                         return `${currentValue}\n\n---\n\nPage Context:\n${pageContext}`;
                     }
 
