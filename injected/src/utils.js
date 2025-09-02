@@ -835,3 +835,13 @@ export function withExponentialBackoff(fn, maxAttempts = 4, delay = 500) {
         tryFn();
     });
 }
+
+export function isDuckAi() {
+    const tabUrl = getTabUrl();
+    const domains = ['duckduckgo.com', 'duck.ai', 'duck.co'];
+    if (tabUrl?.hostname && domains.includes(tabUrl?.hostname)) {
+        const url = new URL(tabUrl?.href);
+        return url.searchParams.has('duckai');
+    }
+    return false;
+}

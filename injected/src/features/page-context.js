@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
-import { getTabUrl } from '../utils.js';
+import { isDuckAi } from '../utils.js';
 const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
@@ -11,7 +11,7 @@ export default class PageContext extends ContentFeature {
     listenForUrlChanges = true;
 
     init() {
-        if (this.isDuckAi()) {
+        if (isDuckAi()) {
             return;
         }
         this.setupMessageHandlers();
@@ -25,14 +25,6 @@ export default class PageContext extends ContentFeature {
         window.addEventListener('pageshow', () => {
             this.handleContentCollectionRequest({});
         });
-    }
-
-    isDuckAi() {
-        const tabUrl = getTabUrl();
-        if (tabUrl?.hostname === 'duckduckgo.com') {
-            return tabUrl.searchParams.has('duckai');
-        }
-        return false;
     }
 
     /**

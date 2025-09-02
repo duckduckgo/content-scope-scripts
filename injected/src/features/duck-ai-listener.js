@@ -1,5 +1,6 @@
 import ContentFeature from '../content-feature.js';
-import { isBeingFramed } from '../utils.js';
+import { isBeingFramed, isDuckAi } from '../utils.js';
+
 
 /**
  * Duck AI Listener Feature
@@ -97,11 +98,7 @@ export default class DuckAiListener extends ContentFeature {
         if (isBeingFramed()) {
             return false;
         }
-        if (window.location.hostname === 'duckduckgo.com') {
-            const url = new URL(window.location.href);
-            return url.searchParams.has('duckai');
-        }
-        return false;
+        return isDuckAi();
     }
 
     /**
