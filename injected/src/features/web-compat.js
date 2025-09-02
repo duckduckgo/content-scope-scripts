@@ -202,9 +202,9 @@ export class WebCompat extends ContentFeature {
         if (window.Notification) {
             return;
         }
+
         // Expose the API
         // window.Notification polyfill is intentionally incompatible with DOM lib types
-
         const NotificationConstructor = function Notification(title) {
             throw new TypeError("Failed to construct 'Notification': Illegal constructor");
         };
@@ -219,15 +219,6 @@ export class WebCompat extends ContentFeature {
         const toStringFunc = function toString() {
             return 'function Notification() { [native code] }';
         };
-
-        // Object.defineProperty(toStringFunc, 'toString', {
-        //     value: function toString() {
-        //         return 'function toString() { [native code] }';
-        //     },
-        //     writable: false,
-        //     configurable: true,
-        //     enumerable: false,
-        // });
 
         this.defineProperty(/** @type {any} */ (window.Notification), 'toString', {
             value: toStringFunc,
@@ -251,10 +242,9 @@ export class WebCompat extends ContentFeature {
         });
 
         this.defineProperty(/** @type {any} */ (window.Notification), 'permission', {
-            value: () => {
-                return Promise.resolve('denied');
+            get () {
+                return 'denied';
             },
-            writable: true,
             configurable: true,
             enumerable: true,
         });
@@ -267,9 +257,14 @@ export class WebCompat extends ContentFeature {
 
         // window.Notification polyfill is intentionally incompatible with DOM lib types
         this.defineProperty(/** @type {any} */ (window.Notification), 'requestPermission', {
-            value: () => {
-                return Promise.resolve('denied');
-            },
+            value: Object.assign(
+                function requestPermission() {
+                    return Promise.resolve('denied');
+                },
+                {
+                    toString: () => 'function requestPermission() { [native code] }',
+                },
+            ),
             writable: true,
             configurable: true,
             enumerable: true,
