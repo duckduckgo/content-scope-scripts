@@ -242,9 +242,7 @@ export class WebCompat extends ContentFeature {
         });
 
         this.defineProperty(/** @type {any} */ (window.Notification), 'permission', {
-            get () {
-                return 'denied';
-            },
+            value: 'denied',
             configurable: true,
             enumerable: true,
         });
