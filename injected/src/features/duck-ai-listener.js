@@ -71,9 +71,6 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     init() {
-        if (this.args && this?.args?.debug) {
-            this.args.debug = true;
-        }
         // Only activate on duckduckgo.com
         if (!this.shouldActivate()) {
             return;
