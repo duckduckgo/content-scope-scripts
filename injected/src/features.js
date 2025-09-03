@@ -72,6 +72,7 @@ export const platformSupport = {
         'breakageReporting',
         'messageBridge',
         'webCompat',
+        'pageContext',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
