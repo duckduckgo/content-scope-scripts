@@ -7,6 +7,7 @@ export const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)';
 export const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)';
 export const OVERLAY_ID = 'ddg-password-import-overlay';
 export const DELAY_BEFORE_ANIMATION = 300;
+const BOOKMARK_IMPORT_DOMAIN = 'takeout.google.com';
 
 /**
  * @typedef ButtonAnimationStyle
@@ -403,11 +404,12 @@ export default class AutofillPasswordImport extends ContentFeature {
         return [this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path].includes(path);
     }
 
-    async handlePath(path) {
+    async handlePasswordManagerPath(pathname) {
+        console.log('DEEP DEBUG autofill-password-import: handlePasswordManagerPath', pathname);
         this.removeOverlayIfNeeded();
-        if (this.isSupportedPath(path)) {
+        if (this.isSupportedPath(pathname)) {
             try {
-                this.setCurrentElementConfig(await this.getElementAndStyleFromPath(path));
+                this.setCurrentElementConfig(await this.getElementAndStyleFromPath(pathname));
                 if (this.currentElementConfig?.element && !this.#tappedElements.has(this.currentElementConfig?.element)) {
                     await this.animateOrTapElement();
                     if (this.currentElementConfig?.shouldTap && this.currentElementConfig?.tapOnce) {
@@ -415,8 +417,24 @@ export default class AutofillPasswordImport extends ContentFeature {
                     }
                 }
             } catch {
-                console.error('password-import: failed for path:', path);
+                console.error('password-import: failed for path:', pathname);
             }
+        }
+    }
+
+    handleBookmarkImportPath(pathname) {
+        console.log('DEEP DEBUG autofill-password-import: handleBookmarkImportPath', pathname);
+    }
+
+    /**
+     * @param {Location} location
+     */
+    async handleLocation(location) {
+        const { pathname, hostname } = location;
+        if (hostname === BOOKMARK_IMPORT_DOMAIN) {
+            this.handleBookmarkImportPath(pathname);
+        } else {
+            await this.handlePasswordManagerPath(pathname);
         }
     }
 
@@ -491,16 +509,17 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     urlChanged() {
-        this.handlePath(window.location.pathname);
+        this.handleLocation(window.location);
     }
 
     init() {
+        console.log('DEEP DEBUG autofill-password-import: init');
         if (isBeingFramed()) {
             return;
         }
-        this.setButtonSettings();
 
-        const handlePath = this.handlePath.bind(this);
+        this.setButtonSettings();
+        const handleLocation = this.handleLocation.bind(this);
 
         this.#domLoaded = new Promise((resolve) => {
             if (document.readyState !== 'loading') {
@@ -514,8 +533,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                 async () => {
                     // @ts-expect-error - caller doesn't expect a value here
                     resolve();
-                    const path = window.location.pathname;
-                    await handlePath(path);
+                    await handleLocation(window.location);
                 },
                 { once: true },
             );
