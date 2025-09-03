@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { isBeingFramed, isDuckAi } from '../utils.js';
+import { isBeingFramed, isDuckAiSidebar } from '../utils.js';
 
 /**
  * Duck AI Listener Feature
@@ -97,7 +97,7 @@ export default class DuckAiListener extends ContentFeature {
         if (isBeingFramed()) {
             return false;
         }
-        return isDuckAi();
+        return isDuckAiSidebar();
     }
 
     /**

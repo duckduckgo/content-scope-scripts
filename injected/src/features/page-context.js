@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
-import { isDuckAi } from '../utils.js';
+import { isDuckAi, isBeingFramed } from '../utils.js';
 const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
@@ -11,6 +11,9 @@ export default class PageContext extends ContentFeature {
     listenForUrlChanges = true;
 
     init() {
+        if (isBeingFramed()) {
+            return;
+        }
         if (isDuckAi()) {
             return;
         }
@@ -150,7 +153,7 @@ export default class PageContext extends ContentFeature {
             ];
 
         let content = '';
-
+console.log('getMainContent options', options);
         // Get content from main content areas
         const mainContent = document.querySelector('main, article, .content, .main, #content, #main');
         const contentRoot = mainContent || document.body;

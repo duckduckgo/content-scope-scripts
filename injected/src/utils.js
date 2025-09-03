@@ -845,3 +845,12 @@ export function isDuckAi() {
     }
     return false;
 }
+
+export function isDuckAiSidebar() {
+    const tabUrl = getTabUrl();
+    console.log('isDuckAiSidebar tabUrl', tabUrl);
+    if (!tabUrl || !isDuckAi()) {
+        return false;
+    }
+    return tabUrl.searchParams.get('placement') === 'sidebar';
+}
