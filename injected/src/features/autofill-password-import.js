@@ -52,6 +52,11 @@ export default class AutofillPasswordImport extends ContentFeature {
 
     #domLoaded;
 
+    #currentLocation;
+
+    #isBookmarkModalVisible = false;
+    #isBookmarkProcessed = false;
+
     /** @type {WeakSet<Element>} */
     #tappedElements = new WeakSet();
 
@@ -422,8 +427,12 @@ export default class AutofillPasswordImport extends ContentFeature {
         }
     }
 
-    handleBookmarkImportPath(pathname) {
+    async handleBookmarkImportPath(pathname) {
         console.log('DEEP DEBUG autofill-password-import: handleBookmarkImportPath', pathname);
+        if (pathname === '/' && !this.#isBookmarkModalVisible) {
+            await this.clickDisselectAllButton();
+            await this.selectBookmark();
+        }
     }
 
     /**
@@ -508,7 +517,95 @@ export default class AutofillPasswordImport extends ContentFeature {
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
     }
 
+    /** Bookmark import code */
+    get disselectAllButtonSelector() {
+        return 'c-wiz[data-node-index="4;0"] button';
+    }
+
+    get bookmarkSelectButtonSelector() {
+        return 'fieldset.rcetic input';
+    }
+
+    get chromeSectionSelector() {
+        return 'c-wiz [data-id="chrome"]';
+    }
+
+    get nextStepButtonSelector() {
+        return 'div[data-jobid] > div:nth-of-type(2) button';
+    }
+
+    get createExportButtonSelector() {
+        return 'div[data-configure-step] button';
+    }
+
+    async findDisselectAllButton() {
+        return await withExponentialBackoff(() => document.querySelectorAll(this.disselectAllButtonSelector)[1]);
+    }
+    async selectBookmark() {
+        if (this.#isBookmarkProcessed) {
+            return;
+        }
+        const chromeDataButtonSelector = `${this.chromeSectionSelector} button`;
+        const chromeDataButton = /** @type HTMLButtonElement */ (
+            await withExponentialBackoff(() => document.querySelectorAll(chromeDataButtonSelector)[1], 5)
+        );
+        chromeDataButton?.focus();
+        chromeDataButton?.click();
+        this.#isBookmarkModalVisible = true;
+        await this.domLoaded;
+        const disselectAllButton = /** @type HTMLButtonElement */ (
+            await withExponentialBackoff(() => document.querySelectorAll('fieldset.rcetic button')[1])
+        );
+
+        disselectAllButton?.click();
+
+        const bookmarkSelectButton = /** @type HTMLInputElement */ (
+            await withExponentialBackoff(() => document.querySelectorAll(this.bookmarkSelectButtonSelector)[1])
+        );
+
+        await withExponentialBackoff(() => !bookmarkSelectButton?.checked);
+
+        bookmarkSelectButton?.click();
+
+        const okButton = /** @type HTMLButtonElement */ (document.querySelectorAll('div[role="button"]')[7]);
+
+        await withExponentialBackoff(() => okButton.ariaDisabled !== 'true');
+        
+        okButton?.click();
+        this.#isBookmarkModalVisible = false;
+        this.#isBookmarkProcessed = true;
+
+        const nextStepButton = /** @type HTMLButtonElement */ (document.querySelectorAll(this.nextStepButtonSelector)[0]);
+        nextStepButton?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        nextStepButton?.click();
+
+        const createExportButton = /** @type HTMLButtonElement */ (document.querySelectorAll(this.createExportButtonSelector)[0]);
+        createExportButton?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        createExportButton?.click();
+    }
+
+    async clickDisselectAllButton() {
+        const element = /** @type HTMLButtonElement */ (await this.findDisselectAllButton());
+        console.log('Deep element', element);
+        if (element != null) {
+            element.click();
+        }
+
+        const chromeSectionElement = /** @type HTMLInputElement */ (
+            await withExponentialBackoff(() => document.querySelectorAll(this.chromeSectionSelector)[0].querySelector('input'))
+        );
+        console.log('DEEP chromeSectionElement', chromeSectionElement);
+
+        // First wait for the element to become unchecked (due to slow disselection)
+        await withExponentialBackoff(() => !chromeSectionElement?.checked);
+
+        chromeSectionElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
+        chromeSectionElement?.click();
+    }
+
     urlChanged() {
+        console.log('DEEP DEBUG autofill-password-import: urlChanged', window.location);
         this.handleLocation(window.location);
     }
 
