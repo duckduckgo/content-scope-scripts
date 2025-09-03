@@ -87,6 +87,9 @@ export class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeScreenLockRequest = null;
 
+    // Opt in to receive configuration updates from initial ping responses
+    listenForConfigUpdates = true;
+
     init() {
         if (this.getFeatureSettingEnabled('windowSizing')) {
             windowSizingFix();
@@ -123,10 +126,6 @@ export class WebCompat extends ContentFeature {
             this.shimWebShare();
         }
 
-        if (this.getFeatureSettingEnabled('viewportWidth')) {
-            this.viewportWidthFix();
-        }
-
         if (this.getFeatureSettingEnabled('screenLock')) {
             this.screenLockFix();
         }
@@ -143,6 +142,21 @@ export class WebCompat extends ContentFeature {
         }
         if (this.getFeatureSettingEnabled('enumerateDevices')) {
             this.deviceEnumerationFix();
+        }
+    }
+
+    /**
+     * Handle user preference updates when merged during initialization.
+     * Re-applies viewport fixes if viewport configuration has changed.
+     * @param {object} _updatedConfig - The configuration with merged user preferences
+     */
+    onUserPreferencesMerged(_updatedConfig) {
+        // Re-apply viewport width fix if viewport settings might have changed
+        if (this.getFeatureSettingEnabled('viewportWidth')) {
+            if (!this._viewportWidthFixApplied) {
+                this.viewportWidthFix();
+                this._viewportWidthFixApplied = true;
+            }
         }
     }
 
