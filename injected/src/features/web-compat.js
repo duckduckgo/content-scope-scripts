@@ -2,6 +2,7 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils';
+import { wrapToString } from '../wrapper-utils.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
@@ -216,33 +217,52 @@ export class WebCompat extends ContentFeature {
         if (window.Notification) {
             return;
         }
+
         // Expose the API
+        // window.Notification polyfill is intentionally incompatible with DOM lib types
+        const NotificationConstructor = function Notification() {
+            throw new TypeError("Failed to construct 'Notification': Illegal constructor");
+        };
+
+        const wrappedNotification = wrapToString(
+            NotificationConstructor,
+            NotificationConstructor,
+            'function Notification() { [native code] }',
+        );
+
         this.defineProperty(window, 'Notification', {
-            value: () => {
-                // noop
-            },
+            value: wrappedNotification,
             writable: true,
             configurable: true,
             enumerable: false,
         });
 
-        this.defineProperty(window.Notification, 'requestPermission', {
-            value: () => {
-                return Promise.resolve('denied');
-            },
-            writable: true,
+        this.defineProperty(window.Notification, 'permission', {
+            value: 'denied',
+            writable: false,
             configurable: true,
             enumerable: true,
         });
 
-        this.defineProperty(window.Notification, 'permission', {
-            get: () => 'denied',
-            configurable: true,
-            enumerable: false,
-        });
-
         this.defineProperty(window.Notification, 'maxActions', {
             get: () => 2,
+            configurable: true,
+            enumerable: true,
+        });
+
+        const requestPermissionFunc = function requestPermission() {
+            return Promise.resolve('denied');
+        };
+
+        const wrappedRequestPermission = wrapToString(
+            requestPermissionFunc,
+            requestPermissionFunc,
+            'function requestPermission() { [native code] }',
+        );
+
+        this.defineProperty(window.Notification, 'requestPermission', {
+            value: wrappedRequestPermission,
+            writable: true,
             configurable: true,
             enumerable: true,
         });
