@@ -73,6 +73,7 @@ export const platformSupport = {
         'messageBridge',
         'webCompat',
         'pageContext',
+        'duckAiListener'
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
