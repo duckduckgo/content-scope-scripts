@@ -1,8 +1,9 @@
 import { h } from 'preact';
 import { useEffect } from 'preact/hooks';
 import styles from './Customizer.module.css';
-import { CustomizeIcon } from '../../components/Icons.js';
+import { CustomizeIcon, PopoverCustomizeIcon } from '../../components/Icons.js';
 import { useMessaging, useTypedTranslation } from '../../types.js';
+import { Popover } from '../../components/Popover.js';
 
 /**
  * @import { WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
@@ -93,7 +94,17 @@ export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonR
 }
 
 export function CustomizerMenuPositionedFixed({ children }) {
-    return <div class={styles.lowerRightFixed}>{children}</div>;
+    return (
+        <div class={styles.lowerRightFixed}>
+            {children}
+            <Popover 
+                title="New section added"
+                description="Easily customize the new Search and Duck.ai section or turn it off."
+                icon={<PopoverCustomizeIcon />}
+                onClose={() => console.log('Popover close clicked')}
+            />
+        </div>
+    );
 }
 
 /**

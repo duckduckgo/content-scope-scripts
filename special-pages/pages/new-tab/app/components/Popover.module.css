@@ -1,0 +1,117 @@
+.popover {
+    position: absolute;
+    bottom: calc(100% + var(--sp-2));
+    right: 0;
+    z-index: 1000;
+    width: 360px;
+}
+
+.content {
+    backdrop-filter: blur(76px);
+    background: #F9F9F9;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 24px 10px 12px;
+    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.75), 0 0 1px 0 #FFF inset, 0 0 2px 0 rgba(0, 0, 0, 0.25), 0 8px 24px 0 rgba(0, 0, 0, 0.20);
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    position: relative;
+
+    [data-theme=dark] & {
+        background: var(--ntp-surface-background-color);
+        box-shadow: 0 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 1px 0 rgba(0, 0, 0, 0.5) inset, 0 0 2px 0 rgba(0, 0, 0, 0.4), 0 8px 24px 0 rgba(0, 0, 0, 0.4);
+    }
+}
+
+.icon {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: var(--border-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 4px 0;
+}
+
+.title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 590;
+    color: rgba(0, 0, 0, 0.84);
+    line-height: 1.25;
+}
+
+.description {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.84);
+    line-height: 16px;
+}
+
+.closeButton {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    padding: var(--sp-1);
+    cursor: pointer;
+    border-radius: var(--border-radius-xs);
+    color: rgba(0, 0, 0, 0.84);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+
+    &:hover {
+        background-color: var(--color-black-at-6);
+        
+        [data-theme=dark] & {
+            background-color: var(--color-white-at-9);
+        }
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-blue-50);
+        outline-offset: 1px;
+    }
+}
+
+.arrow {
+    position: absolute;
+    bottom: -8px;
+    right: 24px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid var(--ntp-surface-border-color);
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: -9px;
+        left: -7px;
+        width: 0;
+        height: 0;
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-top: 7px solid #F9F9F9;
+    }
+
+    [data-theme=dark] & {
+        border-top-color: var(--color-white-at-9);
+    }
+}
