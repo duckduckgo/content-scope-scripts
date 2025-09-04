@@ -140,6 +140,16 @@ test.describe('Ensure Notification interface is injected', () => {
             return window.Notification.requestPermission.toString();
         });
         expect(requestPermissionToString).toEqual('function requestPermission() { [native code] }');
+
+        const notificationToStringToString = await page.evaluate(() => {
+            return window.Notification.toString.toString();
+        });
+        expect(notificationToStringToString).toEqual('function toString() { [native code] }');
+
+        const requestPermissionToStringToString = await page.evaluate(() => {
+            return window.Notification.requestPermission.toString.toString();
+        });
+        expect(requestPermissionToStringToString).toEqual('function toString() { [native code] }');
     });
 });
 

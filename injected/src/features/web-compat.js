@@ -2,6 +2,7 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils';
+import { wrapToString } from '../wrapper-utils.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
@@ -205,64 +206,48 @@ export class WebCompat extends ContentFeature {
 
         // Expose the API
         // window.Notification polyfill is intentionally incompatible with DOM lib types
-        const NotificationConstructor = function Notification(title) {
+        const NotificationConstructor = function Notification() {
             throw new TypeError("Failed to construct 'Notification': Illegal constructor");
         };
 
+        const wrappedNotification = wrapToString(
+            NotificationConstructor,
+            NotificationConstructor,
+            'function Notification() { [native code] }',
+        );
+
         this.defineProperty(window, 'Notification', {
-            value: NotificationConstructor,
+            value: wrappedNotification,
             writable: true,
             configurable: true,
             enumerable: false,
         });
 
-        const toStringFunc = function toString() {
-            return 'function Notification() { [native code] }';
-        };
-
-        this.defineProperty(/** @type {any} */ (window.Notification), 'toString', {
-            value: toStringFunc,
-            writable: false,
-            configurable: true,
-            enumerable: false,
-        });
-
-        this.defineProperty(/** @type {any} */ (window.Notification), 'prototype', {
-            value: {},
-            writable: false,
-            configurable: false,
-            enumerable: false,
-        });
-
-        this.defineProperty(/** @type {any} */ (window.Notification).prototype, 'constructor', {
-            value: window.Notification,
-            writable: true,
-            configurable: true,
-            enumerable: false,
-        });
-
-        this.defineProperty(/** @type {any} */ (window.Notification), 'permission', {
+        this.defineProperty(window.Notification, 'permission', {
             value: 'denied',
             writable: false,
             configurable: true,
             enumerable: true,
         });
 
-        this.defineProperty(/** @type {any} */ (window.Notification), 'maxActions', {
+        this.defineProperty(window.Notification, 'maxActions', {
             get: () => 2,
             configurable: true,
             enumerable: true,
         });
 
-        this.defineProperty(/** @type {any} */ (window.Notification), 'requestPermission', {
-            value: Object.assign(
-                function requestPermission() {
-                    return Promise.resolve('denied');
-                },
-                {
-                    toString: () => 'function requestPermission() { [native code] }',
-                },
-            ),
+        const requestPermissionFunc = function requestPermission() {
+            return Promise.resolve('denied');
+        };
+
+        const wrappedRequestPermission = wrapToString(
+            requestPermissionFunc,
+            requestPermissionFunc,
+            'function requestPermission() { [native code] }',
+        );
+
+        this.defineProperty(window.Notification, 'requestPermission', {
+            value: wrappedRequestPermission,
             writable: true,
             configurable: true,
             enumerable: true,
