@@ -5,9 +5,11 @@ import { useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { Omnibar } from './Omnibar.js';
 import { OmnibarContext } from './OmnibarProvider.js';
-import { ArrowIndentCenteredIcon } from '../../components/Icons.js';
+import { ArrowIndentCenteredIcon, PopoverCustomizeIcon } from '../../components/Icons.js';
 import { useModeWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
 import { useTabState } from '../../tabs/TabsProvider.js';
+import { Fill } from '../../components/SlotFill.js';
+import { Popover } from '../../components/Popover.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
@@ -28,7 +30,7 @@ import { useTabState } from '../../tabs/TabsProvider.js';
  * ```
  */
 export function OmnibarConsumer() {
-    const { state, setEnableAi } = useContext(OmnibarContext);
+    const { state, setEnableAi, setShowCustomizePopover } = useContext(OmnibarContext);
     const { current } = useTabState();
     const { visibility } = useVisibility();
     if (state.status !== 'ready') return null;
@@ -39,7 +41,7 @@ export function OmnibarConsumer() {
             {state.config.showAiSetting && (
                 <AiSetting enableAi={state.config?.enableAi === true} setEnableAi={setEnableAi} omnibarVisible={visible} />
             )}
-            {visible && <OmnibarReadyState config={state.config} key={current.value} tabId={current.value} />}
+            {visible && <OmnibarReadyState config={state.config} key={current.value} tabId={current.value} setShowCustomizePopover={setShowCustomizePopover} />}
         </>
     );
 }
@@ -48,13 +50,28 @@ export function OmnibarConsumer() {
  * @param {object} props
  * @param {OmnibarConfig} props.config
  * @param {string} props.tabId
+ * @param {(showCustomizePopover: boolean) => void} props.setShowCustomizePopover
  */
-function OmnibarReadyState({ config, tabId }) {
-    const { enableAi = true, showAiSetting = true, mode: defaultMode } = config;
+function OmnibarReadyState({ config, tabId, setShowCustomizePopover }) {
+    const { enableAi = true, showAiSetting = true, mode: defaultMode, showCustomizePopover = false } = config;
     const { setMode } = useContext(OmnibarContext);
     const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
 
-    return <Omnibar mode={modeForCurrentTab} setMode={setMode} enableAi={showAiSetting && enableAi} tabId={tabId} />;
+    return (
+        <>
+            <Omnibar mode={modeForCurrentTab} setMode={setMode} enableAi={showAiSetting && enableAi} tabId={tabId} />
+            {showCustomizePopover && (
+                <Fill slot="customize-button">
+                    <Popover
+                        title="New section added"
+                        description="Easily customize the new Search and Duck.ai section or turn it off."
+                        icon={<PopoverCustomizeIcon />}
+                        onClose={() => setShowCustomizePopover(false)}
+                    />
+                </Fill>
+            )}
+        </>
+    );
 }
 
 /**

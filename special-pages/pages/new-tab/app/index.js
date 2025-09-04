@@ -18,6 +18,7 @@ import { DocumentVisibilityProvider } from '../../../shared/components/DocumentV
 import { applyDefaultStyles } from './customizer/utils.js';
 import { TabsService } from './tabs/tabs.service.js';
 import { TabsDebug, TabsProvider } from './tabs/TabsProvider.js';
+import { SlotFillProvider } from './components/SlotFill.js';
 
 /**
  * @import {Telemetry} from "./telemetry/telemetry.js"
@@ -133,8 +134,10 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
                                                 entryPoints={entryPoints}
                                             >
                                                 <TabsProvider service={tabs}>
-                                                    {environment.urlParams.has('tabs.debug') && <TabsDebug />}
-                                                    <App />
+                                                    <SlotFillProvider>
+                                                        {environment.urlParams.has('tabs.debug') && <TabsDebug />}
+                                                        <App />
+                                                    </SlotFillProvider>
                                                 </TabsProvider>
                                             </WidgetConfigProvider>
                                         </DocumentVisibilityProvider>
