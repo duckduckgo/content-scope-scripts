@@ -3,7 +3,6 @@ import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
-const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
 
 export default class PageContext extends ContentFeature {
     collectionCache = new Map();
@@ -271,7 +270,7 @@ export default class PageContext extends ContentFeature {
     }
 
     sendErrorResponse(error) {
-        this.messaging.notify(MSG_PAGE_CONTEXT_ERROR, {
+        this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
             success: false,
             error: error.message || 'Unknown error occurred',
             timestamp: Date.now(),
