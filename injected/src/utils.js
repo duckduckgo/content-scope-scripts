@@ -848,7 +848,6 @@ export function isDuckAi() {
 
 export function isDuckAiSidebar() {
     const tabUrl = getTabUrl();
-    console.log('isDuckAiSidebar tabUrl', tabUrl);
     if (!tabUrl || !isDuckAi()) {
         return false;
     }
