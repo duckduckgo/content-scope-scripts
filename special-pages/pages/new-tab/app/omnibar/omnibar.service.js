@@ -81,6 +81,18 @@ export class OmnibarService {
     }
 
     /**
+     * @param {NonNullable<OmnibarConfig['showCustomizePopover']>} showCustomizePopover
+     */
+    setShowCustomizePopover(showCustomizePopover) {
+        this.configService.update((old) => {
+            return {
+                ...old,
+                showCustomizePopover,
+            };
+        });
+    }
+
+    /**
      * Get suggestions for the given search term
      * @param {string} term
      * @returns {Promise<SuggestionsData>}
