@@ -20,6 +20,11 @@
       "title": "Show Duck.ai Setting",
       "type": "boolean",
       "default": true
+    },
+    "showCustomizePopover": {
+      "title": "Show Customize Popover",
+      "type": "boolean",
+      "default": false
     }
   }
 }

@@ -93,7 +93,11 @@ export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonR
 }
 
 export function CustomizerMenuPositionedFixed({ children }) {
-    return <div class={styles.lowerRightFixed}>{children}</div>;
+    return (
+        <div class={styles.lowerRightFixed}>
+            {children}
+        </div>
+    );
 }
 
 /**
