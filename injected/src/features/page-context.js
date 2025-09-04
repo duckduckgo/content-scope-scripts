@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
-import { isDuckAi, isBeingFramed } from '../utils.js';
+import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
@@ -11,10 +11,7 @@ export default class PageContext extends ContentFeature {
     listenForUrlChanges = true;
 
     init() {
-        if (isBeingFramed()) {
-            return;
-        }
-        if (isDuckAi()) {
+        if (!this.shouldActivate()) {
             return;
         }
         this.setupMessageHandlers();
@@ -30,14 +27,23 @@ export default class PageContext extends ContentFeature {
         });
     }
 
+    shouldActivate() {
+        if (isBeingFramed() || isDuckAi()) {
+            return false;
+        }
+        const tabUrl = getTabUrl();
+        // Ignore duck:// urls for now
+        if (tabUrl?.protocol === 'duck:') {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
-        if (isBeingFramed()) {
-            return;
-        }
-        if (isDuckAi()) {
+        if (!this.shouldActivate()) {
             return;
         }
         this.handleContentCollectionRequest({});
