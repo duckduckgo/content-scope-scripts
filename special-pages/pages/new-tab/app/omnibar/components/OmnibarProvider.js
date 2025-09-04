@@ -26,6 +26,10 @@ export const OmnibarContext = createContext({
     setEnableAi: () => {
         throw new Error('must implement');
     },
+    /** @type {(showCustomizePopover: NonNullable<OmnibarConfig['showCustomizePopover']>) => void} */
+    setShowCustomizePopover: () => {
+        throw new Error('must implement');
+    },
     /** @type {(term: string) => Promise<SuggestionsData>} */
     getSuggestions: () => {
         throw new Error('must implement');
@@ -90,6 +94,14 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(showCustomizePopover: NonNullable<OmnibarConfig['showCustomizePopover']>) => void} */
+    const setShowCustomizePopover = useCallback(
+        (showCustomizePopover) => {
+            service.current?.setShowCustomizePopover(showCustomizePopover);
+        },
+        [service],
+    );
+
     /** @type {(term: string) => Promise<SuggestionsData>} */
     const getSuggestions = useCallback(
         (term) => {
@@ -138,6 +150,7 @@ export function OmnibarProvider(props) {
                 state,
                 setMode,
                 setEnableAi,
+                setShowCustomizePopover,
                 getSuggestions,
                 onSuggestions,
                 openSuggestion,

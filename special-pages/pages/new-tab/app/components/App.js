@@ -12,6 +12,7 @@ import { useComputed } from '@preact/signals';
 import { CustomizerThemesContext } from '../customizer/CustomizerProvider.js';
 import { useContext } from 'preact/hooks';
 import { InlineErrorBoundary } from '../InlineErrorBoundary.js';
+import { Slot } from './SlotFill.js';
 
 /**
  * Renders the App component.
@@ -64,6 +65,7 @@ export function App() {
                             isOpen={isOpen}
                             kind={'drawer'}
                         />
+                        <Slot name="customize-button" />
                     </CustomizerMenuPositionedFixed>
                 </div>
                 <aside
