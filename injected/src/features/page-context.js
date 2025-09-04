@@ -34,6 +34,12 @@ export default class PageContext extends ContentFeature {
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
+        if (isBeingFramed()) {
+            return;
+        }
+        if (isDuckAi()) {
+            return;
+        }
         this.handleContentCollectionRequest({});
     }
 
@@ -153,9 +159,11 @@ export default class PageContext extends ContentFeature {
             ];
 
         let content = '';
-console.log('getMainContent options', options);
         // Get content from main content areas
-        const mainContent = document.querySelector('main, article, .content, .main, #content, #main');
+        let mainContent = document.querySelector('main, article, .content, .main, #content, #main');
+        if (mainContent && mainContent.innerHTML.trim().length <= 100) {
+            mainContent = null;
+        }
         const contentRoot = mainContent || document.body;
 
         if (contentRoot) {
