@@ -4,7 +4,11 @@ import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
 export default class PageContext extends ContentFeature {
-    collectionCache = new Map();
+    /** @type {any} */
+    #cachedContent = undefined;
+    #cachedTimestamp = 0;
+    /** @type {MutationObserver | null} */
+    mutationObserver = null;
     lastSentContent = null;
     listenForUrlChanges = true;
 
@@ -14,19 +18,19 @@ export default class PageContext extends ContentFeature {
         }
         this.setupContentCollection();
         window.addEventListener('DOMContentLoaded', () => {
-            this.handleContentCollectionRequest({});
+            this.handleContentCollectionRequest();
         });
         window.addEventListener('hashchange', () => {
-            this.handleContentCollectionRequest({});
+            this.handleContentCollectionRequest();
         });
         window.addEventListener('pageshow', () => {
-            this.handleContentCollectionRequest({});
+            this.handleContentCollectionRequest();
         });
         window.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
                 return;
             }
-            this.handleContentCollectionRequest({});
+            this.handleContentCollectionRequest();
         });
     }
 
@@ -49,7 +53,7 @@ export default class PageContext extends ContentFeature {
         if (!this.shouldActivate()) {
             return;
         }
-        this.handleContentCollectionRequest({});
+        this.handleContentCollectionRequest();
     }
 
     setupContentCollection() {
@@ -72,15 +76,50 @@ export default class PageContext extends ContentFeature {
         this.observeContentChanges();
     }
 
+    get cachedContent() {
+        if (!this.#cachedContent || this.isCacheExpired()) {
+            // Clean up if we had content but it's expired
+            if (this.#cachedContent) {
+                this.#cachedContent = undefined;
+                this.#cachedTimestamp = 0;
+                this.stopObserving();
+            }
+            return undefined;
+        }
+        return this.#cachedContent;
+    }
+
+    set cachedContent(content) {
+        if (content === undefined) {
+            this.log.info('Invalidating cache');
+            this.#cachedContent = undefined;
+            this.#cachedTimestamp = 0;
+            this.stopObserving();
+            return;
+        }
+
+        this.#cachedContent = /** @type {any} */ (content);
+        this.#cachedTimestamp = Date.now();
+        this.startObserving();
+    }
+
+    isCacheExpired() {
+        return Date.now() - this.#cachedTimestamp > 30000;
+    }
+
     observeContentChanges() {
         // Use MutationObserver to detect content changes
         if (window.MutationObserver) {
-            const observer = new MutationObserver((_mutations) => {
+            this.mutationObserver = new MutationObserver((_mutations) => {
                 // Invalidate cache when content changes
-                this.invalidateCache();
+                this.cachedContent = undefined;
             });
+        }
+    }
 
-            observer.observe(document.body, {
+    startObserving() {
+        if (this.mutationObserver && this.#cachedContent) {
+            this.mutationObserver.observe(document.body, {
                 childList: true,
                 subtree: true,
                 characterData: true,
@@ -88,46 +127,42 @@ export default class PageContext extends ContentFeature {
         }
     }
 
-    handleContentCollectionRequest(data) {
+    stopObserving() {
+        if (this.mutationObserver) {
+            this.mutationObserver.disconnect();
+        }
+    }
+
+    handleContentCollectionRequest() {
+        this.log.info('Handling content collection request');
         try {
-            const options = data?.options || {};
-            const content = this.collectPageContent(options);
+            const content = this.collectPageContent();
             this.sendContentResponse(content);
         } catch (error) {
             this.sendErrorResponse(error);
         }
     }
 
-    collectPageContent(options = {}) {
-        const cacheKey = this.getCacheKey(options);
-
-        // Check cache first
-        if (this.collectionCache.has(cacheKey)) {
-            const cached = this.collectionCache.get(cacheKey);
-            if (Date.now() - cached.timestamp < 30000) {
-                // 30 second cache
-                return cached.data;
-            }
+    collectPageContent() {
+        // Check cache first - getter handles expiry and cleanup
+        if (this.cachedContent) {
+            return this.cachedContent;
         }
 
         const content = {
             favicon: getFaviconList(),
             title: this.getPageTitle(),
             metaDescription: this.getMetaDescription(),
-            content: this.getMainContent(options),
+            content: this.getMainContent(),
             headings: this.getHeadings(),
             links: this.getLinks(),
-            images: options.includeImages !== false ? this.getImages() : undefined,
+            images: this.getImages(),
             timestamp: Date.now(),
             url: window.location.href,
         };
 
-        // Cache the result
-        this.collectionCache.set(cacheKey, {
-            data: content,
-            timestamp: Date.now(),
-        });
-
+        // Cache the result - setter handles timestamp and observer
+        this.cachedContent = content;
         return content;
     }
 
@@ -140,25 +175,23 @@ export default class PageContext extends ContentFeature {
         return metaDesc ? metaDesc.getAttribute('content') || '' : '';
     }
 
-    getMainContent(options = {}) {
-        const maxLength = options.maxContentLength || this.getFeatureSetting('maxContentLength') || 100000;
-        const selectors = options.contentSelectors ||
-            this.getFeatureSetting('contentSelectors') || ['p', 'h1', 'h2', 'h3', 'article', 'section'];
-        const excludeSelectors = options.excludeSelectors ||
-            this.getFeatureSetting('excludeSelectors') || [
-                '.ad',
-                '.sidebar',
-                '.footer',
-                '.nav',
-                '.header',
-                'script',
-                'style',
-                'link',
-                'meta',
-                'noscript',
-                'svg',
-                'canvas',
-            ];
+    getMainContent() {
+        const maxLength = this.getFeatureSetting('maxContentLength') || 100000;
+        const selectors = this.getFeatureSetting('contentSelectors') || ['p', 'h1', 'h2', 'h3', 'article', 'section'];
+        const excludeSelectors = this.getFeatureSetting('excludeSelectors') || [
+            '.ad',
+            '.sidebar',
+            '.footer',
+            '.nav',
+            '.header',
+            'script',
+            'style',
+            'link',
+            'meta',
+            'noscript',
+            'svg',
+            'canvas',
+        ];
 
         let content = '';
         // Get content from main content areas
@@ -244,22 +277,14 @@ export default class PageContext extends ContentFeature {
         return images;
     }
 
-    getCacheKey(options) {
-        return JSON.stringify({
-            url: window.location.href,
-            options,
-        });
-    }
-
-    invalidateCache() {
-        this.collectionCache.clear();
-    }
 
     sendContentResponse(content) {
         if (this.lastSentContent && this.lastSentContent === content) {
+            this.log.info('Content already sent');
             return;
         }
         this.lastSentContent = content;
+        this.log.info('Sending content response');
         this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
             // TODO: This is a hack to get the data to the browser. We should probably not be paying this cost.
             serializedPageData: JSON.stringify(content),
@@ -267,6 +292,7 @@ export default class PageContext extends ContentFeature {
     }
 
     sendErrorResponse(error) {
+        this.log.error('Error sending content response', error);
         this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
             success: false,
             error: error.message || 'Unknown error occurred',
