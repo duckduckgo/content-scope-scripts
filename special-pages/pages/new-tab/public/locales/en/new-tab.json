@@ -181,6 +181,10 @@
     "title": "Ask Duck.ai",
     "description": "Text placed after aiChat suggestions that will submit a chat query."
   },
+  "omnibar_switchToTab": {
+    "title": "Switch to Tab",
+    "description": "Badge text shown next to open tab suggestions."
+  },
   "nextSteps_sectionTitle": {
     "title": "Next Steps",
     "note": "Text that goes in the Next Steps bubble above the first card"

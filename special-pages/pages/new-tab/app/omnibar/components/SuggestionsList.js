@@ -16,8 +16,10 @@ import { getSuggestionSuffix, getSuggestionTitle, startsWithIgnoreCase } from '.
 import { useSearchFormContext } from './SearchFormProvider';
 import { SuffixText } from './SuffixText';
 import styles from './SuggestionsList.module.css';
+import { useTypedTranslationWith } from '../../types';
 
 /**
+ * @typedef {import('../strings.json')} Strings
  * @typedef {import('./useSuggestions').SuggestionModel} SuggestionModel
  * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('../../../types/new-tab.js').OpenTarget} OpenTarget
@@ -63,6 +65,7 @@ export function SuggestionsList({ onOpenSuggestion, onSubmitChat }) {
  * @param {(params: {chat: string, target: OpenTarget}) => void} props.onSubmitChat
  */
 function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
+    const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
     const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useSearchFormContext();
@@ -107,7 +110,7 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
             )}
             {suggestion.kind === 'openTab' && (
                 <span class={styles.badge}>
-                    Switch to Tab <ArrowRightIcon />
+                    {t('omnibar_switchToTab')} <ArrowRightIcon />
                 </span>
             )}
         </button>
