@@ -55,10 +55,6 @@
     }
 }
 
-.aiChat {
-    border-top: 1px solid red;
-}
-
 .title {
     flex: none;
     max-width: 60%;
