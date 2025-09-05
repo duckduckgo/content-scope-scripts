@@ -62,6 +62,40 @@ export default class ContentFeature extends ConfigFeature {
         return this.args?.debug || false;
     }
 
+    get shouldLog() {
+        return this.isDebug;
+    }
+
+    /**
+     * Logging utility for this feature (Stolen some inspo from DuckPlayer logger, will unify in the future)
+     */
+    get log() {
+        const shouldLog = this.shouldLog;
+        const prefix = `${this.name.padEnd(20, ' ')} |`
+
+        return {
+            // These are getters to have the call site be the reported line number.
+            get info() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return console.log.bind(console, prefix);
+            },
+            get warn() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return console.warn.bind(console, prefix);
+            },
+            get error() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return console.error.bind(console, prefix);
+            },
+        };
+    }
+
     get desktopModeEnabled() {
         return this.args?.desktopModeEnabled || false;
     }

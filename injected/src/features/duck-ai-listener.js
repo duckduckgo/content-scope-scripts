@@ -39,36 +39,6 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {HTMLButtonElement | null} */
     sendButton = null;
 
-    get shouldLog() {
-        return this.isDebug;
-    }
-
-    /**
-     * Logging utility for this feature
-     */
-    get log() {
-        const shouldLog = this.shouldLog;
-        return {
-            get info() {
-                if (!shouldLog) {
-                    return () => {};
-                }
-                return console.log;
-            },
-            get warn() {
-                if (!shouldLog) {
-                    return () => {};
-                }
-                return console.warn;
-            },
-            get error() {
-                if (!shouldLog) {
-                    return () => {};
-                }
-                return console.error;
-            },
-        };
-    }
 
     init() {
         // Only activate on duckduckgo.com
