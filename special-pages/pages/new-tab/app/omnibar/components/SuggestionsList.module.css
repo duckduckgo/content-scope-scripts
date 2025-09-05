@@ -2,15 +2,14 @@
     border-top: 1px solid var(--ntp-surface-border-color);
     display: flex;
     flex-direction: column;
-    padding: 3px; /* 3px for popup borders */
-    padding-top: calc(3px - 1px); /* - 1px to account for the border-top */
+    margin-top: -1px; /* - 1px to account for the border-top */
 }
 
 .main,
 .footer {
     display: flex;
     flex-direction: column;
-    padding: var(--sp-1);
+    padding: calc(3px + var(--sp-1)); /* 3px for popup borders + 1sp of padding */
 }
 
 .main + .footer {
