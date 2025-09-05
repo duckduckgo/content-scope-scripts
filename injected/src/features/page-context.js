@@ -1,7 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
-const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
 export default class PageContext extends ContentFeature {
@@ -13,7 +12,6 @@ export default class PageContext extends ContentFeature {
         if (!this.shouldActivate()) {
             return;
         }
-        this.setupMessageHandlers();
         this.setupContentCollection();
         window.addEventListener('DOMContentLoaded', () => {
             this.handleContentCollectionRequest({});
@@ -52,13 +50,6 @@ export default class PageContext extends ContentFeature {
             return;
         }
         this.handleContentCollectionRequest({});
-    }
-
-    setupMessageHandlers() {
-        // Listen for content collection requests from macOS browser
-        this.messaging.subscribe(MSG_PAGE_CONTEXT_COLLECT, (data) => {
-            this.handleContentCollectionRequest(data);
-        });
     }
 
     setupContentCollection() {
