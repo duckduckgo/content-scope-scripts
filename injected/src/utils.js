@@ -841,7 +841,7 @@ export function isDuckAi() {
     const domains = ['duckduckgo.com', 'duck.ai', 'duck.co'];
     if (tabUrl?.hostname && domains.includes(tabUrl?.hostname)) {
         const url = new URL(tabUrl?.href);
-        return url.searchParams.has('duckai') || url.searchParams.get('ia') == 'chat';
+        return url.searchParams.has('duckai') || url.searchParams.get('ia') === 'chat';
     }
     return false;
 }
