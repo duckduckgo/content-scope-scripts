@@ -50,5 +50,9 @@
   "omnibar_visitSuffix": {
     "title": "Visit {url}",
     "description": "Text placed after suggestions that will open a webpage."
+  },
+  "omnibar_askDuckAiSuffix": {
+    "title": "Ask Duck.ai",
+    "description": "Text placed after aiChat suggestions that will submit a chat query."
   }
 }

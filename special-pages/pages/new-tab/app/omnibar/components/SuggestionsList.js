@@ -1,6 +1,7 @@
 import { Fragment, h } from 'preact';
 import { eventToTarget } from '../../../../../shared/handlers';
 import {
+    AiChatIcon,
     ArrowRightIcon,
     BookmarkIcon,
     BrowserIcon,
@@ -25,8 +26,9 @@ import styles from './SuggestionsList.module.css';
 /**
  * @param {object} props
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
+ * @param {(params: {chat: string, target: OpenTarget}) => void} props.onSubmitChat
  */
-export function SuggestionsList({ onOpenSuggestion }) {
+export function SuggestionsList({ onOpenSuggestion, onSubmitChat }) {
     const platformName = usePlatformName();
 
     const { term, suggestionsListId, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } =
@@ -51,7 +53,11 @@ export function SuggestionsList({ onOpenSuggestion }) {
                         onMouseLeave={() => clearSelectedSuggestion()}
                         onClick={(event) => {
                             event.preventDefault();
-                            onOpenSuggestion({ suggestion, target: eventToTarget(event, platformName) });
+                            if (suggestion.kind === 'aiChat') {
+                                onSubmitChat({ chat: suggestion.chat, target: eventToTarget(event, platformName) });
+                            } else {
+                                onOpenSuggestion({ suggestion, target: eventToTarget(event, platformName) });
+                            }
                         }}
                     >
                         <SuggestionIcon suggestion={suggestion} />
@@ -100,6 +106,8 @@ function SuggestionIcon({ suggestion }) {
             return <TabDesktopIcon />;
         case 'internalPage':
             return <BrowserIcon />;
+        case 'aiChat':
+            return <AiChatIcon />;
         default:
             throw new Error('Unknown suggestion kind');
     }

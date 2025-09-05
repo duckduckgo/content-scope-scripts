@@ -7,7 +7,11 @@ import { OmnibarContext } from './OmnibarProvider.js';
  */
 
 /**
- * @typedef {Suggestion & {
+ * @typedef {(Suggestion & {
+ *   id: string,
+ * }) | {
+ *   kind: 'aiChat',
+ *   chat: string,
  *   id: string,
  * }} SuggestionModel
  */
@@ -124,6 +128,7 @@ export function useSuggestions({ term, setTerm }) {
 
     useEffect(() => {
         return onSuggestions((data, term) => {
+            /** @type {SuggestionModel[]} */
             const suggestions = [
                 ...data.suggestions.topHits,
                 ...data.suggestions.duckduckgoSuggestions,
@@ -132,6 +137,16 @@ export function useSuggestions({ term, setTerm }) {
                 ...suggestion,
                 id: `suggestion-${index}`,
             }));
+
+            // Add persistent aiChat suggestion at the end if there's a term
+            if (term.trim().length > 0) {
+                suggestions.push({
+                    kind: 'aiChat',
+                    chat: term,
+                    id: 'suggestion-ai-chat',
+                });
+            }
+
             dispatch({
                 type: 'setSuggestions',
                 term,

@@ -1,5 +1,6 @@
 /**
  * @typedef {import('../../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('./components/useSuggestions.js').SuggestionModel} SuggestionModel
  */
 
 /**
@@ -8,6 +9,7 @@
  *  | { kind: 'duckDuckGo' }
  *  | { kind: 'visit', url: string }
  *  | { kind: 'raw', text: string }
+ *  | { kind: 'askDuckAi' }
  *  | null
  * )} Suffix
  */
@@ -21,7 +23,7 @@
 
 /**
  * @param {string} term
- * @param {Suggestion|null} selectedSuggestion
+ * @param {SuggestionModel | null} selectedSuggestion
  * @returns {Suffix}
  */
 export function getInputSuffix(term, selectedSuggestion) {
@@ -53,11 +55,13 @@ export function getInputSuffix(term, selectedSuggestion) {
         }
         case 'openTab':
             return { kind: 'duckDuckGo' };
+        case 'aiChat':
+            return { kind: 'askDuckAi' };
     }
 }
 
 /**
- * @param {Suggestion} suggestion
+ * @param {SuggestionModel} suggestion
  * @param {string} term
  * @returns {string}
  */
@@ -90,11 +94,13 @@ export function getSuggestionTitle(suggestion, term) {
         case 'internalPage':
         case 'openTab':
             return suggestion.title;
+        case 'aiChat':
+            return suggestion.chat;
     }
 }
 
 /**
- * @param {Suggestion} suggestion
+ * @param {SuggestionModel} suggestion
  * @param {string} term
  * @returns {string}
  */
@@ -111,14 +117,15 @@ export function getSuggestionCompletionString(suggestion, term) {
                 return getSuggestionTitle(suggestion, term);
             }
         }
+        case 'aiChat':
+            return getSuggestionTitle(suggestion, term);
         default:
             return getSuggestionTitle(suggestion, term);
     }
 }
 
 /**
- *
- * @param {Suggestion} suggestion
+ * @param {SuggestionModel} suggestion
  * @returns {Suffix}
  */
 export function getSuggestionSuffix(suggestion) {
@@ -138,6 +145,8 @@ export function getSuggestionSuffix(suggestion) {
         }
         case 'internalPage':
             return { kind: 'duckDuckGo' };
+        case 'aiChat':
+            return { kind: 'askDuckAi' };
     }
 }
 
