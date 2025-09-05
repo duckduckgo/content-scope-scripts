@@ -24,6 +24,12 @@ export default class PageContext extends ContentFeature {
         window.addEventListener('pageshow', () => {
             this.handleContentCollectionRequest({});
         });
+        window.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                return;
+            }
+            this.handleContentCollectionRequest({});
+        });
     }
 
     shouldActivate() {
