@@ -1,1 +1,1 @@
-- adsjs ping changes (#1922)
+- Notification: Add toString and make permission/requestPermission set values (#1934)
