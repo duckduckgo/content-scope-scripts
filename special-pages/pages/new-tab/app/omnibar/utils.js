@@ -1,5 +1,4 @@
 /**
- * @typedef {import('../../types/new-tab.js').Suggestion} Suggestion
  * @typedef {import('./components/useSuggestions.js').SuggestionModel} SuggestionModel
  */
 
