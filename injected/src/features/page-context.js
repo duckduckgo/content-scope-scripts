@@ -3,6 +3,53 @@ import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
+
+function collapseWhitespace(str) {
+    return typeof str === 'string'
+        ? str.replace(/\s+/g, ' ')
+        : '';
+}
+
+function domToMarkdown(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+        return collapseWhitespace(node.textContent);
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+        return "";
+    }
+
+    const tag = node.tagName.toLowerCase();
+    const children = Array.from(node.childNodes).map(domToMarkdown).join("");
+
+    switch (tag) {
+        case "strong":
+        case "b":
+            return `**${children}**`;
+        case "em":
+        case "i":
+            return `*${children}*`;
+        case "h1":
+            return `\n# ${children}\n`;
+        case "h2":
+            return `\n## ${children}\n`;
+        case "h3":
+            return `\n### ${children}\n`;
+        case "p":
+            return `${children}\n`;
+        case "br":
+            return `\n`;
+        case "ul":
+            return `\n${children}\n`;
+        case "li":
+            return `\n- ${children.trim()}\n`;
+        case "a":
+            const href = node.getAttribute("href");
+            return href ? `[${children}](${href})` : children;
+        default:
+            return children;
+    }
+}
+
 export default class PageContext extends ContentFeature {
     /** @type {any} */
     #cachedContent = undefined;
@@ -177,13 +224,15 @@ export default class PageContext extends ContentFeature {
 
     getMainContent() {
         const maxLength = this.getFeatureSetting('maxContentLength') || 100000;
-        const selectors = this.getFeatureSetting('contentSelectors') || ['p', 'h1', 'h2', 'h3', 'article', 'section'];
-        const excludeSelectors = this.getFeatureSetting('excludeSelectors') || [
+        const selectors = ['*'];
+        let excludeSelectors = this.getFeatureSetting('excludeSelectors') || [
             '.ad',
             '.sidebar',
             '.footer',
             '.nav',
             '.header',
+        ];
+        excludeSelectors = excludeSelectors.concat([
             'script',
             'style',
             'link',
@@ -191,7 +240,7 @@ export default class PageContext extends ContentFeature {
             'noscript',
             'svg',
             'canvas',
-        ];
+        ]);
 
         let content = '';
         // Get content from main content areas
@@ -211,17 +260,7 @@ export default class PageContext extends ContentFeature {
                 elements.forEach((el) => el.remove());
             });
 
-            // Extract text from selected elements
-            selectors.forEach((selector) => {
-                const elements = clone.querySelectorAll(selector);
-                elements.forEach((el) => {
-                    const text = el.textContent?.trim();
-                    if (text && text.length > 10) {
-                        // Only include substantial text
-                        content += text + '\n\n';
-                    }
-                });
-            });
+            content += domToMarkdown(clone);
         }
 
         // Limit content length
