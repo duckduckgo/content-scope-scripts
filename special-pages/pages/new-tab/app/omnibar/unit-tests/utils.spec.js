@@ -13,7 +13,7 @@ import {
 } from '../utils.js';
 
 /**
- * @typedef {import('../../../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('../components/useSuggestions.js').SuggestionModel} SuggestionModel
  */
 
 test.describe('getInputSuffix', () => {
@@ -26,23 +26,24 @@ test.describe('getInputSuffix', () => {
     });
 
     test('returns "Search DuckDuckGo" if selected suggestion is a phrase', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'phrase', phrase: 'pizza recipe' };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'phrase', phrase: 'pizza recipe' };
         const suffix = getInputSuffix('pizza', suggestion);
         equal(suffix?.kind, 'searchDuckDuckGo');
     });
 
     test('returns "Visit $url" if selected suggestion is a website', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'website', url: 'https://www.example.com/foo/bar' };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'website', url: 'https://www.example.com/foo/bar' };
         const suffix = getInputSuffix('foo', suggestion);
         equal(suffix?.kind, 'visit');
         equal(suffix?.url, 'www.example.com/foo/bar');
     });
 
     test('returns title if it is different to completion (bookmark)', () => {
-        /** @type {Suggestion} */
+        /** @type {SuggestionModel} */
         const suggestion = {
+            id: 'suggestion',
             kind: 'bookmark',
             title: 'Worlds Greatest Pizza',
             url: 'https://pizza.com/page',
@@ -55,48 +56,67 @@ test.describe('getInputSuffix', () => {
     });
 
     test('returns "Visit $url" if title matches completion (bookmark)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'bookmark', title: 'Worlds Greatest Pizza', url: 'https://pizza.com/page', isFavorite: true, score: 99 };
+        /** @type {SuggestionModel} */
+        const suggestion = {
+            id: 'suggestion',
+            kind: 'bookmark',
+            title: 'Worlds Greatest Pizza',
+            url: 'https://pizza.com/page',
+            isFavorite: true,
+            score: 99,
+        };
         const suffix = getInputSuffix('world ', suggestion);
         equal(suffix?.kind, 'visit');
         equal(suffix?.url, 'pizza.com/page');
     });
 
     test('returns title if it is different to completion (historyEntry)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'historyEntry', title: 'Worlds Greatest Pizza', url: 'https://pizza.com/history', score: 95 };
+        /** @type {SuggestionModel} */
+        const suggestion = {
+            id: 'suggestion',
+            kind: 'historyEntry',
+            title: 'Worlds Greatest Pizza',
+            url: 'https://pizza.com/history',
+            score: 95,
+        };
         const suffix = getInputSuffix('pizza.com', suggestion);
         equal(suffix?.kind, 'raw');
         equal(suffix?.text, 'Worlds Greatest Pizza');
     });
 
     test('returns "Visit $url" if title matches completion (historyEntry)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'historyEntry', title: 'Worlds Greatest Pizza', url: 'https://pizza.com/history', score: 95 };
+        /** @type {SuggestionModel} */
+        const suggestion = {
+            id: 'suggestion',
+            kind: 'historyEntry',
+            title: 'Worlds Greatest Pizza',
+            url: 'https://pizza.com/history',
+            score: 95,
+        };
         const suffix = getInputSuffix('world ', suggestion);
         equal(suffix?.kind, 'visit');
         equal(suffix?.url, 'pizza.com/history');
     });
 
     test('returns title if it is different to completion (internalPage)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'internalPage', title: 'DuckDuckGo Settings', url: 'duck://settings', score: 10 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'internalPage', title: 'DuckDuckGo Settings', url: 'duck://settings', score: 10 };
         const suffix = getInputSuffix('set', suggestion);
         equal(suffix?.kind, 'raw');
         equal(suffix?.text, 'DuckDuckGo Settings');
     });
 
     test('returns "Visit $url" if title matches completion (internalPage)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'internalPage', title: 'DuckDuckGo Settings', url: 'duck://settings', score: 10 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'internalPage', title: 'DuckDuckGo Settings', url: 'duck://settings', score: 10 };
         const suffix = getInputSuffix('DuckD', suggestion);
         equal(suffix?.kind, 'visit');
         equal(suffix?.url, 'settings');
     });
 
     test('returns DuckDuckGo if selected suggestion is an open tab', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'openTab', title: 'Pizza Tab', tabId: 'tab-33', score: 33 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'openTab', title: 'Pizza Tab', tabId: 'tab-33', score: 33 };
         const suffix = getInputSuffix('pizza', suggestion);
         equal(suffix?.kind, 'duckDuckGo');
     });
@@ -104,29 +124,30 @@ test.describe('getInputSuffix', () => {
 
 test.describe('getSuggestionTitle', () => {
     test('returns phrase for phrase', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'phrase', phrase: 'pizza near me' };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'phrase', phrase: 'pizza near me' };
         equal(getSuggestionTitle(suggestion, ''), 'pizza near me');
         equal(getSuggestionTitle(suggestion, 'pizza'), 'pizza near me');
     });
 
     test('returns formatted url for website', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'website', url: 'https://www.example.com/path' };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'website', url: 'https://www.example.com/path' };
         equal(getSuggestionTitle(suggestion, ''), 'example.com/path');
         equal(getSuggestionTitle(suggestion, 'examp'), 'example.com/path');
         equal(getSuggestionTitle(suggestion, 'www.examp'), 'www.example.com/path');
     });
 
     test('returns empty string for website with invalid url', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'website', url: 'not a real url' };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'website', url: 'not a real url' };
         equal(getSuggestionTitle(suggestion, ''), '');
     });
 
     test('returns search query for a DuckDuckGo search history entry', () => {
-        /** @type {Suggestion} */
+        /** @type {SuggestionModel} */
         const suggestion = {
+            id: 'suggestion',
             kind: 'historyEntry',
             title: 'Best Pizza',
             url: 'https://duckduckgo.com/?q=secret+pizza',
@@ -136,8 +157,9 @@ test.describe('getSuggestionTitle', () => {
     });
 
     test('returns title for a history entry', () => {
-        /** @type {Suggestion} */
+        /** @type {SuggestionModel} */
         const suggestion = {
+            id: 'suggestion',
             kind: 'historyEntry',
             title: 'Italian Pizza History',
             url: 'https://example.com/search?q=Italian%20Pizza%20History',
@@ -147,8 +169,9 @@ test.describe('getSuggestionTitle', () => {
     });
 
     test('returns formatted url for a history entry if there is no title', () => {
-        /** @type {Suggestion} */
+        /** @type {SuggestionModel} */
         const suggestion = {
+            id: 'suggestion',
             kind: 'historyEntry',
             title: '',
             url: 'https://www.example.com/search?q=Pizza%20Dough%20Calculator',
@@ -160,8 +183,9 @@ test.describe('getSuggestionTitle', () => {
     });
 
     test('returns empty string for a history entry if there is no title and url is invalid', () => {
-        /** @type {Suggestion} */
+        /** @type {SuggestionModel} */
         const suggestion = {
+            id: 'suggestion',
             kind: 'historyEntry',
             title: '',
             url: 'not a url',
@@ -171,28 +195,35 @@ test.describe('getSuggestionTitle', () => {
     });
 
     test('returns title for a bookmark', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'bookmark', title: 'Pizza Hut', url: 'https://pizzahut.com', isFavorite: false, score: 98 };
+        /** @type {SuggestionModel} */
+        const suggestion = {
+            id: 'suggestion',
+            kind: 'bookmark',
+            title: 'Pizza Hut',
+            url: 'https://pizzahut.com',
+            isFavorite: false,
+            score: 98,
+        };
         equal(getSuggestionTitle(suggestion, ''), 'Pizza Hut');
     });
 
     test('returns title for an internal page', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'internalPage', title: 'DuckDuckGo Settings', url: 'duck://settings', score: 3 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'internalPage', title: 'DuckDuckGo Settings', url: 'duck://settings', score: 3 };
         equal(getSuggestionTitle(suggestion, ''), 'DuckDuckGo Settings');
     });
 
     test('returns title for an open tab', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'openTab', title: 'Pizza vs Tacos', tabId: 'tab-38', score: 20 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'openTab', title: 'Pizza vs Tacos', tabId: 'tab-38', score: 20 };
         equal(getSuggestionTitle(suggestion, ''), 'Pizza vs Tacos');
     });
 });
 
 test.describe('getSuggestionCompletionString', () => {
     test('returns url string if url matches prefix of term (historyEntry)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'historyEntry', title: 'My Pizza', url: 'https://pizza.com/menu', score: 76 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'historyEntry', title: 'My Pizza', url: 'https://pizza.com/menu', score: 76 };
         equal(getSuggestionCompletionString(suggestion, 'pizza.com'), 'pizza.com/menu');
         equal(getSuggestionCompletionString(suggestion, 'pizza.com/menu'), 'pizza.com/menu');
         equal(getSuggestionCompletionString(suggestion, 'pizza'), 'pizza.com/menu');
@@ -200,23 +231,30 @@ test.describe('getSuggestionCompletionString', () => {
     });
 
     test('returns title if url does not match prefix of term (historyEntry)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'historyEntry', title: 'My Pizza', url: 'https://pizza.com/menu', score: 76 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'historyEntry', title: 'My Pizza', url: 'https://pizza.com/menu', score: 76 };
         equal(getSuggestionCompletionString(suggestion, 'my'), 'My Pizza');
         equal(getSuggestionCompletionString(suggestion, 'my pi'), 'My Pizza');
         equal(getSuggestionCompletionString(suggestion, 'hot dog'), 'My Pizza');
     });
 
     test('returns title if there is no url (historyEntry)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'historyEntry', title: 'My Pizza', url: '', score: 76 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'historyEntry', title: 'My Pizza', url: '', score: 76 };
         equal(getSuggestionCompletionString(suggestion, 'pizza.com'), 'My Pizza');
         equal(getSuggestionCompletionString(suggestion, 'my'), 'My Pizza');
     });
 
     test('returns url string if url matches prefix of term (bookmark)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'bookmark', title: 'Pizza Hot', url: 'https://pizza.com/order', isFavorite: false, score: 95 };
+        /** @type {SuggestionModel} */
+        const suggestion = {
+            id: 'suggestion',
+            kind: 'bookmark',
+            title: 'Pizza Hot',
+            url: 'https://pizza.com/order',
+            isFavorite: false,
+            score: 95,
+        };
         equal(getSuggestionCompletionString(suggestion, 'pizza.com'), 'pizza.com/order');
         equal(getSuggestionCompletionString(suggestion, 'pizza.com/order'), 'pizza.com/order');
         equal(getSuggestionCompletionString(suggestion, 'pizza'), 'pizza.com/order');
@@ -224,70 +262,77 @@ test.describe('getSuggestionCompletionString', () => {
     });
 
     test('returns title if url does not match prefix of term (bookmark)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'bookmark', title: 'Pizza Hot', url: 'https://pizza.com/order', isFavorite: false, score: 95 };
+        /** @type {SuggestionModel} */
+        const suggestion = {
+            id: 'suggestion',
+            kind: 'bookmark',
+            title: 'Pizza Hot',
+            url: 'https://pizza.com/order',
+            isFavorite: false,
+            score: 95,
+        };
         equal(getSuggestionCompletionString(suggestion, 'my'), 'Pizza Hot');
         equal(getSuggestionCompletionString(suggestion, 'my pi'), 'Pizza Hot');
         equal(getSuggestionCompletionString(suggestion, 'hot dog'), 'Pizza Hot');
     });
 
     test('returns title if there is no url (bookmark)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'bookmark', title: 'Pizza Place', url: '', isFavorite: false, score: 77 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'bookmark', title: 'Pizza Place', url: '', isFavorite: false, score: 77 };
         equal(getSuggestionCompletionString(suggestion, 'pizza.com'), 'Pizza Place');
         equal(getSuggestionCompletionString(suggestion, 'my'), 'Pizza Place');
     });
 
     test('returns url string if url matches prefix of term (internalPage)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'internalPage', title: 'Settings', url: 'duck://settings', score: 19 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'internalPage', title: 'Settings', url: 'duck://settings', score: 19 };
         equal(getSuggestionCompletionString(suggestion, 'settings'), 'settings');
         equal(getSuggestionCompletionString(suggestion, 'set'), 'settings');
         equal(getSuggestionCompletionString(suggestion, 'Sett'), 'settings'); // case insensitive
     });
 
     test('returns title if url does not match prefix of term (internalPage)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'internalPage', title: 'DuckDuckGo Settings', url: 'duck://settings', score: 10 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'internalPage', title: 'DuckDuckGo Settings', url: 'duck://settings', score: 10 };
         equal(getSuggestionCompletionString(suggestion, 'my setting'), 'DuckDuckGo Settings');
         equal(getSuggestionCompletionString(suggestion, 'abc'), 'DuckDuckGo Settings');
         equal(getSuggestionCompletionString(suggestion, 'search'), 'DuckDuckGo Settings');
     });
 
     test('returns title if there is no url (internalPage)', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'internalPage', title: 'About Page', url: '', score: 17 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'internalPage', title: 'About Page', url: '', score: 17 };
         equal(getSuggestionCompletionString(suggestion, 'about'), 'About Page');
         equal(getSuggestionCompletionString(suggestion, 'info'), 'About Page');
     });
 
     test('returns phrase for phrase', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'phrase', phrase: 'pizza near me' };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'phrase', phrase: 'pizza near me' };
         equal(getSuggestionCompletionString(suggestion, 'pizza'), 'pizza near me');
     });
 
     test('returns url for website', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'website', url: 'https://example.com/' };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'website', url: 'https://example.com/' };
         equal(getSuggestionCompletionString(suggestion, 'exam'), 'example.com');
     });
 
     test('returns title for openTab', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'openTab', title: 'Pizza Desktop', tabId: 'tab-5', score: 55 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'openTab', title: 'Pizza Desktop', tabId: 'tab-5', score: 55 };
         equal(getSuggestionCompletionString(suggestion, 'pizza'), 'Pizza Desktop');
     });
 });
 
 test.describe('getSuggestionSuffix', () => {
     test('returns null for websites, phrases and open tabs', () => {
-        /** @type {Suggestion} */
-        const websiteSuggestion = { kind: 'website', url: 'https://pizzaexpress.com/' };
-        /** @type {Suggestion} */
-        const phraseSuggestion = { kind: 'phrase', phrase: 'pizza near me' };
-        /** @type {Suggestion} */
-        const openTabSuggestion = { kind: 'openTab', title: 'Pizza Tab', tabId: 'tab-123', score: 45 };
+        /** @type {SuggestionModel} */
+        const websiteSuggestion = { id: 'suggestion', kind: 'website', url: 'https://pizzaexpress.com/' };
+        /** @type {SuggestionModel} */
+        const phraseSuggestion = { id: 'suggestion', kind: 'phrase', phrase: 'pizza near me' };
+        /** @type {SuggestionModel} */
+        const openTabSuggestion = { id: 'suggestion', kind: 'openTab', title: 'Pizza Tab', tabId: 'tab-123', score: 45 };
 
         equal(getSuggestionSuffix(websiteSuggestion), null);
         equal(getSuggestionSuffix(phraseSuggestion), null);
@@ -295,31 +340,38 @@ test.describe('getSuggestionSuffix', () => {
     });
 
     test('returns formatted URL for history entries', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'historyEntry', title: 'History', url: 'https://www.pizza.com/page/', score: 83 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'historyEntry', title: 'History', url: 'https://www.pizza.com/page/', score: 83 };
         const suffix = getSuggestionSuffix(suggestion);
         equal(suffix?.kind, 'raw');
         equal(suffix?.text, 'pizza.com/page');
     });
 
     test('returns formatted URL for bookmarks', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'bookmark', title: 'Dominos', url: 'https://www.dominos.com/', isFavorite: false, score: 94 };
+        /** @type {SuggestionModel} */
+        const suggestion = {
+            id: 'suggestion',
+            kind: 'bookmark',
+            title: 'Dominos',
+            url: 'https://www.dominos.com/',
+            isFavorite: false,
+            score: 94,
+        };
         const suffix = getSuggestionSuffix(suggestion);
         equal(suffix?.kind, 'raw');
         equal(suffix?.text, 'dominos.com');
     });
 
     test('returns DuckDuckGo for internal pages', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'internalPage', title: 'Settings', url: 'duck://settings', score: 2 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'internalPage', title: 'Settings', url: 'duck://settings', score: 2 };
         const suffix = getSuggestionSuffix(suggestion);
         equal(suffix?.kind, 'duckDuckGo');
     });
 
     test('returns null if url is invalid', () => {
-        /** @type {Suggestion} */
-        const suggestion = { kind: 'historyEntry', title: 'broken', url: '?????', score: 74 };
+        /** @type {SuggestionModel} */
+        const suggestion = { id: 'suggestion', kind: 'historyEntry', title: 'broken', url: '?????', score: 74 };
         equal(getSuggestionSuffix(suggestion), null);
     });
 });
