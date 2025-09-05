@@ -63,22 +63,34 @@ export default class PageContext extends ContentFeature {
         if (!this.shouldActivate()) {
             return;
         }
+        this.setupListeners();
         this.setupContentCollection();
-        window.addEventListener('DOMContentLoaded', () => {
-            this.handleContentCollectionRequest();
-        });
-        window.addEventListener('hashchange', () => {
-            this.handleContentCollectionRequest();
-        });
-        window.addEventListener('pageshow', () => {
-            this.handleContentCollectionRequest();
-        });
-        window.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') {
-                return;
-            }
-            this.handleContentCollectionRequest();
-        });
+    }
+
+    setupListeners() {
+        if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
+            this.messaging.subscribe('collect', () => {
+                this.handleContentCollectionRequest();
+            });
+        }
+        if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
+            window.addEventListener('hashchange', () => {
+                this.handleContentCollectionRequest();
+            });
+        }
+        if (this.getFeatureSettingEnabled('subscribeToPageShow', 'enabled')) {
+            window.addEventListener('pageshow', () => {
+                this.handleContentCollectionRequest();
+            });
+        }
+        if (this.getFeatureSettingEnabled('subscribeToVisibilityChange', 'enabled')) {
+            window.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    return;
+                }
+                this.handleContentCollectionRequest();
+            });
+        }
     }
 
     shouldActivate() {
@@ -121,6 +133,7 @@ export default class PageContext extends ContentFeature {
     setup() {
         // Initialize content collection when DOM is ready
         this.observeContentChanges();
+        this.handleContentCollectionRequest();
     }
 
     get cachedContent() {
@@ -151,7 +164,8 @@ export default class PageContext extends ContentFeature {
     }
 
     isCacheExpired() {
-        return Date.now() - this.#cachedTimestamp > 30000;
+        const cacheExpiration = this.getFeatureSetting('cacheExpiration') || 30000;
+        return Date.now() - this.#cachedTimestamp > cacheExpiration;
     }
 
     observeContentChanges() {
