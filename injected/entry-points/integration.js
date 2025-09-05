@@ -1,4 +1,4 @@
-import { load, init } from '../src/content-scope-features.js';
+import { load, init, updateFeatureArgs } from '../src/content-scope-features.js';
 import { TestTransportConfig } from '../../messaging/index.js';
 import { getTabUrl } from '../src/utils.js';
 
@@ -120,6 +120,7 @@ async function initCode() {
             window.__testContentScopeArgs = merged;
             // init features
             await init(merged);
+            await updateFeatureArgs(merged);
 
             // set status to initialized so that tests can resume
             setStatus('initialized');

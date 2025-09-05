@@ -1,4 +1,6 @@
 import ContentFeature from '../content-feature.js';
+import { getFaviconList } from './favicon.js';
+import { isDuckAi } from '../utils.js';
 const MSG_PAGE_CONTEXT_COLLECT = 'collect';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
@@ -9,7 +11,7 @@ export default class PageContext extends ContentFeature {
     listenForUrlChanges = true;
 
     init() {
-        if (this.isDuckAi()) {
+        if (isDuckAi()) {
             return;
         }
         this.setupMessageHandlers();
@@ -20,17 +22,9 @@ export default class PageContext extends ContentFeature {
         window.addEventListener('hashchange', () => {
             this.handleContentCollectionRequest({});
         });
-    }
-
-    isDuckAi() {
-        if (window?.top?.location?.hostname === 'duckduckgo.com') {
-            return true;
-        }
-        if (window.location.hostname === 'duckduckgo.com') {
-            const url = new URL(window.location.href);
-            return url.searchParams.has('duckai');
-        }
-        return false;
+        window.addEventListener('pageshow', () => {
+            this.handleContentCollectionRequest({});
+        });
     }
 
     /**
@@ -106,6 +100,7 @@ export default class PageContext extends ContentFeature {
         }
 
         const content = {
+            favicon: getFaviconList(),
             title: this.getPageTitle(),
             metaDescription: this.getMetaDescription(),
             content: this.getMainContent(options),

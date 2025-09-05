@@ -87,7 +87,7 @@ function monitor(changeObservedCallback) {
 /**
  * @returns {import('../types/favicon.js').FaviconAttrs[]}
  */
-function getFaviconList() {
+export function getFaviconList() {
     const selectors = [
         "link[href][rel='favicon']",
         "link[href][rel*='icon']",

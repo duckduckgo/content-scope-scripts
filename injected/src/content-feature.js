@@ -42,6 +42,12 @@ export default class ContentFeature extends ConfigFeature {
      */
     listenForUpdateChanges = false;
 
+    /**
+     * Set this to true if you wish to receive configuration updates from initial ping responses (Android only).
+     * @type {boolean}
+     */
+    listenForConfigUpdates = false;
+
     /** @type {ImportMeta} */
     #importConfig;
 
@@ -222,6 +228,17 @@ export default class ContentFeature extends ConfigFeature {
      * @deprecated - use messaging instead.
      */
     update() {}
+
+    /**
+     * Called when user preferences are merged from initial ping response. (Android only)
+     * Override this method in your feature to handle user preference updates.
+     * This only happens once during initialization when the platform responds with user-specific settings.
+     * @param {object} _updatedConfig - The configuration with merged user preferences
+     */
+    onUserPreferencesMerged(_updatedConfig) {
+        // Default implementation does nothing
+        // Features can override this to handle user preference updates
+    }
 
     /**
      * Register a flag that will be added to page breakage reports
