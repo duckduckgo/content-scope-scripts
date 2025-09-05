@@ -29,62 +29,88 @@ import styles from './SuggestionsList.module.css';
  * @param {(params: {chat: string, target: OpenTarget}) => void} props.onSubmitChat
  */
 export function SuggestionsList({ onOpenSuggestion, onSubmitChat }) {
-    const platformName = usePlatformName();
-
-    const { term, suggestionsListId, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } =
-        useSearchFormContext();
+    const { suggestionsListId, suggestions } = useSearchFormContext();
 
     if (suggestions.length === 0) return null;
 
+    const mainSuggestions = suggestions.filter((suggestion) => suggestion.kind !== 'aiChat');
+    const footerSuggestions = suggestions.filter((suggestion) => suggestion.kind === 'aiChat');
+
     return (
         <div role="listbox" id={suggestionsListId} class={styles.list}>
-            {suggestions.map((suggestion) => {
-                const title = getSuggestionTitle(suggestion, term);
-                const suffix = getSuggestionSuffix(suggestion);
-                return (
-                    <button
-                        key={suggestion.id}
-                        role="option"
-                        id={suggestion.id}
-                        class={styles.item}
-                        tabIndex={suggestion === selectedSuggestion ? 0 : -1}
-                        aria-selected={suggestion === selectedSuggestion}
-                        onMouseOver={() => setSelectedSuggestion(suggestion)}
-                        onMouseLeave={() => clearSelectedSuggestion()}
-                        onClick={(event) => {
-                            event.preventDefault();
-                            if (suggestion.kind === 'aiChat') {
-                                onSubmitChat({ chat: suggestion.chat, target: eventToTarget(event, platformName) });
-                            } else {
-                                onOpenSuggestion({ suggestion, target: eventToTarget(event, platformName) });
-                            }
-                        }}
-                    >
-                        <SuggestionIcon suggestion={suggestion} />
-                        <span class={styles.title}>
-                            {startsWithIgnoreCase(title, term) ? (
-                                <>
-                                    <b>{title.slice(0, term.length)}</b>
-                                    {title.slice(term.length)}
-                                </>
-                            ) : (
-                                title
-                            )}
-                        </span>
-                        {suffix && (
-                            <span class={styles.suffix}>
-                                <SuffixText suffix={suffix} />
-                            </span>
-                        )}
-                        {suggestion.kind === 'openTab' && (
-                            <span class={styles.badge}>
-                                Switch to Tab <ArrowRightIcon />
-                            </span>
-                        )}
-                    </button>
-                );
-            })}
+            {mainSuggestions.length > 0 && (
+                <div class={styles.main}>
+                    {mainSuggestions.map((suggestion) => (
+                        <SuggestionsListItem suggestion={suggestion} onOpenSuggestion={onOpenSuggestion} onSubmitChat={onSubmitChat} />
+                    ))}
+                </div>
+            )}
+            {footerSuggestions.length > 0 && (
+                <div class={styles.footer}>
+                    {footerSuggestions.map((suggestion) => (
+                        <SuggestionsListItem suggestion={suggestion} onOpenSuggestion={onOpenSuggestion} onSubmitChat={onSubmitChat} />
+                    ))}
+                </div>
+            )}
         </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {SuggestionModel} props.suggestion
+ * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
+ * @param {(params: {chat: string, target: OpenTarget}) => void} props.onSubmitChat
+ */
+function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
+    const platformName = usePlatformName();
+
+    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useSearchFormContext();
+
+    const title = getSuggestionTitle(suggestion, term);
+    const suffix = getSuggestionSuffix(suggestion);
+
+    return (
+        <button
+            key={suggestion.id}
+            role="option"
+            id={suggestion.id}
+            class={styles.item}
+            tabIndex={suggestion === selectedSuggestion ? 0 : -1}
+            aria-selected={suggestion === selectedSuggestion}
+            onMouseOver={() => setSelectedSuggestion(suggestion)}
+            onMouseLeave={() => clearSelectedSuggestion()}
+            onClick={(event) => {
+                event.preventDefault();
+                if (suggestion.kind === 'aiChat') {
+                    onSubmitChat({ chat: suggestion.chat, target: eventToTarget(event, platformName) });
+                } else {
+                    onOpenSuggestion({ suggestion, target: eventToTarget(event, platformName) });
+                }
+            }}
+        >
+            <SuggestionIcon suggestion={suggestion} />
+            <span class={styles.title}>
+                {startsWithIgnoreCase(title, term) ? (
+                    <>
+                        <b>{title.slice(0, term.length)}</b>
+                        {title.slice(term.length)}
+                    </>
+                ) : (
+                    title
+                )}
+            </span>
+            {suffix && (
+                <span class={styles.suffix}>
+                    <SuffixText suffix={suffix} />
+                </span>
+            )}
+            {suggestion.kind === 'openTab' && (
+                <span class={styles.badge}>
+                    Switch to Tab <ArrowRightIcon />
+                </span>
+            )}
+        </button>
     );
 }
 
