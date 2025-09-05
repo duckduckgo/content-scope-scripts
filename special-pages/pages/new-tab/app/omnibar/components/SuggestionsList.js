@@ -43,14 +43,24 @@ export function SuggestionsList({ onOpenSuggestion, onSubmitChat }) {
             {mainSuggestions.length > 0 && (
                 <div class={styles.main}>
                     {mainSuggestions.map((suggestion) => (
-                        <SuggestionsListItem suggestion={suggestion} onOpenSuggestion={onOpenSuggestion} onSubmitChat={onSubmitChat} />
+                        <SuggestionsListItem
+                            key={suggestion.id}
+                            suggestion={suggestion}
+                            onOpenSuggestion={onOpenSuggestion}
+                            onSubmitChat={onSubmitChat}
+                        />
                     ))}
                 </div>
             )}
             {footerSuggestions.length > 0 && (
                 <div class={styles.footer}>
                     {footerSuggestions.map((suggestion) => (
-                        <SuggestionsListItem suggestion={suggestion} onOpenSuggestion={onOpenSuggestion} onSubmitChat={onSubmitChat} />
+                        <SuggestionsListItem
+                            key={suggestion.id}
+                            suggestion={suggestion}
+                            onOpenSuggestion={onOpenSuggestion}
+                            onSubmitChat={onSubmitChat}
+                        />
                     ))}
                 </div>
             )}
@@ -75,7 +85,6 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
 
     return (
         <button
-            key={suggestion.id}
             role="option"
             id={suggestion.id}
             class={styles.item}
