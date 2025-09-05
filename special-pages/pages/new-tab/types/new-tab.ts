@@ -239,6 +239,10 @@ export interface ContextMenuNotification {
   params: ContextMenuNotify;
 }
 export interface ContextMenuNotify {
+  /**
+   * @deprecated
+   * DEPRECATED: This property is deprecated and will be removed in a future version. Native apps should populate the context menu themselves instead of relying on frontend to tell it what widgets exist in the New Tab Page.
+   */
   visibilityMenuItems: VisibilityMenuItem[];
 }
 export interface VisibilityMenuItem {
