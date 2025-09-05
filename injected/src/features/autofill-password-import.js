@@ -8,6 +8,7 @@ export const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)';
 export const OVERLAY_ID = 'ddg-password-import-overlay';
 export const DELAY_BEFORE_ANIMATION = 300;
 const BOOKMARK_IMPORT_DOMAIN = 'takeout.google.com';
+const TAKEOUT_DOWNLOAD_URL_BASE = '/takeout/download';
 
 /**
  * @typedef ButtonAnimationStyle
@@ -52,7 +53,7 @@ export default class AutofillPasswordImport extends ContentFeature {
 
     #domLoaded;
 
-    #currentLocation;
+    #exportId;
 
     #isBookmarkModalVisible = false;
     #isBookmarkProcessed = false;
@@ -427,16 +428,30 @@ export default class AutofillPasswordImport extends ContentFeature {
         }
     }
 
+    async downloadData() {
+        const userId = document.querySelector('a[href*="&user="]')?.getAttribute('href')?.split('&user=')[1];
+        console.log('DEEP DEBUG autofill-password-import: userId', userId);
+        await withExponentialBackoff(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 8);
+        const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
+        window.location.href = downloadURL;
+    }
+
     async handleBookmarkImportPath(pathname) {
         console.log('DEEP DEBUG autofill-password-import: handleBookmarkImportPath', pathname);
         if (pathname === '/' && !this.#isBookmarkModalVisible) {
             await this.clickDisselectAllButton();
             await this.selectBookmark();
+            this.startExportProcess();
+            await this.storeExportId();
+            const manageButton = /** @type HTMLAnchorElement */ (document.querySelector('a[href="manage"]'));
+            manageButton?.click();
+            await this.downloadData();
         }
     }
 
     /**
      * @param {Location} location
+     *
      */
     async handleLocation(location) {
         const { pathname, hostname } = location;
@@ -541,15 +556,42 @@ export default class AutofillPasswordImport extends ContentFeature {
     async findDisselectAllButton() {
         return await withExponentialBackoff(() => document.querySelectorAll(this.disselectAllButtonSelector)[1]);
     }
+
+    async findExportId() {
+        const panels = document.querySelectorAll('div[role="tabpanel"]');
+        const exportPanel = panels[panels.length - 1];
+        return await withExponentialBackoff(() => exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id'));
+    }
+
+    async storeExportId() {
+        this.#exportId = await this.findExportId();
+        console.log('DEEP DEBUG autofill-password-import: stored export id', this.#exportId);
+    }
+
+    startExportProcess() {
+        const nextStepButton = /** @type HTMLButtonElement */ (document.querySelectorAll(this.nextStepButtonSelector)[0]);
+        nextStepButton?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        nextStepButton?.click();
+
+        const createExportButton = /** @type HTMLButtonElement */ (document.querySelectorAll(this.createExportButtonSelector)[0]);
+        createExportButton?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        createExportButton?.click();
+    }
+
     async selectBookmark() {
         if (this.#isBookmarkProcessed) {
             return;
         }
         const chromeDataButtonSelector = `${this.chromeSectionSelector} button`;
         const chromeDataButton = /** @type HTMLButtonElement */ (
-            await withExponentialBackoff(() => document.querySelectorAll(chromeDataButtonSelector)[1], 5)
+            await withExponentialBackoff(() => {
+                const button = /** @type HTMLButtonElement */ (document.querySelectorAll(chromeDataButtonSelector)[1]);
+                if (button.checkVisibility()) {
+                    return button;
+                }
+                return null;
+            })
         );
-        chromeDataButton?.focus();
         chromeDataButton?.click();
         this.#isBookmarkModalVisible = true;
         await this.domLoaded;
@@ -570,18 +612,10 @@ export default class AutofillPasswordImport extends ContentFeature {
         const okButton = /** @type HTMLButtonElement */ (document.querySelectorAll('div[role="button"]')[7]);
 
         await withExponentialBackoff(() => okButton.ariaDisabled !== 'true');
-        
+
         okButton?.click();
         this.#isBookmarkModalVisible = false;
         this.#isBookmarkProcessed = true;
-
-        const nextStepButton = /** @type HTMLButtonElement */ (document.querySelectorAll(this.nextStepButtonSelector)[0]);
-        nextStepButton?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-        nextStepButton?.click();
-
-        const createExportButton = /** @type HTMLButtonElement */ (document.querySelectorAll(this.createExportButtonSelector)[0]);
-        createExportButton?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-        createExportButton?.click();
     }
 
     async clickDisselectAllButton() {
