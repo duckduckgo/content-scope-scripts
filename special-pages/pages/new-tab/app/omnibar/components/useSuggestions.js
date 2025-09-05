@@ -7,6 +7,8 @@ import { OmnibarContext } from './OmnibarProvider.js';
  */
 
 /**
+ * Internal representation of Suggestion with additional properties for the omnibar component.
+ *
  * @typedef {(Suggestion & {
  *   id: string,
  * }) | {
