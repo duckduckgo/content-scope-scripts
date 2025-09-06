@@ -10,7 +10,7 @@ function collapseWhitespace(str) {
         : '';
 }
 
-function domToMarkdown(node) {
+function domToMarkdown(node, maxLength = Infinity) {
     if (node.nodeType === Node.TEXT_NODE) {
         return collapseWhitespace(node.textContent);
     }
@@ -19,7 +19,18 @@ function domToMarkdown(node) {
     }
 
     const tag = node.tagName.toLowerCase();
-    const children = Array.from(node.childNodes).map(domToMarkdown).join("");
+
+    // Build children string incrementally to exit early when maxLength is exceeded
+    let children = "";
+    for (const childNode of node.childNodes) {
+        const childContent = domToMarkdown(childNode, maxLength - children.length);
+        children += childContent;
+
+        if (children.length > maxLength) {
+            children = children.substring(0, maxLength) + '...';
+            break;
+        }
+    }
 
     switch (tag) {
         case "strong":
@@ -43,11 +54,15 @@ function domToMarkdown(node) {
         case "li":
             return `\n- ${children.trim()}\n`;
         case "a":
-            const href = node.getAttribute("href");
-            return href ? `[${children}](${href})` : children;
+            return getLinkText(node);
         default:
             return children;
     }
+}
+
+function getLinkText(node) {
+    const href = node.getAttribute("href");
+    return href ? `[${node.textContent}](${href})` : node.textContent;
 }
 
 export default class PageContext extends ContentFeature {
@@ -210,11 +225,15 @@ export default class PageContext extends ContentFeature {
             return this.cachedContent;
         }
 
+        const mainContent = this.getMainContent();
+        const truncated = mainContent.endsWith('...');
+
         const content = {
             favicon: getFaviconList(),
             title: this.getPageTitle(),
             metaDescription: this.getMetaDescription(),
-            content: this.getMainContent(),
+            content: mainContent,
+            truncated,
             headings: this.getHeadings(),
             links: this.getLinks(),
             images: this.getImages(),
@@ -238,7 +257,6 @@ export default class PageContext extends ContentFeature {
 
     getMainContent() {
         const maxLength = this.getFeatureSetting('maxContentLength') || 100000;
-        const selectors = ['*'];
         let excludeSelectors = this.getFeatureSetting('excludeSelectors') || [
             '.ad',
             '.sidebar',
@@ -274,7 +292,7 @@ export default class PageContext extends ContentFeature {
                 elements.forEach((el) => el.remove());
             });
 
-            content += domToMarkdown(clone);
+            content += domToMarkdown(clone, maxLength);
         }
 
         // Limit content length
