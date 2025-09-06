@@ -236,20 +236,12 @@ export class WebCompat extends ContentFeature {
             configurable: true,
             enumerable: false,
         });
-        // window.Notification polyfill is intentionally incompatible with DOM lib types
-        this.defineProperty(/** @type {any} */ (window.Notification), 'requestPermission', {
-            value: () => {
-                return Promise.resolve('denied');
-            },
-            writable: true,
-            configurable: true,
-            enumerable: true,
-        });
 
         this.defineProperty(/** @type {any} */ (window.Notification), 'permission', {
-            get: () => 'denied',
+            value: 'denied',
+            writable: false,
             configurable: true,
-            enumerable: false,
+            enumerable: true,
         });
 
         this.defineProperty(/** @type {any} */ (window.Notification), 'maxActions', {
@@ -867,25 +859,25 @@ export class WebCompat extends ContentFeature {
             value: 'default',
             writable: false,
             configurable: false,
-            enumerable: true
+            enumerable: true,
         });
         this.defineProperty(deviceInfo, 'kind', {
             value: kind,
             writable: false,
             configurable: false,
-            enumerable: true
+            enumerable: true,
         });
         this.defineProperty(deviceInfo, 'label', {
             value: '',
             writable: false,
             configurable: false,
-            enumerable: true
+            enumerable: true,
         });
         this.defineProperty(deviceInfo, 'groupId', {
             value: 'default-group',
             writable: false,
             configurable: false,
-            enumerable: true
+            enumerable: true,
         });
         this.defineProperty(deviceInfo, 'toJSON', {
             value: function () {
@@ -898,7 +890,7 @@ export class WebCompat extends ContentFeature {
             },
             writable: false,
             configurable: false,
-            enumerable: false
+            enumerable: false,
         });
 
         return /** @type {MediaDeviceInfo} */ (deviceInfo);
