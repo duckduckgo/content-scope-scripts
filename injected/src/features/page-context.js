@@ -1,44 +1,133 @@
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
-import { isDuckAi } from '../utils.js';
-const MSG_PAGE_CONTEXT_COLLECT = 'collect';
+import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
-const MSG_PAGE_CONTEXT_ERROR = 'collectionError';
+
+
+function collapseWhitespace(str) {
+    return typeof str === 'string'
+        ? str.replace(/\s+/g, ' ')
+        : '';
+}
+
+function domToMarkdown(node, maxLength = Infinity) {
+    if (node.nodeType === Node.TEXT_NODE) {
+        return collapseWhitespace(node.textContent);
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+        return "";
+    }
+
+    const tag = node.tagName.toLowerCase();
+
+    // Build children string incrementally to exit early when maxLength is exceeded
+    let children = "";
+    for (const childNode of node.childNodes) {
+        const childContent = domToMarkdown(childNode, maxLength - children.length);
+        children += childContent;
+
+        if (children.length > maxLength) {
+            children = children.substring(0, maxLength) + '...';
+            break;
+        }
+    }
+
+    switch (tag) {
+        case "strong":
+        case "b":
+            return `**${children}**`;
+        case "em":
+        case "i":
+            return `*${children}*`;
+        case "h1":
+            return `\n# ${children}\n`;
+        case "h2":
+            return `\n## ${children}\n`;
+        case "h3":
+            return `\n### ${children}\n`;
+        case "p":
+            return `${children}\n`;
+        case "br":
+            return `\n`;
+        case "ul":
+            return `\n${children}\n`;
+        case "li":
+            return `\n- ${children.trim()}\n`;
+        case "a":
+            return getLinkText(node);
+        default:
+            return children;
+    }
+}
+
+function getLinkText(node) {
+    const href = node.getAttribute("href");
+    return href ? `[${node.textContent}](${href})` : node.textContent;
+}
 
 export default class PageContext extends ContentFeature {
-    collectionCache = new Map();
+    /** @type {any} */
+    #cachedContent = undefined;
+    #cachedTimestamp = 0;
+    /** @type {MutationObserver | null} */
+    mutationObserver = null;
     lastSentContent = null;
     listenForUrlChanges = true;
 
     init() {
-        if (isDuckAi()) {
+        if (!this.shouldActivate()) {
             return;
         }
-        this.setupMessageHandlers();
+        this.setupListeners();
         this.setupContentCollection();
-        window.addEventListener('DOMContentLoaded', () => {
-            this.handleContentCollectionRequest({});
-        });
-        window.addEventListener('hashchange', () => {
-            this.handleContentCollectionRequest({});
-        });
-        window.addEventListener('pageshow', () => {
-            this.handleContentCollectionRequest({});
-        });
+    }
+
+    setupListeners() {
+        if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
+            this.messaging.subscribe('collect', () => {
+                this.handleContentCollectionRequest();
+            });
+        }
+        if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
+            window.addEventListener('hashchange', () => {
+                this.handleContentCollectionRequest();
+            });
+        }
+        if (this.getFeatureSettingEnabled('subscribeToPageShow', 'enabled')) {
+            window.addEventListener('pageshow', () => {
+                this.handleContentCollectionRequest();
+            });
+        }
+        if (this.getFeatureSettingEnabled('subscribeToVisibilityChange', 'enabled')) {
+            window.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    return;
+                }
+                this.handleContentCollectionRequest();
+            });
+        }
+    }
+
+    shouldActivate() {
+        if (isBeingFramed() || isDuckAi()) {
+            return false;
+        }
+        const tabUrl = getTabUrl();
+        // Ignore duck:// urls for now
+        if (tabUrl?.protocol === 'duck:') {
+            return false;
+        }
+        return true;
     }
 
     /**
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
-        this.handleContentCollectionRequest({});
-    }
-
-    setupMessageHandlers() {
-        // Listen for content collection requests from macOS browser
-        this.messaging.subscribe(MSG_PAGE_CONTEXT_COLLECT, (data) => {
-            this.handleContentCollectionRequest(data);
-        });
+        if (!this.shouldActivate()) {
+            return;
+        }
+        this.handleContentCollectionRequest();
     }
 
     setupContentCollection() {
@@ -59,17 +148,54 @@ export default class PageContext extends ContentFeature {
     setup() {
         // Initialize content collection when DOM is ready
         this.observeContentChanges();
+        this.handleContentCollectionRequest();
+    }
+
+    get cachedContent() {
+        if (!this.#cachedContent || this.isCacheExpired()) {
+            // Clean up if we had content but it's expired
+            if (this.#cachedContent) {
+                this.#cachedContent = undefined;
+                this.#cachedTimestamp = 0;
+                this.stopObserving();
+            }
+            return undefined;
+        }
+        return this.#cachedContent;
+    }
+
+    set cachedContent(content) {
+        if (content === undefined) {
+            this.log.info('Invalidating cache');
+            this.#cachedContent = undefined;
+            this.#cachedTimestamp = 0;
+            this.stopObserving();
+            return;
+        }
+
+        this.#cachedContent = /** @type {any} */ (content);
+        this.#cachedTimestamp = Date.now();
+        this.startObserving();
+    }
+
+    isCacheExpired() {
+        const cacheExpiration = this.getFeatureSetting('cacheExpiration') || 30000;
+        return Date.now() - this.#cachedTimestamp > cacheExpiration;
     }
 
     observeContentChanges() {
         // Use MutationObserver to detect content changes
         if (window.MutationObserver) {
-            const observer = new MutationObserver((_mutations) => {
+            this.mutationObserver = new MutationObserver((_mutations) => {
                 // Invalidate cache when content changes
-                this.invalidateCache();
+                this.cachedContent = undefined;
             });
+        }
+    }
 
-            observer.observe(document.body, {
+    startObserving() {
+        if (this.mutationObserver && this.#cachedContent) {
+            this.mutationObserver.observe(document.body, {
                 childList: true,
                 subtree: true,
                 characterData: true,
@@ -77,46 +203,46 @@ export default class PageContext extends ContentFeature {
         }
     }
 
-    handleContentCollectionRequest(data) {
+    stopObserving() {
+        if (this.mutationObserver) {
+            this.mutationObserver.disconnect();
+        }
+    }
+
+    handleContentCollectionRequest() {
+        this.log.info('Handling content collection request');
         try {
-            const options = data?.options || {};
-            const content = this.collectPageContent(options);
+            const content = this.collectPageContent();
             this.sendContentResponse(content);
         } catch (error) {
             this.sendErrorResponse(error);
         }
     }
 
-    collectPageContent(options = {}) {
-        const cacheKey = this.getCacheKey(options);
-
-        // Check cache first
-        if (this.collectionCache.has(cacheKey)) {
-            const cached = this.collectionCache.get(cacheKey);
-            if (Date.now() - cached.timestamp < 30000) {
-                // 30 second cache
-                return cached.data;
-            }
+    collectPageContent() {
+        // Check cache first - getter handles expiry and cleanup
+        if (this.cachedContent) {
+            return this.cachedContent;
         }
+
+        const mainContent = this.getMainContent();
+        const truncated = mainContent.endsWith('...');
 
         const content = {
             favicon: getFaviconList(),
             title: this.getPageTitle(),
             metaDescription: this.getMetaDescription(),
-            content: this.getMainContent(options),
+            content: mainContent,
+            truncated,
             headings: this.getHeadings(),
             links: this.getLinks(),
-            images: options.includeImages !== false ? this.getImages() : undefined,
+            images: this.getImages(),
             timestamp: Date.now(),
             url: window.location.href,
         };
 
-        // Cache the result
-        this.collectionCache.set(cacheKey, {
-            data: content,
-            timestamp: Date.now(),
-        });
-
+        // Cache the result - setter handles timestamp and observer
+        this.cachedContent = content;
         return content;
     }
 
@@ -129,30 +255,31 @@ export default class PageContext extends ContentFeature {
         return metaDesc ? metaDesc.getAttribute('content') || '' : '';
     }
 
-    getMainContent(options = {}) {
-        const maxLength = options.maxContentLength || this.getFeatureSetting('maxContentLength') || 100000;
-        const selectors = options.contentSelectors ||
-            this.getFeatureSetting('contentSelectors') || ['p', 'h1', 'h2', 'h3', 'article', 'section'];
-        const excludeSelectors = options.excludeSelectors ||
-            this.getFeatureSetting('excludeSelectors') || [
-                '.ad',
-                '.sidebar',
-                '.footer',
-                '.nav',
-                '.header',
-                'script',
-                'style',
-                'link',
-                'meta',
-                'noscript',
-                'svg',
-                'canvas',
-            ];
+    getMainContent() {
+        const maxLength = this.getFeatureSetting('maxContentLength') || 100000;
+        let excludeSelectors = this.getFeatureSetting('excludeSelectors') || [
+            '.ad',
+            '.sidebar',
+            '.footer',
+            '.nav',
+            '.header',
+        ];
+        excludeSelectors = excludeSelectors.concat([
+            'script',
+            'style',
+            'link',
+            'meta',
+            'noscript',
+            'svg',
+            'canvas',
+        ]);
 
         let content = '';
-
         // Get content from main content areas
-        const mainContent = document.querySelector('main, article, .content, .main, #content, #main');
+        let mainContent = document.querySelector('main, article, .content, .main, #content, #main');
+        if (mainContent && mainContent.innerHTML.trim().length <= 100) {
+            mainContent = null;
+        }
         const contentRoot = mainContent || document.body;
 
         if (contentRoot) {
@@ -165,17 +292,7 @@ export default class PageContext extends ContentFeature {
                 elements.forEach((el) => el.remove());
             });
 
-            // Extract text from selected elements
-            selectors.forEach((selector) => {
-                const elements = clone.querySelectorAll(selector);
-                elements.forEach((el) => {
-                    const text = el.textContent?.trim();
-                    if (text && text.length > 10) {
-                        // Only include substantial text
-                        content += text + '\n\n';
-                    }
-                });
-            });
+            content += domToMarkdown(clone, maxLength);
         }
 
         // Limit content length
@@ -231,22 +348,14 @@ export default class PageContext extends ContentFeature {
         return images;
     }
 
-    getCacheKey(options) {
-        return JSON.stringify({
-            url: window.location.href,
-            options,
-        });
-    }
-
-    invalidateCache() {
-        this.collectionCache.clear();
-    }
 
     sendContentResponse(content) {
         if (this.lastSentContent && this.lastSentContent === content) {
+            this.log.info('Content already sent');
             return;
         }
         this.lastSentContent = content;
+        this.log.info('Sending content response');
         this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
             // TODO: This is a hack to get the data to the browser. We should probably not be paying this cost.
             serializedPageData: JSON.stringify(content),
@@ -254,7 +363,8 @@ export default class PageContext extends ContentFeature {
     }
 
     sendErrorResponse(error) {
-        this.messaging.notify(MSG_PAGE_CONTEXT_ERROR, {
+        this.log.error('Error sending content response', error);
+        this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
             success: false,
             error: error.message || 'Unknown error occurred',
             timestamp: Date.now(),

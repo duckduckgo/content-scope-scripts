@@ -75,6 +75,14 @@ function listenForURLChanges() {
         },
     });
     historyMethodProxy.overload();
+    const historyMethodProxyReplace = new DDGProxy(urlChangedInstance, History.prototype, 'replaceState', {
+        apply(target, thisArg, args) {
+            const changeResult = DDGReflect.apply(target, thisArg, args);
+            handleURLChange('replace');
+            return changeResult;
+        },
+    });
+    historyMethodProxyReplace.overload();
     // listen for popstate events in order to run on back/forward navigations
     window.addEventListener('popstate', () => {
         handleURLChange('traverse');

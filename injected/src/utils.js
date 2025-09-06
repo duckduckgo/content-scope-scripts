@@ -841,7 +841,15 @@ export function isDuckAi() {
     const domains = ['duckduckgo.com', 'duck.ai', 'duck.co'];
     if (tabUrl?.hostname && domains.includes(tabUrl?.hostname)) {
         const url = new URL(tabUrl?.href);
-        return url.searchParams.has('duckai');
+        return url.searchParams.has('duckai') || url.searchParams.get('ia') === 'chat';
     }
     return false;
+}
+
+export function isDuckAiSidebar() {
+    const tabUrl = getTabUrl();
+    if (!tabUrl || !isDuckAi()) {
+        return false;
+    }
+    return tabUrl.searchParams.get('placement') === 'sidebar';
 }

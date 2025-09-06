@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { isBeingFramed, isDuckAi } from '../utils.js';
+import { isBeingFramed, isDuckAiSidebar } from '../utils.js';
 
 /**
  * Duck AI Listener Feature
@@ -39,36 +39,6 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {HTMLButtonElement | null} */
     sendButton = null;
 
-    get shouldLog() {
-        return this.isDebug;
-    }
-
-    /**
-     * Logging utility for this feature
-     */
-    get log() {
-        const shouldLog = this.shouldLog;
-        return {
-            get info() {
-                if (!shouldLog) {
-                    return () => {};
-                }
-                return console.log;
-            },
-            get warn() {
-                if (!shouldLog) {
-                    return () => {};
-                }
-                return console.warn;
-            },
-            get error() {
-                if (!shouldLog) {
-                    return () => {};
-                }
-                return console.error;
-            },
-        };
-    }
 
     init() {
         // Only activate on duckduckgo.com
@@ -97,7 +67,7 @@ export default class DuckAiListener extends ContentFeature {
         if (isBeingFramed()) {
             return false;
         }
-        return isDuckAi();
+        return isDuckAiSidebar();
     }
 
     /**
@@ -410,7 +380,7 @@ export default class DuckAiListener extends ContentFeature {
             font-size: 12px;
             color: rgb(102, 102, 102);
         `;
-        subtitle.textContent = 'Page Content';
+        subtitle.textContent = this.pageData.truncated ? 'Page Content (Truncated)' : 'Page Content';
 
         contentInfo.appendChild(title);
         contentInfo.appendChild(subtitle);
@@ -429,6 +399,24 @@ export default class DuckAiListener extends ContentFeature {
             cursor: pointer;
         `;
 
+        // Add warning icon if content is truncated
+        const warningIcon = document.createElement('div');
+        if (this.pageData.truncated) {
+            warningIcon.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 1.5L15 14H1L8 1.5Z" stroke="#ff6b35" stroke-width="1.5" fill="none"/>
+                    <path d="M8 6V9M8 11H8.01" stroke="#ff6b35" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            `;
+            warningIcon.style.cssText = `
+                flex-shrink: 0;
+                color: #ff6b35;
+                cursor: pointer;
+                margin-left: 4px;
+            `;
+            warningIcon.title = 'Content has been truncated due to size limits';
+        }
+
         // Add dark mode support
         if (this.isDarkMode()) {
             this.contextChip.style.background = 'rgba(255, 255, 255, 0.1)';
@@ -443,6 +431,9 @@ export default class DuckAiListener extends ContentFeature {
         this.contextChip.appendChild(icon);
         this.contextChip.appendChild(contentInfo);
         this.contextChip.appendChild(infoIcon);
+        if (this.pageData.truncated) {
+            this.contextChip.appendChild(warningIcon);
+        }
 
         this.log.info('Context chip assembled, about to insert into DOM');
 
@@ -593,6 +584,11 @@ export default class DuckAiListener extends ContentFeature {
                 if (pageDataParsed.content) {
                     this.pageData = pageDataParsed;
                     this.globalPageContext = pageDataParsed.content;
+
+                    // Check for truncated content and warn user
+                    if (pageDataParsed.truncated) {
+                        this.log.warn('Page content has been truncated due to size limits');
+                    }
 
                     this.createContextChip();
                     this.setupMessageInterception();
@@ -751,7 +747,8 @@ export default class DuckAiListener extends ContentFeature {
                     const pageContext = this.globalPageContext || '';
 
                     if (pageContext && currentValue) {
-                        return `${currentValue}\n\n---\n\nPage Context:\n${pageContext}`;
+                        const truncatedWarning = this.pageData?.truncated ? ' (Content was truncated due to size limits)\n' : '\n';
+                        return `${currentValue}\n\n---\n\nPage Context:${truncatedWarning}${pageContext}`;
                     }
 
                     return currentValue;
