@@ -1,5 +1,3 @@
-// TypeScript is disabled for this file due to intentional DOM polyfills (e.g., Notification) that are incompatible with the DOM lib types.
-
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
