@@ -79,15 +79,18 @@ export default class PageContext extends ContentFeature {
             return;
         }
         this.setupListeners();
-        this.setupContentCollection();
     }
 
     setupListeners() {
+        this.observeContentChanges();
         if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
             this.messaging.subscribe('collect', () => {
                 this.handleContentCollectionRequest();
             });
         }
+        window.addEventListener('load', () => {
+            this.handleContentCollectionRequest();
+        });
         if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
             window.addEventListener('hashchange', () => {
                 this.handleContentCollectionRequest();
@@ -105,6 +108,19 @@ export default class PageContext extends ContentFeature {
                 }
                 this.handleContentCollectionRequest();
             });
+        }
+
+        // Set up content collection infrastructure
+        if (document.body) {
+            this.setup();
+        } else {
+            window.addEventListener(
+                'DOMContentLoaded',
+                () => {
+                    this.setup();
+                },
+                { once: true },
+            );
         }
     }
 
@@ -130,25 +146,9 @@ export default class PageContext extends ContentFeature {
         this.handleContentCollectionRequest();
     }
 
-    setupContentCollection() {
-        // Set up content collection infrastructure
-        if (document.body) {
-            this.setup();
-        } else {
-            window.addEventListener(
-                'DOMContentLoaded',
-                () => {
-                    this.setup();
-                },
-                { once: true },
-            );
-        }
-    }
-
     setup() {
-        // Initialize content collection when DOM is ready
-        this.observeContentChanges();
         this.handleContentCollectionRequest();
+        this.startObserving();
     }
 
     get cachedContent() {
@@ -187,6 +187,7 @@ export default class PageContext extends ContentFeature {
         // Use MutationObserver to detect content changes
         if (window.MutationObserver) {
             this.mutationObserver = new MutationObserver((_mutations) => {
+                this.log.info('MutationObserver', _mutations);
                 // Invalidate cache when content changes
                 this.cachedContent = undefined;
             });
@@ -194,7 +195,9 @@ export default class PageContext extends ContentFeature {
     }
 
     startObserving() {
-        if (this.mutationObserver && this.#cachedContent) {
+        this.log.info('Starting observing', this.mutationObserver, this.#cachedContent);
+        if (this.mutationObserver && this.#cachedContent && !this.isObserving) {
+            this.isObserving = true;
             this.mutationObserver.observe(document.body, {
                 childList: true,
                 subtree: true,
@@ -206,6 +209,7 @@ export default class PageContext extends ContentFeature {
     stopObserving() {
         if (this.mutationObserver) {
             this.mutationObserver.disconnect();
+            this.isObserving = false;
         }
     }
 
@@ -222,6 +226,7 @@ export default class PageContext extends ContentFeature {
     collectPageContent() {
         // Check cache first - getter handles expiry and cleanup
         if (this.cachedContent) {
+            this.log.info('Returning cached content', this.cachedContent);
             return this.cachedContent;
         }
 
@@ -283,6 +288,7 @@ export default class PageContext extends ContentFeature {
         const contentRoot = mainContent || document.body;
 
         if (contentRoot) {
+            this.log.info('Getting main content', contentRoot);
             // Create a clone to work with
             const clone = /** @type {Element} */ (contentRoot.cloneNode(true));
 
@@ -292,11 +298,13 @@ export default class PageContext extends ContentFeature {
                 elements.forEach((el) => el.remove());
             });
 
-            content += domToMarkdown(clone, maxLength);
+            this.log.info('Calling domToMarkdown', clone.innerHTML);
+            content += domToMarkdown(clone, maxLength, this.log);
         }
 
         // Limit content length
         if (content.length > maxLength) {
+            this.log.info('Truncating content', content);
             content = content.substring(0, maxLength) + '...';
         }
 
@@ -355,7 +363,7 @@ export default class PageContext extends ContentFeature {
             return;
         }
         this.lastSentContent = content;
-        this.log.info('Sending content response');
+        this.log.info('Sending content response', content);
         this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
             // TODO: This is a hack to get the data to the browser. We should probably not be paying this cost.
             serializedPageData: JSON.stringify(content),
