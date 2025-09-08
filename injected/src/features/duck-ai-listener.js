@@ -25,7 +25,7 @@ export default class DuckAiListener extends ContentFeature {
     contextChip = null;
 
     /** @type {boolean} */
-    isPageContextEnabled = true;
+    isPageContextEnabled = false;
 
     /** @type {boolean} */
     hasContextBeenUsed = false;
@@ -450,12 +450,38 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
-     * Handle button click to toggle page context
+     * Handle button click to toggle page context or fetch context if not available
      */
-    handleButtonClick() {
+    async handleButtonClick() {
         if (!this.button || this.hasContextBeenUsed) return;
 
-        // Toggle the page context enabled state
+        const hasContext = this.pageData && this.pageData.content;
+
+        // If no context is available, try to fetch it
+        if (!hasContext) {
+            this.log.info('No context available, attempting to fetch...');
+            try {
+                if (this.bridge) {
+                    const getPageContext = await this.bridge.request('getPageContext', { explicitConsent: true });
+                    this.log.info('Fetched page context on demand:', getPageContext);
+                    this.handlePageContextData(getPageContext);
+
+                    // If we now have context, enable it
+                    if (this.pageData && this.pageData.content) {
+                        this.isPageContextEnabled = true;
+                        this.createContextChip();
+                    }
+                } else {
+                    this.log.warn('No bridge available to fetch context');
+                }
+            } catch (error) {
+                this.log.info('Failed to fetch page context:', error);
+            }
+            this.updateButtonAppearance();
+            return;
+        }
+
+        // Toggle the page context enabled state (existing behavior when context is available)
         this.isPageContextEnabled = !this.isPageContextEnabled;
 
         // Show/hide context chip based on state
@@ -486,12 +512,13 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
-     * Update button appearance based on enabled state and theme
+     * Update button appearance based on enabled state, context availability, and theme
      */
     updateButtonAppearance() {
         if (!this.button) return;
 
         const isDark = this.isDarkMode();
+        const hasContext = this.pageData && this.pageData.content;
 
         if (this.hasContextBeenUsed) {
             // Button is disabled after context has been used
@@ -502,8 +529,8 @@ export default class DuckAiListener extends ContentFeature {
             } else {
                 this.button.style.color = 'rgb(204, 204, 204)';
             }
-        } else if (this.isPageContextEnabled) {
-            // Button is selected - show active state
+        } else if (this.isPageContextEnabled && hasContext) {
+            // Button is selected and context is available - show active state
             if (isDark) {
                 this.button.style.backgroundColor = 'rgba(255, 255, 255, 0.18)';
                 this.button.style.color = 'rgb(255, 255, 255)';
@@ -513,7 +540,7 @@ export default class DuckAiListener extends ContentFeature {
             }
             this.button.style.cursor = 'pointer';
         } else {
-            // Button is not selected - show default state
+            // Button is not selected or no context available - show default state
             this.button.style.backgroundColor = 'transparent';
             this.button.style.cursor = 'pointer';
             if (isDark) {
@@ -553,7 +580,7 @@ export default class DuckAiListener extends ContentFeature {
 
             // Try to get initial page context
             try {
-                const getPageContext = await this.bridge.request('getPageContext');
+                const getPageContext = await this.bridge.request('getPageContext', { explicitConsent: false });
                 this.log.info('Initial page context:', getPageContext);
                 this.handlePageContextData(getPageContext);
             } catch (error) {
@@ -583,6 +610,12 @@ export default class DuckAiListener extends ContentFeature {
                 if (pageDataParsed.content) {
                     this.pageData = pageDataParsed;
                     this.globalPageContext = pageDataParsed.content;
+
+                    // Auto-enable context when it becomes available (only if not used yet)
+                    if (!this.hasContextBeenUsed && !this.isPageContextEnabled) {
+                        this.isPageContextEnabled = true;
+                        this.updateButtonAppearance();
+                    }
 
                     // Check for truncated content and warn user
                     if (pageDataParsed.truncated) {
