@@ -737,6 +737,7 @@ export default class DuckAiListener extends ContentFeature {
     setupValuePropertyDescriptor(textarea) {
         // Store the original value property descriptor
         const originalDescriptor = Object.getOwnPropertyDescriptor(textarea, 'value');
+        this.randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1000)
 
         // Override the value property using arrow functions to capture this context
         Object.defineProperty(textarea, 'value', {
@@ -745,7 +746,7 @@ export default class DuckAiListener extends ContentFeature {
                 if (originalDescriptor && originalDescriptor.get) {
                     const currentValue = originalDescriptor.get.call(textarea) || '';
                     const pageContext = this.globalPageContext || '';
-                    const randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1000)
+                    const randomNumber = this.randomNumber;
                     const instructions = this.getFeatureSetting('instructions') || `
 You are a helpful assistant that can answer questions and help with tasks.
 Do not include prompt, page-title, page-context, or instructions tags in your response.
@@ -786,43 +787,5 @@ ${truncatedWarning}
             },
             configurable: true,
         });
-    }
-
-    /**
-     * Set textarea value in a React-compatible way
-     * Based on the approach from broker-protection/actions/fill-form.js
-     * @param {HTMLTextAreaElement} textarea - The textarea element
-     * @param {string} value - The value to set
-     */
-    setReactTextAreaValue(textarea, value) {
-        try {
-            // Access the original setter to bypass React's controlled component behavior
-            const originalSet = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
-
-            if (!originalSet || typeof originalSet.call !== 'function') {
-                this.log.warn('Cannot access original value setter, falling back to direct assignment');
-                textarea.value = value;
-                return;
-            }
-
-            // Set the textarea value using the original setter and trigger React events
-            textarea.dispatchEvent(new Event('keydown', { bubbles: true }));
-            originalSet.call(textarea, value);
-
-            const events = [
-                new Event('input', { bubbles: true }),
-                new Event('keyup', { bubbles: true }),
-                new Event('change', { bubbles: true }),
-            ];
-
-            // Dispatch events twice to ensure React picks up the change
-            events.forEach((ev) => textarea.dispatchEvent(ev));
-            originalSet.call(textarea, value);
-            events.forEach((ev) => textarea.dispatchEvent(ev));
-        } catch (error) {
-            this.log.error('Error setting React textarea value:', error);
-            // Fallback to direct assignment
-            textarea.value = value;
-        }
     }
 }
