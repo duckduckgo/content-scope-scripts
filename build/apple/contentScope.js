@@ -1328,9 +1328,16 @@
     const domains = ["duckduckgo.com", "duck.ai", "duck.co"];
     if (tabUrl?.hostname && domains.includes(tabUrl?.hostname)) {
       const url = new URL(tabUrl?.href);
-      return url.searchParams.has("duckai");
+      return url.searchParams.has("duckai") || url.searchParams.get("ia") === "chat";
     }
     return false;
+  }
+  function isDuckAiSidebar() {
+    const tabUrl = getTabUrl();
+    if (!tabUrl || !isDuckAi()) {
+      return false;
+    }
+    return tabUrl.searchParams.get("placement") === "sidebar";
   }
 
   // src/features.js
@@ -1375,7 +1382,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
@@ -1383,8 +1390,7 @@
       "performanceMetrics",
       "clickToLoad",
       "messageBridge",
-      "favicon",
-      "pageContext"
+      "favicon"
     ],
     android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
@@ -1409,7 +1415,9 @@
       "brokerProtection",
       "breakageReporting",
       "messageBridge",
-      "webCompat"
+      "webCompat",
+      "pageContext",
+      "duckAiListener"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad"],
@@ -4413,6 +4421,40 @@
     }
     get isDebug() {
       return this.args?.debug || false;
+    }
+    get shouldLog() {
+      return this.isDebug;
+    }
+    /**
+     * Logging utility for this feature (Stolen some inspo from DuckPlayer logger, will unify in the future)
+     */
+    get log() {
+      const shouldLog = this.shouldLog;
+      const prefix = `${this.name.padEnd(20, " ")} |`;
+      return {
+        // These are getters to have the call site be the reported line number.
+        get info() {
+          if (!shouldLog) {
+            return () => {
+            };
+          }
+          return console.log.bind(console, prefix);
+        },
+        get warn() {
+          if (!shouldLog) {
+            return () => {
+            };
+          }
+          return console.warn.bind(console, prefix);
+        },
+        get error() {
+          if (!shouldLog) {
+            return () => {
+            };
+          }
+          return console.error.bind(console, prefix);
+        }
+      };
     }
     get desktopModeEnabled() {
       return this.args?.desktopModeEnabled || false;
@@ -8995,38 +9037,6 @@ ul.messages {
       /** @type {HTMLButtonElement | null} */
       __publicField(this, "sendButton", null);
     }
-    get shouldLog() {
-      return this.isDebug;
-    }
-    /**
-     * Logging utility for this feature
-     */
-    get log() {
-      const shouldLog = this.shouldLog;
-      return {
-        get info() {
-          if (!shouldLog) {
-            return () => {
-            };
-          }
-          return console.log;
-        },
-        get warn() {
-          if (!shouldLog) {
-            return () => {
-            };
-          }
-          return console.warn;
-        },
-        get error() {
-          if (!shouldLog) {
-            return () => {
-            };
-          }
-          return console.error;
-        }
-      };
-    }
     init() {
       if (!this.shouldActivate()) {
         return;
@@ -9051,7 +9061,7 @@ ul.messages {
       if (isBeingFramed()) {
         return false;
       }
-      return isDuckAi();
+      return isDuckAiSidebar();
     }
     /**
      * Create the page context button in the input field
@@ -9311,7 +9321,7 @@ ul.messages {
             font-size: 12px;
             color: rgb(102, 102, 102);
         `;
-      subtitle.textContent = "Page Content";
+      subtitle.textContent = this.pageData.truncated ? "Page Content (Truncated)" : "Page Content";
       contentInfo.appendChild(title);
       contentInfo.appendChild(subtitle);
       const infoIcon = document.createElement("div");
@@ -9326,6 +9336,22 @@ ul.messages {
             color: rgb(102, 102, 102);
             cursor: pointer;
         `;
+      const warningIcon = document.createElement("div");
+      if (this.pageData.truncated) {
+        warningIcon.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 1.5L15 14H1L8 1.5Z" stroke="#ff6b35" stroke-width="1.5" fill="none"/>
+                    <path d="M8 6V9M8 11H8.01" stroke="#ff6b35" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            `;
+        warningIcon.style.cssText = `
+                flex-shrink: 0;
+                color: #ff6b35;
+                cursor: pointer;
+                margin-left: 4px;
+            `;
+        warningIcon.title = "Content has been truncated due to size limits";
+      }
       if (this.isDarkMode()) {
         this.contextChip.style.background = "rgba(255, 255, 255, 0.1)";
         this.contextChip.style.borderColor = "rgba(255, 255, 255, 0.2)";
@@ -9337,6 +9363,9 @@ ul.messages {
       this.contextChip.appendChild(icon);
       this.contextChip.appendChild(contentInfo);
       this.contextChip.appendChild(infoIcon);
+      if (this.pageData.truncated) {
+        this.contextChip.appendChild(warningIcon);
+      }
       this.log.info("Context chip assembled, about to insert into DOM");
       const textareaParent = textarea.parentNode;
       this.log.info("textareaParent found:", !!textareaParent);
@@ -9454,6 +9483,9 @@ ul.messages {
           if (pageDataParsed.content) {
             this.pageData = pageDataParsed;
             this.globalPageContext = pageDataParsed.content;
+            if (pageDataParsed.truncated) {
+              this.log.warn("Page content has been truncated due to size limits");
+            }
             this.createContextChip();
             this.setupMessageInterception();
           }
@@ -9565,18 +9597,39 @@ ul.messages {
      */
     setupValuePropertyDescriptor(textarea) {
       const originalDescriptor = Object.getOwnPropertyDescriptor(textarea, "value");
+      this.randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1e3);
       Object.defineProperty(textarea, "value", {
         get: () => {
           if (originalDescriptor && originalDescriptor.get) {
             const currentValue = originalDescriptor.get.call(textarea) || "";
             const pageContext = this.globalPageContext || "";
+            const randomNumber = this.randomNumber;
+            const instructions = this.getFeatureSetting("instructions") || `
+You are a helpful assistant that can answer questions and help with tasks.
+Do not include prompt, page-title, page-context, or instructions tags in your response.
+Answer the prompt using the page-title, and page-context ONLY if it's relevant to answering the prompt.`;
             if (pageContext && currentValue) {
-              return `${currentValue}
+              const truncatedWarning = this.pageData?.truncated ? " (Content was truncated due to size limits)\n" : "\n";
+              return `Prompt:
+<prompt-${randomNumber}>
+${currentValue}
+</prompt-${randomNumber}>
 
----
+Instructions:
+<instructions-${randomNumber}>
+${instructions}
+</instructions-${randomNumber}>
+
+Page Title:
+<page-title-${randomNumber}>
+${this.pageData.title}
+</page-title-${randomNumber}>
 
 Page Context:
-${pageContext}`;
+<page-context-${randomNumber}>
+${pageContext}
+${truncatedWarning}
+</page-context-${randomNumber}>`;
             }
             return currentValue;
           }
@@ -9590,36 +9643,357 @@ ${pageContext}`;
         configurable: true
       });
     }
-    /**
-     * Set textarea value in a React-compatible way
-     * Based on the approach from broker-protection/actions/fill-form.js
-     * @param {HTMLTextAreaElement} textarea - The textarea element
-     * @param {string} value - The value to set
-     */
-    setReactTextAreaValue(textarea, value) {
-      try {
-        const originalSet = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value")?.set;
-        if (!originalSet || typeof originalSet.call !== "function") {
-          this.log.warn("Cannot access original value setter, falling back to direct assignment");
-          textarea.value = value;
-          return;
-        }
-        textarea.dispatchEvent(new Event("keydown", { bubbles: true }));
-        originalSet.call(textarea, value);
-        const events = [
-          new Event("input", { bubbles: true }),
-          new Event("keyup", { bubbles: true }),
-          new Event("change", { bubbles: true })
-        ];
-        events.forEach((ev) => textarea.dispatchEvent(ev));
-        originalSet.call(textarea, value);
-        events.forEach((ev) => textarea.dispatchEvent(ev));
-      } catch (error) {
-        this.log.error("Error setting React textarea value:", error);
-        textarea.value = value;
+  };
+
+  // src/features/page-context.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/favicon.js
+  init_define_import_meta_trackerLookup();
+  function getFaviconList() {
+    const selectors = [
+      "link[href][rel='favicon']",
+      "link[href][rel*='icon']",
+      "link[href][rel='apple-touch-icon']",
+      "link[href][rel='apple-touch-icon-precomposed']"
+    ];
+    const elements = document.head.querySelectorAll(selectors.join(","));
+    return Array.from(elements).map((link) => {
+      const href = link.href || "";
+      const rel = link.getAttribute("rel") || "";
+      return { href, rel };
+    });
+  }
+
+  // src/features/page-context.js
+  var MSG_PAGE_CONTEXT_RESPONSE = "collectionResult";
+  function collapseWhitespace(str) {
+    return typeof str === "string" ? str.replace(/\s+/g, " ") : "";
+  }
+  function domToMarkdown(node, maxLength = Infinity) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return collapseWhitespace(node.textContent);
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return "";
+    }
+    const tag = node.tagName.toLowerCase();
+    let children = "";
+    for (const childNode of node.childNodes) {
+      const childContent = domToMarkdown(childNode, maxLength - children.length);
+      children += childContent;
+      if (children.length > maxLength) {
+        children = children.substring(0, maxLength) + "...";
+        break;
       }
     }
+    switch (tag) {
+      case "strong":
+      case "b":
+        return `**${children}**`;
+      case "em":
+      case "i":
+        return `*${children}*`;
+      case "h1":
+        return `
+# ${children}
+`;
+      case "h2":
+        return `
+## ${children}
+`;
+      case "h3":
+        return `
+### ${children}
+`;
+      case "p":
+        return `${children}
+`;
+      case "br":
+        return `
+`;
+      case "ul":
+        return `
+${children}
+`;
+      case "li":
+        return `
+- ${children.trim()}
+`;
+      case "a":
+        return getLinkText(node);
+      default:
+        return children;
+    }
+  }
+  function getLinkText(node) {
+    const href = node.getAttribute("href");
+    return href ? `[${node.textContent}](${href})` : node.textContent;
+  }
+  var _cachedContent, _cachedTimestamp;
+  var PageContext = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {any} */
+      __privateAdd(this, _cachedContent);
+      __privateAdd(this, _cachedTimestamp, 0);
+      /** @type {MutationObserver | null} */
+      __publicField(this, "mutationObserver", null);
+      __publicField(this, "lastSentContent", null);
+      __publicField(this, "listenForUrlChanges", true);
+    }
+    init() {
+      if (!this.shouldActivate()) {
+        return;
+      }
+      this.setupListeners();
+    }
+    setupListeners() {
+      this.observeContentChanges();
+      if (this.getFeatureSettingEnabled("subscribeToCollect", "enabled")) {
+        this.messaging.subscribe("collect", () => {
+          this.handleContentCollectionRequest();
+        });
+      }
+      window.addEventListener("load", () => {
+        this.handleContentCollectionRequest();
+      });
+      if (this.getFeatureSettingEnabled("subscribeToHashChange", "enabled")) {
+        window.addEventListener("hashchange", () => {
+          this.handleContentCollectionRequest();
+        });
+      }
+      if (this.getFeatureSettingEnabled("subscribeToPageShow", "enabled")) {
+        window.addEventListener("pageshow", () => {
+          this.handleContentCollectionRequest();
+        });
+      }
+      if (this.getFeatureSettingEnabled("subscribeToVisibilityChange", "enabled")) {
+        window.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") {
+            return;
+          }
+          this.handleContentCollectionRequest();
+        });
+      }
+      if (document.body) {
+        this.setup();
+      } else {
+        window.addEventListener(
+          "DOMContentLoaded",
+          () => {
+            this.setup();
+          },
+          { once: true }
+        );
+      }
+    }
+    shouldActivate() {
+      if (isBeingFramed() || isDuckAi()) {
+        return false;
+      }
+      const tabUrl = getTabUrl();
+      if (tabUrl?.protocol === "duck:") {
+        return false;
+      }
+      return true;
+    }
+    /**
+     * @param {NavigationType} _navigationType
+     */
+    urlChanged(_navigationType) {
+      if (!this.shouldActivate()) {
+        return;
+      }
+      this.handleContentCollectionRequest();
+    }
+    setup() {
+      this.handleContentCollectionRequest();
+      this.startObserving();
+    }
+    get cachedContent() {
+      if (!__privateGet(this, _cachedContent) || this.isCacheExpired()) {
+        if (__privateGet(this, _cachedContent)) {
+          __privateSet(this, _cachedContent, void 0);
+          __privateSet(this, _cachedTimestamp, 0);
+          this.stopObserving();
+        }
+        return void 0;
+      }
+      return __privateGet(this, _cachedContent);
+    }
+    set cachedContent(content) {
+      if (content === void 0) {
+        this.log.info("Invalidating cache");
+        __privateSet(this, _cachedContent, void 0);
+        __privateSet(this, _cachedTimestamp, 0);
+        this.stopObserving();
+        return;
+      }
+      __privateSet(
+        this,
+        _cachedContent,
+        /** @type {any} */
+        content
+      );
+      __privateSet(this, _cachedTimestamp, Date.now());
+      this.startObserving();
+    }
+    isCacheExpired() {
+      const cacheExpiration = this.getFeatureSetting("cacheExpiration") || 3e4;
+      return Date.now() - __privateGet(this, _cachedTimestamp) > cacheExpiration;
+    }
+    observeContentChanges() {
+      if (window.MutationObserver) {
+        this.mutationObserver = new MutationObserver((_mutations) => {
+          this.log.info("MutationObserver", _mutations);
+          this.cachedContent = void 0;
+        });
+      }
+    }
+    startObserving() {
+      this.log.info("Starting observing", this.mutationObserver, __privateGet(this, _cachedContent));
+      if (this.mutationObserver && __privateGet(this, _cachedContent) && !this.isObserving) {
+        this.isObserving = true;
+        this.mutationObserver.observe(document.body, {
+          childList: true,
+          subtree: true,
+          characterData: true
+        });
+      }
+    }
+    stopObserving() {
+      if (this.mutationObserver) {
+        this.mutationObserver.disconnect();
+        this.isObserving = false;
+      }
+    }
+    handleContentCollectionRequest() {
+      this.log.info("Handling content collection request");
+      try {
+        const content = this.collectPageContent();
+        this.sendContentResponse(content);
+      } catch (error) {
+        this.sendErrorResponse(error);
+      }
+    }
+    collectPageContent() {
+      if (this.cachedContent) {
+        this.log.info("Returning cached content", this.cachedContent);
+        return this.cachedContent;
+      }
+      const mainContent = this.getMainContent();
+      const truncated = mainContent.endsWith("...");
+      const content = {
+        favicon: getFaviconList(),
+        title: this.getPageTitle(),
+        metaDescription: this.getMetaDescription(),
+        content: mainContent,
+        truncated,
+        headings: this.getHeadings(),
+        links: this.getLinks(),
+        images: this.getImages(),
+        timestamp: Date.now(),
+        url: window.location.href
+      };
+      this.cachedContent = content;
+      return content;
+    }
+    getPageTitle() {
+      return document.title || "";
+    }
+    getMetaDescription() {
+      const metaDesc = document.querySelector('meta[name="description"]');
+      return metaDesc ? metaDesc.getAttribute("content") || "" : "";
+    }
+    getMainContent() {
+      const maxLength = this.getFeatureSetting("maxContentLength") || 1e5;
+      let excludeSelectors = this.getFeatureSetting("excludeSelectors") || [".ad", ".sidebar", ".footer", ".nav", ".header"];
+      excludeSelectors = excludeSelectors.concat(["script", "style", "link", "meta", "noscript", "svg", "canvas"]);
+      let content = "";
+      let mainContent = document.querySelector("main, article, .content, .main, #content, #main");
+      if (mainContent && mainContent.innerHTML.trim().length <= 100) {
+        mainContent = null;
+      }
+      const contentRoot = mainContent || document.body;
+      if (contentRoot) {
+        this.log.info("Getting main content", contentRoot);
+        const clone = (
+          /** @type {Element} */
+          contentRoot.cloneNode(true)
+        );
+        excludeSelectors.forEach((selector) => {
+          const elements = clone.querySelectorAll(selector);
+          elements.forEach((el) => el.remove());
+        });
+        this.log.info("Calling domToMarkdown", clone.innerHTML);
+        content += domToMarkdown(clone, maxLength);
+      }
+      if (content.length > maxLength) {
+        this.log.info("Truncating content", content);
+        content = content.substring(0, maxLength) + "...";
+      }
+      return content.trim();
+    }
+    getHeadings() {
+      const headings = [];
+      const headingElements = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+      headingElements.forEach((heading) => {
+        const level = parseInt(heading.tagName.charAt(1));
+        const text = heading.textContent?.trim();
+        if (text) {
+          headings.push({ level, text });
+        }
+      });
+      return headings;
+    }
+    getLinks() {
+      const links = [];
+      const linkElements = document.querySelectorAll("a[href]");
+      linkElements.forEach((link) => {
+        const text = link.textContent?.trim();
+        const href = link.getAttribute("href");
+        if (text && href && text.length > 0) {
+          links.push({ text, href });
+        }
+      });
+      return links;
+    }
+    getImages() {
+      const images = [];
+      const imgElements = document.querySelectorAll("img");
+      imgElements.forEach((img) => {
+        const alt = img.getAttribute("alt") || "";
+        const src = img.getAttribute("src") || "";
+        if (src) {
+          images.push({ alt, src });
+        }
+      });
+      return images;
+    }
+    sendContentResponse(content) {
+      if (this.lastSentContent && this.lastSentContent === content) {
+        this.log.info("Content already sent");
+        return;
+      }
+      this.lastSentContent = content;
+      this.log.info("Sending content response", content);
+      this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
+        // TODO: This is a hack to get the data to the browser. We should probably not be paying this cost.
+        serializedPageData: JSON.stringify(content)
+      });
+    }
+    sendErrorResponse(error) {
+      this.log.error("Error sending content response", error);
+      this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
+        success: false,
+        error: error.message || "Unknown error occurred",
+        timestamp: Date.now()
+      });
+    }
   };
+  _cachedContent = new WeakMap();
+  _cachedTimestamp = new WeakMap();
 
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
@@ -9638,7 +10012,8 @@ ${pageContext}`;
     ddg_feature_elementHiding: ElementHiding,
     ddg_feature_exceptionHandler: ExceptionHandler,
     ddg_feature_apiManipulation: ApiManipulation,
-    ddg_feature_duckAiListener: DuckAiListener
+    ddg_feature_duckAiListener: DuckAiListener,
+    ddg_feature_pageContext: PageContext
   };
 
   // src/url-change.js
@@ -9680,6 +10055,14 @@ ${pageContext}`;
       }
     });
     historyMethodProxy.overload();
+    const historyMethodProxyReplace = new DDGProxy(urlChangedInstance, History.prototype, "replaceState", {
+      apply(target, thisArg, args) {
+        const changeResult = DDGReflect.apply(target, thisArg, args);
+        handleURLChange("replace");
+        return changeResult;
+      }
+    });
+    historyMethodProxyReplace.overload();
     window.addEventListener("popstate", () => {
       handleURLChange("traverse");
     });

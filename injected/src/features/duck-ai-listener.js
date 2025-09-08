@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature.js';
-import { isBeingFramed, isDuckAi } from '../utils.js';
+import { isBeingFramed, isDuckAiSidebar } from '../utils.js';
 
 /**
  * Duck AI Listener Feature
@@ -39,37 +39,6 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {HTMLButtonElement | null} */
     sendButton = null;
 
-    get shouldLog() {
-        return this.isDebug;
-    }
-
-    /**
-     * Logging utility for this feature
-     */
-    get log() {
-        const shouldLog = this.shouldLog;
-        return {
-            get info() {
-                if (!shouldLog) {
-                    return () => {};
-                }
-                return console.log;
-            },
-            get warn() {
-                if (!shouldLog) {
-                    return () => {};
-                }
-                return console.warn;
-            },
-            get error() {
-                if (!shouldLog) {
-                    return () => {};
-                }
-                return console.error;
-            },
-        };
-    }
-
     init() {
         // Only activate on duckduckgo.com
         if (!this.shouldActivate()) {
@@ -97,7 +66,7 @@ export default class DuckAiListener extends ContentFeature {
         if (isBeingFramed()) {
             return false;
         }
-        return isDuckAi();
+        return isDuckAiSidebar();
     }
 
     /**
@@ -410,7 +379,7 @@ export default class DuckAiListener extends ContentFeature {
             font-size: 12px;
             color: rgb(102, 102, 102);
         `;
-        subtitle.textContent = 'Page Content';
+        subtitle.textContent = this.pageData.truncated ? 'Page Content (Truncated)' : 'Page Content';
 
         contentInfo.appendChild(title);
         contentInfo.appendChild(subtitle);
@@ -429,6 +398,24 @@ export default class DuckAiListener extends ContentFeature {
             cursor: pointer;
         `;
 
+        // Add warning icon if content is truncated
+        const warningIcon = document.createElement('div');
+        if (this.pageData.truncated) {
+            warningIcon.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 1.5L15 14H1L8 1.5Z" stroke="#ff6b35" stroke-width="1.5" fill="none"/>
+                    <path d="M8 6V9M8 11H8.01" stroke="#ff6b35" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            `;
+            warningIcon.style.cssText = `
+                flex-shrink: 0;
+                color: #ff6b35;
+                cursor: pointer;
+                margin-left: 4px;
+            `;
+            warningIcon.title = 'Content has been truncated due to size limits';
+        }
+
         // Add dark mode support
         if (this.isDarkMode()) {
             this.contextChip.style.background = 'rgba(255, 255, 255, 0.1)';
@@ -443,6 +430,9 @@ export default class DuckAiListener extends ContentFeature {
         this.contextChip.appendChild(icon);
         this.contextChip.appendChild(contentInfo);
         this.contextChip.appendChild(infoIcon);
+        if (this.pageData.truncated) {
+            this.contextChip.appendChild(warningIcon);
+        }
 
         this.log.info('Context chip assembled, about to insert into DOM');
 
@@ -594,6 +584,11 @@ export default class DuckAiListener extends ContentFeature {
                     this.pageData = pageDataParsed;
                     this.globalPageContext = pageDataParsed.content;
 
+                    // Check for truncated content and warn user
+                    if (pageDataParsed.truncated) {
+                        this.log.warn('Page content has been truncated due to size limits');
+                    }
+
                     this.createContextChip();
                     this.setupMessageInterception();
                 }
@@ -741,6 +736,7 @@ export default class DuckAiListener extends ContentFeature {
     setupValuePropertyDescriptor(textarea) {
         // Store the original value property descriptor
         const originalDescriptor = Object.getOwnPropertyDescriptor(textarea, 'value');
+        this.randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1000);
 
         // Override the value property using arrow functions to capture this context
         Object.defineProperty(textarea, 'value', {
@@ -749,9 +745,36 @@ export default class DuckAiListener extends ContentFeature {
                 if (originalDescriptor && originalDescriptor.get) {
                     const currentValue = originalDescriptor.get.call(textarea) || '';
                     const pageContext = this.globalPageContext || '';
+                    const randomNumber = this.randomNumber;
+                    const instructions =
+                        this.getFeatureSetting('instructions') ||
+                        `
+You are a helpful assistant that can answer questions and help with tasks.
+Do not include prompt, page-title, page-context, or instructions tags in your response.
+Answer the prompt using the page-title, and page-context ONLY if it's relevant to answering the prompt.`;
 
                     if (pageContext && currentValue) {
-                        return `${currentValue}\n\n---\n\nPage Context:\n${pageContext}`;
+                        const truncatedWarning = this.pageData?.truncated ? ' (Content was truncated due to size limits)\n' : '\n';
+                        return `Prompt:
+<prompt-${randomNumber}>
+${currentValue}
+</prompt-${randomNumber}>
+
+Instructions:
+<instructions-${randomNumber}>
+${instructions}
+</instructions-${randomNumber}>
+
+Page Title:
+<page-title-${randomNumber}>
+${this.pageData.title}
+</page-title-${randomNumber}>
+
+Page Context:
+<page-context-${randomNumber}>
+${pageContext}
+${truncatedWarning}
+</page-context-${randomNumber}>`;
                     }
 
                     return currentValue;
@@ -765,43 +788,5 @@ export default class DuckAiListener extends ContentFeature {
             },
             configurable: true,
         });
-    }
-
-    /**
-     * Set textarea value in a React-compatible way
-     * Based on the approach from broker-protection/actions/fill-form.js
-     * @param {HTMLTextAreaElement} textarea - The textarea element
-     * @param {string} value - The value to set
-     */
-    setReactTextAreaValue(textarea, value) {
-        try {
-            // Access the original setter to bypass React's controlled component behavior
-            const originalSet = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
-
-            if (!originalSet || typeof originalSet.call !== 'function') {
-                this.log.warn('Cannot access original value setter, falling back to direct assignment');
-                textarea.value = value;
-                return;
-            }
-
-            // Set the textarea value using the original setter and trigger React events
-            textarea.dispatchEvent(new Event('keydown', { bubbles: true }));
-            originalSet.call(textarea, value);
-
-            const events = [
-                new Event('input', { bubbles: true }),
-                new Event('keyup', { bubbles: true }),
-                new Event('change', { bubbles: true }),
-            ];
-
-            // Dispatch events twice to ensure React picks up the change
-            events.forEach((ev) => textarea.dispatchEvent(ev));
-            originalSet.call(textarea, value);
-            events.forEach((ev) => textarea.dispatchEvent(ev));
-        } catch (error) {
-            this.log.error('Error setting React textarea value:', error);
-            // Fallback to direct assignment
-            textarea.value = value;
-        }
     }
 }
