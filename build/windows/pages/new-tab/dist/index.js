@@ -4483,11 +4483,11 @@
               }
               var target = event.target;
               if (!(target instanceof HTMLElement)) {
-                return null;
+                return;
               }
               var entry = draggableRegistry.get(target);
               if (!entry) {
-                return null;
+                return;
               }
               var input = getInput(event);
               var feedback = {
@@ -4497,7 +4497,7 @@
               };
               if (entry.canDrag && !entry.canDrag(feedback)) {
                 event.preventDefault();
-                return null;
+                return;
               }
               if (entry.dragHandle) {
                 var over = getElementFromPointWithoutHoneypot({
@@ -4506,7 +4506,7 @@
                 });
                 if (!entry.dragHandle.contains(over)) {
                   event.preventDefault();
-                  return null;
+                  return;
                 }
               }
               var nativeData = (_entry$getInitialData = (_entry$getInitialData2 = entry.getInitialDataForExternal) === null || _entry$getInitialData2 === void 0 ? void 0 : _entry$getInitialData2.call(entry, feedback)) !== null && _entry$getInitialData !== void 0 ? _entry$getInitialData : null;
@@ -7993,6 +7993,8 @@
       }
       case "openTab":
         return { kind: "duckDuckGo" };
+      case "aiChat":
+        return { kind: "askDuckAi" };
     }
   }
   function getSuggestionTitle(suggestion, term) {
@@ -8024,6 +8026,8 @@
       case "internalPage":
       case "openTab":
         return suggestion.title;
+      case "aiChat":
+        return suggestion.chat;
     }
   }
   function getSuggestionCompletionString(suggestion, term) {
@@ -8039,6 +8043,8 @@
           return getSuggestionTitle(suggestion, term);
         }
       }
+      case "aiChat":
+        return getSuggestionTitle(suggestion, term);
       default:
         return getSuggestionTitle(suggestion, term);
     }
@@ -8058,6 +8064,8 @@
       }
       case "internalPage":
         return { kind: "duckDuckGo" };
+      case "aiChat":
+        return { kind: "askDuckAi" };
     }
   }
   function parseURL(string2) {
@@ -8210,6 +8218,13 @@
           ...suggestion,
           id: `suggestion-${index2}`
         }));
+        if (term2.trim().length > 0) {
+          suggestions.push({
+            kind: "aiChat",
+            chat: term2,
+            id: "suggestion-ai-chat"
+          });
+        }
         dispatch({
           type: "setSuggestions",
           term: term2,
@@ -8333,6 +8348,8 @@
         return "\xA0\u2013\xA0" + t4("omnibar_visitSuffix", { url: suffix.url });
       case "raw":
         return "\xA0\u2013\xA0" + suffix.text;
+      case "askDuckAi":
+        return "\xA0\u2013\xA0" + t4("omnibar_askDuckAiSuffix");
     }
   }
   function SuffixText({ suffix }) {
@@ -8369,7 +8386,7 @@
   });
 
   // pages/new-tab/app/omnibar/components/SearchForm.js
-  function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
+  function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat }) {
     const { t: t4 } = useTypedTranslationWith(
       /** @type {Strings} */
       {}
@@ -8441,7 +8458,11 @@
         case "Enter":
           event.preventDefault();
           if (selectedSuggestion) {
-            onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget2(event, platformName) });
+            if (selectedSuggestion.kind === "aiChat") {
+              onSubmitChat({ chat: selectedSuggestion.chat, target: eventToTarget2(event, platformName) });
+            } else {
+              onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget2(event, platformName) });
+            }
           } else {
             onSubmit({ term, target: eventToTarget2(event, platformName) });
           }
@@ -8543,6 +8564,8 @@
     "pages/new-tab/app/omnibar/components/SuggestionsList.module.css"() {
       SuggestionsList_default = {
         list: "SuggestionsList_list",
+        main: "SuggestionsList_main",
+        footer: "SuggestionsList_footer",
         item: "SuggestionsList_item",
         suffix: "SuggestionsList_suffix",
         badge: "SuggestionsList_badge",
@@ -8552,35 +8575,62 @@
   });
 
   // pages/new-tab/app/omnibar/components/SuggestionsList.js
-  function SuggestionsList({ onOpenSuggestion }) {
-    const platformName = usePlatformName();
-    const { term, suggestionsListId, suggestions, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useSearchFormContext();
+  function SuggestionsList({ onOpenSuggestion, onSubmitChat }) {
+    const { suggestionsListId, suggestions } = useSearchFormContext();
     if (suggestions.length === 0) return null;
-    return /* @__PURE__ */ _("div", { role: "listbox", id: suggestionsListId, class: SuggestionsList_default.list }, suggestions.map((suggestion) => {
-      const title = getSuggestionTitle(suggestion, term);
-      const suffix = getSuggestionSuffix(suggestion);
-      return /* @__PURE__ */ _(
-        "button",
-        {
-          key: suggestion.id,
-          role: "option",
-          id: suggestion.id,
-          class: SuggestionsList_default.item,
-          tabIndex: suggestion === selectedSuggestion ? 0 : -1,
-          "aria-selected": suggestion === selectedSuggestion,
-          onMouseOver: () => setSelectedSuggestion(suggestion),
-          onMouseLeave: () => clearSelectedSuggestion(),
-          onClick: (event) => {
-            event.preventDefault();
+    const mainSuggestions = suggestions.filter((suggestion) => suggestion.kind !== "aiChat");
+    const footerSuggestions = suggestions.filter((suggestion) => suggestion.kind === "aiChat");
+    return /* @__PURE__ */ _("div", { role: "listbox", id: suggestionsListId, class: SuggestionsList_default.list }, mainSuggestions.length > 0 && /* @__PURE__ */ _("div", { class: SuggestionsList_default.main }, mainSuggestions.map((suggestion) => /* @__PURE__ */ _(
+      SuggestionsListItem,
+      {
+        key: suggestion.id,
+        suggestion,
+        onOpenSuggestion,
+        onSubmitChat
+      }
+    ))), footerSuggestions.length > 0 && /* @__PURE__ */ _("div", { class: SuggestionsList_default.footer }, footerSuggestions.map((suggestion) => /* @__PURE__ */ _(
+      SuggestionsListItem,
+      {
+        key: suggestion.id,
+        suggestion,
+        onOpenSuggestion,
+        onSubmitChat
+      }
+    ))));
+  }
+  function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
+    const { t: t4 } = useTypedTranslationWith(
+      /** @type {Strings} */
+      {}
+    );
+    const platformName = usePlatformName();
+    const { term, selectedSuggestion, setSelectedSuggestion, clearSelectedSuggestion } = useSearchFormContext();
+    const title = getSuggestionTitle(suggestion, term);
+    const suffix = getSuggestionSuffix(suggestion);
+    return /* @__PURE__ */ _(
+      "button",
+      {
+        role: "option",
+        id: suggestion.id,
+        class: SuggestionsList_default.item,
+        tabIndex: suggestion === selectedSuggestion ? 0 : -1,
+        "aria-selected": suggestion === selectedSuggestion,
+        onMouseOver: () => setSelectedSuggestion(suggestion),
+        onMouseLeave: () => clearSelectedSuggestion(),
+        onClick: (event) => {
+          event.preventDefault();
+          if (suggestion.kind === "aiChat") {
+            onSubmitChat({ chat: suggestion.chat, target: eventToTarget2(event, platformName) });
+          } else {
             onOpenSuggestion({ suggestion, target: eventToTarget2(event, platformName) });
           }
-        },
-        /* @__PURE__ */ _(SuggestionIcon, { suggestion }),
-        /* @__PURE__ */ _("span", { class: SuggestionsList_default.title }, startsWithIgnoreCase(title, term) ? /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("b", null, title.slice(0, term.length)), title.slice(term.length)) : title),
-        suffix && /* @__PURE__ */ _("span", { class: SuggestionsList_default.suffix }, /* @__PURE__ */ _(SuffixText, { suffix })),
-        suggestion.kind === "openTab" && /* @__PURE__ */ _("span", { class: SuggestionsList_default.badge }, "Switch to Tab ", /* @__PURE__ */ _(ArrowRightIcon, null))
-      );
-    }));
+        }
+      },
+      /* @__PURE__ */ _(SuggestionIcon, { suggestion }),
+      /* @__PURE__ */ _("span", { class: SuggestionsList_default.title }, suggestion.kind === "aiChat" ? /* @__PURE__ */ _("b", null, title) : startsWithIgnoreCase(title, term) ? /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("b", null, title.slice(0, term.length)), title.slice(term.length)) : title),
+      suffix && /* @__PURE__ */ _("span", { class: SuggestionsList_default.suffix }, /* @__PURE__ */ _(SuffixText, { suffix })),
+      suggestion.kind === "openTab" && /* @__PURE__ */ _("span", { class: SuggestionsList_default.badge }, t4("omnibar_switchToTab"), " ", /* @__PURE__ */ _(ArrowRightIcon, null))
+    );
   }
   function SuggestionIcon({ suggestion }) {
     switch (suggestion.kind) {
@@ -8596,6 +8646,8 @@
         return /* @__PURE__ */ _(TabDesktopIcon, null);
       case "internalPage":
         return /* @__PURE__ */ _(BrowserIcon, null);
+      case "aiChat":
+        return /* @__PURE__ */ _(AiChatIcon, null);
       default:
         throw new Error("Unknown suggestion kind");
     }
@@ -8611,6 +8663,7 @@
       init_SearchFormProvider();
       init_SuffixText();
       init_SuggestionsList();
+      init_types();
     }
   });
 
@@ -8973,7 +9026,15 @@
       setAutoFocus(true);
       setMode(nextMode);
     };
-    return /* @__PURE__ */ _("div", { key: resetKey, class: Omnibar_default.root, "data-mode": mode }, /* @__PURE__ */ _(LogoStacked, { class: Omnibar_default.logo, "aria-label": t4("omnibar_logoAlt") }), enableAi && /* @__PURE__ */ _(TabSwitcher, { mode, onChange: handleChangeMode }), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery }, /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, mode === "search" ? /* @__PURE__ */ _(SearchForm, { autoFocus, onOpenSuggestion: handleOpenSuggestion, onSubmit: handleSubmitSearch }) : /* @__PURE__ */ _(AiChatForm, { chat: query, autoFocus, onChange: setQuery, onSubmit: handleSubmitChat })), mode === "search" && /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion })))));
+    return /* @__PURE__ */ _("div", { key: resetKey, class: Omnibar_default.root, "data-mode": mode }, /* @__PURE__ */ _(LogoStacked, { class: Omnibar_default.logo, "aria-label": t4("omnibar_logoAlt") }), enableAi && /* @__PURE__ */ _(TabSwitcher, { mode, onChange: handleChangeMode }), /* @__PURE__ */ _(SearchFormProvider, { term: query, setTerm: setQuery }, /* @__PURE__ */ _("div", { class: Omnibar_default.spacer }, /* @__PURE__ */ _("div", { class: Omnibar_default.popup }, /* @__PURE__ */ _(ResizingContainer, { className: Omnibar_default.field }, mode === "search" ? /* @__PURE__ */ _(
+      SearchForm,
+      {
+        autoFocus,
+        onOpenSuggestion: handleOpenSuggestion,
+        onSubmit: handleSubmitSearch,
+        onSubmitChat: handleSubmitChat
+      }
+    ) : /* @__PURE__ */ _(AiChatForm, { chat: query, autoFocus, onChange: setQuery, onSubmit: handleSubmitChat })), mode === "search" && /* @__PURE__ */ _(SuggestionsList, { onOpenSuggestion: handleOpenSuggestion, onSubmitChat: handleSubmitChat })))));
   }
   var init_Omnibar2 = __esm({
     "pages/new-tab/app/omnibar/components/Omnibar.js"() {
@@ -29572,6 +29633,14 @@
     omnibar_visitSuffix: {
       title: "Visit {url}",
       description: "Text placed after suggestions that will open a webpage."
+    },
+    omnibar_askDuckAiSuffix: {
+      title: "Ask Duck.ai",
+      description: "Text placed after aiChat suggestions that will submit a chat query."
+    },
+    omnibar_switchToTab: {
+      title: "Switch to Tab",
+      description: "Badge text shown next to open tab suggestions."
     },
     nextSteps_sectionTitle: {
       title: "Next Steps",

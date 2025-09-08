@@ -7961,6 +7961,7 @@
   var modifiedElements = /* @__PURE__ */ new WeakMap();
   var appliedRules = /* @__PURE__ */ new Set();
   var shouldInjectStyleTag = false;
+  var styleTagInjected = false;
   var mediaAndFormSelectors = "video,canvas,embed,object,audio,map,form,input,textarea,select,option,button";
   var hideTimeouts = [0, 100, 300, 500, 1e3, 2e3, 3e3];
   var unhideTimeouts = [1250, 2250, 3e3];
@@ -8100,6 +8101,9 @@
     return timeoutRules;
   }
   function injectStyleTag(rules2) {
+    if (styleTagInjected) {
+      return;
+    }
     let selector = "";
     rules2.forEach((rule, i) => {
       if (i !== rules2.length - 1) {
@@ -8111,6 +8115,7 @@
     const styleTagProperties = "display:none!important;min-height:0!important;height:0!important;";
     const styleTagContents = `${forgivingSelector(selector)} {${styleTagProperties}}`;
     injectGlobalStyles(styleTagContents);
+    styleTagInjected = true;
   }
   function hideAdNodes(rules2) {
     const document2 = globalThis.document;

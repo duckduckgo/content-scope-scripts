@@ -1730,8 +1730,16 @@ body:not([data-background-kind=default]) .Omnibar_popup {
   border-top: 1px solid var(--ntp-surface-border-color);
   display: flex;
   flex-direction: column;
+  margin-top: -1px;
+}
+.SuggestionsList_main,
+.SuggestionsList_footer {
+  display: flex;
+  flex-direction: column;
   padding: calc(3px + var(--sp-1));
-  padding-top: calc(3px + var(--sp-1) - 1px);
+}
+.SuggestionsList_main + .SuggestionsList_footer {
+  border-top: 1px solid var(--ntp-surface-border-color);
 }
 .SuggestionsList_item {
   align-items: center;
