@@ -38,11 +38,11 @@
     "@canvas/image-data": "^1.0.0",
     "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@types/chrome": "^0.1.1",
-    "@types/jasmine": "^5.1.8",
+    "@types/jasmine": "^5.1.9",
     "@types/node": "^24.1.0",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "fast-check": "^4.2.0",
-    "jasmine": "^5.9.0",
+    "jasmine": "^5.10.0",
     "web-ext": "^8.9.0"
   }
 }
