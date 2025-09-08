@@ -21,8 +21,9 @@ import { CloseSmallIcon } from '../../components/Icons.js';
  * @param {boolean} [props.autoFocus]
  * @param {(params: {suggestion: Suggestion, target: OpenTarget}) => void} props.onOpenSuggestion
  * @param {(params: {term: string, target: OpenTarget}) => void} props.onSubmit
+ * @param {(params: {chat: string, target: OpenTarget}) => void} props.onSubmitChat
  */
-export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
+export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const platformName = usePlatformName();
 
@@ -100,7 +101,11 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit }) {
             case 'Enter':
                 event.preventDefault();
                 if (selectedSuggestion) {
-                    onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
+                    if (selectedSuggestion.kind === 'aiChat') {
+                        onSubmitChat({ chat: selectedSuggestion.chat, target: eventToTarget(event, platformName) });
+                    } else {
+                        onOpenSuggestion({ suggestion: selectedSuggestion, target: eventToTarget(event, platformName) });
+                    }
                 } else {
                     onSubmit({ term, target: eventToTarget(event, platformName) });
                 }
