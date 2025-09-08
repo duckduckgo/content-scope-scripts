@@ -460,22 +460,12 @@ export default class DuckAiListener extends ContentFeature {
         // If no context is available, try to fetch it
         if (!hasContext) {
             this.log.info('No context available, attempting to fetch...');
-            try {
-                if (this.bridge) {
-                    const getPageContext = await this.bridge.request('getPageContext', { explicitConsent: true });
-                    this.log.info('Fetched page context on demand:', getPageContext);
-                    this.handlePageContextData(getPageContext);
+            const success = await this.requestPageContext(true);
 
-                    // If we now have context, enable it
-                    if (this.pageData && this.pageData.content) {
-                        this.isPageContextEnabled = true;
-                        this.createContextChip();
-                    }
-                } else {
-                    this.log.warn('No bridge available to fetch context');
-                }
-            } catch (error) {
-                this.log.info('Failed to fetch page context:', error);
+            // If we successfully got context, enable it
+            if (success && this.pageData && this.pageData.content) {
+                this.isPageContextEnabled = true;
+                this.createContextChip();
             }
             this.updateButtonAppearance();
             return;
@@ -552,6 +542,30 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
+     * Request page context from the bridge with explicit consent tracking
+     * @param {boolean} explicitConsent - Whether this request has explicit user consent
+     * @returns {Promise<boolean>} - Whether context was successfully retrieved
+     */
+    async requestPageContext(explicitConsent = false) {
+        if (!this.bridge) {
+            this.log.warn('No bridge available to fetch context');
+            return false;
+        }
+
+        try {
+            const getPageContext = await this.bridge.request('getPageContext', { explicitConsent });
+            const logMessage = explicitConsent ? 'Fetched page context on demand:' : 'Initial page context:';
+            this.log.info(logMessage, getPageContext);
+            this.handlePageContextData(getPageContext);
+            return true;
+        } catch (error) {
+            const logMessage = explicitConsent ? 'Failed to fetch page context:' : 'No initial page context available:';
+            this.log.info(logMessage, error);
+            return false;
+        }
+    }
+
+    /**
      * Set up message bridge using the same pattern as fake-duck-ai
      */
     async setupMessageBridge() {
@@ -579,13 +593,7 @@ export default class DuckAiListener extends ContentFeature {
             this.log.info('Created message bridge successfully');
 
             // Try to get initial page context
-            try {
-                const getPageContext = await this.bridge.request('getPageContext', { explicitConsent: false });
-                this.log.info('Initial page context:', getPageContext);
-                this.handlePageContextData(getPageContext);
-            } catch (error) {
-                this.log.info('No initial page context available:', error);
-            }
+            await this.requestPageContext(false);
 
             // Subscribe to page context updates (matches fake-duck-ai exactly)
             this.bridge.subscribe('submitPageContext', (event) => {
