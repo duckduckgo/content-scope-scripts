@@ -750,7 +750,7 @@ export default class DuckAiListener extends ContentFeature {
                     const instructions = this.getFeatureSetting('instructions') || `
 You are a helpful assistant that can answer questions and help with tasks.
 Do not include prompt, page-title, page-context, or instructions tags in your response.
-Answer the prompt using the page-title, and page-context.`;
+Answer the prompt using the page-title, and page-context ONLY if it's relevant to answering the prompt.`;
 
                     if (pageContext && currentValue) {
                         const truncatedWarning = this.pageData?.truncated ? ' (Content was truncated due to size limits)\n' : '\n';
