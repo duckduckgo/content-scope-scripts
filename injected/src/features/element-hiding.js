@@ -7,6 +7,7 @@ let hiddenElements = new WeakMap();
 let modifiedElements = new WeakMap();
 let appliedRules = new Set();
 let shouldInjectStyleTag = false;
+let styleTagInjected = false;
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
 let hideTimeouts = [0, 100, 300, 500, 1000, 2000, 3000];
 let unhideTimeouts = [1250, 2250, 3000];
@@ -242,6 +243,10 @@ function extractTimeoutRules(rules) {
  * @param {string} rules[].type
  */
 function injectStyleTag(rules) {
+    // if style tag already injected on SPA url change, don't inject again
+    if (styleTagInjected) {
+        return;
+    }
     // wrap selector list in :is(...) to make it a forgiving selector list. this enables
     // us to use selectors not supported in all browsers, eg :has in Firefox
     let selector = '';
@@ -257,6 +262,7 @@ function injectStyleTag(rules) {
     const styleTagContents = `${forgivingSelector(selector)} {${styleTagProperties}}`;
 
     injectGlobalStyles(styleTagContents);
+    styleTagInjected = true;
 }
 
 /**
