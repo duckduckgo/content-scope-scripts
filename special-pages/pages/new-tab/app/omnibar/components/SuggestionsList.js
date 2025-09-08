@@ -103,7 +103,9 @@ function SuggestionsListItem({ suggestion, onOpenSuggestion, onSubmitChat }) {
         >
             <SuggestionIcon suggestion={suggestion} />
             <span class={styles.title}>
-                {startsWithIgnoreCase(title, term) ? (
+                {suggestion.kind === 'aiChat' ? (
+                    <b>{title}</b>
+                ) : startsWithIgnoreCase(title, term) ? (
                     <>
                         <b>{title.slice(0, term.length)}</b>
                         {title.slice(term.length)}
