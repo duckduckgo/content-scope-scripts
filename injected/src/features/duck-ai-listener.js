@@ -39,7 +39,6 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {HTMLButtonElement | null} */
     sendButton = null;
 
-
     init() {
         // Only activate on duckduckgo.com
         if (!this.shouldActivate()) {
@@ -737,7 +736,7 @@ export default class DuckAiListener extends ContentFeature {
     setupValuePropertyDescriptor(textarea) {
         // Store the original value property descriptor
         const originalDescriptor = Object.getOwnPropertyDescriptor(textarea, 'value');
-        this.randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1000)
+        this.randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1000);
 
         // Override the value property using arrow functions to capture this context
         Object.defineProperty(textarea, 'value', {
@@ -747,7 +746,9 @@ export default class DuckAiListener extends ContentFeature {
                     const currentValue = originalDescriptor.get.call(textarea) || '';
                     const pageContext = this.globalPageContext || '';
                     const randomNumber = this.randomNumber;
-                    const instructions = this.getFeatureSetting('instructions') || `
+                    const instructions =
+                        this.getFeatureSetting('instructions') ||
+                        `
 You are a helpful assistant that can answer questions and help with tasks.
 Do not include prompt, page-title, page-context, or instructions tags in your response.
 Answer the prompt using the page-title, and page-context ONLY if it's relevant to answering the prompt.`;

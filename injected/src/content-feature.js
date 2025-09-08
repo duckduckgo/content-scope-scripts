@@ -71,7 +71,7 @@ export default class ContentFeature extends ConfigFeature {
      */
     get log() {
         const shouldLog = this.shouldLog;
-        const prefix = `${this.name.padEnd(20, ' ')} |`
+        const prefix = `${this.name.padEnd(20, ' ')} |`;
 
         return {
             // These are getters to have the call site be the reported line number.

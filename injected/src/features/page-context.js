@@ -3,11 +3,8 @@ import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
-
 function collapseWhitespace(str) {
-    return typeof str === 'string'
-        ? str.replace(/\s+/g, ' ')
-        : '';
+    return typeof str === 'string' ? str.replace(/\s+/g, ' ') : '';
 }
 
 function domToMarkdown(node, maxLength = Infinity) {
@@ -15,13 +12,13 @@ function domToMarkdown(node, maxLength = Infinity) {
         return collapseWhitespace(node.textContent);
     }
     if (node.nodeType !== Node.ELEMENT_NODE) {
-        return "";
+        return '';
     }
 
     const tag = node.tagName.toLowerCase();
 
     // Build children string incrementally to exit early when maxLength is exceeded
-    let children = "";
+    let children = '';
     for (const childNode of node.childNodes) {
         const childContent = domToMarkdown(childNode, maxLength - children.length);
         children += childContent;
@@ -33,27 +30,27 @@ function domToMarkdown(node, maxLength = Infinity) {
     }
 
     switch (tag) {
-        case "strong":
-        case "b":
+        case 'strong':
+        case 'b':
             return `**${children}**`;
-        case "em":
-        case "i":
+        case 'em':
+        case 'i':
             return `*${children}*`;
-        case "h1":
+        case 'h1':
             return `\n# ${children}\n`;
-        case "h2":
+        case 'h2':
             return `\n## ${children}\n`;
-        case "h3":
+        case 'h3':
             return `\n### ${children}\n`;
-        case "p":
+        case 'p':
             return `${children}\n`;
-        case "br":
+        case 'br':
             return `\n`;
-        case "ul":
+        case 'ul':
             return `\n${children}\n`;
-        case "li":
+        case 'li':
             return `\n- ${children.trim()}\n`;
-        case "a":
+        case 'a':
             return getLinkText(node);
         default:
             return children;
@@ -61,7 +58,7 @@ function domToMarkdown(node, maxLength = Infinity) {
 }
 
 function getLinkText(node) {
-    const href = node.getAttribute("href");
+    const href = node.getAttribute('href');
     return href ? `[${node.textContent}](${href})` : node.textContent;
 }
 
@@ -262,22 +259,8 @@ export default class PageContext extends ContentFeature {
 
     getMainContent() {
         const maxLength = this.getFeatureSetting('maxContentLength') || 100000;
-        let excludeSelectors = this.getFeatureSetting('excludeSelectors') || [
-            '.ad',
-            '.sidebar',
-            '.footer',
-            '.nav',
-            '.header',
-        ];
-        excludeSelectors = excludeSelectors.concat([
-            'script',
-            'style',
-            'link',
-            'meta',
-            'noscript',
-            'svg',
-            'canvas',
-        ]);
+        let excludeSelectors = this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
+        excludeSelectors = excludeSelectors.concat(['script', 'style', 'link', 'meta', 'noscript', 'svg', 'canvas']);
 
         let content = '';
         // Get content from main content areas
@@ -355,7 +338,6 @@ export default class PageContext extends ContentFeature {
 
         return images;
     }
-
 
     sendContentResponse(content) {
         if (this.lastSentContent && this.lastSentContent === content) {
