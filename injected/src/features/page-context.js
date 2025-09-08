@@ -299,7 +299,7 @@ export default class PageContext extends ContentFeature {
             });
 
             this.log.info('Calling domToMarkdown', clone.innerHTML);
-            content += domToMarkdown(clone, maxLength, this.log);
+            content += domToMarkdown(clone, maxLength);
         }
 
         // Limit content length
