@@ -616,7 +616,6 @@ export default class DuckAiListener extends ContentFeature {
                         this.isPageContextEnabled = true;
                         this.updateButtonAppearance();
                     }
-
                     // Check for truncated content and warn user
                     if (pageDataParsed.truncated) {
                         this.log.warn('Page content has been truncated due to size limits');
