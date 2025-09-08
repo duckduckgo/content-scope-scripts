@@ -745,10 +745,34 @@ export default class DuckAiListener extends ContentFeature {
                 if (originalDescriptor && originalDescriptor.get) {
                     const currentValue = originalDescriptor.get.call(textarea) || '';
                     const pageContext = this.globalPageContext || '';
+                    const randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1000)
+                    const instructions = this.getFeatureSetting('instructions') || `
+You are a helpful assistant that can answer questions and help with tasks.
+Do not include prompt, page-title, page-context, or instructions tags in your response.
+Answer the prompt using the page-title, and page-context.`;
 
                     if (pageContext && currentValue) {
                         const truncatedWarning = this.pageData?.truncated ? ' (Content was truncated due to size limits)\n' : '\n';
-                        return `${currentValue}\n\n---\n\nPage Context:${truncatedWarning}${pageContext}`;
+                        return `Prompt:
+<prompt-${randomNumber}>
+${currentValue}
+</prompt-${randomNumber}>
+
+Instructions:
+<instructions-${randomNumber}>
+${instructions}
+</instructions-${randomNumber}>
+
+Page Title:
+<page-title-${randomNumber}>
+${this.pageData.title}
+</page-title-${randomNumber}>
+
+Page Context:
+<page-context-${randomNumber}>
+${pageContext}
+${truncatedWarning}
+</page-context-${randomNumber}>`;
                     }
 
                     return currentValue;
