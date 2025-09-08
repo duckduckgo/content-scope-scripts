@@ -35,11 +35,11 @@
     "web-resource-inliner": "^6.0.1"
   },
   "dependencies": {
-    "@atlaskit/pragmatic-drag-and-drop": "^1.7.4",
+    "@atlaskit/pragmatic-drag-and-drop": "^1.7.6",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.1.0",
     "@formkit/auto-animate": "^0.8.4",
     "@preact/signals": "^2.2.1",
-    "@rive-app/canvas-single": "^2.31.2",
+    "@rive-app/canvas-single": "^2.31.5",
     "classnames": "^2.5.1",
     "lottie-web": "^5.13.0",
     "preact": "^10.26.9"
