@@ -82,6 +82,7 @@ export default class PageContext extends ContentFeature {
         this.observeContentChanges();
         if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
             this.messaging.subscribe('collect', () => {
+                this.invalidateCache();
                 this.handleContentCollectionRequest();
             });
         }
@@ -161,12 +162,16 @@ export default class PageContext extends ContentFeature {
         return this.#cachedContent;
     }
 
+    invalidateCache() {
+        this.log.info('Invalidating cache');
+        this.#cachedContent = undefined;
+        this.#cachedTimestamp = 0;
+        this.stopObserving();
+    }
+
     set cachedContent(content) {
         if (content === undefined) {
-            this.log.info('Invalidating cache');
-            this.#cachedContent = undefined;
-            this.#cachedTimestamp = 0;
-            this.stopObserving();
+            this.invalidateCache();
             return;
         }
 
