@@ -545,7 +545,6 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     init() {
-        console.log('DEBUG: init');
         if (isBeingFramed()) {
             return;
         }
