@@ -58,5 +58,13 @@
   "omnibar_switchToTab": {
     "title": "Switch to Tab",
     "description": "Badge text shown next to open tab suggestions."
+  },
+  "omnibar_customizePopoverTitle": {
+    "title": "New! Toggle between search and AI chat",
+    "description": "Title for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverDescription": {
+    "title": "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
+    "description": "Description message in the popover including privacy statement and customize option."
   }
 }
