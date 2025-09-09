@@ -49,7 +49,7 @@ export function Popover({ title, onClose, children }) {
                 <h3 id={titleId} class={styles.title}>
                     {title}
                 </h3>
-                <p id={titleId} class={styles.description}>
+                <p id={descriptionId} class={styles.description}>
                     {children}
                 </p>
             </div>
