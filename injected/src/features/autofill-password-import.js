@@ -40,7 +40,7 @@ export default class AutofillPasswordImport extends ContentFeature {
 
     #signInButtonSettings;
 
-    // #exportConfirmButtonSettings;
+    #exportConfirmButtonSettings;
 
     /** @type {HTMLElement|Element|SVGElement|null} */
     #elementToCenterOn;
@@ -155,7 +155,8 @@ export default class AutofillPasswordImport extends ContentFeature {
                 this.currentElementConfig?.element != null && this.#tappedElements.has(this.currentElementConfig?.element);
             if (isExportButtonTapped) {
                 const exportConfirmElement = await this.findExportConfirmElement();
-                return exportConfirmElement != null
+                const shouldAutotap = this.#exportButtonSettings?.shouldAutotap && exportConfirmElement != null;
+                return shouldAutotap
                     ? {
                           animationStyle: null,
                           element: exportConfirmElement,
@@ -439,7 +440,7 @@ export default class AutofillPasswordImport extends ContentFeature {
      * @returns {boolean}
      */
     isSupportedPath(path) {
-        return [this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path].includes(path);
+        return [this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path, this.#exportConfirmButtonSettings?.path].includes(path);
     }
 
     async handlePath(path) {
@@ -494,8 +495,7 @@ export default class AutofillPasswordImport extends ContentFeature {
      * @returns {string}
      */
     get exportConfirmButtonSelector() {
-        // return this.#exportConfirmButtonSettings?.selectors?.join(',');
-        return "button[data-mdc-dialog-action='ok']";
+        return this.#exportConfirmButtonSettings?.selectors?.join(',');
     }
 
     /**
@@ -537,7 +537,7 @@ export default class AutofillPasswordImport extends ContentFeature {
         this.#exportButtonSettings = this.getFeatureSetting('exportButton');
         this.#signInButtonSettings = this.getFeatureSetting('signInButton');
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
-        // this.#exportConfirmButtonSettings = this.getFeatureSetting('exportConfirmButton');
+        this.#exportConfirmButtonSettings = this.getFeatureSetting('exportConfirmButton');
     }
 
     urlChanged() {
