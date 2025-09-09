@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useContext, useState } from 'preact/hooks';
+import { useCallback, useContext, useState } from 'preact/hooks';
 import { LogoStacked } from '../../components/Icons';
 import { useTypedTranslationWith } from '../../types';
 import { AiChatForm } from './AiChatForm';
@@ -50,6 +50,10 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
         setResetKey((prev) => prev + 1);
     };
 
+    const handleCloseCustomizePopover = useCallback(() => {
+        setShowCustomizePopover(false);
+    }, [setShowCustomizePopover]);
+
     /** @type {(params: {suggestion: Suggestion, target: OpenTarget}) => void} */
     const handleOpenSuggestion = (params) => {
         openSuggestion(params);
@@ -81,7 +85,7 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                 <div class={styles.tabSwitcherContainer}>
                     <TabSwitcher mode={mode} onChange={handleChangeMode} />
                     {showCustomizePopover && (
-                        <Popover title={t('omnibar_customizePopoverTitle')} onClose={() => setShowCustomizePopover(false)}>
+                        <Popover title={t('omnibar_customizePopoverTitle')} onClose={handleCloseCustomizePopover}>
                             <Trans
                                 str={t('omnibar_customizePopoverDescription')}
                                 values={{

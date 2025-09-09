@@ -19,6 +19,12 @@ export function Popover({ title, onClose, children }) {
     const titleId = useId();
     const descriptionId = useId();
     const popoverRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const latestOnCloseRef = useRef(onClose);
+
+    // Keep a ref to the latest onClose so global listeners don't capture a stale closure
+    useEffect(() => {
+        latestOnCloseRef.current = onClose;
+    }, [onClose]);
 
     useEffect(() => {
         popoverRef.current?.focus();
@@ -26,7 +32,7 @@ export function Popover({ title, onClose, children }) {
         /** @type {(event: KeyboardEvent) => void} */
         const handleEscapeKey = (event) => {
             if (event.key === 'Escape') {
-                onClose();
+                latestOnCloseRef.current?.();
             }
         };
 
