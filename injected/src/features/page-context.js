@@ -153,9 +153,7 @@ export default class PageContext extends ContentFeature {
         if (!this.#cachedContent || this.isCacheExpired()) {
             // Clean up if we had content but it's expired
             if (this.#cachedContent) {
-                this.#cachedContent = undefined;
-                this.#cachedTimestamp = 0;
-                this.stopObserving();
+                this.invalidateCache();
             }
             return undefined;
         }
