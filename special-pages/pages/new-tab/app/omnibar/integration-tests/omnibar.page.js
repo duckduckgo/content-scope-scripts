@@ -60,7 +60,7 @@ export class OmnibarPage {
     }
 
     customizeButton() {
-        return this.page.getByRole('button', { name: 'Customize' });
+        return this.page.getByTestId('customizer-button');
     }
 
     toggleSearchButton() {
@@ -73,6 +73,18 @@ export class OmnibarPage {
 
     closeButton() {
         return this.context().getByRole('button', { name: 'Close' });
+    }
+
+    popover() {
+        return this.context().getByRole('dialog');
+    }
+
+    popoverCloseButton() {
+        return this.popover().getByRole('button', { name: 'Close' });
+    }
+
+    popoverCustomizeButton() {
+        return this.popover().getByRole('button', { name: 'Customize' });
     }
 
     root() {
