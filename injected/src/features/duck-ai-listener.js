@@ -27,10 +27,13 @@ export default class DuckAiListener extends ContentFeature {
     contextChip = null;
 
     /** @type {boolean} */
-    isPageContextEnabled = false;
+    #_isPageContextEnabled = false;
 
     /** @type {boolean} */
     hasContextBeenUsed = false;
+
+    /** @type {boolean} */
+    userExplicitlyDisabledContext = false;
 
     /** @type {string | null} */
     lastInjectedContext = null;
@@ -40,6 +43,37 @@ export default class DuckAiListener extends ContentFeature {
 
     /** @type {HTMLButtonElement | null} */
     sendButton = null;
+
+    /**
+     * Get the page context enabled state
+     * @returns {boolean}
+     */
+    get isPageContextEnabled() {
+        return this.#_isPageContextEnabled;
+    }
+
+    /**
+     * Set the page context enabled state and update UI accordingly
+     * @param {boolean} enabled - Whether page context should be enabled
+     */
+    set isPageContextEnabled(enabled) {
+        if (this.#_isPageContextEnabled === enabled) {
+            return; // No change needed
+        }
+        
+        this.#_isPageContextEnabled = enabled;
+        
+        // Update UI based on new state
+        if (enabled) {
+            if (this.pageData && this.pageData.content && !this.hasContextBeenUsed) {
+                this.createContextChip();
+            }
+        } else {
+            this.removeContextChip();
+        }
+        
+        this.updateButtonAppearance();
+    }
 
     init() {
         // Only activate on duckduckgo.com
@@ -104,6 +138,11 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     sendContextPixelInfo(contextData) {
+        if (!contextData?.content) {
+            this.log.warn('sendContextPixelInfo: No content available for pixel tracking');
+            return;
+        }
+        
         this.sendPixel(PIXEL_NAME, {
             contextLength: this.logBucketNumber(contextData.content.length),
         });
@@ -276,6 +315,13 @@ export default class DuckAiListener extends ContentFeature {
         this.log.info('Created page context button with wrapper structure');
     }
 
+    removeContextChip() {
+        if (this.contextChip) {
+            this.contextChip.remove();
+            this.contextChip = null;
+        }
+    }
+
     /**
      * Create the context chip below the input field
      */
@@ -288,13 +334,12 @@ export default class DuckAiListener extends ContentFeature {
 
         // Don't create chip if context has already been used
         if (this.hasContextBeenUsed) {
+            this.removeContextChip();
             this.log.info('createContextChip: Context already used, skipping');
             return;
         }
 
-        if (this.contextChip) {
-            this.contextChip.remove();
-        }
+        this.removeContextChip();
 
         if (!this.pageData.content) {
             return;
@@ -497,30 +542,31 @@ export default class DuckAiListener extends ContentFeature {
             // If we successfully got context, enable it
             if (success && this.pageData && this.pageData.content) {
                 this.isPageContextEnabled = true;
-                this.createContextChip();
+            } else {
+                // Update appearance even if no context was fetched
+                this.updateButtonAppearance();
             }
-            this.updateButtonAppearance();
             return;
         }
 
         // Toggle the page context enabled state (existing behavior when context is available)
-        this.isPageContextEnabled = !this.isPageContextEnabled;
-
-        // Show/hide context chip based on state
-        if (this.isPageContextEnabled) {
-            if (this.pageData && this.pageData.content) {
-                this.createContextChip();
-            }
+        const newState = !this.isPageContextEnabled;
+        
+        // Track when user explicitly disables context
+        if (!newState) {
+            this.userExplicitlyDisabledContext = true;
         } else {
-            // Remove the context chip when disabled
-            if (this.contextChip) {
-                this.contextChip.remove();
-                this.contextChip = null;
-            }
+            // Reset the flag when user re-enables
+            this.userExplicitlyDisabledContext = false;
         }
+        
+        // Set the new state (setter will handle UI updates)
+        this.isPageContextEnabled = newState;
 
-        // Update button appearance
-        this.updateButtonAppearance();
+        // Trigger input events on the textbox to notify frameworks of potential state changes
+        if (this.textBox) {
+            this.triggerInputEvents(this.textBox);
+        }
 
         this.log.info('Page context toggled:', this.isPageContextEnabled);
     }
@@ -652,9 +698,11 @@ export default class DuckAiListener extends ContentFeature {
                     this.pageData = pageDataParsed;
                     this.globalPageContext = pageDataParsed.content;
 
-                    // Auto-enable context when it becomes available (only if not used yet)
-                    if (!this.hasContextBeenUsed && !this.isPageContextEnabled) {
+                    // Auto-enable context when it becomes available (only if not used yet and user hasn't explicitly disabled it)
+                    if (!this.hasContextBeenUsed && !this.isPageContextEnabled && !this.userExplicitlyDisabledContext) {
                         this.isPageContextEnabled = true;
+                    } else {
+                        // Always update button appearance when context data changes
                         this.updateButtonAppearance();
                     }
                     // Check for truncated content and warn user
@@ -662,7 +710,10 @@ export default class DuckAiListener extends ContentFeature {
                         this.log.warn('Page content has been truncated due to size limits');
                     }
 
-                    this.createContextChip();
+                    // Create context chip if enabled (setter handles this if it was just enabled)
+                    if (this.isPageContextEnabled && !this.hasContextBeenUsed) {
+                        this.createContextChip();
+                    }
                     this.setupMessageInterception();
                 }
             }
@@ -803,6 +854,44 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
+     * Trigger keyboard and input events on a textarea to simulate user input
+     * @param {HTMLTextAreaElement} textarea - The textarea element
+     */
+    triggerInputEvents(textarea) {
+        if (!textarea) return;
+
+        // Create and dispatch keydown event
+        const keydownEvent = new KeyboardEvent('keydown', {
+            key: 'Unidentified',
+            code: 'Unidentified',
+            bubbles: true,
+            cancelable: true,
+            composed: true
+        });
+        textarea.dispatchEvent(keydownEvent);
+        
+        // Create and dispatch input event for immediate updates
+        const inputEvent = new Event('input', {
+            bubbles: true,
+            cancelable: true,
+            composed: true
+        });
+        textarea.dispatchEvent(inputEvent);
+        
+        // Create and dispatch keyup event
+        const keyupEvent = new KeyboardEvent('keyup', {
+            key: 'Unidentified',
+            code: 'Unidentified',
+            bubbles: true,
+            cancelable: true,
+            composed: true
+        });
+        textarea.dispatchEvent(keyupEvent);
+        
+        this.log.info('Triggered keyboard events for input simulation');
+    }
+
+    /**
      * Set up property descriptor to intercept value reads for context appending
      * @param {HTMLTextAreaElement} textarea - The textarea element
      */
@@ -810,6 +899,12 @@ export default class DuckAiListener extends ContentFeature {
         // Store the original value property descriptor
         const originalDescriptor = Object.getOwnPropertyDescriptor(textarea, 'value');
         this.randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1000);
+        const instructions =
+                        this.getFeatureSetting('instructions') ||
+                        `
+You are a helpful assistant that can answer questions and help with tasks.
+Do not include prompt, page-title, page-context, or instructions tags in your response.
+Answer the prompt using the page-title, and page-context ONLY if it's relevant to answering the prompt.`;
 
         // Override the value property using arrow functions to capture this context
         Object.defineProperty(textarea, 'value', {
@@ -819,14 +914,9 @@ export default class DuckAiListener extends ContentFeature {
                     const currentValue = originalDescriptor.get.call(textarea) || '';
                     const pageContext = this.globalPageContext || '';
                     const randomNumber = this.randomNumber;
-                    const instructions =
-                        this.getFeatureSetting('instructions') ||
-                        `
-You are a helpful assistant that can answer questions and help with tasks.
-Do not include prompt, page-title, page-context, or instructions tags in your response.
-Answer the prompt using the page-title, and page-context ONLY if it's relevant to answering the prompt.`;
+                    const shouldAddContext = pageContext && this.isPageContextEnabled && currentValue;
 
-                    if (pageContext && currentValue) {
+                    if (shouldAddContext) {
                         const truncatedWarning = this.pageData?.truncated ? ' (Content was truncated due to size limits)\n' : '\n';
                         return `Prompt:
 <prompt-${randomNumber}>
@@ -856,7 +946,13 @@ ${truncatedWarning}
             },
             set: (val) => {
                 if (originalDescriptor && originalDescriptor.set) {
+                    const oldValue = originalDescriptor.get?.call(textarea) || '';
                     originalDescriptor.set.call(textarea, val);
+                    
+                    // Trigger keyboard events if value actually changed
+                    if (oldValue !== val) {
+                        this.triggerInputEvents(textarea);
+                    }
                 }
             },
             configurable: true,
