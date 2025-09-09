@@ -53,8 +53,8 @@ export default class AutofillPasswordImport extends ContentFeature {
 
     #domLoaded;
 
-    /** @type {Set<Element>} */
-    #tappedElements = new Set();
+    /** @type {WeakSet<Element>} */
+    #tappedElements = new WeakSet();
 
     /**
      * @returns {ButtonAnimationStyle}
@@ -133,6 +133,39 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     /**
+     * @returns {Promise<ElementConfig | null>}
+     */
+    async getExportConfirmElementAndStyle() {
+        const exportConfirmElement = await this.findExportConfirmElement();
+        const shouldAutotap = this.#exportConfirmButtonSettings?.shouldAutotap && exportConfirmElement != null;
+        return shouldAutotap
+            ? {
+                  animationStyle: null,
+                  element: exportConfirmElement,
+                  shouldTap: true,
+                  shouldWatchForRemoval: false,
+                  tapOnce: false,
+              }
+            : null;
+    }
+
+    /**
+     * @returns {Promise<ElementConfig | null>}
+     */
+    async getExportElementAndStyle() {
+        const element = await this.findExportElement();
+        return element != null
+            ? {
+                  animationStyle: this.exportButtonAnimationStyle,
+                  element,
+                  shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
+                  shouldWatchForRemoval: true,
+                  tapOnce: true,
+              }
+            : null;
+    }
+
+    /**
      * Takes a path and returns the element and style to animate.
      * @param {string} path
      * @returns {Promise<ElementConfig | null>}
@@ -154,28 +187,9 @@ export default class AutofillPasswordImport extends ContentFeature {
             const isExportButtonTapped =
                 this.currentElementConfig?.element != null && this.#tappedElements.has(this.currentElementConfig?.element);
             if (isExportButtonTapped) {
-                const exportConfirmElement = await this.findExportConfirmElement();
-                const shouldAutotap = this.#exportButtonSettings?.shouldAutotap && exportConfirmElement != null;
-                return shouldAutotap
-                    ? {
-                          animationStyle: null,
-                          element: exportConfirmElement,
-                          shouldTap: true,
-                          shouldWatchForRemoval: false,
-                          tapOnce: false,
-                      }
-                    : null;
+                return await this.getExportConfirmElementAndStyle();
             } else {
-                const element = await this.findExportElement();
-                return element != null
-                    ? {
-                          animationStyle: this.exportButtonAnimationStyle,
-                          element,
-                          shouldTap: this.#exportButtonSettings?.shouldAutotap ?? false,
-                          shouldWatchForRemoval: true,
-                          tapOnce: true,
-                      }
-                    : null;
+                return await this.getExportElementAndStyle();
             }
         } else if (path === '/intro') {
             const element = await this.findSignInButton();
@@ -440,7 +454,12 @@ export default class AutofillPasswordImport extends ContentFeature {
      * @returns {boolean}
      */
     isSupportedPath(path) {
-        return [this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path, this.#exportConfirmButtonSettings?.path].includes(path);
+        return [
+            this.#exportButtonSettings?.path,
+            this.#settingsButtonSettings?.path,
+            this.#signInButtonSettings?.path,
+            this.#exportConfirmButtonSettings?.path,
+        ].includes(path);
     }
 
     async handlePath(path) {
