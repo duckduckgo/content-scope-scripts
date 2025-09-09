@@ -85,6 +85,7 @@ export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonR
             aria-controls={menuId}
             data-kind={kind}
             id={buttonId}
+            data-testid="customizer-button"
         >
             <CustomizeIcon />
             <span>{t('ntp_customizer_button')}</span>
