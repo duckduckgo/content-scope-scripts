@@ -40,10 +40,13 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
     const { openSuggestion, submitSearch, submitChat, setShowCustomizePopover } = useContext(OmnibarContext);
 
     const { open: openCustomizer } = useDrawerControls();
-    useDrawerEventListeners({
-        onOpen: () => setShowCustomizePopover(false),
-        onToggle: () => setShowCustomizePopover(false),
-    });
+    useDrawerEventListeners(
+        {
+            onOpen: () => setShowCustomizePopover(false),
+            onToggle: () => setShowCustomizePopover(false),
+        },
+        [setShowCustomizePopover],
+    );
 
     const resetForm = () => {
         setQuery('');
