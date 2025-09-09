@@ -165,30 +165,12 @@ function _close() {
  * @param {() => void} [callbacks.onToggle] - Called when drawer toggles
  * @param {any[]} [deps] - Dependency array controlling when listeners are re-registered
  */
-export function useDrawerEventListeners(callbacks, deps = []) {
-    const callbacksRef = useRef(callbacks);
-    // Keep the latest callbacks without changing event listeners
-    callbacksRef.current = callbacks;
-
+export function useDrawerEventListeners({ onOpen, onClose, onToggle }, deps = []) {
     useEffect(() => {
         const controller = new AbortController();
-
-        const handleOpen = () => {
-            const fn = callbacksRef.current?.onOpen;
-            if (typeof fn === 'function') fn();
-        };
-        const handleClose = () => {
-            const fn = callbacksRef.current?.onClose;
-            if (typeof fn === 'function') fn();
-        };
-        const handleToggle = () => {
-            const fn = callbacksRef.current?.onToggle;
-            if (typeof fn === 'function') fn();
-        };
-
-        window.addEventListener(OPEN_DRAWER_EVENT, handleOpen, { signal: controller.signal });
-        window.addEventListener(CLOSE_DRAWER_EVENT, handleClose, { signal: controller.signal });
-        window.addEventListener(TOGGLE_DRAWER_EVENT, handleToggle, { signal: controller.signal });
+        if (onOpen) window.addEventListener(OPEN_DRAWER_EVENT, onOpen, { signal: controller.signal });
+        if (onClose) window.addEventListener(CLOSE_DRAWER_EVENT, onClose, { signal: controller.signal });
+        if (onToggle) window.addEventListener(TOGGLE_DRAWER_EVENT, onToggle, { signal: controller.signal });
         return () => controller.abort();
     }, deps);
 }
