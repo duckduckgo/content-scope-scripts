@@ -65,6 +65,10 @@ export type Suggestion =
 export type OmnibarMode = "search" | "ai";
 export type EnableDuckAi = boolean;
 export type ShowDuckAiSetting = boolean;
+/**
+ * Controls a popover that onboards users and points them towards how to disable the feature via the customizer
+ */
+export type ShowCustomizePopover = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -514,6 +518,7 @@ export interface OmnibarConfig {
   mode: OmnibarMode;
   enableAi?: EnableDuckAi;
   showAiSetting?: ShowDuckAiSetting;
+  showCustomizePopover?: ShowCustomizePopover;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"

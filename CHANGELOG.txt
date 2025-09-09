@@ -1,1 +1,1 @@
-- Page context follow ups (#1936)
+- NTP: Add tooltip above Customize button to highlight Omnibar feature (#1937)

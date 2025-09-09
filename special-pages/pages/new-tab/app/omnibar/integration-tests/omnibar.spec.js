@@ -1180,4 +1180,104 @@ test.describe('omnibar widget', () => {
             ],
         });
     });
+
+    test('customize popover appears when showCustomizePopover=true', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        await expect(omnibar.popover()).toBeVisible();
+        await expect(omnibar.popover()).toHaveText(/New! Toggle between search and AI chat/);
+        await expect(omnibar.popover()).toHaveText(/Either way, your info stays private/);
+    });
+
+    test('customize popover does not appear when showCustomizePopover=false', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': false } });
+        await omnibar.ready();
+
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('clicking close button dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Click close button
+        await omnibar.popoverCloseButton().click();
+
+        // Popover should be dismissed
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('clicking customize button opens customizer and dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        const customizer = new CustomizerPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Click customize button in popover
+        await omnibar.popoverCustomizeButton().click();
+
+        // Customizer should be open and popover should be dismissed
+        await expect(customizer.context()).toBeVisible();
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('manually opening customizer dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        const customizer = new CustomizerPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Open customizer manually using the main customize button (not the one in popover)
+        await omnibar.customizeButton().click();
+
+        // Customizer should be open and popover should be dismissed
+        await expect(customizer.context()).toBeVisible();
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('pressing escape dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Press Escape
+        await page.keyboard.press('Escape');
+
+        // Popover should be dismissed
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
 });
