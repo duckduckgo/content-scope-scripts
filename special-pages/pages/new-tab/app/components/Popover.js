@@ -19,12 +19,6 @@ export function Popover({ title, onClose, children }) {
     const titleId = useId();
     const descriptionId = useId();
     const popoverRef = useRef(/** @type {HTMLDivElement|null} */ (null));
-    const latestOnCloseRef = useRef(onClose);
-
-    // Keep a ref to the latest onClose so global listeners don't capture a stale closure
-    useEffect(() => {
-        latestOnCloseRef.current = onClose;
-    }, [onClose]);
 
     useEffect(() => {
         popoverRef.current?.focus();
@@ -32,13 +26,13 @@ export function Popover({ title, onClose, children }) {
         /** @type {(event: KeyboardEvent) => void} */
         const handleEscapeKey = (event) => {
             if (event.key === 'Escape') {
-                latestOnCloseRef.current?.();
+                onClose();
             }
         };
 
         document.addEventListener('keydown', handleEscapeKey);
         return () => document.removeEventListener('keydown', handleEscapeKey);
-    }, []);
+    }, [onClose]);
 
     return (
         <div ref={popoverRef} class={styles.popover} role="dialog" aria-labelledby={titleId} aria-describedby={descriptionId} tabIndex={-1}>
