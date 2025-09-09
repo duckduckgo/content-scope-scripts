@@ -19,6 +19,10 @@
     width: 164px;
 }
 
+.tabSwitcherContainer {
+    position: relative;
+}
+
 /*
  * There are three containers:
  * 1) .spacer - Pushes other widgets away. Fixed height to accommodate largest tab (Duck.ai). Contents overflow. No animation.

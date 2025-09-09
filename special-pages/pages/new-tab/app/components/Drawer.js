@@ -158,6 +158,23 @@ function _close() {
 }
 
 /**
+ * Hook for listening to drawer events
+ * @param {object} callbacks
+ * @param {() => void} [callbacks.onOpen] - Called when drawer opens
+ * @param {() => void} [callbacks.onClose] - Called when drawer closes
+ * @param {() => void} [callbacks.onToggle] - Called when drawer toggles
+ */
+export function useDrawerEventListeners({ onOpen, onClose, onToggle }) {
+    useEffect(() => {
+        const controller = new AbortController();
+        if (onOpen) window.addEventListener(OPEN_DRAWER_EVENT, onOpen, { signal: controller.signal });
+        if (onClose) window.addEventListener(CLOSE_DRAWER_EVENT, onClose, { signal: controller.signal });
+        if (onToggle) window.addEventListener(TOGGLE_DRAWER_EVENT, onToggle, { signal: controller.signal });
+        return () => controller.abort();
+    }, [onOpen, onClose, onToggle]);
+}
+
+/**
  * familiar React-style API
  */
 export function useDrawerControls() {
