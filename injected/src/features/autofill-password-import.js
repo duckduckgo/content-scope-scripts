@@ -40,6 +40,8 @@ export default class AutofillPasswordImport extends ContentFeature {
 
     #signInButtonSettings;
 
+    #exportConfirmButtonSettings;
+
     /** @type {HTMLElement|Element|SVGElement|null} */
     #elementToCenterOn;
 
@@ -151,11 +153,9 @@ export default class AutofillPasswordImport extends ContentFeature {
             // If we have found the popup element, then we return that early.
             const isExportButtonTapped =
                 this.currentElementConfig?.element != null && this.#tappedElements.has(this.currentElementConfig?.element);
-            console.log('isExportButtonTapped', isExportButtonTapped);
             if (isExportButtonTapped) {
                 const exportConfirmElement = await this.findExportConfirmElement();
-                // TODO: put this back after we have config -> const shouldAutotap = this.#exportButtonSettings?.shouldAutotap && exportConfirmElement != null;
-                const shouldAutotap = exportConfirmElement != null;
+                const shouldAutotap = this.#exportButtonSettings?.shouldAutotap && exportConfirmElement != null;
                 return shouldAutotap
                     ? {
                           animationStyle: null,
@@ -440,7 +440,7 @@ export default class AutofillPasswordImport extends ContentFeature {
      * @returns {boolean}
      */
     isSupportedPath(path) {
-        return [this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path].includes(path);
+        return [this.#exportButtonSettings?.path, this.#settingsButtonSettings?.path, this.#signInButtonSettings?.path, this.#exportConfirmButtonSettings?.path].includes(path);
     }
 
     async handlePath(path) {
@@ -495,8 +495,7 @@ export default class AutofillPasswordImport extends ContentFeature {
      * @returns {string}
      */
     get exportConfirmButtonSelector() {
-        // return this.#exportConfirmButtonSettings?.selectors?.join(',');
-        return 'button[data-mdc-dialog-action="ok"]';
+        return this.#exportConfirmButtonSettings?.selectors?.join(',');
     }
 
     /**
@@ -538,7 +537,7 @@ export default class AutofillPasswordImport extends ContentFeature {
         this.#exportButtonSettings = this.getFeatureSetting('exportButton');
         this.#signInButtonSettings = this.getFeatureSetting('signInButton');
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
-        // this.#exportConfirmButtonSettings = this.getFeatureSetting('exportConfirmButton');
+        this.#exportConfirmButtonSettings = this.getFeatureSetting('exportConfirmButton');
     }
 
     urlChanged() {
