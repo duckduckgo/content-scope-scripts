@@ -20,6 +20,12 @@
       "title": "Show Duck.ai Setting",
       "type": "boolean",
       "default": true
+    },
+    "showCustomizePopover": {
+      "title": "Show Customize Popover",
+      "description": "Controls a popover that onboards users and points them towards how to disable the feature via the customizer",
+      "type": "boolean",
+      "default": false
     }
   }
 }
