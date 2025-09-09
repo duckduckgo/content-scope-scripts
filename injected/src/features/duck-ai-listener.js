@@ -1,6 +1,8 @@
 import ContentFeature from '../content-feature.js';
 import { isBeingFramed, isDuckAiSidebar } from '../utils.js';
 
+const PIXEL_NAME = 'dc_contextInfo';
+
 /**
  * Duck AI Listener Feature
  *
@@ -53,6 +55,7 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     async setup() {
+        this.setupPixelConfig();
         this.createButtonUI();
         await this.setupMessageBridge();
         this.setupTextBoxDetection();
@@ -82,6 +85,35 @@ export default class DuckAiListener extends ContentFeature {
         }
 
         this.insertButton(/** @type {HTMLElement} */ (imageInput));
+    }
+
+    setupPixelConfig() {
+        if (!globalThis?.DDG?.pixel) {
+            return;
+        }
+        globalThis.DDG.pixel._pixels[PIXEL_NAME] = {};
+    }
+
+    logBucketNumber(number) {
+        // Use logarithmic bucketing (base 2) for context length, report lower end only
+        // e.g. 0, 2, 4, 8, 16, 32, 64, 128, 256, 512, etc.
+        if (number <= 0) {
+            return '0';
+        }
+        return String(2 ** Math.floor(Math.log2(number)));
+    }
+
+    sendContextPixelInfo(contextData) {
+        this.sendPixel(PIXEL_NAME, {
+            contextLength: this.logBucketNumber(contextData.content.length),
+        });
+    }
+
+    sendPixel(pixelName, params) {
+        if (!globalThis?.DDG?.pixel) {
+            return;
+        }
+        globalThis.DDG.pixel.fire(pixelName, params);
     }
 
     /**
@@ -613,6 +645,7 @@ export default class DuckAiListener extends ContentFeature {
         try {
             if (data.serializedPageData) {
                 const pageDataParsed = JSON.parse(data.serializedPageData);
+                this.sendContextPixelInfo(pageDataParsed);
                 this.log.info('Parsed page data:', pageDataParsed);
 
                 if (pageDataParsed.content) {
