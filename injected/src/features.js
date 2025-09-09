@@ -37,7 +37,7 @@ const otherFeatures = /** @type {const} */ ([
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'duckAiListener'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'duckAiListener', 'pageContext'],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
@@ -46,7 +46,6 @@ export const platformSupport = {
         'clickToLoad',
         'messageBridge',
         'favicon',
-        'pageContext',
     ],
     android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
@@ -72,6 +71,8 @@ export const platformSupport = {
         'breakageReporting',
         'messageBridge',
         'webCompat',
+        'pageContext',
+        'duckAiListener',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],

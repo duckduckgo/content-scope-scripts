@@ -69,7 +69,7 @@ export class MessageBridge extends ContentFeature {
          * @param {{name: string; id: string} & Record<string, any>} incoming
          */
         const reply = (incoming) => {
-            if (!args.messageSecret) return this.log('ignoring because args.messageSecret was absent');
+            if (!args.messageSecret) return this.log.info('ignoring because args.messageSecret was absent');
             const eventName = appendToken(incoming.name + '-' + incoming.id);
             const event = new captured.CustomEvent(eventName, { detail: incoming });
             captured.dispatchEvent(event);
@@ -82,12 +82,12 @@ export class MessageBridge extends ContentFeature {
          */
         const accept = (ClassType, callback) => {
             captured.addEventListener(appendToken(ClassType.NAME), (/** @type {CustomEvent<unknown>} */ e) => {
-                this.log(`${ClassType.NAME}`, JSON.stringify(e.detail));
+                this.log.info(`${ClassType.NAME}`, JSON.stringify(e.detail));
                 const instance = ClassType.create(e.detail);
                 if (instance) {
                     callback(instance);
                 } else {
-                    this.log('Failed to create an instance');
+                    this.log.info('Failed to create an instance');
                 }
             });
         };
@@ -95,7 +95,7 @@ export class MessageBridge extends ContentFeature {
         /**
          * These are all the messages we accept from the page-world.
          */
-        this.log(`bridge is installing...`);
+        this.log.info(`bridge is installing...`);
         accept(InstallProxy, (install) => {
             this.installProxyFor(install, args.messagingConfig, reply);
         });
@@ -115,17 +115,17 @@ export class MessageBridge extends ContentFeature {
      */
     installProxyFor(install, config, reply) {
         const { id, featureName } = install;
-        if (this.proxies.has(featureName)) return this.log('ignoring `installProxyFor` because it exists', featureName);
+        if (this.proxies.has(featureName)) return this.log.info('ignoring `installProxyFor` because it exists', featureName);
         const allowed = this.getFeatureSettingEnabled(featureName);
         if (!allowed) {
-            return this.log('not installing proxy, because', featureName, 'was not enabled');
+            return this.log.info('not installing proxy, because', featureName, 'was not enabled');
         }
 
         const ctx = { ...this.messaging.messagingContext, featureName };
         const messaging = new Messaging(ctx, config);
         this.proxies.set(featureName, messaging);
 
-        this.log('did install proxy for ', featureName);
+        this.log.info('did install proxy for ', featureName);
         reply(new DidInstall({ id }));
     }
 
@@ -137,9 +137,9 @@ export class MessageBridge extends ContentFeature {
         const { id, featureName, method, params } = request;
 
         const proxy = this.proxies.get(featureName);
-        if (!proxy) return this.log('proxy was not installed for ', featureName);
+        if (!proxy) return this.log.info('proxy was not installed for ', featureName);
 
-        this.log('will proxy', request);
+        this.log.info('will proxy', request);
 
         try {
             const result = await proxy.request(method, params);
@@ -168,9 +168,9 @@ export class MessageBridge extends ContentFeature {
     proxySubscription(subscription, reply) {
         const { id, featureName, subscriptionName } = subscription;
         const proxy = this.proxies.get(subscription.featureName);
-        if (!proxy) return this.log('proxy was not installed for', featureName);
+        if (!proxy) return this.log.info('proxy was not installed for', featureName);
 
-        this.log('will setup subscription', subscription);
+        this.log.info('will setup subscription', subscription);
 
         // cleanup existing subscriptions first
         const prev = this.subscriptions.get(id);
@@ -196,7 +196,7 @@ export class MessageBridge extends ContentFeature {
      */
     removeSubscription(id) {
         const unsubscribe = this.subscriptions.get(id);
-        this.log(`will remove subscription`, id);
+        this.log.info(`will remove subscription`, id);
         unsubscribe?.();
         this.subscriptions.delete(id);
     }
@@ -206,19 +206,10 @@ export class MessageBridge extends ContentFeature {
      */
     proxyNotification(notification) {
         const proxy = this.proxies.get(notification.featureName);
-        if (!proxy) return this.log('proxy was not installed for', notification.featureName);
+        if (!proxy) return this.log.info('proxy was not installed for', notification.featureName);
 
-        this.log('will proxy notification', notification);
+        this.log.info('will proxy notification', notification);
         proxy.notify(notification.method, notification.params);
-    }
-
-    /**
-     * @param {Parameters<console['log']>} args
-     */
-    log(...args) {
-        if (this.isDebug) {
-            console.log('[isolated]', ...args);
-        }
     }
 
     load(_args) {}
