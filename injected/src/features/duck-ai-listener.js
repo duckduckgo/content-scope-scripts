@@ -645,10 +645,10 @@ export default class DuckAiListener extends ContentFeature {
         try {
             if (data.serializedPageData) {
                 const pageDataParsed = JSON.parse(data.serializedPageData);
-                this.sendContextPixelInfo(pageDataParsed);
                 this.log.info('Parsed page data:', pageDataParsed);
 
                 if (pageDataParsed.content) {
+                    this.sendContextPixelInfo(pageDataParsed);
                     this.pageData = pageDataParsed;
                     this.globalPageContext = pageDataParsed.content;
 
