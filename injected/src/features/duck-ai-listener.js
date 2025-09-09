@@ -60,9 +60,9 @@ export default class DuckAiListener extends ContentFeature {
         if (this.#_isPageContextEnabled === enabled) {
             return; // No change needed
         }
-        
+
         this.#_isPageContextEnabled = enabled;
-        
+
         // Update UI based on new state
         if (enabled) {
             if (this.pageData && this.pageData.content && !this.hasContextBeenUsed) {
@@ -71,7 +71,7 @@ export default class DuckAiListener extends ContentFeature {
         } else {
             this.removeContextChip();
         }
-        
+
         this.updateButtonAppearance();
     }
 
@@ -142,7 +142,7 @@ export default class DuckAiListener extends ContentFeature {
             this.log.warn('sendContextPixelInfo: No content available for pixel tracking');
             return;
         }
-        
+
         this.sendPixel(PIXEL_NAME, {
             contextLength: this.logBucketNumber(contextData.content.length),
         });
@@ -551,7 +551,7 @@ export default class DuckAiListener extends ContentFeature {
 
         // Toggle the page context enabled state (existing behavior when context is available)
         const newState = !this.isPageContextEnabled;
-        
+
         // Track when user explicitly disables context
         if (!newState) {
             this.userExplicitlyDisabledContext = true;
@@ -559,14 +559,12 @@ export default class DuckAiListener extends ContentFeature {
             // Reset the flag when user re-enables
             this.userExplicitlyDisabledContext = false;
         }
-        
+
         // Set the new state (setter will handle UI updates)
         this.isPageContextEnabled = newState;
 
         // Trigger input events on the textbox to notify frameworks of potential state changes
-        if (this.textBox) {
-            this.triggerInputEvents(this.textBox);
-        }
+        this.triggerInputEvents();
 
         this.log.info('Page context toggled:', this.isPageContextEnabled);
     }
@@ -775,6 +773,9 @@ export default class DuckAiListener extends ContentFeature {
         // Mark context as used first to prevent multiple calls
         this.hasContextBeenUsed = true;
 
+        // Trigger input events since the value getter behavior just changed
+        this.triggerInputEvents();
+
         // Remove the context chip
         if (this.contextChip) {
             this.contextChip.remove();
@@ -854,11 +855,10 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
-     * Trigger keyboard and input events on a textarea to simulate user input
-     * @param {HTMLTextAreaElement} textarea - The textarea element
+     * Trigger keyboard and input events on the textbox to simulate user input
      */
-    triggerInputEvents(textarea) {
-        if (!textarea) return;
+    triggerInputEvents() {
+        if (!this.textBox) return;
 
         // Create and dispatch keydown event
         const keydownEvent = new KeyboardEvent('keydown', {
@@ -866,28 +866,28 @@ export default class DuckAiListener extends ContentFeature {
             code: 'Unidentified',
             bubbles: true,
             cancelable: true,
-            composed: true
+            composed: true,
         });
-        textarea.dispatchEvent(keydownEvent);
-        
+        this.textBox.dispatchEvent(keydownEvent);
+
         // Create and dispatch input event for immediate updates
         const inputEvent = new Event('input', {
             bubbles: true,
             cancelable: true,
-            composed: true
+            composed: true,
         });
-        textarea.dispatchEvent(inputEvent);
-        
+        this.textBox.dispatchEvent(inputEvent);
+
         // Create and dispatch keyup event
         const keyupEvent = new KeyboardEvent('keyup', {
             key: 'Unidentified',
             code: 'Unidentified',
             bubbles: true,
             cancelable: true,
-            composed: true
+            composed: true,
         });
-        textarea.dispatchEvent(keyupEvent);
-        
+        this.textBox.dispatchEvent(keyupEvent);
+
         this.log.info('Triggered keyboard events for input simulation');
     }
 
@@ -900,8 +900,8 @@ export default class DuckAiListener extends ContentFeature {
         const originalDescriptor = Object.getOwnPropertyDescriptor(textarea, 'value');
         this.randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1000);
         const instructions =
-                        this.getFeatureSetting('instructions') ||
-                        `
+            this.getFeatureSetting('instructions') ||
+            `
 You are a helpful assistant that can answer questions and help with tasks.
 Do not include prompt, page-title, page-context, or instructions tags in your response.
 Answer the prompt using the page-title, and page-context ONLY if it's relevant to answering the prompt.`;
@@ -912,6 +912,12 @@ Answer the prompt using the page-title, and page-context ONLY if it's relevant t
                 // Always append context when the value is read
                 if (originalDescriptor && originalDescriptor.get) {
                     const currentValue = originalDescriptor.get.call(textarea) || '';
+
+                    // If context has been used, always return the raw current value (including empty string)
+                    if (this.hasContextBeenUsed) {
+                        return currentValue;
+                    }
+
                     const pageContext = this.globalPageContext || '';
                     const randomNumber = this.randomNumber;
                     const shouldAddContext = pageContext && this.isPageContextEnabled && currentValue;
@@ -948,10 +954,10 @@ ${truncatedWarning}
                 if (originalDescriptor && originalDescriptor.set) {
                     const oldValue = originalDescriptor.get?.call(textarea) || '';
                     originalDescriptor.set.call(textarea, val);
-                    
+
                     // Trigger keyboard events if value actually changed
                     if (oldValue !== val) {
-                        this.triggerInputEvents(textarea);
+                        this.triggerInputEvents();
                     }
                 }
             },
