@@ -88,7 +88,11 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                 <div class={styles.tabSwitcherContainer}>
                     <TabSwitcher mode={mode} onChange={handleChangeMode} />
                     {showCustomizePopover && (
-                        <Popover title={t('omnibar_customizePopoverTitle')} onClose={handleCloseCustomizePopover}>
+                        <Popover
+                            title={t('omnibar_customizePopoverTitle')}
+                            badge={t('omnibar_customizePopoverBadge')}
+                            onClose={handleCloseCustomizePopover}
+                        >
                             <Trans
                                 str={t('omnibar_customizePopoverDescription')}
                                 values={{
