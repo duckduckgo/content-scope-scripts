@@ -1,7 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { isBeingFramed, isDuckAiSidebar } from '../utils.js';
 
-const PIXEL_NAME = 'dc_contextInfo';
 
 /**
  * Duck AI Listener Feature
@@ -50,6 +49,9 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {Function | null} */
     contextPromiseResolve = null;
 
+    /** @type {DuckAiPromptTelemetry | null} */
+    promptTelemetry = null;
+
     /**
      * Get the page context enabled state
      * @returns {boolean}
@@ -95,10 +97,10 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     async setup() {
-        this.setupPixelConfig();
         this.createButtonUI();
         await this.setupMessageBridge();
         this.setupTextBoxDetection();
+        this.setupTelemetry();
     }
 
     /**
@@ -127,39 +129,6 @@ export default class DuckAiListener extends ContentFeature {
         this.insertButton(/** @type {HTMLElement} */ (imageInput));
     }
 
-    setupPixelConfig() {
-        if (!globalThis?.DDG?.pixel) {
-            return;
-        }
-        globalThis.DDG.pixel._pixels[PIXEL_NAME] = {};
-    }
-
-    logBucketNumber(number) {
-        // Use logarithmic bucketing (base 2) for context length, report lower end only
-        // e.g. 0, 2, 4, 8, 16, 32, 64, 128, 256, 512, etc.
-        if (number <= 0) {
-            return '0';
-        }
-        return String(2 ** Math.floor(Math.log2(number)));
-    }
-
-    sendContextPixelInfo(contextData) {
-        if (!contextData?.content) {
-            this.log.warn('sendContextPixelInfo: No content available for pixel tracking');
-            return;
-        }
-
-        this.sendPixel(PIXEL_NAME, {
-            contextLength: this.logBucketNumber(contextData.content.length),
-        });
-    }
-
-    sendPixel(pixelName, params) {
-        if (!globalThis?.DDG?.pixel) {
-            return;
-        }
-        globalThis.DDG.pixel.fire(pixelName, params);
-    }
 
     /**
      * Set up mutation observer to find input[name="image"] and insert button
@@ -319,6 +288,14 @@ export default class DuckAiListener extends ContentFeature {
         this.updateButtonAppearance();
 
         this.log.info('Created page context button with wrapper structure');
+    }
+
+    /**
+     * Set up telemetry for prompt tracking
+     */
+    setupTelemetry() {
+        this.promptTelemetry = new DuckAiPromptTelemetry(this.messaging, this.log);
+        this.log.info('Set up prompt telemetry');
     }
 
     removeContextChip() {
@@ -747,7 +724,6 @@ export default class DuckAiListener extends ContentFeature {
                 this.log.info('Parsed page data:', pageDataParsed);
 
                 if (pageDataParsed.content) {
-                    this.sendContextPixelInfo(pageDataParsed);
                     this.pageData = pageDataParsed;
 
                     // Resolve any pending context promise
@@ -806,17 +782,9 @@ export default class DuckAiListener extends ContentFeature {
             // Use multiple event listeners to catch React's event handling
             const handleClick = this.handleSendMessage.bind(this);
 
-            // Add event listeners with different capture phases
             sendButton.addEventListener('click', handleClick, true); // Capture phase
-            sendButton.addEventListener('click', handleClick, false); // Bubble phase
+            // sendButton.addEventListener('click', handleClick, false); // Bubble phase
 
-            // Also listen for mousedown as a fallback
-            sendButton.addEventListener('mousedown', () => {
-                // Small delay to let React handle the event first
-                setTimeout(() => {
-                    this.handleSendMessage();
-                }, 10);
-            });
 
             this.log.info('Set up message interception with multiple event listeners', sendButton);
         }
@@ -828,6 +796,16 @@ export default class DuckAiListener extends ContentFeature {
     handleSendMessage() {
         this.log.info('handleSendMessage called');
 
+        // Capture prompt text for telemetry before any modifications
+        if (this.textBox && this.promptTelemetry) {
+            const rawPromptText = this.getRawPromptText();
+            const totalPromptText = this.textBox.value; // This includes context if enabled
+            const contextSize = this.pageData?.content?.length || 0;
+            const contextData = this.isPageContextEnabled && this.pageData?.content ? this.pageData : null;
+            this.promptTelemetry.onPromptSent(rawPromptText, totalPromptText, 
+                this.isPageContextEnabled && this.pageData?.content ? contextSize : 0, contextData);
+        }
+
         // Trigger input events since the value getter behavior just changed
         this.triggerInputEvents();
 
@@ -836,6 +814,21 @@ export default class DuckAiListener extends ContentFeature {
 
         // Update button appearance
         this.updateButtonAppearance();
+    }
+
+    /**
+     * Get the raw prompt text without context appended
+     * @returns {string} The raw user prompt text
+     */
+    getRawPromptText() {
+        if (!this.textBox) return '';
+
+        // Get the original value descriptor to access raw value
+        const originalDescriptor = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value');
+        if (originalDescriptor && originalDescriptor.get) {
+            return originalDescriptor.get.call(this.textBox) || '';
+        }
+        return this.textBox.value || '';
     }
 
     /**
@@ -1014,4 +1007,293 @@ ${truncatedWarning}
             configurable: true,
         });
     }
+}
+
+/**
+ * Duck AI Prompt Telemetry Helper
+ * 
+ * Handles daily aggregation and reporting of prompt usage telemetry.
+ * Stores prompt sizes and sends daily aggregated reports.
+ */
+class DuckAiPromptTelemetry {
+    static STORAGE_KEY = 'aiChatPageContextTelemetry';
+    static CONTEXT_PIXEL_NAME = 'dc_contextInfo';
+    static DAILY_PIXEL_NAME = 'dc_pageContextDailyTelemetry';
+    static ONE_DAY_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+    constructor(messaging, log) {
+        this.messaging = messaging;
+        this.log = log;
+        this.setupPixelConfig();
+        this.checkShouldFireDailyTelemetry();
+    }
+
+    /**
+     * Get current telemetry data from localStorage
+     * @returns {Object|null} Stored telemetry data or null if none exists
+     */
+    getTelemetryData() {
+        try {
+            const stored = localStorage.getItem(DuckAiPromptTelemetry.STORAGE_KEY);
+            return stored ? JSON.parse(stored) : null;
+        } catch (error) {
+            this.log.error('Error reading telemetry data:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Save telemetry data to localStorage
+     * @param {Object} data - Data to store
+     */
+    saveTelemetryData(data) {
+        try {
+            localStorage.setItem(DuckAiPromptTelemetry.STORAGE_KEY, JSON.stringify(data));
+        } catch (error) {
+            this.log.error('Error saving telemetry data:', error);
+        }
+    }
+
+    /**
+     * Clear stored telemetry data
+     */
+    clearTelemetryData() {
+        try {
+            localStorage.removeItem(DuckAiPromptTelemetry.STORAGE_KEY);
+            this.log.info('Telemetry data cleared');
+        } catch (error) {
+            this.log.error('Error clearing telemetry data:', error);
+        }
+    }
+
+    /**
+     * Store prompt telemetry when user sends a prompt
+     * @param {Object} promptData - Prompt size data
+     * @param {number} promptData.rawSize - Size of raw user prompt
+     * @param {number} promptData.totalSize - Total size including context
+     * @param {number} [promptData.contextSize] - Size of page context added
+     */
+    storePromptTelemetry(promptData) {
+        const now = Date.now();
+        let data = this.getTelemetryData();
+
+        if (!data) {
+            // First prompt - initialize storage
+            data = {
+                firstPromptDate: now,
+                promptData: []
+            };
+            this.log.info('Initialized telemetry storage for first prompt');
+        }
+
+        // Add the prompt data to our collection
+        data.promptData.push(promptData);
+        this.saveTelemetryData(data);
+        
+        this.log.info(`Stored prompt telemetry: raw=${promptData.rawSize}, total=${promptData.totalSize}, context=${promptData.contextSize || 0}, total_prompts=${data.promptData.length}`);
+    }
+
+    /**
+     * Check if daily telemetry should be fired and send if needed
+     * @returns {boolean} True if telemetry was sent, false otherwise
+     */
+    checkShouldFireDailyTelemetry() {
+        const data = this.getTelemetryData();
+        
+        if (!data || !data.firstPromptDate || (data.promptData || data.promptSizes || []).length === 0) {
+            // No data stored or no prompts to report
+            return false;
+        }
+
+        const now = Date.now();
+        const timeSinceFirstPrompt = now - data.firstPromptDate;
+
+        if (timeSinceFirstPrompt >= DuckAiPromptTelemetry.ONE_DAY_MS) {
+            // Over a day has passed - send telemetry
+            this.sendDailyTelemetry(data);
+            this.clearTelemetryData();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Send daily telemetry with aggregated prompt data
+     * @param {Object} data - Stored telemetry data
+     */
+    sendDailyTelemetry(data) {
+        // Support both old format (promptSizes array) and new format (promptData array)
+        const promptData = data.promptData || data.promptSizes?.map(size => ({ rawSize: size, totalSize: size })) || [];
+        const totalPrompts = promptData.length;
+        
+        if (totalPrompts === 0) {
+            this.log.info('No prompts to report in daily telemetry');
+            return;
+        }
+
+        // Extract raw and total sizes
+        const rawSizes = promptData.map(p => p.rawSize || p.totalSize || p);
+        const totalSizes = promptData.map(p => p.totalSize || p.rawSize || p);
+        const contextSizes = promptData.map(p => p.contextSize || 0).filter(size => size > 0);
+
+        // Calculate aggregate statistics for raw prompts
+        const totalRawCharacters = rawSizes.reduce((sum, size) => sum + size, 0);
+        const avgRawPromptSize = Math.round(totalRawCharacters / totalPrompts);
+        const minRawPromptSize = Math.min(...rawSizes);
+        const maxRawPromptSize = Math.max(...rawSizes);
+
+        // Calculate aggregate statistics for total prompts (including context)
+        const totalAllCharacters = totalSizes.reduce((sum, size) => sum + size, 0);
+        const avgTotalPromptSize = Math.round(totalAllCharacters / totalPrompts);
+        const minTotalPromptSize = Math.min(...totalSizes);
+        const maxTotalPromptSize = Math.max(...totalSizes);
+
+        // Calculate context statistics
+        const avgContextSize = contextSizes.length > 0 ? Math.round(contextSizes.reduce((sum, size) => sum + size, 0) / contextSizes.length) : 0;
+        const contextUsageRate = contextSizes.length / totalPrompts;
+
+        // Create size buckets for privacy-friendly reporting
+        const rawSizeBuckets = this.categorizeSizes(rawSizes);
+        const totalSizeBuckets = this.categorizeSizes(totalSizes);
+
+        const telemetryData = {
+            totalPrompts: String(totalPrompts),
+            // Raw prompt statistics (user input only) - bucketed for privacy
+            avgRawPromptSize: this.logBucketNumber(avgRawPromptSize),
+            rawSizeSmall: String(rawSizeBuckets.small),
+            rawSizeMedium: String(rawSizeBuckets.medium),
+            rawSizeLarge: String(rawSizeBuckets.large),
+            rawSizeXLarge: String(rawSizeBuckets.xlarge),
+            // Total prompt statistics (including context) - bucketed for privacy
+            avgTotalPromptSize: this.logBucketNumber(avgTotalPromptSize),
+            totalSizeSmall: String(totalSizeBuckets.small),
+            totalSizeMedium: String(totalSizeBuckets.medium),
+            totalSizeLarge: String(totalSizeBuckets.large),
+            totalSizeXLarge: String(totalSizeBuckets.xlarge),
+            // Context usage statistics
+            avgContextSize: this.logBucketNumber(avgContextSize),
+            contextUsageRate: String(Math.round(contextUsageRate * 100)), // As percentage 0-100
+        };
+
+        this.log.info('Sending daily telemetry pixel:', telemetryData);
+
+        // Send telemetry as pixel
+        this.sendPixel(DuckAiPromptTelemetry.DAILY_PIXEL_NAME, telemetryData);
+    }
+
+    /**
+     * Categorize prompt sizes into privacy-friendly buckets
+     * @param {number[]} promptSizes - Array of prompt sizes
+     * @returns {Object} Bucket counts
+     */
+    categorizeSizes(promptSizes) {
+        const buckets = {
+            small: 0,    // 0-100 characters
+            medium: 0,   // 101-500 characters  
+            large: 0,    // 501-2000 characters
+            xlarge: 0    // 2000+ characters
+        };
+
+        promptSizes.forEach(size => {
+            if (size <= 100) {
+                buckets.small++;
+            } else if (size <= 500) {
+                buckets.medium++;
+            } else if (size <= 2000) {
+                buckets.large++;
+            } else {
+                buckets.xlarge++;
+            }
+        });
+
+        return buckets;
+    }
+
+    /**
+     * Setup pixel configuration for telemetry
+     */
+    setupPixelConfig() {
+        if (!globalThis?.DDG?.pixel) {
+            return;
+        }
+        globalThis.DDG.pixel._pixels[DuckAiPromptTelemetry.CONTEXT_PIXEL_NAME] = {};
+        globalThis.DDG.pixel._pixels[DuckAiPromptTelemetry.DAILY_PIXEL_NAME] = {};
+    }
+
+    /**
+     * Send pixel with telemetry data
+     * @param {string} pixelName - Name of pixel to fire
+     * @param {Object} params - Parameters to send with pixel
+     */
+    sendPixel(pixelName, params) {
+        if (!globalThis?.DDG?.pixel) {
+            return;
+        }
+        globalThis.DDG.pixel.fire(pixelName, params);
+    }
+
+    /**
+     * Create logarithmic bucket for numbers (privacy-friendly)
+     * @param {number} number - Number to bucket
+     * @returns {string} Bucket string
+     */
+    logBucketNumber(number) {
+        // Use logarithmic bucketing (base 2) for context length, report lower end only
+        // e.g. 0, 2, 4, 8, 16, 32, 64, 128, 256, 512, etc.
+        if (number <= 0) {
+            return '0';
+        }
+        return String(2 ** Math.floor(Math.log2(number)));
+    }
+
+    /**
+     * Send context pixel info when context is used
+     * @param {Object} contextData - Context data object
+     */
+    sendContextPixelInfo(contextData) {
+        if (!contextData?.content) {
+            this.log.warn('sendContextPixelInfo: No content available for pixel tracking');
+            return;
+        }
+
+        this.sendPixel(DuckAiPromptTelemetry.CONTEXT_PIXEL_NAME, {
+            contextLength: this.logBucketNumber(contextData.content.length),
+        });
+    }
+
+    /**
+     * Handle prompt sent event - store telemetry and check daily firing
+     * @param {string} rawPromptText - The raw user prompt text
+     * @param {string} totalPromptText - The full prompt including context
+     * @param {number} [contextSize] - Size of page context added
+     * @param {Object} [contextData] - Context data for pixel tracking
+     */
+    onPromptSent(rawPromptText, totalPromptText, contextSize = 0, contextData = null) {
+        if (!rawPromptText || typeof rawPromptText !== 'string') {
+            this.log.warn('Invalid raw prompt text provided to telemetry');
+            return;
+        }
+        if (!totalPromptText || typeof totalPromptText !== 'string') {
+            this.log.warn('Invalid total prompt text provided to telemetry');
+            return;
+        }
+
+        const promptData = {
+            rawSize: rawPromptText.length,
+            totalSize: totalPromptText.length,
+            contextSize: contextSize
+        };
+        
+        // Send context pixel info if context was used
+        if (contextData && contextSize > 0) {
+            this.sendContextPixelInfo(contextData);
+        }
+        // Check if we should fire daily telemetry
+        this.checkShouldFireDailyTelemetry();
+        
+        // Store the prompt telemetry
+        this.storePromptTelemetry(promptData);
+    }
+
 }
