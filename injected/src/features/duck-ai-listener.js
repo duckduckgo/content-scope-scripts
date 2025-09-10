@@ -294,8 +294,41 @@ export default class DuckAiListener extends ContentFeature {
      * Set up telemetry for prompt tracking
      */
     setupTelemetry() {
-        this.promptTelemetry = new DuckAiPromptTelemetry(this.messaging, this.log);
+        this.promptTelemetry = new DuckAiPromptTelemetry(this.messaging, this.log, this.getSizeCategories());
         this.log.info('Set up prompt telemetry');
+    }
+
+    /**
+     * Get the defined size categories for prompt bucketing
+     * @returns {Array} Array of size category objects with name and maxSize
+     */
+    getSizeCategories() {
+        // Default size categories
+        const defaultCategories = [
+            { name: 'small', maxSize: 2499 },
+            { name: 'medium', maxSize: 4999 },
+            { name: 'large', maxSize: 7499 },
+            { name: 'xlarge', maxSize: 9999 },
+            { name: 'xxl', maxSize: Infinity },
+        ];
+
+        // Try to get size categories from config
+        const configCategories = this.getFeatureSetting('sizeCategories');
+        if (configCategories && Array.isArray(configCategories) && configCategories.length > 0) {
+            // Validate that each category has required fields and convert null maxSize to Infinity
+            const validCategories = configCategories
+                .filter((cat) => cat && typeof cat.name === 'string' && (typeof cat.maxSize === 'number' || cat.maxSize === null))
+                .map((cat) => ({
+                    name: cat.name,
+                    maxSize: cat.maxSize === null ? Infinity : cat.maxSize,
+                }));
+
+            if (validCategories.length > 0) {
+                return validCategories;
+            }
+        }
+
+        return defaultCategories;
     }
 
     removeContextChip() {
@@ -1110,9 +1143,10 @@ class DuckAiPromptTelemetry {
     static DAILY_PIXEL_NAME = 'dc_pageContextDailyTelemetry';
     static ONE_DAY_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
-    constructor(messaging, log) {
+    constructor(messaging, log, sizeCategories) {
         this.messaging = messaging;
         this.log = log;
+        this.sizeCategories = sizeCategories;
         this.setupPixelConfig();
         this.checkShouldFireDailyTelemetry();
     }
@@ -1246,7 +1280,7 @@ class DuckAiPromptTelemetry {
         const totalSizeBuckets = this.categorizeSizes(totalSizes);
 
         const createSizeFields = (prefix, buckets) => {
-            const sizeNames = this.getSizeCategories().map((category) => category.name);
+            const sizeNames = this.sizeCategories.map((category) => category.name);
             const capitalizeSize = (size) =>
                 size.replace(/(x*)(.*)/, (_, xs, rest) => xs.toUpperCase() + rest.charAt(0).toUpperCase() + rest.slice(1));
 
@@ -1270,30 +1304,15 @@ class DuckAiPromptTelemetry {
     }
 
     /**
-     * Get the defined size categories for prompt bucketing
-     * @returns {Array} Array of size category objects with name and maxSize
-     */
-    getSizeCategories() {
-        return [
-            { name: 'small', maxSize: 2499 },
-            { name: 'medium', maxSize: 4999 },
-            { name: 'large', maxSize: 7499 },
-            { name: 'xlarge', maxSize: 9999 },
-            { name: 'xxl', maxSize: Infinity },
-        ];
-    }
-
-    /**
      * Categorize prompt sizes into privacy-friendly buckets using large size ranges
      * @param {number[]} promptSizes - Array of prompt sizes
      * @returns {Object} Bucket counts
      */
     categorizeSizes(promptSizes) {
-        const sizeCategories = this.getSizeCategories();
-        const buckets = Object.fromEntries(sizeCategories.map((category) => [category.name, 0]));
+        const buckets = Object.fromEntries(this.sizeCategories.map((category) => [category.name, 0]));
 
         promptSizes.forEach((size) => {
-            const category = sizeCategories.find((cat) => size <= cat.maxSize);
+            const category = this.sizeCategories.find((cat) => size <= cat.maxSize);
             if (category) {
                 buckets[category.name]++;
             }
