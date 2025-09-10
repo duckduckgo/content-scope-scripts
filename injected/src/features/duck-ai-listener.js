@@ -531,6 +531,7 @@ export default class DuckAiListener extends ContentFeature {
      */
     async handleButtonClick() {
         if (!this.button || this.hasContextBeenUsed) return;
+        this.bridge.notify('togglePageContextTelemetry', { enabled: this.isPageContextEnabled });
 
         const hasContext = this.pageData && this.pageData.content;
 
