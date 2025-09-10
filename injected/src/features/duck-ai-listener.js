@@ -100,6 +100,8 @@ export default class DuckAiListener extends ContentFeature {
         await this.setupMessageBridge();
         this.setupTextBoxDetection();
         this.setupTelemetry();
+        this.cleanupExistingPrompts();
+        this.setupPromptCleanupObserver();
     }
 
     /**
@@ -818,6 +820,89 @@ export default class DuckAiListener extends ContentFeature {
 
         // Update button appearance
         this.updateButtonAppearance();
+    }
+
+    /**
+     * Clean up a paragraph element if it contains a prompt structure
+     * @param {HTMLElement} paragraph - The paragraph element to check and clean
+     * @returns {boolean} - True if paragraph was cleaned up
+     */
+    cleanupPromptParagraph(paragraph) {
+        const text = paragraph.textContent || '';
+
+        // Use regex to match any prompt structure with any random number
+        const promptRegex = /<prompt-([^>]+)>\s*([\s\S]*?)\s*<\/prompt-\1>/;
+        const match = text.match(promptRegex);
+
+        if (match) {
+            const extractedPrompt = match[2].trim();
+
+            // Create cleaned content
+            let cleanedContent = '';
+            if (extractedPrompt) {
+                cleanedContent = `${extractedPrompt}\n📄 Page context attached`;
+            }
+
+            // Replace the paragraph content
+            paragraph.textContent = cleanedContent;
+
+            this.log.info('Cleaned up prompt paragraph');
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Set up observer to continuously clean up prompt displays in conversation
+     */
+    setupPromptCleanupObserver() {
+        // Create observer to watch for new prompts appearing in the DOM
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === Node.ELEMENT_NODE && node instanceof Element) {
+                        // Look for paragraph tags that might contain our prompt
+                        const paragraphs = node.querySelectorAll('p');
+                        const allParagraphs = node.tagName === 'P' ? [node, ...paragraphs] : [...paragraphs];
+
+                        allParagraphs.forEach((p) => {
+                            // Try to clean up this paragraph
+                            this.cleanupPromptParagraph(/** @type {HTMLElement} */ (p));
+                        });
+                    }
+                });
+            });
+        });
+
+        // Start observing continuously
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+
+        this.log.info('Set up continuous observer for prompt cleanup');
+    }
+
+    /**
+     * Clean up any existing prompt structures in the conversation
+     * This runs once on script initialization to handle prompts already displayed
+     */
+    cleanupExistingPrompts() {
+        // Find all paragraphs in the conversation that might contain prompt structures
+        const allParagraphs = document.querySelectorAll('p');
+        let cleanedCount = 0;
+
+        allParagraphs.forEach((p) => {
+            // Use shared cleanup function for existing prompts (no specific prompt text to match)
+            if (this.cleanupPromptParagraph(/** @type {HTMLElement} */ (p))) {
+                cleanedCount++;
+            }
+        });
+
+        if (cleanedCount > 0) {
+            this.log.info(`Cleaned up ${cleanedCount} existing prompt(s) on page load`);
+        }
     }
 
     /**
