@@ -44,6 +44,12 @@ export default class DuckAiListener extends ContentFeature {
     /** @type {HTMLButtonElement | null} */
     sendButton = null;
 
+    /** @type {boolean} */
+    isRequestInProgress = false;
+
+    /** @type {Function | null} */
+    contextPromiseResolve = null;
+
     /**
      * Get the page context enabled state
      * @returns {boolean}
@@ -328,14 +334,12 @@ export default class DuckAiListener extends ContentFeature {
     createContextChip() {
         // Guard clause: only proceed if we have page data and haven't used context yet
         if (!this.pageData) {
-            this.log.info('createContextChip: No page data available, skipping');
             return;
         }
 
         // Don't create chip if context has already been used
         if (this.hasContextBeenUsed) {
             this.removeContextChip();
-            this.log.info('createContextChip: Context already used, skipping');
             return;
         }
 
@@ -346,10 +350,13 @@ export default class DuckAiListener extends ContentFeature {
         }
 
         // Find the textarea to position the chip below it
-        const textarea = document.querySelector('textarea[name="user-prompt"]');
-        if (!textarea) {
+        if (!this.textBox) {
+            this.findTextBox();
+        }
+        if (!this.textBox) {
             return;
         }
+        const textarea = this.textBox;
 
         // Create the context chip
         this.contextChip = document.createElement('div');
@@ -383,12 +390,7 @@ export default class DuckAiListener extends ContentFeature {
             justify-content: center;
         `;
 
-        // Debug logging to see what's happening
-        this.log.info('createContextChip called, this.pageData:', this.pageData);
-        this.log.info('this.pageData?.favicon:', this.pageData?.favicon);
-
         const favicon = this.pageData?.favicon?.[0]?.href;
-        this.log.info('favicon extracted:', favicon);
 
         // Build the inner content based on whether we have a favicon
         let innerContent;
@@ -531,27 +533,26 @@ export default class DuckAiListener extends ContentFeature {
      */
     async handleButtonClick() {
         if (!this.button || this.hasContextBeenUsed) return;
-        this.bridge.notify('togglePageContextTelemetry', { enabled: this.isPageContextEnabled });
 
         const hasContext = this.pageData && this.pageData.content;
+        let newState;
 
-        // If no context is available, try to fetch it
+        // If no context is available, try to fetch it first
         if (!hasContext) {
             this.log.info('No context available, attempting to fetch...');
             const success = await this.requestPageContext(true);
 
             // If we successfully got context, enable it
             if (success && this.pageData && this.pageData.content) {
-                this.isPageContextEnabled = true;
+                newState = true;
             } else {
-                // Update appearance even if no context was fetched
-                this.updateButtonAppearance();
+                // No context was fetched, keep current state unchanged
+                newState = this.isPageContextEnabled;
             }
-            return;
+        } else {
+            // Toggle the page context enabled state (existing behavior when context is available)
+            newState = !this.isPageContextEnabled;
         }
-
-        // Toggle the page context enabled state (existing behavior when context is available)
-        const newState = !this.isPageContextEnabled;
 
         // Track when user explicitly disables context
         if (!newState) {
@@ -561,13 +562,24 @@ export default class DuckAiListener extends ContentFeature {
             this.userExplicitlyDisabledContext = false;
         }
 
-        // Set the new state (setter will handle UI updates)
+        // Set the new state (setter will handle UI updates and no-change cases)
         this.isPageContextEnabled = newState;
 
-        // Trigger input events on the textbox to notify frameworks of potential state changes
+        // Send telemetry and trigger events
+        this.sendToggleTelemetry();
         this.triggerInputEvents();
 
-        this.log.info('Page context toggled:', this.isPageContextEnabled);
+        this.log.info('Page context state:', this.isPageContextEnabled);
+    }
+
+    /**
+     * Send toggle telemetry if bridge is available
+     * @private
+     */
+    sendToggleTelemetry() {
+        if (this.bridge) {
+            this.bridge.notify('togglePageContextTelemetry', { enabled: this.isPageContextEnabled });
+        }
     }
 
     /**
@@ -629,16 +641,58 @@ export default class DuckAiListener extends ContentFeature {
             return false;
         }
 
+        // Prevent concurrent requests
+        if (this.isRequestInProgress) {
+            this.log.info('Request already in progress, ignoring duplicate request');
+            return false;
+        }
+
+        this.isRequestInProgress = true;
         try {
+            // Make the bridge request
             const getPageContext = await this.bridge.request('getPageContext', { explicitConsent });
             const logMessage = explicitConsent ? 'Fetched page context on demand:' : 'Initial page context:';
             this.log.info(logMessage, getPageContext);
+
+            // Try to process the direct response
             this.handlePageContextData(getPageContext);
-            return true;
+
+            // For initial requests (no explicit consent), don't wait for subscription since it may not be set up yet
+            if (!explicitConsent) {
+                return !!(this.pageData && this.pageData.content);
+            }
+
+            // For explicit user requests, create a promise that the subscription callback can resolve
+            const contextPromise = new Promise((resolve) => {
+                this.contextPromiseResolve = resolve;
+
+                // Timeout after 3 seconds
+                setTimeout(() => {
+                    if (this.contextPromiseResolve === resolve) {
+                        this.contextPromiseResolve = null;
+                        resolve(false);
+                    }
+                }, 3000);
+            });
+
+            // If direct response had valid content, promise would be resolved already
+            if (!this.contextPromiseResolve) {
+                return true;
+            }
+
+            // Otherwise wait for the data to arrive via subscription (or timeout)
+            const success = await contextPromise;
+            this.log.info('Context promise resolved:', success);
+
+            return success;
         } catch (error) {
+            // Clean up promise resolver on error
+            this.contextPromiseResolve = null;
             const logMessage = explicitConsent ? 'Failed to fetch page context:' : 'No initial page context available:';
             this.log.info(logMessage, error);
             return false;
+        } finally {
+            this.isRequestInProgress = false;
         }
     }
 
@@ -688,13 +742,19 @@ export default class DuckAiListener extends ContentFeature {
      */
     handlePageContextData(data) {
         try {
-            if (data.serializedPageData) {
+            if (data?.serializedPageData) {
                 const pageDataParsed = JSON.parse(data.serializedPageData);
                 this.log.info('Parsed page data:', pageDataParsed);
 
                 if (pageDataParsed.content) {
                     this.sendContextPixelInfo(pageDataParsed);
                     this.pageData = pageDataParsed;
+
+                    // Resolve any pending context promise
+                    if (this.contextPromiseResolve) {
+                        this.contextPromiseResolve(true);
+                        this.contextPromiseResolve = null;
+                    }
 
                     // Auto-enable context when it becomes available (only if not used yet and user hasn't explicitly disabled it)
                     if (!this.hasContextBeenUsed && !this.isPageContextEnabled && !this.userExplicitlyDisabledContext) {
