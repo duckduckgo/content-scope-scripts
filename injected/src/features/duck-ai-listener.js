@@ -807,6 +807,8 @@ export default class DuckAiListener extends ContentFeature {
             );
         }
 
+        this.hasContextBeenUsed = true;
+
         // Trigger input events since the value getter behavior just changed
         this.triggerInputEvents();
 
