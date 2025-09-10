@@ -1,2 +1,1 @@
-- NTP: Add badge to omnibar popover (#1956)
-- drop the swift version file (#1955)
+- Get page context (#1953)
