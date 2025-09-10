@@ -694,7 +694,6 @@ export default class DuckAiListener extends ContentFeature {
                 if (pageDataParsed.content) {
                     this.sendContextPixelInfo(pageDataParsed);
                     this.pageData = pageDataParsed;
-                    this.globalPageContext = pageDataParsed.content;
 
                     // Auto-enable context when it becomes available (only if not used yet and user hasn't explicitly disabled it)
                     if (!this.hasContextBeenUsed && !this.isPageContextEnabled && !this.userExplicitlyDisabledContext) {
@@ -714,6 +713,10 @@ export default class DuckAiListener extends ContentFeature {
                     }
                     this.setupMessageInterception();
                 }
+            } else {
+                this.log.info('No page data parsed');
+                this.pageData = null;
+                this.updateButtonAppearance();
             }
         } catch (error) {
             this.log.error('Error parsing page context data:', error);
@@ -918,7 +921,7 @@ Answer the prompt using the page-title, and page-context ONLY if it's relevant t
                         return currentValue;
                     }
 
-                    const pageContext = this.globalPageContext || '';
+                    const pageContext = this.pageData?.content || '';
                     const randomNumber = this.randomNumber;
                     const shouldAddContext = pageContext && this.isPageContextEnabled && currentValue;
 
