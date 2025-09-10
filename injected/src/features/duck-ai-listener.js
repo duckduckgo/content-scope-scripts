@@ -1246,7 +1246,7 @@ class DuckAiPromptTelemetry {
         const totalSizeBuckets = this.categorizeSizes(totalSizes);
 
         const createSizeFields = (prefix, buckets) => {
-            const sizeNames = ['xxxsmall', 'xxsmall', 'xsmall', 'small', 'medium', 'large', 'xlarge', 'xxlarge', 'xxxlarge'];
+            const sizeNames = this.getSizeCategories().map(category => category.name);
             const capitalizeSize = (size) =>
                 size.replace(/(x*)(.*)/, (_, xs, rest) => xs.toUpperCase() + rest.charAt(0).toUpperCase() + rest.slice(1));
 
@@ -1270,23 +1270,26 @@ class DuckAiPromptTelemetry {
     }
 
     /**
-     * Categorize prompt sizes into privacy-friendly buckets using 1k intervals
+     * Get the defined size categories for prompt bucketing
+     * @returns {Array} Array of size category objects with name and maxSize
+     */
+    getSizeCategories() {
+        return [
+            { name: 'small', maxSize: 2499 },
+            { name: 'medium', maxSize: 4999 },
+            { name: 'large', maxSize: 7499 },
+            { name: 'xlarge', maxSize: 9999 },
+            { name: 'xxl', maxSize: Infinity },
+        ];
+    }
+
+    /**
+     * Categorize prompt sizes into privacy-friendly buckets using large size ranges
      * @param {number[]} promptSizes - Array of prompt sizes
      * @returns {Object} Bucket counts
      */
     categorizeSizes(promptSizes) {
-        const sizeCategories = [
-            { name: 'xxxsmall', maxSize: 999 },
-            { name: 'xxsmall', maxSize: 1999 },
-            { name: 'xsmall', maxSize: 2999 },
-            { name: 'small', maxSize: 3999 },
-            { name: 'medium', maxSize: 4999 },
-            { name: 'large', maxSize: 5999 },
-            { name: 'xlarge', maxSize: 6999 },
-            { name: 'xxlarge', maxSize: 7999 },
-            { name: 'xxxlarge', maxSize: Infinity },
-        ];
-
+        const sizeCategories = this.getSizeCategories();
         const buckets = Object.fromEntries(sizeCategories.map((category) => [category.name, 0]));
 
         promptSizes.forEach((size) => {
