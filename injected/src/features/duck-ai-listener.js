@@ -796,6 +796,9 @@ export default class DuckAiListener extends ContentFeature {
     handleSendMessage() {
         this.log.info('handleSendMessage called');
 
+        // Trigger input events since the value getter behavior just changed
+        this.triggerInputEvents();
+
         // Capture prompt text for telemetry before any modifications
         if (this.textBox && this.promptTelemetry) {
             const rawPromptText = this.getRawPromptText();
@@ -811,9 +814,6 @@ export default class DuckAiListener extends ContentFeature {
         }
 
         this.hasContextBeenUsed = true;
-
-        // Trigger input events since the value getter behavior just changed
-        this.triggerInputEvents();
 
         // Remove the context chip
         this.removeContextChip();
