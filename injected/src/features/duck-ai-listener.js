@@ -717,6 +717,7 @@ export default class DuckAiListener extends ContentFeature {
                 this.log.info('No page data parsed');
                 this.pageData = null;
                 this.updateButtonAppearance();
+                this.removeContextChip();
             }
         } catch (error) {
             this.log.error('Error parsing page context data:', error);
@@ -780,10 +781,7 @@ export default class DuckAiListener extends ContentFeature {
         this.triggerInputEvents();
 
         // Remove the context chip
-        if (this.contextChip) {
-            this.contextChip.remove();
-            this.contextChip = null;
-        }
+        this.removeContextChip();
 
         // Update button appearance
         this.updateButtonAppearance();
