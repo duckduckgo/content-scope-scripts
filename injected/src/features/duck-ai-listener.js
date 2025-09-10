@@ -759,19 +759,22 @@ export default class DuckAiListener extends ContentFeature {
                     // Auto-enable context when it becomes available (only if not used yet and user hasn't explicitly disabled it)
                     if (!this.hasContextBeenUsed && !this.isPageContextEnabled && !this.userExplicitlyDisabledContext) {
                         this.isPageContextEnabled = true;
+                        // Note: setter will call createContextChip(), so no need to call it explicitly here
                     } else {
                         // Always update button appearance when context data changes
                         this.updateButtonAppearance();
+
+                        // Only call createContextChip if not auto-enabled (setter didn't run)
+                        if (this.isPageContextEnabled && !this.hasContextBeenUsed) {
+                            this.createContextChip();
+                        }
                     }
+
                     // Check for truncated content and warn user
                     if (pageDataParsed.truncated) {
                         this.log.warn('Page content has been truncated due to size limits');
                     }
 
-                    // Create context chip if enabled (setter handles this if it was just enabled)
-                    if (this.isPageContextEnabled && !this.hasContextBeenUsed) {
-                        this.createContextChip();
-                    }
                     this.setupMessageInterception();
                 }
             } else {
@@ -825,19 +828,6 @@ export default class DuckAiListener extends ContentFeature {
     handleSendMessage() {
         this.log.info('handleSendMessage called');
 
-        if (!this.isPageContextEnabled || this.hasContextBeenUsed || !this.pageData?.content) {
-            this.log.info('Context attachment blocked:', {
-                isPageContextEnabled: this.isPageContextEnabled,
-                hasContextBeenUsed: this.hasContextBeenUsed,
-                hasPageData: !!this.pageData,
-                hasContent: !!this.pageData?.content,
-            });
-            return;
-        }
-
-        // Mark context as used first to prevent multiple calls
-        this.hasContextBeenUsed = true;
-
         // Trigger input events since the value getter behavior just changed
         this.triggerInputEvents();
 
@@ -846,8 +836,6 @@ export default class DuckAiListener extends ContentFeature {
 
         // Update button appearance
         this.updateButtonAppearance();
-
-        this.log.info('Successfully appended context to message');
     }
 
     /**
