@@ -193,7 +193,7 @@
     "description" : "Title for the popover that introduces the search/AI toggle feature."
   },
   "omnibar_customizePopoverBadge" : {
-    "title" : "Новая вкладка",
+    "title" : "Новый",
     "description" : "Badge text for the popover that introduces the search/AI toggle feature."
   },
   "omnibar_customizePopoverDescription" : {
