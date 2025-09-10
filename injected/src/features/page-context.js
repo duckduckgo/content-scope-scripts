@@ -82,6 +82,7 @@ export default class PageContext extends ContentFeature {
         this.observeContentChanges();
         if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
             this.messaging.subscribe('collect', () => {
+                this.invalidateCache();
                 this.handleContentCollectionRequest();
             });
         }
@@ -152,21 +153,23 @@ export default class PageContext extends ContentFeature {
         if (!this.#cachedContent || this.isCacheExpired()) {
             // Clean up if we had content but it's expired
             if (this.#cachedContent) {
-                this.#cachedContent = undefined;
-                this.#cachedTimestamp = 0;
-                this.stopObserving();
+                this.invalidateCache();
             }
             return undefined;
         }
         return this.#cachedContent;
     }
 
+    invalidateCache() {
+        this.log.info('Invalidating cache');
+        this.#cachedContent = undefined;
+        this.#cachedTimestamp = 0;
+        this.stopObserving();
+    }
+
     set cachedContent(content) {
         if (content === undefined) {
-            this.log.info('Invalidating cache');
-            this.#cachedContent = undefined;
-            this.#cachedTimestamp = 0;
-            this.stopObserving();
+            this.invalidateCache();
             return;
         }
 
@@ -249,7 +252,14 @@ export default class PageContext extends ContentFeature {
     }
 
     getPageTitle() {
-        return document.title || '';
+        const title = document.title || '';
+        const maxTitleLength = this.getFeatureSetting('maxTitleLength') || 100;
+
+        if (title.length > maxTitleLength) {
+            return title.substring(0, maxTitleLength).trim() + '...';
+        }
+
+        return title;
     }
 
     getMetaDescription() {
@@ -258,7 +268,7 @@ export default class PageContext extends ContentFeature {
     }
 
     getMainContent() {
-        const maxLength = this.getFeatureSetting('maxContentLength') || 100000;
+        const maxLength = this.getFeatureSetting('maxContentLength') || 950;
         let excludeSelectors = this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
         excludeSelectors = excludeSelectors.concat(['script', 'style', 'link', 'meta', 'noscript', 'svg', 'canvas']);
 
