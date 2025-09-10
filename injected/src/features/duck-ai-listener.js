@@ -1,7 +1,6 @@
 import ContentFeature from '../content-feature.js';
 import { isBeingFramed, isDuckAiSidebar } from '../utils.js';
 
-
 /**
  * Duck AI Listener Feature
  *
@@ -128,7 +127,6 @@ export default class DuckAiListener extends ContentFeature {
 
         this.insertButton(/** @type {HTMLElement} */ (imageInput));
     }
-
 
     /**
      * Set up mutation observer to find input[name="image"] and insert button
@@ -785,7 +783,6 @@ export default class DuckAiListener extends ContentFeature {
             sendButton.addEventListener('click', handleClick, true); // Capture phase
             // sendButton.addEventListener('click', handleClick, false); // Bubble phase
 
-
             this.log.info('Set up message interception with multiple event listeners', sendButton);
         }
     }
@@ -802,8 +799,12 @@ export default class DuckAiListener extends ContentFeature {
             const totalPromptText = this.textBox.value; // This includes context if enabled
             const contextSize = this.pageData?.content?.length || 0;
             const contextData = this.isPageContextEnabled && this.pageData?.content ? this.pageData : null;
-            this.promptTelemetry.onPromptSent(rawPromptText, totalPromptText, 
-                this.isPageContextEnabled && this.pageData?.content ? contextSize : 0, contextData);
+            this.promptTelemetry.onPromptSent(
+                rawPromptText,
+                totalPromptText,
+                this.isPageContextEnabled && this.pageData?.content ? contextSize : 0,
+                contextData,
+            );
         }
 
         // Trigger input events since the value getter behavior just changed
@@ -1011,7 +1012,7 @@ ${truncatedWarning}
 
 /**
  * Duck AI Prompt Telemetry Helper
- * 
+ *
  * Handles daily aggregation and reporting of prompt usage telemetry.
  * Stores prompt sizes and sends daily aggregated reports.
  */
@@ -1081,7 +1082,7 @@ class DuckAiPromptTelemetry {
             // First prompt - initialize storage
             data = {
                 firstPromptDate: now,
-                promptData: []
+                promptData: [],
             };
             this.log.info('Initialized telemetry storage for first prompt');
         }
@@ -1089,8 +1090,10 @@ class DuckAiPromptTelemetry {
         // Add the prompt data to our collection
         data.promptData.push(promptData);
         this.saveTelemetryData(data);
-        
-        this.log.info(`Stored prompt telemetry: raw=${promptData.rawSize}, total=${promptData.totalSize}, context=${promptData.contextSize || 0}, total_prompts=${data.promptData.length}`);
+
+        this.log.info(
+            `Stored prompt telemetry: raw=${promptData.rawSize}, total=${promptData.totalSize}, context=${promptData.contextSize || 0}, total_prompts=${data.promptData.length}`,
+        );
     }
 
     /**
@@ -1099,7 +1102,7 @@ class DuckAiPromptTelemetry {
      */
     checkShouldFireDailyTelemetry() {
         const data = this.getTelemetryData();
-        
+
         if (!data || !data.firstPromptDate || (data.promptData || data.promptSizes || []).length === 0) {
             // No data stored or no prompts to report
             return false;
@@ -1124,33 +1127,30 @@ class DuckAiPromptTelemetry {
      */
     sendDailyTelemetry(data) {
         // Support both old format (promptSizes array) and new format (promptData array)
-        const promptData = data.promptData || data.promptSizes?.map(size => ({ rawSize: size, totalSize: size })) || [];
+        const promptData = data.promptData || data.promptSizes?.map((size) => ({ rawSize: size, totalSize: size })) || [];
         const totalPrompts = promptData.length;
-        
+
         if (totalPrompts === 0) {
             this.log.info('No prompts to report in daily telemetry');
             return;
         }
 
         // Extract raw and total sizes
-        const rawSizes = promptData.map(p => p.rawSize || p.totalSize || p);
-        const totalSizes = promptData.map(p => p.totalSize || p.rawSize || p);
-        const contextSizes = promptData.map(p => p.contextSize || 0).filter(size => size > 0);
+        const rawSizes = promptData.map((p) => p.rawSize || p.totalSize || p);
+        const totalSizes = promptData.map((p) => p.totalSize || p.rawSize || p);
+        const contextSizes = promptData.map((p) => p.contextSize || 0).filter((size) => size > 0);
 
         // Calculate aggregate statistics for raw prompts
         const totalRawCharacters = rawSizes.reduce((sum, size) => sum + size, 0);
         const avgRawPromptSize = Math.round(totalRawCharacters / totalPrompts);
-        const minRawPromptSize = Math.min(...rawSizes);
-        const maxRawPromptSize = Math.max(...rawSizes);
 
         // Calculate aggregate statistics for total prompts (including context)
         const totalAllCharacters = totalSizes.reduce((sum, size) => sum + size, 0);
         const avgTotalPromptSize = Math.round(totalAllCharacters / totalPrompts);
-        const minTotalPromptSize = Math.min(...totalSizes);
-        const maxTotalPromptSize = Math.max(...totalSizes);
 
         // Calculate context statistics
-        const avgContextSize = contextSizes.length > 0 ? Math.round(contextSizes.reduce((sum, size) => sum + size, 0) / contextSizes.length) : 0;
+        const avgContextSize =
+            contextSizes.length > 0 ? Math.round(contextSizes.reduce((sum, size) => sum + size, 0) / contextSizes.length) : 0;
         const contextUsageRate = contextSizes.length / totalPrompts;
 
         // Create size buckets for privacy-friendly reporting
@@ -1189,13 +1189,13 @@ class DuckAiPromptTelemetry {
      */
     categorizeSizes(promptSizes) {
         const buckets = {
-            small: 0,    // 0-100 characters
-            medium: 0,   // 101-500 characters  
-            large: 0,    // 501-2000 characters
-            xlarge: 0    // 2000+ characters
+            small: 0, // 0-100 characters
+            medium: 0, // 101-500 characters
+            large: 0, // 501-2000 characters
+            xlarge: 0, // 2000+ characters
         };
 
-        promptSizes.forEach(size => {
+        promptSizes.forEach((size) => {
             if (size <= 100) {
                 buckets.small++;
             } else if (size <= 500) {
@@ -1282,18 +1282,17 @@ class DuckAiPromptTelemetry {
         const promptData = {
             rawSize: rawPromptText.length,
             totalSize: totalPromptText.length,
-            contextSize: contextSize
+            contextSize,
         };
-        
+
         // Send context pixel info if context was used
         if (contextData && contextSize > 0) {
             this.sendContextPixelInfo(contextData);
         }
         // Check if we should fire daily telemetry
         this.checkShouldFireDailyTelemetry();
-        
+
         // Store the prompt telemetry
         this.storePromptTelemetry(promptData);
     }
-
 }
