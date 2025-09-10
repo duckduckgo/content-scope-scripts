@@ -1245,23 +1245,22 @@ class DuckAiPromptTelemetry {
         const rawSizeBuckets = this.categorizeSizes(rawSizes);
         const totalSizeBuckets = this.categorizeSizes(totalSizes);
 
+        const createSizeFields = (prefix, buckets) => {
+            const sizeNames = ['xxxsmall', 'xxsmall', 'xsmall', 'small', 'medium', 'large', 'xlarge', 'xxlarge', 'xxxlarge'];
+            const capitalizeSize = (size) =>
+                size.replace(/(x*)(.*)/, (_, xs, rest) => xs.toUpperCase() + rest.charAt(0).toUpperCase() + rest.slice(1));
+
+            return Object.fromEntries(sizeNames.map((size) => [`${prefix}Size${capitalizeSize(size)}`, String(buckets[size] || 0)]));
+        };
+
         const telemetryData = {
             totalPrompts: String(totalPrompts),
-            // Raw prompt statistics (user input only) - bucketed for privacy
-            avgRawPromptSize: this.logBucketNumber(avgRawPromptSize),
-            rawSizeSmall: String(rawSizeBuckets.small),
-            rawSizeMedium: String(rawSizeBuckets.medium),
-            rawSizeLarge: String(rawSizeBuckets.large),
-            rawSizeXLarge: String(rawSizeBuckets.xlarge),
-            // Total prompt statistics (including context) - bucketed for privacy
-            avgTotalPromptSize: this.logBucketNumber(avgTotalPromptSize),
-            totalSizeSmall: String(totalSizeBuckets.small),
-            totalSizeMedium: String(totalSizeBuckets.medium),
-            totalSizeLarge: String(totalSizeBuckets.large),
-            totalSizeXLarge: String(totalSizeBuckets.xlarge),
-            // Context usage statistics
-            avgContextSize: this.logBucketNumber(avgContextSize),
-            contextUsageRate: String(Math.round(contextUsageRate * 100)), // As percentage 0-100
+            avgRawPromptSize: this.bucketSizeByThousands(avgRawPromptSize),
+            ...createSizeFields('raw', rawSizeBuckets),
+            avgTotalPromptSize: this.bucketSizeByThousands(avgTotalPromptSize),
+            ...createSizeFields('total', totalSizeBuckets),
+            avgContextSize: this.bucketSizeByThousands(avgContextSize),
+            contextUsageRate: String(Math.round(contextUsageRate * 100)),
         };
 
         this.log.info('Sending daily telemetry pixel:', telemetryData);
@@ -1271,27 +1270,29 @@ class DuckAiPromptTelemetry {
     }
 
     /**
-     * Categorize prompt sizes into privacy-friendly buckets
+     * Categorize prompt sizes into privacy-friendly buckets using 1k intervals
      * @param {number[]} promptSizes - Array of prompt sizes
      * @returns {Object} Bucket counts
      */
     categorizeSizes(promptSizes) {
-        const buckets = {
-            small: 0, // 0-100 characters
-            medium: 0, // 101-500 characters
-            large: 0, // 501-2000 characters
-            xlarge: 0, // 2000+ characters
-        };
+        const sizeCategories = [
+            { name: 'xxxsmall', maxSize: 999 },
+            { name: 'xxsmall', maxSize: 1999 },
+            { name: 'xsmall', maxSize: 2999 },
+            { name: 'small', maxSize: 3999 },
+            { name: 'medium', maxSize: 4999 },
+            { name: 'large', maxSize: 5999 },
+            { name: 'xlarge', maxSize: 6999 },
+            { name: 'xxlarge', maxSize: 7999 },
+            { name: 'xxxlarge', maxSize: Infinity },
+        ];
+
+        const buckets = Object.fromEntries(sizeCategories.map((category) => [category.name, 0]));
 
         promptSizes.forEach((size) => {
-            if (size <= 100) {
-                buckets.small++;
-            } else if (size <= 500) {
-                buckets.medium++;
-            } else if (size <= 2000) {
-                buckets.large++;
-            } else {
-                buckets.xlarge++;
+            const category = sizeCategories.find((cat) => size <= cat.maxSize);
+            if (category) {
+                buckets[category.name]++;
             }
         });
 
@@ -1322,17 +1323,16 @@ class DuckAiPromptTelemetry {
     }
 
     /**
-     * Create logarithmic bucket for numbers (privacy-friendly)
+     * Bucket numbers by thousands for privacy-friendly reporting
      * @param {number} number - Number to bucket
-     * @returns {string} Bucket string
+     * @returns {string} Bucket lower bound (e.g., '0', '1000', '2000')
      */
-    logBucketNumber(number) {
-        // Use logarithmic bucketing (base 2) for context length, report lower end only
-        // e.g. 0, 2, 4, 8, 16, 32, 64, 128, 256, 512, etc.
+    bucketSizeByThousands(number) {
         if (number <= 0) {
             return '0';
         }
-        return String(2 ** Math.floor(Math.log2(number)));
+        const bucketIndex = Math.floor(number / 1000);
+        return String(bucketIndex * 1000);
     }
 
     /**
@@ -1346,7 +1346,7 @@ class DuckAiPromptTelemetry {
         }
 
         this.sendPixel(DuckAiPromptTelemetry.CONTEXT_PIXEL_NAME, {
-            contextLength: this.logBucketNumber(contextData.content.length),
+            contextLength: this.bucketSizeByThousands(contextData.content.length),
         });
     }
 
