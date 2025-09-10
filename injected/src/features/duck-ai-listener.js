@@ -1246,7 +1246,7 @@ class DuckAiPromptTelemetry {
         const totalSizeBuckets = this.categorizeSizes(totalSizes);
 
         const createSizeFields = (prefix, buckets) => {
-            const sizeNames = this.getSizeCategories().map(category => category.name);
+            const sizeNames = this.getSizeCategories().map((category) => category.name);
             const capitalizeSize = (size) =>
                 size.replace(/(x*)(.*)/, (_, xs, rest) => xs.toUpperCase() + rest.charAt(0).toUpperCase() + rest.slice(1));
 
