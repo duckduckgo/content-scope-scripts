@@ -1,1 +1,2 @@
-- NTP: Add tooltip above Customize button to highlight Omnibar feature (#1937)
+- NTP: Add badge to omnibar popover (#1956)
+- drop the swift version file (#1955)
