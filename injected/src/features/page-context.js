@@ -252,7 +252,14 @@ export default class PageContext extends ContentFeature {
     }
 
     getPageTitle() {
-        return document.title || '';
+        const title = document.title || '';
+        const maxTitleLength = this.getFeatureSetting('maxTitleLength') || 100;
+
+        if (title.length > maxTitleLength) {
+            return title.substring(0, maxTitleLength).trim() + '...';
+        }
+
+        return title;
     }
 
     getMetaDescription() {
