@@ -451,6 +451,7 @@ export default class DuckAiListener extends ContentFeature {
             color: rgb(102, 102, 102);
             cursor: pointer;
         `;
+        infoIcon.title = 'Attach page context to the prompt';
 
         // Add warning icon if content is truncated
         const warningIcon = document.createElement('div');
