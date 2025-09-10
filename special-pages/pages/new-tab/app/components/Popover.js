@@ -11,10 +11,11 @@ import styles from './Popover.module.css';
 /**
  * @param {object} props
  * @param {string} props.title
+ * @param {string} [props.badge]
  * @param {() => void} props.onClose
  * @param {import('preact').ComponentChildren} props.children
  */
-export function Popover({ title, onClose, children }) {
+export function Popover({ title, badge, onClose, children }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const titleId = useId();
     const descriptionId = useId();
@@ -46,8 +47,9 @@ export function Popover({ title, onClose, children }) {
                 <button class={styles.closeButton} onClick={onClose} aria-label={t('ntp_popover_close_button')}>
                     <Cross />
                 </button>
-                <h3 id={titleId} class={styles.title}>
-                    {title}
+                <h3 id={titleId} class={styles.heading}>
+                    {badge && <span class={styles.badge}>{badge}</span>}
+                    <span class={styles.title}>{title}</span>
                 </h3>
                 <p id={descriptionId} class={styles.description}>
                     {children}
