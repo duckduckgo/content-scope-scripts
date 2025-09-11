@@ -592,8 +592,12 @@ export function computeLimitedSiteObject() {
  */
 function getPlatformVersion(preferences) {
     // Check for platform.version first
-    if (preferences.platform?.version !== undefined && preferences.platform?.version !== '') {
-        return preferences.platform.version;
+    const platformVersion = preferences.platform?.version;
+    if (platformVersion !== undefined && platformVersion !== null && platformVersion !== false && platformVersion !== '') {
+        // Ensure we only return string, number, or undefined as per the return type
+        if (typeof platformVersion === 'string' || typeof platformVersion === 'number') {
+            return platformVersion;
+        }
     }
     // Fallback to legacy version fields
     if (preferences.versionNumber) {
