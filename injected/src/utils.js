@@ -591,6 +591,11 @@ export function computeLimitedSiteObject() {
  * @returns {string | number | undefined}
  */
 function getPlatformVersion(preferences) {
+    // Check for platform.version first
+    if (preferences.platform?.version !== undefined && preferences.platform?.version !== '') {
+        return preferences.platform.version;
+    }
+    // Fallback to legacy version fields
     if (preferences.versionNumber) {
         return preferences.versionNumber;
     }
