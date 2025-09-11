@@ -760,6 +760,8 @@ export default class DuckAiListener extends ContentFeature {
                 if (pageDataParsed.content) {
                     this.pageData = pageDataParsed;
 
+                    this.promptTelemetry?.sendContextPixelInfo(pageDataParsed, DuckAiPromptTelemetry.CONTEXT_ATTACH_PIXEL_NAME);
+
                     // Resolve any pending context promise
                     if (this.contextPromiseResolve) {
                         this.contextPromiseResolve(true);
@@ -1148,7 +1150,8 @@ ${truncatedWarning}
  */
 class DuckAiPromptTelemetry {
     static STORAGE_KEY = 'aiChatPageContextTelemetry';
-    static CONTEXT_PIXEL_NAME = 'dc_contextInfo';
+    static CONTEXT_ATTACH_PIXEL_NAME = 'dc_contextInfoOnAttach';
+    static CONTEXT_SEND_PIXEL_NAME = 'dc_contextInfoOnSubmit';
     static DAILY_PIXEL_NAME = 'dc_pageContextDailyTelemetry';
     static ONE_DAY_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
@@ -1298,11 +1301,11 @@ class DuckAiPromptTelemetry {
 
         const telemetryData = {
             totalPrompts: String(totalPrompts),
-            avgRawPromptSize: this.bucketSizeByThousands(avgRawPromptSize),
+            avgRawPromptSize: this.bucketSize(avgRawPromptSize),
             ...createSizeFields('raw', rawSizeBuckets),
-            avgTotalPromptSize: this.bucketSizeByThousands(avgTotalPromptSize),
+            avgTotalPromptSize: this.bucketSize(avgTotalPromptSize),
             ...createSizeFields('total', totalSizeBuckets),
-            avgContextSize: this.bucketSizeByThousands(avgContextSize),
+            avgContextSize: this.bucketSize(avgContextSize),
             contextUsageRate: String(Math.round(contextUsageRate * 100)),
         };
 
@@ -1337,7 +1340,8 @@ class DuckAiPromptTelemetry {
         if (!globalThis?.DDG?.pixel) {
             return;
         }
-        globalThis.DDG.pixel._pixels[DuckAiPromptTelemetry.CONTEXT_PIXEL_NAME] = {};
+        globalThis.DDG.pixel._pixels[DuckAiPromptTelemetry.CONTEXT_SEND_PIXEL_NAME] = {};
+        globalThis.DDG.pixel._pixels[DuckAiPromptTelemetry.CONTEXT_ATTACH_PIXEL_NAME] = {};
         globalThis.DDG.pixel._pixels[DuckAiPromptTelemetry.DAILY_PIXEL_NAME] = {};
     }
 
@@ -1354,30 +1358,30 @@ class DuckAiPromptTelemetry {
     }
 
     /**
-     * Bucket numbers by thousands for privacy-friendly reporting
+     * Bucket numbers by hundreds for privacy-friendly reporting
      * @param {number} number - Number to bucket
-     * @returns {string} Bucket lower bound (e.g., '0', '1000', '2000')
+     * @returns {string} Bucket lower bound (e.g., '0', '100', '200')
      */
-    bucketSizeByThousands(number) {
+    bucketSize(number) {
         if (number <= 0) {
             return '0';
         }
-        const bucketIndex = Math.floor(number / 1000);
-        return String(bucketIndex * 1000);
+        const bucketIndex = Math.floor(number / 100);
+        return String(bucketIndex * 100);
     }
 
     /**
      * Send context pixel info when context is used
      * @param {Object} contextData - Context data object
      */
-    sendContextPixelInfo(contextData) {
+    sendContextPixelInfo(contextData, pixelName) {
         if (!contextData?.content) {
             this.log.warn('sendContextPixelInfo: No content available for pixel tracking');
             return;
         }
 
-        this.sendPixel(DuckAiPromptTelemetry.CONTEXT_PIXEL_NAME, {
-            contextLength: this.bucketSizeByThousands(contextData.content.length),
+        this.sendPixel(pixelName, {
+            contextLength: contextData.content.length,
         });
     }
 
@@ -1406,7 +1410,7 @@ class DuckAiPromptTelemetry {
 
         // Send context pixel info if context was used
         if (contextData && contextSize > 0) {
-            this.sendContextPixelInfo(contextData);
+            this.sendContextPixelInfo(contextData, DuckAiPromptTelemetry.CONTEXT_SEND_PIXEL_NAME);
         }
         // Check if we should fire daily telemetry
         this.checkShouldFireDailyTelemetry();
