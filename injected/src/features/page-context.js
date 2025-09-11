@@ -149,6 +149,23 @@ export default class PageContext extends ContentFeature {
     }
 
     setup() {
+        if (this.getFeatureSettingEnabled('subscribeToSelectedTextChange', 'enabled')) {
+            // Debounce utility
+            const debounce = (fn, delay) => {
+                let timer;
+                return function (...args) {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, args), delay);
+                };
+            };
+
+            // Debounced handler for selectionchange
+            const debouncedHandleContentCollectionRequest = debounce(() => {
+                this.handleContentCollectionRequest();
+            }, 200);
+
+            document.addEventListener('selectionchange', debouncedHandleContentCollectionRequest);
+        }
         this.handleContentCollectionRequest();
         this.startObserving();
     }
@@ -217,10 +234,20 @@ export default class PageContext extends ContentFeature {
         }
     }
 
+    getSelectedText() {
+        const selectedText = window.getSelection()?.toString() || '';
+        const maxLength = this.getFeatureSetting('maxSelectedTextLength') || 100;
+        if (selectedText.length > maxLength) {
+            return selectedText.substring(0, maxLength) + '...';
+        }
+        return selectedText;
+    }
+
     handleContentCollectionRequest() {
         this.log.info('Handling content collection request');
         try {
             const content = this.collectPageContent();
+            content.selectedText = this.getSelectedText();
             this.sendContentResponse(content);
         } catch (error) {
             this.sendErrorResponse(error);

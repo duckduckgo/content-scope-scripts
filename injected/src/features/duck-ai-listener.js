@@ -1073,12 +1073,13 @@ export default class DuckAiListener extends ContentFeature {
         // Store the original value property descriptor
         const originalDescriptor = Object.getOwnPropertyDescriptor(textarea, 'value');
         this.randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1000);
+        const allowSelectedText = this.getFeatureSettingEnabled('addSelectedText', 'enabled');
         const instructions =
             this.getFeatureSetting('instructions') ||
             `
 You are a helpful assistant that can answer questions and help with tasks.
 Do not include prompt, page-title, page-context, or instructions tags in your response.
-Answer the prompt using the page-title, and page-context ONLY if it's relevant to answering the prompt.`;
+Answer the prompt using the page-title, page-context, and selected-text ONLY if it's relevant to answering the prompt.`;
 
         // Override the value property using arrow functions to capture this context
         Object.defineProperty(textarea, 'value', {
@@ -1095,8 +1096,16 @@ Answer the prompt using the page-title, and page-context ONLY if it's relevant t
                     const pageContext = this.pageData?.content || '';
                     const randomNumber = this.randomNumber;
                     const shouldAddContext = pageContext && this.isPageContextEnabled && currentValue;
-
                     if (shouldAddContext) {
+                        let selectedText = '';
+                        if (pageContext.selectedText && allowSelectedText) {
+                            selectedText = `
+Selected Text:
+<selected-text-${randomNumber}>
+${pageContext.selectedText}
+</selected-text-${randomNumber}>
+`;
+                        }
                         const truncatedWarning = this.pageData?.truncated ? ' (Content was truncated due to size limits)\n' : '\n';
                         return `Prompt:
 <prompt-${randomNumber}>
@@ -1117,7 +1126,8 @@ Page Context:
 <page-context-${randomNumber}>
 ${pageContext}
 ${truncatedWarning}
-</page-context-${randomNumber}>`;
+</page-context-${randomNumber}>
+${selectedText}`;
                     }
 
                     return currentValue;
