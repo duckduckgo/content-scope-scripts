@@ -870,6 +870,15 @@ export default class DuckAiListener extends ContentFeature {
         if (match) {
             const extractedPrompt = match[2].trim();
 
+            // Mark context as used since we found a prompt that was actually sent
+            // Belt and braces solution to ensure context is only used once
+            if (!this.hasContextBeenUsed) {
+                this.hasContextBeenUsed = true;
+                this.removeContextChip();
+                this.updateButtonAppearance();
+                this.log.info('Context marked as used based on prompt cleanup');
+            }
+
             // Create cleaned content
             let cleanedContent = '';
             if (extractedPrompt) {
@@ -977,7 +986,7 @@ export default class DuckAiListener extends ContentFeature {
         const callback = (_, observer) => {
             this.findTextBox();
             this.setupMessageInterception();
-            if (this.textBox && this.pageData && this.sendButton) {
+            if (this.textBox && this.pageData && this.sendButton && !this.hasContextBeenUsed) {
                 this.createContextChip();
                 // No longer needed, we've found the text box.
                 observer.disconnect();

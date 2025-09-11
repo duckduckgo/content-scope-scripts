@@ -15646,9 +15646,12 @@ ${children}
         return children;
     }
   }
+  function collapseAndTrim(str) {
+    return collapseWhitespace(str).trim();
+  }
   function getLinkText(node) {
     const href = node.getAttribute("href");
-    return href ? `[${node.textContent}](${href})` : node.textContent;
+    return href ? `[${collapseAndTrim(node.textContent)}](${href})` : collapseWhitespace(node.textContent);
   }
   var _cachedContent, _cachedTimestamp;
   var PageContext = class extends ContentFeature {
@@ -16603,6 +16606,12 @@ ${children}
       const match = text2.match(promptRegex);
       if (match) {
         const extractedPrompt = match[2].trim();
+        if (!this.hasContextBeenUsed) {
+          this.hasContextBeenUsed = true;
+          this.removeContextChip();
+          this.updateButtonAppearance();
+          this.log.info("Context marked as used based on prompt cleanup");
+        }
         let cleanedContent = "";
         if (extractedPrompt) {
           cleanedContent = `${extractedPrompt}
@@ -16692,7 +16701,7 @@ ${children}
       const callback = (_2, observer) => {
         this.findTextBox();
         this.setupMessageInterception();
-        if (this.textBox && this.pageData && this.sendButton) {
+        if (this.textBox && this.pageData && this.sendButton && !this.hasContextBeenUsed) {
           this.createContextChip();
           observer.disconnect();
         }

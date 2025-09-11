@@ -1,2 +1,2 @@
-- Fix shadow rendering issue in popover when mousing over Customize link (#1958)
-- NTP: Adjust omnibar background colour on dark gradient/color backgrounds (#1957)
+- Follow up page context redux (#1960)
+- [Google password import] autotap export button in modal (#1933)

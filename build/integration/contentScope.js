@@ -15212,6 +15212,12 @@ ul.messages {
       const match = text2.match(promptRegex);
       if (match) {
         const extractedPrompt = match[2].trim();
+        if (!this.hasContextBeenUsed) {
+          this.hasContextBeenUsed = true;
+          this.removeContextChip();
+          this.updateButtonAppearance();
+          this.log.info("Context marked as used based on prompt cleanup");
+        }
         let cleanedContent = "";
         if (extractedPrompt) {
           cleanedContent = `${extractedPrompt}
@@ -15301,7 +15307,7 @@ ul.messages {
       const callback = (_2, observer) => {
         this.findTextBox();
         this.setupMessageInterception();
-        if (this.textBox && this.pageData && this.sendButton) {
+        if (this.textBox && this.pageData && this.sendButton && !this.hasContextBeenUsed) {
           this.createContextChip();
           observer.disconnect();
         }
@@ -20779,13 +20785,14 @@ ${truncatedWarning}
   var BACKGROUND_COLOR_START = "rgba(85, 127, 243, 0.10)";
   var BACKGROUND_COLOR_END = "rgba(85, 127, 243, 0.25)";
   var OVERLAY_ID = "ddg-password-import-overlay";
-  var _exportButtonSettings, _settingsButtonSettings, _signInButtonSettings, _elementToCenterOn, _currentOverlay, _currentElementConfig, _domLoaded, _tappedElements;
+  var _exportButtonSettings, _settingsButtonSettings, _signInButtonSettings, _exportConfirmButtonSettings, _elementToCenterOn, _currentOverlay, _currentElementConfig, _domLoaded, _tappedElements;
   var AutofillPasswordImport = class extends ContentFeature {
     constructor() {
       super(...arguments);
       __privateAdd(this, _exportButtonSettings);
       __privateAdd(this, _settingsButtonSettings);
       __privateAdd(this, _signInButtonSettings);
+      __privateAdd(this, _exportConfirmButtonSettings);
       /** @type {HTMLElement|Element|SVGElement|null} */
       __privateAdd(this, _elementToCenterOn);
       /** @type {HTMLElement|null} */
@@ -20866,6 +20873,43 @@ ${truncatedWarning}
       return __privateGet(this, _domLoaded);
     }
     /**
+     * @returns {Promise<Element|HTMLElement|null>}
+     */
+    async runWithRetry(fn) {
+      try {
+        return await withExponentialBackoff(fn);
+      } catch {
+        return null;
+      }
+    }
+    /**
+     * @returns {Promise<ElementConfig | null>}
+     */
+    async getExportConfirmElementAndStyle() {
+      const exportConfirmElement = await this.findExportConfirmElement();
+      const shouldAutotap = __privateGet(this, _exportConfirmButtonSettings)?.shouldAutotap && exportConfirmElement != null;
+      return shouldAutotap ? {
+        animationStyle: null,
+        element: exportConfirmElement,
+        shouldTap: true,
+        shouldWatchForRemoval: false,
+        tapOnce: false
+      } : null;
+    }
+    /**
+     * @returns {Promise<ElementConfig | null>}
+     */
+    async getExportElementAndStyle() {
+      const element = await this.findExportElement();
+      return element != null ? {
+        animationStyle: this.exportButtonAnimationStyle,
+        element,
+        shouldTap: __privateGet(this, _exportButtonSettings)?.shouldAutotap ?? false,
+        shouldWatchForRemoval: true,
+        tapOnce: true
+      } : null;
+    }
+    /**
      * Takes a path and returns the element and style to animate.
      * @param {string} path
      * @returns {Promise<ElementConfig | null>}
@@ -20881,14 +20925,12 @@ ${truncatedWarning}
           tapOnce: false
         } : null;
       } else if (path === "/options") {
-        const element = await this.findExportElement();
-        return element != null ? {
-          animationStyle: this.exportButtonAnimationStyle,
-          element,
-          shouldTap: __privateGet(this, _exportButtonSettings)?.shouldAutotap ?? false,
-          shouldWatchForRemoval: true,
-          tapOnce: true
-        } : null;
+        const isExportButtonTapped = this.currentElementConfig?.element != null && __privateGet(this, _tappedElements).has(this.currentElementConfig?.element);
+        if (isExportButtonTapped) {
+          return await this.getExportConfirmElementAndStyle();
+        } else {
+          return await this.getExportElementAndStyle();
+        }
       } else if (path === "/intro") {
         const element = await this.findSignInButton();
         return element != null ? {
@@ -21040,6 +21082,9 @@ ${truncatedWarning}
     autotapElement(element) {
       element.click();
     }
+    async findExportConfirmElement() {
+      return await this.runWithRetry(() => document.querySelector(this.exportConfirmButtonSelector));
+    }
     /**
      * On passwords.google.com the export button is in a container that is quite ambiguious.
      * To solve for that we first try to find the container and then the button inside it.
@@ -21054,7 +21099,7 @@ ${truncatedWarning}
       const findWithLabel = () => {
         return document.querySelector(this.exportButtonLabelTextSelector);
       };
-      return await withExponentialBackoff(() => findInContainer() ?? findWithLabel());
+      return await this.runWithRetry(() => findInContainer() ?? findWithLabel());
     }
     /**
      * @returns {Promise<HTMLElement|Element|null>}
@@ -21064,13 +21109,13 @@ ${truncatedWarning}
         const settingsButton = document.querySelector(this.settingsButtonSelector);
         return settingsButton;
       };
-      return await withExponentialBackoff(fn);
+      return await this.runWithRetry(fn);
     }
     /**
      * @returns {Promise<HTMLElement|Element|null>}
      */
     async findSignInButton() {
-      return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector));
+      return await this.runWithRetry(() => document.querySelector(this.signinButtonSelector));
     }
     /**
      * @param {Event} event
@@ -21086,7 +21131,7 @@ ${truncatedWarning}
     setCurrentElementConfig(config2) {
       if (config2 != null) {
         __privateSet(this, _currentElementConfig, config2);
-        this.setElementToCenterOn(config2.element, config2.animationStyle);
+        if (config2.animationStyle != null) this.setElementToCenterOn(config2.element, config2.animationStyle);
       }
     }
     /**
@@ -21095,7 +21140,12 @@ ${truncatedWarning}
      * @returns {boolean}
      */
     isSupportedPath(path) {
-      return [__privateGet(this, _exportButtonSettings)?.path, __privateGet(this, _settingsButtonSettings)?.path, __privateGet(this, _signInButtonSettings)?.path].includes(path);
+      return [
+        __privateGet(this, _exportButtonSettings)?.path,
+        __privateGet(this, _settingsButtonSettings)?.path,
+        __privateGet(this, _signInButtonSettings)?.path,
+        __privateGet(this, _exportConfirmButtonSettings)?.path
+      ].includes(path);
     }
     async handlePath(path) {
       this.removeOverlayIfNeeded();
@@ -21119,12 +21169,14 @@ ${truncatedWarning}
      */
     async animateOrTapElement() {
       const { element, animationStyle, shouldTap, shouldWatchForRemoval } = this.currentElementConfig ?? {};
-      if (element != null && animationStyle != null) {
+      if (element != null) {
         if (shouldTap) {
           this.autotapElement(element);
         } else {
-          await this.domLoaded;
-          this.animateElement(element, animationStyle);
+          if (animationStyle != null) {
+            await this.domLoaded;
+            this.animateElement(element, animationStyle);
+          }
         }
         if (shouldWatchForRemoval) {
           this.observeElementRemoval(element, () => {
@@ -21138,6 +21190,12 @@ ${truncatedWarning}
      */
     get exportButtonContainerSelector() {
       return __privateGet(this, _exportButtonSettings)?.selectors?.join(",");
+    }
+    /**
+     * @returns {string}
+     */
+    get exportConfirmButtonSelector() {
+      return __privateGet(this, _exportConfirmButtonSettings)?.selectors?.join(",");
     }
     /**
      * @returns {string}
@@ -21173,6 +21231,7 @@ ${truncatedWarning}
       __privateSet(this, _exportButtonSettings, this.getFeatureSetting("exportButton"));
       __privateSet(this, _signInButtonSettings, this.getFeatureSetting("signInButton"));
       __privateSet(this, _settingsButtonSettings, this.getFeatureSetting("settingsButton"));
+      __privateSet(this, _exportConfirmButtonSettings, this.getFeatureSetting("exportConfirmButton"));
     }
     urlChanged() {
       this.handlePath(window.location.pathname);
@@ -21203,6 +21262,7 @@ ${truncatedWarning}
   _exportButtonSettings = new WeakMap();
   _settingsButtonSettings = new WeakMap();
   _signInButtonSettings = new WeakMap();
+  _exportConfirmButtonSettings = new WeakMap();
   _elementToCenterOn = new WeakMap();
   _currentOverlay = new WeakMap();
   _currentElementConfig = new WeakMap();
@@ -21470,9 +21530,12 @@ ${children}
         return children;
     }
   }
+  function collapseAndTrim(str) {
+    return collapseWhitespace(str).trim();
+  }
   function getLinkText(node) {
     const href = node.getAttribute("href");
-    return href ? `[${node.textContent}](${href})` : node.textContent;
+    return href ? `[${collapseAndTrim(node.textContent)}](${href})` : collapseWhitespace(node.textContent);
   }
   var _cachedContent, _cachedTimestamp;
   var PageContext = class extends ContentFeature {
