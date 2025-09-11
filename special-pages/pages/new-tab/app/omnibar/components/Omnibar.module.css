@@ -4,14 +4,6 @@
     flex-direction: column;
     gap: 10px;
     padding-bottom: var(--sp-15);
-
-    [data-theme="light"] & {
-        --omnibar-translucent-background-color: rgba(255, 255, 255, 0.54);
-    }
-
-    [data-theme="dark"] & {
-        --omnibar-translucent-background-color: rgba(0, 0, 0, 0.3);
-    }
 }
 
 .logo {
@@ -54,9 +46,23 @@
     margin: 3px;
     outline: 1px solid var(--ntp-controls-raised-backdrop);
 
-    body:not([data-background-kind="default"]) & {
+    [data-background-kind="color"] [data-theme="light"] &,
+    [data-background-kind="gradient"] [data-theme="light"] &,
+    [data-background-kind="userImage"] [data-theme="light"] & {
         backdrop-filter: blur(48px);
-        background: var(--omnibar-translucent-background-color);
+        background: rgba(255, 255, 255, 0.54);
+    }
+
+    [data-background-kind="color"] [data-theme="dark"] &,
+    [data-background-kind="gradient"] [data-theme="dark"] & {
+        backdrop-filter: blur(48px);
+        background: rgba(255, 255, 255, 0.12);
+        outline: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    [data-background-kind="userImage"] [data-theme="dark"] & {
+        backdrop-filter: blur(48px);
+        background: rgba(0, 0, 0, 0.3);
     }
 }
 

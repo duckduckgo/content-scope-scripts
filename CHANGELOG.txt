@@ -1,1 +1,2 @@
-- Get page context (#1953)
+- Fix shadow rendering issue in popover when mousing over Customize link (#1958)
+- NTP: Adjust omnibar background colour on dark gradient/color backgrounds (#1957)

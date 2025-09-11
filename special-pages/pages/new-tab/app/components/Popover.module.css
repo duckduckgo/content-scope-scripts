@@ -77,6 +77,7 @@
         color: var(--ntp-accent-primary);
         cursor: pointer;
         padding: 0;
+        transform: translateZ(0); /* Fix shadow rendering issue on .popover in WebKit */
 
         &:hover {
             color: var(--ntp-accent-secondary);
