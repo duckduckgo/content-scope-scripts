@@ -133,6 +133,17 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     /**
+     * @returns {Promise<Element|HTMLElement|null>}
+     */
+    async runWithRetry(fn) {
+        try {
+            return await withExponentialBackoff(fn);
+        } catch {
+            return null;
+        }
+    }
+
+    /**
      * @returns {Promise<ElementConfig | null>}
      */
     async getExportConfirmElementAndStyle() {
@@ -372,11 +383,7 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     async findExportConfirmElement() {
-        try {
-            return await withExponentialBackoff(() => document.querySelector(this.exportConfirmButtonSelector), 3, 500);
-        } catch {
-            return null;
-        }
+        return await this.runWithRetry(() => document.querySelector(this.exportConfirmButtonSelector));
     }
 
     /**
@@ -395,11 +402,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             return document.querySelector(this.exportButtonLabelTextSelector);
         };
 
-        try {
-            return await withExponentialBackoff(() => findInContainer() ?? findWithLabel());
-        } catch {
-            return null;
-        }
+        return await this.runWithRetry(() => findInContainer() ?? findWithLabel());
     }
 
     /**
@@ -410,22 +413,14 @@ export default class AutofillPasswordImport extends ContentFeature {
             const settingsButton = document.querySelector(this.settingsButtonSelector);
             return settingsButton;
         };
-        try {
-            return await withExponentialBackoff(fn);
-        } catch {
-            return null;
-        }
+        return await this.runWithRetry(fn);
     }
 
     /**
      * @returns {Promise<HTMLElement|Element|null>}
      */
     async findSignInButton() {
-        try {
-            return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector));
-        } catch {
-            return null;
-        }
+        return await this.runWithRetry(() => document.querySelector(this.signinButtonSelector));
     }
 
     /**

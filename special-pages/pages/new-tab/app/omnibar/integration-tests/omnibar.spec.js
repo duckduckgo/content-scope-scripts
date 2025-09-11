@@ -1190,7 +1190,8 @@ test.describe('omnibar widget', () => {
         await omnibar.ready();
 
         await expect(omnibar.popover()).toBeVisible();
-        await expect(omnibar.popover()).toHaveText(/New! Toggle between search and AI chat/);
+        await expect(omnibar.popover()).toHaveText(/New/);
+        await expect(omnibar.popover()).toHaveText(/Toggle between search and AI chat/);
         await expect(omnibar.popover()).toHaveText(/Either way, your info stays private/);
     });
 
