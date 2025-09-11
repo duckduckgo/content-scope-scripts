@@ -57,9 +57,13 @@ function domToMarkdown(node, maxLength = Infinity) {
     }
 }
 
+function collapseAndTrim(str) {
+    return collapseWhitespace(str).trim();
+}
+
 function getLinkText(node) {
     const href = node.getAttribute('href');
-    return href ? `[${node.textContent}](${href})` : node.textContent;
+    return href ? `[${collapseAndTrim(node.textContent)}](${href})` : collapseWhitespace(node.textContent);
 }
 
 export default class PageContext extends ContentFeature {
