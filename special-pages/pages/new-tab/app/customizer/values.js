@@ -38,8 +38,8 @@ export const values = {
          */
         'gradient02.01': { path: 'gradients/gradient02.01.svg', fallback: '#f4ca78', colorScheme: 'light' },
         gradient03: { path: 'gradients/gradient03.svg', fallback: '#e6a356', colorScheme: 'light' },
-        gradient04: { path: 'gradients/gradient04.svg', fallback: '#4448ae', colorScheme: 'dark' },
-        gradient05: { path: 'gradients/gradient05.svg', fallback: '#a55778', colorScheme: 'dark' },
+        gradient04: { path: 'gradients/gradient04.svg', fallback: '#4448ae', colorScheme: 'light' },
+        gradient05: { path: 'gradients/gradient05.svg', fallback: '#a55778', colorScheme: 'light' },
         gradient06: { path: 'gradients/gradient06.svg', fallback: '#222566', colorScheme: 'dark' },
         gradient07: { path: 'gradients/gradient07.svg', fallback: '#0e0e3d', colorScheme: 'dark' },
     },
