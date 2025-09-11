@@ -14,7 +14,7 @@ export const ddgShimMark = Symbol('ddgShimMark');
  * FIXME: this function is not needed anymore after FF xray removal
  * Like Object.defineProperty, but with support for Firefox's mozProxies.
  * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
- * @param {string} propertyName
+ * @param {string | number | symbol} propertyName
  * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
  */
 export function defineProperty(object, propertyName, descriptor) {

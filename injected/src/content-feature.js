@@ -281,7 +281,7 @@ export default class ContentFeature extends ConfigFeature {
             }
         });
 
-        return defineProperty(object, String(propertyName), /** @type {any} */ (descriptor));
+        return defineProperty(object, propertyName, /** @type {import('./wrapper-utils').StrictPropertyDescriptor} */ (descriptor));
     }
 
     /**
