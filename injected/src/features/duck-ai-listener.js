@@ -25,10 +25,13 @@ export default class DuckAiListener extends ContentFeature {
     contextChip = null;
 
     /** @type {boolean} */
-    isPageContextEnabled = true;
+    #_isPageContextEnabled = false;
 
     /** @type {boolean} */
     hasContextBeenUsed = false;
+
+    /** @type {boolean} */
+    userExplicitlyDisabledContext = false;
 
     /** @type {string | null} */
     lastInjectedContext = null;
@@ -38,6 +41,46 @@ export default class DuckAiListener extends ContentFeature {
 
     /** @type {HTMLButtonElement | null} */
     sendButton = null;
+
+    /** @type {boolean} */
+    isRequestInProgress = false;
+
+    /** @type {Function | null} */
+    contextPromiseResolve = null;
+
+    /** @type {DuckAiPromptTelemetry | null} */
+    promptTelemetry = null;
+
+    /**
+     * Get the page context enabled state
+     * @returns {boolean}
+     */
+    get isPageContextEnabled() {
+        return this.#_isPageContextEnabled;
+    }
+
+    /**
+     * Set the page context enabled state and update UI accordingly
+     * @param {boolean} enabled - Whether page context should be enabled
+     */
+    set isPageContextEnabled(enabled) {
+        if (this.#_isPageContextEnabled === enabled) {
+            return; // No change needed
+        }
+
+        this.#_isPageContextEnabled = enabled;
+
+        // Update UI based on new state
+        if (enabled) {
+            if (this.pageData && this.pageData.content && !this.hasContextBeenUsed) {
+                this.createContextChip();
+            }
+        } else {
+            this.removeContextChip();
+        }
+
+        this.updateButtonAppearance();
+    }
 
     init() {
         // Only activate on duckduckgo.com
@@ -56,6 +99,9 @@ export default class DuckAiListener extends ContentFeature {
         this.createButtonUI();
         await this.setupMessageBridge();
         this.setupTextBoxDetection();
+        this.setupTelemetry();
+        this.cleanupExistingPrompts();
+        this.setupPromptCleanupObserver();
     }
 
     /**
@@ -245,34 +291,82 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
+     * Set up telemetry for prompt tracking
+     */
+    setupTelemetry() {
+        this.promptTelemetry = new DuckAiPromptTelemetry(this.messaging, this.log, this.getSizeCategories());
+        this.log.info('Set up prompt telemetry');
+    }
+
+    /**
+     * Get the defined size categories for prompt bucketing
+     * @returns {Array} Array of size category objects with name and maxSize
+     */
+    getSizeCategories() {
+        // Default size categories
+        const defaultCategories = [
+            { name: 'small', maxSize: 2499 },
+            { name: 'medium', maxSize: 4999 },
+            { name: 'large', maxSize: 7499 },
+            { name: 'xlarge', maxSize: 9999 },
+            { name: 'xxl', maxSize: Infinity },
+        ];
+
+        // Try to get size categories from config
+        const configCategories = this.getFeatureSetting('sizeCategories');
+        if (configCategories && Array.isArray(configCategories) && configCategories.length > 0) {
+            // Validate that each category has required fields and convert null maxSize to Infinity
+            const validCategories = configCategories
+                .filter((cat) => cat && typeof cat.name === 'string' && (typeof cat.maxSize === 'number' || cat.maxSize === null))
+                .map((cat) => ({
+                    name: cat.name,
+                    maxSize: cat.maxSize === null ? Infinity : cat.maxSize,
+                }));
+
+            if (validCategories.length > 0) {
+                return validCategories;
+            }
+        }
+
+        return defaultCategories;
+    }
+
+    removeContextChip() {
+        if (this.contextChip) {
+            this.contextChip.remove();
+            this.contextChip = null;
+        }
+    }
+
+    /**
      * Create the context chip below the input field
      */
     createContextChip() {
         // Guard clause: only proceed if we have page data and haven't used context yet
         if (!this.pageData) {
-            this.log.info('createContextChip: No page data available, skipping');
             return;
         }
 
         // Don't create chip if context has already been used
         if (this.hasContextBeenUsed) {
-            this.log.info('createContextChip: Context already used, skipping');
+            this.removeContextChip();
             return;
         }
 
-        if (this.contextChip) {
-            this.contextChip.remove();
-        }
+        this.removeContextChip();
 
         if (!this.pageData.content) {
             return;
         }
 
         // Find the textarea to position the chip below it
-        const textarea = document.querySelector('textarea[name="user-prompt"]');
-        if (!textarea) {
+        if (!this.textBox) {
+            this.findTextBox();
+        }
+        if (!this.textBox) {
             return;
         }
+        const textarea = this.textBox;
 
         // Create the context chip
         this.contextChip = document.createElement('div');
@@ -306,12 +400,7 @@ export default class DuckAiListener extends ContentFeature {
             justify-content: center;
         `;
 
-        // Debug logging to see what's happening
-        this.log.info('createContextChip called, this.pageData:', this.pageData);
-        this.log.info('this.pageData?.favicon:', this.pageData?.favicon);
-
         const favicon = this.pageData?.favicon?.[0]?.href;
-        this.log.info('favicon extracted:', favicon);
 
         // Build the inner content based on whether we have a favicon
         let innerContent;
@@ -397,6 +486,7 @@ export default class DuckAiListener extends ContentFeature {
             color: rgb(102, 102, 102);
             cursor: pointer;
         `;
+        infoIcon.title = 'Attach page context to the prompt';
 
         // Add warning icon if content is truncated
         const warningIcon = document.createElement('div');
@@ -450,31 +540,57 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
-     * Handle button click to toggle page context
+     * Handle button click to toggle page context or fetch context if not available
      */
-    handleButtonClick() {
+    async handleButtonClick() {
         if (!this.button || this.hasContextBeenUsed) return;
 
-        // Toggle the page context enabled state
-        this.isPageContextEnabled = !this.isPageContextEnabled;
+        const hasContext = this.pageData && this.pageData.content;
+        let newState;
 
-        // Show/hide context chip based on state
-        if (this.isPageContextEnabled) {
-            if (this.pageData && this.pageData.content) {
-                this.createContextChip();
+        // If no context is available, try to fetch it first
+        if (!hasContext) {
+            this.log.info('No context available, attempting to fetch...');
+            const success = await this.requestPageContext(true);
+
+            // If we successfully got context, enable it
+            if (success && this.pageData && this.pageData.content) {
+                newState = true;
+            } else {
+                // No context was fetched, keep current state unchanged
+                newState = this.isPageContextEnabled;
             }
         } else {
-            // Remove the context chip when disabled
-            if (this.contextChip) {
-                this.contextChip.remove();
-                this.contextChip = null;
-            }
+            // Toggle the page context enabled state (existing behavior when context is available)
+            newState = !this.isPageContextEnabled;
         }
 
-        // Update button appearance
-        this.updateButtonAppearance();
+        // Track when user explicitly disables context
+        if (!newState) {
+            this.userExplicitlyDisabledContext = true;
+        } else {
+            // Reset the flag when user re-enables
+            this.userExplicitlyDisabledContext = false;
+        }
 
-        this.log.info('Page context toggled:', this.isPageContextEnabled);
+        // Set the new state (setter will handle UI updates and no-change cases)
+        this.isPageContextEnabled = newState;
+
+        // Send telemetry and trigger events
+        this.sendToggleTelemetry();
+        this.triggerInputEvents();
+
+        this.log.info('Page context state:', this.isPageContextEnabled);
+    }
+
+    /**
+     * Send toggle telemetry if bridge is available
+     * @private
+     */
+    sendToggleTelemetry() {
+        if (this.bridge) {
+            this.bridge.notify('togglePageContextTelemetry', { enabled: this.isPageContextEnabled });
+        }
     }
 
     /**
@@ -486,12 +602,13 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
-     * Update button appearance based on enabled state and theme
+     * Update button appearance based on enabled state, context availability, and theme
      */
     updateButtonAppearance() {
         if (!this.button) return;
 
         const isDark = this.isDarkMode();
+        const hasContext = this.pageData && this.pageData.content;
 
         if (this.hasContextBeenUsed) {
             // Button is disabled after context has been used
@@ -502,8 +619,8 @@ export default class DuckAiListener extends ContentFeature {
             } else {
                 this.button.style.color = 'rgb(204, 204, 204)';
             }
-        } else if (this.isPageContextEnabled) {
-            // Button is selected - show active state
+        } else if (this.isPageContextEnabled && hasContext) {
+            // Button is selected and context is available - show active state
             if (isDark) {
                 this.button.style.backgroundColor = 'rgba(255, 255, 255, 0.18)';
                 this.button.style.color = 'rgb(255, 255, 255)';
@@ -513,7 +630,7 @@ export default class DuckAiListener extends ContentFeature {
             }
             this.button.style.cursor = 'pointer';
         } else {
-            // Button is not selected - show default state
+            // Button is not selected or no context available - show default state
             this.button.style.backgroundColor = 'transparent';
             this.button.style.cursor = 'pointer';
             if (isDark) {
@@ -521,6 +638,72 @@ export default class DuckAiListener extends ContentFeature {
             } else {
                 this.button.style.color = 'rgb(102, 102, 102)';
             }
+        }
+    }
+
+    /**
+     * Request page context from the bridge with explicit consent tracking
+     * @param {boolean} explicitConsent - Whether this request has explicit user consent
+     * @returns {Promise<boolean>} - Whether context was successfully retrieved
+     */
+    async requestPageContext(explicitConsent = false) {
+        if (!this.bridge) {
+            this.log.warn('No bridge available to fetch context');
+            return false;
+        }
+
+        // Prevent concurrent requests
+        if (this.isRequestInProgress) {
+            this.log.info('Request already in progress, ignoring duplicate request');
+            return false;
+        }
+
+        this.isRequestInProgress = true;
+        try {
+            // Make the bridge request
+            const getPageContext = await this.bridge.request('getPageContext', { explicitConsent });
+            const logMessage = explicitConsent ? 'Fetched page context on demand:' : 'Initial page context:';
+            this.log.info(logMessage, getPageContext);
+
+            // Try to process the direct response
+            this.handlePageContextData(getPageContext);
+
+            // For initial requests (no explicit consent), don't wait for subscription since it may not be set up yet
+            if (!explicitConsent) {
+                return !!(this.pageData && this.pageData.content);
+            }
+
+            // For explicit user requests, create a promise that the subscription callback can resolve
+            const contextPromise = new Promise((resolve) => {
+                this.contextPromiseResolve = resolve;
+
+                // Timeout after 3 seconds
+                setTimeout(() => {
+                    if (this.contextPromiseResolve === resolve) {
+                        this.contextPromiseResolve = null;
+                        resolve(false);
+                    }
+                }, 3000);
+            });
+
+            // If direct response had valid content, promise would be resolved already
+            if (!this.contextPromiseResolve) {
+                return true;
+            }
+
+            // Otherwise wait for the data to arrive via subscription (or timeout)
+            const success = await contextPromise;
+            this.log.info('Context promise resolved:', success);
+
+            return success;
+        } catch (error) {
+            // Clean up promise resolver on error
+            this.contextPromiseResolve = null;
+            const logMessage = explicitConsent ? 'Failed to fetch page context:' : 'No initial page context available:';
+            this.log.info(logMessage, error);
+            return false;
+        } finally {
+            this.isRequestInProgress = false;
         }
     }
 
@@ -552,13 +735,7 @@ export default class DuckAiListener extends ContentFeature {
             this.log.info('Created message bridge successfully');
 
             // Try to get initial page context
-            try {
-                const getPageContext = await this.bridge.request('getPageContext');
-                this.log.info('Initial page context:', getPageContext);
-                this.handlePageContextData(getPageContext);
-            } catch (error) {
-                this.log.info('No initial page context available:', error);
-            }
+            await this.requestPageContext(false);
 
             // Subscribe to page context updates (matches fake-duck-ai exactly)
             this.bridge.subscribe('submitPageContext', (event) => {
@@ -576,22 +753,45 @@ export default class DuckAiListener extends ContentFeature {
      */
     handlePageContextData(data) {
         try {
-            if (data.serializedPageData) {
+            if (data?.serializedPageData) {
                 const pageDataParsed = JSON.parse(data.serializedPageData);
                 this.log.info('Parsed page data:', pageDataParsed);
 
                 if (pageDataParsed.content) {
                     this.pageData = pageDataParsed;
-                    this.globalPageContext = pageDataParsed.content;
+
+                    // Resolve any pending context promise
+                    if (this.contextPromiseResolve) {
+                        this.contextPromiseResolve(true);
+                        this.contextPromiseResolve = null;
+                    }
+
+                    // Auto-enable context when it becomes available (only if not used yet and user hasn't explicitly disabled it)
+                    if (!this.hasContextBeenUsed && !this.isPageContextEnabled && !this.userExplicitlyDisabledContext) {
+                        this.isPageContextEnabled = true;
+                        // Note: setter will call createContextChip(), so no need to call it explicitly here
+                    } else {
+                        // Always update button appearance when context data changes
+                        this.updateButtonAppearance();
+
+                        // Only call createContextChip if not auto-enabled (setter didn't run)
+                        if (this.isPageContextEnabled && !this.hasContextBeenUsed) {
+                            this.createContextChip();
+                        }
+                    }
 
                     // Check for truncated content and warn user
                     if (pageDataParsed.truncated) {
                         this.log.warn('Page content has been truncated due to size limits');
                     }
 
-                    this.createContextChip();
                     this.setupMessageInterception();
                 }
+            } else {
+                this.log.info('No page data parsed');
+                this.pageData = null;
+                this.updateButtonAppearance();
+                this.removeContextChip();
             }
         } catch (error) {
             this.log.error('Error parsing page context data:', error);
@@ -616,17 +816,8 @@ export default class DuckAiListener extends ContentFeature {
             // Use multiple event listeners to catch React's event handling
             const handleClick = this.handleSendMessage.bind(this);
 
-            // Add event listeners with different capture phases
             sendButton.addEventListener('click', handleClick, true); // Capture phase
-            sendButton.addEventListener('click', handleClick, false); // Bubble phase
-
-            // Also listen for mousedown as a fallback
-            sendButton.addEventListener('mousedown', () => {
-                // Small delay to let React handle the event first
-                setTimeout(() => {
-                    this.handleSendMessage();
-                }, 10);
-            });
+            // sendButton.addEventListener('click', handleClick, false); // Bubble phase
 
             this.log.info('Set up message interception with multiple event listeners', sendButton);
         }
@@ -638,29 +829,128 @@ export default class DuckAiListener extends ContentFeature {
     handleSendMessage() {
         this.log.info('handleSendMessage called');
 
-        if (!this.isPageContextEnabled || this.hasContextBeenUsed || !this.pageData?.content) {
-            this.log.info('Context attachment blocked:', {
-                isPageContextEnabled: this.isPageContextEnabled,
-                hasContextBeenUsed: this.hasContextBeenUsed,
-                hasPageData: !!this.pageData,
-                hasContent: !!this.pageData?.content,
-            });
-            return;
+        // Trigger input events since the value getter behavior just changed
+        this.triggerInputEvents();
+
+        // Capture prompt text for telemetry before any modifications
+        if (this.textBox && this.promptTelemetry) {
+            const rawPromptText = this.getRawPromptText();
+            const totalPromptText = this.textBox.value; // This includes context if enabled
+            const contextSize = this.pageData?.content?.length || 0;
+            const contextData = this.isPageContextEnabled && this.pageData?.content ? this.pageData : null;
+            this.promptTelemetry.onPromptSent(
+                rawPromptText,
+                totalPromptText,
+                this.isPageContextEnabled && this.pageData?.content ? contextSize : 0,
+                contextData,
+            );
         }
 
-        // Mark context as used first to prevent multiple calls
         this.hasContextBeenUsed = true;
 
         // Remove the context chip
-        if (this.contextChip) {
-            this.contextChip.remove();
-            this.contextChip = null;
-        }
+        this.removeContextChip();
 
         // Update button appearance
         this.updateButtonAppearance();
+    }
 
-        this.log.info('Successfully appended context to message');
+    /**
+     * Clean up a paragraph element if it contains a prompt structure
+     * @param {HTMLElement} paragraph - The paragraph element to check and clean
+     * @returns {boolean} - True if paragraph was cleaned up
+     */
+    cleanupPromptParagraph(paragraph) {
+        const text = paragraph.textContent || '';
+
+        // Use regex to match any prompt structure with any random number
+        const promptRegex = /<prompt-([^>]+)>\s*([\s\S]*?)\s*<\/prompt-\1>/;
+        const match = text.match(promptRegex);
+
+        if (match) {
+            const extractedPrompt = match[2].trim();
+
+            // Create cleaned content
+            let cleanedContent = '';
+            if (extractedPrompt) {
+                cleanedContent = `${extractedPrompt}\n📄 Page context attached`;
+            }
+
+            // Replace the paragraph content
+            paragraph.textContent = cleanedContent;
+
+            this.log.info('Cleaned up prompt paragraph');
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Set up observer to continuously clean up prompt displays in conversation
+     */
+    setupPromptCleanupObserver() {
+        // Create observer to watch for new prompts appearing in the DOM
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === Node.ELEMENT_NODE && node instanceof Element) {
+                        // Look for paragraph tags that might contain our prompt
+                        const paragraphs = node.querySelectorAll('p');
+                        const allParagraphs = node.tagName === 'P' ? [node, ...paragraphs] : [...paragraphs];
+
+                        allParagraphs.forEach((p) => {
+                            // Try to clean up this paragraph
+                            this.cleanupPromptParagraph(/** @type {HTMLElement} */ (p));
+                        });
+                    }
+                });
+            });
+        });
+
+        // Start observing continuously
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+
+        this.log.info('Set up continuous observer for prompt cleanup');
+    }
+
+    /**
+     * Clean up any existing prompt structures in the conversation
+     * This runs once on script initialization to handle prompts already displayed
+     */
+    cleanupExistingPrompts() {
+        // Find all paragraphs in the conversation that might contain prompt structures
+        const allParagraphs = document.querySelectorAll('p');
+        let cleanedCount = 0;
+
+        allParagraphs.forEach((p) => {
+            // Use shared cleanup function for existing prompts (no specific prompt text to match)
+            if (this.cleanupPromptParagraph(/** @type {HTMLElement} */ (p))) {
+                cleanedCount++;
+            }
+        });
+
+        if (cleanedCount > 0) {
+            this.log.info(`Cleaned up ${cleanedCount} existing prompt(s) on page load`);
+        }
+    }
+
+    /**
+     * Get the raw prompt text without context appended
+     * @returns {string} The raw user prompt text
+     */
+    getRawPromptText() {
+        if (!this.textBox) return '';
+
+        // Get the original value descriptor to access raw value
+        const originalDescriptor = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value');
+        if (originalDescriptor && originalDescriptor.get) {
+            return originalDescriptor.get.call(this.textBox) || '';
+        }
+        return this.textBox.value || '';
     }
 
     /**
@@ -730,6 +1020,43 @@ export default class DuckAiListener extends ContentFeature {
     }
 
     /**
+     * Trigger keyboard and input events on the textbox to simulate user input
+     */
+    triggerInputEvents() {
+        if (!this.textBox) return;
+
+        // Create and dispatch keydown event
+        const keydownEvent = new KeyboardEvent('keydown', {
+            key: 'Unidentified',
+            code: 'Unidentified',
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+        });
+        this.textBox.dispatchEvent(keydownEvent);
+
+        // Create and dispatch input event for immediate updates
+        const inputEvent = new Event('input', {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+        });
+        this.textBox.dispatchEvent(inputEvent);
+
+        // Create and dispatch keyup event
+        const keyupEvent = new KeyboardEvent('keyup', {
+            key: 'Unidentified',
+            code: 'Unidentified',
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+        });
+        this.textBox.dispatchEvent(keyupEvent);
+
+        this.log.info('Triggered keyboard events for input simulation');
+    }
+
+    /**
      * Set up property descriptor to intercept value reads for context appending
      * @param {HTMLTextAreaElement} textarea - The textarea element
      */
@@ -737,6 +1064,12 @@ export default class DuckAiListener extends ContentFeature {
         // Store the original value property descriptor
         const originalDescriptor = Object.getOwnPropertyDescriptor(textarea, 'value');
         this.randomNumber = window.crypto?.randomUUID?.() || Math.floor(Math.random() * 1000);
+        const instructions =
+            this.getFeatureSetting('instructions') ||
+            `
+You are a helpful assistant that can answer questions and help with tasks.
+Do not include prompt, page-title, page-context, or instructions tags in your response.
+Answer the prompt using the page-title, and page-context ONLY if it's relevant to answering the prompt.`;
 
         // Override the value property using arrow functions to capture this context
         Object.defineProperty(textarea, 'value', {
@@ -744,16 +1077,17 @@ export default class DuckAiListener extends ContentFeature {
                 // Always append context when the value is read
                 if (originalDescriptor && originalDescriptor.get) {
                     const currentValue = originalDescriptor.get.call(textarea) || '';
-                    const pageContext = this.globalPageContext || '';
-                    const randomNumber = this.randomNumber;
-                    const instructions =
-                        this.getFeatureSetting('instructions') ||
-                        `
-You are a helpful assistant that can answer questions and help with tasks.
-Do not include prompt, page-title, page-context, or instructions tags in your response.
-Answer the prompt using the page-title, and page-context ONLY if it's relevant to answering the prompt.`;
 
-                    if (pageContext && currentValue) {
+                    // If context has been used, always return the raw current value (including empty string)
+                    if (this.hasContextBeenUsed) {
+                        return currentValue;
+                    }
+
+                    const pageContext = this.pageData?.content || '';
+                    const randomNumber = this.randomNumber;
+                    const shouldAddContext = pageContext && this.isPageContextEnabled && currentValue;
+
+                    if (shouldAddContext) {
                         const truncatedWarning = this.pageData?.truncated ? ' (Content was truncated due to size limits)\n' : '\n';
                         return `Prompt:
 <prompt-${randomNumber}>
@@ -783,10 +1117,292 @@ ${truncatedWarning}
             },
             set: (val) => {
                 if (originalDescriptor && originalDescriptor.set) {
+                    const oldValue = originalDescriptor.get?.call(textarea) || '';
                     originalDescriptor.set.call(textarea, val);
+
+                    // Trigger keyboard events if value actually changed
+                    if (oldValue !== val) {
+                        this.triggerInputEvents();
+                    }
                 }
             },
             configurable: true,
         });
+    }
+}
+
+/**
+ * Duck AI Prompt Telemetry Helper
+ *
+ * Handles daily aggregation and reporting of prompt usage telemetry.
+ * Stores prompt sizes and sends daily aggregated reports.
+ */
+class DuckAiPromptTelemetry {
+    static STORAGE_KEY = 'aiChatPageContextTelemetry';
+    static CONTEXT_PIXEL_NAME = 'dc_contextInfo';
+    static DAILY_PIXEL_NAME = 'dc_pageContextDailyTelemetry';
+    static ONE_DAY_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+    constructor(messaging, log, sizeCategories) {
+        this.messaging = messaging;
+        this.log = log;
+        this.sizeCategories = sizeCategories;
+        this.setupPixelConfig();
+        this.checkShouldFireDailyTelemetry();
+    }
+
+    /**
+     * Get current telemetry data from localStorage
+     * @returns {Object|null} Stored telemetry data or null if none exists
+     */
+    getTelemetryData() {
+        try {
+            const stored = localStorage.getItem(DuckAiPromptTelemetry.STORAGE_KEY);
+            return stored ? JSON.parse(stored) : null;
+        } catch (error) {
+            this.log.error('Error reading telemetry data:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Save telemetry data to localStorage
+     * @param {Object} data - Data to store
+     */
+    saveTelemetryData(data) {
+        try {
+            localStorage.setItem(DuckAiPromptTelemetry.STORAGE_KEY, JSON.stringify(data));
+        } catch (error) {
+            this.log.error('Error saving telemetry data:', error);
+        }
+    }
+
+    /**
+     * Clear stored telemetry data
+     */
+    clearTelemetryData() {
+        try {
+            localStorage.removeItem(DuckAiPromptTelemetry.STORAGE_KEY);
+            this.log.info('Telemetry data cleared');
+        } catch (error) {
+            this.log.error('Error clearing telemetry data:', error);
+        }
+    }
+
+    /**
+     * Store prompt telemetry when user sends a prompt
+     * @param {Object} promptData - Prompt size data
+     * @param {number} promptData.rawSize - Size of raw user prompt
+     * @param {number} promptData.totalSize - Total size including context
+     * @param {number} [promptData.contextSize] - Size of page context added
+     */
+    storePromptTelemetry(promptData) {
+        const now = Date.now();
+        let data = this.getTelemetryData();
+
+        if (!data) {
+            // First prompt - initialize storage
+            data = {
+                firstPromptDate: now,
+                promptData: [],
+            };
+            this.log.info('Initialized telemetry storage for first prompt');
+        }
+
+        // Add the prompt data to our collection
+        data.promptData.push(promptData);
+        this.saveTelemetryData(data);
+
+        this.log.info(
+            `Stored prompt telemetry: raw=${promptData.rawSize}, total=${promptData.totalSize}, context=${promptData.contextSize || 0}, total_prompts=${data.promptData.length}`,
+        );
+    }
+
+    /**
+     * Check if daily telemetry should be fired and send if needed
+     * @returns {boolean} True if telemetry was sent, false otherwise
+     */
+    checkShouldFireDailyTelemetry() {
+        const data = this.getTelemetryData();
+
+        if (!data || !data.firstPromptDate || (data.promptData || data.promptSizes || []).length === 0) {
+            // No data stored or no prompts to report
+            return false;
+        }
+
+        const now = Date.now();
+        const timeSinceFirstPrompt = now - data.firstPromptDate;
+
+        if (timeSinceFirstPrompt >= DuckAiPromptTelemetry.ONE_DAY_MS) {
+            // Over a day has passed - send telemetry
+            this.sendDailyTelemetry(data);
+            this.clearTelemetryData();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Send daily telemetry with aggregated prompt data
+     * @param {Object} data - Stored telemetry data
+     */
+    sendDailyTelemetry(data) {
+        // Support both old format (promptSizes array) and new format (promptData array)
+        const promptData = data.promptData || data.promptSizes?.map((size) => ({ rawSize: size, totalSize: size })) || [];
+        const totalPrompts = promptData.length;
+
+        if (totalPrompts === 0) {
+            this.log.info('No prompts to report in daily telemetry');
+            return;
+        }
+
+        // Extract raw and total sizes
+        const rawSizes = promptData.map((p) => p.rawSize || p.totalSize || p);
+        const totalSizes = promptData.map((p) => p.totalSize || p.rawSize || p);
+        const contextSizes = promptData.map((p) => p.contextSize || 0).filter((size) => size > 0);
+
+        // Calculate aggregate statistics for raw prompts
+        const totalRawCharacters = rawSizes.reduce((sum, size) => sum + size, 0);
+        const avgRawPromptSize = Math.round(totalRawCharacters / totalPrompts);
+
+        // Calculate aggregate statistics for total prompts (including context)
+        const totalAllCharacters = totalSizes.reduce((sum, size) => sum + size, 0);
+        const avgTotalPromptSize = Math.round(totalAllCharacters / totalPrompts);
+
+        // Calculate context statistics
+        const avgContextSize =
+            contextSizes.length > 0 ? Math.round(contextSizes.reduce((sum, size) => sum + size, 0) / contextSizes.length) : 0;
+        const contextUsageRate = contextSizes.length / totalPrompts;
+
+        // Create size buckets for privacy-friendly reporting
+        const rawSizeBuckets = this.categorizeSizes(rawSizes);
+        const totalSizeBuckets = this.categorizeSizes(totalSizes);
+
+        const createSizeFields = (prefix, buckets) => {
+            const sizeNames = this.sizeCategories.map((category) => category.name);
+            const capitalizeSize = (size) =>
+                size.replace(/(x*)(.*)/, (_, xs, rest) => xs.toUpperCase() + rest.charAt(0).toUpperCase() + rest.slice(1));
+
+            return Object.fromEntries(sizeNames.map((size) => [`${prefix}Size${capitalizeSize(size)}`, String(buckets[size] || 0)]));
+        };
+
+        const telemetryData = {
+            totalPrompts: String(totalPrompts),
+            avgRawPromptSize: this.bucketSizeByThousands(avgRawPromptSize),
+            ...createSizeFields('raw', rawSizeBuckets),
+            avgTotalPromptSize: this.bucketSizeByThousands(avgTotalPromptSize),
+            ...createSizeFields('total', totalSizeBuckets),
+            avgContextSize: this.bucketSizeByThousands(avgContextSize),
+            contextUsageRate: String(Math.round(contextUsageRate * 100)),
+        };
+
+        this.log.info('Sending daily telemetry pixel:', telemetryData);
+
+        // Send telemetry as pixel
+        this.sendPixel(DuckAiPromptTelemetry.DAILY_PIXEL_NAME, telemetryData);
+    }
+
+    /**
+     * Categorize prompt sizes into privacy-friendly buckets using large size ranges
+     * @param {number[]} promptSizes - Array of prompt sizes
+     * @returns {Object} Bucket counts
+     */
+    categorizeSizes(promptSizes) {
+        const buckets = Object.fromEntries(this.sizeCategories.map((category) => [category.name, 0]));
+
+        promptSizes.forEach((size) => {
+            const category = this.sizeCategories.find((cat) => size <= cat.maxSize);
+            if (category) {
+                buckets[category.name]++;
+            }
+        });
+
+        return buckets;
+    }
+
+    /**
+     * Setup pixel configuration for telemetry
+     */
+    setupPixelConfig() {
+        if (!globalThis?.DDG?.pixel) {
+            return;
+        }
+        globalThis.DDG.pixel._pixels[DuckAiPromptTelemetry.CONTEXT_PIXEL_NAME] = {};
+        globalThis.DDG.pixel._pixels[DuckAiPromptTelemetry.DAILY_PIXEL_NAME] = {};
+    }
+
+    /**
+     * Send pixel with telemetry data
+     * @param {string} pixelName - Name of pixel to fire
+     * @param {Object} params - Parameters to send with pixel
+     */
+    sendPixel(pixelName, params) {
+        if (!globalThis?.DDG?.pixel) {
+            return;
+        }
+        globalThis.DDG.pixel.fire(pixelName, params);
+    }
+
+    /**
+     * Bucket numbers by thousands for privacy-friendly reporting
+     * @param {number} number - Number to bucket
+     * @returns {string} Bucket lower bound (e.g., '0', '1000', '2000')
+     */
+    bucketSizeByThousands(number) {
+        if (number <= 0) {
+            return '0';
+        }
+        const bucketIndex = Math.floor(number / 1000);
+        return String(bucketIndex * 1000);
+    }
+
+    /**
+     * Send context pixel info when context is used
+     * @param {Object} contextData - Context data object
+     */
+    sendContextPixelInfo(contextData) {
+        if (!contextData?.content) {
+            this.log.warn('sendContextPixelInfo: No content available for pixel tracking');
+            return;
+        }
+
+        this.sendPixel(DuckAiPromptTelemetry.CONTEXT_PIXEL_NAME, {
+            contextLength: this.bucketSizeByThousands(contextData.content.length),
+        });
+    }
+
+    /**
+     * Handle prompt sent event - store telemetry and check daily firing
+     * @param {string} rawPromptText - The raw user prompt text
+     * @param {string} totalPromptText - The full prompt including context
+     * @param {number} [contextSize] - Size of page context added
+     * @param {Object} [contextData] - Context data for pixel tracking
+     */
+    onPromptSent(rawPromptText, totalPromptText, contextSize = 0, contextData = null) {
+        if (!rawPromptText || typeof rawPromptText !== 'string') {
+            this.log.warn('Invalid raw prompt text provided to telemetry');
+            return;
+        }
+        if (!totalPromptText || typeof totalPromptText !== 'string') {
+            this.log.warn('Invalid total prompt text provided to telemetry');
+            return;
+        }
+
+        const promptData = {
+            rawSize: rawPromptText.length,
+            totalSize: totalPromptText.length,
+            contextSize,
+        };
+
+        // Send context pixel info if context was used
+        if (contextData && contextSize > 0) {
+            this.sendContextPixelInfo(contextData);
+        }
+        // Check if we should fire daily telemetry
+        this.checkShouldFireDailyTelemetry();
+
+        // Store the prompt telemetry
+        this.storePromptTelemetry(promptData);
     }
 }
