@@ -812,7 +812,7 @@ export function legacySendMessage(messageType, options) {
  * @param {number} delay
  * @param {number} [maxAttempts=4] - The maximum number of attempts to find the element.
  * @param {number} [delay=500] - The initial delay to be used to create the exponential backoff.
- * @returns {Promise<Element|HTMLElement|null>}
+ * @returns {Promise<Element|HTMLElement>}
  */
 export function withExponentialBackoff(fn, maxAttempts = 4, delay = 500) {
     return new Promise((resolve, reject) => {
