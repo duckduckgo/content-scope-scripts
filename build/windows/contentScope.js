@@ -2700,6 +2700,9 @@
     };
   }
   function getPlatformVersion(preferences) {
+    if (preferences.platform?.version !== void 0 && preferences.platform?.version !== "") {
+      return preferences.platform.version;
+    }
     if (preferences.versionNumber) {
       return preferences.versionNumber;
     }

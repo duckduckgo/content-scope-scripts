@@ -1,2 +1,1 @@
-- Follow up page context redux (#1960)
-- [Google password import] autotap export button in modal (#1933)
+- Support version from platform object (#1961)
