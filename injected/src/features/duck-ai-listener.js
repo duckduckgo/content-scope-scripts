@@ -977,7 +977,7 @@ export default class DuckAiListener extends ContentFeature {
         const callback = (_, observer) => {
             this.findTextBox();
             this.setupMessageInterception();
-            if (this.textBox && this.pageData && this.sendButton) {
+            if (this.textBox && this.pageData && this.sendButton && !this.hasContextBeenUsed) {
                 this.createContextChip();
                 // No longer needed, we've found the text box.
                 observer.disconnect();
