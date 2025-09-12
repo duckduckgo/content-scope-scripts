@@ -1,1 +1,1 @@
-- Support version from platform object (#1961)
+- Set input's font size to 14px and textarea's line height to 16px on (#1963)
