@@ -489,16 +489,6 @@ export class DDGProxy {
     overload() {
         this.objectScope[this.property] = this.internal;
     }
-
-    overloadDescriptor() {
-        // TODO: this is not always correct! Use wrap* or shim* methods instead
-        this.feature.defineProperty(this.objectScope, this.property, {
-            value: this.internal,
-            writable: true,
-            enumerable: true,
-            configurable: true,
-        });
-    }
 }
 
 const maxCounter = new Map();

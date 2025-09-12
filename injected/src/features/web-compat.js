@@ -234,14 +234,14 @@ export class WebCompat extends ContentFeature {
             enumerable: false,
         });
 
-        this.defineProperty(window.Notification, 'permission', {
+        this.defineProperty(/** @type {any} */ (window.Notification), 'permission', {
             value: 'denied',
             writable: false,
             configurable: true,
             enumerable: true,
         });
 
-        this.defineProperty(window.Notification, 'maxActions', {
+        this.defineProperty(/** @type {any} */ (window.Notification), 'maxActions', {
             get: () => 2,
             configurable: true,
             enumerable: true,
@@ -442,6 +442,7 @@ export class WebCompat extends ContentFeature {
             };
             // TODO: original property is an accessor descriptor
             this.defineProperty(Navigator.prototype, 'credentials', {
+                // @ts-expect-error validate this
                 value,
                 configurable: true,
                 enumerable: true,
@@ -458,6 +459,7 @@ export class WebCompat extends ContentFeature {
             if (window.safari) {
                 return;
             }
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             this.defineProperty(window, 'safari', {
                 value: {},
                 writable: true,
@@ -806,7 +808,7 @@ export class WebCompat extends ContentFeature {
     /**
      * Creates a valid MediaDeviceInfo or InputDeviceInfo object that passes instanceof checks
      * @param {'videoinput' | 'audioinput' | 'audiooutput'} kind - The device kind
-     * @returns {MediaDeviceInfo | InputDeviceInfo}
+     * @returns {MediaDeviceInfo}
      */
     createMediaDeviceInfo(kind) {
         // Create an empty object with the correct prototype
@@ -823,48 +825,45 @@ export class WebCompat extends ContentFeature {
             deviceInfo = Object.create(MediaDeviceInfo.prototype);
         }
 
-        // Define read-only properties from the start
-        Object.defineProperties(deviceInfo, {
-            deviceId: {
-                value: 'default',
-                writable: false,
-                configurable: false,
-                enumerable: true,
+        this.defineProperty(deviceInfo, 'deviceId', {
+            value: 'default',
+            writable: false,
+            configurable: false,
+            enumerable: true,
+        });
+        this.defineProperty(deviceInfo, 'kind', {
+            value: kind,
+            writable: false,
+            configurable: false,
+            enumerable: true,
+        });
+        this.defineProperty(deviceInfo, 'label', {
+            value: '',
+            writable: false,
+            configurable: false,
+            enumerable: true,
+        });
+        this.defineProperty(deviceInfo, 'groupId', {
+            value: 'default-group',
+            writable: false,
+            configurable: false,
+            enumerable: true,
+        });
+        this.defineProperty(deviceInfo, 'toJSON', {
+            value: function () {
+                return {
+                    deviceId: this.deviceId,
+                    kind: this.kind,
+                    label: this.label,
+                    groupId: this.groupId,
+                };
             },
-            kind: {
-                value: kind,
-                writable: false,
-                configurable: false,
-                enumerable: true,
-            },
-            label: {
-                value: '',
-                writable: false,
-                configurable: false,
-                enumerable: true,
-            },
-            groupId: {
-                value: 'default-group',
-                writable: false,
-                configurable: false,
-                enumerable: true,
-            },
-            toJSON: {
-                value: function () {
-                    return {
-                        deviceId: this.deviceId,
-                        kind: this.kind,
-                        label: this.label,
-                        groupId: this.groupId,
-                    };
-                },
-                writable: false,
-                configurable: false,
-                enumerable: true,
-            },
+            writable: false,
+            configurable: false,
+            enumerable: false,
         });
 
-        return deviceInfo;
+        return /** @type {MediaDeviceInfo} */ (deviceInfo);
     }
 
     /**
