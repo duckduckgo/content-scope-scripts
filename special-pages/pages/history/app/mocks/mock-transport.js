@@ -40,6 +40,7 @@ export function mockTransport() {
             { id: 'saturday', count: 1 },
             { id: 'friday', count: 1 },
             { id: 'older', count: 1 },
+            { id: 'sites', count: 1 },
         ],
     };
 
@@ -268,8 +269,10 @@ function queryResponseFrom(memory, msg) {
         const response = asResponse(memory.slice(0, 10), msg.params.offset, msg.params.limit);
         const range = msg.params.query.range;
         response.value = response.value.map((item) => {
+            if (!('range' in msg.params.query)) return item; // unreachable
             return {
                 ...item,
+                dateTimeOfDay: msg.params.query.range === 'sites' ? undefined : item.dateTimeOfDay,
                 title: 'range:' + range + ' ' + item.title,
             };
         });

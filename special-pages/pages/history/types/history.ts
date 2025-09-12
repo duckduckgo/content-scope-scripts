@@ -31,7 +31,8 @@ export type RangeId =
   | "friday"
   | "saturday"
   | "sunday"
-  | "older";
+  | "older"
+  | "sites";
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
 /**
  * Indicates the query was triggered before the UI was rendered
@@ -266,7 +267,7 @@ export interface HistoryItem {
   /**
    * The time of day in 24-hour format (e.g., '11:01').
    */
-  dateTimeOfDay: string;
+  dateTimeOfDay?: string;
   /**
    * The eTLD+1 version of the domain, representing the domain and its top-level domain (e.g., 'example.com', 'localhost'). This differs from 'domain', which may include subdomains (e.g., 'www.youtube.com').
    */
