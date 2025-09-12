@@ -61,7 +61,7 @@ export class Build {
             android: () => '../build/android/contentScope.js',
             apple: () => '../build/apple/contentScope.js',
             'apple-isolated': () => '../build/apple/contentScopeIsolated.js',
-            'android-autofill-password-import': () => '../build/android/autofillPasswordImport.js',
+            'android-autofill-import': () => '../build/android/autofillPasswordImport.js',
             'android-broker-protection': () => '../build/android/brokerProtection.js',
         });
         return readFileSync(path, 'utf8');
@@ -79,7 +79,7 @@ export class Build {
             'windows',
             'integration',
             'android',
-            'android-autofill-password-import',
+            'android-autofill-import',
             'chrome-mv3',
             'firefox',
         ];

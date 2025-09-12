@@ -1,6 +1,10 @@
 import ContentFeature from '../content-feature';
 import { isBeingFramed, withExponentialBackoff } from '../utils';
 import { click } from './broker-protection/actions/click';
+import { expectation } from './broker-protection/actions/expectation';
+import { execute } from './broker-protection/execute';
+import { Steps } from './autofill-bookmark-steps';
+import { retry } from '../timer-utils';
 
 export const ANIMATION_DURATION_MS = 1000;
 export const ANIMATION_ITERATIONS = Infinity;
@@ -36,7 +40,7 @@ const TAKEOUT_DOWNLOAD_URL_BASE = '/takeout/download';
  * 2. Find the element to animate based on the path - using structural selectors first and then fallback to label texts),
  * 3. Animate the element, or tap it if it should be autotapped.
  */
-export default class AutofillPasswordImport extends ContentFeature {
+export default class AutofillImport extends ContentFeature {
     #exportButtonSettings;
 
     #settingsButtonSettings;
@@ -495,19 +499,37 @@ export default class AutofillPasswordImport extends ContentFeature {
     async handleBookmarkImportPath(pathname) {
         console.log('DEEP DEBUG autofill-password-import: handleBookmarkImportPath', pathname);
         if (pathname === '/' && !this.#isBookmarkModalVisible) {
-            console.log('DEEP DEBUG autofill-password-import: handleBookmarkImportPath', this.disselectAllButtonSelector);
-            click({
-                id: 'disselect-all-click',
-                actionType: 'click',
-                elements: [{
-                    type: 'element',
-                    selector: this.disselectAllButtonSelector
-                }]
-            }, {}, /** @type HTMLElement */ (this.getRoot(this.tabPanelSelector)))
-            await this.scrollToChromeSection();
-            await this.openBookmarkModal();
-            await this.selectBookmark();
-            await this.startExportProcess();
+            const bookmarkSteps = new Steps();
+            bookmarkSteps.actions.forEach(async (/** @type {import('./broker-protection/types.js').PirAction} */ action) => {
+                if (action.id === 'chrome-section-select') {
+                    await this.runWithRetry(() =>  !(/** @type HTMLInputElement */ (document.querySelector(`${this.chromeSectionSelector} input`)))?.checked);
+                } 
+                if (action.id === 'chrome-data-button-click') {
+                    await this.runWithRetry(() => {
+                        const element = document.querySelector(this.chromeDataButtonSelector);
+                        return element?.checkVisibility();
+                    });
+                }
+                if (action.id === 'bookmark-disselect-all-button-click') {
+                    await this.runWithRetry(() => {
+                        return document.querySelector(this.bookmarkModalSelector);
+                    });
+                }
+                if (action.id === 'bookmark-checkbox-click') {
+                    await this.runWithRetry(() => {
+                        const element = /** @type HTMLInputElement */ (document.querySelector(this.bookmarkCheckboxSelector));
+                        return !element.checked;
+                    });
+                }
+
+                if (action.id === 'ok-button-click') {
+                    await this.runWithRetry(() => {
+                        const okButton = /** @type HTMLButtonElement */ (document.querySelector(this.okButtonSelector));
+                        return okButton?.ariaDisabled !== 'true';
+                    });
+                }
+                const { result, exceptions } = await retry(() => execute(action, {}, document));
+            });
             await this.storeExportId();
             click({
                 id: 'manage-button-click',
@@ -622,53 +644,29 @@ export default class AutofillPasswordImport extends ContentFeature {
         return /** @type HTMLElement */ (document.querySelector(selector)) ?? document;
     }
 
-    get disselectAllButtonSelector() {
-        return `${this.tabPanelSelector} div:nth-child(2) div:nth-child(2)`;
-    }
-
-    get bookmarkModalSelector() {
-        return 'fieldset.rcetic';
-    }
-
-    get bookmarkSelectButtonSelector() {
-        return `${this.bookmarkModalSelector} input`;
-    }
-
-    get chromeInputCheckboxSelector() {
-        return `${this.tabPanelSelector} div:nth-child(10) input[type="checkbox"]`;
-    }
-
-    get chromeSectionSelector() {
-        return 'c-wiz [data-id="chrome"]';
+    get tabPanelSelector() {
+        return 'div[role="tabpanel"]';
     }
 
     get chromeDataButtonSelector() {
         return `${this.tabPanelSelector} div:nth-child(10) > div:nth-child(2) > div:nth-child(2) button`;
     }
 
-    get nextStepButtonSelector() {
-        return `${this.tabPanelSelector} > div:nth-child(1) > div:nth-child(2) button`;
+    get bookmarkModalSelector() {
+        return 'fieldset.rcetic';
     }
-
-    get createExportButtonSelector() {
-        return 'div[data-configure-step="1"] button';
-    }
-
-    get tabPanelSelector() {
-        return 'div[role="tabpanel"]';
-    }
-
-    get inputCheckboxSelector() {
-        return `${this.tabPanelSelector} input[type="checkbox"]`;
-    }
-
-    get okButtonSelector() {
-        return 'div[isfullscreen] div:nth-child(3) div:last-child';
+    get bookmarkDisselectAllButtonSelector() {
+        return `${this.bookmarkModalSelector} div:nth-child(2) button:nth-of-type(2)`;
     }
 
     get bookmarkCheckboxSelector() {
         return `${this.bookmarkModalSelector} div:nth-child(3) > div:nth-of-type(2) input`;
     }
+
+    get okButtonSelector() {
+        return 'div[isfullscreen] div:nth-child(3) div:last-child';
+    }
+  
 
     async findExportId() {
         const panels = document.querySelectorAll(this.tabPanelSelector);
@@ -706,10 +704,14 @@ export default class AutofillPasswordImport extends ContentFeature {
             return;
         }
 
-        await this.runWithRetry(() => {
-            const element = /** @type HTMLButtonElement */ (document.querySelector(this.chromeDataButtonSelector));
-            return element?.checkVisibility();
-        });
+        expectation({
+            id: 'chrome-data-button-expectation',
+            actionType: 'expectation',
+            expectations: [{
+                type: 'element',
+                selector: this.chromeDataButtonSelector
+            }]
+        }, document)
 
         click({
             id: 'select-bookmark-click',
@@ -776,16 +778,20 @@ export default class AutofillPasswordImport extends ContentFeature {
         this.#isBookmarkProcessed = true;
     }
 
+    get chromeSectionSelector() {
+        return 'c-wiz [data-id="chrome"]';
+    }
+
     async scrollToChromeSection() {
-        const chromeSectionElement = /** @type HTMLInputElement */ (
-            await this.runWithRetry(() => document.querySelectorAll(this.chromeSectionSelector)[0].querySelector('input'))
+        const chromeSectionInputElement = /** @type HTMLInputElement */ (
+            await this.runWithRetry(() => document.querySelectorAll(`${this.chromeSectionSelector} input`)[0])
         );
-        console.log('DEEP chromeSectionElement', chromeSectionElement);
+        console.log('DEEP chromeSectionInputElement', chromeSectionInputElement);
 
-        await this.runWithRetry(() => !chromeSectionElement.checked);
+        await this.runWithRetry(() => !chromeSectionInputElement.checked);
 
-        chromeSectionElement.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' });
-        chromeSectionElement?.click();
+        chromeSectionInputElement.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' });
+        chromeSectionInputElement?.click();
     }
 
     urlChanged(navigationType) {

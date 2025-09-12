@@ -50,7 +50,7 @@ export const platformSupport = {
     ],
     android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
-    'android-autofill-password-import': ['autofillPasswordImport'],
+    'android-autofill-import': ['autofillPasswordImport'],
     'android-adsjs': [
         'apiManipulation',
         'webCompat',
