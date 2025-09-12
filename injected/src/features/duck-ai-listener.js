@@ -1378,7 +1378,7 @@ class DuckAiPromptTelemetry {
      * @param {Object} contextData - Context data object
      */
     sendContextPixelInfo(contextData, pixelName) {
-        if (!contextData?.content) {
+        if (!contextData?.content || contextData.content.length === 0) {
             this.log.warn('sendContextPixelInfo: No content available for pixel tracking');
             return;
         }
