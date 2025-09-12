@@ -819,7 +819,6 @@ export default class DuckAiListener extends ContentFeature {
             const handleClick = this.handleSendMessage.bind(this);
 
             sendButton.addEventListener('click', handleClick, true); // Capture phase
-            // sendButton.addEventListener('click', handleClick, false); // Bubble phase
 
             this.log.info('Set up message interception with multiple event listeners', sendButton);
         }
@@ -985,7 +984,7 @@ export default class DuckAiListener extends ContentFeature {
         this.mutationObserver = null;
 
         // Callback function to execute when mutations are observed
-        const callback = (_, observer) => {
+        const callback = (/** @type {MutationRecord[]} */ _, observer) => {
             this.findTextBox();
             this.setupMessageInterception();
             if (this.textBox && this.pageData && this.sendButton && !this.hasContextBeenUsed) {
@@ -1013,13 +1012,17 @@ export default class DuckAiListener extends ContentFeature {
                 this.textBox = element;
                 this.log.info('Found AI text box');
 
-                // Add enter key handler to call handleSendMessage
-                element.addEventListener('keyup', (event) => {
-                    if (event.key === 'Enter' && !event.shiftKey) {
-                        this.log.info('Enter key pressed');
-                        this.handleSendMessage();
-                    }
-                });
+                // Add enter key handler using keydown with capture phase
+                element.addEventListener(
+                    'keydown',
+                    (event) => {
+                        if (event.key === 'Enter' && !event.shiftKey) {
+                            this.log.info('Enter key pressed');
+                            this.handleSendMessage();
+                        }
+                    },
+                    true,
+                );
 
                 // Set up property descriptor to intercept value reads for context appending
                 this.setupValuePropertyDescriptor(element);
