@@ -61,7 +61,7 @@ export function SearchForm({ autoFocus, onOpenSuggestion, onSubmit, onSubmitChat
     const inputRef = useCompletionInput(inputBase, inputCompletion);
     const inputSuffix = getInputSuffix(term, selectedSuggestion);
     const inputSuffixText = useSuffixText(inputSuffix);
-    const inputFont = platformName === 'windows' ? '400 13px / 16px system-ui' : '500 13px / 16px system-ui';
+    const inputFont = platformName === 'windows' ? '400 14px / 16px system-ui' : '500 13px / 16px system-ui';
     const inputSuffixWidth = useMemo(() => measureText(inputSuffixText, inputFont), [inputSuffixText, inputFont]);
 
     useEffect(() => {
