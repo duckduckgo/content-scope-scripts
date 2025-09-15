@@ -73,16 +73,7 @@ export class Build {
      */
     static supported(name) {
         /** @type {ImportMeta['injectName'][]} */
-        const items = [
-            'apple',
-            'apple-isolated',
-            'windows',
-            'integration',
-            'android',
-            'android-autofill-import',
-            'chrome-mv3',
-            'firefox',
-        ];
+        const items = ['apple', 'apple-isolated', 'windows', 'integration', 'android', 'android-autofill-import', 'chrome-mv3', 'firefox'];
         if (items.includes(name)) {
             return name;
         }

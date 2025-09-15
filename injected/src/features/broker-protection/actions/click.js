@@ -7,7 +7,7 @@ import { processTemplateStringWithUserData } from './build-url-transforms.js';
  * @param {Record<string, any>} action
  * @param {Record<string, any>} userData
  * @param {Document | HTMLElement} root
-* @return {import('../types.js').ActionResponse}
+ * @return {import('../types.js').ActionResponse}
  */
 export function click(action, userData, root = document) {
     /** @type {Array<any> | null} */

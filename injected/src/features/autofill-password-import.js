@@ -1,10 +1,8 @@
 import ContentFeature from '../content-feature';
 import { isBeingFramed, withExponentialBackoff } from '../utils';
-import { click } from './broker-protection/actions/click';
-import { expectation } from './broker-protection/actions/expectation';
 import { execute } from './broker-protection/execute';
 import { Steps } from './autofill-bookmark-steps';
-import { retry } from '../timer-utils';
+import { DEFAULT_RETRY_CONFIG, retry } from '../timer-utils';
 
 export const ANIMATION_DURATION_MS = 1000;
 export const ANIMATION_ITERATIONS = Infinity;
@@ -63,10 +61,11 @@ export default class AutofillImport extends ContentFeature {
     #processingBookmark;
 
     #isBookmarkModalVisible = false;
-    #isBookmarkProcessed = false;
 
     /** @type {WeakSet<Element>} */
     #tappedElements = new WeakSet();
+
+    // #bookmarkImportActions;
 
     /**
      * @returns {ButtonAnimationStyle}
@@ -150,51 +149,6 @@ export default class AutofillImport extends ContentFeature {
         } catch (error) {
             return null;
         }
-    }
-
-    /**
-     * Wait for an element's attribute to change using mutation observer
-     * @param {string} selector - CSS selector for the element
-     * @param {string} attribute - Attribute to watch
-     * @param {Function} condition - Function that returns true when condition is met
-     * @returns {Promise<void>}
-     */
-    async waitForAttributeChange(selector, attribute, condition) {
-        return new Promise((resolve, reject) => {
-            const element = document.querySelector(selector);
-            if (!element) {
-                reject(new Error(`Element with selector "${selector}" not found`));
-                return;
-            }
-
-            // Check if condition is already met
-            if (condition(element)) {
-                resolve();
-                return;
-            }
-
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'attributes' && mutation.attributeName === attribute) {
-                        if (condition(element)) {
-                            observer.disconnect();
-                            resolve();
-                        }
-                    }
-                });
-            });
-
-            observer.observe(element, {
-                attributes: true,
-                attributeFilter: [attribute]
-            });
-
-            // Fallback timeout after 10 seconds
-            setTimeout(() => {
-                observer.disconnect();
-                reject(new Error(`Timeout waiting for attribute "${attribute}" to change`));
-            }, 10000);
-        });
     }
 
     /**
@@ -488,61 +442,6 @@ export default class AutofillImport extends ContentFeature {
         }
     }
 
-    async downloadData() {
-        const userId = document.querySelector(this.userIdSelector)?.getAttribute('href')?.split('&user=')[1];
-        console.log('DEEP DEBUG autofill-password-import: userId', userId);
-        await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 8);
-        const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
-        window.location.href = downloadURL;
-    }
-
-    async handleBookmarkImportPath(pathname) {
-        console.log('DEEP DEBUG autofill-password-import: handleBookmarkImportPath', pathname);
-        if (pathname === '/' && !this.#isBookmarkModalVisible) {
-            const bookmarkSteps = new Steps();
-            bookmarkSteps.actions.forEach(async (/** @type {import('./broker-protection/types.js').PirAction} */ action) => {
-                if (action.id === 'chrome-section-select') {
-                    await this.runWithRetry(() =>  !(/** @type HTMLInputElement */ (document.querySelector(`${this.chromeSectionSelector} input`)))?.checked);
-                } 
-                if (action.id === 'chrome-data-button-click') {
-                    await this.runWithRetry(() => {
-                        const element = document.querySelector(this.chromeDataButtonSelector);
-                        return element?.checkVisibility();
-                    });
-                }
-                if (action.id === 'bookmark-disselect-all-button-click') {
-                    await this.runWithRetry(() => {
-                        return document.querySelector(this.bookmarkModalSelector);
-                    });
-                }
-                if (action.id === 'bookmark-checkbox-click') {
-                    await this.runWithRetry(() => {
-                        const element = /** @type HTMLInputElement */ (document.querySelector(this.bookmarkCheckboxSelector));
-                        return !element.checked;
-                    });
-                }
-
-                if (action.id === 'ok-button-click') {
-                    await this.runWithRetry(() => {
-                        const okButton = /** @type HTMLButtonElement */ (document.querySelector(this.okButtonSelector));
-                        return okButton?.ariaDisabled !== 'true';
-                    });
-                }
-                const { result, exceptions } = await retry(() => execute(action, {}, document));
-            });
-            await this.storeExportId();
-            click({
-                id: 'manage-button-click',
-                actionType: 'click',
-                elements: [{
-                    type: 'element',
-                    selector: this.manageButtonSelector
-                }]
-            }, {}, document)
-            await this.downloadData();
-        }
-    }
-
     /**
      * @param {Location} location
      *
@@ -624,12 +523,52 @@ export default class AutofillImport extends ContentFeature {
         return `${this.#settingsButtonSettings?.selectors?.join(',')}, ${this.settingsLabelTextSelector}`;
     }
 
-    get manageButtonSelector() {
-        return 'a[href="manage"]';
-    }
+    /** Bookmark import code */
 
     get userIdSelector() {
         return 'a[href*="&user="]';
+    }
+
+    async downloadData() {
+        const userId = document.querySelector(this.userIdSelector)?.getAttribute('href')?.split('&user=')[1];
+        console.log('DEEP DEBUG autofill-password-import: userId', userId);
+        await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 8);
+        const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
+        window.location.href = downloadURL;
+    }
+
+    getRetryConfig(action) {
+        const actions = ['bookmark-modal-expectation', 'bookmark-checkbox-click', 'deselect-all-button-expectation'];
+        return actions.includes(action.id)
+            ? {
+                  interval: { ms: 1000 },
+                  maxAttempts: 30,
+              }
+            : DEFAULT_RETRY_CONFIG;
+    }
+
+    async handleBookmarkImportPath(pathname) {
+        console.log('DEEP DEBUG autofill-password-import: handleBookmarkImportPath', pathname);
+        if (pathname === '/' && !this.#isBookmarkModalVisible) {
+            const bookmarkSteps = new Steps();
+            for (const action of bookmarkSteps.actions) {
+                if (action.id === 'chrome-data-button-click') {
+                    await this.runWithRetry(() => {
+                        const element = document.querySelector(this.chromeDataButtonSelector);
+                        return element?.checkVisibility();
+                    });
+                }
+                if (action.id === 'manage-button-click') {
+                    // Before clicking on the manage button, we need to store the export id
+                    await this.storeExportId();
+                }
+                await retry(
+                    async () => await execute(/** @type {import('./broker-protection/types').PirAction} */ (action), {}, document),
+                    this.getRetryConfig(action),
+                );
+            }
+            await this.downloadData();
+        }
     }
 
     setButtonSettings() {
@@ -638,10 +577,8 @@ export default class AutofillImport extends ContentFeature {
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
     }
 
-    /* ****************************** Bookmark import code ****************************** */
-
-    getRoot(selector) {
-        return /** @type HTMLElement */ (document.querySelector(selector)) ?? document;
+    setDBPActions() {
+        // this.#bookmarkImportActions = actions;
     }
 
     get tabPanelSelector() {
@@ -652,22 +589,6 @@ export default class AutofillImport extends ContentFeature {
         return `${this.tabPanelSelector} div:nth-child(10) > div:nth-child(2) > div:nth-child(2) button`;
     }
 
-    get bookmarkModalSelector() {
-        return 'fieldset.rcetic';
-    }
-    get bookmarkDisselectAllButtonSelector() {
-        return `${this.bookmarkModalSelector} div:nth-child(2) button:nth-of-type(2)`;
-    }
-
-    get bookmarkCheckboxSelector() {
-        return `${this.bookmarkModalSelector} div:nth-child(3) > div:nth-of-type(2) input`;
-    }
-
-    get okButtonSelector() {
-        return 'div[isfullscreen] div:nth-child(3) div:last-child';
-    }
-  
-
     async findExportId() {
         const panels = document.querySelectorAll(this.tabPanelSelector);
         const exportPanel = panels[panels.length - 1];
@@ -677,121 +598,6 @@ export default class AutofillImport extends ContentFeature {
     async storeExportId() {
         this.#exportId = await this.findExportId();
         console.log('DEEP DEBUG autofill-password-import: stored export id', this.#exportId);
-    }
-
-    startExportProcess() {
-        click({
-            id: 'next-step-button-click',
-            actionType: 'click',
-            elements: [{
-                type: 'element',
-                selector: this.nextStepButtonSelector
-            }]
-        }, {}, document)
-
-        click({
-            id: 'create-export-button-click',
-            actionType: 'click',
-            elements: [{
-                type: 'element',
-                selector: this.createExportButtonSelector
-            }]
-        }, {}, document)
-    }
-
-    async openBookmarkModal() { 
-        if (this.#isBookmarkProcessed || this.#isBookmarkModalVisible) {
-            return;
-        }
-
-        expectation({
-            id: 'chrome-data-button-expectation',
-            actionType: 'expectation',
-            expectations: [{
-                type: 'element',
-                selector: this.chromeDataButtonSelector
-            }]
-        }, document)
-
-        click({
-            id: 'select-bookmark-click',
-            actionType: 'click',
-            elements: [{
-                type: 'element',
-                selector: this.chromeDataButtonSelector
-            }]
-        }, {}, document);
-        await this.runWithRetry(() => document.querySelector(this.bookmarkModalSelector) != null)
-        this.#isBookmarkModalVisible = true;
-    }
-
-    async selectBookmark() {
-        if (this.#isBookmarkProcessed) {
-            return;
-        }
-
-        const disselectSelector = `${this.bookmarkModalSelector} div:nth-child(2) button:nth-of-type(2)`;
-
-        click({
-            id: 'bookmark-disselect-all-click',
-            actionType: 'click',
-            elements: [{
-                type: 'element',
-                selector: disselectSelector
-            }]
-        }, {}, this.getRoot(this.bookmarkModalSelector))
-
-        await this.runWithRetry(() => {
-            const element = /** @type HTMLInputElement */ (document.querySelector(this.bookmarkCheckboxSelector));
-            return !element.checked;
-        });
-
-        click({
-            id: 'bookmark-checkbox-click',
-            actionType: 'click',
-            elements: [{
-                type: 'element',
-                selector: this.bookmarkCheckboxSelector
-            }]
-        }, {}, document)
-
-        await this.runWithRetry(() => {
-            const element = /** @type HTMLInputElement */ (document.querySelector(this.bookmarkCheckboxSelector));
-            return element?.checked;
-        });
-
-        await this.runWithRetry(() => {
-            const okButton = /** @type HTMLButtonElement */ (document.querySelector(this.okButtonSelector));
-            return okButton?.ariaDisabled !== 'true';
-        });
-
-        click({
-            id: 'bookmark-ok-button-click',
-            actionType: 'click',
-            elements: [{
-                type: 'element',
-                selector: this.okButtonSelector
-            }]
-        }, {}, document)
-
-        this.#isBookmarkModalVisible = false;
-        this.#isBookmarkProcessed = true;
-    }
-
-    get chromeSectionSelector() {
-        return 'c-wiz [data-id="chrome"]';
-    }
-
-    async scrollToChromeSection() {
-        const chromeSectionInputElement = /** @type HTMLInputElement */ (
-            await this.runWithRetry(() => document.querySelectorAll(`${this.chromeSectionSelector} input`)[0])
-        );
-        console.log('DEEP chromeSectionInputElement', chromeSectionInputElement);
-
-        await this.runWithRetry(() => !chromeSectionInputElement.checked);
-
-        chromeSectionInputElement.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' });
-        chromeSectionInputElement?.click();
     }
 
     urlChanged(navigationType) {
@@ -805,7 +611,14 @@ export default class AutofillImport extends ContentFeature {
             return;
         }
 
-        this.setButtonSettings();
+        if (this.getFeatureSettingEnabled('canImportFromGoogleTakeout')) {
+            // this.setDBPActions(this.getFeatureSetting('bookmarkImport'));
+        } else if (this.getFeatureSettingEnabled('canImportFromGooglePasswordManager')) {
+            this.setButtonSettings();
+        } else {
+            // bail out
+            return;
+        }
         const handleLocation = this.handleLocation.bind(this);
 
         this.#domLoaded = new Promise((resolve) => {

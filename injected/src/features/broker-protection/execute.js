@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-redeclare
 import { navigate, extract, click, scroll, expectation, fillForm, getCaptchaInfo, solveCaptcha, condition } from './actions/actions';
 import { ErrorResponse } from './types';
 
