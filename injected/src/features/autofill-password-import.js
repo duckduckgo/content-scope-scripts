@@ -592,7 +592,7 @@ export default class AutofillImport extends ContentFeature {
     async findExportId() {
         const panels = document.querySelectorAll(this.tabPanelSelector);
         const exportPanel = panels[panels.length - 1];
-        return await withExponentialBackoff(() => exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id'));
+        return await this.runWithRetry(() => exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id'), 8, 100);
     }
 
     async storeExportId() {
