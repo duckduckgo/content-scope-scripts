@@ -1,4 +1,8 @@
 {
+  "selectors": {
+    "tabPanalSelector": "div[role=\"tabpanel\"]",
+    "chromeDataButtonSelector": "div[role=\"tabpanel\"] div:nth-child(10) > div:nth-child(2) > div:nth-child(2) button"
+  },
   "actions": [
     {
       "id": "deselect-all-button-click",

@@ -56,7 +56,7 @@ export default defineConfig({
         },
         {
             name: 'android-autofill-import',
-            testMatch: ['integration-test/autofill-password-import.spec.js'],
+            testMatch: ['integration-test/autofill-import.spec.js'],
             use: { injectName: 'android-autofill-import', platform: 'android', ...devices['Galaxy S5'] },
         },
         {

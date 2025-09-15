@@ -1,7 +1,6 @@
 import ContentFeature from '../content-feature';
 import { isBeingFramed, withExponentialBackoff } from '../utils';
 import { execute } from './broker-protection/execute';
-import { Steps } from './autofill-bookmark-steps';
 import { DEFAULT_RETRY_CONFIG, retry } from '../timer-utils';
 
 export const ANIMATION_DURATION_MS = 1000;
@@ -10,7 +9,6 @@ export const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)';
 export const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)';
 export const OVERLAY_ID = 'ddg-password-import-overlay';
 export const DELAY_BEFORE_ANIMATION = 300;
-const BOOKMARK_IMPORT_DOMAIN = 'takeout.google.com';
 const TAKEOUT_DOWNLOAD_URL_BASE = '/takeout/download';
 
 /**
@@ -65,7 +63,8 @@ export default class AutofillImport extends ContentFeature {
     /** @type {WeakSet<Element>} */
     #tappedElements = new WeakSet();
 
-    // #bookmarkImportActions;
+    #bookmarkImportActions;
+    #bookmarkImportSelectors;
 
     /**
      * @returns {ButtonAnimationStyle}
@@ -425,7 +424,7 @@ export default class AutofillImport extends ContentFeature {
     }
 
     async handlePasswordManagerPath(pathname) {
-        console.log('DEEP DEBUG autofill-password-import: handlePasswordManagerPath', pathname);
+        console.log('DEEP DEBUG autofill-import: handlePasswordManagerPath', pathname);
         this.removeOverlayIfNeeded();
         if (this.isSupportedPath(pathname)) {
             try {
@@ -447,15 +446,18 @@ export default class AutofillImport extends ContentFeature {
      *
      */
     async handleLocation(location) {
-        const { pathname, hostname } = location;
-        if (hostname === BOOKMARK_IMPORT_DOMAIN) {
+        const { pathname } = location;
+        if (this.getFeatureSettingEnabled('canImportFromGoogleTakeout')) {
             if (this.#processingBookmark) {
                 return;
             }
             this.#processingBookmark = true;
             this.handleBookmarkImportPath(pathname);
-        } else {
+        } else if (this.getFeatureSettingEnabled('canImportFromGooglePasswordManager')) {
             await this.handlePasswordManagerPath(pathname);
+        } else {
+            // Unknown feature, we bail out
+            return;
         }
     }
 
@@ -524,15 +526,10 @@ export default class AutofillImport extends ContentFeature {
     }
 
     /** Bookmark import code */
-
-    get userIdSelector() {
-        return 'a[href*="&user="]';
-    }
-
     async downloadData() {
-        const userId = document.querySelector(this.userIdSelector)?.getAttribute('href')?.split('&user=')[1];
-        console.log('DEEP DEBUG autofill-password-import: userId', userId);
-        await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 8);
+        const userId = document.querySelector(this.#bookmarkImportSelectors.userIdLink)?.getAttribute('href')?.split('&user=')[1];
+        console.log('DEEP DEBUG autofill-import: userId', userId);
+        await this.runWithRetry(() => document.querySelector(`${this.#bookmarkImportSelectors.downloadLink}/${this.#exportId}`), 8);
         const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
         window.location.href = downloadURL;
     }
@@ -548,13 +545,12 @@ export default class AutofillImport extends ContentFeature {
     }
 
     async handleBookmarkImportPath(pathname) {
-        console.log('DEEP DEBUG autofill-password-import: handleBookmarkImportPath', pathname);
+        console.log('DEEP DEBUG autofill-import: handleBookmarkImportPath', pathname);
         if (pathname === '/' && !this.#isBookmarkModalVisible) {
-            const bookmarkSteps = new Steps();
-            for (const action of bookmarkSteps.actions) {
+            for (const action of this.#bookmarkImportActions) {
                 if (action.id === 'chrome-data-button-click') {
                     await this.runWithRetry(() => {
-                        const element = document.querySelector(this.chromeDataButtonSelector);
+                        const element = document.querySelector(this.#bookmarkImportSelectors.chromeDataButton);
                         return element?.checkVisibility();
                     });
                 }
@@ -571,50 +567,43 @@ export default class AutofillImport extends ContentFeature {
         }
     }
 
-    setButtonSettings() {
+    setPasswordImportSettings() {
         this.#exportButtonSettings = this.getFeatureSetting('exportButton');
         this.#signInButtonSettings = this.getFeatureSetting('signInButton');
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
     }
 
-    setDBPActions() {
-        // this.#bookmarkImportActions = actions;
-    }
-
-    get tabPanelSelector() {
-        return 'div[role="tabpanel"]';
-    }
-
-    get chromeDataButtonSelector() {
-        return `${this.tabPanelSelector} div:nth-child(10) > div:nth-child(2) > div:nth-child(2) button`;
+    setBookmarkImportSettings() {
+        this.#bookmarkImportActions = this.getFeatureSetting('actions');
+        this.#bookmarkImportSelectors = this.getFeatureSetting('selectors');
     }
 
     async findExportId() {
-        const panels = document.querySelectorAll(this.tabPanelSelector);
+        const panels = document.querySelectorAll(this.#bookmarkImportSelectors.tabPanel);
         const exportPanel = panels[panels.length - 1];
         return await this.runWithRetry(() => exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id'), 8, 100);
     }
 
     async storeExportId() {
         this.#exportId = await this.findExportId();
-        console.log('DEEP DEBUG autofill-password-import: stored export id', this.#exportId);
+        console.log('DEEP DEBUG autofill-import: stored export id', this.#exportId);
     }
 
     urlChanged(navigationType) {
-        console.log('DEEP DEBUG autofill-password-import: urlChanged', window.location.pathname, navigationType);
+        console.log('DEEP DEBUG autofill-import: urlChanged', window.location.pathname, navigationType);
         this.handleLocation(window.location);
     }
 
     init() {
-        console.log('DEEP DEBUG autofill-password-import: init');
+        console.log('DEEP DEBUG autofill-import: init');
         if (isBeingFramed()) {
             return;
         }
 
         if (this.getFeatureSettingEnabled('canImportFromGoogleTakeout')) {
-            // this.setDBPActions(this.getFeatureSetting('bookmarkImport'));
+            this.setBookmarkImportSettings();
         } else if (this.getFeatureSettingEnabled('canImportFromGooglePasswordManager')) {
-            this.setButtonSettings();
+            this.setPasswordImportSettings();
         } else {
             // bail out
             return;
