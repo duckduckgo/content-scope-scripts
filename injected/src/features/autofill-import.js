@@ -1,7 +1,6 @@
 import ContentFeature from '../content-feature';
-import { isBeingFramed, withExponentialBackoff } from '../utils';
-import { execute } from './broker-protection/execute';
-import { DEFAULT_RETRY_CONFIG, retry } from '../timer-utils';
+import { isBeingFramed, withRetry } from '../utils';
+import { ActionExecutorMixin } from './broker-protection';
 
 export const ANIMATION_DURATION_MS = 1000;
 export const ANIMATION_ITERATIONS = Infinity;
@@ -36,7 +35,7 @@ const TAKEOUT_DOWNLOAD_URL_BASE = '/takeout/download';
  * 2. Find the element to animate based on the path - using structural selectors first and then fallback to label texts),
  * 3. Animate the element, or tap it if it should be autotapped.
  */
-export default class AutofillImport extends ContentFeature {
+export default class AutofillImport extends ActionExecutorMixin(ContentFeature) {
     #exportButtonSettings;
 
     #settingsButtonSettings;
@@ -62,9 +61,6 @@ export default class AutofillImport extends ContentFeature {
 
     /** @type {WeakSet<Element>} */
     #tappedElements = new WeakSet();
-
-    #bookmarkImportActions;
-    #bookmarkImportSelectors;
 
     /**
      * @returns {ButtonAnimationStyle}
@@ -142,9 +138,9 @@ export default class AutofillImport extends ContentFeature {
         return this.#domLoaded;
     }
 
-    async runWithRetry(fn, maxAttempts = 4, delay = 500) {
+    async runWithRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponential') {
         try {
-            return await withExponentialBackoff(fn, maxAttempts, delay);
+            return await withRetry(fn, maxAttempts, delay, strategy);
         } catch (error) {
             return null;
         }
@@ -374,7 +370,7 @@ export default class AutofillImport extends ContentFeature {
             return document.querySelector(this.exportButtonLabelTextSelector);
         };
 
-        return await withExponentialBackoff(() => findInContainer() ?? findWithLabel());
+        return await withRetry(() => findInContainer() ?? findWithLabel());
     }
 
     /**
@@ -385,14 +381,14 @@ export default class AutofillImport extends ContentFeature {
             const settingsButton = document.querySelector(this.settingsButtonSelector);
             return settingsButton;
         };
-        return await withExponentialBackoff(fn);
+        return await withRetry(fn);
     }
 
     /**
      * @returns {Promise<HTMLElement|Element|null>}
      */
     async findSignInButton() {
-        return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector));
+        return await withRetry(() => document.querySelector(this.signinButtonSelector));
     }
 
     /**
@@ -424,7 +420,6 @@ export default class AutofillImport extends ContentFeature {
     }
 
     async handlePasswordManagerPath(pathname) {
-        console.log('DEEP DEBUG autofill-import: handlePasswordManagerPath', pathname);
         this.removeOverlayIfNeeded();
         if (this.isSupportedPath(pathname)) {
             try {
@@ -447,17 +442,16 @@ export default class AutofillImport extends ContentFeature {
      */
     async handleLocation(location) {
         const { pathname } = location;
-        if (this.getFeatureSettingEnabled('canImportFromGoogleTakeout')) {
+        if (this.getFeatureSetting('actions')[0].length > 0) {
             if (this.#processingBookmark) {
                 return;
             }
             this.#processingBookmark = true;
             this.handleBookmarkImportPath(pathname);
-        } else if (this.getFeatureSettingEnabled('canImportFromGooglePasswordManager')) {
+        } else if (this.getFeatureSetting('settingsButton')) {
             await this.handlePasswordManagerPath(pathname);
         } else {
             // Unknown feature, we bail out
-            return;
         }
     }
 
@@ -526,44 +520,30 @@ export default class AutofillImport extends ContentFeature {
     }
 
     /** Bookmark import code */
-    async downloadData() {
-        const userId = document.querySelector(this.#bookmarkImportSelectors.userIdLink)?.getAttribute('href')?.split('&user=')[1];
-        console.log('DEEP DEBUG autofill-import: userId', userId);
-        await this.runWithRetry(() => document.querySelector(`${this.#bookmarkImportSelectors.downloadLink}/${this.#exportId}`), 8);
+    downloadData() {
+        const userId = document.querySelector(this.getFeatureSetting('selectors').userIdLink)?.getAttribute('href')?.split('&user=')[1];
         const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
         window.location.href = downloadURL;
     }
 
-    getRetryConfig(action) {
-        const actions = ['bookmark-modal-expectation', 'bookmark-checkbox-click', 'deselect-all-button-expectation'];
-        return actions.includes(action.id)
-            ? {
-                  interval: { ms: 1000 },
-                  maxAttempts: 30,
-              }
-            : DEFAULT_RETRY_CONFIG;
+    get retryConfig() {
+        return {
+            interval: { ms: 1000 },
+            maxAttempts: 30,
+        };
     }
 
     async handleBookmarkImportPath(pathname) {
-        console.log('DEEP DEBUG autofill-import: handleBookmarkImportPath', pathname);
         if (pathname === '/' && !this.#isBookmarkModalVisible) {
-            for (const action of this.#bookmarkImportActions) {
-                if (action.id === 'chrome-data-button-click') {
-                    await this.runWithRetry(() => {
-                        const element = document.querySelector(this.#bookmarkImportSelectors.chromeDataButton);
-                        return element?.checkVisibility();
-                    });
-                }
+            for (const action of this.getFeatureSetting('actions')[0]) {
+                // Before clicking on the manage button, we need to store the export id
                 if (action.id === 'manage-button-click') {
-                    // Before clicking on the manage button, we need to store the export id
                     await this.storeExportId();
                 }
-                await retry(
-                    async () => await execute(/** @type {import('./broker-protection/types').PirAction} */ (action), {}, document),
-                    this.getRetryConfig(action),
-                );
+
+                await this.processActionAndNotify(action, {}, this.messaging, this.retryConfig);
             }
-            await this.downloadData();
+            this.downloadData();
         }
     }
 
@@ -573,40 +553,27 @@ export default class AutofillImport extends ContentFeature {
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
     }
 
-    setBookmarkImportSettings() {
-        this.#bookmarkImportActions = this.getFeatureSetting('actions');
-        this.#bookmarkImportSelectors = this.getFeatureSetting('selectors');
-    }
-
-    async findExportId() {
-        const panels = document.querySelectorAll(this.#bookmarkImportSelectors.tabPanel);
+    findExportId() {
+        const panels = document.querySelectorAll(this.getFeatureSetting('selectors').tabPanel);
         const exportPanel = panels[panels.length - 1];
-        return await this.runWithRetry(() => exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id'), 8, 100);
+        return exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id');
     }
 
     async storeExportId() {
-        this.#exportId = await this.findExportId();
-        console.log('DEEP DEBUG autofill-import: stored export id', this.#exportId);
+        this.#exportId = await this.runWithRetry(() => this.findExportId(), 30, 1000, 'linear');
     }
 
-    urlChanged(navigationType) {
-        console.log('DEEP DEBUG autofill-import: urlChanged', window.location.pathname, navigationType);
+    urlChanged() {
         this.handleLocation(window.location);
     }
 
     init() {
-        console.log('DEEP DEBUG autofill-import: init');
         if (isBeingFramed()) {
             return;
         }
 
-        if (this.getFeatureSettingEnabled('canImportFromGoogleTakeout')) {
-            this.setBookmarkImportSettings();
-        } else if (this.getFeatureSettingEnabled('canImportFromGooglePasswordManager')) {
+        if (this.getFeatureSetting('settingsButton')) {
             this.setPasswordImportSettings();
-        } else {
-            // bail out
-            return;
         }
         const handleLocation = this.handleLocation.bind(this);
 
