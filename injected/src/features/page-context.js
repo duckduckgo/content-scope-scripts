@@ -74,6 +74,8 @@ export default class PageContext extends ContentFeature {
     mutationObserver = null;
     lastSentContent = null;
     listenForUrlChanges = true;
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    #delayedRecheckTimer = null;
 
     init() {
         if (!this.shouldActivate()) {
@@ -95,7 +97,11 @@ export default class PageContext extends ContentFeature {
         });
         if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
             window.addEventListener('hashchange', () => {
+                // Immediate collection
                 this.handleContentCollectionRequest();
+
+                // Schedule delayed recheck after DOM settles
+                this.scheduleDelayedRecheck();
             });
         }
         if (this.getFeatureSettingEnabled('subscribeToPageShow', 'enabled')) {
@@ -145,7 +151,11 @@ export default class PageContext extends ContentFeature {
         if (!this.shouldActivate()) {
             return;
         }
+        // Immediate collection
         this.handleContentCollectionRequest();
+
+        // Schedule delayed recheck after DOM settles
+        this.scheduleDelayedRecheck();
     }
 
     setup() {
@@ -169,6 +179,17 @@ export default class PageContext extends ContentFeature {
         this.#cachedContent = undefined;
         this.#cachedTimestamp = 0;
         this.stopObserving();
+        this.clearTimers();
+    }
+
+    /**
+     * Clear all pending timers
+     */
+    clearTimers() {
+        if (this.#delayedRecheckTimer) {
+            clearTimeout(this.#delayedRecheckTimer);
+            this.#delayedRecheckTimer = null;
+        }
     }
 
     set cachedContent(content) {
@@ -196,6 +217,69 @@ export default class PageContext extends ContentFeature {
                 this.cachedContent = undefined;
             });
         }
+    }
+
+    /**
+     * Schedule a delayed recheck after navigation events
+     */
+    scheduleDelayedRecheck() {
+        // Clear any existing delayed recheck
+        if (this.#delayedRecheckTimer) {
+            clearTimeout(this.#delayedRecheckTimer);
+        }
+
+        const delayMs = this.getFeatureSetting('navigationRecheckDelayMs') || 1500;
+
+        this.log.info('Scheduling delayed recheck', { delayMs });
+        this.#delayedRecheckTimer = setTimeout(() => {
+            this.log.info('Performing delayed recheck after navigation');
+
+            // Store the previous content for comparison
+            const previousContent = this.cachedContent;
+
+            // Force fresh collection by invalidating cache
+            this.invalidateCache();
+
+            // Collect fresh content
+            const freshContent = this.collectPageContent();
+
+            // Only send if content has meaningfully changed
+            if (this.hasContentChanged(previousContent, freshContent)) {
+                this.log.info('Content changed after navigation delay - sending update');
+                this.sendContentResponse(freshContent);
+            } else {
+                this.log.info('No significant content change after navigation delay');
+            }
+
+            this.#delayedRecheckTimer = null;
+        }, delayMs);
+    }
+
+    /**
+     * Check if content has meaningfully changed
+     * @param {any} oldContent
+     * @param {any} newContent
+     * @returns {boolean}
+     */
+    hasContentChanged(oldContent, newContent) {
+        if (!oldContent || !newContent) {
+            return true;
+        }
+
+        // Compare key content fields
+        const fieldsToCompare = ['title', 'content', 'headings'];
+
+        for (const field of fieldsToCompare) {
+            const oldValue = JSON.stringify(oldContent[field] || '');
+            const newValue = JSON.stringify(newContent[field] || '');
+
+            if (oldValue !== newValue) {
+                this.log.info('Content changed in field', field);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     startObserving() {
