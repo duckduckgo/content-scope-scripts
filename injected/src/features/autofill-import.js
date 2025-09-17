@@ -1,5 +1,6 @@
 import ContentFeature from '../content-feature';
-import { isBeingFramed, withExponentialBackoff } from '../utils';
+import { isBeingFramed, withRetry } from '../utils';
+import { ActionExecutorMixin } from './broker-protection';
 
 export const ANIMATION_DURATION_MS = 1000;
 export const ANIMATION_ITERATIONS = Infinity;
@@ -7,7 +8,6 @@ export const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)';
 export const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)';
 export const OVERLAY_ID = 'ddg-password-import-overlay';
 export const DELAY_BEFORE_ANIMATION = 300;
-const BOOKMARK_IMPORT_DOMAIN = 'takeout.google.com';
 const TAKEOUT_DOWNLOAD_URL_BASE = '/takeout/download';
 
 /**
@@ -35,7 +35,7 @@ const TAKEOUT_DOWNLOAD_URL_BASE = '/takeout/download';
  * 2. Find the element to animate based on the path - using structural selectors first and then fallback to label texts),
  * 3. Animate the element, or tap it if it should be autotapped.
  */
-export default class AutofillPasswordImport extends ContentFeature {
+export default class AutofillImport extends ActionExecutorMixin(ContentFeature) {
     #exportButtonSettings;
 
     #settingsButtonSettings;
@@ -55,8 +55,9 @@ export default class AutofillPasswordImport extends ContentFeature {
 
     #exportId;
 
+    #processingBookmark;
+
     #isBookmarkModalVisible = false;
-    #isBookmarkProcessed = false;
 
     /** @type {WeakSet<Element>} */
     #tappedElements = new WeakSet();
@@ -135,6 +136,14 @@ export default class AutofillPasswordImport extends ContentFeature {
      */
     get domLoaded() {
         return this.#domLoaded;
+    }
+
+    async runWithRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponential') {
+        try {
+            return await withRetry(fn, maxAttempts, delay, strategy);
+        } catch (error) {
+            return null;
+        }
     }
 
     /**
@@ -361,7 +370,7 @@ export default class AutofillPasswordImport extends ContentFeature {
             return document.querySelector(this.exportButtonLabelTextSelector);
         };
 
-        return await withExponentialBackoff(() => findInContainer() ?? findWithLabel());
+        return await withRetry(() => findInContainer() ?? findWithLabel());
     }
 
     /**
@@ -372,14 +381,14 @@ export default class AutofillPasswordImport extends ContentFeature {
             const settingsButton = document.querySelector(this.settingsButtonSelector);
             return settingsButton;
         };
-        return await withExponentialBackoff(fn);
+        return await withRetry(fn);
     }
 
     /**
      * @returns {Promise<HTMLElement|Element|null>}
      */
     async findSignInButton() {
-        return await withExponentialBackoff(() => document.querySelector(this.signinButtonSelector));
+        return await withRetry(() => document.querySelector(this.signinButtonSelector));
     }
 
     /**
@@ -411,7 +420,6 @@ export default class AutofillPasswordImport extends ContentFeature {
     }
 
     async handlePasswordManagerPath(pathname) {
-        console.log('DEEP DEBUG autofill-password-import: handlePasswordManagerPath', pathname);
         this.removeOverlayIfNeeded();
         if (this.isSupportedPath(pathname)) {
             try {
@@ -428,37 +436,22 @@ export default class AutofillPasswordImport extends ContentFeature {
         }
     }
 
-    async downloadData() {
-        const userId = document.querySelector('a[href*="&user="]')?.getAttribute('href')?.split('&user=')[1];
-        console.log('DEEP DEBUG autofill-password-import: userId', userId);
-        await withExponentialBackoff(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 8);
-        const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
-        window.location.href = downloadURL;
-    }
-
-    async handleBookmarkImportPath(pathname) {
-        console.log('DEEP DEBUG autofill-password-import: handleBookmarkImportPath', pathname);
-        if (pathname === '/' && !this.#isBookmarkModalVisible) {
-            await this.clickDisselectAllButton();
-            await this.selectBookmark();
-            this.startExportProcess();
-            await this.storeExportId();
-            const manageButton = /** @type HTMLAnchorElement */ (document.querySelector('a[href="manage"]'));
-            manageButton?.click();
-            await this.downloadData();
-        }
-    }
-
     /**
      * @param {Location} location
      *
      */
     async handleLocation(location) {
-        const { pathname, hostname } = location;
-        if (hostname === BOOKMARK_IMPORT_DOMAIN) {
+        const { pathname } = location;
+        if (this.getFeatureSetting('actions')[0].length > 0) {
+            if (this.#processingBookmark) {
+                return;
+            }
+            this.#processingBookmark = true;
             this.handleBookmarkImportPath(pathname);
-        } else {
+        } else if (this.getFeatureSetting('settingsButton')) {
             await this.handlePasswordManagerPath(pathname);
+        } else {
+            // Unknown feature, we bail out
         }
     }
 
@@ -526,130 +519,62 @@ export default class AutofillPasswordImport extends ContentFeature {
         return `${this.#settingsButtonSettings?.selectors?.join(',')}, ${this.settingsLabelTextSelector}`;
     }
 
-    setButtonSettings() {
+    /** Bookmark import code */
+    downloadData() {
+        const userId = document.querySelector(this.getFeatureSetting('selectors').userIdLink)?.getAttribute('href')?.split('&user=')[1];
+        const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
+        window.location.href = downloadURL;
+    }
+
+    get retryConfig() {
+        return {
+            interval: { ms: 1000 },
+            maxAttempts: 30,
+        };
+    }
+
+    async handleBookmarkImportPath(pathname) {
+        if (pathname === '/' && !this.#isBookmarkModalVisible) {
+            for (const action of this.getFeatureSetting('actions')[0]) {
+                // Before clicking on the manage button, we need to store the export id
+                if (action.id === 'manage-button-click') {
+                    await this.storeExportId();
+                }
+
+                await this.processActionAndNotify(action, {}, this.messaging, this.retryConfig);
+            }
+            this.downloadData();
+        }
+    }
+
+    setPasswordImportSettings() {
         this.#exportButtonSettings = this.getFeatureSetting('exportButton');
         this.#signInButtonSettings = this.getFeatureSetting('signInButton');
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
     }
 
-    /** Bookmark import code */
-    get disselectAllButtonSelector() {
-        return 'c-wiz[data-node-index="4;0"] button';
-    }
-
-    get bookmarkSelectButtonSelector() {
-        return 'fieldset.rcetic input';
-    }
-
-    get chromeSectionSelector() {
-        return 'c-wiz [data-id="chrome"]';
-    }
-
-    get nextStepButtonSelector() {
-        return 'div[data-jobid] > div:nth-of-type(2) button';
-    }
-
-    get createExportButtonSelector() {
-        return 'div[data-configure-step] button';
-    }
-
-    async findDisselectAllButton() {
-        return await withExponentialBackoff(() => document.querySelectorAll(this.disselectAllButtonSelector)[1]);
-    }
-
-    async findExportId() {
-        const panels = document.querySelectorAll('div[role="tabpanel"]');
+    findExportId() {
+        const panels = document.querySelectorAll(this.getFeatureSetting('selectors').tabPanel);
         const exportPanel = panels[panels.length - 1];
-        return await withExponentialBackoff(() => exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id'));
+        return exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id');
     }
 
     async storeExportId() {
-        this.#exportId = await this.findExportId();
-        console.log('DEEP DEBUG autofill-password-import: stored export id', this.#exportId);
-    }
-
-    startExportProcess() {
-        const nextStepButton = /** @type HTMLButtonElement */ (document.querySelectorAll(this.nextStepButtonSelector)[0]);
-        nextStepButton?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-        nextStepButton?.click();
-
-        const createExportButton = /** @type HTMLButtonElement */ (document.querySelectorAll(this.createExportButtonSelector)[0]);
-        createExportButton?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-        createExportButton?.click();
-    }
-
-    async selectBookmark() {
-        if (this.#isBookmarkProcessed) {
-            return;
-        }
-        const chromeDataButtonSelector = `${this.chromeSectionSelector} button`;
-        const chromeDataButton = /** @type HTMLButtonElement */ (
-            await withExponentialBackoff(() => {
-                const button = /** @type HTMLButtonElement */ (document.querySelectorAll(chromeDataButtonSelector)[1]);
-                if (button.checkVisibility()) {
-                    return button;
-                }
-                return null;
-            })
-        );
-        chromeDataButton?.click();
-        this.#isBookmarkModalVisible = true;
-        await this.domLoaded;
-        const disselectAllButton = /** @type HTMLButtonElement */ (
-            await withExponentialBackoff(() => document.querySelectorAll('fieldset.rcetic button')[1])
-        );
-
-        disselectAllButton?.click();
-
-        const bookmarkSelectButton = /** @type HTMLInputElement */ (
-            await withExponentialBackoff(() => document.querySelectorAll(this.bookmarkSelectButtonSelector)[1])
-        );
-
-        await withExponentialBackoff(() => !bookmarkSelectButton?.checked);
-
-        bookmarkSelectButton?.click();
-
-        const okButton = /** @type HTMLButtonElement */ (document.querySelectorAll('div[role="button"]')[7]);
-
-        await withExponentialBackoff(() => okButton.ariaDisabled !== 'true');
-
-        okButton?.click();
-        this.#isBookmarkModalVisible = false;
-        this.#isBookmarkProcessed = true;
-    }
-
-    async clickDisselectAllButton() {
-        const element = /** @type HTMLButtonElement */ (await this.findDisselectAllButton());
-        console.log('Deep element', element);
-        if (element != null) {
-            element.click();
-        }
-
-        const chromeSectionElement = /** @type HTMLInputElement */ (
-            await withExponentialBackoff(() => document.querySelectorAll(this.chromeSectionSelector)[0].querySelector('input'))
-        );
-        console.log('DEEP chromeSectionElement', chromeSectionElement);
-
-        // First wait for the element to become unchecked (due to slow disselection)
-        await withExponentialBackoff(() => !chromeSectionElement?.checked);
-
-        chromeSectionElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-
-        chromeSectionElement?.click();
+        this.#exportId = await this.runWithRetry(() => this.findExportId(), 30, 1000, 'linear');
     }
 
     urlChanged() {
-        console.log('DEEP DEBUG autofill-password-import: urlChanged', window.location);
         this.handleLocation(window.location);
     }
 
     init() {
-        console.log('DEEP DEBUG autofill-password-import: init');
         if (isBeingFramed()) {
             return;
         }
 
-        this.setButtonSettings();
+        if (this.getFeatureSetting('settingsButton')) {
+            this.setPasswordImportSettings();
+        }
         const handleLocation = this.handleLocation.bind(this);
 
         this.#domLoaded = new Promise((resolve) => {
