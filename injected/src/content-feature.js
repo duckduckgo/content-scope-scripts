@@ -42,6 +42,12 @@ export default class ContentFeature extends ConfigFeature {
      */
     listenForUpdateChanges = false;
 
+    /**
+     * Set this to true if you wish to receive configuration updates from initial ping responses (Android only).
+     * @type {boolean}
+     */
+    listenForConfigUpdates = false;
+
     /** @type {ImportMeta} */
     #importConfig;
 
@@ -54,6 +60,40 @@ export default class ContentFeature extends ConfigFeature {
 
     get isDebug() {
         return this.args?.debug || false;
+    }
+
+    get shouldLog() {
+        return this.isDebug;
+    }
+
+    /**
+     * Logging utility for this feature (Stolen some inspo from DuckPlayer logger, will unify in the future)
+     */
+    get log() {
+        const shouldLog = this.shouldLog;
+        const prefix = `${this.name.padEnd(20, ' ')} |`;
+
+        return {
+            // These are getters to have the call site be the reported line number.
+            get info() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return console.log.bind(console, prefix);
+            },
+            get warn() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return console.warn.bind(console, prefix);
+            },
+            get error() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return console.error.bind(console, prefix);
+            },
+        };
     }
 
     get desktopModeEnabled() {
@@ -222,6 +262,17 @@ export default class ContentFeature extends ConfigFeature {
      * @deprecated - use messaging instead.
      */
     update() {}
+
+    /**
+     * Called when user preferences are merged from initial ping response. (Android only)
+     * Override this method in your feature to handle user preference updates.
+     * This only happens once during initialization when the platform responds with user-specific settings.
+     * @param {object} _updatedConfig - The configuration with merged user preferences
+     */
+    onUserPreferencesMerged(_updatedConfig) {
+        // Default implementation does nothing
+        // Features can override this to handle user preference updates
+    }
 
     /**
      * Register a flag that will be added to page breakage reports

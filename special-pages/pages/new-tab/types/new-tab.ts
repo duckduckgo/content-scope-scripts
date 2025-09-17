@@ -65,6 +65,10 @@ export type Suggestion =
 export type OmnibarMode = "search" | "ai";
 export type EnableDuckAi = boolean;
 export type ShowDuckAiSetting = boolean;
+/**
+ * Controls a popover that onboards users and points them towards how to disable the feature via the customizer
+ */
+export type ShowCustomizePopover = boolean;
 export type FeedType = "privacy-stats" | "activity";
 /**
  * The visibility state of the widget, as configured by the user
@@ -239,6 +243,10 @@ export interface ContextMenuNotification {
   params: ContextMenuNotify;
 }
 export interface ContextMenuNotify {
+  /**
+   * @deprecated
+   * DEPRECATED: This property is deprecated and will be removed in a future version. Native apps should populate the context menu themselves instead of relying on frontend to tell it what widgets exist in the New Tab Page.
+   */
   visibilityMenuItems: VisibilityMenuItem[];
 }
 export interface VisibilityMenuItem {
@@ -510,6 +518,7 @@ export interface OmnibarConfig {
   mode: OmnibarMode;
   enableAi?: EnableDuckAi;
   showAiSetting?: ShowDuckAiSetting;
+  showCustomizePopover?: ShowCustomizePopover;
 }
 /**
  * Generated from @see "../messages/omnibar_submitChat.notify.json"

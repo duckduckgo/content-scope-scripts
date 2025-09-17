@@ -4,19 +4,15 @@
     flex-direction: column;
     gap: 10px;
     padding-bottom: var(--sp-15);
-
-    [data-theme="light"] & {
-        --omnibar-translucent-background-color: rgba(255, 255, 255, 0.54);
-    }
-
-    [data-theme="dark"] & {
-        --omnibar-translucent-background-color: rgba(0, 0, 0, 0.3);
-    }
 }
 
 .logo {
     margin-bottom: var(--sp-4);
     width: 164px;
+}
+
+.tabSwitcherContainer {
+    position: relative;
 }
 
 /*
@@ -50,19 +46,33 @@
     margin: 3px;
     outline: 1px solid var(--ntp-controls-raised-backdrop);
 
-    body:not([data-background-kind="default"]) & {
+    [data-background-kind="color"] [data-theme="light"] &,
+    [data-background-kind="gradient"] [data-theme="light"] &,
+    [data-background-kind="userImage"] [data-theme="light"] & {
         backdrop-filter: blur(48px);
-        background: var(--omnibar-translucent-background-color);
+        background: rgba(255, 255, 255, 0.54);
+    }
+
+    [data-background-kind="color"] [data-theme="dark"] &,
+    [data-background-kind="gradient"] [data-theme="dark"] & {
+        backdrop-filter: blur(48px);
+        background: rgba(255, 255, 255, 0.12);
+        outline: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    [data-background-kind="userImage"] [data-theme="dark"] & {
+        backdrop-filter: blur(48px);
+        background: rgba(0, 0, 0, 0.3);
     }
 }
 
 /* Typing */
-.root:focus-within .popup {
+.root:has(input:focus, textarea:focus) .popup {
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */
 }
 
 /* Focused */
-.root:focus-within:has(input:placeholder-shown, textarea:placeholder-shown) .popup {
+.root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown) .popup {
     border-radius: 15px;
     border: 2px solid var(--ntp-accent-primary);
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */

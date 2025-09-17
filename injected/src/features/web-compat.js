@@ -2,6 +2,7 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils';
+import { wrapToString } from '../wrapper-utils.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
@@ -87,6 +88,9 @@ export class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeScreenLockRequest = null;
 
+    // Opt in to receive configuration updates from initial ping responses
+    listenForConfigUpdates = true;
+
     init() {
         if (this.getFeatureSettingEnabled('windowSizing')) {
             windowSizingFix();
@@ -123,10 +127,6 @@ export class WebCompat extends ContentFeature {
             this.shimWebShare();
         }
 
-        if (this.getFeatureSettingEnabled('viewportWidth')) {
-            this.viewportWidthFix();
-        }
-
         if (this.getFeatureSettingEnabled('screenLock')) {
             this.screenLockFix();
         }
@@ -138,11 +138,23 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('modifyCookies')) {
             this.modifyCookies();
         }
-        if (this.getFeatureSettingEnabled('disableDeviceEnumeration')) {
-            this.preventDeviceEnumeration();
-        }
         if (this.getFeatureSettingEnabled('enumerateDevices')) {
             this.deviceEnumerationFix();
+        }
+    }
+
+    /**
+     * Handle user preference updates when merged during initialization.
+     * Re-applies viewport fixes if viewport configuration has changed.
+     * @param {object} _updatedConfig - The configuration with merged user preferences
+     */
+    onUserPreferencesMerged(_updatedConfig) {
+        // Re-apply viewport width fix if viewport settings might have changed
+        if (this.getFeatureSettingEnabled('viewportWidth')) {
+            if (!this._viewportWidthFixApplied) {
+                this.viewportWidthFix();
+                this._viewportWidthFixApplied = true;
+            }
         }
     }
 
@@ -202,33 +214,52 @@ export class WebCompat extends ContentFeature {
         if (window.Notification) {
             return;
         }
+
         // Expose the API
+        // window.Notification polyfill is intentionally incompatible with DOM lib types
+        const NotificationConstructor = function Notification() {
+            throw new TypeError("Failed to construct 'Notification': Illegal constructor");
+        };
+
+        const wrappedNotification = wrapToString(
+            NotificationConstructor,
+            NotificationConstructor,
+            'function Notification() { [native code] }',
+        );
+
         this.defineProperty(window, 'Notification', {
-            value: () => {
-                // noop
-            },
+            value: wrappedNotification,
             writable: true,
             configurable: true,
             enumerable: false,
         });
 
-        this.defineProperty(window.Notification, 'requestPermission', {
-            value: () => {
-                return Promise.resolve('denied');
-            },
-            writable: true,
+        this.defineProperty(window.Notification, 'permission', {
+            value: 'denied',
+            writable: false,
             configurable: true,
             enumerable: true,
         });
 
-        this.defineProperty(window.Notification, 'permission', {
-            get: () => 'denied',
-            configurable: true,
-            enumerable: false,
-        });
-
         this.defineProperty(window.Notification, 'maxActions', {
             get: () => 2,
+            configurable: true,
+            enumerable: true,
+        });
+
+        const requestPermissionFunc = function requestPermission() {
+            return Promise.resolve('denied');
+        };
+
+        const wrappedRequestPermission = wrapToString(
+            requestPermissionFunc,
+            requestPermissionFunc,
+            'function requestPermission() { [native code] }',
+        );
+
+        this.defineProperty(window.Notification, 'requestPermission', {
+            value: wrappedRequestPermission,
+            writable: true,
             configurable: true,
             enumerable: true,
         });
@@ -769,33 +800,6 @@ export class WebCompat extends ContentFeature {
                 }
             });
             this.forceViewportTag(viewportTag, newContent.join(', '));
-        }
-    }
-
-    /**
-     * Prevents device enumeration by returning an empty array when enabled
-     */
-    preventDeviceEnumeration() {
-        if (!window.MediaDevices) {
-            return;
-        }
-        let disableDeviceEnumeration = false;
-        const isFrame = window.self !== window.top;
-        if (isFrame) {
-            disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumerationFrames');
-        } else {
-            disableDeviceEnumeration = this.getFeatureSettingEnabled('disableDeviceEnumeration');
-        }
-        if (disableDeviceEnumeration) {
-            const enumerateDevicesProxy = new DDGProxy(this, MediaDevices.prototype, 'enumerateDevices', {
-                /**
-                 * @returns {Promise<MediaDeviceInfo[]>}
-                 */
-                apply() {
-                    return Promise.resolve([]);
-                },
-            });
-            enumerateDevicesProxy.overload();
         }
     }
 

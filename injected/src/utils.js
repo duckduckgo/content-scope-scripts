@@ -591,6 +591,11 @@ export function computeLimitedSiteObject() {
  * @returns {string | number | undefined}
  */
 function getPlatformVersion(preferences) {
+    // Check for platform.version first
+    if (preferences.platform?.version !== undefined && preferences.platform?.version !== '') {
+        return preferences.platform.version;
+    }
+    // Fallback to legacy version fields
     if (preferences.versionNumber) {
         return preferences.versionNumber;
     }
@@ -806,16 +811,15 @@ export function legacySendMessage(messageType, options) {
  * Takes a function that returns an element and tries to execute it until it returns a valid result or the max attempts are reached.
  * @param {number} delay
  * @param {number} [maxAttempts=4] - The maximum number of attempts to find the element.
- * @param {number} [delay=500] - The delay to be used for retries.
- * @param {string} [strategy='exponential'] - The retry strategy: 'exponential' or 'linear'.
- * @returns {Promise<any>}
+ * @param {number} [delay=500] - The initial delay to be used to create the exponential backoff.
+ * @returns {Promise<Element|HTMLElement>}
  */
 export function withRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponential') {
     return new Promise((resolve, reject) => {
         let attempts = 0;
         const tryFn = () => {
             attempts += 1;
-            const error = new Error('Result is invalid');
+            const error = new Error('Result is invalid or max attempts reached');
             try {
                 const result = fn();
                 if (result) {
@@ -837,4 +841,22 @@ export function withRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponent
         };
         tryFn();
     });
+}
+
+export function isDuckAi() {
+    const tabUrl = getTabUrl();
+    const domains = ['duckduckgo.com', 'duck.ai', 'duck.co'];
+    if (tabUrl?.hostname && domains.includes(tabUrl?.hostname)) {
+        const url = new URL(tabUrl?.href);
+        return url.searchParams.has('duckai') || url.searchParams.get('ia') === 'chat';
+    }
+    return false;
+}
+
+export function isDuckAiSidebar() {
+    const tabUrl = getTabUrl();
+    if (!tabUrl || !isDuckAi()) {
+        return false;
+    }
+    return tabUrl.searchParams.get('placement') === 'sidebar';
 }
