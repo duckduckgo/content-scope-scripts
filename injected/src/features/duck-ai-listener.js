@@ -97,9 +97,9 @@ export default class DuckAiListener extends ContentFeature {
 
     async setup() {
         this.createButtonUI();
+        this.setupTelemetry();
         await this.setupMessageBridge();
         this.setupTextBoxDetection();
-        this.setupTelemetry();
         this.cleanupExistingPrompts();
         this.setupPromptCleanupObserver();
     }
@@ -834,7 +834,8 @@ export default class DuckAiListener extends ContentFeature {
         this.triggerInputEvents();
 
         // Capture prompt text for telemetry before any modifications
-        if (this.textBox && this.promptTelemetry) {
+        // Only send telemetry if context hasn't been used yet (first prompt)
+        if (this.textBox && this.promptTelemetry && !this.hasContextBeenUsed) {
             const rawPromptText = this.getRawPromptText();
             const totalPromptText = this.textBox.value; // This includes context if enabled
             const contextSize = this.pageData?.content?.length || 0;
@@ -1354,10 +1355,13 @@ class DuckAiPromptTelemetry {
      * @param {Object} params - Parameters to send with pixel
      */
     sendPixel(pixelName, params) {
-        if (!globalThis?.DDG?.pixel) {
+        if (!globalThis?.DDG?.pixel?.fire) {
+            this.log.warn('sendPixel: No pixel object found');
             return;
         }
         globalThis.DDG.pixel.fire(pixelName, params);
+
+        this.log.info('Pixel sent', { pixelName, params });
     }
 
     /**
