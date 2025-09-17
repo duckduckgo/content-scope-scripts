@@ -493,7 +493,7 @@ export default class AutofillImport extends ActionExecutorMixin(ContentFeature) 
                 return;
             }
             this.#processingBookmark = true;
-            this.handleBookmarkImportPath(pathname);
+            await this.handleBookmarkImportPath(pathname);
         } else if (this.getFeatureSetting('settingsButton')) {
             await this.handlePasswordManagerPath(pathname);
         } else {
@@ -596,7 +596,7 @@ export default class AutofillImport extends ActionExecutorMixin(ContentFeature) 
                     await this.storeExportId();
                 }
 
-                await this.processActionAndNotify(action, {}, this.messaging, this.retryConfig);
+                await this.processActionAndNotify(action, {}, this.retryConfig);
             }
             this.downloadData();
         }

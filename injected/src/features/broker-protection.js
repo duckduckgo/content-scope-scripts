@@ -3,12 +3,20 @@ import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
 
-export function ActionExecutorMixin(BaseClass) {
-    return class Mixin extends BaseClass {
-        async processActionAndNotify(action, data, messaging, retryConfig) {
+/**
+ * @param {typeof ContentFeature} ContentFeatureClass
+ */
+export function ActionExecutorMixin(ContentFeatureClass) {
+    return class Mixin extends ContentFeatureClass {
+        /**
+         * @param {any} action
+         * @param {Record<string, any>} data
+         * @param {any} retryConfig
+         */
+        async processActionAndNotify(action, data, retryConfig) {
             try {
                 if (!action) {
-                    return messaging.notify('actionError', { error: 'No action found.' });
+                    return this.messaging.notify('actionError', { error: 'No action found.' });
                 }
 
                 const { results, exceptions } = await this.exec(action, data, retryConfig);
@@ -20,7 +28,7 @@ export function ActionExecutorMixin(BaseClass) {
 
                     // if there are no secondary actions, or just no errors in general, just report the parent action
                     if (results.length === 1 || errors.length === 0) {
-                        return messaging.notify('actionCompleted', { result: parent });
+                        return this.messaging.notify('actionCompleted', { result: parent });
                     }
 
                     // here we must have secondary actions that failed.
@@ -32,13 +40,13 @@ export function ActionExecutorMixin(BaseClass) {
                         message: 'Secondary actions failed: ' + joinedErrors,
                     });
 
-                    return messaging.notify('actionCompleted', { result: response });
+                    return this.messaging.notify('actionCompleted', { result: response });
                 } else {
-                    return messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') });
+                    return this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') });
                 }
             } catch (e) {
                 console.log('unhandled exception: ', e);
-                return messaging.notify('actionError', { error: e.toString() });
+                return this.messaging.notify('actionError', { error: e.toString() });
             }
         }
 
@@ -80,7 +88,7 @@ export default class BrokerProtection extends ActionExecutorMixin(ContentFeature
     init() {
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
-            await this.processActionAndNotify(action, data, this.messaging, this.retryConfigFor(action));
+            return await this.processActionAndNotify(action, data, this.retryConfigFor(action));
         });
     }
 
