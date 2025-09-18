@@ -1389,7 +1389,7 @@ class DuckAiPromptTelemetry {
         }
 
         this.sendPixel(pixelName, {
-            contextLength: contextData.fullContentLength
+            contextLength: contextData.fullContentLength,
         });
     }
 
