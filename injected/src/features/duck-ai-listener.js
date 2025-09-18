@@ -1380,6 +1380,7 @@ class DuckAiPromptTelemetry {
     /**
      * Send context pixel info when context is used
      * @param {Object} contextData - Context data object
+     * @param {string} pixelName - Name of pixel to fire
      */
     sendContextPixelInfo(contextData, pixelName) {
         if (!contextData?.content || contextData.content.length === 0) {
@@ -1388,7 +1389,7 @@ class DuckAiPromptTelemetry {
         }
 
         this.sendPixel(pixelName, {
-            contextLength: contextData.content.length,
+            contextLength: contextData.fullContentLength
         });
     }
 

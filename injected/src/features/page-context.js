@@ -243,6 +243,7 @@ export default class PageContext extends ContentFeature {
             metaDescription: this.getMetaDescription(),
             content: mainContent,
             truncated,
+            fullContentLength: this.fullContentLength, // Include full content length before truncation
             headings: this.getHeadings(),
             links: this.getLinks(),
             images: this.getImages(),
@@ -272,7 +273,9 @@ export default class PageContext extends ContentFeature {
     }
 
     getMainContent() {
-        const maxLength = this.getFeatureSetting('maxContentLength') || 950;
+        const maxLength = this.getFeatureSetting('maxContentLength') || 9500;
+        // Used to avoid large content serialization
+        const upperLimit = this.getFeatureSetting('upperLimit') || 500000;
         let excludeSelectors = this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
         excludeSelectors = excludeSelectors.concat(['script', 'style', 'link', 'meta', 'noscript', 'svg', 'canvas']);
 
@@ -296,8 +299,12 @@ export default class PageContext extends ContentFeature {
             });
 
             this.log.info('Calling domToMarkdown', clone.innerHTML);
-            content += domToMarkdown(clone, maxLength);
+            content += domToMarkdown(clone, upperLimit);
         }
+        content = content.trim();
+
+        // Store the full content length before truncation
+        this.fullContentLength = content.length;
 
         // Limit content length
         if (content.length > maxLength) {
@@ -305,7 +312,7 @@ export default class PageContext extends ContentFeature {
             content = content.substring(0, maxLength) + '...';
         }
 
-        return content.trim();
+        return content;
     }
 
     getHeadings() {
