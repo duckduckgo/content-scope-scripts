@@ -482,13 +482,18 @@ export default class AutofillImport extends ActionExecutorMixin(ContentFeature) 
         }
     }
 
+    get dbpActions() {
+        return this.getFeatureSetting('actions')?.[0] ?? [];
+    }
+
     /**
      * @param {Location} location
      *
      */
     async handleLocation(location) {
         const { pathname } = location;
-        if (this.getFeatureSetting('actions')[0].length > 0) {
+        const dbpActions = this.dbpActions;
+        if (dbpActions.length > 0) {
             if (this.#processingBookmark) {
                 return;
             }
@@ -575,8 +580,12 @@ export default class AutofillImport extends ActionExecutorMixin(ContentFeature) 
     }
 
     /** Bookmark import code */
-    downloadData() {
+    async downloadData() {
+        // sleep for a second, sometimes download link is not yet available
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         const userId = document.querySelector(this.getFeatureSetting('selectors').userIdLink)?.getAttribute('href')?.split('&user=')[1];
+        await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 15, 2000, 'linear');
         const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
         window.location.href = downloadURL;
     }
@@ -590,7 +599,7 @@ export default class AutofillImport extends ActionExecutorMixin(ContentFeature) 
 
     async handleBookmarkImportPath(pathname) {
         if (pathname === '/' && !this.#isBookmarkModalVisible) {
-            for (const action of this.getFeatureSetting('actions')[0]) {
+            for (const action of this.dbpActions) {
                 // Before clicking on the manage button, we need to store the export id
                 if (action.id === 'manage-button-click') {
                     await this.storeExportId();
@@ -598,7 +607,7 @@ export default class AutofillImport extends ActionExecutorMixin(ContentFeature) 
 
                 await this.processActionAndNotify(action, {}, this.retryConfig);
             }
-            this.downloadData();
+            await this.downloadData();
         }
     }
 
