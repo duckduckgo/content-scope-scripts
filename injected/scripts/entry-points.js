@@ -32,7 +32,7 @@ const builds = {
         output: ['../build/android/brokerProtection.js'],
     },
     'android-autofill-password-import': {
-        input: 'entry-points/android.js',
+        input: 'entry-points/android-adsjs.js',
         output: ['../build/android/autofillPasswordImport.js'],
     },
     'android-adsjs': {
