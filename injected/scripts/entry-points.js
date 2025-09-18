@@ -31,9 +31,9 @@ const builds = {
         input: 'entry-points/android.js',
         output: ['../build/android/brokerProtection.js'],
     },
-    'android-autofill-password-import': {
-        input: 'entry-points/android.js',
-        output: ['../build/android/autofillPasswordImport.js'],
+    'android-autofill-import': {
+        input: 'entry-points/android-adsjs.js',
+        output: ['../build/android/autofillImport.js'],
     },
     'android-adsjs': {
         input: 'entry-points/android-adsjs.js',

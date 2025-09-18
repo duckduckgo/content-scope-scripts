@@ -4,20 +4,22 @@ import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
 
 /**
- * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
+ * @param {typeof ContentFeature} ContentFeatureClass
  */
-export default class BrokerProtection extends ContentFeature {
-    init() {
-        this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
+export function ActionExecutorMixin(ContentFeatureClass) {
+    return class Mixin extends ContentFeatureClass {
+        /**
+         * @param {any} action
+         * @param {Record<string, any>} data
+         * @param {any} retryConfig
+         */
+        async processActionAndNotify(action, data, retryConfig) {
             try {
-                const action = params.state.action;
-                const data = params.state.data;
-
                 if (!action) {
                     return this.messaging.notify('actionError', { error: 'No action found.' });
                 }
 
-                const { results, exceptions } = await this.exec(action, data);
+                const { results, exceptions } = await this.exec(action, data, retryConfig);
 
                 if (results) {
                     // there might only be a single result.
@@ -44,38 +46,50 @@ export default class BrokerProtection extends ContentFeature {
                 }
             } catch (e) {
                 console.log('unhandled exception: ', e);
-                this.messaging.notify('actionError', { error: e.toString() });
+                return this.messaging.notify('actionError', { error: e.toString() });
             }
-        });
-    }
-
-    /**
-     * Recursively execute actions with the same dataset, collecting all results/exceptions for
-     * later analysis
-     * @param {any} action
-     * @param {Record<string, any>} data
-     * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
-     */
-    async exec(action, data) {
-        const retryConfig = this.retryConfigFor(action);
-        const { result, exceptions } = await retry(() => execute(action, data, document), retryConfig);
-
-        if (result) {
-            if ('success' in result && Array.isArray(result.success.next)) {
-                const nextResults = [];
-                const nextExceptions = [];
-
-                for (const nextAction of result.success.next) {
-                    const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data);
-
-                    nextResults.push(...subResults);
-                    nextExceptions.push(...subExceptions);
-                }
-                return { results: [result, ...nextResults], exceptions: exceptions.concat(nextExceptions) };
-            }
-            return { results: [result], exceptions: [] };
         }
-        return { results: [], exceptions };
+
+        /**
+         * Recursively execute actions with the same dataset, collecting all results/exceptions for
+         * later analysis
+         * @param {any} action
+         * @param {Record<string, any>} data
+         * @param {any} retryConfig
+         * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
+         */
+        async exec(action, data, retryConfig) {
+            const { result, exceptions } = await retry(() => execute(action, data, document), retryConfig);
+
+            if (result) {
+                if ('success' in result && Array.isArray(result.success.next)) {
+                    const nextResults = [];
+                    const nextExceptions = [];
+
+                    for (const nextAction of result.success.next) {
+                        const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data, retryConfig);
+
+                        nextResults.push(...subResults);
+                        nextExceptions.push(...subExceptions);
+                    }
+                    return { results: [result, ...nextResults], exceptions: exceptions.concat(nextExceptions) };
+                }
+                return { results: [result], exceptions: [] };
+            }
+            return { results: [], exceptions };
+        }
+    };
+}
+
+/**
+ * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
+ */
+export default class BrokerProtection extends ActionExecutorMixin(ContentFeature) {
+    init() {
+        this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
+            const { action, data } = params.state;
+            return await this.processActionAndNotify(action, data, this.retryConfigFor(action));
+        });
     }
 
     /**
