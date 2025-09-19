@@ -85,6 +85,9 @@ export default class PageContext extends ContentFeature {
     }
 
     setupActiveSelectionLanguageListener() {
+        if (!this.getFeatureSettingEnabled('subscribeToActiveSelectionLanguage', 'enabled')) {
+            return;
+        }
         this.messaging.subscribe('getActiveSelectionLanguage', () => {
             const activeSelectionLanguage = getActiveSelectionLanguage();
             this.log.info('Active selection language', activeSelectionLanguage);
