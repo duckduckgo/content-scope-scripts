@@ -25,6 +25,9 @@ body {
     user-select: none;
     -webkit-user-select: none;
     cursor: default;
+
+    /* Fix visual artifacting on macOS 26 */
+    backdrop-filter: blur(0px);
 }
 /** Allow debugging error messages to be selected for debugging **/
 :root[data-fatal-error] body {
