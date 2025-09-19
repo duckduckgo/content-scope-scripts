@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "CollectionResult",
+  "description": "Result of page content collection, either success or error",
+  "oneOf": [
+    {
+      "type": "object",
+      "title": "Collection Success",
+      "required": ["success", "data"],
+      "properties": {
+        "success": {
+          "const": true
+        },
+        "data": {
+          "type": "object",
+          "description": "Collected page data",
+          "required": ["favicon", "title", "content", "truncated", "timestamp", "url"],
+          "properties": {
+            "favicon": {
+              "type": "array",
+              "description": "List of favicon URLs",
+              "items": {
+                "type": "string"
+              }
+            },
+            "title": {
+              "type": ["string", "null"],
+              "description": "Page title"
+            },
+            "metaDescription": {
+              "type": ["string", "null"],
+              "description": "Page meta description"
+            },
+            "content": {
+              "type": "string",
+              "description": "Main page content in markdown format"
+            },
+            "truncated": {
+              "type": "boolean",
+              "description": "Whether content was truncated due to size limits"
+            },
+            "headings": {
+              "type": "array",
+              "description": "List of page headings",
+              "items": {
+                "type": "string"
+              }
+            },
+            "links": {
+              "type": "array",
+              "description": "List of page links",
+              "items": {
+                "type": "string"
+              }
+            },
+            "images": {
+              "type": "array",
+              "description": "List of image URLs",
+              "items": {
+                "type": "string"
+              }
+            },
+            "timestamp": {
+              "type": "number",
+              "description": "Unix timestamp when data was collected"
+            },
+            "url": {
+              "type": "string",
+              "description": "Page URL"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "title": "Collection Error",
+      "required": ["success", "error"],
+      "properties": {
+        "success": {
+          "const": false
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message describing what went wrong"
+        }
+      }
+    }
+  ]
+}
