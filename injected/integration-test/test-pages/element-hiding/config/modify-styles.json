@@ -1,0 +1,37 @@
+{
+    "readme": "Configuration for testing modify-style rule type that modifies element styles",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "elementHiding": {
+            "state": "enabled",
+            "exceptions": [],
+            "rules": [
+                {
+                    "selector": ".ad-container",
+                    "type": "modify-style",
+                    "values": {
+                        "name": "display",
+                        "value": "none"
+                    }
+                },
+                {
+                    "selector": ".banner-ad",
+                    "type": "modify-style",
+                    "values": {
+                        "name": "visibility",
+                        "value": "hidden"
+                    }
+                },
+                {
+                    "selector": ".resize-ad",
+                    "type": "modify-style",
+                    "values": {
+                        "name": "width",
+                        "value": "0px"
+                    }
+                }
+            ]
+        }
+    }
+}

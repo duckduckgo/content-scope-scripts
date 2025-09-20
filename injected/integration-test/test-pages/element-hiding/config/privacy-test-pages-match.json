@@ -1,0 +1,17 @@
+{
+    "readme": "Configuration that matches privacy-test-pages.site/features/element-hiding/ test scenarios",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "elementHiding": {
+            "state": "enabled",
+            "exceptions": [],
+            "rules": [
+                {
+                    "selector": "[data-test='should-be-hidden']",
+                    "type": "hide"
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Basic Element Hiding Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        .test-section { 
+            border: 1px solid #ccc; 
+            margin: 10px; 
+            padding: 10px; 
+        }
+        .should-be-hidden { 
+            background: red; 
+            color: white; 
+            padding: 10px; 
+        }
+        .should-be-visible { 
+            background: green; 
+            color: white; 
+            padding: 10px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Basic Element Hiding Test</h1>
+    
+    <div class="test-section">
+        <h2>Elements that should be hidden</h2>
+        <div class="ad-banner should-be-hidden">This ad banner should be hidden</div>
+        <div id="sidebar-ad" class="should-be-hidden">This sidebar ad should be hidden</div>
+        <div data-ad="true" class="should-be-hidden">This data-ad element should be hidden</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Elements that should remain visible</h2>
+        <div class="content should-be-visible">This content should be visible</div>
+        <div id="main-content" class="should-be-visible">This main content should be visible</div>
+        <div data-content="true" class="should-be-visible">This data-content element should be visible</div>
+    </div>
+    
+    <script src="../../shared/utils.js"></script>
+    <script>
+        function isElementHidden(element) {
+            if (!element) return false;
+            
+            const style = window.getComputedStyle(element);
+            return style.display === 'none' || 
+                   element.hidden === true ||
+                   style.visibility === 'hidden' ||
+                   parseFloat(style.opacity) === 0;
+        }
+        
+        test('Basic Element Hiding', async () => {
+            // Wait for element hiding to be applied
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const results = [];
+            
+            // Test hidden elements
+            const adBanner = document.querySelector('.ad-banner');
+            const sidebarAd = document.querySelector('#sidebar-ad');
+            const dataAd = document.querySelector('[data-ad="true"]');
+            
+            results.push({
+                name: 'ad-banner hidden',
+                result: isElementHidden(adBanner),
+                expected: true
+            });
+            
+            results.push({
+                name: 'sidebar-ad hidden',
+                result: isElementHidden(sidebarAd),
+                expected: true
+            });
+            
+            results.push({
+                name: 'data-ad element hidden',
+                result: isElementHidden(dataAd),
+                expected: true
+            });
+            
+            // Test visible elements
+            const content = document.querySelector('.content');
+            const mainContent = document.querySelector('#main-content');
+            const dataContent = document.querySelector('[data-content="true"]');
+            
+            results.push({
+                name: 'content visible',
+                result: !isElementHidden(content),
+                expected: true
+            });
+            
+            results.push({
+                name: 'main-content visible',
+                result: !isElementHidden(mainContent),
+                expected: true
+            });
+            
+            results.push({
+                name: 'data-content element visible',
+                result: !isElementHidden(dataContent),
+                expected: true
+            });
+            
+            return results;
+        });
+        
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html>
