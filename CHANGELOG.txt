@@ -1,3 +1,0 @@
-- Fire pixel on context send once and setup telemetry earlier (#1971)
-- Fix visual artifacting on macOS 26 in New Tab Page (#1972)
-- Add some basic docs for bundles and entry points (#1969)
