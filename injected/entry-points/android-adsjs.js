@@ -22,7 +22,7 @@ async function sendInitialPingAndUpdate(messagingConfig, processedConfig) {
     try {
         // Create messaging context for the initial ping
         const messagingContext = new MessagingContext({
-            context: 'contentScopeScripts',
+            context: import.meta.injectName === 'android-autofill-import' ? 'autofillImport' : 'contentScopeScripts',
             env: processedConfig.debug ? 'development' : 'production',
             featureName: 'messaging',
         });
