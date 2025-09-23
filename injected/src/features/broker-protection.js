@@ -3,88 +3,83 @@ import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
 
-/**
- * @param {typeof ContentFeature} ContentFeatureClass
- */
-export function ActionExecutorMixin(ContentFeatureClass) {
-    return class Mixin extends ContentFeatureClass {
-        /**
-         * @param {any} action
-         * @param {Record<string, any>} data
-         * @param {any} retryConfig
-         */
-        async processActionAndNotify(action, data, retryConfig) {
-            try {
-                if (!action) {
-                    return this.messaging.notify('actionError', { error: 'No action found.' });
-                }
-
-                const { results, exceptions } = await this.exec(action, data, retryConfig);
-
-                if (results) {
-                    // there might only be a single result.
-                    const parent = results[0];
-                    const errors = results.filter((x) => 'error' in x);
-
-                    // if there are no secondary actions, or just no errors in general, just report the parent action
-                    if (results.length === 1 || errors.length === 0) {
-                        return this.messaging.notify('actionCompleted', { result: parent });
-                    }
-
-                    // here we must have secondary actions that failed.
-                    // so we want to create an error response with the parent ID, but with the errors messages from
-                    // the children
-                    const joinedErrors = errors.map((x) => x.error.message).join(', ');
-                    const response = new ErrorResponse({
-                        actionID: action.id,
-                        message: 'Secondary actions failed: ' + joinedErrors,
-                    });
-
-                    return this.messaging.notify('actionCompleted', { result: response });
-                } else {
-                    return this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') });
-                }
-            } catch (e) {
-                console.log('unhandled exception: ', e);
-                return this.messaging.notify('actionError', { error: e.toString() });
+export class ActionExecutorBase extends ContentFeature {
+    /**
+     * @param {any} action
+     * @param {Record<string, any>} data
+     * @param {any} retryConfig
+     */
+    async processActionAndNotify(action, data, retryConfig) {
+        try {
+            if (!action) {
+                return this.messaging.notify('actionError', { error: 'No action found.' });
             }
-        }
 
-        /**
-         * Recursively execute actions with the same dataset, collecting all results/exceptions for
-         * later analysis
-         * @param {any} action
-         * @param {Record<string, any>} data
-         * @param {any} retryConfig
-         * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
-         */
-        async exec(action, data, retryConfig) {
-            const { result, exceptions } = await retry(() => execute(action, data, document), retryConfig);
+            const { results, exceptions } = await this.exec(action, data, retryConfig);
 
-            if (result) {
-                if ('success' in result && Array.isArray(result.success.next)) {
-                    const nextResults = [];
-                    const nextExceptions = [];
+            if (results) {
+                // there might only be a single result.
+                const parent = results[0];
+                const errors = results.filter((x) => 'error' in x);
 
-                    for (const nextAction of result.success.next) {
-                        const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data, retryConfig);
-
-                        nextResults.push(...subResults);
-                        nextExceptions.push(...subExceptions);
-                    }
-                    return { results: [result, ...nextResults], exceptions: exceptions.concat(nextExceptions) };
+                // if there are no secondary actions, or just no errors in general, just report the parent action
+                if (results.length === 1 || errors.length === 0) {
+                    return this.messaging.notify('actionCompleted', { result: parent });
                 }
-                return { results: [result], exceptions: [] };
+
+                // here we must have secondary actions that failed.
+                // so we want to create an error response with the parent ID, but with the errors messages from
+                // the children
+                const joinedErrors = errors.map((x) => x.error.message).join(', ');
+                const response = new ErrorResponse({
+                    actionID: action.id,
+                    message: 'Secondary actions failed: ' + joinedErrors,
+                });
+
+                return this.messaging.notify('actionCompleted', { result: response });
+            } else {
+                return this.messaging.notify('actionError', { error: 'No response found, exceptions: ' + exceptions.join(', ') });
             }
-            return { results: [], exceptions };
+        } catch (e) {
+            console.log('unhandled exception: ', e);
+            return this.messaging.notify('actionError', { error: e.toString() });
         }
-    };
+    }
+
+    /**
+     * Recursively execute actions with the same dataset, collecting all results/exceptions for
+     * later analysis
+     * @param {any} action
+     * @param {Record<string, any>} data
+     * @param {any} retryConfig
+     * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
+     */
+    async exec(action, data, retryConfig) {
+        const { result, exceptions } = await retry(() => execute(action, data, document), retryConfig);
+
+        if (result) {
+            if ('success' in result && Array.isArray(result.success.next)) {
+                const nextResults = [];
+                const nextExceptions = [];
+
+                for (const nextAction of result.success.next) {
+                    const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data, retryConfig);
+
+                    nextResults.push(...subResults);
+                    nextExceptions.push(...subExceptions);
+                }
+                return { results: [result, ...nextResults], exceptions: exceptions.concat(nextExceptions) };
+            }
+            return { results: [result], exceptions: [] };
+        }
+        return { results: [], exceptions };
+    }
 }
 
 /**
  * @typedef {import("./broker-protection/types.js").ActionResponse} ActionResponse
  */
-export default class BrokerProtection extends ActionExecutorMixin(ContentFeature) {
+export default class BrokerProtection extends ActionExecutorBase {
     init() {
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;

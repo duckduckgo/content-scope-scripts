@@ -1,6 +1,5 @@
-import ContentFeature from '../content-feature';
 import { isBeingFramed, withRetry } from '../utils';
-import { ActionExecutorMixin } from './broker-protection';
+import { ActionExecutorBase } from './broker-protection';
 
 export const ANIMATION_DURATION_MS = 1000;
 export const ANIMATION_ITERATIONS = Infinity;
@@ -35,7 +34,7 @@ const TAKEOUT_DOWNLOAD_URL_BASE = '/takeout/download';
  * 2. Find the element to animate based on the path - using structural selectors first and then fallback to label texts),
  * 3. Animate the element, or tap it if it should be autotapped.
  */
-export default class AutofillImport extends ActionExecutorMixin(ContentFeature) {
+export default class AutofillImport extends ActionExecutorBase {
     #exportButtonSettings;
 
     #settingsButtonSettings;
