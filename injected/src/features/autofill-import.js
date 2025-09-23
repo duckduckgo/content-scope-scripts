@@ -594,8 +594,13 @@ export default class AutofillImport extends ActionExecutorBase {
 
         const userId = document.querySelector(this.bookmarkImportSelectorSettings.userIdLink)?.getAttribute('href')?.split('&user=')[1];
         await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 15, 2000, 'linear');
-        const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
-        window.location.href = downloadURL;
+        if (userId != null && this.#exportId != null) {
+            const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
+            window.location.href = downloadURL;
+        } else {
+            // If there's no user id or export id, we post an action failed message
+            this.postBookmarkImportMessage('actionFailed', { error: 'No user id or export id found' });
+        }
     }
 
     get retryConfig() {
@@ -603,6 +608,22 @@ export default class AutofillImport extends ActionExecutorBase {
             interval: { ms: 1000 },
             maxAttempts: 30,
         };
+    }
+
+    postBookmarkImportMessage(name, data) {
+        globalThis.ddgBookmarkImport?.postMessage(
+            JSON.stringify({
+                name,
+                data,
+            }),
+        );
+    }
+
+    patchMessagingAndProcessAction(action) {
+        // Ideally we should be usuing standard messaging in Android, but we are not ready yet
+        // So just patching the notify method to post a message to the Android side
+        this.messaging.notify = this.postBookmarkImportMessage.bind(this);
+        return this.processActionAndNotify(action, {}, this.retryConfig);
     }
 
     async handleBookmarkImportPath(pathname) {
@@ -613,7 +634,7 @@ export default class AutofillImport extends ActionExecutorBase {
                     await this.storeExportId();
                 }
 
-                await this.processActionAndNotify(action, {}, this.retryConfig);
+                await this.patchMessagingAndProcessAction(action);
             }
             await this.downloadData();
         }
