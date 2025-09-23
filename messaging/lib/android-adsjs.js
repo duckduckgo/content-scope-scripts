@@ -189,7 +189,6 @@ export class AndroidAdsjsMessagingConfig {
      * @internal
      */
     sendMessageThrows(message) {
-        console.log('DEEP sendMessageThrows', message);
         if (!this.objectName) {
             throw new Error('Object name not set for WebMessageListener');
         }

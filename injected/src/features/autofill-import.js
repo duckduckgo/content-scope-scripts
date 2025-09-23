@@ -481,8 +481,18 @@ export default class AutofillImport extends ActionExecutorBase {
         }
     }
 
-    get dbpActions() {
-        return this.getFeatureSetting('actions')?.[0] ?? [];
+    /**
+     * @returns {Array<Record<string, any>>}
+     */
+    get bookmarkImportActionSettings() {
+        return this.getFeatureSetting('actions');
+    }
+
+    /**
+     * @returns {Record<string, string>}
+     */
+    get bookmarkImportSelectorSettings() {
+        return this.getFeatureSetting('selectors');
     }
 
     /**
@@ -491,8 +501,7 @@ export default class AutofillImport extends ActionExecutorBase {
      */
     async handleLocation(location) {
         const { pathname } = location;
-        const dbpActions = this.dbpActions;
-        if (dbpActions.length > 0) {
+        if (this.bookmarkImportActionSettings.length > 0) {
             if (this.#processingBookmark) {
                 return;
             }
@@ -583,7 +592,7 @@ export default class AutofillImport extends ActionExecutorBase {
         // sleep for a second, sometimes download link is not yet available
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        const userId = document.querySelector(this.getFeatureSetting('selectors').userIdLink)?.getAttribute('href')?.split('&user=')[1];
+        const userId = document.querySelector(this.bookmarkImportSelectorSettings.userIdLink)?.getAttribute('href')?.split('&user=')[1];
         await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 15, 2000, 'linear');
         const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
         window.location.href = downloadURL;
@@ -598,7 +607,7 @@ export default class AutofillImport extends ActionExecutorBase {
 
     async handleBookmarkImportPath(pathname) {
         if (pathname === '/' && !this.#isBookmarkModalVisible) {
-            for (const action of this.dbpActions) {
+            for (const action of this.bookmarkImportActionSettings) {
                 // Before clicking on the manage button, we need to store the export id
                 if (action.id === 'manage-button-click') {
                     await this.storeExportId();
@@ -618,7 +627,7 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     findExportId() {
-        const panels = document.querySelectorAll(this.getFeatureSetting('selectors').tabPanel);
+        const panels = document.querySelectorAll(this.bookmarkImportSelectorSettings.tabPanel);
         const exportPanel = panels[panels.length - 1];
         return exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id');
     }
