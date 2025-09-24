@@ -31,7 +31,7 @@
     "seedrandom": "^3.0.5",
     "sjcl": "^1.0.8",
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1752154773643",
-    "esbuild": "^0.25.9",
+    "esbuild": "^0.25.10",
     "urlpattern-polyfill": "^10.1.0"
   },
   "devDependencies": {
@@ -43,6 +43,6 @@
     "@typescript-eslint/eslint-plugin": "^8.42.0",
     "fast-check": "^4.2.0",
     "jasmine": "^5.10.0",
-    "web-ext": "^8.9.0"
+    "web-ext": "^8.10.0"
   }
 }
