@@ -1,5 +1,6 @@
 import { isBeingFramed, withRetry } from '../utils';
 import { ActionExecutorBase } from './broker-protection';
+import { ErrorResponse } from './broker-protection/types';
 
 export const ANIMATION_DURATION_MS = 1000;
 export const ANIMATION_ITERATIONS = Infinity;
@@ -599,7 +600,12 @@ export default class AutofillImport extends ActionExecutorBase {
             window.location.href = downloadURL;
         } else {
             // If there's no user id or export id, we post an action failed message
-            this.postBookmarkImportMessage('actionFailed', { error: 'No user id or export id found' });
+            this.postBookmarkImportMessage('actionCompleted', {
+                result: new ErrorResponse({
+                    actionID: 'download-data',
+                    message: 'No user id or export id found',
+                }),
+            });
         }
     }
 
