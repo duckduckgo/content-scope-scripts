@@ -141,6 +141,10 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('enumerateDevices')) {
             this.deviceEnumerationFix();
         }
+        // Used by Android in the non adsjs version
+        if (this.getFeatureSettingEnabled('viewportWidthLegacy')) {
+            this.viewportWidthFix();
+        }
     }
 
     /**
@@ -151,10 +155,7 @@ export class WebCompat extends ContentFeature {
     onUserPreferencesMerged(_updatedConfig) {
         // Re-apply viewport width fix if viewport settings might have changed
         if (this.getFeatureSettingEnabled('viewportWidth')) {
-            if (!this._viewportWidthFixApplied) {
-                this.viewportWidthFix();
-                this._viewportWidthFixApplied = true;
-            }
+            this.viewportWidthFix();
         }
     }
 
@@ -698,6 +699,10 @@ export class WebCompat extends ContentFeature {
     }
 
     viewportWidthFix() {
+        if (this._viewportWidthFixApplied) {
+            return;
+        }
+        this._viewportWidthFixApplied = true;
         if (document.readyState === 'loading') {
             // if the document is not ready, we may miss the original viewport tag
             document.addEventListener('DOMContentLoaded', () => this.viewportWidthFixInner());
