@@ -486,7 +486,7 @@ export default class AutofillImport extends ActionExecutorBase {
      * @returns {Array<Record<string, any>>}
      */
     get bookmarkImportActionSettings() {
-        return this.getFeatureSetting('actions');
+        return this.getFeatureSetting('actions') || [];
     }
 
     /**
