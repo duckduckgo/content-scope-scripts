@@ -1,0 +1,5 @@
+- Add timeout to enumerateDevices call (#1982)
+- build(deps-dev): bump the eslint group across 1 directory with 2 updates (#1980)
+- build(deps-dev): bump web-ext from 8.9.0 to 8.10.0 (#1978)
+- build(deps): bump esbuild from 0.25.9 to 0.25.10 (#1976)
+- build(deps-dev): bump wait-on from 8.0.5 to 9.0.1 (#1975)
