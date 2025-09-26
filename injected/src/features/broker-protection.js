@@ -7,15 +7,14 @@ export class ActionExecutorBase extends ContentFeature {
     /**
      * @param {any} action
      * @param {Record<string, any>} data
-     * @param {any} retryConfig
      */
-    async processActionAndNotify(action, data, retryConfig) {
+    async processActionAndNotify(action, data) {
         try {
             if (!action) {
                 return this.messaging.notify('actionError', { error: 'No action found.' });
             }
 
-            const { results, exceptions } = await this.exec(action, data, retryConfig);
+            const { results, exceptions } = await this.exec(action, data);
 
             if (results) {
                 // there might only be a single result.
@@ -51,10 +50,10 @@ export class ActionExecutorBase extends ContentFeature {
      * later analysis
      * @param {any} action
      * @param {Record<string, any>} data
-     * @param {any} retryConfig
      * @return {Promise<{results: ActionResponse[], exceptions: string[]}>}
      */
-    async exec(action, data, retryConfig) {
+    async exec(action, data) {
+        const retryConfig = this.retryConfigFor(action);
         const { result, exceptions } = await retry(() => execute(action, data, document), retryConfig);
 
         if (result) {
@@ -63,7 +62,7 @@ export class ActionExecutorBase extends ContentFeature {
                 const nextExceptions = [];
 
                 for (const nextAction of result.success.next) {
-                    const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data, retryConfig);
+                    const { results: subResults, exceptions: subExceptions } = await this.exec(nextAction, data);
 
                     nextResults.push(...subResults);
                     nextExceptions.push(...subExceptions);
@@ -74,6 +73,13 @@ export class ActionExecutorBase extends ContentFeature {
         }
         return { results: [], exceptions };
     }
+
+    /**
+     * @returns {any}
+     */
+    retryConfigFor(action) {
+        this.log.error('unimplemented method: retryConfigFor:', action);
+    }
 }
 
 /**
@@ -83,7 +89,7 @@ export default class BrokerProtection extends ActionExecutorBase {
     init() {
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
-            return await this.processActionAndNotify(action, data, this.retryConfigFor(action));
+            return await this.processActionAndNotify(action, data);
         });
     }
 

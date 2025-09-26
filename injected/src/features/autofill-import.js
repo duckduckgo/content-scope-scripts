@@ -609,7 +609,11 @@ export default class AutofillImport extends ActionExecutorBase {
         }
     }
 
-    get retryConfig() {
+    /**
+     * Here we ignore the action and return a default retry config
+     * as for now the retry doesn't need to be per action.
+     */
+    retryConfigFor(_) {
         return {
             interval: { ms: 1000 },
             maxAttempts: 30,
@@ -629,7 +633,7 @@ export default class AutofillImport extends ActionExecutorBase {
         // Ideally we should be usuing standard messaging in Android, but we are not ready yet
         // So just patching the notify method to post a message to the Android side
         this.messaging.notify = this.postBookmarkImportMessage.bind(this);
-        return this.processActionAndNotify(action, {}, this.retryConfig);
+        return this.processActionAndNotify(action, {});
     }
 
     async handleBookmarkImportPath(pathname) {
