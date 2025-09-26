@@ -163,7 +163,7 @@ export class ResultsCollector {
             android: async () => {
                 // noop
             },
-            'android-autofill-password-import': async () => {
+            'android-autofill-import': async () => {
                 // noop
             },
         });
@@ -173,7 +173,7 @@ export class ResultsCollector {
             'apple-isolated': () => mockWebkitMessaging,
             windows: () => mockWindowsMessaging,
             android: () => mockAndroidMessaging,
-            'android-autofill-password-import': () => mockAndroidMessaging,
+            'android-autofill-import': () => mockAndroidMessaging,
         });
 
         await this.page.addInitScript(messagingMock, {
@@ -187,7 +187,7 @@ export class ResultsCollector {
             'apple-isolated': () => wrapWebkitScripts,
             apple: () => wrapWebkitScripts,
             android: () => wrapWebkitScripts,
-            'android-autofill-password-import': () => wrapWebkitScripts,
+            'android-autofill-import': () => wrapWebkitScripts,
             windows: () => wrapWindowsScripts,
         });
 
