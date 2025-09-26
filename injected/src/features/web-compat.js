@@ -868,6 +868,17 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
+     * Helper to wrap a promise with timeout
+     * @param {Promise} promise - Promise to wrap
+     * @param {number} timeoutMs - Timeout in milliseconds
+     * @returns {Promise} Promise that rejects on timeout
+     */
+    withTimeout(promise, timeoutMs) {
+        const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new Error('Request timeout')), timeoutMs));
+        return Promise.race([promise, timeout]);
+    }
+
+    /**
      * Fixes device enumeration to handle permission prompts gracefully
      */
     deviceEnumerationFix() {
@@ -883,27 +894,13 @@ export class WebCompat extends ContentFeature {
              * @returns {Promise<MediaDeviceInfo[]>}
              */
             apply: async (target, thisArg, args) => {
-                // Get timeout settings - enabled by default with 5 second timeout
                 const settings = this.getFeatureSetting('enumerateDevices') || {};
-                const timeoutEnabled = settings.timeoutEnabled !== false; // enabled by default
-                const timeoutMs = typeof settings.timeoutMs === 'number' ? settings.timeoutMs : 5000;
+                const timeoutEnabled = settings.timeoutEnabled !== false;
+                const timeoutMs = settings.timeoutMs ?? 2000;
 
                 try {
-                    let response;
-
-                    if (timeoutEnabled) {
-                        // Create a timeout promise
-                        const timeoutPromise = new Promise((_resolve, reject) => {
-                            setTimeout(() => reject(new Error('Device enumeration request timeout')), timeoutMs);
-                        });
-
-                        // Race the messaging request against the timeout
-                        const messagingPromise = this.messaging.request(MSG_DEVICE_ENUMERATION, {});
-                        response = await Promise.race([messagingPromise, timeoutPromise]);
-                    } else {
-                        // No timeout, use original behavior
-                        response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
-                    }
+                    const messagingPromise = this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+                    const response = timeoutEnabled ? await this.withTimeout(messagingPromise, timeoutMs) : await messagingPromise;
 
                     // Check if native indicates that prompts would be required
                     if (response.willPrompt) {
