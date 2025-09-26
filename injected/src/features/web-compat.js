@@ -868,6 +868,17 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
+     * Helper to wrap a promise with timeout
+     * @param {Promise} promise - Promise to wrap
+     * @param {number} timeoutMs - Timeout in milliseconds
+     * @returns {Promise} Promise that rejects on timeout
+     */
+    withTimeout(promise, timeoutMs) {
+        const timeout = new Promise((_resolve, reject) => setTimeout(() => reject(new Error('Request timeout')), timeoutMs));
+        return Promise.race([promise, timeout]);
+    }
+
+    /**
      * Fixes device enumeration to handle permission prompts gracefully
      */
     deviceEnumerationFix() {
@@ -883,10 +894,13 @@ export class WebCompat extends ContentFeature {
              * @returns {Promise<MediaDeviceInfo[]>}
              */
             apply: async (target, thisArg, args) => {
+                const settings = this.getFeatureSetting('enumerateDevices') || {};
+                const timeoutEnabled = settings.timeoutEnabled !== false;
+                const timeoutMs = settings.timeoutMs ?? 2000;
+
                 try {
-                    // Request device enumeration information from native
-                    /** @type {{willPrompt: boolean, videoInput: boolean, audioInput: boolean, audioOutput: boolean}} */
-                    const response = await this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+                    const messagingPromise = this.messaging.request(MSG_DEVICE_ENUMERATION, {});
+                    const response = timeoutEnabled ? await this.withTimeout(messagingPromise, timeoutMs) : await messagingPromise;
 
                     // Check if native indicates that prompts would be required
                     if (response.willPrompt) {
@@ -913,7 +927,7 @@ export class WebCompat extends ContentFeature {
                         return DDGReflect.apply(target, thisArg, args);
                     }
                 } catch (err) {
-                    // If the native request fails, fall back to the original implementation
+                    // If the native request fails or times out, fall back to the original implementation
                     return DDGReflect.apply(target, thisArg, args);
                 }
             },
