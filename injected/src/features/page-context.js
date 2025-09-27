@@ -1,6 +1,7 @@
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
+import { getActiveSelectionLanguage } from './page-context/utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
 function collapseWhitespace(str) {
@@ -76,10 +77,22 @@ export default class PageContext extends ContentFeature {
     listenForUrlChanges = true;
 
     init() {
+        this.setupActiveSelectionLanguageListener();
         if (!this.shouldActivate()) {
             return;
         }
         this.setupListeners();
+    }
+
+    setupActiveSelectionLanguageListener() {
+        if (!this.getFeatureSettingEnabled('subscribeToActiveSelectionLanguage', 'enabled')) {
+            return;
+        }
+        this.messaging.subscribe('getActiveSelectionLanguage', () => {
+            const activeSelectionLanguage = getActiveSelectionLanguage();
+            this.log.info('Active selection language', activeSelectionLanguage);
+            this.messaging.notify('getActiveSelectionLanguageResult', { activeSelectionLanguage });
+        });
     }
 
     setupListeners() {
