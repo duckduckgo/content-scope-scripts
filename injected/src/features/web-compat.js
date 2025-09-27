@@ -141,20 +141,23 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('enumerateDevices')) {
             this.deviceEnumerationFix();
         }
+        // Used by Android in the non adsjs version
+        // This has to be enabled in the config for the injectName='android' now.
+        if (this.getFeatureSettingEnabled('viewportWidthLegacy', 'disabled')) {
+            this.viewportWidthFix();
+        }
     }
 
     /**
      * Handle user preference updates when merged during initialization.
      * Re-applies viewport fixes if viewport configuration has changed.
+     * Used in the injectName='android-adsjs' instead of 'viewportWidthLegacy' from init.
      * @param {object} _updatedConfig - The configuration with merged user preferences
      */
     onUserPreferencesMerged(_updatedConfig) {
         // Re-apply viewport width fix if viewport settings might have changed
         if (this.getFeatureSettingEnabled('viewportWidth')) {
-            if (!this._viewportWidthFixApplied) {
-                this.viewportWidthFix();
-                this._viewportWidthFixApplied = true;
-            }
+            this.viewportWidthFix();
         }
     }
 
@@ -698,6 +701,10 @@ export class WebCompat extends ContentFeature {
     }
 
     viewportWidthFix() {
+        if (this._viewportWidthFixApplied) {
+            return;
+        }
+        this._viewportWidthFixApplied = true;
         if (document.readyState === 'loading') {
             // if the document is not ready, we may miss the original viewport tag
             document.addEventListener('DOMContentLoaded', () => this.viewportWidthFixInner());
