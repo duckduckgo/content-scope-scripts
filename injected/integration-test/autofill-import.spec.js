@@ -1,15 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { OVERLAY_ID } from '../src/features/autofill-password-import';
+import { OVERLAY_ID } from '../src/features/autofill-import';
 import { ResultsCollector } from './page-objects/results-collector.js';
 
-const HTML = '/autofill-password-import/index.html';
-const CONFIG = './integration-test/test-pages/autofill-password-import/config/config.json';
+const HTML = '/autofill-import/index.html';
+const CONFIG = './integration-test/test-pages/autofill-import/config/config.json';
 
 test('Password import feature', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(HTML, CONFIG);
 
-    const passwordImportFeature = new AutofillPasswordImportSpec(page);
+    const passwordImportFeature = new AutofillImportSpec(page);
     await passwordImportFeature.clickOnElement('Home page');
     await passwordImportFeature.waitForAnimation();
 
@@ -25,7 +25,7 @@ test('Password import feature', async ({ page }, testInfo) => {
     await expect(overlay).not.toBeVisible();
 });
 
-class AutofillPasswordImportSpec {
+class AutofillImportSpec {
     /**
      * @param {import("@playwright/test").Page} page
      */
