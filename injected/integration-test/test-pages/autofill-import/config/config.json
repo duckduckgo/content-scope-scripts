@@ -2,7 +2,7 @@
   "readme": "This config is used to test the autofill password import feature.",
   "version": 1,
   "features": {
-    "autofillPasswordImport": {
+    "autofillImport": {
       "state": "enabled",
       "exceptions": [],
       "settings": {
