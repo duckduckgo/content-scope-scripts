@@ -10,7 +10,7 @@ injected/src/element-hiding.js @duckduckgo/content-scope-scripts-owners @jonatha
 injected/src/features/click-to-load.js @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
 injected/src/features/click-to-load/ @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
 injected/src/locales/click-to-load/ @duckduckgo/content-scope-scripts-owners @kzar @ladamski @franfaccin @jonathanKingston @shakyShane
-injected/src/features/autofill-password-import.js @duckduckgo/content-scope-scripts-owners @dbajpeyi
+injected/src/features/autofill-import.js @duckduckgo/content-scope-scripts-owners @dbajpeyi
 
 # Broker protection
 injected/src/features/broker-protection.js @duckduckgo/content-scope-scripts-owners @duckduckgo/injected-broker-protection

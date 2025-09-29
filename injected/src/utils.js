@@ -808,30 +808,32 @@ export function legacySendMessage(messageType, options) {
 }
 
 /**
- * Takes a function that returns an element and tries to find it with exponential backoff.
+ * Takes a function that returns an element and tries to execute it until it returns a valid result or the max attempts are reached.
  * @param {number} delay
  * @param {number} [maxAttempts=4] - The maximum number of attempts to find the element.
  * @param {number} [delay=500] - The initial delay to be used to create the exponential backoff.
  * @returns {Promise<Element|HTMLElement>}
  */
-export function withExponentialBackoff(fn, maxAttempts = 4, delay = 500) {
+export function withRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponential') {
     return new Promise((resolve, reject) => {
         let attempts = 0;
         const tryFn = () => {
             attempts += 1;
-            const error = new Error('Element not found');
+            const error = new Error('Result is invalid or max attempts reached');
             try {
-                const element = fn();
-                if (element) {
-                    resolve(element);
+                const result = fn();
+                if (result) {
+                    resolve(result);
                 } else if (attempts < maxAttempts) {
-                    setTimeout(tryFn, delay * Math.pow(2, attempts));
+                    const retryDelay = strategy === 'linear' ? delay : delay * Math.pow(2, attempts);
+                    setTimeout(tryFn, retryDelay);
                 } else {
                     reject(error);
                 }
             } catch {
                 if (attempts < maxAttempts) {
-                    setTimeout(tryFn, delay * Math.pow(2, attempts));
+                    const retryDelay = strategy === 'linear' ? delay : delay * Math.pow(2, attempts);
+                    setTimeout(tryFn, retryDelay);
                 } else {
                     reject(error);
                 }

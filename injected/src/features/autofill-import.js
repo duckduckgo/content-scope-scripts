@@ -1,5 +1,6 @@
-import ContentFeature from '../content-feature';
-import { isBeingFramed, withExponentialBackoff } from '../utils';
+import { isBeingFramed, withRetry } from '../utils';
+import { ActionExecutorBase } from './broker-protection';
+import { ErrorResponse } from './broker-protection/types';
 
 export const ANIMATION_DURATION_MS = 1000;
 export const ANIMATION_ITERATIONS = Infinity;
@@ -7,6 +8,7 @@ export const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)';
 export const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)';
 export const OVERLAY_ID = 'ddg-password-import-overlay';
 export const DELAY_BEFORE_ANIMATION = 300;
+const TAKEOUT_DOWNLOAD_URL_BASE = '/takeout/download';
 
 /**
  * @typedef ButtonAnimationStyle
@@ -33,7 +35,7 @@ export const DELAY_BEFORE_ANIMATION = 300;
  * 2. Find the element to animate based on the path - using structural selectors first and then fallback to label texts),
  * 3. Animate the element, or tap it if it should be autotapped.
  */
-export default class AutofillPasswordImport extends ContentFeature {
+export default class AutofillImport extends ActionExecutorBase {
     #exportButtonSettings;
 
     #settingsButtonSettings;
@@ -52,6 +54,12 @@ export default class AutofillPasswordImport extends ContentFeature {
     #currentElementConfig;
 
     #domLoaded;
+
+    #exportId;
+
+    #processingBookmark;
+
+    #isBookmarkModalVisible = false;
 
     /** @type {WeakSet<Element>} */
     #tappedElements = new WeakSet();
@@ -135,10 +143,10 @@ export default class AutofillPasswordImport extends ContentFeature {
     /**
      * @returns {Promise<Element|HTMLElement|null>}
      */
-    async runWithRetry(fn) {
+    async runWithRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponential') {
         try {
-            return await withExponentialBackoff(fn);
-        } catch {
+            return await withRetry(fn, maxAttempts, delay, strategy);
+        } catch (error) {
             return null;
         }
     }
@@ -457,11 +465,11 @@ export default class AutofillPasswordImport extends ContentFeature {
         ].includes(path);
     }
 
-    async handlePath(path) {
+    async handlePasswordManagerPath(pathname) {
         this.removeOverlayIfNeeded();
-        if (this.isSupportedPath(path)) {
+        if (this.isSupportedPath(pathname)) {
             try {
-                this.setCurrentElementConfig(await this.getElementAndStyleFromPath(path));
+                this.setCurrentElementConfig(await this.getElementAndStyleFromPath(pathname));
                 if (this.currentElementConfig?.element && !this.#tappedElements.has(this.currentElementConfig?.element)) {
                     await this.animateOrTapElement();
                     if (this.currentElementConfig?.shouldTap && this.currentElementConfig?.tapOnce) {
@@ -469,8 +477,41 @@ export default class AutofillPasswordImport extends ContentFeature {
                     }
                 }
             } catch {
-                console.error('password-import: failed for path:', path);
+                console.error('password-import: failed for path:', pathname);
             }
+        }
+    }
+
+    /**
+     * @returns {Array<Record<string, any>>}
+     */
+    get bookmarkImportActionSettings() {
+        return this.getFeatureSetting('actions') || [];
+    }
+
+    /**
+     * @returns {Record<string, string>}
+     */
+    get bookmarkImportSelectorSettings() {
+        return this.getFeatureSetting('selectors');
+    }
+
+    /**
+     * @param {Location} location
+     *
+     */
+    async handleLocation(location) {
+        const { pathname } = location;
+        if (this.bookmarkImportActionSettings.length > 0) {
+            if (this.#processingBookmark) {
+                return;
+            }
+            this.#processingBookmark = true;
+            await this.handleBookmarkImportPath(pathname);
+        } else if (this.getFeatureSetting('settingsButton')) {
+            await this.handlePasswordManagerPath(pathname);
+        } else {
+            // Unknown feature, we bail out
         }
     }
 
@@ -547,24 +588,98 @@ export default class AutofillPasswordImport extends ContentFeature {
         return `${this.#settingsButtonSettings?.selectors?.join(',')}, ${this.settingsLabelTextSelector}`;
     }
 
-    setButtonSettings() {
+    /** Bookmark import code */
+    async downloadData() {
+        // sleep for a second, sometimes download link is not yet available
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const userId = document.querySelector(this.bookmarkImportSelectorSettings.userIdLink)?.getAttribute('href')?.split('&user=')[1];
+        await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 15, 2000, 'linear');
+        if (userId != null && this.#exportId != null) {
+            const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
+            window.location.href = downloadURL;
+        } else {
+            // If there's no user id or export id, we post an action failed message
+            this.postBookmarkImportMessage('actionCompleted', {
+                result: new ErrorResponse({
+                    actionID: 'download-data',
+                    message: 'No user id or export id found',
+                }),
+            });
+        }
+    }
+
+    /**
+     * Here we ignore the action and return a default retry config
+     * as for now the retry doesn't need to be per action.
+     */
+    retryConfigFor(_) {
+        return {
+            interval: { ms: 1000 },
+            maxAttempts: 30,
+        };
+    }
+
+    postBookmarkImportMessage(name, data) {
+        globalThis.ddgBookmarkImport?.postMessage(
+            JSON.stringify({
+                name,
+                data,
+            }),
+        );
+    }
+
+    patchMessagingAndProcessAction(action) {
+        // Ideally we should be usuing standard messaging in Android, but we are not ready yet
+        // So just patching the notify method to post a message to the Android side
+        this.messaging.notify = this.postBookmarkImportMessage.bind(this);
+        return this.processActionAndNotify(action, {});
+    }
+
+    async handleBookmarkImportPath(pathname) {
+        if (pathname === '/' && !this.#isBookmarkModalVisible) {
+            for (const action of this.bookmarkImportActionSettings) {
+                // Before clicking on the manage button, we need to store the export id
+                if (action.id === 'manage-button-click') {
+                    await this.storeExportId();
+                }
+
+                await this.patchMessagingAndProcessAction(action);
+            }
+            await this.downloadData();
+        }
+    }
+
+    setPasswordImportSettings() {
         this.#exportButtonSettings = this.getFeatureSetting('exportButton');
         this.#signInButtonSettings = this.getFeatureSetting('signInButton');
         this.#settingsButtonSettings = this.getFeatureSetting('settingsButton');
         this.#exportConfirmButtonSettings = this.getFeatureSetting('exportConfirmButton');
     }
 
+    findExportId() {
+        const panels = document.querySelectorAll(this.bookmarkImportSelectorSettings.tabPanel);
+        const exportPanel = panels[panels.length - 1];
+        return exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id');
+    }
+
+    async storeExportId() {
+        this.#exportId = await this.runWithRetry(() => this.findExportId(), 30, 1000, 'linear');
+    }
+
     urlChanged() {
-        this.handlePath(window.location.pathname);
+        this.handleLocation(window.location);
     }
 
     init() {
         if (isBeingFramed()) {
             return;
         }
-        this.setButtonSettings();
 
-        const handlePath = this.handlePath.bind(this);
+        if (this.getFeatureSetting('settingsButton')) {
+            this.setPasswordImportSettings();
+        }
+        const handleLocation = this.handleLocation.bind(this);
 
         this.#domLoaded = new Promise((resolve) => {
             if (document.readyState !== 'loading') {
@@ -578,8 +693,7 @@ export default class AutofillPasswordImport extends ContentFeature {
                 async () => {
                     // @ts-expect-error - caller doesn't expect a value here
                     resolve();
-                    const path = window.location.pathname;
-                    await handlePath(path);
+                    await handleLocation(window.location);
                 },
                 { once: true },
             );
