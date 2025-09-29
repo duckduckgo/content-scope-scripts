@@ -1,1 +1,1 @@
-- Add viewport width fix for legacy bundle (#1981)
+- [Google Takeout Automation] Bookmark import on Android (#1935)

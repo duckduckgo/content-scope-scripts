@@ -2800,24 +2800,26 @@
       createCustomEvent("sendMessageProxy" + messageSecret, { detail: JSON.stringify({ messageType, options }) })
     );
   }
-  function withExponentialBackoff(fn, maxAttempts = 4, delay = 500) {
+  function withRetry(fn, maxAttempts = 4, delay = 500, strategy = "exponential") {
     return new Promise((resolve, reject) => {
       let attempts = 0;
       const tryFn = () => {
         attempts += 1;
-        const error = new Error3("Element not found");
+        const error = new Error3("Result is invalid or max attempts reached");
         try {
-          const element = fn();
-          if (element) {
-            resolve(element);
+          const result = fn();
+          if (result) {
+            resolve(result);
           } else if (attempts < maxAttempts) {
-            setTimeout(tryFn, delay * Math.pow(2, attempts));
+            const retryDelay = strategy === "linear" ? delay : delay * Math.pow(2, attempts);
+            setTimeout(tryFn, retryDelay);
           } else {
             reject(error);
           }
         } catch {
           if (attempts < maxAttempts) {
-            setTimeout(tryFn, delay * Math.pow(2, attempts));
+            const retryDelay = strategy === "linear" ? delay : delay * Math.pow(2, attempts);
+            setTimeout(tryFn, retryDelay);
           } else {
             reject(error);
           }
@@ -2878,7 +2880,7 @@
       "brokerProtection",
       "performanceMetrics",
       "breakageReporting",
-      "autofillPasswordImport",
+      "autofillImport",
       "favicon",
       "webTelemetry",
       "pageContext"
@@ -2897,7 +2899,7 @@
     ],
     android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
-    "android-autofill-password-import": ["autofillPasswordImport"],
+    "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
       "apiManipulation",
       "webCompat",
@@ -20593,6 +20595,15 @@ ${truncatedWarning}
     return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: { actions: [] } });
   }
 
+  // src/features/broker-protection/actions/scroll.js
+  init_define_import_meta_trackerLookup();
+  function scroll(action, root = document) {
+    const element = getElement(root, action.selector);
+    if (!element) return new ErrorResponse({ actionID: action.id, message: "missing element" });
+    element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    return new SuccessResponse({ actionID: action.id, actionType: action.actionType, response: null });
+  }
+
   // src/features/broker-protection/execute.js
   async function execute(action, inputData, root = document) {
     try {
@@ -20613,6 +20624,8 @@ ${truncatedWarning}
           return solveCaptcha2(action, data(action, inputData, "token"), root);
         case "condition":
           return condition(action, root);
+        case "scroll":
+          return scroll(action, root);
         default: {
           return new ErrorResponse({
             actionID: action.id,
@@ -20660,36 +20673,36 @@ ${truncatedWarning}
   }
 
   // src/features/broker-protection.js
-  var BrokerProtection = class extends ContentFeature {
-    init() {
-      this.messaging.subscribe("onActionReceived", async (params) => {
-        try {
-          const action = params.state.action;
-          const data2 = params.state.data;
-          if (!action) {
-            return this.messaging.notify("actionError", { error: "No action found." });
-          }
-          const { results, exceptions } = await this.exec(action, data2);
-          if (results) {
-            const parent = results[0];
-            const errors = results.filter((x2) => "error" in x2);
-            if (results.length === 1 || errors.length === 0) {
-              return this.messaging.notify("actionCompleted", { result: parent });
-            }
-            const joinedErrors = errors.map((x2) => x2.error.message).join(", ");
-            const response = new ErrorResponse({
-              actionID: action.id,
-              message: "Secondary actions failed: " + joinedErrors
-            });
-            return this.messaging.notify("actionCompleted", { result: response });
-          } else {
-            return this.messaging.notify("actionError", { error: "No response found, exceptions: " + exceptions.join(", ") });
-          }
-        } catch (e) {
-          console.log("unhandled exception: ", e);
-          this.messaging.notify("actionError", { error: e.toString() });
+  var ActionExecutorBase = class extends ContentFeature {
+    /**
+     * @param {any} action
+     * @param {Record<string, any>} data
+     */
+    async processActionAndNotify(action, data2) {
+      try {
+        if (!action) {
+          return this.messaging.notify("actionError", { error: "No action found." });
         }
-      });
+        const { results, exceptions } = await this.exec(action, data2);
+        if (results) {
+          const parent = results[0];
+          const errors = results.filter((x2) => "error" in x2);
+          if (results.length === 1 || errors.length === 0) {
+            return this.messaging.notify("actionCompleted", { result: parent });
+          }
+          const joinedErrors = errors.map((x2) => x2.error.message).join(", ");
+          const response = new ErrorResponse({
+            actionID: action.id,
+            message: "Secondary actions failed: " + joinedErrors
+          });
+          return this.messaging.notify("actionCompleted", { result: response });
+        } else {
+          return this.messaging.notify("actionError", { error: "No response found, exceptions: " + exceptions.join(", ") });
+        }
+      } catch (e) {
+        console.log("unhandled exception: ", e);
+        return this.messaging.notify("actionError", { error: e.toString() });
+      }
     }
     /**
      * Recursively execute actions with the same dataset, collecting all results/exceptions for
@@ -20715,6 +20728,20 @@ ${truncatedWarning}
         return { results: [result], exceptions: [] };
       }
       return { results: [], exceptions };
+    }
+    /**
+     * @returns {any}
+     */
+    retryConfigFor(action) {
+      this.log.error("unimplemented method: retryConfigFor:", action);
+    }
+  };
+  var BrokerProtection = class extends ActionExecutorBase {
+    init() {
+      this.messaging.subscribe("onActionReceived", async (params) => {
+        const { action, data: data2 } = params.state;
+        return await this.processActionAndNotify(action, data2);
+      });
     }
     /**
      * Define default retry configurations for certain actions
@@ -20778,15 +20805,16 @@ ${truncatedWarning}
     }
   };
 
-  // src/features/autofill-password-import.js
+  // src/features/autofill-import.js
   init_define_import_meta_trackerLookup();
   var ANIMATION_DURATION_MS = 1e3;
   var ANIMATION_ITERATIONS = Infinity;
   var BACKGROUND_COLOR_START = "rgba(85, 127, 243, 0.10)";
   var BACKGROUND_COLOR_END = "rgba(85, 127, 243, 0.25)";
   var OVERLAY_ID = "ddg-password-import-overlay";
-  var _exportButtonSettings, _settingsButtonSettings, _signInButtonSettings, _exportConfirmButtonSettings, _elementToCenterOn, _currentOverlay, _currentElementConfig, _domLoaded, _tappedElements;
-  var AutofillPasswordImport = class extends ContentFeature {
+  var TAKEOUT_DOWNLOAD_URL_BASE = "/takeout/download";
+  var _exportButtonSettings, _settingsButtonSettings, _signInButtonSettings, _exportConfirmButtonSettings, _elementToCenterOn, _currentOverlay, _currentElementConfig, _domLoaded, _exportId, _processingBookmark, _isBookmarkModalVisible, _tappedElements;
+  var AutofillImport = class extends ActionExecutorBase {
     constructor() {
       super(...arguments);
       __privateAdd(this, _exportButtonSettings);
@@ -20800,6 +20828,9 @@ ${truncatedWarning}
       /** @type {ElementConfig|null} */
       __privateAdd(this, _currentElementConfig);
       __privateAdd(this, _domLoaded);
+      __privateAdd(this, _exportId);
+      __privateAdd(this, _processingBookmark);
+      __privateAdd(this, _isBookmarkModalVisible, false);
       /** @type {WeakSet<Element>} */
       __privateAdd(this, _tappedElements, /* @__PURE__ */ new WeakSet());
     }
@@ -20875,10 +20906,10 @@ ${truncatedWarning}
     /**
      * @returns {Promise<Element|HTMLElement|null>}
      */
-    async runWithRetry(fn) {
+    async runWithRetry(fn, maxAttempts = 4, delay = 500, strategy = "exponential") {
       try {
-        return await withExponentialBackoff(fn);
-      } catch {
+        return await withRetry(fn, maxAttempts, delay, strategy);
+      } catch (error) {
         return null;
       }
     }
@@ -21147,11 +21178,11 @@ ${truncatedWarning}
         __privateGet(this, _exportConfirmButtonSettings)?.path
       ].includes(path);
     }
-    async handlePath(path) {
+    async handlePasswordManagerPath(pathname) {
       this.removeOverlayIfNeeded();
-      if (this.isSupportedPath(path)) {
+      if (this.isSupportedPath(pathname)) {
         try {
-          this.setCurrentElementConfig(await this.getElementAndStyleFromPath(path));
+          this.setCurrentElementConfig(await this.getElementAndStyleFromPath(pathname));
           if (this.currentElementConfig?.element && !__privateGet(this, _tappedElements).has(this.currentElementConfig?.element)) {
             await this.animateOrTapElement();
             if (this.currentElementConfig?.shouldTap && this.currentElementConfig?.tapOnce) {
@@ -21159,8 +21190,37 @@ ${truncatedWarning}
             }
           }
         } catch {
-          console.error("password-import: failed for path:", path);
+          console.error("password-import: failed for path:", pathname);
         }
+      }
+    }
+    /**
+     * @returns {Array<Record<string, any>>}
+     */
+    get bookmarkImportActionSettings() {
+      return this.getFeatureSetting("actions") || [];
+    }
+    /**
+     * @returns {Record<string, string>}
+     */
+    get bookmarkImportSelectorSettings() {
+      return this.getFeatureSetting("selectors");
+    }
+    /**
+     * @param {Location} location
+     *
+     */
+    async handleLocation(location2) {
+      const { pathname } = location2;
+      if (this.bookmarkImportActionSettings.length > 0) {
+        if (__privateGet(this, _processingBookmark)) {
+          return;
+        }
+        __privateSet(this, _processingBookmark, true);
+        await this.handleBookmarkImportPath(pathname);
+      } else if (this.getFeatureSetting("settingsButton")) {
+        await this.handlePasswordManagerPath(pathname);
+      } else {
       }
     }
     /**
@@ -21227,21 +21287,81 @@ ${truncatedWarning}
     get settingsButtonSelector() {
       return `${__privateGet(this, _settingsButtonSettings)?.selectors?.join(",")}, ${this.settingsLabelTextSelector}`;
     }
-    setButtonSettings() {
+    /** Bookmark import code */
+    async downloadData() {
+      await new Promise((resolve) => setTimeout(resolve, 1e3));
+      const userId = document.querySelector(this.bookmarkImportSelectorSettings.userIdLink)?.getAttribute("href")?.split("&user=")[1];
+      await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${__privateGet(this, _exportId)}"]`), 15, 2e3, "linear");
+      if (userId != null && __privateGet(this, _exportId) != null) {
+        const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${__privateGet(this, _exportId)}&i=0&user=${userId}`;
+        window.location.href = downloadURL;
+      } else {
+        this.postBookmarkImportMessage("actionCompleted", {
+          result: new ErrorResponse({
+            actionID: "download-data",
+            message: "No user id or export id found"
+          })
+        });
+      }
+    }
+    /**
+     * Here we ignore the action and return a default retry config
+     * as for now the retry doesn't need to be per action.
+     */
+    retryConfigFor(_2) {
+      return {
+        interval: { ms: 1e3 },
+        maxAttempts: 30
+      };
+    }
+    postBookmarkImportMessage(name, data2) {
+      globalThis.ddgBookmarkImport?.postMessage(
+        JSON.stringify({
+          name,
+          data: data2
+        })
+      );
+    }
+    patchMessagingAndProcessAction(action) {
+      this.messaging.notify = this.postBookmarkImportMessage.bind(this);
+      return this.processActionAndNotify(action, {});
+    }
+    async handleBookmarkImportPath(pathname) {
+      if (pathname === "/" && !__privateGet(this, _isBookmarkModalVisible)) {
+        for (const action of this.bookmarkImportActionSettings) {
+          if (action.id === "manage-button-click") {
+            await this.storeExportId();
+          }
+          await this.patchMessagingAndProcessAction(action);
+        }
+        await this.downloadData();
+      }
+    }
+    setPasswordImportSettings() {
       __privateSet(this, _exportButtonSettings, this.getFeatureSetting("exportButton"));
       __privateSet(this, _signInButtonSettings, this.getFeatureSetting("signInButton"));
       __privateSet(this, _settingsButtonSettings, this.getFeatureSetting("settingsButton"));
       __privateSet(this, _exportConfirmButtonSettings, this.getFeatureSetting("exportConfirmButton"));
     }
+    findExportId() {
+      const panels = document.querySelectorAll(this.bookmarkImportSelectorSettings.tabPanel);
+      const exportPanel = panels[panels.length - 1];
+      return exportPanel.querySelector("div[data-archive-id]")?.getAttribute("data-archive-id");
+    }
+    async storeExportId() {
+      __privateSet(this, _exportId, await this.runWithRetry(() => this.findExportId(), 30, 1e3, "linear"));
+    }
     urlChanged() {
-      this.handlePath(window.location.pathname);
+      this.handleLocation(window.location);
     }
     init() {
       if (isBeingFramed()) {
         return;
       }
-      this.setButtonSettings();
-      const handlePath = this.handlePath.bind(this);
+      if (this.getFeatureSetting("settingsButton")) {
+        this.setPasswordImportSettings();
+      }
+      const handleLocation = this.handleLocation.bind(this);
       __privateSet(this, _domLoaded, new Promise((resolve) => {
         if (document.readyState !== "loading") {
           resolve();
@@ -21251,8 +21371,7 @@ ${truncatedWarning}
           "DOMContentLoaded",
           async () => {
             resolve();
-            const path = window.location.pathname;
-            await handlePath(path);
+            await handleLocation(window.location);
           },
           { once: true }
         );
@@ -21267,6 +21386,9 @@ ${truncatedWarning}
   _currentOverlay = new WeakMap();
   _currentElementConfig = new WeakMap();
   _domLoaded = new WeakMap();
+  _exportId = new WeakMap();
+  _processingBookmark = new WeakMap();
+  _isBookmarkModalVisible = new WeakMap();
   _tappedElements = new WeakMap();
 
   // src/features/favicon.js
@@ -21841,7 +21963,7 @@ ${children}
     ddg_feature_brokerProtection: BrokerProtection,
     ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_breakageReporting: BreakageReporting,
-    ddg_feature_autofillPasswordImport: AutofillPasswordImport,
+    ddg_feature_autofillImport: AutofillImport,
     ddg_feature_favicon: favicon_default,
     ddg_feature_webTelemetry: web_telemetry_default,
     ddg_feature_pageContext: PageContext
