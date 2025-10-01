@@ -12,21 +12,21 @@ test('duck-ai-data-clearing feature clears localStorage and IndexedDB', async ({
         messageCallback: 'messageCallback',
     });
     await collector.load(HTML, CONFIG);
-    
+
     const duckAiDataClearing = new DuckAiDataClearingSpec(page);
-    
+
     // Setup test data
     await duckAiDataClearing.setupTestData();
     await duckAiDataClearing.waitForDataSetup();
-    
+
     // Trigger data clearing via messaging
     await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
-    
+
     // Wait for completion message
     const messages = await collector.waitForMessage('duckAiClearDataCompleted', 1);
     expect(messages).toHaveLength(1);
     expect(messages[0].payload.method).toBe('duckAiClearDataCompleted');
-    
+
     // Verify data is actually cleared
     await duckAiDataClearing.verifyDataCleared();
     await duckAiDataClearing.waitForVerification('Verification complete: All data cleared');
@@ -40,12 +40,12 @@ test('duck-ai-data-clearing feature handles IndexedDB errors gracefully', async 
         messageCallback: 'messageCallback',
     });
     await collector.load(HTML, CONFIG);
-    
+
     const duckAiDataClearing = new DuckAiDataClearingSpec(page);
-    
+
     // Setup localStorage data only (no IndexedDB)
     await duckAiDataClearing.setupLocalStorageOnly();
-    
+
     // Mock IndexedDB to fail
     await page.evaluate(() => {
         const originalOpen = window.indexedDB.open;
@@ -60,10 +60,10 @@ test('duck-ai-data-clearing feature handles IndexedDB errors gracefully', async 
             return request;
         };
     });
-    
+
     // Trigger data clearing
     await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
-    
+
     // Should still get completion message (localStorage should clear successfully)
     const messages = await collector.waitForMessage('duckAiClearDataFailed', 1);
     expect(messages).toHaveLength(1);
@@ -78,17 +78,17 @@ test('duck-ai-data-clearing feature handles localStorage errors gracefully', asy
         messageCallback: 'messageCallback',
     });
     await collector.load(HTML, CONFIG);
-    
+
     // Mock localStorage to throw an error
     await page.evaluate(() => {
         Storage.prototype.removeItem = () => {
             throw new Error('Simulated localStorage error');
         };
     });
-    
+
     // Trigger data clearing
     await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
-    
+
     // Should get failure message
     const messages = await collector.waitForMessage('duckAiClearDataFailed', 1);
     expect(messages).toHaveLength(1);
@@ -103,14 +103,14 @@ test('duck-ai-data-clearing feature succeeds when data collections do not exist 
         messageCallback: 'messageCallback',
     });
     await collector.load(HTML, CONFIG);
-    
+
     const duckAiDataClearing = new DuckAiDataClearingSpec(page);
-    
+
     // Ensure localStorage item doesn't exist
     await page.evaluate(() => {
         localStorage.removeItem('savedAIChats');
     });
-    
+
     // Ensure IndexedDB is clean (no existing database or object store)
     await page.evaluate(() => {
         return new Promise((resolve) => {
@@ -120,15 +120,15 @@ test('duck-ai-data-clearing feature succeeds when data collections do not exist 
             deleteRequest.onblocked = () => resolve(null); // Continue even if blocked
         });
     });
-    
+
     // Trigger data clearing on non-existent/empty data
     await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
-    
+
     // Should still get completion message since there's nothing to fail
     const messages = await collector.waitForMessage('duckAiClearDataCompleted', 1);
     expect(messages).toHaveLength(1);
     expect(messages[0].payload.method).toBe('duckAiClearDataCompleted');
-    
+
     // Verify that subsequent verification shows no data exists
     await duckAiDataClearing.verifyDataCleared();
     await duckAiDataClearing.waitForVerification('Verification complete: All data cleared');
@@ -148,17 +148,18 @@ class DuckAiDataClearingSpec {
 
     async setupLocalStorageOnly() {
         await this.page.evaluate(() => {
-            localStorage.setItem('savedAIChats', JSON.stringify([
-                { id: 1, message: 'test chat 1' }
-            ]));
+            localStorage.setItem('savedAIChats', JSON.stringify([{ id: 1, message: 'test chat 1' }]));
         });
     }
 
     async waitForDataSetup() {
-        await this.page.waitForFunction(() => {
-            const status = document.getElementById('data-status');
-            return status && status.textContent === 'Test data setup complete';
-        }, { timeout: 5000 });
+        await this.page.waitForFunction(
+            () => {
+                const status = document.getElementById('data-status');
+                return status && status.textContent === 'Test data setup complete';
+            },
+            { timeout: 5000 },
+        );
     }
 
     async verifyDataCleared() {
@@ -166,10 +167,14 @@ class DuckAiDataClearingSpec {
     }
 
     async waitForVerification(expectedText) {
-        await this.page.waitForFunction((expected) => {
-            const status = document.getElementById('verify-status');
-            return status && status.textContent === expected;
-        }, expectedText, { timeout: 5000 });
+        await this.page.waitForFunction(
+            (expected) => {
+                const status = document.getElementById('verify-status');
+                return status && status.textContent === expected;
+            },
+            expectedText,
+            { timeout: 5000 },
+        );
     }
 }
 

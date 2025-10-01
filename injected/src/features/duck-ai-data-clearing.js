@@ -8,7 +8,7 @@ import ContentFeature from '../content-feature.js';
  */
 export class DuckAiDataClearing extends ContentFeature {
     init() {
-        this.messaging.subscribe('duckAiClearData', _ => this.clearData());
+        this.messaging.subscribe('duckAiClearData', (_) => this.clearData());
     }
 
     async clearData() {
@@ -50,14 +50,14 @@ export class DuckAiDataClearing extends ContentFeature {
                 this.log.error('Error opening IndexedDB:', event);
                 reject(event);
             };
-            request.onsuccess = _ => {
+            request.onsuccess = (_) => {
                 const db = request.result;
                 if (!db) {
                     this.log.error('IndexedDB onsuccess but no db result');
                     reject(new Error('No DB result'));
                     return;
                 }
-                
+
                 // Check if the object store exists
                 if (!db.objectStoreNames.contains('chat-images')) {
                     this.log.info('chat-images object store does not exist, nothing to clear');
@@ -65,7 +65,7 @@ export class DuckAiDataClearing extends ContentFeature {
                     resolve(null);
                     return;
                 }
-                
+
                 try {
                     const transaction = db.transaction(['chat-images'], 'readwrite');
                     const objectStore = transaction.objectStore('chat-images');
@@ -86,7 +86,7 @@ export class DuckAiDataClearing extends ContentFeature {
                 }
             };
         });
-    };
+    }
 }
 
 export default DuckAiDataClearing;
