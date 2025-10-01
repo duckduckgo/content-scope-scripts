@@ -81,7 +81,6 @@ test('duck-ai-data-clearing feature handles localStorage errors gracefully', asy
     
     // Mock localStorage to throw an error
     await page.evaluate(() => {
-        const originalRemoveItem = Storage.prototype.removeItem;
         Storage.prototype.removeItem = () => {
             throw new Error('Simulated localStorage error');
         };

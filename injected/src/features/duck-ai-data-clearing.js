@@ -8,6 +8,7 @@ import ContentFeature from '../content-feature.js';
  */
 export class DuckAiDataClearing extends ContentFeature {
     init() {
+        // eslint-ignore-next-line require-await
         this.messaging.subscribe('duckAiClearData', _ => this.clearData());
     }
 
