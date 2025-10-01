@@ -1,0 +1,9 @@
+{
+    "features": {
+        "duckAiDataClearing": {
+            "state": "enabled"
+        }
+    },
+    "unprotectedTemporary": [],
+    "featureToggles": {}
+}
