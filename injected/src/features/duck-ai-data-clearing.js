@@ -57,17 +57,31 @@ export class DuckAiDataClearing extends ContentFeature {
                     reject(new Error('No DB result'));
                     return;
                 }
+                
+                // Check if the object store exists
+                if (!db.objectStoreNames.contains('chat-images')) {
+                    this.log.info('chat-images object store does not exist, nothing to clear');
+                    db.close();
+                    resolve(null);
+                    return;
+                }
+                
                 try {
                     const transaction = db.transaction(['chat-images'], 'readwrite');
                     const objectStore = transaction.objectStore('chat-images');
                     const clearRequest = objectStore.clear();
-                    clearRequest.onsuccess = () => resolve(null);
+                    clearRequest.onsuccess = () => {
+                        db.close();
+                        resolve(null);
+                    };
                     clearRequest.onerror = (err) => {
                         this.log.error('Error clearing object store:', err);
+                        db.close();
                         reject(err);
                     };
                 } catch (err) {
                     this.log.error('Exception during IndexedDB clearing:', err);
+                    db.close();
                     reject(err);
                 }
             };

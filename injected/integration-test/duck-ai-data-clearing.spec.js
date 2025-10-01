@@ -96,6 +96,45 @@ test('duck-ai-data-clearing feature handles localStorage errors gracefully', asy
     expect(messages[0].payload.method).toBe('duckAiClearDataFailed');
 });
 
+test('duck-ai-data-clearing feature succeeds when data collections do not exist or are empty', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({
+        messageSecret: 'ABC',
+        javascriptInterface: 'javascriptInterface',
+        messageCallback: 'messageCallback',
+    });
+    await collector.load(HTML, CONFIG);
+    
+    const duckAiDataClearing = new DuckAiDataClearingSpec(page);
+    
+    // Ensure localStorage item doesn't exist
+    await page.evaluate(() => {
+        localStorage.removeItem('savedAIChats');
+    });
+    
+    // Ensure IndexedDB is clean (no existing database or object store)
+    await page.evaluate(() => {
+        return new Promise((resolve) => {
+            const deleteRequest = indexedDB.deleteDatabase('savedAIChatData');
+            deleteRequest.onsuccess = () => resolve(null);
+            deleteRequest.onerror = () => resolve(null); // Continue even if delete fails
+            deleteRequest.onblocked = () => resolve(null); // Continue even if blocked
+        });
+    });
+    
+    // Trigger data clearing on non-existent/empty data
+    await collector.simulateSubscriptionMessage('duckAiDataClearing', 'duckAiClearData', {});
+    
+    // Should still get completion message since there's nothing to fail
+    const messages = await collector.waitForMessage('duckAiClearDataCompleted', 1);
+    expect(messages).toHaveLength(1);
+    expect(messages[0].payload.method).toBe('duckAiClearDataCompleted');
+    
+    // Verify that subsequent verification shows no data exists
+    await duckAiDataClearing.verifyDataCleared();
+    await duckAiDataClearing.waitForVerification('Verification complete: All data cleared');
+});
+
 class DuckAiDataClearingSpec {
     /**
      * @param {import("@playwright/test").Page} page
