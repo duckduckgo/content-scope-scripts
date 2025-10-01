@@ -8,7 +8,6 @@ import ContentFeature from '../content-feature.js';
  */
 export class DuckAiDataClearing extends ContentFeature {
     init() {
-        // eslint-ignore-next-line require-await
         this.messaging.subscribe('duckAiClearData', _ => this.clearData());
     }
 
@@ -42,7 +41,7 @@ export class DuckAiDataClearing extends ContentFeature {
         window.localStorage.removeItem('savedAIChats');
     }
 
-    async clearChatImagesStore() {
+    clearChatImagesStore() {
         this.log.info('Clearing `chat-images` object store');
 
         return new Promise((resolve, reject) => {
