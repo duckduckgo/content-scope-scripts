@@ -2872,6 +2872,7 @@
       "duckPlayer",
       "duckPlayerNative",
       "duckAiListener",
+      "duckAiDataClearing",
       "harmfulApis",
       "webCompat",
       "windowsPermissionUsage",
@@ -2885,7 +2886,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener", "pageContext"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener", "duckAiDataClearing", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
@@ -2895,7 +2896,7 @@
       "messageBridge",
       "favicon"
     ],
-    android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
+    android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge", "duckAiDataClearing"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-password-import": ["autofillPasswordImport"],
     "android-adsjs": [
@@ -2920,7 +2921,8 @@
       "messageBridge",
       "webCompat",
       "pageContext",
-      "duckAiListener"
+      "duckAiListener",
+      "duckAiDataClearing"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad"],
@@ -15657,6 +15659,70 @@ ${truncatedWarning}
   __publicField(_DuckAiPromptTelemetry, "ONE_DAY_MS", 24 * 60 * 60 * 1e3);
   var DuckAiPromptTelemetry = _DuckAiPromptTelemetry;
 
+  // src/features/duck-ai-data-clearing.js
+  init_define_import_meta_trackerLookup();
+  var DuckAiDataClearing = class extends ContentFeature {
+    init() {
+      this.messaging.subscribe("duckAiClearData", (_2) => this.clearData());
+    }
+    async clearData() {
+      let success = true;
+      try {
+        this.clearSavedAIChats();
+      } catch (error) {
+        success = false;
+        this.log.error("Error clearing `savedAIChats`:", error);
+      }
+      try {
+        await this.clearChatImagesStore();
+      } catch (error) {
+        success = false;
+        this.log.error("Error clearing `chat-images` object store:", error);
+      }
+      if (success) {
+        this.notify("duckAiClearDataCompleted");
+      } else {
+        this.notify("duckAiClearDataFailed");
+      }
+    }
+    clearSavedAIChats() {
+      this.log.info("Clearing `savedAIChats`");
+      window.localStorage.removeItem("savedAIChats");
+    }
+    async clearChatImagesStore() {
+      this.log.info("Clearing `chat-images` object store");
+      return new Promise((resolve, reject) => {
+        const request = window.indexedDB.open("savedAIChatData");
+        request.onerror = (event) => {
+          this.log.error("Error opening IndexedDB:", event);
+          reject(event);
+        };
+        request.onsuccess = (_2) => {
+          const db = request.result;
+          if (!db) {
+            this.log.error("IndexedDB onsuccess but no db result");
+            reject(new Error("No DB result"));
+            return;
+          }
+          try {
+            const transaction = db.transaction(["chat-images"], "readwrite");
+            const objectStore = transaction.objectStore("chat-images");
+            const clearRequest = objectStore.clear();
+            clearRequest.onsuccess = () => resolve(null);
+            clearRequest.onerror = (err) => {
+              this.log.error("Error clearing object store:", err);
+              reject(err);
+            };
+          } catch (err) {
+            this.log.error("Exception during IndexedDB clearing:", err);
+            reject(err);
+          }
+        };
+      });
+    }
+  };
+  var duck_ai_data_clearing_default = DuckAiDataClearing;
+
   // src/features/harmful-apis.js
   init_define_import_meta_trackerLookup();
   var HarmfulApis = class extends ContentFeature {
@@ -21830,6 +21896,7 @@ ${children}
     ddg_feature_duckPlayer: DuckPlayerFeature,
     ddg_feature_duckPlayerNative: duck_player_native_default,
     ddg_feature_duckAiListener: DuckAiListener,
+    ddg_feature_duckAiDataClearing: duck_ai_data_clearing_default,
     ddg_feature_harmfulApis: HarmfulApis,
     ddg_feature_webCompat: web_compat_default,
     ddg_feature_windowsPermissionUsage: WindowsPermissionUsage,
