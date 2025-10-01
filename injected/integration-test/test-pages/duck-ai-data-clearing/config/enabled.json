@@ -1,9 +1,15 @@
 {
+    "readme": "This config is used to test enabling the Duck.ai data clearing feature.",
     "features": {
         "duckAiDataClearing": {
-            "state": "enabled"
+        "state": "enabled",
+        "settings": {
+            "chatsLocalStorageKey": "savedAIChats",
+            "chatImagesIndexDbName": "savedAIChatData",
+            "chatImagesObjectStoreName": "chat-images"
+        },
+        "exceptions": []
         }
     },
-    "unprotectedTemporary": [],
-    "featureToggles": {}
+    "unprotectedTemporary": []
 }

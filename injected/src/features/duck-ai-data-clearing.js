@@ -18,14 +18,14 @@ export class DuckAiDataClearing extends ContentFeature {
             this.clearSavedAIChats();
         } catch (error) {
             success = false;
-            this.log.error('Error clearing `savedAIChats`:', error);
+            this.log.error('Error clearing saved chats:', error);
         }
 
         try {
             await this.clearChatImagesStore();
         } catch (error) {
             success = false;
-            this.log.error('Error clearing `chat-images` object store:', error);
+            this.log.error('Error clearing saved chat images:', error);
         }
 
         if (success) {
@@ -36,16 +36,20 @@ export class DuckAiDataClearing extends ContentFeature {
     }
 
     clearSavedAIChats() {
-        this.log.info('Clearing `savedAIChats`');
+        const localStorageKey = this.getFeatureSetting('chatsLocalStorageKey');
 
-        window.localStorage.removeItem('savedAIChats');
+        this.log.info(`Clearing '${localStorageKey}'`);
+        window.localStorage.removeItem(localStorageKey);
     }
 
     clearChatImagesStore() {
-        this.log.info('Clearing `chat-images` object store');
+        const indexDbName = this.getFeatureSetting('chatImagesIndexDbName');
+        const objectStoreName = this.getFeatureSetting('chatImagesObjectStoreName');
+
+        this.log.info(`Clearing '${indexDbName}' object store`);
 
         return new Promise((resolve, reject) => {
-            const request = window.indexedDB.open('savedAIChatData');
+            const request = window.indexedDB.open(indexDbName);
             request.onerror = (event) => {
                 this.log.error('Error opening IndexedDB:', event);
                 reject(event);
@@ -59,16 +63,16 @@ export class DuckAiDataClearing extends ContentFeature {
                 }
 
                 // Check if the object store exists
-                if (!db.objectStoreNames.contains('chat-images')) {
-                    this.log.info('chat-images object store does not exist, nothing to clear');
+                if (!db.objectStoreNames.contains(objectStoreName)) {
+                    this.log.info(`'${objectStoreName}' object store does not exist, nothing to clear`);
                     db.close();
                     resolve(null);
                     return;
                 }
 
                 try {
-                    const transaction = db.transaction(['chat-images'], 'readwrite');
-                    const objectStore = transaction.objectStore('chat-images');
+                    const transaction = db.transaction([objectStoreName], 'readwrite');
+                    const objectStore = transaction.objectStore(objectStoreName);
                     const clearRequest = objectStore.clear();
                     clearRequest.onsuccess = () => {
                         db.close();

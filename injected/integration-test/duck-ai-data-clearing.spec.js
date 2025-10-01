@@ -49,14 +49,16 @@ test('duck-ai-data-clearing feature handles IndexedDB errors gracefully', async 
     // Mock IndexedDB to fail
     await page.evaluate(() => {
         const originalOpen = window.indexedDB.open;
-        window.indexedDB.open = () => {
+        window.indexedDB.open = function () {
             const request = originalOpen.call(window.indexedDB, 'nonexistent');
-            // Simulate an error
+            // Immediately fire the error event
             setTimeout(() => {
-                if (request.onerror) {
-                    request.onerror(new Error('Simulated IndexedDB error'));
+                if (typeof request.onerror === 'function') {
+                    // Create a fake event object
+                    const event = new Event('error');
+                    request.onerror(event);
                 }
-            }, 10);
+            }, 0);
             return request;
         };
     });
