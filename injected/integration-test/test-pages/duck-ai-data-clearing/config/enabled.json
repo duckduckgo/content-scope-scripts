@@ -1,5 +1,6 @@
 {
     "readme": "This config is used to test enabling the Duck.ai data clearing feature.",
+    "version": 1,
     "features": {
         "duckAiDataClearing": {
         "state": "enabled",
