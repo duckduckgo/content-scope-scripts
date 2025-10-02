@@ -20,10 +20,49 @@ function returnError(errorMessage) {
 }
 
 /**
- * Get the expanded performance metrics
- * @returns {ErrorObject | PerformanceMetricsResponse}
+ * @returns {Promise<number | null>}
  */
-export function getExpandedPerformanceMetrics() {
+function waitForLCP(timeoutMs = 500) {
+    return new Promise((resolve) => {
+        let timeoutId;
+        let observer;
+
+        const cleanup = () => {
+            if (observer) observer.disconnect();
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+
+        // Set timeout
+        timeoutId = setTimeout(() => {
+            cleanup();
+            resolve(null); // Resolve with null instead of hanging
+        }, timeoutMs);
+
+        // Try to get existing LCP
+        observer = new PerformanceObserver((list) => {
+            const entries = list.getEntries();
+            const lastEntry = entries[entries.length - 1];
+            if (lastEntry) {
+                cleanup();
+                resolve(lastEntry.startTime);
+            }
+        });
+
+        try {
+            observer.observe({ type: 'largest-contentful-paint', buffered: true });
+        } catch (error) {
+            // Handle browser compatibility issues
+            cleanup();
+            resolve(null);
+        }
+    });
+}
+
+/**
+ * Get the expanded performance metrics
+ * @returns {Promise<ErrorObject | PerformanceMetricsResponse>}
+ */
+export async function getExpandedPerformanceMetrics() {
     try {
         if (document.readyState !== 'complete') {
             return returnError('Document not ready');
@@ -38,15 +77,8 @@ export function getExpandedPerformanceMetrics() {
 
         // Get largest contentful paint if available
         let largestContentfulPaint = null;
-        if (
-            window.PerformanceObserver &&
-            PerformanceObserver.supportedEntryTypes &&
-            PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint')
-        ) {
-            const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
-            if (lcpEntries.length > 0) {
-                largestContentfulPaint = lcpEntries[lcpEntries.length - 1].startTime;
-            }
+        if (PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint')) {
+            largestContentfulPaint = await waitForLCP();
         }
 
         // Calculate total resource sizes

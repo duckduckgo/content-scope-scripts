@@ -20,8 +20,8 @@ export default class PerformanceMetrics extends ContentFeature {
         }
     }
 
-    triggerExpandedPerformanceMetrics() {
-        const expandedPerformanceMetrics = getExpandedPerformanceMetrics();
+    async triggerExpandedPerformanceMetrics() {
+        const expandedPerformanceMetrics = await getExpandedPerformanceMetrics();
         this.messaging.notify('expandedPerformanceMetricsResult', expandedPerformanceMetrics);
     }
 }

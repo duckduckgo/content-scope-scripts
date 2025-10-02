@@ -4,7 +4,7 @@ import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breaka
 export default class BreakageReporting extends ContentFeature {
     init() {
         const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled('expandedPerformanceMetrics', 'enabled');
-        this.messaging.subscribe('getBreakageReportValues', () => {
+        this.messaging.subscribe('getBreakageReportValues', async () => {
             const jsPerformance = getJsPerformanceMetrics();
             const referrer = document.referrer;
             const result = {
@@ -12,7 +12,7 @@ export default class BreakageReporting extends ContentFeature {
                 referrer,
             };
             if (isExpandedPerformanceMetricsEnabled) {
-                const expandedPerformanceMetrics = getExpandedPerformanceMetrics();
+                const expandedPerformanceMetrics = await getExpandedPerformanceMetrics();
                 if (expandedPerformanceMetrics.success) {
                     result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
                 }
