@@ -12,7 +12,10 @@ export default class BreakageReporting extends ContentFeature {
                 referrer,
             };
             if (isExpandedPerformanceMetricsEnabled) {
-                result.expandedPerformanceMetrics = getExpandedPerformanceMetrics();
+                const expandedPerformanceMetrics = getExpandedPerformanceMetrics();
+                if (expandedPerformanceMetrics.success) {
+                    result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
+                }
             }
             this.messaging.notify('breakageReportResult', result);
         });
