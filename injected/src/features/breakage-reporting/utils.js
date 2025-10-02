@@ -61,7 +61,7 @@ export function getExpandedPerformanceMetrics() {
 
                     // Paint metrics
                     firstContentfulPaint: fcp ? fcp.startTime : null,
-                    largestContentfulPaint: largestContentfulPaint,
+                    largestContentfulPaint,
 
                     // Network metrics
                     timeToFirstByte: navigation.responseStart - navigation.fetchStart,
