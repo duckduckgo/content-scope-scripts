@@ -24,7 +24,9 @@ function returnError(errorMessage) {
  */
 function waitForLCP(timeoutMs = 500) {
     return new Promise((resolve) => {
+        // eslint-disable-next-line prefer-const
         let timeoutId;
+        // eslint-disable-next-line prefer-const
         let observer;
 
         const cleanup = () => {
