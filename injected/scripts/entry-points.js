@@ -55,6 +55,10 @@ const builds = {
         input: 'entry-points/extension-mv3.js',
         output: ['../build/chrome-mv3/inject.js'],
     },
+    'performance-metrics': {
+        input: 'single-use/performance-metrics.js',
+        output: ['../build/performance-metrics/performanceMetrics.js'],
+    },
 };
 
 async function init() {

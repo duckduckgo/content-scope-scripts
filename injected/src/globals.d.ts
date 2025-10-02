@@ -11,17 +11,7 @@ interface ImportMeta {
     env: 'production' | 'development';
     platform?: 'windows' | 'macos' | 'android' | 'ios' | 'extension';
     // this represents the different build artifact names
-    injectName?:
-        | 'firefox'
-        | 'apple'
-        | 'apple-isolated'
-        | 'android'
-        | 'windows'
-        | 'integration'
-        | 'chrome-mv3'
-        | 'android-broker-protection'
-        | 'android-autofill-import'
-        | 'android-adsjs';
+    injectName?: string;
     trackerLookup?: Record<string, unknown>;
     pageName?: string;
 }
