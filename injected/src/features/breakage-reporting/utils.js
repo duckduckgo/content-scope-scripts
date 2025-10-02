@@ -12,7 +12,7 @@ export function getJsPerformanceMetrics() {
 
 /**
  * Convenience function to return an error object
- * @param {string} errorMessage 
+ * @param {string} errorMessage
  * @returns {ErrorObject}
  */
 function returnError(errorMessage) {
@@ -34,12 +34,15 @@ export function getExpandedPerformanceMetrics() {
         const resources = /** @type {PerformanceResourceTiming[]} */ (performance.getEntriesByType('resource'));
 
         // Find FCP
-        const fcp = paint.find(p => p.name === 'first-contentful-paint');
+        const fcp = paint.find((p) => p.name === 'first-contentful-paint');
 
         // Get largest contentful paint if available
         let largestContentfulPaint = null;
-        if (window.PerformanceObserver && PerformanceObserver.supportedEntryTypes &&
-            PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint')) {
+        if (
+            window.PerformanceObserver &&
+            PerformanceObserver.supportedEntryTypes &&
+            PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint')
+        ) {
             const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
             if (lcpEntries.length > 0) {
                 largestContentfulPaint = lcpEntries[lcpEntries.length - 1].startTime;
@@ -80,8 +83,8 @@ export function getExpandedPerformanceMetrics() {
                     // Additional metadata
                     protocol: navigation.nextHopProtocol,
                     redirectCount: navigation.redirectCount,
-                    navigationType: navigation.type
-                }
+                    navigationType: navigation.type,
+                },
             };
         }
 
