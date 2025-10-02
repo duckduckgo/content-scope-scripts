@@ -13,12 +13,6 @@ export default class PerformanceMetrics extends ContentFeature {
                 this.triggerExpandedPerformanceMetrics();
             });
         }
-
-        if (this.getFeatureSettingEnabled('expandedPerformanceMetricsOnRequest', 'enabled')) {
-            this.messaging.subscribe('getExpandedPerformanceMetrics', () => {
-                this.triggerExpandedPerformanceMetrics();
-            });
-        }
     }
 
     triggerExpandedPerformanceMetrics() {
