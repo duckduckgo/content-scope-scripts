@@ -1,5 +1,5 @@
 import ContentFeature from '../content-feature';
-import { getJsPerformanceMetrics } from './breakage-reporting/utils.js';
+import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
 
 export default class PerformanceMetrics extends ContentFeature {
     init() {
@@ -7,5 +7,22 @@ export default class PerformanceMetrics extends ContentFeature {
             const vitals = getJsPerformanceMetrics();
             this.messaging.notify('vitalsResult', { vitals });
         });
+
+        if (this.getFeatureSettingEnabled('expandedPerformanceMetricsOnLoad', 'enabled')) {
+            document.addEventListener('load', () => {
+                this.triggerExpandedPerformanceMetrics();
+            });
+        }
+
+        if (this.getFeatureSettingEnabled('expandedPerformanceMetricsOnRequest', 'enabled')) {
+            this.messaging.subscribe('getExpandedPerformanceMetrics', () => {
+                this.triggerExpandedPerformanceMetrics();
+            });
+        }
+    }
+
+    triggerExpandedPerformanceMetrics() {
+        const expandedPerformanceMetrics = getExpandedPerformanceMetrics();
+        this.messaging.notify('expandedPerformanceMetricsResult', expandedPerformanceMetrics);
     }
 }
