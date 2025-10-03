@@ -1,16 +1,23 @@
 import ContentFeature from '../content-feature';
-import { getJsPerformanceMetrics } from './breakage-reporting/utils.js';
+import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
 
 export default class BreakageReporting extends ContentFeature {
     init() {
-        this.messaging.subscribe('getBreakageReportValues', () => {
+        const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled('expandedPerformanceMetrics', 'enabled');
+        this.messaging.subscribe('getBreakageReportValues', async () => {
             const jsPerformance = getJsPerformanceMetrics();
             const referrer = document.referrer;
-
-            this.messaging.notify('breakageReportResult', {
+            const result = {
                 jsPerformance,
                 referrer,
-            });
+            };
+            if (isExpandedPerformanceMetricsEnabled) {
+                const expandedPerformanceMetrics = await getExpandedPerformanceMetrics();
+                if (expandedPerformanceMetrics.success) {
+                    result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
+                }
+            }
+            this.messaging.notify('breakageReportResult', result);
         });
     }
 }
