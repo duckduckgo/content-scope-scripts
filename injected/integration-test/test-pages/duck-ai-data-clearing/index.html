@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duck AI Data Clearing Test</title>
+    <link rel="stylesheet" href="../shared/style.css">
+</head>
+<body>
+    <header>
+        <h1>Duck AI Data Clearing Test</h1>
+        <p>This page tests the Duck AI data clearing functionality.</p>
+    </header>
+    
+    <main>
+        <section>
+            <h2>Setup Data</h2>
+            <button id="setup-data">Setup Test Data</button>
+            <div id="data-status"></div>
+        </section>
+        
+        <section>
+            <h2>Clear Data</h2>
+            <button id="clear-data">Clear Duck AI Data</button>
+            <div id="clear-status"></div>
+        </section>
+        
+        <section>
+            <h2>Verify Data Cleared</h2>
+            <button id="verify-data">Verify Data Cleared</button>
+            <div id="verify-status"></div>
+        </section>
+    </main>
+
+    <script src="../shared/utils.js"></script>
+    <script>
+        const dataStatus = document.getElementById('data-status');
+        const clearStatus = document.getElementById('clear-status');
+        const verifyStatus = document.getElementById('verify-status');
+        
+        // Setup test data
+        document.getElementById('setup-data').addEventListener('click', async () => {
+            try {
+                // Setup localStorage data
+                localStorage.setItem('savedAIChats', JSON.stringify([
+                    { id: 1, message: 'test chat 1' },
+                    { id: 2, message: 'test chat 2' }
+                ]));
+                
+                // Setup IndexedDB data
+                const request = indexedDB.open('savedAIChatData', 1);
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('chat-images')) {
+                        const objectStore = db.createObjectStore('chat-images', { keyPath: 'id' });
+                    }
+                };
+                
+                request.onsuccess = (event) => {
+                    const db = event.target.result;
+                    const transaction = db.transaction(['chat-images'], 'readwrite');
+                    const objectStore = transaction.objectStore('chat-images');
+                    
+                    objectStore.add({ id: 1, image: 'test-image-1' });
+                    objectStore.add({ id: 2, image: 'test-image-2' });
+                    
+                    transaction.oncomplete = () => {
+                        dataStatus.textContent = 'Test data setup complete';
+                        db.close();
+                    };
+                };
+                
+                request.onerror = () => {
+                    dataStatus.textContent = 'Error setting up test data';
+                };
+            } catch (error) {
+                dataStatus.textContent = 'Error: ' + error.message;
+            }
+        });
+        
+        // Verify data is cleared
+        document.getElementById('verify-data').addEventListener('click', async () => {
+            try {
+                // Check localStorage
+                const localStorageData = localStorage.getItem('savedAIChats');
+                const localStorageCleared = localStorageData === null;
+                
+                // Check IndexedDB
+                const request = indexedDB.open('savedAIChatData');
+                
+                request.onsuccess = (event) => {
+                    const db = event.target.result;
+                    
+                    if (!db.objectStoreNames.contains('chat-images')) {
+                        verifyStatus.textContent = 'Verification complete: All data cleared';
+                        db.close();
+                        return;
+                    }
+                    
+                    const transaction = db.transaction(['chat-images'], 'readonly');
+                    const objectStore = transaction.objectStore('chat-images');
+                    const countRequest = objectStore.count();
+                    
+                    countRequest.onsuccess = () => {
+                        const count = countRequest.result;
+                        const indexedDBCleared = count === 0;
+                        
+                        if (localStorageCleared && indexedDBCleared) {
+                            verifyStatus.textContent = 'Verification complete: All data cleared';
+                        } else {
+                            verifyStatus.textContent = `Verification failed: localStorage cleared: ${localStorageCleared}, IndexedDB cleared: ${indexedDBCleared}`;
+                        }
+                        db.close();
+                    };
+                };
+                
+                request.onerror = () => {
+                    verifyStatus.textContent = 'Error verifying data clearing';
+                };
+            } catch (error) {
+                verifyStatus.textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
