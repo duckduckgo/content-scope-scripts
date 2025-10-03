@@ -48,7 +48,7 @@ export const platformSupport = {
         'messageBridge',
         'favicon',
     ],
-    android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge', 'duckAiDataClearing'],
+    android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [

@@ -14,18 +14,24 @@ export class DuckAiDataClearing extends ContentFeature {
     async clearData() {
         let success = true;
 
-        try {
-            this.clearSavedAIChats();
-        } catch (error) {
-            success = false;
-            this.log.error('Error clearing saved chats:', error);
+        const localStorageKeys = this.getFeatureSetting('chatsLocalStorageKeys');
+        for (const localStorageKey of localStorageKeys) {
+            try {
+                this.clearSavedAIChats(localStorageKey);
+            } catch (error) {
+                success = false;
+                this.log.error('Error clearing saved chats:', error);
+            }
         }
 
-        try {
-            await this.clearChatImagesStore();
-        } catch (error) {
-            success = false;
-            this.log.error('Error clearing saved chat images:', error);
+        const indexDbNameObjectStoreNamePairs = this.getFeatureSetting('chatImagesIndexDbNameObjectStoreNamePairs');
+        for (const [indexDbName, objectStoreName] of indexDbNameObjectStoreNamePairs) {
+            try {
+                await this.clearChatImagesStore(indexDbName, objectStoreName);
+            } catch (error) {
+                success = false;
+                this.log.error('Error clearing saved chat images:', error);
+            }
         }
 
         if (success) {
@@ -35,17 +41,12 @@ export class DuckAiDataClearing extends ContentFeature {
         }
     }
 
-    clearSavedAIChats() {
-        const localStorageKey = this.getFeatureSetting('chatsLocalStorageKey');
-
+    clearSavedAIChats(localStorageKey) {
         this.log.info(`Clearing '${localStorageKey}'`);
         window.localStorage.removeItem(localStorageKey);
     }
 
-    clearChatImagesStore() {
-        const indexDbName = this.getFeatureSetting('chatImagesIndexDbName');
-        const objectStoreName = this.getFeatureSetting('chatImagesObjectStoreName');
-
+    clearChatImagesStore(indexDbName, objectStoreName) {
         this.log.info(`Clearing '${indexDbName}' object store`);
 
         return new Promise((resolve, reject) => {

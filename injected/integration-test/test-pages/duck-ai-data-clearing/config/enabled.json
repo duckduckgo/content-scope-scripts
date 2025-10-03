@@ -5,9 +5,8 @@
         "duckAiDataClearing": {
         "state": "enabled",
         "settings": {
-            "chatsLocalStorageKey": "savedAIChats",
-            "chatImagesIndexDbName": "savedAIChatData",
-            "chatImagesObjectStoreName": "chat-images"
+            "chatsLocalStorageKeys": ["savedAIChats"],
+            "chatImagesIndexDbNameObjectStoreNamePairs": [["savedAIChatData", "chat-images"]]
         },
         "exceptions": []
         }
