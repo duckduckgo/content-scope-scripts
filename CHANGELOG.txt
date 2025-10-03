@@ -1,1 +1,2 @@
-- [Google Takeout Automation] Bookmark import on Android (#1935)
+- Get expanded performance results (#1989)
+- build(deps-dev): bump jasmine from 5.10.0 to 5.11.0 (#1984)
