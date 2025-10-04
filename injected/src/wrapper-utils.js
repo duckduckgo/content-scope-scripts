@@ -14,7 +14,7 @@ export const ddgShimMark = Symbol('ddgShimMark');
  * FIXME: this function is not needed anymore after FF xray removal
  * Like Object.defineProperty, but with support for Firefox's mozProxies.
  * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
- * @param {string} propertyName
+ * @param {string | number | symbol} propertyName
  * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
  */
 export function defineProperty(object, propertyName, descriptor) {
@@ -366,16 +366,37 @@ export function shimProperty(baseObject, propertyName, implInstance, readOnly, d
  */
 
 /**
+ * A generic property descriptor for a property of an object, with correct `this` context for accessors.
+ *
+ * @template Obj The object type
+ * @template {keyof Obj} Key The property key
+ * @typedef {Object} StrictPropertyDescriptorGeneric
+ * @property {boolean} configurable
+ * @property {boolean} enumerable
+ * @property {boolean} [writable]
+ * @property {(function(this: Obj): Obj[Key]) |Obj[Key]} [value]
+ * @property {(function(this: Obj): Obj[Key])} [get]
+ * @property {(function(this: Obj, Obj[Key]): void)} [set]
+ */
+
+/**
  * @typedef {Object} BaseStrictPropertyDescriptor
  * @property {boolean} configurable
  * @property {boolean} enumerable
  */
-
 /**
  * @typedef {BaseStrictPropertyDescriptor & { value: any; writable: boolean }} StrictDataDescriptor
+ */
+/**
  * @typedef {BaseStrictPropertyDescriptor & { get: () => any; set: (v: any) => void }} StrictAccessorDescriptor
+ */
+/**
  * @typedef {BaseStrictPropertyDescriptor & { get: () => any }} StrictGetDescriptor
+ */
+/**
  * @typedef {BaseStrictPropertyDescriptor & { set: (v: any) => void }} StrictSetDescriptor
+ */
+/**
  * @typedef {StrictDataDescriptor | StrictAccessorDescriptor | StrictGetDescriptor | StrictSetDescriptor} StrictPropertyDescriptor
  */
 
