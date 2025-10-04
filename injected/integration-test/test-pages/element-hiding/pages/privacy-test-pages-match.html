@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Privacy Test Pages Match</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        .test-section { 
+            border: 1px solid #ccc; 
+            margin: 10px; 
+            padding: 10px; 
+        }
+        .advertisement { 
+            background: #ffcccc; 
+            color: #333; 
+            padding: 10px; 
+            margin: 5px 0;
+            border: 1px solid #ff6666;
+        }
+        .content { 
+            background: #ccffcc; 
+            color: #333; 
+            padding: 10px; 
+            margin: 5px 0;
+            border: 1px solid #66ff66;
+        }
+        .debug-info {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Privacy Test Pages Match</h1>
+    <p>This page matches the exact structure from privacy-test-pages.site/features/element-hiding/</p>
+    
+    <div class="debug-info">
+        <strong>Debug data:</strong>
+    </div>
+    
+    <div class="advertisement" data-test="should-be-hidden">
+        This element should be hidden.
+    </div>
+    
+    <div class="advertisement" data-test="should-not-be-hidden">
+        This element should not be hidden.
+    </div>
+    
+    <div class="content" data-test="content-visible">
+        Lorem Ipsum
+    </div>
+    
+    <div class="content" data-test="content-visible-2">
+        This element should not be hidden.
+    </div>
+    
+    <script src="../../shared/utils.js"></script>
+    <script>
+        function isElementHidden(element) {
+            if (!element) return false;
+            
+            const style = window.getComputedStyle(element);
+            return style.display === 'none' || 
+                   element.hidden === true ||
+                   style.visibility === 'hidden' ||
+                   parseFloat(style.opacity) === 0;
+        }
+        
+        test('Privacy Test Pages Match', async () => {
+            // Wait for element hiding to be applied
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const results = [];
+            
+            // Test elements that should be hidden (based on privacy-test-pages site)
+            const shouldBeHidden = document.querySelector('[data-test="should-be-hidden"]');
+            results.push({
+                name: 'advertisement should be hidden',
+                result: isElementHidden(shouldBeHidden),
+                expected: true
+            });
+            
+            // Test elements that should remain visible
+            const shouldNotBeHidden = document.querySelector('[data-test="should-not-be-hidden"]');
+            const contentVisible = document.querySelector('[data-test="content-visible"]');
+            const contentVisible2 = document.querySelector('[data-test="content-visible-2"]');
+            
+            results.push({
+                name: 'advertisement should not be hidden',
+                result: !isElementHidden(shouldNotBeHidden),
+                expected: true
+            });
+            
+            results.push({
+                name: 'lorem ipsum content visible',
+                result: !isElementHidden(contentVisible),
+                expected: true
+            });
+            
+            results.push({
+                name: 'content element visible',
+                result: !isElementHidden(contentVisible2),
+                expected: true
+            });
+            
+            return results;
+        });
+        
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html>

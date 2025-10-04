@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Hide Empty Elements Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        .test-section { 
+            border: 1px solid #ccc; 
+            margin: 10px; 
+            padding: 10px; 
+        }
+        .empty-container, .maybe-empty { 
+            border: 2px solid red; 
+            min-height: 50px; 
+            margin: 5px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Hide Empty Elements Test</h1>
+    
+    <div class="test-section">
+        <h2>Empty elements that should be hidden</h2>
+        <div class="empty-container" data-test="empty-1"><!-- This is completely empty --></div>
+        <div class="empty-container" data-test="empty-2">   </div> <!-- Only whitespace -->
+        <div class="maybe-empty" data-test="empty-3"></div> <!-- Also empty -->
+    </div>
+    
+    <div class="test-section">
+        <h2>Non-empty elements that should remain visible</h2>
+        <div class="empty-container" data-test="nonempty-1">This has content</div>
+        <div class="maybe-empty" data-test="nonempty-2">
+            <span>This has child elements</span>
+        </div>
+        <div class="maybe-empty" data-test="nonempty-3">Text content here</div>
+    </div>
+    
+    <script src="../../shared/utils.js"></script>
+    <script>
+        function isElementHidden(element) {
+            if (!element) return false;
+            
+            const style = window.getComputedStyle(element);
+            return style.display === 'none' || 
+                   element.hidden === true ||
+                   style.visibility === 'hidden' ||
+                   parseFloat(style.opacity) === 0;
+        }
+        
+        test('Hide Empty Elements', async () => {
+            // Wait for element hiding to be applied
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const results = [];
+            
+            // Test empty elements that should be hidden
+            const empty1 = document.querySelector('[data-test="empty-1"]');
+            const empty2 = document.querySelector('[data-test="empty-2"]');
+            const empty3 = document.querySelector('[data-test="empty-3"]');
+            
+            results.push({
+                name: 'empty-container-1 hidden',
+                result: isElementHidden(empty1),
+                expected: true
+            });
+            
+            results.push({
+                name: 'empty-container-2 (whitespace) hidden',
+                result: isElementHidden(empty2),
+                expected: true
+            });
+            
+            results.push({
+                name: 'maybe-empty-3 hidden',
+                result: isElementHidden(empty3),
+                expected: true
+            });
+            
+            // Test non-empty elements that should remain visible
+            const nonEmpty1 = document.querySelector('[data-test="nonempty-1"]');
+            const nonEmpty2 = document.querySelector('[data-test="nonempty-2"]');
+            const nonEmpty3 = document.querySelector('[data-test="nonempty-3"]');
+            
+            results.push({
+                name: 'non-empty-1 visible',
+                result: !isElementHidden(nonEmpty1),
+                expected: true
+            });
+            
+            results.push({
+                name: 'non-empty-2 (with children) visible',
+                result: !isElementHidden(nonEmpty2),
+                expected: true
+            });
+            
+            results.push({
+                name: 'non-empty-3 (with text) visible',
+                result: !isElementHidden(nonEmpty3),
+                expected: true
+            });
+            
+            return results;
+        });
+        
+        // eslint-disable-next-line no-undef
+        renderResults();
+    </script>
+</body>
+</html>

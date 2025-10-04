@@ -1,0 +1,21 @@
+{
+    "readme": "Configuration for testing hide-empty rule type that only hides empty elements",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "elementHiding": {
+            "state": "enabled",
+            "exceptions": [],
+            "rules": [
+                {
+                    "selector": ".empty-container",
+                    "type": "hide-empty"
+                },
+                {
+                    "selector": ".maybe-empty",
+                    "type": "hide-empty"
+                }
+            ]
+        }
+    }
+}

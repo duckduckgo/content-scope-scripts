@@ -12,6 +12,7 @@ export default defineConfig({
                 'integration-test/windows-permissions.spec.js',
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/breakage-reporting.spec.js',
+                'integration-test/element-hiding.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
@@ -22,6 +23,7 @@ export default defineConfig({
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/favicon.spec.js',
+                'integration-test/element-hiding.spec.js',
             ],
             use: { injectName: 'apple-isolated', platform: 'macos' },
         },
@@ -31,7 +33,8 @@ export default defineConfig({
             testMatch: [
                 'integration-test/navigator-interface-insecure.js',
                 'integration-test/webcompat.spec.js',
-                'integration-test/message-bridge-apple.spec.js'
+                'integration-test/message-bridge-apple.spec.js',
+                'integration-test/element-hiding.spec.js'
             ],
             use: { injectName: 'apple', platform: 'macos' },
         },
@@ -69,6 +72,7 @@ export default defineConfig({
                 'integration-test/pages.spec.js',
                 'integration-test/utils.spec.js',
                 'integration-test/web-compat.spec.js',
+                'integration-test/element-hiding.spec.js',
             ],
             use: { injectName: 'chrome-mv3', platform: 'extension', ...devices['Desktop Chrome'] },
         },
