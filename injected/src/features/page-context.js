@@ -7,6 +7,47 @@ function collapseWhitespace(str) {
     return typeof str === 'string' ? str.replace(/\s+/g, ' ') : '';
 }
 
+function checkNodeIsVisible(node) {
+    // Fast path: check if node is connected to document
+    // if (!node.isConnected) {
+    //    return false;
+    // }
+
+    try {
+        const style = window.getComputedStyle(node);
+
+        // Check primary visibility properties
+        if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
+            return false;
+        }
+        /*
+        // Check if element has zero dimensions
+        const rect = node.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) {
+            return false;
+        }
+        
+        // Check for common hiding techniques
+        if (style.position === 'absolute' || style.position === 'fixed') {
+            const left = parseFloat(style.left);
+            const top = parseFloat(style.top);
+            // Elements positioned far off-screen
+            if (left < -9000 || top < -9000) {
+                return false;
+            }
+        }
+        
+        // Check for clipping
+        if (style.clip && style.clip !== 'auto' && style.clip.includes('rect(0')) {
+            return false;
+        }
+        */
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 function domToMarkdown(node, maxLength = Infinity) {
     if (node.nodeType === Node.TEXT_NODE) {
         return collapseWhitespace(node.textContent);
@@ -16,6 +57,9 @@ function domToMarkdown(node, maxLength = Infinity) {
     }
 
     const tag = node.tagName.toLowerCase();
+    if (!checkNodeIsVisible(node)) {
+        return '';
+    }
 
     // Build children string incrementally to exit early when maxLength is exceeded
     let children = '';
@@ -384,6 +428,7 @@ export default class PageContext extends ContentFeature {
 
             this.log.info('Calling domToMarkdown', clone.innerHTML);
             content += domToMarkdown(clone, upperLimit);
+            this.log.info('Content markdown', content, clone, contentRoot);
         }
         content = content.trim();
 
