@@ -11,7 +11,6 @@ youtube-detection/
 │   ├── detector-base.js      # Base class with observer/polling logic
 │   └── video-events.js       # Video event tracking (loadstart, playing, waiting)
 ├── ad-detector.js            # Ad detection implementation
-├── buffer-detector.js        # Buffer detection implementation
 └── README.md
 ```
 
@@ -33,10 +32,10 @@ Base class that handles:
 - Debounced detection reporting
 
 ### `video-events.js`
-- `VideoEventTracker` - Tracks video lifecycle events
+- `VideoEventTracker` - Tracks video lifecycle events and timing metrics
   - Load start timing
   - Playing event with load duration
-  - Buffering detection
+  - Buffering events (via video `waiting` event)
 
 ## Creating a New Detector
 
@@ -92,10 +91,12 @@ export class MyDetector extends DetectorBase {
 }
 ```
 
-## Example: Buffer Detector
+## Example Usage
 
 ```javascript
-const detector = new BufferDetector()
+import { AdDetector } from './youtube-detection/ad-detector.js'
+
+const detector = new AdDetector()
 detector.start()
 
 // Later...
@@ -105,7 +106,14 @@ detector.stop()
 ## Benefits
 
 1. **No duplication** - Common logic (observer, polling, re-rooting) is shared
-2. **Lightweight** - Each detector is ~50 lines focused on detection logic
+2. **Lightweight** - Each detector focuses only on detection logic
 3. **Consistent** - All detectors behave the same way
 4. **Easy to add** - New detectors are simple to implement
 5. **Maintainable** - Shared code fixes/improvements benefit all detectors
+
+## Future Enhancements
+
+The `VideoEventTracker` logs timing data that can be used for:
+- Setting load time thresholds for performance monitoring
+- Detecting abnormal buffering patterns
+- Reporting metrics back to telemetry systems
