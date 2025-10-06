@@ -32,6 +32,7 @@ const otherFeatures = /** @type {const} */ ([
     'favicon',
     'webTelemetry',
     'pageContext',
+    'youtubeAdDetector',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
@@ -74,7 +75,7 @@ export const platformSupport = {
         'pageContext',
         'duckAiListener',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
+    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'youtubeAdDetector'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
     'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
     integration: [...baseFeatures, ...otherFeatures],
