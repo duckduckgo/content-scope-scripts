@@ -28,9 +28,13 @@ export default class PerformanceMetrics extends ContentFeature {
         if (document.readyState === 'complete') {
             this.waitForNextTask(callback);
         } else {
-            window.addEventListener('load', () => {
-                this.waitForNextTask(callback);
-            }, { once: true });
+            window.addEventListener(
+                'load',
+                () => {
+                    this.waitForNextTask(callback);
+                },
+                { once: true },
+            );
         }
     }
 
