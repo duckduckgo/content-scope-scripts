@@ -43,6 +43,7 @@ export const platformSupport = {
         'duckPlayer',
         'duckPlayerNative',
         'brokerProtection',
+        'breakageReporting',
         'performanceMetrics',
         'clickToLoad',
         'messageBridge',
