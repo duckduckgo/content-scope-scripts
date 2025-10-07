@@ -1372,6 +1372,7 @@
       "duckPlayer",
       "duckPlayerNative",
       "duckAiListener",
+      "duckAiDataClearing",
       "harmfulApis",
       "webCompat",
       "windowsPermissionUsage",
@@ -1385,11 +1386,12 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener", "pageContext"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener", "duckAiDataClearing", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
       "brokerProtection",
+      "breakageReporting",
       "performanceMetrics",
       "clickToLoad",
       "messageBridge",
@@ -1420,7 +1422,8 @@
       "messageBridge",
       "webCompat",
       "pageContext",
-      "duckAiListener"
+      "duckAiListener",
+      "duckAiDataClearing"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad"],
@@ -10130,6 +10133,87 @@ ${truncatedWarning}
   __publicField(_DuckAiPromptTelemetry, "ONE_DAY_MS", 24 * 60 * 60 * 1e3);
   var DuckAiPromptTelemetry = _DuckAiPromptTelemetry;
 
+  // src/features/duck-ai-data-clearing.js
+  init_define_import_meta_trackerLookup();
+  var DuckAiDataClearing = class extends ContentFeature {
+    init() {
+      this.messaging.subscribe("duckAiClearData", (_2) => this.clearData());
+    }
+    async clearData() {
+      let success = true;
+      const localStorageKeys = this.getFeatureSetting("chatsLocalStorageKeys");
+      for (const localStorageKey of localStorageKeys) {
+        try {
+          this.clearSavedAIChats(localStorageKey);
+        } catch (error) {
+          success = false;
+          this.log.error("Error clearing saved chats:", error);
+        }
+      }
+      const indexDbNameObjectStoreNamePairs = this.getFeatureSetting("chatImagesIndexDbNameObjectStoreNamePairs");
+      for (const [indexDbName, objectStoreName] of indexDbNameObjectStoreNamePairs) {
+        try {
+          await this.clearChatImagesStore(indexDbName, objectStoreName);
+        } catch (error) {
+          success = false;
+          this.log.error("Error clearing saved chat images:", error);
+        }
+      }
+      if (success) {
+        this.notify("duckAiClearDataCompleted");
+      } else {
+        this.notify("duckAiClearDataFailed");
+      }
+    }
+    clearSavedAIChats(localStorageKey) {
+      this.log.info(`Clearing '${localStorageKey}'`);
+      window.localStorage.removeItem(localStorageKey);
+    }
+    clearChatImagesStore(indexDbName, objectStoreName) {
+      this.log.info(`Clearing '${indexDbName}' object store`);
+      return new Promise((resolve, reject) => {
+        const request = window.indexedDB.open(indexDbName);
+        request.onerror = (event) => {
+          this.log.error("Error opening IndexedDB:", event);
+          reject(event);
+        };
+        request.onsuccess = (_2) => {
+          const db = request.result;
+          if (!db) {
+            this.log.error("IndexedDB onsuccess but no db result");
+            reject(new Error("No DB result"));
+            return;
+          }
+          if (!db.objectStoreNames.contains(objectStoreName)) {
+            this.log.info(`'${objectStoreName}' object store does not exist, nothing to clear`);
+            db.close();
+            resolve(null);
+            return;
+          }
+          try {
+            const transaction = db.transaction([objectStoreName], "readwrite");
+            const objectStore = transaction.objectStore(objectStoreName);
+            const clearRequest = objectStore.clear();
+            clearRequest.onsuccess = () => {
+              db.close();
+              resolve(null);
+            };
+            clearRequest.onerror = (err) => {
+              this.log.error("Error clearing object store:", err);
+              db.close();
+              reject(err);
+            };
+          } catch (err) {
+            this.log.error("Exception during IndexedDB clearing:", err);
+            db.close();
+            reject(err);
+          }
+        };
+      });
+    }
+  };
+  var duck_ai_data_clearing_default = DuckAiDataClearing;
+
   // src/features/page-context.js
   init_define_import_meta_trackerLookup();
 
@@ -10513,6 +10597,7 @@ ${children}
     ddg_feature_exceptionHandler: ExceptionHandler,
     ddg_feature_apiManipulation: ApiManipulation,
     ddg_feature_duckAiListener: DuckAiListener,
+    ddg_feature_duckAiDataClearing: duck_ai_data_clearing_default,
     ddg_feature_pageContext: PageContext
   };
 

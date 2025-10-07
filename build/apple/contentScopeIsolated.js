@@ -2061,6 +2061,7 @@
       "duckPlayer",
       "duckPlayerNative",
       "duckAiListener",
+      "duckAiDataClearing",
       "harmfulApis",
       "webCompat",
       "windowsPermissionUsage",
@@ -2074,11 +2075,12 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener", "pageContext"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiListener", "duckAiDataClearing", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
       "brokerProtection",
+      "breakageReporting",
       "performanceMetrics",
       "clickToLoad",
       "messageBridge",
@@ -2109,7 +2111,8 @@
       "messageBridge",
       "webCompat",
       "pageContext",
-      "duckAiListener"
+      "duckAiListener",
+      "duckAiDataClearing"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad"],
@@ -12246,7 +12249,7 @@ ul.messages {
     }
   };
 
-  // src/features/performance-metrics.js
+  // src/features/breakage-reporting.js
   init_define_import_meta_trackerLookup();
 
   // src/features/breakage-reporting/utils.js
@@ -12343,7 +12346,30 @@ ul.messages {
     }
   }
 
+  // src/features/breakage-reporting.js
+  var BreakageReporting = class extends ContentFeature {
+    init() {
+      const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled("expandedPerformanceMetrics", "enabled");
+      this.messaging.subscribe("getBreakageReportValues", async () => {
+        const jsPerformance = getJsPerformanceMetrics();
+        const referrer = document.referrer;
+        const result = {
+          jsPerformance,
+          referrer
+        };
+        if (isExpandedPerformanceMetricsEnabled) {
+          const expandedPerformanceMetrics = await getExpandedPerformanceMetrics();
+          if (expandedPerformanceMetrics.success) {
+            result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
+          }
+        }
+        this.messaging.notify("breakageReportResult", result);
+      });
+    }
+  };
+
   // src/features/performance-metrics.js
+  init_define_import_meta_trackerLookup();
   var PerformanceMetrics = class extends ContentFeature {
     init() {
       this.messaging.subscribe("getVitals", () => {
@@ -12352,16 +12378,25 @@ ul.messages {
       });
       if (isBeingFramed()) return;
       if (this.getFeatureSettingEnabled("expandedPerformanceMetricsOnLoad", "enabled")) {
-        this.waitForPageLoad(() => {
+        this.waitForAfterPageLoad(() => {
           this.triggerExpandedPerformanceMetrics();
         });
       }
     }
-    waitForPageLoad(callback) {
+    waitForNextTask(callback) {
+      setTimeout(callback, 0);
+    }
+    waitForAfterPageLoad(callback) {
       if (document.readyState === "complete") {
-        callback();
+        this.waitForNextTask(callback);
       } else {
-        window.addEventListener("load", callback, { once: true });
+        window.addEventListener(
+          "load",
+          () => {
+            this.waitForNextTask(callback);
+          },
+          { once: true }
+        );
       }
     }
     async triggerExpandedPerformanceMetrics() {
@@ -15560,6 +15595,7 @@ ul.messages {
     ddg_feature_duckPlayer: DuckPlayerFeature,
     ddg_feature_duckPlayerNative: duck_player_native_default,
     ddg_feature_brokerProtection: BrokerProtection,
+    ddg_feature_breakageReporting: BreakageReporting,
     ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_clickToLoad: ClickToLoad,
     ddg_feature_messageBridge: message_bridge_default,
