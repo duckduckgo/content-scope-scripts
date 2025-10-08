@@ -22,6 +22,7 @@ const otherFeatures = /** @type {const} */ ([
     'duckPlayer',
     'duckPlayerNative',
     'duckAiListener',
+    'duckAiDataClearing',
     'harmfulApis',
     'webCompat',
     'windowsPermissionUsage',
@@ -37,11 +38,12 @@ const otherFeatures = /** @type {const} */ ([
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'duckAiListener', 'pageContext'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'duckAiListener', 'duckAiDataClearing', 'pageContext'],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
         'brokerProtection',
+        'breakageReporting',
         'performanceMetrics',
         'clickToLoad',
         'messageBridge',
@@ -73,6 +75,7 @@ export const platformSupport = {
         'webCompat',
         'pageContext',
         'duckAiListener',
+        'duckAiDataClearing',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad'],

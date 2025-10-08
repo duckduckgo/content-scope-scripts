@@ -12,6 +12,7 @@ export default defineConfig({
                 'integration-test/windows-permissions.spec.js',
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/breakage-reporting.spec.js',
+                'integration-test/duck-ai-data-clearing.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
