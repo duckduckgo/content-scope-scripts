@@ -8,10 +8,8 @@ function collapseWhitespace(str) {
 }
 
 function checkNodeIsVisible(node) {
-    // Fast path: check if node is connected to document
-    // if (!node.isConnected) {
-    //    return false;
-    // }
+    // Note that we're not checking if the node is connected to the document
+    // we are cloning the node so it's never connected.
 
     try {
         const style = window.getComputedStyle(node);
@@ -20,28 +18,6 @@ function checkNodeIsVisible(node) {
         if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
             return false;
         }
-        /*
-        // Check if element has zero dimensions
-        const rect = node.getBoundingClientRect();
-        if (rect.width === 0 && rect.height === 0) {
-            return false;
-        }
-        
-        // Check for common hiding techniques
-        if (style.position === 'absolute' || style.position === 'fixed') {
-            const left = parseFloat(style.left);
-            const top = parseFloat(style.top);
-            // Elements positioned far off-screen
-            if (left < -9000 || top < -9000) {
-                return false;
-            }
-        }
-        
-        // Check for clipping
-        if (style.clip && style.clip !== 'auto' && style.clip.includes('rect(0')) {
-            return false;
-        }
-        */
         return true;
     } catch (e) {
         return false;
