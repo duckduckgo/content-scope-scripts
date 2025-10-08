@@ -7,23 +7,6 @@ function collapseWhitespace(str) {
     return typeof str === 'string' ? str.replace(/\s+/g, ' ') : '';
 }
 
-function checkNodeIsVisible(node) {
-    // Note that we're not checking if the node is connected to the document
-    // we are cloning the node so it's never connected.
-
-    try {
-        const style = window.getComputedStyle(node);
-
-        // Check primary visibility properties
-        if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
-            return false;
-        }
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
 function domToMarkdown(node, maxLength = Infinity) {
     if (node.nodeType === Node.TEXT_NODE) {
         return collapseWhitespace(node.textContent);
@@ -33,9 +16,6 @@ function domToMarkdown(node, maxLength = Infinity) {
     }
 
     const tag = node.tagName.toLowerCase();
-    if (!checkNodeIsVisible(node)) {
-        return '';
-    }
 
     // Build children string incrementally to exit early when maxLength is exceeded
     let children = '';
