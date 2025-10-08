@@ -254,9 +254,6 @@ export default class PageContext extends ContentFeature {
         this.#delayedRecheckTimer = setTimeout(() => {
             this.log.info('Performing delayed recheck after navigation');
 
-            // Store the previous content for comparison
-            const previousContent = this.cachedContent;
-
             // Invalidate existing cache
             this.invalidateCache();
             this.clearTimers();
@@ -265,42 +262,10 @@ export default class PageContext extends ContentFeature {
             const freshContent = this.collectPageContent();
 
             // Only send if content has meaningfully changed
-            if (this.hasContentChanged(previousContent, freshContent)) {
-                this.log.info('Content changed after navigation delay - sending update');
-                this.sendContentResponse(freshContent);
-            } else {
-                this.log.info('No significant content change after navigation delay');
-            }
+            this.sendContentResponse(freshContent);
 
             this.#delayedRecheckTimer = null;
         }, delayMs);
-    }
-
-    /**
-     * Check if content has meaningfully changed
-     * @param {any} oldContent
-     * @param {any} newContent
-     * @returns {boolean}
-     */
-    hasContentChanged(oldContent, newContent) {
-        if (!oldContent || !newContent) {
-            return true;
-        }
-
-        // Compare key content fields
-        const fieldsToCompare = ['title', 'content', 'headings'];
-
-        for (const field of fieldsToCompare) {
-            const oldValue = JSON.stringify(oldContent[field] || '');
-            const newValue = JSON.stringify(newContent[field] || '');
-
-            if (oldValue !== newValue) {
-                this.log.info('Content changed in field', field);
-                return true;
-            }
-        }
-
-        return false;
     }
 
     startObserving() {
