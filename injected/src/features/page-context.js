@@ -138,6 +138,7 @@ export default class PageContext extends ContentFeature {
         }
         window.addEventListener('load', () => {
             this.handleContentCollectionRequest();
+            this.scheduleDelayedRecheck();
         });
         if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
             window.addEventListener('hashchange', () => {
@@ -223,7 +224,6 @@ export default class PageContext extends ContentFeature {
         this.#cachedContent = undefined;
         this.#cachedTimestamp = 0;
         this.stopObserving();
-        this.clearTimers();
     }
 
     /**
@@ -281,8 +281,9 @@ export default class PageContext extends ContentFeature {
             // Store the previous content for comparison
             const previousContent = this.cachedContent;
 
-            // Force fresh collection by invalidating cache
+            // Invalidate existing cache
             this.invalidateCache();
+            this.clearTimers();
 
             // Collect fresh content
             const freshContent = this.collectPageContent();
