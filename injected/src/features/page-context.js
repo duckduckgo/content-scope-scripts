@@ -7,6 +7,23 @@ function collapseWhitespace(str) {
     return typeof str === 'string' ? str.replace(/\s+/g, ' ') : '';
 }
 
+function checkNodeIsVisible(node) {
+    // Note that we're not checking if the node is connected to the document
+    // we are cloning the node so it's never connected.
+
+    try {
+        const style = window.getComputedStyle(node);
+
+        // Check primary visibility properties
+        if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
+            return false;
+        }
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 function domToMarkdown(node, maxLength = Infinity) {
     if (node.nodeType === Node.TEXT_NODE) {
         return collapseWhitespace(node.textContent);
@@ -16,6 +33,9 @@ function domToMarkdown(node, maxLength = Infinity) {
     }
 
     const tag = node.tagName.toLowerCase();
+    if (!checkNodeIsVisible(node)) {
+        return '';
+    }
 
     // Build children string incrementally to exit early when maxLength is exceeded
     let children = '';
@@ -74,6 +94,8 @@ export default class PageContext extends ContentFeature {
     mutationObserver = null;
     lastSentContent = null;
     listenForUrlChanges = true;
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    #delayedRecheckTimer = null;
 
     init() {
         if (!this.shouldActivate()) {
@@ -92,10 +114,15 @@ export default class PageContext extends ContentFeature {
         }
         window.addEventListener('load', () => {
             this.handleContentCollectionRequest();
+            this.scheduleDelayedRecheck();
         });
         if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
             window.addEventListener('hashchange', () => {
+                // Immediate collection
                 this.handleContentCollectionRequest();
+
+                // Schedule delayed recheck after DOM settles
+                this.scheduleDelayedRecheck();
             });
         }
         if (this.getFeatureSettingEnabled('subscribeToPageShow', 'enabled')) {
@@ -145,7 +172,11 @@ export default class PageContext extends ContentFeature {
         if (!this.shouldActivate()) {
             return;
         }
+        // Immediate collection
         this.handleContentCollectionRequest();
+
+        // Schedule delayed recheck after DOM settles
+        this.scheduleDelayedRecheck();
     }
 
     setup() {
@@ -169,6 +200,16 @@ export default class PageContext extends ContentFeature {
         this.#cachedContent = undefined;
         this.#cachedTimestamp = 0;
         this.stopObserving();
+    }
+
+    /**
+     * Clear all pending timers
+     */
+    clearTimers() {
+        if (this.#delayedRecheckTimer) {
+            clearTimeout(this.#delayedRecheckTimer);
+            this.#delayedRecheckTimer = null;
+        }
     }
 
     set cachedContent(content) {
@@ -196,6 +237,35 @@ export default class PageContext extends ContentFeature {
                 this.cachedContent = undefined;
             });
         }
+    }
+
+    /**
+     * Schedule a delayed recheck after navigation events
+     */
+    scheduleDelayedRecheck() {
+        // Clear any existing delayed recheck
+        if (this.#delayedRecheckTimer) {
+            clearTimeout(this.#delayedRecheckTimer);
+        }
+
+        const delayMs = this.getFeatureSetting('navigationRecheckDelayMs') || 1500;
+
+        this.log.info('Scheduling delayed recheck', { delayMs });
+        this.#delayedRecheckTimer = setTimeout(() => {
+            this.log.info('Performing delayed recheck after navigation');
+
+            // Invalidate existing cache
+            this.invalidateCache();
+            this.clearTimers();
+
+            // Collect fresh content
+            const freshContent = this.collectPageContent();
+
+            // Only send if content has meaningfully changed
+            this.sendContentResponse(freshContent);
+
+            this.#delayedRecheckTimer = null;
+        }, delayMs);
     }
 
     startObserving() {
@@ -300,6 +370,7 @@ export default class PageContext extends ContentFeature {
 
             this.log.info('Calling domToMarkdown', clone.innerHTML);
             content += domToMarkdown(clone, upperLimit);
+            this.log.info('Content markdown', content, clone, contentRoot);
         }
         content = content.trim();
 
