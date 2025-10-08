@@ -243,8 +243,6 @@ export default class PageContext extends ContentFeature {
 
             // Only send if content has meaningfully changed
             this.sendContentResponse(freshContent);
-
-            this.#delayedRecheckTimer = null;
         }, delayMs);
     }
 
