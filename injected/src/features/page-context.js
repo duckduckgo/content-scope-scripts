@@ -76,37 +76,44 @@ export default class PageContext extends ContentFeature {
     listenForUrlChanges = true;
     /** @type {ReturnType<typeof setTimeout> | null} */
     #delayedRecheckTimer = null;
+    recheckCount = 0;
+    recheckLimit = 0;
 
     init() {
+        this.recheckLimit = this.getFeatureSetting('recheckLimit') || 5;
         if (!this.shouldActivate()) {
             return;
         }
         this.setupListeners();
     }
 
+    resetRecheckCount() {
+        this.recheckCount = 0;
+    }
+
     setupListeners() {
         this.observeContentChanges();
         if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
             this.messaging.subscribe('collect', () => {
+                this.resetRecheckCount();
                 this.invalidateCache();
                 this.handleContentCollectionRequest();
             });
         }
         window.addEventListener('load', () => {
+            this.resetRecheckCount();
             this.handleContentCollectionRequest();
-            this.scheduleDelayedRecheck();
         });
         if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
             window.addEventListener('hashchange', () => {
+                this.resetRecheckCount();
                 // Immediate collection
                 this.handleContentCollectionRequest();
-
-                // Schedule delayed recheck after DOM settles
-                this.scheduleDelayedRecheck();
             });
         }
         if (this.getFeatureSettingEnabled('subscribeToPageShow', 'enabled')) {
             window.addEventListener('pageshow', () => {
+                this.resetRecheckCount();
                 this.handleContentCollectionRequest();
             });
         }
@@ -115,6 +122,7 @@ export default class PageContext extends ContentFeature {
                 if (document.visibilityState === 'hidden') {
                     return;
                 }
+                this.resetRecheckCount();
                 this.handleContentCollectionRequest();
             });
         }
@@ -154,9 +162,6 @@ export default class PageContext extends ContentFeature {
         }
         // Immediate collection
         this.handleContentCollectionRequest();
-
-        // Schedule delayed recheck after DOM settles
-        this.scheduleDelayedRecheck();
     }
 
     setup() {
@@ -215,6 +220,8 @@ export default class PageContext extends ContentFeature {
                 this.log.info('MutationObserver', _mutations);
                 // Invalidate cache when content changes
                 this.cachedContent = undefined;
+
+                this.scheduleDelayedRecheck();
             });
         }
     }
@@ -223,6 +230,11 @@ export default class PageContext extends ContentFeature {
      * Schedule a delayed recheck after navigation events
      */
     scheduleDelayedRecheck() {
+        if (this.recheckLimit > 0 && this.recheckCount >= this.recheckLimit) {
+            return;
+        }
+        this.recheckCount++;
+
         // Clear any existing delayed recheck
         if (this.#delayedRecheckTimer) {
             clearTimeout(this.#delayedRecheckTimer);
