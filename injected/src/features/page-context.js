@@ -225,14 +225,12 @@ export default class PageContext extends ContentFeature {
      * Schedule a delayed recheck after navigation events
      */
     scheduleDelayedRecheck() {
-        if (this.recheckLimit > 0 && this.recheckCount >= this.recheckLimit) {
-            return;
-        }
-        this.recheckCount++;
-
         // Clear any existing delayed recheck
         if (this.#delayedRecheckTimer) {
             clearTimeout(this.#delayedRecheckTimer);
+        }
+        if (this.recheckLimit > 0 && this.recheckCount >= this.recheckLimit) {
+            return;
         }
 
         const delayMs = this.getFeatureSetting('navigationRecheckDelayMs') || 1500;
@@ -240,7 +238,7 @@ export default class PageContext extends ContentFeature {
         this.log.info('Scheduling delayed recheck', { delayMs });
         this.#delayedRecheckTimer = setTimeout(() => {
             this.log.info('Performing delayed recheck after navigation');
-
+            this.recheckCount++;
             // Invalidate existing cache
             this.invalidateCache();
             this.clearTimers();
