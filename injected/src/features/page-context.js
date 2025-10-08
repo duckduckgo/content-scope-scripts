@@ -95,25 +95,21 @@ export default class PageContext extends ContentFeature {
         this.observeContentChanges();
         if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
             this.messaging.subscribe('collect', () => {
-                this.resetRecheckCount();
                 this.invalidateCache();
                 this.handleContentCollectionRequest();
             });
         }
         window.addEventListener('load', () => {
-            this.resetRecheckCount();
             this.handleContentCollectionRequest();
         });
         if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
             window.addEventListener('hashchange', () => {
-                this.resetRecheckCount();
                 // Immediate collection
                 this.handleContentCollectionRequest();
             });
         }
         if (this.getFeatureSettingEnabled('subscribeToPageShow', 'enabled')) {
             window.addEventListener('pageshow', () => {
-                this.resetRecheckCount();
                 this.handleContentCollectionRequest();
             });
         }
@@ -122,7 +118,6 @@ export default class PageContext extends ContentFeature {
                 if (document.visibilityState === 'hidden') {
                     return;
                 }
-                this.resetRecheckCount();
                 this.handleContentCollectionRequest();
             });
         }
@@ -250,11 +245,7 @@ export default class PageContext extends ContentFeature {
             this.invalidateCache();
             this.clearTimers();
 
-            // Collect fresh content
-            const freshContent = this.collectPageContent();
-
-            // Only send if content has meaningfully changed
-            this.sendContentResponse(freshContent);
+            this.handleContentCollectionRequest(false);
         }, delayMs);
     }
 
@@ -277,8 +268,11 @@ export default class PageContext extends ContentFeature {
         }
     }
 
-    handleContentCollectionRequest() {
+    handleContentCollectionRequest(resetRecheckCount = true) {
         this.log.info('Handling content collection request');
+        if (resetRecheckCount) {
+            this.resetRecheckCount();
+        }
         try {
             const content = this.collectPageContent();
             this.sendContentResponse(content);
