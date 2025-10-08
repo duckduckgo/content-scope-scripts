@@ -178,7 +178,6 @@ export default class PageContext extends ContentFeature {
         this.#cachedContent = undefined;
         this.#cachedTimestamp = 0;
         this.stopObserving();
-        this.scheduleDelayedRecheck();
     }
 
     /**
@@ -214,6 +213,8 @@ export default class PageContext extends ContentFeature {
                 this.log.info('MutationObserver', _mutations);
                 // Invalidate cache when content changes
                 this.cachedContent = undefined;
+
+                this.scheduleDelayedRecheck();
             });
         }
     }
