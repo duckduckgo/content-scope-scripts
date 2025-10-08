@@ -104,7 +104,6 @@ export default class PageContext extends ContentFeature {
         });
         if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
             window.addEventListener('hashchange', () => {
-                // Immediate collection
                 this.handleContentCollectionRequest();
             });
         }
@@ -155,7 +154,6 @@ export default class PageContext extends ContentFeature {
         if (!this.shouldActivate()) {
             return;
         }
-        // Immediate collection
         this.handleContentCollectionRequest();
     }
 
