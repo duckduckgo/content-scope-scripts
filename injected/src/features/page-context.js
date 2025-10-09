@@ -74,12 +74,21 @@ export default class PageContext extends ContentFeature {
     mutationObserver = null;
     lastSentContent = null;
     listenForUrlChanges = true;
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    #delayedRecheckTimer = null;
+    recheckCount = 0;
+    recheckLimit = 0;
 
     init() {
+        this.recheckLimit = this.getFeatureSetting('recheckLimit') || 5;
         if (!this.shouldActivate()) {
             return;
         }
         this.setupListeners();
+    }
+
+    resetRecheckCount() {
+        this.recheckCount = 0;
     }
 
     setupListeners() {
@@ -171,6 +180,16 @@ export default class PageContext extends ContentFeature {
         this.stopObserving();
     }
 
+    /**
+     * Clear all pending timers
+     */
+    clearTimers() {
+        if (this.#delayedRecheckTimer) {
+            clearTimeout(this.#delayedRecheckTimer);
+            this.#delayedRecheckTimer = null;
+        }
+    }
+
     set cachedContent(content) {
         if (content === undefined) {
             this.invalidateCache();
@@ -194,8 +213,32 @@ export default class PageContext extends ContentFeature {
                 this.log.info('MutationObserver', _mutations);
                 // Invalidate cache when content changes
                 this.cachedContent = undefined;
+
+                this.scheduleDelayedRecheck();
             });
         }
+    }
+
+    /**
+     * Schedule a delayed recheck after navigation events
+     */
+    scheduleDelayedRecheck() {
+        // Clear any existing delayed recheck
+        this.clearTimers();
+        if (this.recheckLimit > 0 && this.recheckCount >= this.recheckLimit) {
+            return;
+        }
+
+        const delayMs = this.getFeatureSetting('navigationRecheckDelayMs') || 1500;
+
+        this.log.info('Scheduling delayed recheck', { delayMs });
+        this.#delayedRecheckTimer = setTimeout(() => {
+            this.log.info('Performing delayed recheck after navigation');
+            this.recheckCount++;
+            this.invalidateCache();
+
+            this.handleContentCollectionRequest(false);
+        }, delayMs);
     }
 
     startObserving() {
@@ -217,8 +260,11 @@ export default class PageContext extends ContentFeature {
         }
     }
 
-    handleContentCollectionRequest() {
+    handleContentCollectionRequest(resetRecheckCount = true) {
         this.log.info('Handling content collection request');
+        if (resetRecheckCount) {
+            this.resetRecheckCount();
+        }
         try {
             const content = this.collectPageContent();
             this.sendContentResponse(content);
@@ -300,6 +346,7 @@ export default class PageContext extends ContentFeature {
 
             this.log.info('Calling domToMarkdown', clone.innerHTML);
             content += domToMarkdown(clone, upperLimit);
+            this.log.info('Content markdown', content, clone, contentRoot);
         }
         content = content.trim();
 

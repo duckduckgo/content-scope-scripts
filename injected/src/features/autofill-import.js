@@ -477,7 +477,7 @@ export default class AutofillImport extends ActionExecutorBase {
                     }
                 }
             } catch {
-                console.error('password-import: failed for path:', pathname);
+                this.log.error('password-import: failed for path:', pathname);
             }
         }
     }
