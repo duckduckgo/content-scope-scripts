@@ -323,12 +323,23 @@ export default class PageContext extends ContentFeature {
         // Used to avoid large content serialization
         const upperLimit = this.getFeatureSetting('upperLimit') || 500000;
         let excludeSelectors = this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
-        excludeSelectors = excludeSelectors.concat(['script', 'style', 'link', 'meta', 'noscript', 'svg', 'canvas']);
+        const excludedInertElements = this.getFeatureSetting('excludedInertElements') || [
+            'script',
+            'style',
+            'link',
+            'meta',
+            'noscript',
+            'svg',
+            'canvas',
+        ];
+        excludeSelectors = excludeSelectors.concat(excludedInertElements);
 
         let content = '';
         // Get content from main content areas
-        let mainContent = document.querySelector('main, article, .content, .main, #content, #main');
-        if (mainContent && mainContent.innerHTML.trim().length <= 100) {
+        const mainContentSelector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
+        let mainContent = document.querySelector(mainContentSelector);
+        const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
+        if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
             mainContent = null;
         }
         const contentRoot = mainContent || document.body;
@@ -364,7 +375,8 @@ export default class PageContext extends ContentFeature {
 
     getHeadings() {
         const headings = [];
-        const headingElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        const headdingSelector = this.getFeatureSetting('headingSelector') || 'h1, h2, h3, h4, h5, h6';
+        const headingElements = document.querySelectorAll(headdingSelector);
 
         headingElements.forEach((heading) => {
             const level = parseInt(heading.tagName.charAt(1));
@@ -379,7 +391,8 @@ export default class PageContext extends ContentFeature {
 
     getLinks() {
         const links = [];
-        const linkElements = document.querySelectorAll('a[href]');
+        const linkSelector = this.getFeatureSetting('linkSelector') || 'a[href]';
+        const linkElements = document.querySelectorAll(linkSelector);
 
         linkElements.forEach((link) => {
             const text = link.textContent?.trim();
@@ -394,7 +407,8 @@ export default class PageContext extends ContentFeature {
 
     getImages() {
         const images = [];
-        const imgElements = document.querySelectorAll('img');
+        const imgSelector = this.getFeatureSetting('imgSelector') || 'img';
+        const imgElements = document.querySelectorAll(imgSelector);
 
         imgElements.forEach((img) => {
             const alt = img.getAttribute('alt') || '';
