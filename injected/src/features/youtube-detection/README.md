@@ -7,10 +7,13 @@ Modular, lightweight YouTube detection system with shared utilities to avoid cod
 ```
 youtube-detection/
 ├── shared/
-│   ├── player-utils.js      # Player element finding, visibility checks
-│   ├── detector-base.js      # Base class with observer/polling logic
-│   └── video-events.js       # Video event tracking (loadstart, playing, waiting)
-├── ad-detector.js            # Ad detection implementation
+│   ├── player-utils.js           # Player element finding, visibility checks
+│   ├── detector-base.js           # Base class with observer/polling logic
+│   └── video-events.js            # Video event tracking (loadstart, playing, waiting)
+├── ad-detector.js                 # Ad detection implementation
+├── user-type-detector.js          # User type detection (logged in, premium, etc.)
+├── bot-detection-detector.js      # Bot detection screen detection
+├── breakage-detector.js           # Playback error and breakage detection
 └── README.md
 ```
 
@@ -91,13 +94,67 @@ export class MyDetector extends DetectorBase {
 }
 ```
 
+## Detectors
+
+### `ad-detector.js`
+Detects YouTube ads using DOM inspection. Extends `DetectorBase` for mutation observation and polling.
+
+### `user-type-detector.js`
+Detects user account type: not logged in, logged in, or premium. Uses DOM indicators and YouTube's config objects to determine user status.
+
+### `bot-detection-detector.js`
+Detects when YouTube flags the user as a bot or shows bot verification screens. Monitors for bot-related error messages and playability issues.
+
+### `breakage-detector.js`
+Detects video playback failures and errors such as "Something went wrong", "Video unavailable", and playback errors.
+
 ## Example Usage
 
+### Ad Detector (extends DetectorBase)
 ```javascript
 import { AdDetector } from './youtube-detection/ad-detector.js'
 
 const detector = new AdDetector()
 detector.start()
+
+// Later...
+detector.stop()
+```
+
+### User Type Detector
+```javascript
+import { UserTypeDetector, UserType } from './youtube-detection/user-type-detector.js'
+
+const detector = new UserTypeDetector()
+detector.start((userType) => {
+    console.log('User type:', userType) // 'not_logged_in', 'logged_in', or 'premium'
+})
+
+// Later...
+detector.stop()
+```
+
+### Bot Detection Detector
+```javascript
+import { BotDetectionDetector } from './youtube-detection/bot-detection-detector.js'
+
+const detector = new BotDetectionDetector()
+detector.start((detection) => {
+    console.log('Bot detection:', detection.type, detection.reason)
+})
+
+// Later...
+detector.stop()
+```
+
+### Breakage Detector
+```javascript
+import { BreakageDetector } from './youtube-detection/breakage-detector.js'
+
+const detector = new BreakageDetector()
+detector.start((breakage) => {
+    console.log('Breakage detected:', breakage.type, breakage.reason)
+})
 
 // Later...
 detector.stop()
