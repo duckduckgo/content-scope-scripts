@@ -3,15 +3,48 @@ import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
+function checkNodeIsVisible(node) {
+    try {
+        const style = window.getComputedStyle(node);
+
+        // Check primary visibility properties
+        if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
+            return false;
+        }
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 function collapseWhitespace(str) {
     return typeof str === 'string' ? str.replace(/\s+/g, ' ') : '';
 }
 
-function domToMarkdown(node, maxLength = Infinity) {
+/**
+ * Check if a node is an HTML element
+ * @param {Node} node
+ * @returns {node is HTMLElement}
+ **/
+function isHtmlElement(node) {
+    return node.nodeType === Node.ELEMENT_NODE;
+}
+
+/**
+ * Convert a DOM node to markdown
+ * @param {Node} node
+ * @param {number} maxLength
+ * @param {string} excludeSelectors
+ * @returns {string}
+ */
+function domToMarkdown(node, maxLength = Infinity, excludeSelectors) {
     if (node.nodeType === Node.TEXT_NODE) {
         return collapseWhitespace(node.textContent);
     }
-    if (node.nodeType !== Node.ELEMENT_NODE) {
+    if (!isHtmlElement(node)) {
+        return '';
+    }
+    if (!checkNodeIsVisible(node) || node.matches(excludeSelectors)) {
         return '';
     }
 
@@ -20,7 +53,7 @@ function domToMarkdown(node, maxLength = Infinity) {
     // Build children string incrementally to exit early when maxLength is exceeded
     let children = '';
     for (const childNode of node.childNodes) {
-        const childContent = domToMarkdown(childNode, maxLength - children.length);
+        const childContent = domToMarkdown(childNode, maxLength - children.length, excludeSelectors);
         children += childContent;
 
         if (children.length > maxLength) {
@@ -333,6 +366,7 @@ export default class PageContext extends ContentFeature {
             'canvas',
         ];
         excludeSelectors = excludeSelectors.concat(excludedInertElements);
+        const excludeSelectorsString = excludeSelectors.join(',');
 
         let content = '';
         // Get content from main content areas
@@ -346,18 +380,8 @@ export default class PageContext extends ContentFeature {
 
         if (contentRoot) {
             this.log.info('Getting main content', contentRoot);
-            // Create a clone to work with
-            const clone = /** @type {Element} */ (contentRoot.cloneNode(true));
-
-            // Remove excluded elements
-            excludeSelectors.forEach((selector) => {
-                const elements = clone.querySelectorAll(selector);
-                elements.forEach((el) => el.remove());
-            });
-
-            this.log.info('Calling domToMarkdown', clone.innerHTML);
-            content += domToMarkdown(clone, upperLimit);
-            this.log.info('Content markdown', content, clone, contentRoot);
+            content += domToMarkdown(contentRoot, upperLimit, excludeSelectorsString);
+            this.log.info('Content markdown', content, contentRoot);
         }
         content = content.trim();
 
@@ -375,8 +399,8 @@ export default class PageContext extends ContentFeature {
 
     getHeadings() {
         const headings = [];
-        const headdingSelector = this.getFeatureSetting('headingSelector') || 'h1, h2, h3, h4, h5, h6';
-        const headingElements = document.querySelectorAll(headdingSelector);
+        const headingSelector = this.getFeatureSetting('headingSelector') || 'h1, h2, h3, h4, h5, h6';
+        const headingElements = document.querySelectorAll(headingSelector);
 
         headingElements.forEach((heading) => {
             const level = parseInt(heading.tagName.charAt(1));
