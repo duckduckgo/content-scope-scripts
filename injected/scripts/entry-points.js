@@ -40,7 +40,7 @@ const builds = {
         output: ['../build/android/adsjsContentScope.js'],
     },
     'android-adsjs-lm': {
-        input: 'entry-points/android.js',
+        input: 'entry-points/android-adsjs-lm.js',
         output: ['../build/android/adsjsContentScopeLM.js'],
     },
     windows: {
