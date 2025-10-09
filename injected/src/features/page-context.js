@@ -22,8 +22,17 @@ function collapseWhitespace(str) {
 }
 
 /**
+ * Check if a node is an HTML element
+ * @param {Node} node
+ * @returns {node is HTMLElement}
+ **/
+function isHtmlElement(node) {
+    return node.nodeType === Node.ELEMENT_NODE;
+}
+
+/**
  * Convert a DOM node to markdown
- * @param {HTMLElement} node
+ * @param {Node} node
  * @param {number} maxLength
  * @param {string} excludeSelectors
  * @returns {string}
@@ -32,7 +41,7 @@ function domToMarkdown(node, maxLength = Infinity, excludeSelectors) {
     if (node.nodeType === Node.TEXT_NODE) {
         return collapseWhitespace(node.textContent);
     }
-    if (node.nodeType !== Node.ELEMENT_NODE) {
+    if (!isHtmlElement(node)) {
         return '';
     }
     if (!checkNodeIsVisible(node) || node.matches(excludeSelectors)) {
