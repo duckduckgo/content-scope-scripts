@@ -8,19 +8,23 @@ import { isVisible } from './shared/player-utils.js'
 import { VideoEventTracker } from './shared/video-events.js'
 
 /**
- * Specific ad-related classes (not broad patterns)
+ * Classes that indicate an ad is ACTIVELY PLAYING (high confidence)
  */
-const AD_CLASS_EXACT = [
+const AD_CLASS_ACTIVE = [
+    'ad-showing',      // Player is showing an ad
+    'ad-interrupting'  // Ad is interrupting content
+]
+
+/**
+ * UI elements that only appear during ads (medium confidence)
+ */
+const AD_UI_ELEMENTS = [
     'ytp-ad-text',
     'ytp-ad-skip-button',
     'ytp-ad-skip-button-container',
     'ytp-ad-message-container',
     'ytp-ad-player-overlay',
-    'ytp-ad-image-overlay',
-    'video-ads',
-    'ad-showing',
-    'ad-interrupting',
-    'ad-created'
+    'ytp-ad-image-overlay'
 ]
 
 /**
@@ -69,15 +73,15 @@ export class AdDetector extends DetectorBase {
         // Check visibility
         if (!isVisible(node)) return false
 
-        // Check for exact class matches
+        // Check for UI elements that only appear during ads
         const classList = node.classList
-        if (classList && AD_CLASS_EXACT.some(adClass => classList.contains(adClass))) {
+        if (classList && AD_UI_ELEMENTS.some(adClass => classList.contains(adClass))) {
             return true
         }
 
-        // Also check className string for partial matches (like 'ytp-ad-' prefix)
+        // Also check className string for 'ytp-ad-' prefix (but not 'ytp-ad-module')
         const classString = (node.className || '').toString().toLowerCase()
-        if (classString.includes('ytp-ad-') || classString.includes('ad-interrupting') || classString.includes('ad-showing')) {
+        if (classString.includes('ytp-ad-') && !classString.includes('ytp-ad-module')) {
             return true
         }
 
@@ -87,17 +91,17 @@ export class AdDetector extends DetectorBase {
     }
 
     getNodesForSweep () {
-        // Use specific selectors only
-        const selectors = AD_CLASS_EXACT.map(cls => '.' + cls).join(',')
+        // Use specific selectors only for UI elements
+        const selectors = AD_UI_ELEMENTS.map(cls => '.' + cls).join(',')
         const nodes = this.root?.querySelectorAll(selectors) || []
         return Array.from(nodes)
     }
 
     onSweep () {
-        // First check the player root itself for ad classes
+        // Check the player root for ACTIVE ad classes only (high confidence)
         if (!this.adCurrentlyPlaying && this.root) {
             const classList = this.root.classList
-            if (classList && AD_CLASS_EXACT.some(adClass => classList.contains(adClass))) {
+            if (classList && AD_CLASS_ACTIVE.some(adClass => classList.contains(adClass))) {
                 this.adCurrentlyPlaying = true
                 console.log('🎯 YouTube Ad Detected', {
                     time: new Date().toISOString(),
@@ -105,6 +109,23 @@ export class AdDetector extends DetectorBase {
                     classes: Array.from(classList).filter(c => c.includes('ad')),
                     source: 'player-root-sweep'
                 })
+            }
+        }
+
+        // Check for sponsored content badges (organic ads)
+        if (!this.adCurrentlyPlaying) {
+            const sponsoredBadge = document.querySelector('ad-badge-view-model, badge-shape.yt-badge-shape--ad')
+            if (sponsoredBadge && isVisible(sponsoredBadge)) {
+                const badgeText = sponsoredBadge.textContent?.toLowerCase() || ''
+                if (badgeText.includes('sponsored') || badgeText.includes('ad')) {
+                    this.adCurrentlyPlaying = true
+                    console.log('🎯 YouTube Ad Detected', {
+                        time: new Date().toISOString(),
+                        element: 'sponsored content badge',
+                        text: sponsoredBadge.textContent?.trim(),
+                        source: 'sponsored-badge'
+                    })
+                }
             }
         }
 
@@ -126,25 +147,32 @@ export class AdDetector extends DetectorBase {
     }
 
     checkIfAdEnded () {
-        // First check if player root still has ad classes
+        // First check if player root still has ACTIVE ad classes
         if (this.root) {
             const rootClassList = this.root.classList
-            if (rootClassList && AD_CLASS_EXACT.some(adClass => rootClassList.contains(adClass))) {
+            if (rootClassList && AD_CLASS_ACTIVE.some(adClass => rootClassList.contains(adClass))) {
                 return // Ad still showing on player root
             }
         }
 
-        // Check if ad elements are still present
-        const selectors = AD_CLASS_EXACT.map(cls => '.' + cls).join(',')
+        // Check if ad UI elements are still present and visible
+        const selectors = AD_UI_ELEMENTS.map(cls => '.' + cls).join(',')
         const adElements = this.root?.querySelectorAll(selectors)
 
         const hasVisibleAd = adElements && Array.from(adElements).some(el =>
             isVisible(el) && this.checkNode(el)
         )
 
-        if (!hasVisibleAd && this.adCurrentlyPlaying) {
+        // Also check if sponsored badge is still visible
+        const sponsoredBadge = document.querySelector('ad-badge-view-model, badge-shape.yt-badge-shape--ad')
+        const hasSponsoredBadge = sponsoredBadge && isVisible(sponsoredBadge)
+
+        if (!hasVisibleAd && !hasSponsoredBadge && this.adCurrentlyPlaying) {
             // Ad ended, reset flag
             this.adCurrentlyPlaying = false
+            console.log('✅ YouTube Ad Ended', {
+                time: new Date().toISOString()
+            })
         }
     }
 }

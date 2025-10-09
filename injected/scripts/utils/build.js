@@ -22,7 +22,7 @@ export async function bundle(params) {
 
     const extensions = ['firefox', 'chrome-mv3'];
     const isExtension = extensions.includes(platform);
-    let trackerLookup = '$TRACKER_LOOKUP$';
+    let trackerLookup = '{}'; // Extensions don't need tracker lookup bundled
     if (!isExtension) {
         const trackerLookupData = readFileSync('../build/tracker-lookup.json', 'utf8');
         trackerLookup = trackerLookupData;

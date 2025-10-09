@@ -37,14 +37,20 @@ export class PerformanceMark {
      */
     constructor(name) {
         this.name = name;
-        performance.mark(this.name + 'Start');
+        if (typeof performance !== 'undefined' && performance.mark) {
+            performance.mark(this.name + 'Start');
+        }
     }
 
     end() {
-        performance.mark(this.name + 'End');
+        if (typeof performance !== 'undefined' && performance.mark) {
+            performance.mark(this.name + 'End');
+        }
     }
 
     measure() {
-        performance.measure(this.name, this.name + 'Start', this.name + 'End');
+        if (typeof performance !== 'undefined' && performance.measure) {
+            performance.measure(this.name, this.name + 'Start', this.name + 'End');
+        }
     }
 }
