@@ -10236,20 +10236,37 @@ ${truncatedWarning}
 
   // src/features/page-context.js
   var MSG_PAGE_CONTEXT_RESPONSE = "collectionResult";
+  function checkNodeIsVisible(node) {
+    try {
+      const style = window.getComputedStyle(node);
+      if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity) === 0) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
   function collapseWhitespace(str) {
     return typeof str === "string" ? str.replace(/\s+/g, " ") : "";
   }
-  function domToMarkdown(node, maxLength = Infinity) {
+  function isHtmlElement(node) {
+    return node.nodeType === Node.ELEMENT_NODE;
+  }
+  function domToMarkdown(node, maxLength = Infinity, excludeSelectors) {
     if (node.nodeType === Node.TEXT_NODE) {
       return collapseWhitespace(node.textContent);
     }
-    if (node.nodeType !== Node.ELEMENT_NODE) {
+    if (!isHtmlElement(node)) {
+      return "";
+    }
+    if (!checkNodeIsVisible(node) || node.matches(excludeSelectors)) {
       return "";
     }
     const tag = node.tagName.toLowerCase();
     let children = "";
     for (const childNode of node.childNodes) {
-      const childContent = domToMarkdown(childNode, maxLength - children.length);
+      const childContent = domToMarkdown(childNode, maxLength - children.length, excludeSelectors);
       children += childContent;
       if (children.length > maxLength) {
         children = children.substring(0, maxLength) + "...";
@@ -10302,7 +10319,7 @@ ${children}
     const href = node.getAttribute("href");
     return href ? `[${collapseAndTrim(node.textContent)}](${href})` : collapseWhitespace(node.textContent);
   }
-  var _cachedContent, _cachedTimestamp;
+  var _cachedContent, _cachedTimestamp, _delayedRecheckTimer;
   var PageContext = class extends ContentFeature {
     constructor() {
       super(...arguments);
@@ -10313,12 +10330,20 @@ ${children}
       __publicField(this, "mutationObserver", null);
       __publicField(this, "lastSentContent", null);
       __publicField(this, "listenForUrlChanges", true);
+      /** @type {ReturnType<typeof setTimeout> | null} */
+      __privateAdd(this, _delayedRecheckTimer, null);
+      __publicField(this, "recheckCount", 0);
+      __publicField(this, "recheckLimit", 0);
     }
     init() {
+      this.recheckLimit = this.getFeatureSetting("recheckLimit") || 5;
       if (!this.shouldActivate()) {
         return;
       }
       this.setupListeners();
+    }
+    resetRecheckCount() {
+      this.recheckCount = 0;
     }
     setupListeners() {
       this.observeContentChanges();
@@ -10399,6 +10424,15 @@ ${children}
       __privateSet(this, _cachedTimestamp, 0);
       this.stopObserving();
     }
+    /**
+     * Clear all pending timers
+     */
+    clearTimers() {
+      if (__privateGet(this, _delayedRecheckTimer)) {
+        clearTimeout(__privateGet(this, _delayedRecheckTimer));
+        __privateSet(this, _delayedRecheckTimer, null);
+      }
+    }
     set cachedContent(content) {
       if (content === void 0) {
         this.invalidateCache();
@@ -10422,8 +10456,26 @@ ${children}
         this.mutationObserver = new MutationObserver((_mutations) => {
           this.log.info("MutationObserver", _mutations);
           this.cachedContent = void 0;
+          this.scheduleDelayedRecheck();
         });
       }
+    }
+    /**
+     * Schedule a delayed recheck after navigation events
+     */
+    scheduleDelayedRecheck() {
+      this.clearTimers();
+      if (this.recheckLimit > 0 && this.recheckCount >= this.recheckLimit) {
+        return;
+      }
+      const delayMs = this.getFeatureSetting("navigationRecheckDelayMs") || 1500;
+      this.log.info("Scheduling delayed recheck", { delayMs });
+      __privateSet(this, _delayedRecheckTimer, setTimeout(() => {
+        this.log.info("Performing delayed recheck after navigation");
+        this.recheckCount++;
+        this.invalidateCache();
+        this.handleContentCollectionRequest(false);
+      }, delayMs));
     }
     startObserving() {
       this.log.info("Starting observing", this.mutationObserver, __privateGet(this, _cachedContent));
@@ -10442,8 +10494,11 @@ ${children}
         this.isObserving = false;
       }
     }
-    handleContentCollectionRequest() {
+    handleContentCollectionRequest(resetRecheckCount = true) {
       this.log.info("Handling content collection request");
+      if (resetRecheckCount) {
+        this.resetRecheckCount();
+      }
       try {
         const content = this.collectPageContent();
         this.sendContentResponse(content);
@@ -10491,25 +10546,29 @@ ${children}
       const maxLength = this.getFeatureSetting("maxContentLength") || 9500;
       const upperLimit = this.getFeatureSetting("upperLimit") || 5e5;
       let excludeSelectors = this.getFeatureSetting("excludeSelectors") || [".ad", ".sidebar", ".footer", ".nav", ".header"];
-      excludeSelectors = excludeSelectors.concat(["script", "style", "link", "meta", "noscript", "svg", "canvas"]);
+      const excludedInertElements = this.getFeatureSetting("excludedInertElements") || [
+        "script",
+        "style",
+        "link",
+        "meta",
+        "noscript",
+        "svg",
+        "canvas"
+      ];
+      excludeSelectors = excludeSelectors.concat(excludedInertElements);
+      const excludeSelectorsString = excludeSelectors.join(",");
       let content = "";
-      let mainContent = document.querySelector("main, article, .content, .main, #content, #main");
-      if (mainContent && mainContent.innerHTML.trim().length <= 100) {
+      const mainContentSelector = this.getFeatureSetting("mainContentSelector") || "main, article, .content, .main, #content, #main";
+      let mainContent = document.querySelector(mainContentSelector);
+      const mainContentLength = this.getFeatureSetting("mainContentLength") || 100;
+      if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
         mainContent = null;
       }
       const contentRoot = mainContent || document.body;
       if (contentRoot) {
         this.log.info("Getting main content", contentRoot);
-        const clone = (
-          /** @type {Element} */
-          contentRoot.cloneNode(true)
-        );
-        excludeSelectors.forEach((selector) => {
-          const elements = clone.querySelectorAll(selector);
-          elements.forEach((el) => el.remove());
-        });
-        this.log.info("Calling domToMarkdown", clone.innerHTML);
-        content += domToMarkdown(clone, upperLimit);
+        content += domToMarkdown(contentRoot, upperLimit, excludeSelectorsString);
+        this.log.info("Content markdown", content, contentRoot);
       }
       content = content.trim();
       this.fullContentLength = content.length;
@@ -10521,7 +10580,8 @@ ${children}
     }
     getHeadings() {
       const headings = [];
-      const headingElements = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+      const headingSelector = this.getFeatureSetting("headingSelector") || "h1, h2, h3, h4, h5, h6";
+      const headingElements = document.querySelectorAll(headingSelector);
       headingElements.forEach((heading) => {
         const level = parseInt(heading.tagName.charAt(1));
         const text = heading.textContent?.trim();
@@ -10533,7 +10593,8 @@ ${children}
     }
     getLinks() {
       const links = [];
-      const linkElements = document.querySelectorAll("a[href]");
+      const linkSelector = this.getFeatureSetting("linkSelector") || "a[href]";
+      const linkElements = document.querySelectorAll(linkSelector);
       linkElements.forEach((link) => {
         const text = link.textContent?.trim();
         const href = link.getAttribute("href");
@@ -10545,7 +10606,8 @@ ${children}
     }
     getImages() {
       const images = [];
-      const imgElements = document.querySelectorAll("img");
+      const imgSelector = this.getFeatureSetting("imgSelector") || "img";
+      const imgElements = document.querySelectorAll(imgSelector);
       imgElements.forEach((img) => {
         const alt = img.getAttribute("alt") || "";
         const src = img.getAttribute("src") || "";
@@ -10578,6 +10640,7 @@ ${children}
   };
   _cachedContent = new WeakMap();
   _cachedTimestamp = new WeakMap();
+  _delayedRecheckTimer = new WeakMap();
 
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {

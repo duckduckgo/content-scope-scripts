@@ -48,7 +48,7 @@ jobs:
                   echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
             - name: Find Previous Comment
-              uses: peter-evans/find-comment@v3
+              uses: peter-evans/find-comment@v4
               id: find_comment
               with:
                   issue-number: ${{ github.event.pull_request.number }}
@@ -91,7 +91,7 @@ jobs:
                       core.setOutput('pr_number', prNumber);
 
             - name: Create, or Update the Comment
-              uses: peter-evans/create-or-update-comment@v4
+              uses: peter-evans/create-or-update-comment@v5
               with:
                   issue-number: ${{ github.event.pull_request.number }}
                   comment-id: ${{ steps.find_comment.outputs.comment-id }}
