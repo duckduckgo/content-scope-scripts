@@ -3,7 +3,6 @@ import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
-
 function checkNodeIsVisible(node) {
     try {
         const style = window.getComputedStyle(node);
@@ -18,11 +17,17 @@ function checkNodeIsVisible(node) {
     }
 }
 
-
 function collapseWhitespace(str) {
     return typeof str === 'string' ? str.replace(/\s+/g, ' ') : '';
 }
 
+/**
+ * Convert a DOM node to markdown
+ * @param {HTMLElement} node
+ * @param {number} maxLength
+ * @param {string} excludeSelectors
+ * @returns {string}
+ */
 function domToMarkdown(node, maxLength = Infinity, excludeSelectors) {
     if (node.nodeType === Node.TEXT_NODE) {
         return collapseWhitespace(node.textContent);
@@ -352,6 +357,7 @@ export default class PageContext extends ContentFeature {
             'canvas',
         ];
         excludeSelectors = excludeSelectors.concat(excludedInertElements);
+        const excludeSelectorsString = excludeSelectors.join(',');
 
         let content = '';
         // Get content from main content areas
@@ -365,7 +371,7 @@ export default class PageContext extends ContentFeature {
 
         if (contentRoot) {
             this.log.info('Getting main content', contentRoot);
-            content += domToMarkdown(contentRoot, upperLimit, excludeSelectors);
+            content += domToMarkdown(contentRoot, upperLimit, excludeSelectorsString);
             this.log.info('Content markdown', content, contentRoot);
         }
         content = content.trim();
@@ -384,8 +390,8 @@ export default class PageContext extends ContentFeature {
 
     getHeadings() {
         const headings = [];
-        const headdingSelector = this.getFeatureSetting('headingSelector') || 'h1, h2, h3, h4, h5, h6';
-        const headingElements = document.querySelectorAll(headdingSelector);
+        const headingSelector = this.getFeatureSetting('headingSelector') || 'h1, h2, h3, h4, h5, h6';
+        const headingElements = document.querySelectorAll(headingSelector);
 
         headingElements.forEach((heading) => {
             const level = parseInt(heading.tagName.charAt(1));
