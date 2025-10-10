@@ -1,6 +1,1 @@
-- Hidden page context removal (#2000)
-- Add config settings for all page context constants (#1998)
-- Delayed content collect (#1970)
-- build(deps): bump peter-evans/find-comment from 3 to 4 (#1994)
-- build(deps): bump peter-evans/create-or-update-comment from 4 to 5 (#1993)
-- chore: update console.error calls (#1983)
+- Page collection support shadow dom and frames (#2002)
