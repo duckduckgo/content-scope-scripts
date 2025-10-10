@@ -30,6 +30,13 @@ function isHtmlElement(node) {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
+/**
+ * Stringify the children of a node to markdown
+ * @param {NodeListOf<ChildNode>} childNodes
+ * @param {DomToMarkdownSettings} settings
+ * @param {number} depth
+ * @returns {string}
+ */
 function domToMarkdownChildren(childNodes, settings, depth = 0) {
     if (depth > settings.maxDepth) {
         return '';
@@ -47,12 +54,16 @@ function domToMarkdownChildren(childNodes, settings, depth = 0) {
 }
 
 /**
+ * @typedef {Object} DomToMarkdownSettings
+ * @property {number} maxLength - Maximum length of content
+ * @property {number} maxDepth - Maximum depth to traverse
+ * @property {string} excludeSelectors - CSS selectors to exclude from processing
+ */
+
+/**
  * Convert a DOM node to markdown
  * @param {Node} node
- * @param {Object} settings - Settings object with maxLength, maxDepth, and excludeSelectors
- * @param {number} settings.maxLength - Maximum length of content
- * @param {number} settings.maxDepth - Maximum depth to traverse
- * @param {string} settings.excludeSelectors - CSS selectors to exclude from processing
+ * @param {DomToMarkdownSettings} settings
  * @param {number} depth
  * @returns {string}
  */
