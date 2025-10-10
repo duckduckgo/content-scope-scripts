@@ -135,7 +135,6 @@ export async function gotoAndWait(page, urlString, args = {}, evalBeforeInit = n
     `;
 
     await page.evaluate(evalString);
-
     // wait until contentScopeFeatures.init(args) has completed
     await page.waitForFunction(() => {
         window.dispatchEvent(new Event('content-scope-init-complete'));

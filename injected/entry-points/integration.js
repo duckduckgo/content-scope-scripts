@@ -2,6 +2,57 @@ import { load, init, updateFeatureArgs } from '../src/content-scope-features.js'
 import { TestTransportConfig } from '../../messaging/index.js';
 import { getTabUrl } from '../src/utils.js';
 
+// Initialize the test harness global immediately when script loads
+/** @type {Map<string, (d: any)=>void>} */
+const globalSubscriptions = new Map();
+
+if (!window.__playwright_01) {
+    window.__playwright_01 = {
+        mockResponses: {},
+        subscriptionEvents: [],
+        mocks: {
+            outgoing: [],
+        },
+        publishSubscriptionEvent: (evt) => {
+            const matchingCallback = globalSubscriptions.get(evt.subscriptionName);
+            if (!matchingCallback) {
+                console.error('no matching callback for subscription', evt);
+                return;
+            }
+            matchingCallback(evt.params);
+        }
+    };
+}
+
+/**
+ * Create a mock transport for extension testing that integrates with the test harness
+ * Following the same pattern as special-pages mock transports
+ */
+function createExtensionMockTransport() {
+
+    return new TestTransportConfig({
+        notify(_msg) {
+            window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+        },
+        request: async (_msg) => {
+            window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+            // Return empty response for testing
+            return {};
+        },
+        subscribe(_msg, callback) {
+            window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
+            // Register the subscription with the test harness (same pattern as special pages)
+            console.log('🎯 Registering subscription:', _msg.subscriptionName, 'for feature:', _msg.featureName);
+            globalSubscriptions.set(_msg.subscriptionName, callback);
+            console.log('🎯 Total subscriptions registered:', globalSubscriptions.size);
+            return () => {
+                console.log('🎯 Unregistering subscription:', _msg.subscriptionName);
+                globalSubscriptions.delete(_msg.subscriptionName);
+            };
+        },
+    });
+}
+
 function generateConfig() {
     const topLevelUrl = getTabUrl();
     return {
@@ -36,6 +87,7 @@ function generateConfig() {
                 'apiManipulation',
                 'duckPlayer',
                 'duckPlayerNative',
+                'pageContext',
             ],
         },
     };
@@ -78,19 +130,7 @@ async function initCode() {
     const processedConfig = generateConfig();
 
     // mock Messaging and allow for tests to intercept them
-    globalThis.cssMessaging = processedConfig.messagingConfig = new TestTransportConfig({
-        notify() {
-            // noop
-        },
-        request: async () => {
-            // noop
-        },
-        subscribe() {
-            return () => {
-                // noop
-            };
-        },
-    });
+    globalThis.cssMessaging = processedConfig.messagingConfig = createExtensionMockTransport();
 
     load({
         // @ts-expect-error Types of property 'name' are incompatible.

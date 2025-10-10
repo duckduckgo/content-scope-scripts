@@ -122,13 +122,13 @@ export class ResultsCollector {
             },
             sessionKey: 'test',
         };
-
+        console.log('Processing config');
         const processedConfig = processConfig(
             /** @type {import('../../src/utils.js').RemoteConfig} */ (config),
             /* userList */ [],
             /* preferences */ userPreferences /*, platformSpecificFeatures = [] */,
         );
-
+        console.log("Processed config");
         await gotoAndWait(this.page, htmlPath + '?automation=true', processedConfig);
     }
 
@@ -310,7 +310,18 @@ export class ResultsCollector {
      */
     static create(page, use) {
         // Read the configuration object to determine which platform we're testing against
-        page.on('console', (msg) => console[msg.type()](msg.text()));
+        page.on('console', (msg) => {
+            const messageType = msg.type();
+            const messageText = msg.text();
+            
+            // Handle cases where msg.type() might return undefined
+            if (messageType && typeof console[messageType] === 'function') {
+                console[messageType](messageText);
+            } else {
+                // Fallback to console.log if type is undefined or not a valid console method
+                console.log(`[${messageType || 'unknown'}]`, messageText);
+            }
+        });
         const { platformInfo, build } = perPlatform(use);
         return new ResultsCollector(page, build, platformInfo);
     }
