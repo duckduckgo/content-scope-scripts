@@ -446,7 +446,7 @@ export default class PageContext extends ContentFeature {
             content += domToMarkdown(contentRoot, {
                 maxLength: upperLimit,
                 maxDepth,
-                includeIframes: this.getFeatureSetting('includeIframes') || true,
+                includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
                 excludeSelectors: excludeSelectorsString,
             });
             this.log.info('Content markdown', content, contentRoot);
