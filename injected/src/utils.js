@@ -138,7 +138,7 @@ export function getTabUrl() {
     } catch {
         // If there's no URL then let's fall back to using the frame ancestors origin which won't have path
         // Fall back to the referrer if we can't get the top level origin
-        framingURLString = getTopLevelOriginFromFrameAncestors() ?? globalThis.document.referrer;
+        framingURLString = getTopLevelOriginFromFrameAncestors() ?? (globalThis.document?.referrer || null);
     }
 
     let framingURL;
@@ -156,6 +156,11 @@ export function getTabUrl() {
 function getTopLevelOriginFromFrameAncestors() {
     // For about:blank, we can't get the top location
     // Not supported in Firefox
+    // Also check if location is available (content script timing issue)
+    if (!globalThis.location) {
+        return null;
+    }
+    
     if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
         // ancestorOrigins is reverse order, with the last item being the top frame
         return globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
