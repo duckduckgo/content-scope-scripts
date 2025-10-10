@@ -443,11 +443,11 @@ export default class PageContext extends ContentFeature {
 
         if (contentRoot) {
             this.log.info('Getting main content', contentRoot);
-            content += domToMarkdown(contentRoot, { 
-                maxLength: upperLimit, 
+            content += domToMarkdown(contentRoot, {
+                maxLength: upperLimit,
                 maxDepth,
                 includeIframes: this.getFeatureSetting('includeIframes') || true,
-                excludeSelectors: excludeSelectorsString 
+                excludeSelectors: excludeSelectorsString,
             });
             this.log.info('Content markdown', content, contentRoot);
         }
