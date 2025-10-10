@@ -30,13 +30,16 @@ function isHtmlElement(node) {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
-function domToMarkdownChildren(childNodes, maxLength = Infinity, excludeSelectors) {
+function domToMarkdownChildren(childNodes, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+        return '';
+    }
     let children = '';
     for (const childNode of childNodes) {
-        const childContent = domToMarkdown(childNode, maxLength - children.length, excludeSelectors);
+        const childContent = domToMarkdown(childNode, settings, depth + 1);
         children += childContent;
-        if (children.length > maxLength) {
-            children = children.substring(0, maxLength) + '...';
+        if (children.length > settings.maxLength) {
+            children = children.substring(0, settings.maxLength) + '...';
             break;
         }
     }
@@ -46,28 +49,34 @@ function domToMarkdownChildren(childNodes, maxLength = Infinity, excludeSelector
 /**
  * Convert a DOM node to markdown
  * @param {Node} node
- * @param {number} maxLength
- * @param {string} excludeSelectors
+ * @param {Object} settings - Settings object with maxLength, maxDepth, and excludeSelectors
+ * @param {number} settings.maxLength - Maximum length of content
+ * @param {number} settings.maxDepth - Maximum depth to traverse
+ * @param {string} settings.excludeSelectors - CSS selectors to exclude from processing
+ * @param {number} depth
  * @returns {string}
  */
-function domToMarkdown(node, maxLength = Infinity, excludeSelectors) {
+function domToMarkdown(node, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+        return '';
+    }
     if (node.nodeType === Node.TEXT_NODE) {
         return collapseWhitespace(node.textContent);
     }
     if (!isHtmlElement(node)) {
         return '';
     }
-    if (!checkNodeIsVisible(node) || node.matches(excludeSelectors)) {
+    if (!checkNodeIsVisible(node) || node.matches(settings.excludeSelectors)) {
         return '';
     }
 
     const tag = node.tagName.toLowerCase();
 
     // Build children string incrementally to exit early when maxLength is exceeded
-    let children = domToMarkdownChildren(node.childNodes, maxLength, excludeSelectors);
+    let children = domToMarkdownChildren(node.childNodes, settings, depth + 1);
 
     if (node.shadowRoot) {
-        children += domToMarkdownChildren(node.shadowRoot.childNodes, maxLength - children.length, excludeSelectors);
+        children += domToMarkdownChildren(node.shadowRoot.childNodes, settings, depth + 1);
     }
 
     switch (tag) {
@@ -363,6 +372,8 @@ export default class PageContext extends ContentFeature {
         const maxLength = this.getFeatureSetting('maxContentLength') || 9500;
         // Used to avoid large content serialization
         const upperLimit = this.getFeatureSetting('upperLimit') || 500000;
+        // We should refactor to use iteration but for now this just caps overflow.
+        const maxDepth = this.getFeatureSetting('maxDepth') || 5000;
         let excludeSelectors = this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
         const excludedInertElements = this.getFeatureSetting('excludedInertElements') || [
             'script',
@@ -388,7 +399,11 @@ export default class PageContext extends ContentFeature {
 
         if (contentRoot) {
             this.log.info('Getting main content', contentRoot);
-            content += domToMarkdown(contentRoot, upperLimit, excludeSelectorsString);
+            content += domToMarkdown(contentRoot, { 
+                maxLength: upperLimit, 
+                maxDepth, 
+                excludeSelectors: excludeSelectorsString 
+            });
             this.log.info('Content markdown', content, contentRoot);
         }
         content = content.trim();
