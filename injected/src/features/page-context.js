@@ -30,6 +30,19 @@ function isHtmlElement(node) {
     return node.nodeType === Node.ELEMENT_NODE;
 }
 
+function domToMarkdownChildren(childNodes, maxLength = Infinity, excludeSelectors) {
+    let children = '';
+    for (const childNode of childNodes) {
+        const childContent = domToMarkdown(childNode, maxLength - children.length, excludeSelectors);
+        children += childContent;
+        if (children.length > maxLength) {
+            children = children.substring(0, maxLength) + '...';
+            break;
+        }
+    }
+    return children;
+}
+
 /**
  * Convert a DOM node to markdown
  * @param {Node} node
@@ -51,15 +64,10 @@ function domToMarkdown(node, maxLength = Infinity, excludeSelectors) {
     const tag = node.tagName.toLowerCase();
 
     // Build children string incrementally to exit early when maxLength is exceeded
-    let children = '';
-    for (const childNode of node.childNodes) {
-        const childContent = domToMarkdown(childNode, maxLength - children.length, excludeSelectors);
-        children += childContent;
+    let children = domToMarkdownChildren(node.childNodes, maxLength, excludeSelectors);
 
-        if (children.length > maxLength) {
-            children = children.substring(0, maxLength) + '...';
-            break;
-        }
+    if (node.shadowRoot) {
+        children += domToMarkdownChildren(node.shadowRoot.childNodes, maxLength - children.length, excludeSelectors);
     }
 
     switch (tag) {
