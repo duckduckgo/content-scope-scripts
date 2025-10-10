@@ -31,6 +31,25 @@ function isHtmlElement(node) {
 }
 
 /**
+ * Check if an iframe is same-origin and return its content document
+ * @param {HTMLIFrameElement} iframe
+ * @returns {Document | null}
+ */
+function getSameOriginIframeDocument(iframe) {
+    try {
+        // Try to access the contentDocument - this will throw if cross-origin
+        const doc = iframe.contentDocument;
+        if (doc && doc.documentElement) {
+            return doc;
+        }
+    } catch (e) {
+        // Cross-origin iframe - cannot access content
+        return null;
+    }
+    return null;
+}
+
+/**
  * Stringify the children of a node to markdown
  * @param {NodeListOf<ChildNode>} childNodes
  * @param {DomToMarkdownSettings} settings
@@ -58,6 +77,7 @@ function domToMarkdownChildren(childNodes, settings, depth = 0) {
  * @property {number} maxLength - Maximum length of content
  * @property {number} maxDepth - Maximum depth to traverse
  * @property {string} excludeSelectors - CSS selectors to exclude from processing
+ * @property {boolean} includeIframes - Whether to include iframe content
  */
 
 /**
@@ -113,6 +133,19 @@ function domToMarkdown(node, settings, depth = 0) {
             return `\n- ${children.trim()}\n`;
         case 'a':
             return getLinkText(node);
+        case 'iframe': {
+            if (!settings.includeIframes) {
+                return children;
+            }
+            // Try to access same-origin iframe content
+            const iframeDoc = getSameOriginIframeDocument(/** @type {HTMLIFrameElement} */ (node));
+            if (iframeDoc && iframeDoc.body) {
+                const iframeContent = domToMarkdown(iframeDoc.body, settings, depth + 1);
+                return iframeContent ? `\n\n--- Iframe Content ---\n${iframeContent}\n--- End Iframe ---\n\n` : children;
+            }
+            // If we can't access the iframe content (cross-origin), return the children or empty string
+            return children;
+        }
         default:
             return children;
     }
@@ -412,7 +445,8 @@ export default class PageContext extends ContentFeature {
             this.log.info('Getting main content', contentRoot);
             content += domToMarkdown(contentRoot, { 
                 maxLength: upperLimit, 
-                maxDepth, 
+                maxDepth,
+                includeIframes: this.getFeatureSetting('includeIframes') || true,
                 excludeSelectors: excludeSelectorsString 
             });
             this.log.info('Content markdown', content, contentRoot);
@@ -424,7 +458,11 @@ export default class PageContext extends ContentFeature {
 
         // Limit content length
         if (content.length > maxLength) {
-            this.log.info('Truncating content', content);
+            this.log.info('Truncating content', {
+                content,
+                contentLength: content.length,
+                maxLength,
+            });
             content = content.substring(0, maxLength) + '...';
         }
 
