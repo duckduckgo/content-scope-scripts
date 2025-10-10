@@ -31,35 +31,83 @@ function isHtmlElement(node) {
 }
 
 /**
- * Convert a DOM node to markdown
- * @param {Node} node
- * @param {number} maxLength
- * @param {string} excludeSelectors
+ * Check if an iframe is same-origin and return its content document
+ * @param {HTMLIFrameElement} iframe
+ * @returns {Document | null}
+ */
+function getSameOriginIframeDocument(iframe) {
+    try {
+        // Try to access the contentDocument - this will throw if cross-origin
+        const doc = iframe.contentDocument;
+        if (doc && doc.documentElement) {
+            return doc;
+        }
+    } catch (e) {
+        // Cross-origin iframe - cannot access content
+        return null;
+    }
+    return null;
+}
+
+/**
+ * Stringify the children of a node to markdown
+ * @param {NodeListOf<ChildNode>} childNodes
+ * @param {DomToMarkdownSettings} settings
+ * @param {number} depth
  * @returns {string}
  */
-function domToMarkdown(node, maxLength = Infinity, excludeSelectors) {
+function domToMarkdownChildren(childNodes, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+        return '';
+    }
+    let children = '';
+    for (const childNode of childNodes) {
+        const childContent = domToMarkdown(childNode, settings, depth + 1);
+        children += childContent;
+        if (children.length > settings.maxLength) {
+            children = children.substring(0, settings.maxLength) + '...';
+            break;
+        }
+    }
+    return children;
+}
+
+/**
+ * @typedef {Object} DomToMarkdownSettings
+ * @property {number} maxLength - Maximum length of content
+ * @property {number} maxDepth - Maximum depth to traverse
+ * @property {string} excludeSelectors - CSS selectors to exclude from processing
+ * @property {boolean} includeIframes - Whether to include iframe content
+ */
+
+/**
+ * Convert a DOM node to markdown
+ * @param {Node} node
+ * @param {DomToMarkdownSettings} settings
+ * @param {number} depth
+ * @returns {string}
+ */
+function domToMarkdown(node, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+        return '';
+    }
     if (node.nodeType === Node.TEXT_NODE) {
         return collapseWhitespace(node.textContent);
     }
     if (!isHtmlElement(node)) {
         return '';
     }
-    if (!checkNodeIsVisible(node) || node.matches(excludeSelectors)) {
+    if (!checkNodeIsVisible(node) || node.matches(settings.excludeSelectors)) {
         return '';
     }
 
     const tag = node.tagName.toLowerCase();
 
     // Build children string incrementally to exit early when maxLength is exceeded
-    let children = '';
-    for (const childNode of node.childNodes) {
-        const childContent = domToMarkdown(childNode, maxLength - children.length, excludeSelectors);
-        children += childContent;
+    let children = domToMarkdownChildren(node.childNodes, settings, depth + 1);
 
-        if (children.length > maxLength) {
-            children = children.substring(0, maxLength) + '...';
-            break;
-        }
+    if (node.shadowRoot) {
+        children += domToMarkdownChildren(node.shadowRoot.childNodes, settings, depth + 1);
     }
 
     switch (tag) {
@@ -85,6 +133,19 @@ function domToMarkdown(node, maxLength = Infinity, excludeSelectors) {
             return `\n- ${children.trim()}\n`;
         case 'a':
             return getLinkText(node);
+        case 'iframe': {
+            if (!settings.includeIframes) {
+                return children;
+            }
+            // Try to access same-origin iframe content
+            const iframeDoc = getSameOriginIframeDocument(/** @type {HTMLIFrameElement} */ (node));
+            if (iframeDoc && iframeDoc.body) {
+                const iframeContent = domToMarkdown(iframeDoc.body, settings, depth + 1);
+                return iframeContent ? `\n\n--- Iframe Content ---\n${iframeContent}\n--- End Iframe ---\n\n` : children;
+            }
+            // If we can't access the iframe content (cross-origin), return the children or empty string
+            return children;
+        }
         default:
             return children;
     }
@@ -355,6 +416,8 @@ export default class PageContext extends ContentFeature {
         const maxLength = this.getFeatureSetting('maxContentLength') || 9500;
         // Used to avoid large content serialization
         const upperLimit = this.getFeatureSetting('upperLimit') || 500000;
+        // We should refactor to use iteration but for now this just caps overflow.
+        const maxDepth = this.getFeatureSetting('maxDepth') || 5000;
         let excludeSelectors = this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
         const excludedInertElements = this.getFeatureSetting('excludedInertElements') || [
             'script',
@@ -380,7 +443,12 @@ export default class PageContext extends ContentFeature {
 
         if (contentRoot) {
             this.log.info('Getting main content', contentRoot);
-            content += domToMarkdown(contentRoot, upperLimit, excludeSelectorsString);
+            content += domToMarkdown(contentRoot, {
+                maxLength: upperLimit,
+                maxDepth,
+                includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
+                excludeSelectors: excludeSelectorsString,
+            });
             this.log.info('Content markdown', content, contentRoot);
         }
         content = content.trim();
@@ -390,7 +458,11 @@ export default class PageContext extends ContentFeature {
 
         // Limit content length
         if (content.length > maxLength) {
-            this.log.info('Truncating content', content);
+            this.log.info('Truncating content', {
+                content,
+                contentLength: content.length,
+                maxLength,
+            });
             content = content.substring(0, maxLength) + '...';
         }
 
