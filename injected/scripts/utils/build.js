@@ -30,7 +30,7 @@ export async function bundle(params) {
     const loadFeaturesPlugin = loadFeatures(platform, featureNames);
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
 
-    const outputPrefixName = prefixMessage.replace('$INJECT_NAME$', platform)
+    const outputPrefixName = prefixMessage.replace('$INJECT_NAME$', platform);
 
     /** @type {import("esbuild").BuildOptions} */
     const buildOptions = {
@@ -54,7 +54,7 @@ export async function bundle(params) {
         },
         plugins: [loadFeaturesPlugin, commentPlugin()],
         banner: {
-            js: outputPrefixName
+            js: outputPrefixName,
         },
     };
 
