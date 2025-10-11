@@ -7,7 +7,7 @@ import { commentPlugin } from './comment-plugin.js';
 const ROOT = join(cwd(import.meta.url), '..', '..');
 const DEBUG = false;
 
-const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */';
+const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts $INJECT_NAME$ https://github.com/duckduckgo/content-scope-scripts/ */';
 
 /**
  * @param {object} params
@@ -29,6 +29,8 @@ export async function bundle(params) {
     }
     const loadFeaturesPlugin = loadFeatures(platform, featureNames);
     // The code is using a global, that we define here which means once tree shaken we get a browser specific output.
+
+    const outputPrefixName = prefixMessage.replace('$INJECT_NAME$', platform);
 
     /** @type {import("esbuild").BuildOptions} */
     const buildOptions = {
@@ -52,7 +54,7 @@ export async function bundle(params) {
         },
         plugins: [loadFeaturesPlugin, commentPlugin()],
         banner: {
-            js: prefixMessage,
+            js: outputPrefixName,
         },
     };
 
