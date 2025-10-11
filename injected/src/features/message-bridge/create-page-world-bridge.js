@@ -10,8 +10,10 @@ import {
     SubscriptionUnsubscribe,
 } from './schema.js';
 import { isBeingFramed } from '../../utils.js';
-import ContentFeature from '../../content-feature.js';
 
+/**
+ * @typedef {import('../../content-feature.js').default} ContentFeature
+ */
 /**
  * @import { MessagingInterface } from "./schema.js"
  * @typedef {Pick<import("../../captured-globals.js"),
