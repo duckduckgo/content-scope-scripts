@@ -846,7 +846,7 @@ export function withRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponent
 export function isDuckAi() {
     const tabUrl = getTabUrl();
     const domains = ['duckduckgo.com', 'duck.ai', 'duck.co'];
-    if (tabUrl?.hostname && domains.some(domain => matchHostname(tabUrl?.hostname, domain))) {
+    if (tabUrl?.hostname && domains.some((domain) => matchHostname(tabUrl?.hostname, domain))) {
         const url = new URL(tabUrl?.href);
         return url.searchParams.has('duckai') || url.searchParams.get('ia') === 'chat';
     }
