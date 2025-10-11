@@ -24,6 +24,7 @@ export default class NavigatorInterface extends ContentFeature {
             if (!args.platform || !args.platform.name) {
                 return;
             }
+            const context = this;
             this.defineProperty(Navigator.prototype, 'duckduckgo', {
                 value: {
                     platform: args.platform.name,
@@ -40,7 +41,7 @@ export default class NavigatorInterface extends ContentFeature {
                         const existingBridge = store[featureName];
                         if (existingBridge) return existingBridge;
 
-                        const bridge = createPageWorldBridge(featureName, args.messageSecret);
+                        const bridge = createPageWorldBridge(featureName, args.messageSecret, context);
 
                         store[featureName] = bridge;
                         return bridge;

@@ -10,6 +10,7 @@ import {
     SubscriptionUnsubscribe,
 } from './schema.js';
 import { isBeingFramed } from '../../utils.js';
+import ContentFeature from '../../content-feature.js';
 
 /**
  * @import { MessagingInterface } from "./schema.js"
@@ -29,10 +30,11 @@ export const ERROR_MSG = 'Did not install Message Bridge';
  *
  * @param {string} featureName
  * @param {string} [token]
+ * @param {ContentFeature} [context]
  * @return {MessagingInterface}
  * @throws {Error}
  */
-export function createPageWorldBridge(featureName, token) {
+export function createPageWorldBridge(featureName, token, context) {
     /**
      * This feature never operates without a featureName or token
      */
@@ -90,7 +92,7 @@ export function createPageWorldBridge(featureName, token) {
         throw new captured.Error(ERROR_MSG);
     }
 
-    return createMessagingInterface(featureName, send, appendToken);
+    return createMessagingInterface(featureName, send, appendToken, context);
 }
 
 /**
@@ -105,15 +107,17 @@ function random() {
  * @param {string} featureName
  * @param {(evt: {name: string} & Record<string, any>) => void} send
  * @param {(s: string) => string} appendToken
+ * @param {ContentFeature} [context]
  * @returns {MessagingInterface}
  */
-function createMessagingInterface(featureName, send, appendToken) {
+function createMessagingInterface(featureName, send, appendToken, context) {
     return {
         /**
          * @param {string} method
          * @param {Record<string, any>} params
          */
         notify(method, params) {
+            context?.log.info('sending notify', method, params);
             send(
                 new ProxyNotification({
                     method,
@@ -129,6 +133,7 @@ function createMessagingInterface(featureName, send, appendToken) {
          * @returns {Promise<any>}
          */
         request(method, params) {
+            context?.log.info('sending request', method, params);
             const id = random();
 
             send(
@@ -143,6 +148,7 @@ function createMessagingInterface(featureName, send, appendToken) {
             return new Promise((resolve, reject) => {
                 const responseName = appendToken(ProxyResponse.NAME + '-' + id);
                 const handler = (/** @type {CustomEvent<unknown>} */ e) => {
+                    context?.log.info('received response', e.detail);
                     const response = ProxyResponse.create(e.detail);
                     if (response && response.id === id) {
                         if ('error' in response && response.error) {
@@ -164,6 +170,7 @@ function createMessagingInterface(featureName, send, appendToken) {
          */
         subscribe(name, callback) {
             const id = random();
+            context?.log.info('subscribing', name);
 
             send(
                 new SubscriptionRequest({
@@ -174,6 +181,7 @@ function createMessagingInterface(featureName, send, appendToken) {
             );
 
             const handler = (/** @type {CustomEvent<unknown>} */ e) => {
+                context?.log.info('received subscription response', e.detail);
                 const subscriptionEvent = SubscriptionResponse.create(e.detail);
                 if (subscriptionEvent) {
                     const { id: eventId, params } = subscriptionEvent;
