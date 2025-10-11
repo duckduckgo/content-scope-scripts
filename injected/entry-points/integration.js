@@ -42,11 +42,8 @@ function createExtensionMockTransport() {
         subscribe(_msg, callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             // Register the subscription with the test harness (same pattern as special pages)
-            console.log('🎯 Registering subscription:', _msg.subscriptionName, 'for feature:', _msg.featureName);
             globalSubscriptions.set(_msg.subscriptionName, callback);
-            console.log('🎯 Total subscriptions registered:', globalSubscriptions.size);
             return () => {
-                console.log('🎯 Unregistering subscription:', _msg.subscriptionName);
                 globalSubscriptions.delete(_msg.subscriptionName);
             };
         },

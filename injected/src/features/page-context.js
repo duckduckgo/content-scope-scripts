@@ -174,14 +174,10 @@ export default class PageContext extends ContentFeature {
     recheckLimit = 0;
 
     init() {
-        console.log('🔍 PageContext: init() called');
         this.recheckLimit = this.getFeatureSetting('recheckLimit') || 5;
-        console.log('🔍 PageContext: shouldActivate():', this.shouldActivate());
         if (!this.shouldActivate()) {
-            console.log('🔍 PageContext: Feature not activating, exiting');
             return;
         }
-        console.log('🔍 PageContext: Setting up listeners');
         this.setupListeners();
     }
 
@@ -191,16 +187,11 @@ export default class PageContext extends ContentFeature {
 
     setupListeners() {
         this.observeContentChanges();
-        console.log('🔍 PageContext: Checking subscribeToCollect setting:', this.getFeatureSettingEnabled('subscribeToCollect', 'enabled'));
         if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
-            console.log('🔍 PageContext: Registering collect subscription');
             this.messaging.subscribe('collect', () => {
-                console.log('🔍 PageContext: Received collect event');
                 this.invalidateCache();
                 this.handleContentCollectionRequest();
             });
-        } else {
-            console.log('🔍 PageContext: subscribeToCollect is NOT enabled');
         }
         window.addEventListener('load', () => {
             this.handleContentCollectionRequest();

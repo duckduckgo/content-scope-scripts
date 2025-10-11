@@ -16,3 +16,4 @@ test-results
 .netlify
 # VS Code user config
 .vscode
+page-context-collector/
