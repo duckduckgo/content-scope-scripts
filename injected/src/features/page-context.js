@@ -3,30 +3,111 @@ import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
+function checkNodeIsVisible(node) {
+    try {
+        const style = window.getComputedStyle(node);
+
+        // Check primary visibility properties
+        if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
+            return false;
+        }
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 function collapseWhitespace(str) {
     return typeof str === 'string' ? str.replace(/\s+/g, ' ') : '';
 }
 
-function domToMarkdown(node, maxLength = Infinity) {
+/**
+ * Check if a node is an HTML element
+ * @param {Node} node
+ * @returns {node is HTMLElement}
+ **/
+function isHtmlElement(node) {
+    return node.nodeType === Node.ELEMENT_NODE;
+}
+
+/**
+ * Check if an iframe is same-origin and return its content document
+ * @param {HTMLIFrameElement} iframe
+ * @returns {Document | null}
+ */
+function getSameOriginIframeDocument(iframe) {
+    try {
+        // Try to access the contentDocument - this will throw if cross-origin
+        const doc = iframe.contentDocument;
+        if (doc && doc.documentElement) {
+            return doc;
+        }
+    } catch (e) {
+        // Cross-origin iframe - cannot access content
+        return null;
+    }
+    return null;
+}
+
+/**
+ * Stringify the children of a node to markdown
+ * @param {NodeListOf<ChildNode>} childNodes
+ * @param {DomToMarkdownSettings} settings
+ * @param {number} depth
+ * @returns {string}
+ */
+function domToMarkdownChildren(childNodes, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+        return '';
+    }
+    let children = '';
+    for (const childNode of childNodes) {
+        const childContent = domToMarkdown(childNode, settings, depth + 1);
+        children += childContent;
+        if (children.length > settings.maxLength) {
+            children = children.substring(0, settings.maxLength) + '...';
+            break;
+        }
+    }
+    return children;
+}
+
+/**
+ * @typedef {Object} DomToMarkdownSettings
+ * @property {number} maxLength - Maximum length of content
+ * @property {number} maxDepth - Maximum depth to traverse
+ * @property {string} excludeSelectors - CSS selectors to exclude from processing
+ * @property {boolean} includeIframes - Whether to include iframe content
+ */
+
+/**
+ * Convert a DOM node to markdown
+ * @param {Node} node
+ * @param {DomToMarkdownSettings} settings
+ * @param {number} depth
+ * @returns {string}
+ */
+function domToMarkdown(node, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+        return '';
+    }
     if (node.nodeType === Node.TEXT_NODE) {
         return collapseWhitespace(node.textContent);
     }
-    if (node.nodeType !== Node.ELEMENT_NODE) {
+    if (!isHtmlElement(node)) {
+        return '';
+    }
+    if (!checkNodeIsVisible(node) || node.matches(settings.excludeSelectors)) {
         return '';
     }
 
     const tag = node.tagName.toLowerCase();
 
     // Build children string incrementally to exit early when maxLength is exceeded
-    let children = '';
-    for (const childNode of node.childNodes) {
-        const childContent = domToMarkdown(childNode, maxLength - children.length);
-        children += childContent;
+    let children = domToMarkdownChildren(node.childNodes, settings, depth + 1);
 
-        if (children.length > maxLength) {
-            children = children.substring(0, maxLength) + '...';
-            break;
-        }
+    if (node.shadowRoot) {
+        children += domToMarkdownChildren(node.shadowRoot.childNodes, settings, depth + 1);
     }
 
     switch (tag) {
@@ -52,6 +133,19 @@ function domToMarkdown(node, maxLength = Infinity) {
             return `\n- ${children.trim()}\n`;
         case 'a':
             return getLinkText(node);
+        case 'iframe': {
+            if (!settings.includeIframes) {
+                return children;
+            }
+            // Try to access same-origin iframe content
+            const iframeDoc = getSameOriginIframeDocument(/** @type {HTMLIFrameElement} */ (node));
+            if (iframeDoc && iframeDoc.body) {
+                const iframeContent = domToMarkdown(iframeDoc.body, settings, depth + 1);
+                return iframeContent ? `\n\n--- Iframe Content ---\n${iframeContent}\n--- End Iframe ---\n\n` : children;
+            }
+            // If we can't access the iframe content (cross-origin), return the children or empty string
+            return children;
+        }
         default:
             return children;
     }
@@ -322,31 +416,40 @@ export default class PageContext extends ContentFeature {
         const maxLength = this.getFeatureSetting('maxContentLength') || 9500;
         // Used to avoid large content serialization
         const upperLimit = this.getFeatureSetting('upperLimit') || 500000;
+        // We should refactor to use iteration but for now this just caps overflow.
+        const maxDepth = this.getFeatureSetting('maxDepth') || 5000;
         let excludeSelectors = this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
-        excludeSelectors = excludeSelectors.concat(['script', 'style', 'link', 'meta', 'noscript', 'svg', 'canvas']);
+        const excludedInertElements = this.getFeatureSetting('excludedInertElements') || [
+            'script',
+            'style',
+            'link',
+            'meta',
+            'noscript',
+            'svg',
+            'canvas',
+        ];
+        excludeSelectors = excludeSelectors.concat(excludedInertElements);
+        const excludeSelectorsString = excludeSelectors.join(',');
 
         let content = '';
         // Get content from main content areas
-        let mainContent = document.querySelector('main, article, .content, .main, #content, #main');
-        if (mainContent && mainContent.innerHTML.trim().length <= 100) {
+        const mainContentSelector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
+        let mainContent = document.querySelector(mainContentSelector);
+        const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
+        if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
             mainContent = null;
         }
         const contentRoot = mainContent || document.body;
 
         if (contentRoot) {
             this.log.info('Getting main content', contentRoot);
-            // Create a clone to work with
-            const clone = /** @type {Element} */ (contentRoot.cloneNode(true));
-
-            // Remove excluded elements
-            excludeSelectors.forEach((selector) => {
-                const elements = clone.querySelectorAll(selector);
-                elements.forEach((el) => el.remove());
+            content += domToMarkdown(contentRoot, {
+                maxLength: upperLimit,
+                maxDepth,
+                includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
+                excludeSelectors: excludeSelectorsString,
             });
-
-            this.log.info('Calling domToMarkdown', clone.innerHTML);
-            content += domToMarkdown(clone, upperLimit);
-            this.log.info('Content markdown', content, clone, contentRoot);
+            this.log.info('Content markdown', content, contentRoot);
         }
         content = content.trim();
 
@@ -355,7 +458,11 @@ export default class PageContext extends ContentFeature {
 
         // Limit content length
         if (content.length > maxLength) {
-            this.log.info('Truncating content', content);
+            this.log.info('Truncating content', {
+                content,
+                contentLength: content.length,
+                maxLength,
+            });
             content = content.substring(0, maxLength) + '...';
         }
 
@@ -364,7 +471,8 @@ export default class PageContext extends ContentFeature {
 
     getHeadings() {
         const headings = [];
-        const headingElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        const headingSelector = this.getFeatureSetting('headingSelector') || 'h1, h2, h3, h4, h5, h6';
+        const headingElements = document.querySelectorAll(headingSelector);
 
         headingElements.forEach((heading) => {
             const level = parseInt(heading.tagName.charAt(1));
@@ -379,7 +487,8 @@ export default class PageContext extends ContentFeature {
 
     getLinks() {
         const links = [];
-        const linkElements = document.querySelectorAll('a[href]');
+        const linkSelector = this.getFeatureSetting('linkSelector') || 'a[href]';
+        const linkElements = document.querySelectorAll(linkSelector);
 
         linkElements.forEach((link) => {
             const text = link.textContent?.trim();
@@ -394,7 +503,8 @@ export default class PageContext extends ContentFeature {
 
     getImages() {
         const images = [];
-        const imgElements = document.querySelectorAll('img');
+        const imgSelector = this.getFeatureSetting('imgSelector') || 'img';
+        const imgElements = document.querySelectorAll(imgSelector);
 
         imgElements.forEach((img) => {
             const alt = img.getAttribute('alt') || '';
