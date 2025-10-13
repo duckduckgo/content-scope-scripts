@@ -78,6 +78,7 @@ function domToMarkdownChildren(childNodes, settings, depth = 0) {
  * @property {number} maxDepth - Maximum depth to traverse
  * @property {string} excludeSelectors - CSS selectors to exclude from processing
  * @property {boolean} includeIframes - Whether to include iframe content
+ * @property {boolean} trimBlankLinks - Whether to trim blank links
  */
 
 /**
@@ -127,12 +128,15 @@ function domToMarkdown(node, settings, depth = 0) {
             return `${children}\n`;
         case 'br':
             return `\n`;
+        case 'img':
+            return `\n![${collapseAndTrim(children)}](${node.getAttribute('src')})\n`;
         case 'ul':
+        case 'ol':
             return `\n${children}\n`;
         case 'li':
-            return `\n- ${children.trim()}\n`;
+            return `\n- ${collapseAndTrim(children)}\n`;
         case 'a':
-            return getLinkText(node);
+            return getLinkText(node, children, settings);
         case 'iframe': {
             if (!settings.includeIframes) {
                 return children;
@@ -155,9 +159,13 @@ function collapseAndTrim(str) {
     return collapseWhitespace(str).trim();
 }
 
-function getLinkText(node) {
+function getLinkText(node, children, settings) {
     const href = node.getAttribute('href');
-    return href ? `[${collapseAndTrim(node.textContent)}](${href})` : collapseWhitespace(node.textContent);
+    const trimmedContent = collapseAndTrim(children);
+    if (settings.trimBlankLinks && trimmedContent.length === 0) {
+        return '';
+    }
+    return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
 }
 
 export default class PageContext extends ContentFeature {
@@ -420,6 +428,7 @@ export default class PageContext extends ContentFeature {
         const maxDepth = this.getFeatureSetting('maxDepth') || 5000;
         let excludeSelectors = this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
         const excludedInertElements = this.getFeatureSetting('excludedInertElements') || [
+            'img',
             'script',
             'style',
             'link',
@@ -448,6 +457,7 @@ export default class PageContext extends ContentFeature {
                 maxDepth,
                 includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
                 excludeSelectors: excludeSelectorsString,
+                trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),
             });
             this.log.info('Content markdown', content, contentRoot);
         }
