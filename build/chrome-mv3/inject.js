@@ -1,4 +1,4 @@
-/*! © DuckDuckGo ContentScopeScripts protections https://github.com/duckduckgo/content-scope-scripts/ */
+/*! © DuckDuckGo ContentScopeScripts chrome-mv3 https://github.com/duckduckgo/content-scope-scripts/ */
 "use strict";
 (() => {
   var __create = Object.create;
@@ -795,6 +795,10 @@
     TypeError: () => TypeError2,
     URL: () => URL2,
     addEventListener: () => addEventListener,
+    console: () => console2,
+    consoleError: () => consoleError,
+    consoleLog: () => consoleLog,
+    consoleWarn: () => consoleWarn,
     customElementsDefine: () => customElementsDefine,
     customElementsGet: () => customElementsGet,
     dispatchEvent: () => dispatchEvent,
@@ -834,6 +838,10 @@
   var Map2 = globalThis.Map;
   var Error2 = globalThis.Error;
   var randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+  var console2 = globalThis.console;
+  var consoleLog = console2.log.bind(console2);
+  var consoleWarn = console2.warn.bind(console2);
+  var consoleError = console2.error.bind(console2);
 
   // src/utils.js
   var globalObj = typeof window === "undefined" ? globalThis : window;
@@ -4376,21 +4384,21 @@
             return () => {
             };
           }
-          return console.log.bind(console, prefix);
+          return consoleLog.bind(console, prefix);
         },
         get warn() {
           if (!shouldLog) {
             return () => {
             };
           }
-          return console.warn.bind(console, prefix);
+          return consoleWarn.bind(console, prefix);
         },
         get error() {
           if (!shouldLog) {
             return () => {
             };
           }
-          return console.error.bind(console, prefix);
+          return consoleError.bind(console, prefix);
         }
       };
     }
@@ -6208,7 +6216,7 @@
   // src/features/message-bridge/create-page-world-bridge.js
   var captured = captured_globals_exports;
   var ERROR_MSG = "Did not install Message Bridge";
-  function createPageWorldBridge(featureName, token) {
+  function createPageWorldBridge(featureName, token, context) {
     if (typeof featureName !== "string" || !token) {
       throw new captured.Error(ERROR_MSG);
     }
@@ -6239,19 +6247,20 @@
     if (!installed) {
       throw new captured.Error(ERROR_MSG);
     }
-    return createMessagingInterface(featureName, send, appendToken);
+    return createMessagingInterface(featureName, send, appendToken, context);
   }
   function random() {
     if (typeof captured.randomUUID !== "function") throw new Error("unreachable");
     return captured.randomUUID();
   }
-  function createMessagingInterface(featureName, send, appendToken) {
+  function createMessagingInterface(featureName, send, appendToken, context) {
     return {
       /**
        * @param {string} method
        * @param {Record<string, any>} params
        */
       notify(method, params) {
+        context?.log.info("sending notify", method, params);
         send(
           new ProxyNotification({
             method,
@@ -6266,6 +6275,7 @@
        * @returns {Promise<any>}
        */
       request(method, params) {
+        context?.log.info("sending request", method, params);
         const id = random();
         send(
           new ProxyRequest({
@@ -6278,6 +6288,7 @@
         return new Promise((resolve, reject) => {
           const responseName = appendToken(ProxyResponse.NAME + "-" + id);
           const handler = (e) => {
+            context?.log.info("received response", e.detail);
             const response = ProxyResponse.create(e.detail);
             if (response && response.id === id) {
               if ("error" in response && response.error) {
@@ -6298,6 +6309,7 @@
        */
       subscribe(name, callback) {
         const id = random();
+        context?.log.info("subscribing", name);
         send(
           new SubscriptionRequest({
             subscriptionName: name,
@@ -6306,6 +6318,7 @@
           })
         );
         const handler = (e) => {
+          context?.log.info("received subscription response", e.detail);
           const subscriptionEvent = SubscriptionResponse.create(e.detail);
           if (subscriptionEvent) {
             const { id: eventId, params } = subscriptionEvent;
@@ -6344,6 +6357,7 @@
         if (!args.platform || !args.platform.name) {
           return;
         }
+        const context = this;
         this.defineProperty(Navigator.prototype, "duckduckgo", {
           value: {
             platform: args.platform.name,
@@ -6359,7 +6373,7 @@
             createMessageBridge(featureName) {
               const existingBridge = store[featureName];
               if (existingBridge) return existingBridge;
-              const bridge = createPageWorldBridge(featureName, args.messageSecret);
+              const bridge = createPageWorldBridge(featureName, args.messageSecret, context);
               store[featureName] = bridge;
               return bridge;
             }
