@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Windows Brand Hints - Brand Override</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Windows Brand Hints]</a></p>
+
+    <p>This page verifies that navigator.userAgentData.brands can be overridden by the windowsBrandHints feature</p>
+
+    <script>
+        test('Brand override', async () => {
+            const results = [];
+
+            // Check if userAgentData exists
+            results.push({
+                name: 'navigator.userAgentData exists',
+                result: typeof navigator.userAgentData !== 'undefined',
+                expected: true
+            });
+
+            if (navigator.userAgentData) {
+                // Check if brands property exists
+                results.push({
+                    name: 'navigator.userAgentData.brands exists',
+                    result: typeof navigator.userAgentData.brands !== 'undefined',
+                    expected: true
+                });
+
+                if (navigator.userAgentData.brands) {
+                    const brands = navigator.userAgentData.brands;
+                    const brandNames = new Set(brands.map(b => b.brand));
+
+                    // Must contain our two configured brands
+                    results.push({
+                        name: 'contains Chromium brand',
+                        result: brandNames.has('Chromium'),
+                        expected: true
+                    });
+
+                    results.push({
+                        name: 'contains DuckDuckGo brand',
+                        result: brandNames.has('DuckDuckGo'),
+                        expected: true
+                    });
+
+                    // Check if GREASE is present (it should be preserved if it existed originally)
+                    const hasGrease = brands.some(b => b.brand.includes('Not') && b.brand.includes('Brand'));
+
+                    // We expect 2 configured brands + GREASE if it was in the original
+                    // (In some test environments GREASE may not be present)
+                    const expectedLength = hasGrease ? 3 : 2;
+                    results.push({
+                        name: 'brands array has correct length',
+                        result: brands.length,
+                        expected: expectedLength
+                    });
+
+                    // Verify no unexpected brands (only Chromium, DuckDuckGo, and optionally GREASE)
+                    const unexpectedBrands = brands.filter(b =>
+                        !['Chromium', 'DuckDuckGo'].includes(b.brand) &&
+                        !(b.brand.includes('Not') && b.brand.includes('Brand'))
+                    );
+                    results.push({
+                        name: 'no unexpected brands',
+                        result: unexpectedBrands.length,
+                        expected: 0
+                    });
+                }
+
+                // Test getHighEntropyValues if available
+                if (navigator.userAgentData.getHighEntropyValues) {
+                    try {
+                        const highEntropyValues = await navigator.userAgentData.getHighEntropyValues(['brands']);
+
+                        results.push({
+                            name: 'high entropy values returned',
+                            result: typeof highEntropyValues !== 'undefined',
+                            expected: true
+                        });
+
+                        if (highEntropyValues.brands) {
+                            const heBrands = highEntropyValues.brands;
+                            const heBrandNames = new Set(heBrands.map(b => b.brand));
+
+                            results.push({
+                                name: 'high entropy contains Chromium',
+                                result: heBrandNames.has('Chromium'),
+                                expected: true
+                            });
+
+                            results.push({
+                                name: 'high entropy contains DuckDuckGo',
+                                result: heBrandNames.has('DuckDuckGo'),
+                                expected: true
+                            });
+
+                            // Check if GREASE is present
+                            const heHasGrease = heBrands.some(b => b.brand.includes('Not') && b.brand.includes('Brand'));
+                            const heExpectedLength = heHasGrease ? 3 : 2;
+
+                            results.push({
+                                name: 'high entropy has correct length',
+                                result: heBrands.length,
+                                expected: heExpectedLength
+                            });
+
+                            // Verify no unexpected brands
+                            const heUnexpectedBrands = heBrands.filter(b =>
+                                !['Chromium', 'DuckDuckGo'].includes(b.brand) &&
+                                !(b.brand.includes('Not') && b.brand.includes('Brand'))
+                            );
+                            results.push({
+                                name: 'high entropy no unexpected brands',
+                                result: heUnexpectedBrands.length,
+                                expected: 0
+                            });
+                        }
+                    } catch (error) {
+                        results.push({
+                            name: 'getHighEntropyValues succeeded',
+                            result: false,
+                            expected: true
+                        });
+                    }
+                }
+            }
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+    "readme": "This config tests that windowsBrandHints can override navigator.userAgentData.brands",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "windowsBrandHints": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "brands": [
+                    {
+                        "brand": "Chromium",
+                        "version": "140"
+                    },
+                    {
+                        "brand": "DuckDuckGo",
+                        "version": "140"
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Quick Test - Windows Brand Hints</title>
+  <style>
+    body { font-family: monospace; padding: 20px; }
+    .log { margin: 5px 0; }
+    .error { color: red; }
+    .success { color: green; }
+  </style>
+</head>
+<body>
+    <h1>Windows Brand Hints - Quick Test</h1>
+    <div id="output"></div>
+
+    <script>
+        const output = document.getElementById('output');
+        function log(msg, isError = false) {
+            const div = document.createElement('div');
+            div.className = 'log ' + (isError ? 'error' : 'success');
+            div.textContent = msg;
+            output.appendChild(div);
+            console.log(msg);
+        }
+
+        // Override console to capture our logs
+        const origLog = console.log;
+        console.log = function(...args) {
+            origLog.apply(console, args);
+            if (args[0] && args[0].includes && args[0].includes('WindowsBrandHints')) {
+                log(args.join(' '));
+            }
+        };
+
+        log('Original brands: ' + JSON.stringify(navigator.userAgentData?.brands));
+
+        // Manually load the Windows build with our config
+        const config = {
+            "version": 1,
+            "unprotectedTemporary": [],
+            "features": {
+                "windowsBrandHints": {
+                    "state": "enabled",
+                    "exceptions": [],
+                    "settings": {
+                        "brands": [
+                            {"brand": "Chromium", "version": "140"},
+                            {"brand": "DuckDuckGo", "version": "140"}
+                        ]
+                    }
+                }
+            }
+        };
+
+        const initArgs = {
+            platform: { name: 'windows' },
+            site: {
+                domain: 'localhost',
+                isBroken: false,
+                allowlisted: false,
+                enabledFeatures: ['windowsBrandHints']
+            },
+            debug: true
+        };
+
+        // Load the contentScope script (using integration build which works in browser)
+        const script = document.createElement('script');
+        script.src = '/build/integration-contentScope.js';
+        script.onload = () => {
+            log('ContentScope loaded');
+
+            // Initialize
+            if (window.contentScopeFeatures) {
+                log('contentScopeFeatures found');
+
+                const loadArgs = {
+                    ...initArgs,
+                    bundledConfig: config
+                };
+
+                window.contentScopeFeatures.load(loadArgs);
+                log('load() called');
+
+                window.contentScopeFeatures.init(initArgs);
+                log('init() called');
+
+                // Check results
+                setTimeout(() => {
+                    log('After init, brands: ' + JSON.stringify(navigator.userAgentData?.brands));
+
+                    const brands = navigator.userAgentData?.brands || [];
+                    const hasChromium = brands.some(b => b.brand === 'Chromium');
+                    const hasDDG = brands.some(b => b.brand === 'DuckDuckGo');
+
+                    if (hasChromium && hasDDG) {
+                        log('✓ SUCCESS: Both Chromium and DuckDuckGo brands found!');
+                    } else {
+                        log('✗ FAIL: Expected brands not found', true);
+                    }
+                }, 100);
+            } else {
+                log('ERROR: contentScopeFeatures not found', true);
+            }
+        };
+        script.onerror = () => log('ERROR: Failed to load script', true);
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>
