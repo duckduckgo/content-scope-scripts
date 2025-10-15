@@ -175,6 +175,9 @@ function getLinkText(node, children, settings) {
     if (settings.trimBlankLinks && trimmedContent.length === 0) {
         return '';
     }
+    // The difference in whitespace handling is intentional here.
+    // Where we don't wrap in a link:
+    // we should retain at least one preceding and following space.
     return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
 }
 
