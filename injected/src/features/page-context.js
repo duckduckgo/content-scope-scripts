@@ -129,7 +129,7 @@ function domToMarkdown(node, settings, depth = 0) {
         case 'br':
             return `\n`;
         case 'img':
-            return `\n![${node.getAttribute('alt')}](${node.getAttribute('src')})\n`;
+            return `\n![${getAttributeOrBlank(node, 'alt')}](${getAttributeOrBlank(node, 'src')})\n`;
         case 'ul':
         case 'ol':
             return `\n${children}\n`;
@@ -153,6 +153,16 @@ function domToMarkdown(node, settings, depth = 0) {
         default:
             return children;
     }
+}
+
+/**
+ * @param {Node} node
+ * @param {string} attr
+ * @returns {string}
+ */
+function getAttributeOrBlank(node, attr) {
+    const attrValue = node.getAttribute(attr) ?? ''
+    return attrValue.trim()
 }
 
 function collapseAndTrim(str) {
