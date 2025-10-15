@@ -36,6 +36,29 @@ function isHtmlElement(node) {
  * @returns {Document | null}
  */
 function getSameOriginIframeDocument(iframe) {
+    // Pre-check conditions that would prevent access without triggering security errors
+    const src = iframe.src;
+    const sandbox = iframe.sandbox;
+
+    // Skip sandboxed iframes unless they explicitly allow scripts
+    // Avoids: Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+    if (sandbox && sandbox.length > 0 && !sandbox.contains('allow-scripts')) {
+        return null;
+    }
+
+    // Check for cross-origin URLs (but allow about:blank and empty src as they inherit parent origin)
+    if (src && src !== 'about:blank' && src !== '') {
+        try {
+            const iframeUrl = new URL(src, window.location.href);
+            if (iframeUrl.origin !== window.location.origin) {
+                return null;
+            }
+        } catch (e) {
+            // Invalid URL, skip
+            return null;
+        }
+    }
+
     try {
         // Try to access the contentDocument - this will throw if cross-origin
         const doc = iframe.contentDocument;
