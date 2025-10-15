@@ -601,8 +601,8 @@ export default class AutofillImport extends ActionExecutorBase {
             downloadRetryInterval,
             'linear',
         );
-        const userIdLink = userIdElement?.getAttribute('href') ?? '';
-        const userId = new URL(userIdLink, window.location.origin).searchParams.get('user');
+        const userIdLink = userIdElement?.getAttribute('href');
+        const userId = userIdLink ? new URL(userIdLink, window.location.origin).searchParams.get('user') : null;
 
         if (!userId || !this.#exportId) {
             this.postBookmarkImportMessage('actionCompleted', {
@@ -621,10 +621,8 @@ export default class AutofillImport extends ActionExecutorBase {
             'linear',
         );
 
-        if (userId != null && this.#exportId != null) {
-            const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
-            window.location.href = downloadURL;
-        }
+        const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
+        window.location.href = downloadURL;
     }
 
     /**
