@@ -156,7 +156,7 @@ function domToMarkdown(node, settings, depth = 0) {
 }
 
 /**
- * @param {Node} node
+ * @param {Element} node
  * @param {string} attr
  * @returns {string}
  */
