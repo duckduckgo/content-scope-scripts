@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import { equal } from 'node:assert/strict';
-import { convertMarkdownToHTMLForStrongTags } from '../freemiumPIRBanner.utils.js';
+import { convertMarkdownToHTMLForStrongTags } from '../shared/utils';
 
 describe('convertMarkdownToHTMLForStrongTags', () => {
     it('with terms wrapped in "**" will return with <strong> tags wrapping that part of the string', () => {
