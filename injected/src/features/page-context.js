@@ -42,7 +42,7 @@ function getSameOriginIframeDocument(iframe) {
 
     // Skip sandboxed iframes unless they explicitly allow scripts
     // Avoids: Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
-    if (sandbox && sandbox.length > 0 && !sandbox.contains('allow-scripts')) {
+    if (sandbox && !sandbox.contains('allow-scripts')) {
         return null;
     }
 
