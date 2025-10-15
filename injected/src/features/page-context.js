@@ -458,23 +458,34 @@ export default class PageContext extends ContentFeature {
         const mainContentSelector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
         let mainContent = document.querySelector(mainContentSelector);
         const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
+        // Fast path to avoid processing main content if it's too short
         if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
             mainContent = null;
         }
-        const contentRoot = mainContent || document.body;
+        let contentRoot = mainContent || document.body;
 
-        if (contentRoot) {
-            this.log.info('Getting main content', contentRoot);
-            content += domToMarkdown(contentRoot, {
+        // Use a closure to reuse the domToMarkdown parameters
+        const extractContent = (root) => {
+            this.log.info('Getting content', root);
+            const result = domToMarkdown(root, {
                 maxLength: upperLimit,
                 maxDepth,
                 includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
                 excludeSelectors: excludeSelectorsString,
                 trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),
-            });
-            this.log.info('Content markdown', content, contentRoot);
+            }).trim();
+            this.log.info('Content markdown', result, root);
+            return result;
+        };
+
+        if (contentRoot) {
+            content += extractContent(contentRoot);
         }
-        content = content.trim();
+        // If the main content is empty, use the body
+        if (content.length === 0 && contentRoot !== document.body && this.getFeatureSettingEnabled('bodyFallback', 'enabled')) {
+            contentRoot = document.body;
+            content += extractContent(contentRoot);
+        }
 
         // Store the full content length before truncation
         this.fullContentLength = content.length;
