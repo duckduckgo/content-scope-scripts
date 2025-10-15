@@ -590,13 +590,30 @@ export default class AutofillImport extends ActionExecutorBase {
 
     /** Bookmark import code */
     async downloadData() {
-        const userIdElement = await this.runWithRetry(() => document.querySelector(this.bookmarkImportSelectorSettings.userIdLink));
-        const userId = userIdElement?.getAttribute('href')?.split('&user=')[1];
-
-        // Poll forever until the download link is available,
+        // Run with retry forever until the download link is available,
         // Android is the one that timesout anyway and closes the whole tab if this doesn't complete
         const downloadRetryLimit = this.getFeatureSetting('downloadRetryLimit') ?? Infinity;
         const downloadRetryInterval = this.getFeatureSetting('downloadRetryInterval') ?? 1000;
+
+        const userIdElement = await this.runWithRetry(
+            () => document.querySelector(this.bookmarkImportSelectorSettings.userIdLink),
+            downloadRetryLimit,
+            downloadRetryInterval,
+            'linear',
+        );
+        const userIdLink = userIdElement?.getAttribute('href') ?? '';
+        const userId = new URL(userIdLink, window.location.origin).searchParams.get('user');
+
+        if (!userId || !this.#exportId) {
+            this.postBookmarkImportMessage('actionCompleted', {
+                result: new ErrorResponse({
+                    actionID: 'download-data',
+                    message: 'User id or export id not found',
+                }),
+            });
+            return;
+        }
+
         await this.runWithRetry(
             () => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`),
             downloadRetryLimit,
@@ -607,14 +624,6 @@ export default class AutofillImport extends ActionExecutorBase {
         if (userId != null && this.#exportId != null) {
             const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
             window.location.href = downloadURL;
-        } else {
-            // If there's no user id or export id, we post an action failed message
-            this.postBookmarkImportMessage('actionCompleted', {
-                result: new ErrorResponse({
-                    actionID: 'download-data',
-                    message: 'No user id or export id found',
-                }),
-            });
         }
     }
 
