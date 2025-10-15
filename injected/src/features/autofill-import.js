@@ -590,15 +590,19 @@ export default class AutofillImport extends ActionExecutorBase {
 
     /** Bookmark import code */
     async downloadData() {
-        // sleep for a second, sometimes download link is not yet available
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
         const userIdElement = await this.runWithRetry(() => document.querySelector(this.bookmarkImportSelectorSettings.userIdLink));
         const userId = userIdElement?.getAttribute('href')?.split('&user=')[1];
 
         // Poll forever until the download link is available,
         // Android is the one that timesout anyway and closes the whole tab if this doesn't complete
-        await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), Infinity, 1000, 'linear');
+        const downloadRetryLimit = this.getFeatureSetting('downloadRetryLimit') ?? Infinity;
+        const downloadRetryInterval = this.getFeatureSetting('downloadRetryInterval') ?? 1000;
+        await this.runWithRetry(
+            () => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`),
+            downloadRetryLimit,
+            downloadRetryInterval,
+            'linear',
+        );
 
         if (userId != null && this.#exportId != null) {
             const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
