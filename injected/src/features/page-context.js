@@ -129,7 +129,7 @@ function domToMarkdown(node, settings, depth = 0) {
         case 'br':
             return `\n`;
         case 'img':
-            return `\n![${collapseAndTrim(children)}](${node.getAttribute('src')})\n`;
+            return `\n![${node.getAttribute('alt')}](${node.getAttribute('src')})\n`;
         case 'ul':
         case 'ol':
             return `\n${children}\n`;
