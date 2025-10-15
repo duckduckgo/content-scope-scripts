@@ -161,8 +161,8 @@ function domToMarkdown(node, settings, depth = 0) {
  * @returns {string}
  */
 function getAttributeOrBlank(node, attr) {
-    const attrValue = node.getAttribute(attr) ?? ''
-    return attrValue.trim()
+    const attrValue = node.getAttribute(attr) ?? '';
+    return attrValue.trim();
 }
 
 function collapseAndTrim(str) {
