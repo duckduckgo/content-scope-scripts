@@ -441,7 +441,7 @@ export default class PageContext extends ContentFeature {
         const maxDepth = this.getFeatureSetting('maxDepth') || 5000;
         let excludeSelectors = this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
         const excludedInertElements = this.getFeatureSetting('excludedInertElements') || [
-            'img',
+            'img', // Note we're currently disabling images which we're handling above (this can be per-site enabled in the config if needed).
             'script',
             'style',
             'link',
