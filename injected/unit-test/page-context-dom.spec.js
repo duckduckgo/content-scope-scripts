@@ -4,8 +4,8 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { domToMarkdown } from '../src/features/page-context.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const currentFilename = fileURLToPath(import.meta.url);
+const currentDirname = dirname(currentFilename);
 
 /**
  * @typedef {Object} DomToMarkdownSettings
@@ -17,8 +17,7 @@ const __dirname = dirname(__filename);
  */
 
 describe('page-context.js - domToMarkdown', () => {
-    const fixturesDir = join(__dirname, 'fixtures', 'page-context');
-    const inputDir = join(fixturesDir, 'input');
+    const fixturesDir = join(currentDirname, 'fixtures', 'page-context');
     const outputDir = join(fixturesDir, 'output');
 
     // Ensure output directory exists
@@ -196,4 +195,3 @@ describe('page-context.js - domToMarkdown', () => {
         });
     }
 });
-
