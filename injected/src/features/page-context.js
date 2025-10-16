@@ -38,11 +38,11 @@ function isHtmlElement(node) {
 function getSameOriginIframeDocument(iframe) {
     // Pre-check conditions that would prevent access without triggering security errors
     const src = iframe.src;
-    const sandbox = iframe.sandbox;
 
     // Skip sandboxed iframes unless they explicitly allow scripts
     // Avoids: Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
-    if (sandbox && !sandbox.contains('allow-scripts')) {
+    // Note: iframe.sandbox always returns a DOMTokenList, so check hasAttribute instead
+    if (iframe.hasAttribute('sandbox') && !iframe.sandbox.contains('allow-scripts')) {
         return null;
     }
 
