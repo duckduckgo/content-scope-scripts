@@ -77,6 +77,7 @@ async function extractPageContent(url, options = { headful: false, timeout: 60 }
     // Launch browser with persistent context (like the test harness does)
     const launchOptions = {
         headless: !options.headful, // Use headless mode unless --headful specified
+        channel: 'chromium',
         viewport: { width: 1280, height: 720 },
         timeout: options.timeout * 1000, // Convert seconds to milliseconds
         args: [
