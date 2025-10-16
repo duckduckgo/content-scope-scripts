@@ -72,7 +72,7 @@ export class ResultsCollector {
          * allowing all platforms to call '.load(html, config)' and not care
          * about the details.
          */
-        if (this.platform.name === 'extension') {
+        if (this.platform.name === 'extension' || this.platform.name === 'integration') {
             return await this._loadExtension(htmlPath, configPath, platform);
         }
         await this.setup({ config: configPath, platform });
@@ -129,7 +129,37 @@ export class ResultsCollector {
             /* preferences */ userPreferences /*, platformSpecificFeatures = [] */,
         );
         console.log("Processed config");
-        await gotoAndWait(this.page, htmlPath + '?automation=true', processedConfig);
+        
+        // For integration platform, load the integration script instead of using gotoAndWait
+        if (this.platform.name === 'integration') {
+            await this.page.goto(htmlPath + '?automation=true');
+            await this.page.addScriptTag({
+                url: './integration-test/extension/contentScope.js',
+            });
+            // Wait for the integration script to initialize
+            await this.page.waitForFunction(() => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                return window.__content_scope_status === 'loaded';
+            });
+            
+            // Send the config via custom event
+            const evalString = `
+                ;(() => {
+                    const detail = ${JSON.stringify(processedConfig)}
+                    const evt = new CustomEvent('content-scope-init-args', { detail })
+                    document.dispatchEvent(evt);
+                })();
+            `;
+            await this.page.evaluate(evalString);
+            
+            // Wait for initialization to complete
+            await this.page.waitForFunction(() => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                return window.__content_scope_status === 'initialized';
+            });
+        } else {
+            await gotoAndWait(this.page, htmlPath + '?automation=true', processedConfig);
+        }
     }
 
     /**
