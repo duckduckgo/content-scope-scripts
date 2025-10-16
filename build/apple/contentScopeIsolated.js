@@ -8613,7 +8613,7 @@ ul.messages {
           break;
         case "UNKNOWN":
         default:
-          console.warn("No known pageType");
+          logger.log("No known pageType");
       }
       if (this.currentPage) {
         this.currentPage.destroy();

@@ -14524,7 +14524,7 @@ ul.messages {
           break;
         case "UNKNOWN":
         default:
-          console.warn("No known pageType");
+          logger.log("No known pageType");
       }
       if (this.currentPage) {
         this.currentPage.destroy();
@@ -21829,6 +21829,20 @@ ${truncatedWarning}
     return node.nodeType === Node.ELEMENT_NODE;
   }
   function getSameOriginIframeDocument(iframe) {
+    const src = iframe.src;
+    if (iframe.hasAttribute("sandbox") && !iframe.sandbox.contains("allow-scripts")) {
+      return null;
+    }
+    if (src && src !== "about:blank" && src !== "") {
+      try {
+        const iframeUrl = new URL(src, window.location.href);
+        if (iframeUrl.origin !== window.location.origin) {
+          return null;
+        }
+      } catch (e) {
+        return null;
+      }
+    }
     try {
       const doc = iframe.contentDocument;
       if (doc && doc.documentElement) {
@@ -21864,7 +21878,7 @@ ${truncatedWarning}
     if (!isHtmlElement(node)) {
       return "";
     }
-    if (!checkNodeIsVisible(node) || node.matches(settings.excludeSelectors)) {
+    if (!checkNodeIsVisible(node) || settings.excludeSelectors && node.matches(settings.excludeSelectors)) {
       return "";
     }
     const tag = node.tagName.toLowerCase();
@@ -21897,16 +21911,21 @@ ${truncatedWarning}
       case "br":
         return `
 `;
+      case "img":
+        return `
+![${getAttributeOrBlank(node, "alt")}](${getAttributeOrBlank(node, "src")})
+`;
       case "ul":
+      case "ol":
         return `
 ${children}
 `;
       case "li":
         return `
-- ${children.trim()}
+- ${collapseAndTrim(children)}
 `;
       case "a":
-        return getLinkText(node);
+        return getLinkText(node, children, settings);
       case "iframe": {
         if (!settings.includeIframes) {
           return children;
@@ -21931,12 +21950,20 @@ ${iframeContent}
         return children;
     }
   }
+  function getAttributeOrBlank(node, attr) {
+    const attrValue = node.getAttribute(attr) ?? "";
+    return attrValue.trim();
+  }
   function collapseAndTrim(str) {
     return collapseWhitespace(str).trim();
   }
-  function getLinkText(node) {
+  function getLinkText(node, children, settings) {
     const href = node.getAttribute("href");
-    return href ? `[${collapseAndTrim(node.textContent)}](${href})` : collapseWhitespace(node.textContent);
+    const trimmedContent = collapseAndTrim(children);
+    if (settings.trimBlankLinks && trimmedContent.length === 0) {
+      return "";
+    }
+    return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
   }
   var _cachedContent, _cachedTimestamp, _delayedRecheckTimer;
   var PageContext = class extends ContentFeature {
@@ -22167,6 +22194,8 @@ ${iframeContent}
       const maxDepth = this.getFeatureSetting("maxDepth") || 5e3;
       let excludeSelectors = this.getFeatureSetting("excludeSelectors") || [".ad", ".sidebar", ".footer", ".nav", ".header"];
       const excludedInertElements = this.getFeatureSetting("excludedInertElements") || [
+        "img",
+        // Note we're currently disabling images which we're handling in domToMarkdown (this can be per-site enabled in the config if needed).
         "script",
         "style",
         "link",
@@ -22184,18 +22213,26 @@ ${iframeContent}
       if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
         mainContent = null;
       }
-      const contentRoot = mainContent || document.body;
-      if (contentRoot) {
-        this.log.info("Getting main content", contentRoot);
-        content += domToMarkdown(contentRoot, {
+      let contentRoot = mainContent || document.body;
+      const extractContent = (root) => {
+        this.log.info("Getting content", root);
+        const result = domToMarkdown(root, {
           maxLength: upperLimit,
           maxDepth,
           includeIframes: this.getFeatureSettingEnabled("includeIframes", "enabled"),
-          excludeSelectors: excludeSelectorsString
-        });
-        this.log.info("Content markdown", content, contentRoot);
+          excludeSelectors: excludeSelectorsString,
+          trimBlankLinks: this.getFeatureSettingEnabled("trimBlankLinks", "enabled")
+        }).trim();
+        this.log.info("Content markdown", result, root);
+        return result;
+      };
+      if (contentRoot) {
+        content += extractContent(contentRoot);
       }
-      content = content.trim();
+      if (content.length === 0 && contentRoot !== document.body && this.getFeatureSettingEnabled("bodyFallback", "enabled")) {
+        contentRoot = document.body;
+        content += extractContent(contentRoot);
+      }
       this.fullContentLength = content.length;
       if (content.length > maxLength) {
         this.log.info("Truncating content", {
