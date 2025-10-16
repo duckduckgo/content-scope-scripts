@@ -1,0 +1,1 @@
+![A beautiful landscape](photo.jpg)

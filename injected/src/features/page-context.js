@@ -3,7 +3,7 @@ import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
-function checkNodeIsVisible(node) {
+export function checkNodeIsVisible(node) {
     try {
         const style = window.getComputedStyle(node);
 
@@ -99,7 +99,7 @@ function domToMarkdownChildren(childNodes, settings, depth = 0) {
  * @typedef {Object} DomToMarkdownSettings
  * @property {number} maxLength - Maximum length of content
  * @property {number} maxDepth - Maximum depth to traverse
- * @property {string} excludeSelectors - CSS selectors to exclude from processing
+ * @property {string | null} excludeSelectors - CSS selectors to exclude from processing
  * @property {boolean} includeIframes - Whether to include iframe content
  * @property {boolean} trimBlankLinks - Whether to trim blank links
  */
@@ -111,7 +111,7 @@ function domToMarkdownChildren(childNodes, settings, depth = 0) {
  * @param {number} depth
  * @returns {string}
  */
-function domToMarkdown(node, settings, depth = 0) {
+export function domToMarkdown(node, settings, depth = 0) {
     if (depth > settings.maxDepth) {
         return '';
     }
@@ -121,7 +121,7 @@ function domToMarkdown(node, settings, depth = 0) {
     if (!isHtmlElement(node)) {
         return '';
     }
-    if (!checkNodeIsVisible(node) || node.matches(settings.excludeSelectors)) {
+    if (!checkNodeIsVisible(node) || (settings.excludeSelectors && node.matches(settings.excludeSelectors))) {
         return '';
     }
 
