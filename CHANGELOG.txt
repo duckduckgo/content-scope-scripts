@@ -1,2 +1,1 @@
-- Trim links and include images (#2011)
-- Using gated logger for console.warn (#2013)
+- [Google import] Add resilience to download data (#2001)
