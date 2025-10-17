@@ -2,25 +2,24 @@ import cn from 'classnames';
 import { h } from 'preact';
 import { Button } from '../../../../../shared/components/Button/Button';
 import { DismissButton } from '../../components/DismissButton';
-import styles from './FreemiumPIRBanner.module.css';
-import { FreemiumPIRBannerContext } from '../FreemiumPIRBannerProvider';
+import styles from './SubscriptionWinBackBanner.module.css';
+import { SubscriptionWinBackBannerContext } from '../SubscriptionWinBackBannerProvider';
 import { useContext } from 'preact/hooks';
 import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils';
 
 /**
- * @typedef { import("../../../types/new-tab").FreemiumPIRBannerMessage} FreemiumPIRBannerMessage
+ * @typedef { import("../../../types/new-tab").SubscriptionWinBackBannerMessage} SubscriptionWinBackBannerMessage
  * @param {object} props
- * @param {FreemiumPIRBannerMessage} props.message
+ * @param {SubscriptionWinBackBannerMessage} props.message
  * @param {(id: string) => void} props.dismiss
  * @param {(id: string) => void} props.action
  */
-
-export function FreemiumPIRBanner({ message, action, dismiss }) {
+export function SubscriptionWinBackBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
     return (
         <div id={message.id} class={cn(styles.root, styles.icon)}>
             <span class={styles.iconBlock}>
-                <img src={`./icons/Information-Remover-96.svg`} alt="" />
+                <img aria-hidden="true" src={`./icons/Subscription-Clock-96.svg`} alt="" />
             </span>
             <div class={styles.content}>
                 {message.titleText && <h2 class={styles.title}>{message.titleText}</h2>}
@@ -28,7 +27,7 @@ export function FreemiumPIRBanner({ message, action, dismiss }) {
             </div>
             {message.messageType === 'big_single_action' && message?.actionText && action && (
                 <div class={styles.btnBlock}>
-                    <Button variant="standard" onClick={() => action(message.id)}>
+                    <Button size="md" variant="accent" onClick={() => action(message.id)}>
                         {message.actionText}
                     </Button>
                 </div>
@@ -38,11 +37,11 @@ export function FreemiumPIRBanner({ message, action, dismiss }) {
     );
 }
 
-export function FreemiumPIRBannerConsumer() {
-    const { state, action, dismiss } = useContext(FreemiumPIRBannerContext);
+export function SubscriptionWinBackBannerConsumer() {
+    const { state, action, dismiss } = useContext(SubscriptionWinBackBannerContext);
 
     if (state.status === 'ready' && state.data.content) {
-        return <FreemiumPIRBanner message={state.data.content} action={action} dismiss={dismiss} />;
+        return <SubscriptionWinBackBanner message={state.data.content} action={action} dismiss={dismiss} />;
     }
     return null;
 }

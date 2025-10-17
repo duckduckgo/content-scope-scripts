@@ -24,6 +24,7 @@ export default defineConfig({
             testMatch: [
                 'favorites.spec.js',
                 'freemium-pir-banner.spec.js',
+                'subscription-winback-banner.spec.js',
                 'new-tab.spec.js',
                 'new-tab.screenshots.spec.js',
                 'next-steps.spec.js',

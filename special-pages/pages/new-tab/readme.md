@@ -180,6 +180,12 @@
    - `onboarding` - Shows onboarding PIR banner
    - `scan_results` - Shows scan results PIR banner
 
+### Subscription Win-back Banner
+ - **Purpose**: Tests different win-back banner states
+ - **Parameter**: `winback`
+ - **Example**: `?winback=true`
+ - **Options**:
+
 
 
  ## Combining Parameters
