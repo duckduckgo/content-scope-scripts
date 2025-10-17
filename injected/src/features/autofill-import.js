@@ -624,7 +624,8 @@ export default class AutofillImport extends ActionExecutorBase {
         const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
 
         // Sleep before downloading to ensure the download link is available
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const downloadNavigationDelayMs = this.getFeatureSetting('downloadNavigationDelayMs') ?? 2000;
+        await new Promise((resolve) => setTimeout(resolve, downloadNavigationDelayMs));
 
         window.location.href = downloadURL;
     }
