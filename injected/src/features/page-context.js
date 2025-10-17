@@ -424,16 +424,25 @@ export default class PageContext extends ContentFeature {
         const content = {
             favicon: getFaviconList(),
             title: this.getPageTitle(),
-            metaDescription: this.getMetaDescription(),
             content: mainContent,
             truncated,
             fullContentLength: this.fullContentLength, // Include full content length before truncation
-            headings: this.getHeadings(),
-            links: this.getLinks(),
-            images: this.getImages(),
             timestamp: Date.now(),
             url: window.location.href,
         };
+
+        if (this.getFeatureSettingEnabled('includeMetaDescription', 'disabled')) {
+            content.metaDescription = this.getMetaDescription();
+        }
+        if (this.getFeatureSettingEnabled('includeHeadings', 'disabled')) {
+            content.headings = this.getHeadings();
+        }
+        if (this.getFeatureSettingEnabled('includeLinks', 'disabled')) {
+            content.links = this.getLinks();
+        }
+        if (this.getFeatureSettingEnabled('includeImages', 'disabled')) {
+            content.images = this.getImages();
+        }
 
         // Cache the result - setter handles timestamp and observer
         this.cachedContent = content;
