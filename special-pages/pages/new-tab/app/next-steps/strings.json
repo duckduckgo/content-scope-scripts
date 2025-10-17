@@ -94,5 +94,17 @@
   "nextSteps_pinAppToTaskbarWindows_confirmationText": {
     "title": "Pinned to Taskbar!",
     "note": "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_subscription_title": {
+    "title": "Unlock Premium Features Free for 7 Days!",
+    "note": "Title of the Next Steps card for subscribing to DuckDuckGo"
+  },
+  "nextSteps_subscription_summary": {
+    "title": "Right now, you can try our optional paid subscription featuring a VPN + 3 more premium features for free.",
+    "note": "Summary of the Next Steps card for subscribing to DuckDuckGo"
+  },
+  "nextSteps_subscription_actionText": {
+    "title": "Try It for Free",
+    "note": "Button text of the Next Steps card for subscribing to DuckDuckGo"
   }
 }
