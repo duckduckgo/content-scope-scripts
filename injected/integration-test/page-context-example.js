@@ -26,10 +26,12 @@
  * Options:
  * - --headful: Run with visible browser (default: headless)
  * - --timeout=N: Set browser launch timeout in seconds (default: 60)
+ * - --no-truncate: Disable content truncation (removes maxContentLength limit)
  * 
  * Examples:
  * - node page-context-example.js --headful urls.txt
  * - node page-context-example.js --timeout=30 https://example.com
+ * - node page-context-example.js --no-truncate https://example.com
  * 
  * Output Files:
  * - page-context-collector/page-content-{hostname}-{timestamp}.json (page content)
@@ -166,9 +168,9 @@ function readUrlsFromFile(filePath) {
 /**
  * Extract and display page content from a URL
  * @param {string} url - The URL to extract content from
- * @param {{headful: boolean, timeout: number}} options - Browser options
+ * @param {{headful: boolean, timeout: number, noTruncate: boolean}} options - Browser options
  */
-async function extractPageContent(url, options = { headful: false, timeout: 60 }) {
+async function extractPageContent(url, options = { headful: false, timeout: 60, noTruncate: false }) {
     logMessage(`Starting extraction from: ${url}`, 'INFO');
     console.log(`\n🔍 Extracting content from: ${url}`);
     console.log('=' .repeat(60));
@@ -232,19 +234,28 @@ async function extractPageContent(url, options = { headful: false, timeout: 60 }
     try {
         const page = await context.newPage();
 
-        // Create a mock use config (what ResultsCollector needs)
-        const mockUse = {
-            injectName: 'integration',
-            platform: 'extension'
+        // Create a mock testInfo object (what PageContextCollector needs)
+        const mockTestInfo = {
+            project: {
+                use: {
+                    injectName: 'integration',
+                    platform: 'extension'
+                }
+            }
         };
 
         // Create the page context collector using ResultsCollector directly
-        // @ts-ignore - Using simplified mock for standalone example
-        const collector = PageContextCollector.create(page, { project: { use: mockUse } });
-
-        // Note: Settings are configured via JSON config file, not runtime options
-        // This method is kept for API compatibility but actual config is in:
-        // ./integration-test/test-pages/page-context/config/page-context-enabled.json
+        const scriptDir = new URL('.', import.meta.url).pathname;
+        //const scriptDir = './integration-test';
+        const configDir = join(scriptDir, 'test-pages/page-context/config');
+        let customConfigPath = join(configDir, 'page-context-enabled.json');
+        if (options.noTruncate) {
+            logMessage('Using custom config with no truncation', 'DEBUG');
+            console.log('Using custom config with no truncation');
+            customConfigPath = join(configDir, 'page-context-enabled-no-truncation.json');
+        }
+        // @ts-ignore - Using simplified mock for standalone example - mockTestInfo doesn't have all TestInfo properties
+        const collector = new PageContextCollector(page, mockTestInfo, customConfigPath);
 
         logMessage('Loading and collecting page content', 'DEBUG');
         console.log('Loading and collecting page content');
@@ -387,19 +398,22 @@ function isUrl(input) {
 /**
  * Parse command line arguments
  * @param {string[]} args - Command line arguments
- * @returns {{input: string|null, headful: boolean, timeout: number}}
+ * @returns {{input: string|null, headful: boolean, timeout: number, noTruncate: boolean}}
  */
 function parseArgs(args) {
-    /** @type {{input: string|null, headful: boolean, timeout: number}} */
+    /** @type {{input: string|null, headful: boolean, timeout: number, noTruncate: boolean}} */
     const options = {
         input: null,
         headful: false,
-        timeout: 60
+        timeout: 60,
+        noTruncate: false
     };
 
     for (const arg of args) {
         if (arg === '--headful') {
             options.headful = true;
+        } else if (arg === '--no-truncate') {
+            options.noTruncate = true;
         } else if (arg.startsWith('--timeout=')) {
             options.timeout = parseInt(arg.split('=')[1]) || 60;
         } else if (!arg.startsWith('--')) {
@@ -464,11 +478,13 @@ async function main() {
     console.log('Using content-scope-scripts page-context feature');
     console.log(`Mode: ${options.headful ? 'Visible browser' : 'Headless'}`);
     console.log(`Timeout: ${options.timeout}s`);
+    console.log(`Truncation: ${options.noTruncate ? 'Disabled' : 'Enabled (9500 chars max)'}`);
     console.log(`Log file: ${logFile}\n`);
     
     logMessage('Starting DuckDuckGo Page Context Content Extractor', 'INFO');
     logMessage(`Mode: ${options.headful ? 'Visible browser' : 'Headless'}`, 'INFO');
     logMessage(`Timeout: ${options.timeout}s`, 'INFO');
+    logMessage(`Truncation: ${options.noTruncate ? 'Disabled' : 'Enabled (9500 chars max)'}`, 'INFO');
 
     let urlsToProcess = [];
 
