@@ -263,4 +263,20 @@ test.describe('history', () => {
             await hp.hasBackgroundColor({ hex: '#27282A' });
         });
     });
+
+    test.describe('last item divider default colors', () => {
+        test('divider color - light', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(5);
+            await hp.openPage({});
+            // rgba(0, 0, 0, 0.06) is --color-black-at-6 var value
+            await hp.lastItemDividerHasColor({ rgb: 'rgba(0, 0, 0, 0.06)' });
+        });
+        test('divider color - dark', async ({ page }, workerInfo) => {
+            const hp = HistoryTestPage.create(page, workerInfo).withEntries(5);
+            await hp.openPage({});
+            await hp.darkMode();
+            // rgba(255, 255, 255, 0.06) is --color-white-at-6 var value
+            await hp.lastItemDividerHasColor({ rgb: 'rgba(255, 255, 255, 0.06)' });
+        });
+    });
 });
