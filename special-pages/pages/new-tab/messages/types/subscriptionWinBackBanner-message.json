@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Subscription Win-back Banner Data",
+  "type": "object",
+  "required": [
+    "content"
+  ],
+  "properties": {
+    "content": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "title": "Subscription Win-back Banner Message",
+          "required": [
+            "messageType",
+            "id",
+            "descriptionText",
+            "titleText",
+            "actionText"
+          ],
+          "properties": {
+            "messageType": {
+              "const": "big_single_action"
+            },
+            "id": {
+              "type": "string",
+              "enum": [
+                "winback_last_day"
+              ]
+            },
+            "titleText": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "descriptionText": {
+              "type": "string"
+            },
+            "actionText": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
