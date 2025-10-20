@@ -1,0 +1,1 @@
+This has ***bold and italic*** together.

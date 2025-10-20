@@ -590,23 +590,44 @@ export default class AutofillImport extends ActionExecutorBase {
 
     /** Bookmark import code */
     async downloadData() {
-        // sleep for a second, sometimes download link is not yet available
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Run with retry forever until the download link is available,
+        // Android is the one that timesout anyway and closes the whole tab if this doesn't complete
+        const downloadRetryLimit = this.getFeatureSetting('downloadRetryLimit') ?? Infinity;
+        const downloadRetryInterval = this.getFeatureSetting('downloadRetryInterval') ?? 1000;
 
-        const userId = document.querySelector(this.bookmarkImportSelectorSettings.userIdLink)?.getAttribute('href')?.split('&user=')[1];
-        await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 15, 2000, 'linear');
-        if (userId != null && this.#exportId != null) {
-            const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
-            window.location.href = downloadURL;
-        } else {
-            // If there's no user id or export id, we post an action failed message
+        const userIdElement = await this.runWithRetry(
+            () => document.querySelector(this.bookmarkImportSelectorSettings.userIdLink),
+            downloadRetryLimit,
+            downloadRetryInterval,
+            'linear',
+        );
+        const userIdLink = userIdElement?.getAttribute('href');
+        const userId = userIdLink ? new URL(userIdLink, window.location.origin).searchParams.get('user') : null;
+
+        if (!userId || !this.#exportId) {
             this.postBookmarkImportMessage('actionCompleted', {
                 result: new ErrorResponse({
                     actionID: 'download-data',
-                    message: 'No user id or export id found',
+                    message: 'User id or export id not found',
                 }),
             });
+            return;
         }
+
+        await this.runWithRetry(
+            () => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`),
+            downloadRetryLimit,
+            downloadRetryInterval,
+            'linear',
+        );
+
+        const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
+
+        // Sleep before downloading to ensure the download link is available
+        const downloadNavigationDelayMs = this.getFeatureSetting('downloadNavigationDelayMs') ?? 2000;
+        await new Promise((resolve) => setTimeout(resolve, downloadNavigationDelayMs));
+
+        window.location.href = downloadURL;
     }
 
     /**
