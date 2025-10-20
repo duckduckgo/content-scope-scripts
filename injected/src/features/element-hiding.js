@@ -374,6 +374,7 @@ export default class ElementHiding extends ContentFeature {
         /** @type {string} */
         mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors;
 
+        // determine whether strict hide rules should be injected as a style tag
         if (shouldInjectStyleTag) {
             shouldInjectStyleTag = this.matchConditionalFeatureSetting('styleTagExceptions').length === 0;
         }
