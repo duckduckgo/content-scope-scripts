@@ -8,7 +8,6 @@ export const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)';
 export const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)';
 export const OVERLAY_ID = 'ddg-password-import-overlay';
 export const DELAY_BEFORE_ANIMATION = 300;
-const TAKEOUT_DOWNLOAD_URL_BASE = '/takeout/download';
 
 /**
  * @typedef ButtonAnimationStyle
@@ -596,20 +595,15 @@ export default class AutofillImport extends ActionExecutorBase {
         };
     }
 
-    async downloadData() {
+    async downloadData(exportId) {
         // Run with retry forever until the download link is available,
         // Android is the one that timesout anyway and closes the whole tab if this doesn't complete
-        const { maxAttempts, interval } = this.downloadRetrySettings;
-        const userIdElement = await this.runWithRetry(
-            () => document.querySelector(this.bookmarkImportSelectorSettings.userIdLink),
-            maxAttempts,
-            interval,
-            'linear',
-        );
-        const userIdLink = userIdElement?.getAttribute('href');
-        const userId = userIdLink ? new URL(userIdLink, window.location.origin).searchParams.get('user') : null;
 
-        if (!userId || !this.#exportId) {
+        if (!exportId) {
+            this.#exportId = window.location.pathname.split('/').pop();
+        }
+
+        if (!this.#exportId) {
             this.postBookmarkImportMessage('actionCompleted', {
                 result: new ErrorResponse({
                     actionID: 'download-data',
@@ -619,20 +613,16 @@ export default class AutofillImport extends ActionExecutorBase {
             return;
         }
 
-        await this.runWithRetry(
-            () => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`),
-            maxAttempts,
-            interval,
-            'linear',
+        console.log('downloadData', this.#exportId);
+        const downloadButton = /** @type {HTMLAnchorElement|null} */ (
+            await this.runWithRetry(() => document.querySelector(`a[href*="&i=0&user="`), 5, 1000, 'linear')
         );
 
-        const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
+        if (downloadButton == null) {
+            window.location.reload();
+        }
 
-        // Sleep before downloading to ensure the download link is available
-        const downloadNavigationDelayMs = this.getFeatureSetting('downloadNavigationDelayMs') ?? 2000;
-        await new Promise((resolve) => setTimeout(resolve, downloadNavigationDelayMs));
-
-        window.location.href = downloadURL;
+        downloadButton?.click();
     }
 
     /**
@@ -640,9 +630,10 @@ export default class AutofillImport extends ActionExecutorBase {
      * as for now the retry doesn't need to be per action.
      */
     retryConfigFor(_) {
+        const { interval, maxAttempts } = this.downloadRetrySettings;
         return {
-            interval: { ms: 1000 },
-            maxAttempts: 30,
+            interval: { ms: interval },
+            maxAttempts,
         };
     }
 
@@ -663,16 +654,23 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     async handleBookmarkImportPath(pathname) {
+        console.log('handleBookmarkImportPath', pathname);
         if (pathname === '/' && !this.#isBookmarkModalVisible) {
             for (const action of this.bookmarkImportActionSettings) {
                 // Before clicking on the manage button, we need to store the export id
                 if (action.id === 'manage-button-click') {
                     await this.storeExportId();
+                    break;
                 }
 
                 await this.patchMessagingAndProcessAction(action);
             }
-            await this.downloadData();
+            // sleep before navigating to the manage page
+            window.location.href = `/manage/archive/${this.#exportId}`;
+        } else if (pathname.startsWith('/manage/archive/')) {
+            await this.downloadData(this.#exportId);
+        } else {
+            // Unknown feature, we bail out
         }
     }
 
