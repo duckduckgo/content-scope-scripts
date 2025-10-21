@@ -108,7 +108,7 @@ function Item({ current, range, onClick, onDelete, count }) {
         if (range === 'all' && current.value === null) {
             return cn(styles.item, styles.active);
         }
-        return cn(styles.item, current.value === range && styles.active);
+        return cn(styles.item, current.value === range && styles.active, 'Sidebar_item_' + range);
     });
 
     return (

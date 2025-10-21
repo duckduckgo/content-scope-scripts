@@ -40,7 +40,7 @@
         }
     }
 
-    &:last-child {
+    &.item_sites {
         margin-top: 16px;
 
         &::before {
