@@ -20,8 +20,8 @@ export default class WindowsPermissionUsage extends ContentFeature {
         // @ts-expect-error - isDdgWebView is a Windows-specific platform property injected via userPreferences
         const isDdgWebView = this.args?.platform?.isDdgWebView;
 
-        const isFrameInsideFrameInWebView2 = isDdgWebView 
-            ? false  // In DDG WebView, we can handle nested frames properly
+        const isFrameInsideFrameInWebView2 = isDdgWebView
+            ? false // In DDG WebView, we can handle nested frames properly
             : window.self !== window.top && window.parent !== window.top; // In WebView2, we need to deny permission for nested frames
 
         function windowsPostMessage(name, data) {
