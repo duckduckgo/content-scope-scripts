@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { ResultsCollector } from './page-objects/results-collector.js';
 
-test('Windows Brand Hints override', async ({ page }, testInfo) => {
+test('Windows CH Brands override', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     await collector.load(
-        '/windows-brand-hints/pages/brand-override.html',
-        './integration-test/test-pages/windows-brand-hints/config/brand-override.json',
+        '/windows-ch-brands/pages/brand-override.html',
+        './integration-test/test-pages/windows-ch-brands/config/brand-override.json',
     );
     const results = await collector.results();
 
