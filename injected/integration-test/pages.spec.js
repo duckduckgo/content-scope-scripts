@@ -177,5 +177,4 @@ test.describe('Test integration pages', () => {
             { version: 99 },
         );
     });
-
 });
