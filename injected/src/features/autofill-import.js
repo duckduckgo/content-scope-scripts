@@ -589,16 +589,21 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     /** Bookmark import code */
+    get downloadRetrySettings() {
+        return {
+            maxAttempts: this.getFeatureSetting('downloadRetryLimit') ?? Infinity,
+            interval: this.getFeatureSetting('downloadRetryInterval') ?? 1000,
+        };
+    }
+
     async downloadData() {
         // Run with retry forever until the download link is available,
         // Android is the one that timesout anyway and closes the whole tab if this doesn't complete
-        const downloadRetryLimit = this.getFeatureSetting('downloadRetryLimit') ?? Infinity;
-        const downloadRetryInterval = this.getFeatureSetting('downloadRetryInterval') ?? 1000;
-
+        const { maxAttempts, interval } = this.downloadRetrySettings;
         const userIdElement = await this.runWithRetry(
             () => document.querySelector(this.bookmarkImportSelectorSettings.userIdLink),
-            downloadRetryLimit,
-            downloadRetryInterval,
+            maxAttempts,
+            interval,
             'linear',
         );
         const userIdLink = userIdElement?.getAttribute('href');
@@ -616,8 +621,8 @@ export default class AutofillImport extends ActionExecutorBase {
 
         await this.runWithRetry(
             () => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`),
-            downloadRetryLimit,
-            downloadRetryInterval,
+            maxAttempts,
+            interval,
             'linear',
         );
 
@@ -685,7 +690,8 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     async storeExportId() {
-        this.#exportId = await this.runWithRetry(() => this.findExportId(), 30, 1000, 'linear');
+        const { maxAttempts, interval } = this.downloadRetrySettings;
+        this.#exportId = await this.runWithRetry(() => this.findExportId(), maxAttempts, interval, 'linear');
     }
 
     urlChanged() {
