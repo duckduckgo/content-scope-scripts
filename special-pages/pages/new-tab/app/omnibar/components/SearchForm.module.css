@@ -83,7 +83,7 @@
     }
 }
 
-[data-platform-name='windows'] {
+[data-platform='windows'] {
 	.input {
 		line-height: normal;
 	}
