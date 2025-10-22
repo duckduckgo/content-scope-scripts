@@ -121,6 +121,28 @@
  - **Example**: `?rmf-delay=10000`
  - **Options**: Time in milliseconds
 
+ ### Next Steps Cards
+ - **Purpose**: Displays the different Next Steps cards
+ - **Parameter**: `next-steps`
+ - **Example**: `?next-steps=bringStuff`
+ - **Options**:
+   - `bringStuff`
+   - `defaultApp`
+   - `blockCookies`
+   - `emailProtection`
+   - `duckplayer`
+   - `addAppToDockMac`
+   - `pinAppToTaskbarWindows`
+   - `subscription`
+
+ ### Freemium PIR Banner
+ - **Purpose**: Tests different PIR banner states
+ - **Parameter**: `pir`
+ - **Example**: `?pir=onboarding`
+ - **Options**:
+   - `onboarding` - Shows onboarding PIR banner
+   - `scan_results` - Shows scan results PIR banner
+
 ## Privacy Protections widget
 
  ### Activity
@@ -170,15 +192,7 @@
  - **Options**: Any positive integer
 
 
- ## Experiment Parameters
 
- ### Freemium PIR Banner
- - **Purpose**: Tests different PIR banner states
- - **Parameter**: `pir`
- - **Example**: `?pir=onboarding`
- - **Options**:
-   - `onboarding` - Shows onboarding PIR banner
-   - `scan_results` - Shows scan results PIR banner
 
 ### Subscription Win-back Banner
  - **Purpose**: Tests different win-back banner states
