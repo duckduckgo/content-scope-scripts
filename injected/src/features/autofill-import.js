@@ -8,6 +8,7 @@ export const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)';
 export const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)';
 export const OVERLAY_ID = 'ddg-password-import-overlay';
 export const DELAY_BEFORE_ANIMATION = 300;
+export const MANAGE_ARCHIVE_DEFAULT_BASE = '/manage/archive';
 
 /**
  * @typedef ButtonAnimationStyle
@@ -53,8 +54,6 @@ export default class AutofillImport extends ActionExecutorBase {
     #currentElementConfig;
 
     #domLoaded;
-
-    #exportId;
 
     #processingBookmark;
 
@@ -595,15 +594,13 @@ export default class AutofillImport extends ActionExecutorBase {
         };
     }
 
-    async downloadData(exportId) {
+    async downloadData() {
         // Run with retry forever until the download link is available,
         // Android is the one that timesout anyway and closes the whole tab if this doesn't complete
 
-        if (!exportId) {
-            this.#exportId = window.location.pathname.split('/').pop();
-        }
+        const exportId = window.location.pathname.split('/').pop();
 
-        if (!this.#exportId) {
+        if (!exportId) {
             this.postBookmarkImportMessage('actionCompleted', {
                 result: new ErrorResponse({
                     actionID: 'download-data',
@@ -613,12 +610,13 @@ export default class AutofillImport extends ActionExecutorBase {
             return;
         }
 
-        console.log('downloadData', this.#exportId);
+        const downloadLinkSelector = this.bookmarkImportSelectorSettings.downloadLink ?? `a[href*="&i=0&user="]`;
         const downloadButton = /** @type {HTMLAnchorElement|null} */ (
-            await this.runWithRetry(() => document.querySelector(`a[href*="&i=0&user="`), 5, 1000, 'linear')
+            await this.runWithRetry(() => document.querySelector(downloadLinkSelector), 5, 1000, 'linear')
         );
-
         if (downloadButton == null) {
+            // If there was no download link, it was likely a 404
+            // so we reload the page to try again
             window.location.reload();
         }
 
@@ -654,23 +652,19 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     async handleBookmarkImportPath(pathname) {
-        console.log('handleBookmarkImportPath', pathname);
         if (pathname === '/' && !this.#isBookmarkModalVisible) {
             for (const action of this.bookmarkImportActionSettings) {
-                // Before clicking on the manage button, we need to store the export id
-                if (action.id === 'manage-button-click') {
-                    await this.storeExportId();
-                    break;
-                }
-
                 await this.patchMessagingAndProcessAction(action);
             }
-            // sleep before navigating to the manage page
-            window.location.href = `/manage/archive/${this.#exportId}`;
-        } else if (pathname.startsWith('/manage/archive/')) {
-            await this.downloadData(this.#exportId);
+
+            // Parse the export id from the page and then navigate to the 'manage' page
+            const exportId = await this.getExportId();
+            window.location.href = `${MANAGE_ARCHIVE_DEFAULT_BASE}/${exportId}`;
+        } else if (pathname.startsWith(MANAGE_ARCHIVE_DEFAULT_BASE)) {
+            // If we're on the 'manage' page, we can download the data
+            await this.downloadData();
         } else {
-            // Unknown feature, we bail out
+            // Unhandled path, we bail out
         }
     }
 
@@ -684,12 +678,13 @@ export default class AutofillImport extends ActionExecutorBase {
     findExportId() {
         const panels = document.querySelectorAll(this.bookmarkImportSelectorSettings.tabPanel);
         const exportPanel = panels[panels.length - 1];
-        return exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id');
+        const dataArchiveIdSelector = this.bookmarkImportSelectorSettings.dataArchiveId ?? `div[data-archive-id]`;
+        return exportPanel.querySelector(dataArchiveIdSelector)?.getAttribute('data-archive-id');
     }
 
-    async storeExportId() {
+    async getExportId() {
         const { maxAttempts, interval } = this.downloadRetrySettings;
-        this.#exportId = await this.runWithRetry(() => this.findExportId(), maxAttempts, interval, 'linear');
+        return await this.runWithRetry(() => this.findExportId(), maxAttempts, interval, 'linear');
     }
 
     urlChanged() {
