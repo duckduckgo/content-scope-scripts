@@ -8,7 +8,7 @@ export const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)';
 export const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)';
 export const OVERLAY_ID = 'ddg-password-import-overlay';
 export const DELAY_BEFORE_ANIMATION = 300;
-export const MANAGE_ARCHIVE_DEFAULT_BASE = '/manage/archive';
+const MANAGE_ARCHIVE_DEFAULT_BASE = '/manage/archive';
 
 /**
  * @typedef ButtonAnimationStyle
@@ -587,7 +587,7 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     /** Bookmark import code */
-    get downloadRetrySettings() {
+    get defaultRetrySettings() {
         return {
             maxAttempts: this.getFeatureSetting('downloadRetryLimit') ?? Infinity,
             interval: this.getFeatureSetting('downloadRetryInterval') ?? 1000,
@@ -628,7 +628,7 @@ export default class AutofillImport extends ActionExecutorBase {
      * as for now the retry doesn't need to be per action.
      */
     retryConfigFor(_) {
-        const { interval, maxAttempts } = this.downloadRetrySettings;
+        const { interval, maxAttempts } = this.defaultRetrySettings;
         return {
             interval: { ms: interval },
             maxAttempts,
@@ -683,7 +683,7 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     async getExportId() {
-        const { maxAttempts, interval } = this.downloadRetrySettings;
+        const { maxAttempts, interval } = this.defaultRetrySettings;
         return await this.runWithRetry(() => this.findExportId(), maxAttempts, interval, 'linear');
     }
 
