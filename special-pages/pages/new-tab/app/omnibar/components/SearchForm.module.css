@@ -16,12 +16,13 @@
     padding-right: calc(var(--suffix-text-width) + var(--sp-1) + var(--sp-8) + var(--sp-1)); /* Suffix + padding + close button + padding */
     position: absolute;
     right: 0;
+    line-height: normal;
 
     &::placeholder {
         color: var(--ntp-text-tertiary);
     }
 
-    [data-platform="windows"] &::selection {
+    [data-platform='windows'] &::selection {
         background: var(--ntp-selection-background-color);
         color: var(--ntp-selection-color);
     }
@@ -78,7 +79,7 @@
         visibility: visible;
     }
 
-    [data-entry-point="omnibar"]:has([role="listbox"]) & {
+    [data-entry-point='omnibar']:has([role='listbox']) & {
         visibility: visible;
     }
 }
