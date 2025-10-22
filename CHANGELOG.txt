@@ -1,2 +1,1 @@
-- Add Subscription NextSteps card to NTP (#2019)
-- history: adding sites support (#1954)
+- NTP - Fix text cut-off on windows (#2029)
