@@ -1,1 +1,3 @@
-- [Google import] Add resilience to download data (#2001)
+- Support Windows permission handling in nested iframes in DDG-WebView (#2027)
+- Default disable page-context features that aren't currently used (#2018)
+- jingram/subscription win back banner: Adds Subscription Win-Back Banner (#2014)

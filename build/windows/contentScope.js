@@ -5569,6 +5569,7 @@
        *   platform: import('./utils.js').Platform,
        *   desktopModeEnabled?: boolean,
        *   forcedZoomEnabled?: boolean,
+       *   isDdgWebView?: boolean,
        *   featureSettings?: Record<string, unknown>,
        *   assets?: import('./content-feature.js').AssetConfig | undefined,
        *   site: import('./content-feature.js').Site,
@@ -8589,7 +8590,8 @@
         Active: "active",
         Paused: "paused"
       };
-      const isFrameInsideFrame = window.self !== window.top && window.parent !== window.top;
+      const isDdgWebView = this.args?.isDdgWebView;
+      const isFrameInsideFrameInWebView2 = isDdgWebView ? false : window.self !== window.top && window.parent !== window.top;
       function windowsPostMessage(name, data2) {
         windowsInteropPostMessage({
           Feature: "Permissions",
@@ -8605,7 +8607,7 @@
       const watchedPositions = /* @__PURE__ */ new Set();
       const watchPositionProxy = new DDGProxy(this, Geolocation.prototype, "watchPosition", {
         apply(target, thisArg, args) {
-          if (isFrameInsideFrame) {
+          if (isFrameInsideFrameInWebView2) {
             throw new DOMException("Permission denied");
           }
           const successHandler = args[0];
@@ -8840,7 +8842,7 @@
       if (window.MediaDevices) {
         const getUserMediaProxy = new DDGProxy(this, MediaDevices.prototype, "getUserMedia", {
           apply(target, thisArg, args) {
-            if (isFrameInsideFrame) {
+            if (isFrameInsideFrameInWebView2) {
               return Promise.reject(new DOMException("Permission denied"));
             }
             const videoRequested = args[0]?.video;
@@ -16067,17 +16069,25 @@ ${iframeContent}
       const content = {
         favicon: getFaviconList(),
         title: this.getPageTitle(),
-        metaDescription: this.getMetaDescription(),
         content: mainContent,
         truncated,
         fullContentLength: this.fullContentLength,
         // Include full content length before truncation
-        headings: this.getHeadings(),
-        links: this.getLinks(),
-        images: this.getImages(),
         timestamp: Date.now(),
         url: window.location.href
       };
+      if (this.getFeatureSettingEnabled("includeMetaDescription", "disabled")) {
+        content.metaDescription = this.getMetaDescription();
+      }
+      if (this.getFeatureSettingEnabled("includeHeadings", "disabled")) {
+        content.headings = this.getHeadings();
+      }
+      if (this.getFeatureSettingEnabled("includeLinks", "disabled")) {
+        content.links = this.getLinks();
+      }
+      if (this.getFeatureSettingEnabled("includeImages", "disabled")) {
+        content.images = this.getImages();
+      }
       this.cachedContent = content;
       return content;
     }

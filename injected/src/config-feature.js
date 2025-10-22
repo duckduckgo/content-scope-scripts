@@ -30,6 +30,7 @@ export default class ConfigFeature {
      *   platform: import('./utils.js').Platform,
      *   desktopModeEnabled?: boolean,
      *   forcedZoomEnabled?: boolean,
+     *   isDdgWebView?: boolean,
      *   featureSettings?: Record<string, unknown>,
      *   assets?: import('./content-feature.js').AssetConfig | undefined,
      *   site: import('./content-feature.js').Site,
