@@ -17,8 +17,8 @@ export default class WindowsPermissionUsage extends ContentFeature {
             Paused: 'paused',
         };
 
-        // @ts-expect-error - isDdgWebView is a Windows-specific platform property injected via userPreferences
-        const isDdgWebView = this.args?.platform?.isDdgWebView;
+        // isDdgWebView is a Windows-specific property injected via userPreferences
+        const isDdgWebView = this.args?.isDdgWebView;
 
         const isFrameInsideFrameInWebView2 = isDdgWebView
             ? false // In DDG WebView, we can handle nested frames properly
