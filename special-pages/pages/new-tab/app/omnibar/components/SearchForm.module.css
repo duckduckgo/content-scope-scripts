@@ -16,7 +16,6 @@
     padding-right: calc(var(--suffix-text-width) + var(--sp-1) + var(--sp-8) + var(--sp-1)); /* Suffix + padding + close button + padding */
     position: absolute;
     right: 0;
-    line-height: normal;
 
     &::placeholder {
         color: var(--ntp-text-tertiary);
@@ -82,4 +81,10 @@
     [data-entry-point='omnibar']:has([role='listbox']) & {
         visibility: visible;
     }
+}
+
+[data-platform-name='windows'] {
+	.input {
+		line-height: normal;
+	}
 }
