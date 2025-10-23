@@ -371,8 +371,8 @@ export default class ElementHiding extends ContentFeature {
         unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts;
         /** @type {string} */
         mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors');
-        // Fall back to default value if setting is missing or malformed
-        if (typeof mediaAndFormSelectors === 'undefined') {
+        // Fall back to default value if setting is missing, null, empty, or other falsy values
+        if (!mediaAndFormSelectors) {
             mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
         }
 
