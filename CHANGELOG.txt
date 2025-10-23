@@ -1,1 +1,1 @@
-- Remove opacity property -- this causes chrominium to disable clearType on windows (#2030)
+- Update translations for "Sites" (#2031)
