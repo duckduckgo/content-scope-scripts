@@ -8,10 +8,16 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  */
 
 /**
- * @typedef {Object} ElementHidingRuleWithSelector
+ * @typedef {Object} ElementHidingRuleHide
  * @property {string} selector
- * @property {'hide-empty' | 'hide' | 'closest-empty' | 'override' | 'modify-style' | 'modify-attr'} type
- * @property {ElementHidingValue[]} [values]
+ * @property {'hide-empty' | 'hide' | 'closest-empty' | 'override'} type
+ */
+
+/**
+ * @typedef {Object} ElementHidingRuleModify
+ * @property {string} selector
+ * @property {'modify-style' | 'modify-attr'} type
+ * @property {ElementHidingValue[]} values
  */
 
 /**
@@ -20,7 +26,7 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  */
 
 /**
- * @typedef {ElementHidingRuleWithSelector | ElementHidingRuleWithoutSelector} ElementHidingRule
+ * @typedef {ElementHidingRuleHide | ElementHidingRuleModify | ElementHidingRuleWithoutSelector} ElementHidingRule
  */
 
 /**
@@ -294,12 +300,10 @@ function injectStyleTag(rules) {
     let selector = '';
 
     rules.forEach((rule, i) => {
-        if ('selector' in rule) {
-            if (i !== rules.length - 1) {
-                selector = selector.concat(rule.selector, ',');
-            } else {
-                selector = selector.concat(rule.selector);
-            }
+        if (i !== rules.length - 1) {
+            selector = selector.concat(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector, ',');
+        } else {
+            selector = selector.concat(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
         }
     });
     const styleTagProperties = 'display:none!important;min-height:0!important;height:0!important;';
@@ -317,14 +321,12 @@ function hideAdNodes(rules) {
     const document = globalThis.document;
 
     rules.forEach((rule) => {
-        if ('selector' in rule) {
-            const selector = forgivingSelector(rule.selector);
-            const matchingElementArray = [...document.querySelectorAll(selector)];
-            matchingElementArray.forEach((element) => {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                collapseDomNode(element, rule);
-            });
-        }
+        const selector = forgivingSelector(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
+        const matchingElementArray = [...document.querySelectorAll(selector)];
+        matchingElementArray.forEach((element) => {
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            collapseDomNode(element, rule);
+        });
     });
 }
 
@@ -374,7 +376,6 @@ export default class ElementHiding extends ContentFeature {
         /** @type {string} */
         mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors;
 
-        // determine whether strict hide rules should be injected as a style tag
         if (shouldInjectStyleTag) {
             shouldInjectStyleTag = this.matchConditionalFeatureSetting('styleTagExceptions').length === 0;
         }
