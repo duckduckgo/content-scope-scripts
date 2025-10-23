@@ -7,6 +7,7 @@ import { updateNotificationExamples } from './update-notification/mocks/update-n
 import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
+import { subscriptionWinBackBannerDataExamples } from './subscription-winback-banner/mocks/subscriptionWinBackBanner.data.js';
 import { activityMockTransport } from './activity/mocks/activity.mock-transport.js';
 import { protectionsMockTransport } from './protections/mocks/protections.mock-transport.js';
 import { omnibarMockTransport } from './omnibar/mocks/omnibar.mock-transport.js';
@@ -95,6 +96,7 @@ export function mockTransport() {
     const rmfSubscriptions = new Map();
     const freemiumPIRBannerSubscriptions = new Map();
     const nextStepsSubscriptions = new Map();
+    const subscriptionWinBackBannerSubscriptions = new Map();
 
     function clearRmf() {
         const listeners = rmfSubscriptions.get('rmf_onDataUpdate') || [];
@@ -161,6 +163,14 @@ export function mockTransport() {
                 }
                 case 'freemiumPIRBanner_dismiss': {
                     console.log('ignoring freemiumPIRBanner_dismiss', msg.params);
+                    return;
+                }
+                case 'winBackOffer_action': {
+                    console.log('ignoring winBackOffer_action', msg.params);
+                    return;
+                }
+                case 'winBackOffer_dismiss': {
+                    console.log('ignoring winBackOffer_dismiss', msg.params);
                     return;
                 }
                 case 'favorites_setConfig': {
@@ -252,6 +262,24 @@ export function mockTransport() {
 
                     if (freemiumPIRBannerParam !== null && freemiumPIRBannerParam in freemiumPIRDataExamples) {
                         const message = freemiumPIRDataExamples[freemiumPIRBannerParam];
+                        cb(message);
+                    }
+                    return () => {};
+                }
+                case 'winBackOffer_onDataUpdate': {
+                    // store the callback for later (eg: dismiss)
+                    const prev = subscriptionWinBackBannerSubscriptions.get('winBackOffer_onDataUpdate') || [];
+                    const next = [...prev];
+                    next.push(cb);
+                    subscriptionWinBackBannerSubscriptions.set('winBackOffer_onDataUpdate', next);
+
+                    const subscriptionWinBackBannerParam = url.searchParams.get('winback');
+
+                    if (
+                        subscriptionWinBackBannerParam !== null &&
+                        subscriptionWinBackBannerParam in subscriptionWinBackBannerDataExamples
+                    ) {
+                        const message = subscriptionWinBackBannerDataExamples[subscriptionWinBackBannerParam];
                         cb(message);
                     }
                     return () => {};
@@ -471,6 +499,18 @@ export function mockTransport() {
 
                     return Promise.resolve(freemiumPIRBannerMessage);
                 }
+                case 'winBackOffer_getData': {
+                    /** @type {import('../types/new-tab.ts').SubscriptionWinBackBannerData} */
+                    let subscriptionWinBackBannerMessage = { content: null };
+
+                    const subscriptionWinBackBannerParam = url.searchParams.get('winback');
+
+                    if (subscriptionWinBackBannerParam && subscriptionWinBackBannerParam in subscriptionWinBackBannerDataExamples) {
+                        subscriptionWinBackBannerMessage = subscriptionWinBackBannerDataExamples[subscriptionWinBackBannerParam];
+                    }
+
+                    return Promise.resolve(subscriptionWinBackBannerMessage);
+                }
                 case 'favorites_getData': {
                     const param = url.searchParams.get('favorites');
                     let data;
@@ -514,6 +554,7 @@ export function initialSetup(url) {
         { id: 'updateNotification' },
         { id: 'rmf' },
         { id: 'freemiumPIRBanner' },
+        { id: 'subscriptionWinBackBanner' },
         { id: 'nextSteps' },
         { id: 'favorites' },
     ];

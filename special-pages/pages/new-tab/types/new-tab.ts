@@ -93,7 +93,8 @@ export type NextStepsCardTypes =
   | "emailProtection"
   | "duckplayer"
   | "addAppToDockMac"
-  | "pinAppToTaskbarWindows";
+  | "pinAppToTaskbarWindows"
+  | "subscription";
 export type NextStepsCards = {
   id: NextStepsCardTypes;
 }[];
@@ -140,7 +141,9 @@ export interface NewTabMessages {
     | StatsShowMoreNotification
     | TelemetryEventNotification
     | UpdateNotificationDismissNotification
-    | WidgetsSetConfigNotification;
+    | WidgetsSetConfigNotification
+    | WinBackOfferActionNotification
+    | WinBackOfferDismissNotification;
   requests:
     | ActivityConfirmBurnRequest
     | ActivityGetDataRequest
@@ -157,7 +160,8 @@ export interface NewTabMessages {
     | ProtectionsGetConfigRequest
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
-    | StatsGetDataRequest;
+    | StatsGetDataRequest
+    | WinBackOfferGetDataRequest;
   subscriptions:
     | ActivityOnBurnCompleteSubscription
     | ActivityOnDataPatchSubscription
@@ -180,7 +184,8 @@ export interface NewTabMessages {
     | StatsOnDataUpdateSubscription
     | TabsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
-    | WidgetsOnConfigUpdatedSubscription;
+    | WidgetsOnConfigUpdatedSubscription
+    | WinBackOfferOnDataUpdateSubscription;
 }
 /**
  * Generated from @see "../messages/activity_addFavorite.notify.json"
@@ -673,6 +678,26 @@ export interface WidgetConfigItem {
   visibility: WidgetVisibility;
 }
 /**
+ * Generated from @see "../messages/winBackOffer_action.notify.json"
+ */
+export interface WinBackOfferActionNotification {
+  method: "winBackOffer_action";
+  params: SubscriptionWinBackBannerAction;
+}
+export interface SubscriptionWinBackBannerAction {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/winBackOffer_dismiss.notify.json"
+ */
+export interface WinBackOfferDismissNotification {
+  method: "winBackOffer_dismiss";
+  params: SubscriptionWinBackBannerDismissAction;
+}
+export interface SubscriptionWinBackBannerDismissAction {
+  id: string;
+}
+/**
  * Generated from @see "../messages/activity_confirmBurn.request.json"
  */
 export interface ActivityConfirmBurnRequest {
@@ -1002,6 +1027,23 @@ export interface TrackerCompany {
   count: number;
 }
 /**
+ * Generated from @see "../messages/winBackOffer_getData.request.json"
+ */
+export interface WinBackOfferGetDataRequest {
+  method: "winBackOffer_getData";
+  result: SubscriptionWinBackBannerData;
+}
+export interface SubscriptionWinBackBannerData {
+  content: null | SubscriptionWinBackBannerMessage;
+}
+export interface SubscriptionWinBackBannerMessage {
+  messageType: "big_single_action";
+  id: "winback_last_day";
+  titleText: string | null;
+  descriptionText: string;
+  actionText: string;
+}
+/**
  * Generated from @see "../messages/activity_onBurnComplete.subscribe.json"
  */
 export interface ActivityOnBurnCompleteSubscription {
@@ -1173,6 +1215,13 @@ export interface UpdateNotificationOnDataUpdateSubscription {
 export interface WidgetsOnConfigUpdatedSubscription {
   subscriptionEvent: "widgets_onConfigUpdated";
   params: WidgetConfigs;
+}
+/**
+ * Generated from @see "../messages/winBackOffer_onDataUpdate.subscribe.json"
+ */
+export interface WinBackOfferOnDataUpdateSubscription {
+  subscriptionEvent: "winBackOffer_onDataUpdate";
+  params: SubscriptionWinBackBannerData;
 }
 
 declare module "../src/index.js" {
