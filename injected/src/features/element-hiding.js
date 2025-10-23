@@ -106,14 +106,10 @@ function collapseDomNode(element, rule, previousElement) {
             }
             break;
         case 'modify-attr':
-            if (rule.values) {
-                modifyAttribute(element, rule.values);
-            }
+            modifyAttribute(element, rule.values);
             break;
         case 'modify-style':
-            if (rule.values) {
-                modifyStyle(element, rule.values);
-            }
+            modifyStyle(element, rule.values);
             break;
         default:
             break;
