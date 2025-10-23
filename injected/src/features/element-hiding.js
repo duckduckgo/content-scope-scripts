@@ -364,7 +364,7 @@ export default class ElementHiding extends ContentFeature {
 
         let activeRules;
         /** @type {ElementHidingRule[]} */
-        const globalRules = this.getFeatureSetting('rules') || [];
+        const globalRules = this.getFeatureSetting('rules');
         /** @type {string[]} */
         adLabelStrings = this.getFeatureSetting('adLabelStrings') || [];
         /** @type {boolean} */
