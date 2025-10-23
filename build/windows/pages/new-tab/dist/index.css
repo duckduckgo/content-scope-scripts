@@ -2825,11 +2825,9 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 }
 @keyframes CustomizerDrawerInner_fade-in {
   0% {
-    opacity: 0;
     visibility: hidden;
   }
   100% {
-    opacity: 1;
     visibility: visible;
   }
 }

@@ -1,1 +1,1 @@
-- NTP - Fix text cut-off on windows (#2029)
+- Remove opacity property -- this causes chrominium to disable clearType on windows (#2030)
