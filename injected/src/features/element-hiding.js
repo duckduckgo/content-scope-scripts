@@ -374,7 +374,11 @@ export default class ElementHiding extends ContentFeature {
         /** @type {number[]} */
         unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts;
         /** @type {string} */
-        mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors;
+        mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors');
+        // Fall back to default value if setting is missing or malformed
+        if (typeof mediaAndFormSelectors === 'undefined') {
+            mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
+        }
 
         if (shouldInjectStyleTag) {
             shouldInjectStyleTag = this.matchConditionalFeatureSetting('styleTagExceptions').length === 0;
