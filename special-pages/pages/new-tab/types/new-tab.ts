@@ -93,7 +93,8 @@ export type NextStepsCardTypes =
   | "emailProtection"
   | "duckplayer"
   | "addAppToDockMac"
-  | "pinAppToTaskbarWindows";
+  | "pinAppToTaskbarWindows"
+  | "subscription";
 export type NextStepsCards = {
   id: NextStepsCardTypes;
 }[];

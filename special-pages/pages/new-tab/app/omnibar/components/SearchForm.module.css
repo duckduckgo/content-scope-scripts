@@ -21,7 +21,7 @@
         color: var(--ntp-text-tertiary);
     }
 
-    [data-platform="windows"] &::selection {
+    [data-platform='windows'] &::selection {
         background: var(--ntp-selection-background-color);
         color: var(--ntp-selection-color);
     }
@@ -78,7 +78,13 @@
         visibility: visible;
     }
 
-    [data-entry-point="omnibar"]:has([role="listbox"]) & {
+    [data-entry-point='omnibar']:has([role='listbox']) & {
         visibility: visible;
     }
+}
+
+[data-platform='windows'] {
+	.input {
+		line-height: normal;
+	}
 }
