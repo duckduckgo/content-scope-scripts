@@ -381,11 +381,7 @@ export default class PageContext extends ContentFeature {
 
     startObserving() {
         this.log.info('Starting observing', this.mutationObserver, this.#cachedContent);
-        if (this.mutationObserver &&
-            this.#cachedContent &&
-            !this.isObserving &&
-            document.body
-        ) {
+        if (this.mutationObserver && this.#cachedContent && !this.isObserving && document.body) {
             this.isObserving = true;
             this.mutationObserver.observe(document.body, {
                 childList: true,
