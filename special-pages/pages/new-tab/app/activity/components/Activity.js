@@ -290,7 +290,6 @@ function TrackerStatusLegacy({ id, trackersFound }) {
     const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
     const adBlocking = useAdBlocking();
 
-
     let otherIcon = null;
     if (other.length > 0) {
         const title = other.map((item) => item.displayName).join('\n');
