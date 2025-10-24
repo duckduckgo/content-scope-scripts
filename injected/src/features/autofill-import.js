@@ -598,7 +598,10 @@ export default class AutofillImport extends ActionExecutorBase {
         // Run with retry forever until the download link is available,
         // Android is the one that timesout anyway and closes the whole tab if this doesn't complete
 
-        const exportId = window.location.pathname.split('/').pop();
+        const exportId = window.location.pathname
+            .split('/')
+            .filter((segment) => segment)
+            .pop();
 
         if (!exportId) {
             this.postBookmarkImportMessage('actionCompleted', {
