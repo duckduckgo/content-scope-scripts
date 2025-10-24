@@ -197,7 +197,7 @@
 }
 
 .companiesText {
-  & div:first-of-type {
+  & div:first-of-type:not(:only-child) {
     margin-bottom: 6px;
   }
 }
