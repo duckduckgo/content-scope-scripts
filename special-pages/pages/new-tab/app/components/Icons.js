@@ -634,3 +634,20 @@ export function InfoIcon(props) {
       </svg>
   );
 }
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Check-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function Check(props) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
+          <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M14.7573 2.12724C15.0304 2.35035 15.0807 2.73423 14.8576 3.00731L6.97593 13.4341C6.43147 14.1336 5.36195 14.1258 4.82836 13.4027L1.12448 9.00075C0.904738 8.7249 0.946807 8.33307 1.22265 8.11333C1.4985 7.89359 1.89033 7.93566 2.11007 8.2115L5.81395 12.6132C5.93397 12.7636 6.14954 12.7645 6.27138 12.6152L14.153 2.18824C14.3761 1.91517 14.76 1.86459 14.7573 2.12724Z"
+              fill="white"
+          />
+        </svg>
+    );
+}

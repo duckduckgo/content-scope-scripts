@@ -16,8 +16,16 @@
     "note": "Placeholder message indicating that no trackers are blocked"
   },
   "activity_countBlockedPlural": {
-    "title": "<b>{count}</b> tracking attempts blocked",
-    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+    "title": "{count} Tracking attempts blocked",
+    "note": "Pill text indicating that more than 1 attempt has been blocked. Eg: '2 Tracking attempts blocked'"
+  },
+  "activity_countBlockedSingular": {
+    "title": "{count} Tracking attempt blocked",
+    "note": "Pill text indicating that 1 attempt has been blocked. Eg: '1 Tracking attempt blocked'"
+  },
+  "activity_cookiePopUpBlocked": {
+    "title": "Cookie pop-up blocked",
+    "note": "Pill text indicating that we have blocked cookie pop-ups"
   },
   "activity_noRecentAdsAndTrackers_subtitle": {
     "title": "Recently visited sites will appear here. Keep browsing to see how many ads and trackers we block.",
