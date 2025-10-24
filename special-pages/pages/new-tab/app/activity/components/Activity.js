@@ -6,7 +6,6 @@ import { ActivityContext, ActivityServiceContext } from '../ActivityProvider.js'
 import { useTypedTranslationWith } from '../../types.js';
 import { useOnMiddleClick } from '../../utils.js';
 import { useAdBlocking, useBatchedActivityApi, usePlatformName } from '../../settings.provider.js';
-import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { ActivityItem } from './ActivityItem.js';
 import { ActivityBurningSignalContext, BurnProvider } from '../../burning/BurnProvider.js';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
@@ -181,12 +180,9 @@ function TrackerStatus({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
     const status = useComputed(() => activity.value.trackingStatus[id]);
-    // @todo jingram add `cookiePopUpBlocked`
-    const {totalCount, trackerCompanies} = status.value;
-    const cookiePopUpBlocked = true;
+    const {totalCount, trackerCompanies, cookiePopUpBlocked} = status.value;
     const other = trackerCompanies.slice(DDG_MAX_TRACKER_ICONS - 1);
     const adBlocking = useAdBlocking();
-
 
     let otherIcon = null;
     if (other.length > 0) {
