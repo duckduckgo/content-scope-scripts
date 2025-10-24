@@ -104,3 +104,20 @@ export function useBlockedCount(initial) {
     });
     return signal;
 }
+
+/**
+ * @param {number} initial
+ * @return {import("@preact/signals").Signal<number>}
+ */
+export function useCookiePopUpsBlockedCount(initial) {
+    const service = useService();
+    const signal = useSignal(initial);
+
+    useSignalEffect(() => {
+        return service.current?.onData((evt) => {
+            signal.value = evt.data.totalCookiePopUpsBlocked;
+        });
+    });
+
+    return signal;
+}

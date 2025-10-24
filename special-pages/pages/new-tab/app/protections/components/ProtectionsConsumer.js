@@ -1,5 +1,5 @@
 import { useContext } from 'preact/hooks';
-import { ProtectionsContext, useBlockedCount } from './ProtectionsProvider.js';
+import { ProtectionsContext, useBlockedCount, useCookiePopUpsBlockedCount } from './ProtectionsProvider.js';
 import { h } from 'preact';
 import { Protections } from './Protections.js';
 import { ActivityProvider } from '../../activity/ActivityProvider.js';
@@ -40,6 +40,10 @@ export function ProtectionsConsumer() {
 function ProtectionsReadyState({ data, config }) {
     const { toggle, setFeed } = useContext(ProtectionsContext);
     const blockedCountSignal = useBlockedCount(data.totalCount);
+    const totalCookiePopUpsBlockedSignal = useCookiePopUpsBlockedCount(
+      data.totalCookiePopUpsBlocked
+    );
+
     return (
         <Protections
             blockedCountSignal={blockedCountSignal}
@@ -47,6 +51,7 @@ function ProtectionsReadyState({ data, config }) {
             toggle={toggle}
             feed={config.feed}
             setFeed={setFeed}
+            totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
         >
             {config.feed === 'activity' && (
                 <ActivityProvider>

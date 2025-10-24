@@ -968,6 +968,10 @@ export interface ProtectionsData {
    * Total number of trackers or ads blocked since install
    */
   totalCount: number;
+  /**
+   * Total number of cookie pop-ups blocked since install
+   */
+  totalCookiePopUpsBlocked: number;
 }
 /**
  * Generated from @see "../messages/rmf_getData.request.json"

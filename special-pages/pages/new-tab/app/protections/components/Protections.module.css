@@ -44,7 +44,7 @@
 }
 
 .block {
-    margin-top: 24px;
+    margin-top: 32px;
 }
 .empty {
     color: var(--ntp-text-muted);
