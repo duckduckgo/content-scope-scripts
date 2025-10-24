@@ -16,11 +16,11 @@
     "note": "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
   },
   "stats_countBlockedSingular": {
-    "title": "1 tracking attempt blocked",
+    "title": "Tracking attempt blocked",
     "note": "The main headline indicating that a single tracker was blocked"
   },
   "stats_countBlockedPlural": {
-    "title": "{count} tracking attempts blocked",
+    "title": "Tracking attempts blocked",
     "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
   "stats_noActivityAdsAndTrackers": {
@@ -32,12 +32,20 @@
     "note": "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
   },
   "stats_countBlockedAdsAndTrackersSingular": {
-    "title": "<b>1</b> advertising & tracking attempt blocked",
+    "title": "advertising & tracking attempt blocked",
     "note": "The main headline indicating that a single ad or tracking attempt was blocked"
   },
   "stats_countBlockedAdsAndTrackersPlural": {
-    "title": "<b>{count}</b> advertising & tracking attempts blocked",
+    "title": "advertising & tracking attempts blocked",
     "note": "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
+  },
+  "stats_totalCookiePopUpsBlockedSingular": {
+    "title": "Cookie pop-up blocked",
+    "note": "The heading indicating that a single cookie pop-up was handled by the CPM"
+  },
+  "stats_totalCookiePopUpsBlockedPlural": {
+    "title": "Cookie pop-ups blocked",
+    "note": "The heading indicating multiple cookie pop-ups were handled by the CPM"
   },
   "stats_feedCountBlockedSingular": {
     "title": "1 attempt blocked by DuckDuckGo in the last 7 days",

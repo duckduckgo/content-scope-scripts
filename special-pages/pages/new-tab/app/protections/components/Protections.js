@@ -22,8 +22,9 @@ import { useTypedTranslationWith } from '../../types.js';
  * @param {(feed: ProtectionsConfig['feed']) => void} props.setFeed
  * @param {import("preact").ComponentChild} [props.children]
  * @param {()=>void} props.toggle
+ * @param {import("@preact/signals").Signal<number>} props.totalCookiePopUpsBlockedSignal
  */
-export function Protections({ expansion = 'expanded', children, blockedCountSignal, feed, toggle, setFeed }) {
+export function Protections({ expansion = 'expanded', children, blockedCountSignal, feed, toggle, setFeed, totalCookiePopUpsBlockedSignal }) {
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
 
@@ -42,6 +43,7 @@ export function Protections({ expansion = 'expanded', children, blockedCountSign
                 expansion={expansion}
                 canExpand={true}
                 buttonAttrs={attrs}
+                totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
             />
             <ProtectionsBody feed={feed} setFeed={setFeed} id={WIDGET_ID} expansion={expansion}>
                 {children}

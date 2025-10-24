@@ -1,13 +1,9 @@
 import { useTypedTranslationWith } from '../../types.js';
-import { useState } from 'preact/hooks';
 import styles from '../../privacy-stats/components/PrivacyStats.module.css';
 import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
 import cn from 'classnames';
 import { h } from 'preact';
-import { useAdBlocking } from '../../settings.provider.js';
-import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
-import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
-import { useLocale } from '../../../../../shared/components/EnvironmentProvider.js';
+import { InfoIcon, NewBadgeIcon } from '../../components/Icons.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -20,33 +16,33 @@ import { useLocale } from '../../../../../shared/components/EnvironmentProvider.
  * @param {boolean} props.canExpand
  * @param {() => void} props.onToggle
  * @param {import('preact').ComponentProps<'button'>} [props.buttonAttrs]
+ * @param {import("@preact/signals").Signal<number>} props.totalCookiePopUpsBlockedSignal
  */
-export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, buttonAttrs = {} }) {
+export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, buttonAttrs = {}, totalCookiePopUpsBlockedSignal }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-    const locale = useLocale();
-    const [formatter] = useState(() => getLocalizedNumberFormatter(locale));
-    const adBlocking = useAdBlocking();
-    const blockedCount = blockedCountSignal.value;
-    const none = blockedCount === 0;
-    const some = blockedCount > 0;
-    const alltime = formatter.format(blockedCount);
+    const totalTrackersBlocked = blockedCountSignal.value;
+    const totalCookiePopUpsBlocked = totalCookiePopUpsBlockedSignal.value;
 
-    let alltimeTitle;
-    if (blockedCount === 1) {
-        alltimeTitle = adBlocking ? t('stats_countBlockedAdsAndTrackersSingular') : t('stats_countBlockedSingular');
-    } else {
-        alltimeTitle = adBlocking
-            ? t('stats_countBlockedAdsAndTrackersPlural', { count: alltime })
-            : t('stats_countBlockedPlural', { count: alltime });
-    }
+    // @todo jingram get these values from native
+    const isCpmEnabled = true; // Is Cookie pop-up protection in app
+    const shouldShowCookiePopUpsBlocked = true; // from ProtectionsConfig
+
+    const trackersBlockedHeading = totalTrackersBlocked === 1
+        ? t('stats_countBlockedSingular')
+        : t('stats_countBlockedPlural')
+
+    const cookiePopUpsBlockedHeading = totalCookiePopUpsBlocked === 1
+        ? t('stats_totalCookiePopUpsBlockedSingular')
+        : t('stats_totalCookiePopUpsBlockedPlural')
 
     return (
         <div class={styles.heading} data-testid="ProtectionsHeading">
-            <div class={styles.control}>
+            <div class={cn(styles.control, totalTrackersBlocked === 0 && styles.noTrackers)}>
                 <span class={styles.headingIcon}>
                     <img src={'./icons/Shield-Check-Color-16.svg'} alt="Privacy Shield" />
                 </span>
                 <h2 class={styles.caption}>{t('protections_menuTitle')}</h2>
+                <InfoIcon class={styles.infoIcon}/>
                 {canExpand && (
                     <span class={styles.widgetExpander}>
                         <ShowHideButtonCircle
@@ -61,15 +57,33 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
                     </span>
                 )}
             </div>
-            <div class={styles.counter}>
-                {none && <h3 class={styles.title}>{t('protections_noRecent')}</h3>}
-                {some && (
+            <div class={styles.counterContainer}>
+                {/* Total Trackers Blocked  */}
+                <div class={styles.counter}>
+                  {totalTrackersBlocked === 0 && (
+                    <h3 class={styles.title}>{t('protections_noRecent')}</h3>
+                  )}
+                  {totalTrackersBlocked > 0 && (
                     <h3 class={styles.title}>
-                        {' '}
-                        <Trans str={alltimeTitle} values={{ count: alltime }} />
+                      <span>{totalTrackersBlocked}</span>
+                      {trackersBlockedHeading}
                     </h3>
+                  )}
+                </div>
+
+                {/* Total Cookie Pop-Ups Blocked */}
+                {/* Rules: Display CPM stats when Cookie Pop-Up Protection is
+                enabled AND both `totalTrackersBlocked` and
+                `totalCookiePopUpsBlocked` are at least 1 */}
+                {(shouldShowCookiePopUpsBlocked && isCpmEnabled && totalTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0) && (
+                  <div class={styles.counter}>
+                      <h3 class={styles.title}>
+                        <span>{totalCookiePopUpsBlocked}</span>
+                        {cookiePopUpsBlockedHeading}
+                      </h3>
+                      <NewBadgeIcon />
+                  </div>
                 )}
-                <p class={cn(styles.subtitle, styles.indented)}>{t('stats_feedCountBlockedPeriod')}</p>
             </div>
         </div>
     );
