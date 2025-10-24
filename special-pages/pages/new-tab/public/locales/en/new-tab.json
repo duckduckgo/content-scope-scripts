@@ -109,6 +109,10 @@
     "title": "Cookie pop-ups blocked",
     "note": "The heading indicating multiple cookie pop-ups were handled by the CPM"
   },
+  "stats_protectionsReportInfo": {
+    "title": "Displays tracking attempts blocked in the last 7 days and the number of cookie pop-ups blocked since you started using the browser. <span>You can reset these stats using the Fire Button.</span>",
+    "note": "Text explaining how to reset the protections stats"
+  },
   "stats_feedCountBlockedSingular": {
     "title": "1 attempt blocked by DuckDuckGo in the last 7 days",
     "note": "A summary description of how many tracking attempts where blocked, when only one exists."
