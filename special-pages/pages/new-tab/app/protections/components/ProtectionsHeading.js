@@ -4,6 +4,7 @@ import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
 import cn from 'classnames';
 import { h } from 'preact';
 import { InfoIcon, NewBadgeIcon } from '../../components/Icons.js';
+import { Tooltip } from '../../components/Tooltip/Tooltip.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -21,11 +22,12 @@ import { InfoIcon, NewBadgeIcon } from '../../components/Icons.js';
 export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, buttonAttrs = {}, totalCookiePopUpsBlockedSignal }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const totalTrackersBlocked = blockedCountSignal.value;
-    const totalCookiePopUpsBlocked = totalCookiePopUpsBlockedSignal.value;
+    const totalCookiePopUpsBlocked = totalCookiePopUpsBlockedSignal.value ?? 0;
 
-    // @todo jingram get these values from native
-    const isCpmEnabled = true; // Is Cookie pop-up protection in app
-    const shouldShowCookiePopUpsBlocked = true; // from ProtectionsConfig
+    // Native does not tell the FE if cookie pop up protection is enabled but
+    // we can derive this from the value of `totalCookiePopUpsBlocked` in the
+    // `ProtectionsService`
+    const isCpmEnabled = totalCookiePopUpsBlockedSignal.value !== null;
 
     const trackersBlockedHeading = totalTrackersBlocked === 1
         ? t('stats_countBlockedSingular')
@@ -42,7 +44,11 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
                     <img src={'./icons/Shield-Check-Color-16.svg'} alt="Privacy Shield" />
                 </span>
                 <h2 class={styles.caption}>{t('protections_menuTitle')}</h2>
-                <InfoIcon class={styles.infoIcon}/>
+
+                <Tooltip content={t('stats_protectionsReportInfo')}>
+                    <InfoIcon class={styles.infoIcon}/>
+                </Tooltip>
+
                 {canExpand && (
                     <span class={styles.widgetExpander}>
                         <ShowHideButtonCircle
@@ -75,7 +81,7 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
                 {/* Rules: Display CPM stats when Cookie Pop-Up Protection is
                 enabled AND both `totalTrackersBlocked` and
                 `totalCookiePopUpsBlocked` are at least 1 */}
-                {(shouldShowCookiePopUpsBlocked && isCpmEnabled && totalTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0) && (
+                {(isCpmEnabled && totalTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0) && (
                   <div class={styles.counter}>
                       <h3 class={styles.title}>
                         <span>{totalCookiePopUpsBlocked}</span>
