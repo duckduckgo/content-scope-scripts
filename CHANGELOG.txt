@@ -1,1 +1,1 @@
-- Update translations for "Sites" (#2031)
+- [Autofill Import] Navigate to manage page and retry download (#2026)
