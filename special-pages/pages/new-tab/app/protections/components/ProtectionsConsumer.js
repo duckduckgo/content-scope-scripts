@@ -55,7 +55,10 @@ function ProtectionsReadyState({ data, config }) {
         >
             {config.feed === 'activity' && (
                 <ActivityProvider>
-                    <ActivityConsumer showBurnAnimation={config.showBurnAnimation ?? true} />
+                    <ActivityConsumer
+                        showBurnAnimation={config.showBurnAnimation ?? true}
+                        shouldDisplayLegacyActivity={totalCookiePopUpsBlockedSignal.value === undefined}
+                    />
                 </ActivityProvider>
             )}
             {config.feed === 'privacy-stats' && (

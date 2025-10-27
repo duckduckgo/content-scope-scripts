@@ -81,8 +81,16 @@
     "title": "Tracking attempt blocked",
     "note": "The main headline indicating that a single tracker was blocked"
   },
+  "stats_countBlockedSingularLegacy": {
+    "title": "1 tracking attempt blocked",
+    "note": "The main headline indicating that a single tracker was blocked"
+  },
   "stats_countBlockedPlural": {
     "title": "Tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "stats_countBlockedPluralLegacy": {
+    "title": "{count} tracking attempts blocked",
     "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
   "stats_noActivityAdsAndTrackers": {
@@ -97,8 +105,16 @@
     "title": "advertising & tracking attempt blocked",
     "note": "The main headline indicating that a single ad or tracking attempt was blocked"
   },
+  "stats_countBlockedAdsAndTrackersSingularLegacy": {
+    "title": "<b>1</b> advertising & tracking attempt blocked",
+    "note": "The main headline indicating that a single ad or tracking attempt was blocked"
+  },
   "stats_countBlockedAdsAndTrackersPlural": {
     "title": "advertising & tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
+  },
+  "stats_countBlockedAdsAndTrackersPluralLegacy": {
+    "title": "<b>{count}</b> advertising & tracking attempts blocked",
     "note": "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
   },
   "stats_totalCookiePopUpsBlockedSingular": {
@@ -424,6 +440,10 @@
   "activity_countBlockedPlural": {
     "title": "{count} Tracking attempts blocked",
     "note": "Pill text indicating that more than 1 attempt has been blocked. Eg: '2 Tracking attempts blocked'"
+  },
+  "activity_countBlockedPluralLegacy": {
+    "title": "<b>{count}</b> tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
   "activity_countBlockedSingular": {
     "title": "{count} Tracking attempt blocked",

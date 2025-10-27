@@ -86,6 +86,15 @@ export function protectionsMockTransport() {
                     if (url.searchParams.get('activity') === 'empty') {
                         dataset.totalCount = 0;
                     }
+                    if (url.searchParams.get('cpm') === 'true') {
+                        dataset.totalCookiePopUpsBlocked = 22;
+                    }
+                    // Setting cpm=undefined allows us to see the legacy
+                    // protections report. Useful until all platforms adopt the
+                    // new schema
+                    if (url.searchParams.get('cpm') === 'undefined') {
+                        dataset.totalCookiePopUpsBlocked = undefined;
+                    }
                     return Promise.resolve(dataset);
                 case 'protections_getConfig': {
                     if (url.searchParams.get('protections.feed') === 'activity') {
