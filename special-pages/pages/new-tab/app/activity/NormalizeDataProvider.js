@@ -76,6 +76,7 @@ export function normalizeData(prev, incoming) {
             faviconMax: item.favicon?.maxAvailableSize ?? DDG_DEFAULT_ICON_SIZE,
             favoriteSrc: item.favicon?.src,
             trackersFound: item.trackersFound,
+            // cookiePopUpBlocked: item.cookiePopUpBlocked,
         };
         const differs = shallowDiffers(next, prev.items[id] || {});
         output.items[id] = differs ? next : prev.items[id] || {};
@@ -86,12 +87,14 @@ export function normalizeData(prev, incoming) {
         const prevItem = prev.trackingStatus[id] || {
             totalCount: 0,
             trackerCompanies: [],
+            cookiePopUpBlocked: null,
         };
         const trackersDiffer = shallowDiffers(item.trackingStatus.trackerCompanies, prevItem.trackerCompanies);
         if (prevItem.totalCount !== item.trackingStatus.totalCount || trackersDiffer) {
             const next = {
                 totalCount: item.trackingStatus.totalCount,
                 trackerCompanies: [...item.trackingStatus.trackerCompanies],
+                cookiePopUpBlocked: item.cookiePopUpBlocked,
             };
             output.trackingStatus[id] = next;
         } else {

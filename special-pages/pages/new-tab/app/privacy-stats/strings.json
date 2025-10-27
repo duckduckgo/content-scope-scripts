@@ -23,9 +23,17 @@
     "title": "1 tracking attempt blocked",
     "note": "The main headline indicating that a single tracker was blocked"
   },
+  "stats_countBlockedSingularLegacy": {
+    "title": "1 tracking attempt blocked",
+    "note": "The main headline indicating that a single tracker was blocked"
+  },
   "stats_countBlockedPlural": {
     "title": "Tracking attempts blocked",
     "note": "The sub headline indicating that more than 1 tracker has been blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedPluralLegacy": {
+    "title": "{count} tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
   "stats_countBlockedPluralLegacy": {
     "title": "{count} tracking attempts blocked",
@@ -42,6 +50,10 @@
   "stats_countBlockedAdsAndTrackersSingularLegacy": {
     "title": "<b>1</b> advertising & tracking attempt blocked",
     "note": "The main headline indicating that a single ad or tracking attempt was blocked"
+  },
+  "stats_countBlockedAdsAndTrackersPluralLegacy": {
+    "title": "<b>{count}</b> advertising & tracking attempts blocked",
+    "note": "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
   },
   "stats_countBlockedAdsAndTrackersPluralLegacy": {
     "title": "<b>{count}</b> advertising & tracking attempts blocked",

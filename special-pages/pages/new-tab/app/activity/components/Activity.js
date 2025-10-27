@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import styles from './Activity.module.css';
 // @todo legacyProtections: `stylesLegacy` can be removed once all platforms
 // are ready for the new Protections Report
@@ -301,6 +301,66 @@ function TrackerStatusLegacy({ id, trackersFound }) {
     }
 
     if (totalCount === 0) {
+        const text = trackersFound
+            ? t('activity_no_trackers_blocked')
+            : t('activity_no_trackers')
+
+        return (
+            <p class={stylesLegacy.companiesIconRow} data-testid="TrackerStatus">
+                {text}
+            </p>
+        );
+    }
+
+    return (
+        <div class={stylesLegacy.companiesIconRow} data-testid="TrackerStatus">
+            <div class={stylesLegacy.companiesIcons}>
+                {icons}
+                {otherIcon}
+            </div>
+            <div class={stylesLegacy.companiesText}>
+                {adBlocking ? (
+                    <Trans str={t('activity_countBlockedAdsAndTrackersPlural', { count: String(status.value.totalCount) })} values={{}} />
+                ) : (
+                    <Trans str={t('activity_countBlockedPluralLegacy', { count: String(status.value.totalCount) })} values={{}} />
+                )}
+                {cookiePopUpBlocked && <TickPill text={t('activity_cookiePopUpBlocked')} />}
+            </div>
+        </div>
+    );
+}
+
+// @todo legacyProtections: `TrackerStatusLegacy` can be removed once all
+// platforms are ready for the new protections report
+
+/**
+ * @param {object} props
+ * @param {string} props.id
+ * @param {boolean} props.trackersFound
+ */
+function TrackerStatusLegacy({ id, trackersFound }) {
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const { activity } = useContext(NormalizedDataContext);
+    const status = useComputed(() => activity.value.trackingStatus[id]);
+    const other = status.value.trackerCompanies.slice(DDG_MAX_TRACKER_ICONS - 1);
+    const companyIconsMax = other.length === 0 ? DDG_MAX_TRACKER_ICONS : DDG_MAX_TRACKER_ICONS - 1;
+    const adBlocking = useAdBlocking();
+
+    const icons = status.value.trackerCompanies.slice(0, companyIconsMax).map((item, _index) => {
+        return <CompanyIcon displayName={item.displayName} key={item} />;
+    });
+
+    let otherIcon = null;
+    if (other.length > 0) {
+        const title = other.map((item) => item.displayName).join('\n');
+        otherIcon = (
+            <span title={title} class={stylesLegacy.otherIcon}>
+                +{other.length}
+            </span>
+        );
+    }
+
+    if (status.value.totalCount === 0) {
         let text;
         if (trackersFound) {
             text = adBlocking ? t('activity_no_adsAndTrackers_blocked') : t('activity_no_trackers_blocked');
@@ -326,7 +386,6 @@ function TrackerStatusLegacy({ id, trackersFound }) {
                 ) : (
                     <Trans str={t('activity_countBlockedPluralLegacy', { count: String(status.value.totalCount) })} values={{}} />
                 )}
-                {cookiePopUpBlocked && <TickPill text={t('activity_cookiePopUpBlocked')} />}
             </div>
         </div>
     );
