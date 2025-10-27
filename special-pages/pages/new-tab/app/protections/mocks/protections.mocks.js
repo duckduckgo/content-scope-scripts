@@ -9,7 +9,7 @@ export const protectionsMocks = {
     },
     few: {
         totalCount: 86,
-        totalCookiePopUpsBlocked: 23,
+        totalCookiePopUpsBlocked: 21,
     },
     many: {
         totalCount: 1_000_020,

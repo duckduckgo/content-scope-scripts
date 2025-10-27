@@ -97,6 +97,7 @@ export function useService() {
 export function useBlockedCount(initial) {
     const service = useService();
     const signal = useSignal(initial);
+    {/* @todo jingram possibly refactor to include full object */}
     useSignalEffect(() => {
         return service.current?.onData((evt) => {
             signal.value = evt.data.totalCount;
@@ -106,8 +107,8 @@ export function useBlockedCount(initial) {
 }
 
 /**
- * @param {number} initial
- * @return {import("@preact/signals").Signal<number>}
+ * @param {number | null | undefined} initial
+ * @return {import("@preact/signals").Signal<undefined | number | null>}
  */
 export function useCookiePopUpsBlockedCount(initial) {
     const service = useService();

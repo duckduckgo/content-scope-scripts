@@ -17,7 +17,7 @@ import { Tooltip } from '../../components/Tooltip/Tooltip.js';
  * @param {boolean} props.canExpand
  * @param {() => void} props.onToggle
  * @param {import('preact').ComponentProps<'button'>} [props.buttonAttrs]
- * @param {import("@preact/signals").Signal<number>} props.totalCookiePopUpsBlockedSignal
+ * @param {import("@preact/signals").Signal<undefined | number | null>} props.totalCookiePopUpsBlockedSignal
  */
 export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, buttonAttrs = {}, totalCookiePopUpsBlockedSignal }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
