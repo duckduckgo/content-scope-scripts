@@ -745,6 +745,10 @@ export interface DomainActivity {
   trackersFound: boolean;
   history: HistoryEntry[];
   favorite: boolean;
+  /**
+   * A cookie pop-up has been blocked for the specific domain
+   */
+  cookiePopUpBlocked?: null | boolean;
 }
 export interface TrackingStatus {
   trackerCompanies: {
@@ -971,7 +975,7 @@ export interface ProtectionsData {
   /**
    * Total number of cookie pop-ups blocked since install
    */
-  totalCookiePopUpsBlocked: number;
+  totalCookiePopUpsBlocked?: null | number;
 }
 /**
  * Generated from @see "../messages/rmf_getData.request.json"
