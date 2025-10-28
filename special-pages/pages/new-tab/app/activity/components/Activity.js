@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { h } from 'preact';
 import styles from './Activity.module.css';
 // @todo legacyProtections: `stylesLegacy` can be removed once all platforms
 // are ready for the new Protections Report
@@ -301,9 +301,7 @@ function TrackerStatusLegacy({ id, trackersFound }) {
     }
 
     if (totalCount === 0) {
-        const text = trackersFound
-            ? t('activity_no_trackers_blocked')
-            : t('activity_no_trackers')
+        const text = trackersFound ? t('activity_no_trackers_blocked') : t('activity_no_trackers');
 
         return (
             <p class={stylesLegacy.companiesIconRow} data-testid="TrackerStatus">
