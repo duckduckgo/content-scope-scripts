@@ -20,9 +20,7 @@ export function Tooltip({ children, content, className }) {
             onMouseLeave={() => setIsVisible(false)}
         >
             {children}
-            {isVisible && (
-                <div class={styles.tooltip} role="tooltip" dangerouslySetInnerHTML={{__html: content}} />
-            )}
+            {isVisible && <div class={styles.tooltip} role="tooltip" dangerouslySetInnerHTML={{ __html: content }} />}
         </div>
     );
 }

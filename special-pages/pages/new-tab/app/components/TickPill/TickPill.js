@@ -8,7 +8,7 @@ import styles from './TickPill.module.css';
  * @param {Object} props
  * @param {string} props.text - The text to display next to the checkmark
  * @param {string} [props.className] - Additional CSS classes
- * @param {bool} [props.displayTick] - Display the tick or not
+ * @param {boolean} [props.displayTick] - Display the tick or not
  */
 export function TickPill({ text, className, displayTick = true }) {
     return (

@@ -25,7 +25,15 @@ import { ProtectionsHeadingLegacy } from './ProtectionsHeadingLegacy';
  * @param {()=>void} props.toggle
  * @param {import("@preact/signals").Signal<undefined | number | null>} props.totalCookiePopUpsBlockedSignal
  */
-export function Protections({ expansion = 'expanded', children, blockedCountSignal, feed, toggle, setFeed, totalCookiePopUpsBlockedSignal }) {
+export function Protections({
+    expansion = 'expanded',
+    children,
+    blockedCountSignal,
+    feed,
+    toggle,
+    setFeed,
+    totalCookiePopUpsBlockedSignal,
+}) {
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
     const totalCookiePopUpsBlocked = totalCookiePopUpsBlockedSignal.value;
@@ -43,22 +51,22 @@ export function Protections({ expansion = 'expanded', children, blockedCountSign
             native side is not sending this property and we can assume it's not
             yet been implemented */}
             {totalCookiePopUpsBlocked === undefined ? (
-              <ProtectionsHeadingLegacy
-                  blockedCountSignal={blockedCountSignal}
-                  onToggle={toggle}
-                  expansion={expansion}
-                  canExpand={true}
-                  buttonAttrs={attrs}
-              />
+                <ProtectionsHeadingLegacy
+                    blockedCountSignal={blockedCountSignal}
+                    onToggle={toggle}
+                    expansion={expansion}
+                    canExpand={true}
+                    buttonAttrs={attrs}
+                />
             ) : (
-              <ProtectionsHeading
-                  blockedCountSignal={blockedCountSignal}
-                  onToggle={toggle}
-                  expansion={expansion}
-                  canExpand={true}
-                  buttonAttrs={attrs}
-                  totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
-              />
+                <ProtectionsHeading
+                    blockedCountSignal={blockedCountSignal}
+                    onToggle={toggle}
+                    expansion={expansion}
+                    canExpand={true}
+                    buttonAttrs={attrs}
+                    totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
+                />
             )}
             <ProtectionsBody feed={feed} setFeed={setFeed} id={WIDGET_ID} expansion={expansion}>
                 {children}

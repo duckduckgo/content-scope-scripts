@@ -97,7 +97,7 @@ export function useService() {
 export function useBlockedCount(initial) {
     const service = useService();
     const signal = useSignal(initial);
-    {/* @todo jingram possibly refactor to include full object */}
+    // @todo jingram possibly refactor to include full object
     useSignalEffect(() => {
         return service.current?.onData((evt) => {
             signal.value = evt.data.totalCount;

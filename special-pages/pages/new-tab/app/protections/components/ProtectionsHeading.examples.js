@@ -21,7 +21,16 @@ export const protectionsHeadingExamples = {
                     <br />
                     <TubeGrid>
                         <MockWithState initial={0}>
-                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                            {(
+                                /** @type {Mock} */ {
+                                    expansion,
+                                    feed,
+                                    setFeed,
+                                    blockedCountSignal,
+                                    toggle,
+                                    totalCookiePopUpsBlockedSignal,
+                                },
+                            ) => {
                                 return (
                                     <SettingsProvider settings={new Settings({ adBlocking: { state: 'enabled' } })}>
                                         <Protections
@@ -30,6 +39,7 @@ export const protectionsHeadingExamples = {
                                             setFeed={setFeed}
                                             expansion={expansion}
                                             toggle={toggle}
+                                            totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
                                         >
                                             <PrivacyStatsEmptyState />
                                         </Protections>
@@ -38,7 +48,16 @@ export const protectionsHeadingExamples = {
                             }}
                         </MockWithState>
                         <MockWithState initial={120}>
-                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                            {(
+                                /** @type {Mock} */ {
+                                    expansion,
+                                    feed,
+                                    setFeed,
+                                    blockedCountSignal,
+                                    toggle,
+                                    totalCookiePopUpsBlockedSignal,
+                                },
+                            ) => {
                                 return (
                                     <SettingsProvider settings={new Settings({ adBlocking: { state: 'enabled' } })}>
                                         <Protections
@@ -47,6 +66,7 @@ export const protectionsHeadingExamples = {
                                             setFeed={setFeed}
                                             expansion={expansion}
                                             toggle={toggle}
+                                            totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
                                         >
                                             <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
                                         </Protections>
@@ -59,7 +79,16 @@ export const protectionsHeadingExamples = {
                     <br />
                     <TubeGrid>
                         <MockWithState initial={0}>
-                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                            {(
+                                /** @type {Mock} */ {
+                                    expansion,
+                                    feed,
+                                    setFeed,
+                                    blockedCountSignal,
+                                    toggle,
+                                    totalCookiePopUpsBlockedSignal,
+                                },
+                            ) => {
                                 return (
                                     <Protections
                                         blockedCountSignal={blockedCountSignal}
@@ -67,6 +96,7 @@ export const protectionsHeadingExamples = {
                                         setFeed={setFeed}
                                         expansion={expansion}
                                         toggle={toggle}
+                                        totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
                                     >
                                         <PrivacyStatsEmptyState />
                                     </Protections>
@@ -74,7 +104,16 @@ export const protectionsHeadingExamples = {
                             }}
                         </MockWithState>
                         <MockWithState initial={0} feedType={'activity'}>
-                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                            {(
+                                /** @type {Mock} */ {
+                                    expansion,
+                                    feed,
+                                    setFeed,
+                                    blockedCountSignal,
+                                    toggle,
+                                    totalCookiePopUpsBlockedSignal,
+                                },
+                            ) => {
                                 return (
                                     <Protections
                                         blockedCountSignal={blockedCountSignal}
@@ -82,6 +121,7 @@ export const protectionsHeadingExamples = {
                                         setFeed={setFeed}
                                         expansion={expansion}
                                         toggle={toggle}
+                                        totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
                                     >
                                         <ActivityEmptyState />
                                     </Protections>
@@ -89,7 +129,16 @@ export const protectionsHeadingExamples = {
                             }}
                         </MockWithState>
                         <MockWithState initial={1}>
-                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                            {(
+                                /** @type {Mock} */ {
+                                    expansion,
+                                    feed,
+                                    setFeed,
+                                    blockedCountSignal,
+                                    toggle,
+                                    totalCookiePopUpsBlockedSignal,
+                                },
+                            ) => {
                                 return (
                                     <Protections
                                         blockedCountSignal={blockedCountSignal}
@@ -97,6 +146,7 @@ export const protectionsHeadingExamples = {
                                         setFeed={setFeed}
                                         expansion={expansion}
                                         toggle={toggle}
+                                        totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
                                     >
                                         <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
                                     </Protections>
@@ -104,7 +154,16 @@ export const protectionsHeadingExamples = {
                             }}
                         </MockWithState>
                         <MockWithState initial={0} interval={1000}>
-                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                            {(
+                                /** @type {Mock} */ {
+                                    expansion,
+                                    feed,
+                                    setFeed,
+                                    blockedCountSignal,
+                                    toggle,
+                                    totalCookiePopUpsBlockedSignal,
+                                },
+                            ) => {
                                 return (
                                     <Protections
                                         blockedCountSignal={blockedCountSignal}
@@ -112,6 +171,7 @@ export const protectionsHeadingExamples = {
                                         setFeed={setFeed}
                                         expansion={expansion}
                                         toggle={toggle}
+                                        totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
                                     >
                                         <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
                                     </Protections>
@@ -119,7 +179,16 @@ export const protectionsHeadingExamples = {
                             }}
                         </MockWithState>
                         <MockWithState initial={100} feedType={'activity'}>
-                            {(/** @type {Mock} */ { expansion, feed, setFeed, blockedCountSignal, toggle }) => {
+                            {(
+                                /** @type {Mock} */ {
+                                    expansion,
+                                    feed,
+                                    setFeed,
+                                    blockedCountSignal,
+                                    toggle,
+                                    totalCookiePopUpsBlockedSignal,
+                                },
+                            ) => {
                                 return (
                                     <Protections
                                         blockedCountSignal={blockedCountSignal}
@@ -127,6 +196,7 @@ export const protectionsHeadingExamples = {
                                         setFeed={setFeed}
                                         expansion={expansion}
                                         toggle={toggle}
+                                        totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
                                     >
                                         <PrintState feed={feed} blockedCountSignal={blockedCountSignal} />
                                     </Protections>
@@ -162,6 +232,7 @@ function PrintState(props) {
  * @property {() => void} toggle
  * @property {import('../../../types/new-tab.js').Expansion} expansion
  * @property {import('@preact/signals').Signal<number>} blockedCountSignal
+ * @property {import('@preact/signals').Signal<number | null | undefined>} totalCookiePopUpsBlockedSignal
  * @property {FeedType} feed
  * @property {(f: FeedType) => void} setFeed
  *
@@ -175,6 +246,7 @@ const MockWithState = ({ children, initial = 0, feedType = 'privacy-stats', inte
     const [feed, setFeed] = useState(feedType);
     const [expansion, setExpansion] = useState(/** @type {import('../../../types/new-tab.js').Expansion} */ ('expanded'));
     const signal = useSignal(initial);
+    const totalCookiePopUpsBlockedSignal = useSignal(/** @type {number | null | undefined} */ (null));
     useEffect(() => {
         if (interval === 0) return;
         const int = setInterval(() => (signal.value += 1), interval);
@@ -183,5 +255,5 @@ const MockWithState = ({ children, initial = 0, feedType = 'privacy-stats', inte
     const toggle = () => {
         setExpansion((old) => (old === 'expanded' ? 'collapsed' : 'expanded'));
     };
-    return children({ toggle, expansion, feed, setFeed, blockedCountSignal: signal });
+    return children({ toggle, expansion, feed, setFeed, blockedCountSignal: signal, totalCookiePopUpsBlockedSignal });
 };
