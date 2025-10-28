@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { h } from 'preact';
 import styles from './Activity.module.css';
 // @todo legacyProtections: `stylesLegacy` can be removed once all platforms
 // are ready for the new Protections Report
@@ -152,10 +152,8 @@ const BurnableItem = memo(
         }
 
         // @todo legacyProtections: Once all platforms are ready for the new
-        // protections report we can use `ActivityItem` 
-        const ActivityItemComponent = shouldDisplayLegacyActivity
-            ? ActivityItemLegacy
-            : ActivityItem;
+        // protections report we can use `ActivityItem`
+        const ActivityItemComponent = shouldDisplayLegacyActivity ? ActivityItemLegacy : ActivityItem;
 
         return (
             <ActivityItemAnimationWrapper url={id}>
@@ -172,15 +170,9 @@ const BurnableItem = memo(
                         // @todo legacyProtections: `TrackerStatusLegacy` and
                         // supporting prop can be removed once all platforms are
                         // ready for the new protections report
-                        <TrackerStatusLegacy
-                            id={id}
-                            trackersFound={item.value.trackersFound}
-                        />
+                        <TrackerStatusLegacy id={id} trackersFound={item.value.trackersFound} />
                     ) : (
-                        <TrackerStatus
-                            id={id}
-                            trackersFound={item.value.trackersFound}
-                        />
+                        <TrackerStatus id={id} trackersFound={item.value.trackersFound} />
                     )}
                     <HistoryItems id={id} />
                 </ActivityItemComponent>
@@ -209,10 +201,8 @@ const RemovableItem = memo(
         }
 
         // @todo legacyProtections: Once all platforms are ready for the new
-        // protections report we can use `ActivityItem` 
-        const ActivityItemComponent = shouldDisplayLegacyActivity
-            ? ActivityItemLegacy
-            : ActivityItem;
+        // protections report we can use `ActivityItem`
+        const ActivityItemComponent = shouldDisplayLegacyActivity ? ActivityItemLegacy : ActivityItem;
 
         return (
             <ActivityItemComponent
@@ -228,15 +218,9 @@ const RemovableItem = memo(
                     // @todo legacyProtections: `TrackerStatusLegacy` and
                     // supporting prop can be removed once all platforms are
                     // ready for the new protections report
-                    <TrackerStatusLegacy
-                        id={id}
-                        trackersFound={item.value.trackersFound}
-                    />
+                    <TrackerStatusLegacy id={id} trackersFound={item.value.trackersFound} />
                 ) : (
-                    <TrackerStatus
-                        id={id}
-                        trackersFound={item.value.trackersFound}
-                    />
+                    <TrackerStatus id={id} trackersFound={item.value.trackersFound} />
                 )}
                 <HistoryItems id={id} />
             </ActivityItemComponent>
@@ -255,28 +239,14 @@ function TrackerStatus({ id, trackersFound }) {
     const { activity } = useContext(NormalizedDataContext);
     const status = useComputed(() => activity.value.trackingStatus[id]);
     const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked);
-    const {totalCount, trackerCompanies} = status.value;
-    const other = trackerCompanies.slice(DDG_MAX_TRACKER_ICONS - 1);
-    const adBlocking = useAdBlocking();
-
-    let otherIcon = null;
-    if (other.length > 0) {
-        const title = other.map((item) => item.displayName).join('\n');
-        otherIcon = (
-            <span title={title} class={styles.otherIcon}>
-                +{other.length}
-            </span>
-        );
-    }
+    const { totalCount } = status.value;
 
     if (totalCount === 0) {
-        const text = trackersFound
-            ? t('activity_no_trackers_blocked')
-            : t('activity_no_trackers')
+        const text = trackersFound ? t('activity_no_trackers_blocked') : t('activity_no_trackers');
 
         return (
             <p class={styles.companiesIconRow} data-testid="TrackerStatus">
-                <TickPill text={text} displayTick={false}/>
+                <TickPill text={text} displayTick={false} />
             </p>
         );
     }
@@ -285,15 +255,11 @@ function TrackerStatus({ id, trackersFound }) {
         <div class={styles.companiesIconRow} data-testid="TrackerStatus">
             <div class={styles.companiesText}>
                 {totalCount > 0 && (
-                  <TickPill
-                      text={
-                        t(totalCount === 1
-                          ? 'activity_countBlockedSingular'
-                          : 'activity_countBlockedPlural',
-                          { count: String(totalCount) }
-                        )
-                      }
-                  />
+                    <TickPill
+                        text={t(totalCount === 1 ? 'activity_countBlockedSingular' : 'activity_countBlockedPlural', {
+                            count: String(totalCount),
+                        })}
+                    />
                 )}
                 {cookiePopUpBlocked && <TickPill text={t('activity_cookiePopUpBlocked')} />}
             </div>
@@ -407,11 +373,7 @@ export function ActivityConsumer({ showBurnAnimation, shouldDisplayLegacyActivit
             return (
                 <SignalStateProvider>
                     <ActivityConfigured>
-                        <ActivityBody
-                            canBurn={false}
-                            visibility={visibility}
-                            shouldDisplayLegacyActivity={shouldDisplayLegacyActivity}
-                        />
+                        <ActivityBody canBurn={false} visibility={visibility} shouldDisplayLegacyActivity={shouldDisplayLegacyActivity} />
                     </ActivityConfigured>
                 </SignalStateProvider>
             );
@@ -420,11 +382,7 @@ export function ActivityConsumer({ showBurnAnimation, shouldDisplayLegacyActivit
             <SignalStateProvider>
                 <BurnProvider service={service} showBurnAnimation={showBurnAnimation}>
                     <ActivityConfigured>
-                        <ActivityBody
-                            canBurn={true}
-                            visibility={visibility}
-                            shouldDisplayLegacyActivity={shouldDisplayLegacyActivity}
-                        />
+                        <ActivityBody canBurn={true} visibility={visibility} shouldDisplayLegacyActivity={shouldDisplayLegacyActivity} />
                     </ActivityConfigured>
                 </BurnProvider>
             </SignalStateProvider>

@@ -16,7 +16,7 @@ export const activityExamples = {
         factory: () => (
             <Activity itemCount={10} batched={false}>
                 <Mock size={3}>
-                    <ActivityBody canBurn={false} visibility={'visible'} />
+                    <ActivityBody canBurn={false} visibility={'visible'} shouldDisplayLegacyActivity={false} />
                 </Mock>
             </Activity>
         ),
@@ -25,7 +25,7 @@ export const activityExamples = {
         factory: () => (
             <Activity itemCount={20} batched={false}>
                 <Mock size={1}>
-                    <ActivityBody canBurn={false} visibility={'visible'} />
+                    <ActivityBody canBurn={false} visibility={'visible'} shouldDisplayLegacyActivity={false} />
                 </Mock>
             </Activity>
         ),
@@ -34,7 +34,7 @@ export const activityExamples = {
         factory: () => (
             <Activity itemCount={0} batched={false}>
                 <Mock size={0}>
-                    <ActivityBody canBurn={false} visibility={'visible'} />
+                    <ActivityBody canBurn={false} visibility={'visible'} shouldDisplayLegacyActivity={false} />
                 </Mock>
             </Activity>
         ),
@@ -58,6 +58,7 @@ function Mock({ children, size }) {
             favorites: {},
             urls: [],
             totalTrackers: 0,
+            cookiePopUpBlocked: null,
         },
         { activity: mocks, urls: mocks.map((x) => x.url), totalTrackers: 0 },
     );

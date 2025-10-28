@@ -19,7 +19,14 @@ import { Tooltip } from '../../components/Tooltip/Tooltip.js';
  * @param {import('preact').ComponentProps<'button'>} [props.buttonAttrs]
  * @param {import("@preact/signals").Signal<undefined | number | null>} props.totalCookiePopUpsBlockedSignal
  */
-export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, onToggle, buttonAttrs = {}, totalCookiePopUpsBlockedSignal }) {
+export function ProtectionsHeading({
+    expansion,
+    canExpand,
+    blockedCountSignal,
+    onToggle,
+    buttonAttrs = {},
+    totalCookiePopUpsBlockedSignal,
+}) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const totalTrackersBlocked = blockedCountSignal.value;
     const totalCookiePopUpsBlocked = totalCookiePopUpsBlockedSignal.value ?? 0;
@@ -29,13 +36,10 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
     // `ProtectionsService`
     const isCpmEnabled = totalCookiePopUpsBlockedSignal.value !== null;
 
-    const trackersBlockedHeading = totalTrackersBlocked === 1
-        ? t('stats_countBlockedSingular')
-        : t('stats_countBlockedPlural')
+    const trackersBlockedHeading = totalTrackersBlocked === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural');
 
-    const cookiePopUpsBlockedHeading = totalCookiePopUpsBlocked === 1
-        ? t('stats_totalCookiePopUpsBlockedSingular')
-        : t('stats_totalCookiePopUpsBlockedPlural')
+    const cookiePopUpsBlockedHeading =
+        totalCookiePopUpsBlocked === 1 ? t('stats_totalCookiePopUpsBlockedSingular') : t('stats_totalCookiePopUpsBlockedPlural');
 
     return (
         <div class={styles.heading} data-testid="ProtectionsHeading">
@@ -46,7 +50,7 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
                 <h2 class={styles.caption}>{t('protections_menuTitle')}</h2>
 
                 <Tooltip content={t('stats_protectionsReportInfo')}>
-                    <InfoIcon class={styles.infoIcon}/>
+                    <InfoIcon class={styles.infoIcon} />
                 </Tooltip>
 
                 {canExpand && (
@@ -66,29 +70,27 @@ export function ProtectionsHeading({ expansion, canExpand, blockedCountSignal, o
             <div class={styles.counterContainer}>
                 {/* Total Trackers Blocked  */}
                 <div class={styles.counter}>
-                  {totalTrackersBlocked === 0 && (
-                    <h3 class={styles.title}>{t('protections_noRecent')}</h3>
-                  )}
-                  {totalTrackersBlocked > 0 && (
-                    <h3 class={styles.title}>
-                      <span>{totalTrackersBlocked}</span>
-                      {trackersBlockedHeading}
-                    </h3>
-                  )}
+                    {totalTrackersBlocked === 0 && <h3 class={styles.title}>{t('protections_noRecent')}</h3>}
+                    {totalTrackersBlocked > 0 && (
+                        <h3 class={styles.title}>
+                            <span>{totalTrackersBlocked}</span>
+                            {trackersBlockedHeading}
+                        </h3>
+                    )}
                 </div>
 
                 {/* Total Cookie Pop-Ups Blocked */}
                 {/* Rules: Display CPM stats when Cookie Pop-Up Protection is
                 enabled AND both `totalTrackersBlocked` and
                 `totalCookiePopUpsBlocked` are at least 1 */}
-                {(isCpmEnabled && totalTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0) && (
-                  <div class={styles.counter}>
-                      <h3 class={styles.title}>
-                        <span>{totalCookiePopUpsBlocked}</span>
-                        {cookiePopUpsBlockedHeading}
-                      </h3>
-                      <NewBadgeIcon />
-                  </div>
+                {isCpmEnabled && totalTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && (
+                    <div class={styles.counter}>
+                        <h3 class={styles.title}>
+                            <span>{totalCookiePopUpsBlocked}</span>
+                            {cookiePopUpsBlockedHeading}
+                        </h3>
+                        <NewBadgeIcon />
+                    </div>
                 )}
             </div>
         </div>

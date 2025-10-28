@@ -193,6 +193,7 @@ export function SignalStateProvider({ children }) {
                 favorites: {},
                 urls: [],
                 totalTrackers: 0,
+                cookiePopUpBlocked: null,
             },
             { activity: state.data.activity, urls: state.data.urls, totalTrackers: state.data.totalTrackers },
         ),
