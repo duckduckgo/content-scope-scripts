@@ -49,6 +49,7 @@ export function ProtectionsHeading({
                 </span>
                 <h2 class={styles.caption}>{t('protections_menuTitle')}</h2>
 
+                {/* @todo accessibility: move focus to content on hover? */}
                 <Tooltip content={t('stats_protectionsReportInfo')}>
                     <InfoIcon class={styles.infoIcon} />
                 </Tooltip>
@@ -89,6 +90,8 @@ export function ProtectionsHeading({
                             <span>{totalCookiePopUpsBlocked}</span>
                             {cookiePopUpsBlockedHeading}
                         </h3>
+                        {/* @todo `NewBadgeIcon` will be manually removed in
+                        a future iteration */}
                         <NewBadgeIcon />
                     </div>
                 )}
