@@ -562,6 +562,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @property {'ios' | 'macos' | 'extension' | 'android' | 'windows'} name
  * @property {string | number } [version]
  * @property {boolean} [internal] - Internal build flag
+ * @property {boolean} [preview] - Preview build flag
  */
 
 /**

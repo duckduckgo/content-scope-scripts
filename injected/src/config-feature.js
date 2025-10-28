@@ -135,6 +135,7 @@ export default class ConfigFeature {
      * @property {boolean} [context.top] - true if the condition applies to the top frame
      * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
      * @property {boolean} [internal] - true if the condition applies to internal builds
+     * @property {boolean} [preview] - true if the condition applies to preview builds
      */
 
     /**
@@ -167,6 +168,7 @@ export default class ConfigFeature {
             maxSupportedVersion: this._matchMaxSupportedVersion,
             injectName: this._matchInjectNameConditional,
             internal: this._matchInternalConditional,
+            preview: this._matchPreviewConditional,
         };
 
         for (const key in conditionBlock) {
@@ -300,6 +302,18 @@ export default class ConfigFeature {
         const isInternal = this.#args?.platform?.internal;
         if (isInternal === undefined) return false;
         return Boolean(conditionBlock.internal) === Boolean(isInternal);
+    }
+
+    /**
+     * Takes a condition block and returns true if the preview state matches the condition.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchPreviewConditional(conditionBlock) {
+        if (conditionBlock.preview === undefined) return false;
+        const isPreview = this.#args?.platform?.preview;
+        if (isPreview === undefined) return false;
+        return Boolean(conditionBlock.preview) === Boolean(isPreview);
     }
 
     /**
