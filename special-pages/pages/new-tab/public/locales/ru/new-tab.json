@@ -297,15 +297,15 @@
     "note" : "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
   },
   "nextSteps_subscription_title" : {
-    "title" : "Получите бесплатную пробную версию",
+    "title" : "Доступ к премиум-функциям",
     "note" : "Title of the Next Steps card for unlocking your free trial of DuckDuckGo subscription"
   },
   "nextSteps_subscription_summary" : {
-    "title" : "Попробуйте нашу подписку, включающую VPN и еще 3 премиум-функции.",
+    "title" : "Предлагаем бесплатно попробовать VPN + еще 3 преимущества подписки.",
     "note" : "Summary of the Next Steps card about the DuckDuckGo subscription"
   },
   "nextSteps_subscription_actionText" : {
-    "title" : "Пробная версия на 7 дней",
+    "title" : "Бесплатное Ознакомление",
     "note" : "Button text of the Next Steps card for trying the DuckDuckGo subscription"
   },
   "favorites_show_less" : {
