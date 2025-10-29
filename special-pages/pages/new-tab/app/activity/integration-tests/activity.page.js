@@ -441,4 +441,22 @@ export class ActivityPage {
           - paragraph: Past 7 days
       `);
     }
+
+    /**
+     * Test that cookie popup blocked indicator is shown for items with cookiePopUpBlocked: true
+     */
+    async showsCookiePopupBlockedIndicator() {
+        // First item in 'few' mock has cookiePopUpBlocked: true
+        const firstItem = this.context().getByTestId('ActivityItem').nth(0);
+        await expect(firstItem.getByText(/cookie pop-up/i)).toBeVisible();
+    }
+
+    /**
+     * Test that cookie popup blocked indicator is NOT shown for items with cookiePopUpBlocked: false
+     */
+    async hidesCookiePopupIndicatorWhenNotBlocked() {
+        // Second item in 'few' mock (youtube) has cookiePopUpBlocked: false
+        const secondItem = this.context().getByTestId('ActivityItem').nth(1);
+        await expect(secondItem.getByText(/cookie pop-up/i)).not.toBeVisible();
+    }
 }
