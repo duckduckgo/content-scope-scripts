@@ -40,6 +40,7 @@ export class ProtectionsPage {
         /** @type {ProtectionsData} */
         const data = {
             totalCount: count,
+            totalCookiePopUpsBlocked: null, // null means CPM is not enabled
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
         await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} tracking attempts blocked`);
@@ -55,5 +56,57 @@ export class ProtectionsPage {
           - heading /\\d+ – tyle prób śledzenia zablokowano/ [level=3]
           - paragraph: Ostatnie 7 dni
           `);
+    }
+
+    /**
+     * Test that cookie popup blocking stats are displayed when both trackers and cookie popups are > 0
+     */
+    async displaysCookiePopupStats() {
+        /** @type {ProtectionsData} */
+        const data = {
+            totalCount: 100,
+            totalCookiePopUpsBlocked: 25,
+        };
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
+        await expect(this.context().getByRole('heading', { level: 3 }).first()).toContainText('100 tracking attempts blocked');
+        // Cookie popup stats should be visible
+        await expect(this.context().getByText(/cookie pop-ups?/i)).toBeVisible();
+    }
+
+    /**
+     * Test that cookie popup stats are NOT displayed when totalCookiePopUpsBlocked is null (CPM disabled)
+     */
+    async hidesCookiePopupStatsWhenDisabled() {
+        /** @type {ProtectionsData} */
+        const data = {
+            totalCount: 100,
+            totalCookiePopUpsBlocked: null,
+        };
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
+        // Cookie popup stats should not be visible
+        await expect(this.context().getByText(/cookie pop-ups?/i)).not.toBeVisible();
+    }
+
+    /**
+     * Test that cookie popup stats are NOT displayed when totalCookiePopUpsBlocked is 0
+     */
+    async hidesCookiePopupStatsWhenZero() {
+        /** @type {ProtectionsData} */
+        const data = {
+            totalCount: 100,
+            totalCookiePopUpsBlocked: 0,
+        };
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
+        // Cookie popup stats should not be visible when count is 0
+        await expect(this.context().getByText(/cookie pop-ups?/i)).not.toBeVisible();
+    }
+
+    /**
+     * Test that the info tooltip is displayed
+     */
+    async hasInfoTooltip() {
+        const heading = this.context().getByTestId('ProtectionsHeading');
+        // The InfoIcon should be present
+        await expect(heading.locator('[class*="infoIcon"]')).toBeVisible();
     }
 }

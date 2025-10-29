@@ -56,4 +56,44 @@ test.describe('protections report', () => {
         await protections.ready();
         await protections.hasPolishText();
     });
+
+    test('displays cookie popup blocking stats when enabled and counts > 0', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+
+        const protections = new ProtectionsPage(ntp);
+        await protections.ready();
+        await protections.displaysCookiePopupStats();
+    });
+
+    test('hides cookie popup stats when CPM is disabled (null)', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+
+        const protections = new ProtectionsPage(ntp);
+        await protections.ready();
+        await protections.hidesCookiePopupStatsWhenDisabled();
+    });
+
+    test('hides cookie popup stats when count is 0', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+
+        const protections = new ProtectionsPage(ntp);
+        await protections.ready();
+        await protections.hidesCookiePopupStatsWhenZero();
+    });
+
+    test('displays info tooltip', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+
+        const protections = new ProtectionsPage(ntp);
+        await protections.ready();
+        await protections.hasInfoTooltip();
+    });
 });
