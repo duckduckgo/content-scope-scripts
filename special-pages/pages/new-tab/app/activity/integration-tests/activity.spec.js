@@ -143,6 +143,22 @@ test.describe('activity widget', () => {
         await ap.didRender();
         await ap.showsZeroTrackerMessagesWithCpm();
     });
+    test('shows cookie popup blocked indicator', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { ...defaultPageParams } });
+        await ap.didRender();
+        await ap.showsCookiePopupBlockedIndicator();
+    });
+    test('hides cookie popup indicator when not blocked', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { ...defaultPageParams } });
+        await ap.didRender();
+        await ap.hidesCookiePopupIndicatorWhenNotBlocked();
+    });
     test('after rendering and navigating to a new tab, data is re-requested on return', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
