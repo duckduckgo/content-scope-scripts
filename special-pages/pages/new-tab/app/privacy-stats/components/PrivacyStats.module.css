@@ -34,6 +34,13 @@
     margin-right: 6px;
 }
 
+.infoIcon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
 .widgetExpander {
     position: relative;
     flex: 1;
