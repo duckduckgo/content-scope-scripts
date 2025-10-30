@@ -5,11 +5,14 @@
 export const protectionsMocks = {
     empty: {
         totalCount: 0,
+        totalCookiePopUpsBlocked: 0,
     },
     few: {
         totalCount: 86,
+        totalCookiePopUpsBlocked: 21,
     },
     many: {
         totalCount: 1_000_020,
+        totalCookiePopUpsBlocked: 5_432,
     },
 };

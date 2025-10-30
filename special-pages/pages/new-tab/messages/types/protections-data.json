@@ -10,6 +10,17 @@
     "totalCount": {
       "description": "Total number of trackers or ads blocked since install",
       "type": "number"
+    },
+    "totalCookiePopUpsBlocked": {
+      "description": "Total number of cookie pop-ups blocked since install",
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "number"
+        }
+      ]
     }
   }
 }
