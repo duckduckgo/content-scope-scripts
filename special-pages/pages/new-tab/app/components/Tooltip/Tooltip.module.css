@@ -18,7 +18,7 @@
     white-space: normal;
     width: 236px;
     z-index: 1000;
-    animation: tooltipFadeIn 0.7s ease-out;
+    animation: tooltipFadeIn 300ms ease;
 
     & span {
       display: block;

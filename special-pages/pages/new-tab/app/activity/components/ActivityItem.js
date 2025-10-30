@@ -7,7 +7,7 @@ import { FaviconWithState } from '../../../../../shared/components/FaviconWithSt
 import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
 import { Star, StarFilled } from '../../components/icons/Star.js';
 import { Fire } from '../../components/icons/Fire.js';
-import { Cross } from '../../components/Icons.js';
+import { Cross, FireIcon } from '../../components/Icons.js';
 import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { useComputed } from '@preact/signals';
@@ -139,7 +139,7 @@ function Controls({ canBurn, url, title }) {
                 value={url}
                 type="button"
             >
-                {canBurn ? <Fire /> : <Cross />}
+                {canBurn ? <FireIcon /> : <Cross />}
             </button>
         </div>
     );
