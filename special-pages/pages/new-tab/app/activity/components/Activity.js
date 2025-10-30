@@ -238,29 +238,22 @@ function TrackerStatus({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
     const status = useComputed(() => activity.value.trackingStatus[id]);
-    const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked);
-    const { totalCount } = status.value;
+    const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked?.[id]).value;
+    const { totalCount: totalTrackersBlocked } = status.value;
 
-    if (totalCount === 0) {
-        const text = trackersFound ? t('activity_no_trackers_blocked') : t('activity_no_trackers');
-
-        return (
-            <p class={styles.companiesIconRow} data-testid="TrackerStatus">
-                <TickPill text={text} displayTick={false} />
-            </p>
-        );
-    }
+    const totalTrackersPillText =
+        totalTrackersBlocked === 0
+            ? trackersFound
+                ? t('activity_no_trackers_blocked')
+                : t('activity_no_trackers')
+            : t(totalTrackersBlocked === 1 ? 'activity_countBlockedSingular' : 'activity_countBlockedPlural', {
+                  count: String(totalTrackersBlocked),
+              });
 
     return (
         <div class={styles.companiesIconRow} data-testid="TrackerStatus">
             <div class={styles.companiesText}>
-                {totalCount > 0 && (
-                    <TickPill
-                        text={t(totalCount === 1 ? 'activity_countBlockedSingular' : 'activity_countBlockedPlural', {
-                            count: String(totalCount),
-                        })}
-                    />
-                )}
+                {totalTrackersBlocked > 0 && <TickPill text={totalTrackersPillText} />}
                 {cookiePopUpBlocked && <TickPill text={t('activity_cookiePopUpBlocked')} />}
             </div>
         </div>

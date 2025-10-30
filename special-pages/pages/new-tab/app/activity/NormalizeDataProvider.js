@@ -36,7 +36,7 @@ import { ACTION_BURN } from '../burning/BurnProvider.js';
  * @property {Record<string, boolean>} favorites
  * @property {string[]} urls
  * @property {number} totalTrackers
- * @property {DomainActivity['cookiePopUpBlocked']} cookiePopUpBlocked
+ * @property {Record<string, boolean|null|undefined>} cookiePopUpBlocked
  */
 
 /**
@@ -53,7 +53,7 @@ export function normalizeData(prev, incoming) {
         trackingStatus: {},
         urls: [],
         totalTrackers: incoming.totalTrackers,
-        cookiePopUpBlocked: null,
+        cookiePopUpBlocked: {},
     };
 
     if (shallowDiffers(prev.urls, incoming.urls)) {
@@ -66,7 +66,7 @@ export function normalizeData(prev, incoming) {
         const id = item.url;
 
         output.favorites[id] = item.favorite;
-        output.cookiePopUpBlocked = item.cookiePopUpBlocked;
+        output.cookiePopUpBlocked[id] = item.cookiePopUpBlocked;
 
         /** @type {Item} */
         const next = {
@@ -87,14 +87,12 @@ export function normalizeData(prev, incoming) {
         const prevItem = prev.trackingStatus[id] || {
             totalCount: 0,
             trackerCompanies: [],
-            cookiePopUpBlocked: null,
         };
         const trackersDiffer = shallowDiffers(item.trackingStatus.trackerCompanies, prevItem.trackerCompanies);
         if (prevItem.totalCount !== item.trackingStatus.totalCount || trackersDiffer) {
             const next = {
                 totalCount: item.trackingStatus.totalCount,
                 trackerCompanies: [...item.trackingStatus.trackerCompanies],
-                cookiePopUpBlocked: item.cookiePopUpBlocked,
             };
             output.trackingStatus[id] = next;
         } else {
@@ -193,7 +191,7 @@ export function SignalStateProvider({ children }) {
                 favorites: {},
                 urls: [],
                 totalTrackers: 0,
-                cookiePopUpBlocked: null,
+                cookiePopUpBlocked: {},
             },
             { activity: state.data.activity, urls: state.data.urls, totalTrackers: state.data.totalTrackers },
         ),
