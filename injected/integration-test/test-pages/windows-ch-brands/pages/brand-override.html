@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Windows CH Brands - Brand Override</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Windows CH Brands]</a></p>
+
+    <p>This page verifies that navigator.userAgentData.brands uses the configured brands from the windowsChBrands feature settings</p>
+
+    <script>
+        test('Brand override', async () => {
+            const results = [];
+
+            if (navigator.userAgentData && navigator.userAgentData.brands) {
+                const brands = navigator.userAgentData.brands;
+                const brandNames = new Set(brands.map(b => b.brand));
+
+                results.push({
+                    name: 'contains Chromium brand',
+                    result: brandNames.has('Chromium'),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'contains DuckDuckGo brand',
+                    result: brandNames.has('DuckDuckGo'),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'has correct number of brands',
+                    result: brands.length,
+                    expected: 2
+                });
+
+                results.push({
+                    name: 'does not contain Microsoft Edge brand',
+                    result: !brandNames.has('Microsoft Edge'),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'does not contain Microsoft Edge WebView2 brand',
+                    result: !brandNames.has('Microsoft Edge WebView2'),
+                    expected: true
+                });
+
+                if (navigator.userAgentData.getHighEntropyValues) {
+                    try {
+                        const highEntropyValues = await navigator.userAgentData.getHighEntropyValues(['brands']);
+                        if (highEntropyValues.brands) {
+                            const heBrandNames = new Set(highEntropyValues.brands.map(b => b.brand));
+                            results.push({
+                                name: 'high entropy contains Chromium',
+                                result: heBrandNames.has('Chromium'),
+                                expected: true
+                            });
+                            results.push({
+                                name: 'high entropy contains DuckDuckGo',
+                                result: heBrandNames.has('DuckDuckGo'),
+                                expected: true
+                            });
+
+                            results.push({
+                                name: 'high entropy does not contain Microsoft Edge',
+                                result: !heBrandNames.has('Microsoft Edge'),
+                                expected: true
+                            });
+
+                            results.push({
+                                name: 'high entropy does not contain Microsoft Edge WebView2',
+                                result: !heBrandNames.has('Microsoft Edge WebView2'),
+                                expected: true
+                            });
+                        }
+                    } catch (error) {
+                        results.push({
+                            name: 'getHighEntropyValues works',
+                            result: false,
+                            expected: true
+                        });
+                    }
+                }
+            } else {
+                results.push({
+                    name: 'navigator.userAgentData.brands available',
+                    result: false,
+                    expected: true
+                });
+            }
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>
