@@ -5,7 +5,7 @@ import { DismissButton } from '../../components/DismissButton';
 import styles from './FreemiumPIRBanner.module.css';
 import { FreemiumPIRBannerContext } from '../FreemiumPIRBannerProvider';
 import { useContext } from 'preact/hooks';
-import { convertMarkdownToHTMLForStrongTags } from '../freemiumPIRBanner.utils';
+import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils';
 
 /**
  * @typedef { import("../../../types/new-tab").FreemiumPIRBannerMessage} FreemiumPIRBannerMessage

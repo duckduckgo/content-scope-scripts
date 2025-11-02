@@ -8,7 +8,7 @@ export const BACKGROUND_COLOR_START = 'rgba(85, 127, 243, 0.10)';
 export const BACKGROUND_COLOR_END = 'rgba(85, 127, 243, 0.25)';
 export const OVERLAY_ID = 'ddg-password-import-overlay';
 export const DELAY_BEFORE_ANIMATION = 300;
-const TAKEOUT_DOWNLOAD_URL_BASE = '/takeout/download';
+const MANAGE_ARCHIVE_DEFAULT_BASE = '/manage/archive';
 
 /**
  * @typedef ButtonAnimationStyle
@@ -54,8 +54,6 @@ export default class AutofillImport extends ActionExecutorBase {
     #currentElementConfig;
 
     #domLoaded;
-
-    #exportId;
 
     #processingBookmark;
 
@@ -589,24 +587,43 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     /** Bookmark import code */
-    async downloadData() {
-        // sleep for a second, sometimes download link is not yet available
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+    get defaultRetrySettings() {
+        return {
+            maxAttempts: this.getFeatureSetting('downloadRetryLimit') ?? Infinity,
+            interval: this.getFeatureSetting('downloadRetryInterval') ?? 1000,
+        };
+    }
 
-        const userId = document.querySelector(this.bookmarkImportSelectorSettings.userIdLink)?.getAttribute('href')?.split('&user=')[1];
-        await this.runWithRetry(() => document.querySelector(`a[href="./manage/archive/${this.#exportId}"]`), 15, 2000, 'linear');
-        if (userId != null && this.#exportId != null) {
-            const downloadURL = `${TAKEOUT_DOWNLOAD_URL_BASE}?j=${this.#exportId}&i=0&user=${userId}`;
-            window.location.href = downloadURL;
-        } else {
-            // If there's no user id or export id, we post an action failed message
+    async downloadData() {
+        // Run with retry forever until the download link is available,
+        // Android is the one that timesout anyway and closes the whole tab if this doesn't complete
+
+        const exportId = window.location.pathname
+            .split('/')
+            .filter((segment) => segment)
+            .pop();
+
+        if (!exportId) {
             this.postBookmarkImportMessage('actionCompleted', {
                 result: new ErrorResponse({
                     actionID: 'download-data',
-                    message: 'No user id or export id found',
+                    message: 'User id or export id not found',
                 }),
             });
+            return;
         }
+
+        const downloadLinkSelector = this.bookmarkImportSelectorSettings.downloadLink ?? `a[href*="&i=0&user="]`;
+        const downloadButton = /** @type {HTMLAnchorElement|null} */ (
+            await this.runWithRetry(() => document.querySelector(downloadLinkSelector), 5, 1000, 'linear')
+        );
+        if (downloadButton == null) {
+            // If there was no download link, it was likely a 404
+            // so we reload the page to try again
+            window.location.reload();
+        }
+
+        downloadButton?.click();
     }
 
     /**
@@ -614,9 +631,10 @@ export default class AutofillImport extends ActionExecutorBase {
      * as for now the retry doesn't need to be per action.
      */
     retryConfigFor(_) {
+        const { interval, maxAttempts } = this.defaultRetrySettings;
         return {
-            interval: { ms: 1000 },
-            maxAttempts: 30,
+            interval: { ms: interval },
+            maxAttempts,
         };
     }
 
@@ -639,14 +657,17 @@ export default class AutofillImport extends ActionExecutorBase {
     async handleBookmarkImportPath(pathname) {
         if (pathname === '/' && !this.#isBookmarkModalVisible) {
             for (const action of this.bookmarkImportActionSettings) {
-                // Before clicking on the manage button, we need to store the export id
-                if (action.id === 'manage-button-click') {
-                    await this.storeExportId();
-                }
-
                 await this.patchMessagingAndProcessAction(action);
             }
+
+            // Parse the export id from the page and then navigate to the 'manage' page
+            const exportId = await this.getExportId();
+            window.location.href = `${MANAGE_ARCHIVE_DEFAULT_BASE}/${exportId}`;
+        } else if (pathname.startsWith(MANAGE_ARCHIVE_DEFAULT_BASE)) {
+            // If we're on the 'manage' page, we can download the data
             await this.downloadData();
+        } else {
+            // Unhandled path, we bail out
         }
     }
 
@@ -660,11 +681,13 @@ export default class AutofillImport extends ActionExecutorBase {
     findExportId() {
         const panels = document.querySelectorAll(this.bookmarkImportSelectorSettings.tabPanel);
         const exportPanel = panels[panels.length - 1];
-        return exportPanel.querySelector('div[data-archive-id]')?.getAttribute('data-archive-id');
+        const dataArchiveIdSelector = this.bookmarkImportSelectorSettings.dataArchiveId ?? `div[data-archive-id]`;
+        return exportPanel.querySelector(dataArchiveIdSelector)?.getAttribute('data-archive-id');
     }
 
-    async storeExportId() {
-        this.#exportId = await this.runWithRetry(() => this.findExportId(), 30, 1000, 'linear');
+    async getExportId() {
+        const { maxAttempts, interval } = this.defaultRetrySettings;
+        return await this.runWithRetry(() => this.findExportId(), maxAttempts, interval, 'linear');
     }
 
     urlChanged() {

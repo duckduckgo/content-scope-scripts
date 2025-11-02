@@ -990,4 +990,204 @@ describe('ContentFeature class', () => {
             expect(result).toBe(true);
         });
     });
+
+    describe('preview condition', () => {
+        it('should match when preview is true and condition is true', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: true,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should match when preview is false and condition is false', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: false,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: false,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when preview is true but condition is false', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: false,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should not match when preview is false but condition is true', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: false,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: true,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle undefined preview state gracefully', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    // preview not set
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: true,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle missing preview condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({});
+            expect(result).toBe(false);
+        });
+
+        it('should handle truthy values for preview condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: 1, // truthy value
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: true,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should handle falsy values for preview condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: 0, // falsy value
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: false,
+            });
+            expect(result).toBe(true);
+        });
+    });
 });

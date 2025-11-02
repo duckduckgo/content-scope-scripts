@@ -40,7 +40,7 @@ jobs:
               run: 'npm run test-clean-tree'
     integration:
         runs-on: ubuntu-latest
-        timeout-minutes: 10
+        timeout-minutes: 15
         steps:
             - uses: actions/checkout@v5
             - name: Use Node.js

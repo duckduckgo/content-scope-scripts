@@ -562,6 +562,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @property {'ios' | 'macos' | 'extension' | 'android' | 'windows'} name
  * @property {string | number } [version]
  * @property {boolean} [internal] - Internal build flag
+ * @property {boolean} [preview] - Preview build flag
  */
 
 /**
@@ -846,7 +847,7 @@ export function withRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponent
 export function isDuckAi() {
     const tabUrl = getTabUrl();
     const domains = ['duckduckgo.com', 'duck.ai', 'duck.co'];
-    if (tabUrl?.hostname && domains.includes(tabUrl?.hostname)) {
+    if (tabUrl?.hostname && domains.some((domain) => matchHostname(tabUrl?.hostname, domain))) {
         const url = new URL(tabUrl?.href);
         return url.searchParams.has('duckai') || url.searchParams.get('ia') === 'chat';
     }
