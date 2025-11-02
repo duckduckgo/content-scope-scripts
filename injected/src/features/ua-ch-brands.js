@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature';
 
-export default class WindowsChBrands extends ContentFeature {
+export default class UaChBrands extends ContentFeature {
     constructor(featureName, importConfig, args) {
         super(featureName, importConfig, args);
         

@@ -1,0 +1,13 @@
+{
+    "readme": "This config tests that uaChBrands feature returns early when brands setting is missing (feature is enabled but settings.brands is undefined)",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "uaChBrands": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+            }
+        }
+    }
+}

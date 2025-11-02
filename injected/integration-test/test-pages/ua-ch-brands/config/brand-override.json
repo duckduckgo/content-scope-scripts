@@ -1,9 +1,9 @@
 {
-    "readme": "This config tests that windowsBrandHints can override navigator.userAgentData.brands",
+    "readme": "This config tests that uaChBrands can override navigator.userAgentData.brands",
     "version": 1,
     "unprotectedTemporary": [],
     "features": {
-        "windowsChBrands": {
+        "uaChBrands": {
             "state": "enabled",
             "exceptions": [],
             "settings": {
