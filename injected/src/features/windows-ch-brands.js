@@ -9,6 +9,13 @@ export default class WindowsChBrands extends ContentFeature {
     }
 
     init() {
+        const configuredBrands = this.getFeatureSetting('brands');
+        
+        if (!configuredBrands || configuredBrands.length === 0) {
+            this.log.info('No client hint brands correctly configured, feature disabled');
+            return;
+        }
+        
         this.updateConfig();
         this.shimUserAgentDataBrands();
     }

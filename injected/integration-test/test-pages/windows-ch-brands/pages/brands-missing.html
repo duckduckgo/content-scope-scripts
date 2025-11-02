@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Windows CH Brands - Brands Missing</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Windows CH Brands]</a></p>
+
+    <p>This page verifies that when brands setting is missing/null/empty, the feature returns early and original brands are preserved</p>
+
+    <script>
+        test('Feature returns early when brands missing', async () => {
+            const results = [];
+
+            if (navigator.userAgentData && navigator.userAgentData.brands) {
+                // When brands setting is missing, the feature returns early in init()
+                // and doesn't apply any overrides. Verify that native behavior is preserved.
+                
+                const brands = navigator.userAgentData.brands;
+                
+                // Verify brands still works normally (feature didn't break anything)
+                results.push({
+                    name: 'brands array exists and has content',
+                    result: Array.isArray(brands) && brands.length > 0,
+                    expected: true
+                });
+                
+                // Verify getHighEntropyValues also works and returns matching values
+                if (navigator.userAgentData.getHighEntropyValues) {
+                    try {
+                        const highEntropyValues = await navigator.userAgentData.getHighEntropyValues(['brands']);
+                        const heBrands = highEntropyValues.brands;
+                        
+                        if (heBrands) {
+                            // Both should return the same values (both native, not wrapped)
+                            const brandsStr = JSON.stringify(brands);
+                            const heBrandsStr = JSON.stringify(heBrands);
+                            
+                            results.push({
+                                name: 'getHighEntropyValues and direct access return matching values',
+                                result: brandsStr === heBrandsStr,
+                                expected: true
+                            });
+                        }
+                    } catch (error) {
+                        results.push({
+                            name: 'getHighEntropyValues works',
+                            result: false,
+                            expected: true
+                        });
+                    }
+                }
+            } else {
+                results.push({
+                    name: 'navigator.userAgentData.brands available',
+                    result: false,
+                    expected: true
+                });
+            }
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

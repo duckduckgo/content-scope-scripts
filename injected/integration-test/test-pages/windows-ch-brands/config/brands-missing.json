@@ -1,0 +1,13 @@
+{
+    "readme": "This config tests that windowsChBrands feature returns early when brands setting is missing (feature is enabled but settings.brands is undefined)",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "windowsChBrands": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+            }
+        }
+    }
+}
