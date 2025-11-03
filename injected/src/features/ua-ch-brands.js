@@ -87,12 +87,12 @@ export default class UaChBrands extends ContentFeature {
             // Insert GREASE at its original position or end if out of bounds
             const insertAt = Math.min(greaseIndex, result.length);
             result.splice(insertAt, 0, greaseBrand);
-            const brandNames = result.map(b => `"${b.brand}" v${b.version}`).join(', ');
+            const brandNames = result.map((b) => `"${b.brand}" v${b.version}`).join(', ');
             this.log.info(`Applying configured brands with GREASE at index ${insertAt}: [${brandNames}]`);
             return result;
         }
 
-        const brandNames = configuredBrands.map(b => `"${b.brand}" v${b.version}`).join(', ');
+        const brandNames = configuredBrands.map((b) => `"${b.brand}" v${b.version}`).join(', ');
         this.log.info(`Applying configured brands (no GREASE found): [${brandNames}]`);
         return configuredBrands;
     }
