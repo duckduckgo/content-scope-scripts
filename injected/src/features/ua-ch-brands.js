@@ -3,27 +3,19 @@ import ContentFeature from '../content-feature';
 export default class UaChBrands extends ContentFeature {
     constructor(featureName, importConfig, args) {
         super(featureName, importConfig, args);
-        
+
         this.cachedBrands = null;
         this.originalBrands = null;
     }
 
     init() {
         const configuredBrands = this.getFeatureSetting('brands');
-        
+
         if (!configuredBrands || configuredBrands.length === 0) {
             this.log.info('No client hint brands correctly configured, feature disabled');
             return;
         }
-        
-        this.updateConfig();
         this.shimUserAgentDataBrands();
-    }
-
-    updateConfig() {
-        // Clear cache when privacy config updated
-        this.cachedBrands = null;
-        this.log.info('Privacy remote config updated');
     }
 
     /**
@@ -63,7 +55,7 @@ export default class UaChBrands extends ContentFeature {
      */
     applyBrandMutations() {
         const configuredBrands = this.getFeatureSetting('brands');
-        
+
         if (!configuredBrands || configuredBrands.length === 0) {
             this.log.info('No CH brands configured, skipping mutations');
             return null;
@@ -85,25 +77,15 @@ export default class UaChBrands extends ContentFeature {
             get: () => newBrands,
         });
 
-        // Also override getHighEntropyValues on the prototype
         if (proto.getHighEntropyValues) {
-            this.wrapMethod(proto, 'getHighEntropyValues', (originalFn, ...args) => {
+            this.wrapMethod(proto, 'getHighEntropyValues', async (originalFn, ...args) => {
                 // @ts-expect-error - userAgentData not yet standard
-                return originalFn.apply(navigator.userAgentData, args).then((result) => {
-                    if (args[0] && args[0].includes('brands')) {
-                        result.brands = newBrands;
-                    }
-                    return result;
-                });
+                const result = await originalFn.apply(navigator.userAgentData, args);
+                if (args[0] && args[0].includes('brands')) {
+                    result.brands = newBrands;
+                }
+                return result;
             });
         }
-    }
-
-    /**
-     * Handle configuration updates (called when remote config changes)
-     */
-    update() {
-        this.updateConfig();
-        this.shimUserAgentDataBrands();
     }
 }

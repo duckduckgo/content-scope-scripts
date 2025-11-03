@@ -18,11 +18,10 @@
 
             if (navigator.userAgentData && navigator.userAgentData.brands) {
                 // When brands setting is missing, the feature returns early in init()
-                // and doesn't apply any overrides. Verify that native behavior is preserved.
                 
                 const brands = navigator.userAgentData.brands;
                 
-                // Verify brands still works normally (feature didn't break anything)
+                // Verify brands still works normally
                 results.push({
                     name: 'brands array exists and has content',
                     result: Array.isArray(brands) && brands.length > 0,
@@ -36,7 +35,7 @@
                         const heBrands = highEntropyValues.brands;
                         
                         if (heBrands) {
-                            // Both should return the same values (both native, not wrapped)
+                            // Both should return the same unwrapped values
                             const brandsStr = JSON.stringify(brands);
                             const heBrandsStr = JSON.stringify(heBrands);
                             
