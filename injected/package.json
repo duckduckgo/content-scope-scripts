@@ -35,7 +35,7 @@
     "urlpattern-polyfill": "^10.1.0"
   },
   "devDependencies": {
-    "@canvas/image-data": "^1.0.0",
+    "@canvas/image-data": "^1.1.0",
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@types/chrome": "^0.1.1",
     "@types/jasmine": "^5.1.9",
