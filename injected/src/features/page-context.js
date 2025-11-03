@@ -3,7 +3,7 @@ import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
 const MSG_PAGE_CONTEXT_RESPONSE = 'collectionResult';
 
-function checkNodeIsVisible(node) {
+export function checkNodeIsVisible(node) {
     try {
         const style = window.getComputedStyle(node);
 
@@ -36,6 +36,29 @@ function isHtmlElement(node) {
  * @returns {Document | null}
  */
 function getSameOriginIframeDocument(iframe) {
+    // Pre-check conditions that would prevent access without triggering security errors
+    const src = iframe.src;
+
+    // Skip sandboxed iframes unless they explicitly allow scripts
+    // Avoids: Blocked script execution in 'about:blank' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+    // Note: iframe.sandbox always returns a DOMTokenList, so check hasAttribute instead
+    if (iframe.hasAttribute('sandbox') && !iframe.sandbox.contains('allow-scripts')) {
+        return null;
+    }
+
+    // Check for cross-origin URLs (but allow about:blank and empty src as they inherit parent origin)
+    if (src && src !== 'about:blank' && src !== '') {
+        try {
+            const iframeUrl = new URL(src, window.location.href);
+            if (iframeUrl.origin !== window.location.origin) {
+                return null;
+            }
+        } catch (e) {
+            // Invalid URL, skip
+            return null;
+        }
+    }
+
     try {
         // Try to access the contentDocument - this will throw if cross-origin
         const doc = iframe.contentDocument;
@@ -76,8 +99,9 @@ function domToMarkdownChildren(childNodes, settings, depth = 0) {
  * @typedef {Object} DomToMarkdownSettings
  * @property {number} maxLength - Maximum length of content
  * @property {number} maxDepth - Maximum depth to traverse
- * @property {string} excludeSelectors - CSS selectors to exclude from processing
+ * @property {string | null} excludeSelectors - CSS selectors to exclude from processing
  * @property {boolean} includeIframes - Whether to include iframe content
+ * @property {boolean} trimBlankLinks - Whether to trim blank links
  */
 
 /**
@@ -87,7 +111,7 @@ function domToMarkdownChildren(childNodes, settings, depth = 0) {
  * @param {number} depth
  * @returns {string}
  */
-function domToMarkdown(node, settings, depth = 0) {
+export function domToMarkdown(node, settings, depth = 0) {
     if (depth > settings.maxDepth) {
         return '';
     }
@@ -97,7 +121,7 @@ function domToMarkdown(node, settings, depth = 0) {
     if (!isHtmlElement(node)) {
         return '';
     }
-    if (!checkNodeIsVisible(node) || node.matches(settings.excludeSelectors)) {
+    if (!checkNodeIsVisible(node) || (settings.excludeSelectors && node.matches(settings.excludeSelectors))) {
         return '';
     }
 
@@ -127,12 +151,15 @@ function domToMarkdown(node, settings, depth = 0) {
             return `${children}\n`;
         case 'br':
             return `\n`;
+        case 'img':
+            return `\n![${getAttributeOrBlank(node, 'alt')}](${getAttributeOrBlank(node, 'src')})\n`;
         case 'ul':
+        case 'ol':
             return `\n${children}\n`;
         case 'li':
-            return `\n- ${children.trim()}\n`;
+            return `\n- ${collapseAndTrim(children)}\n`;
         case 'a':
-            return getLinkText(node);
+            return getLinkText(node, children, settings);
         case 'iframe': {
             if (!settings.includeIframes) {
                 return children;
@@ -151,13 +178,30 @@ function domToMarkdown(node, settings, depth = 0) {
     }
 }
 
+/**
+ * @param {Element} node
+ * @param {string} attr
+ * @returns {string}
+ */
+function getAttributeOrBlank(node, attr) {
+    const attrValue = node.getAttribute(attr) ?? '';
+    return attrValue.trim();
+}
+
 function collapseAndTrim(str) {
     return collapseWhitespace(str).trim();
 }
 
-function getLinkText(node) {
+function getLinkText(node, children, settings) {
     const href = node.getAttribute('href');
-    return href ? `[${collapseAndTrim(node.textContent)}](${href})` : collapseWhitespace(node.textContent);
+    const trimmedContent = collapseAndTrim(children);
+    if (settings.trimBlankLinks && trimmedContent.length === 0) {
+        return '';
+    }
+    // The difference in whitespace handling is intentional here.
+    // Where we don't wrap in a link:
+    // we should retain at least one preceding and following space.
+    return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
 }
 
 export default class PageContext extends ContentFeature {
@@ -337,7 +381,7 @@ export default class PageContext extends ContentFeature {
 
     startObserving() {
         this.log.info('Starting observing', this.mutationObserver, this.#cachedContent);
-        if (this.mutationObserver && this.#cachedContent && !this.isObserving) {
+        if (this.mutationObserver && this.#cachedContent && !this.isObserving && document.body) {
             this.isObserving = true;
             this.mutationObserver.observe(document.body, {
                 childList: true,
@@ -380,19 +424,30 @@ export default class PageContext extends ContentFeature {
         const content = {
             favicon: getFaviconList(),
             title: this.getPageTitle(),
-            metaDescription: this.getMetaDescription(),
             content: mainContent,
             truncated,
             fullContentLength: this.fullContentLength, // Include full content length before truncation
-            headings: this.getHeadings(),
-            links: this.getLinks(),
-            images: this.getImages(),
             timestamp: Date.now(),
             url: window.location.href,
         };
 
+        if (this.getFeatureSettingEnabled('includeMetaDescription', 'disabled')) {
+            content.metaDescription = this.getMetaDescription();
+        }
+        if (this.getFeatureSettingEnabled('includeHeadings', 'disabled')) {
+            content.headings = this.getHeadings();
+        }
+        if (this.getFeatureSettingEnabled('includeLinks', 'disabled')) {
+            content.links = this.getLinks();
+        }
+        if (this.getFeatureSettingEnabled('includeImages', 'disabled')) {
+            content.images = this.getImages();
+        }
+
         // Cache the result - setter handles timestamp and observer
-        this.cachedContent = content;
+        if (content.content.length > 0) {
+            this.cachedContent = content;
+        }
         return content;
     }
 
@@ -420,6 +475,7 @@ export default class PageContext extends ContentFeature {
         const maxDepth = this.getFeatureSetting('maxDepth') || 5000;
         let excludeSelectors = this.getFeatureSetting('excludeSelectors') || ['.ad', '.sidebar', '.footer', '.nav', '.header'];
         const excludedInertElements = this.getFeatureSetting('excludedInertElements') || [
+            'img', // Note we're currently disabling images which we're handling in domToMarkdown (this can be per-site enabled in the config if needed).
             'script',
             'style',
             'link',
@@ -436,22 +492,34 @@ export default class PageContext extends ContentFeature {
         const mainContentSelector = this.getFeatureSetting('mainContentSelector') || 'main, article, .content, .main, #content, #main';
         let mainContent = document.querySelector(mainContentSelector);
         const mainContentLength = this.getFeatureSetting('mainContentLength') || 100;
+        // Fast path to avoid processing main content if it's too short
         if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
             mainContent = null;
         }
-        const contentRoot = mainContent || document.body;
+        let contentRoot = mainContent || document.body;
 
-        if (contentRoot) {
-            this.log.info('Getting main content', contentRoot);
-            content += domToMarkdown(contentRoot, {
+        // Use a closure to reuse the domToMarkdown parameters
+        const extractContent = (root) => {
+            this.log.info('Getting content', root);
+            const result = domToMarkdown(root, {
                 maxLength: upperLimit,
                 maxDepth,
                 includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
                 excludeSelectors: excludeSelectorsString,
-            });
-            this.log.info('Content markdown', content, contentRoot);
+                trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),
+            }).trim();
+            this.log.info('Content markdown', result, root);
+            return result;
+        };
+
+        if (contentRoot) {
+            content += extractContent(contentRoot);
         }
-        content = content.trim();
+        // If the main content is empty, use the body
+        if (content.length === 0 && contentRoot !== document.body && this.getFeatureSettingEnabled('bodyFallback', 'enabled')) {
+            contentRoot = document.body;
+            content += extractContent(contentRoot);
+        }
 
         // Store the full content length before truncation
         this.fullContentLength = content.length;

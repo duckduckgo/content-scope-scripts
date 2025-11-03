@@ -295,6 +295,7 @@ body:not([data-platform-name]) {
             }
         }
 
+        &.accent,
         &.accentBrand {
             background-color: var(--ddg-color-primary);
             color: var(--color-white);
@@ -333,6 +334,7 @@ body:not([data-platform-name]) {
                 }
             }
 
+            &.accent,
             &.accentBrand {
                 color: var(--color-black-at-84);
                 background-color: var(--color-blue-20);
