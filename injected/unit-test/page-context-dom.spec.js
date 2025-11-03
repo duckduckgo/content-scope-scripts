@@ -155,7 +155,7 @@ describe('page-context.js - domToMarkdown', () => {
     ];
 
     for (const testCase of testCases) {
-        it(`should convert ${testCase.name} to markdown`, () => {
+        it(`should convert ${testCase.name} to markdown`, async () => {
             // Create a JSDOM instance
             const dom = new JSDOM(`<!DOCTYPE html><html><body>${testCase.html}</body></html>`);
             const { window } = dom;
@@ -171,7 +171,7 @@ describe('page-context.js - domToMarkdown', () => {
 
             try {
                 // Convert to markdown
-                const markdown = domToMarkdown(document.body, testCase.settings, 0).trim();
+                const markdown = (await domToMarkdown(document.body, testCase.settings, 0)).trim();
 
                 // Write output file
                 const outputFile = join(outputDir, `${testCase.name}.md`);

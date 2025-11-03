@@ -33,9 +33,9 @@ function isHtmlElement(node) {
 /**
  * Check if an iframe is same-origin and return its content document
  * @param {HTMLIFrameElement} iframe
- * @returns {Document | null}
+ * @returns {Promise<Document | null>}
  */
-function getSameOriginIframeDocument(iframe) {
+async function getSameOriginIframeDocument(iframe) {
     // Pre-check conditions that would prevent access without triggering security errors
     const src = iframe.src;
 
@@ -59,6 +59,9 @@ function getSameOriginIframeDocument(iframe) {
         }
     }
 
+    // Wait 500ms before accessing contentDocument
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     try {
         // Try to access the contentDocument - this will throw if cross-origin
         const doc = iframe.contentDocument;
@@ -77,15 +80,15 @@ function getSameOriginIframeDocument(iframe) {
  * @param {NodeListOf<ChildNode>} childNodes
  * @param {DomToMarkdownSettings} settings
  * @param {number} depth
- * @returns {string}
+ * @returns {Promise<string>}
  */
-function domToMarkdownChildren(childNodes, settings, depth = 0) {
+async function domToMarkdownChildren(childNodes, settings, depth = 0) {
     if (depth > settings.maxDepth) {
         return '';
     }
     let children = '';
     for (const childNode of childNodes) {
-        const childContent = domToMarkdown(childNode, settings, depth + 1);
+        const childContent = await domToMarkdown(childNode, settings, depth + 1);
         children += childContent;
         if (children.length > settings.maxLength) {
             children = children.substring(0, settings.maxLength) + '...';
@@ -109,9 +112,9 @@ function domToMarkdownChildren(childNodes, settings, depth = 0) {
  * @param {Node} node
  * @param {DomToMarkdownSettings} settings
  * @param {number} depth
- * @returns {string}
+ * @returns {Promise<string>}
  */
-export function domToMarkdown(node, settings, depth = 0) {
+export async function domToMarkdown(node, settings, depth = 0) {
     if (depth > settings.maxDepth) {
         return '';
     }
@@ -128,10 +131,10 @@ export function domToMarkdown(node, settings, depth = 0) {
     const tag = node.tagName.toLowerCase();
 
     // Build children string incrementally to exit early when maxLength is exceeded
-    let children = domToMarkdownChildren(node.childNodes, settings, depth + 1);
+    let children = await domToMarkdownChildren(node.childNodes, settings, depth + 1);
 
     if (node.shadowRoot) {
-        children += domToMarkdownChildren(node.shadowRoot.childNodes, settings, depth + 1);
+        children += await domToMarkdownChildren(node.shadowRoot.childNodes, settings, depth + 1);
     }
 
     switch (tag) {
@@ -165,9 +168,9 @@ export function domToMarkdown(node, settings, depth = 0) {
                 return children;
             }
             // Try to access same-origin iframe content
-            const iframeDoc = getSameOriginIframeDocument(/** @type {HTMLIFrameElement} */ (node));
+            const iframeDoc = await getSameOriginIframeDocument(/** @type {HTMLIFrameElement} */ (node));
             if (iframeDoc && iframeDoc.body) {
-                const iframeContent = domToMarkdown(iframeDoc.body, settings, depth + 1);
+                const iframeContent = await domToMarkdown(iframeDoc.body, settings, depth + 1);
                 return iframeContent ? `\n\n--- Iframe Content ---\n${iframeContent}\n--- End Iframe ---\n\n` : children;
             }
             // If we can't access the iframe content (cross-origin), return the children or empty string
@@ -398,27 +401,27 @@ export default class PageContext extends ContentFeature {
         }
     }
 
-    handleContentCollectionRequest(resetRecheckCount = true) {
+    async handleContentCollectionRequest(resetRecheckCount = true) {
         this.log.info('Handling content collection request');
         if (resetRecheckCount) {
             this.resetRecheckCount();
         }
         try {
-            const content = this.collectPageContent();
+            const content = await this.collectPageContent();
             this.sendContentResponse(content);
         } catch (error) {
             this.sendErrorResponse(error);
         }
     }
 
-    collectPageContent() {
+    async collectPageContent() {
         // Check cache first - getter handles expiry and cleanup
         if (this.cachedContent) {
             this.log.info('Returning cached content', this.cachedContent);
             return this.cachedContent;
         }
 
-        const mainContent = this.getMainContent();
+        const mainContent = await this.getMainContent();
         const truncated = mainContent.endsWith('...');
 
         const content = {
@@ -467,7 +470,7 @@ export default class PageContext extends ContentFeature {
         return metaDesc ? metaDesc.getAttribute('content') || '' : '';
     }
 
-    getMainContent() {
+    async getMainContent() {
         const maxLength = this.getFeatureSetting('maxContentLength') || 9500;
         // Used to avoid large content serialization
         const upperLimit = this.getFeatureSetting('upperLimit') || 500000;
@@ -499,26 +502,28 @@ export default class PageContext extends ContentFeature {
         let contentRoot = mainContent || document.body;
 
         // Use a closure to reuse the domToMarkdown parameters
-        const extractContent = (root) => {
+        const extractContent = async (root) => {
             this.log.info('Getting content', root);
-            const result = domToMarkdown(root, {
-                maxLength: upperLimit,
-                maxDepth,
-                includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
-                excludeSelectors: excludeSelectorsString,
-                trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),
-            }).trim();
+            const result = (
+                await domToMarkdown(root, {
+                    maxLength: upperLimit,
+                    maxDepth,
+                    includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
+                    excludeSelectors: excludeSelectorsString,
+                    trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),
+                })
+            ).trim();
             this.log.info('Content markdown', result, root);
             return result;
         };
 
         if (contentRoot) {
-            content += extractContent(contentRoot);
+            content += await extractContent(contentRoot);
         }
         // If the main content is empty, use the body
         if (content.length === 0 && contentRoot !== document.body && this.getFeatureSettingEnabled('bodyFallback', 'enabled')) {
             contentRoot = document.body;
-            content += extractContent(contentRoot);
+            content += await extractContent(contentRoot);
         }
 
         // Store the full content length before truncation
