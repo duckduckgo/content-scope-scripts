@@ -387,7 +387,12 @@ export default class WindowsPermissionUsage extends ContentFeature {
             { name: 'USB', prototype: () => globalThis?.USB?.prototype, method: 'requestDevice', isPromise: true },
             { name: 'Serial', prototype: () => globalThis?.Serial?.prototype, method: 'requestPort', isPromise: true },
             { name: 'HID', prototype: () => globalThis?.HID?.prototype, method: 'requestDevice', isPromise: true },
-            { name: 'Protocol handler', prototype: () => globalThis?.Navigator.prototype, method: 'registerProtocolHandler', isPromise: false },
+            {
+                name: 'Protocol handler',
+                prototype: () => globalThis?.Navigator.prototype,
+                method: 'registerProtocolHandler',
+                isPromise: false,
+            },
             { name: 'MIDI', prototype: () => globalThis?.Navigator.prototype, method: 'requestMIDIAccess', isPromise: true },
         ];
         for (const { name, prototype, method, isPromise } of permissionsToDisable) {
