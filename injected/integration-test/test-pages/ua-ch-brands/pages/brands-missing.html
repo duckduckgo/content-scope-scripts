@@ -17,7 +17,7 @@
             const results = [];
 
             if (navigator.userAgentData && navigator.userAgentData.brands) {
-                // When brands setting is missing, the feature returns early in init()
+                // When brands setting is missing, feature returns early in init()
                 
                 const brands = navigator.userAgentData.brands;
                 
@@ -35,7 +35,6 @@
                         const heBrands = highEntropyValues.brands;
                         
                         if (heBrands) {
-                            // Both should return the same unwrapped values
                             const brandsStr = JSON.stringify(brands);
                             const heBrandsStr = JSON.stringify(heBrands);
                             

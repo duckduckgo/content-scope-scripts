@@ -50,7 +50,24 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
+     * Find the GREASE brand value from original brands
+     * @returns {{brand: string, version: string}|null} - GREASE brand or null if not found
+     */
+    findGreaseBrand() {
+        if (!this.originalBrands || this.originalBrands.length === 0) {
+            return null;
+        }
+
+        return this.originalBrands.find((brand) => {
+            const name = brand.brand;
+            // Check if it starts with "Not" or " Not" or contains special chars
+            return name.trim().startsWith('Not') || /[^\w\s.]/.test(name);
+        });
+    }
+
+    /**
      * Apply brand mutations using the configured brands from feature settings
+     * Preserve the GREASE value from original brands at its original position
      * @returns {Array<{brand: string, version: string}>|null} - Configured brands or null if no changes
      */
     applyBrandMutations() {
@@ -61,7 +78,22 @@ export default class UaChBrands extends ContentFeature {
             return null;
         }
 
-        this.log.info('Applying configured brands:', configuredBrands);
+        // Find GREASE value in original brands and preserve it
+        const greaseBrand = this.findGreaseBrand();
+        const greaseIndex = greaseBrand && this.originalBrands ? this.originalBrands.findIndex((b) => b.brand === greaseBrand.brand) : -1;
+
+        if (greaseBrand && greaseIndex !== -1) {
+            const result = [...configuredBrands];
+            // Insert GREASE at its original position or end if out of bounds
+            const insertAt = Math.min(greaseIndex, result.length);
+            result.splice(insertAt, 0, greaseBrand);
+            const brandNames = result.map(b => `"${b.brand}" v${b.version}`).join(', ');
+            this.log.info(`Applying configured brands with GREASE at index ${insertAt}: [${brandNames}]`);
+            return result;
+        }
+
+        const brandNames = configuredBrands.map(b => `"${b.brand}" v${b.version}`).join(', ');
+        this.log.info(`Applying configured brands (no GREASE found): [${brandNames}]`);
         return configuredBrands;
     }
 
