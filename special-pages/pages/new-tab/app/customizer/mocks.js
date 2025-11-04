@@ -113,6 +113,7 @@ export function customizerData() {
         userImages: [],
         userColor: null,
         theme: 'system',
+        themeVariant: 'default',
         background: { kind: 'default' },
         defaultStyles: getDefaultStyles(),
     };
@@ -173,6 +174,13 @@ export function customizerData() {
         const value = url.searchParams.get('theme');
         if (value === 'light' || value === 'dark' || value === 'system') {
             customizer.theme = value;
+        }
+    }
+    if (url.searchParams.has('themeVariant')) {
+        const value = url.searchParams.get('themeVariant');
+        const validVariants = ['default', 'coolGray', 'slateBlue', 'green', 'violet', 'rose', 'orange', 'desert'];
+        if (value && validVariants.includes(value)) {
+            customizer.themeVariant = /** @type {import('../../types/new-tab').ThemeVariant} */ (value);
         }
     }
 

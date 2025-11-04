@@ -48,6 +48,10 @@ export type PredefinedGradient =
 export type BackgroundColorScheme = "light" | "dark";
 export type BrowserTheme = "light" | "dark" | "system";
 /**
+ * Named theme color palette variant
+ */
+export type ThemeVariant = "default" | "coolGray" | "slateBlue" | "green" | "violet" | "rose" | "orange" | "desert";
+/**
  * Represents the expansion state of a widget
  */
 export type Expansion = "expanded" | "collapsed";
@@ -326,6 +330,7 @@ export interface CustomizerSetThemeNotification {
 }
 export interface CustomizerSetThemeNotify {
   theme: BrowserTheme;
+  themeVariant: ThemeVariant;
 }
 /**
  * Generated from @see "../messages/customizer_upload.notify.json"
@@ -881,15 +886,25 @@ export interface CustomizerData {
   theme: BrowserTheme;
   userImages: UserImage[];
   userColor: null | HexValueBackground;
+  themeVariant: ThemeVariant;
+  /**
+   * @deprecated
+   */
   defaultStyles?: null | DefaultStyles;
 }
+/**
+ * @deprecated
+ * DEPRECATED: Use themeVariant instead. This field is kept for backward compatibility only.
+ */
 export interface DefaultStyles {
   /**
-   * Optional default dark background color. Any HEX value is permitted
+   * @deprecated
+   * DEPRECATED: Optional default dark background color. Any HEX value is permitted
    */
   darkBackgroundColor?: string;
   /**
-   * Optional default light background color. Any HEX value is permitted
+   * @deprecated
+   * DEPRECATED: Optional default light background color. Any HEX value is permitted
    */
   lightBackgroundColor?: string;
 }
@@ -1111,6 +1126,10 @@ export interface CustomizerOnThemeUpdateSubscription {
 }
 export interface ThemeData {
   theme: BrowserTheme;
+  themeVariant: ThemeVariant;
+  /**
+   * @deprecated
+   */
   defaultStyles?: null | DefaultStyles;
 }
 /**

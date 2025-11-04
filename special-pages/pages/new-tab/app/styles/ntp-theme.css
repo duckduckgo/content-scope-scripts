@@ -37,9 +37,53 @@
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
 }
 
-body {
-    --default-light-background-color: var(--color-gray-0);
-    --default-dark-background-color: var(--color-gray-85);
+/* Theme Variant Colors */
+/* Default theme variant */
+[data-theme-variant="default"] {
+    --default-light-background-color: #F7F7F7;
+    --default-dark-background-color: #1A1A1A;
+}
+
+/* CoolGray theme variant */
+[data-theme-variant="coolGray"] {
+    --default-light-background-color: #E8EBED;
+    --default-dark-background-color: #2C3439;
+}
+
+/* SlateBlue theme variant */
+[data-theme-variant="slateBlue"] {
+    --default-light-background-color: #E8EBF4;
+    --default-dark-background-color: #1E2433;
+}
+
+/* Green theme variant */
+[data-theme-variant="green"] {
+    --default-light-background-color: #E8F4E8;
+    --default-dark-background-color: #1A2E1A;
+}
+
+/* Violet theme variant */
+[data-theme-variant="violet"] {
+    --default-light-background-color: #F0E8F4;
+    --default-dark-background-color: #2B1E33;
+}
+
+/* Rose theme variant */
+[data-theme-variant="rose"] {
+    --default-light-background-color: #F4E8EB;
+    --default-dark-background-color: #331E23;
+}
+
+/* Orange theme variant */
+[data-theme-variant="orange"] {
+    --default-light-background-color: #F4EBE8;
+    --default-dark-background-color: #332B1E;
+}
+
+/* Desert theme variant */
+[data-theme-variant="desert"] {
+    --default-light-background-color: #F4F0E8;
+    --default-dark-background-color: #33301E;
 }
 
 

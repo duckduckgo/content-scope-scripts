@@ -62,9 +62,11 @@ export function BackgroundConsumer({ browser }) {
 
     useSignalEffect(() => {
         const background = data.value.background;
+        const themeVariant = data.value.themeVariant;
 
         // reflect some values onto the <body> tag
         document.body.dataset.backgroundKind = background.kind;
+        document.body.dataset.themeVariant = themeVariant;
         let nextBodyBackground = '';
 
         if (background.kind === 'gradient') {

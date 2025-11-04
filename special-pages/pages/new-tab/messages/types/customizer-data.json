@@ -6,7 +6,8 @@
     "background",
     "theme",
     "userImages",
-    "userColor"
+    "userColor",
+    "themeVariant"
   ],
   "properties": {
     "background": {"$ref": "./background.json#/definitions/background-variant"},
@@ -20,7 +21,11 @@
     "userColor": {
       "$ref": "./user-color-data.json#/definitions/userColor"
     },
+    "themeVariant": {
+      "$ref": "./theme-variant.json"
+    },
     "defaultStyles": {
+      "deprecated": true,
       "oneOf": [
         {
           "type": "null"

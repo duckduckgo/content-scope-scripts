@@ -35,7 +35,7 @@ export class CustomizerService {
             {
                 subscribe: (cb) => ntp.messaging.subscribe('customizer_onThemeUpdate', cb),
             },
-            { theme: initial.theme },
+            { theme: initial.theme, themeVariant: initial.themeVariant },
         );
         /** @type {Service<UserImageData>} */
         this.imagesService = new Service(

@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Theme Variant",
+  "description": "Named theme color palette variant",
+  "type": "string",
+  "enum": [
+    "default",
+    "coolGray",
+    "slateBlue",
+    "green",
+    "violet",
+    "rose",
+    "orange",
+    "desert"
+  ]
+}

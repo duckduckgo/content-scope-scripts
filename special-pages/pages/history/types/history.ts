@@ -201,13 +201,19 @@ export interface InitialSetupResponse {
     defaultStyles?: null | DefaultStyles;
   };
 }
+/**
+ * @deprecated
+ * DEPRECATED: Use themeVariant instead. This field is kept for backward compatibility only.
+ */
 export interface DefaultStyles {
   /**
-   * Optional default dark background color. Any HEX value is permitted
+   * @deprecated
+   * DEPRECATED: Optional default dark background color. Any HEX value is permitted
    */
   darkBackgroundColor?: string;
   /**
-   * Optional default light background color. Any HEX value is permitted
+   * @deprecated
+   * DEPRECATED: Optional default light background color. Any HEX value is permitted
    */
   lightBackgroundColor?: string;
 }

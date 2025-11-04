@@ -2,9 +2,12 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "title": "Default Styles",
+  "deprecated": true,
+  "description": "DEPRECATED: Use themeVariant instead. This field is kept for backward compatibility only.",
   "properties": {
     "darkBackgroundColor": {
-      "description": "Optional default dark background color. Any HEX value is permitted",
+      "description": "DEPRECATED: Optional default dark background color. Any HEX value is permitted",
+      "deprecated": true,
       "type": "string",
       "examples": [
         "#000000",
@@ -12,7 +15,8 @@
       ]
     },
     "lightBackgroundColor": {
-      "description": "Optional default light background color. Any HEX value is permitted",
+      "description": "DEPRECATED: Optional default light background color. Any HEX value is permitted",
+      "deprecated": true,
       "type": "string",
       "examples": [
         "#FFFFFF",

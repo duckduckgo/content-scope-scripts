@@ -2,7 +2,6 @@ import { createContext, h } from 'preact';
 import { useCallback } from 'preact/hooks';
 import { signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useThemes } from './themes.js';
-import { applyDefaultStyles } from './utils.js';
 
 /**
  * @typedef {import('../../types/new-tab.js').CustomizerData} CustomizerData
@@ -39,6 +38,7 @@ export const CustomizerContext = createContext({
         userImages: [],
         userColor: null,
         theme: 'system',
+        themeVariant: 'default',
     }),
     /** @type {(bg: BackgroundData) => void} */
     select: (_) => {},
@@ -76,7 +76,11 @@ export function CustomizerProvider({ service, initialData, children }) {
             data.value = { ...data.value, background: evt.data.background };
         });
         const unsub1 = service.onTheme((evt) => {
-            data.value = { ...data.value, theme: evt.data.theme };
+            // Warn if deprecated defaultStyles is provided
+            if (evt.source === 'subscription' && evt.data.defaultStyles) {
+                console.warn('defaultStyles is deprecated and will be ignored. Use themeVariant instead.');
+            }
+            data.value = { ...data.value, theme: evt.data.theme, themeVariant: evt.data.themeVariant };
         });
         const unsub2 = service.onImages((evt) => {
             data.value = { ...data.value, userImages: evt.data.userImages };
@@ -90,18 +94,6 @@ export function CustomizerProvider({ service, initialData, children }) {
             unsub1();
             unsub2();
             unsub3();
-        };
-    });
-
-    useSignalEffect(() => {
-        const unsub = service.onTheme((evt) => {
-            if (evt.source === 'subscription') {
-                applyDefaultStyles(evt.data.defaultStyles);
-            }
-        });
-
-        return () => {
-            unsub();
         };
     });
 

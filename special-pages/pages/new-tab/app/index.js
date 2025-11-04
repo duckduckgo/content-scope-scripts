@@ -15,7 +15,6 @@ import { CustomizerProvider } from './customizer/CustomizerProvider.js';
 import { CustomizerService } from './customizer/customizer.service.js';
 import { InlineErrorBoundary } from './InlineErrorBoundary.js';
 import { DocumentVisibilityProvider } from '../../../shared/components/DocumentVisibility.js';
-import { applyDefaultStyles } from './customizer/utils.js';
 import { TabsService } from './tabs/tabs.service.js';
 import { TabsDebug, TabsProvider } from './tabs/TabsProvider.js';
 
@@ -81,8 +80,10 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
     // install global side effects that are not specific to any widget
     installGlobalSideEffects(environment, settings);
 
-    // apply default styles
-    applyDefaultStyles(init.customizer?.defaultStyles);
+    // Warn if deprecated defaultStyles is provided
+    if (init.customizer?.defaultStyles) {
+        console.warn('defaultStyles is deprecated and will be ignored. Use themeVariant instead.');
+    }
 
     // return early if we're in the 'components' view.
     if (environment.display === 'components') {
@@ -101,6 +102,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
         userColor: null,
         background: { kind: 'default' },
         theme: 'system',
+        themeVariant: 'default',
         userImages: [],
     };
 
@@ -134,6 +136,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
                                             >
                                                 <TabsProvider service={tabs}>
                                                     {environment.urlParams.has('tabs.debug') && <TabsDebug />}
+                                                    {window.location.href}
                                                     <App />
                                                 </TabsProvider>
                                             </WidgetConfigProvider>

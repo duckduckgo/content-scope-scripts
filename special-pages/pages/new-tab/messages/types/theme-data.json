@@ -2,13 +2,18 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "required": [
-    "theme"
+    "theme",
+    "themeVariant"
   ],
   "properties": {
     "theme": {
       "$ref": "./browser-theme.json"
     },
+    "themeVariant": {
+      "$ref": "./theme-variant.json"
+    },
     "defaultStyles": {
+      "deprecated": true,
       "oneOf": [
         {
           "type": "null"
