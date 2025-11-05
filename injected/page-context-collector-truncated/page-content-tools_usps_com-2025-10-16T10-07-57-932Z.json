@@ -1,0 +1,17 @@
+{
+  "url": "https://tools.usps.com/go/TrackConfirmAction%21input.action",
+  "extractedAt": "2025-10-16T10:07:57.932Z",
+  "content": {
+    "favicon": [],
+    "title": "",
+    "metaDescription": "",
+    "content": "",
+    "truncated": false,
+    "fullContentLength": 0,
+    "headings": [],
+    "links": [],
+    "images": [],
+    "timestamp": 1760609276368,
+    "url": "https://tools.usps.com/go/TrackConfirmAction%21input.action?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,853 @@
+{
+  "url": "https://www.howtogeek.com/836157/how-to-use-windows-11-with-a-local-account/",
+  "extractedAt": "2025-10-16T09:54:06.570Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://static0.howtogeekimages.com/assets/images/favicon-48x48.8192bda8.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static0.howtogeekimages.com/assets/images/favicon-96x96.d39bdeb9.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static0.howtogeekimages.com/assets/images/favicon-144x144.4e31e41f.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static0.howtogeekimages.com/assets/images/favicon-192x192.147e7c8e.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static0.howtogeekimages.com/assets/images/favicon-240x240.f06f736a.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static0.howtogeekimages.com/assets/images/favicon-240x240.f06f736a.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://static0.howtogeekimages.com/assets/images/favicon-192x192.147e7c8e.png",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "How to Set Up Windows 11 Without a Microsoft Account",
+    "metaDescription": "Did anyone ask for compulsory Microsoft logins?",
+    "content": "# How to Set Up Windows 11 Without a Microsoft Account\n     Credit: \n Lucas Gouveia / How-To Geek                 By  [Tim Brookes](/author/tim-brookes/)  &  [Nick Lewis](/author/nicklewis/)   Updated  Jul 24, 2024                                           Here is a fact-based summary of the story contents:                        \n### Jump Links\n   \n \n- [Can You Skip Microsoft Account Creation During Windows 11 Setup?](#can-you-skip-microsoft-account-creation-during-windows-11-setup)\n \n \n \n- [How to Bypass Windows 11 Microsoft Account Requirement Using Command Prompt](#how-to-bypass-windows-11-microsoft-account-requirement-using-command-prompt)\n \n \n \n- [How to Install Windows 11 Without a Microsoft Account Using Rufus](#how-to-install-windows-11-without-a-microsoft-account-using-rufus)\n \n \n \n- [How to Create a Local Account on Windows 11](#how-to-create-a-local-account-on-windows-11)\n \n \n \n- [How to Convert an Existing Microsoft Account to a Local Account](#how-to-convert-an-existing-microsoft-account-to-a-local-account)\n \n \n \n- [How to Remove a Microsoft Account From Windows 11](#how-to-remove-a-microsoft-account-from-windows-11)\n \n    Windows 11 normally requires a Microsoft account when you set it up, but you can bypass Microsoft account creation and use a local account instead. Here's how to set up Windows 11 without a Microsoft account or convert an existing Microsoft account to a local account.\n \n##  Can You Skip Microsoft Account Creation During Windows 11 Setup? \nYes, but they both require some advanced preparation. We'll cover them below. On a new PC, you'll be guided through the normal Windows 11 setup process. If you're installing Windows 11 yourself, then typically, you would use the Windows Media Creation tool to [create a bootable DVD or USB drive, then install Windows 11](https://www.howtogeek.com/784979/how-to-create-a-bootable-windows-11-usb-drive/) that way. Unfortunately, you'll be stuck logging in with a Microsoft account if you follow either of those normal methods.\n [Windows 10 lets you use a local account](https://www.howtogeek.com/442792/how-to-create-a-local-account-while-setting-up-windows-10/) if you disconnect from the internet. The latest version of Windows 11, however, will not—if you try the same trick, you'll just get an error message. Even the Professional version of Windows 11 [now requires a Microsoft account](https://www.howtogeek.com/787209/windows-11-pros-setup-process-will-need-a-microsoft-account/).\n          There are a few tricks to try, but Windows is wise to many of these. The first involves cutting off your internet connection when you're prompted to add a Microsoft account. This involves either pulling out your Ethernet cable (if you use one) or hitting Shift+F10 and typing **ipconfig /release** followed by Enter. Hit the \"back\" arrow to go back one step and create a local username and password then complete the setup as normal.\n Another involves confusing Windows by inputting an email address that has been used too many times. The go-to email for this method is \"no@thankyou.com\" which you can add on the \"Let's add your Microsoft account\" screen. Type a random password and hit the \"Sign in\" button. Windows may respond with an \"Oops\" error and give you a \"Next\" prompt. From here you can create a local account and proceed as normal.\n Of course, there's no guarantee either of these methods will work, and when we tested them last, they were no longer working. A *far *more reliable method is to install Windows 11 from scratch with custom bootable media or to use a special command. You can also set up Windows 11 with a Microsoft account and then either convert that Microsoft account to a local account or create a new local account and delete the Microsoft account from your system.\n   Mac users who are [setting up Windows 11 inside of Parallels Desktop](https://www.howtogeek.com/827590/parallels-desktop-18-review/) can skip the Microsoft account linking process. The virtualization software allows you to set up Windows \"hands-free\" and leaves you with a local account.\n   \n##  How to Bypass Windows 11 Microsoft Account Requirement Using Command Prompt \nTo bypass the Microsoft Account requirement, proceed with the first few steps of the installation process normally until you reach this screen:\n           Once you're there, press Shift + F10 to open up a Command Prompt Window and type:\n oobe\\bypassnro It isn't case sensitive, but it is critical that you use the correct slash. Once you type in the command, press Enter and your PC will immediately restart.\n          Now, you should *completely disconnect your PC from the Internet* at this point. If Windows 11 detects an Internet connection it will continue to try and force you to sign in with a Microsoft account. However, if you're disconnected from the Internet you'll see an \"I Don't Have Internet\" option, or you'll be prompted to create a local account immediately. \n      Click \"Continue with limited setup\" on the next page if it appears, and then you'll be able to create a local account with a password and three security questions.\n \n##  How to Install Windows 11 Without a Microsoft Account Using Rufus \n[Rufus](https://rufus.ie/en/) is a tool that can create bootable media from an ISO. It does everything the Windows Media Creation tool does, except it has additional options and works with [almost any operating system out there](https://www.howtogeek.com/1261/create-a-bootable-ubuntu-usb-flash-drive-the-easy-way/).\n Newer versions of Rufus have [a few extra features](https://www.howtogeek.com/814793/this-tool-now-helps-you-install-windows-11-on-unsupported-pcs/) designed specifically to streamline installing Windows 11: It can disable the TPM, RAM, and Secure Boot requirements, and it can also disable the Microsoft account requirement. You only need a few things to use Rufus:\n \n \n- A 16 Gigabyte (or bigger) Flash Drive or External SSD\n \n- [A Windows 11 ISO](https://www.microsoft.com/software-download/windows11)\n \n- Rufus\n \n The first thing you need to do is [download Rufus](https://rufus.ie/) and install it.\n Then you have two choices: You can [manually download a Windows 11 ISO](https://www.microsoft.com/software-download/windows11), or you can let Rufus download the latest ISO for you. It is often useful to have ISOs of your operating system on hand, so we'll download it manually in this example.\n Head over to [Microsoft's Windows 11 download page](https://www.microsoft.com/software-download/windows11), select \"Windows 11 (multi-edition ISO)\" from the dropdown list, then click \"Download.\" You'll need to pick your language, then hit \"Confirm.\" The ISO is about 5 gigabytes, so don't expect it to be done instantly.\n            Using Rufus to create a bootable USB drive will completely erase the contents of that drive. Make sure you save any important files on it before you proceed.\n   Open Rufus after the Windows 11 ISO has finished downloading, click \"Select,\" then navigate to [wherever you saved it](https://www.howtogeek.com/771533/where-are-my-downloads-on-windows/). If you're using an external SSD as your bootable media, you'll need to tick \"List USB Hard Drives\" first. Rufus will handle most of the important options, like the [partition scheme](https://www.howtogeek.com/193669/whats-the-difference-between-gpt-and-mbr-when-partitioning-a-drive/) and [file system](https://www.howtogeek.com/196051/htg-explains-what-is-a-file-system-and-why-are-there-so-many-of-them/), automatically; you don't need to worry about them. Just click \"Start.\"\n      Pick out what Windows 11 requirements you want disabled. The only one you *must *select is \"Remove Requirement For An Online Microsoft Account.\" The others are handy too, especially if you're upgrading an older PC that might not support [TPM 2.0](https://www.howtogeek.com/738163/why-does-windows-11-need-tpm-2.0/).\n Click \"OK\" when you are done choosing what requirements you want disabled.\n          After that you just need to wait for Rufus to actually make the bootable media. It will take a few minutes at least, especially if you're using an older flash drive.\n Next, you need to restart your computer and[change the boot order](https://www.howtogeek.com/129815/beginner-geek-how-to-change-the-boot-order-in-your-computers-bios/). Typically, your computer boots from the hard drive or solid-state drive that Windows is installed on.\n You need to change it from that drive to the new, bootable USB drive you just created with Rufus. This process varies between computers and [motherboard manufacturers](https://www.howtogeek.com/208420/how-to-check-your-motherboard-model-number-on-your-windows-pc/).\n Generally, tapping the F2, Del, or F8 key will bring up a screen that'll let you pick your boot device, but it could be a different key. If you don't know what key to press, and you aren't told which key when your computer is booting up, consult the manual for your computer or motherboard. If you've lost your manual, that isn't a significant problem — you can easily [check what motherboard you have](https://www.howtogeek.com/129815/beginner-geek-how-to-change-the-boot-order-in-your-computers-bios/) and then find the manual on the manufacturer's website.\n It is smooth sailing after you change the boot order. Windows 11 will walk you through the rest of the installation process.\n \n##  How to Create a Local Account on Windows 11 \nYou can create additional Windows accounts that aren't linked to existing Microso...",
+    "truncated": true,
+    "fullContentLength": 17467,
+    "headings": [
+      {
+        "level": 1,
+        "text": "How to Set Up Windows 11 Without a Microsoft Account"
+      },
+      {
+        "level": 3,
+        "text": "Jump Links"
+      },
+      {
+        "level": 3,
+        "text": "Jump Links"
+      },
+      {
+        "level": 2,
+        "text": "Can You Skip Microsoft Account Creation During Windows 11 Setup?"
+      },
+      {
+        "level": 2,
+        "text": "How to Bypass Windows 11 Microsoft Account Requirement Using Command Prompt"
+      },
+      {
+        "level": 2,
+        "text": "How to Install Windows 11 Without a Microsoft Account Using Rufus"
+      },
+      {
+        "level": 2,
+        "text": "How to Create a Local Account on Windows 11"
+      },
+      {
+        "level": 2,
+        "text": "How to Convert an Existing Microsoft Account to a Local Account"
+      },
+      {
+        "level": 2,
+        "text": "How to Remove a Microsoft Account From Windows 11"
+      },
+      {
+        "level": 3,
+        "text": "How to Create a Local Account While Setting Up Windows 10"
+      },
+      {
+        "level": 3,
+        "text": "5 Terrible Uses for Micro SD Cards"
+      },
+      {
+        "level": 3,
+        "text": "Why I'm Still Waiting for an NVIDIA Shield 2"
+      },
+      {
+        "level": 3,
+        "text": "Add a Kickstand to Your iPhone 17 for 29% Off With This Beats Case"
+      },
+      {
+        "level": 3,
+        "text": "Desktop"
+      },
+      {
+        "level": 3,
+        "text": "Mobile"
+      },
+      {
+        "level": 5,
+        "text": "The Beginner's Guide to Nested Functions in Excel"
+      },
+      {
+        "level": 5,
+        "text": "Razer's Latest Webcams Have a Bunch of Cool Features"
+      },
+      {
+        "level": 5,
+        "text": "Last-Gen PC Hardware Is Here to Stay—Here's Why That's Good for Us"
+      },
+      {
+        "level": 5,
+        "text": "Get 4 Apple AirTags for 34% Off Today"
+      },
+      {
+        "level": 5,
+        "text": "T-Mobile Is Ditching This Popular Phone Payment Plan"
+      },
+      {
+        "level": 5,
+        "text": "The Google Pixel 10 Shouldn't Be a Flagship Phone"
+      },
+      {
+        "level": 5,
+        "text": "This Korean Hybrid Delivers Big Features Without the Big Price"
+      },
+      {
+        "level": 5,
+        "text": "The MacBook Pro Now Has an M5 Chip and Faster Storage"
+      },
+      {
+        "level": 5,
+        "text": "Your TV’s ‘AI Picture Mode’ Isn’t as Smart as You Think"
+      }
+    ],
+    "links": [
+      {
+        "text": "Desktop",
+        "href": "/category/desktop/"
+      },
+      {
+        "text": "Windows",
+        "href": "/category/windows/"
+      },
+      {
+        "text": "Microsoft",
+        "href": "/category/microsoft/"
+      },
+      {
+        "text": "Linux",
+        "href": "/category/linux/"
+      },
+      {
+        "text": "Programming",
+        "href": "/category/programming/"
+      },
+      {
+        "text": "Mac",
+        "href": "/category/mac/"
+      },
+      {
+        "text": "Chromebook",
+        "href": "/category/chromebook-chrome-os/"
+      },
+      {
+        "text": "Web",
+        "href": "/category/web/"
+      },
+      {
+        "text": "Mobile",
+        "href": "/category/mobile/"
+      },
+      {
+        "text": "Android",
+        "href": "/category/android/"
+      },
+      {
+        "text": "iPhone",
+        "href": "/category/ios/"
+      },
+      {
+        "text": "Carriers",
+        "href": "/category/cellular-carriers/"
+      },
+      {
+        "text": "Streaming",
+        "href": "/category/streaming/"
+      },
+      {
+        "text": "Audio/Video",
+        "href": "/category/audio/"
+      },
+      {
+        "text": "Smart Home",
+        "href": "/category/smart-home/"
+      },
+      {
+        "text": "Automotive",
+        "href": "/category/automotive/"
+      },
+      {
+        "text": "Gaming",
+        "href": "/category/video-games/"
+      },
+      {
+        "text": "Hobbies",
+        "href": "/category/hobbies/"
+      },
+      {
+        "text": "Homelab",
+        "href": "/tag/homelab/"
+      },
+      {
+        "text": "Raspberry Pi",
+        "href": "/tag/raspberry-pi/"
+      },
+      {
+        "text": "Cutting Edge",
+        "href": "/category/cutting-edge/"
+      },
+      {
+        "text": "News",
+        "href": "/news/"
+      },
+      {
+        "text": "Reviews",
+        "href": "/category/product-reviews/"
+      },
+      {
+        "text": "Buying Guides",
+        "href": "/buying-guides/"
+      },
+      {
+        "text": "Deals",
+        "href": "/tag/deals/"
+      },
+      {
+        "text": "Sign in",
+        "href": "#"
+      },
+      {
+        "text": "Newsletter",
+        "href": "/page/newsletter/"
+      },
+      {
+        "text": "Threads\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t6",
+        "href": "#threads"
+      },
+      {
+        "text": "iPhone",
+        "href": "/category/ios/"
+      },
+      {
+        "text": "Windows",
+        "href": "/category/windows/"
+      },
+      {
+        "text": "Linux",
+        "href": "/category/linux/"
+      },
+      {
+        "text": "Open Source Tools",
+        "href": "/tag/open-source/"
+      },
+      {
+        "text": "Android",
+        "href": "/category/android/"
+      },
+      {
+        "text": "Streaming",
+        "href": "/category/streaming/"
+      },
+      {
+        "text": "Microsoft Excel",
+        "href": "/tag/microsoft-excel/"
+      },
+      {
+        "text": "Deals",
+        "href": "/tag/deals/"
+      },
+      {
+        "text": "Tim Brookes",
+        "href": "/author/tim-brookes/"
+      },
+      {
+        "text": "Nick Lewis",
+        "href": "/author/nicklewis/"
+      },
+      {
+        "text": "Can You Skip Microsoft Account Creation During Windows 11 Setup?",
+        "href": "#can-you-skip-microsoft-account-creation-during-windows-11-setup"
+      },
+      {
+        "text": "How to Bypass Windows 11 Microsoft Account Requirement Using Command Prompt",
+        "href": "#how-to-bypass-windows-11-microsoft-account-requirement-using-command-prompt"
+      },
+      {
+        "text": "How to Install Windows 11 Without a Microsoft Account Using Rufus",
+        "href": "#how-to-install-windows-11-without-a-microsoft-account-using-rufus"
+      },
+      {
+        "text": "How to Create a Local Account on Windows 11",
+        "href": "#how-to-create-a-local-account-on-windows-11"
+      },
+      {
+        "text": "How to Convert an Existing Microsoft Account to a Local Account",
+        "href": "#how-to-convert-an-existing-microsoft-account-to-a-local-account"
+      },
+      {
+        "text": "How to Remove a Microsoft Account From Windows 11",
+        "href": "#how-to-remove-a-microsoft-account-from-windows-11"
+      },
+      {
+        "text": "Thread\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t6",
+        "href": "#threads"
+      },
+      {
+        "text": "Can You Skip Microsoft Account Creation During Windows 11 Setup?",
+        "href": "#can-you-skip-microsoft-account-creation-during-windows-11-setup"
+      },
+      {
+        "text": "How to Bypass Windows 11 Microsoft Account Requirement Using Command Prompt",
+        "href": "#how-to-bypass-windows-11-microsoft-account-requirement-using-command-prompt"
+      },
+      {
+        "text": "How to Install Windows 11 Without a Microsoft Account Using Rufus",
+        "href": "#how-to-install-windows-11-without-a-microsoft-account-using-rufus"
+      },
+      {
+        "text": "How to Create a Local Account on Windows 11",
+        "href": "#how-to-create-a-local-account-on-windows-11"
+      },
+      {
+        "text": "How to Convert an Existing Microsoft Account to a Local Account",
+        "href": "#how-to-convert-an-existing-microsoft-account-to-a-local-account"
+      },
+      {
+        "text": "How to Remove a Microsoft Account From Windows 11",
+        "href": "#how-to-remove-a-microsoft-account-from-windows-11"
+      },
+      {
+        "text": "create a bootable DVD or USB drive, then install Windows 11",
+        "href": "https://www.howtogeek.com/784979/how-to-create-a-bootable-windows-11-usb-drive/"
+      },
+      {
+        "text": "Windows 10 lets you use a local account",
+        "href": "https://www.howtogeek.com/442792/how-to-create-a-local-account-while-setting-up-windows-10/"
+      },
+      {
+        "text": "now requires a Microsoft account",
+        "href": "https://www.howtogeek.com/787209/windows-11-pros-setup-process-will-need-a-microsoft-account/"
+      },
+      {
+        "text": "setting up Windows 11 inside of Parallels Desktop",
+        "href": "https://www.howtogeek.com/827590/parallels-desktop-18-review/"
+      },
+      {
+        "text": "Rufus",
+        "href": "https://rufus.ie/en/"
+      },
+      {
+        "text": "almost any operating system out there",
+        "href": "https://www.howtogeek.com/1261/create-a-bootable-ubuntu-usb-flash-drive-the-easy-way/"
+      },
+      {
+        "text": "a few extra features",
+        "href": "https://www.howtogeek.com/814793/this-tool-now-helps-you-install-windows-11-on-unsupported-pcs/"
+      },
+      {
+        "text": "A Windows 11 ISO",
+        "href": "https://www.microsoft.com/software-download/windows11"
+      },
+      {
+        "text": "download Rufus",
+        "href": "https://rufus.ie/"
+      },
+      {
+        "text": "manually download a Windows 11 ISO",
+        "href": "https://www.microsoft.com/software-download/windows11"
+      },
+      {
+        "text": "Microsoft's Windows 11 download page",
+        "href": "https://www.microsoft.com/software-download/windows11"
+      },
+      {
+        "text": "wherever you saved it",
+        "href": "https://www.howtogeek.com/771533/where-are-my-downloads-on-windows/"
+      },
+      {
+        "text": "partition scheme",
+        "href": "https://www.howtogeek.com/193669/whats-the-difference-between-gpt-and-mbr-when-partitioning-a-drive/"
+      },
+      {
+        "text": "file system",
+        "href": "https://www.howtogeek.com/196051/htg-explains-what-is-a-file-system-and-why-are-there-so-many-of-them/"
+      },
+      {
+        "text": "TPM 2.0",
+        "href": "https://www.howtogeek.com/738163/why-does-windows-11-need-tpm-2.0/"
+      },
+      {
+        "text": "change the boot order",
+        "href": "https://www.howtogeek.com/129815/beginner-geek-how-to-change-the-boot-order-in-your-computers-bios/"
+      },
+      {
+        "text": "motherboard manufacturers",
+        "href": "https://www.howtogeek.com/208420/how-to-check-your-motherboard-model-number-on-your-windows-pc/"
+      },
+      {
+        "text": "check what motherboard you have",
+        "href": "https://www.howtogeek.com/129815/beginner-geek-how-to-change-the-boot-order-in-your-computers-bios/"
+      },
+      {
+        "text": "Windows 11's 2022 Update",
+        "href": "https://www.howtogeek.com/813305/whats-new-in-windows-11s-22h2-update-top-10-new-features/"
+      },
+      {
+        "text": "backing up your recovery key",
+        "href": "https://www.howtogeek.com/836536/how-to-back-up-your-bitlocker-recovery-key-on-windows-11"
+      },
+      {
+        "text": "back up your BitLocker encryption key",
+        "href": "https://www.howtogeek.com/836536/how-to-back-up-your-bitlocker-recovery-key-on-windows-11/"
+      },
+      {
+        "text": "whether the upgrade to Windows 11 is really worth it",
+        "href": "https://www.howtogeek.com/759245/should-you-upgrade-to-windows-11/"
+      },
+      {
+        "text": "keep using Windows 10 until 2025",
+        "href": "https://www.howtogeek.com/741245/dont-panic-you-can-keep-using-windows-10-until-2025/"
+      },
+      {
+        "text": "Windows",
+        "href": "/category/windows/"
+      },
+      {
+        "text": "Windows 11",
+        "href": "/tag/windows-11/"
+      },
+      {
+        "text": "Microsoft",
+        "href": "/tag/microsoft/"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.howtogeek.com%2F836157%2Fhow-to-use-windows-11-with-a-local-account%2F%2F&src=sdkpreparse"
+      },
+      {
+        "text": "X",
+        "href": "https://twitter.com/intent/tweet?text=How%20to%20Set%20Up%20Windows%2011%20Without%20a%20Microsoft%20Account&url=https%3A%2F%2Fwww.howtogeek.com%2F836157%2Fhow-to-use-windows-11-with-a-local-account%2F"
+      },
+      {
+        "text": "LinkedIn",
+        "href": "https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fwww.howtogeek.com%2F836157%2Fhow-to-use-windows-11-with-a-local-account%2F&title=How%20to%20Set%20Up%20Windows%2011%20Without%20a%20Microsoft%20Account&source=www.howtogeek.com&summary=Did%20anyone%20ask%20for%20compulsory%20Microsoft%20logins%3F"
+      },
+      {
+        "text": "Reddit",
+        "href": "https://www.reddit.com/submit?url=https%3A%2F%2Fwww.howtogeek.com%2F836157%2Fhow-to-use-windows-11-with-a-local-account%2F"
+      },
+      {
+        "text": "Flipboard",
+        "href": "http://share.flipboard.com/bookmarklet/popout?v=2&title=How%20to%20Set%20Up%20Windows%2011%20Without%20a%20Microsoft%20Account&url=https%3A%2F%2Fwww.howtogeek.com%2F836157%2Fhow-to-use-windows-11-with-a-local-account%2F&utm_campaign=tools&utm_medium=article-share&utm_source=www.howtogeek.com"
+      },
+      {
+        "text": "Copy link",
+        "href": "javascript:;"
+      },
+      {
+        "text": "Email",
+        "href": "mailto:?Subject=How to Set Up Windows 11 Without a Microsoft Account&Body=Check%20this%20out%21%0Ahttps://www.howtogeek.com/836157/how-to-use-windows-11-with-a-local-account/"
+      },
+      {
+        "text": "Read More",
+        "href": "https://www.valnetinc.com/en/terms-of-use"
+      },
+      {
+        "text": "community guidelines",
+        "href": "https://www.valnetinc.com/en/terms-of-use#community-guidelines"
+      },
+      {
+        "text": "Send confirmation email",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Phylip",
+        "href": "/profile/GR085364/"
+      },
+      {
+        "text": "Phylip",
+        "href": "/profile/GR085364/"
+      },
+      {
+        "text": "View",
+        "href": "/profile/GR085364/"
+      },
+      {
+        "text": "Jordan",
+        "href": "/profile/XR333268/"
+      },
+      {
+        "text": "Jordan",
+        "href": "/profile/XR333268/"
+      },
+      {
+        "text": "View",
+        "href": "/profile/XR333268/"
+      },
+      {
+        "text": "Zesen",
+        "href": "/profile/QJ725391/"
+      },
+      {
+        "text": "Zesen",
+        "href": "/profile/QJ725391/"
+      },
+      {
+        "text": "View",
+        "href": "/profile/QJ725391/"
+      },
+      {
+        "text": "JasonMac",
+        "href": "/profile/SF539829/"
+      },
+      {
+        "text": "JasonMac",
+        "href": "/profile/SF539829/"
+      },
+      {
+        "text": "View",
+        "href": "/profile/SF539829/"
+      },
+      {
+        "text": "Andrew",
+        "href": "/profile/VL223077/"
+      },
+      {
+        "text": "Andrew",
+        "href": "/profile/VL223077/"
+      },
+      {
+        "text": "View",
+        "href": "/profile/VL223077/"
+      },
+      {
+        "text": "Andy",
+        "href": "/profile/QT657219/"
+      },
+      {
+        "text": "Andy",
+        "href": "/profile/QT657219/"
+      },
+      {
+        "text": "View",
+        "href": "/profile/QT657219/"
+      },
+      {
+        "text": "Terms",
+        "href": "https://www.valnetinc.com/en/terms-of-use"
+      },
+      {
+        "text": "Privacy",
+        "href": "/page/our-privacy-policy/"
+      },
+      {
+        "text": "Feedback",
+        "href": "/contact"
+      },
+      {
+        "text": "How to Create a Local Account While Setting Up Windows 10",
+        "href": "/442792/how-to-create-a-local-account-while-setting-up-windows-10/"
+      },
+      {
+        "text": "5 Terrible Uses for Micro SD Cards",
+        "href": "/terrible-uses-for-micro-sd-cards/"
+      },
+      {
+        "text": "Why I'm Still Waiting for an NVIDIA Shield 2",
+        "href": "/why-im-still-waiting-for-an-nvidia-shield-2/"
+      },
+      {
+        "text": "Add a Kickstand to Your iPhone 17 for 29% Off With This Beats Case",
+        "href": "/beats-iphone-17-kickstand-case-is-29-off/"
+      },
+      {
+        "text": "The Beginner's Guide to Nested Functions in Excel",
+        "href": "/microsoft-excel-nested-functions-beginners-guide/"
+      },
+      {
+        "text": "Razer's Latest Webcams Have a Bunch of Cool Features",
+        "href": "/razer-latest-webcams-have-a-bunch-of-cool-features/"
+      },
+      {
+        "text": "Last-Gen PC Hardware Is Here to Stay—Here's Why That's Good for Us",
+        "href": "/last-gen-hardware-is-here-to-stay-heres-why-thats-good-for-us/"
+      },
+      {
+        "text": "See More",
+        "href": "/category/desktop/"
+      },
+      {
+        "text": "Get 4 Apple AirTags for 34% Off Today",
+        "href": "/get-4-apple-airtags-for-34-off-today/"
+      },
+      {
+        "text": "T-Mobile Is Ditching This Popular Phone Payment Plan",
+        "href": "/t-mobile-is-ditching-this-popular-phone-payment-plan/"
+      },
+      {
+        "text": "The Google Pixel 10 Shouldn't Be a Flagship Phone",
+        "href": "/the-google-pixel-10-shouldnt-be-a-flagship-phone/"
+      },
+      {
+        "text": "See More",
+        "href": "/category/mobile/"
+      },
+      {
+        "text": "This Korean Hybrid Delivers Big Features Without the Big Price",
+        "href": "/korean-hybrid-delivers-big-features-without-big-price/"
+      },
+      {
+        "text": "The MacBook Pro Now Has an M5 Chip and Faster Storage",
+        "href": "/the-macbook-pro-now-has-an-m5-chip-and-faster-storage/"
+      },
+      {
+        "text": "Your TV’s ‘AI Picture Mode’ Isn’t as Smart as You Think",
+        "href": "/your-tvs-ai-picture-mode-isnt-as-smart-as-you-think/"
+      },
+      {
+        "text": "Join Our Team",
+        "href": "/work-with-us/"
+      },
+      {
+        "text": "Our Audience",
+        "href": "/page/advertise/"
+      },
+      {
+        "text": "About Us",
+        "href": "/page/about/"
+      },
+      {
+        "text": "Press & Events",
+        "href": "/page/press-events/"
+      },
+      {
+        "text": "Contact Us",
+        "href": "/contact/"
+      },
+      {
+        "text": "Advertising",
+        "href": "https://www.valnetinc.com/en/advertising"
+      },
+      {
+        "text": "Careers",
+        "href": "https://www.valnetinc.com/en/careers"
+      },
+      {
+        "text": "Terms",
+        "href": "https://www.valnetinc.com/en/terms-of-use"
+      },
+      {
+        "text": "Privacy",
+        "href": "/page/our-privacy-policy/"
+      },
+      {
+        "text": "Policies",
+        "href": "/page/our-editorial-guidelines/"
+      },
+      {
+        "text": "How-To Geek",
+        "href": "/"
+      },
+      {
+        "text": "Valnet Publishing Group",
+        "href": "https://www.valnetinc.com/en/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "How-To Geek logo",
+        "src": "https://static0.howtogeekimages.com/assets/images/htg-logo-full-colored-light.svg?v=3.1"
+      },
+      {
+        "alt": "How-To Geek logo",
+        "src": "https://static0.howtogeekimages.com/assets/images/htg-logo-icon-colored-light.svg?v=3.1"
+      },
+      {
+        "alt": "Windows 11 window to add a Microsoft account.",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2024/07/windows-11-window-to-add-a-microsoft-account.jpg?&fit=crop&w=1600&h=900"
+      },
+      {
+        "alt": "4",
+        "src": "https://static0.howtogeekimages.com/wordpress%2Fwp-content%2Fauthors%2F65c2bd66ad115-IMG_1580.jpeg?fit=crop&w=90&h=90"
+      },
+      {
+        "alt": "4",
+        "src": "https://static0.howtogeekimages.com/wordpress%2Fwp-content%2Fauthors%2F64ca808a79651-IMG-20230316-WA0002.jpg?fit=crop&w=90&h=90"
+      },
+      {
+        "alt": "The &quot;No Internet&quot; error message the Windows 11 installer gives you. ",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2022/09/Error-disconnecting.png?q=70&fit=crop&w=650&dpr=1"
+      },
+      {
+        "alt": "The Windows 11 installer prompting you to log in. ",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2024/07/microsoft-login-screen.png?q=70&fit=crop&w=825&dpr=1"
+      },
+      {
+        "alt": "The bypassnro command running in Command Prompt. ",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2024/07/oobebypassnrocommand.png?q=70&fit=crop&w=825&dpr=1"
+      },
+      {
+        "alt": "Downloading the latest Windows 11 ISO for all versions of Windows 11. ",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2024/07/download-the-windows-11-iso.png?q=70&fit=crop&w=825&dpr=1"
+      },
+      {
+        "alt": "Disabling the Microsoft Account requirement via Rufus. ",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2024/07/disable-online-acct.png?q=70&fit=crop&w=825&dpr=1"
+      },
+      {
+        "alt": "The 'Other Users' section of the Settings app. ",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2024/07/other-users.png?q=70&fit=crop&w=825&dpr=1"
+      },
+      {
+        "alt": "Select 'Accounts,' then scroll down until you see 'Your Info.'",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2024/07/accounts-your-info.png?q=70&fit=crop&w=825&dpr=1"
+      },
+      {
+        "alt": "The popup to switch to a local account on Windows 11.",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2024/07/switching-to-local.png?q=70&fit=crop&w=825&dpr=1"
+      },
+      {
+        "alt": "Changing the account type from standard to administrator.",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2024/07/change-accont-type.png?q=70&fit=crop&w=825&dpr=1"
+      },
+      {
+        "alt": "Windows",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2024/11/windows-threads.jpg?q=50&fit=crop&w=32&h=32&dpr=1.5"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.howtogeekimages.com/wordpress/wordpress/wp-content/uploads/profilepics/circle-user-solid-1.png"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.howtogeekimages.com/wordpress/wordpress/wp-content/uploads/profilepics/circle-user-solid-1.png"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.howtogeekimages.com/wordpress/wp-content/uploads/profilepics/custom/2024/11/dc9b29655dddcc18dfbe5288cbd37d5415b8808b038b3531cacc63d335daa2c4.jpg?q=50&fit=crop&w=100&h=100&dpr=1.5"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.howtogeekimages.com/wordpress/wp-content/uploads/profilepics/custom/2024/11/dc9b29655dddcc18dfbe5288cbd37d5415b8808b038b3531cacc63d335daa2c4.jpg?q=50&fit=crop&w=100&h=100&dpr=1.5"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.howtogeekimages.com/wordpress/wordpress/wp-content/uploads/profilepics/circle-user-solid-1.png"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.howtogeekimages.com/wordpress/wordpress/wp-content/uploads/profilepics/circle-user-solid-1.png"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.srcdn.com/wordpress/wordpress/wp-content/uploads/profilepics/circle-user-solid-1.png"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.srcdn.com/wordpress/wordpress/wp-content/uploads/profilepics/circle-user-solid-1.png"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.howtogeekimages.com/wordpress/wordpress/wp-content/uploads/profilepics/circle-user-solid-1.png"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.howtogeekimages.com/wordpress/wordpress/wp-content/uploads/profilepics/circle-user-solid-1.png"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.howtogeekimages.com/wordpress/wordpress/wp-content/uploads/profilepics/circle-user-solid-1.png"
+      },
+      {
+        "alt": "User Display Picture",
+        "src": "https://static1.howtogeekimages.com/wordpress/wordpress/wp-content/uploads/profilepics/circle-user-solid-1.png"
+      },
+      {
+        "alt": "img_5d94d68f1621a",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2019/10/img_5d94d68f1621a.png?q=50&fit=crop&w=266&h=300&dpr=1.5"
+      },
+      {
+        "alt": "Illustration of microSD cards and a SIM tray with red X symbols over them.",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2025/09/illustration_of_microsd_cards_and_a_sim_tray_with_red_x_symbols_over_them.png?q=49&fit=crop&w=266&h=300&dpr=2"
+      },
+      {
+        "alt": "Human skeleton sat at a computer desk with headphones on.",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2023/12/human-skeleton-sat-at-a-computer-desk-with-headphones-on.jpg?q=49&fit=crop&w=266&h=300&dpr=2"
+      },
+      {
+        "alt": "A phone being used while it uses a Beats iPhone 17 blue Kickstand case",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2025/10/a-phone-being-used-while-it-uses-a-beats-iphone-17-blue-kickstand-case.jpg?q=49&fit=crop&w=266&h=300&dpr=2"
+      },
+      {
+        "alt": "Illustration showing a function symbol above a list of nested formulas with the Excel logo beside.",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2025/10/illustration-showing-a-function-symbol-above-a-list-of-nested-formulas-with-the-excel-logo-beside.png?q=49&fit=crop&w=120&h=80&dpr=2"
+      },
+      {
+        "alt": "1920x1080-1-Razer-Kiyo-V2",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2025/10/1920x1080-1-razer-kiyo-v2.png?q=49&fit=crop&w=120&h=80&dpr=2"
+      },
+      {
+        "alt": "A closeup of an AMD RX 6800 XT Sapphire graphics card.",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/wm/2025/09/img20250919031455.jpg?q=49&fit=crop&w=120&h=80&dpr=2"
+      },
+      {
+        "alt": "Person holding an Apple AirTag in their hand",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2023/09/person-holding-an-apple-airtag-in-their-hand.jpg?q=49&fit=crop&w=120&h=80&dpr=2"
+      },
+      {
+        "alt": "T-Mobile Logo 2",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2025/04/t-mobile-logo-2.jpg?q=49&fit=crop&w=120&h=80&dpr=2"
+      },
+      {
+        "alt": "Google Pixel 10 from the back.",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/wm/2025/09/google-pixel-10-2.jpg?q=49&fit=crop&w=120&h=80&dpr=2"
+      },
+      {
+        "alt": "Static side profile shot of a gray 2025 Hyundai Elantra parked on gravel with hills in the background.",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2025/08/large-62180-2025elantra.jpg?q=49&fit=crop&w=100&h=67&dpr=2"
+      },
+      {
+        "alt": "apple macbook pro 16-inch",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2025/06/apple-macbook-pro-16-inch.jpg?q=49&fit=crop&w=100&h=67&dpr=2"
+      },
+      {
+        "alt": "Human with AI TV Head collage art",
+        "src": "https://static0.howtogeekimages.com/wordpress/wp-content/uploads/2025/10/shutterstock_2470380115.jpg?q=49&fit=crop&w=100&h=67&dpr=2"
+      },
+      {
+        "alt": "How-To Geek logo",
+        "src": "https://static0.howtogeekimages.com/assets/images/htg-logo-symbol-white.svg?v=2.4"
+      },
+      {
+        "alt": "Valnet Logo",
+        "src": "https://static0.howtogeekimages.com/assets/images/valnet-logo-icon-white.svg?v=2.4"
+      }
+    ],
+    "timestamp": 1760608445514,
+    "url": "https://www.howtogeek.com/836157/how-to-use-windows-11-with-a-local-account/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

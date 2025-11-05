@@ -1,0 +1,7 @@
+[
+  {
+    "url": "https://www.facebook.com/",
+    "error": "page.goto: Target page, context or browser has been closed\nCall log:\n\u001b[2m  - navigating to \"https://www.facebook.com/?automation=true?automation=true&wait-for-init-args=true\", waiting until \"load\"\u001b[22m\n",
+    "timestamp": "2025-10-17T14:21:11.323Z"
+  }
+]

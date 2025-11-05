@@ -1,0 +1,361 @@
+{
+  "url": "https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/",
+  "extractedAt": "2025-10-16T10:19:38.272Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://addons.mozilla.org/favicon.ico?v=3",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "uBlock Origin – Get this Extension for 🦊 Firefox (en-US)",
+    "metaDescription": "Download uBlock Origin for Firefox. Finally, an efficient wide-spectrum content blocker. Easy on CPU and memory.",
+    "content": "[Firefox Browser Add-ons](/en-US/firefox/)\n\n- [Extensions](/en-US/firefox/extensions/)\n\n- [Themes](/en-US/firefox/themes/)\n\n- More…\n\n[Log in](#login)SearchSearch\n# uBlock Origin by [Raymond Hill](/en-US/firefox/user/11423598/)\nFinally, an efficient wide-spectrum content blocker. Easy on CPU and memory.\n[RecommendedRecommended](https://support.mozilla.org/kb/add-on-badges?utm_content=promoted-addon-badge&utm_medium=referral&utm_source=addons.mozilla.org)Available on Firefox for Android™Available on Firefox for Android™[4.8 (21,060 reviews)4.8 (21,060 reviews)](/en-US/firefox/addon/ublock-origin/reviews/)9,970,040 Users9,970,040 Users[Download Firefox and get the extension](https://www.mozilla.org/firefox/download/thanks/?s=direct&utm_campaign=amo-fx-cta-607454&utm_content=rta%3AdUJsb2NrMEByYXltb25kaGlsbC5uZXQ&utm_medium=referral&utm_source=addons.mozilla.org)[Download file](https://addons.mozilla.org/firefox/downloads/file/4578681/ublock_origin-1.66.4.xpi)\n## Extension Metadata\nScreenshotsAbout this extensionuBlock Origin is **not** an \"ad blocker\", it's a wide-spectrum content blocker with CPU and memory efficiency as a primary feature.\n\n***\n\nOut of the box, uBO blocks ads, trackers, coin miners, popups, etc. through the following lists of filters, enabled by default:\n\n- EasyList (ads)\n- EasyPrivacy (tracking)\n- Peter Lowe’s Ad server list (ads and tracking)\n- Online Malicious URL Blocklist\n- uBO's own lists\n\nMore lists are available for you to select if you wish:\n\n- EasyList Cookie\n- Fanboy Annoyances\n- AdGuard Annoyances\n- Dan Pollock’s hosts file\n- And many others\n\nAdditionally, you can point-and-click to block JavaScript locally or globally, create your own global or local rules to override entries from filter lists, and many more advanced features.\n\n***\n\nFree.\nOpen source with public license (GPLv3)\nFor users by users.\n\nIf ever you really do want to contribute something, think about the people working hard to maintain the filter lists you are using, which were made available to use by all for free.\n\n***\n \n\n- [Documentation](https://prod.outgoing.prod.webservices.mozgcp.net/v1/788d66e7299bdfb1da05832994551640d0ad441e148a3e29afe8dd0a5a90800c/https%3A//github.com/gorhill/uBlock%23ublock-origin)\n\n- [Release notes](https://prod.outgoing.prod.webservices.mozgcp.net/v1/de148deb19b52874eb4c5726859834f3294a6057ed44e873c958acee4c920062/https%3A//github.com/gorhill/uBlock/releases)\n\n- [Community support @ Reddit](https://prod.outgoing.prod.webservices.mozgcp.net/v1/32c3d6819f5263e56c265042e8d34e2da4d974e73a7ad55a81786d8995cf65a9/https%3A//www.reddit.com/r/uBlockOrigin/)\n\n- [Contributors @ GitHub](https://prod.outgoing.prod.webservices.mozgcp.net/v1/9bfaba4f3fe3310ae0a3189187f5fbab185097d85398752765e086889775079e/https%3A//github.com/gorhill/uBlock/graphs/contributors)\n\n- [Contributors @ Crowdin](https://prod.outgoing.prod.webservices.mozgcp.net/v1/6a44868e1580018df8d4d87adf8e97cc74b71b962a73dd5a64604f99db767287/https%3A//crowdin.net/project/ublock)\n\n[Expand to Read more](#show-more)Rated 4.8 by 21,060 reviewers[Log in to rate this extension](#login)There are no ratings yet[518,835](/en-US/firefox/addon/ublock-origin/reviews/?score=5)[41,242](/en-US/firefox/addon/ublock-origin/reviews/?score=4)[3366](/en-US/firefox/addon/ublock-origin/reviews/?score=3)[2194](/en-US/firefox/addon/ublock-origin/reviews/?score=2)[1423](/en-US/firefox/addon/ublock-origin/reviews/?score=1)[Read all 21,060 reviews](/en-US/firefox/addon/ublock-origin/reviews/)Permissions and data[Learn more](https://support.mozilla.org/kb/permission-request-messages-firefox-extensions)Required permissions:\n\n- Read and modify privacy settings\n\n- Access browser tabs\n\n- Access browser activity during navigation\n\n- Access your data for all websites\n\nMore informationAdd-on Links\n\n- [Homepage](https://prod.outgoing.prod.webservices.mozgcp.net/v1/788d66e7299bdfb1da05832994551640d0ad441e148a3e29afe8dd0a5a90800c/https%3A//github.com/gorhill/uBlock%23ublock-origin)\n\n- [Support site](https://prod.outgoing.prod.webservices.mozgcp.net/v1/7bfea9e4c26b0fd41cff823e5d88c6432187598668797f3cce5a4cc2cc0b8c77/https%3A//old.reddit.com/r/uBlockOrigin/)\n\nVersion1.66.4Size4.02 MBLast updateda month ago (Sep 15, 2025)Related Categories\n\n- [Privacy & Security](/en-US/firefox/extensions/category/privacy-security/)\n\nLicense[GNU General Public License v3.0 only](https://spdx.org/licenses/GPL-3.0-only.html)Privacy Policy[Read the privacy policy for this add-on](/en-US/firefox/addon/ublock-origin/privacy/)Version History\n\n- [See all versions](/en-US/firefox/addon/ublock-origin/versions/)\n\nTags\n\n- [ad blocker](/en-US/firefox/tag/ad blocker/)\n\n- [anti malware](/en-US/firefox/tag/anti malware/)\n\n- [anti tracker](/en-US/firefox/tag/anti tracker/)\n\n- [content blocker](/en-US/firefox/tag/content blocker/)\n\n- [privacy](/en-US/firefox/tag/privacy/)\n\n- [security](/en-US/firefox/tag/security/)\n\nAdd to collectionSelect a collection…Create new collection[Report this add-on](/en-US/firefox/feedback/addon/ublock-origin/)Release notes for 1.66.4\n\n- [Fix potential infinite loop when scanning for $ anchor](https://prod.outgoing.prod.webservices.mozgcp.net/v1/85304d2e2e867df8558bea9125ee0b2548cfef6aee9e2a6196a85e294e7768bc/https%3A//github.com/gorhill/uBlock/commit/889c0eb208)\n\n- [Allow generic exception for replace= option](https://prod.outgoing.prod.webservices.mozgcp.net/v1/8bb29a136c831bc291798018430b76f1d80bdc9a2637609a62445b9ecb67bb23/https%3A//github.com/gorhill/uBlock/commit/52dba4116e)\n\n\n\n- ## ###\n\n- ## ###\n\n- ## ###\n\n- ## ###\n\n[Go to Mozilla's homepage](https://mozilla.org/)[Add-ons](/en-US/firefox/)\n\n- [About](/en-US/about)\n\n- [Firefox Add-ons Blog](/blog/)\n\n- [Extension Workshop](https://extensionworkshop.com/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org)\n\n- [Developer Hub](/en-US/developers/)\n\n- [Developer Policies](https://extensionworkshop.com/documentation/publish/add-on-policies/?utm_medium=photon-footer&utm_source=addons.mozilla.org)\n\n- [Community Blog](https://blog.mozilla.com/addons?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org)\n\n- [Forum](https://discourse.mozilla-community.org/c/add-ons)\n\n- [Report a bug](https://developer.mozilla.org/docs/Mozilla/Add-ons/Contact_us)\n\n- [Review Guide](/en-US/review_guide)\n\nBrowsers\n\n- [Desktop](https://www.mozilla.org/firefox/new/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org)\n\n- [Mobile](https://www.mozilla.org/firefox/mobile/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org)\n\n- [Enterprise](https://www.mozilla.org/firefox/enterprise/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org)\n\nProducts\n\n- [Browsers](https://www.mozilla.org/firefox/browsers/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org)\n\n- [VPN](https://www.mozilla.org/products/vpn/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org#pricing)\n\n- [Relay](https://relay.firefox.com/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org)\n\n- [Monitor](https://monitor.firefox.com/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org)\n\n- [Pocket](https://getpocket.com?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org)\n\n\n\n- [Bluesky (@firefox.com)](https://bsky.app/profile/firefox.com)\n\n- [Instagram (Firefox)](https://www.instagram.com/firefox/)\n\n- [YouTube (firefoxchannel)](https://www.youtube.com/firefoxchannel)\n\n\n\n- [Privacy](https://www.mozilla.org/privacy/websites/)\n\n- [Cookies](https://www.mozilla.org/privacy/websites/)\n\n- [Legal](https://www.mozilla.org/about/legal/amo-policies/)\n\nExcept where otherwise [noted](https://www.mozilla.org/en-US/about/legal/), content on this site is licensed under the [Creative Commons Attribution Share-Alike License v3.0](https://creativecommons.org/licenses/by-sa/3.0/) or any later version. Android is a trademark of Google LLC.\nChange languageČeštinaDeutschDolnoserbšćinaΕλληνικάEnglish (Canadian)English (British)English (US)Español (de Argentina)Español (de Chile)Español (de España)Español (de México)suomiFrançaisFurlanFryskעבריתHrvatskiHornjoserbscemagyarInterlinguaItaliano日本語ქართულიTaqbaylit한국어Norsk bokmålNederlandsNorsk nynorskPolskiPortuguês (do Brasil)Português (Europeu)RomânăРусскийslovenčinaSlovenščinaShqipSvenskaTürkçeУкраїнськаTiếng Việt中文 (简体)正體中文 (繁體)",
+    "truncated": false,
+    "fullContentLength": 8415,
+    "headings": [
+      {
+        "level": 1,
+        "text": "uBlock Origin by Raymond Hill"
+      },
+      {
+        "level": 2,
+        "text": "Extension Metadata"
+      },
+      {
+        "level": 4,
+        "text": "Required permissions:"
+      },
+      {
+        "level": 4,
+        "text": "Add-ons"
+      },
+      {
+        "level": 4,
+        "text": "Browsers"
+      },
+      {
+        "level": 4,
+        "text": "Products"
+      }
+    ],
+    "links": [
+      {
+        "text": "Firefox Browser Add-ons",
+        "href": "/en-US/firefox/"
+      },
+      {
+        "text": "Extensions",
+        "href": "/en-US/firefox/extensions/"
+      },
+      {
+        "text": "Themes",
+        "href": "/en-US/firefox/themes/"
+      },
+      {
+        "text": "Dictionaries & Language Packs",
+        "href": "/en-US/firefox/language-tools/"
+      },
+      {
+        "text": "Add-ons for Android",
+        "href": "/en-US/android/"
+      },
+      {
+        "text": "Log in",
+        "href": "#login"
+      },
+      {
+        "text": "Raymond Hill",
+        "href": "/en-US/firefox/user/11423598/"
+      },
+      {
+        "text": "RecommendedRecommended",
+        "href": "https://support.mozilla.org/kb/add-on-badges?utm_content=promoted-addon-badge&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "4.8 (21,060 reviews)4.8 (21,060 reviews)",
+        "href": "/en-US/firefox/addon/ublock-origin/reviews/"
+      },
+      {
+        "text": "Download Firefox and get the extension",
+        "href": "https://www.mozilla.org/firefox/download/thanks/?s=direct&utm_campaign=amo-fx-cta-607454&utm_content=rta%3AdUJsb2NrMEByYXltb25kaGlsbC5uZXQ&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "Download file",
+        "href": "https://addons.mozilla.org/firefox/downloads/file/4578681/ublock_origin-1.66.4.xpi"
+      },
+      {
+        "text": "Documentation",
+        "href": "https://prod.outgoing.prod.webservices.mozgcp.net/v1/788d66e7299bdfb1da05832994551640d0ad441e148a3e29afe8dd0a5a90800c/https%3A//github.com/gorhill/uBlock%23ublock-origin"
+      },
+      {
+        "text": "Release notes",
+        "href": "https://prod.outgoing.prod.webservices.mozgcp.net/v1/de148deb19b52874eb4c5726859834f3294a6057ed44e873c958acee4c920062/https%3A//github.com/gorhill/uBlock/releases"
+      },
+      {
+        "text": "Community support @ Reddit",
+        "href": "https://prod.outgoing.prod.webservices.mozgcp.net/v1/32c3d6819f5263e56c265042e8d34e2da4d974e73a7ad55a81786d8995cf65a9/https%3A//www.reddit.com/r/uBlockOrigin/"
+      },
+      {
+        "text": "Contributors @ GitHub",
+        "href": "https://prod.outgoing.prod.webservices.mozgcp.net/v1/9bfaba4f3fe3310ae0a3189187f5fbab185097d85398752765e086889775079e/https%3A//github.com/gorhill/uBlock/graphs/contributors"
+      },
+      {
+        "text": "Contributors @ Crowdin",
+        "href": "https://prod.outgoing.prod.webservices.mozgcp.net/v1/6a44868e1580018df8d4d87adf8e97cc74b71b962a73dd5a64604f99db767287/https%3A//crowdin.net/project/ublock"
+      },
+      {
+        "text": "Expand to Read more",
+        "href": "#show-more"
+      },
+      {
+        "text": "Log in to rate this extension",
+        "href": "#login"
+      },
+      {
+        "text": "518,835",
+        "href": "/en-US/firefox/addon/ublock-origin/reviews/?score=5"
+      },
+      {
+        "text": "41,242",
+        "href": "/en-US/firefox/addon/ublock-origin/reviews/?score=4"
+      },
+      {
+        "text": "3366",
+        "href": "/en-US/firefox/addon/ublock-origin/reviews/?score=3"
+      },
+      {
+        "text": "2194",
+        "href": "/en-US/firefox/addon/ublock-origin/reviews/?score=2"
+      },
+      {
+        "text": "1423",
+        "href": "/en-US/firefox/addon/ublock-origin/reviews/?score=1"
+      },
+      {
+        "text": "Read all 21,060 reviews",
+        "href": "/en-US/firefox/addon/ublock-origin/reviews/"
+      },
+      {
+        "text": "Learn more",
+        "href": "https://support.mozilla.org/kb/permission-request-messages-firefox-extensions"
+      },
+      {
+        "text": "Homepage",
+        "href": "https://prod.outgoing.prod.webservices.mozgcp.net/v1/788d66e7299bdfb1da05832994551640d0ad441e148a3e29afe8dd0a5a90800c/https%3A//github.com/gorhill/uBlock%23ublock-origin"
+      },
+      {
+        "text": "Support site",
+        "href": "https://prod.outgoing.prod.webservices.mozgcp.net/v1/7bfea9e4c26b0fd41cff823e5d88c6432187598668797f3cce5a4cc2cc0b8c77/https%3A//old.reddit.com/r/uBlockOrigin/"
+      },
+      {
+        "text": "Privacy & Security",
+        "href": "/en-US/firefox/extensions/category/privacy-security/"
+      },
+      {
+        "text": "GNU General Public License v3.0 only",
+        "href": "https://spdx.org/licenses/GPL-3.0-only.html"
+      },
+      {
+        "text": "Read the privacy policy for this add-on",
+        "href": "/en-US/firefox/addon/ublock-origin/privacy/"
+      },
+      {
+        "text": "See all versions",
+        "href": "/en-US/firefox/addon/ublock-origin/versions/"
+      },
+      {
+        "text": "ad blocker",
+        "href": "/en-US/firefox/tag/ad blocker/"
+      },
+      {
+        "text": "anti malware",
+        "href": "/en-US/firefox/tag/anti malware/"
+      },
+      {
+        "text": "anti tracker",
+        "href": "/en-US/firefox/tag/anti tracker/"
+      },
+      {
+        "text": "content blocker",
+        "href": "/en-US/firefox/tag/content blocker/"
+      },
+      {
+        "text": "privacy",
+        "href": "/en-US/firefox/tag/privacy/"
+      },
+      {
+        "text": "security",
+        "href": "/en-US/firefox/tag/security/"
+      },
+      {
+        "text": "Report this add-on",
+        "href": "/en-US/firefox/feedback/addon/ublock-origin/"
+      },
+      {
+        "text": "Fix potential  infinite loop when scanning for $ anchor",
+        "href": "https://prod.outgoing.prod.webservices.mozgcp.net/v1/85304d2e2e867df8558bea9125ee0b2548cfef6aee9e2a6196a85e294e7768bc/https%3A//github.com/gorhill/uBlock/commit/889c0eb208"
+      },
+      {
+        "text": "Allow generic exception for replace= option",
+        "href": "https://prod.outgoing.prod.webservices.mozgcp.net/v1/8bb29a136c831bc291798018430b76f1d80bdc9a2637609a62445b9ecb67bb23/https%3A//github.com/gorhill/uBlock/commit/52dba4116e"
+      },
+      {
+        "text": "Go to Mozilla's homepage",
+        "href": "https://mozilla.org/"
+      },
+      {
+        "text": "Add-ons",
+        "href": "/en-US/firefox/"
+      },
+      {
+        "text": "About",
+        "href": "/en-US/about"
+      },
+      {
+        "text": "Firefox Add-ons Blog",
+        "href": "/blog/"
+      },
+      {
+        "text": "Extension Workshop",
+        "href": "https://extensionworkshop.com/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "Developer Hub",
+        "href": "/en-US/developers/"
+      },
+      {
+        "text": "Developer Policies",
+        "href": "https://extensionworkshop.com/documentation/publish/add-on-policies/?utm_medium=photon-footer&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "Community Blog",
+        "href": "https://blog.mozilla.com/addons?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "Forum",
+        "href": "https://discourse.mozilla-community.org/c/add-ons"
+      },
+      {
+        "text": "Report a bug",
+        "href": "https://developer.mozilla.org/docs/Mozilla/Add-ons/Contact_us"
+      },
+      {
+        "text": "Review Guide",
+        "href": "/en-US/review_guide"
+      },
+      {
+        "text": "Desktop",
+        "href": "https://www.mozilla.org/firefox/new/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "Mobile",
+        "href": "https://www.mozilla.org/firefox/mobile/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "Enterprise",
+        "href": "https://www.mozilla.org/firefox/enterprise/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "Browsers",
+        "href": "https://www.mozilla.org/firefox/browsers/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "VPN",
+        "href": "https://www.mozilla.org/products/vpn/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org#pricing"
+      },
+      {
+        "text": "Relay",
+        "href": "https://relay.firefox.com/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "Monitor",
+        "href": "https://monitor.firefox.com/?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "Pocket",
+        "href": "https://getpocket.com?utm_content=footer-link&utm_medium=referral&utm_source=addons.mozilla.org"
+      },
+      {
+        "text": "Bluesky (@firefox.com)",
+        "href": "https://bsky.app/profile/firefox.com"
+      },
+      {
+        "text": "Instagram (Firefox)",
+        "href": "https://www.instagram.com/firefox/"
+      },
+      {
+        "text": "YouTube (firefoxchannel)",
+        "href": "https://www.youtube.com/firefoxchannel"
+      },
+      {
+        "text": "Privacy",
+        "href": "https://www.mozilla.org/privacy/websites/"
+      },
+      {
+        "text": "Cookies",
+        "href": "https://www.mozilla.org/privacy/websites/"
+      },
+      {
+        "text": "Legal",
+        "href": "https://www.mozilla.org/about/legal/amo-policies/"
+      },
+      {
+        "text": "noted",
+        "href": "https://www.mozilla.org/en-US/about/legal/"
+      },
+      {
+        "text": "Creative Commons Attribution Share-Alike License v3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Preview of uBlock Origin",
+        "src": "https://addons.mozilla.org/user-media/addon_icons/607/607454-64.png?modified=mcrushed"
+      },
+      {
+        "alt": "The popup panel: default mode",
+        "src": "https://addons.mozilla.org/user-media/previews/thumbs/238/238546.jpg?modified=1622132421"
+      },
+      {
+        "alt": "The dashboard: stock filter lists",
+        "src": "https://addons.mozilla.org/user-media/previews/thumbs/238/238548.jpg?modified=1622132423"
+      },
+      {
+        "alt": "The popup panel: default-deny mode",
+        "src": "https://addons.mozilla.org/user-media/previews/thumbs/238/238547.jpg?modified=1622132425"
+      },
+      {
+        "alt": "The dashboard: settings",
+        "src": "https://addons.mozilla.org/user-media/previews/thumbs/238/238549.jpg?modified=1622132426"
+      },
+      {
+        "alt": "The popup panel in Firefox Preview: default mode with more blocking options revealed",
+        "src": "https://addons.mozilla.org/user-media/previews/thumbs/238/238552.jpg?modified=1622132430"
+      },
+      {
+        "alt": "The unified logger tells you all that uBO is seeing and doing",
+        "src": "https://addons.mozilla.org/user-media/previews/thumbs/230/230370.jpg?modified=1622132432"
+      },
+      {
+        "alt": "",
+        "src": "/static-frontend/1b2fb62f37f1c1e59208f4993714d166.svg"
+      },
+      {
+        "alt": "",
+        "src": "/static-frontend/1b2fb62f37f1c1e59208f4993714d166.svg"
+      },
+      {
+        "alt": "",
+        "src": "/static-frontend/1b2fb62f37f1c1e59208f4993714d166.svg"
+      },
+      {
+        "alt": "",
+        "src": "/static-frontend/1b2fb62f37f1c1e59208f4993714d166.svg"
+      }
+    ],
+    "timestamp": 1760609977569,
+    "url": "https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

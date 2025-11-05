@@ -1,0 +1,172 @@
+{
+  "url": "https://find-and-update.company-information.service.gov.uk/",
+  "extractedAt": "2025-10-16T10:28:47.392Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://d3qoh6aww4nxt5.cloudfront.net/images/govuk-frontend/v5.11.0/rebrand/favicon.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://d3qoh6aww4nxt5.cloudfront.net/images/govuk-frontend/v5.11.0/rebrand/favicon.svg",
+        "rel": "icon"
+      },
+      {
+        "href": "https://d3qoh6aww4nxt5.cloudfront.net/images/govuk-frontend/v5.11.0/rebrand/govuk-icon-mask.svg",
+        "rel": "mask-icon"
+      },
+      {
+        "href": "https://d3qoh6aww4nxt5.cloudfront.net/images/govuk-frontend/v5.11.0/rebrand/govuk-icon-180.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://d3qoh6aww4nxt5.cloudfront.net/images/govuk-frontend/v5.11.0/rebrand/govuk-icon-192.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://d3qoh6aww4nxt5.cloudfront.net/images/govuk-frontend/v5.11.0/rebrand/govuk-icon-512.png",
+        "rel": "icon"
+      }
+    ],
+    "title": "Find and update company information - GOV.UK",
+    "metaDescription": "Free company information from Companies House including registered office address, filing history, accounts, annual return, officers, charges, business activity",
+    "content": "[Companies House does not verify the accuracy of the information filed(link opens a new window)](http://resources.companieshouse.gov.uk/serviceInformation.shtml#compInfo)     \n \n- [Sign in / Register](/signin)\n \n    **For Information:** [UK company law is changing](https://changestoUKcompanylaw.campaign.gov.uk).   \n#  Search the register \n Enter company name, number or officer name\n    Search     [Advanced company searchLink opens in new window](/advanced-search)   \n## Current features include\n \n \n- [File abridged or full accounts](/accounts/guidance)New\n \n- Change a registered office address\n \n- View company data and document images\n \n- Search for disqualified directors\n \n- Order certificates and certified documentsNew\n \n- Follow companies\n \n   \n## Planned features\n \n \n- [Other document filings](/help/other-filings)\n \n   \n## Other useful tools\n \n \n- [Company name availability checkerLink opens in new window](/company-name-availability)\n \n- [Alphabetical company searchLink opens in new window](/alphabetical-search)New\n \n- [Dissolved company searchLink opens in new window](/dissolved-search)New",
+    "truncated": false,
+    "fullContentLength": 1110,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Cookies on Companies House services"
+      },
+      {
+        "level": 1,
+        "text": "Search the register"
+      },
+      {
+        "level": 2,
+        "text": "Current features include"
+      },
+      {
+        "level": 2,
+        "text": "Planned features"
+      },
+      {
+        "level": 2,
+        "text": "Other useful tools"
+      },
+      {
+        "level": 2,
+        "text": "Support links"
+      }
+    ],
+    "links": [
+      {
+        "text": "View cookies",
+        "href": "/help/cookies"
+      },
+      {
+        "text": "change your cookie settings",
+        "href": "/help/cookies"
+      },
+      {
+        "text": "change your cookie settings",
+        "href": "/help/cookies"
+      },
+      {
+        "text": "Skip to main content",
+        "href": "#content"
+      },
+      {
+        "text": "GOV.UK",
+        "href": "https://www.gov.uk/"
+      },
+      {
+        "text": "Find and update company information",
+        "href": "/"
+      },
+      {
+        "text": "Tell us what you think of Companies House",
+        "href": "https://www.smartsurvey.co.uk/s/csat-companieshouseservice/"
+      },
+      {
+        "text": "Companies House does not verify the accuracy of the information filed(link opens a new window)",
+        "href": "http://resources.companieshouse.gov.uk/serviceInformation.shtml#compInfo"
+      },
+      {
+        "text": "Sign in / Register",
+        "href": "/signin"
+      },
+      {
+        "text": "Sign in / Register",
+        "href": "/signin"
+      },
+      {
+        "text": "UK company law is changing",
+        "href": "https://changestoUKcompanylaw.campaign.gov.uk"
+      },
+      {
+        "text": "Advanced company searchLink opens in new window",
+        "href": "/advanced-search"
+      },
+      {
+        "text": "File abridged or full accounts",
+        "href": "/accounts/guidance"
+      },
+      {
+        "text": "Other document filings",
+        "href": "/help/other-filings"
+      },
+      {
+        "text": "Company name availability checkerLink opens in new window",
+        "href": "/company-name-availability"
+      },
+      {
+        "text": "Alphabetical company searchLink opens in new window",
+        "href": "/alphabetical-search"
+      },
+      {
+        "text": "Dissolved company searchLink opens in new window",
+        "href": "/dissolved-search"
+      },
+      {
+        "text": "Tell us what you think of this service(link opens a new window)",
+        "href": "https://www.smartsurvey.co.uk/s/getcompanyinformation/"
+      },
+      {
+        "text": "Is there anything wrong with this page?(link opens a new window)",
+        "href": "/help/feedback?sourceurl=https://find-and-update.company-information.service.gov.uk/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Policies\n                    \n                      Link opens in new tab",
+        "href": "http://resources.companieshouse.gov.uk/legal/termsAndConditions.shtml"
+      },
+      {
+        "text": "Cookies",
+        "href": "/help/cookies"
+      },
+      {
+        "text": "Contact us\n                    \n                      Link opens in new tab",
+        "href": "https://www.gov.uk/government/organisations/companies-house#org-contacts"
+      },
+      {
+        "text": "Accessibility statement",
+        "href": "/help/accessibility-statement"
+      },
+      {
+        "text": "Developers\n                    \n                      Link opens in new tab",
+        "href": "https://developer.companieshouse.gov.uk/"
+      },
+      {
+        "text": "Companies House",
+        "href": "https://www.gov.uk/government/organisations/companies-house"
+      },
+      {
+        "text": "© Crown copyright",
+        "href": "https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+      }
+    ],
+    "images": [],
+    "timestamp": 1760610526894,
+    "url": "https://find-and-update.company-information.service.gov.uk/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

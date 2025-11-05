@@ -1,0 +1,5781 @@
+{
+  "url": "https://tecnobits.com/de/So-aktivieren-Sie-Secure-Boot-im-BIOS-in-Gigabyte-und-Aorus/",
+  "extractedAt": "2025-10-16T11:17:33.881Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://tecnobits.com/wp-content/uploads/2024/05/cropped-FAVICON-TECNOBITS-32x32.webp",
+        "rel": "icon"
+      },
+      {
+        "href": "https://tecnobits.com/wp-content/uploads/2024/05/cropped-FAVICON-TECNOBITS-192x192.webp",
+        "rel": "icon"
+      },
+      {
+        "href": "https://tecnobits.com/wp-content/uploads/2024/05/cropped-FAVICON-TECNOBITS-180x180.webp",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "So aktivieren Sie Secure Boot im BIOS auf Gigabyte und Aorus ▷➡️",
+    "metaDescription": "Secure Boot ist eine wichtige Funktion für die Sicherheit Ihres Systems. In diesem Artikel erklären wir, wie man diese Funktion im BIOS von Gigabyte- und Aorus-Motherboards aktiviert. Befolgen Sie unsere Schritt-für-Schritt-Anleitung, um sicherzustellen, dass Ihre Ausrüstung geschützt ist.",
+    "content": "# So aktivieren Sie Secure Boot im BIOS auf Gigabyte und Aorus\n **Letzte Aktualisierung:** 30/06/2023  **Autor:** [Sebastian Vidal](https://tecnobits.com/de/Autor/Redakteure/)        \n[Tecnobits](https://tecnobits.com/de/) - [Campusführer](https://tecnobits.com/de/Campusf%C3%BChrer/) - So aktivieren Sie Secure Boot im BIOS auf Gigabyte und Aorus\n\n So aktivieren Sie Secure Boot im BIOS auf Gigabyte und Aorus\n Heutzutage ist die Computersicherheit zu einem Hauptanliegen geworden [Für die Benutzer](https://tecnobits.com/de/Die-babbel-App-bietet-eine-intuitive-Benutzeroberfl%C3%A4che-f%C3%BCr-Benutzer/) von Computern. Der Schutz unserer Daten und Systeme vor externen Bedrohungen ist unerlässlich, um eine sichere Umgebung zu gewährleisten. [sicher und zuverlässig](https://tecnobits.com/de/sicherer-und-zuverl%C3%A4ssiger-Browser/). Eine der effektivsten Sicherheitsmaßnahmen, die in den letzten Jahren implementiert wurde, ist Secure Boot, eine Funktion, die während des Bootvorgangs als Schutzschild fungiert. [OS](https://tecnobits.com/de/So-installieren-Sie-Windows-10-auf-einem-Laptop-ohne-Betriebssystem/).\n       Für Benutzer von Gigabyte- und Aorus-Motherboards ist die Aktivierung von Secure Boot im BIOS von entscheidender Bedeutung, um sicherzustellen, dass nur vertrauenswürdige und autorisierte Software auf Ihren Computern ausgeführt wird. Das BIOS (Basic Input Output System) fungiert als Vermittler zwischen Hardware und Software. [von einem Computer](https://tecnobits.com/de/Wie-werden-Komponenten-eines-Computers-verbunden%3F/), und über seine Einstellungen können wir diese Sicherheitsfunktion aktivieren.\n In diesem Artikel werden wir den Prozess der Aktivierung von Secure Boot im BIOS auf Gigabyte- und Aorus-Motherboards im Detail untersuchen. [Schritt für Schritt](https://tecnobits.com/de/So-f%C3%BChren-Sie-Schritt-f%C3%BCr-Schritt-eine-Bancomer-%C3%9Cberweisung-durch/)Erfahren Sie, wie Sie auf das BIOS zugreifen, welche Einstellungen vorgenommen werden müssen und wie Sie sicherstellen, dass Secure Boot ordnungsgemäß aktiviert ist.\n       Wenn Sie die Sicherheit Ihres Systems erhöhen und Ihre persönlichen Daten schützen möchten, sollten Sie sich diesen technischen Leitfaden nicht entgehen lassen, der Ihnen das nötige Wissen vermittelt, um Secure Boot auf Ihrem Gigabyte- oder Aorus-Motherboard zu aktivieren. Beginnen wir mit den Vorbereitungen für eine sicherere Computerumgebung!\n       \n## 1. Einführung in Secure Boot und seine Bedeutung bei Gigabyte und Aorus\n Secure Boot ist eine grundlegende Sicherheitsfunktion auf Gigabyte- und Aorus-Motherboards. Dieser Mechanismus stellt sicher, dass beim Systemstart nur vertrauenswürdige Betriebssysteme und Treiber ausgeführt werden können. Dies verhindert die Ausführung von Malware und anderen potenziellen Bedrohungen, die die Integrität des Systems gefährden könnten.\n Die Bedeutung von Secure Boot liegt in seiner Fähigkeit, sowohl Hardware als auch Software vor möglichen Angriffen zu schützen. Indem sichergestellt wird, dass nur authentische, digital signierte Software auf dem Motherboard ausgeführt wird, wird das Risiko von Malware-Infektionen, Rootkits und anderen Arten von Schadcode minimiert. Dies ist besonders wichtig in Geschäftsumgebungen, in denen Informationssicherheit von entscheidender Bedeutung ist.\n       Um Secure Boot auf einem Gigabyte- oder Aorus-Motherboard zu aktivieren, ist es notwendig, auf das BIOS (Basic Input/Output System) des Systems zuzugreifen. Innerhalb der BIOS-Konfiguration müssen Sie nach der Option „Sicherer Start“ suchen und diese aktivieren. Möglicherweise muss die BIOS-Firmware aktualisiert werden, um diese Funktion nutzen zu können.\n \n## 2. Was ist das BIOS und warum ist es wichtig, Secure Boot zu aktivieren?\n Das BIOS (Basic Input/Output System) ist eine in die Hauptplatine eines Computers integrierte Software, die für das Laden und Ausführen verantwortlich ist [Das Betriebssystem](https://tecnobits.com/de/wie-man-das-Betriebssystem-optimiert/) und andere Programme. Es ist eine wesentliche Komponente für den Betrieb des Computers, da es vor dem Betriebssystem startet und die verschiedenen Hardwaregeräte konfiguriert.\n       Secure Boot ist eine Sicherheitsfunktion im BIOS einiger Computer, die den Start nicht autorisierter Betriebssysteme verhindert. Diese Funktion stellt sicher, dass das Betriebssystem geladen wird [auf dem Computer](https://tecnobits.com/de/wie-man-es-auf-den-Computer-bringt/) stammt aus einer vertrauenswürdigen Quelle und verhindert so die Ausführung schädlicher oder ungeprüfter Software. Um Secure Boot zu aktivieren, müssen Sie jedoch auf das BIOS zugreifen und bestimmte Einstellungen vornehmen.\n Um Secure Boot zu aktivieren, müssen Sie zunächst Ihren Computer neu starten und während des Startvorgangs die entsprechende Taste drücken, die Ihnen den Zugriff auf das BIOS ermöglicht. Dieser Schlüssel variiert je nach Hersteller, ist aber meist einer der folgenden: F2, F12, Esc oder Entf. Suchen Sie im BIOS nach der Option „Secure Boot“ und aktivieren Sie diese. Speichern Sie die Änderungen und starten Sie Ihren Computer neu. Jetzt wird Secure Boot aktiviert und nur autorisierte Betriebssysteme werden auf Ihrem Computer geladen, was Ihnen einen besseren Schutz vor unerwünschter Software bietet.\n       \n## 3. Grundlegende Schritte zum Aufrufen des BIOS auf Gigabyte- und Aorus-Mainboards\n Um das BIOS auf Gigabyte- und Aorus-Boards aufzurufen, müssen Sie die folgenden Schritte ausführen:\n 1. Starten Sie Ihren Computer neu und drücken Sie während des Bootvorgangs wiederholt die „Entf“- oder „Entf“-Taste [auf der Tastatur](https://tecnobits.com/de/wie-bekomme-ich-das-n-auf-die-tastatur/). Dadurch gelangen Sie zum BIOS-Startbildschirm.\n 2. Einmal [auf dem Bildschirm](https://tecnobits.com/de/wie-man-eine-Tastatur-auf-den-Bildschirm-bringt/) Verwenden Sie im BIOS die Pfeiltasten auf Ihrer Tastatur, um durch die verschiedenen Optionen zu navigieren. Suchen Sie nach der Option „Konfiguration“ oder „Setup“ und wählen Sie sie aus.\n 3. Auf dem Konfigurationsbildschirm finden Sie verschiedene Optionen zum Anpassen Ihres Gigabyte- oder Aorus-Boards. Navigieren Sie mit den Pfeiltasten durch die verschiedenen Registerkarten, beispielsweise „Boot“, „Sicherheit“ oder „Erweitert“. Mit der Eingabetaste können Sie eine Option auswählen und mit der Esc-Taste zum vorherigen Bildschirm zurückkehren.\n       Bedenken Sie beim Aufrufen des BIOS, dass alle von Ihnen vorgenommenen Änderungen Auswirkungen auf den Betrieb Ihres Computers haben können. Daher ist Vorsicht geboten. Lesen Sie unbedingt das Handbuch Ihres Gigabyte- oder Aorus-Boards, um mehr über die verfügbaren Konfigurationsoptionen und deren ordnungsgemäße Verwendung zu erfahren.\n \n## 4. Suchen Sie die Option „Sicherer Start“ in den BIOS-Einstellungen\n Um die Option „Sicherer Start“ in den BIOS-Einstellungen zu finden, müssen Sie die folgenden Schritte ausführen:\n [Exklusiver Inhalt – Klicken Sie hier Wie verwende ich Erinnerungen in Todoist?](https://tecnobits.com/de/wie-man-Erinnerungen-in-Todoist-verwendet/)1. Starten Sie Ihren Computer neu und drücken Sie die Taste **F2**, **F10**oder **Supr** unmittelbar nachdem das Logo erscheint [Computer](https://tecnobits.com/de/So-%C3%A4ndern-Sie-das-Computerkennwort-a/) auf dem Startbildschirm. Dadurch gelangen Sie zum BIOS-Setup-Menü.\n 2. Navigieren Sie im BIOS-Setup-Menü mit den Pfeiltasten auf Ihrer Tastatur zur Registerkarte „Sicherheit“ oder „Boot“.\n 3. Sie sollten nun die Option „Sicherer Start“ in der Liste sehen können. Beachten Sie jedoch, dass die genaue Position dieser Option je nach Computerhersteller und verwendeter BIOS-Version variieren kann. Sobald Sie die Option gefunden haben, wählen Sie „Aktivieren“ oder „Aktivieren“, um Secure Boot zu aktivieren.\n \n## 5. Anpassen der Secure Boot-Parameter, um es korrekt zu aktivieren\n  Um die Secure Boot-Einstellungen anzupassen und korrekt zu aktivieren, führen Sie die folgenden Schritte aus:\n \n \n- Starten Sie Ihr System neu und rufen Sie das BIOS-Setup-Menü auf.\n \n- Suchen Sie im BIOS nach dem Abschnitt „Sicherheit“ oder „Sicherheitseinstellungen“.\n \n- Suchen Sie die Option „Sicherer Start“ und stellen Sie sicher, dass sie aktiviert ist.\n \n Wenn die Option „Sicherer Start“ nicht aktiviert ist, können Sie die folgenden zusätzlichen Schritte ausführen:\n \n \n- Suchen Sie in den BIOS-Sicherheitseinstellungen nach der Option „Signaturschlüssel“ oder „PK-Schlüssel“.\n \n- Generieren Sie einen neuen Signaturschlüssel oder PK-Schlüssel, indem Sie den Anweisungen in Ihrem Systemhandbuch folgen oder die Online-Dokumentation des Herstellers konsultieren.\n \n- Sobald der Schlüssel generiert wurde, aktivieren Sie die Option „Sicherer Start“ und wählen Sie die Option zum Hochladen des neuen Signaturschlüssels oder PK-Schlüssels.\n \n Nachdem Sie diese Einstellungen vorgenommen haben, speichern Sie die Änderungen im BIOS und starten Sie Ihr System neu. Dies sollte eine korrekte Aktivierung von Secure Boot ermöglichen und eine zusätzliche Sicherheitsebene für Ihr System bieten.\n  \n## 6. Konfigurieren von Secure Boot-Schlüsseln für mehr Sicherheit\n In diesem Abschnitt werden die Schritte vorgestellt, die zum Konfigurieren sicherer Startschlüssel und zur Verbesserung der Sicherheit Ihres Systems erforderlich sind. Um zu verhindern, dass unbefugte oder bösartige Software gestartet wird, ist es wichtig, sicherzustellen, dass Sie über die richtige Secure Boot-Konfiguration verfügen. Nachfolgend finden Sie die Schritt...",
+    "truncated": true,
+    "fullContentLength": 26689,
+    "headings": [
+      {
+        "level": 1,
+        "text": "So aktivieren Sie Secure Boot im BIOS auf Gigabyte und Aorus"
+      },
+      {
+        "level": 2,
+        "text": "1. Einführung in Secure Boot und seine Bedeutung bei Gigabyte und Aorus"
+      },
+      {
+        "level": 2,
+        "text": "2. Was ist das BIOS und warum ist es wichtig, Secure Boot zu aktivieren?"
+      },
+      {
+        "level": 2,
+        "text": "3. Grundlegende Schritte zum Aufrufen des BIOS auf Gigabyte- und Aorus-Mainboards"
+      },
+      {
+        "level": 2,
+        "text": "4. Suchen Sie die Option „Sicherer Start“ in den BIOS-Einstellungen"
+      },
+      {
+        "level": 2,
+        "text": "5. Anpassen der Secure Boot-Parameter, um es korrekt zu aktivieren"
+      },
+      {
+        "level": 2,
+        "text": "6. Konfigurieren von Secure Boot-Schlüsseln für mehr Sicherheit"
+      },
+      {
+        "level": 2,
+        "text": "7. Aktivierung von Secure Boot auf Gigabyte- und Aorus-Motherboards: Häufige Fehler und Lösungen"
+      },
+      {
+        "level": 2,
+        "text": "8. Aktivieren von Secure Boot auf bestimmten Betriebssystemen: Windows, Linux usw."
+      },
+      {
+        "level": 2,
+        "text": "9. Vorteile und Vorteile der Aktivierung von Secure Boot in Gigabyte und Aorus"
+      },
+      {
+        "level": 2,
+        "text": "10. Zusätzliche Überlegungen zur Gewährleistung eines optimalen Schutzes mit Secure Boot"
+      },
+      {
+        "level": 2,
+        "text": "11. Überprüfung der erfolgreichen Aktivierung von Secure Boot auf Gigabyte und Aorus"
+      },
+      {
+        "level": 2,
+        "text": "12. Aktualisieren des BIOS und seine Auswirkungen auf die Secure Boot-Konfiguration"
+      },
+      {
+        "level": 2,
+        "text": "13. Fehlerbehebung bei der Aktivierung von Secure Boot auf Gigabyte und Aorus"
+      },
+      {
+        "level": 2,
+        "text": "14. Schlussfolgerungen und abschließende Empfehlungen für den effektiven Einsatz von Secure Boot in Gigabyte und Aorus"
+      },
+      {
+        "level": 2,
+        "text": "Kategorien"
+      },
+      {
+        "level": 1,
+        "text": "Tecnobits asks for your consent to use your personal data to:"
+      },
+      {
+        "level": 1,
+        "text": "Manage your data"
+      },
+      {
+        "level": 2,
+        "text": "Store and/or access information on a device"
+      },
+      {
+        "level": 2,
+        "text": "Use limited data to select advertising"
+      },
+      {
+        "level": 2,
+        "text": "Create profiles for personalised advertising"
+      },
+      {
+        "level": 2,
+        "text": "Use profiles to select personalised advertising"
+      },
+      {
+        "level": 2,
+        "text": "Create profiles to personalise content"
+      },
+      {
+        "level": 2,
+        "text": "Use profiles to select personalised content"
+      },
+      {
+        "level": 2,
+        "text": "Measure advertising performance"
+      },
+      {
+        "level": 2,
+        "text": "Measure content performance"
+      },
+      {
+        "level": 2,
+        "text": "Understand audiences through statistics or combinations of data from different sources"
+      },
+      {
+        "level": 2,
+        "text": "Develop and improve services"
+      },
+      {
+        "level": 2,
+        "text": "Use limited data to select content"
+      },
+      {
+        "level": 2,
+        "text": "Ensure security, prevent and detect fraud, and fix errors"
+      },
+      {
+        "level": 2,
+        "text": "Deliver and present advertising and content"
+      },
+      {
+        "level": 2,
+        "text": "Save and communicate privacy choices"
+      },
+      {
+        "level": 2,
+        "text": "Match and combine data from other data sources"
+      },
+      {
+        "level": 2,
+        "text": "Link different devices"
+      },
+      {
+        "level": 2,
+        "text": "Identify devices based on information transmitted automatically"
+      },
+      {
+        "level": 2,
+        "text": "Use precise geolocation data"
+      },
+      {
+        "level": 2,
+        "text": "Store and/or access information on a device"
+      },
+      {
+        "level": 2,
+        "text": "Use limited data to select advertising"
+      },
+      {
+        "level": 2,
+        "text": "Create profiles for personalised advertising"
+      },
+      {
+        "level": 2,
+        "text": "Use profiles to select personalised advertising"
+      },
+      {
+        "level": 2,
+        "text": "Create profiles to personalise content"
+      },
+      {
+        "level": 2,
+        "text": "Use profiles to select personalised content"
+      },
+      {
+        "level": 2,
+        "text": "Measure advertising performance"
+      },
+      {
+        "level": 2,
+        "text": "Measure content performance"
+      },
+      {
+        "level": 2,
+        "text": "Understand audiences through statistics or combinations of data from different sources"
+      },
+      {
+        "level": 2,
+        "text": "Develop and improve services"
+      },
+      {
+        "level": 2,
+        "text": "Use limited data to select content"
+      },
+      {
+        "level": 2,
+        "text": "Storage, duration, and usage details"
+      },
+      {
+        "level": 1,
+        "text": "Confirm our vendors"
+      },
+      {
+        "level": 2,
+        "text": "Exponential Interactive, Inc d/b/a VDX.tv"
+      },
+      {
+        "level": 2,
+        "text": "Roq.ad GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Index Exchange Inc."
+      },
+      {
+        "level": 2,
+        "text": "Quantcast"
+      },
+      {
+        "level": 2,
+        "text": "BeeswaxIO Corporation"
+      },
+      {
+        "level": 2,
+        "text": "Sovrn, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Adkernel LLC"
+      },
+      {
+        "level": 2,
+        "text": "Adikteev"
+      },
+      {
+        "level": 2,
+        "text": "RTB House S.A."
+      },
+      {
+        "level": 2,
+        "text": "The UK Trade Desk Ltd"
+      },
+      {
+        "level": 2,
+        "text": "Nexxen Inc."
+      },
+      {
+        "level": 2,
+        "text": "Epsilon"
+      },
+      {
+        "level": 2,
+        "text": "Yahoo EMEA Limited"
+      },
+      {
+        "level": 2,
+        "text": "ADventori SAS"
+      },
+      {
+        "level": 2,
+        "text": "Triple Lift, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Xandr, Inc."
+      },
+      {
+        "level": 2,
+        "text": "NEORY GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Nexxen Group LLC"
+      },
+      {
+        "level": 2,
+        "text": "NEURAL.ONE"
+      },
+      {
+        "level": 2,
+        "text": "ADITION (Virtual Minds GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "Active Agent (Virtual Minds GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "Taboola Europe Limited"
+      },
+      {
+        "level": 2,
+        "text": "Equativ"
+      },
+      {
+        "level": 2,
+        "text": "Adform A/S"
+      },
+      {
+        "level": 2,
+        "text": "Magnite, Inc."
+      },
+      {
+        "level": 2,
+        "text": "RATEGAIN ADARA INC"
+      },
+      {
+        "level": 2,
+        "text": "Sift Media, Inc"
+      },
+      {
+        "level": 2,
+        "text": "Rakuten Marketing LLC"
+      },
+      {
+        "level": 2,
+        "text": "Lumen Research Limited"
+      },
+      {
+        "level": 2,
+        "text": "LifeStreet Corporation"
+      },
+      {
+        "level": 2,
+        "text": "OpenX"
+      },
+      {
+        "level": 2,
+        "text": "Yieldlab (Virtual Minds GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "Nano Interactive Group Ltd."
+      },
+      {
+        "level": 2,
+        "text": "Simplifi Holdings LLC"
+      },
+      {
+        "level": 2,
+        "text": "PubMatic, Inc"
+      },
+      {
+        "level": 2,
+        "text": "Comscore B.V."
+      },
+      {
+        "level": 2,
+        "text": "Flashtalking"
+      },
+      {
+        "level": 2,
+        "text": "Sharethrough, Inc"
+      },
+      {
+        "level": 2,
+        "text": "PulsePoint, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Smaato, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Semasio GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Crimtan Holdings Limited"
+      },
+      {
+        "level": 2,
+        "text": "Genius Sports UK Limited"
+      },
+      {
+        "level": 2,
+        "text": "Criteo SA"
+      },
+      {
+        "level": 2,
+        "text": "Adloox SA"
+      },
+      {
+        "level": 2,
+        "text": "Blis Global Limited"
+      },
+      {
+        "level": 2,
+        "text": "Epsilon (Lotame)"
+      },
+      {
+        "level": 2,
+        "text": "LiveRamp"
+      },
+      {
+        "level": 2,
+        "text": "WPP Media"
+      },
+      {
+        "level": 2,
+        "text": "Sonobi, Inc"
+      },
+      {
+        "level": 2,
+        "text": "LoopMe Limited"
+      },
+      {
+        "level": 2,
+        "text": "Dynata LLC"
+      },
+      {
+        "level": 2,
+        "text": "smartclip Europe GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Ask Locala"
+      },
+      {
+        "level": 2,
+        "text": "Azira"
+      },
+      {
+        "level": 2,
+        "text": "DoubleVerify Inc.​"
+      },
+      {
+        "level": 2,
+        "text": "BIDSWITCH GmbH"
+      },
+      {
+        "level": 2,
+        "text": "IPONWEB GmbH"
+      },
+      {
+        "level": 2,
+        "text": "NextRoll, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Teads France SAS"
+      },
+      {
+        "level": 2,
+        "text": "SMARTSTREAM.TV GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Ströer SSP GmbH (SSP)"
+      },
+      {
+        "level": 2,
+        "text": "OS Data Solutions GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Permodo GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Platform161 B.V."
+      },
+      {
+        "level": 2,
+        "text": "Media.net Advertising FZ-LLC"
+      },
+      {
+        "level": 2,
+        "text": "LiveIntent Inc."
+      },
+      {
+        "level": 2,
+        "text": "Basis Global Technologies, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Seedtag Advertising S.L"
+      },
+      {
+        "level": 2,
+        "text": "SMADEX, S.L.U."
+      },
+      {
+        "level": 2,
+        "text": "Bombora Inc."
+      },
+      {
+        "level": 2,
+        "text": "Outbrain UK."
+      },
+      {
+        "level": 2,
+        "text": "EASYmedia GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Yieldmo, Inc."
+      },
+      {
+        "level": 2,
+        "text": "A Million Ads"
+      },
+      {
+        "level": 2,
+        "text": "Remerge GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Affle Iberia SL"
+      },
+      {
+        "level": 2,
+        "text": "advanced store GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Magnite CTV, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Delta Projects AB"
+      },
+      {
+        "level": 2,
+        "text": "Zemanta Inc."
+      },
+      {
+        "level": 2,
+        "text": "usemax advertisement (Emego GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "emetriq GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Publicis Media GmbH"
+      },
+      {
+        "level": 2,
+        "text": "M.D. Primis Technologies Ltd."
+      },
+      {
+        "level": 2,
+        "text": "AcuityAds Inc."
+      },
+      {
+        "level": 2,
+        "text": "Rockerbox, Inc"
+      },
+      {
+        "level": 2,
+        "text": "StackAdapt Inc."
+      },
+      {
+        "level": 2,
+        "text": "OneTag Limited"
+      },
+      {
+        "level": 2,
+        "text": "Cloud Technologies S.A."
+      },
+      {
+        "level": 2,
+        "text": "Smartology Limited"
+      },
+      {
+        "level": 2,
+        "text": "Improve Digital"
+      },
+      {
+        "level": 2,
+        "text": "DT Exchange (Fyber Monetization Ltd.)"
+      },
+      {
+        "level": 2,
+        "text": "Adobe Advertising Cloud"
+      },
+      {
+        "level": 2,
+        "text": "Bannerflow AB"
+      },
+      {
+        "level": 2,
+        "text": "TabMo SAS"
+      },
+      {
+        "level": 2,
+        "text": "Integral Ad Science (incorporating ADmantX)"
+      },
+      {
+        "level": 2,
+        "text": "Wizaly"
+      },
+      {
+        "level": 2,
+        "text": "Weborama"
+      },
+      {
+        "level": 2,
+        "text": "Readpeak Oy"
+      },
+      {
+        "level": 2,
+        "text": "Jivox Corporation"
+      },
+      {
+        "level": 2,
+        "text": "Sojern, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Polar Mobile Group Inc."
+      },
+      {
+        "level": 2,
+        "text": "Vistar Media EMEA BV"
+      },
+      {
+        "level": 2,
+        "text": "On Device Research Limited"
+      },
+      {
+        "level": 2,
+        "text": "Rockabox Media Ltd"
+      },
+      {
+        "level": 2,
+        "text": "Mobfox US LLC"
+      },
+      {
+        "level": 2,
+        "text": "Exactag GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Celtra Inc."
+      },
+      {
+        "level": 2,
+        "text": "ADTIMING TECHNOLOGY PTE. LTD"
+      },
+      {
+        "level": 2,
+        "text": "Gemius SA"
+      },
+      {
+        "level": 2,
+        "text": "InMobi Pte Ltd"
+      },
+      {
+        "level": 2,
+        "text": "The Kantar Group Limited"
+      },
+      {
+        "level": 2,
+        "text": "Samba TV UK Limited"
+      },
+      {
+        "level": 2,
+        "text": "Nielsen Media Research Ltd."
+      },
+      {
+        "level": 2,
+        "text": "RevX"
+      },
+      {
+        "level": 2,
+        "text": "Solocal SA"
+      },
+      {
+        "level": 2,
+        "text": "Pixalate, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Triapodi Ltd. d/b/a Digital Turbine"
+      },
+      {
+        "level": 2,
+        "text": "Numberly"
+      },
+      {
+        "level": 2,
+        "text": "AudienceProject A/S"
+      },
+      {
+        "level": 2,
+        "text": "Demandbase, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Effiliation / Effinity"
+      },
+      {
+        "level": 2,
+        "text": "Arrivalist Co."
+      },
+      {
+        "level": 2,
+        "text": "Eulerian Technologies"
+      },
+      {
+        "level": 2,
+        "text": "Seenthis AB"
+      },
+      {
+        "level": 2,
+        "text": "Commanders Act"
+      },
+      {
+        "level": 2,
+        "text": "travel audience GmbH"
+      },
+      {
+        "level": 2,
+        "text": "HUMAN"
+      },
+      {
+        "level": 2,
+        "text": "Streamwise srl"
+      },
+      {
+        "level": 2,
+        "text": "Innovid LLC"
+      },
+      {
+        "level": 2,
+        "text": "Papirfly AS"
+      },
+      {
+        "level": 2,
+        "text": "Zeta Global Corp."
+      },
+      {
+        "level": 2,
+        "text": "Madington"
+      },
+      {
+        "level": 2,
+        "text": "Opinary (Affinity Global GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "PLAYGROUND XYZ EMEA LTD"
+      },
+      {
+        "level": 2,
+        "text": "Lucid Holdings, LLC"
+      },
+      {
+        "level": 2,
+        "text": "Verve Group Europe GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Jampp LTD"
+      },
+      {
+        "level": 2,
+        "text": "Realtime Technologies GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Smartclip Hispania S.L."
+      },
+      {
+        "level": 2,
+        "text": "SmartyAds Inc."
+      },
+      {
+        "level": 2,
+        "text": "DeepIntent, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Happydemics"
+      },
+      {
+        "level": 2,
+        "text": "Otto GmbH & Co. KGaA"
+      },
+      {
+        "level": 2,
+        "text": "Adobe Audience Manager, Adobe Experience Platform"
+      },
+      {
+        "level": 2,
+        "text": "CHEQ AI TECHNOLOGIES"
+      },
+      {
+        "level": 2,
+        "text": "Localsensor B.V."
+      },
+      {
+        "level": 2,
+        "text": "Online Solution"
+      },
+      {
+        "level": 2,
+        "text": "Adnami Aps"
+      },
+      {
+        "level": 2,
+        "text": "Blue"
+      },
+      {
+        "level": 2,
+        "text": ": Tappx"
+      },
+      {
+        "level": 2,
+        "text": "Relay42 Netherlands B.V."
+      },
+      {
+        "level": 2,
+        "text": "Smartme Analytics"
+      },
+      {
+        "level": 2,
+        "text": "GP One GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Mobsuccess"
+      },
+      {
+        "level": 2,
+        "text": "Liftoff Monetize and Vungle Exchange"
+      },
+      {
+        "level": 2,
+        "text": "The MediaGrid Inc."
+      },
+      {
+        "level": 2,
+        "text": "Go.pl sp. z o.o."
+      },
+      {
+        "level": 2,
+        "text": "HyperTV, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Reppublika Research and Analytics Austria GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Appier PTE Ltd"
+      },
+      {
+        "level": 2,
+        "text": "Cint AB"
+      },
+      {
+        "level": 2,
+        "text": "6Sense Insights, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Google Advertising Products"
+      },
+      {
+        "level": 2,
+        "text": "GfK GmbH"
+      },
+      {
+        "level": 2,
+        "text": "RevJet"
+      },
+      {
+        "level": 2,
+        "text": "Protected Media LTD"
+      },
+      {
+        "level": 2,
+        "text": "Clinch Labs LTD"
+      },
+      {
+        "level": 2,
+        "text": "Hearts and Science München GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Amazon Ads"
+      },
+      {
+        "level": 2,
+        "text": "LinkedIn Ireland Unlimited Company"
+      },
+      {
+        "level": 2,
+        "text": "Moloco, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Adtriba GmbH"
+      },
+      {
+        "level": 2,
+        "text": "BSmartData GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Ensighten"
+      },
+      {
+        "level": 2,
+        "text": "Mintegral International Limited"
+      },
+      {
+        "level": 2,
+        "text": "PRECISO SRL"
+      },
+      {
+        "level": 2,
+        "text": "MetrixLab Nederland B.V."
+      },
+      {
+        "level": 2,
+        "text": "Pelmorex Corp."
+      },
+      {
+        "level": 2,
+        "text": "Extreme Reach, Inc"
+      },
+      {
+        "level": 2,
+        "text": "Somplo Ltd"
+      },
+      {
+        "level": 2,
+        "text": "Adelaide Metrics Inc"
+      },
+      {
+        "level": 2,
+        "text": "Baidu (Hong Kong) Limited"
+      },
+      {
+        "level": 2,
+        "text": "Hurra Communications GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Arpeely Ltd."
+      },
+      {
+        "level": 2,
+        "text": "Adventure Media SARL"
+      },
+      {
+        "level": 2,
+        "text": "Microsoft Advertising"
+      },
+      {
+        "level": 2,
+        "text": "Opera Software Ireland Limited"
+      },
+      {
+        "level": 2,
+        "text": "xpln.ai SAS"
+      },
+      {
+        "level": 2,
+        "text": "ABCS INSIGHTS"
+      },
+      {
+        "level": 2,
+        "text": "Affle Inc"
+      },
+      {
+        "level": 2,
+        "text": "Admaster Private Limited"
+      },
+      {
+        "level": 2,
+        "text": "Artsai"
+      },
+      {
+        "level": 2,
+        "text": "Akamai"
+      },
+      {
+        "level": 2,
+        "text": "Meta"
+      },
+      {
+        "level": 2,
+        "text": "Aunica"
+      },
+      {
+        "level": 2,
+        "text": "Booking.com"
+      },
+      {
+        "level": 2,
+        "text": "C3 Metrics"
+      },
+      {
+        "level": 2,
+        "text": "IBM"
+      },
+      {
+        "level": 2,
+        "text": "Roku Advertising Services"
+      },
+      {
+        "level": 2,
+        "text": "eBay"
+      },
+      {
+        "level": 2,
+        "text": "Evidon"
+      },
+      {
+        "level": 2,
+        "text": "GroovinAds"
+      },
+      {
+        "level": 2,
+        "text": "Adacado"
+      },
+      {
+        "level": 2,
+        "text": "intelliAd"
+      },
+      {
+        "level": 2,
+        "text": "Dstillery"
+      },
+      {
+        "level": 2,
+        "text": "MediaMath"
+      },
+      {
+        "level": 2,
+        "text": "Sizmek"
+      },
+      {
+        "level": 2,
+        "text": "ZMS"
+      },
+      {
+        "level": 2,
+        "text": "Omnicom Media Group"
+      },
+      {
+        "level": 2,
+        "text": "PlatformOne"
+      },
+      {
+        "level": 2,
+        "text": "Resonate"
+      },
+      {
+        "level": 2,
+        "text": "Smart"
+      },
+      {
+        "level": 2,
+        "text": "SMN Corporation"
+      },
+      {
+        "level": 2,
+        "text": "Tradedoubler AB"
+      },
+      {
+        "level": 2,
+        "text": "TrustArc"
+      },
+      {
+        "level": 2,
+        "text": "TruEffect"
+      },
+      {
+        "level": 2,
+        "text": "Travel Data Collective"
+      },
+      {
+        "level": 2,
+        "text": "CyberAgent"
+      },
+      {
+        "level": 2,
+        "text": "advolution.control"
+      },
+      {
+        "level": 2,
+        "text": "MicroAd"
+      },
+      {
+        "level": 2,
+        "text": "MainADV"
+      },
+      {
+        "level": 2,
+        "text": "AdMaxim"
+      },
+      {
+        "level": 2,
+        "text": "Batch Media"
+      },
+      {
+        "level": 2,
+        "text": "Vodafone GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Magnite"
+      },
+      {
+        "level": 2,
+        "text": "Yango"
+      },
+      {
+        "level": 2,
+        "text": "Singular Labs Inc."
+      },
+      {
+        "level": 2,
+        "text": "Neustar"
+      },
+      {
+        "level": 2,
+        "text": "Scenestealer"
+      },
+      {
+        "level": 2,
+        "text": "Netquest"
+      },
+      {
+        "level": 2,
+        "text": "Mail.ru"
+      },
+      {
+        "level": 2,
+        "text": "Manage.com"
+      },
+      {
+        "level": 2,
+        "text": "Cloudflare"
+      },
+      {
+        "level": 2,
+        "text": "Salesforce DMP"
+      },
+      {
+        "level": 2,
+        "text": "Bridgewell"
+      },
+      {
+        "level": 2,
+        "text": "Netflix"
+      },
+      {
+        "level": 2,
+        "text": "ebuilders"
+      },
+      {
+        "level": 2,
+        "text": "AppLovin Corp."
+      },
+      {
+        "level": 2,
+        "text": "Cadent"
+      },
+      {
+        "level": 2,
+        "text": "AdTheorent, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Fractional Media"
+      },
+      {
+        "level": 2,
+        "text": "Rackspace"
+      },
+      {
+        "level": 2,
+        "text": "MSI-ACI"
+      },
+      {
+        "level": 2,
+        "text": "Admetrics"
+      },
+      {
+        "level": 2,
+        "text": "Chocolate Platform"
+      },
+      {
+        "level": 2,
+        "text": "Navegg"
+      },
+      {
+        "level": 2,
+        "text": "Admedo"
+      },
+      {
+        "level": 2,
+        "text": "[24]7.ai (successor to EngageClick)"
+      },
+      {
+        "level": 2,
+        "text": "Kochava"
+      },
+      {
+        "level": 2,
+        "text": "LeadBolt"
+      },
+      {
+        "level": 2,
+        "text": "Mobitrans"
+      },
+      {
+        "level": 2,
+        "text": "ADEX"
+      },
+      {
+        "level": 2,
+        "text": "Placed"
+      },
+      {
+        "level": 2,
+        "text": "Impact"
+      },
+      {
+        "level": 2,
+        "text": "Spotad"
+      },
+      {
+        "level": 2,
+        "text": "Aarki"
+      },
+      {
+        "level": 2,
+        "text": "F@N communications"
+      },
+      {
+        "level": 2,
+        "text": "SFR"
+      },
+      {
+        "level": 2,
+        "text": "Cablato"
+      },
+      {
+        "level": 2,
+        "text": "Waystack"
+      },
+      {
+        "level": 2,
+        "text": "Vpon"
+      },
+      {
+        "level": 2,
+        "text": "NinthDecimal"
+      },
+      {
+        "level": 2,
+        "text": "TreSensa"
+      },
+      {
+        "level": 2,
+        "text": "Tapjoy"
+      },
+      {
+        "level": 2,
+        "text": "Bigabid"
+      },
+      {
+        "level": 2,
+        "text": "Optimize LCC D.B.A Genius Monkey"
+      },
+      {
+        "level": 2,
+        "text": "gskinner"
+      },
+      {
+        "level": 2,
+        "text": "Yahoo! Japan"
+      },
+      {
+        "level": 2,
+        "text": "Chalk Digital"
+      },
+      {
+        "level": 2,
+        "text": "jsdelivr"
+      },
+      {
+        "level": 2,
+        "text": "HockeyCurve"
+      },
+      {
+        "level": 2,
+        "text": "Upwave"
+      },
+      {
+        "level": 2,
+        "text": "IQM"
+      },
+      {
+        "level": 2,
+        "text": "CUBED"
+      },
+      {
+        "level": 2,
+        "text": "Optomaton"
+      },
+      {
+        "level": 2,
+        "text": "fluct"
+      },
+      {
+        "level": 2,
+        "text": "Zucks"
+      },
+      {
+        "level": 2,
+        "text": "Dentsu Aegis Network"
+      },
+      {
+        "level": 2,
+        "text": "Bidease"
+      },
+      {
+        "level": 2,
+        "text": "Digiseg"
+      },
+      {
+        "level": 2,
+        "text": "UNICORN"
+      },
+      {
+        "level": 2,
+        "text": "Smart.bid ltd"
+      },
+      {
+        "level": 2,
+        "text": "AdFalcon"
+      },
+      {
+        "level": 2,
+        "text": "Haensel AMS"
+      },
+      {
+        "level": 2,
+        "text": "BDSK Handels GmbH & Co. KG"
+      },
+      {
+        "level": 2,
+        "text": "Objective Partners"
+      },
+      {
+        "level": 2,
+        "text": "Supership"
+      },
+      {
+        "level": 2,
+        "text": "Marketing Science Consulting Group, Inc."
+      },
+      {
+        "level": 2,
+        "text": "DENTSU"
+      },
+      {
+        "level": 2,
+        "text": "Kobler"
+      },
+      {
+        "level": 2,
+        "text": "Widespace"
+      },
+      {
+        "level": 2,
+        "text": "Adstra"
+      },
+      {
+        "level": 2,
+        "text": "Vimeo"
+      },
+      {
+        "level": 2,
+        "text": "Persona.ly"
+      },
+      {
+        "level": 2,
+        "text": "Oracle Data Cloud"
+      },
+      {
+        "level": 2,
+        "text": "Throtle"
+      },
+      {
+        "level": 2,
+        "text": "ironSource Mobile"
+      },
+      {
+        "level": 2,
+        "text": "Chartboost"
+      },
+      {
+        "level": 2,
+        "text": "MediaPal"
+      },
+      {
+        "level": 2,
+        "text": "Tuky Data"
+      },
+      {
+        "level": 2,
+        "text": "CONTXTFUL"
+      },
+      {
+        "level": 2,
+        "text": "MarketCast LLC"
+      },
+      {
+        "level": 2,
+        "text": "LeadsRx"
+      },
+      {
+        "level": 2,
+        "text": "Pangle DSP"
+      },
+      {
+        "level": 2,
+        "text": "clean.io"
+      },
+      {
+        "level": 2,
+        "text": "Intango Ltd."
+      },
+      {
+        "level": 2,
+        "text": "Unity Ads"
+      },
+      {
+        "level": 2,
+        "text": "Loblaw Media"
+      },
+      {
+        "level": 2,
+        "text": "Smartly.io Solutions Oy"
+      },
+      {
+        "level": 2,
+        "text": "Ad Lightning"
+      },
+      {
+        "level": 2,
+        "text": "Lacuna"
+      },
+      {
+        "level": 2,
+        "text": "Coupang"
+      },
+      {
+        "level": 2,
+        "text": "Playable Factory"
+      },
+      {
+        "level": 2,
+        "text": "Prism Partner"
+      },
+      {
+        "level": 2,
+        "text": "TemuDSP"
+      },
+      {
+        "level": 2,
+        "text": "DISQO"
+      },
+      {
+        "level": 2,
+        "text": "Mercado Livre"
+      }
+    ],
+    "links": [
+      {
+        "text": "Direkt zum Inhalt",
+        "href": "#content"
+      },
+      {
+        "text": "Guides",
+        "href": "https://tecnobits.com/de/Campusf%C3%BChrer/"
+      },
+      {
+        "text": "Video",
+        "href": "https://tecnobits.com/de/Videospiele/"
+      },
+      {
+        "text": "Anwendungen",
+        "href": "https://tecnobits.com/de/Anwendungen/"
+      },
+      {
+        "text": "Notion",
+        "href": "https://tecnobits.com/de/Vorstellung/"
+      },
+      {
+        "text": "Handys und Tablets",
+        "href": "https://tecnobits.com/de/Handys%2C-Tablets/"
+      },
+      {
+        "text": "Rechnen",
+        "href": "https://tecnobits.com/de/Informatik/"
+      },
+      {
+        "text": "Hardware",
+        "href": "https://tecnobits.com/de/Hardware/"
+      },
+      {
+        "text": "Software",
+        "href": "https://tecnobits.com/de/Software./"
+      },
+      {
+        "text": "Betriebssysteme",
+        "href": "https://tecnobits.com/de/OS/"
+      },
+      {
+        "text": "Tecno-FAQ",
+        "href": "https://tecnobits.com/de/tecnobits-FAQ/"
+      },
+      {
+        "text": "Anleitungen",
+        "href": "https://tecnobits.com/de/Tutorials/"
+      },
+      {
+        "text": "Tecnobits Einzelhandel",
+        "href": "https://tecnobits.com/de/Technobits/"
+      },
+      {
+        "text": "Lernen",
+        "href": "https://tecnobits.com/de/lernen/"
+      },
+      {
+        "text": "Cyber",
+        "href": "https://tecnobits.com/de/Cybersicherheit/"
+      },
+      {
+        "text": "Soziale Netzwerke",
+        "href": "https://tecnobits.com/de/soziale-Netzwerke/"
+      },
+      {
+        "text": "E-Commerce",
+        "href": "https://tecnobits.com/de/und-Handel/"
+      },
+      {
+        "text": "Streaming-Plattformen",
+        "href": "https://tecnobits.com/de/Streaming-Plattformen/"
+      },
+      {
+        "text": "Quanten-Computing",
+        "href": "https://tecnobits.com/de/Quanten-Computing/"
+      },
+      {
+        "text": "Graphic Design",
+        "href": "https://tecnobits.com/de/Grafikdesign/"
+      },
+      {
+        "text": "Windows",
+        "href": "https://tecnobits.com/de/Fenster/"
+      },
+      {
+        "text": "Windows-Tutorials",
+        "href": "https://tecnobits.com/de/Windows-Tutorials/"
+      },
+      {
+        "text": "Windows 10",
+        "href": "https://tecnobits.com/de/10-Fenster/"
+      },
+      {
+        "text": "Windows 11",
+        "href": "https://tecnobits.com/de/11-Fenster/"
+      },
+      {
+        "text": "Windows 12",
+        "href": "https://tecnobits.com/de/12-Fenster/"
+      },
+      {
+        "text": "Sebastian Vidal",
+        "href": "https://tecnobits.com/de/Autor/Redakteure/"
+      },
+      {
+        "text": "Tecnobits",
+        "href": "https://tecnobits.com/de/"
+      },
+      {
+        "text": "Campusführer",
+        "href": "https://tecnobits.com/de/Campusf%C3%BChrer/"
+      },
+      {
+        "text": "Für die Benutzer",
+        "href": "https://tecnobits.com/de/Die-babbel-App-bietet-eine-intuitive-Benutzeroberfl%C3%A4che-f%C3%BCr-Benutzer/"
+      },
+      {
+        "text": "sicher und zuverlässig",
+        "href": "https://tecnobits.com/de/sicherer-und-zuverl%C3%A4ssiger-Browser/"
+      },
+      {
+        "text": "OS",
+        "href": "https://tecnobits.com/de/So-installieren-Sie-Windows-10-auf-einem-Laptop-ohne-Betriebssystem/"
+      },
+      {
+        "text": "von einem Computer",
+        "href": "https://tecnobits.com/de/Wie-werden-Komponenten-eines-Computers-verbunden%3F/"
+      },
+      {
+        "text": "Schritt für Schritt",
+        "href": "https://tecnobits.com/de/So-f%C3%BChren-Sie-Schritt-f%C3%BCr-Schritt-eine-Bancomer-%C3%9Cberweisung-durch/"
+      },
+      {
+        "text": "Das Betriebssystem",
+        "href": "https://tecnobits.com/de/wie-man-das-Betriebssystem-optimiert/"
+      },
+      {
+        "text": "auf dem Computer",
+        "href": "https://tecnobits.com/de/wie-man-es-auf-den-Computer-bringt/"
+      },
+      {
+        "text": "auf der Tastatur",
+        "href": "https://tecnobits.com/de/wie-bekomme-ich-das-n-auf-die-tastatur/"
+      },
+      {
+        "text": "auf dem Bildschirm",
+        "href": "https://tecnobits.com/de/wie-man-eine-Tastatur-auf-den-Bildschirm-bringt/"
+      },
+      {
+        "text": ".u3207f078ceac356de4d4bcbc34b3a5e8 { padding:0px; margin: 0; padding-top:1em!important; padding-bottom:1em!important; width:100%; display: block; font-weight:bold; background-color:#eaeaea; border:0!important; border-left:4px solid #34495E!important; text-decoration:none; } .u3207f078ceac356de4d4bcbc34b3a5e8:active, .u3207f078ceac356de4d4bcbc34b3a5e8:hover { opacity: 1; transition: opacity 250ms; webkit-transition: opacity 250ms; text-decoration:none; } .u3207f078ceac356de4d4bcbc34b3a5e8 { transition: background-color 250ms; webkit-transition: background-color 250ms; opacity: 1; transition: opacity 250ms; webkit-transition: opacity 250ms; } .u3207f078ceac356de4d4bcbc34b3a5e8 .ctaText { font-weight:bold; color:#464646; text-decoration:none; font-size: 16px; } .u3207f078ceac356de4d4bcbc34b3a5e8 .postTitle { color:#1ABC9C; text-decoration: underline!important; font-size: 16px; } .u3207f078ceac356de4d4bcbc34b3a5e8:hover .postTitle { text-decoration: underline!important; } Exklusiver Inhalt – Klicken Sie hier  Wie verwende ich Erinnerungen in Todoist?",
+        "href": "https://tecnobits.com/de/wie-man-Erinnerungen-in-Todoist-verwendet/"
+      },
+      {
+        "text": "Computer",
+        "href": "https://tecnobits.com/de/So-%C3%A4ndern-Sie-das-Computerkennwort-a/"
+      },
+      {
+        "text": "es kann getan werden",
+        "href": "https://tecnobits.com/de/zucken%2C-was-getan-werden-kann/"
+      },
+      {
+        "text": "Ihr Betriebssystem",
+        "href": "https://tecnobits.com/de/So-erfassen-Sie-Ihren-Computerbildschirm-von-Ihrem-Betriebssystem/"
+      },
+      {
+        "text": ".uddc0e7835ecb7f7992de80deb2d03ac9 { padding:0px; margin: 0; padding-top:1em!important; padding-bottom:1em!important; width:100%; display: block; font-weight:bold; background-color:#eaeaea; border:0!important; border-left:4px solid #34495E!important; text-decoration:none; } .uddc0e7835ecb7f7992de80deb2d03ac9:active, .uddc0e7835ecb7f7992de80deb2d03ac9:hover { opacity: 1; transition: opacity 250ms; webkit-transition: opacity 250ms; text-decoration:none; } .uddc0e7835ecb7f7992de80deb2d03ac9 { transition: background-color 250ms; webkit-transition: background-color 250ms; opacity: 1; transition: opacity 250ms; webkit-transition: opacity 250ms; } .uddc0e7835ecb7f7992de80deb2d03ac9 .ctaText { font-weight:bold; color:#464646; text-decoration:none; font-size: 16px; } .uddc0e7835ecb7f7992de80deb2d03ac9 .postTitle { color:#1ABC9C; text-decoration: underline!important; font-size: 16px; } .uddc0e7835ecb7f7992de80deb2d03ac9:hover .postTitle { text-decoration: underline!important; } Exklusiver Inhalt – Klicken Sie hier  So verdienen Sie schnell 30.000 Euro",
+        "href": "https://tecnobits.com/de/wie-man-schnell-30-euro-verdient/"
+      },
+      {
+        "text": "von deinem Computer",
+        "href": "https://tecnobits.com/de/So-analysieren-Sie-die-Leistung-Ihres-Computers/"
+      },
+      {
+        "text": "sichern",
+        "href": "https://tecnobits.com/de/So-stellen-Sie-WhatsApp-Fotos-ohne-Backup-wieder-her/"
+      },
+      {
+        "text": ".uad594aad1ebc7b6ad9d485cb8aaefe6d { padding:0px; margin: 0; padding-top:1em!important; padding-bottom:1em!important; width:100%; display: block; font-weight:bold; background-color:#eaeaea; border:0!important; border-left:4px solid #34495E!important; text-decoration:none; } .uad594aad1ebc7b6ad9d485cb8aaefe6d:active, .uad594aad1ebc7b6ad9d485cb8aaefe6d:hover { opacity: 1; transition: opacity 250ms; webkit-transition: opacity 250ms; text-decoration:none; } .uad594aad1ebc7b6ad9d485cb8aaefe6d { transition: background-color 250ms; webkit-transition: background-color 250ms; opacity: 1; transition: opacity 250ms; webkit-transition: opacity 250ms; } .uad594aad1ebc7b6ad9d485cb8aaefe6d .ctaText { font-weight:bold; color:#464646; text-decoration:none; font-size: 16px; } .uad594aad1ebc7b6ad9d485cb8aaefe6d .postTitle { color:#1ABC9C; text-decoration: underline!important; font-size: 16px; } .uad594aad1ebc7b6ad9d485cb8aaefe6d:hover .postTitle { text-decoration: underline!important; } Exklusiver Inhalt – Klicken Sie hier  Wie verwende ich die Sleep-Timer-Einstellung in Pocket Casts?",
+        "href": "https://tecnobits.com/de/wie-man-die-Sleep-Timer-Einstellung-in-Pocket-Casts-verwendet/"
+      },
+      {
+        "text": "im Administratormodus",
+        "href": "https://tecnobits.com/de/wie-man-einen-Geldautomaten-in-den-Administratormodus-versetzt/"
+      },
+      {
+        "text": "Sebastian Vidal",
+        "href": "https://tecnobits.com/de/Autor/Redakteure/"
+      },
+      {
+        "text": "Campusführer",
+        "href": "https://tecnobits.com/de/Campusf%C3%BChrer/"
+      },
+      {
+        "text": "So sichern Sie WhatsApp vom iPhone auf Android.",
+        "href": "https://tecnobits.com/de/So-sichern-Sie-WhatsApp-vom-iPhone-auf-Android/"
+      },
+      {
+        "text": "Wie lang dauert ein Minecraft-Tag im wirklichen Leben?",
+        "href": "https://tecnobits.com/de/Wie-lange-dauert-ein-Tag-Minecraft-im-wirklichen-Leben%3F/"
+      },
+      {
+        "text": "Über uns",
+        "href": "https://tecnobits.com/de/Wer-wir-sind/"
+      },
+      {
+        "text": "Impressum",
+        "href": "https://tecnobits.com/de/rechtlicher-Hinweis/"
+      },
+      {
+        "text": "Kontakt",
+        "href": "https://tecnobits.com/de/Kontakt/"
+      },
+      {
+        "text": "Afrikaans",
+        "href": "https://tecnobits.com/af/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Shqip",
+        "href": "https://tecnobits.com/sq/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "አማርኛ",
+        "href": "https://tecnobits.com/am/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "العربية",
+        "href": "https://tecnobits.com/ar/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Հայերեն",
+        "href": "https://tecnobits.com/hy/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Azərbaycan dili",
+        "href": "https://tecnobits.com/az/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Euskara",
+        "href": "https://tecnobits.com/eu/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Беларуская мова",
+        "href": "https://tecnobits.com/be/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "বাংলা",
+        "href": "https://tecnobits.com/bn/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Bosanski",
+        "href": "https://tecnobits.com/bs/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Български",
+        "href": "https://tecnobits.com/bg/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Català",
+        "href": "https://tecnobits.com/ca/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Cebuano",
+        "href": "https://tecnobits.com/ceb/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Chichewa",
+        "href": "https://tecnobits.com/ny/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "简体中文",
+        "href": "https://tecnobits.com/zh-CN/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "繁體中文",
+        "href": "https://tecnobits.com/zh-TW/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Corsu",
+        "href": "https://tecnobits.com/co/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Hrvatski",
+        "href": "https://tecnobits.com/hr/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Čeština‎",
+        "href": "https://tecnobits.com/cs/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Dansk",
+        "href": "https://tecnobits.com/da/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Nederlands",
+        "href": "https://tecnobits.com/nl/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "English",
+        "href": "https://tecnobits.com/en/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Esperanto",
+        "href": "https://tecnobits.com/eo/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Eesti",
+        "href": "https://tecnobits.com/et/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Filipino",
+        "href": "https://tecnobits.com/tl/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Suomi",
+        "href": "https://tecnobits.com/fi/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Français",
+        "href": "https://tecnobits.com/fr/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Frysk",
+        "href": "https://tecnobits.com/fy/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Galego",
+        "href": "https://tecnobits.com/gl/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "ქართული",
+        "href": "https://tecnobits.com/ka/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Deutsch",
+        "href": "https://tecnobits.com/de/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Ελληνικά",
+        "href": "https://tecnobits.com/el/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "ગુજરાતી",
+        "href": "https://tecnobits.com/gu/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Kreyol ayisyen",
+        "href": "https://tecnobits.com/ht/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Harshen Hausa",
+        "href": "https://tecnobits.com/ha/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Ōlelo Hawaiʻi",
+        "href": "https://tecnobits.com/haw/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "עִבְרִית",
+        "href": "https://tecnobits.com/iw/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "हिन्दी",
+        "href": "https://tecnobits.com/hi/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Hmong",
+        "href": "https://tecnobits.com/hmn/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Magyar",
+        "href": "https://tecnobits.com/hu/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Íslenska",
+        "href": "https://tecnobits.com/is/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Igbo",
+        "href": "https://tecnobits.com/ig/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Bahasa Indonesia",
+        "href": "https://tecnobits.com/id/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Gaeilge",
+        "href": "https://tecnobits.com/ga/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Italiano",
+        "href": "https://tecnobits.com/it/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "日本語",
+        "href": "https://tecnobits.com/ja/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Basa Jawa",
+        "href": "https://tecnobits.com/jw/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "ಕನ್ನಡ",
+        "href": "https://tecnobits.com/kn/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Қазақ тілі",
+        "href": "https://tecnobits.com/kk/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "ភាសាខ្មែរ",
+        "href": "https://tecnobits.com/km/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "한국어",
+        "href": "https://tecnobits.com/ko/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "كوردی‎",
+        "href": "https://tecnobits.com/ku/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Кыргызча",
+        "href": "https://tecnobits.com/ky/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "ພາສາລາວ",
+        "href": "https://tecnobits.com/lo/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Latin",
+        "href": "https://tecnobits.com/la/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Latviešu valoda",
+        "href": "https://tecnobits.com/lv/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Lietuvių kalba",
+        "href": "https://tecnobits.com/lt/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Lëtzebuergesch",
+        "href": "https://tecnobits.com/lb/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Македонски јазик",
+        "href": "https://tecnobits.com/mk/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Malagasy",
+        "href": "https://tecnobits.com/mg/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Bahasa Melayu",
+        "href": "https://tecnobits.com/ms/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "മലയാളം",
+        "href": "https://tecnobits.com/ml/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Maltese",
+        "href": "https://tecnobits.com/mt/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Te Reo Māori",
+        "href": "https://tecnobits.com/mi/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "मराठी",
+        "href": "https://tecnobits.com/mr/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Монгол",
+        "href": "https://tecnobits.com/mn/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "ဗမာစာ",
+        "href": "https://tecnobits.com/my/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "नेपाली",
+        "href": "https://tecnobits.com/ne/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Norsk bokmål",
+        "href": "https://tecnobits.com/no/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "پښتو",
+        "href": "https://tecnobits.com/ps/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "فارسی",
+        "href": "https://tecnobits.com/fa/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Polski",
+        "href": "https://tecnobits.com/pl/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Português",
+        "href": "https://tecnobits.com/pt/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "ਪੰਜਾਬੀ",
+        "href": "https://tecnobits.com/pa/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Română",
+        "href": "https://tecnobits.com/ro/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Русский",
+        "href": "https://tecnobits.com/ru/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Samoan",
+        "href": "https://tecnobits.com/sm/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Gàidhlig",
+        "href": "https://tecnobits.com/gd/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Српски језик",
+        "href": "https://tecnobits.com/sr/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Sesotho",
+        "href": "https://tecnobits.com/st/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Shona",
+        "href": "https://tecnobits.com/sn/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "سنڌي",
+        "href": "https://tecnobits.com/sd/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "සිංහල",
+        "href": "https://tecnobits.com/si/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Slovenčina",
+        "href": "https://tecnobits.com/sk/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Slovenščina",
+        "href": "https://tecnobits.com/sl/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Afsoomaali",
+        "href": "https://tecnobits.com/so/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Español",
+        "href": "https://tecnobits.com/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Basa Sunda",
+        "href": "https://tecnobits.com/su/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Kiswahili",
+        "href": "https://tecnobits.com/sw/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Svenska",
+        "href": "https://tecnobits.com/sv/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Тоҷикӣ",
+        "href": "https://tecnobits.com/tg/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "தமிழ்",
+        "href": "https://tecnobits.com/ta/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "తెలుగు",
+        "href": "https://tecnobits.com/te/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "ไทย",
+        "href": "https://tecnobits.com/th/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Türkçe",
+        "href": "https://tecnobits.com/tr/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Українська",
+        "href": "https://tecnobits.com/uk/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "اردو",
+        "href": "https://tecnobits.com/ur/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "O‘zbekcha",
+        "href": "https://tecnobits.com/uz/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Tiếng Việt",
+        "href": "https://tecnobits.com/vi/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Cymraeg",
+        "href": "https://tecnobits.com/cy/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "isiXhosa",
+        "href": "https://tecnobits.com/xh/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "יידיש",
+        "href": "https://tecnobits.com/yi/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Yorùbá",
+        "href": "https://tecnobits.com/yo/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Zulu",
+        "href": "https://tecnobits.com/zu/como-activar-el-secure-boot-en-la-bios-en-gigabyte-y-aorus/?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Software-Update",
+        "href": "https://tecnobits.com/de/Software-Update/"
+      },
+      {
+        "text": "Android",
+        "href": "https://tecnobits.com/de/androide/"
+      },
+      {
+        "text": "Animal Crossing",
+        "href": "https://tecnobits.com/de/Wildwechsel/"
+      },
+      {
+        "text": "Anwendungen",
+        "href": "https://tecnobits.com/de/Anwendungen/"
+      },
+      {
+        "text": "Lernen",
+        "href": "https://tecnobits.com/de/lernen/"
+      },
+      {
+        "text": "Kappe geschnitten",
+        "href": "https://tecnobits.com/de/gefangen/"
+      },
+      {
+        "text": "Cyber",
+        "href": "https://tecnobits.com/de/Cybersicherheit/"
+      },
+      {
+        "text": "Wolke Informatik",
+        "href": "https://tecnobits.com/de/Cloud-Computing/"
+      },
+      {
+        "text": "Quanten-Computing",
+        "href": "https://tecnobits.com/de/Quanten-Computing/"
+      },
+      {
+        "text": "Web-Entwicklung",
+        "href": "https://tecnobits.com/de/Web-Entwicklung/"
+      },
+      {
+        "text": "Graphic Design",
+        "href": "https://tecnobits.com/de/Grafikdesign/"
+      },
+      {
+        "text": "E-Commerce",
+        "href": "https://tecnobits.com/de/und-Handel/"
+      },
+      {
+        "text": "digitale Bildung",
+        "href": "https://tecnobits.com/de/digitale-Bildung/"
+      },
+      {
+        "text": "Entertainment",
+        "href": "https://tecnobits.com/de/Unterhaltung/"
+      },
+      {
+        "text": "digitale Unterhaltung",
+        "href": "https://tecnobits.com/de/digitale-Unterhaltung/"
+      },
+      {
+        "text": "Fortnite",
+        "href": "https://tecnobits.com/de/fortnite/"
+      },
+      {
+        "text": "Allgemein",
+        "href": "https://tecnobits.com/de/General/"
+      },
+      {
+        "text": "Google",
+        "href": "https://tecnobits.com/de/Google/"
+      },
+      {
+        "text": "Campusführer",
+        "href": "https://tecnobits.com/de/Campusf%C3%BChrer/"
+      },
+      {
+        "text": "Hardware",
+        "href": "https://tecnobits.com/de/Hardware/"
+      },
+      {
+        "text": "Rechnen",
+        "href": "https://tecnobits.com/de/Informatik/"
+      },
+      {
+        "text": "Künstliche Intelligenz",
+        "href": "https://tecnobits.com/de/k%C3%BCnstliche-Intelligenz/"
+      },
+      {
+        "text": "Internet",
+        "href": "https://tecnobits.com/de/Internet/"
+      },
+      {
+        "text": "Handys und Tablets",
+        "href": "https://tecnobits.com/de/Handys%2C-Tablets/"
+      },
+      {
+        "text": "Nintendo Switch",
+        "href": "https://tecnobits.com/de/nintendo-Schalter/"
+      },
+      {
+        "text": "Technologische Nachrichten",
+        "href": "https://tecnobits.com/de/Technische-Neuigkeiten/"
+      },
+      {
+        "text": "Streaming-Plattformen",
+        "href": "https://tecnobits.com/de/Streaming-Plattformen/"
+      },
+      {
+        "text": "PS5",
+        "href": "https://tecnobits.com/de/ps5/"
+      },
+      {
+        "text": "Netzwerke und Konnektivität",
+        "href": "https://tecnobits.com/de/Netzwerkkonnektivit%C3%A4t/"
+      },
+      {
+        "text": "Soziale Netzwerke",
+        "href": "https://tecnobits.com/de/soziale-Netzwerke/"
+      },
+      {
+        "text": "Router",
+        "href": "https://tecnobits.com/de/Router/"
+      },
+      {
+        "text": "Gesundheit und Technologie",
+        "href": "https://tecnobits.com/de/Gesundheitstechnologie/"
+      },
+      {
+        "text": "Betriebssysteme",
+        "href": "https://tecnobits.com/de/OS/"
+      },
+      {
+        "text": "Software",
+        "href": "https://tecnobits.com/de/Software./"
+      },
+      {
+        "text": "TecnoBits FAQ",
+        "href": "https://tecnobits.com/de/tecnobits-FAQ/"
+      },
+      {
+        "text": "Recycelbare Technologie",
+        "href": "https://tecnobits.com/de/Technologie/"
+      },
+      {
+        "text": "Telekommunikation",
+        "href": "https://tecnobits.com/de/Telekommunikation/"
+      },
+      {
+        "text": "Telegram",
+        "href": "https://tecnobits.com/de/Telegram-mit/"
+      },
+      {
+        "text": "TikTok",
+        "href": "https://tecnobits.com/de/TikTok/"
+      },
+      {
+        "text": "Anleitungen",
+        "href": "https://tecnobits.com/de/Tutorials/"
+      },
+      {
+        "text": "Video",
+        "href": "https://tecnobits.com/de/Videospiele/"
+      },
+      {
+        "text": "WhatsApp",
+        "href": "https://tecnobits.com/de/whatsapp/"
+      },
+      {
+        "text": "Windows",
+        "href": "https://tecnobits.com/de/Fenster/"
+      },
+      {
+        "text": "Windows 10",
+        "href": "https://tecnobits.com/de/10-Fenster/"
+      },
+      {
+        "text": "Windows 11",
+        "href": "https://tecnobits.com/de/11-Fenster/"
+      },
+      {
+        "text": "How can I change my choice?",
+        "href": "#"
+      },
+      {
+        "text": "What if I don't consent?",
+        "href": "#"
+      },
+      {
+        "text": "How does legitimate interest work?",
+        "href": "#"
+      },
+      {
+        "text": "Do I have to consent to everything?",
+        "href": "#"
+      },
+      {
+        "text": "193 TCF vendor(s) and 126 ad partner(s)",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      }
+    ],
+    "images": [
+      {
+        "alt": "TecnoBits ▷ ➡️",
+        "src": "https://tecnobits.com/wp-content/uploads/2024/05/cropped-LOGOTIPO-TECNOBITS-1.png"
+      },
+      {
+        "alt": "Sebastian Vidal",
+        "src": "https://secure.gravatar.com/avatar/9bbc1cb99cc0c64cb9563b4c91f163634f39a43ec8ce633911c10e55177e6f49?s=100&d=mm&r=g"
+      },
+      {
+        "alt": "de",
+        "src": "https://cdn.gtranslate.net/flags/32/de.png"
+      },
+      {
+        "alt": "Welcome to Tecnobits",
+        "src": "https://lh3.googleusercontent.com/at1dQQXzykMsH52EiuHS-ZAmboyur9-o_LChnvkrBy8d8bEpoOeMDO0AiC1ZIdjelslQJ8pafPefEsRhEMoaZRMiVAw2xI_I7U4_yAh8er4wNGe_oldC=h60"
+      }
+    ],
+    "timestamp": 1760613453318,
+    "url": "https://tecnobits.com/de/So-aktivieren-Sie-Secure-Boot-im-BIOS-in-Gigabyte-und-Aorus/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

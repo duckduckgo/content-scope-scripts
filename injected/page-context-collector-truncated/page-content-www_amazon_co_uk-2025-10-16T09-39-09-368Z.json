@@ -1,0 +1,36 @@
+{
+  "url": "https://www.amazon.co.uk/",
+  "extractedAt": "2025-10-16T09:39:09.368Z",
+  "content": {
+    "favicon": [],
+    "title": "Amazon.co.uk",
+    "metaDescription": "",
+    "content": "**   ** Click the button below to continue shopping             Continue shopping            [Conditions of Use & Sale](https://www.amazon.co.uk/gp/help/customer/display.html/ref=footer_cou?ie=UTF8&nodeId=1040616)     [Privacy Notice](https://www.amazon.co.uk/gp/help/customer/display.html/ref=footer_privacy?ie=UTF8&nodeId=502584)   © 1996-2025, Amazon.com, Inc. or its affiliates",
+    "truncated": false,
+    "fullContentLength": 381,
+    "headings": [
+      {
+        "level": 4,
+        "text": "Click the button below to continue shopping"
+      }
+    ],
+    "links": [
+      {
+        "text": "Conditions of Use & Sale",
+        "href": "https://www.amazon.co.uk/gp/help/customer/display.html/ref=footer_cou?ie=UTF8&nodeId=1040616"
+      },
+      {
+        "text": "Privacy Notice",
+        "href": "https://www.amazon.co.uk/gp/help/customer/display.html/ref=footer_privacy?ie=UTF8&nodeId=502584"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "https://fls-eu.amazon.co.uk/1/oc-csi/1/OP/requestId=9BGC8NDR14CEYFRTJ3AA&js=1"
+      }
+    ],
+    "timestamp": 1760607548887,
+    "url": "https://www.amazon.co.uk/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

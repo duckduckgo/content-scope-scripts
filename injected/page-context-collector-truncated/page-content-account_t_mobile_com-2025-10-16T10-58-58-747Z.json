@@ -1,0 +1,17 @@
+{
+  "url": "https://account.t-mobile.com/signin/v2/",
+  "extractedAt": "2025-10-16T10:58:58.747Z",
+  "content": {
+    "favicon": [],
+    "title": "",
+    "metaDescription": "",
+    "content": "{\"error\":{\"status-code\":\"408\",\"message\":\"Request Timeout\",\"request-id\":\"453a29c06762d9e3bb36fe8baa06c6c1\"}}",
+    "truncated": false,
+    "fullContentLength": 107,
+    "headings": [],
+    "links": [],
+    "images": [],
+    "timestamp": 1760612338284,
+    "url": "https://account.t-mobile.com/signin/v2/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

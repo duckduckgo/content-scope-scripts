@@ -1,0 +1,31 @@
+{
+  "url": "https://www.diy.com/",
+  "extractedAt": "2025-10-16T10:31:38.657Z",
+  "content": {
+    "favicon": [],
+    "title": "B&Q",
+    "metaDescription": "Site under maintenance",
+    "content": "#  Sorry, our techies are currently working on diy.com \n \n## We know you're keen to get on with your home improvement project...we'll be back soon \n  If you need to get in touch, please give us a call on [03330 143 098.](tel:+03330143098) \n  Lines are open 8am - 6pm Monday - Saturday and 10am - 4pm Sunday.",
+    "truncated": false,
+    "fullContentLength": 307,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Sorry, our techies are currently working on diy.com"
+      },
+      {
+        "level": 2,
+        "text": "We know you're keen to get on with your home improvement project...we'll be back soon"
+      }
+    ],
+    "links": [
+      {
+        "text": "03330 143 098.",
+        "href": "tel:+03330143098"
+      }
+    ],
+    "images": [],
+    "timestamp": 1760610698228,
+    "url": "https://www.diy.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

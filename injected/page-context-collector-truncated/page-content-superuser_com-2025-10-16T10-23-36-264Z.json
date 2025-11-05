@@ -1,0 +1,1033 @@
+{
+  "url": "https://superuser.com/questions/1845776/virtualbox-cant-operate-in-vmx-mode",
+  "extractedAt": "2025-10-16T10:23:36.264Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://cdn.sstatic.net/Sites/superuser/Img/favicon.ico?v=4852d6fb3f5d",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://cdn.sstatic.net/Sites/superuser/Img/apple-touch-icon.png?v=0ad5b7a83e49",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "virtual machine - VirtualBox can't operate in VMX mode - Super User",
+    "metaDescription": "",
+    "content": "# [VirtualBox can't operate in VMX mode](/questions/1845776/virtualbox-cant-operate-in-vmx-mode)\n   [Ask Question](/questions/ask)      Asked 1 year, 4 months ago   Modified [2 months ago](?lastactivity)   Viewed 90k times               32               Recently, I tried to use VirtualBox and got this error,\n VirtualBox can't operate in VMX root mode. Please disable the KVM kernel extension, recompile your kernel and reboot. (VERR_VMX_IN_VMX_ROOT_MODE).  I'm Running Ubuntu Noble Numbat; I upgraded to this version, so I've not always been running VirtualBox with it. Nevertheless, the last time I used VirtualBox successfully was with Noble Numbat. I am vaguely aware of what KVM is, but I definitely would rather not recompile the kernel if that is avoidable.\n I do use docker, and on occasion multipass, I really don't want to create problems with them by disabling KVM. if there is a way to use VirtualBox with KVM then that would be greatly appreciated, otherwise I'm open to recompiling the linux kernel (if you answer with that please give me a link to or instruction on how to recompile it).\n The host machine is ... really old it's a late 2012 macbook pro, the 4-cores-that-look-like-8 version. Some specs that are relevant.\n \n \n- Cores: 4 cores, but it looks like 8 because each core can run 2 processes (I think).\n \n- Processor: 8 x Intel Core i7-3720QM CPU @ 2.60GHz\n \n- Graphics Processor: NVE7 (I don't have very good GPU drivers, but I don't think that would be the problem)\n \n- Kernel Version: 6.5.0-9-generic (64-bit)\n \n- Hard drive is external (internal one is broken)\n \n- Virtualbox version: 7.0.18r162988\n \n Sometimes Ubuntu will leave old versions of the kernel sitting around that you can choose to use while booting up. I looked into if I could do this and found that Ubuntu didn't leave one this time. I'd love to say that I had done more but I'm pretty clueless about this, and unfortunately I don't really know [VirtualBox error picture](https://i.sstatic.net/19rrtuJ3.png)\n     \n\n- [virtualbox](/questions/tagged/virtualbox)\n\n- [virtual-machine](/questions/tagged/virtual-machine)\n\n- [linux-kvm](/questions/tagged/linux-kvm)\n\n          [Share](/q/1845776)   [Improve this question](/posts/1845776/edit)    Follow            [edited Jun 13, 2024 at 15:17](/posts/1845776/revisions)                asked Jun 13, 2024 at 12:46       [callen44](/users/1977205/callen44)  42311 gold badge33 silver badges55 bronze badges           \n \n- 1 Hi, can you tell us detail about the host of the virtualbox, and the step you try to do to fix it ? – [Maslie](/users/1277488/maslie) [Commented Jun 13, 2024 at 13:54](#comment2921051_1845776)\n \n- Okay, I've added the information. – [callen44](/users/1977205/callen44) [Commented Jun 13, 2024 at 15:19](#comment2921080_1845776)\n \n- And old host, can you check the bios and see if their is an option for virtualization, if the option it's turned off, turn it on and try again – [Maslie](/users/1277488/maslie) [Commented Jun 14, 2024 at 7:34](#comment2921288_1845776)\n \n- 1 Gotta say, I'm a little confused. Older versions of VirtualBox and KVM have coexisted just fine on my home server. I wonder if anything changed. – [user219095](/users/219095/user219095) [Commented Jun 14, 2024 at 7:50](#comment2921294_1845776)\n \n- @Maslite Old macs don't have a bios, the best I've got is the ability to chose which medium I boot off of and if I want to do an emergency boot from the internet. other than that I've got nothing. – [callen44](/users/1977205/callen44) [Commented Jun 14, 2024 at 16:07](#comment2921450_1845776)\n \n     [Show **1** more comment](#)          \n##  7 Answers  \n      Sorted by:       Highest score (default)   Date modified (newest first)   Date created (oldest first)                  0                    Two possible solution here:\n From this Ubuntu FAQ, Kernel and VBox can have conflitch you must apply the different command in order to fix it: [https://help.ubuntu.com/community/KVM/FAQ](https://help.ubuntu.com/community/KVM/FAQ)\n From the article\n  \n \n- Make sure you've completely shut down and powered off all your KVM virtual machines (using virt-manager or otherwise).\n \n- Unload all of its modules: $ sudo invoke-rc.d kvm stop In Karmic use $ sudo invoke-rc.d qemu-kvm stop instead. In Lucid and later, use $ sudo service qemu-kvm stop\n \n  From this reddit post : [https://www.reddit.com/r/Kubuntu/comments/rjidvs/why_wont_it_let_me_disable_kvm_i_dont_want_kvm/](https://www.reddit.com/r/Kubuntu/comments/rjidvs/why_wont_it_let_me_disable_kvm_i_dont_want_kvm/)\n One user recommend to check the bios and make sure the virtualization option is disabled.\n Now you have an old machine maybe the processor is too old for virtualization.\n         [Share](/a/1845868)   [Improve this answer](/posts/1845868/edit)    Follow            [edited Jan 30 at 10:08](/posts/1845868/revisions)       [robertspierre](/users/400542/robertspierre)  1,21933 gold badges1212 silver badges2020 bronze badges         answered Jun 14, 2024 at 7:42       [Maslie](/users/1277488/maslie)  16611 silver badge99 bronze badges           \n \n- 1 Thanks! that was so weird, I'm glad I've got virtualbox back, and didn't have to recompile anything or even reboot! – [callen44](/users/1977205/callen44) [Commented Jun 14, 2024 at 16:17](#comment2921453_1845868)\n \n- Anytime good sir :) – [Maslie](/users/1277488/maslie) [Commented Jun 15, 2024 at 5:48](#comment2921557_1845868)\n \n- 1 There is no clue that OP is running qemu in parallel – [robertspierre](/users/400542/robertspierre) [Commented Jan 30 at 9:46](#comment2969796_1845868)\n \n- Worth trying to simply close all applications and reboot. At least for me, I had something else running in parallel, and VirtualBox wouldn't start while that other thing was running. – [JonathanDavidArndt](/users/243707/jonathandavidarndt) [Commented Jun 26 at 1:58](#comment2994944_1845868)\n \n- 1 The *services* kvm and qemu-kvm don't exist in newer versions of Ubuntu, kvm is often loaded because of different reasons. A far more robust solution is that @robertspierre to literally tell the system to never load this modules. For people wondering why recompiling is not necessary: kvm is usually compiled as a module instead of in the kernel, so not loading it is the same as not compiling it – [Garo](/users/865251/garo) [Commented Aug 11 at 6:04](#comment3001308_1845868)\n \n   [Add a comment](#)                  67                On the terminal, disable the kernel module responsible for KVM (Kernel-based Virtual Machine) as it seems to conflict with VirtualBox. This likely means that you cannot run both VirtualBox and KVM at the same time, unless until you re-enable the module:\n # If you are using an Intel CPU sudo modprobe -r kvm_intel # If you are using an AMD CPU sudo modprobe -r kvm_amd  Test if this works first, as this command will only last until your next reboot. If this works and want to make the change permanent, you can create a new entry in /etc/modprobe.d/blacklist.conf:\n blacklist kvm_intel          [Share](/a/1874448)   [Improve this answer](/posts/1874448/edit)    Follow            answered Jan 30 at 9:46       [robertspierre](/users/400542/robertspierre)  1,21933 gold badges1212 silver badges2020 bronze badges           \n \n- 4 This worked for me on Ubuntu 25.04 on an Intel Core i7 6700K. Thanks! – [SirGeekALot](/users/355461/sirgeekalot) [Commented Jun 21 at 8:14](#comment2994410_1874448)\n \n- 3 Running Ubuntu 24.04 which suddenly started loading the kvm_intel module. This is a good solution if you know you really just want to use Virtualbox. – [Rasjid Wilcox](/users/325165/rasjid-wilcox) [Commented Jul 21 at 2:51](#comment2998154_1874448)\n \n- 1 Instant fix for me on 24.04.2LTS - awesome fix - thanks! – [Michael Sparks](/users/87417/michael-sparks) [Commented Aug 8 at 17:44](#comment3000974_1874448)\n \n- I would also suggest to always blacklist both of them in blacklist.conf. The line that doesn't mention your cpu will just be ignored and the result will be more portable. – [Garo](/users/865251/garo) [Commented Aug 11 at 6:08](#comment3001309_1874448)\n \n- 1 Debian 13 Versión 13 (trixie) de 64 bits 13th Gen Intel® Core™ i5-1334U × 12, works for me, Thanks! – [rpaillao](/users/464413/rpaillao) [Commented Sep 15 at 13:30](#comment3006799_1874448)\n \n   [Add a comment](#)                 13                A simpler way is to only unload kvm modules (supposing here there are not in use):\n $ vboxmanage startvm --type headless deb12-lab-10e-build Waiting for VM \"deb12-lab-10e-build\" to power on... VBoxManage: error: VirtualBox can't operate in VMX root mode. Please disable the KVM kernel extension, recompile your kernel and reboot (VERR_VMX_IN_VMX_ROOT_MODE) VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component ConsoleWrap, interface IConsole $ lsmod | grep kvm kvm_intel 417792 0 kvm 1355776 1 kvm_intel $ sudo modprobe -r kvm_intel  and simply after the VM is starting without errors :\n $ vboxmanage startvm --type headless deb12-lab-10e-build Waiting for VM \"deb12-lab-10e-build\" to power on... VM \"deb12-lab-10e-build\" has been successfully started.          [Share](/a/1872353)   [Improve this answer](/posts/1872353/edit)    Follow            answered Jan 24 at 11:19       [nbanba](/users/1777260/nbanba)  28222 silver badges66 bronze badges            [Add a comment](#)                  10                On (K)Ubuntu 25.04 I got the same error when trying to run VirtualBox 7.0.20. With Ubuntu 24.10 I didn't hav...",
+    "truncated": true,
+    "fullContentLength": 20959,
+    "headings": [
+      {
+        "level": 1,
+        "text": "OR"
+      },
+      {
+        "level": 4,
+        "text": "Stack Exchange Network"
+      },
+      {
+        "level": 3,
+        "text": "current community"
+      },
+      {
+        "level": 3,
+        "text": "your communities"
+      },
+      {
+        "level": 3,
+        "text": "more stack exchange communities"
+      },
+      {
+        "level": 1,
+        "text": "Hang on, you can't upvote just yet."
+      },
+      {
+        "level": 1,
+        "text": "Thanks for your vote!  You now have 5 free votes weekly."
+      },
+      {
+        "level": 1,
+        "text": "VirtualBox can't operate in VMX mode"
+      },
+      {
+        "level": 2,
+        "text": "7 Answers                                    7"
+      },
+      {
+        "level": 2,
+        "text": "You must log in to answer this question."
+      },
+      {
+        "level": 4,
+        "text": "Linked"
+      },
+      {
+        "level": 4,
+        "text": "Related"
+      },
+      {
+        "level": 4,
+        "text": "Hot Network Questions"
+      },
+      {
+        "level": 1,
+        "text": "Subscribe to RSS"
+      },
+      {
+        "level": 1,
+        "text": "Why are you flagging this comment?"
+      },
+      {
+        "level": 5,
+        "text": "Super User"
+      },
+      {
+        "level": 5,
+        "text": "Company"
+      },
+      {
+        "level": 5,
+        "text": "Stack Exchange Network"
+      },
+      {
+        "level": 2,
+        "text": "We Care About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "We and our partners perform the following based on your settings:"
+      }
+    ],
+    "links": [
+      {
+        "text": "terms of service",
+        "href": "/legal/terms-of-service/public"
+      },
+      {
+        "text": "privacy policy",
+        "href": "/legal/privacy-policy"
+      },
+      {
+        "text": "Log in",
+        "href": "/users/login"
+      },
+      {
+        "text": "Skip to main content",
+        "href": "#content"
+      },
+      {
+        "text": "Stack Overflow",
+        "href": "https://stackoverflow.com"
+      },
+      {
+        "text": "Visit Stack Exchange",
+        "href": "https://stackexchange.com"
+      },
+      {
+        "text": "Tour\n                                    \n                                        Start here for a quick overview of the site",
+        "href": "/tour"
+      },
+      {
+        "text": "Help Center\n                                \n                                    Detailed answers to any questions you might have",
+        "href": "/help"
+      },
+      {
+        "text": "Meta\n                                            \n                                                Discuss the workings and policies of this site",
+        "href": "https://meta.superuser.com"
+      },
+      {
+        "text": "About Us\n                                        \n                                            Learn more about Stack Overflow the company, and our products",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "current community",
+        "href": "https://superuser.com"
+      },
+      {
+        "text": "Super User",
+        "href": "https://superuser.com"
+      },
+      {
+        "text": "help",
+        "href": "https://superuser.com/help"
+      },
+      {
+        "text": "chat",
+        "href": "https://chat.stackexchange.com/?tab=all&sort=active"
+      },
+      {
+        "text": "Meta Super User",
+        "href": "https://meta.superuser.com"
+      },
+      {
+        "text": "Sign up",
+        "href": "https://superuser.com/users/signup?ssrc=site_switcher&returnurl=https%3a%2f%2fsuperuser.com%2fquestions%2f1845776%2fvirtualbox-cant-operate-in-vmx-mode%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "log in",
+        "href": "https://superuser.com/users/login?ssrc=site_switcher&returnurl=https%3a%2f%2fsuperuser.com%2fquestions%2f1845776%2fvirtualbox-cant-operate-in-vmx-mode%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "more stack exchange communities",
+        "href": "https://stackexchange.com/sites"
+      },
+      {
+        "text": "company blog",
+        "href": "https://stackoverflow.blog"
+      },
+      {
+        "text": "Log in",
+        "href": "https://superuser.com/users/login?ssrc=head&returnurl=https%3a%2f%2fsuperuser.com%2fquestions%2f1845776%2fvirtualbox-cant-operate-in-vmx-mode%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "Sign up",
+        "href": "https://superuser.com/users/signup?ssrc=head&returnurl=https%3a%2f%2fsuperuser.com%2fquestions%2f1845776%2fvirtualbox-cant-operate-in-vmx-mode%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "Home",
+        "href": "/"
+      },
+      {
+        "text": "Questions",
+        "href": "/questions"
+      },
+      {
+        "text": "Unanswered",
+        "href": "/unanswered"
+      },
+      {
+        "text": "AI Assist\nLabs",
+        "href": "https://stackoverflow.ai"
+      },
+      {
+        "text": "Tags",
+        "href": "/tags"
+      },
+      {
+        "text": "Chat",
+        "href": "https://chat.stackexchange.com/rooms/158962/stack-exchange-lobby"
+      },
+      {
+        "text": "Users",
+        "href": "/users"
+      },
+      {
+        "text": "Companies",
+        "href": "https://stackoverflow.com/jobs/companies?so_medium=superuser&so_source=SiteNav"
+      },
+      {
+        "text": "Try Teams for free",
+        "href": "https://stackoverflowteams.com/teams/create/free/?utm_medium=referral&utm_source=superuser-community&utm_campaign=side-bar&utm_content=explore-teams"
+      },
+      {
+        "text": "Explore Teams",
+        "href": "https://stackoverflow.co/teams/?utm_medium=referral&utm_source=superuser-community&utm_campaign=side-bar&utm_content=explore-teams"
+      },
+      {
+        "text": "Teams",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Explore Teams",
+        "href": "https://stackoverflow.co/teams/?utm_medium=referral&utm_source=superuser-community&utm_campaign=side-bar&utm_content=explore-teams-compact"
+      },
+      {
+        "text": "Learn more about Teams",
+        "href": "https://stackoverflow.co/teams/"
+      },
+      {
+        "text": "What's reputation and how do I get it?",
+        "href": "https://stackoverflow.com/help/whats-reputation"
+      },
+      {
+        "text": "earn reputation",
+        "href": "https://superuser.com/help/whats-reputation"
+      },
+      {
+        "text": "VirtualBox can't operate in VMX mode",
+        "href": "/questions/1845776/virtualbox-cant-operate-in-vmx-mode"
+      },
+      {
+        "text": "Ask Question",
+        "href": "/questions/ask"
+      },
+      {
+        "text": "2 months ago",
+        "href": "?lastactivity"
+      },
+      {
+        "text": "VirtualBox error picture",
+        "href": "https://i.sstatic.net/19rrtuJ3.png"
+      },
+      {
+        "text": "virtualbox",
+        "href": "/questions/tagged/virtualbox"
+      },
+      {
+        "text": "virtual-machine",
+        "href": "/questions/tagged/virtual-machine"
+      },
+      {
+        "text": "linux-kvm",
+        "href": "/questions/tagged/linux-kvm"
+      },
+      {
+        "text": "Share",
+        "href": "/q/1845776"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this question",
+        "href": "/posts/1845776/edit"
+      },
+      {
+        "text": "edited Jun 13, 2024 at 15:17",
+        "href": "/posts/1845776/revisions"
+      },
+      {
+        "text": "callen44",
+        "href": "/users/1977205/callen44"
+      },
+      {
+        "text": "callen44",
+        "href": "/users/1977205/callen44"
+      },
+      {
+        "text": "Maslie",
+        "href": "/users/1277488/maslie"
+      },
+      {
+        "text": "Commented\n                    Jun 13, 2024 at 13:54",
+        "href": "#comment2921051_1845776"
+      },
+      {
+        "text": "callen44",
+        "href": "/users/1977205/callen44"
+      },
+      {
+        "text": "Commented\n                    Jun 13, 2024 at 15:19",
+        "href": "#comment2921080_1845776"
+      },
+      {
+        "text": "Maslie",
+        "href": "/users/1277488/maslie"
+      },
+      {
+        "text": "Commented\n                    Jun 14, 2024 at 7:34",
+        "href": "#comment2921288_1845776"
+      },
+      {
+        "text": "user219095",
+        "href": "/users/219095/user219095"
+      },
+      {
+        "text": "Commented\n                    Jun 14, 2024 at 7:50",
+        "href": "#comment2921294_1845776"
+      },
+      {
+        "text": "callen44",
+        "href": "/users/1977205/callen44"
+      },
+      {
+        "text": "Commented\n                    Jun 14, 2024 at 16:07",
+        "href": "#comment2921450_1845776"
+      },
+      {
+        "text": "Show 1 more comment",
+        "href": "#"
+      },
+      {
+        "text": "Reset to default",
+        "href": "/questions/1845776/virtualbox-cant-operate-in-vmx-mode?answertab=scoredesc#tab-top"
+      },
+      {
+        "text": "https://help.ubuntu.com/community/KVM/FAQ",
+        "href": "https://help.ubuntu.com/community/KVM/FAQ"
+      },
+      {
+        "text": "https://www.reddit.com/r/Kubuntu/comments/rjidvs/why_wont_it_let_me_disable_kvm_i_dont_want_kvm/",
+        "href": "https://www.reddit.com/r/Kubuntu/comments/rjidvs/why_wont_it_let_me_disable_kvm_i_dont_want_kvm/"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1845868"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1845868/edit"
+      },
+      {
+        "text": "edited Jan 30 at 10:08",
+        "href": "/posts/1845868/revisions"
+      },
+      {
+        "text": "robertspierre",
+        "href": "/users/400542/robertspierre"
+      },
+      {
+        "text": "Maslie",
+        "href": "/users/1277488/maslie"
+      },
+      {
+        "text": "callen44",
+        "href": "/users/1977205/callen44"
+      },
+      {
+        "text": "Commented\n                    Jun 14, 2024 at 16:17",
+        "href": "#comment2921453_1845868"
+      },
+      {
+        "text": "Maslie",
+        "href": "/users/1277488/maslie"
+      },
+      {
+        "text": "Commented\n                    Jun 15, 2024 at 5:48",
+        "href": "#comment2921557_1845868"
+      },
+      {
+        "text": "robertspierre",
+        "href": "/users/400542/robertspierre"
+      },
+      {
+        "text": "Commented\n                    Jan 30 at 9:46",
+        "href": "#comment2969796_1845868"
+      },
+      {
+        "text": "JonathanDavidArndt",
+        "href": "/users/243707/jonathandavidarndt"
+      },
+      {
+        "text": "Commented\n                    Jun 26 at 1:58",
+        "href": "#comment2994944_1845868"
+      },
+      {
+        "text": "Garo",
+        "href": "/users/865251/garo"
+      },
+      {
+        "text": "Commented\n                    Aug 11 at 6:04",
+        "href": "#comment3001308_1845868"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1874448"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1874448/edit"
+      },
+      {
+        "text": "robertspierre",
+        "href": "/users/400542/robertspierre"
+      },
+      {
+        "text": "SirGeekALot",
+        "href": "/users/355461/sirgeekalot"
+      },
+      {
+        "text": "Commented\n                    Jun 21 at 8:14",
+        "href": "#comment2994410_1874448"
+      },
+      {
+        "text": "Rasjid Wilcox",
+        "href": "/users/325165/rasjid-wilcox"
+      },
+      {
+        "text": "Commented\n                    Jul 21 at 2:51",
+        "href": "#comment2998154_1874448"
+      },
+      {
+        "text": "Michael Sparks",
+        "href": "/users/87417/michael-sparks"
+      },
+      {
+        "text": "Commented\n                    Aug 8 at 17:44",
+        "href": "#comment3000974_1874448"
+      },
+      {
+        "text": "Garo",
+        "href": "/users/865251/garo"
+      },
+      {
+        "text": "Commented\n                    Aug 11 at 6:08",
+        "href": "#comment3001309_1874448"
+      },
+      {
+        "text": "rpaillao",
+        "href": "/users/464413/rpaillao"
+      },
+      {
+        "text": "Commented\n                    Sep 15 at 13:30",
+        "href": "#comment3006799_1874448"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1872353"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1872353/edit"
+      },
+      {
+        "text": "nbanba",
+        "href": "/users/1777260/nbanba"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1895668"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1895668/edit"
+      },
+      {
+        "text": "edited Jun 9 at 13:50",
+        "href": "/posts/1895668/revisions"
+      },
+      {
+        "text": "ajmeese7",
+        "href": "/users/704578/ajmeese7"
+      },
+      {
+        "text": "wowpatrick",
+        "href": "/users/85796/wowpatrick"
+      },
+      {
+        "text": "hwertz",
+        "href": "/users/309095/hwertz"
+      },
+      {
+        "text": "Commented\n                    May 19 at 5:30",
+        "href": "#comment2988757_1895668"
+      },
+      {
+        "text": "ajmeese7",
+        "href": "/users/704578/ajmeese7"
+      },
+      {
+        "text": "Commented\n                    Jun 9 at 10:37",
+        "href": "#comment2992888_1895668"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1884690"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1884690/edit"
+      },
+      {
+        "text": "Hairy-Cheese",
+        "href": "/users/1196745/hairy-cheese"
+      },
+      {
+        "text": "callen44",
+        "href": "/users/1977205/callen44"
+      },
+      {
+        "text": "Commented\n                    Mar 11 at 13:24",
+        "href": "#comment2977470_1884690"
+      },
+      {
+        "text": "the (currently accepted) answer",
+        "href": "https://superuser.com/a/1845868/243707"
+      },
+      {
+        "text": "JonathanDavidArndt",
+        "href": "/users/243707/jonathandavidarndt"
+      },
+      {
+        "text": "Commented\n                    Jun 26 at 1:54",
+        "href": "#comment2994943_1884690"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1889418"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1889418/edit"
+      },
+      {
+        "text": "JoeMacMillan",
+        "href": "/users/2738376/joemacmillan"
+      },
+      {
+        "text": "the (currently accepted) answer",
+        "href": "https://superuser.com/a/1845868/243707"
+      },
+      {
+        "text": "JonathanDavidArndt",
+        "href": "/users/243707/jonathandavidarndt"
+      },
+      {
+        "text": "Commented\n                    Jun 26 at 1:53",
+        "href": "#comment2994942_1889418"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1911389"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1911389/edit"
+      },
+      {
+        "text": "Viktor Csimma",
+        "href": "/users/1906947/viktor-csimma"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "log in",
+        "href": "/users/login?ssrc=question_page&returnurl=https%3a%2f%2fsuperuser.com%2fquestions%2f1845776"
+      },
+      {
+        "text": "Ask question",
+        "href": "/questions/ask"
+      },
+      {
+        "text": "virtualbox",
+        "href": "/questions/tagged/virtualbox"
+      },
+      {
+        "text": "virtual-machine",
+        "href": "/questions/tagged/virtual-machine"
+      },
+      {
+        "text": "linux-kvm",
+        "href": "/questions/tagged/linux-kvm"
+      },
+      {
+        "text": "AI agents for your digital chores",
+        "href": "https://stackoverflow.blog/2025/10/14/ai-agents-for-your-digital-chores/?cb=1"
+      },
+      {
+        "text": "Secure coding in JavaScript",
+        "href": "https://stackoverflow.blog/2025/10/15/secure-coding-in-javascript/?cb=1"
+      },
+      {
+        "text": "A First Look: Stack Overflow Redesign",
+        "href": "https://meta.stackexchange.com/questions/412992/a-first-look-stack-overflow-redesign?cb=1"
+      },
+      {
+        "text": "Community Asks Sprint Announcement - October/November 2025",
+        "href": "https://meta.stackexchange.com/questions/413210/community-asks-sprint-announcement-october-november-2025?cb=1"
+      },
+      {
+        "text": "0",
+        "href": "https://superuser.com/questions/1898251/ubuntu-25-04-virtualbox-problems?lq=1"
+      },
+      {
+        "text": "ubuntu 25.04 Virtualbox problems",
+        "href": "https://superuser.com/questions/1898251/ubuntu-25-04-virtualbox-problems?noredirect=1&lq=1"
+      },
+      {
+        "text": "14",
+        "href": "https://superuser.com/questions/348741/virtualbox-xp-guest-does-not-see-multiple-cores-multiple-processors?rq=1"
+      },
+      {
+        "text": "VirtualBox - XP guest does not see multiple cores/multiple processors",
+        "href": "https://superuser.com/questions/348741/virtualbox-xp-guest-does-not-see-multiple-cores-multiple-processors?rq=1"
+      },
+      {
+        "text": "2",
+        "href": "https://superuser.com/questions/486422/having-internet-on-a-virtualbox?rq=1"
+      },
+      {
+        "text": "Having internet on a VirtualBox",
+        "href": "https://superuser.com/questions/486422/having-internet-on-a-virtualbox?rq=1"
+      },
+      {
+        "text": "12",
+        "href": "https://superuser.com/questions/668245/quad-core-host-with-hyper-threading-how-many-processors-to-configure-in-virtual?rq=1"
+      },
+      {
+        "text": "Quad Core host with hyper-threading, how many processors to configure in VirtualBox?",
+        "href": "https://superuser.com/questions/668245/quad-core-host-with-hyper-threading-how-many-processors-to-configure-in-virtual?rq=1"
+      },
+      {
+        "text": "2",
+        "href": "https://superuser.com/questions/980623/spread-virtualbox-vms-over-cores?rq=1"
+      },
+      {
+        "text": "Spread VirtualBox VMs over cores",
+        "href": "https://superuser.com/questions/980623/spread-virtualbox-vms-over-cores?rq=1"
+      },
+      {
+        "text": "0",
+        "href": "https://superuser.com/questions/1774848/virtualbox-7-0-6-failed-to-open-a-session-on-host-windows-10-lacking-winverifytr?rq=1"
+      },
+      {
+        "text": "VirtualBox 7.0.6 failed to open a session on host Windows 10 lacking WinVerifyTrust",
+        "href": "https://superuser.com/questions/1774848/virtualbox-7-0-6-failed-to-open-a-session-on-host-windows-10-lacking-winverifytr?rq=1"
+      },
+      {
+        "text": "Hot Network Questions",
+        "href": "https://stackexchange.com/questions?tab=hot"
+      },
+      {
+        "text": "Can any sequence be \"integrated\"?",
+        "href": "https://math.stackexchange.com/questions/5102049/can-any-sequence-be-integrated"
+      },
+      {
+        "text": "What book is this? (fractions)",
+        "href": "https://puzzling.stackexchange.com/questions/133582/what-book-is-this-fractions"
+      },
+      {
+        "text": "Stack memory in a freestanding environment",
+        "href": "https://stackoverflow.com/questions/79790059/stack-memory-in-a-freestanding-environment"
+      },
+      {
+        "text": "When using instances to points, how do I get the points to copy the rotation of the instances?",
+        "href": "https://blender.stackexchange.com/questions/339659/when-using-instances-to-points-how-do-i-get-the-points-to-copy-the-rotation-of"
+      },
+      {
+        "text": "Must an inscribed parallelogram's center match the shape's symmetry center？",
+        "href": "https://math.stackexchange.com/questions/5102008/must-an-inscribed-parallelograms-center-match-the-shapes-symmetry-center"
+      },
+      {
+        "text": "Why isn't my Apache HTTPD server accessible using its DNS name?",
+        "href": "https://superuser.com/questions/1926686/why-isnt-my-apache-httpd-server-accessible-using-its-dns-name"
+      },
+      {
+        "text": "First homology groups and the universal cover",
+        "href": "https://mathoverflow.net/questions/501612/first-homology-groups-and-the-universal-cover"
+      },
+      {
+        "text": "Old series on Netflix or Amazon, boys find metal cylinder partially buried",
+        "href": "https://scifi.stackexchange.com/questions/299604/old-series-on-netflix-or-amazon-boys-find-metal-cylinder-partially-buried"
+      },
+      {
+        "text": "Do coast FIRE calculations apply only to the individual?",
+        "href": "https://money.stackexchange.com/questions/166824/do-coast-fire-calculations-apply-only-to-the-individual"
+      },
+      {
+        "text": "Is Git's signed-off-by actually legally useful?",
+        "href": "https://law.stackexchange.com/questions/111158/is-gits-signed-off-by-actually-legally-useful"
+      },
+      {
+        "text": "Sci fi short story from the late 1800's to early 1900's where people no longer walk",
+        "href": "https://scifi.stackexchange.com/questions/299624/sci-fi-short-story-from-the-late-1800s-to-early-1900s-where-people-no-longer-w"
+      },
+      {
+        "text": "What was the first game to voluntarily provide an in-game content warning?",
+        "href": "https://gaming.stackexchange.com/questions/413675/what-was-the-first-game-to-voluntarily-provide-an-in-game-content-warning"
+      },
+      {
+        "text": "What did Jesus mean when He said there would be “one flock and one shepherd”?",
+        "href": "https://hermeneutics.stackexchange.com/questions/108876/what-did-jesus-mean-when-he-said-there-would-be-one-flock-and-one-shepherd"
+      },
+      {
+        "text": "Open-loop gain measurement in LTspice",
+        "href": "https://electronics.stackexchange.com/questions/757070/open-loop-gain-measurement-in-ltspice"
+      },
+      {
+        "text": "Pure functions from pure functions",
+        "href": "https://mathematica.stackexchange.com/questions/315686/pure-functions-from-pure-functions"
+      },
+      {
+        "text": "Do I need to defrost frozen tart shells?",
+        "href": "https://cooking.stackexchange.com/questions/133243/do-i-need-to-defrost-frozen-tart-shells"
+      },
+      {
+        "text": "Mysterious letters from two banks. Should I be worried?",
+        "href": "https://money.stackexchange.com/questions/166813/mysterious-letters-from-two-banks-should-i-be-worried"
+      },
+      {
+        "text": "Effect of Sun's gravity on an object on the Earth's surface",
+        "href": "https://physics.stackexchange.com/questions/860784/effect-of-suns-gravity-on-an-object-on-the-earths-surface"
+      },
+      {
+        "text": "How to engage latex-tagging-status?",
+        "href": "https://tex.stackexchange.com/questions/752500/how-to-engage-latex-tagging-status"
+      },
+      {
+        "text": "map a function with a parameter",
+        "href": "https://mathematica.stackexchange.com/questions/315697/map-a-function-with-a-parameter"
+      },
+      {
+        "text": "Can an atheist really be agnostic about the origin of life?",
+        "href": "https://philosophy.stackexchange.com/questions/131214/can-an-atheist-really-be-agnostic-about-the-origin-of-life"
+      },
+      {
+        "text": "What specific conditions did Hamas agree to in its 2025 ceasefire with Israel?",
+        "href": "https://politics.stackexchange.com/questions/93741/what-specific-conditions-did-hamas-agree-to-in-its-2025-ceasefire-with-israel"
+      },
+      {
+        "text": "Confusion about Confusion",
+        "href": "https://rpg.stackexchange.com/questions/216820/confusion-about-confusion"
+      },
+      {
+        "text": "How was a pot of coffee prepared in 18th century Sweden?",
+        "href": "https://history.stackexchange.com/questions/79526/how-was-a-pot-of-coffee-prepared-in-18th-century-sweden"
+      },
+      {
+        "text": "Question feed",
+        "href": "/feeds/question/1845776"
+      },
+      {
+        "text": "Abusive behavior policy",
+        "href": "/conduct/abusive-behavior"
+      },
+      {
+        "text": "Code of Conduct",
+        "href": "/conduct/abusive-behavior"
+      },
+      {
+        "text": "Super User",
+        "href": "/"
+      },
+      {
+        "text": "Tour",
+        "href": "/tour"
+      },
+      {
+        "text": "Help",
+        "href": "/help"
+      },
+      {
+        "text": "Chat",
+        "href": "https://chat.stackexchange.com/?tab=all&sort=active"
+      },
+      {
+        "text": "Contact",
+        "href": "/contact"
+      },
+      {
+        "text": "Feedback",
+        "href": "https://meta.superuser.com"
+      },
+      {
+        "text": "Company",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "Stack Overflow",
+        "href": "https://stackoverflow.com"
+      },
+      {
+        "text": "Teams",
+        "href": "https://stackoverflow.co/teams/"
+      },
+      {
+        "text": "Advertising",
+        "href": "https://stackoverflow.co/advertising/"
+      },
+      {
+        "text": "Talent",
+        "href": "https://stackoverflow.co/advertising/employer-branding/"
+      },
+      {
+        "text": "About",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "Press",
+        "href": "https://stackoverflow.co/company/press/"
+      },
+      {
+        "text": "Legal",
+        "href": "https://stackoverflow.com/legal"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://stackoverflow.com/legal/privacy-policy"
+      },
+      {
+        "text": "Terms of Service",
+        "href": "https://stackoverflow.com/legal/terms-of-service/public"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "https://policies.stackoverflow.co/stack-overflow/cookie-policy"
+      },
+      {
+        "text": "Stack Exchange Network",
+        "href": "https://stackexchange.com"
+      },
+      {
+        "text": "Technology",
+        "href": "https://stackexchange.com/sites#technology"
+      },
+      {
+        "text": "Culture & recreation",
+        "href": "https://stackexchange.com/sites#culturerecreation"
+      },
+      {
+        "text": "Life & arts",
+        "href": "https://stackexchange.com/sites#lifearts"
+      },
+      {
+        "text": "Science",
+        "href": "https://stackexchange.com/sites#science"
+      },
+      {
+        "text": "Professional",
+        "href": "https://stackexchange.com/sites#professional"
+      },
+      {
+        "text": "Business",
+        "href": "https://stackexchange.com/sites#business"
+      },
+      {
+        "text": "API",
+        "href": "https://api.stackexchange.com/"
+      },
+      {
+        "text": "Data",
+        "href": "https://data.stackexchange.com/"
+      },
+      {
+        "text": "Blog",
+        "href": "https://stackoverflow.blog?blb=1"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/officialstackoverflow/"
+      },
+      {
+        "text": "Twitter",
+        "href": "https://twitter.com/stackoverflow"
+      },
+      {
+        "text": "LinkedIn",
+        "href": "https://linkedin.com/company/stack-overflow"
+      },
+      {
+        "text": "Instagram",
+        "href": "https://www.instagram.com/thestackoverflow"
+      },
+      {
+        "text": "CC BY-SA",
+        "href": "https://stackoverflow.com/help/licensing"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "https://policies.stackoverflow.co/stack-overflow/cookie-policy/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "site logo",
+        "src": "https://cdn.sstatic.net/Sites/superuser/Img/icon-48.png?v=9e499a07ff97"
+      },
+      {
+        "alt": "Super User",
+        "src": "https://cdn.sstatic.net/Sites/superuser/Img/logo.svg?v=4bc8a703ebac"
+      },
+      {
+        "alt": "",
+        "src": "https://cdn.sstatic.net/Img/teams/teams-promo.svg?v=e507948b81bf"
+      },
+      {
+        "alt": "Illustration of upvote icon after it is clicked",
+        "src": "https://cdn.sstatic.net/Img/modal/img-upvote.png?v=fce73bd9724d"
+      },
+      {
+        "alt": "Illustration of upvote icon after it is clicked",
+        "src": "https://cdn.sstatic.net/Img/modal/img-free-votes.png?v=1c5aa3dac50b"
+      },
+      {
+        "alt": "callen44's user avatar",
+        "src": "https://i.sstatic.net/GHelT.png?s=64"
+      },
+      {
+        "alt": "robertspierre's user avatar",
+        "src": "https://www.gravatar.com/avatar/d764dae6d3b6b39bc8ff40e28367d78a?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "Maslie's user avatar",
+        "src": "https://www.gravatar.com/avatar/011bb3fc77e4675dcd0989e916671eeb?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "robertspierre's user avatar",
+        "src": "https://www.gravatar.com/avatar/d764dae6d3b6b39bc8ff40e28367d78a?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "nbanba's user avatar",
+        "src": "https://www.gravatar.com/avatar/e12a0ec379122416d634941018f7c352?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "ajmeese7's user avatar",
+        "src": "https://lh6.googleusercontent.com/-2Re0GwX8h8s/AAAAAAAAAAI/AAAAAAAAAE0/m_l8-iyrynA/s64-rj/photo.jpg"
+      },
+      {
+        "alt": "wowpatrick's user avatar",
+        "src": "https://www.gravatar.com/avatar/fc571d125c69c3861d5cad6d5ad62ddd?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "Hairy-Cheese's user avatar",
+        "src": "https://lh3.googleusercontent.com/a-/AOh14GgB00FdhiX6SvqNFkkcClbYBlty_RPxdVSpV5CmaA=k-s64"
+      },
+      {
+        "alt": "JoeMacMillan's user avatar",
+        "src": "https://www.gravatar.com/avatar/6109a2b22690405920c4cfb78bcb4082?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "Viktor Csimma's user avatar",
+        "src": "https://www.gravatar.com/avatar/72f9b79b754690a9012f6ca2da20be4c?s=64&d=identicon&r=PG&f=y&so-version=2"
+      }
+    ],
+    "timestamp": 1760610215792,
+    "url": "https://superuser.com/questions/1845776/virtualbox-cant-operate-in-vmx-mode?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

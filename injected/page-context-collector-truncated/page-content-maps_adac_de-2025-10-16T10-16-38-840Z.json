@@ -1,0 +1,449 @@
+{
+  "url": "https://maps.adac.de/routenplaner",
+  "extractedAt": "2025-10-16T10:16:38.840Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://maps.adac.de/favicons/adac-apple-touch-icon-57x57.png?v=1",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/adac-apple-touch-icon-60x60.png?v=1",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/adac-apple-touch-icon-72x72.png?v=1",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/adac-apple-touch-icon-76x76.png?v=1",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/adac-apple-touch-icon-114x114.png?v=1",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/adac-apple-touch-icon-120x120.png?v=1",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/adac-apple-touch-icon-144x144.png?v=1",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/adac-apple-touch-icon-152x152.png?v=1",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/adac-apple-touch-icon-180x180.png?v=1",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/favicon-16x16.png?v=1",
+        "rel": "icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/favicon-32x32.png?v=1",
+        "rel": "icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/favicon-96x96.png?v=1",
+        "rel": "icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/favicon.svg?v=1",
+        "rel": "icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/favicon-16x16.ico?v=1",
+        "rel": "icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/favicon-32x32.ico?v=1",
+        "rel": "icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/favicon-96x96.ico?v=1",
+        "rel": "icon"
+      },
+      {
+        "href": "https://maps.adac.de/favicons/favicon.ico?v=1",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "Routenplaner | ADAC Maps",
+    "metaDescription": "Ihr kostenloser Routenplaner für Auto, Camper, Gespann & Motorrad - Kommen Sie schnell und sicher ans Ziel. √ Stau √ Tanken √ Maut √ Sehenswürdigkeiten √ Touren",
+    "content": "Start wählen**Ziel eingeben****ADAC Maps\n# ADAC Routenplaner\nMit ADAC Maps können Sie bequem Ihre Routen planen. Egal, ob Sie mit Auto, Wohnmobil, Gespann oder Motorrad unterwegs sind, berechnet der ADAC Routenplaner Ihre optimale oder kürzeste Route inklusive Maut- und Vignettenkosten. In den Routenoptionen ist es möglich, Autobahnen, sowie Maut- oder Vignettenkosten zu vermeiden oder Länder komplett von der Route auszuschließen.\n****[Planen Sie Ihre Route](/routenplaner)**Schnell und sicher ans Ziel: Routen­planer für Auto, Camper, Gespann oder Motorrad.\n[**Route planen](/routenplaner)****[Immer gut informiert](/verkehr)**Aktuelle Verkehrs­meldungen, Stau­meldungen und Baustellen entlang der Route.\n[**Aktuelle Verkehrs­lage](/verkehr)****[Lassen Sie sich inspirieren](/poi)**Reise­ziele und Freizeit­aktivitäten: Sehens­würdig­keiten, Aktivitäten, Touren und mehr.\n[**Highlights entdecken](/poi)****[Mautrechner für Ihre Route](/routenplaner)**Kalkulation der Vignettenkosten und Streckenmaut auf Basis Ihrer konkreten Strecken- und Routenplanung.\n[**Ziel eingeben](/routenplaner)\n## Aktuelle Verkehrslage\nDie Routenplanung des ADAC berechnet Ihre Route immer unter Berücksichtigung der Verkehrslage. Egal, ob Sie jetzt sofort oder in der Zukunft fahren wollen. Die aktuelle Verkehrssituation wird verwendet, um Ihre aktuelle Route zu berechnen. Bei einer Routenplanung, die in der Zukunft liegt, verwendet ADAC Maps historische Verkehrsdaten für die Routenoptimierung. So kommen Sie immer optimal ans Ziel und haben die wenigsten Verkehrsstörungen auf Ihrer Strecke.\n\n### Beliebte Routen\n[### Barcelona - Girona **1 h 27 min**104 km**](/routenplaner/route-von-barcelona-nach-girona)[### Lyon - Marseille **3 h 28 min**315 km**](/routenplaner/route-von-lyon-nach-marseille)[### Monaco - Barcelona **8 h 7 min**684 km**](/routenplaner/route-von-monaco-nach-barcelona)[### Barcelona - Sevilla **10 h 12 min**995 km**](/routenplaner/route-von-barcelona-nach-sevilla)[### Sevilla - Barcelona **10 h 10 min**993 km**](/routenplaner/route-von-sevilla-nach-barcelona)[### Köln - Bonn **32 min**34 km**](/routenplaner/route-von-koeln-nach-bonn)[### Valencia - Barcelona **3 h 52 min**348 km**](/routenplaner/route-von-valencia-nach-barcelona)[### Dortmund - Lille **4 h 33 min**358 km**](/routenplaner/route-von-dortmund-nach-lille)[### Dortmund - Paris **6 h 46 min**575 km**](/routenplaner/route-von-dortmund-nach-paris)[### Barcelona - Porto **12 h 56 min**1.151 km**](/routenplaner/route-von-barcelona-nach-porto)[### Paris - Brest **6 h 14 min**591 km**](/routenplaner/route-von-paris-nach-brest)[### Dortmund - Leverkusen **58 min**82 km**](/routenplaner/route-von-dortmund-nach-leverkusen)[### Paris - Dortmund **6 h 47 min**576 km**](/routenplaner/route-von-paris-nach-dortmund)[### Barcelona - Valencia **4 h 11 min**349 km**](/routenplaner/route-von-barcelona-nach-valencia)[### Madrid - Barcelona **7 h 7 min**620 km**](/routenplaner/route-von-madrid-nach-barcelona)[### Dortmund - Bochum **26 min**23 km**](/routenplaner/route-von-dortmund-nach-bochum)[### Monaco - Marseille **2 h 49 min**219 km**](/routenplaner/route-von-monaco-nach-marseille)[### Valencia - Madrid **4 h 18 min**355 km**](/routenplaner/route-von-valencia-nach-madrid)[### Paris - Marseille **8 h 2 min**776 km**](/routenplaner/route-von-paris-nach-marseille)[### Madrid - Valencia **4 h 17 min**355 km**](/routenplaner/route-von-madrid-nach-valencia)[### Barcelona - Madrid **7 h 12 min**617 km**](/routenplaner/route-von-barcelona-nach-madrid)[### Augsburg - Dortmund **6 h 14 min**580 km**](/routenplaner/route-von-augsburg-nach-dortmund)[### Wolfsburg - Dortmund **3 h 9 min**294 km**](/routenplaner/route-von-wolfsburg-nach-dortmund)[### Bologna - Verona **1 h 43 min**143 km**](/routenplaner/route-von-bologna-nach-verona)[### Mönchengladbach - Leverkusen **54 min**62 km**](/routenplaner/route-von-moenchengladbach-nach-leverkusen)[### Como - Verona **2 h 7 min**201 km**](/routenplaner/route-von-como-nach-verona)[### Mönchengladbach - Dortmund **1 h 12 min**98 km**](/routenplaner/route-von-moenchengladbach-nach-dortmund)[### Stuttgart - Dortmund **4 h 47 min**450 km**](/routenplaner/route-von-stuttgart-nach-dortmund)[### Frankfurt am Main - Leverkusen **2 h 8 min**195 km**](/routenplaner/route-von-frankfurt-nach-leverkusen)[### Bochum - Leverkusen **56 min**74 km**](/routenplaner/route-von-bochum-nach-leverkusen)\n\n- [Home](/)\n\n- [Routenplaner](/routenplaner)\n\n- [Entdecken](/poi)\n\n- [Verkehr](/verkehr)\n\n\n\n- [Kontakt](https://www.adac.de/kontakt-zum-adac/)\n\n- [adac.de](https://www.adac.de/)\n\n- [Drive App](https://www.adac.de/services/apps/drive/)\n\n- [Trips App](https://www.adac.de/services/apps/trips/)\n\n- [Häufige Fragen](/haeufige-fragen)\n\n- [Feedback geben](mailto:maps@adac.de?subject=Feedback%20zur%20ADAC%20Maps)\n\n\n\n- [Impressum](/impressum)\n\n- [Datenschutz](https://www.adac.de/datenschutz-dsgvo/)\n\n- [Privatsphäre-Einstellungen](https://www.adac.de/datenschutz-dsgvo/cookie-einstellungen/)\n\n- [Karte lizenzieren](https://www.adac.de/reise-freizeit/geoservices/?itm_campaign=geoservices&itm_medium=website&itm_source=maps&itm_content=link)\n\n© 2025 ADAC",
+    "truncated": false,
+    "fullContentLength": 5165,
+    "headings": [
+      {
+        "level": 1,
+        "text": "ADAC Routenplaner"
+      },
+      {
+        "level": 2,
+        "text": "Aktuelle Verkehrslage"
+      },
+      {
+        "level": 3,
+        "text": "Beliebte Routen"
+      },
+      {
+        "level": 3,
+        "text": "Barcelona - Girona"
+      },
+      {
+        "level": 3,
+        "text": "Lyon - Marseille"
+      },
+      {
+        "level": 3,
+        "text": "Monaco - Barcelona"
+      },
+      {
+        "level": 3,
+        "text": "Barcelona - Sevilla"
+      },
+      {
+        "level": 3,
+        "text": "Sevilla - Barcelona"
+      },
+      {
+        "level": 3,
+        "text": "Köln - Bonn"
+      },
+      {
+        "level": 3,
+        "text": "Valencia - Barcelona"
+      },
+      {
+        "level": 3,
+        "text": "Dortmund - Lille"
+      },
+      {
+        "level": 3,
+        "text": "Dortmund - Paris"
+      },
+      {
+        "level": 3,
+        "text": "Barcelona - Porto"
+      },
+      {
+        "level": 3,
+        "text": "Paris - Brest"
+      },
+      {
+        "level": 3,
+        "text": "Dortmund - Leverkusen"
+      },
+      {
+        "level": 3,
+        "text": "Paris - Dortmund"
+      },
+      {
+        "level": 3,
+        "text": "Barcelona - Valencia"
+      },
+      {
+        "level": 3,
+        "text": "Madrid - Barcelona"
+      },
+      {
+        "level": 3,
+        "text": "Dortmund - Bochum"
+      },
+      {
+        "level": 3,
+        "text": "Monaco - Marseille"
+      },
+      {
+        "level": 3,
+        "text": "Valencia - Madrid"
+      },
+      {
+        "level": 3,
+        "text": "Paris - Marseille"
+      },
+      {
+        "level": 3,
+        "text": "Madrid - Valencia"
+      },
+      {
+        "level": 3,
+        "text": "Barcelona - Madrid"
+      },
+      {
+        "level": 3,
+        "text": "Augsburg - Dortmund"
+      },
+      {
+        "level": 3,
+        "text": "Wolfsburg - Dortmund"
+      },
+      {
+        "level": 3,
+        "text": "Bologna - Verona"
+      },
+      {
+        "level": 3,
+        "text": "Mönchengladbach - Leverkusen"
+      },
+      {
+        "level": 3,
+        "text": "Como - Verona"
+      },
+      {
+        "level": 3,
+        "text": "Mönchengladbach - Dortmund"
+      },
+      {
+        "level": 3,
+        "text": "Stuttgart - Dortmund"
+      },
+      {
+        "level": 3,
+        "text": "Frankfurt am Main - Leverkusen"
+      },
+      {
+        "level": 3,
+        "text": "Bochum - Leverkusen"
+      }
+    ],
+    "links": [
+      {
+        "text": "Maps",
+        "href": "/"
+      },
+      {
+        "text": "Route planen",
+        "href": "/route"
+      },
+      {
+        "text": "Merklisten",
+        "href": "/merkliste/favoriten"
+      },
+      {
+        "text": "Planen Sie Ihre Route",
+        "href": "/routenplaner"
+      },
+      {
+        "text": "Route planen",
+        "href": "/routenplaner"
+      },
+      {
+        "text": "Immer gut informiert",
+        "href": "/verkehr"
+      },
+      {
+        "text": "Aktuelle Verkehrs­lage",
+        "href": "/verkehr"
+      },
+      {
+        "text": "Lassen Sie sich inspirieren",
+        "href": "/poi"
+      },
+      {
+        "text": "Highlights entdecken",
+        "href": "/poi"
+      },
+      {
+        "text": "Mautrechner für Ihre Route",
+        "href": "/routenplaner"
+      },
+      {
+        "text": "Ziel eingeben",
+        "href": "/routenplaner"
+      },
+      {
+        "text": "Barcelona - Girona1 h 27 min104 km",
+        "href": "/routenplaner/route-von-barcelona-nach-girona"
+      },
+      {
+        "text": "Lyon - Marseille3 h 28 min315 km",
+        "href": "/routenplaner/route-von-lyon-nach-marseille"
+      },
+      {
+        "text": "Monaco - Barcelona8 h 7 min684 km",
+        "href": "/routenplaner/route-von-monaco-nach-barcelona"
+      },
+      {
+        "text": "Barcelona - Sevilla10 h 12 min995 km",
+        "href": "/routenplaner/route-von-barcelona-nach-sevilla"
+      },
+      {
+        "text": "Sevilla - Barcelona10 h 10 min993 km",
+        "href": "/routenplaner/route-von-sevilla-nach-barcelona"
+      },
+      {
+        "text": "Köln - Bonn32 min34 km",
+        "href": "/routenplaner/route-von-koeln-nach-bonn"
+      },
+      {
+        "text": "Valencia - Barcelona3 h 52 min348 km",
+        "href": "/routenplaner/route-von-valencia-nach-barcelona"
+      },
+      {
+        "text": "Dortmund - Lille4 h 33 min358 km",
+        "href": "/routenplaner/route-von-dortmund-nach-lille"
+      },
+      {
+        "text": "Dortmund - Paris6 h 46 min575 km",
+        "href": "/routenplaner/route-von-dortmund-nach-paris"
+      },
+      {
+        "text": "Barcelona - Porto12 h 56 min1.151 km",
+        "href": "/routenplaner/route-von-barcelona-nach-porto"
+      },
+      {
+        "text": "Paris - Brest6 h 14 min591 km",
+        "href": "/routenplaner/route-von-paris-nach-brest"
+      },
+      {
+        "text": "Dortmund - Leverkusen58 min82 km",
+        "href": "/routenplaner/route-von-dortmund-nach-leverkusen"
+      },
+      {
+        "text": "Paris - Dortmund6 h 47 min576 km",
+        "href": "/routenplaner/route-von-paris-nach-dortmund"
+      },
+      {
+        "text": "Barcelona - Valencia4 h 11 min349 km",
+        "href": "/routenplaner/route-von-barcelona-nach-valencia"
+      },
+      {
+        "text": "Madrid - Barcelona7 h 7 min620 km",
+        "href": "/routenplaner/route-von-madrid-nach-barcelona"
+      },
+      {
+        "text": "Dortmund - Bochum26 min23 km",
+        "href": "/routenplaner/route-von-dortmund-nach-bochum"
+      },
+      {
+        "text": "Monaco - Marseille2 h 49 min219 km",
+        "href": "/routenplaner/route-von-monaco-nach-marseille"
+      },
+      {
+        "text": "Valencia - Madrid4 h 18 min355 km",
+        "href": "/routenplaner/route-von-valencia-nach-madrid"
+      },
+      {
+        "text": "Paris - Marseille8 h 2 min776 km",
+        "href": "/routenplaner/route-von-paris-nach-marseille"
+      },
+      {
+        "text": "Madrid - Valencia4 h 17 min355 km",
+        "href": "/routenplaner/route-von-madrid-nach-valencia"
+      },
+      {
+        "text": "Barcelona - Madrid7 h 12 min617 km",
+        "href": "/routenplaner/route-von-barcelona-nach-madrid"
+      },
+      {
+        "text": "Augsburg - Dortmund6 h 14 min580 km",
+        "href": "/routenplaner/route-von-augsburg-nach-dortmund"
+      },
+      {
+        "text": "Wolfsburg - Dortmund3 h 9 min294 km",
+        "href": "/routenplaner/route-von-wolfsburg-nach-dortmund"
+      },
+      {
+        "text": "Bologna - Verona1 h 43 min143 km",
+        "href": "/routenplaner/route-von-bologna-nach-verona"
+      },
+      {
+        "text": "Mönchengladbach - Leverkusen54 min62 km",
+        "href": "/routenplaner/route-von-moenchengladbach-nach-leverkusen"
+      },
+      {
+        "text": "Como - Verona2 h 7 min201 km",
+        "href": "/routenplaner/route-von-como-nach-verona"
+      },
+      {
+        "text": "Mönchengladbach - Dortmund1 h 12 min98 km",
+        "href": "/routenplaner/route-von-moenchengladbach-nach-dortmund"
+      },
+      {
+        "text": "Stuttgart - Dortmund4 h 47 min450 km",
+        "href": "/routenplaner/route-von-stuttgart-nach-dortmund"
+      },
+      {
+        "text": "Frankfurt am Main - Leverkusen2 h 8 min195 km",
+        "href": "/routenplaner/route-von-frankfurt-nach-leverkusen"
+      },
+      {
+        "text": "Bochum - Leverkusen56 min74 km",
+        "href": "/routenplaner/route-von-bochum-nach-leverkusen"
+      },
+      {
+        "text": "Home",
+        "href": "/"
+      },
+      {
+        "text": "Routenplaner",
+        "href": "/routenplaner"
+      },
+      {
+        "text": "Entdecken",
+        "href": "/poi"
+      },
+      {
+        "text": "Verkehr",
+        "href": "/verkehr"
+      },
+      {
+        "text": "Kontakt",
+        "href": "https://www.adac.de/kontakt-zum-adac/"
+      },
+      {
+        "text": "adac.de",
+        "href": "https://www.adac.de/"
+      },
+      {
+        "text": "Drive App",
+        "href": "https://www.adac.de/services/apps/drive/"
+      },
+      {
+        "text": "Trips App",
+        "href": "https://www.adac.de/services/apps/trips/"
+      },
+      {
+        "text": "Häufige Fragen",
+        "href": "/haeufige-fragen"
+      },
+      {
+        "text": "Feedback geben",
+        "href": "mailto:maps@adac.de?subject=Feedback%20zur%20ADAC%20Maps"
+      },
+      {
+        "text": "Impressum",
+        "href": "/impressum"
+      },
+      {
+        "text": "Datenschutz",
+        "href": "https://www.adac.de/datenschutz-dsgvo/"
+      },
+      {
+        "text": "Privatsphäre-Einstellungen",
+        "href": "https://www.adac.de/datenschutz-dsgvo/cookie-einstellungen/"
+      },
+      {
+        "text": "Karte lizenzieren",
+        "href": "https://www.adac.de/reise-freizeit/geoservices/?itm_campaign=geoservices&itm_medium=website&itm_source=maps&itm_content=link"
+      }
+    ],
+    "images": [
+      {
+        "alt": "ADAC Logo",
+        "src": "/_ipx/s_80x32/ADAC.svg"
+      },
+      {
+        "alt": "ADAC Logo",
+        "src": "/_ipx/_/logo-footer.svg"
+      }
+    ],
+    "timestamp": 1760609798032,
+    "url": "https://maps.adac.de/routenplaner?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

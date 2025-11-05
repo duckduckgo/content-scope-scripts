@@ -1,0 +1,22 @@
+{
+  "url": "https://get.adobe.com/reader/",
+  "extractedAt": "2025-10-16T10:00:21.296Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://get.adobe.com/reader/favicon.ico",
+        "rel": "icon"
+      }
+    ],
+    "title": "Adobe - Download Adobe Acrobat Reader",
+    "metaDescription": "Download free Adobe Acrobat Reader software for your Windows, Mac OS and Android devices to view, print, and comment on PDF documents.",
+    "content": "",
+    "truncated": false,
+    "fullContentLength": 0,
+    "headings": [],
+    "links": [],
+    "images": [],
+    "timestamp": 1760608820534,
+    "url": "https://get.adobe.com/reader/otherversions"
+  }
+}

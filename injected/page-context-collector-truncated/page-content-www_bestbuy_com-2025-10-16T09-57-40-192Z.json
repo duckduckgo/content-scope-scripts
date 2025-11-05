@@ -1,0 +1,157 @@
+{
+  "url": "https://www.bestbuy.com/",
+  "extractedAt": "2025-10-16T09:57:40.192Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.bestbuy.com/~assets/bby/_com/header-footer/images/favicon-32.png",
+        "rel": "icon"
+      }
+    ],
+    "title": "Best Buy International: Select your Country - Best Buy",
+    "metaDescription": "Shop online at Best Buy in your country and language of choice. Best Buy provides online shopping in a number of countries and languages.",
+    "content": "Hello! \n# Choose a country.\n  [Canada](#) [United States](https://www.bestbuy.com/?automation=true?automation=true&wait-for-init-args=true&intl=nosplash)   \n### Shopping in the U.S.?\n  International customers can shop on www.bestbuy.com and have orders shipped to any U.S. address or U.S. store. [See More Details](https://www.bestbuy.com/site/help-topics/international-orders/pcmcat204400050019.c?id=pcmcat204400050019&intl=nosplash)",
+    "truncated": false,
+    "fullContentLength": 434,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Choose a country."
+      },
+      {
+        "level": 4,
+        "text": "Canada"
+      },
+      {
+        "level": 4,
+        "text": "United States"
+      },
+      {
+        "level": 3,
+        "text": "Shopping in the U.S.?"
+      },
+      {
+        "level": 1,
+        "text": "Choisir un pays :"
+      },
+      {
+        "level": 4,
+        "text": "Canada"
+      },
+      {
+        "level": 4,
+        "text": "United States"
+      },
+      {
+        "level": 3,
+        "text": "Vous magasinez aux É.-U.?"
+      },
+      {
+        "level": 1,
+        "text": "Seleciona un país."
+      },
+      {
+        "level": 4,
+        "text": "Canada"
+      },
+      {
+        "level": 4,
+        "text": "Estados Unidos"
+      },
+      {
+        "level": 3,
+        "text": "¿COMPRANDO EN EE. UU.?"
+      }
+    ],
+    "links": [
+      {
+        "text": "Canada",
+        "href": "#"
+      },
+      {
+        "text": "United States",
+        "href": "https://www.bestbuy.com/?automation=true?automation=true&wait-for-init-args=true&intl=nosplash"
+      },
+      {
+        "text": "See More Details",
+        "href": "https://www.bestbuy.com/site/help-topics/international-orders/pcmcat204400050019.c?id=pcmcat204400050019&intl=nosplash"
+      },
+      {
+        "text": "Canada",
+        "href": "#"
+      },
+      {
+        "text": "United States",
+        "href": "https://www.bestbuy.com/?automation=true?automation=true&wait-for-init-args=true&intl=nosplash"
+      },
+      {
+        "text": "Voir les détails",
+        "href": "https://www.bestbuy.com/site/help-topics/international-orders/pcmcat204400050019.c?id=pcmcat204400050019&intl=nosplash"
+      },
+      {
+        "text": "Canada",
+        "href": "#"
+      },
+      {
+        "text": "Estados Unidos",
+        "href": "https://www.bestbuy.com/?automation=true?automation=true&wait-for-init-args=true&intl=nosplash"
+      },
+      {
+        "text": "Ver más detalles",
+        "href": "https://www.bestbuy.com/site/help-topics/international-orders/pcmcat204400050019.c?id=pcmcat204400050019&intl=nosplash"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Best Buy Logo",
+        "src": "https://www.bestbuy.com/~assets/bby/_com/header-footer/images/bby_logo-a7e90594729ed2e119331378def6c97e.png"
+      },
+      {
+        "alt": "Canada",
+        "src": "https://www.bestbuy.com/~assets/bby/_intl/landing_page/images/maps/canada.svg"
+      },
+      {
+        "alt": "United States",
+        "src": "https://www.bestbuy.com/~assets/bby/_intl/landing_page/images/maps/usa.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www.bestbuy.com/~assets/bby/_intl/landing_page/images/icons/arrow.svg"
+      },
+      {
+        "alt": "Best Buy Logo",
+        "src": "https://www.bestbuy.com/~assets/bby/_com/header-footer/images/bby_logo-a7e90594729ed2e119331378def6c97e.png"
+      },
+      {
+        "alt": "Canada",
+        "src": "https://www.bestbuy.com/~assets/bby/_intl/landing_page/images/maps/canada.svg"
+      },
+      {
+        "alt": "United States",
+        "src": "https://www.bestbuy.com/~assets/bby/_intl/landing_page/images/maps/usa.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www.bestbuy.com/~assets/bby/_intl/landing_page/images/icons/arrow.svg"
+      },
+      {
+        "alt": "Best Buy Logo",
+        "src": "https://www.bestbuy.com/~assets/bby/_com/header-footer/images/bby_logo-a7e90594729ed2e119331378def6c97e.png"
+      },
+      {
+        "alt": "Canada",
+        "src": "https://www.bestbuy.com/~assets/bby/_intl/landing_page/images/maps/canada.svg"
+      },
+      {
+        "alt": "Estados Unidos",
+        "src": "https://www.bestbuy.com/~assets/bby/_intl/landing_page/images/maps/usa.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www.bestbuy.com/~assets/bby/_intl/landing_page/images/icons/arrow.svg"
+      }
+    ],
+    "timestamp": 1760608650646,
+    "url": "https://www.bestbuy.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}
