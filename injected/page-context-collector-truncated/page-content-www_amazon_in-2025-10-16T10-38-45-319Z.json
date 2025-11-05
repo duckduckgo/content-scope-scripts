@@ -1,0 +1,35 @@
+{
+  "url": "https://www.amazon.in/gp/help/customer/display.html",
+  "extractedAt": "2025-10-16T10:38:45.319Z",
+  "content": {
+    "favicon": [],
+    "title": "Page Not Found",
+    "metaDescription": "",
+    "content": "**Looking for something?** \n We're sorry. The Web address you entered is not a functioning page on our site. \n\n  **[Click here to go back to the Amazon home page](/ref=cs_404_link)**",
+    "truncated": false,
+    "fullContentLength": 182,
+    "headings": [],
+    "links": [
+      {
+        "text": "Click here to go back to the Amazon home page",
+        "href": "/ref=cs_404_link"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Amazon",
+        "src": "https://images-eu.ssl-images-amazon.com/images/G/31/ShoppingPortal/logo._TTD_.png"
+      },
+      {
+        "alt": "",
+        "src": "https://images-eu.ssl-images-amazon.com/images/G/31/x-locale/common/kailey-kitty._TTD_.gif"
+      },
+      {
+        "alt": "",
+        "src": "https://images-eu.ssl-images-amazon.com/images/G/31/x-locale/common/orange-arrow._TTD_.gif"
+      }
+    ],
+    "timestamp": 1760611124845,
+    "url": "https://www.amazon.in/gp/help/customer/display.html?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

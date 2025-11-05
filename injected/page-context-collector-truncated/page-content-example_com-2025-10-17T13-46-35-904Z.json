@@ -1,0 +1,27 @@
+{
+  "url": "https://example.com",
+  "extractedAt": "2025-10-17T13:46:35.904Z",
+  "content": {
+    "favicon": [],
+    "title": "Example Domain",
+    "metaDescription": "",
+    "content": "# Example Domain\nThis domain is for use in documentation examples without needing permission. Avoid use in operations.\n[Learn more](https://iana.org/domains/example)",
+    "truncated": false,
+    "fullContentLength": 165,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Example Domain"
+      }
+    ],
+    "links": [
+      {
+        "text": "Learn more",
+        "href": "https://iana.org/domains/example"
+      }
+    ],
+    "images": [],
+    "timestamp": 1760708795657,
+    "url": "https://example.com/?automation=true&wait-for-init-args=true"
+  }
+}

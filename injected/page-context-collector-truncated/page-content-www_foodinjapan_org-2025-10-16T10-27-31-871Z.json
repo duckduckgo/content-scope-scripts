@@ -1,0 +1,521 @@
+{
+  "url": "https://www.foodinjapan.org/",
+  "extractedAt": "2025-10-16T10:27:31.871Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.foodinjapan.org/wp-content/uploads/2022/11/cropped-LogoMark2-32x32.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.foodinjapan.org/wp-content/uploads/2022/11/cropped-LogoMark2-192x192.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.foodinjapan.org/wp-content/uploads/2022/11/cropped-LogoMark2-180x180.png",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "Food in Japan - About Japanese Food & Traditional Foods of Japan",
+    "metaDescription": "Japanese cuisine is renowned for its diverse flavours and intricate preparation, which reflect a rich culinary heritage.",
+    "content": "Language\n\n- \n\n- \n\n- \n\n- \n\nPopular Traditional Food in Japan\n\n- [Monjayaki (もんじゃ焼き)](https://www.foodinjapan.org/kanto/monjayaki/)\n\n- [Kiritanpo (きりたんぽ)](https://www.foodinjapan.org/tohoku/kiritanpo/)\n\n- [Washoku (和食)](https://www.foodinjapan.org/japan/washoku/)\n\n- [Mochi (餅)](https://www.foodinjapan.org/japan/mochi/)\n\n- [Sukiyaki (すき焼き)](https://www.foodinjapan.org/kansai/hyougo/sukiyaki/)\n\n- [Okinawa soba (沖縄そば)](https://www.foodinjapan.org/kyushu/okinawa/okinawa-soba/)\n\n- [Shirasu (しらす)](https://www.foodinjapan.org/kanto/kanagawa-en/shirasu/)\n\n- [Nerikiri (練り切り)](https://www.foodinjapan.org/kanto/tokyo-en/nerikiri/)\n\n- [Sushi (寿司)](https://www.foodinjapan.org/japan/sushi/)\n\n- [Osechi (おせち)](https://www.foodinjapan.org/japan/osechi/)\n\nJapanese Food By AreaJapanese Food By AreaSelect CategoryArticleChubu Aichi Fukui Gifu Ishikawa Nagano Niigata Shizuoka Toyama YamanashiChugoku Hiroshima Okayama Shimane Tottori YamaguchiHokkaidoJapanKansai Hyougo Kyoto Mie Nara Oosaka Shiga WakayamaKansai Vi Kyoto viKanto Chiba Gunma Ibaraki Kanagawa Saitama Tochigi TokyoKanto TokyoKyushu Fukuoka Kagoshima Kumamoto Miyazaki Nagasaki Okinawa Ooita SagaShikoku Ehime Kagawa Kouchi TokushimaTohoku Akita Aomori Fukushima Iwate Miyagi Yamagata  New Japanese Food Post\n\n- [Kyoto red carrot (京にんじん) 2025年10月15日](https://www.foodinjapan.org/kansai/kyoto/kyoto-red-carrot/)\n\n- [Fushimi Togarashi (伏見とうがらし) 2025年10月14日](https://www.foodinjapan.org/kansai/kyoto/fushimi-togarashi/)\n\n- [Kyona (京菜) 2025年10月13日](https://www.foodinjapan.org/kansai/kyoto/kyona/)\n\n- [Kamo nasu (賀茂なす) 2025年10月12日](https://www.foodinjapan.org/kansai/kyoto/kamo-nasu/)\n\n- [2025 Winter Japan Food Travel Guide: A Culinary Journey Through Seasonal Delicacies and Regional Specialties 2025年10月11日](https://www.foodinjapan.org/japan/2025-winter-japan-food-travel-guide-a-culinary-journey-through-seasonal-delicacies-and-regional-specialties/)\n\n- [Awayuki Strawberries (淡雪いちご) – The Elegant White Japanese Strawberry 2025年10月10日](https://www.foodinjapan.org/japan/awayuki-strawberries/)\n\n- [Heshiko (ヘしこ) 2025年10月9日](https://www.foodinjapan.org/chubu/fukui-chubu/heshiko/)\n\n- [How Japanese Cuisine Can Transform Business Event Catering 2025年10月8日](https://www.foodinjapan.org/japan/how-japanese-cuisine-can-transform-business-event-catering/)",
+    "truncated": false,
+    "fullContentLength": 2304,
+    "headings": [
+      {
+        "level": 1,
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2022/11/FoodinJapanLogo.png.webp \" sizes=\"(max-width: 959px) 50vw, 800px\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2022/11/FoodinJapanLogo.png.webp\" height=\"85\" width=\"340\" sizes=\"(max-width: 959px) 50vw, 800px\" class=\"c-headLogo__img sp-no-webp\" alt=\"Food in Japan\" decoding=\"async\" loading=\"eager\"  > </picture>"
+      },
+      {
+        "level": 2,
+        "text": "Kyoto red carrot (京にんじん)"
+      },
+      {
+        "level": 2,
+        "text": "Fushimi Togarashi (伏見とうがらし)"
+      },
+      {
+        "level": 2,
+        "text": "Kyona (京菜)"
+      },
+      {
+        "level": 2,
+        "text": "Kamo nasu (賀茂なす)"
+      },
+      {
+        "level": 2,
+        "text": "2025 Winter Japan Food Travel Guide: A Culinary Journey Through Seasonal Delicacies and Regional Specialties"
+      },
+      {
+        "level": 2,
+        "text": "Awayuki Strawberries (淡雪いちご) – The Elegant White Japanese Strawberry"
+      },
+      {
+        "level": 2,
+        "text": "Heshiko (ヘしこ)"
+      },
+      {
+        "level": 2,
+        "text": "How Japanese Cuisine Can Transform Business Event Catering"
+      },
+      {
+        "level": 2,
+        "text": "Seige (せいげ)"
+      },
+      {
+        "level": 2,
+        "text": "Shimotsukare (しもつかれ)"
+      }
+    ],
+    "links": [
+      {
+        "text": "<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAMAAABBPP0LAAAAflBMVEX/AAD9AAD3AADxAADrAAD/eXn9bGz8YWH8WVn6UVH5SEj5Pz/3NDT0Kir9/QD+/nL+/lT18lDt4Uf6+j/39zD39yf19R3n5wDxflXsZ1Pt4Y3x8zr0wbLs1NXz8xPj4wD37t3jmkvsUU/Bz6nrykm3vJ72IiL0FBTyDAvhAABEt4UZAAAAX0lEQVR4AQXBQUrFQBBAwXqTDkYE94Jb73+qfwVRcYxVQRBRToiUfoaVpGTrtdS9SO0Z9FR9lVy/g5c99+dKl30N5uxPuviexXEc9/msC7TOkd4kHu/Dlh4itCJ8AP4B0w4Qwmm7CFQAAAAASUVORK5CYII=\" alt=\"Español\" width=\"16\" height=\"11\" style=\"width: 16px; height: 11px;\" />",
+        "href": "https://www.foodinjapan.org/es/"
+      },
+      {
+        "text": "<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAMAAABBPP0LAAAAbFBMVEVzldTg4ODS0tLxDwDtAwDjAADD0uz39/fy8vL3k4nzgna4yOixwuXu7u7s6+zn5+fyd2rvcGPtZljYAABrjNCpvOHrWkxegsqfs93NAADpUUFRd8THAABBa7wnVbERRKa8vLyxsLCoqKigoKClCvcsAAAAXklEQVR4AS3JxUEAQQAEwZo13Mk/R9w5/7UERJCIGIgj5qfRJZEpPyNfCgJTjMR1eRRnJiExFJz5Mf1PokWr/UztIjRGQ3V486u0HO55m634U6dMcf0RNPfkVCTvKjO16xHA8miowAAAAABJRU5ErkJggg==\" alt=\"Français\" width=\"16\" height=\"11\" style=\"width: 16px; height: 11px;\" />",
+        "href": "https://www.foodinjapan.org/fr/"
+      },
+      {
+        "text": "<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAMAAABBPP0LAAAAVFBMVEUAILQAGrEAEazhAAD5AADwAACBot+5ued2mNv6aWv7X1/5UVHoAACWltz5+fz+/v5ahNPyRkv5QkL5OTn2MTH3Kir1JiZOe87rOkb1Hh70FRXyDQ3JFHMOAAAAU0lEQVR4AQXBgQ3CMBAAMV8+Iuy/LKhUgB0kRchDfksRbU59R1Xd14If51QNK3Ndc6im7Hg63DVhr/kct2pSr8WRahIWUk1i2XrHo7tYbB8IL/AHd28PeH6kKkoAAAAASUVORK5CYII=\" alt=\"中文 (繁体字)\" width=\"16\" height=\"11\" style=\"width: 16px; height: 11px;\" />",
+        "href": "https://www.foodinjapan.org/zh/"
+      },
+      {
+        "text": "<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAMAAABBPP0LAAAAh1BMVEXx9/Xt8vLp7+/l6urg5eT+/v7a29vGxsb19fXz8vO8u7zLy8v5+fnr6+qKiop+fX782dlkY2N3d3fZ4d+ur6799vX6kZD7RUX6Pz75eHXo6OjzsrbpOkO2nsRkbb9RasbHeZPS2tirxfAybtqkrdrU1tR6ouZskt1VVVVpaWnI1e3O09Gfn58iHIdTAAAAh0lEQVR4ASXIA3JEARQF0b4PsW0Vs//1xDbGno8+xRZ1KqBKImkEhKThMGBO6rDIsL+opq0G9OZyRkW/PhJ4Yf1tfaKw+BoZvWLQ9mUrmulIHJhg29M9I3IMGJy1lp5ng7ievZDC4Ibt4/vZ2fvLLYkZt/noD8ednx+0+N5nXSYEqzQOYQGYAgnRIeEuj5p0AAAAAElFTkSuQmCC\" alt=\"한국어\" width=\"16\" height=\"11\" style=\"width: 16px; height: 11px;\" />",
+        "href": "https://www.foodinjapan.org/ko/"
+      },
+      {
+        "text": "<img src=\"https://www.foodinjapan.org/wp-content/uploads/2025/02/folder.svg\" width=\"30\" height=\"30\" alt=\"Folder Icon\"/>\nJapanese Food by Photo",
+        "href": "https://www.foodinjapan.org/choose-japanese-food-by-photo/"
+      },
+      {
+        "text": "<img src=\"https://www.foodinjapan.org/wp-content/uploads/2025/02/writing.svg\" width=\"30\" height=\"30\" alt=\"Article Icon\"/>\nJapanese Food Articles",
+        "href": "https://www.foodinjapan.org/category/article/"
+      },
+      {
+        "text": "<img src=\"https://www.foodinjapan.org/wp-content/uploads/2025/02/location.svg\" width=\"30\" height=\"30\" alt=\"Location Icon\"/>\nJapanese Food by Area",
+        "href": "https://www.foodinjapan.org/japanese-food-by-area/"
+      },
+      {
+        "text": "<img width=\"1280\" height=\"851\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/Kintoki_ninjin_by_titanium22_in_Nishiki_Ichiba_Kyoto.avif\" alt=\"Kyoto red carrot (京にんじん)\" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Kyoto red carrot (京にんじん)",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/kyoto-red-carrot/"
+      },
+      {
+        "text": "<img width=\"1024\" height=\"768\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/30amanaga1-1-1.avif\" alt=\"Fushimi Togarashi (伏見とうがらし)\" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Fushimi Togarashi (伏見とうがらし)",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/fushimi-togarashi/"
+      },
+      {
+        "text": "<img width=\"1280\" height=\"853\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/276706-shutterstock_50614705.avif\" alt=\"Kyona (京菜) \" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Kyona (京菜)",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/kyona/"
+      },
+      {
+        "text": "<img width=\"1024\" height=\"762\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/nasu1-1.avif\" alt=\"Kamo nasu (賀茂なす) \" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Kamo nasu (賀茂なす)",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/kamo-nasu/"
+      },
+      {
+        "text": "<img width=\"1024\" height=\"683\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/09/Winter-food-2025.avif\" alt=\"japan winter food 2025\" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >2025 Winter Japan Food Travel Guide: A Culinary Journey Through Seasonal Delicacies and Regional Specialties",
+        "href": "https://www.foodinjapan.org/japan/2025-winter-japan-food-travel-guide-a-culinary-journey-through-seasonal-delicacies-and-regional-specialties/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2022/11/FoodinJapanLogo.png.webp \" sizes=\"(max-width: 959px) 50vw, 800px\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2022/11/FoodinJapanLogo.png.webp\" height=\"85\" width=\"340\" sizes=\"(max-width: 959px) 50vw, 800px\" class=\"c-headLogo__img sp-no-webp\" alt=\"Food in Japan\" decoding=\"async\" loading=\"eager\"  > </picture>",
+        "href": "https://www.foodinjapan.org/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2022/11/FoodinJapanLogo.png.webp \" sizes=\"(max-width: 959px) 50vw, 800px\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2022/11/FoodinJapanLogo.png.webp\" height=\"85\" width=\"340\" sizes=\"(max-width: 959px) 50vw, 800px\" class=\"c-headLogo__img sp-no-webp\" alt=\"Food in Japan\" decoding=\"async\" loading=\"eager\"  > </picture>",
+        "href": "https://www.foodinjapan.org/"
+      },
+      {
+        "text": "Kansai\n\nKyoto\nKyoto red carrot (京にんじん)\n\n\nDate\t\t\n\n\n\n\n\n\n\n20 hours ago\t\n\n\nReading Time\t\t\n\n\n\n\n\n\n3 Mins Read\t\nThe Kyoto Red Carrot, known in Japan as Kintoki Ninjin, is a prized vegetable of the Japanese winter. It stands out because…",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/kyoto-red-carrot/"
+      },
+      {
+        "text": "Kansai\n\nKyoto\nFushimi Togarashi (伏見とうがらし)\n\n\nDate\t\t\n\n\n\n\n\n\n\n2 days ago\t\n\n\nReading Time\t\t\n\n\n\n\n\n\n3 Mins Read\t\nFushimi Togarashi is a key food in Kyoto’s seasonal cooking. Locals valued this not for being hot, but for a special,…",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/fushimi-togarashi/"
+      },
+      {
+        "text": "Kansai\n\nKyoto\nKyona (京菜) \n\n\nDate\t\t\n\n\n\n\n\n\n\n3 days ago\t\n\n\nReading Time\t\t\n\n\n\n\n\n\n3 Mins Read\t\nThis article is about Kyona (京菜), a key Japanese leafy green that most people know as Mizuna. We’ll look at why it’s a…",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/kyona/"
+      },
+      {
+        "text": "Kansai\n\nKyoto\nKamo nasu (賀茂なす) \n\n\nDate\t\t\n\n\n\n\n\n\n\n4 days ago\t\n\n\nReading Time\t\t\n\n\n\n\n\n\n3 Mins Read\t\nThe Kamo Eggplant, or Kamo nasu, is a celebrated summer vegetable from Kyoto. You can spot it right away by its large,…",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/kamo-nasu/"
+      },
+      {
+        "text": "<img decoding=\"async\" width=\"1024\" height=\"683\" src=\"https://www.foodinjapan.org/wp-content/uploads/2025/09/Winter-food-2025.avif\" class=\"wp-image-30529\" alt=\"japan winter food 2025\" />",
+        "href": "https://www.foodinjapan.org/japan/2025-winter-japan-food-travel-guide-a-culinary-journey-through-seasonal-delicacies-and-regional-specialties/"
+      },
+      {
+        "text": "Article\n\nJapan\n2025 Winter Japan Food Travel Guide: A Culinary Journey Through Seasonal Delicacies and Regional Specialties\n\n\nDate\t\t\n\n\n\n\n\n\n\n5 days ago\t\n\n\nReading Time\t\t\n\n\n\n\n\n\n7 Mins Read\t\nThe Enduring Flavors of a Japanese Winter Japanese winter food is a profound expression of the nation’s culinary philosophy, centered…",
+        "href": "https://www.foodinjapan.org/japan/2025-winter-japan-food-travel-guide-a-culinary-journey-through-seasonal-delicacies-and-regional-specialties/"
+      },
+      {
+        "text": "<img decoding=\"async\" width=\"1280\" height=\"851\" src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/s-awayuki.avif\" class=\"wp-image-30931\" alt=\"awayuki straberry\" />",
+        "href": "https://www.foodinjapan.org/japan/awayuki-strawberries/"
+      },
+      {
+        "text": "Japan\nAwayuki Strawberries (淡雪いちご) – The Elegant White Japanese Strawberry\n\n\nDate\t\t\n\n\n\n\n\n\n\n6 days ago\t\n\n\nReading Time\t\t\n\n\n\n\n\n\n5 Mins Read\t\nAmong premium Japanese strawberries, Awayuki (淡雪) stands out for its delicate pink-white color and luxurious sweetness. Known as the “Queen…",
+        "href": "https://www.foodinjapan.org/japan/awayuki-strawberries/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2025/07/41_1_l.avif \"  type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2025/07/41_1_l.webp \"  type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2025/07/41_1_l.jpg\" height=\"565\" width=\"850\" class=\"wp-image-28761 sp-no-webp\" alt=\"Heshiko (ヘしこ)\" decoding=\"async\"  > </picture>",
+        "href": "https://www.foodinjapan.org/chubu/fukui-chubu/heshiko/"
+      },
+      {
+        "text": "Chubu\n\nFukui\nHeshiko (ヘしこ)\n\n\nDate\t\t\n\n\n\n\n\n\n\n1 week ago\t\n\n\nReading Time\t\t\n\n\n\n\n\n\n3 Mins Read\t\nStep into the flavorful world of Heshiko, a traditional Japanese preserved fish dish that tells a story of patience, history,…",
+        "href": "https://www.foodinjapan.org/chubu/fukui-chubu/heshiko/"
+      },
+      {
+        "text": "<img decoding=\"async\" width=\"1280\" height=\"854\" src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/Japanese-Cuisine-of-Event-Catering2.avif\" class=\"wp-image-30815\" alt=\"Japanese Cuisine of Event Catering2\" />",
+        "href": "https://www.foodinjapan.org/japan/how-japanese-cuisine-can-transform-business-event-catering/"
+      },
+      {
+        "text": "Japan\nHow Japanese Cuisine Can Transform Business Event Catering\n\n\nDate\t\t\n\n\n\n\n\n\n\n1 week ago\t\n\n\nReading Time\t\t\n\n\n\n\n\n\n4 Mins Read\t\nJapanese cuisine, known for its artful presentation and intricate flavors, offers a unique approach to business event catering that can…",
+        "href": "https://www.foodinjapan.org/japan/how-japanese-cuisine-can-transform-business-event-catering/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2025/07/fukui_26_1.avif \"  type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2025/07/fukui_26_1.webp \"  type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2025/07/fukui_26_1.jpg\" height=\"566\" width=\"850\" class=\"wp-image-28683 sp-no-webp\" alt=\"Seige (せいげ)\" decoding=\"async\"  > </picture>",
+        "href": "https://www.foodinjapan.org/chubu/fukui-chubu/seige/"
+      },
+      {
+        "text": "Chubu\n\nFukui\nSeige (せいげ)\n\n\nDate\t\t\n\n\n\n\n\n\n\n1 week ago\t\n\n\nReading Time\t\t\n\n\n\n\n\n\n3 Mins Read\t\nFukui Prefecture during the colder months will make you likely encounter the inviting aroma of Seige, a humble yet hearty…",
+        "href": "https://www.foodinjapan.org/chubu/fukui-chubu/seige/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2025/08/tochigi_1_2.avif \"  type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2025/08/tochigi_1_2.webp \"  type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2025/08/tochigi_1_2.jpg\" height=\"566\" width=\"850\" class=\"wp-image-29235 sp-no-webp\" alt=\"Shimotsukare (しもつかれ)\" decoding=\"async\"  > </picture>",
+        "href": "https://www.foodinjapan.org/kanto/tochigi-en/shimotsukare/"
+      },
+      {
+        "text": "Kanto\n\nTochigi\nShimotsukare (しもつかれ)\n\n\nDate\t\t\n\n\n\n\n\n\n\n2 weeks ago\t\n\n\nReading Time\t\t\n\n\n\n\n\n\n3 Mins Read\t\nShimotsukare is a unique and traditional dish from the Tochigi and Ibaraki prefectures in Japan. Often described as a rustic…",
+        "href": "https://www.foodinjapan.org/kanto/tochigi-en/shimotsukare/"
+      },
+      {
+        "text": "2",
+        "href": "https://www.foodinjapan.org/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true&vp_page=2"
+      },
+      {
+        "text": "3",
+        "href": "https://www.foodinjapan.org/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true&vp_page=3"
+      },
+      {
+        "text": "79",
+        "href": "https://www.foodinjapan.org/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true&vp_page=79"
+      },
+      {
+        "text": "<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAMAAABBPP0LAAAAflBMVEX/AAD9AAD3AADxAADrAAD/eXn9bGz8YWH8WVn6UVH5SEj5Pz/3NDT0Kir9/QD+/nL+/lT18lDt4Uf6+j/39zD39yf19R3n5wDxflXsZ1Pt4Y3x8zr0wbLs1NXz8xPj4wD37t3jmkvsUU/Bz6nrykm3vJ72IiL0FBTyDAvhAABEt4UZAAAAX0lEQVR4AQXBQUrFQBBAwXqTDkYE94Jb73+qfwVRcYxVQRBRToiUfoaVpGTrtdS9SO0Z9FR9lVy/g5c99+dKl30N5uxPuviexXEc9/msC7TOkd4kHu/Dlh4itCJ8AP4B0w4Qwmm7CFQAAAAASUVORK5CYII=\" alt=\"Español\" width=\"16\" height=\"11\" style=\"width: 16px; height: 11px;\" />",
+        "href": "https://www.foodinjapan.org/es/"
+      },
+      {
+        "text": "<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAMAAABBPP0LAAAAbFBMVEVzldTg4ODS0tLxDwDtAwDjAADD0uz39/fy8vL3k4nzgna4yOixwuXu7u7s6+zn5+fyd2rvcGPtZljYAABrjNCpvOHrWkxegsqfs93NAADpUUFRd8THAABBa7wnVbERRKa8vLyxsLCoqKigoKClCvcsAAAAXklEQVR4AS3JxUEAQQAEwZo13Mk/R9w5/7UERJCIGIgj5qfRJZEpPyNfCgJTjMR1eRRnJiExFJz5Mf1PokWr/UztIjRGQ3V486u0HO55m634U6dMcf0RNPfkVCTvKjO16xHA8miowAAAAABJRU5ErkJggg==\" alt=\"Français\" width=\"16\" height=\"11\" style=\"width: 16px; height: 11px;\" />",
+        "href": "https://www.foodinjapan.org/fr/"
+      },
+      {
+        "text": "<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAMAAABBPP0LAAAAVFBMVEUAILQAGrEAEazhAAD5AADwAACBot+5ued2mNv6aWv7X1/5UVHoAACWltz5+fz+/v5ahNPyRkv5QkL5OTn2MTH3Kir1JiZOe87rOkb1Hh70FRXyDQ3JFHMOAAAAU0lEQVR4AQXBgQ3CMBAAMV8+Iuy/LKhUgB0kRchDfksRbU59R1Xd14If51QNK3Ndc6im7Hg63DVhr/kct2pSr8WRahIWUk1i2XrHo7tYbB8IL/AHd28PeH6kKkoAAAAASUVORK5CYII=\" alt=\"中文 (繁体字)\" width=\"16\" height=\"11\" style=\"width: 16px; height: 11px;\" />",
+        "href": "https://www.foodinjapan.org/zh/"
+      },
+      {
+        "text": "<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAMAAABBPP0LAAAAh1BMVEXx9/Xt8vLp7+/l6urg5eT+/v7a29vGxsb19fXz8vO8u7zLy8v5+fnr6+qKiop+fX782dlkY2N3d3fZ4d+ur6799vX6kZD7RUX6Pz75eHXo6OjzsrbpOkO2nsRkbb9RasbHeZPS2tirxfAybtqkrdrU1tR6ouZskt1VVVVpaWnI1e3O09Gfn58iHIdTAAAAh0lEQVR4ASXIA3JEARQF0b4PsW0Vs//1xDbGno8+xRZ1KqBKImkEhKThMGBO6rDIsL+opq0G9OZyRkW/PhJ4Yf1tfaKw+BoZvWLQ9mUrmulIHJhg29M9I3IMGJy1lp5ng7ievZDC4Ibt4/vZ2fvLLYkZt/noD8ednx+0+N5nXSYEqzQOYQGYAgnRIeEuj5p0AAAAAElFTkSuQmCC\" alt=\"한국어\" width=\"16\" height=\"11\" style=\"width: 16px; height: 11px;\" />",
+        "href": "https://www.foodinjapan.org/ko/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2022/01/monjyayaki.avif \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2022/01/monjyayaki.webp \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2022/01/monjyayaki.jpg\" height=\"576\" width=\"1024\" sizes=\"(min-width: 600px) 320px, 50vw\" class=\"c-postThumb__img u-obf-cover sp-no-webp\" alt=\"monjyayaki\"  > </picture>Monjayaki (もんじゃ焼き)",
+        "href": "https://www.foodinjapan.org/kanto/monjayaki/"
+      },
+      {
+        "text": "<img width=\"850\" height=\"567\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2019/11/04きりたんぽ鍋.avif\" alt=\"Kiritanpo\" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Kiritanpo (きりたんぽ)",
+        "href": "https://www.foodinjapan.org/tohoku/kiritanpo/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2024/06/washoku.avif \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2024/06/washoku.webp \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2024/06/washoku.jpg\" height=\"567\" width=\"850\" sizes=\"(min-width: 600px) 320px, 50vw\" class=\"c-postThumb__img u-obf-cover sp-no-webp\" alt=\"和食 ( washoku )\"  > </picture>Washoku (和食)",
+        "href": "https://www.foodinjapan.org/japan/washoku/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2021/09/mochi.avif \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2021/09/mochi.webp \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2021/09/mochi.jpg\" height=\"567\" width=\"850\" sizes=\"(min-width: 600px) 320px, 50vw\" class=\"c-postThumb__img u-obf-cover sp-no-webp\" alt=\"mochi (rice cake)\"  > </picture>Mochi (餅)",
+        "href": "https://www.foodinjapan.org/japan/mochi/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2024/06/sukiyaki.avif \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2024/06/sukiyaki.webp \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2024/06/sukiyaki.jpg\" height=\"600\" width=\"900\" sizes=\"(min-width: 600px) 320px, 50vw\" class=\"c-postThumb__img u-obf-cover sp-no-webp\" alt=\"壽喜燒sukiyaki\"  > </picture>Sukiyaki (すき焼き)",
+        "href": "https://www.foodinjapan.org/kansai/hyougo/sukiyaki/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2023/07/24759236_m.webp \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2023/07/24759236_m.jpg\" height=\"768\" width=\"1024\" sizes=\"(min-width: 600px) 320px, 50vw\" class=\"c-postThumb__img u-obf-cover sp-no-webp\" alt=\"Okinawa soba (沖縄そば)\"  > </picture>Okinawa soba (沖縄そば)",
+        "href": "https://www.foodinjapan.org/kyushu/okinawa/okinawa-soba/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2020/01/shirasu-header.avif \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2020/01/shirasu-header.webp \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2020/01/shirasu-header.jpg\" height=\"450\" width=\"600\" sizes=\"(min-width: 600px) 320px, 50vw\" class=\"c-postThumb__img u-obf-cover sp-no-webp\" alt=\"shirasu\"  > </picture>Shirasu (しらす)",
+        "href": "https://www.foodinjapan.org/kanto/kanagawa-en/shirasu/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2024/06/nerikiri.avif \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2024/06/nerikiri.webp \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2024/06/nerikiri.jpg\" height=\"683\" width=\"1024\" sizes=\"(min-width: 600px) 320px, 50vw\" class=\"c-postThumb__img u-obf-cover sp-no-webp\" alt=\"nerikiri\"  > </picture>Nerikiri (練り切り)",
+        "href": "https://www.foodinjapan.org/kanto/tokyo-en/nerikiri/"
+      },
+      {
+        "text": "<img width=\"1269\" height=\"714\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2023/12/20250329_130155.avif\" alt=\"sushi\" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Sushi (寿司)",
+        "href": "https://www.foodinjapan.org/japan/sushi/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2021/12/b1d9eb2d-osechi.avif \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2021/12/b1d9eb2d-osechi.jpg.webp \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2021/12/b1d9eb2d-osechi.jpg.webp\" height=\"683\" width=\"1024\" sizes=\"(min-width: 600px) 320px, 50vw\" class=\"c-postThumb__img u-obf-cover sp-no-webp\" alt=\"Osechi (おせち)\"  > </picture>Osechi (おせち)",
+        "href": "https://www.foodinjapan.org/japan/osechi/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2025/08/Choose-Japanese-Food-By-Photo.avif \"  type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2025/08/Choose-Japanese-Food-By-Photo.webp \"  type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2025/08/Choose-Japanese-Food-By-Photo.jpg\" class=\" sp-no-webp\" alt=\"Choose Japanese Food By Photo — Food in Japan\" style=\"display:block; width:100%; max-width:1200px; height:auto; object-fit:cover; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.08);\"  > </picture>",
+        "href": "https://www.foodinjapan.org/choose-japanese-food-by-photo/"
+      },
+      {
+        "text": "<img width=\"1280\" height=\"851\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/Kintoki_ninjin_by_titanium22_in_Nishiki_Ichiba_Kyoto.avif\" alt=\"Kyoto red carrot (京にんじん)\" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Kyoto red carrot (京にんじん)\n2025年10月15日",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/kyoto-red-carrot/"
+      },
+      {
+        "text": "<img width=\"1024\" height=\"768\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/30amanaga1-1-1.avif\" alt=\"Fushimi Togarashi (伏見とうがらし)\" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Fushimi Togarashi (伏見とうがらし)\n2025年10月14日",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/fushimi-togarashi/"
+      },
+      {
+        "text": "<img width=\"1280\" height=\"853\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/276706-shutterstock_50614705.avif\" alt=\"Kyona (京菜) \" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Kyona (京菜) \n2025年10月13日",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/kyona/"
+      },
+      {
+        "text": "<img width=\"1024\" height=\"762\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/nasu1-1.avif\" alt=\"Kamo nasu (賀茂なす) \" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Kamo nasu (賀茂なす) \n2025年10月12日",
+        "href": "https://www.foodinjapan.org/kansai/kyoto/kamo-nasu/"
+      },
+      {
+        "text": "<img width=\"1024\" height=\"683\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/09/Winter-food-2025.avif\" alt=\"japan winter food 2025\" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >2025 Winter Japan Food Travel Guide: A Culinary Journey Through Seasonal Delicacies and Regional Specialties\n2025年10月11日",
+        "href": "https://www.foodinjapan.org/japan/2025-winter-japan-food-travel-guide-a-culinary-journey-through-seasonal-delicacies-and-regional-specialties/"
+      },
+      {
+        "text": "<img width=\"1280\" height=\"851\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/s-awayuki.avif\" alt=\"awayuki straberry\" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >Awayuki Strawberries (淡雪いちご) – The Elegant White Japanese Strawberry\n2025年10月10日",
+        "href": "https://www.foodinjapan.org/japan/awayuki-strawberries/"
+      },
+      {
+        "text": "<picture><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2025/07/41_1_l.avif \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/avif\"><source srcset=\"https://www.foodinjapan.org/wp-content/uploads/2025/07/41_1_l.webp \" sizes=\"(min-width: 600px) 320px, 50vw\" type=\"image/webp\"><img src=\"https://www.foodinjapan.org/wp-content/uploads/2025/07/41_1_l.jpg\" height=\"565\" width=\"850\" sizes=\"(min-width: 600px) 320px, 50vw\" class=\"c-postThumb__img u-obf-cover sp-no-webp\" alt=\"Heshiko (ヘしこ)\"  > </picture>Heshiko (ヘしこ)\n2025年10月9日",
+        "href": "https://www.foodinjapan.org/chubu/fukui-chubu/heshiko/"
+      },
+      {
+        "text": "<img width=\"1280\" height=\"854\"  src=\"https://www.foodinjapan.org/wp-content/uploads/2025/10/Japanese-Cuisine-of-Event-Catering2.avif\" alt=\"Japanese Cuisine of Event Catering2\" class=\"c-postThumb__img u-obf-cover\" sizes=\"(min-width: 600px) 320px, 50vw\" >How Japanese Cuisine Can Transform Business Event Catering\n2025年10月8日",
+        "href": "https://www.foodinjapan.org/japan/how-japanese-cuisine-can-transform-business-event-catering/"
+      },
+      {
+        "text": "Contact Page",
+        "href": "https://www.foodinjapan.org/contact-page/"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://www.foodinjapan.org/privacy-policy/"
+      },
+      {
+        "text": "Monjayaki - もんじゃ焼き",
+        "href": "https://www.foodinjapan.org/kanto/monjayaki/"
+      },
+      {
+        "text": "Sukiyaki - すき焼き",
+        "href": "https://foodinjapan.org/kansai/hyougo/sukiyaki/"
+      },
+      {
+        "text": "Oden - おでん",
+        "href": "https://foodinjapan.org/japan/oden/"
+      },
+      {
+        "text": "Okonomiyaki - お好み焼き",
+        "href": "https://foodinjapan.org/japan/okonomiyaki/"
+      },
+      {
+        "text": "Natto - 納豆",
+        "href": "https://foodinjapan.org/kanto/ibaraki/natto/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Español",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='11'%20viewBox='0%200%2016%2011'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Français",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='11'%20viewBox='0%200%2016%2011'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "中文 (繁体字)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='11'%20viewBox='0%200%2016%2011'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "한국어",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='11'%20viewBox='0%200%2016%2011'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Folder Icon",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='30'%20height='30'%20viewBox='0%200%2030%2030'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Article Icon",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='30'%20height='30'%20viewBox='0%200%2030%2030'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Location Icon",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='30'%20height='30'%20viewBox='0%200%2030%2030'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Kyoto red carrot (京にんじん)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1280'%20height='851'%20viewBox='0%200%201280%20851'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Fushimi Togarashi (伏見とうがらし)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='768'%20viewBox='0%200%201024%20768'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Kyona (京菜) ",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1280'%20height='853'%20viewBox='0%200%201280%20853'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Kamo nasu (賀茂なす) ",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='762'%20viewBox='0%200%201024%20762'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "japan winter food 2025",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='683'%20viewBox='0%200%201024%20683'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Food in Japan",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='340'%20height='85'%20viewBox='0%200%20340%2085'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Food in Japan",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='340'%20height='85'%20viewBox='0%200%20340%2085'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Visual Portfolio, Posts & Image Gallery for WordPress",
+        "src": "https://www.foodinjapan.org/wp-content/plugins/visual-portfolio/assets/images/logo-dark.svg"
+      },
+      {
+        "alt": "Kyoto red carrot (京にんじん)",
+        "src": "https://www.foodinjapan.org/wp-content/uploads/2025/10/Kintoki_ninjin_by_titanium22_in_Nishiki_Ichiba_Kyoto.avif"
+      },
+      {
+        "alt": "Fushimi Togarashi (伏見とうがらし)",
+        "src": "https://www.foodinjapan.org/wp-content/uploads/2025/10/30amanaga1-1-1.avif"
+      },
+      {
+        "alt": "Kyona (京菜) ",
+        "src": "https://www.foodinjapan.org/wp-content/uploads/2025/10/276706-shutterstock_50614705.avif"
+      },
+      {
+        "alt": "Kamo nasu (賀茂なす) ",
+        "src": "https://www.foodinjapan.org/wp-content/uploads/2025/10/nasu1-1.avif"
+      },
+      {
+        "alt": "japan winter food 2025",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='683'%20viewBox='0%200%201024%20683'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "awayuki straberry",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1280'%20height='851'%20viewBox='0%200%201280%20851'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Heshiko (ヘしこ)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='850'%20height='565'%20viewBox='0%200%20850%20565'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Japanese Cuisine of Event Catering2",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1280'%20height='854'%20viewBox='0%200%201280%20854'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Seige (せいげ)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='850'%20height='566'%20viewBox='0%200%20850%20566'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Shimotsukare (しもつかれ)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='850'%20height='566'%20viewBox='0%200%20850%20566'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Español",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='11'%20viewBox='0%200%2016%2011'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Français",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='11'%20viewBox='0%200%2016%2011'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "中文 (繁体字)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='11'%20viewBox='0%200%2016%2011'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "한국어",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='11'%20viewBox='0%200%2016%2011'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "monjyayaki",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='576'%20viewBox='0%200%201024%20576'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Kiritanpo",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='850'%20height='567'%20viewBox='0%200%20850%20567'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "和食 ( washoku )",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='850'%20height='567'%20viewBox='0%200%20850%20567'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "mochi (rice cake)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='850'%20height='567'%20viewBox='0%200%20850%20567'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "壽喜燒sukiyaki",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='900'%20height='600'%20viewBox='0%200%20900%20600'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Okinawa soba (沖縄そば)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='768'%20viewBox='0%200%201024%20768'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "shirasu",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='600'%20height='450'%20viewBox='0%200%20600%20450'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "nerikiri",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='683'%20viewBox='0%200%201024%20683'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "sushi",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1269'%20height='714'%20viewBox='0%200%201269%20714'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Osechi (おせち)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='683'%20viewBox='0%200%201024%20683'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Choose Japanese Food By Photo — Food in Japan",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='800'%20height='533'%20viewBox='0%200%20800%20533'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Kyoto red carrot (京にんじん)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1280'%20height='851'%20viewBox='0%200%201280%20851'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Fushimi Togarashi (伏見とうがらし)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='768'%20viewBox='0%200%201024%20768'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Kyona (京菜) ",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1280'%20height='853'%20viewBox='0%200%201280%20853'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Kamo nasu (賀茂なす) ",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='762'%20viewBox='0%200%201024%20762'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "japan winter food 2025",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1024'%20height='683'%20viewBox='0%200%201024%20683'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "awayuki straberry",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1280'%20height='851'%20viewBox='0%200%201280%20851'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Heshiko (ヘしこ)",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='850'%20height='565'%20viewBox='0%200%20850%20565'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Japanese Cuisine of Event Catering2",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1280'%20height='854'%20viewBox='0%200%201280%20854'%3E%3C/svg%3E"
+      }
+    ],
+    "timestamp": 1760610450512,
+    "url": "https://www.foodinjapan.org/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+  }
+}

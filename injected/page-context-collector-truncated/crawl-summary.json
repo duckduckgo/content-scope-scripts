@@ -1,0 +1,13 @@
+{
+  "startTime": "2025-10-17T14:19:10.874Z",
+  "endTime": "2025-10-17T14:19:14.451Z",
+  "duration": "4s",
+  "totalProcessed": 1,
+  "successful": 1,
+  "failed": 0,
+  "successRate": "100%",
+  "successfulUrls": [
+    "https://bbc.com"
+  ],
+  "failedUrls": []
+}

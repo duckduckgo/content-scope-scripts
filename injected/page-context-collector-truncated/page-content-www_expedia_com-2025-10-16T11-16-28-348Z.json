@@ -1,0 +1,40 @@
+{
+  "url": "https://www.expedia.com/lp/b/getintouch",
+  "extractedAt": "2025-10-16T11:16:28.348Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.expedia.com/favicon.ico",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://www.expedia.com/favicon.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.expedia.com/favicon.ico",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "Bot or Not?",
+    "metaDescription": "",
+    "content": "## Show us your human side...\nWe can't tell if you're a human or a bot.\n2f8e2868-0f42-4565-a493-87d816025cca",
+    "truncated": false,
+    "fullContentLength": 108,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Show us your human side..."
+      }
+    ],
+    "links": [],
+    "images": [
+      {
+        "alt": "www.expedia.com",
+        "src": "https://www.expedia.com/_dms/header/logo.svg?locale=en_US&siteid=undefined"
+      }
+    ],
+    "timestamp": 1760613387151,
+    "url": "https://www.expedia.com/lp/b/getintouch?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

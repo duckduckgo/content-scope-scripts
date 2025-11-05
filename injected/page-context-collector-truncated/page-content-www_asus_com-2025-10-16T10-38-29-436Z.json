@@ -1,0 +1,252 @@
+{
+  "url": "https://www.asus.com/support/faq/1049829/",
+  "extractedAt": "2025-10-16T10:38:29.436Z",
+  "content": {
+    "favicon": [],
+    "title": "[Motherboard] How to enable or disable Secure Boot ? | Official Support | ASUS Global",
+    "metaDescription": "",
+    "content": "[ASUS](https://www.asus.com/) [Support](https://www.asus.com/support/) [FAQ](https://www.asus.com/support/faq/1049829/)     \n## FAQ\n  \n# [Motherboard] How to enable or disable Secure Boot ?\n Last Update : 2023/11/07 17:47  Send to Email         [Motherboard] How to enable or disable Secure Boot ?\n Content\n[**Set Secure Boot state**](#AA)\n[**Check Secure Boot state**](#BB)\n \n \n(For example: ROG MAXIMUS Z790 HERO)\n[**Set Secure Boot state**](#)\n \n1. Power on the system and press [Delete**]** key to enter BIOS [Advanced Mode] as below picture\n\n \n2. Click [Boot] as below picture\n\n \n3. Click [Secure Boot] option as below picture\n\n \n4. OS Type Default is **Other OS**\nOther OS: Secure Boot state is off\nWindows UEFI mode: Secure Boot state is on\n\n \n5. Secure Boot state as below\nSecure Boot State：The option is in gray as default and can't manually set. It is synced with Secure Boot Keys\n \nUser: **with** Secure Boot Keys\nSetup: **no** Secure Boot Keys\nThe Key Management is in gray when Secure Boot Mode is set to **Standard**\nSecure Boot State in BIOSOS TypeSecure Boot ModeKey ManagementSecure Boot State in operating systemUserOther OSCustomerDefaultOffUserOther OSStandardN/AOffSetupOther OSCustomerClear Secure Boot KeysOffSetupWindows UEFI modeCustomerClear Secure Boot KeysOffUserWindows UEFI modeCustomerDefaultOnUserWindows UEFI modeStandardN/AOn \n \n[**Check Secure Boot state**](#)\n1. Press **[WIN]+[R]** key together and then input **msinfo32** as below picture\n\n \n2. Find [Secure Boot State] option. If it shows as **Off **, it means Secure Boot is disabled.\n\n \nIf it shows as **On**, it means Secure Boot is Enabled.\n\n     \n### Was this information helpful?\n Yes No      Contact Support  Please contact with us if the above information cannot resolve your problem  Get the support      \n\n- Above information might be partly or entirely quoted from exterior websites or sources. please refer to the information based on the source that we noted. Please directly contact or inquire the sources if there is any further question and note that ASUS is neither relevant nor responsible for its content/service\n\n- This information may not suitable for all the products from the same category/series. Some of the screen shots and operations could be different from the software versions.\n\n- ASUS provides the above information for reference only. If you have any questions about the content, please contact the above product vendor directly. Please note that ASUS is not responsible for the content or service provided by the above product vendor.\n\n- Brand and product names mentioned are trademarks of their respective companies.",
+    "truncated": false,
+    "fullContentLength": 2639,
+    "headings": [
+      {
+        "level": 2,
+        "text": "FAQ"
+      },
+      {
+        "level": 1,
+        "text": "[Motherboard] How to enable or disable Secure Boot ?"
+      },
+      {
+        "level": 3,
+        "text": "Was this information helpful?"
+      }
+    ],
+    "links": [
+      {
+        "text": "“Cookies and similar technologies”",
+        "href": "https://www.asus.com/Terms_of_Use_Notice_Privacy_Policy/Privacy_Policy"
+      },
+      {
+        "text": "Accessibility help",
+        "href": "https://www.asus.com/content/Accessibility-Policy/"
+      },
+      {
+        "text": "Business",
+        "href": "https://www.asus.com/business/"
+      },
+      {
+        "text": "Environment",
+        "href": "https://www.asus.com/content/sustainability-environment/"
+      },
+      {
+        "text": "Support",
+        "href": "https://www.asus.com/support/"
+      },
+      {
+        "text": "ZenTalk",
+        "href": "https://zentalk.asus.com/"
+      },
+      {
+        "text": "Drivers and manuals",
+        "href": "https://www.asus.com/support/Download-Center/"
+      },
+      {
+        "text": "Check repair status",
+        "href": "https://www.asus.com/support/rma-location"
+      },
+      {
+        "text": "MyASUS",
+        "href": "https://www.asus.com/support/MyASUS-deeplink/"
+      },
+      {
+        "text": "ROG - Republic of Gamers",
+        "href": "https://rog.asus.com/"
+      },
+      {
+        "text": "TUF Gaming",
+        "href": "https://www.asus.com/campaign/tuf-gaming/"
+      },
+      {
+        "text": "Business",
+        "href": "https://www.asus.com/business/"
+      },
+      {
+        "text": "Environment",
+        "href": "https://www.asus.com/content/sustainability-environment/"
+      },
+      {
+        "text": "ASUS",
+        "href": "https://www.asus.com/"
+      },
+      {
+        "text": "Support",
+        "href": "https://www.asus.com/support/"
+      },
+      {
+        "text": "FAQ",
+        "href": "https://www.asus.com/support/faq/1049829/"
+      },
+      {
+        "text": "Set Secure Boot state",
+        "href": "#AA"
+      },
+      {
+        "text": "Check Secure Boot state",
+        "href": "#BB"
+      },
+      {
+        "text": "Set Secure Boot state",
+        "href": "#"
+      },
+      {
+        "text": "Check Secure Boot state",
+        "href": "#"
+      },
+      {
+        "text": "ASUS",
+        "href": "https://www.asus.com/"
+      },
+      {
+        "text": "Support",
+        "href": "https://www.asus.com/support/"
+      },
+      {
+        "text": "FAQ",
+        "href": "https://www.asus.com/support/faq/1049829/"
+      },
+      {
+        "text": "Back to Top",
+        "href": "#"
+      },
+      {
+        "text": "Warranty check",
+        "href": "https://www.asus.com/support/warranty-status-inquiry"
+      },
+      {
+        "text": "Check repair status",
+        "href": "https://www.asus.com/support/rma-location"
+      },
+      {
+        "text": "Find Service Locations",
+        "href": "https://www.asus.com/support/service-center-location"
+      },
+      {
+        "text": "Product Registration",
+        "href": "https://account.asus.com/"
+      },
+      {
+        "text": "ASUS Support Videos",
+        "href": "https://www.youtube.com/c/ASUSCSC"
+      },
+      {
+        "text": "Call Us",
+        "href": "https://www.asus.com/support/CallUs"
+      },
+      {
+        "text": "Email Us",
+        "href": "https://www.asus.com/support/Product/ContactUs/Services/questionform/?lang=en"
+      },
+      {
+        "text": "MyASUS",
+        "href": "https://www.asus.com/support/MyASUS-deeplink/"
+      },
+      {
+        "text": "Customer’s request on personal data",
+        "href": "https://privacy.asus.com/pi/global/privacy"
+      },
+      {
+        "text": "Terms of Use Notice",
+        "href": "https://www.asus.com/terms_of_use_notice_privacy_policy/official-site/"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://www.asus.com/terms_of_use_notice_privacy_policy/privacy_policy/"
+      },
+      {
+        "text": "Export Control and Sanctions Compliance",
+        "href": "https://www.asus.com/terms_of_use_notice_privacy_policy/export-control-and-sanctions-compliance"
+      }
+    ],
+    "images": [
+      {
+        "alt": "ROG",
+        "src": "https://www.asus.com/media/Odin/images/header/ROG_normal.svg"
+      },
+      {
+        "alt": "ROG",
+        "src": "https://www.asus.com/media/Odin/images/header/ROG_hover.svg"
+      },
+      {
+        "alt": "ProArt",
+        "src": "https://www.asus.com/media/Odin/images/header/ProArt_normal.svg"
+      },
+      {
+        "alt": "ProArt",
+        "src": "https://www.asus.com/media/Odin/images/header/ProArt_hover.svg"
+      },
+      {
+        "alt": "ASUS IoT",
+        "src": "https://www.asus.com/media/Odin/images/header/IoT_normal.svg"
+      },
+      {
+        "alt": "ASUS IoT",
+        "src": "https://www.asus.com/media/Odin/images/header/IoT_hover.svg"
+      },
+      {
+        "alt": "close icon",
+        "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCjxwYXRoIGQ9Ik0xOCA2TDYgMThNNiA2TDE4IDE4IiBzdHJva2U9IiMxODE4MTgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPg0KPC9zdmc+DQo="
+      },
+      {
+        "alt": "ROG",
+        "src": "https://www.asus.com/media/Odin/images/header/ROG_hover.svg"
+      },
+      {
+        "alt": "ProArt",
+        "src": "https://www.asus.com/media/Odin/images/header/ProArt_hover.svg"
+      },
+      {
+        "alt": "ASUS IoT",
+        "src": "https://www.asus.com/media/Odin/images/header/IoT_hover.svg"
+      },
+      {
+        "alt": "",
+        "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCjxwYXRoIGQ9Ik0xNCAyTDIgMTRNMiAyTDE0IDE0IiBzdHJva2U9IiM2NjY2NjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPg0KPC9zdmc+DQo="
+      },
+      {
+        "alt": "",
+        "src": "https://kmpic.asus.com/images/2023/02/08/8b2f9823-767e-4946-a13f-df8b757a531e.bmp"
+      },
+      {
+        "alt": "",
+        "src": "https://kmpic.asus.com/images/2023/02/15/7e551419-a6f7-4a82-be9b-ffa163061477.bmp"
+      },
+      {
+        "alt": "",
+        "src": "https://kmpic.asus.com/images/2023/02/16/74e743ce-ea60-4412-b99c-f79d24cc772a.bmp"
+      },
+      {
+        "alt": "",
+        "src": "https://kmpic.asus.com/images/2023/02/16/c46a1294-3d79-4224-b9ac-f38839af8f21.bmp"
+      },
+      {
+        "alt": "",
+        "src": "https://kmpic.asus.com/images/2023/02/28/80e4ee06-0658-4e44-98f7-bddd4106bac1.bmp"
+      },
+      {
+        "alt": "",
+        "src": "https://kmpic.asus.com/images/2023/02/28/30a19455-c4c1-4f8f-b9e8-1945d9001b55.bmp"
+      },
+      {
+        "alt": "",
+        "src": "https://kmpic.asus.com/images/2023/02/28/ed8efbab-d6d3-4b6d-b3dc-c9218bd5fafb.bmp"
+      },
+      {
+        "alt": "Accessibility tooltip",
+        "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF84ODZfODc1MykiPg0KPHBhdGggZD0iTTMgMy41QzQuNSA1IDYgNS41IDggNS41QzEwIDUuNSAxMS41IDUgMTMgMy41IiBzdHJva2U9IiM0RDRENEQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+DQo8cGF0aCBkPSJNMTMgMTIuNUMxMS41IDExIDEwIDEwLjUgOCAxMC41QzYgMTAuNSA0LjUgMTEgMyAxMi41IiBzdHJva2U9IiM0RDRENEQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+DQo8cGF0aCBkPSJNOCAxNUMxMS44NjYgMTUgMTUgMTEuODY2IDE1IDhDMTUgNC4xMzQwMSAxMS44NjYgMSA4IDFDNC4xMzQwMSAxIDEgNC4xMzQwMSAxIDhDMSAxMS44NjYgNC4xMzQwMSAxNSA4IDE1WiIgc3Ryb2tlPSIjNEQ0RDREIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPg0KPHBhdGggZD0iTTggMTVWMSIgc3Ryb2tlPSIjNEQ0RDREIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPg0KPHBhdGggZD0iTTEgNy45OTk1MUgxNSIgc3Ryb2tlPSIjNEQ0RDREIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPg0KPHBhdGggZD0iTTcuOTg2NjUgMS4wMTQ4OUM3Ljk4NjY1IDEuMDE0ODkgNC4xNzIxMiAzLjA4OTQ2IDQuMTcyMTIgNy45ODgxMkM0LjE3MjEyIDEyLjg4NjggNy45ODY2NSAxNC45ODgxIDcuOTg2NjUgMTQuOTg4MSIgc3Ryb2tlPSIjNEQ0RDREIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPg0KPHBhdGggZD0iTTggMS4wMjY4NkM4IDEuMDI2ODYgMTEuODE0NSAzLjEwMTQzIDExLjgxNDUgOC4wMDAwOUMxMS44MTQ1IDEyLjg5ODcgOCAxNS4wMDAxIDggMTUuMDAwMSIgc3Ryb2tlPSIjNEQ0RDREIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPg0KPC9nPg0KPGRlZnM+DQo8Y2xpcFBhdGggaWQ9ImNsaXAwXzg4Nl84NzUzIj4NCjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0id2hpdGUiLz4NCjwvY2xpcFBhdGg+DQo8L2RlZnM+DQo8L3N2Zz4NCg=="
+      }
+    ],
+    "timestamp": 1760611108726,
+    "url": "https://www.asus.com/support/faq/1049829/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,579 @@
+{
+  "url": "https://www.nhc.noaa.gov/",
+  "extractedAt": "2025-10-16T10:58:43.499Z",
+  "content": {
+    "favicon": [],
+    "title": "",
+    "metaDescription": "",
+    "content": "- Analysis & Forecasts\n  \n- Data & Tools\n  \n- Educational Resources\n  \n- Archives\n  \n- About\n  \n- Search\n \n         \n        Top News of the Day... [view past news](/newsarchive.shtml)   Last update Thu, 16 Oct 2025 10:50:11 UTC    \n          \n- [National Hurricane Center Products and Services Update for 2025 Hurricane Season](/pdf/NHC_New_Products_Updates_2025.pdf)\n    \n                          [Central Pacific](?cpac) [Eastern Pacific](?epac) Atlantic          Disturbances: None      \n      [View 2-Day Graphical Tropical Weather Outlook with Satellite](/gtwo.php?basin=atlc&fdays=2)                     [Active Storms](/cyclones/) | [Marine Forecasts](/marine/)                             \n      Atlantic - Caribbean Sea - Gulf of America        ** [Tropical Weather Outlook](/text/refresh/MIATWOAT+shtml/160504_MIATWOAT.shtml) ([en Español](/text/refresh/MIATWOSAT+shtml/160505_MIATWOSAT.shtml)*) ** \n200 AM EDT Thu Oct 16 2025  **[Tropical Weather Discussion](/text/refresh/MIATWDAT+shtml/160843_MIATWDAT.shtml)** \n1215 UTC Thu Oct 16 2025          There are no tropical cyclones in the Atlantic at this time.       \n\n     Eastern North Pacific (East of 140°W)       ** [Tropical Weather Outlook](/text/refresh/MIATWOEP+shtml/160504_MIATWOEP.shtml) ([en Español](/text/refresh/MIATWOSEP+shtml/160504_MIATWOSEP.shtml)*) ** \n1100 PM PDT Wed Oct 15 2025  **[Tropical Weather Discussion](/text/refresh/MIATWDEP+shtml/160942_MIATWDEP.shtml)** \n1005 UTC Thu Oct 16 2025          There are no tropical cyclones in the Eastern Pacific at this time.       \n\n     Central North Pacific (140°W to 180°)       ** [Tropical Weather Outlook](/text/refresh/HFOTWOCP+shtml/160504_HFOTWOCP.shtml) ([en Español](/text/refresh/HFOTWOSCP+shtml/160504_HFOTWOSCP.shtml)*) ** \n800 PM HST Wed Oct 15 2025          There are no tropical cyclones in the Central Pacific at this time.       \n\n      [Marine products from NHC's Tropical Analysis and Forecast Branch](/marine/)      [Preparing for a hurricane](http://weather.gov/hurricanesafety)     [#HurricaneStrong A Partnership with FLASH](/nhcexit.php?outurl=http://www.flash.org/hurricanestrong)     \n\n          [US Dept of Commerce](http://www.commerce.gov)\n [National Oceanic and Atmospheric Administration](http://www.noaa.gov)\n National Hurricane Center\n 11691 SW 17th Street\n Miami, FL, 33165\n [nhcwebmaster@noaa.gov](mailto:nhcwebmaster@noaa.gov) \n    Central Pacific Hurricane Center\n 2525 Correa Rd\n Suite 250\n Honolulu, HI 96822\n [W-HFO.webmaster@noaa.gov](mailto:W-HFO.webmaster@noaa.gov) \n    [Disclaimer](http://www.weather.gov/disclaimer)\n [Information Quality](http://www.cio.noaa.gov/Policy_Programs/info_quality.html)\n [Help](http://www.weather.gov/help)\n [Glossary](http://www.weather.gov/glossary) \n    [Privacy Policy](http://www.weather.gov/privacy)\n [Freedom of Information Act (FOIA)](http://www.rdc.noaa.gov/~foia)\n [About Us](http://www.weather.gov/about)\n [Career Opportunities](http://www.weather.gov/careers)",
+    "truncated": false,
+    "fullContentLength": 2975,
+    "headings": [],
+    "links": [
+      {
+        "text": "commerce.gov/news/blog",
+        "href": "https://commerce.gov/news/blog"
+      },
+      {
+        "text": "Home",
+        "href": "/index.shtml"
+      },
+      {
+        "text": "Mobile Site",
+        "href": "/mobile"
+      },
+      {
+        "text": "Text Version",
+        "href": "?text"
+      },
+      {
+        "text": "RSS",
+        "href": "/aboutrss.shtml"
+      },
+      {
+        "text": "Local Forecast",
+        "href": "https://www.weather.gov"
+      },
+      {
+        "text": "NATIONAL HURRICANE CENTER andCENTRAL PACIFIC HURRICANE CENTER",
+        "href": "/index.php"
+      },
+      {
+        "text": "National Oceanic and Atmospheric Administration",
+        "href": "http://www.noaa.gov"
+      },
+      {
+        "text": "Tropical Cyclone Products",
+        "href": "/cyclones"
+      },
+      {
+        "text": "Tropical Weather Outlooks",
+        "href": "/gtwo.php"
+      },
+      {
+        "text": "Marine Products",
+        "href": "/marine"
+      },
+      {
+        "text": "Rip Currents Map",
+        "href": "/rip-currents/map.html"
+      },
+      {
+        "text": "RSS Feeds",
+        "href": "/aboutrss.shtml"
+      },
+      {
+        "text": "GIS Products",
+        "href": "/gis/"
+      },
+      {
+        "text": "Alternate Formats",
+        "href": "/aboutalternate.shtml"
+      },
+      {
+        "text": "Tropical Cyclone Product Descriptions",
+        "href": "/aboutnhcprod.shtml"
+      },
+      {
+        "text": "Tropical Cyclone Product Examples",
+        "href": "/productexamples/"
+      },
+      {
+        "text": "Marine Product Descriptions",
+        "href": "/abouttafbprod.shtml"
+      },
+      {
+        "text": "Satellite Imagery",
+        "href": "/satellite.php"
+      },
+      {
+        "text": "Radar Imagery",
+        "href": "/radar.php"
+      },
+      {
+        "text": "Aircraft Reconnaissance",
+        "href": "/recon.php"
+      },
+      {
+        "text": "Tropical Analysis Tools",
+        "href": "/analysis_tools.php"
+      },
+      {
+        "text": "Experimental Products",
+        "href": "/experimental/"
+      },
+      {
+        "text": "Lat/Lon Distance Calculator",
+        "href": "/gccalc.shtml"
+      },
+      {
+        "text": "Blank Tracking Maps",
+        "href": "/tracking_charts.shtml"
+      },
+      {
+        "text": "Be Prepared!NWS Hurricane Prep Week",
+        "href": "http://www.weather.gov/wrn/hurricane-preparedness"
+      },
+      {
+        "text": "Outreach Documents",
+        "href": "/outreach"
+      },
+      {
+        "text": "TC Videos",
+        "href": "/TCvideos.shtml"
+      },
+      {
+        "text": "Rip Currents",
+        "href": "/rip-currents/"
+      },
+      {
+        "text": "Storm Surge",
+        "href": "/surge/"
+      },
+      {
+        "text": "Watch/Warning Breakpoints",
+        "href": "/breakpoints/"
+      },
+      {
+        "text": "Climatology",
+        "href": "/climo/"
+      },
+      {
+        "text": "Tropical Cyclone Names",
+        "href": "/aboutnames.shtml"
+      },
+      {
+        "text": "Wind Scale",
+        "href": "/aboutsshws.php"
+      },
+      {
+        "text": "Records and Facts",
+        "href": "/dcmi.shtml"
+      },
+      {
+        "text": "Historical Hurricane Summaries",
+        "href": "/outreach/history"
+      },
+      {
+        "text": "Forecast Models",
+        "href": "/modelsummary.shtml"
+      },
+      {
+        "text": "NHC Publications",
+        "href": "/aboutpubs.shtml"
+      },
+      {
+        "text": "NHC Glossary",
+        "href": "/aboutgloss.shtml"
+      },
+      {
+        "text": "Acronyms",
+        "href": "/acronyms.shtml"
+      },
+      {
+        "text": "Frequent Questions",
+        "href": "/faq.shtml"
+      },
+      {
+        "text": "Tropical Cyclone Advisories",
+        "href": "/archive/2025/"
+      },
+      {
+        "text": "Tropical Weather Outlooks",
+        "href": "/archive/xgtwo/gtwo_archive.php"
+      },
+      {
+        "text": "Tropical Cyclone Reports",
+        "href": "/data/tcr/index.php"
+      },
+      {
+        "text": "Tropical Cyclone Forecast Verification",
+        "href": "/verification/"
+      },
+      {
+        "text": "Atlantic Current Season Summary",
+        "href": "/text/MIATWSAT.shtml"
+      },
+      {
+        "text": "E. Pacific Current Season Summary",
+        "href": "/text/MIATWSEP.shtml"
+      },
+      {
+        "text": "NHC News Archive",
+        "href": "/newsarchive.shtml"
+      },
+      {
+        "text": "Other Archives: HURDAT, Track Maps, Marine Products, and more",
+        "href": "/data/"
+      },
+      {
+        "text": "National Hurricane Center",
+        "href": "/aboutintro.shtml"
+      },
+      {
+        "text": "Central Pacific Hurricane Center",
+        "href": "/aboutcphc.php"
+      },
+      {
+        "text": "Library",
+        "href": "/aboutlibrary.php"
+      },
+      {
+        "text": "Contact Us",
+        "href": "/contact.shtml"
+      },
+      {
+        "text": "view past news",
+        "href": "/newsarchive.shtml"
+      },
+      {
+        "text": "National Hurricane Center Products and Services Update for 2025 Hurricane Season",
+        "href": "/pdf/NHC_New_Products_Updates_2025.pdf"
+      },
+      {
+        "text": "Central Pacific",
+        "href": "?cpac"
+      },
+      {
+        "text": "Eastern Pacific",
+        "href": "?epac"
+      },
+      {
+        "text": "View 2-Day Graphical Tropical Weather Outlook with Satellite",
+        "href": "/gtwo.php?basin=atlc&fdays=2"
+      },
+      {
+        "text": "Active Storms",
+        "href": "/cyclones/"
+      },
+      {
+        "text": "Marine Forecasts",
+        "href": "/marine/"
+      },
+      {
+        "text": "Tropical Weather Outlook",
+        "href": "/text/refresh/MIATWOAT+shtml/160504_MIATWOAT.shtml"
+      },
+      {
+        "text": "en Español",
+        "href": "/text/refresh/MIATWOSAT+shtml/160505_MIATWOSAT.shtml"
+      },
+      {
+        "text": "Tropical Weather Discussion",
+        "href": "/text/refresh/MIATWDAT+shtml/160843_MIATWDAT.shtml"
+      },
+      {
+        "text": "Tropical Weather Outlook",
+        "href": "/text/refresh/MIATWOEP+shtml/160504_MIATWOEP.shtml"
+      },
+      {
+        "text": "en Español",
+        "href": "/text/refresh/MIATWOSEP+shtml/160504_MIATWOSEP.shtml"
+      },
+      {
+        "text": "Tropical Weather Discussion",
+        "href": "/text/refresh/MIATWDEP+shtml/160942_MIATWDEP.shtml"
+      },
+      {
+        "text": "Tropical Weather Outlook",
+        "href": "/text/refresh/HFOTWOCP+shtml/160504_HFOTWOCP.shtml"
+      },
+      {
+        "text": "en Español",
+        "href": "/text/refresh/HFOTWOSCP+shtml/160504_HFOTWOSCP.shtml"
+      },
+      {
+        "text": "Marine products from NHC's Tropical Analysis and Forecast Branch",
+        "href": "/marine/"
+      },
+      {
+        "text": "Preparing for a hurricane",
+        "href": "http://weather.gov/hurricanesafety"
+      },
+      {
+        "text": "#HurricaneStrongA Partnership with FLASH",
+        "href": "/nhcexit.php?outurl=http://www.flash.org/hurricanestrong"
+      },
+      {
+        "text": "Tropical Cyclone Forecasts",
+        "href": "/cyclones/"
+      },
+      {
+        "text": "Tropical Cyclone Advisories",
+        "href": "/cyclones"
+      },
+      {
+        "text": "Tropical Weather Outlook",
+        "href": "/gtwo.php"
+      },
+      {
+        "text": "Audio/Podcasts",
+        "href": "/audio"
+      },
+      {
+        "text": "About Advisories",
+        "href": "/aboutnhcprod.shtml"
+      },
+      {
+        "text": "Marine Forecasts",
+        "href": "/marine"
+      },
+      {
+        "text": "Offshore Waters Forecasts",
+        "href": "/marine/offshores.php"
+      },
+      {
+        "text": "Gridded Forecasts",
+        "href": "/marine/grids.php"
+      },
+      {
+        "text": "Graphicast",
+        "href": "/marine/graphicast.php"
+      },
+      {
+        "text": "About Marine",
+        "href": "/abouttafbprod.shtml"
+      },
+      {
+        "text": "Social Media",
+        "href": "/socialmedia"
+      },
+      {
+        "text": "NHC on Facebook",
+        "href": "/nhcexit.php?outurl=http://www.facebook.com/NWSNHC"
+      },
+      {
+        "text": "NHC on X",
+        "href": "/x.php"
+      },
+      {
+        "text": "NHC on YouTube",
+        "href": "/nhcexit.php?outurl=http://www.youtube.com/user/NWSNHC"
+      },
+      {
+        "text": "NHC Blog:      \"Inside the Eye\"",
+        "href": "/nhcexit.php?outurl=http://noaanhc.wordpress.com/"
+      },
+      {
+        "text": "Hurricane Preparedness",
+        "href": "/prepare"
+      },
+      {
+        "text": "Preparedness Guide",
+        "href": "https://www.weather.gov/safety/hurricane-plan"
+      },
+      {
+        "text": "Hurricane Hazards",
+        "href": "/prepare/hazards.php"
+      },
+      {
+        "text": "Watches and Warnings",
+        "href": "https://www.weather.gov/safety/hurricane-ww"
+      },
+      {
+        "text": "Marine Safety",
+        "href": "/prepare/marine.php"
+      },
+      {
+        "text": "Ready.gov Hurricanes",
+        "href": "http://www.ready.gov/hurricanes"
+      },
+      {
+        "text": "Weather-Ready Nation",
+        "href": "https://www.weather.gov/wrn/force"
+      },
+      {
+        "text": "Emergency Management Offices",
+        "href": "http://www.fema.gov/emergency-management-agencies"
+      },
+      {
+        "text": "Research and Development",
+        "href": "/aboutresearch.shtml"
+      },
+      {
+        "text": "NOAA Hurricane Research Division",
+        "href": "http://www.aoml.noaa.gov/hrd/"
+      },
+      {
+        "text": "Hurricane and Ocean Testbed",
+        "href": "/hot/"
+      },
+      {
+        "text": "Hurricane Forecast Improvement Program",
+        "href": "/nhcexit.php?outurl=http://www.hfip.org"
+      },
+      {
+        "text": "Other Resources",
+        "href": "/aboutintro.shtml"
+      },
+      {
+        "text": "Q & A with NHC",
+        "href": "/qa/"
+      },
+      {
+        "text": "NHC/AOML Library Branch",
+        "href": "http://www.aoml.noaa.gov/general/lib/lib1/nhclib/"
+      },
+      {
+        "text": "NOAA: Hurricane FAQs",
+        "href": "http://www.aoml.noaa.gov/hrd/tcfaq/tcfaqHED.html"
+      },
+      {
+        "text": "National Hurricane Operations Plan",
+        "href": "/nhop"
+      },
+      {
+        "text": "WX4NHC Amateur Radio",
+        "href": "/nhcexit.php?outurl=http://www.wx4nhc.org"
+      },
+      {
+        "text": "NWS Forecast Offices",
+        "href": "http://www.ncep.noaa.gov"
+      },
+      {
+        "text": "Weather Prediction Center",
+        "href": "http://www.wpc.ncep.noaa.gov"
+      },
+      {
+        "text": "Storm Prediction Center",
+        "href": "http://www.spc.noaa.gov"
+      },
+      {
+        "text": "Ocean Prediction Center",
+        "href": "https://ocean.weather.gov"
+      },
+      {
+        "text": "Local Forecast Offices",
+        "href": "http://www.weather.gov"
+      },
+      {
+        "text": "Worldwide Tropical Cyclone Centers",
+        "href": "/aboutrsmc.shtml"
+      },
+      {
+        "text": "Canadian Hurricane Centre",
+        "href": "/nhcexit.php?outurl=https://www.canada.ca/hurricanes"
+      },
+      {
+        "text": "Joint Typhoon Warning Center",
+        "href": "/nhcexit.php?outurl=https://www.metoc.navy.mil/jtwc/jtwc.html"
+      },
+      {
+        "text": "Other Tropical Cyclone Centers",
+        "href": "/aboutrsmc.shtml"
+      },
+      {
+        "text": "WMO Severe Weather Info Centre",
+        "href": "/nhcexit.php?outurl=http://severe.worldweather.org"
+      },
+      {
+        "text": "US Dept of Commerce",
+        "href": "http://www.commerce.gov"
+      },
+      {
+        "text": "National Oceanic and Atmospheric Administration",
+        "href": "http://www.noaa.gov"
+      },
+      {
+        "text": "nhcwebmaster@noaa.gov",
+        "href": "mailto:nhcwebmaster@noaa.gov"
+      },
+      {
+        "text": "W-HFO.webmaster@noaa.gov",
+        "href": "mailto:W-HFO.webmaster@noaa.gov"
+      },
+      {
+        "text": "Disclaimer",
+        "href": "http://www.weather.gov/disclaimer"
+      },
+      {
+        "text": "Information Quality",
+        "href": "http://www.cio.noaa.gov/Policy_Programs/info_quality.html"
+      },
+      {
+        "text": "Help",
+        "href": "http://www.weather.gov/help"
+      },
+      {
+        "text": "Glossary",
+        "href": "http://www.weather.gov/glossary"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "http://www.weather.gov/privacy"
+      },
+      {
+        "text": "Freedom of Information Act (FOIA)",
+        "href": "http://www.rdc.noaa.gov/~foia"
+      },
+      {
+        "text": "About Us",
+        "href": "http://www.weather.gov/about"
+      },
+      {
+        "text": "Career Opportunities",
+        "href": "http://www.weather.gov/careers"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Skip Navigation Links",
+        "src": "/css/images/skipgraphic.gif"
+      },
+      {
+        "alt": "NOAA",
+        "src": "/css/images/header-noaa.png"
+      },
+      {
+        "alt": "NOAA",
+        "src": "/css/images/header-nws.png"
+      },
+      {
+        "alt": "United States Department of Commerce",
+        "src": "/css/images/header_doc.png"
+      },
+      {
+        "alt": "Search",
+        "src": "/assets/img/usa-icons-bg/search--white.svg"
+      },
+      {
+        "alt": "",
+        "src": "/xgtwo/two_atl_7d0.png"
+      },
+      {
+        "alt": "Atlantic Marine Graphicast",
+        "src": "/images/ndfd_thumb.gif"
+      },
+      {
+        "alt": "Preparing for a hurricane",
+        "src": "/images/Storm_Surge_sm.jpg"
+      },
+      {
+        "alt": "HurricaneStrong graphic",
+        "src": "/images/hurricanestrong.png"
+      },
+      {
+        "alt": "Follow the National Hurricane Center on Facebook",
+        "src": "/css/images/f_logo.png"
+      },
+      {
+        "alt": "Follow the National Hurricane Center on X",
+        "src": "/css/images/x-logo.png"
+      },
+      {
+        "alt": "Subscribe the National Hurricane Center on YouTube",
+        "src": "/css/images/youtube_logo.png"
+      },
+      {
+        "alt": "Read the National Hurricane Center Inside the Eye blog on WordPress",
+        "src": "/css/images/w_logo.png"
+      },
+      {
+        "alt": "usa.gov",
+        "src": "/css/images/usa_gov.png"
+      }
+    ],
+    "timestamp": 1760612323113,
+    "url": "https://www.nhc.noaa.gov/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

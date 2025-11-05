@@ -1,0 +1,693 @@
+{
+  "url": "https://www.timeanddate.com/date/duration.html",
+  "extractedAt": "2025-10-16T09:56:20.903Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://c.tadst.com/favicon-48x48.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://c.tadst.com/favicon-16x16.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://c.tadst.com/favicon-32x32.png",
+        "rel": "icon"
+      }
+    ],
+    "title": "Date Duration Calculator: Days Between Dates",
+    "metaDescription": "The Duration Calculator calculates the number of days, months and years between two dates.",
+    "content": "## Start Date\nDay: / Month: / Year:Date: [Today](#)\n\n## End Date\nDay: / Month: / Year:Date: [Today](#)\nInclude end date in calculation (1 day is added)[Add time fields](/date/timeduration.html?y1=2025&m1=10&d1=16&h1=0&i1=0&s1=0&y2=2025&m2=10&d2=16&h2=0&i2=0&s2=0)\n[Add time zone conversion](/date/timezoneduration.html?y1=2025&m1=10&d1=16&h1=0&i1=0&s1=0&y2=2025&m2=10&d2=16&h2=0&i2=0&s2=0)[Count only workdays](/date/workdays.html?y1=2025&m1=10&d1=16&y2=2025&m2=10&d2=16)[Need some help?](/date/duration-help.html)\n[Calendar with Logo (PDF)Add your company logo to our printable calendars.](/services/calendar-logo.html)[Date Calculator APIFind a specific business date and calculate the working days in a given period.](https://dev.timeanddate.com/calculator/)\n## Help and Example Use\n\n\n- [Some typical uses for the Date Calculators](/date/calculatoruses.html)\n\n\n## API Services for Developers\n\n\n- [API for Business Date Calculators](https://dev.timeanddate.com/calculator/)\n\n\n## Date Calculators\n\n\n- [Time and Date Duration](/date/timeduration.html) – Calculate duration, with both date and time included\n\n- [Date Calculator](/date/dateadd.html) – Add or subtract days, months, years\n\n- [Weekday Calculator](/date/weekday.html) – What day is this date?\n\n- [Birthday Calculator](/date/birthday.html) – Find when you are 1 billion seconds old\n\n- [Week Number Calculator](/date/weeknumber.html) – Find the week number for any date\n\n\n## Related Links\n\n\n- [Calendar & Holidays Overview](/calendar/info.html) – Explore calendar tools\n\n- [Calendar Generator](/calendar/generate.html) – Create a calendar for any year\n\n- [The World Clock](/worldclock/) – Current time all over the world\n\n- [Countdown to Any Date](/countdown/create) – Create your own countdown\n\nAdvertising",
+    "truncated": false,
+    "fullContentLength": 1767,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Days Calculator: Days Between Two Dates"
+      },
+      {
+        "level": 2,
+        "text": "Start Date"
+      },
+      {
+        "level": 2,
+        "text": "End Date"
+      },
+      {
+        "level": 4,
+        "text": "Calendar with Logo (PDF)"
+      },
+      {
+        "level": 4,
+        "text": "Date Calculator API"
+      },
+      {
+        "level": 2,
+        "text": "Help and Example Use"
+      },
+      {
+        "level": 2,
+        "text": "API Services for Developers"
+      },
+      {
+        "level": 2,
+        "text": "Date Calculators"
+      },
+      {
+        "level": 2,
+        "text": "Related Links"
+      },
+      {
+        "level": 4,
+        "text": "Love Our Site? Become a Supporter"
+      },
+      {
+        "level": 4,
+        "text": "Company"
+      },
+      {
+        "level": 4,
+        "text": "Legal"
+      },
+      {
+        "level": 4,
+        "text": "Services"
+      },
+      {
+        "level": 4,
+        "text": "Sites"
+      },
+      {
+        "level": 4,
+        "text": "Follow Us"
+      }
+    ],
+    "links": [
+      {
+        "text": "News",
+        "href": "/news/"
+      },
+      {
+        "text": "News Home",
+        "href": "/news"
+      },
+      {
+        "text": "Astronomy News",
+        "href": "/news/astronomy/"
+      },
+      {
+        "text": "Time Zone News",
+        "href": "/news/time/"
+      },
+      {
+        "text": "Calendar & Holiday News",
+        "href": "/news/calendar/"
+      },
+      {
+        "text": "Newsletter",
+        "href": "/newsletter/"
+      },
+      {
+        "text": "Live events",
+        "href": "/live/"
+      },
+      {
+        "text": "World Clock",
+        "href": "/worldclock/"
+      },
+      {
+        "text": "Main World Clock",
+        "href": "/worldclock/"
+      },
+      {
+        "text": "Extended World Clock",
+        "href": "/worldclock/full.html"
+      },
+      {
+        "text": "Personal World Clock",
+        "href": "/worldclock/personal.html"
+      },
+      {
+        "text": "Clock for Your Site",
+        "href": "/clocks/free.html"
+      },
+      {
+        "text": "UTC Time",
+        "href": "/worldclock/timezone/utc"
+      },
+      {
+        "text": "Time Zones",
+        "href": "/time/"
+      },
+      {
+        "text": "Time Zones Home",
+        "href": "/time"
+      },
+      {
+        "text": "Time Zone Converter",
+        "href": "/worldclock/converter.html"
+      },
+      {
+        "text": "Meeting Planner",
+        "href": "/worldclock/meeting.html"
+      },
+      {
+        "text": "Event Time Announcer",
+        "href": "/worldclock/fixedform.html"
+      },
+      {
+        "text": "Time Zone Map",
+        "href": "/time/map/"
+      },
+      {
+        "text": "Time Zone Abbreviations",
+        "href": "/time/zones/"
+      },
+      {
+        "text": "Daylight Saving Time",
+        "href": "/time/dst/"
+      },
+      {
+        "text": "Time Changes Worldwide",
+        "href": "/time/change/"
+      },
+      {
+        "text": "Time Difference",
+        "href": "/time/difference/"
+      },
+      {
+        "text": "Time Zone News",
+        "href": "/news/time/"
+      },
+      {
+        "text": "Calendar",
+        "href": "/calendar/"
+      },
+      {
+        "text": "Calendars Home",
+        "href": "/calendar/info.html"
+      },
+      {
+        "text": "Calendar 2025",
+        "href": "/calendar/"
+      },
+      {
+        "text": "Calendar 2026",
+        "href": "/calendar/?year=2026"
+      },
+      {
+        "text": "Monthly Calendar",
+        "href": "/calendar/monthly.html"
+      },
+      {
+        "text": "Printable Calendar (PDF)",
+        "href": "/calendar/create.html"
+      },
+      {
+        "text": "Add Your Own Calendar Events",
+        "href": "/calendar/events/"
+      },
+      {
+        "text": "Calendar Creator",
+        "href": "/calendar/basic.html"
+      },
+      {
+        "text": "Holidays Worldwide",
+        "href": "/holidays/"
+      },
+      {
+        "text": "On This Day in History",
+        "href": "/on-this-day/"
+      },
+      {
+        "text": "Fun Holidays",
+        "href": "/holidays/fun/"
+      },
+      {
+        "text": "Months of the Year",
+        "href": "/calendar/months/"
+      },
+      {
+        "text": "Days of the Week",
+        "href": "/calendar/days/"
+      },
+      {
+        "text": "About Leap Years",
+        "href": "/date/leapyear.html"
+      },
+      {
+        "text": "Calendar & Holiday News",
+        "href": "/news/calendar/"
+      },
+      {
+        "text": "Weather",
+        "href": "/weather/"
+      },
+      {
+        "text": "Worldwide",
+        "href": "/weather/"
+      },
+      {
+        "text": "Local Weather",
+        "href": "/scripts/go.php"
+      },
+      {
+        "text": "2-Week Forecast",
+        "href": "/scripts/go.php?type=ext"
+      },
+      {
+        "text": "Hour-by-Hour",
+        "href": "/scripts/go.php?type=hourly"
+      },
+      {
+        "text": "Past Week",
+        "href": "/scripts/go.php?type=historic"
+      },
+      {
+        "text": "Climate",
+        "href": "/scripts/go.php?type=climate"
+      },
+      {
+        "text": "Sun, Moon & Space",
+        "href": "/astronomy/"
+      },
+      {
+        "text": "Sun & Moon Home",
+        "href": "/astronomy"
+      },
+      {
+        "text": "Sun Calculator",
+        "href": "/sun/"
+      },
+      {
+        "text": "Moon Calculator",
+        "href": "/moon/"
+      },
+      {
+        "text": "Moon Phases",
+        "href": "/moon/phases/"
+      },
+      {
+        "text": "Night Sky",
+        "href": "/astronomy/night/"
+      },
+      {
+        "text": "Meteor Showers",
+        "href": "/astronomy/meteor-shower/"
+      },
+      {
+        "text": "Day and Night Map",
+        "href": "/worldclock/sunearth.html"
+      },
+      {
+        "text": "Moon Light World Map",
+        "href": "/astronomy/moon/light.html"
+      },
+      {
+        "text": "Eclipses",
+        "href": "/eclipse/"
+      },
+      {
+        "text": "Live Streams",
+        "href": "/live/"
+      },
+      {
+        "text": "Seasons",
+        "href": "/calendar/seasons.html"
+      },
+      {
+        "text": "Astronomy News",
+        "href": "/news/astronomy/"
+      },
+      {
+        "text": "Timers",
+        "href": "/counters/"
+      },
+      {
+        "text": "Timers Home",
+        "href": "/counters"
+      },
+      {
+        "text": "Stopwatch",
+        "href": "/stopwatch/"
+      },
+      {
+        "text": "Timer",
+        "href": "/timer/"
+      },
+      {
+        "text": "Countdown to Any Date",
+        "href": "/countdown/create"
+      },
+      {
+        "text": "Halloween Countdown",
+        "href": "/countdown/halloween"
+      },
+      {
+        "text": "Thanksgiving Countdown",
+        "href": "/countdown/thanksgiving"
+      },
+      {
+        "text": "New Year Countdown",
+        "href": "/countdown/newyear"
+      },
+      {
+        "text": "Countdown for Your Site",
+        "href": "/clocks/freecountdown.html"
+      },
+      {
+        "text": "Calculators",
+        "href": "/date/"
+      },
+      {
+        "text": "Calculators Home",
+        "href": "/date/"
+      },
+      {
+        "text": "Date to Date Calculator (duration)",
+        "href": "/date/duration.html"
+      },
+      {
+        "text": "Business Date to Date (exclude holidays)",
+        "href": "/date/workdays.html"
+      },
+      {
+        "text": "Date Calculator (add / subtract)",
+        "href": "/date/dateadd.html"
+      },
+      {
+        "text": "Business Date (exclude holidays)",
+        "href": "/date/weekdayadd.html"
+      },
+      {
+        "text": "Weekday Calculator",
+        "href": "/date/weekday.html"
+      },
+      {
+        "text": "Week Number Calculator",
+        "href": "/date/weeknumber.html"
+      },
+      {
+        "text": "Roman Numeral Converter",
+        "href": "/date/roman-calculator.html"
+      },
+      {
+        "text": "Alternative Age Calculator",
+        "href": "/date/birthday.html"
+      },
+      {
+        "text": "Date Pattern Calculator",
+        "href": "/date/pattern.html"
+      },
+      {
+        "text": "Distance Calculator",
+        "href": "/worldclock/distance.html"
+      },
+      {
+        "text": "My Account",
+        "href": "/custom/"
+      },
+      {
+        "text": "My Account",
+        "href": "/custom"
+      },
+      {
+        "text": "My Location",
+        "href": "/custom/location.html"
+      },
+      {
+        "text": "My Units",
+        "href": "/custom/site.html"
+      },
+      {
+        "text": "My Events",
+        "href": "/calendar/events/"
+      },
+      {
+        "text": "My World Clock",
+        "href": "/worldclock/personal.html"
+      },
+      {
+        "text": "My Privacy",
+        "href": "/custom/privacy.html"
+      },
+      {
+        "text": "Paid Services",
+        "href": "/services/"
+      },
+      {
+        "text": "Sign in",
+        "href": "/custom/login.html"
+      },
+      {
+        "text": "Register",
+        "href": "/custom/create.html"
+      },
+      {
+        "text": "Home",
+        "href": "/"
+      },
+      {
+        "text": "Calculators",
+        "href": "/date/"
+      },
+      {
+        "text": "Count Days",
+        "href": "/date/duration.html"
+      },
+      {
+        "text": "Add Days",
+        "href": "/date/dateadd.html"
+      },
+      {
+        "text": "Workdays",
+        "href": "/date/workdays.html"
+      },
+      {
+        "text": "Add Workdays",
+        "href": "/date/weekdayadd.html"
+      },
+      {
+        "text": "Weekday",
+        "href": "/date/weekday.html"
+      },
+      {
+        "text": "Week №",
+        "href": "/date/weeknumber.html"
+      },
+      {
+        "text": "Today",
+        "href": "#"
+      },
+      {
+        "text": "Today",
+        "href": "#"
+      },
+      {
+        "text": "Add time fields",
+        "href": "/date/timeduration.html?y1=2025&m1=10&d1=16&h1=0&i1=0&s1=0&y2=2025&m2=10&d2=16&h2=0&i2=0&s2=0"
+      },
+      {
+        "text": "Add time zone conversion",
+        "href": "/date/timezoneduration.html?y1=2025&m1=10&d1=16&h1=0&i1=0&s1=0&y2=2025&m2=10&d2=16&h2=0&i2=0&s2=0"
+      },
+      {
+        "text": "Count only workdays",
+        "href": "/date/workdays.html?y1=2025&m1=10&d1=16&y2=2025&m2=10&d2=16"
+      },
+      {
+        "text": "Need some help?",
+        "href": "/date/duration-help.html"
+      },
+      {
+        "text": "Calendar with Logo (PDF)Add your company logo to our printable calendars.",
+        "href": "/services/calendar-logo.html"
+      },
+      {
+        "text": "Date Calculator APIFind a specific business date and calculate the working days in a given period.",
+        "href": "https://dev.timeanddate.com/calculator/"
+      },
+      {
+        "text": "Some typical uses for the Date Calculators",
+        "href": "/date/calculatoruses.html"
+      },
+      {
+        "text": "API for Business Date Calculators",
+        "href": "https://dev.timeanddate.com/calculator/"
+      },
+      {
+        "text": "Time and Date Duration",
+        "href": "/date/timeduration.html"
+      },
+      {
+        "text": "Date Calculator",
+        "href": "/date/dateadd.html"
+      },
+      {
+        "text": "Weekday Calculator",
+        "href": "/date/weekday.html"
+      },
+      {
+        "text": "Birthday Calculator",
+        "href": "/date/birthday.html"
+      },
+      {
+        "text": "Week Number Calculator",
+        "href": "/date/weeknumber.html"
+      },
+      {
+        "text": "Calendar & Holidays Overview",
+        "href": "/calendar/info.html"
+      },
+      {
+        "text": "Calendar Generator",
+        "href": "/calendar/generate.html"
+      },
+      {
+        "text": "The World Clock",
+        "href": "/worldclock/"
+      },
+      {
+        "text": "Countdown to Any Date",
+        "href": "/countdown/create"
+      },
+      {
+        "text": "Contact Us",
+        "href": "https://www.timeanddate.com/information/feedback.html?url=/date/duration.html%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Love Our Site? Become a Supporter",
+        "href": "/services/supporter.html"
+      },
+      {
+        "text": "© Time and Date AS 1995–2025",
+        "href": "/information/copyright.html"
+      },
+      {
+        "text": "About us",
+        "href": "/company/"
+      },
+      {
+        "text": "Careers/Jobs",
+        "href": "/company/jobs"
+      },
+      {
+        "text": "Contact Us",
+        "href": "https://www.timeanddate.com/information/feedback.html?url=/date/duration.html%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Contact Details",
+        "href": "/information/contact.html"
+      },
+      {
+        "text": "Sitemap",
+        "href": "/sitemap.html"
+      },
+      {
+        "text": "Newsletter",
+        "href": "/newsletter/"
+      },
+      {
+        "text": "Link policy",
+        "href": "/information/copyright.html"
+      },
+      {
+        "text": "Advertising",
+        "href": "/information/advertising.html"
+      },
+      {
+        "text": "Disclaimer",
+        "href": "/information/disclaimer.html"
+      },
+      {
+        "text": "Terms & Conditions",
+        "href": "/information/terms-conditions.html"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "/information/privacy.html"
+      },
+      {
+        "text": "Privacy Settings",
+        "href": "javascript:openprivacy()"
+      },
+      {
+        "text": "World Clock",
+        "href": "/worldclock/"
+      },
+      {
+        "text": "Time Zones",
+        "href": "/time/"
+      },
+      {
+        "text": "Calendar",
+        "href": "/calendar/"
+      },
+      {
+        "text": "Weather",
+        "href": "/weather/"
+      },
+      {
+        "text": "Sun & Moon",
+        "href": "/astronomy/"
+      },
+      {
+        "text": "Timers",
+        "href": "/counters/"
+      },
+      {
+        "text": "Calculators",
+        "href": "/date/"
+      },
+      {
+        "text": "API",
+        "href": "/services/api/"
+      },
+      {
+        "text": "Apps",
+        "href": "/extra/"
+      },
+      {
+        "text": "RSS Feeds",
+        "href": "/information/rss-feeds.html"
+      },
+      {
+        "text": "timeanddate.no",
+        "href": "https://www.timeanddate.no"
+      },
+      {
+        "text": "timeanddate.de",
+        "href": "https://www.timeanddate.de"
+      },
+      {
+        "text": "Privacy & Terms",
+        "href": "/information/copyright.html"
+      }
+    ],
+    "images": [
+      {
+        "alt": "timeanddate.com",
+        "src": "//c.tadst.com/gfx/n/logo/logo-2021--horizontal-inverted-darkbg.svg"
+      },
+      {
+        "alt": "Illustration image",
+        "src": "//c.tadst.com/gfx/64x64/og-calendar-logo.png?1"
+      },
+      {
+        "alt": "Illustration image",
+        "src": "//c.tadst.com/gfx/64x64/calc-api.png?1"
+      },
+      {
+        "alt": "Illustration of a pink shield with a white heart.",
+        "src": "//c.tadst.com/gfx/n/i/service__supporter.svg"
+      },
+      {
+        "alt": "The timeanddate logo",
+        "src": "//c.tadst.com/gfx/n/logo/logo-2021--horizontal-color-whitebg.svg"
+      }
+    ],
+    "timestamp": 1760608577334,
+    "url": "https://www.timeanddate.com/date/duration.html?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

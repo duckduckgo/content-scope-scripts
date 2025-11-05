@@ -1,0 +1,869 @@
+{
+  "url": "https://dol.wa.gov/",
+  "extractedAt": "2025-10-16T10:34:39.365Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://dol.wa.gov/sites/default/files/favicon.ico",
+        "rel": "icon"
+      }
+    ],
+    "title": "Home | Washington State Department of Licensing",
+    "metaDescription": "",
+    "content": "## How can we help you today?\n                 \n### [Renew vehicle tabs](/vehicles-and-boats/vehicles/renew-or-replace-vehicle-tabs)\n                 \n### [Renew or replace driver license](/driver-licenses-and-permits/renew-or-replace-driver-license)\n                 \n### [Register a vehicle](/vehicles-and-boats/vehicles/vehicle-registration)\n                 \n### [Buy or sell a vehicle](/vehicles-and-boats/vehicles/buying-and-selling-vehicle)\n                        Vehicle notices are changing. You may receive a postcard or email. [Learn more about paperless renewal notices](/renewal-notices).\n      \n### Online services \n   Did you know you can renew your vehicle tabs and driver license, schedule an appointment, and more online?\n   [Get it done online](https://fortress.wa.gov/dol/extdriveses/esp/NoLogon/clearsession)     \n### REAL ID \n   New ID requirements for air travel began May 2025. Find out what you need to meet requirements.\n   [Learn about REAL ID](/id-cards/real-id)     \n### New to Washington \n   If you just moved or are planning to move to Washington, learn how to get your ID, license, or vehicle registration.\n   [Resources for new residents](/moving-washington)                   \n## News and announcements\n \n \n- [New ID requirements began May 7, 2025: Learn about REAL ID](/id-cards/real-id)\n \n- [New mobile licensing unit DOL2Go serves customers statewide](/driver-licenses-and-permits/dol2go-mobile-unit)\n \n     \n## Quick links\n \n \n- [Get an enhanced driver license (EDL)](https://dol.wa.gov/driver-licenses-and-permits/enhanced-driver-license-edl)\n \n- [Washington Driver Guide and rules of the road](/driver-licenses-and-permits/driver-training-and-testing/driver-guides)\n \n- [Driver licensing office locations and hours](https://fortress.wa.gov/dol/dolprod/dsdoffices/)\n \n- [Vehicle licensing office locations and hours](https://fortress.wa.gov/dol/dolprod/vehoffices/)",
+    "truncated": false,
+    "fullContentLength": 1905,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Washington State Department of Licensing"
+      },
+      {
+        "level": 3,
+        "text": "New scam messages request payment, provide REAL ID misinformation"
+      },
+      {
+        "level": 2,
+        "text": "How can we help you today?"
+      },
+      {
+        "level": 3,
+        "text": "Renew vehicle tabs"
+      },
+      {
+        "level": 3,
+        "text": "Renew or replace driver license"
+      },
+      {
+        "level": 3,
+        "text": "Register a vehicle"
+      },
+      {
+        "level": 3,
+        "text": "Buy or sell a vehicle"
+      },
+      {
+        "level": 3,
+        "text": "Online services"
+      },
+      {
+        "level": 3,
+        "text": "REAL ID"
+      },
+      {
+        "level": 3,
+        "text": "New to Washington"
+      },
+      {
+        "level": 2,
+        "text": "News and announcements"
+      },
+      {
+        "level": 2,
+        "text": "Quick links"
+      },
+      {
+        "level": 2,
+        "text": " Department of Licensing\n                \n                Department of Licensing"
+      },
+      {
+        "level": 2,
+        "text": " Complete tasks online\n                \n                Complete tasks online"
+      },
+      {
+        "level": 2,
+        "text": " Information for\n                \n                Information for"
+      },
+      {
+        "level": 2,
+        "text": " Contact DOL\n                \n                Contact DOL"
+      }
+    ],
+    "links": [
+      {
+        "text": "Home",
+        "href": "/"
+      },
+      {
+        "text": "Skip to main content",
+        "href": "#main-content"
+      },
+      {
+        "text": "Learn about current scams affecting our customers",
+        "href": "https://dol.wa.gov/scam-alerts"
+      },
+      {
+        "text": "close",
+        "href": "#"
+      },
+      {
+        "text": "Moving to Washington",
+        "href": "/moving-washington"
+      },
+      {
+        "text": "My Account/License Express",
+        "href": "https://dol.wa.gov/myaccount"
+      },
+      {
+        "text": "Forms",
+        "href": "/forms/view"
+      },
+      {
+        "text": "Language ",
+        "href": "/"
+      },
+      {
+        "text": "Español (Spanish)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=es&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "简体中文 (Chinese, Simplified)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=zh-CN&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "繁體中文 (Chinese, Traditional)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=zh-TW&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Русский (Russian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ru&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Tiếng việt (Vietnamese)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=vi&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Shqip (Albanian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=sq&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "ኣማርኛ (Amharic)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=am&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "(Arabic) العربية",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ar&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Azərbaycan (Azerbaijani)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=az&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Bosanski (Bosnian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=bs&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Български (Bulgarian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=bg&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "ဗမာစာ Myanmar (Burmese)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=my&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Català (Catalan)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ca&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Hrvatski (Croatian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=hr&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Čeština‎ (Czech)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=cs&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Dansk (Danish)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=da&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Nederlands (Dutch)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=nl&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Tagalog (Filipino)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=tl&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Français (French)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=fr&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Deutsch (German)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=de&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "(Hebrew) עברית",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=iw&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "हिन्दी (Hindi)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=hi&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "lus Hmoob (Hmong)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=hmn&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Magyar (Hungarian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=hu&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Bahasa Indonesia (Indonesian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=id&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Italiano (Italian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=it&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "日本語 (Japanese)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ja&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "ខ្មែរ (Khmer)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=km&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "한국어 (Korean)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ko&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "ລາວ (Lao)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=lo&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Lietuvių (Lithuanian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=lt&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "മലയാളം (Malayalam)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ml&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Монгол (Mongolian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=mn&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "नेपाली (Nepali)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ne&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Norsk (Norwegian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=no&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Afaan Oromoo (Oromo)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=om&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "(Pashto) پښتو",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ps&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "(Persian) فارسی",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=fa&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Polski (Polish)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=pl&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Português (Brazil)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=pt&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Português (Portugal)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=pt-PT&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "ਪੰਜਾਬੀ (Punjabi - Eastern)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=pa&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Română (Romanian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ro&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Gagana faʻa Sāmoa (Samoan)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=sm&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Српски језик (Serbian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=sr&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Af-soomali (Somali)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=so&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Kiswahili (Swahili)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=sw&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Svenska (Swedish)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=sv&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "தமிழ் (Tamil)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ta&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "తెలుగు (Telugu)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=te&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "ไทย (Thai)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=th&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "ትግርኛ (Tigrinya)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ti&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "Türkçe (Turkish)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=tr&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "українська (Ukrainian)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=uk&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "(Urdu) اُردُو",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=ur&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "O‘zbek (Uzbek)",
+        "href": "https://translate.google.com/translate?hl=en&sl=en&tl=uz&u=https://dol.wa.gov/node"
+      },
+      {
+        "text": "View all in driver licenses and permits",
+        "href": "/driver-licenses-and-permits"
+      },
+      {
+        "text": "Renew or replace a driver license",
+        "href": "/driver-licenses-and-permits/renew-or-replace-driver-license"
+      },
+      {
+        "text": "Check the status of a driver license",
+        "href": "https://fortress.wa.gov/dol/extdriveses/ESP/NoLogon/?Link=LicenseStatus"
+      },
+      {
+        "text": "Get your first license or permit",
+        "href": "/driver-licenses-and-permits/get-your-first-license-or-permit"
+      },
+      {
+        "text": "Update driver license information",
+        "href": "/driver-licenses-and-permits/update-driver-license-information"
+      },
+      {
+        "text": "Washington driver guides",
+        "href": "/node/494"
+      },
+      {
+        "text": "Driver training and testing",
+        "href": "/driver-licenses-and-permits/driver-training-and-testing"
+      },
+      {
+        "text": "Enhanced driver license (EDL)",
+        "href": "/driver-licenses-and-permits/enhanced-driver-license-edl"
+      },
+      {
+        "text": "Driving records",
+        "href": "/driver-licenses-and-permits/driving-records"
+      },
+      {
+        "text": "Commercial driver licenses (CDL)",
+        "href": "/driver-licenses-and-permits/commercial-driver-licenses-cdl"
+      },
+      {
+        "text": "Motorcycle endorsements",
+        "href": "/driver-licenses-and-permits/motorcycle"
+      },
+      {
+        "text": "Suspended license",
+        "href": "/driver-licenses-and-permits/suspended-license"
+      },
+      {
+        "text": "Disabled parking permits",
+        "href": "/driver-licenses-and-permits/get-or-renew-disabled-parking-permits"
+      },
+      {
+        "text": "Moving to Washington: Get a license",
+        "href": "/moving-washington/get-driver-license"
+      },
+      {
+        "text": "DOL2Go mobile unit",
+        "href": "/driver-licenses-and-permits/dol2go-mobile-unit"
+      },
+      {
+        "text": "Find a driver licensing office",
+        "href": "/driver-licenses-and-permits/driver-licensing-offices"
+      },
+      {
+        "text": "View all in ID cards",
+        "href": "/id-cards"
+      },
+      {
+        "text": "Get an ID card",
+        "href": "/id-cards/get-id-card"
+      },
+      {
+        "text": "Renew an ID card",
+        "href": "/id-cards/renew-id-card"
+      },
+      {
+        "text": "Replace an ID card",
+        "href": "/id-cards/replace-id-card"
+      },
+      {
+        "text": "Check status of an ID card",
+        "href": "https://fortress.wa.gov/dol/extdriveses/ESP/NoLogon/?Link=LicenseStatus"
+      },
+      {
+        "text": "Get an enhanced ID card (EID)",
+        "href": "/id-cards/enhanced-id-card-eid"
+      },
+      {
+        "text": "REAL ID",
+        "href": "/id-cards/real-id"
+      },
+      {
+        "text": "Find a driver licensing office",
+        "href": "/driver-licenses-and-permits/driver-licensing-offices"
+      },
+      {
+        "text": "View all in vehicles and boats",
+        "href": "/vehicles-and-boats"
+      },
+      {
+        "text": "Vehicles",
+        "href": "/vehicles-and-boats/vehicles"
+      },
+      {
+        "text": "License plates",
+        "href": "/vehicles-and-boats/vehicles/license-plates"
+      },
+      {
+        "text": "Renew or replace vehicle tabs",
+        "href": "/vehicles-and-boats/vehicles/renew-or-replace-vehicle-tabs"
+      },
+      {
+        "text": "Register a vehicle",
+        "href": "/vehicles-and-boats/vehicles/vehicle-registration"
+      },
+      {
+        "text": "Replace a lost title or registration",
+        "href": "/vehicles-and-boats/vehicles/vehicle-registration/vehicle-title/replace-lost-title-or-registration"
+      },
+      {
+        "text": "Buying or selling a vehicle",
+        "href": "/vehicles-and-boats/vehicles/buying-and-selling-vehicle"
+      },
+      {
+        "text": "Report a vehicle sale",
+        "href": "/vehicles-and-boats/vehicles/buying-and-selling-vehicle/sell-vehicle"
+      },
+      {
+        "text": "Disabled parking permits",
+        "href": "/driver-licenses-and-permits/get-or-renew-disabled-parking-permits"
+      },
+      {
+        "text": "Moving to Washington: Vehicle registration and plates",
+        "href": "/moving-washington/vehicle-registration-and-plates"
+      },
+      {
+        "text": "Find a vehicle licensing office",
+        "href": "/vehicles-and-boats/vehicle-licensing-offices"
+      },
+      {
+        "text": "Boats",
+        "href": "/vehicles-and-boats/boats"
+      },
+      {
+        "text": "Register a boat",
+        "href": "/node/1407"
+      },
+      {
+        "text": "Renew your boat decal",
+        "href": "/node/1497"
+      },
+      {
+        "text": "Report the sale of a boat",
+        "href": "/node/1332"
+      },
+      {
+        "text": "Prorate and fuel tax",
+        "href": "/vehicles-and-boats/prorate-and-fuel-tax"
+      },
+      {
+        "text": "Fuel tax",
+        "href": "/node/2029"
+      },
+      {
+        "text": "International Registration Plan (prorate)",
+        "href": "/node/3319"
+      },
+      {
+        "text": "International Fuel Tax Agreement (IFTA)",
+        "href": "/node/3318"
+      },
+      {
+        "text": "Find a prorate and fuel tax office",
+        "href": "/node/3463"
+      },
+      {
+        "text": "View all in businesses and professions",
+        "href": "/professional-licenses"
+      },
+      {
+        "text": "Learn about licensing for businesses and professions",
+        "href": "/professional-licenses"
+      },
+      {
+        "text": "Set up SecureAccess Washington (SAW) account",
+        "href": "/professional-licenses/set-secureaccess-washington-saw-account-access"
+      },
+      {
+        "text": "Look up the status of a business or professional license",
+        "href": "/professional-licenses/look-status-business-or-professional-license"
+      },
+      {
+        "text": "Uniform Commercial Code (UCC)",
+        "href": "/professional-licenses/uniform-commercial-code-ucc"
+      },
+      {
+        "text": "File a complaint",
+        "href": "/professional-licenses/file-complaint"
+      },
+      {
+        "text": "Fingerprinting and background checks",
+        "href": "/professional-licenses/fingerprinting-and-background-checks"
+      },
+      {
+        "text": "Criminal conviction screening",
+        "href": "/professional-licenses/criminal-conviction-screening"
+      },
+      {
+        "text": "Prorate and fuel tax",
+        "href": "/vehicles-and-boats/prorate-and-fuel-tax"
+      },
+      {
+        "text": "Performing rights societies",
+        "href": "/professional-licenses/performing-rights-societies"
+      },
+      {
+        "text": "Business and professional licensing contacts",
+        "href": "/about/contact-us/business-and-professional-licensing-contact-information"
+      },
+      {
+        "text": "Visit wa.gov for a list of licenses from other Washington State agencies",
+        "href": "https://wa.gov/work/professional-licenses"
+      },
+      {
+        "text": "View all in appointments and locations",
+        "href": "/appointments-and-locations"
+      },
+      {
+        "text": "Driver licensing offices",
+        "href": "/driver-licenses-and-permits/driver-licensing-offices"
+      },
+      {
+        "text": "Find a driver licensing office",
+        "href": "https://fortress.wa.gov/dol/dolprod/dsdoffices/"
+      },
+      {
+        "text": "Make an appointment at a driver licensing office",
+        "href": "https://fortress.wa.gov/dol/extdriveses/ESP/NoLogon/?Link=ScheduleApptLSO"
+      },
+      {
+        "text": "Vehicle licensing offices",
+        "href": "/vehicles-and-boats/vehicle-licensing-offices"
+      },
+      {
+        "text": "Find a vehicle licensing office",
+        "href": "https://fortress.wa.gov/dol/dolprod/vehoffices/"
+      },
+      {
+        "text": "Find a quick title office",
+        "href": "/vehicles-and-boats/vehicle-licensing-offices/quick-title-offices"
+      },
+      {
+        "text": "Prorate and fuel tax offices",
+        "href": "/vehicles-and-boats/prorate-and-fuel-tax/prorate-and-fuel-tax-offices"
+      },
+      {
+        "text": "Find a prorate and fuel tax office",
+        "href": "/vehicles-and-boats/prorate-and-fuel-tax/prorate-and-fuel-tax-offices"
+      },
+      {
+        "text": "Make an appointment for a prorate or fuel tax transaction",
+        "href": "https://fortress.wa.gov/dol/extdriveses/ESP/NoLogon/?Link=ScheduleApptLSO"
+      },
+      {
+        "text": "Driver testing and training locations",
+        "href": "/driver-licenses-and-permits/driver-training-and-testing/driver-training-and-testing-locations"
+      },
+      {
+        "text": "Find a training or testing location",
+        "href": "/appointments-and-locations/training-schools-and-testing-locations"
+      },
+      {
+        "text": "Make an appointment for a knowledge or drive test",
+        "href": "https://fortress.wa.gov/dol/extdriveses/ESP/NoLogon/?Link=ScheduleApptLSO"
+      },
+      {
+        "text": "Renew vehicle tabs",
+        "href": "/vehicles-and-boats/vehicles/renew-or-replace-vehicle-tabs"
+      },
+      {
+        "text": "Renew or replace driver license",
+        "href": "/driver-licenses-and-permits/renew-or-replace-driver-license"
+      },
+      {
+        "text": "Register a vehicle",
+        "href": "/vehicles-and-boats/vehicles/vehicle-registration"
+      },
+      {
+        "text": "Buy or sell a vehicle",
+        "href": "/vehicles-and-boats/vehicles/buying-and-selling-vehicle"
+      },
+      {
+        "text": "Learn more about paperless renewal notices",
+        "href": "/renewal-notices"
+      },
+      {
+        "text": "Get it done online",
+        "href": "https://fortress.wa.gov/dol/extdriveses/esp/NoLogon/clearsession"
+      },
+      {
+        "text": "Learn about REAL ID",
+        "href": "/id-cards/real-id"
+      },
+      {
+        "text": "Resources for new residents",
+        "href": "/moving-washington"
+      },
+      {
+        "text": "New ID requirements began May 7, 2025: Learn about REAL ID",
+        "href": "/id-cards/real-id"
+      },
+      {
+        "text": "New mobile licensing unit DOL2Go serves customers statewide",
+        "href": "/driver-licenses-and-permits/dol2go-mobile-unit"
+      },
+      {
+        "text": "Get an enhanced driver license (EDL)",
+        "href": "https://dol.wa.gov/driver-licenses-and-permits/enhanced-driver-license-edl"
+      },
+      {
+        "text": "Washington Driver Guide and rules of the road",
+        "href": "/driver-licenses-and-permits/driver-training-and-testing/driver-guides"
+      },
+      {
+        "text": "Driver licensing office locations and hours",
+        "href": "https://fortress.wa.gov/dol/dolprod/dsdoffices/"
+      },
+      {
+        "text": "Vehicle licensing office locations and hours",
+        "href": "https://fortress.wa.gov/dol/dolprod/vehoffices/"
+      },
+      {
+        "text": "Return to top",
+        "href": "#top"
+      },
+      {
+        "text": "About us",
+        "href": "/about"
+      },
+      {
+        "text": "Access and inclusion",
+        "href": "/about/access-and-inclusion"
+      },
+      {
+        "text": "Careers",
+        "href": "https://www.governmentjobs.com/careers/washington?department%5B0%5D=Dept.%20of%20Licensing&sort=PostingDate%7CDescending"
+      },
+      {
+        "text": "Reports and data",
+        "href": "/about/reports-and-data"
+      },
+      {
+        "text": "Rulemaking",
+        "href": "/about/rulemaking"
+      },
+      {
+        "text": "Title VI notice",
+        "href": "/node/523"
+      },
+      {
+        "text": "View all online services",
+        "href": "https://fortress.wa.gov/dol/extdriveses/ESP/NoLogon/_/"
+      },
+      {
+        "text": "Register your car",
+        "href": "/vehicles-and-boats/vehicles/vehicle-registration"
+      },
+      {
+        "text": "Renew driver license or ID",
+        "href": "/driver-licenses-and-permits/renew-or-replace-driver-license/renew-driver-license"
+      },
+      {
+        "text": "Renew tabs",
+        "href": "/vehicles-and-boats/vehicles/renew-or-replace-vehicle-tabs"
+      },
+      {
+        "text": "Manage your prorate or fuel tax account",
+        "href": "https://secure.dol.wa.gov/home/"
+      },
+      {
+        "text": "Military personnel, veterans, and their spouses",
+        "href": "/license-and-registration-rules-military-personnel-and-veterans"
+      },
+      {
+        "text": "People moving to Washington",
+        "href": "/moving-washington"
+      },
+      {
+        "text": "People who are unhoused",
+        "href": "/id-cards/id-help-unhoused"
+      },
+      {
+        "text": "People with disabilities",
+        "href": "/resources-people-disabilities"
+      },
+      {
+        "text": "Current employees",
+        "href": "/employee-wellness"
+      },
+      {
+        "text": "Contact us",
+        "href": "/about/contact-us"
+      },
+      {
+        "text": "Office locations",
+        "href": "/appointments-and-locations"
+      },
+      {
+        "text": "Tell us how we're doing",
+        "href": "https://www.surveygizmo.com/s3/732889/DOLCustomerSurvey"
+      },
+      {
+        "text": "Help us improve our services",
+        "href": "https://survey.alchemer.com/s3/7866758/DOL-recruitment-survey"
+      },
+      {
+        "text": "Bids and Contract Acquisitions",
+        "href": "/about/bids-and-contracts"
+      },
+      {
+        "text": "Public Disclosure",
+        "href": "/about/public-disclosure"
+      },
+      {
+        "text": "Privacy Center",
+        "href": "/about/privacy-center"
+      },
+      {
+        "text": "Visit Facebook page",
+        "href": "https://www.facebook.com/WashingtonDOL/"
+      },
+      {
+        "text": "Visit Twitter page",
+        "href": "https://twitter.com/Wa_DOL"
+      },
+      {
+        "text": "Visit Youtube page",
+        "href": "https://www.youtube.com/user/WALicensing"
+      },
+      {
+        "text": "Visit Instagram page",
+        "href": "https://www.instagram.com/wa_licensing"
+      },
+      {
+        "text": "Visit Bluesky page",
+        "href": "https://bsky.app/profile/wadol.bsky.social"
+      },
+      {
+        "text": "Visit LinkedIn page",
+        "href": "https://www.linkedin.com/company/washington-state-department-of-licensing"
+      },
+      {
+        "text": "Visit RSS Feed",
+        "href": "https://licensingexpress.wordpress.com/"
+      },
+      {
+        "text": "Close menu",
+        "href": "#mm-0"
+      }
+    ],
+    "images": [
+      {
+        "alt": "U.S. flag",
+        "src": "/themes/drupalbase_uswds/assets/img/us_flag_small.png"
+      },
+      {
+        "alt": "Dot gov",
+        "src": "/themes/drupalbase_uswds/assets/img/icon-dot-gov.svg"
+      },
+      {
+        "alt": "Https",
+        "src": "/themes/drupalbase_uswds/assets/img/icon-https.svg"
+      },
+      {
+        "alt": "Home",
+        "src": "/themes/drupalbase_custom/assets/images/dol-logo.png?ver=2"
+      },
+      {
+        "alt": "Illustration of hands holding a vehicle registration.",
+        "src": "/sites/default/files/styles/max_650x650/public/2022-10/homepage-renew-tabs%5B1%5D.png?itok=WLk1OhZb"
+      },
+      {
+        "alt": "Illustration of hand holding an ID card.",
+        "src": "/sites/default/files/styles/max_650x650/public/2022-10/homepage-renew-id-license%5B1%5D.png?itok=UuDUPK6K"
+      },
+      {
+        "alt": "Illustration of a bright green compact car.",
+        "src": "/sites/default/files/styles/max_650x650/public/2022-10/homepage-register%5B1%5D.png?itok=pZlnucOu"
+      },
+      {
+        "alt": "Illustration of 2 hands exchanging money for a car key.",
+        "src": "/sites/default/files/styles/max_650x650/public/2022-10/homepage-report%5B1%5D.png?itok=4aaWeGj9"
+      },
+      {
+        "alt": "Banner image promoting vehicle registration renewal notices by postcard or email",
+        "src": "/sites/default/files/2025-07/renewal_web_hero.jpg"
+      },
+      {
+        "alt": "Facebook",
+        "src": "/themes/drupalbase_custom/assets/images/social/facebook.svg"
+      },
+      {
+        "alt": "Twitter",
+        "src": "/themes/drupalbase_custom/assets/images/social/twitter.svg"
+      },
+      {
+        "alt": "YouTube",
+        "src": "/themes/drupalbase_custom/assets/images/social/youtube.svg"
+      },
+      {
+        "alt": "Instagram",
+        "src": "/themes/drupalbase_custom/assets/images/social/instagram.svg"
+      },
+      {
+        "alt": "Bluesky",
+        "src": "/themes/drupalbase_custom/assets/images/social/bluesky.svg"
+      },
+      {
+        "alt": "LinkedIn",
+        "src": "/themes/drupalbase_custom/assets/images/social/linkedin.svg"
+      },
+      {
+        "alt": "Blog",
+        "src": "/themes/drupalbase_custom/assets/images/social/rss.svg"
+      }
+    ],
+    "timestamp": 1760610876439,
+    "url": "https://dol.wa.gov/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/qualifiers",
+  "extractedAt": "2025-10-16T11:12:06.907Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.fifa.com/favicon.ico?v=4c4914f90c578869e7375b03cf029202",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.fifa.com/apple-touch-icon.png?v=a087933e3cf148cb71a96095c8aa2dac",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.fifa.com/favicon-32x32.png?v=1ea068c804e8ba88b84f6e9598e3172d",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.fifa.com/favicon-16x16.png?v=7ee355e68b687435c3e5f74e2e831325",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.fifa.com/apple-touch-icon.png?v=a087933e3cf148cb71a96095c8aa2dac",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.fifa.com/safari-pinned-tab.svg?v=4742461cc2230e145036db1ff4c0ec90",
+        "rel": "mask-icon"
+      }
+    ],
+    "title": "FIFA World Cup 26™ Qualifiers",
+    "metaDescription": "Latest news and scores from the FIFA World Cup 26™ qualifiers, including in-depth qualification guides and live data.",
+    "content": "## We Care About Your Privacy\nWe and our 941 partners may store and access personal data, like browsing data or unique identifiers, on your device. Selecting \"I Accept\" enables tracking technologies to support the purposes shown under \"we and our partners process data to provide,\" whereas selecting \"Reject All\" or withdrawing your consent will disable them. If trackers are disabled, some content and ads you see may not be as relevant to you. You can resurface this menu to change your choices or withdraw consent at any time by clicking the Manage Cookie Preferences link on the bottom of the webpage. Your choices will have effect within our Website. For more details, refer to our[Privacy Policy](https://inside.fifa.com/data-protection-portal/data-protection-policy)\n### We and our partners process data to provide:\nUse precise geolocation data. Actively scan device characteristics for identification. Store and/or access information on a device. Personalised advertising and content, advertising and content measurement, audience research and services development.  List of Partners (vendors) \nI Accept Reject All Show Purposes",
+    "truncated": false,
+    "fullContentLength": 1136,
+    "headings": [
+      {
+        "level": 2,
+        "text": "We Care About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "We and our partners process data to provide:"
+      },
+      {
+        "level": 2,
+        "text": "About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "Strictly Necessary Cookies"
+      },
+      {
+        "level": 3,
+        "text": "Performance Cookies"
+      },
+      {
+        "level": 3,
+        "text": "Functional Cookies"
+      },
+      {
+        "level": 3,
+        "text": "Targeting Cookies"
+      },
+      {
+        "level": 3,
+        "text": "Store and/or access information on a device 761 partners can use this purpose"
+      },
+      {
+        "level": 3,
+        "text": "Save and communicate privacy choices 429 partners can use this purpose"
+      },
+      {
+        "level": 3,
+        "text": "Personalised advertising and content, advertising and content measurement, audience research and services development 907 partners can use this purpose"
+      },
+      {
+        "level": 3,
+        "text": "Use precise geolocation data 283 partners can use this purpose"
+      },
+      {
+        "level": 3,
+        "text": "Actively scan device characteristics for identification 153 partners can use this purpose"
+      },
+      {
+        "level": 3,
+        "text": "Ensure security, prevent and detect fraud, and fix errors 582 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Your Privacy"
+      },
+      {
+        "level": 4,
+        "text": "Strictly Necessary Cookies"
+      },
+      {
+        "level": 4,
+        "text": "Performance Cookies"
+      },
+      {
+        "level": 4,
+        "text": "Functional Cookies"
+      },
+      {
+        "level": 4,
+        "text": "Targeting Cookies"
+      },
+      {
+        "level": 4,
+        "text": "Store and/or access information on a device 761 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Save and communicate privacy choices 429 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Identify devices based on information transmitted automatically 549 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Link different devices 355 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Match and combine data from other data sources 415 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Deliver and present advertising and content 581 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Personalised advertising and content, advertising and content measurement, audience research and services development 907 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Use limited data to select advertising 724 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Create profiles for personalised advertising 573 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Use profiles to select personalised advertising 576 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Create profiles to personalise content 252 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Use profiles to select personalised content 227 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Measure advertising performance 826 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Measure content performance 394 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Understand audiences through statistics or combinations of data from different sources 524 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Develop and improve services 619 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Use limited data to select content 167 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Use precise geolocation data 283 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Actively scan device characteristics for identification 153 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Ensure security, prevent and detect fraud, and fix errors 582 partners can use this purpose"
+      },
+      {
+        "level": 3,
+        "text": "Vendors List"
+      }
+    ],
+    "links": [
+      {
+        "text": "Privacy Policy",
+        "href": "https://inside.fifa.com/data-protection-portal/data-protection-policy"
+      },
+      {
+        "text": "More information",
+        "href": "https://www.fifa.com/data-protection-portal/cookie-policy"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Company Logo",
+        "src": "https://cdn.cookielaw.org/logos/a22264f8-9d14-4ab8-ab4b-a61925d0e901/f9cfefe8-45ba-46cf-8da1-2a27e1e35084/ff8bdf07-4d8b-47cf-ba45-a6f4cf46492c/fcm_rgbf_s.png"
+      },
+      {
+        "alt": "Powered by Onetrust",
+        "src": "https://cdn.cookielaw.org/logos/static/powered_by_logo.svg"
+      }
+    ],
+    "timestamp": 1760613121879,
+    "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/qualifiers?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

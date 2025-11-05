@@ -1,0 +1,34 @@
+{
+  "url": "https://bsky.app/profile/gtconway.bsky.social",
+  "extractedAt": "2025-10-16T10:40:50.423Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://web-cdn.bsky.app/static/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://web-cdn.bsky.app/static/favicon-32x32.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://web-cdn.bsky.app/static/favicon-16x16.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://web-cdn.bsky.app/static/safari-pinned-tab.svg",
+        "rel": "mask-icon"
+      }
+    ],
+    "title": "@gtconway.bsky.social on Bluesky",
+    "metaDescription": "Recovering Lawyer. President, @chkbal.bsky.social. Host of the \"George Conway Explains It All to Sarah Longwell\" podcast on @thebulwark.com.",
+    "content": "",
+    "truncated": false,
+    "fullContentLength": 0,
+    "headings": [],
+    "links": [],
+    "images": [],
+    "timestamp": 1760611247441,
+    "url": "https://bsky.app/profile/gtconway.bsky.social?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

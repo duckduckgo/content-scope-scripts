@@ -1,0 +1,36 @@
+{
+  "url": "https://www.bol.com/nl/nl/",
+  "extractedAt": "2025-10-16T10:07:51.284Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAA4VBMVEUAAKSJidX////29vw1NbdLS7/39/w8PLltbct3d85OTsAFBaYjI7BdXcV2ds4DA6XW1vAqKrMLC6ipqeD+/v/a2vJBQbvn5/YWFqwBAaS5ueb5+f0zM7b7+/6Ojte7u+eDg9NISL7j4/WysuS0tOTR0e/GxuuKitW1teU2Nrezs+TS0u+Wltr8/P4GBqaNjdYwMLUiIrBkZMisrOFwcMx/f9Hm5vbh4fTBwekZGa319fuAgNKLi9aGhtRXV8MHB6Z7e9BubsvMzO2uruIsLLSentz9/f7AwOleXsYCAqXz8/tmcUYcAAAAAWJLR0QCZgt8ZAAAAAlwSFlzAAAJ2AAACdgBx6C5rQAAAAd0SU1FB+MGCwoNIIcSan4AAADJSURBVDjLY2AYBdQDjExMzJiiLExMTKzEK2Bj5+Dk4gbzeHj5ONj50RWAgYAgA4OQsAiIKSqGTQGTuISkFJQpLYOqQFaOUx4ooKAIJJTklIGkCoYj+VWZmNTUgaJAizSAIpoYvtBiYtLWYWLS1WNg0AdKsoMU6BnAfGFoaKTLxGRsAhQ11RM0Y2IyB1nBZcGE4kgmRUsrGNMapMCGCVWBLQODnTSEKW8PUuAAUeDoBAbOXCCOi6uSm5W7hyeDIFCIXcFroNPB8AEAdtEQhjx61x4AAAAldEVYdGRhdGU6Y3JlYXRlADIwMTktMDYtMTFUMTA6MTM6MzIrMDI6MDBkrxc6AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE5LTA2LTExVDEwOjEzOjMyKzAyOjAwFfKvhgAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAABXelRYdFJhdyBwcm9maWxlIHR5cGUgaXB0YwAAeJzj8gwIcVYoKMpPy8xJ5VIAAyMLLmMLEyMTS5MUAxMgRIA0w2QDI7NUIMvY1MjEzMQcxAfLgEigSi4A6hcRdPJCNZUAAAAASUVORK5CYII=",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "bol",
+    "metaDescription": "",
+    "content": "# IP address 20.61.34.40 is blocked\n  Your access to bol has been temporarily blocked due to possible abuse from this IP address.\n \n This may be caused by several factors, including: \n \n- **Use of a VPN:** Please turn off your VPN and try accessing the site again.\n \n- **Outdated browser or browser extensions:** Make sure you're using the latest version of a browser such as Safari, Chrome, Firefox, or Microsoft Edge. Also, disable any unnecessary plugins.\n \n- **Automated scripts:** If you're using a script that collects data automatically from bol.com, please refer to our Developer Guide for more information.\n \n  \n Additionally, the block may be caused by malicious software on your device.\n We recommend installing up-to-date antivirus or anti-spyware software and running a full scan of your device.\n \n For more information, you can contact our customer service by email at: [customerservice@bol.com](mailto:customerservice@bol.com) \n Please always mention your IP address 20.61.34.40 so we can assist you more effectively. \n \n  \n   If you're a developer and are interested in interfacing with bol, check out our developer guides on [developers.bol.com](https://developers.bol.com/) for information about our Open API program. \n\n 0.b4f06e68.1760609270.989f095",
+    "truncated": false,
+    "fullContentLength": 1268,
+    "headings": [
+      {
+        "level": 1,
+        "text": "IP address 20.61.34.40 is blocked"
+      }
+    ],
+    "links": [
+      {
+        "text": "customerservice@bol.com",
+        "href": "mailto:customerservice@bol.com"
+      },
+      {
+        "text": "developers.bol.com",
+        "href": "https://developers.bol.com/"
+      }
+    ],
+    "images": [],
+    "timestamp": 1760609270806,
+    "url": "https://www.bol.com/nl/nl/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

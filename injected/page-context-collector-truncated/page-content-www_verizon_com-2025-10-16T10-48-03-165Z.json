@@ -1,0 +1,43 @@
+{
+  "url": "https://www.verizon.com/support/contact-us/",
+  "extractedAt": "2025-10-16T10:48:03.165Z",
+  "content": {
+    "favicon": [],
+    "title": "Error",
+    "metaDescription": "",
+    "content": "error notification We're sorry. We are unable to process your request at this time. For more information about Verizon products and services, visit [verizon.com](https://www.verizon.com/). If you continue to experience problems please contact us at [VZ.GTS.ASPD@verizon.com](mailto:VZ.GTS.ASPD@verizon.com) with Case ID 417-IGcQKZyndG, date, time, IP and requested URL.",
+    "truncated": false,
+    "fullContentLength": 369,
+    "headings": [],
+    "links": [
+      {
+        "text": "verizon.com",
+        "href": "https://www.verizon.com/"
+      },
+      {
+        "text": "VZ.GTS.ASPD@verizon.com",
+        "href": "mailto:VZ.GTS.ASPD@verizon.com"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "http://www.verizon.com/about/privacy/"
+      },
+      {
+        "text": "Terms and Conditions",
+        "href": "http://www.verizon.com/about/terms/"
+      },
+      {
+        "text": "Verizon Communications BBB Business Review",
+        "href": "http://www.bbb.org/new-york-city/business-reviews/telephone-companies/verizon-communications-in-new-york-ny-411/#bbbonlineclick"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABLCAYAAAA4TnrqAAAACXBIWXMAAC4jAAAuIwF4pT92AAADGklEQVR4nO3c/VXDIBAA8KML6AgdwRGygW5g3aAjtBu4gXWDukFH0A0coU5wvlR4+igkfBzcQbz38kfbGMivJFJyAIjIvgHAGgAOAHAGAPyznfX7axH1FAC1s4B8227RWLrVhECZ7bBIrAQodrDWoFjBpEEdAWDQ+w36tRgwSVAbz99spICJhpIGJh5KElgTUFLAmoGSANYUFDdYc1CcYE1CcYE1C8UB1jRUbbDmoWqCdQFVC0zpQpJCKTVCPXr+9gkRD6HHVUqt9YipHZ+I+BlxnBHsxfPxKyJukk9YSouaGDGNHiEt1cJWKcCULapE6PKfPId+1PWPjmgs6VAmSoBFYbUCZYIaLBirNSgTlGBBWK1CmaACm8VqHcoEBdgkVi9QJnLBvFi9QZnIAXNi9QplIhXsCqt3KBNJYFJ+FAPA1lPuVsqPbxFQ+PsE2lX2UKHsIDCz81TaT63xKDasALCd3ucyLMI+HjVRj2qJbDNg66nLr+rAna7sVT0Y6uADOyidinhj3fffEPGB6j9PaCilrkYiEVEx1GPM3rm33v5aOaDGeK5ULzs+Zl7XCtf53zg7pYh4YqrkeeZ1lfCdv68HP3BUUkr4zn/E+nK8v2Wqt/2NcrVw1/lf7llHxwf3+inJ4kKft31zH+O40h1SV7wsDWzmMdrO9C3Ye/Do7sVX6b0HdEh/evB/dpbwCJ4FK+q3oRQwALizyryTAnWFJQRsMJskKCeWBLAaW8oj/in1bsFScyHmDtodWE7SyGzKUa0xeaXUeHO/dXx0RsR3ojLy0pECv40a2ccnz/FP3C0q6DKsCVYSiypfK7bQkhMBimBRJralFF4ErAQWdQZgaiVKzMkhxSqRKpnTvKlzSsmwSuWUSspWJuk6iMxWLnlJZtSlaB48VSX/Z1i0AtbU3B1OsCZnhXGANT3fsCZYFzNZa4B1NUe6JFiXs+9LgHW9rgMl2CJWDKEAW9RaNDlgi1zlKBDsf/2sSLCQbRkrsxGAsa35lzRHmiL0uNJr5KHyxqMygw0LfsH2gbvvOaEuwdWkrUtS/gq4iPANPmSEdRHI41sAAAAASUVORK5CYII="
+      }
+    ],
+    "timestamp": 1760611682551,
+    "url": "https://www.verizon.com/support/contact-us/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

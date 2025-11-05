@@ -1,0 +1,22 @@
+{
+  "url": "https://www.homedepot.com/",
+  "extractedAt": "2025-10-16T09:35:38.314Z",
+  "content": {
+    "favicon": [],
+    "title": "Access Denied",
+    "metaDescription": "",
+    "content": "# Access Denied\n You don't have permission to access \"http://www.homedepot.com/?\" on this server. Reference #18.14c21302.1760607337.211b8ece \nhttps://errors.edgesuite.net/18.14c21302.1760607337.211b8ece",
+    "truncated": false,
+    "fullContentLength": 202,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Access Denied"
+      }
+    ],
+    "links": [],
+    "images": [],
+    "timestamp": 1760607337825,
+    "url": "https://www.homedepot.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

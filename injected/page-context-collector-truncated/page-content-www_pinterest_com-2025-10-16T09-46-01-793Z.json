@@ -1,0 +1,30 @@
+{
+  "url": "https://www.pinterest.com/",
+  "extractedAt": "2025-10-16T09:46:01.793Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://s.pinimg.com/webapp/logo_transparent_144x144-3da7a67b.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://s.pinimg.com/webapp/pinterest_favicon-70db4fa7.svg",
+        "rel": "mask-icon"
+      },
+      {
+        "href": "https://s.pinimg.com/webapp/favicon_48x48-7470a30d.png",
+        "rel": "icon"
+      }
+    ],
+    "title": "Pinterest",
+    "metaDescription": "Discover recipes, home ideas, style inspiration and other ideas to try.",
+    "content": "",
+    "truncated": false,
+    "fullContentLength": 0,
+    "headings": [],
+    "links": [],
+    "images": [],
+    "timestamp": 1760607957636,
+    "url": "https://www.pinterest.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

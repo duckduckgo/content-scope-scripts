@@ -1,0 +1,573 @@
+{
+  "url": "https://www.speedtest.net/",
+  "extractedAt": "2025-10-16T11:03:53.393Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.speedtest.net/favicon.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://b.cdnst.net/images/favicons/favicon.svg",
+        "rel": "icon"
+      },
+      {
+        "href": "https://b.cdnst.net/images/favicons/favicon-180.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://b.cdnst.net/images/favicons/favicon-180.png",
+        "rel": "apple-touch-icon-precomposed"
+      }
+    ],
+    "title": "Speedtest by Ookla - The Global Broadband Speed Test",
+    "metaDescription": "Use Speedtest on all your devices with our free desktop and mobile apps.",
+    "content": "[Go](#)         \n \n- [Results](/results)\n \n- [Settings](/settings)\n \n            Microsoft Azure20.61.34.40           Finding optimal server...                      Connections [Multi](#)  [Single](#)",
+    "truncated": false,
+    "fullContentLength": 200,
+    "headings": [
+      {
+        "level": 3,
+        "text": "Having Internet Problems?"
+      },
+      {
+        "level": 4,
+        "text": "Find Your Next ISP with Speedtest’s Help"
+      },
+      {
+        "level": 5,
+        "text": "Servers close to you:"
+      },
+      {
+        "level": 2,
+        "text": "Become a Host"
+      },
+      {
+        "level": 2,
+        "text": "Try Speedtest for Desktop"
+      },
+      {
+        "level": 2,
+        "text": "Remove ads on Speedtest.net for life"
+      },
+      {
+        "level": 3,
+        "text": "Speedtest®"
+      },
+      {
+        "level": 3,
+        "text": "Ziff Davis"
+      },
+      {
+        "level": 3,
+        "text": "Ookla® Brands"
+      },
+      {
+        "level": 3,
+        "text": "Apps"
+      }
+    ],
+    "links": [
+      {
+        "text": "العربية",
+        "href": "/ar"
+      },
+      {
+        "text": "Deutsch",
+        "href": "/de"
+      },
+      {
+        "text": "English",
+        "href": "/"
+      },
+      {
+        "text": "Español",
+        "href": "/es"
+      },
+      {
+        "text": "Français",
+        "href": "/fr"
+      },
+      {
+        "text": "Bahasa Indonesia",
+        "href": "/id"
+      },
+      {
+        "text": "Italiano",
+        "href": "/it"
+      },
+      {
+        "text": "日本語",
+        "href": "/ja"
+      },
+      {
+        "text": "한국어",
+        "href": "/ko"
+      },
+      {
+        "text": "Nederlands",
+        "href": "/nl"
+      },
+      {
+        "text": "Polski",
+        "href": "/pl"
+      },
+      {
+        "text": "Português",
+        "href": "/pt"
+      },
+      {
+        "text": "Русский",
+        "href": "/ru"
+      },
+      {
+        "text": "Svenska",
+        "href": "/sv"
+      },
+      {
+        "text": "ไทย",
+        "href": "/th"
+      },
+      {
+        "text": "中文(简体)",
+        "href": "/zh-Hans"
+      },
+      {
+        "text": "中文(繁體)",
+        "href": "/zh-Hant"
+      },
+      {
+        "text": "Apps",
+        "href": "/apps"
+      },
+      {
+        "text": "Android",
+        "href": "/apps/android"
+      },
+      {
+        "text": "Apple TV",
+        "href": "/apps/appletv"
+      },
+      {
+        "text": "iOS",
+        "href": "/apps/ios"
+      },
+      {
+        "text": "macOS",
+        "href": "/apps/mac"
+      },
+      {
+        "text": "Windows",
+        "href": "/apps/windows"
+      },
+      {
+        "text": "Learn",
+        "href": "/about/knowledge"
+      },
+      {
+        "text": "Glossary",
+        "href": "/about/knowledge/glossary"
+      },
+      {
+        "text": "Guides",
+        "href": "/about/knowledge/guides"
+      },
+      {
+        "text": "FAQ",
+        "href": "/about/knowledge/faq"
+      },
+      {
+        "text": "Ookla Research™",
+        "href": "https://www.ookla.com/articles"
+      },
+      {
+        "text": "Speedtest Awards™",
+        "href": "/awards"
+      },
+      {
+        "text": "Speedtest Global Index™",
+        "href": "/global-index"
+      },
+      {
+        "text": "Speedtest Performance Directory™",
+        "href": "/performance/united-states"
+      },
+      {
+        "text": "Apps",
+        "href": "/apps"
+      },
+      {
+        "text": "Methodology",
+        "href": "https://www.ookla.com/resources/guides/speedtest-methodology"
+      },
+      {
+        "text": "Press",
+        "href": "https://www.ookla.com/about/press"
+      },
+      {
+        "text": "Ookla",
+        "href": "https://www.ookla.com"
+      },
+      {
+        "text": "Advertise",
+        "href": "/about/advertising"
+      },
+      {
+        "text": "HELP",
+        "href": "/help"
+      },
+      {
+        "text": "Results History",
+        "href": "/results"
+      },
+      {
+        "text": "Settings",
+        "href": "/settings"
+      },
+      {
+        "text": "Help",
+        "href": "/help"
+      },
+      {
+        "text": "Create Account",
+        "href": "/register"
+      },
+      {
+        "text": "العربية",
+        "href": "/ar"
+      },
+      {
+        "text": "Deutsch",
+        "href": "/de"
+      },
+      {
+        "text": "English",
+        "href": "/"
+      },
+      {
+        "text": "Español",
+        "href": "/es"
+      },
+      {
+        "text": "Français",
+        "href": "/fr"
+      },
+      {
+        "text": "Bahasa Indonesia",
+        "href": "/id"
+      },
+      {
+        "text": "Italiano",
+        "href": "/it"
+      },
+      {
+        "text": "日本語",
+        "href": "/ja"
+      },
+      {
+        "text": "한국어",
+        "href": "/ko"
+      },
+      {
+        "text": "Nederlands",
+        "href": "/nl"
+      },
+      {
+        "text": "Polski",
+        "href": "/pl"
+      },
+      {
+        "text": "Português",
+        "href": "/pt"
+      },
+      {
+        "text": "Русский",
+        "href": "/ru"
+      },
+      {
+        "text": "Svenska",
+        "href": "/sv"
+      },
+      {
+        "text": "ไทย",
+        "href": "/th"
+      },
+      {
+        "text": "中文(简体)",
+        "href": "/zh-Hans"
+      },
+      {
+        "text": "中文(繁體)",
+        "href": "/zh-Hant"
+      },
+      {
+        "text": "Go",
+        "href": "#"
+      },
+      {
+        "text": "Close",
+        "href": "#"
+      },
+      {
+        "text": "Results",
+        "href": "/results"
+      },
+      {
+        "text": "Settings",
+        "href": "/settings"
+      },
+      {
+        "text": "Change Server",
+        "href": "#"
+      },
+      {
+        "text": "Multi",
+        "href": "#"
+      },
+      {
+        "text": "Single",
+        "href": "#"
+      },
+      {
+        "text": "Sign Up",
+        "href": "https://www.ookla.com/network"
+      },
+      {
+        "text": "64-bit",
+        "href": "https://install.speedtest.net/app/windows/latest/speedtestbyookla_x64.msi"
+      },
+      {
+        "text": "32-bit",
+        "href": "https://install.speedtest.net/app/windows/latest/speedtestbyookla_x86.msi"
+      },
+      {
+        "text": "Back to test results",
+        "href": "#"
+      },
+      {
+        "text": "Remove Ads",
+        "href": "/ad-free/register"
+      },
+      {
+        "text": "Back to test results",
+        "href": "#"
+      },
+      {
+        "text": "Remove Speedtest.net Ads",
+        "href": "/ad-free/register"
+      },
+      {
+        "text": "Create an Account",
+        "href": "/register"
+      },
+      {
+        "text": "Results History",
+        "href": "/results"
+      },
+      {
+        "text": "Desktop Apps",
+        "href": "/apps/desktop"
+      },
+      {
+        "text": "Troubleshoot Your Wifi",
+        "href": "/about/knowledge/simple-wifi-audit"
+      },
+      {
+        "text": "Check for Outages",
+        "href": "https://downdetector.com"
+      },
+      {
+        "text": "Prepare to Talk to Your ISP",
+        "href": "/about/knowledge/trouble-with-your-isp"
+      },
+      {
+        "text": "How Much Speed Do You Need?",
+        "href": "/about/knowledge/how-much-speed-you-need"
+      },
+      {
+        "text": "Download Mobile Apps",
+        "href": "/apps/mobile"
+      },
+      {
+        "text": "Get Help",
+        "href": "https://help.speedtest.net/hc/en-us"
+      },
+      {
+        "text": "Speedtest Global Index™",
+        "href": "/global-index"
+      },
+      {
+        "text": "Speedtest Performance Directory",
+        "href": "/performance/united-states"
+      },
+      {
+        "text": "Ookla Research",
+        "href": "https://www.ookla.com/research"
+      },
+      {
+        "text": "Speedtest®",
+        "href": "/"
+      },
+      {
+        "text": "Account",
+        "href": "https://www.speedtest.net/login"
+      },
+      {
+        "text": "Advertise",
+        "href": "/about/advertising"
+      },
+      {
+        "text": "Speedtest Awards™",
+        "href": "/awards"
+      },
+      {
+        "text": "Speedtest Servers™",
+        "href": "https://www.ookla.com/network"
+      },
+      {
+        "text": "Speedtest Performance Directory™",
+        "href": "/performance/united-states"
+      },
+      {
+        "text": "Ziff Davis",
+        "href": "https://ziffdavis.com/"
+      },
+      {
+        "text": "Downdetector®",
+        "href": "https://downdetector.com/"
+      },
+      {
+        "text": "Ekahau®",
+        "href": "https://www.ekahau.com/"
+      },
+      {
+        "text": "RootMetrics®",
+        "href": "https://rootmetrics.com/"
+      },
+      {
+        "text": "Apps",
+        "href": "/apps"
+      },
+      {
+        "text": "Android",
+        "href": "/apps/android"
+      },
+      {
+        "text": "Apple TV",
+        "href": "/apps/appletv"
+      },
+      {
+        "text": "iOS",
+        "href": "/apps/ios"
+      },
+      {
+        "text": "macOS",
+        "href": "/apps/mac"
+      },
+      {
+        "text": "Windows",
+        "href": "/apps/windows"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "/about/privacy"
+      },
+      {
+        "text": "Cookie Policy.",
+        "href": "https://www.ziffdavis.com/cookie-policy"
+      },
+      {
+        "text": "Accessibility",
+        "href": "/about/accessibility"
+      },
+      {
+        "text": "Network Status",
+        "href": "https://status.ookla.com/"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "/about/privacy"
+      },
+      {
+        "text": "Terms of Use",
+        "href": "/about/terms"
+      },
+      {
+        "text": "Do Not Sell My Personal Information",
+        "href": "/about/ccpa"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Speedtest app promo",
+        "src": "/images/android-app-promo-1x.png"
+      },
+      {
+        "alt": "",
+        "src": "//b.cdnst.net/images/gauge-gradient-dl-multi-web.png"
+      },
+      {
+        "alt": "",
+        "src": "//b.cdnst.net/images/gauge-gradient-ul-multi-web.png"
+      },
+      {
+        "alt": "",
+        "src": "//b.cdnst.net/images/gauge-gradient-dl-single-web.png"
+      },
+      {
+        "alt": "",
+        "src": "//b.cdnst.net/images/gauge-gradient-ul-single-web.png"
+      },
+      {
+        "alt": "Downdetector logo",
+        "src": "//b.cdnst.net/images/dd-logo.svg"
+      },
+      {
+        "alt": "",
+        "src": "/images/English_get-it-from-MS_InvariantCulture_Default.png"
+      },
+      {
+        "alt": "",
+        "src": "/images/Download_on_the_Mac_App_Store_Badge_US-UK_165x40.svg"
+      },
+      {
+        "alt": "",
+        "src": "//b.cdnst.net/images/ad-free-125x101-fade-anim-1x.gif"
+      },
+      {
+        "alt": "Desktop apps",
+        "src": "//b.cdnst.net/images/icg_desktop_apps.svg"
+      },
+      {
+        "alt": "Wi-Fi troubleshooting",
+        "src": "//b.cdnst.net/images/icg_troubleshoot_wifi.svg"
+      },
+      {
+        "alt": "Check outages",
+        "src": "//b.cdnst.net/images/icg_check_outages.svg"
+      },
+      {
+        "alt": "Talk to ISP",
+        "src": "//b.cdnst.net/images/icg_talk_to_isp.svg"
+      },
+      {
+        "alt": "Speed requirement",
+        "src": "//b.cdnst.net/images/icg_how_much_speed.png"
+      },
+      {
+        "alt": "QR code for downloading mobile app",
+        "src": "//b.cdnst.net/images/icg_qr_code.svg"
+      },
+      {
+        "alt": "Mobile Apps",
+        "src": "//b.cdnst.net/images/mobile_apps.svg"
+      },
+      {
+        "alt": "Help",
+        "src": "//b.cdnst.net/images/icg_get_help.svg"
+      }
+    ],
+    "timestamp": 1760612630599,
+    "url": "https://www.speedtest.net/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}
