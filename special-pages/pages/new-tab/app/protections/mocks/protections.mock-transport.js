@@ -80,11 +80,30 @@ export function protectionsMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'protections_getData':
+                    // No data. Setting `stats=none` (totalCount = 0) also
+                    // hides CPM stats
                     if (url.searchParams.get('stats') === 'none') {
                         dataset.totalCount = 0;
                     }
                     if (url.searchParams.get('activity') === 'empty') {
                         dataset.totalCount = 0;
+                    }
+                    if (url.searchParams.get('cpm') === 'true') {
+                        dataset.totalCookiePopUpsBlocked = 22;
+                    }
+                    // CPM = 0 state
+                    if (url.searchParams.get('cpm') === 'none') {
+                        dataset.totalCookiePopUpsBlocked = 0;
+                    }
+                    // CPM disabled state
+                    if (url.searchParams.get('cpm') === 'null') {
+                        dataset.totalCookiePopUpsBlocked = null;
+                    }
+                    // Setting cpm=undefined allows us to see the legacy
+                    // protections report. Useful until all platforms adopt the
+                    // new schema
+                    if (url.searchParams.get('cpm') === 'undefined') {
+                        dataset.totalCookiePopUpsBlocked = undefined;
                     }
                     return Promise.resolve(dataset);
                 case 'protections_getConfig': {

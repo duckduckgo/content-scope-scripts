@@ -2,11 +2,12 @@ import { h } from 'preact';
 import { useTypedTranslationWith } from '../../types.js';
 import cn from 'classnames';
 import styles from './Activity.module.css';
+import stylesLegacy from './ActivityLegacy.module.css';
 import { FaviconWithState } from '../../../../../shared/components/FaviconWithState.js';
 import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
 import { Star, StarFilled } from '../../components/icons/Star.js';
 import { Fire } from '../../components/icons/Fire.js';
-import { Cross } from '../../components/Icons.js';
+import { Cross, FireIcon } from '../../components/Icons.js';
 import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { useComputed } from '@preact/signals';
@@ -55,6 +56,47 @@ export const ActivityItem = memo(
     },
 );
 
+export const ActivityItemLegacy = memo(
+    /**
+     * @param {object} props
+     * @param {boolean} props.canBurn
+     * @param {"visible"|"hidden"} props.documentVisibility
+     * @param {import("preact").ComponentChild} props.children
+     * @param {string} props.title
+     * @param {string} props.url
+     * @param {string|null|undefined} props.favoriteSrc
+     * @param {number} props.faviconMax
+     * @param {string} props.etldPlusOne
+     */
+    function ActivityItem({ canBurn, documentVisibility, title, url, favoriteSrc, faviconMax, etldPlusOne, children }) {
+        return (
+            <li key={url} class={cn(stylesLegacy.item)} data-testid="ActivityItem">
+                <div class={stylesLegacy.heading}>
+                    <a class={stylesLegacy.title} href={url} data-url={url}>
+                        <span className={stylesLegacy.favicon} data-url={url}>
+                            {documentVisibility === 'visible' && (
+                                <FaviconWithState
+                                    faviconSrc={favoriteSrc}
+                                    faviconMax={faviconMax}
+                                    etldPlusOne={etldPlusOne}
+                                    theme={'light'}
+                                    displayKind={'history-favicon'}
+                                    key={`${favoriteSrc}:${faviconMax}`}
+                                    fallback={DDG_FALLBACK_ICON}
+                                    fallbackDark={DDG_FALLBACK_ICON_DARK}
+                                />
+                            )}
+                        </span>
+                        {title}
+                    </a>
+                    <Controls canBurn={canBurn} url={url} title={title} />
+                </div>
+                <div class={stylesLegacy.body}>{children}</div>
+            </li>
+        );
+    },
+);
+
 /**
  * Renders a set of control buttons that handle actions related to favorites and burn/removal features.
  *
@@ -97,7 +139,7 @@ function Controls({ canBurn, url, title }) {
                 value={url}
                 type="button"
             >
-                {canBurn ? <Fire /> : <Cross />}
+                {canBurn ? <FireIcon /> : <Cross />}
             </button>
         </div>
     );

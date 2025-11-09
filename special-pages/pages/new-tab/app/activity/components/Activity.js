@@ -1,5 +1,8 @@
 import { h } from 'preact';
 import styles from './Activity.module.css';
+// @todo legacyProtections: `stylesLegacy` can be removed once all platforms
+// are ready for the new Protections Report
+import stylesLegacy from './ActivityLegacy.module.css';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { ActivityContext, ActivityServiceContext } from '../ActivityProvider.js';
@@ -8,7 +11,7 @@ import { useOnMiddleClick } from '../../utils.js';
 import { useAdBlocking, useBatchedActivityApi, usePlatformName } from '../../settings.provider.js';
 import { CompanyIcon } from '../../components/CompanyIcon.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
-import { ActivityItem } from './ActivityItem.js';
+import { ActivityItem, ActivityItemLegacy } from './ActivityItem.js';
 import { ActivityBurningSignalContext, BurnProvider } from '../../burning/BurnProvider.js';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { useComputed } from '@preact/signals';
@@ -18,6 +21,7 @@ import { HistoryItems } from './HistoryItems.js';
 import { NormalizedDataContext, SignalStateProvider } from '../NormalizeDataProvider.js';
 import { ActivityInteractionsContext } from '../../burning/ActivityInteractionsContext.js';
 import { ProtectionsEmpty } from '../../protections/components/Protections.js';
+import { TickPill } from '../../components/TickPill/TickPill';
 
 /**
  * @import enStrings from "../strings.json"
@@ -55,8 +59,9 @@ export function ActivityEmptyState() {
  * @param {object} props
  * @param {boolean} props.canBurn
  * @param {DocumentVisibilityState} props.visibility
+ * @param {boolean} props.shouldDisplayLegacyActivity
  */
-export function ActivityBody({ canBurn, visibility }) {
+export function ActivityBody({ canBurn, visibility, shouldDisplayLegacyActivity }) {
     const { isReducedMotion } = useEnv();
     const { keys } = useContext(NormalizedDataContext);
     const { burning, exiting } = useContext(ActivityBurningSignalContext);
@@ -71,8 +76,33 @@ export function ActivityBody({ canBurn, visibility }) {
     return (
         <ul class={styles.activity} data-busy={busy} ref={ref} onClick={didClick}>
             {keys.value.map((id, _index) => {
-                if (canBurn && !isReducedMotion) return <BurnableItem id={id} key={id} documentVisibility={visibility} />;
-                return <RemovableItem id={id} key={id} canBurn={canBurn} documentVisibility={visibility} />;
+                if (canBurn && !isReducedMotion) {
+                    return (
+                        <BurnableItem
+                            id={id}
+                            key={id}
+                            documentVisibility={visibility}
+                            // @todo legacyProtections:
+                            // `shouldDisplayLegacyActivity` can be removed once
+                            // all platforms are ready for the new protections
+                            // report
+                            shouldDisplayLegacyActivity={shouldDisplayLegacyActivity}
+                        />
+                    );
+                }
+
+                return (
+                    <RemovableItem
+                        id={id}
+                        key={id}
+                        canBurn={canBurn}
+                        documentVisibility={visibility}
+                        // @todo legacyProtections:
+                        // `shouldDisplayLegacyActivity` can be removed once all
+                        // platforms are ready for the new protections report
+                        shouldDisplayLegacyActivity={shouldDisplayLegacyActivity}
+                    />
+                );
             })}
         </ul>
     );
@@ -111,16 +141,23 @@ const BurnableItem = memo(
      * @param {object} props
      * @param {string} props.id
      * @param {'visible' | 'hidden'} props.documentVisibility
+     * @param {boolean} props.shouldDisplayLegacyActivity
      */
-    function BurnableItem({ id, documentVisibility }) {
+    function BurnableItem({ id, documentVisibility, shouldDisplayLegacyActivity }) {
         const { activity } = useContext(NormalizedDataContext);
         const item = useComputed(() => activity.value.items[id]);
+
         if (!item.value) {
             return null;
         }
+
+        // @todo legacyProtections: Once all platforms are ready for the new
+        // protections report we can use `ActivityItem`
+        const ActivityItemComponent = shouldDisplayLegacyActivity ? ActivityItemLegacy : ActivityItem;
+
         return (
             <ActivityItemAnimationWrapper url={id}>
-                <ActivityItem
+                <ActivityItemComponent
                     title={item.value.title}
                     url={id}
                     favoriteSrc={item.value.favoriteSrc}
@@ -129,9 +166,16 @@ const BurnableItem = memo(
                     canBurn={true}
                     documentVisibility={documentVisibility}
                 >
-                    <TrackerStatus id={id} trackersFound={item.value.trackersFound} />
+                    {shouldDisplayLegacyActivity ? (
+                        // @todo legacyProtections: `TrackerStatusLegacy` and
+                        // supporting prop can be removed once all platforms are
+                        // ready for the new protections report
+                        <TrackerStatusLegacy id={id} trackersFound={item.value.trackersFound} />
+                    ) : (
+                        <TrackerStatus id={id} trackersFound={item.value.trackersFound} />
+                    )}
                     <HistoryItems id={id} />
-                </ActivityItem>
+                </ActivityItemComponent>
             </ActivityItemAnimationWrapper>
         );
     },
@@ -143,8 +187,9 @@ const RemovableItem = memo(
      * @param {string} props.id
      * @param {boolean} props.canBurn
      * @param {"visible" | "hidden"} props.documentVisibility
+     * @param {boolean} props.shouldDisplayLegacyActivity
      */
-    function RemovableItem({ id, canBurn, documentVisibility }) {
+    function RemovableItem({ id, canBurn, documentVisibility, shouldDisplayLegacyActivity }) {
         const { activity } = useContext(NormalizedDataContext);
         const item = useComputed(() => activity.value.items[id]);
         if (!item.value) {
@@ -154,8 +199,13 @@ const RemovableItem = memo(
                 </p>
             );
         }
+
+        // @todo legacyProtections: Once all platforms are ready for the new
+        // protections report we can use `ActivityItem`
+        const ActivityItemComponent = shouldDisplayLegacyActivity ? ActivityItemLegacy : ActivityItem;
+
         return (
-            <ActivityItem
+            <ActivityItemComponent
                 title={item.value.title}
                 url={id}
                 favoriteSrc={item.value.favoriteSrc}
@@ -164,9 +214,16 @@ const RemovableItem = memo(
                 canBurn={canBurn}
                 documentVisibility={documentVisibility}
             >
-                <TrackerStatus id={id} trackersFound={item.value.trackersFound} />
+                {shouldDisplayLegacyActivity ? (
+                    // @todo legacyProtections: `TrackerStatusLegacy` and
+                    // supporting prop can be removed once all platforms are
+                    // ready for the new protections report
+                    <TrackerStatusLegacy id={id} trackersFound={item.value.trackersFound} />
+                ) : (
+                    <TrackerStatus id={id} trackersFound={item.value.trackersFound} />
+                )}
                 <HistoryItems id={id} />
-            </ActivityItem>
+            </ActivityItemComponent>
         );
     },
 );
@@ -178,6 +235,40 @@ const DDG_MAX_TRACKER_ICONS = 3;
  * @param {boolean} props.trackersFound
  */
 function TrackerStatus({ id, trackersFound }) {
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    const { activity } = useContext(NormalizedDataContext);
+    const status = useComputed(() => activity.value.trackingStatus[id]);
+    const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked?.[id]).value;
+    const { totalCount: totalTrackersBlocked } = status.value;
+
+    const totalTrackersPillText =
+        totalTrackersBlocked === 0
+            ? trackersFound
+                ? t('activity_no_trackers_blocked')
+                : t('activity_no_trackers')
+            : t(totalTrackersBlocked === 1 ? 'activity_countBlockedSingular' : 'activity_countBlockedPlural', {
+                  count: String(totalTrackersBlocked),
+              });
+
+    return (
+        <div class={styles.companiesIconRow} data-testid="TrackerStatus">
+            <div class={styles.companiesText}>
+                {totalTrackersBlocked > 0 && <TickPill text={totalTrackersPillText} />}
+                {cookiePopUpBlocked && <TickPill text={t('activity_cookiePopUpBlocked')} />}
+            </div>
+        </div>
+    );
+}
+
+// @todo legacyProtections: `TrackerStatusLegacy` can be removed once all
+// platforms are ready for the new protections report
+
+/**
+ * @param {object} props
+ * @param {string} props.id
+ * @param {boolean} props.trackersFound
+ */
+function TrackerStatusLegacy({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
     const status = useComputed(() => activity.value.trackingStatus[id]);
@@ -193,7 +284,7 @@ function TrackerStatus({ id, trackersFound }) {
     if (other.length > 0) {
         const title = other.map((item) => item.displayName).join('\n');
         otherIcon = (
-            <span title={title} class={styles.otherIcon}>
+            <span title={title} class={stylesLegacy.otherIcon}>
                 +{other.length}
             </span>
         );
@@ -207,23 +298,23 @@ function TrackerStatus({ id, trackersFound }) {
             text = adBlocking ? t('activity_no_adsAndTrackers') : t('activity_no_trackers');
         }
         return (
-            <p class={styles.companiesIconRow} data-testid="TrackerStatus">
+            <p class={stylesLegacy.companiesIconRow} data-testid="TrackerStatus">
                 {text}
             </p>
         );
     }
 
     return (
-        <div class={styles.companiesIconRow} data-testid="TrackerStatus">
-            <div class={styles.companiesIcons}>
+        <div class={stylesLegacy.companiesIconRow} data-testid="TrackerStatus">
+            <div class={stylesLegacy.companiesIcons}>
                 {icons}
                 {otherIcon}
             </div>
-            <div class={styles.companiesText}>
+            <div class={stylesLegacy.companiesText}>
                 {adBlocking ? (
                     <Trans str={t('activity_countBlockedAdsAndTrackersPlural', { count: String(status.value.totalCount) })} values={{}} />
                 ) : (
-                    <Trans str={t('activity_countBlockedPlural', { count: String(status.value.totalCount) })} values={{}} />
+                    <Trans str={t('activity_countBlockedPluralLegacy', { count: String(status.value.totalCount) })} values={{}} />
                 )}
             </div>
         </div>
@@ -263,8 +354,9 @@ export function ActivityConfigured({ children }) {
  * ```
  * @param {object} props
  * @param {boolean} props.showBurnAnimation
+ * @param {boolean} props.shouldDisplayLegacyActivity
  */
-export function ActivityConsumer({ showBurnAnimation }) {
+export function ActivityConsumer({ showBurnAnimation, shouldDisplayLegacyActivity }) {
     const { state } = useContext(ActivityContext);
     const service = useContext(ActivityServiceContext);
     const platformName = usePlatformName();
@@ -274,7 +366,7 @@ export function ActivityConsumer({ showBurnAnimation }) {
             return (
                 <SignalStateProvider>
                     <ActivityConfigured>
-                        <ActivityBody canBurn={false} visibility={visibility} />
+                        <ActivityBody canBurn={false} visibility={visibility} shouldDisplayLegacyActivity={shouldDisplayLegacyActivity} />
                     </ActivityConfigured>
                 </SignalStateProvider>
             );
@@ -283,7 +375,7 @@ export function ActivityConsumer({ showBurnAnimation }) {
             <SignalStateProvider>
                 <BurnProvider service={service} showBurnAnimation={showBurnAnimation}>
                     <ActivityConfigured>
-                        <ActivityBody canBurn={true} visibility={visibility} />
+                        <ActivityBody canBurn={true} visibility={visibility} shouldDisplayLegacyActivity={shouldDisplayLegacyActivity} />
                     </ActivityConfigured>
                 </BurnProvider>
             </SignalStateProvider>

@@ -97,10 +97,28 @@ export function useService() {
 export function useBlockedCount(initial) {
     const service = useService();
     const signal = useSignal(initial);
+    // @todo jingram possibly refactor to include full object
     useSignalEffect(() => {
         return service.current?.onData((evt) => {
             signal.value = evt.data.totalCount;
         });
     });
+    return signal;
+}
+
+/**
+ * @param {number | null | undefined} initial
+ * @return {import("@preact/signals").Signal<undefined | number | null>}
+ */
+export function useCookiePopUpsBlockedCount(initial) {
+    const service = useService();
+    const signal = useSignal(initial);
+
+    useSignalEffect(() => {
+        return service.current?.onData((evt) => {
+            signal.value = evt.data.totalCookiePopUpsBlocked;
+        });
+    });
+
     return signal;
 }
