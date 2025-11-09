@@ -10,6 +10,7 @@ export default defineConfig({
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/harmful-apis.spec.js',
                 'integration-test/windows-permissions.spec.js',
+                'integration-test/ua-ch-brands.spec.js',
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/breakage-reporting.spec.js',
                 'integration-test/duck-ai-data-clearing.spec.js',
