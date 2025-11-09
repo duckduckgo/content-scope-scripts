@@ -103,6 +103,8 @@ export function getStyles(assets) {
         loginMode: {
             buttonBackground: `
             background: #666666;
+            width: 100%;
+            max-width: 300px;
         `,
             buttonFont: `
             color: #FFFFFF;
