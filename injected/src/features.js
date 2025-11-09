@@ -62,6 +62,17 @@ export const platformSupport = {
         'gpc',
         'breakageReporting',
     ],
+    'android-adsjs-lm': [
+        'apiManipulation',
+        'webCompat',
+        'fingerprintingHardware',
+        'fingerprintingScreenSize',
+        'fingerprintingTemporaryStorage',
+        'fingerprintingAudio',
+        'fingerprintingBattery',
+        'gpc',
+        'breakageReporting',
+    ],
     windows: [
         'cookie',
         ...baseFeatures,
