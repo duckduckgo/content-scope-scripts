@@ -56,6 +56,7 @@ export function resetDetectors(reason = 'manual') {
  * @param {string} detectorId - Unique identifier for the detector
  * @param {Object} [options] - Options for data retrieval
  * @param {number} [options.maxAgeMs] - Maximum age of cached data in milliseconds
+ * @param {boolean} [options._autoRun] - Internal flag indicating auto-run (gates apply)
  * @returns {Promise<any>} Detector data or null if not registered
  */
 export async function getDetectorData(detectorId, options = {}) {
@@ -76,7 +77,8 @@ export async function getDetectorData(detectorId, options = {}) {
 
     const runner = registration.refresh ?? registration.getData;
     try {
-        const data = await runner();
+        // Pass options to the runner so gates can check _autoRun flag
+        const data = await runner(options);
         cache.set(detectorId, { data, ts: Date.now() });
         return data;
     } catch (error) {
@@ -90,6 +92,7 @@ export async function getDetectorData(detectorId, options = {}) {
  * @param {string[]} detectorIds - Array of detector IDs
  * @param {Object} [options] - Options for data retrieval
  * @param {number} [options.maxAgeMs] - Maximum age of cached data in milliseconds
+ * @param {boolean} [options._autoRun] - Internal flag indicating auto-run (gates apply)
  * @returns {Promise<Record<string, any>>} Object mapping detector IDs to their data
  */
 export async function getDetectorBatch(detectorIds, options = {}) {

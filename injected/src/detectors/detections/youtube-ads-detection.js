@@ -8,6 +8,16 @@ const DEFAULT_CONFIG = {
 export function createYouTubeAdsDetector(config = {}) {
     const mergedConfig = { ...DEFAULT_CONFIG, ...config };
     return {
+        /**
+         * Optional gate function - return false to skip detection entirely
+         * This runs before getData() and can be used for lightweight precondition checks
+         */
+        shouldRun() {
+            // Only run if the YouTube player root element exists
+            // This avoids unnecessary DOM scanning on non-video pages
+            return document.querySelector(mergedConfig.rootSelector) !== null;
+        },
+
         async getData() {
             return runYouTubeAdsDetection(mergedConfig);
         },

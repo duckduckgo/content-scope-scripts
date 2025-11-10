@@ -9,7 +9,7 @@ export default class BreakageReporting extends ContentFeature {
             const jsPerformance = getJsPerformanceMetrics();
             const referrer = document.referrer;
 
-            // Collect detector data
+            // Collect detector data (gates bypassed by default for manual calls)
             const detectorData = await getDetectorBatch([
                 'botDetection',
                 'fraudDetection',
