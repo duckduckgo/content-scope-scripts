@@ -65,6 +65,7 @@ Detectors are controlled via `privacy-configuration/features/web-interference-de
   "state": "enabled",
   "settings": {
     "domains": [],
+    "autoRunDelayMs": 100,
     "interferenceTypes": {
       "botDetection": {
         "hcaptcha": {
@@ -117,7 +118,7 @@ Detectors can be configured to run automatically on page load:
 - **`autoRun: true`** (default): Run detector automatically after page load
   - Gates are checked (domain + custom `shouldRun()`)
   - Results are cached immediately
-  - Runs after 100ms delay to let DOM settle
+  - Runs after configurable delay (see `autoRunDelayMs`)
   - Useful for detectors that should always gather data (bot detection, fraud detection)
 
 - **`autoRun: false`**: Only run when explicitly called
@@ -125,16 +126,26 @@ Detectors can be configured to run automatically on page load:
   - Useful for expensive detectors or event-driven scenarios
   - Example: YouTube detector only runs when explicitly requested
 
+- **`autoRunDelayMs`** (global setting, default: 100): Milliseconds to wait before running auto-run detectors
+  - Allows DOM to settle after page load
+  - Can be tuned per-site or globally
+  - Use 0 for immediate execution, higher values for slower-loading pages
+
 Example:
 ```json
-"botDetection": {
-  "autoRun": true,  // Run automatically with gates
-  "domains": ["*.example.com"],
-  ...
-},
-"expensiveDetector": {
-  "autoRun": false,  // Only run on-demand, skip gates
-  ...
+"settings": {
+  "autoRunDelayMs": 250,  // Wait 250ms before auto-running detectors
+  "interferenceTypes": {
+    "botDetection": {
+      "autoRun": true,  // Run automatically with gates
+      "domains": ["*.example.com"],
+      ...
+    },
+    "expensiveDetector": {
+      "autoRun": false,  // Only run on-demand, skip gates
+      ...
+    }
+  }
 }
 ```
 
@@ -205,9 +216,31 @@ export function createMyDetector(config) {
 }
 ```
 
+**Example: Detector that depends on another detector's results**
+
+```javascript
+import { getDetectorData } from '../detector-service.js';
+
+export function createAdvancedBotDetector(config) {
+    return {
+        // Only run advanced detection if basic bot detection found something
+        async shouldRun() {
+            const basicBotData = await getDetectorData('botDetection');
+            // Only run if basic detector found a bot/CAPTCHA
+            return basicBotData?.detected === true;
+        },
+
+        async getData() {
+            // Run expensive/detailed analysis only when needed
+            return runAdvancedBotAnalysis(config);
+        }
+    };
+}
+```
+
 **When to use `shouldRun()`:**
 - Lightweight DOM precondition checks (e.g., element exists)
-- Dependency on another detector's results
+- Dependency on another detector's results (use `getDetectorData()` inside `shouldRun()`)
 - Runtime feature detection
 - Performance optimization to avoid expensive operations
 
