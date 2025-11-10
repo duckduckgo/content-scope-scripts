@@ -1,17 +1,11 @@
 /**
- * @typedef {import('../types/detection.types.js').TypeDetectionResult} TypeDetectionResult
- * @typedef {import('../types/detection.types.js').InterferenceDetector} InterferenceDetector
- */
-
-/**
  * PROTOTYPE: Base class for complex detections with continuous monitoring
  * TODO: Add mutation observer, re-rooting, callback timers, debouncing
- * @implements {InterferenceDetector}
  */
 export class DetectionBase {
     /**
      * @param {object} config
-     * @param {((result: TypeDetectionResult) => void)|null} [onInterferenceChange]
+     * @param {(result: any) => void=} onInterferenceChange
      */
     constructor(config, onInterferenceChange = null) {
         this.config = config;
@@ -19,6 +13,7 @@ export class DetectionBase {
         this.isRunning = false;
         this.root = null;
         this.pollTimer = null;
+        this.retryTimer = null;
 
         if (this.onInterferenceChange) {
             this.start();
@@ -33,7 +28,7 @@ export class DetectionBase {
 
         this.root = this.findRoot();
         if (!this.root) {
-            setTimeout(() => this.start(), 500);
+            this.retryTimer = setTimeout(() => this.start(), 500);
             return;
         }
 
@@ -54,11 +49,13 @@ export class DetectionBase {
             clearInterval(this.pollTimer);
             this.pollTimer = null;
         }
+
+        if (this.retryTimer) {
+            clearTimeout(this.retryTimer);
+            this.retryTimer = null;
+        }
     }
 
-    /**
-     * @returns {TypeDetectionResult}
-     */
     detect() {
         throw new Error('detect() must be implemented by subclass');
     }

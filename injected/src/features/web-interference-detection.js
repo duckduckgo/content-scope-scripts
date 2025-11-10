@@ -1,10 +1,9 @@
-/**
- * @typedef {import('../services/web-interference-detection/types/api.types.js').InterferenceDetectionRequest} InterferenceDetectionRequest
- */
-
 import ContentFeature from '../content-feature.js';
-import { createWebInterferenceService } from '../services/web-interference-detection/detector-service.js';
-import { DEFAULT_INTERFERENCE_CONFIG } from '../services/web-interference-detection/default-config.js';
+import { registerDetector, getDetectorBatch, resetDetectors } from '../detectors/detector-service.js';
+import { DEFAULT_DETECTOR_SETTINGS } from '../detectors/default-config.js';
+import { createBotDetector } from '../detectors/detections/bot-detection.js';
+import { createFraudDetector } from '../detectors/detections/fraud-detection.js';
+import { createYouTubeAdsDetector } from '../detectors/detections/youtube-ads-detection.js';
 
 export default class WebInterferenceDetection extends ContentFeature {
     init() {
@@ -12,42 +11,46 @@ export default class WebInterferenceDetection extends ContentFeature {
         if (!featureEnabled) {
             return;
         }
-        const interferenceConfig = this.getFeatureAttr('interferenceTypes', DEFAULT_INTERFERENCE_CONFIG);
-        const service = createWebInterferenceService({
-            interferenceConfig,
-            onDetectionChange: (result) => {
-                this.messaging.notify('interferenceChanged', result);
-            },
-        });
 
-        /**
-         * Example: One-time detection
-         * Native ->  CSS: Call detectInterference
-         * CSS -> Native: Return interferenceDetected with immediate results
-         */
-        this.messaging.subscribe('detectInterference', (/** @type {InterferenceDetectionRequest} */ request) => {
+        const detectorSettings = {
+            ...DEFAULT_DETECTOR_SETTINGS,
+            ...this.getFeatureAttr('interferenceTypes', {}),
+        };
+
+        this._registerDefaults(detectorSettings);
+
+        this.messaging.subscribe('detectInterference', async (params = {}) => {
             try {
-                const detectionResults = service.detect(request);
-                return this.messaging.notify('interferenceDetected', detectionResults);
+                const detectorIds = normalizeTypes(params.types);
+                const results = await getDetectorBatch(detectorIds);
+                return this.messaging.notify('interferenceDetected', { results });
             } catch (error) {
                 console.error('[WebInterferenceDetection] Detection failed:', error);
                 return this.messaging.notify('interferenceDetectionError', { error: error.toString() });
             }
         });
-
-        /**
-         * Example: Continuous monitoring
-         * Native -> CSS: Call startInterferenceMonitoring
-         * CSS -> Native: Return monitoringStarted with initial results
-         * CSS -> Native: Send interferenceChanged whenever detection changes (for types with observeDOMChanges: true)
-         */
-        this.messaging.subscribe('startInterferenceMonitoring', (/** @type {InterferenceDetectionRequest} */ request) => {
-            try {
-                service.detect(request);
-            } catch (error) {
-                console.error('[WebInterferenceDetection] Monitoring failed:', error);
-                return this.messaging.notify('interferenceDetectionError', { error: error.toString() });
-            }
-        });
     }
+
+    destroy() {
+        resetDetectors('feature-destroyed');
+    }
+
+    _registerDefaults(settings) {
+        if (settings.botDetection) {
+            registerDetector('botDetection', createBotDetector(settings.botDetection));
+        }
+        if (settings.fraudDetection) {
+            registerDetector('fraudDetection', createFraudDetector(settings.fraudDetection));
+        }
+        if (settings.youtubeAds) {
+            registerDetector('youtubeAds', createYouTubeAdsDetector(settings.youtubeAds));
+        }
+    }
+}
+
+function normalizeTypes(types) {
+    if (!Array.isArray(types) || types.length === 0) {
+        return ['botDetection', 'fraudDetection', 'youtubeAds'];
+    }
+    return types.filter((type) => typeof type === 'string');
 }

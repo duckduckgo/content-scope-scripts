@@ -1,13 +1,7 @@
-/**
- * @typedef {import('../services/web-interference-detection/types/api.types.js').InterferenceDetectionRequest} InterferenceDetectionRequest
- */
-
 import ContentFeature from '../content-feature.js';
 import { execute } from './broker-protection/execute.js';
 import { retry } from '../timer-utils.js';
 import { ErrorResponse } from './broker-protection/types.js';
-import { createWebInterferenceService } from '../services/web-interference-detection/detector-service.js';
-import { DEFAULT_INTERFERENCE_CONFIG } from '../services/web-interference-detection/default-config.js';
 
 export class ActionExecutorBase extends ContentFeature {
     /**
@@ -93,23 +87,9 @@ export class ActionExecutorBase extends ContentFeature {
  */
 export default class BrokerProtection extends ActionExecutorBase {
     init() {
-        const interferenceConfig = this.getFeatureAttr('interferenceTypes', DEFAULT_INTERFERENCE_CONFIG);
-        const service = createWebInterferenceService({ interferenceConfig });
-
         this.messaging.subscribe('onActionReceived', async (/** @type {any} */ params) => {
             const { action, data } = params.state;
             return await this.processActionAndNotify(action, data);
-        });
-
-        this.messaging.subscribe('detectInterference', (/** @type {InterferenceDetectionRequest} */ request) => {
-            try {
-                const detectionResults = service.detect(request);
-                console.log('[BrokerProtection] Detection results:', detectionResults);
-                return this.messaging.notify('interferenceDetected', detectionResults);
-            } catch (error) {
-                console.error('[BrokerProtection] Error detecting interference:', error);
-                return this.messaging.notify('interferenceDetectionError', { error: error.toString() });
-            }
         });
     }
 
