@@ -8,22 +8,24 @@ The current implementation focuses on synchronous, on-demand collection with cac
 
 ```mermaid
 sequenceDiagram
-    participant Feature as Breakage Reporting
+    participant Init as detector-init
     participant Service as detectorService
-    participant Detector as YouTubeDetector
+    participant Detector as BotDetector
+    participant Feature as Breakage Reporting
 
-    Detector->>Service: registerDetector('youtubeAds', { getData })
-    Feature->>Service: getDetectorData('youtubeAds')
-    Service->>Detector: getData()
-    Detector-->>Service: snapshot
-    Service-->>Feature: snapshot
+    Init->>Detector: createBotDetector(config)
+    Detector-->>Init: { getData, shouldRun }
+    Init->>Service: registerDetector('botDetection', registration)
+    Note over Service: Auto-run after 100ms delay
+    Service->>Detector: getData({ _autoRun: true })
+    Detector-->>Service: snapshot (cached)
+    Feature->>Service: getDetectorData('botDetection')
+    Service-->>Feature: snapshot (from cache)
 ```
 
 ### Core helpers
 
-- `registerDetector(detectorId, { getData, refresh?, teardown? })`
-- `unregisterDetector(detectorId)`
-- `resetDetectors(reason?)`
+- `registerDetector(detectorId, { getData, shouldRun?, refresh?, teardown? })`
 - `getDetectorData(detectorId, { maxAgeMs }?)`
 - `getDetectorBatch(detectorIds, options?)`
 
@@ -51,10 +53,14 @@ detectors/
 
 Detectors are automatically registered during the content-scope-features `load()` phase:
 
-1. `content-scope-features.js` calls `initDetectors(bundledConfig)`
+1. `content-scope-features.js` calls `initDetectors(bundledConfig)` during page load
 2. `detector-init.js` reads the `web-interference-detection` feature config
 3. Default detector settings are merged with remote config
 4. Detectors are registered with the service using `registerDetector()`
+5. After `autoRunDelayMs` delay (default 100ms), detectors with `autoRun: true` execute automatically
+   - This delay lets the DOM settle after initial page load
+   - Auto-run calls check gates (domain + `shouldRun()`)
+   - Results are cached for later manual calls
 
 ### Remote Configuration
 
@@ -64,7 +70,6 @@ Detectors are controlled via `privacy-configuration/features/web-interference-de
 {
   "state": "enabled",
   "settings": {
-    "domains": [],
     "autoRunDelayMs": 100,
     "interferenceTypes": {
       "botDetection": {
@@ -75,9 +80,12 @@ Detectors are controlled via `privacy-configuration/features/web-interference-de
           "windowProperties": ["hcaptcha"]
         }
       },
-      "youtubeAds": {
-        "domains": ["*.youtube.com", "youtube.com"],
-        "rootSelector": "#movie_player"
+      "fraudDetection": {
+        "phishingWarning": {
+          "state": "enabled",
+          "type": "phishing",
+          "selectors": [".warning-banner"]
+        }
       }
     }
   }
@@ -86,28 +94,24 @@ Detectors are controlled via `privacy-configuration/features/web-interference-de
 
 #### Domain Gating
 
-Detectors can be restricted to specific domains using the `domains` field:
+Detectors can be restricted to specific domains using a per-detector `domains` field:
 
-- **Global domains** (`settings.domains`): Apply to all detectors unless overridden
-- **Per-detector domains** (`interferenceTypes.{detectorId}.domains`): Override global setting
 - **Domain patterns**:
   - Exact match: `"youtube.com"`
   - Wildcard: `"*.youtube.com"` (matches www.youtube.com, m.youtube.com, etc.)
   - Substring: `"youtube.com"` also matches `www.youtube.com` for convenience
-- **Empty array** (`[]`): Run on all domains (default)
 
-Examples:
+Example:
 ```json
-// Run bot detection only on banking sites
-"botDetection": {
-  "domains": ["*.chase.com", "*.bankofamerica.com"],
-  ...
-}
-
-// Run YouTube detector only on YouTube
-"youtubeAds": {
-  "domains": ["*.youtube.com"],
-  ...
+{
+  "settings": {
+    "interferenceTypes": {
+      "fraudDetection": {
+        "domains": ["*.bank.com", "*.financial.com"],
+        ...
+      }
+    }
+  }
 }
 ```
 
@@ -124,12 +128,12 @@ Detectors can be configured to run automatically on page load:
 - **`autoRun: false`**: Only run when explicitly called
   - Gates are skipped for manual calls
   - Useful for expensive detectors or event-driven scenarios
-  - Example: YouTube detector only runs when explicitly requested
 
 - **`autoRunDelayMs`** (global setting, default: 100): Milliseconds to wait before running auto-run detectors
   - Allows DOM to settle after page load
   - Can be tuned per-site or globally
   - Use 0 for immediate execution, higher values for slower-loading pages
+  - **How it works**: After detectors are registered, a single `setTimeout` schedules all auto-run detectors to execute in batch after the delay
 
 Example:
 ```json
@@ -157,8 +161,8 @@ Features can directly import and use the detector service:
 import { getDetectorBatch } from '../detectors/detector-service.js';
 
 // In breakage reporting feature - gates bypassed automatically for manual calls
-const detectorData = await getDetectorBatch(['botDetection', 'fraudDetection', 'youtubeAds']);
-// Returns: { botDetection: {...}, fraudDetection: {...}, youtubeAds: {...} }
+const detectorData = await getDetectorBatch(['botDetection', 'fraudDetection']);
+// Returns: { botDetection: {...}, fraudDetection: {...} }
 ```
 
 **Behavior:**
@@ -182,7 +186,7 @@ const detectorData = await getDetectorBatch(['botDetection', 'fraudDetection', '
 
 3. **Register in detector-init.js**:
    - Import your detector factory
-   - Add registration logic in `initDetectors()`
+   - Add one line: `registerIfEnabled('myDetector', detectorSettings.myDetector, createMyDetector)`
 
 4. **Add remote config** to `privacy-configuration/features/web-interference-detection.json`:
    - Define the detector's configuration schema

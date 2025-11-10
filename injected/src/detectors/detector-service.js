@@ -30,28 +30,6 @@ export function registerDetector(detectorId, registration) {
 }
 
 /**
- * Unregister a detector from the service
- * @param {string} detectorId - Unique identifier for the detector
- */
-export function unregisterDetector(detectorId) {
-    const registration = registrations.get(detectorId);
-    registration?.teardown?.();
-    registrations.delete(detectorId);
-    cache.delete(detectorId);
-}
-
-/**
- * Reset all detectors and clear cache
- * @param {string} [reason] - Optional reason for reset
- */
-export function resetDetectors(reason = 'manual') {
-    for (const registration of registrations.values()) {
-        registration.teardown?.(reason);
-    }
-    cache.clear();
-}
-
-/**
  * Get data from a specific detector
  * @param {string} detectorId - Unique identifier for the detector
  * @param {Object} [options] - Options for data retrieval

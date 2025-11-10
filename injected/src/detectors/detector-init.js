@@ -93,9 +93,6 @@ export function initDetectors(bundledConfig) {
         ...bundledConfig?.features?.['web-interference-detection']?.settings?.interferenceTypes,
     };
 
-    // Get global domains config (applies to all detectors unless overridden)
-    const globalDomains = bundledConfig?.features?.['web-interference-detection']?.settings?.domains;
-
     // Track detectors to auto-run after registration
     const autoRunDetectors = [];
 
@@ -103,7 +100,7 @@ export function initDetectors(bundledConfig) {
     const registerIfEnabled = (detectorId, detectorSettings, createDetectorFn) => {
         if (!detectorSettings) return;
 
-        const domains = detectorSettings.domains || globalDomains;
+        const domains = detectorSettings.domains;
         const autoRun = detectorSettings.autoRun !== false; // Default true
         const registration = createDetectorFn(detectorSettings);
 
