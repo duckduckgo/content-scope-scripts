@@ -42,7 +42,7 @@ detectors/
 │   ├── youtube-ads-detection.js   # YouTube ad detection
 │   └── detection-base.js          # optional base for observer-style detectors
 └── utils/
-    └── detection-utils.js         # DOM helpers (selectors, text matching, visibility)
+    └── detection-utils.js         # DOM helpers (selectors, text matching, visibility, domain matching)
 ```
 
 ## How It Works
@@ -64,6 +64,7 @@ Detectors are controlled via `privacy-configuration/features/web-interference-de
 {
   "state": "enabled",
   "settings": {
+    "domains": [],
     "interferenceTypes": {
       "botDetection": {
         "hcaptcha": {
@@ -72,9 +73,68 @@ Detectors are controlled via `privacy-configuration/features/web-interference-de
           "selectors": [".h-captcha"],
           "windowProperties": ["hcaptcha"]
         }
+      },
+      "youtubeAds": {
+        "domains": ["*.youtube.com", "youtube.com"],
+        "rootSelector": "#movie_player"
       }
     }
   }
+}
+```
+
+#### Domain Gating
+
+Detectors can be restricted to specific domains using the `domains` field:
+
+- **Global domains** (`settings.domains`): Apply to all detectors unless overridden
+- **Per-detector domains** (`interferenceTypes.{detectorId}.domains`): Override global setting
+- **Domain patterns**:
+  - Exact match: `"youtube.com"`
+  - Wildcard: `"*.youtube.com"` (matches www.youtube.com, m.youtube.com, etc.)
+  - Substring: `"youtube.com"` also matches `www.youtube.com` for convenience
+- **Empty array** (`[]`): Run on all domains (default)
+
+Examples:
+```json
+// Run bot detection only on banking sites
+"botDetection": {
+  "domains": ["*.chase.com", "*.bankofamerica.com"],
+  ...
+}
+
+// Run YouTube detector only on YouTube
+"youtubeAds": {
+  "domains": ["*.youtube.com"],
+  ...
+}
+```
+
+#### Auto-Run
+
+Detectors can be configured to run automatically on page load:
+
+- **`autoRun: true`** (default): Run detector automatically after page load
+  - Gates are checked (domain + custom `shouldRun()`)
+  - Results are cached immediately
+  - Runs after 100ms delay to let DOM settle
+  - Useful for detectors that should always gather data (bot detection, fraud detection)
+
+- **`autoRun: false`**: Only run when explicitly called
+  - Gates are skipped for manual calls
+  - Useful for expensive detectors or event-driven scenarios
+  - Example: YouTube detector only runs when explicitly requested
+
+Example:
+```json
+"botDetection": {
+  "autoRun": true,  // Run automatically with gates
+  "domains": ["*.example.com"],
+  ...
+},
+"expensiveDetector": {
+  "autoRun": false,  // Only run on-demand, skip gates
+  ...
 }
 ```
 
@@ -85,16 +145,24 @@ Features can directly import and use the detector service:
 ```javascript
 import { getDetectorBatch } from '../detectors/detector-service.js';
 
-// In breakage reporting feature
+// In breakage reporting feature - gates bypassed automatically for manual calls
 const detectorData = await getDetectorBatch(['botDetection', 'fraudDetection', 'youtubeAds']);
 // Returns: { botDetection: {...}, fraudDetection: {...}, youtubeAds: {...} }
 ```
+
+**Behavior:**
+- **Manual calls** (like above): Gates are bypassed, detector always runs
+- **Auto-run calls**: Gates are checked (domain + `shouldRun()`)
+- **Caching**: Results cached with timestamp, use `maxAgeMs` to force refresh
+
+**Options:**
+- `maxAgeMs`: Maximum age of cached data in milliseconds before forcing refresh
 
 ## Adding New Detectors
 
 1. **Create detection logic** under `detections/`:
    - Export a `createXDetector(config)` factory function
-   - Return an object with `{ getData, refresh?, teardown? }`
+   - Return an object with `{ getData, shouldRun?, refresh?, teardown? }`
    - Use shared utilities from `utils/detection-utils.js`
 
 2. **Add default config** to `default-config.js`:
@@ -107,11 +175,48 @@ const detectorData = await getDetectorBatch(['botDetection', 'fraudDetection', '
 
 4. **Add remote config** to `privacy-configuration/features/web-interference-detection.json`:
    - Define the detector's configuration schema
+   - Optionally add `domains` field for domain gating
    - This allows remote enabling/disabling and tuning
 
 5. **Consume the detector** in your feature:
    - Import `getDetectorData` or `getDetectorBatch`
    - Call with your detector ID to get results
+
+### Custom Gate Functions
+
+Detectors can optionally implement a `shouldRun()` gate function for custom precondition checks:
+
+```javascript
+export function createMyDetector(config) {
+    return {
+        // Optional gate function runs before getData()
+        // Return false to skip detection entirely (returns null)
+        shouldRun() {
+            // Example: Only run if specific element exists
+            return document.querySelector('#app-root') !== null;
+        },
+
+        async getData() {
+            // This only runs if shouldRun() returns true
+            // and domain gate passes
+            return { detected: true, ... };
+        }
+    };
+}
+```
+
+**When to use `shouldRun()`:**
+- Lightweight DOM precondition checks (e.g., element exists)
+- Dependency on another detector's results
+- Runtime feature detection
+- Performance optimization to avoid expensive operations
+
+**Gate execution order:**
+1. Domain gate (from config)
+2. Custom `shouldRun()` gate (if provided)
+3. `getData()` (if all gates pass)
+
+If any gate fails, `getDetectorData()` returns `null`.
 
 Future enhancements—shared observers, background aggregation, streaming updates—can build on this service without breaking the public API.
 
