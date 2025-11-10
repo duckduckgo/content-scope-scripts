@@ -1,30 +1,37 @@
 /**
- * @typedef {object} DetectorRegistration
- * @property {() => any | Promise<any>} getData
- * @property {(() => any | Promise<any>)=} refresh
- * @property {(() => void)=} teardown
+ * Detector Service
  *
- * @typedef {object} CachedSnapshot
- * @property {any} data
- * @property {number} ts
+ * Central registry and caching layer for interference detectors.
+ * Provides a simple API for registering detectors and retrieving their data.
  */
 
 const registrations = new Map();
 const cache = new Map();
 
 /**
- * Register a detector with the shared service.
- * Subsequent calls replace the previous registration for the same id.
- * @param {string} detectorId
- * @param {DetectorRegistration} registration
+ * @typedef {Object} DetectorRegistration
+ * @property {() => Promise<any>} getData - Function to get current detector data
+ * @property {() => Promise<any>} [refresh] - Optional function to refresh/re-run detection
+ */
+
+/**
+ * @typedef {Object} CachedSnapshot
+ * @property {any} data - The cached detector data
+ * @property {number} ts - Timestamp when data was cached
+ */
+
+/**
+ * Register a detector with the service
+ * @param {string} detectorId - Unique identifier for the detector
+ * @param {DetectorRegistration} registration - Detector registration object
  */
 export function registerDetector(detectorId, registration) {
     registrations.set(detectorId, registration);
 }
 
 /**
- * Remove a detector registration and drop any cached data.
- * @param {string} detectorId
+ * Unregister a detector from the service
+ * @param {string} detectorId - Unique identifier for the detector
  */
 export function unregisterDetector(detectorId) {
     const registration = registrations.get(detectorId);
@@ -34,8 +41,8 @@ export function unregisterDetector(detectorId) {
 }
 
 /**
- * Reset all detector caches and invoke teardowns.
- * @param {string} [reason]
+ * Reset all detectors and clear cache
+ * @param {string} [reason] - Optional reason for reset
  */
 export function resetDetectors(reason = 'manual') {
     for (const registration of registrations.values()) {
@@ -45,14 +52,16 @@ export function resetDetectors(reason = 'manual') {
 }
 
 /**
- * Fetch detector data. Uses cached value when available unless maxAgeMs is exceeded.
- * @param {string} detectorId
- * @param {{ maxAgeMs?: number }} [options]
- * @returns {Promise<any|null>}
+ * Get data from a specific detector
+ * @param {string} detectorId - Unique identifier for the detector
+ * @param {Object} [options] - Options for data retrieval
+ * @param {number} [options.maxAgeMs] - Maximum age of cached data in milliseconds
+ * @returns {Promise<any>} Detector data or null if not registered
  */
 export async function getDetectorData(detectorId, options = {}) {
     const { maxAgeMs } = options;
     const cached = /** @type {CachedSnapshot | undefined} */ (cache.get(detectorId));
+
     if (cached) {
         const age = Date.now() - cached.ts;
         if (!maxAgeMs || age <= maxAgeMs) {
@@ -77,10 +86,11 @@ export async function getDetectorData(detectorId, options = {}) {
 }
 
 /**
- * Convenience helper for fetching multiple detectors at once.
- * @param {string[]} detectorIds
- * @param {{ maxAgeMs?: number }} [options]
- * @returns {Promise<Record<string, any|null>>}
+ * Get data from multiple detectors in a single call
+ * @param {string[]} detectorIds - Array of detector IDs
+ * @param {Object} [options] - Options for data retrieval
+ * @param {number} [options.maxAgeMs] - Maximum age of cached data in milliseconds
+ * @returns {Promise<Record<string, any>>} Object mapping detector IDs to their data
  */
 export async function getDetectorBatch(detectorIds, options = {}) {
     const results = {};
@@ -89,4 +99,3 @@ export async function getDetectorBatch(detectorIds, options = {}) {
     }
     return results;
 }
-
