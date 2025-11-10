@@ -32,7 +32,6 @@ const otherFeatures = /** @type {const} */ ([
     'favicon',
     'webTelemetry',
     'pageContext',
-    'webInterferenceDetection',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
