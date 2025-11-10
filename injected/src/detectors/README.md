@@ -8,19 +8,14 @@ The current implementation focuses on synchronous, on-demand collection with cac
 
 ```mermaid
 sequenceDiagram
-    participant Init as detector-init
+    participant Feature as Content Feature
     participant Service as detectorService
-    participant Detector as BotDetector
-    participant Feature as Breakage Reporting
+    participant Detector as botDetection
 
-    Init->>Detector: createBotDetector(config)
-    Detector-->>Init: { getData, shouldRun }
-    Init->>Service: registerDetector('botDetection', registration)
-    Note over Service: Auto-run after 100ms delay
-    Service->>Detector: getData({ _autoRun: true })
-    Detector-->>Service: snapshot (cached)
     Feature->>Service: getDetectorData('botDetection')
-    Service-->>Feature: snapshot (from cache)
+    Service->>Detector: getData()
+    Detector-->>Service: snapshot
+    Service-->>Feature: snapshot (cached)
 ```
 
 ### Core helpers
