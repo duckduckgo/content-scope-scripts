@@ -9,7 +9,6 @@ import { registerDetector } from './detector-service.js';
 import { DEFAULT_DETECTOR_SETTINGS } from './default-config.js';
 import { createBotDetector } from './detections/bot-detection.js';
 import { createFraudDetector } from './detections/fraud-detection.js';
-import { createYouTubeAdsDetector } from './detections/youtube-ads-detection.js';
 import { matchesDomainPatterns } from './utils/detection-utils.js';
 
 /**
@@ -114,7 +113,6 @@ export function initDetectors(bundledConfig) {
     // Register each detector if its settings exist
     registerIfEnabled('botDetection', detectorSettings.botDetection, createBotDetector);
     registerIfEnabled('fraudDetection', detectorSettings.fraudDetection, createFraudDetector);
-    registerIfEnabled('youtubeAds', detectorSettings.youtubeAds, createYouTubeAdsDetector);
 
     // Auto-run detectors after a short delay to let page settle
     if (autoRunDetectors.length > 0) {
@@ -123,10 +121,10 @@ export function initDetectors(bundledConfig) {
 
         // Use setTimeout to avoid blocking page load
         setTimeout(async () => {
-            const { getDetectorBatch } = await import('./detector-service.js');
+            const { getDetectorsData } = await import('./detector-service.js');
 
             // Run all auto-run detectors with _autoRun flag (gates will be checked)
-            await getDetectorBatch(autoRunDetectors, { _autoRun: true });
+            await getDetectorsData(autoRunDetectors, { _autoRun: true });
 
             console.log('[detectors] Auto-run complete for:', autoRunDetectors);
         }, autoRunDelayMs);

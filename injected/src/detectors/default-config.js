@@ -50,9 +50,4 @@ export const DEFAULT_DETECTOR_SETTINGS = Object.freeze({
             textSources: ['innerText'],
         },
     },
-    youtubeAds: {
-        rootSelector: '#movie_player',
-        selectors: ['.ytp-ad-text', '.ytp-ad-skip-button', '.ytp-ad-preview-text'],
-        adClasses: ['ad-showing', 'ad-interrupting'],
-    },
 });

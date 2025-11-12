@@ -1,6 +1,6 @@
 import ContentFeature from '../content-feature';
 import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
-import { getDetectorBatch } from '../detectors/detector-service.js';
+import { getDetectorsData } from '../detectors/detector-service.js';
 
 export default class BreakageReporting extends ContentFeature {
     init() {
@@ -10,10 +10,9 @@ export default class BreakageReporting extends ContentFeature {
             const referrer = document.referrer;
 
             // Collect detector data (gates bypassed by default for manual calls)
-            const detectorData = await getDetectorBatch([
+            const detectorData = await getDetectorsData([
                 'botDetection',
-                'fraudDetection',
-                'youtubeAds'
+                'fraudDetection'
             ]);
 
             const result = {

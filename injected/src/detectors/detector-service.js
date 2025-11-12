@@ -39,7 +39,9 @@ export function registerDetector(detectorId, registration) {
  */
 export async function getDetectorData(detectorId, options = {}) {
     const { maxAgeMs } = options;
-    const cached = /** @type {CachedSnapshot | undefined} */ (cache.get(detectorId));
+    // Include URL in cache key to handle SPA navigation (e.g., YouTube)
+    const cacheKey = `${detectorId}:${location.href}`;
+    const cached = /** @type {CachedSnapshot | undefined} */ (cache.get(cacheKey));
 
     if (cached) {
         const age = Date.now() - cached.ts;
@@ -57,7 +59,7 @@ export async function getDetectorData(detectorId, options = {}) {
     try {
         // Pass options to the runner so gates can check _autoRun flag
         const data = await runner(options);
-        cache.set(detectorId, { data, ts: Date.now() });
+        cache.set(cacheKey, { data, ts: Date.now() });
         return data;
     } catch (error) {
         console.error(`[detectorService] Failed to fetch data for ${detectorId}`, error);
@@ -73,7 +75,7 @@ export async function getDetectorData(detectorId, options = {}) {
  * @param {boolean} [options._autoRun] - Internal flag indicating auto-run (gates apply)
  * @returns {Promise<Record<string, any>>} Object mapping detector IDs to their data
  */
-export async function getDetectorBatch(detectorIds, options = {}) {
+export async function getDetectorsData(detectorIds, options = {}) {
     const results = {};
     for (const detectorId of detectorIds) {
         results[detectorId] = await getDetectorData(detectorId, options);

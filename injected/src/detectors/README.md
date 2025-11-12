@@ -22,7 +22,7 @@ sequenceDiagram
 
 - `registerDetector(detectorId, { getData, shouldRun?, refresh?, teardown? })`
 - `getDetectorData(detectorId, { maxAgeMs }?)`
-- `getDetectorBatch(detectorIds, options?)`
+- `getDetectorsData(detectorIds, options?)`
 
 Detectors return arbitrary JSON payloads. Include timestamps if consumers rely on freshness.
 
@@ -35,9 +35,7 @@ detectors/
 ├── default-config.js              # default detector settings
 ├── detections/
 │   ├── bot-detection.js           # CAPTCHA/bot detection
-│   ├── fraud-detection.js         # anti-fraud/phishing warnings
-│   ├── youtube-ads-detection.js   # YouTube ad detection
-│   └── detection-base.js          # optional base for observer-style detectors
+│   └── fraud-detection.js         # anti-fraud/phishing warnings
 └── utils/
     └── detection-utils.js         # DOM helpers (selectors, text matching, visibility, domain matching)
 ```
@@ -153,10 +151,10 @@ Example:
 Features can directly import and use the detector service:
 
 ```javascript
-import { getDetectorBatch } from '../detectors/detector-service.js';
+import { getDetectorsData } from '../detectors/detector-service.js';
 
 // In breakage reporting feature - gates bypassed automatically for manual calls
-const detectorData = await getDetectorBatch(['botDetection', 'fraudDetection']);
+const detectorData = await getDetectorsData(['botDetection', 'fraudDetection']);
 // Returns: { botDetection: {...}, fraudDetection: {...} }
 ```
 
