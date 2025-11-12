@@ -3,6 +3,7 @@ import { platformSupport } from './features';
 import { PerformanceMonitor } from './performance';
 import platformFeatures from 'ddg:platformFeatures';
 import { registerForURLChanges } from './url-change';
+import { initDetectors } from './detectors/detector-init.js';
 
 let initArgs = null;
 const updates = [];
@@ -43,6 +44,14 @@ export function load(args) {
     };
 
     const bundledFeatureNames = typeof importConfig.injectName === 'string' ? platformSupport[importConfig.injectName] : [];
+
+    // Initialize detectors early so they're available when features init
+    try {
+        initDetectors(args.bundledConfig);
+    } catch (error) {
+        console.error('[detectors] Initialization failed:', error);
+        // TODO: Consider firing error pixel if needed
+    }
 
     // prettier-ignore
     const featuresToLoad = isGloballyDisabled(args)
