@@ -6,7 +6,7 @@ import { checkSelectors, checkWindowProperties, matchesSelectors, matchesTextPat
  */
 export function createBotDetector(config = {}) {
     return {
-        async getData() {
+        getData() {
             return runBotDetection(config);
         },
     };

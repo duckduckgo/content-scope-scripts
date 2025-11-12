@@ -2,7 +2,7 @@ import { checkSelectorsWithVisibility, checkTextPatterns } from '../utils/detect
 
 export function createFraudDetector(config = {}) {
     return {
-        async getData() {
+        getData() {
             return runFraudDetection(config);
         },
     };

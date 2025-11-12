@@ -63,13 +63,13 @@ function createGatedDetector(registration, domains) {
             }
 
             // All gates passed, run the detector
-            return getData();
+            return await getData(options);
         },
         refresh: refresh ? async (options) => {
             if (!checkGates(options, domains, shouldRun)) {
                 return null;
             }
-            return refresh();
+            return await refresh(options);
         } : undefined,
         teardown,
     };
