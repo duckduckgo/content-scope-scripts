@@ -48,7 +48,7 @@ export class ProtectionsPage {
             totalCookiePopUpsBlocked: 'totalCookiePopUpsBlocked' in options ? options.totalCookiePopUpsBlocked : undefined,
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} tracking attempts blocked`);
+        await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} Tracking attempts blocked`);
     }
 
     async hasPolishText() {
@@ -56,10 +56,12 @@ export class ProtectionsPage {
         await expect(heading).toMatchAriaSnapshot(`
           - img "Privacy Shield"
           - heading "Raport ochrony" [level=2]
+          - img
           - button "Ukryj ostatnią aktywność" [expanded] [pressed]:
             - img
-          - heading /\\d+ – tyle prób śledzenia zablokowano/ [level=3]
-          - paragraph: Ostatnie 7 dni
+          - heading /\\d+ {count} – tyle prób śledzenia zablokowano/ [level=3]
+          - heading /\\d+ Cookie pop-ups blocked/ [level=3]
+          - img
           `);
     }
 

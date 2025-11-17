@@ -310,6 +310,7 @@ export class ActivityPage {
             - button "Clear browsing history and data for example.com":
               - img
             - text: +1 56 tracking attempts blocked
+            - text: Cookie pop-up blocked
             - list:
               - listitem:
                 - link "/bathrooms/toilets"
@@ -359,6 +360,7 @@ export class ActivityPage {
             - button "Clear browsing history and data for example.com":
               - img
             - text: +1 56 ads + tracking attempts blocked
+            - text: Cookie pop-up blocked
             - list:
               - listitem:
                 - link "/bathrooms/toilets"
