@@ -76,7 +76,6 @@ export function normalizeData(prev, incoming) {
             faviconMax: item.favicon?.maxAvailableSize ?? DDG_DEFAULT_ICON_SIZE,
             favoriteSrc: item.favicon?.src,
             trackersFound: item.trackersFound,
-            // cookiePopUpBlocked: item.cookiePopUpBlocked,
         };
         const differs = shallowDiffers(next, prev.items[id] || {});
         output.items[id] = differs ? next : prev.items[id] || {};
