@@ -1,6 +1,7 @@
 import ContentFeature from '../content-feature';
 import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
-import { getDetectorsData } from '../detectors/detector-service.js';
+import { runBotDetection } from '../detectors/detections/bot-detection.js';
+import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
 
 export default class BreakageReporting extends ContentFeature {
     init() {
@@ -9,11 +10,11 @@ export default class BreakageReporting extends ContentFeature {
             const jsPerformance = getJsPerformanceMetrics();
             const referrer = document.referrer;
 
-            // Collect detector data (gates bypassed by default for manual calls)
-            const detectorData = await getDetectorsData([
-                'botDetection',
-                'fraudDetection'
-            ]);
+            // Call detection functions directly (get cached results)
+            const detectorData = {
+                botDetection: runBotDetection(),
+                fraudDetection: runFraudDetection(),
+            };
 
             const result = {
                 jsPerformance,

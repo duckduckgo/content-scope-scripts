@@ -1,22 +1,16 @@
 import { checkSelectors, checkWindowProperties, matchesSelectors, matchesTextPatterns } from '../utils/detection-utils.js';
 
-/**
- * Create a detector registration for CAPTCHA/bot detection.
- * @param {Record<string, any>} config
- */
-export function createBotDetector(config = {}) {
-    return {
-        getData() {
-            return runBotDetection(config);
-        },
-    };
-}
+// Cache result to avoid redundant DOM scans
+let cachedResult = null;
 
 /**
- * Run detection immediately and return structured results.
+ * Run bot detection and cache results.
  * @param {Record<string, any>} config
+ * @param {Object} [options]
+ * @param {boolean} [options.refresh] - Force fresh detection, bypassing cache
  */
-export function runBotDetection(config = {}) {
+export function runBotDetection(config = {}, options = {}) {
+    if (cachedResult && !options.refresh) return cachedResult;
     const results = Object.entries(config)
         .filter(([_, challengeConfig]) => challengeConfig?.state === 'enabled')
         .map(([challengeId, challengeConfig]) => {
@@ -35,12 +29,15 @@ export function runBotDetection(config = {}) {
         })
         .filter(Boolean);
 
-    return {
+    // Cache and return
+    cachedResult = {
         detected: results.length > 0,
         type: 'botDetection',
         results,
         timestamp: Date.now(),
     };
+
+    return cachedResult;
 }
 
 function findStatus(statusSelectors) {

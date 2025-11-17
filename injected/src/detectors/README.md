@@ -1,63 +1,42 @@
-# Detector Service
+# Web Interference Detection
 
-This directory contains a lightweight detector service that runs inside content-scope-scripts. Detectors are automatically registered during the `load()` phase and any feature can query their latest results (breakage reporting, native PIR, debug tooling, etc.).
+This directory contains web interference detection functionality for content-scope-scripts. Detectors identify CAPTCHAs, fraud warnings, and other interference patterns to support breakage reporting and PIR automation.
 
-The current implementation focuses on synchronous, on-demand collection with caching. Continuous monitoring (mutation observers, polling, batching) can be layered on later without changing the public API.
+## Architecture
 
-## API Snapshot
+The system uses a **ContentFeature** wrapper with simple detection utilities:
 
-```mermaid
-sequenceDiagram
-    participant Feature as Content Feature
-    participant Service as detectorService
-    participant Detector as botDetection
+- **`WebInterferenceDetection`** - ContentFeature that auto-runs detectors on page load
+- **Detection utilities** - Pure functions (`runBotDetection`, `runFraudDetection`) with module-level caching
+- **Direct imports** - Other features (breakage reporting, PIR) import detection functions directly
 
-    Feature->>Service: getDetectorData('botDetection')
-    Service->>Detector: getData()
-    Detector-->>Service: snapshot
-    Service-->>Feature: snapshot (cached)
-```
-
-### Core helpers
-
-- `registerDetector(detectorId, { getData, shouldRun?, refresh?, teardown? })`
-- `getDetectorData(detectorId, { maxAgeMs }?)`
-- `getDetectorsData(detectorIds, options?)`
-
-Detectors return arbitrary JSON payloads. Include timestamps if consumers rely on freshness.
 
 ## Directory Layout
 
 ```
 detectors/
-├── detector-service.js            # registry + caching service
-├── detector-init.js               # initializes detectors from bundledConfig
-├── default-config.js              # default detector settings
 ├── detections/
-│   ├── bot-detection.js           # CAPTCHA/bot detection
-│   └── fraud-detection.js         # anti-fraud/phishing warnings
-└── utils/
-    └── detection-utils.js         # DOM helpers (selectors, text matching, visibility, domain matching)
+│   ├── bot-detection.js           # CAPTCHA/bot detection utility
+│   └── fraud-detection.js         # fraud/phishing warning utility
+├── utils/
+│   └── detection-utils.js         # DOM helpers (selectors, text matching, visibility)
+└── default-config.js              # fallback detector settings
 ```
 
 ## How It Works
 
-### Initialization
+### 1. Initialization
 
-Detectors are automatically registered during the content-scope-features `load()` phase:
+The `WebInterferenceDetection` ContentFeature runs detectors automatically:
 
-1. `content-scope-features.js` calls `initDetectors(bundledConfig)` during page load
-2. `detector-init.js` reads the `web-interference-detection` feature config
-3. Default detector settings are merged with remote config
-4. Detectors are registered with the service using `registerDetector()`
-5. After `autoRunDelayMs` delay (default 100ms), detectors with `autoRun: true` execute automatically
-   - This delay lets the DOM settle after initial page load
-   - Auto-run calls check gates (domain + `shouldRun()`)
-   - Results are cached for later manual calls
+1. Feature loads via standard content-scope-features lifecycle
+2. `init()` method schedules detectors to run after `autoRunDelayMs` (default: 100ms)
+3. Each detector runs once and caches results in module scope
+4. Other features can import and call detection functions to get cached results
 
-### Remote Configuration
+### 2. Configuration
 
-Detectors are controlled via `privacy-configuration/features/web-interference-detection.json`:
+Detectors are configured via `privacy-configuration/features/web-interference-detection.json`:
 
 ```json
 {
@@ -85,168 +64,127 @@ Detectors are controlled via `privacy-configuration/features/web-interference-de
 }
 ```
 
-#### Domain Gating
+**Domain-specific configuration** using `conditionalChanges`:
 
-Detectors can be restricted to specific domains using a per-detector `domains` field:
+```json
+{
+  "settings": {
+    "conditionalChanges": [
+      {
+        "condition": {
+          "urlPattern": "https://*.example.com/*"
+        },
+        "patchSettings": [
+          {
+            "op": "add",
+            "path": "/interferenceTypes/customDetector",
+            "value": { "state": "enabled", "selectors": [".custom"] }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-- **Domain patterns**:
-  - Exact match: `"youtube.com"`
-  - Wildcard: `"*.youtube.com"` (matches www.youtube.com, m.youtube.com, etc.)
-  - Substring: `"youtube.com"` also matches `www.youtube.com` for convenience
+The framework automatically applies conditional changes based on the current URL before passing settings to the feature.
 
-Example:
+### 3. Using Detection Results
+
+**Internal features** (same content script context):
+
+```javascript
+import { runBotDetection, runFraudDetection } from '../detectors/detections/bot-detection.js';
+
+// Get cached results from auto-run
+const botData = runBotDetection();
+const fraudData = runFraudDetection();
+```
+
+**External:**
+
+```javascript
+// Via messaging
+this.messaging.request('detectInterference', {
+  types: ['botDetection', 'fraudDetection']
+});
+```
+
+## Adding New Detectors
+
+1. **Create detection utility** in `detections/`:
+
+```javascript
+// detections/my-detector.js
+let cachedResult = null;
+
+export function runMyDetection(config = {}, options = {}) {
+    if (cachedResult && !options.refresh) return cachedResult;
+
+    // Run detection logic
+    const detected = checkSelectors(config.selectors);
+
+    cachedResult = {
+        detected,
+        type: 'myDetector',
+        timestamp: Date.now(),
+    };
+
+    return cachedResult;
+}
+```
+
+2. **Add to WebInterferenceDetection feature**:
+
+```javascript
+// features/web-interference-detection.js
+import { runMyDetection } from '../detectors/detections/my-detector.js';
+
+init(args) {
+    const settings = this.getFeatureSetting('interferenceTypes');
+
+    setTimeout(() => {
+        if (settings?.myDetector) {
+            runMyDetection(settings.myDetector);
+        }
+    }, autoRunDelayMs);
+}
+```
+
+3. **Add config** to `web-interference-detection.json`:
+
 ```json
 {
   "settings": {
     "interferenceTypes": {
-      "fraudDetection": {
-        "domains": ["*.bank.com", "*.financial.com"],
-        ...
+      "myDetector": {
+        "state": "enabled",
+        "selectors": [".my-selector"]
       }
     }
   }
 }
 ```
 
-#### Auto-Run
+## Caching Strategy
 
-Detectors can be configured to run automatically on page load:
+- **Module-level cache**: Each detector uses a simple variable (`let cachedResult = null`)
+- **Automatic**: First call runs detection and caches, subsequent calls return cached result
+- **Per-tab**: Each browser tab has its own cache (separate content script instance)
+- **Lifetime**: Cache persists for page lifetime, cleared on navigation
+- **Refresh option**: Callers can force fresh detection with `{ refresh: true }`
 
-- **`autoRun: true`** (default): Run detector automatically after page load
-  - Gates are checked (domain + custom `shouldRun()`)
-  - Results are cached immediately
-  - Runs after configurable delay (see `autoRunDelayMs`)
-  - Useful for detectors that should always gather data (bot detection, fraud detection)
-
-- **`autoRun: false`**: Only run when explicitly called
-  - Gates are skipped for manual calls
-  - Useful for expensive detectors or event-driven scenarios
-
-- **`autoRunDelayMs`** (global setting, default: 100): Milliseconds to wait before running auto-run detectors
-  - Allows DOM to settle after page load
-  - Can be tuned per-site or globally
-  - Use 0 for immediate execution, higher values for slower-loading pages
-  - **How it works**: After detectors are registered, a single `setTimeout` schedules all auto-run detectors to execute in batch after the delay
-
-Example:
-```json
-"settings": {
-  "autoRunDelayMs": 250,  // Wait 250ms before auto-running detectors
-  "interferenceTypes": {
-    "botDetection": {
-      "autoRun": true,  // Run automatically with gates
-      "domains": ["*.example.com"],
-      ...
-    },
-    "expensiveDetector": {
-      "autoRun": false,  // Only run on-demand, skip gates
-      ...
-    }
-  }
-}
-```
-
-### Consuming Detector Data
-
-Features can directly import and use the detector service:
-
+**Examples:**
 ```javascript
-import { getDetectorsData } from '../detectors/detector-service.js';
+// Get cached result (fast)
+const data = runBotDetection(config);
 
-// In breakage reporting feature - gates bypassed automatically for manual calls
-const detectorData = await getDetectorsData(['botDetection', 'fraudDetection']);
-// Returns: { botDetection: {...}, fraudDetection: {...} }
+// Force fresh scan (slower, bypasses cache)
+const freshData = runBotDetection(config, { refresh: true });
+
+// Via messaging (native layer)
+messaging.request('detectInterference', {
+  types: ['botDetection'],
+  refresh: true  // Optional: force rescan
+});
 ```
-
-**Behavior:**
-- **Manual calls** (like above): Gates are bypassed, detector always runs
-- **Auto-run calls**: Gates are checked (domain + `shouldRun()`)
-- **Caching**: Results cached with timestamp, use `maxAgeMs` to force refresh
-
-**Options:**
-- `maxAgeMs`: Maximum age of cached data in milliseconds before forcing refresh
-
-## Adding New Detectors
-
-1. **Create detection logic** under `detections/`:
-   - Export a `createXDetector(config)` factory function
-   - Return an object with `{ getData, shouldRun?, refresh?, teardown? }`
-   - Use shared utilities from `utils/detection-utils.js`
-
-2. **Add default config** to `default-config.js`:
-   - Define default selectors, patterns, and settings
-   - These serve as fallback if remote config is unavailable
-
-3. **Register in detector-init.js**:
-   - Import your detector factory
-   - Add one line: `registerIfEnabled('myDetector', detectorSettings.myDetector, createMyDetector)`
-
-4. **Add remote config** to `privacy-configuration/features/web-interference-detection.json`:
-   - Define the detector's configuration schema
-   - Optionally add `domains` field for domain gating
-   - This allows remote enabling/disabling and tuning
-
-5. **Consume the detector** in your feature:
-   - Import `getDetectorData` or `getDetectorBatch`
-   - Call with your detector ID to get results
-
-### Custom Gate Functions
-
-Detectors can optionally implement a `shouldRun()` gate function for custom precondition checks:
-
-```javascript
-export function createMyDetector(config) {
-    return {
-        // Optional gate function runs before getData()
-        // Return false to skip detection entirely (returns null)
-        shouldRun() {
-            // Example: Only run if specific element exists
-            return document.querySelector('#app-root') !== null;
-        },
-
-        async getData() {
-            // This only runs if shouldRun() returns true
-            // and domain gate passes
-            return { detected: true, ... };
-        }
-    };
-}
-```
-
-**Example: Detector that depends on another detector's results**
-
-```javascript
-import { getDetectorData } from '../detector-service.js';
-
-export function createAdvancedBotDetector(config) {
-    return {
-        // Only run advanced detection if basic bot detection found something
-        async shouldRun() {
-            const basicBotData = await getDetectorData('botDetection');
-            // Only run if basic detector found a bot/CAPTCHA
-            return basicBotData?.detected === true;
-        },
-
-        async getData() {
-            // Run expensive/detailed analysis only when needed
-            return runAdvancedBotAnalysis(config);
-        }
-    };
-}
-```
-
-**When to use `shouldRun()`:**
-- Lightweight DOM precondition checks (e.g., element exists)
-- Dependency on another detector's results (use `getDetectorData()` inside `shouldRun()`)
-- Runtime feature detection
-- Performance optimization to avoid expensive operations
-
-**Gate execution order:**
-1. Domain gate (from config)
-2. Custom `shouldRun()` gate (if provided)
-3. `getData()` (if all gates pass)
-
-If any gate fails, `getDetectorData()` returns `null`.
-
-Future enhancements—shared observers, background aggregation, streaming updates—can build on this service without breaking the public API.
-

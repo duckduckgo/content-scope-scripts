@@ -115,39 +115,3 @@ export function queryAllSelectors(selectors, root = document) {
     const elements = root.querySelectorAll(selectors.join(','));
     return Array.from(elements);
 }
-
-/**
- * Check if current domain matches any patterns in the domains list
- * Supports exact matches, wildcards (*.domain.com), and substring matching
- *
- * @param {string[]} [domains] - Array of domain patterns
- * @returns {boolean} True if current domain matches any pattern, or if no patterns provided
- *
- * @example
- * matchesDomainPatterns(['youtube.com']) // Exact or substring match
- * matchesDomainPatterns(['*.youtube.com']) // Wildcard match (www.youtube.com, m.youtube.com)
- * matchesDomainPatterns([]) // Empty = match all domains
- */
-export function matchesDomainPatterns(domains) {
-    if (!domains || !Array.isArray(domains) || domains.length === 0) {
-        return true; // No domain restrictions means match all
-    }
-
-    const hostname = window.location.hostname;
-
-    return domains.some((pattern) => {
-        // Exact match
-        if (pattern === hostname) {
-            return true;
-        }
-
-        // Wildcard pattern (e.g., "*.youtube.com" or "youtube.*")
-        if (pattern.includes('*')) {
-            const regex = new RegExp('^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
-            return regex.test(hostname);
-        }
-
-        // Substring match for convenience (e.g., "youtube.com" matches "www.youtube.com")
-        return hostname.includes(pattern);
-    });
-}

@@ -1,14 +1,16 @@
 import { checkSelectorsWithVisibility, checkTextPatterns } from '../utils/detection-utils.js';
 
-export function createFraudDetector(config = {}) {
-    return {
-        getData() {
-            return runFraudDetection(config);
-        },
-    };
-}
+// Cache result to avoid redundant DOM scans
+let cachedResult = null;
 
-export function runFraudDetection(config = {}) {
+/**
+ * Run fraud detection and cache results.
+ * @param {Record<string, any>} config
+ * @param {Object} [options]
+ * @param {boolean} [options.refresh] - Force fresh detection, bypassing cache
+ */
+export function runFraudDetection(config = {}, options = {}) {
+    if (cachedResult && !options.refresh) return cachedResult;
     const results = Object.entries(config)
         .filter(([_, alertConfig]) => alertConfig?.state === 'enabled')
         .map(([alertId, alertConfig]) => {
@@ -27,10 +29,13 @@ export function runFraudDetection(config = {}) {
         })
         .filter(Boolean);
 
-    return {
+    // Cache and return
+    cachedResult = {
         detected: results.length > 0,
         type: 'fraudDetection',
         results,
         timestamp: Date.now(),
     };
+
+    return cachedResult;
 }
