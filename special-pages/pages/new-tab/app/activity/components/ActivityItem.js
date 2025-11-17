@@ -6,7 +6,6 @@ import stylesLegacy from './ActivityLegacy.module.css';
 import { FaviconWithState } from '../../../../../shared/components/FaviconWithState.js';
 import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
 import { Star, StarFilled } from '../../components/icons/Star.js';
-import { Fire } from '../../components/icons/Fire.js';
 import { Cross, FireIcon } from '../../components/Icons.js';
 import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';

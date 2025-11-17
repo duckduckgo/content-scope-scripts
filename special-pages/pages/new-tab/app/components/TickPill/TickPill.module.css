@@ -4,8 +4,8 @@
     gap: 6px;
     padding: 8px 10px;
     border-radius: 100px;
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background-color: var(--color-white-at-3);
+    border: 1px solid var(--color-white-at-12);
     height: 20px;
     width: fit-content;
 }
@@ -23,23 +23,23 @@
 }
 
 .text {
-    font-size: 11px;
+    font-size: var(--small-label-font-size);
     font-weight: 400;
     line-height: 16px;
-    color: rgba(255, 255, 255, 0.84);
+    color: var(--color-white-at-84);
     white-space: nowrap;
 }
 
 /* Light mode styles */
 [data-theme="light"] .tickPill {
-    background-color: rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.12);
+    background-color: var(--color-black-at-4);
+    border: 1px solid var(--color-black-at-12);
 }
 
 [data-theme="light"] .text {
-    color: rgba(0, 0, 0, 0.84);
+    color: var(--color-black-at-84);
 }
 
 [data-theme="light"] .iconWrapper svg path {
-    fill: rgba(0, 0, 0, 0.84);
+    fill: var(--color-black-at-84);
 }

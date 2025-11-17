@@ -37,7 +37,7 @@ export function ProtectionsHeadingLegacy({ expansion, canExpand, blockedCountSig
     } else {
         alltimeTitle = adBlocking
             ? t('stats_countBlockedAdsAndTrackersPluralLegacy', { count: alltime })
-            : t('stats_countBlockedPlural', { count: alltime });
+            : t('stats_countBlockedPluralLegacy', { count: alltime });
     }
 
     return (
