@@ -43,7 +43,7 @@ export class ProtectionsPage {
             totalCookiePopUpsBlocked: null, // null means CPM is not enabled
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} tracking attempts blocked`);
+        await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} Tracking attempts blocked`);
     }
 
     async hasPolishText() {
@@ -51,10 +51,12 @@ export class ProtectionsPage {
         await expect(heading).toMatchAriaSnapshot(`
           - img "Privacy Shield"
           - heading "Raport ochrony" [level=2]
+          - img
           - button "Ukryj ostatnią aktywność" [expanded] [pressed]:
             - img
-          - heading /\\d+ – tyle prób śledzenia zablokowano/ [level=3]
-          - paragraph: Ostatnie 7 dni
+          - heading /\\d+ {count} – tyle prób śledzenia zablokowano/ [level=3]
+          - heading /\\d+ Cookie pop-ups blocked/ [level=3]
+          - img
           `);
     }
 
@@ -68,9 +70,10 @@ export class ProtectionsPage {
             totalCookiePopUpsBlocked: 25,
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        await expect(this.context().getByRole('heading', { level: 3 }).first()).toContainText('100 tracking attempts blocked');
-        // Cookie popup stats should be visible
-        await expect(this.context().getByText(/cookie pop-ups?/i)).toBeVisible();
+        await expect(this.context().getByRole('heading', { level: 3 }).first()).toContainText('100 Tracking attempts blocked');
+        // Cookie popup stats should be visible in the ProtectionsHeading
+        const heading = this.context().getByTestId('ProtectionsHeading');
+        await expect(heading.getByText(/cookie pop-up/i)).toBeVisible();
     }
 
     /**
@@ -83,8 +86,9 @@ export class ProtectionsPage {
             totalCookiePopUpsBlocked: null,
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        // Cookie popup stats should not be visible
-        await expect(this.context().getByText(/cookie pop-ups?/i)).not.toBeVisible();
+        // Cookie popup stats should not be visible in the ProtectionsHeading
+        const heading = this.context().getByTestId('ProtectionsHeading');
+        await expect(heading.getByText(/cookie pop-up/i)).not.toBeVisible();
     }
 
     /**
@@ -97,8 +101,9 @@ export class ProtectionsPage {
             totalCookiePopUpsBlocked: 0,
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        // Cookie popup stats should not be visible when count is 0
-        await expect(this.context().getByText(/cookie pop-ups?/i)).not.toBeVisible();
+        // Cookie popup stats should not be visible when count is 0 in the ProtectionsHeading
+        const heading = this.context().getByTestId('ProtectionsHeading');
+        await expect(heading.getByText(/cookie pop-up/i)).not.toBeVisible();
     }
 
     /**

@@ -58,7 +58,7 @@ function Mock({ children, size }) {
             favorites: {},
             urls: [],
             totalTrackers: 0,
-            cookiePopUpBlocked: null,
+            cookiePopUpBlocked: {},
         },
         { activity: mocks, urls: mocks.map((x) => x.url), totalTrackers: 0 },
     );
