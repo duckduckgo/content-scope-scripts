@@ -49,7 +49,6 @@ export function ProtectionsHeading({
                 </span>
                 <h2 class={styles.caption}>{t('protections_menuTitle')}</h2>
 
-                {/* @todo accessibility: move focus to content on hover? */}
                 <Tooltip content={t('stats_protectionsReportInfo')}>
                     <InfoIcon class={styles.infoIcon} />
                 </Tooltip>

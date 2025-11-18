@@ -51,7 +51,8 @@ export class ProtectionsPage {
         await expect(heading).toMatchAriaSnapshot(`
           - img "Privacy Shield"
           - heading "Raport ochrony" [level=2]
-          - img
+          - button:
+            - img
           - button "Ukryj ostatnią aktywność" [expanded] [pressed]:
             - img
           - heading /\\d+ {count} – tyle prób śledzenia zablokowano/ [level=3]
@@ -107,11 +108,47 @@ export class ProtectionsPage {
     }
 
     /**
-     * Test that the info tooltip is displayed
+     * Test that the info tooltip is displayed and keyboard accessible
      */
     async hasInfoTooltip() {
         const heading = this.context().getByTestId('ProtectionsHeading');
         // The InfoIcon should be present
         await expect(heading.locator('[class*="infoIcon"]')).toBeVisible();
+
+        // Find the tooltip container (parent of InfoIcon)
+        const tooltipTrigger = heading.locator('[class*="infoIcon"]').locator('..');
+
+        // Verify it's keyboard focusable
+        await expect(tooltipTrigger).toHaveAttribute('tabindex', '0');
+        await expect(tooltipTrigger).toHaveAttribute('role', 'button');
+
+        // Test keyboard navigation - focus the tooltip trigger
+        await tooltipTrigger.focus();
+
+        // Tooltip should appear on focus
+        const tooltip = this.page.locator('[role="tooltip"]');
+        await expect(tooltip).toBeVisible();
+
+        // Verify the tooltip has content about tracking attempts
+        await expect(tooltip).toContainText(/tracking attempts/i);
+
+        // Verify aria-describedby is present when tooltip is visible
+        await expect(tooltipTrigger).toHaveAttribute('aria-describedby');
+
+        // Test keyboard interaction - press Escape to hide tooltip
+        await tooltipTrigger.press('Escape');
+        await expect(tooltip).not.toBeVisible();
+
+        // Test keyboard toggle - press Enter to show tooltip again
+        await tooltipTrigger.press('Enter');
+        await expect(tooltip).toBeVisible();
+
+        // Press Enter again to toggle it off
+        await tooltipTrigger.press('Enter');
+        await expect(tooltip).not.toBeVisible();
+
+        // Test Space key
+        await tooltipTrigger.press('Space');
+        await expect(tooltip).toBeVisible();
     }
 }
