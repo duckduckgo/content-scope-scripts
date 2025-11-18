@@ -116,6 +116,14 @@ test.describe('activity widget', () => {
         await ap.didRender();
         await ap.hidesCookiePopupIndicatorWhenNotBlocked();
     });
+    test('shows zero-tracker messages with new component when CPM enabled', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { ...defaultPageParams, cpm: 'true' } });
+        await ap.didRender();
+        await ap.showsZeroTrackerMessagesWithCpm();
+    });
     test('after rendering and navigating to a new tab, data is re-requested on return', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);

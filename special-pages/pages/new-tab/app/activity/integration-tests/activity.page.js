@@ -395,6 +395,41 @@ export class ActivityPage {
           `);
     }
 
+    /**
+     * Test that the new TrackerStatus component displays zero-tracker messages when CPM is enabled
+     */
+    async showsZeroTrackerMessagesWithCpm() {
+        // Twitter has trackersFound: true, totalCount: 0 → should show "No trackers blocked"
+        await expect(this.context().getByTestId('ActivityItem').nth(3)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "twitter.com"
+            - button "Add twitter.com to favorites":
+              - img
+            - button "Clear browsing history and data for twitter.com":
+              - img
+            - text: No trackers blocked
+            - list:
+              - listitem:
+                - link "Trending Topics"
+                - text: 2 days ago
+        `);
+
+        // LinkedIn has trackersFound: false, totalCount: 0 → should show "No trackers found"
+        await expect(this.context().getByTestId('ActivityItem').nth(4)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "app.linkedin.com"
+            - button "Add app.linkedin.com to favorites":
+              - img
+            - button "Clear browsing history and data for app.linkedin.com":
+              - img
+            - text: No trackers found
+            - list:
+              - listitem:
+                - link "Profile Page"
+                - text: 2 hrs ago
+        `);
+    }
+
     async hasEmptyTrackersOnlyTitle() {
         const { page } = this;
         await expect(page.getByTestId('ActivityHeading')).toMatchAriaSnapshot(`
