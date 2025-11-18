@@ -56,7 +56,8 @@ export class ProtectionsPage {
         await expect(heading).toMatchAriaSnapshot(`
           - img "Privacy Shield"
           - heading "Raport ochrony" [level=2]
-          - img
+          - button:
+            - img
           - button "Ukryj ostatnią aktywność" [expanded] [pressed]:
             - img
           - heading /\\d+ {count} – tyle prób śledzenia zablokowano/ [level=3]
