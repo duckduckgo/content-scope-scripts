@@ -24,7 +24,6 @@ const otherFeatures = /** @type {const} */ ([
     'duckAiDataClearing',
     'harmfulApis',
     'webCompat',
-    'webInterferenceDetection',
     'windowsPermissionUsage',
     'brokerProtection',
     'performanceMetrics',
@@ -77,7 +76,7 @@ export const platformSupport = {
         'duckAiDataClearing',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
-    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'breakageReporting'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'breakageReporting'],
+    chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
+    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
     integration: [...baseFeatures, ...otherFeatures],
 };
