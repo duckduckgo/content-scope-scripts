@@ -131,7 +131,9 @@ test.describe('activity widget', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { ...defaultPageParams } });
+        // Use 'legacy' protections mock to trigger legacy UI
+        // (totalCookiePopUpsBlocked = undefined)
+        await ntp.openPage({ additional: { ...defaultPageParams, protections: 'legacy' } });
         await ap.didRender();
         await ap.hidesCookiePopupIndicatorWhenNotBlocked();
     });
@@ -142,6 +144,20 @@ test.describe('activity widget', () => {
         await ntp.openPage({ additional: { ...defaultPageParams, cpm: 'true' } });
         await ap.didRender();
         await ap.showsZeroTrackerMessagesWithCpm();
+    });
+
+    test('tracker states (new UI)', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        // Pass cpm: 'null' to trigger new UI (shouldDisplayLegacyActivity
+        // = false) without CPM
+        await ntp.openPage({ additional: { ...defaultPageParams, cpm: 'null' } });
+        await ap.didRender();
+        await ap.showsTrackersOnlyTrackerStatesNewUI();
+        await ntp.openPage({ additional: { ...defaultPageParams, adBlocking: 'enabled', cpm: 'null' } });
+        await ap.didRender();
+        await ap.showsAdsAndTrackersTrackerStatesNewUI();
     });
     test('shows cookie popup blocked indicator', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
