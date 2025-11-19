@@ -4,11 +4,11 @@ This directory contains web interference detection functionality for content-sco
 
 ## Architecture
 
-The system uses a **ContentFeature** wrapper with simple detection utilities:
+The system provides simple detection utilities that can be called on-demand:
 
-- **`WebInterferenceDetection`** - ContentFeature that auto-runs detectors on page load
-- **Detection utilities** - Pure functions (`runBotDetection`, `runFraudDetection`) with module-level caching
-- **Direct imports** - Other features (breakage reporting, PIR) import detection functions directly
+- **Detection utilities** - Pure functions (`runBotDetection`, `runFraudDetection`) that scan DOM when called
+- **Direct imports** - Features (breakage reporting, PIR) import detection functions directly
+- **`WebInterferenceDetection`** - Optional ContentFeature wrapper for messaging (PIR use, not currently bundled)
 
 
 ## Directory Layout
@@ -25,14 +25,14 @@ detectors/
 
 ## How It Works
 
-### 1. Initialization
+### 1. On-Demand Detection
 
-The `WebInterferenceDetection` ContentFeature runs detectors automatically:
+Detectors are simple functions that scan the DOM when called:
 
-1. Feature loads via standard content-scope-features lifecycle
-2. `init()` method schedules detectors to run after `autoRunDelayMs` (default: 100ms)
-3. Each detector runs once and caches results in module scope
-4. Other features can import and call detection functions to get cached results
+1. Feature imports detector function (e.g., `runBotDetection`)
+2. Feature calls detector with config when needed (e.g., user submits breakage report)
+3. Detector scans DOM and returns results immediately (~few ms)
+4. No caching - each call is fresh
 
 ### 2. Configuration
 
@@ -91,17 +91,23 @@ The framework automatically applies conditional changes based on the current URL
 
 ### 3. Using Detection Results
 
-**Internal features** (same content script context):
+**Breakage reporting** (internal feature):
 
 ```javascript
 import { runBotDetection, runFraudDetection } from '../detectors/detections/bot-detection.js';
 
-// Get cached results from auto-run
-const botData = runBotDetection();
-const fraudData = runFraudDetection();
+// Get detector config from privacy-configuration
+const detectorSettings = this.getFeatureSetting('webInterferenceDetection', 'interferenceTypes');
+
+if (detectorSettings) {
+    const result = {
+        botDetection: runBotDetection(detectorSettings.botDetection),
+        fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
+    };
+}
 ```
 
-**External:**
+**PIR/native** (via messaging, when `WebInterferenceDetection` is bundled):
 
 ```javascript
 // Via messaging
@@ -116,38 +122,27 @@ this.messaging.request('detectInterference', {
 
 ```javascript
 // detections/my-detector.js
-let cachedResult = null;
-
-export function runMyDetection(config = {}, options = {}) {
-    if (cachedResult && !options.refresh) return cachedResult;
-
+export function runMyDetection(config = {}) {
     // Run detection logic
     const detected = checkSelectors(config.selectors);
 
-    cachedResult = {
+    return {
         detected,
         type: 'myDetector',
-        timestamp: Date.now(),
+        results: [...],
     };
-
-    return cachedResult;
 }
 ```
 
-2. **Add to WebInterferenceDetection feature**:
+2. **Use in breakage reporting or other feature**:
 
 ```javascript
-// features/web-interference-detection.js
+// features/breakage-reporting.js
 import { runMyDetection } from '../detectors/detections/my-detector.js';
 
-init(args) {
-    const settings = this.getFeatureSetting('interferenceTypes');
-
-    setTimeout(() => {
-        if (settings?.myDetector) {
-            runMyDetection(settings.myDetector);
-        }
-    }, autoRunDelayMs);
+const detectorSettings = this.getFeatureSetting('webInterferenceDetection', 'interferenceTypes');
+if (detectorSettings?.myDetector) {
+    result.myDetectorData = runMyDetection(detectorSettings.myDetector);
 }
 ```
 
@@ -166,25 +161,9 @@ init(args) {
 }
 ```
 
-## Caching Strategy
+## Performance
 
-- **Module-level cache**: Each detector uses a simple variable (`let cachedResult = null`)
-- **Automatic**: First call runs detection and caches, subsequent calls return cached result
-- **Per-tab**: Each browser tab has its own cache (separate content script instance)
-- **Lifetime**: Cache persists for page lifetime, cleared on navigation
-- **Refresh option**: Callers can force fresh detection with `{ refresh: true }`
-
-**Examples:**
-```javascript
-// Get cached result (fast)
-const data = runBotDetection(config);
-
-// Force fresh scan (slower, bypasses cache)
-const freshData = runBotDetection(config, { refresh: true });
-
-// Via messaging (native layer)
-messaging.request('detectInterference', {
-  types: ['botDetection'],
-  refresh: true  // Optional: force rescan
-});
-```
+- Detectors are simple DOM queries - typically < 5ms
+- No caching overhead or stale results
+- Only run when explicitly needed (e.g., breakage report submitted)
+- Future: If frequent polling is needed, add a shared caching wrapper
