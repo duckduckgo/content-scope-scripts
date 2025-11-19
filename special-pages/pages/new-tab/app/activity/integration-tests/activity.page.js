@@ -299,6 +299,8 @@ export class ActivityPage {
         await page.pause();
     }
 
+    // @todo legacyProtections: Remove legacy test helper once all platforms
+    // are ready for the new protections report
     async showsTrackersOnlyTrackerStates() {
         await expect(this.context().getByTestId('ActivityItem').nth(0)).toMatchAriaSnapshot(`
           - listitem:
@@ -308,7 +310,6 @@ export class ActivityPage {
             - button "Clear browsing history and data for example.com":
               - img
             - text: +1 56 tracking attempts blocked
-            - text: Cookie pop-up blocked
             - list:
               - listitem:
                 - link "/bathrooms/toilets"
@@ -347,6 +348,8 @@ export class ActivityPage {
           `);
     }
 
+    // @todo legacyProtections: Remove legacy test helper once all platforms
+    // are ready for the new protections report
     async showsAdsAndTrackersTrackerStates() {
         await expect(this.context().getByTestId('ActivityItem').nth(0)).toMatchAriaSnapshot(`
           - listitem:
@@ -356,7 +359,6 @@ export class ActivityPage {
             - button "Clear browsing history and data for example.com":
               - img
             - text: +1 56 ads + tracking attempts blocked
-            - text: Cookie pop-up blocked
             - list:
               - listitem:
                 - link "/bathrooms/toilets"
@@ -428,6 +430,115 @@ export class ActivityPage {
                 - link "Profile Page"
                 - text: 2 hrs ago
         `);
+    }
+
+    /**
+     * Test new UI (shouldDisplayLegacyActivity = false) without CPM
+     * Shows TickPill components instead of company icons
+     */
+    async showsTrackersOnlyTrackerStatesNewUI() {
+        await expect(this.context().getByTestId('ActivityItem').nth(0)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "example.com"
+            - button "Add example.com to favorites":
+              - img
+            - button "Clear browsing history and data for example.com":
+              - img
+            - img
+            - text: 56 Tracking attempts blocked
+            - img
+            - text: Cookie pop-up blocked
+            - list:
+              - listitem:
+                - link "/bathrooms/toilets"
+                - text: Just now
+              - listitem:
+                - link "/kitchen/sinks"
+                - text: 50 mins ago
+        `);
+
+        await expect(this.context().getByTestId('ActivityItem').nth(3)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "twitter.com"
+            - button "Add twitter.com to favorites":
+              - img
+            - button "Clear browsing history and data for twitter.com":
+              - img
+            - text: No trackers blocked
+            - list:
+              - listitem:
+                - link "Trending Topics"
+                - text: 2 days ago
+          `);
+
+        await expect(this.context().getByTestId('ActivityItem').nth(4)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "app.linkedin.com"
+            - button "Add app.linkedin.com to favorites":
+              - img
+            - button "Clear browsing history and data for app.linkedin.com":
+              - img
+            - text: No trackers found
+            - list:
+              - listitem:
+                - link "Profile Page"
+                - text: 2 hrs ago
+          `);
+    }
+
+    /**
+     * Test new UI (shouldDisplayLegacyActivity = false) with ad blocking enabled
+     * Note: The new UI doesn't show "ads +" in the text, just "Tracking attempts blocked"
+     */
+    async showsAdsAndTrackersTrackerStatesNewUI() {
+        // With ad blocking, the new UI still shows "Tracking attempts blocked" (not "ads + tracking")
+        await expect(this.context().getByTestId('ActivityItem').nth(0)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "example.com"
+            - button "Add example.com to favorites":
+              - img
+            - button "Clear browsing history and data for example.com":
+              - img
+            - img
+            - text: 56 Tracking attempts blocked
+            - img
+            - text: Cookie pop-up blocked
+            - list:
+              - listitem:
+                - link "/bathrooms/toilets"
+                - text: Just now
+              - listitem:
+                - link "/kitchen/sinks"
+                - text: 50 mins ago
+        `);
+
+        await expect(this.context().getByTestId('ActivityItem').nth(3)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "twitter.com"
+            - button "Add twitter.com to favorites":
+              - img
+            - button "Clear browsing history and data for twitter.com":
+              - img
+            - text: No trackers blocked
+            - list:
+              - listitem:
+                - link "Trending Topics"
+                - text: 2 days ago
+        `);
+
+        await expect(this.context().getByTestId('ActivityItem').nth(4)).toMatchAriaSnapshot(`
+          - listitem:
+            - link "app.linkedin.com"
+            - button "Add app.linkedin.com to favorites":
+              - img
+            - button "Clear browsing history and data for app.linkedin.com":
+              - img
+            - text: No trackers found
+            - list:
+              - listitem:
+                - link "Profile Page"
+                - text: 2 hrs ago
+          `);
     }
 
     async hasEmptyTrackersOnlyTitle() {

@@ -15,4 +15,10 @@ export const protectionsMocks = {
         totalCount: 1_000_020,
         totalCookiePopUpsBlocked: 5_432,
     },
+    // @todo legacyProtections: Remove legacy mock once all platforms are ready
+    // for the new protections report
+    legacy: {
+        totalCount: 86,
+        totalCookiePopUpsBlocked: undefined,
+    },
 };

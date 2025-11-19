@@ -89,16 +89,35 @@ test.describe('activity widget', () => {
         await ap.didRender();
         await ap.listsAtMost3TrackerCompanies();
     });
-    test('tracker states', async ({ page }, workerInfo) => {
+
+    // @todo legacyProtections: Remove legacy test case once all platforms are
+    // ready for the new protections report
+    test('tracker states (legacy UI)', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { ...defaultPageParams } });
+        // Use 'legacy' protections mock to trigger legacy UI
+        // (totalCookiePopUpsBlocked = undefined)
+        await ntp.openPage({ additional: { ...defaultPageParams, protections: 'legacy' } });
         await ap.didRender();
         await ap.showsTrackersOnlyTrackerStates();
-        await ntp.openPage({ additional: { ...defaultPageParams, adBlocking: 'enabled' } });
+        await ntp.openPage({ additional: { ...defaultPageParams, adBlocking: 'enabled', protections: 'legacy' } });
         await ap.didRender();
         await ap.showsAdsAndTrackersTrackerStates();
+    });
+
+    test('tracker states (new UI)', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const ap = new ActivityPage(page, ntp);
+        await ntp.reducedMotion();
+        // Pass cpm: 'null' to trigger new UI (shouldDisplayLegacyActivity
+        // = false) without CPM
+        await ntp.openPage({ additional: { ...defaultPageParams, cpm: 'null' } });
+        await ap.didRender();
+        await ap.showsTrackersOnlyTrackerStatesNewUI();
+        await ntp.openPage({ additional: { ...defaultPageParams, adBlocking: 'enabled', cpm: 'null' } });
+        await ap.didRender();
+        await ap.showsAdsAndTrackersTrackerStatesNewUI();
     });
     test('shows cookie popup blocked indicator', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
