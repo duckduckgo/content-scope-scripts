@@ -5,6 +5,8 @@ import cn from 'classnames';
 import { h } from 'preact';
 import { InfoIcon, NewBadgeIcon } from '../../components/Icons.js';
 import { Tooltip } from '../../components/Tooltip/Tooltip.js';
+import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
+import { animateCount } from '../utils/animateCount.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -31,6 +33,55 @@ export function ProtectionsHeading({
     const totalTrackersBlocked = blockedCountSignal.value;
     const totalCookiePopUpsBlocked = totalCookiePopUpsBlockedSignal.value ?? 0;
 
+    // State for animated cookie pop-ups count
+    // Initialize to 0 so first render triggers percentage-based animation from spec
+    const [animatedCookiePopUpsBlocked, setAnimatedCookiePopUpsBlocked] = useState(0);
+
+    // Track current animated value to enable smooth incremental updates
+    // Initialize to 0 so first animation uses spec's percentage-based starting point
+    const animatedValueRef = useRef(0);
+
+    // Memoize the update callback to avoid recreating it on every render
+    const updateAnimatedCount = useCallback((value) => {
+        animatedValueRef.current = value;
+        setAnimatedCookiePopUpsBlocked(value);
+    }, []);
+
+    // Animate cookie pop-ups count when it changes and page is visible
+    useEffect(() => {
+        // Only animate if the page is visible
+        if (document.visibilityState !== 'visible') {
+            setAnimatedCookiePopUpsBlocked(totalCookiePopUpsBlocked);
+            animatedValueRef.current = totalCookiePopUpsBlocked;
+            return;
+        }
+
+        // Animate the count from current value to new value
+        const cancelAnimation = animateCount(
+            totalCookiePopUpsBlocked,
+            updateAnimatedCount,
+            undefined,
+            animatedValueRef.current
+        );
+
+        // Listen for visibility changes to cancel animation if page becomes hidden
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                cancelAnimation();
+                setAnimatedCookiePopUpsBlocked(totalCookiePopUpsBlocked);
+                animatedValueRef.current = totalCookiePopUpsBlocked;
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        // Cleanup animation and event listener
+        return () => {
+            cancelAnimation();
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [totalCookiePopUpsBlocked, updateAnimatedCount]);
+
     // Native does not tell the FE if cookie pop up protection is enabled but
     // we can derive this from the value of `totalCookiePopUpsBlocked` in the
     // `ProtectionsService`
@@ -40,7 +91,7 @@ export function ProtectionsHeading({
     const trackersBlockedHeading = totalTrackersBlocked === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural');
 
     const cookiePopUpsBlockedHeading =
-        totalCookiePopUpsBlocked === 1 ? t('stats_totalCookiePopUpsBlockedSingular') : t('stats_totalCookiePopUpsBlockedPlural');
+        animatedCookiePopUpsBlocked === 1 ? t('stats_totalCookiePopUpsBlockedSingular') : t('stats_totalCookiePopUpsBlockedPlural');
 
     return (
         <div class={styles.heading} data-testid="ProtectionsHeading">
