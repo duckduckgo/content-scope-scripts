@@ -1,16 +1,10 @@
 import { checkSelectors, checkWindowProperties, matchesSelectors, matchesTextPatterns } from '../utils/detection-utils.js';
 
-// Cache result to avoid redundant DOM scans
-let cachedResult = null;
-
 /**
- * Run bot detection and cache results.
+ * Run bot detection.
  * @param {Record<string, any>} config
- * @param {Object} [options]
- * @param {boolean} [options.refresh] - Force fresh detection, bypassing cache
  */
-export function runBotDetection(config = {}, options = {}) {
-    if (cachedResult && !options.refresh) return cachedResult;
+export function runBotDetection(config = {}) {
     const results = Object.entries(config)
         .filter(([_, challengeConfig]) => challengeConfig?.state === 'enabled')
         .map(([challengeId, challengeConfig]) => {
@@ -29,15 +23,11 @@ export function runBotDetection(config = {}, options = {}) {
         })
         .filter(Boolean);
 
-    // Cache and return
-    cachedResult = {
+    return {
         detected: results.length > 0,
         type: 'botDetection',
         results,
-        timestamp: Date.now(),
     };
-
-    return cachedResult;
 }
 
 function findStatus(statusSelectors) {

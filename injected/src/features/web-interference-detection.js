@@ -5,7 +5,6 @@ import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
 /**
  * @typedef {object} DetectInterferenceParams
  * @property {string[]} [types]
- * @property {boolean} [refresh]
  */
 
 export default class WebInterferenceDetection extends ContentFeature {
@@ -26,18 +25,15 @@ export default class WebInterferenceDetection extends ContentFeature {
 
         // Register messaging handler for PIR/native requests
         this.messaging.subscribe('detectInterference', (params) => {
-            const { types = [], refresh = false } = /** @type {DetectInterferenceParams} */ (params ?? {});
+            const { types = [] } = /** @type {DetectInterferenceParams} */ (params ?? {});
             const results = {};
 
             if (types.includes('botDetection')) {
-                const botResult = runBotDetection(settings?.botDetection, { refresh });
-                results.botDetection = botResult;
+                results.botDetection = runBotDetection(settings?.botDetection);
             }
             if (types.includes('fraudDetection')) {
-                const fraudResult = runFraudDetection(settings?.fraudDetection, { refresh });
-                results.fraudDetection = fraudResult;
-            }
-            return results;
+                results.fraudDetection = runFraudDetection(settings?.fraudDetection);
+            }            return results;
         });
     }
 }
