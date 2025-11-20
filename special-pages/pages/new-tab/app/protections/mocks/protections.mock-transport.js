@@ -88,23 +88,28 @@ export function protectionsMockTransport() {
                     if (url.searchParams.get('activity') === 'empty') {
                         dataset.totalCount = 0;
                     }
+
+                    // Setting `totalCookiePopUpsBlocked` to `undefined` as the
+                    // default allows us to see the legacy protections report as
+                    // the default. The new experience can be viewed by passing
+                    // the `cpm` parameters outlined below. Useful until all
+                    // platforms adopt the new schema
+                    dataset.totalCookiePopUpsBlocked = undefined;
+
                     if (url.searchParams.get('cpm') === 'true') {
                         dataset.totalCookiePopUpsBlocked = 22;
                     }
+
                     // CPM = 0 state
                     if (url.searchParams.get('cpm') === 'none') {
                         dataset.totalCookiePopUpsBlocked = 0;
                     }
+
                     // CPM disabled state
                     if (url.searchParams.get('cpm') === 'null') {
                         dataset.totalCookiePopUpsBlocked = null;
                     }
-                    // Setting cpm=undefined allows us to see the legacy
-                    // protections report. Useful until all platforms adopt the
-                    // new schema
-                    if (url.searchParams.get('cpm') === 'undefined') {
-                        dataset.totalCookiePopUpsBlocked = undefined;
-                    }
+
                     return Promise.resolve(dataset);
                 case 'protections_getConfig': {
                     if (url.searchParams.get('protections.feed') === 'activity') {
