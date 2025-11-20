@@ -31,7 +31,8 @@ export function ProtectionsHeading({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const totalTrackersBlocked = blockedCountSignal.value;
-    const totalCookiePopUpsBlocked = totalCookiePopUpsBlockedSignal.value ?? 0;
+    const totalCookiePopUpsBlockedValue = totalCookiePopUpsBlockedSignal.value;
+    const totalCookiePopUpsBlocked = totalCookiePopUpsBlockedValue ?? 0;
 
     // State for animated cookie pop-ups count
     // Initialize to 0 so first render triggers percentage-based animation from spec
@@ -49,24 +50,35 @@ export function ProtectionsHeading({
 
     // Animate cookie pop-ups count when it changes and page is visible
     useEffect(() => {
-        // Only animate if the page is visible
-        if (document.visibilityState !== 'visible') {
+        let cancelAnimation = () => {};
+
+        // Start animation if page is currently visible
+        if (document.visibilityState === 'visible') {
+            cancelAnimation = animateCount(
+                totalCookiePopUpsBlocked,
+                updateAnimatedCount,
+                undefined,
+                animatedValueRef.current
+            );
+        } else {
+            // Page is hidden - set value immediately without animation
             setAnimatedCookiePopUpsBlocked(totalCookiePopUpsBlocked);
             animatedValueRef.current = totalCookiePopUpsBlocked;
-            return;
         }
 
-        // Animate the count from current value to new value
-        const cancelAnimation = animateCount(
-            totalCookiePopUpsBlocked,
-            updateAnimatedCount,
-            undefined,
-            animatedValueRef.current
-        );
-
-        // Listen for visibility changes to cancel animation if page becomes hidden
+        // Listen for visibility changes to start/stop animation
         const handleVisibilityChange = () => {
-            if (document.visibilityState === 'hidden') {
+            if (document.visibilityState === 'visible') {
+                // Page became visible - start animation from current displayed value
+                cancelAnimation();
+                cancelAnimation = animateCount(
+                    totalCookiePopUpsBlocked,
+                    updateAnimatedCount,
+                    undefined,
+                    animatedValueRef.current
+                );
+            } else {
+                // Page became hidden - cancel animation and snap to final value
                 cancelAnimation();
                 setAnimatedCookiePopUpsBlocked(totalCookiePopUpsBlocked);
                 animatedValueRef.current = totalCookiePopUpsBlocked;
