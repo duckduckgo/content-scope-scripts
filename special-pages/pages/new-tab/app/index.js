@@ -135,8 +135,8 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
                                                 entryPoints={entryPoints}
                                             >
                                                 <TabsProvider service={tabs}>
+                                                    &lt;App/&gt;
                                                     {environment.urlParams.has('tabs.debug') && <TabsDebug />}
-                                                    {window.location.href}
                                                     <App />
                                                 </TabsProvider>
                                             </WidgetConfigProvider>

@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "description": "Sent when the new tab page has finished loading and widgets are visible",
+  "properties": {}
+}

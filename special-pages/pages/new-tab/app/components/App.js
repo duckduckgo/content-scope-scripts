@@ -10,8 +10,9 @@ import { CustomizerDrawer } from '../customizer/components/CustomizerDrawer.js';
 import { BackgroundConsumer } from './BackgroundProvider.js';
 import { useComputed } from '@preact/signals';
 import { CustomizerThemesContext } from '../customizer/CustomizerProvider.js';
-import { useContext } from 'preact/hooks';
+import { useContext, useEffect } from 'preact/hooks';
 import { InlineErrorBoundary } from '../InlineErrorBoundary.js';
+import { useMessaging } from '../types.js';
 
 /**
  * Renders the App component.
@@ -22,9 +23,16 @@ import { InlineErrorBoundary } from '../InlineErrorBoundary.js';
 export function App() {
     const platformName = usePlatformName();
     const customizerDrawer = useCustomizerDrawerSettings();
+    const messaging = useMessaging();
 
     useGlobalDropzone();
     useContextMenu();
+
+    // Notify native that the page is ready after widgets have mounted
+    useEffect(() => {
+        console.log('New Tab App is ready');
+        messaging.ready();
+    }, [messaging]);
 
     // prettier-ignore
     const {

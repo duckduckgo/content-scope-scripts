@@ -89,6 +89,13 @@ export class NewTabPage {
     statsShowLess() {
         this.messaging.notify('stats_showLess');
     }
+
+    /**
+     * Notify native that the page is ready and widgets are visible
+     */
+    ready() {
+        this.messaging.notify('ready', {});
+    }
 }
 
 const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env);

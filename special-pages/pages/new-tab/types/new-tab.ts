@@ -136,6 +136,7 @@ export interface NewTabMessages {
     | OmnibarSubmitSearchNotification
     | OpenNotification
     | ProtectionsSetConfigNotification
+    | ReadyNotification
     | ReportInitExceptionNotification
     | ReportPageExceptionNotification
     | RmfDismissNotification
@@ -583,6 +584,17 @@ export interface ProtectionsConfig {
    */
   showBurnAnimation?: boolean;
 }
+/**
+ * Generated from @see "../messages/ready.notify.json"
+ */
+export interface ReadyNotification {
+  method: "ready";
+  params: ReadyNotify;
+}
+/**
+ * Sent when the new tab page has finished loading and widgets are visible
+ */
+export interface ReadyNotify {}
 /**
  * Generated from @see "../messages/reportInitException.notify.json"
  */
