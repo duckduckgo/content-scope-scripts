@@ -142,7 +142,7 @@ function Controls({ canBurn, url, title, shouldDisplayLegacyActivity }) {
             >
                 {/* @todo legacyProtections: Remove legacy check once all
                 platforms are ready for the new Protections Report */}
-                {canBurn ? (shouldDisplayLegacyActivity ? <FireIconLegacy /> : <FireIcon />) : <Cross />}
+                {canBurn ? shouldDisplayLegacyActivity ? <FireIconLegacy /> : <FireIcon /> : <Cross />}
             </button>
         </div>
     );
