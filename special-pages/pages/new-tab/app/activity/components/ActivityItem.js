@@ -6,6 +6,7 @@ import stylesLegacy from './ActivityLegacy.module.css';
 import { FaviconWithState } from '../../../../../shared/components/FaviconWithState.js';
 import { ACTION_ADD_FAVORITE, ACTION_REMOVE, ACTION_REMOVE_FAVORITE } from '../constants.js';
 import { Star, StarFilled } from '../../components/icons/Star.js';
+import { Fire as FireIconLegacy } from '../../components/icons/Fire.js';
 import { Cross, FireIcon } from '../../components/Icons.js';
 import { useContext } from 'preact/hooks';
 import { memo } from 'preact/compat';
@@ -88,7 +89,7 @@ export const ActivityItemLegacy = memo(
                         </span>
                         {title}
                     </a>
-                    <Controls canBurn={canBurn} url={url} title={title} />
+                    <Controls canBurn={canBurn} url={url} title={title} shouldDisplayLegacyActivity />
                 </div>
                 <div class={stylesLegacy.body}>{children}</div>
             </li>
@@ -104,8 +105,9 @@ export const ActivityItemLegacy = memo(
  * @param {boolean} props.canBurn - Indicates whether the burn action is allowed.
  * @param {string} props.url - The unique URL identifier for the associated item.
  * @param {string} props.title - The title or domain name displayed in the button tooltips.
+ * @param {boolean} [props.shouldDisplayLegacyActivity=false] - Indicates whether to show legacy icons. Optional, defaults to `false`
  */
-function Controls({ canBurn, url, title }) {
+function Controls({ canBurn, url, title, shouldDisplayLegacyActivity }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
     const favorite = useComputed(() => activity.value.favorites[url]);
@@ -138,7 +140,9 @@ function Controls({ canBurn, url, title }) {
                 value={url}
                 type="button"
             >
-                {canBurn ? <FireIcon /> : <Cross />}
+                {/* @todo legacyProtections: Remove legacy check once all
+                platforms are ready for the new Protections Report */}
+                {canBurn ? (shouldDisplayLegacyActivity ? <FireIconLegacy /> : <FireIcon />) : <Cross />}
             </button>
         </div>
     );
