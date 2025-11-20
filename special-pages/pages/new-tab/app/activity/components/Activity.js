@@ -253,7 +253,7 @@ function TrackerStatus({ id, trackersFound }) {
     return (
         <div class={styles.companiesIconRow} data-testid="TrackerStatus">
             <div class={styles.companiesText}>
-                <TickPill text={totalTrackersPillText} />
+                <TickPill text={totalTrackersPillText} displayTick={totalTrackersBlocked > 0} />
                 {cookiePopUpBlocked && <TickPill text={t('activity_cookiePopUpBlocked')} />}
             </div>
         </div>
