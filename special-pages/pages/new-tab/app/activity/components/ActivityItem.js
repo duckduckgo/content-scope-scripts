@@ -89,7 +89,7 @@ export const ActivityItemLegacy = memo(
                         </span>
                         {title}
                     </a>
-                    <Controls canBurn={canBurn} url={url} title={title} />
+                    <Controls canBurn={canBurn} url={url} title={title} shouldDisplayLegacyActivity />
                 </div>
                 <div class={stylesLegacy.body}>{children}</div>
             </li>
