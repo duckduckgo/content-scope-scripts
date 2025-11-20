@@ -40,7 +40,10 @@ export class ProtectionsPage {
         /** @type {ProtectionsData} */
         const data = {
             totalCount: count,
-            totalCookiePopUpsBlocked: null, // null means CPM is not enabled
+            // @todo legacyProtections: Update snapshots and set
+            // `totalCookiePopUpsBlocked` to a positive integer once all
+            // platforms adopt the new schema
+            totalCookiePopUpsBlocked: undefined,
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
         await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} Tracking attempts blocked`);

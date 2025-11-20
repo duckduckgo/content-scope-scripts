@@ -94,6 +94,8 @@ export function protectionsMockTransport() {
                     // the default. The new experience can be viewed by passing
                     // the `cpm` parameters outlined below. Useful until all
                     // platforms adopt the new schema
+                    // @todo legacyProtections: Remove next line once all
+                    // platforms support the new UI
                     dataset.totalCookiePopUpsBlocked = undefined;
 
                     if (url.searchParams.get('cpm') === 'true') {
