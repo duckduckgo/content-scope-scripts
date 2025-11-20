@@ -84,6 +84,25 @@ test.describe('Breakage Reporting Feature', () => {
         expect(recaptchaResult.vendor).toBe('reCAPTCHA');
         expect(recaptchaResult.detected).toBe(true);
     });
+
+    test('detects Fraud challenge (PerimeterX)', async ({ page }, testInfo) => {
+        const collector = ResultsCollector.create(page, testInfo.project.use);
+        await collector.load(HTML, CONFIG);
+
+        const breakageFeature = new BreakageReportingSpec(page);
+        await breakageFeature.navigateToPage('/breakage-reporting/pages/fraud-px.html');
+
+        await collector.simulateSubscriptionMessage('breakageReporting', 'getBreakageReportValues', {});
+        await collector.waitForMessage('breakageReportResult');
+        const calls = await collector.outgoingMessages();
+
+        const result = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (calls[0].payload);
+        expect(result.params?.detectorData).toBeDefined();
+        expect(result.params?.detectorData?.fraudDetection.detected).toBe(true);
+
+        const fraudResult = result.params?.detectorData?.fraudDetection.results[0];
+        expect(fraudResult.alertId).toBe('px');
+    });
 });
 
 export class BreakageReportingSpec {
