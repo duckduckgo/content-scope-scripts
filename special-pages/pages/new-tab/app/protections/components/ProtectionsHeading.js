@@ -34,7 +34,8 @@ export function ProtectionsHeading({
     // Native does not tell the FE if cookie pop up protection is enabled but
     // we can derive this from the value of `totalCookiePopUpsBlocked` in the
     // `ProtectionsService`
-    const isCpmEnabled = totalCookiePopUpsBlockedSignal.value !== null;
+    // undefined = browser doesn't support feature, null = feature available but disabled
+    const isCpmEnabled = totalCookiePopUpsBlockedSignal.value !== undefined && totalCookiePopUpsBlockedSignal.value !== null;
 
     const trackersBlockedHeading = totalTrackersBlocked === 1 ? t('stats_countBlockedSingular') : t('stats_countBlockedPlural');
 
