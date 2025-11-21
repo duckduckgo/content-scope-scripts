@@ -35,15 +35,17 @@ export class ProtectionsPage {
 
     /**
      * @param {number} count
+     * @param {object} [options]
+     * @param {number | null | undefined} [options.totalCookiePopUpsBlocked] - Cookie pop-up count. undefined = legacy UI (DEFAULT), null = new UI but feature disabled, number = new UI with feature enabled
      */
-    async receivesUpdatedTotal(count) {
+    async receivesUpdatedTotal(count, options = {}) {
         /** @type {ProtectionsData} */
         const data = {
             totalCount: count,
-            // @todo legacyProtections: Update snapshots and set
-            // `totalCookiePopUpsBlocked` to a positive integer once all
-            // platforms adopt the new schema
-            totalCookiePopUpsBlocked: undefined,
+            // Default to undefined (legacy UI) to match current production behavior
+            // Explicitly pass null for new UI with feature disabled
+            // Explicitly pass a number for new UI with feature enabled
+            totalCookiePopUpsBlocked: 'totalCookiePopUpsBlocked' in options ? options.totalCookiePopUpsBlocked : undefined,
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
         await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} Tracking attempts blocked`);
@@ -59,8 +61,6 @@ export class ProtectionsPage {
           - button "Ukryj ostatnią aktywność" [expanded] [pressed]:
             - img
           - heading /\\d+ {count} – tyle prób śledzenia zablokowano/ [level=3]
-          - heading /\\d+ Cookie pop-ups blocked/ [level=3]
-          - img
           `);
     }
 
