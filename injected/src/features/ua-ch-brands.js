@@ -10,6 +10,7 @@ export default class UaChBrands extends ContentFeature {
 
     init() {
         const configuredBrands = this.getFeatureSetting('brands');
+        this.log.info('init() - configured brands from settings:', configuredBrands ? configuredBrands.map(b => `"${b.brand}" v${b.version}`).join(', ') : 'null');
 
         if (!configuredBrands || configuredBrands.length === 0) {
             this.log.info('No client hint brands correctly configured, feature disabled');
@@ -25,12 +26,14 @@ export default class UaChBrands extends ContentFeature {
         try {
             // @ts-expect-error - userAgentData not yet standard
             if (!navigator.userAgentData || !navigator.userAgentData.brands) {
+                this.log.info('shimUserAgentDataBrands - navigator.userAgentData not available');
                 return;
             }
 
             if (!this.originalBrands) {
                 // @ts-expect-error - userAgentData not yet standard
                 this.originalBrands = [...navigator.userAgentData.brands];
+                this.log.info('shimUserAgentDataBrands - captured original brands:', this.originalBrands.map(b => `"${b.brand}" v${b.version}`).join(', '));
             }
 
             if (this.cachedBrands) {
@@ -41,8 +44,10 @@ export default class UaChBrands extends ContentFeature {
             const mutatedBrands = this.applyBrandMutations();
 
             if (mutatedBrands) {
+                this.log.info('shimUserAgentDataBrands - about to apply override with:', mutatedBrands.map(b => `"${b.brand}" v${b.version}`).join(', '));
                 this.cachedBrands = mutatedBrands;
                 this.applyBrandsOverride(mutatedBrands);
+                this.log.info('shimUserAgentDataBrands - override applied, verify brands:', mutatedBrands.length, 'brands');
             }
         } catch (error) {
             this.log.error('Error in shimUserAgentDataBrands:', error);
