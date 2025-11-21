@@ -45,6 +45,7 @@ test.describe('protections report', () => {
 
         const protections = new ProtectionsPage(ntp);
         await protections.ready();
+        // Use default (undefined = legacy UI / current production)
         await protections.receivesUpdatedTotal(100);
     });
     test('localization smoke test', async ({ page }, workerInfo) => {
@@ -90,7 +91,8 @@ test.describe('protections report', () => {
     test('displays info tooltip', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+        // Use cpm: 'null' to enable new UI (feature available but disabled)
+        await ntp.openPage({ additional: { 'protections.feed': 'activity', cpm: 'null' } });
 
         const protections = new ProtectionsPage(ntp);
         await protections.ready();

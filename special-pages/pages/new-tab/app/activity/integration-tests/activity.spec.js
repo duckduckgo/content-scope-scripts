@@ -123,7 +123,7 @@ test.describe('activity widget', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         const ap = new ActivityPage(page, ntp);
         await ntp.reducedMotion();
-        await ntp.openPage({ additional: { ...defaultPageParams } });
+        await ntp.openPage({ additional: { ...defaultPageParams, cpm: 'true' } });
         await ap.didRender();
         await ap.showsCookiePopupBlockedIndicator();
     });
