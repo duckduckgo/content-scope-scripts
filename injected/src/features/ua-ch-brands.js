@@ -9,14 +9,19 @@ export default class UaChBrands extends ContentFeature {
     }
 
     init() {
-        const configuredBrands = this.getFeatureSetting('brands');
-        this.log.info('init() - configured brands from settings:', configuredBrands ? configuredBrands.map(b => `"${b.brand}" v${b.version}`).join(', ') : 'null');
+        try {
+            this.log.info('init() called - ensuring brands are wrapped');
+            const configuredBrands = this.getFeatureSetting('brands');
+            this.log.info('init() - configured brands from settings:', configuredBrands ? configuredBrands.map(b => `"${b.brand}" v${b.version}`).join(', ') : 'null');
 
-        if (!configuredBrands || configuredBrands.length === 0) {
-            this.log.info('No client hint brands correctly configured, feature disabled');
-            return;
+            if (!configuredBrands || configuredBrands.length === 0) {
+                this.log.info('No client hint brands correctly configured, feature disabled');
+                return;
+            }
+            this.shimUserAgentDataBrands();
+        } catch (e) {
+            console.error('[UA-CH-BRANDS] init() error:', e);
         }
-        this.shimUserAgentDataBrands();
     }
 
     /**
