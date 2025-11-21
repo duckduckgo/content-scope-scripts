@@ -1,0 +1,23 @@
+{
+    "readme": "This config tests that uaChBrands can override navigator.userAgentData.brands",
+    "version": 1,
+    "unprotectedTemporary": [],
+    "features": {
+        "uaChBrands": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "brands": [
+                    {
+                        "brand": "DuckDuckGo",
+                        "version": "142"
+                    },
+                    {
+                        "brand": "Chromium",
+                        "version": "142"
+                    }
+                ]
+            }
+        }
+    }
+}
