@@ -1,0 +1,22 @@
+{
+  "url": "https://archive.org/",
+  "extractedAt": "2025-10-16T12:06:29.703Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://archive.org/offshoot_assets/favicon.ico",
+        "rel": "icon"
+      }
+    ],
+    "title": "Internet Archive: Digital Library of Free & Borrowable Texts, Movies, Music & Wayback Machine",
+    "metaDescription": "",
+    "content": "[Skip to main content](#maincontent)                                [Texts](/details/texts)    [Video](/details/movies)    [Audio](/details/audio)    [Software](/details/software)    [Images](/details/image)                         [Sign up](/account/signup) | [Log in](/account/login)       [Upload](/create)                                                   \n  \n- [About](/about/)\n  \n- [Blog](https://blog.archive.org)\n  \n- [Events](/events)\n  \n- [Projects](/projects/)\n  \n- [Help](/about/faqs.php)\n  \n- [Donate](/donate?origin=iawww-TopNavDonateButton)\n  \n- [Contact](/about/contact)\n  \n- [Jobs](/about/jobs)\n  \n- [Volunteer](/about/volunteer-positions)",
+    "truncated": false,
+    "fullContentLength": 656,
+    "headings": [],
+    "links": [],
+    "images": [],
+    "timestamp": 1760616387725,
+    "url": "https://archive.org/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

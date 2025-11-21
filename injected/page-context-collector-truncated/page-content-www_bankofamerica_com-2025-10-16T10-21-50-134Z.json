@@ -1,0 +1,1285 @@
+{
+  "url": "https://www.bankofamerica.com/",
+  "extractedAt": "2025-10-16T10:21:50.134Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.bankofamerica.com/homepage/spa-assets/images/assets-images-global-favicon-apple-touch-icon-CSX889b28c.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.bankofamerica.com/homepage/spa-assets/images/assets-images-global-favicon-favicon-32x32-CSX704d6b21.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.bankofamerica.com/homepage/spa-assets/images/assets-images-global-favicon-favicon-16x16-CSXaaa5ca4e.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.bankofamerica.com/homepage/spa-assets/images/assets-images-global-favicon-android-chrome-192x192-CSXafb7d716.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.bankofamerica.com/homepage/spa-assets/images/assets-images-global-favicon-safari-pinned-tab-CSX1aebeef6.svg",
+        "rel": "mask-icon"
+      },
+      {
+        "href": "https://www.bankofamerica.com/homepage/spa-assets/images/assets-images-global-favicon-favicon-CSX8d65d6e4.ico",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "Bank of America - Banking, Credit Cards, Loans and Merrill Investing",
+    "metaDescription": "What would you like the power to do? At Bank of America, our purpose is to help make financial lives better through the power of every connection.",
+    "content": "- [Personal](#)\n\n- [Business](https://www.bankofamerica.com/business)\n\n- [Wealth Management](https://www.ml.com/wealthmanagement.html)\n\n- [Corporations & Institutions](https://business.bofa.com/content/boaml/en_us/home.html)\n\n\n\n- [Security](https://www.bankofamerica.com/security-center/overview/)\n\n- [About Us](https://about.bankofamerica.com/)\n\n- [En español](es/)\n\n- [Contact Us](https://www.bankofamerica.com/customer-service/contact-us/?request_locale=en_US)\n\n- [Help](https://www.bankofamerica.com/help/overview/?request_locale=en_US)\n\n    \n      *  *          \n\n- Checking\n\n- Savings & CDs\n\n- Credit Cards\n\n- Home Loans\n\n- Auto Loans\n\n- Merrill Investing\n\n- Better Money Habits®",
+    "truncated": false,
+    "fullContentLength": 685,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Stay flexible with Bank of America Advantage Banking"
+      },
+      {
+        "level": 2,
+        "text": "Savings made simple and rewarding"
+      },
+      {
+        "level": 2,
+        "text": "Find the perfect credit card from among our most popular options"
+      },
+      {
+        "level": 2,
+        "text": "Reinventing what it means to be a confident investor"
+      },
+      {
+        "level": 2,
+        "text": "Videos and tips to better manage your financial life"
+      },
+      {
+        "level": 4,
+        "text": "Get the Mobile Banking app"
+      },
+      {
+        "level": 5,
+        "text": "Get it on the App Store"
+      },
+      {
+        "level": 5,
+        "text": "Or we can text a download link directly to your phone"
+      },
+      {
+        "level": 5,
+        "text": "Get it on the App Store"
+      },
+      {
+        "level": 5,
+        "text": "Or we can send you a link by email"
+      },
+      {
+        "level": 5,
+        "text": "Get it on Google Play"
+      },
+      {
+        "level": 5,
+        "text": "Or we can text a download link directly to your phone"
+      },
+      {
+        "level": 5,
+        "text": "Our mobile app isn't available for all devices"
+      },
+      {
+        "level": 3,
+        "text": "Get the mobile banking app"
+      },
+      {
+        "level": 4,
+        "text": "We've sent you a download link"
+      },
+      {
+        "level": 4,
+        "text": "We couldn't send the link"
+      },
+      {
+        "level": 1,
+        "text": "You're continuing to a page that could be in English"
+      },
+      {
+        "level": 4,
+        "text": "Get the Mobile Banking app"
+      },
+      {
+        "level": 5,
+        "text": "Get it on the App Store"
+      },
+      {
+        "level": 5,
+        "text": "Or we can text a download link directly to your phone"
+      },
+      {
+        "level": 5,
+        "text": "Get it on the App Store"
+      },
+      {
+        "level": 5,
+        "text": "Or we can send you a link by email"
+      },
+      {
+        "level": 5,
+        "text": "Get it on Google Play"
+      },
+      {
+        "level": 5,
+        "text": "Or we can text a download link directly to your phone"
+      },
+      {
+        "level": 5,
+        "text": "Our mobile app isn't available for all devices"
+      },
+      {
+        "level": 3,
+        "text": "Get the mobile banking app"
+      },
+      {
+        "level": 4,
+        "text": "We've sent you a download link"
+      },
+      {
+        "level": 4,
+        "text": "We couldn't send the link"
+      },
+      {
+        "level": 1,
+        "text": "Bank of America - Banking, Credit Cards, Home Loans & Auto Loans"
+      },
+      {
+        "level": 1,
+        "text": "Security & Help"
+      },
+      {
+        "level": 1,
+        "text": "Need help with logging in?"
+      },
+      {
+        "level": 1,
+        "text": "Welcome to Online Banking"
+      },
+      {
+        "level": 2,
+        "text": "Choose the card that works for you"
+      },
+      {
+        "level": 2,
+        "text": "Your financial goals matter"
+      },
+      {
+        "level": 2,
+        "text": "Your news and information"
+      },
+      {
+        "level": 3,
+        "text": "Level up your account security"
+      },
+      {
+        "level": 3,
+        "text": "Convenient banking with our Mobile app"
+      },
+      {
+        "level": 2,
+        "text": "Connect with us"
+      },
+      {
+        "level": 1,
+        "text": "You're continuing to another website"
+      },
+      {
+        "level": 3,
+        "text": "Your Privacy Choices"
+      },
+      {
+        "level": 3,
+        "text": "Sharing and Selling of Personal Data"
+      },
+      {
+        "level": 3,
+        "text": "Children's Privacy"
+      },
+      {
+        "level": 4,
+        "text": "Your Privacy Choices"
+      },
+      {
+        "level": 4,
+        "text": "Local Privacy Notices and Requirements"
+      },
+      {
+        "level": 4,
+        "text": "Marketing Preferences"
+      },
+      {
+        "level": 4,
+        "text": "California Residents"
+      },
+      {
+        "level": 4,
+        "text": "Sharing and Selling of Personal Data"
+      },
+      {
+        "level": 4,
+        "text": "Children's Privacy"
+      },
+      {
+        "level": 3,
+        "text": "Cookies"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#mastheadContainerModule"
+      },
+      {
+        "text": "Personal",
+        "href": "#"
+      },
+      {
+        "text": "Business",
+        "href": "https://www.bankofamerica.com/business"
+      },
+      {
+        "text": "Wealth Management",
+        "href": "https://www.ml.com/wealthmanagement.html"
+      },
+      {
+        "text": "Corporations & Institutions",
+        "href": "https://business.bofa.com/content/boaml/en_us/home.html"
+      },
+      {
+        "text": "Security",
+        "href": "https://www.bankofamerica.com/security-center/overview/"
+      },
+      {
+        "text": "About Us",
+        "href": "https://about.bankofamerica.com/"
+      },
+      {
+        "text": "En español",
+        "href": "es/"
+      },
+      {
+        "text": "Contact Us",
+        "href": "https://www.bankofamerica.com/customer-service/contact-us/?request_locale=en_US"
+      },
+      {
+        "text": "Help",
+        "href": "https://www.bankofamerica.com/help/overview/?request_locale=en_US"
+      },
+      {
+        "text": "Explore checking solutions",
+        "href": "https://www.bankofamerica.com/deposits/checking/advantage-banking/"
+      },
+      {
+        "text": "Bank of America Advantage Banking",
+        "href": "https://www.bankofamerica.com/deposits/checking/advantage-banking/"
+      },
+      {
+        "text": "Student Banking",
+        "href": "https://www.bankofamerica.com/student-banking/"
+      },
+      {
+        "text": "Business Checking",
+        "href": "https://www.bankofamerica.com/smallbusiness/deposits/business-advantage-banking/"
+      },
+      {
+        "text": "Online Banking",
+        "href": "https://www.bankofamerica.com/onlinebanking/online-banking.go?request_locale=en_US"
+      },
+      {
+        "text": "Mobile Banking",
+        "href": "https://www.bankofamerica.com/online-banking/mobile-and-online-banking-features/"
+      },
+      {
+        "text": "Debit Card",
+        "href": "https://www.bankofamerica.com/deposits/checking/debit-card/"
+      },
+      {
+        "text": "Preferred Rewards",
+        "href": "https://promotions.bankofamerica.com/preferredrewards/en"
+      },
+      {
+        "text": "Signature Services",
+        "href": "https://www.bankofamerica.com/signature-services/"
+      },
+      {
+        "text": "Schedule an appointment",
+        "href": "https://secure.bankofamerica.com/secure-mycommunications/public/appointments/?marketingCode=HPCS_ECBBA_A1000"
+      },
+      {
+        "text": "Bank of America Advantage Savings",
+        "href": "https://www.bankofamerica.com/deposits/savings/savings-accounts/"
+      },
+      {
+        "text": "CDs",
+        "href": "https://www.bankofamerica.com/deposits/bank-cds/cd-accounts/"
+      },
+      {
+        "text": "IRAs",
+        "href": "https://www.bankofamerica.com/deposits/iras/retirement-accounts/"
+      },
+      {
+        "text": "Online Banking",
+        "href": "https://www.bankofamerica.com/onlinebanking/online-banking.go?request_locale=en_US"
+      },
+      {
+        "text": "Mobile Banking",
+        "href": "https://www.bankofamerica.com/online-banking/mobile-and-online-banking-features/"
+      },
+      {
+        "text": "Preferred Rewards",
+        "href": "https://promotions.bankofamerica.com/preferredrewards/en"
+      },
+      {
+        "text": "Signature Services",
+        "href": "https://www.bankofamerica.com/signature-services/"
+      },
+      {
+        "text": "Schedule an appointment",
+        "href": "https://secure.bankofamerica.com/secure-mycommunications/public/appointments/?marketingCode=HPCS_ECBBA_A1000"
+      },
+      {
+        "text": "Shop all credit cards",
+        "href": "https://www.bankofamerica.com/credit-cards/"
+      },
+      {
+        "text": "Cash Back Credit Cards",
+        "href": "https://www.bankofamerica.com/credit-cards/cash-back-credit-cards/"
+      },
+      {
+        "text": "Travel and Airlines Rewards Cards",
+        "href": "https://www.bankofamerica.com/credit-cards/travel-credit-cards/"
+      },
+      {
+        "text": "Lower Interest Rate Cards",
+        "href": "https://www.bankofamerica.com/credit-cards/low-interest-credit-cards/"
+      },
+      {
+        "text": "Points Rewards Cards",
+        "href": "https://www.bankofamerica.com/credit-cards/point-rewards-credit-cards/"
+      },
+      {
+        "text": "Cards to Build or Rebuild Credit",
+        "href": "https://www.bankofamerica.com/credit-cards/credit-cards-to-build-credit/"
+      },
+      {
+        "text": "Cards for Students",
+        "href": "https://www.bankofamerica.com/credit-cards/student-credit-cards/"
+      },
+      {
+        "text": "Manage your credit card account",
+        "href": "https://www.bankofamerica.com/credit-cards/manage-your-credit-card-account/"
+      },
+      {
+        "text": "Respond to mail offer",
+        "href": "https://mynewcard2.bankofamerica.com/USCCapp/Ctl/entry?pid=padm_prefill&tk=21&to=16&cc=DM"
+      },
+      {
+        "text": "Preferred Rewards",
+        "href": "https://promotions.bankofamerica.com/preferredrewards/en"
+      },
+      {
+        "text": "Signature Services",
+        "href": "https://www.bankofamerica.com/signature-services/"
+      },
+      {
+        "text": "Schedule an appointment",
+        "href": "https://secure.bankofamerica.com/secure-mycommunications/public/appointments/?marketingCode=HPCS_ECBBA_A1000"
+      },
+      {
+        "text": "Mortgage",
+        "href": "https://www.bankofamerica.com/mortgage/home-mortgage/"
+      },
+      {
+        "text": "Refinance",
+        "href": "https://www.bankofamerica.com/mortgage/refinance/"
+      },
+      {
+        "text": "Home equity",
+        "href": "https://www.bankofamerica.com/home-equity/"
+      },
+      {
+        "text": "Home Resource Center",
+        "href": "https://promotions.bankofamerica.com/homeloans/homeresourcecenter/preparingtobuy?subCampCode=94362&dmcode=18098621553"
+      },
+      {
+        "text": "Find a home",
+        "href": "https://realestatecenter.bankofamerica.com/"
+      },
+      {
+        "text": "Help with home loan payments",
+        "href": "https://homeloanhelp.bankofamerica.com/en/index.html"
+      },
+      {
+        "text": "Manage your loans",
+        "href": "https://www.bankofamerica.com/mortgage/servicing/"
+      },
+      {
+        "text": "Preferred Rewards",
+        "href": "https://promotions.bankofamerica.com/preferredrewards/en"
+      },
+      {
+        "text": "Schedule an appointment",
+        "href": "https://secure.bankofamerica.com/secure-mycommunications/public/appointments/?marketingCode=HPHL_ECBBA_A5000"
+      },
+      {
+        "text": "Auto purchase loans",
+        "href": "https://www.bankofamerica.com/auto-loans/"
+      },
+      {
+        "text": "Auto loan prequalification",
+        "href": "https://www.bankofamerica.com/auto-loans/auto-prequalification-experience/"
+      },
+      {
+        "text": "Auto refinance loans",
+        "href": "https://www.bankofamerica.com/auto-loans/auto-refinance-loan/"
+      },
+      {
+        "text": "Ready for an electric vehicle?",
+        "href": "https://promotions.bankofamerica.com/autoloans/electricvehicleresources"
+      },
+      {
+        "text": "Check auto loan rates",
+        "href": "https://www.bankofamerica.com/auto-loans/auto-loan-rates/"
+      },
+      {
+        "text": "Use the auto loan calculator",
+        "href": "https://www.bankofamerica.com/auto-loans/auto-loan-calculator/"
+      },
+      {
+        "text": "Shop for a car",
+        "href": "https://www.bankofamerica.com/auto-loans/shop-and-finance/"
+      },
+      {
+        "text": "Apply for an auto loan",
+        "href": "https://www.bankofamerica.com/auto-loans/"
+      },
+      {
+        "text": "Check application status",
+        "href": "https://secure.bankofamerica.com/applynow/initialize-workflow.go?requesttype=VLSTATUS"
+      },
+      {
+        "text": "Return to saved prequalification",
+        "href": "https://www.bankofamerica.com/deeplink/redirect.go?target=ESECart&screen=Products:ShoppingCart&version=7.9.0"
+      },
+      {
+        "text": "Preferred Rewards",
+        "href": "https://promotions.bankofamerica.com/preferredrewards/en"
+      },
+      {
+        "text": "Schedule an appointment",
+        "href": "https://secure.bankofamerica.com/secure-mycommunications/public/appointments/?marketingCode=HPAL_ECBBA_A1000"
+      },
+      {
+        "text": "Get started",
+        "href": "https://www.merrilledge.com/investing/ways-to-manage-investments?src_cd=bac_hp_l1_desktop"
+      },
+      {
+        "text": "Build your own portfolio",
+        "href": "https://www.merrilledge.com/investing/online-trading?src_cd=bac_hp_nav_mesd"
+      },
+      {
+        "text": "Get a professionally managed portfolio",
+        "href": "https://www.merrilledge.com/guided-investing?src_cd=bac_hp_nav_mgi"
+      },
+      {
+        "text": "Work with a dedicated advisor",
+        "href": "https://www.ml.com/working-with-merrill-lynch-financial-advisor.html?src_cd=bac_hp_nav_mlwm"
+      },
+      {
+        "text": "Bank of America Preferred Rewards",
+        "href": "https://promotions.bankofamerica.com/preferredrewards/en"
+      },
+      {
+        "text": "Compare ways to invest",
+        "href": "https://www.merrilledge.com/investing/ways-to-manage-investments?src_cd=bac_hp_nav_compare"
+      },
+      {
+        "text": "Bank of America Private Bank",
+        "href": "https://www.privatebank.bankofamerica.com/?src_cd=bac_hp_nav_private"
+      },
+      {
+        "text": "Schedule an appointment",
+        "href": "https://secure.bankofamerica.com/secure-mycommunications/public/appointments/?marketingCode=HPINV_ECBBA_A3000"
+      },
+      {
+        "text": "Visit BetterMoneyHabits.com",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en"
+      },
+      {
+        "text": "Credit",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/credit"
+      },
+      {
+        "text": "Debt",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/debt"
+      },
+      {
+        "text": "Saving & Budgeting",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/saving-budgeting"
+      },
+      {
+        "text": "Homeownership",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/home-ownership"
+      },
+      {
+        "text": "Auto",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/auto"
+      },
+      {
+        "text": "Investing",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/retirement"
+      },
+      {
+        "text": "College",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/college"
+      },
+      {
+        "text": "Privacy & Security",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/privacy-security"
+      },
+      {
+        "text": "Personal Banking",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/personal-banking"
+      },
+      {
+        "text": "Taxes & Income",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/taxes-income"
+      },
+      {
+        "text": "Learn more about mobile banking options and supported devices",
+        "href": "/online-banking/iphone-banking-app.go"
+      },
+      {
+        "text": "Learn more about mobile banking options and supported devices",
+        "href": "/online-banking/iphone-banking-app.go"
+      },
+      {
+        "text": "Display saved user IDs",
+        "href": "#"
+      },
+      {
+        "text": "Log in with a different user ID",
+        "href": "#"
+      },
+      {
+        "text": "Forgot user ID/password",
+        "href": "https://secure.bankofamerica.com/auth/retrieve/#/acctssn"
+      },
+      {
+        "text": "Security & Help",
+        "href": "#"
+      },
+      {
+        "text": "Enroll",
+        "href": "https://secure.bankofamerica.com/auth/enroll/enroll-entry/"
+      },
+      {
+        "text": "Help",
+        "href": "#"
+      },
+      {
+        "text": "Get the app",
+        "href": "#"
+      },
+      {
+        "text": "Find out more about how we collect and use information",
+        "href": "https://www.bankofamerica.com/security-center/online-privacy-notice/"
+      },
+      {
+        "text": "Protect yourself from phishing",
+        "href": "https://www.bankofamerica.com/security-center/online-mobile-banking-privacy/online-banking-security/?request_locale=en_US"
+      },
+      {
+        "text": "Expand all panels",
+        "href": "#"
+      },
+      {
+        "text": "benefits.ml.com",
+        "href": "https://www.benefits.ml.com"
+      },
+      {
+        "text": "bankofamerica.com",
+        "href": "https://www.bankofamerica.com/"
+      },
+      {
+        "text": "healthaccounts.bankofamerica.com",
+        "href": "https://healthaccounts.bankofamerica.com/"
+      },
+      {
+        "text": "merrilledge.com",
+        "href": "https://www.merrilledge.com/"
+      },
+      {
+        "text": "ml.com",
+        "href": "https://www.ml.com/"
+      },
+      {
+        "text": "privatebank.bankofamerica.com",
+        "href": "https://www.privatebank.bankofamerica.com/"
+      },
+      {
+        "text": "Open an account",
+        "href": "https://promo.bankofamerica.com/hp-oaa2/"
+      },
+      {
+        "text": "$200 online bonusNew! 6% choice categorycash back offer 6% cash back in the category of your choice",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076598&productoffercode=MP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU01_Hero_NH_Card_Peros_Aug25_CMS_MH_product1Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 6% choice categorycash back offer 6% cash back in the category of your choice",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076598&productoffercode=MP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU01_Hero_NH_Card_Peros_Aug25_CMS_MH_product1Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 6% choice categorycash back offer 6% cash back in the category of your choice",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076598&productoffercode=MP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU01_Hero_NH_Card_Peros_Aug25_CMS_MH_product1Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 2% unlimitedcash back offer Unlimited 2% cash back on all purchases",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076395&productoffercode=RP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU02_Hero_NH_Card_Peros_Aug25_CMS_MH_product2Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 2% unlimitedcash back offer Unlimited 2% cash back on all purchases",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076395&productoffercode=RP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU02_Hero_NH_Card_Peros_Aug25_CMS_MH_product2Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 2% unlimitedcash back offer Unlimited 2% cash back on all purchases",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076395&productoffercode=RP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU02_Hero_NH_Card_Peros_Aug25_CMS_MH_product2Cta"
+      },
+      {
+        "text": "25,000 onlinebonus points offerUnlimited 1.5 points for every $1 spent on all purchases Unlimited 1.5 points for every $1 spent",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076469&productoffercode=HR&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU03_Hero_NH_Card_Peros_Aug25_CMS_MH_product3Cta"
+      },
+      {
+        "text": "25,000 onlinebonus points offerUnlimited 1.5 points for every $1 spent on all purchases Unlimited 1.5 points for every $1 spent",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076469&productoffercode=HR&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU03_Hero_NH_Card_Peros_Aug25_CMS_MH_product3Cta"
+      },
+      {
+        "text": "25,000 onlinebonus points offerUnlimited 1.5 points for every $1 spent on all purchases Unlimited 1.5 points for every $1 spent",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076469&productoffercode=HR&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU03_Hero_NH_Card_Peros_Aug25_CMS_MH_product3Cta"
+      },
+      {
+        "text": "Intro APR offer for 18 billing cyclesIntro APR offerfor 18 billing cycles",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076522&productoffercode=PB&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU04_Hero_NH_Card_Peros_Aug25_CMS_MH_product4Cta"
+      },
+      {
+        "text": "Intro APR offer for 18 billing cyclesIntro APR offerfor 18 billing cycles",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076522&productoffercode=PB&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU04_Hero_NH_Card_Peros_Aug25_CMS_MH_product4Cta"
+      },
+      {
+        "text": "Intro APR offer for 18 billing cyclesIntro APR offerfor 18 billing cycles",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076522&productoffercode=PB&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU04_Hero_NH_Card_Peros_Aug25_CMS_MH_product4Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 6% choice categorycash back offer 6% cash back in the category of your choice",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076598&productoffercode=MP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU01_Hero_NH_Card_Peros_Aug25_CMS_MH_product1Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 6% choice categorycash back offer 6% cash back in the category of your choice",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076598&productoffercode=MP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU01_Hero_NH_Card_Peros_Aug25_CMS_MH_product1Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 6% choice categorycash back offer 6% cash back in the category of your choice",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076598&productoffercode=MP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU01_Hero_NH_Card_Peros_Aug25_CMS_MH_product1Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 2% unlimitedcash back offer Unlimited 2% cash back on all purchases",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076395&productoffercode=RP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU02_Hero_NH_Card_Peros_Aug25_CMS_MH_product2Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 2% unlimitedcash back offer Unlimited 2% cash back on all purchases",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076395&productoffercode=RP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU02_Hero_NH_Card_Peros_Aug25_CMS_MH_product2Cta"
+      },
+      {
+        "text": "$200 online bonusNew! 2% unlimitedcash back offer Unlimited 2% cash back on all purchases",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076395&productoffercode=RP&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU02_Hero_NH_Card_Peros_Aug25_CMS_MH_product2Cta"
+      },
+      {
+        "text": "25,000 onlinebonus points offerUnlimited 1.5 points for every $1 spent on all purchases Unlimited 1.5 points for every $1 spent",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076469&productoffercode=HR&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU03_Hero_NH_Card_Peros_Aug25_CMS_MH_product3Cta"
+      },
+      {
+        "text": "25,000 onlinebonus points offerUnlimited 1.5 points for every $1 spent on all purchases Unlimited 1.5 points for every $1 spent",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076469&productoffercode=HR&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU03_Hero_NH_Card_Peros_Aug25_CMS_MH_product3Cta"
+      },
+      {
+        "text": "25,000 onlinebonus points offerUnlimited 1.5 points for every $1 spent on all purchases Unlimited 1.5 points for every $1 spent",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076469&productoffercode=HR&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU03_Hero_NH_Card_Peros_Aug25_CMS_MH_product3Cta"
+      },
+      {
+        "text": "Intro APR offer for 18 billing cyclesIntro APR offerfor 18 billing cycles",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076522&productoffercode=PB&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU04_Hero_NH_Card_Peros_Aug25_CMS_MH_product4Cta"
+      },
+      {
+        "text": "Intro APR offer for 18 billing cyclesIntro APR offerfor 18 billing cycles",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076522&productoffercode=PB&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU04_Hero_NH_Card_Peros_Aug25_CMS_MH_product4Cta"
+      },
+      {
+        "text": "Intro APR offer for 18 billing cyclesIntro APR offerfor 18 billing cycles",
+        "href": "https://secure.bankofamerica.com/apply-now-services/credit-cards/initialize-icai?requesttype=C&campaignid=4076522&productoffercode=PB&cm_sp=Cons-CC-_-Peros2025-_-CCA1HZKU04_Hero_NH_Card_Peros_Aug25_CMS_MH_product4Cta"
+      },
+      {
+        "text": "CASH OFFER UP TO $500 for new checking customers See details See details about the cash offer for new checking customers.",
+        "href": "https://promotions.bankofamerica.com/en/offers/chooseyourchecking500tiered?cm_sp=DEP-Checking-_-ProspectCampaign-_-DCB1HXCL01_Engagement_Banner_DEPCHA_2HDDA500_0825_EN_EB_CMS_DEFAULT_depcha2hdda500EnEbCta"
+      },
+      {
+        "text": "×",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "Checking",
+        "href": "/deposits/checking/checking-accounts/"
+      },
+      {
+        "text": "Checking",
+        "href": "/deposits/checking/checking-accounts/"
+      },
+      {
+        "text": "Savings & CDs",
+        "href": "/deposits/savings/savings-accounts/"
+      },
+      {
+        "text": "Savings & CDs",
+        "href": "/deposits/savings/savings-accounts/"
+      },
+      {
+        "text": "Credit Cards",
+        "href": "/credit-cards/"
+      },
+      {
+        "text": "Credit Cards",
+        "href": "/credit-cards/"
+      },
+      {
+        "text": "Home Loans",
+        "href": "/mortgage/home-mortgage/"
+      },
+      {
+        "text": "Home Loans",
+        "href": "/mortgage/home-mortgage/"
+      },
+      {
+        "text": "Auto Loans",
+        "href": "/auto-loans/"
+      },
+      {
+        "text": "Auto Loans",
+        "href": "/auto-loans/"
+      },
+      {
+        "text": "Small Business",
+        "href": "/smallbusiness/"
+      },
+      {
+        "text": "Small Business",
+        "href": "/smallbusiness/"
+      },
+      {
+        "text": "Investing",
+        "href": "https://www.merrilledge.com/investing/ways-to-manage-investments?src_cd=bac_hp_l1_mobile"
+      },
+      {
+        "text": "Investing",
+        "href": "https://www.merrilledge.com/investing/ways-to-manage-investments?src_cd=bac_hp_l1_tablet"
+      },
+      {
+        "text": "Student Banking",
+        "href": "/student-banking/"
+      },
+      {
+        "text": "Student Banking",
+        "href": "/student-banking/"
+      },
+      {
+        "text": "Get the free app",
+        "href": "https://www.bankofamerica.com/online-banking/mobile-and-online-banking-features/"
+      },
+      {
+        "text": "Schedule an appointment",
+        "href": "https://secure.bankofamerica.com/mycommunications/public/appointments/getTopics.go?marketingCode=NEWHP_ECHMPG"
+      },
+      {
+        "text": "See details about the cash offer for new checking customers",
+        "href": "#"
+      },
+      {
+        "text": "Watch now Watch how employee volunteers deliver Better Money Habits to Special Olympics athletes.",
+        "href": "#"
+      },
+      {
+        "text": "Apply now for a Customized Cash Rewards credit card.",
+        "href": "#"
+      },
+      {
+        "text": "See details about the cash offer for new checking customers",
+        "href": "#"
+      },
+      {
+        "text": "Click to Get the app",
+        "href": "#"
+      },
+      {
+        "text": "Get started Start exploring investment solutions",
+        "href": "#"
+      },
+      {
+        "text": "See details about the cash offer for new checking customers",
+        "href": "#"
+      },
+      {
+        "text": "Watch now Watch how employee volunteers deliver Better Money Habits to Special Olympics athletes.",
+        "href": "#"
+      },
+      {
+        "text": "Apply now for a Customized Cash Rewards credit card.",
+        "href": "#"
+      },
+      {
+        "text": "See details about the cash offer for new checking customers",
+        "href": "#"
+      },
+      {
+        "text": "Click to Get the app",
+        "href": "#"
+      },
+      {
+        "text": "Get started Start exploring investment solutions",
+        "href": "#"
+      },
+      {
+        "text": "Pause",
+        "href": "#"
+      },
+      {
+        "text": "Play",
+        "href": "#"
+      },
+      {
+        "text": "Protect yourself online: 5 new scams to watch out for now",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/privacy-security/latest-scams-to-watch-out-for?cm_mmc=EBZ-FinancialEducation-_-Other-_-EF16LT00LR_BMH_Homepage-Tile-1-Q22025-_-BAC.com-Education-Tiles"
+      },
+      {
+        "text": "Feeling pressure to spend? Here's why and how to deal with it?",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/saving-budgeting/how-to-stop-overspending?cm_mmc=EBZ-FinancialEducation-_-Other-_-EF16LT00LS_BMH_Homepage-Tile-2-Q22025-_-BAC.com-Education-Tiles"
+      },
+      {
+        "text": "What is a certificate of deposit (CD) and how does it work?",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/personal-banking/what-is-a-cd-investment?cm_mmc=EBZ-FinancialEducation-_-Other-_-EF16LT00LP_BMH_Homepage-Tile-3-Q12025-_-BAC.com-Education-Tiles"
+      },
+      {
+        "text": "How to choose the right credit card",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/credit/finding-the-right-credit-card?cm_mmc=EBZ-FinancialEducation-_-Other-_-EF16LT00LU_BMH_Homepage-Tile-4-Q22025-_-BAC.com-Education-Tiles"
+      },
+      {
+        "text": "Protect yourself online: 5 new scams to watch out for now",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/privacy-security/latest-scams-to-watch-out-for?cm_mmc=EBZ-FinancialEducation-_-Other-_-EF16LT00LR_BMH_Homepage-Tile-1-Q22025-_-BAC.com-Education-Tiles"
+      },
+      {
+        "text": "Feeling pressure to spend? Here's why and how to deal with it?",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/saving-budgeting/how-to-stop-overspending?cm_mmc=EBZ-FinancialEducation-_-Other-_-EF16LT00LS_BMH_Homepage-Tile-2-Q22025-_-BAC.com-Education-Tiles"
+      },
+      {
+        "text": "What is a certificate of deposit (CD) and how does it work?",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/personal-banking/what-is-a-cd-investment?cm_mmc=EBZ-FinancialEducation-_-Other-_-EF16LT00LP_BMH_Homepage-Tile-3-Q12025-_-BAC.com-Education-Tiles"
+      },
+      {
+        "text": "How to choose the right credit card",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en/credit/finding-the-right-credit-card?cm_mmc=EBZ-FinancialEducation-_-Other-_-EF16LT00LU_BMH_Homepage-Tile-4-Q22025-_-BAC.com-Education-Tiles"
+      },
+      {
+        "text": "Visit Better Money Habits®",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en"
+      },
+      {
+        "text": "Visit Better Money Habits®",
+        "href": "https://bettermoneyhabits.bankofamerica.com/en"
+      },
+      {
+        "text": "Check your account security level",
+        "href": "https://secure.bankofamerica.com/login/sign-in/signOnV2Screen.go?reason=securitycenter&version=21.09&screen=ProfileAndSettings:SecurityCenterHome&channel=desktop&cm_sp=MobileSecurity-_-NotAssigned-_-M1T0LT7101_YNISecurityMeter2023_YNICta"
+      },
+      {
+        "text": "Check your account security level",
+        "href": "https://secure.bankofamerica.com/login/sign-in/signOnV2Screen.go?reason=securitycenter&version=21.09&screen=ProfileAndSettings:SecurityCenterHome&channel=desktop&cm_sp=MobileSecurity-_-NotAssigned-_-M1T0LT7101_YNISecurityMeter2023_YNICta"
+      },
+      {
+        "text": "Explore our mobile app",
+        "href": "https://promotions.bankofamerica.com/digitalbanking/mobilebanking?cm_sp=MobileOmnibus-_-NotAssigned-_-MJY4LT2K01_YNIMobileGeneral2023_YNICta"
+      },
+      {
+        "text": "Explore our mobile app",
+        "href": "https://promotions.bankofamerica.com/digitalbanking/mobilebanking?cm_sp=MobileOmnibus-_-NotAssigned-_-MJY4LT2K01_YNIMobileGeneral2023_YNICta"
+      },
+      {
+        "text": "Schedule an appointment",
+        "href": "https://secure.bankofamerica.com/secure-mycommunications/public/appointments/"
+      },
+      {
+        "text": "Find a location",
+        "href": "https://locators.bankofamerica.com/"
+      },
+      {
+        "text": "Contact us",
+        "href": "https://www.bankofamerica.com/customer-service/contact-us/"
+      },
+      {
+        "text": "Help center",
+        "href": "https://www.bankofamerica.com/help/overview/"
+      },
+      {
+        "text": "Online Banking Service Agreement",
+        "href": "https://www.bankofamerica.com/online-banking/service-agreement.go?request_locale=en_US"
+      },
+      {
+        "text": "Member SIPC",
+        "href": "http://www.sipc.org/"
+      },
+      {
+        "text": "Locations",
+        "href": "https://locators.bankofamerica.com/"
+      },
+      {
+        "text": "Contact Us",
+        "href": "https://www.bankofamerica.com/contactus/contactus.go?request_locale=en_US"
+      },
+      {
+        "text": "Help & Support",
+        "href": "https://www.bankofamerica.com/help/overview.go?request_locale=en_US"
+      },
+      {
+        "text": "Accessible Banking",
+        "href": "https://www.bankofamerica.com/accessible-banking/overview"
+      },
+      {
+        "text": "Privacy",
+        "href": "https://www.bankofamerica.com/security-center/privacy-overview/"
+      },
+      {
+        "text": "Children’s Privacy",
+        "href": "https://www.bankofamerica.com/childrens-privacy"
+      },
+      {
+        "text": "Security",
+        "href": "https://www.bankofamerica.com/security-center/overview/"
+      },
+      {
+        "text": "Online Banking Service Agreement",
+        "href": "https://www.bankofamerica.com/online-banking/service-agreement.go?request_locale=en-US"
+      },
+      {
+        "text": "Site Map",
+        "href": "https://www.bankofamerica.com/sitemap/personal.go?request_locale=en_US"
+      },
+      {
+        "text": "Careers",
+        "href": "http://careers.bankofamerica.com/"
+      },
+      {
+        "text": "View Full Online Banking Site",
+        "href": "https://secure.bankofamerica.com/login/sign-in/signOnV2Screen.go?request_locale=en-us"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/BankofAmerica"
+      },
+      {
+        "text": "Instagram",
+        "href": "https://instagram.com/bankofamerica/"
+      },
+      {
+        "text": "LinkedIn",
+        "href": "https://www.linkedin.com/company/bank-of-america"
+      },
+      {
+        "text": "Pinterest",
+        "href": "https://www.pinterest.com/bankofamerica/"
+      },
+      {
+        "text": "X",
+        "href": "https://x.com/BankofAmerica"
+      },
+      {
+        "text": "YouTube",
+        "href": "https://www.youtube.com/user/bankofamerica"
+      },
+      {
+        "text": "Equal Housing Lender",
+        "href": "https://www.bankofamerica.com/help/equalhousing-popup/"
+      },
+      {
+        "text": "Patent: patents.bankofamerica.com",
+        "href": "https://patents.bankofamerica.com"
+      },
+      {
+        "text": "Institutional Privacy",
+        "href": "https://business.bofa.com/en-us/content/global-privacy-notices.html"
+      },
+      {
+        "text": "Consumer Privacy",
+        "href": "https://www.bankofamerica.com/security-center/privacy-overview/"
+      },
+      {
+        "text": "Privacy Page.",
+        "href": "https://secure.bankofamerica.com/customer/public/privacy.go?request_locale=en-US"
+      },
+      {
+        "text": "California Consumer Privacy Act Notice.",
+        "href": "https://www.bankofamerica.com/security-center/ccpa-disclosure/"
+      },
+      {
+        "text": "California Personal Information Request form.",
+        "href": "https://secure.bankofamerica.com/customer-preferences/public/personal-information-request/#!/page1/"
+      },
+      {
+        "text": "Children's Privacy Page",
+        "href": "https://www.bankofamerica.com/online-banking/childrens-privacy-policy/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "FDIC-Insured - Backed by the full faith and credit of the U.S. Government",
+        "src": "https://secure2.bac-assets.com/spa/widgets/gt-secure-fdic-widget/1.0.0/spa-assets/images/assets-images-global-fdic-fdic-digital-sign-CSX37f66a3e.svg"
+      },
+      {
+        "alt": "Bank of America Deposit products:FDIC Insured - Backed by the full faith and credit of the US Government. Investment products are NOT FDIC insured",
+        "src": "https://secure2.bac-assets.com/spa/widgets/gt-secure-fdic-widget/1.0.0/spa-assets/images/assets-images-global-fdic-fdic-wealth-banner-smalldevice-en-CSX7f123629.svg"
+      },
+      {
+        "alt": "Download the Bank of America App",
+        "src": "https://secure2.bac-assets.com/spa/widgets/gt-nav-unauth-secure-bofa-widget/1.0.0/spa-assets/images/assets-images-global-get-app-modal-Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917-CSXd8fd3663.svg"
+      },
+      {
+        "alt": "Download the Bank of America App",
+        "src": "https://secure2.bac-assets.com/spa/widgets/gt-nav-unauth-secure-bofa-widget/1.0.0/spa-assets/images/assets-images-global-get-app-modal-Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917-CSXd8fd3663.svg"
+      },
+      {
+        "alt": "Download the Bank of America App",
+        "src": "https://secure2.bac-assets.com/spa/widgets/gt-nav-unauth-secure-bofa-widget/1.0.0/spa-assets/images/assets-images-global-get-app-modal-google-play-badge-CSX89f9024.svg"
+      },
+      {
+        "alt": "Download the Bank of America App",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-global-get-app-modal-Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917-CSXd8fd3663.svg"
+      },
+      {
+        "alt": "Download the Bank of America App",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-global-get-app-modal-Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917-CSXd8fd3663.svg"
+      },
+      {
+        "alt": "Download the Bank of America App",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-global-get-app-modal-google-play-badge-CSX89f9024.svg"
+      },
+      {
+        "alt": "Cash Rewards credit card",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "Unlimited Cash Rewards credit card",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "Travel Rewards credit card",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "BankAmericard® credit card",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "Cash Rewards credit card",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "Unlimited Cash Rewards credit card",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "Travel Rewards credit card",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "BankAmericard® credit card",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-highlights-consumer-deposits-en-icon_cash-CSXce66388d.svg"
+      },
+      {
+        "alt": "",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "$100 cash offer, $300 cash offer, $500 cash offer.",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-super-highlights-consumer-deposits-en-checking-cd_overlay_dda_722_8080371_e.svg"
+      },
+      {
+        "alt": "$100, $300, $500",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-super-highlights-consumer-deposits-en-checking-cd_overlay_dda_375_8080371_e.png"
+      },
+      {
+        "alt": "$100, $300, $500",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-super-highlights-consumer-deposits-en-checking-cd_overlay_dda_375_8080371_e.png"
+      },
+      {
+        "alt": "",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-highlights-consumer-cards-en-bofa_icon_card1_186.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-highlights-consumer-deposits-en-icon_cash.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-highlights-consumer-mobile-banking-bofa_icon_reminder-1.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-highlights-consumer-merrill-en-merrill_lo1_rgb.svg"
+      },
+      {
+        "alt": "",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "$100 cash offer, $300 cash offer, $500 cash offer.",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-super-highlights-consumer-deposits-en-checking-cd_overlay_dda_722_8080371_e.svg"
+      },
+      {
+        "alt": "$100, $300, $500",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-super-highlights-consumer-deposits-en-checking-cd_overlay_dda_375_8080371_e.png"
+      },
+      {
+        "alt": "$100, $300, $500",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-super-highlights-consumer-deposits-en-checking-cd_overlay_dda_375_8080371_e.png"
+      },
+      {
+        "alt": "",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-highlights-consumer-cards-en-bofa_icon_card1_186.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-highlights-consumer-deposits-en-icon_cash.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-highlights-consumer-mobile-banking-bofa_icon_reminder-1.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-hp-assets-highlights-consumer-merrill-en-merrill_lo1_rgb.svg"
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-bmh-module-default-education-bac-edu-tile-319x363-desktop-1-CSX4709abfd.jpg"
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-icons-bac-edu-tile-icon-1-CSXcc01d482.svg"
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-bmh-module-default-education-bac-edu-tile-319x363-desktop-2-CSX5dad689f.jpg"
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-icons-00_01_cash_Icon-CSXb578b8ef.svg"
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-bmh-module-default-education-ent_edu_bac_7701865_319_en_gc_03-CSXeecbea35.jpg"
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-icons-ent_edu_bac_7701865_icon_gc_c-CSX55809c59.svg"
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-bmh-module-default-education-bac-edu-tile-319x363-desktop-4-CSXcae02041.jpg"
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-icons-ent_edu_bac_5449395_icon_gc_a-CSXc8677456.svg"
+      },
+      {
+        "alt": "",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-icons-bac-edu-tile-icon-1-CSXcc01d482.svg"
+      },
+      {
+        "alt": "",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-icons-00_01_cash_Icon-CSXb578b8ef.svg"
+      },
+      {
+        "alt": "",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-icons-ent_edu_bac_7701865_icon_gc_c-CSX55809c59.svg"
+      },
+      {
+        "alt": "",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": " ",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-site-homepage-icons-ent_edu_bac_5449395_icon_gc_a-CSXc8677456.svg"
+      },
+      {
+        "alt": "",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "",
+        "src": "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-global-connect-with-us-icon-calendar-black-CSX14dc7e2f.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-global-connect-with-us-icon-location-black-CSX4d415ed5.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-global-connect-with-us-icon-contact-black-CSXcce2d264.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www2.bac-assets.com/homepage/spa-assets/images/assets-images-global-connect-with-us-icon-help-black-CSX12141305.svg"
+      },
+      {
+        "alt": "Bank of America Logo",
+        "src": "https://cdn.cookielaw.org/logos/9b1b72d0-06ef-4e7c-9b2a-e8bc09f34daf/5a21514a-3b71-4677-b52d-207b6f11ff68/fceb4368-db91-43cf-af24-36ac5b5badc2/BOA.PNG"
+      },
+      {
+        "alt": "Powered by Onetrust",
+        "src": "https://cdn.cookielaw.org/logos/static/powered_by_logo.svg"
+      }
+    ],
+    "timestamp": 1760610108449,
+    "url": "https://www.bankofamerica.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,1248 @@
+{
+  "url": "https://wiki.archlinux.org/title/Installation_guide",
+  "extractedAt": "2025-10-16T10:38:23.512Z",
+  "content": {
+    "favicon": [],
+    "title": "Installation guide - ArchWiki",
+    "metaDescription": "",
+    "content": "# Installation guide\n    22 languages           \n \n- [Page](/title/Installation_guide)\n\n- [Discussion](/title/Talk:Installation_guide)\n \n          \n \n- [Read](/title/Installation_guide)\n\n- [View source](/index.php?title=Installation_guide&action=edit)\n\n- [View history](/index.php?title=Installation_guide&action=history)\n \n       Tools               Appearance  hide  Text\n\n- SmallStandardLarge\n\nWidth\n\n- StandardWide\n\nColor (beta)\n\n- AutomaticLightDark\n\n            This document is a guide for installing [Arch Linux](/title/Arch_Linux) using the live system booted from an installation medium made from an official installation image. The installation medium provides accessibility features which are described on the page [Install Arch Linux with accessibility options](/title/Install_Arch_Linux_with_accessibility_options). For alternative means of installation, see [Category:Installation process](/title/Category:Installation_process). \nBefore installing, it would be advised to view the [FAQ](/title/FAQ). For conventions used in this document, see [Help:Reading](/title/Help:Reading). In particular, code examples may contain placeholders (formatted in *italics*) that must be replaced manually. \nThis guide is kept concise and you are advised to follow the instructions in the presented order per section. For more detailed instructions, see the respective [ArchWiki](/title/ArchWiki) articles or the various programs' [man pages](/title/Man_page), both linked from this guide. For interactive help, the [IRC channel](/title/IRC_channel) and the [forums](https://bbs.archlinux.org/) are also available. \nArch Linux should run on any [x86_64](https://en.wikipedia.org/wiki/X86-64)-compatible machine with a minimum of 512 MiB RAM, though more memory is needed to boot the live system for installation.[[1]](https://lists.archlinux.org/archives/list/arch-releng@lists.archlinux.org/message/D5HSGOFTPGYI6IZUEB3ZNAX4D3F3ID37/) A basic installation should take less than 2 GiB of disk space. As the installation process needs to retrieve packages from a remote repository, this guide assumes a working internet connection is available. \n  \n## Pre-installation\n \n### Acquire an installation image\n Visit the [Download](https://archlinux.org/download/) page and, depending on how you want to boot, acquire the ISO file or a netboot image, and the respective PGP signature. \n \n### Verify signature\n It is recommended to verify the image signature before use, especially when downloading from an *HTTP mirror*, where downloads are generally prone to be intercepted to [serve malicious images](https://www2.cs.arizona.edu/stork/packagemanagersecurity/attacks-on-package-managers.html). \nDownload the *ISO PGP signature* from [https://archlinux.org/download/#checksums](https://archlinux.org/download/#checksums) to the ISO directory and follow the instructions there to verify it. \nAlternatively, from an existing Arch Linux installation run: \n $ pacman-key -v archlinux-*version*-x86_64.iso.sig  **Note** \n\n- The signature itself could be manipulated if it is downloaded from a mirror site, instead of from [archlinux.org](https://archlinux.org/download/). In this case, ensure that the public key, which is used to decode the signature, is signed by another, trustworthy key. The gpg command will output the fingerprint of the public key.\n \n- Another method to verify the authenticity of the signature is to ensure that the public key's fingerprint is identical to the key fingerprint of the [Arch Linux developer](https://archlinux.org/people/developers/) who signed the ISO-file. See [Wikipedia:Public-key cryptography](https://en.wikipedia.org/wiki/Public-key_cryptography) for more information on the public-key process to authenticate keys.\n\n  \n### Prepare an installation medium\n The ISO can be supplied to the target machine via a [USB flash drive](/title/USB_flash_installation_medium), an [optical disc](/title/Optical_disc_drive#Burning) or a network with [PXE](/title/PXE): follow the appropriate article to prepare yourself an installation medium from the ISO file. \nFor the netboot image, follow [Netboot#Boot from a USB flash drive](/title/Netboot#Boot_from_a_USB_flash_drive) to prepare a USB flash drive for UEFI booting. \n \n### Boot the live environment\n **Note** Arch Linux installation images do not support Secure Boot. You will need to [disable Secure Boot](/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Disabling_Secure_Boot) to boot the installation medium. If desired, [Secure Boot](/title/Secure_Boot) can be set up after completing the installation. \n\n- Point the current boot device to the one which has the Arch Linux installation medium. Typically it is achieved by pressing a key during the [POST](https://en.wikipedia.org/wiki/Power-on_self_test) phase, as indicated on the splash screen. Refer to your motherboard's manual for details.\n \n- When the installation medium's boot loader menu appears, - if you used the ISO, select *Arch Linux install medium* and press Enter to enter the installation environment. - if you used the Netboot image, choose a geographically close mirror from *Mirror* menu, then select *Boot Arch Linux* and press Enter. **Tip** - The ISO uses [systemd-boot](/title/Systemd-boot) for UEFI and [syslinux](/title/Syslinux) for BIOS booting. Use respectively e or Tab to enter the [boot parameters](/title/Kernel_parameters#Boot_loader_configuration). The Netboot image uses iPXE and the boot parameters can be specified in the *Boot options* menu. See [/usr/share/doc/mkinitcpio-archiso/README.bootparams](https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio-archiso/blob/master/docs/README.bootparams) for a list. - A common example of manually defined boot parameter would be the font size. For better readability on HiDPI screens—when they are not already recognized as such—using fbcon=font:TER16x32 can help. See [HiDPI#Linux console (tty)](/title/HiDPI#Linux_console_(tty)) for a detailed explanation.\n  \n- You will be logged in on the first [virtual console](https://en.wikipedia.org/wiki/Virtual_console) as the root user, and presented with a [Zsh](/title/Zsh) shell prompt.\n\n To switch to a different console—for example, to view this guide with [Lynx](https://lynx.invisible-island.net/lynx_help/Lynx_users_guide.html) alongside the installation—use the Alt+*arrow* [keyboard shortcut](/title/Linux_console#Keyboard_shortcuts). To [edit](/title/Textedit) configuration files, [mcedit(1)](https://man.archlinux.org/man/mcedit.1), [nano](/title/Nano#Usage) and [vim](/title/Vim#Usage) are available. See [pkglist.x86_64.txt](https://geo.mirror.pkgbuild.com/iso/latest/arch/pkglist.x86_64.txt) for a list of the packages included in the installation medium. \n \n### Set the console keyboard layout and font\n The default [console keymap](/title/Console_keymap) is [US](https://en.wikipedia.org/wiki/File:KB_United_States-NoAltGr.svg). Available layouts can be listed with: \n # localectl list-keymaps  To set the keyboard layout, pass its name to [loadkeys(1)](https://man.archlinux.org/man/loadkeys.1). For example, to set a [German](https://en.wikipedia.org/wiki/File:KB_Germany.svg) keyboard layout: \n # loadkeys de-latin1  [Console fonts](/title/Console_fonts) are located in /usr/share/kbd/consolefonts/ and can likewise be set with [setfont(8)](https://man.archlinux.org/man/setfont.8) omitting the path and file extension. For example, to use one of the largest fonts suitable for [HiDPI screens](/title/HiDPI#Linux_console_(tty)), run: \n # setfont ter-132b  \n### Verify the boot mode\n To verify the boot mode, check the [UEFI bitness](/title/Unified_Extensible_Firmware_Interface#UEFI_firmware_bitness): \n # cat /sys/firmware/efi/fw_platform_size  \n\n- If the command returns 64, the system is booted in UEFI mode and has a 64-bit x64 UEFI.\n \n- If the command returns 32, the system is booted in UEFI mode and has a 32-bit IA32 UEFI. While this is supported, it will limit the boot loader choice to those that support mixed mode booting.\n\n \n\n- If it returns No such file or directory, the system may be booted in [BIOS](https://en.wikipedia.org/wiki/BIOS) (or [CSM](https://en.wikipedia.org/wiki/Compatibility_Support_Module)) mode.\n\n If the system did not boot in the mode you desired (UEFI vs BIOS), refer to your motherboard's manual. \n \n### Connect to the internet\n To set up a network connection in the live environment, go through the following steps: \n \n\n- Ensure your [network interface](/title/Network_interface) is listed and enabled, for example with [ip-link(8)](https://man.archlinux.org/man/ip-link.8): # ip link\n \n- For wireless and WWAN, make sure the card is not blocked with [rfkill](/title/Rfkill).\n \n- Connect to the network: - Ethernet—plug in the cable. - Wi-Fi—authenticate to the wireless network using [iwctl](/title/Iwctl). - Mobile broadband modem—connect to the mobile network with the [mmcli](/title/Mmcli) utility.\n \n- Configure your network connection: - [DHCP](/title/DHCP): dynamic IP address and DNS server assignment (provided by [systemd-networkd](/title/Systemd-networkd) and [systemd-resolved](/title/Systemd-resolved)) should work out of the box for Ethernet, WLAN, and WWAN network interfaces. - Static IP address: follow [Network configuration#Static IP address](/title/Network_configuration#Static_IP_address).\n \n- The connection may be verified with [ping](/title/Ping): # ping ping.archlinux.org\n\n **Note** In the installation image, [systemd-networkd](/title/System...",
+    "truncated": true,
+    "fullContentLength": 23830,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Contents"
+      },
+      {
+        "level": 1,
+        "text": "Installation guide"
+      },
+      {
+        "level": 2,
+        "text": "Pre-installation"
+      },
+      {
+        "level": 3,
+        "text": "Acquire an installation image"
+      },
+      {
+        "level": 3,
+        "text": "Verify signature"
+      },
+      {
+        "level": 3,
+        "text": "Prepare an installation medium"
+      },
+      {
+        "level": 3,
+        "text": "Boot the live environment"
+      },
+      {
+        "level": 3,
+        "text": "Set the console keyboard layout and font"
+      },
+      {
+        "level": 3,
+        "text": "Verify the boot mode"
+      },
+      {
+        "level": 3,
+        "text": "Connect to the internet"
+      },
+      {
+        "level": 3,
+        "text": "Update the system clock"
+      },
+      {
+        "level": 3,
+        "text": "Partition the disks"
+      },
+      {
+        "level": 4,
+        "text": "Example layouts"
+      },
+      {
+        "level": 3,
+        "text": "Format the partitions"
+      },
+      {
+        "level": 3,
+        "text": "Mount the file systems"
+      },
+      {
+        "level": 2,
+        "text": "Installation"
+      },
+      {
+        "level": 3,
+        "text": "Select the mirrors"
+      },
+      {
+        "level": 3,
+        "text": "Install essential packages"
+      },
+      {
+        "level": 2,
+        "text": "Configure the system"
+      },
+      {
+        "level": 3,
+        "text": "Fstab"
+      },
+      {
+        "level": 3,
+        "text": "Chroot"
+      },
+      {
+        "level": 3,
+        "text": "Time"
+      },
+      {
+        "level": 3,
+        "text": "Localization"
+      },
+      {
+        "level": 3,
+        "text": "Network configuration"
+      },
+      {
+        "level": 3,
+        "text": "Initramfs"
+      },
+      {
+        "level": 3,
+        "text": "Root password"
+      },
+      {
+        "level": 3,
+        "text": "Boot loader"
+      },
+      {
+        "level": 2,
+        "text": "Reboot"
+      },
+      {
+        "level": 2,
+        "text": "Post-installation"
+      }
+    ],
+    "links": [
+      {
+        "text": "Home",
+        "href": "https://archlinux.org/"
+      },
+      {
+        "text": "Packages",
+        "href": "https://archlinux.org/packages/"
+      },
+      {
+        "text": "Forums",
+        "href": "https://bbs.archlinux.org/"
+      },
+      {
+        "text": "Wiki",
+        "href": "https://wiki.archlinux.org/"
+      },
+      {
+        "text": "GitLab",
+        "href": "https://gitlab.archlinux.org/archlinux"
+      },
+      {
+        "text": "Security",
+        "href": "https://security.archlinux.org/"
+      },
+      {
+        "text": "AUR",
+        "href": "https://aur.archlinux.org/"
+      },
+      {
+        "text": "Download",
+        "href": "https://archlinux.org/download/"
+      },
+      {
+        "text": "Jump to content",
+        "href": "#bodyContent"
+      },
+      {
+        "text": "Main page",
+        "href": "/title/Main_page"
+      },
+      {
+        "text": "Table of contents",
+        "href": "/title/Table_of_contents"
+      },
+      {
+        "text": "Getting involved",
+        "href": "/title/Getting_involved"
+      },
+      {
+        "text": "Wiki news",
+        "href": "/title/ArchWiki:News"
+      },
+      {
+        "text": "Random page",
+        "href": "/title/Special:Random"
+      },
+      {
+        "text": "Special pages",
+        "href": "/title/Special:SpecialPages"
+      },
+      {
+        "text": "Help",
+        "href": "/title/Category:Help"
+      },
+      {
+        "text": "Contributing",
+        "href": "/title/ArchWiki:Contributing"
+      },
+      {
+        "text": "Recent changes",
+        "href": "/title/Special:RecentChanges"
+      },
+      {
+        "text": "Recent talks",
+        "href": "https://wiki.archlinux.org/index.php?title=Special:RecentChanges&namespace=all-discussions"
+      },
+      {
+        "text": "New pages",
+        "href": "/title/Special:NewPages"
+      },
+      {
+        "text": "Statistics",
+        "href": "/title/ArchWiki:Statistics"
+      },
+      {
+        "text": "Requests",
+        "href": "/title/ArchWiki_talk:Requests"
+      },
+      {
+        "text": "ArchWiki",
+        "href": "/title/Main_page"
+      },
+      {
+        "text": "Search",
+        "href": "/title/Special:Search"
+      },
+      {
+        "text": "Create account",
+        "href": "/index.php?title=Special:CreateAccount&returnto=Installation+guide&returntoquery=automation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Log in",
+        "href": "/index.php?title=Special:UserLogin&returnto=Installation+guide&returntoquery=automation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Create account",
+        "href": "/index.php?title=Special:CreateAccount&returnto=Installation+guide&returntoquery=automation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Log in",
+        "href": "/index.php?title=Special:UserLogin&returnto=Installation+guide&returntoquery=automation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Beginning",
+        "href": "#"
+      },
+      {
+        "text": "1\n\t\t\t\tPre-installation",
+        "href": "#Pre-installation"
+      },
+      {
+        "text": "1.1\n\t\t\t\t\tAcquire an installation image",
+        "href": "#Acquire_an_installation_image"
+      },
+      {
+        "text": "1.2\n\t\t\t\t\tVerify signature",
+        "href": "#Verify_signature"
+      },
+      {
+        "text": "1.3\n\t\t\t\t\tPrepare an installation medium",
+        "href": "#Prepare_an_installation_medium"
+      },
+      {
+        "text": "1.4\n\t\t\t\t\tBoot the live environment",
+        "href": "#Boot_the_live_environment"
+      },
+      {
+        "text": "1.5\n\t\t\t\t\tSet the console keyboard layout and font",
+        "href": "#Set_the_console_keyboard_layout_and_font"
+      },
+      {
+        "text": "1.6\n\t\t\t\t\tVerify the boot mode",
+        "href": "#Verify_the_boot_mode"
+      },
+      {
+        "text": "1.7\n\t\t\t\t\tConnect to the internet",
+        "href": "#Connect_to_the_internet"
+      },
+      {
+        "text": "1.8\n\t\t\t\t\tUpdate the system clock",
+        "href": "#Update_the_system_clock"
+      },
+      {
+        "text": "1.9\n\t\t\t\t\tPartition the disks",
+        "href": "#Partition_the_disks"
+      },
+      {
+        "text": "1.9.1\n\t\t\t\t\tExample layouts",
+        "href": "#Example_layouts"
+      },
+      {
+        "text": "1.10\n\t\t\t\t\tFormat the partitions",
+        "href": "#Format_the_partitions"
+      },
+      {
+        "text": "1.11\n\t\t\t\t\tMount the file systems",
+        "href": "#Mount_the_file_systems"
+      },
+      {
+        "text": "2\n\t\t\t\tInstallation",
+        "href": "#Installation"
+      },
+      {
+        "text": "2.1\n\t\t\t\t\tSelect the mirrors",
+        "href": "#Select_the_mirrors"
+      },
+      {
+        "text": "2.2\n\t\t\t\t\tInstall essential packages",
+        "href": "#Install_essential_packages"
+      },
+      {
+        "text": "3\n\t\t\t\tConfigure the system",
+        "href": "#Configure_the_system"
+      },
+      {
+        "text": "3.1\n\t\t\t\t\tFstab",
+        "href": "#Fstab"
+      },
+      {
+        "text": "3.2\n\t\t\t\t\tChroot",
+        "href": "#Chroot"
+      },
+      {
+        "text": "3.3\n\t\t\t\t\tTime",
+        "href": "#Time"
+      },
+      {
+        "text": "3.4\n\t\t\t\t\tLocalization",
+        "href": "#Localization"
+      },
+      {
+        "text": "3.5\n\t\t\t\t\tNetwork configuration",
+        "href": "#Network_configuration"
+      },
+      {
+        "text": "3.6\n\t\t\t\t\tInitramfs",
+        "href": "#Initramfs"
+      },
+      {
+        "text": "3.7\n\t\t\t\t\tRoot password",
+        "href": "#Root_password"
+      },
+      {
+        "text": "3.8\n\t\t\t\t\tBoot loader",
+        "href": "#Boot_loader"
+      },
+      {
+        "text": "4\n\t\t\t\tReboot",
+        "href": "#Reboot"
+      },
+      {
+        "text": "5\n\t\t\t\tPost-installation",
+        "href": "#Post-installation"
+      },
+      {
+        "text": "العربية",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(العربية)"
+      },
+      {
+        "text": "Български",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Български)"
+      },
+      {
+        "text": "Català",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Català)"
+      },
+      {
+        "text": "Čeština",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Čeština)"
+      },
+      {
+        "text": "Deutsch",
+        "href": "https://wiki.archlinux.de/title/Arch_Install_Scripts"
+      },
+      {
+        "text": "Ελληνικά",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Ελληνικά)"
+      },
+      {
+        "text": "Español",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Español)"
+      },
+      {
+        "text": "Suomi",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Suomi)"
+      },
+      {
+        "text": "Français",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Français)"
+      },
+      {
+        "text": "Magyar",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Magyar)"
+      },
+      {
+        "text": "Italiano",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Italiano)"
+      },
+      {
+        "text": "日本語",
+        "href": "https://wiki.archlinux.jp/index.php/%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%82%AC%E3%82%A4%E3%83%89"
+      },
+      {
+        "text": "한국어",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(한국어)"
+      },
+      {
+        "text": "Polski",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Polski)"
+      },
+      {
+        "text": "Português",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Português)"
+      },
+      {
+        "text": "Русский",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Русский)"
+      },
+      {
+        "text": "Svenska",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Svenska)"
+      },
+      {
+        "text": "ไทย",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(%E0%B9%84%E0%B8%97%E0%B8%A2)"
+      },
+      {
+        "text": "Türkçe",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Türkçe)"
+      },
+      {
+        "text": "Українська",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(Українська)"
+      },
+      {
+        "text": "中文（简体）",
+        "href": "https://wiki.archlinuxcn.org/wiki/%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97"
+      },
+      {
+        "text": "中文（繁體）",
+        "href": "https://wiki.archlinux.org/title/Installation_guide_(正體中文)"
+      },
+      {
+        "text": "Page",
+        "href": "/title/Installation_guide"
+      },
+      {
+        "text": "Discussion",
+        "href": "/title/Talk:Installation_guide"
+      },
+      {
+        "text": "Read",
+        "href": "/title/Installation_guide"
+      },
+      {
+        "text": "View source",
+        "href": "/index.php?title=Installation_guide&action=edit"
+      },
+      {
+        "text": "View history",
+        "href": "/index.php?title=Installation_guide&action=history"
+      },
+      {
+        "text": "Read",
+        "href": "/title/Installation_guide"
+      },
+      {
+        "text": "View source",
+        "href": "/index.php?title=Installation_guide&action=edit"
+      },
+      {
+        "text": "View history",
+        "href": "/index.php?title=Installation_guide&action=history"
+      },
+      {
+        "text": "What links here",
+        "href": "/title/Special:WhatLinksHere/Installation_guide"
+      },
+      {
+        "text": "Related changes",
+        "href": "/title/Special:RecentChangesLinked/Installation_guide"
+      },
+      {
+        "text": "Printable version",
+        "href": "javascript:print();"
+      },
+      {
+        "text": "Permanent link",
+        "href": "https://wiki.archlinux.org/index.php?title=Installation_guide&oldid=848580"
+      },
+      {
+        "text": "Page information",
+        "href": "/index.php?title=Installation_guide&action=info"
+      },
+      {
+        "text": "Arch Linux",
+        "href": "/title/Arch_Linux"
+      },
+      {
+        "text": "Install Arch Linux with accessibility options",
+        "href": "/title/Install_Arch_Linux_with_accessibility_options"
+      },
+      {
+        "text": "Category:Installation process",
+        "href": "/title/Category:Installation_process"
+      },
+      {
+        "text": "FAQ",
+        "href": "/title/FAQ"
+      },
+      {
+        "text": "Help:Reading",
+        "href": "/title/Help:Reading"
+      },
+      {
+        "text": "ArchWiki",
+        "href": "/title/ArchWiki"
+      },
+      {
+        "text": "man pages",
+        "href": "/title/Man_page"
+      },
+      {
+        "text": "IRC channel",
+        "href": "/title/IRC_channel"
+      },
+      {
+        "text": "forums",
+        "href": "https://bbs.archlinux.org/"
+      },
+      {
+        "text": "x86_64",
+        "href": "https://en.wikipedia.org/wiki/X86-64"
+      },
+      {
+        "text": "[1]",
+        "href": "https://lists.archlinux.org/archives/list/arch-releng@lists.archlinux.org/message/D5HSGOFTPGYI6IZUEB3ZNAX4D3F3ID37/"
+      },
+      {
+        "text": "Download",
+        "href": "https://archlinux.org/download/"
+      },
+      {
+        "text": "serve malicious images",
+        "href": "https://www2.cs.arizona.edu/stork/packagemanagersecurity/attacks-on-package-managers.html"
+      },
+      {
+        "text": "https://archlinux.org/download/#checksums",
+        "href": "https://archlinux.org/download/#checksums"
+      },
+      {
+        "text": "archlinux.org",
+        "href": "https://archlinux.org/download/"
+      },
+      {
+        "text": "Arch Linux developer",
+        "href": "https://archlinux.org/people/developers/"
+      },
+      {
+        "text": "Wikipedia:Public-key cryptography",
+        "href": "https://en.wikipedia.org/wiki/Public-key_cryptography"
+      },
+      {
+        "text": "USB flash drive",
+        "href": "/title/USB_flash_installation_medium"
+      },
+      {
+        "text": "optical disc",
+        "href": "/title/Optical_disc_drive#Burning"
+      },
+      {
+        "text": "PXE",
+        "href": "/title/PXE"
+      },
+      {
+        "text": "Netboot#Boot from a USB flash drive",
+        "href": "/title/Netboot#Boot_from_a_USB_flash_drive"
+      },
+      {
+        "text": "disable Secure Boot",
+        "href": "/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Disabling_Secure_Boot"
+      },
+      {
+        "text": "Secure Boot",
+        "href": "/title/Secure_Boot"
+      },
+      {
+        "text": "POST",
+        "href": "https://en.wikipedia.org/wiki/Power-on_self_test"
+      },
+      {
+        "text": "systemd-boot",
+        "href": "/title/Systemd-boot"
+      },
+      {
+        "text": "syslinux",
+        "href": "/title/Syslinux"
+      },
+      {
+        "text": "boot parameters",
+        "href": "/title/Kernel_parameters#Boot_loader_configuration"
+      },
+      {
+        "text": "/usr/share/doc/mkinitcpio-archiso/README.bootparams",
+        "href": "https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio-archiso/blob/master/docs/README.bootparams"
+      },
+      {
+        "text": "HiDPI#Linux console (tty)",
+        "href": "/title/HiDPI#Linux_console_(tty)"
+      },
+      {
+        "text": "virtual console",
+        "href": "https://en.wikipedia.org/wiki/Virtual_console"
+      },
+      {
+        "text": "Zsh",
+        "href": "/title/Zsh"
+      },
+      {
+        "text": "Lynx",
+        "href": "https://lynx.invisible-island.net/lynx_help/Lynx_users_guide.html"
+      },
+      {
+        "text": "keyboard shortcut",
+        "href": "/title/Linux_console#Keyboard_shortcuts"
+      },
+      {
+        "text": "edit",
+        "href": "/title/Textedit"
+      },
+      {
+        "text": "mcedit(1)",
+        "href": "https://man.archlinux.org/man/mcedit.1"
+      },
+      {
+        "text": "nano",
+        "href": "/title/Nano#Usage"
+      },
+      {
+        "text": "vim",
+        "href": "/title/Vim#Usage"
+      },
+      {
+        "text": "pkglist.x86_64.txt",
+        "href": "https://geo.mirror.pkgbuild.com/iso/latest/arch/pkglist.x86_64.txt"
+      },
+      {
+        "text": "console keymap",
+        "href": "/title/Console_keymap"
+      },
+      {
+        "text": "US",
+        "href": "https://en.wikipedia.org/wiki/File:KB_United_States-NoAltGr.svg"
+      },
+      {
+        "text": "loadkeys(1)",
+        "href": "https://man.archlinux.org/man/loadkeys.1"
+      },
+      {
+        "text": "German",
+        "href": "https://en.wikipedia.org/wiki/File:KB_Germany.svg"
+      },
+      {
+        "text": "Console fonts",
+        "href": "/title/Console_fonts"
+      },
+      {
+        "text": "setfont(8)",
+        "href": "https://man.archlinux.org/man/setfont.8"
+      },
+      {
+        "text": "HiDPI screens",
+        "href": "/title/HiDPI#Linux_console_(tty)"
+      },
+      {
+        "text": "UEFI bitness",
+        "href": "/title/Unified_Extensible_Firmware_Interface#UEFI_firmware_bitness"
+      },
+      {
+        "text": "BIOS",
+        "href": "https://en.wikipedia.org/wiki/BIOS"
+      },
+      {
+        "text": "CSM",
+        "href": "https://en.wikipedia.org/wiki/Compatibility_Support_Module"
+      },
+      {
+        "text": "network interface",
+        "href": "/title/Network_interface"
+      },
+      {
+        "text": "ip-link(8)",
+        "href": "https://man.archlinux.org/man/ip-link.8"
+      },
+      {
+        "text": "rfkill",
+        "href": "/title/Rfkill"
+      },
+      {
+        "text": "iwctl",
+        "href": "/title/Iwctl"
+      },
+      {
+        "text": "mmcli",
+        "href": "/title/Mmcli"
+      },
+      {
+        "text": "DHCP",
+        "href": "/title/DHCP"
+      },
+      {
+        "text": "systemd-networkd",
+        "href": "/title/Systemd-networkd"
+      },
+      {
+        "text": "systemd-resolved",
+        "href": "/title/Systemd-resolved"
+      },
+      {
+        "text": "Network configuration#Static IP address",
+        "href": "/title/Network_configuration#Static_IP_address"
+      },
+      {
+        "text": "ping",
+        "href": "/title/Ping"
+      },
+      {
+        "text": "systemd-networkd",
+        "href": "/title/Systemd-networkd"
+      },
+      {
+        "text": "systemd-resolved",
+        "href": "/title/Systemd-resolved"
+      },
+      {
+        "text": "iwd",
+        "href": "/title/Iwd"
+      },
+      {
+        "text": "ModemManager",
+        "href": "/title/ModemManager"
+      },
+      {
+        "text": "systemd-timesyncd",
+        "href": "/title/Systemd-timesyncd"
+      },
+      {
+        "text": "timedatectl(1)",
+        "href": "https://man.archlinux.org/man/timedatectl.1"
+      },
+      {
+        "text": "block device",
+        "href": "/title/Block_device"
+      },
+      {
+        "text": "lsblk",
+        "href": "/title/Lsblk"
+      },
+      {
+        "text": "make sure the disk controller is not in RAID mode",
+        "href": "/title/Partitioning#Drives_are_not_visible_when_firmware_RAID_is_enabled"
+      },
+      {
+        "text": "optimal logical sector size",
+        "href": "/title/Advanced_Format"
+      },
+      {
+        "text": "partitions",
+        "href": "/title/Partition"
+      },
+      {
+        "text": "root directory",
+        "href": "https://en.wikipedia.org/wiki/Root_directory"
+      },
+      {
+        "text": "UEFI",
+        "href": "/title/UEFI"
+      },
+      {
+        "text": "EFI system partition",
+        "href": "/title/EFI_system_partition"
+      },
+      {
+        "text": "partitioning tool",
+        "href": "/title/Partitioning#Partitioning_tools"
+      },
+      {
+        "text": "fdisk",
+        "href": "/title/Fdisk"
+      },
+      {
+        "text": "LVM",
+        "href": "/title/Install_Arch_Linux_on_LVM"
+      },
+      {
+        "text": "system encryption",
+        "href": "/title/Dm-crypt"
+      },
+      {
+        "text": "RAID",
+        "href": "/title/RAID"
+      },
+      {
+        "text": "already has an EFI system partition",
+        "href": "/title/EFI_system_partition#Check_for_an_existing_partition"
+      },
+      {
+        "text": "Swap",
+        "href": "/title/Swap"
+      },
+      {
+        "text": "swap file",
+        "href": "/title/Swap_file"
+      },
+      {
+        "text": "swap on zram",
+        "href": "/title/Zram#Usage_as_swap"
+      },
+      {
+        "text": "GPT",
+        "href": "/title/GPT"
+      },
+      {
+        "text": "Partition type",
+        "href": "https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs"
+      },
+      {
+        "text": "EFI system partition",
+        "href": "/title/EFI_system_partition"
+      },
+      {
+        "text": "Other mount points",
+        "href": "/title/EFI_system_partition#Typical_mount_points"
+      },
+      {
+        "text": "Arch boot process#Boot loader",
+        "href": "/title/Arch_boot_process#Boot_loader"
+      },
+      {
+        "text": "MBR",
+        "href": "/title/MBR"
+      },
+      {
+        "text": "Partition type",
+        "href": "https://en.wikipedia.org/wiki/Partition_type"
+      },
+      {
+        "text": "Partitioning#Example layouts",
+        "href": "/title/Partitioning#Example_layouts"
+      },
+      {
+        "text": "file system",
+        "href": "/title/File_system"
+      },
+      {
+        "text": "File systems#Create a file system",
+        "href": "/title/File_systems#Create_a_file_system"
+      },
+      {
+        "text": "Ext4",
+        "href": "/title/Ext4"
+      },
+      {
+        "text": "swap",
+        "href": "/title/Swap"
+      },
+      {
+        "text": "mkswap(8)",
+        "href": "https://man.archlinux.org/man/mkswap.8"
+      },
+      {
+        "text": "format it",
+        "href": "/title/EFI_system_partition#Format_the_partition"
+      },
+      {
+        "text": "mkfs.fat(8)",
+        "href": "https://man.archlinux.org/man/mkfs.fat.8"
+      },
+      {
+        "text": "Mount",
+        "href": "/title/Mount"
+      },
+      {
+        "text": "mount(8)",
+        "href": "https://man.archlinux.org/man/mount.8"
+      },
+      {
+        "text": "mkdir(1)",
+        "href": "https://man.archlinux.org/man/mkdir.1"
+      },
+      {
+        "text": "swap",
+        "href": "/title/Swap"
+      },
+      {
+        "text": "swapon(8)",
+        "href": "https://man.archlinux.org/man/swapon.8"
+      },
+      {
+        "text": "genfstab(8)",
+        "href": "https://man.archlinux.org/man/genfstab.8"
+      },
+      {
+        "text": "mirror servers",
+        "href": "/title/Mirrors"
+      },
+      {
+        "text": "reflector",
+        "href": "/title/Reflector"
+      },
+      {
+        "text": "edit",
+        "href": "/title/Textedit"
+      },
+      {
+        "text": "base",
+        "href": "https://archlinux.org/packages/?name=base"
+      },
+      {
+        "text": "microcode",
+        "href": "/title/Microcode"
+      },
+      {
+        "text": "amd-ucode",
+        "href": "https://archlinux.org/packages/?name=amd-ucode"
+      },
+      {
+        "text": "intel-ucode",
+        "href": "https://archlinux.org/packages/?name=intel-ucode"
+      },
+      {
+        "text": "userspace utilities for file systems",
+        "href": "/title/File_systems"
+      },
+      {
+        "text": "fsck",
+        "href": "/title/Fsck"
+      },
+      {
+        "text": "RAID",
+        "href": "/title/RAID#Installation"
+      },
+      {
+        "text": "LVM",
+        "href": "/title/LVM#Installation"
+      },
+      {
+        "text": "firmware",
+        "href": "/title/Firmware"
+      },
+      {
+        "text": "linux-firmware",
+        "href": "https://archlinux.org/packages/?name=linux-firmware"
+      },
+      {
+        "text": "sof-firmware",
+        "href": "https://archlinux.org/packages/?name=sof-firmware"
+      },
+      {
+        "text": "onboard audio",
+        "href": "/title/Advanced_Linux_Sound_Architecture#Firmware"
+      },
+      {
+        "text": "linux-firmware-marvell",
+        "href": "https://archlinux.org/packages/?name=linux-firmware-marvell"
+      },
+      {
+        "text": "Broadcom wireless",
+        "href": "/title/Broadcom_wireless"
+      },
+      {
+        "text": "networking",
+        "href": "/title/Networking"
+      },
+      {
+        "text": "a network manager or a standalone DHCP client",
+        "href": "/title/Network_configuration#Network_managers"
+      },
+      {
+        "text": "authentication software",
+        "href": "/title/Network_configuration/Wireless#Authentication"
+      },
+      {
+        "text": "ModemManager",
+        "href": "/title/ModemManager"
+      },
+      {
+        "text": "console text editor",
+        "href": "/title/List_of_applications/Documents#Console"
+      },
+      {
+        "text": "nano",
+        "href": "/title/Nano"
+      },
+      {
+        "text": "man",
+        "href": "/title/Man"
+      },
+      {
+        "text": "info",
+        "href": "/title/Info"
+      },
+      {
+        "text": "man-db",
+        "href": "https://archlinux.org/packages/?name=man-db"
+      },
+      {
+        "text": "man-pages",
+        "href": "https://archlinux.org/packages/?name=man-pages"
+      },
+      {
+        "text": "texinfo",
+        "href": "https://archlinux.org/packages/?name=texinfo"
+      },
+      {
+        "text": "pkglist.x86_64.txt",
+        "href": "https://geo.mirror.pkgbuild.com/iso/latest/arch/pkglist.x86_64.txt"
+      },
+      {
+        "text": "pacstrap(8)",
+        "href": "https://man.archlinux.org/man/pacstrap.8"
+      },
+      {
+        "text": "pacman",
+        "href": "/title/Pacman"
+      },
+      {
+        "text": "install",
+        "href": "/title/Install"
+      },
+      {
+        "text": "chrooted into the new system",
+        "href": "#Chroot"
+      },
+      {
+        "text": "kernel",
+        "href": "/title/Kernel"
+      },
+      {
+        "text": "linux",
+        "href": "https://archlinux.org/packages/?name=linux"
+      },
+      {
+        "text": "kernel",
+        "href": "/title/Kernel"
+      },
+      {
+        "text": "container",
+        "href": "https://en.wikipedia.org/wiki/Container_(virtualization)"
+      },
+      {
+        "text": "fstab",
+        "href": "/title/Fstab"
+      },
+      {
+        "text": "UUID",
+        "href": "/title/UUID"
+      },
+      {
+        "text": "edit",
+        "href": "/title/Textedit"
+      },
+      {
+        "text": "change root",
+        "href": "/title/Change_root"
+      },
+      {
+        "text": "time zone",
+        "href": "/title/Time_zone"
+      },
+      {
+        "text": "hwclock(8)",
+        "href": "https://man.archlinux.org/man/hwclock.8"
+      },
+      {
+        "text": "UTC",
+        "href": "https://en.wikipedia.org/wiki/UTC"
+      },
+      {
+        "text": "System time#Time standard",
+        "href": "/title/System_time#Time_standard"
+      },
+      {
+        "text": "time synchronization",
+        "href": "/title/Time_synchronization"
+      },
+      {
+        "text": "Network Time Protocol",
+        "href": "https://en.wikipedia.org/wiki/Network_Time_Protocol"
+      },
+      {
+        "text": "systemd-timesyncd",
+        "href": "/title/Systemd-timesyncd"
+      },
+      {
+        "text": "edit",
+        "href": "/title/Textedit"
+      },
+      {
+        "text": "locales",
+        "href": "/title/Locale"
+      },
+      {
+        "text": "Create",
+        "href": "/title/Create"
+      },
+      {
+        "text": "locale.conf(5)",
+        "href": "https://man.archlinux.org/man/locale.conf.5"
+      },
+      {
+        "text": "set the LANG variable",
+        "href": "/title/Locale#Setting_the_system_locale"
+      },
+      {
+        "text": "set the console keyboard layout",
+        "href": "#Set_the_console_keyboard_layout_and_font"
+      },
+      {
+        "text": "vconsole.conf(5)",
+        "href": "https://man.archlinux.org/man/vconsole.conf.5"
+      },
+      {
+        "text": "create",
+        "href": "/title/Create"
+      },
+      {
+        "text": "hostname",
+        "href": "/title/Hostname"
+      },
+      {
+        "text": "RFC 1178",
+        "href": "https://tools.ietf.org/html/rfc1178"
+      },
+      {
+        "text": "hostname(7)",
+        "href": "https://man.archlinux.org/man/hostname.7"
+      },
+      {
+        "text": "network configuration",
+        "href": "/title/Network_configuration"
+      },
+      {
+        "text": "network management",
+        "href": "/title/Network_management"
+      },
+      {
+        "text": "mkinitcpio",
+        "href": "/title/Mkinitcpio"
+      },
+      {
+        "text": "kernel",
+        "href": "/title/Kernel"
+      },
+      {
+        "text": "LVM",
+        "href": "/title/Install_Arch_Linux_on_LVM#Adding_mkinitcpio_hooks"
+      },
+      {
+        "text": "system encryption",
+        "href": "/title/Dm-crypt"
+      },
+      {
+        "text": "RAID",
+        "href": "/title/RAID#Configure_mkinitcpio"
+      },
+      {
+        "text": "mkinitcpio.conf(5)",
+        "href": "https://man.archlinux.org/man/mkinitcpio.conf.5"
+      },
+      {
+        "text": "password",
+        "href": "/title/Password"
+      },
+      {
+        "text": "root user",
+        "href": "https://en.wikipedia.org/wiki/Superuser"
+      },
+      {
+        "text": "boot loader",
+        "href": "/title/Boot_loader"
+      },
+      {
+        "text": "fuser(1)",
+        "href": "https://man.archlinux.org/man/fuser.1"
+      },
+      {
+        "text": "General recommendations",
+        "href": "/title/General_recommendations"
+      },
+      {
+        "text": "List of applications",
+        "href": "/title/List_of_applications"
+      },
+      {
+        "text": "https://wiki.archlinux.org/index.php?title=Installation_guide&oldid=848580",
+        "href": "https://wiki.archlinux.org/index.php?title=Installation_guide&oldid=848580"
+      },
+      {
+        "text": "Category",
+        "href": "/title/Special:Categories"
+      },
+      {
+        "text": "Installation process",
+        "href": "/title/Category:Installation_process"
+      },
+      {
+        "text": "GNU Free Documentation License 1.3 or later",
+        "href": "https://www.gnu.org/copyleft/fdl.html"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "https://terms.archlinux.org/docs/privacy-policy/"
+      },
+      {
+        "text": "About ArchWiki",
+        "href": "/title/ArchWiki:About"
+      },
+      {
+        "text": "Disclaimers",
+        "href": "/title/ArchWiki:General_disclaimer"
+      },
+      {
+        "text": "Code of conduct",
+        "href": "https://terms.archlinux.org/docs/code-of-conduct/"
+      },
+      {
+        "text": "Terms of service",
+        "href": "https://terms.archlinux.org/docs/terms-of-service/"
+      },
+      {
+        "text": "Add topic",
+        "href": "#"
+      }
+    ],
+    "images": [
+      {
+        "alt": "GNU Free Documentation License 1.3 or later",
+        "src": "/resources/assets/licenses/gnu-fdl.png"
+      },
+      {
+        "alt": "",
+        "src": "/resources/assets/mediawiki_compact.svg"
+      }
+    ],
+    "timestamp": 1760611103005,
+    "url": "https://wiki.archlinux.org/title/Installation_guide?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

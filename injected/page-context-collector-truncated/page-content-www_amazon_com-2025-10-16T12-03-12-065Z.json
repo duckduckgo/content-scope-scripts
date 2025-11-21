@@ -1,0 +1,36 @@
+{
+  "url": "https://www.amazon.com/",
+  "extractedAt": "2025-10-16T12:03:12.065Z",
+  "content": {
+    "favicon": [],
+    "title": "Amazon.com",
+    "metaDescription": "",
+    "content": "**   ** Click the button below to continue shopping             Continue shopping            [Conditions of Use](https://www.amazon.com/gp/help/customer/display.html/ref=footer_cou?ie=UTF8&nodeId=508088)     [Privacy Policy](https://www.amazon.com/gp/help/customer/display.html/ref=footer_privacy?ie=UTF8&nodeId=468496)   © 1996-2025, Amazon.com, Inc. or its affiliates",
+    "truncated": false,
+    "fullContentLength": 369,
+    "headings": [
+      {
+        "level": 4,
+        "text": "Click the button below to continue shopping"
+      }
+    ],
+    "links": [
+      {
+        "text": "Conditions of Use",
+        "href": "https://www.amazon.com/gp/help/customer/display.html/ref=footer_cou?ie=UTF8&nodeId=508088"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://www.amazon.com/gp/help/customer/display.html/ref=footer_privacy?ie=UTF8&nodeId=468496"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "https://fls-na.amazon.com/1/oc-csi/1/OP/requestId=ZB4G0BCVAVZTXH04M3V3&js=1"
+      }
+    ],
+    "timestamp": 1760616191600,
+    "url": "https://www.amazon.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

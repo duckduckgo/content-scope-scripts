@@ -1,0 +1,12 @@
+[2025-10-17T13:46:34.509Z] [INFO] Starting DuckDuckGo Page Context Content Extractor
+[2025-10-17T13:46:34.510Z] [INFO] Mode: Headless
+[2025-10-17T13:46:34.510Z] [INFO] Timeout: 60s
+[2025-10-17T13:46:34.510Z] [INFO] Truncation: Enabled (9500 chars max)
+[2025-10-17T13:46:34.510Z] [INFO] Processing URL 1/1: https://example.com
+[2025-10-17T13:46:34.510Z] [INFO] Starting extraction from: https://example.com
+[2025-10-17T13:46:34.511Z] [DEBUG] Launching browser...
+[2025-10-17T13:46:34.842Z] [DEBUG] Browser launched successfully
+[2025-10-17T13:46:34.876Z] [DEBUG] Loading and collecting page content
+[2025-10-17T13:46:35.894Z] [DEBUG] Collected page content
+[2025-10-17T13:46:35.905Z] [INFO] Successfully crawled https://example.com
+[2025-10-17T13:46:36.052Z] [INFO] Crawl completed. Summary: 1/1 successful (100%)

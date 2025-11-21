@@ -1,0 +1,589 @@
+{
+  "url": "https://www.chase.com/",
+  "extractedAt": "2025-10-16T10:28:34.167Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.chase.com/etc/designs/chase-ux/favicon.ico",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://www.chase.com/etc/designs/chase-ux/favicon.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.chase.com/etc/designs/chase-ux/favicon-152.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.chase.com/etc/designs/chase-ux/favicon-120.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.chase.com/etc/designs/chase-ux/favicon-76.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.chase.com/etc/designs/chase-ux/favicon-57.png",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "Credit Card, Mortgage, Banking, Auto | Chase Online | Chase.com",
+    "metaDescription": "Chase online; credit cards, mortgages, commercial banking, auto loans, investing & retirement planning, checking and business banking.",
+    "content": "# Chase home page\n           LoadingLoadingLoadingLoadingLoadingLoadingLoading",
+    "truncated": false,
+    "fullContentLength": 78,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Chase home page"
+      },
+      {
+        "level": 2,
+        "text": "Welcome"
+      },
+      {
+        "level": 2,
+        "text": "Welcome back"
+      },
+      {
+        "level": 2,
+        "text": "Checking Accounts"
+      },
+      {
+        "level": 2,
+        "text": "Savings Accounts & CDs"
+      },
+      {
+        "level": 2,
+        "text": "Credit Cards"
+      },
+      {
+        "level": 2,
+        "text": "Mortgages"
+      },
+      {
+        "level": 2,
+        "text": "Auto"
+      },
+      {
+        "level": 2,
+        "text": "Chase for Business"
+      },
+      {
+        "level": 2,
+        "text": "Sports & Entertainment"
+      },
+      {
+        "level": 2,
+        "text": "Chase Security Center"
+      },
+      {
+        "level": 2,
+        "text": "About Chase"
+      },
+      {
+        "level": 2,
+        "text": "Investing by J.P. Morgan"
+      },
+      {
+        "level": 2,
+        "text": "Chase Private Client"
+      },
+      {
+        "level": 2,
+        "text": "Other Products & Services:"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#main"
+      },
+      {
+        "text": "Personal current product",
+        "href": "https://www.chase.com/"
+      },
+      {
+        "text": "Business",
+        "href": "/business"
+      },
+      {
+        "text": "Commercial",
+        "href": "https://www.jpmorgan.com/commercial-banking"
+      },
+      {
+        "text": "Schedule a meeting",
+        "href": "/meeting-scheduler/getstarted"
+      },
+      {
+        "text": "See help options",
+        "href": "/digital/customer-service"
+      },
+      {
+        "text": "Make a payment",
+        "href": "/personal/mobile-online-banking/make-payment"
+      },
+      {
+        "text": "Find ATM or branch",
+        "href": "https://www.chase.com/locator"
+      },
+      {
+        "text": "Español",
+        "href": "https://www.chase.com/espanol"
+      },
+      {
+        "text": "Search",
+        "href": "/digital/resources/search-results.html"
+      },
+      {
+        "text": "Chase logo, links to Chase home",
+        "href": "https://www.chase.com"
+      },
+      {
+        "text": "Sign inOpens overlay",
+        "href": "https://secure.chase.com"
+      },
+      {
+        "text": "Choose a checking account",
+        "href": "https://personal.chase.com/personal/checking"
+      },
+      {
+        "text": "Debit card for kids",
+        "href": "https://personal.chase.com/personal/first-banking"
+      },
+      {
+        "text": "Choose a savings account",
+        "href": "https://personal.chase.com/personal/savings"
+      },
+      {
+        "text": "CDs",
+        "href": "/personal/savings/bank-cd"
+      },
+      {
+        "text": "Explore credit cards",
+        "href": "https://creditcards.chase.com/?jp_ltg=chsecate_featured&CELL=6TKV"
+      },
+      {
+        "text": "See if you're pre-approved",
+        "href": "https://secure.chase.com/web/oao/application/card?cfgCode=PREAPPROVEDCONCC&flowVersion=REACT&cellCode=6TKV#/origination/preapproved/index/index"
+      },
+      {
+        "text": "Personal credit cards",
+        "href": "https://creditcards.chase.com/all-credit-cards?CELL=6TKV"
+      },
+      {
+        "text": "Business credit cards",
+        "href": "https://creditcards.chase.com/business-credit-cards?jp_ltg=chsecate_smlbiz&CELL=6TKV"
+      },
+      {
+        "text": "Buy a home",
+        "href": "/personal/mortgage/mortgage-purchase"
+      },
+      {
+        "text": "Refinance your mortgage",
+        "href": "/personal/mortgage/mortgage-refinance"
+      },
+      {
+        "text": "Apply for a mortgage",
+        "href": "https://secure.chase.com/web/oao/application/retail#/origination;cfgCode=502002;AcctRef=Credit/index/index"
+      },
+      {
+        "text": "Access calculators and tools",
+        "href": "/personal/mortgage/calculators-resources"
+      },
+      {
+        "text": "See current rates",
+        "href": "/personal/mortgage/mortgage-rates"
+      },
+      {
+        "text": "Manage account",
+        "href": "/personal/mortgage/manage-account"
+      },
+      {
+        "text": "Homebuying 101",
+        "href": "/personal/mortgage/education"
+      },
+      {
+        "text": "Explore car financing",
+        "href": "https://autofinance.chase.com/"
+      },
+      {
+        "text": "Refinance your car",
+        "href": "https://autofinance.chase.com/auto-finance/refinance"
+      },
+      {
+        "text": "Explore investing",
+        "href": "/personal/investments"
+      },
+      {
+        "text": "Work with our advisors",
+        "href": "/personal/investments/advisor-services"
+      },
+      {
+        "text": "Invest on your own",
+        "href": "/personal/investments/online-investing/sdi"
+      },
+      {
+        "text": "Retirement and IRAs",
+        "href": "/personal/investments/retirement"
+      },
+      {
+        "text": "Education planning",
+        "href": "/personal/investments/education"
+      },
+      {
+        "text": "Investing insights",
+        "href": "/personal/investments/learning-and-insights"
+      },
+      {
+        "text": "Education center",
+        "href": "/personal/education"
+      },
+      {
+        "text": "Free credit score",
+        "href": "/personal/credit-cards/free-credit-score"
+      },
+      {
+        "text": "Chase Money Skills",
+        "href": "/personal/financial-goals"
+      },
+      {
+        "text": "Security Center",
+        "href": "/digital/resources/privacy-security"
+      },
+      {
+        "text": "Book with Chase Travel",
+        "href": "/travel"
+      },
+      {
+        "text": "Explore The Edit",
+        "href": "/travel/the-edit"
+      },
+      {
+        "text": "Travel inspiration",
+        "href": "/travel/guide"
+      },
+      {
+        "text": "Editor hotel picks",
+        "href": "/travel/guide/hotel-spotlights"
+      },
+      {
+        "text": "Restaurant guides",
+        "href": "https://www.theinfatuation.com/all/collection/first-timers-guides"
+      },
+      {
+        "text": "Use token",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "Forgot username/password",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "Not Enrolled? Sign Up Now.",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "checking account",
+        "href": "https://personal.chase.com/personal/checking"
+      },
+      {
+        "text": "Chase Total Checking®",
+        "href": "/personal/offers/total-checking-300"
+      },
+      {
+        "text": "Open a savings account",
+        "href": "https://personal.chase.com/personal/savings"
+      },
+      {
+        "text": "see interest rates",
+        "href": "/personal/savings/bank-cd"
+      },
+      {
+        "text": "credit cards",
+        "href": "https://creditcards.chase.com/"
+      },
+      {
+        "text": "offer rewards",
+        "href": "https://creditcards.chase.com/rewards-credit-cards"
+      },
+      {
+        "text": "cash back",
+        "href": "https://creditcards.chase.com/cash-back-credit-cards"
+      },
+      {
+        "text": "travel-related",
+        "href": "https://creditcards.chase.com/travel-credit-cards"
+      },
+      {
+        "text": "free credit score",
+        "href": "/personal/credit-cards/free-credit-score"
+      },
+      {
+        "text": "mortgage",
+        "href": "/personal/mortgage"
+      },
+      {
+        "text": "refinance your mortgage",
+        "href": "/personal/mortgage/mortgage-refinance"
+      },
+      {
+        "text": "mortgage rates",
+        "href": "/personal/mortgage/mortgage-rates"
+      },
+      {
+        "text": "mortgage calculator",
+        "href": "/personal/mortgage/calculators-resources/mortgage-calculator"
+      },
+      {
+        "text": "Education Center",
+        "href": "/personal/mortgage/education"
+      },
+      {
+        "text": "Chase Auto",
+        "href": "https://autofinance.chase.com/?offercode=WDXDPXXX02"
+      },
+      {
+        "text": "auto financing",
+        "href": "https://autofinance.chase.com/auto-finance/auto-loans?offercode=WDXDPXXX02"
+      },
+      {
+        "text": "payment calculator",
+        "href": "/personal/auto/payment-calculator"
+      },
+      {
+        "text": "Chase Auto Education Center",
+        "href": "/personal/auto/education?offercode=WDXDPXXX02"
+      },
+      {
+        "text": "business checking",
+        "href": "/business/banking/checking"
+      },
+      {
+        "text": "business credit cards",
+        "href": "https://creditcards.chase.com/business-credit-cards"
+      },
+      {
+        "text": "merchant services",
+        "href": "/business/payments"
+      },
+      {
+        "text": "business resource center",
+        "href": "/business/knowledge-center"
+      },
+      {
+        "text": "Chase Experiences",
+        "href": "/personal/events/experiences"
+      },
+      {
+        "text": "US Open",
+        "href": "/personal/events/us-open"
+      },
+      {
+        "text": "Madison Square Garden",
+        "href": "https://www.msg.com/"
+      },
+      {
+        "text": "Chase Center",
+        "href": "/personal/events/chase-center"
+      },
+      {
+        "text": "suite of security features",
+        "href": "/digital/resources/privacy-security"
+      },
+      {
+        "text": "help you protect",
+        "href": "/digital/resources/privacy-security/security/how-you-can-protect"
+      },
+      {
+        "text": "protect you",
+        "href": "/digital/resources/privacy-security/security/how-we-protect-you"
+      },
+      {
+        "text": "financial abuse",
+        "href": "/digital/resources/privacy-security/financial-abuse"
+      },
+      {
+        "text": "learn about the common tricks scammers are using",
+        "href": "/digital/resources/privacy-security/security/how-to-spot-scams"
+      },
+      {
+        "text": "report fraud",
+        "href": "/digital/resources/privacy-security/security/report-fraud"
+      },
+      {
+        "text": "Chase online",
+        "href": "https://www.chase.com"
+      },
+      {
+        "text": "Banking Education Center",
+        "href": "/personal/banking/education"
+      },
+      {
+        "text": "Chase customer service",
+        "href": "/digital/customer-service"
+      },
+      {
+        "text": "Chase complaints and feedback",
+        "href": "/digital/resources/complaints-feedback"
+      },
+      {
+        "text": "Chase Community Reinvestment Act Public File",
+        "href": "/digital/resources/about-chase/cra-public-file"
+      },
+      {
+        "text": "Invest on your own",
+        "href": "/personal/investments/offers-700"
+      },
+      {
+        "text": "work with an advisor",
+        "href": "/personal/investments/advisor-services"
+      },
+      {
+        "text": "products",
+        "href": "/personal/investments/product-overview"
+      },
+      {
+        "text": "technology",
+        "href": "/personal/investments/digital-capabilities"
+      },
+      {
+        "text": "investment education",
+        "href": "/personal/investments/learning-and-insights"
+      },
+      {
+        "text": "Wealth Management Branch",
+        "href": "https://jpmorganwealthmanagement.chase.com/advisor"
+      },
+      {
+        "text": "features",
+        "href": "/personal/investments/online-investing/self-directed/investing-features"
+      },
+      {
+        "text": "offers, promotions, and coupons",
+        "href": "/personal/investments/offers-700"
+      },
+      {
+        "text": "no everyday banking fees",
+        "href": "/personal/checking/private-client#personalized-financial-relationship"
+      },
+      {
+        "text": "dedicated team",
+        "href": "/personal/checking/private-client/team"
+      },
+      {
+        "text": "special perks and benefits",
+        "href": "/personal/checking/private-client/perks"
+      },
+      {
+        "text": "Chase branch",
+        "href": "https://locator.chase.com/?locale=en_US"
+      },
+      {
+        "text": "Deposit Account Agreements",
+        "href": "/personal/branch-disclosures"
+      },
+      {
+        "text": "Mobile Banking",
+        "href": "/digital/mobile-banking"
+      },
+      {
+        "text": "Online Banking",
+        "href": "/digital/online-banking"
+      },
+      {
+        "text": "Student Center",
+        "href": "/personal/financial-goals/life-moments"
+      },
+      {
+        "text": "Zelle®",
+        "href": "/personal/zelle"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/chase"
+      },
+      {
+        "text": "Instagram",
+        "href": "https://instagram.com/chase"
+      },
+      {
+        "text": "X, formerly Twitter",
+        "href": "https://twitter.com/Chase"
+      },
+      {
+        "text": "YouTube",
+        "href": "https://www.youtube.com/chase"
+      },
+      {
+        "text": "LinkedIn",
+        "href": "https://www.linkedin.com/company/chase?trk=company_logo"
+      },
+      {
+        "text": "Pinterest",
+        "href": "https://www.pinterest.com/chase/"
+      },
+      {
+        "text": "About Chase",
+        "href": "/digital/resources/about-chase"
+      },
+      {
+        "text": "J.P. Morgan",
+        "href": "https://www.jpmorgan.com/global"
+      },
+      {
+        "text": "JPMorganChase",
+        "href": "https://www.jpmorganchase.com"
+      },
+      {
+        "text": "Media Center",
+        "href": "https://media.chase.com"
+      },
+      {
+        "text": "Careers",
+        "href": "https://careers.jpmorgan.com/US/en/chase"
+      },
+      {
+        "text": "Site Map",
+        "href": "/digital/resources/sitemap"
+      },
+      {
+        "text": "Privacy",
+        "href": "/digital/resources/privacy-security/privacy/online-privacy-policy"
+      },
+      {
+        "text": "Security",
+        "href": "/digital/resources/privacy-security"
+      },
+      {
+        "text": "Terms of Use",
+        "href": "/digital/resources/terms-of-use"
+      },
+      {
+        "text": "Accessibility",
+        "href": "/digital/resources/accessibility"
+      },
+      {
+        "text": "AdChoices",
+        "href": "https://optout.aboutads.info/?c=2&lang=EN"
+      },
+      {
+        "text": "Give feedback",
+        "href": "https://survey.experience.chase.com/jfe/form/SV_0rBuvmGXX6OhYEJ"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "/content/dam/unified-assets/logo/chase/chase-logo/additional-file-formats/logo_chase_headerfooter.svg"
+      },
+      {
+        "alt": "Chase logo, links to Chase home",
+        "src": "/content/dam/unified-assets/logo/chase/chase-logo/additional-file-formats/logo_chase_headerfooter.svg"
+      }
+    ],
+    "timestamp": 1760610512471,
+    "url": "https://www.chase.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

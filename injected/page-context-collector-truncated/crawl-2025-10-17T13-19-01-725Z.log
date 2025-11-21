@@ -1,0 +1,14 @@
+[2025-10-17T13:19:01.726Z] [INFO] Starting DuckDuckGo Page Context Content Extractor
+[2025-10-17T13:19:01.726Z] [INFO] Mode: Headless
+[2025-10-17T13:19:01.727Z] [INFO] Timeout: 60s
+[2025-10-17T13:19:01.727Z] [INFO] Truncation: Enabled (9500 chars max)
+[2025-10-17T13:19:01.727Z] [INFO] Processing URL 1/1: https://example.com
+[2025-10-17T13:19:01.727Z] [INFO] Starting extraction from: https://example.com
+[2025-10-17T13:19:01.727Z] [DEBUG] Launching browser...
+[2025-10-17T13:19:01.936Z] [DEBUG] Browser launched successfully
+[2025-10-17T13:19:01.967Z] [DEBUG] Loading and collecting page content
+[2025-10-17T13:19:02.590Z] [ERROR] Error extracting content from https://example.com: page.addScriptTag: Error: Failed to load script at http://localhost:3220/integration-test/extension/contentScope.js
+    at script.onerror (eval at evaluate (:313:29), <anonymous>:8:76)
+[2025-10-17T13:19:02.591Z] [ERROR] Failed to crawl https://example.com: page.addScriptTag: Error: Failed to load script at http://localhost:3220/integration-test/extension/contentScope.js
+    at script.onerror (eval at evaluate (:313:29), <anonymous>:8:76)
+[2025-10-17T13:19:02.728Z] [INFO] Crawl completed. Summary: 0/1 successful (0%)

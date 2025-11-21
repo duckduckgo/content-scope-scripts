@@ -1,0 +1,17 @@
+{
+  "url": "https://biz.yelp.com/login",
+  "extractedAt": "2025-10-16T12:04:07.160Z",
+  "content": {
+    "favicon": [],
+    "title": "yelp.com",
+    "metaDescription": "",
+    "content": "",
+    "truncated": false,
+    "fullContentLength": 0,
+    "headings": [],
+    "links": [],
+    "images": [],
+    "timestamp": 1760616246666,
+    "url": "https://biz.yelp.com/login?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

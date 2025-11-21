@@ -1,0 +1,88 @@
+{
+  "url": "https://client.schwab.com/Areas/Access/Login",
+  "extractedAt": "2025-10-16T10:50:23.204Z",
+  "content": {
+    "favicon": [],
+    "title": "Login | Charles Schwab",
+    "metaDescription": "Secure desktop login for current Charles Schwab clients",
+    "content": "#  Log in to Schwab \n     \n \n- Forgot [Login ID](https://sws-gateway-nr.schwab.com/ui/host/?clientid=schwab-secondary&redirecturi=https%3a%2f%2fclient.schwab.com%2fAreas%2fAccess%2fSignOn%2fAuth#/ar/fyl) or [Password?](https://sws-gateway-nr.schwab.com/ui/host/?clientid=schwab-secondary&redirecturi=https%3a%2f%2fclient.schwab.com%2fAreas%2fAccess%2fSignOn%2fAuth#/ar/login)\n \n- [New User?](https://sws-gateway-nr.schwab.com/ui/host/?clientid=schwab-clwe&state=clwe#/welcome)\n \n- Language selection dropdown English 繁體 简体\n \n          LIMITED TIME OFFER   The Charles Schwab Cards from American Express.   Earn a Statement Credit or Membership Rewards® points. Offers end 11/12/25. Terms apply.\n  [See details](https://www.schwab.com/credit-cards?ENTRY_POINT=ITIM)",
+    "truncated": false,
+    "fullContentLength": 764,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Log in to Schwab"
+      }
+    ],
+    "links": [
+      {
+        "text": "Login ID",
+        "href": "https://sws-gateway-nr.schwab.com/ui/host/?clientid=schwab-secondary&redirecturi=https%3a%2f%2fclient.schwab.com%2fAreas%2fAccess%2fSignOn%2fAuth#/ar/fyl"
+      },
+      {
+        "text": "Password?",
+        "href": "https://sws-gateway-nr.schwab.com/ui/host/?clientid=schwab-secondary&redirecturi=https%3a%2f%2fclient.schwab.com%2fAreas%2fAccess%2fSignOn%2fAuth#/ar/login"
+      },
+      {
+        "text": "New User?",
+        "href": "https://sws-gateway-nr.schwab.com/ui/host/?clientid=schwab-clwe&state=clwe#/welcome"
+      },
+      {
+        "text": "See details",
+        "href": "https://www.schwab.com/credit-cards?ENTRY_POINT=ITIM"
+      },
+      {
+        "text": "Client Relationship Summaries",
+        "href": "https://www.schwab.com/transparency"
+      },
+      {
+        "text": "schwab.com/transparency",
+        "href": "https://www.schwab.com/transparency"
+      },
+      {
+        "text": "SchwabSafe®",
+        "href": "/public/schwab/nn/legal_compliance/schwabsafe"
+      },
+      {
+        "text": "Your Privacy Choices",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "The Schwab Security Guarantee",
+        "href": "/public/schwab/nn/legal_compliance/schwabsafe/security_guarantee.html"
+      },
+      {
+        "text": "Schwab Homepage",
+        "href": "https://www.schwab.com"
+      },
+      {
+        "text": "Web Browser Information",
+        "href": "https://www.schwab.com/help/browsers"
+      },
+      {
+        "text": "FINRA's BrokerCheck",
+        "href": "https://brokercheck.finra.org/"
+      },
+      {
+        "text": "member SIPC",
+        "href": "http://www.sipc.org/"
+      },
+      {
+        "text": "non-U.S. residents",
+        "href": "http://www.schwab-global.com/public/schwab-gcb-en"
+      },
+      {
+        "text": "SIPC",
+        "href": "http://www.sipc.org/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "https://rtcontent.schwab.com/sites/g/files/eyrktu451/files/2025-09/LogIn_Isometric_0.svg"
+      }
+    ],
+    "timestamp": 1760611821548,
+    "url": "https://client.schwab.com/Areas/Access/Login?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

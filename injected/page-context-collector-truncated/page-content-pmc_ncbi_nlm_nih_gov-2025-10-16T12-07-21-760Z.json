@@ -1,0 +1,1717 @@
+{
+  "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10816294/",
+  "extractedAt": "2025-10-16T12:07:21.760Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://pmc.ncbi.nlm.nih.gov/static/img/favicons/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://pmc.ncbi.nlm.nih.gov/static/img/favicons/favicon-48x48.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://pmc.ncbi.nlm.nih.gov/static/img/favicons/favicon-32x32.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://pmc.ncbi.nlm.nih.gov/static/img/favicons/favicon-16x16.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://pmc.ncbi.nlm.nih.gov/static/img/favicons/safari-pinned-tab.svg",
+        "rel": "mask-icon"
+      }
+    ],
+    "title": "Hydrogen Water: Extra Healthy or a Hoax?—A Systematic Review - PMC",
+    "metaDescription": "Hydrogen-rich water (HRW) has emerged as a novel approach in the field of health and wellness. It is believed to have therapeutic antioxidant properties that can neutralize harmful free radicals in the human body. It has also been shown to be ...",
+    "content": "Int J Mol Sci. 2024 Jan 12;25(2):973. doi: [10.3390/ijms25020973](https://doi.org/10.3390/ijms25020973)   \n# Hydrogen Water: Extra Healthy or a Hoax?—A Systematic Review\n [Gagandeep Dhillon](https://pubmed.ncbi.nlm.nih.gov/?term=%22Dhillon%20G%22%5BAuthor%5D) 1,*, [Venkata Buddhavarapu](https://pubmed.ncbi.nlm.nih.gov/?term=%22Buddhavarapu%20V%22%5BAuthor%5D) 2, [Harpreet Grewal](https://pubmed.ncbi.nlm.nih.gov/?term=%22Grewal%20H%22%5BAuthor%5D) 3, [Pranjal Sharma](https://pubmed.ncbi.nlm.nih.gov/?term=%22Sharma%20P%22%5BAuthor%5D) 4, [Ram Kishun Verma](https://pubmed.ncbi.nlm.nih.gov/?term=%22Verma%20RK%22%5BAuthor%5D) 5, [Ripudaman Munjal](https://pubmed.ncbi.nlm.nih.gov/?term=%22Munjal%20R%22%5BAuthor%5D) 6, [Ramprakash Devadoss](https://pubmed.ncbi.nlm.nih.gov/?term=%22Devadoss%20R%22%5BAuthor%5D) 7, [Rahul Kashyap](https://pubmed.ncbi.nlm.nih.gov/?term=%22Kashyap%20R%22%5BAuthor%5D) 8  Editor: Massimiliano Gasparrini  \n \n- Author information\n \n- Article notes\n \n- Copyright and License information\n \n      PMCID: PMC10816294 PMID: [38256045](https://pubmed.ncbi.nlm.nih.gov/38256045/)  \n## Abstract\n Hydrogen-rich water (HRW) has emerged as a novel approach in the field of health and wellness. It is believed to have therapeutic antioxidant properties that can neutralize harmful free radicals in the human body. It has also been shown to be beneficial in mitigating oxidative stress-induced damage through its anti-inflammatory and anti-apoptotic pathways. We aim to conduct a systematic review to evaluate the potential benefits of hydrogen-rich water. The review protocol was uploaded on PROSPERO. After the initial search criteria, the articles were reviewed by two blinded investigators, and a total of 25 articles were included in the systematic review. The potential benefits of hydrogen-rich water on various aspects of health, including exercise capacity, physical endurance, liver function, cardiovascular disease, mental health, COVID-19, oxidative stress, and anti-aging research, are a subject of growing interest and ongoing research. Although preliminary results in clinical trials and studies are encouraging, further research with larger sample sizes and rigorous methodologies is needed to substantiate these findings. Current research needs to fully explain the mechanisms behind the potential benefits of hydrogen-rich water. Continued scientific exploration will provide valuable insights into the potential of hydrogen-rich water as an adjunctive therapeutic approach in the future.\n **Keywords:** hydrogen water, hydrogenated water, hydrogen-rich water, antioxidant, anti-apoptotic, anti-inflammatory\n\n## 1. Introduction\n Hydrogen water, also known as hydrogen-rich water or hydrogenated water, is regular water that has molecular hydrogen gas (H2) added to it [[1](#B1-ijms-25-00973)]. Water can be hydrogenated by dissolving molecular hydrogen gas into water under elevated pressure, resulting in a supersaturated solution. The hydrogen molecules are extremely small, so they can easily penetrate water and stay dissolved for a while [[1](#B1-ijms-25-00973)]. Hydrogen-rich water has recently gained significant attention as a potential health-promoting beverage. Studies have been done on animals [[2](#B2-ijms-25-00973)] and humans [[3](#B3-ijms-25-00973)] in the last few decades using molecular hydrogen-enhanced water showing antioxidant [[3](#B3-ijms-25-00973)], anti-inflammatory [[3](#B3-ijms-25-00973)], and anti-apoptotic [[3](#B3-ijms-25-00973)] effects. Although there has been some research into the benefits of hydrogen-rich water, there is still a long way to go.\n Over the last few years, hydrogen-rich water has become the latest trend to target the global market in the health and wellness industry. Studies have been undertaken to understand its potential benefits. A randomized, double-blind, controlled trial [[3](#B3-ijms-25-00973)] showed that hydrogen-rich water could reduce inflammatory responses in adults, leading to increased antioxidant capacity in healthy adults. Healthy adults consumed either 1.5 L/day of hydrogen-rich water or plain water. Flow cytometry testing of CD4+, CD8+, CD11+, CD 14+, and CD 20+ yielded interesting results. In the hydrogen-rich water group, the CD14+ cell frequency was decreased [[3](#B3-ijms-25-00973)]. The benefits of hydrogen use have been evaluated in conditions such as cardiac fibrosis, neuronal disease, hepatic injury, radiation-induced disease, diabetes, and many more conditions [[4](#B4-ijms-25-00973)]. Through this systematic review, we aim to summarize current research findings related to the use of molecular hydrogen-enhanced water and its anti-inflammatory, antioxidant, and anti-apoptotic impact.\n\n## 2. Materials and Methods\n The initial search terms included were “hydrogenated water”, “hydrogen water”, “hydrogen-rich water”, “molecular hydrogen”, “hydrogenated water”, “antioxidant”, “anti-inflammatory”, “anti-apoptotic”, “fatigue”, “oxidative stress”, and “cytoprotective”. This PubMed search yielded a total of 590 articles. Duplicate articles and animal studies were removed. All articles with titles not related to the topic were eliminated. After reviewing the abstracts by two blinded investigators (RD and RM), 30 articles were retained for a final review ([Figure 1](#ijms-25-00973-f001)). Our inclusion criteria were human studies with hydrogen-rich water and comparison groups or pertinent clinical or pathophysiological information in cohort studies, case-control studies, clinical trials, or observational studies. We excluded opinion articles, editorials, and book chapters for this systematic review. We also excluded results on the therapeutic effects of hydrogen gas inhalation and the injection of hydrogen-rich saline, and only included hydrogen-rich water studies.\n \n### Figure 1.\n \n [Open in a new tab](figure/ijms-25-00973-f001/) Material and methods. Identification of studies via databases. PubMed search with 590 articles. Duplicate articles and animal studies were removed. All articles with titles not related to the topic were also removed. After a close review of the abstracts by two blinded investigators, 25 articles were retained for a final review.\nStudies were exported from PubMed to Rayyan software ([https://www.rayyan.ai/](https://www.rayyan.ai/)). Two investigators (PS and GD) screened titles and abstracts independently to select appropriate studies. Afterward, the investigators (GD and HG) assessed the full texts of the articles to determine final eligibility. Conflicts were discussed with a non-reviewing investigator (RK) and were resolved. The study was also registered on PROSPERO (CRD42023445460). The final review was conducted with 30 articles ([Figure 1](#ijms-25-00973-f001)).\n One of the first documented human studies on hydrogen-rich water was conducted in 2008. An experimental drink was produced by dissolving hydrogen gas into water under high pressure. It was used for patients with type 2 diabetes or impaired glucose intolerance. Common medical disorders like hypertension, diabetes, and atherosclerosis are associated with oxidative stress. Although the sample size was small, drinking hydrogen-rich water did have some benefits in preventing type 2 diabetes mellitus [[5](#B5-ijms-25-00973)]. Hydrogen-rich water can be consumed orally and can be produced in multiple ways, which include hydrogen-generating tablets, infusion machines, water generators, and ionizers. The effective delivery of hydrogen through inhalation might be difficult. An advantage of using hydrogen-rich water to deliver molecular hydrogen is that it can be easily administered and is portable [[6](#B6-ijms-25-00973)]. The beneficial effects can be seen even at low concentrations [[6](#B6-ijms-25-00973)].\n We have divided the summary of our findings into the following subheadings ([Figure 2](#ijms-25-00973-f002)).\n \n### Figure 2.\n \n [Open in a new tab](figure/ijms-25-00973-f002/) Summary of benefits of hydrogen-rich water.\n\n### 2.1. Health Benefits of Hydrogen-Rich Water with Physical Exercise\n Physical activity is good for several reasons, offering numerous mental, emotional, and physical benefits [[7](#B7-ijms-25-00973)]. Studies have also been done to see the effect of physical activity on mental health [[7](#B7-ijms-25-00973)]. Some advocates of hydrogen-rich water believe that it has the potential to provide multiple health benefits with physical exercise, like enhanced performance and recovery [[8](#B8-ijms-25-00973)]. Although the data are still limited and inconclusive, studies have shown encouraging results, as discussed below.\n Physical exercise can result in increased reactive oxygen species, which can cause damage to tissue and fatigue. With most forms of exercise, sensations of fatigue and exhaustion occur after some time. Research has shown that drinking hydrogen-rich water before exercising can mitigate the effects of fatigue and build endurance [[8](#B8-ijms-25-00973)]. A study conducted on cyclists showed that a 7-day consumption of nano-bubble hydrogen-rich water improved the anaerobic performance of trained cyclists compared to that of untrained ones [[9](#B9-ijms-25-00973)]. There is a build-up of lactic acid in the muscles with exercise. Hydrogen-rich water administered pre-workout showed decreased blood lactic acid levels at a higher intensity and improved ventilatory efficiency [[10](#B10-ijms-25-00973)]. Pre-workout hydrogen-rich water has also been gaining traction. T...",
+    "truncated": true,
+    "fullContentLength": 76707,
+    "headings": [
+      {
+        "level": 3,
+        "text": "Notice"
+      },
+      {
+        "level": 2,
+        "text": "PERMALINK"
+      },
+      {
+        "level": 1,
+        "text": "Hydrogen Water: Extra Healthy or a Hoax?—A Systematic Review"
+      },
+      {
+        "level": 3,
+        "text": "Gagandeep Dhillon"
+      },
+      {
+        "level": 3,
+        "text": "Venkata Buddhavarapu"
+      },
+      {
+        "level": 3,
+        "text": "Harpreet Grewal"
+      },
+      {
+        "level": 3,
+        "text": "Pranjal Sharma"
+      },
+      {
+        "level": 3,
+        "text": "Ram Kishun Verma"
+      },
+      {
+        "level": 3,
+        "text": "Ripudaman Munjal"
+      },
+      {
+        "level": 3,
+        "text": "Ramprakash Devadoss"
+      },
+      {
+        "level": 3,
+        "text": "Rahul Kashyap"
+      },
+      {
+        "level": 4,
+        "text": "Roles"
+      },
+      {
+        "level": 2,
+        "text": "Abstract"
+      },
+      {
+        "level": 2,
+        "text": "1. Introduction"
+      },
+      {
+        "level": 2,
+        "text": "2. Materials and Methods"
+      },
+      {
+        "level": 3,
+        "text": "Figure 1."
+      },
+      {
+        "level": 3,
+        "text": "Figure 2."
+      },
+      {
+        "level": 3,
+        "text": "2.1. Health Benefits of Hydrogen-Rich Water with Physical Exercise"
+      },
+      {
+        "level": 3,
+        "text": "2.2. Impact of Hydrogen-Rich Water on Oxidative Stress"
+      },
+      {
+        "level": 3,
+        "text": "2.3. Impact of Hydrogen-Rich Water on Cardiovascular Health"
+      },
+      {
+        "level": 3,
+        "text": "2.4. COVID-19 and Hydrogen-Rich Water"
+      },
+      {
+        "level": 3,
+        "text": "2.5. Hydrogen-Rich Water and Dialysis"
+      },
+      {
+        "level": 3,
+        "text": "2.6. Effect of Hydrogen-Rich Water on Cancer"
+      },
+      {
+        "level": 3,
+        "text": "2.7. Benefits of Hydrogen-Rich Water on Mental Health"
+      },
+      {
+        "level": 3,
+        "text": "2.8. Hyroden-Rich Water and Liver Function Benefits"
+      },
+      {
+        "level": 3,
+        "text": "2.9. Effect of Hydrogen-Rich Water on Aging"
+      },
+      {
+        "level": 2,
+        "text": "3. Results and Discussion"
+      },
+      {
+        "level": 2,
+        "text": "4. Conclusions"
+      },
+      {
+        "level": 2,
+        "text": "Author Contributions"
+      },
+      {
+        "level": 2,
+        "text": "Institutional Review Board Statement"
+      },
+      {
+        "level": 2,
+        "text": "Informed Consent Statement"
+      },
+      {
+        "level": 2,
+        "text": "Data Availability Statement"
+      },
+      {
+        "level": 2,
+        "text": "Conflicts of Interest"
+      },
+      {
+        "level": 2,
+        "text": "Funding Statement"
+      },
+      {
+        "level": 2,
+        "text": "Footnotes"
+      },
+      {
+        "level": 2,
+        "text": "References"
+      },
+      {
+        "level": 2,
+        "text": "Associated Data"
+      },
+      {
+        "level": 3,
+        "text": "Data Availability Statement"
+      },
+      {
+        "level": 2,
+        "text": "ACTIONS"
+      },
+      {
+        "level": 2,
+        "text": "PERMALINK"
+      },
+      {
+        "level": 2,
+        "text": "RESOURCES"
+      },
+      {
+        "level": 3,
+        "text": "Similar articles"
+      },
+      {
+        "level": 3,
+        "text": "Cited by other articles"
+      },
+      {
+        "level": 3,
+        "text": "Links to NCBI Databases"
+      },
+      {
+        "level": 2,
+        "text": "On this page"
+      },
+      {
+        "level": 2,
+        "text": "Cite"
+      },
+      {
+        "level": 2,
+        "text": "Add to Collections"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#main-content"
+      },
+      {
+        "text": "cc.nih.gov",
+        "href": "http://cc.nih.gov/"
+      },
+      {
+        "text": "opm.gov",
+        "href": "https://www.opm.gov/"
+      },
+      {
+        "text": "Dashboard",
+        "href": "https://www.ncbi.nlm.nih.gov/myncbi/"
+      },
+      {
+        "text": "Publications",
+        "href": "https://www.ncbi.nlm.nih.gov/myncbi/collections/bibliography/"
+      },
+      {
+        "text": "Account settings",
+        "href": "https://www.ncbi.nlm.nih.gov/account/settings/"
+      },
+      {
+        "text": "Dashboard",
+        "href": "https://www.ncbi.nlm.nih.gov/myncbi/"
+      },
+      {
+        "text": "Publications",
+        "href": "https://www.ncbi.nlm.nih.gov/myncbi/collections/bibliography/"
+      },
+      {
+        "text": "Account settings",
+        "href": "https://www.ncbi.nlm.nih.gov/account/settings/"
+      },
+      {
+        "text": "Journal List",
+        "href": "/journals/"
+      },
+      {
+        "text": "User Guide",
+        "href": "/about/userguide/"
+      },
+      {
+        "text": "PMC Disclaimer",
+        "href": "/about/disclaimer/"
+      },
+      {
+        "text": "PMC Copyright Notice",
+        "href": "/about/copyright/"
+      },
+      {
+        "text": "10.3390/ijms25020973",
+        "href": "https://doi.org/10.3390/ijms25020973"
+      },
+      {
+        "text": "Search in PMC",
+        "href": "https://pmc.ncbi.nlm.nih.gov/search/?term=%22Int%20J%20Mol%20Sci%22%5Bjour%5D"
+      },
+      {
+        "text": "Search in PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Int%20J%20Mol%20Sci%22%5Bjour%5D"
+      },
+      {
+        "text": "View in NLM Catalog",
+        "href": "https://www.ncbi.nlm.nih.gov/nlmcatalog?term=%22Int%20J%20Mol%20Sci%22%5BTitle%20Abbreviation%5D"
+      },
+      {
+        "text": "Add to search",
+        "href": "?term=%22Int%20J%20Mol%20Sci%22%5Bjour%5D"
+      },
+      {
+        "text": "Gagandeep Dhillon",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Dhillon%20G%22%5BAuthor%5D"
+      },
+      {
+        "text": "Gagandeep Dhillon",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Dhillon%20G%22%5BAuthor%5D"
+      },
+      {
+        "text": "Venkata Buddhavarapu",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Buddhavarapu%20V%22%5BAuthor%5D"
+      },
+      {
+        "text": "Venkata Buddhavarapu",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Buddhavarapu%20V%22%5BAuthor%5D"
+      },
+      {
+        "text": "Harpreet Grewal",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Grewal%20H%22%5BAuthor%5D"
+      },
+      {
+        "text": "Harpreet Grewal",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Grewal%20H%22%5BAuthor%5D"
+      },
+      {
+        "text": "Pranjal Sharma",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Sharma%20P%22%5BAuthor%5D"
+      },
+      {
+        "text": "Pranjal Sharma",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Sharma%20P%22%5BAuthor%5D"
+      },
+      {
+        "text": "Ram Kishun Verma",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Verma%20RK%22%5BAuthor%5D"
+      },
+      {
+        "text": "Ram Kishun Verma",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Verma%20RK%22%5BAuthor%5D"
+      },
+      {
+        "text": "Ripudaman Munjal",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Munjal%20R%22%5BAuthor%5D"
+      },
+      {
+        "text": "Ripudaman Munjal",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Munjal%20R%22%5BAuthor%5D"
+      },
+      {
+        "text": "Ramprakash Devadoss",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Devadoss%20R%22%5BAuthor%5D"
+      },
+      {
+        "text": "Ramprakash Devadoss",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Devadoss%20R%22%5BAuthor%5D"
+      },
+      {
+        "text": "Rahul Kashyap",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Kashyap%20R%22%5BAuthor%5D"
+      },
+      {
+        "text": "Rahul Kashyap",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/?term=%22Kashyap%20R%22%5BAuthor%5D"
+      },
+      {
+        "text": "https://creativecommons.org/licenses/by/4.0/",
+        "href": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      {
+        "text": "PMC Copyright notice",
+        "href": "/about/copyright/"
+      },
+      {
+        "text": "38256045",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/38256045/"
+      },
+      {
+        "text": "1",
+        "href": "#B1-ijms-25-00973"
+      },
+      {
+        "text": "1",
+        "href": "#B1-ijms-25-00973"
+      },
+      {
+        "text": "2",
+        "href": "#B2-ijms-25-00973"
+      },
+      {
+        "text": "3",
+        "href": "#B3-ijms-25-00973"
+      },
+      {
+        "text": "3",
+        "href": "#B3-ijms-25-00973"
+      },
+      {
+        "text": "3",
+        "href": "#B3-ijms-25-00973"
+      },
+      {
+        "text": "3",
+        "href": "#B3-ijms-25-00973"
+      },
+      {
+        "text": "3",
+        "href": "#B3-ijms-25-00973"
+      },
+      {
+        "text": "3",
+        "href": "#B3-ijms-25-00973"
+      },
+      {
+        "text": "4",
+        "href": "#B4-ijms-25-00973"
+      },
+      {
+        "text": "Figure 1",
+        "href": "#ijms-25-00973-f001"
+      },
+      {
+        "text": "Open in a new tab",
+        "href": "figure/ijms-25-00973-f001/"
+      },
+      {
+        "text": "https://www.rayyan.ai/",
+        "href": "https://www.rayyan.ai/"
+      },
+      {
+        "text": "Figure 1",
+        "href": "#ijms-25-00973-f001"
+      },
+      {
+        "text": "5",
+        "href": "#B5-ijms-25-00973"
+      },
+      {
+        "text": "6",
+        "href": "#B6-ijms-25-00973"
+      },
+      {
+        "text": "6",
+        "href": "#B6-ijms-25-00973"
+      },
+      {
+        "text": "Figure 2",
+        "href": "#ijms-25-00973-f002"
+      },
+      {
+        "text": "Open in a new tab",
+        "href": "figure/ijms-25-00973-f002/"
+      },
+      {
+        "text": "7",
+        "href": "#B7-ijms-25-00973"
+      },
+      {
+        "text": "7",
+        "href": "#B7-ijms-25-00973"
+      },
+      {
+        "text": "8",
+        "href": "#B8-ijms-25-00973"
+      },
+      {
+        "text": "8",
+        "href": "#B8-ijms-25-00973"
+      },
+      {
+        "text": "9",
+        "href": "#B9-ijms-25-00973"
+      },
+      {
+        "text": "10",
+        "href": "#B10-ijms-25-00973"
+      },
+      {
+        "text": "11",
+        "href": "#B11-ijms-25-00973"
+      },
+      {
+        "text": "12",
+        "href": "#B12-ijms-25-00973"
+      },
+      {
+        "text": "12",
+        "href": "#B12-ijms-25-00973"
+      },
+      {
+        "text": "3",
+        "href": "#B3-ijms-25-00973"
+      },
+      {
+        "text": "13",
+        "href": "#B13-ijms-25-00973"
+      },
+      {
+        "text": "13",
+        "href": "#B13-ijms-25-00973"
+      },
+      {
+        "text": "13",
+        "href": "#B13-ijms-25-00973"
+      },
+      {
+        "text": "14",
+        "href": "#B14-ijms-25-00973"
+      },
+      {
+        "text": "15",
+        "href": "#B15-ijms-25-00973"
+      },
+      {
+        "text": "4",
+        "href": "#B4-ijms-25-00973"
+      },
+      {
+        "text": "4",
+        "href": "#B4-ijms-25-00973"
+      },
+      {
+        "text": "4",
+        "href": "#B4-ijms-25-00973"
+      },
+      {
+        "text": "4",
+        "href": "#B4-ijms-25-00973"
+      },
+      {
+        "text": "1",
+        "href": "#B1-ijms-25-00973"
+      },
+      {
+        "text": "1",
+        "href": "#B1-ijms-25-00973"
+      },
+      {
+        "text": "4",
+        "href": "#B4-ijms-25-00973"
+      },
+      {
+        "text": "4",
+        "href": "#B4-ijms-25-00973"
+      },
+      {
+        "text": "1",
+        "href": "#B1-ijms-25-00973"
+      },
+      {
+        "text": "16",
+        "href": "#B16-ijms-25-00973"
+      },
+      {
+        "text": "16",
+        "href": "#B16-ijms-25-00973"
+      },
+      {
+        "text": "16",
+        "href": "#B16-ijms-25-00973"
+      },
+      {
+        "text": "17",
+        "href": "#B17-ijms-25-00973"
+      },
+      {
+        "text": "17",
+        "href": "#B17-ijms-25-00973"
+      },
+      {
+        "text": "18",
+        "href": "#B18-ijms-25-00973"
+      },
+      {
+        "text": "19",
+        "href": "#B19-ijms-25-00973"
+      },
+      {
+        "text": "18",
+        "href": "#B18-ijms-25-00973"
+      },
+      {
+        "text": "20",
+        "href": "#B20-ijms-25-00973"
+      },
+      {
+        "text": "20",
+        "href": "#B20-ijms-25-00973"
+      },
+      {
+        "text": "21",
+        "href": "#B21-ijms-25-00973"
+      },
+      {
+        "text": "21",
+        "href": "#B21-ijms-25-00973"
+      },
+      {
+        "text": "22",
+        "href": "#B22-ijms-25-00973"
+      },
+      {
+        "text": "22",
+        "href": "#B22-ijms-25-00973"
+      },
+      {
+        "text": "23",
+        "href": "#B23-ijms-25-00973"
+      },
+      {
+        "text": "24",
+        "href": "#B24-ijms-25-00973"
+      },
+      {
+        "text": "24",
+        "href": "#B24-ijms-25-00973"
+      },
+      {
+        "text": "25",
+        "href": "#B25-ijms-25-00973"
+      },
+      {
+        "text": "26",
+        "href": "#B26-ijms-25-00973"
+      },
+      {
+        "text": "27",
+        "href": "#B27-ijms-25-00973"
+      },
+      {
+        "text": "27",
+        "href": "#B27-ijms-25-00973"
+      },
+      {
+        "text": "27",
+        "href": "#B27-ijms-25-00973"
+      },
+      {
+        "text": "28",
+        "href": "#B28-ijms-25-00973"
+      },
+      {
+        "text": "29",
+        "href": "#B29-ijms-25-00973"
+      },
+      {
+        "text": "30",
+        "href": "#B30-ijms-25-00973"
+      },
+      {
+        "text": "31",
+        "href": "#B31-ijms-25-00973"
+      },
+      {
+        "text": "31",
+        "href": "#B31-ijms-25-00973"
+      },
+      {
+        "text": "32",
+        "href": "#B32-ijms-25-00973"
+      },
+      {
+        "text": "32",
+        "href": "#B32-ijms-25-00973"
+      },
+      {
+        "text": "33",
+        "href": "#B33-ijms-25-00973"
+      },
+      {
+        "text": "33",
+        "href": "#B33-ijms-25-00973"
+      },
+      {
+        "text": "34",
+        "href": "#B34-ijms-25-00973"
+      },
+      {
+        "text": "35",
+        "href": "#B35-ijms-25-00973"
+      },
+      {
+        "text": "35",
+        "href": "#B35-ijms-25-00973"
+      },
+      {
+        "text": "36",
+        "href": "#B36-ijms-25-00973"
+      },
+      {
+        "text": "37",
+        "href": "#B37-ijms-25-00973"
+      },
+      {
+        "text": "37",
+        "href": "#B37-ijms-25-00973"
+      },
+      {
+        "text": "37",
+        "href": "#B37-ijms-25-00973"
+      },
+      {
+        "text": "37",
+        "href": "#B37-ijms-25-00973"
+      },
+      {
+        "text": "38",
+        "href": "#B38-ijms-25-00973"
+      },
+      {
+        "text": "39",
+        "href": "#B39-ijms-25-00973"
+      },
+      {
+        "text": "40",
+        "href": "#B40-ijms-25-00973"
+      },
+      {
+        "text": "41",
+        "href": "#B41-ijms-25-00973"
+      },
+      {
+        "text": "15",
+        "href": "#B15-ijms-25-00973"
+      },
+      {
+        "text": "42",
+        "href": "#B42-ijms-25-00973"
+      },
+      {
+        "text": "43",
+        "href": "#B43-ijms-25-00973"
+      },
+      {
+        "text": "44",
+        "href": "#B44-ijms-25-00973"
+      },
+      {
+        "text": "45",
+        "href": "#B45-ijms-25-00973"
+      },
+      {
+        "text": "45",
+        "href": "#B45-ijms-25-00973"
+      },
+      {
+        "text": "46",
+        "href": "#B46-ijms-25-00973"
+      },
+      {
+        "text": "46",
+        "href": "#B46-ijms-25-00973"
+      },
+      {
+        "text": "47",
+        "href": "#B47-ijms-25-00973"
+      },
+      {
+        "text": "46",
+        "href": "#B46-ijms-25-00973"
+      },
+      {
+        "text": "48",
+        "href": "#B48-ijms-25-00973"
+      },
+      {
+        "text": "2",
+        "href": "#B2-ijms-25-00973"
+      },
+      {
+        "text": "48",
+        "href": "#B48-ijms-25-00973"
+      },
+      {
+        "text": "48",
+        "href": "#B48-ijms-25-00973"
+      },
+      {
+        "text": "16",
+        "href": "#B16-ijms-25-00973"
+      },
+      {
+        "text": "49",
+        "href": "#B49-ijms-25-00973"
+      },
+      {
+        "text": "50",
+        "href": "#B50-ijms-25-00973"
+      },
+      {
+        "text": "1",
+        "href": "#B1-ijms-25-00973"
+      },
+      {
+        "text": "35",
+        "href": "#B35-ijms-25-00973"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.3390/molecules24112076"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC6600250/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/31159153/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Molecules&title=A%20New%20Approach%20for%20the%20Prevention%20and%20Treatment%20of%20Cardiovascular%20Disorders.%20Molecular%20Hydrogen%20Significantly%20Reduces%20the%20Effects%20of%20Oxidative%20Stress&author=T.W.%20LeBaron&author=B.%20Kura&author=B.%20Kalocayova&author=N.%20Tribulova&author=J.%20Slezak&volume=24&publication_year=2019&pages=2076&pmid=31159153&doi=10.3390/molecules24112076&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.2174/1567205014666171106145017"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC5872374/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/29110615/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Curr.%20Alzheimer%20Res.&title=Effects%20of%20Molecular%20Hydrogen%20Assessed%20by%20an%20Animal%20Model%20and%20a%20Randomized%20Clinical%20Study%20on%20Mild%20Cognitive%20Impairment&author=K.%20Nishimaki&author=T.%20Asada&author=I.%20Ohsawa&author=E.%20Nakajima&author=C.%20Ikejima&volume=15&publication_year=2018&pages=482-492&pmid=29110615&doi=10.2174/1567205014666171106145017&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1038/s41598-020-68930-2"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC7376192/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/32699287/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Sci.%20Rep.&title=Hydrogen-rich%20water%20reduces%20inflammatory%20responses%20and%20prevents%20apoptosis%20of%20peripheral%20blood%20cells%20in%20healthy%20adults:%20A%20randomized,%20double-blind,%20controlled%20trial&author=M.%20Sim&author=C.S.%20Kim&author=W.J.%20Shon&author=Y.K.%20Lee&author=E.Y.%20Choi&volume=10&publication_year=2020&pages=12130&pmid=32699287&doi=10.1038/s41598-020-68930-2&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.2174/138161211797052664"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC3257754/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/21736547/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Curr.%20Pharm.%20Des.&title=Recent%20progress%20toward%20hydrogen%20medicine:%20Potential%20of%20molecular%20hydrogen%20for%20preventive%20and%20therapeutic%20applications&author=S.%20Ohta&volume=17&publication_year=2011&pages=2241-2252&pmid=21736547&doi=10.2174/138161211797052664&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1016/j.nutres.2008.01.008"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/19083400/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Nutr.%20Res.&title=Supplementation%20of%20hydrogen-rich%20water%20improves%20lipid%20and%20glucose%20metabolism%20in%20patients%20with%20type%202%20diabetes%20or%20impaired%20glucose%20tolerance&author=S.%20Kajiyama&author=G.%20Hasegawa&author=M.%20Asano&author=H.%20Hosoda&author=M.%20Fukui&volume=28&publication_year=2008&pages=137-143&pmid=19083400&doi=10.1016/j.nutres.2008.01.008&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.18632/oncotarget.21130"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC5731988/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/29254278/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Oncotarget&title=Molecular%20hydrogen:%20A%20preventive%20and%20therapeutic%20medical%20gas%20for%20various%20diseases&author=L.%20Ge&author=M.%20Yang&author=N.N.%20Yang&author=X.X.%20Yin&author=W.G.%20Song&volume=8&publication_year=2017&pages=102653-102673&pmid=29254278&doi=10.18632/oncotarget.21130&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.7759/cureus.33475"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC9902068/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/36756008/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Cureus&title=Role%20of%20Physical%20Activity%20on%20Mental%20Health%20and%20Well-Being:%20A%20Review&author=A.%20Mahindru&author=P.%20Patil&author=V.%20Agrawal&volume=15&publication_year=2023&pages=e33475&pmid=36756008&doi=10.7759/cureus.33475&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1139/cjpp-2019-0059"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/31251888/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Can.%20J.%20Physiol.%20Pharmacol.&title=Drinking%20hydrogen%20water%20enhances%20endurance%20and%20relieves%20psychometric%20fatigue:%20A%20randomized,%20double-blind,%20placebo-controlled%20study%20(1)&author=T.%20Mikami&author=K.%20Tano&author=H.%20Lee&author=H.%20Lee&author=J.%20Park&volume=97&publication_year=2019&pages=857-862&pmid=31251888&doi=10.1139/cjpp-2019-0059&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.5114/biolsport.2020.98625"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC8139351/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/34079172/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Biol.%20Sport&title=Effects%20of%207-day%20intake%20of%20hydrogen-rich%20water%20on%20physical%20performance%20of%20trained%20and%20untrained%20subjects&author=R.%20Tim%C3%B3n&author=G.%20Olcina&author=A.%20Gonz%C3%A1lez-Custodio&author=M.%20Camacho-Cardenosa&author=A.%20Camacho-Cardenosa&volume=38&publication_year=2021&pages=269-275&pmid=34079172&doi=10.5114/biolsport.2020.98625&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1055/a-0991-0268"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/31574544/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Int.%20J.%20Sports%20Med.&title=Hydrogen%20Rich%20Water%20Improved%20Ventilatory,%20Perceptual%20and%20Lactate%20Responses%20to%20Exercise&author=M.%20Botek&author=J.%20Krej%C4%8D%C3%AD&author=A.J.%20McKune&author=B.%20Sl%C3%A1de%C4%8Dkov%C3%A1&author=N.%20Naumovski&volume=40&publication_year=2019&pages=879-885&pmid=31574544&doi=10.1055/a-0991-0268&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.3390/nu14030508"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC8838970/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/35276867/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Nutrients&title=Molecular%20Hydrogen%20Mitigates%20Performance%20Decrement%20during%20Repeated%20Sprints%20in%20Professional%20Soccer%20Players&author=M.%20Botek&author=D.%20Khanna&author=J.%20Krej%C4%8D%C3%AD&author=M.%20Valenta&author=A.%20McKune&volume=14&publication_year=2022&pages=508&pmid=35276867&doi=10.3390/nu14030508&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1123/ijspp.2019-0507"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/32045879/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Int.%20J.%20Sports%20Physiol.%20Perform.&title=Hydrogen-Rich%20Water%20Supplementation%20and%20Up-Hill%20Running%20Performance:%20Effect%20of%20Athlete%20Performance%20Level&author=M.%20Botek&author=J.%20Krej%C4%8D%C3%AD&author=A.J.%20McKune&author=B.%20Sl%C3%A1de%C4%8Dkov%C3%A1&volume=15&publication_year=2020&pages=1193-1196&pmid=32045879&doi=10.1123/ijspp.2019-0507&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.4103/2045-9912.248263"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC6352569/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/30713665/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Med.%20Gas%20Res.&title=Effects%20of%20the%20long-term%20consumption%20of%20hydrogen-rich%20water%20on%20the%20antioxidant%20activity%20and%20the%20gut%20flora%20in%20female%20juvenile%20soccer%20players%20from%20Suzhou,%20China&author=J.B.%20Sha&author=S.S.%20Zhang&author=Y.M.%20Lu&author=W.J.%20Gong&author=X.P.%20Jiang&volume=8&publication_year=2018&pages=135-143&pmid=30713665&doi=10.4103/2045-9912.248263&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1186/2045-9912-3-10"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC3660246/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/23680032/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Med.%20Gas%20Res.&title=The%20evolution%20of%20molecular%20hydrogen:%20A%20noteworthy%20potential%20therapy%20with%20clinical%20significance&author=B.J.%20Dixon&author=J.%20Tang&author=J.H.%20Zhang&volume=3&publication_year=2013&pages=10&pmid=23680032&doi=10.1186/2045-9912-3-10&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1055/s-0034-1395509"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/25525953/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Int.%20J.%20Sports%20Med.&title=Molecular%20hydrogen%20in%20sports%20medicine:%20New%20therapeutic%20perspectives&author=S.M.%20Ostojic&volume=36&publication_year=2015&pages=273-279&pmid=25525953&doi=10.1055/s-0034-1395509&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1194/jlr.M036640"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC3679390/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/23610159/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=J.%20Lipid%20Res.&title=Hydrogen-rich%20water%20decreases%20serum%20LDL-cholesterol%20levels%20and%20improves%20HDL%20function%20in%20patients%20with%20potential%20metabolic%20syndrome&author=G.%20Song&author=M.%20Li&author=H.%20Sang&author=L.%20Zhang&author=X.%20Li&volume=54&publication_year=2013&pages=1884-1893&pmid=23610159&doi=10.1194/jlr.M036640&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.3164/jcbn.09-100"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC2831093/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/20216947/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=J.%20Clin.%20Biochem.%20Nutr.&title=Effectiveness%20of%20hydrogen%20rich%20water%20on%20antioxidant%20status%20of%20subjects%20with%20potential%20metabolic%20syndrome-an%20open%20label%20pilot%20study&author=A.%20Nakao&author=Y.%20Toyoda&author=P.%20Sharma&author=M.%20Evans&author=N.%20Guthrie&volume=46&publication_year=2010&pages=140-149&pmid=20216947&doi=10.3164/jcbn.09-100&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.2147/DMSO.S240122"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC7102907/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/32273740/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Diabetes%20Metab.%20Syndr.%20Obes.&title=The%20Effects%20of%2024-Week,%20High-Concentration%20Hydrogen-Rich%20Water%20on%20Body%20Composition,%20Blood%20Lipid%20Profiles%20and%20Inflammation%20Biomarkers%20in%20Men%20and%20Women%20with%20Metabolic%20Syndrome:%20A%20Randomized%20Controlled%20Trial&author=T.W.%20LeBaron&author=R.B.%20Singh&author=G.%20Fatima&author=K.%20Kartikey&author=J.P.%20Sharma&volume=13&publication_year=2020&pages=889-896&pmid=32273740&doi=10.2147/DMSO.S240122&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1177/15353702211009138"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC8474983/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/33899541/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Exp.%20Biol.%20Med.&title=Effects%20of%20hydrogen%20as%20adjuvant%20treatment%20for%20unstable%20angina&author=Y.%20Si&author=H.%20Tian&author=B.%20Dong&author=Y.%20Zhang&author=Y.%20Wen&volume=246&publication_year=2021&pages=1981-1989&pmid=33899541&doi=10.1177/15353702211009138&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1371/journal.pone.0233484"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC7259729/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/32470022/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=PLoS%20ONE&title=Peripheral%20endothelial%20function%20can%20be%20improved%20by%20daily%20consumption%20of%20water%20containing%20over%207%20ppm%20of%20dissolved%20hydrogen:%20A%20randomized%20controlled%20trial&author=T.%20Ishibashi&author=K.%20Kawamoto&author=K.%20Matsuno&author=G.%20Ishihara&author=T.%20Baba&volume=15&publication_year=2020&pages=e0233484&pmid=32470022&doi=10.1371/journal.pone.0233484&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.7759/cureus.48046"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC10617653/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/37916248/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Cureus&title=From%20Emergence%20to%20Endemicity:%20A%20Comprehensive%20Review%20of%20COVID-19&author=R.%20Naik&author=S.%20Avula&author=S.K.%20Palleti&author=J.%20Gummadi&author=R.%20Ramachandran&volume=15&publication_year=2023&pages=e48046&pmid=37916248&doi=10.7759/cureus.48046&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.3389/fphys.2021.789507"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC8721893/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/34987419/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Front.%20Physiol.&title=Hydrogen,%20a%20Novel%20Therapeutic%20Molecule,%20Regulates%20Oxidative%20Stress,%20Inflammation,%20and%20Apoptosis&author=Y.%20Tian&author=Y.%20Zhang&author=Y.%20Wang&author=Y.%20Chen&author=W.%20Fan&volume=12&publication_year=2021&pages=789507&pmid=34987419&doi=10.3389/fphys.2021.789507&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.3390/biomedicines11071892"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC10377251/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/37509530/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Biomedicines&title=Hydrogen%20Therapy%20and%20Its%20Future%20Prospects%20for%20Ameliorating%20COVID-19:%20Clinical%20Applications,%20Efficacy,%20and%20Modality&author=I.%20Perveen&author=B.%20Bukhari&author=M.%20Najeeb&author=S.%20Nazir&author=T.A.%20Faridi&volume=11&publication_year=2023&pages=1892&pmid=37509530&doi=10.3390/biomedicines11071892&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1016/j.heliyon.2022.e11853"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC9712568/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/36468139/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Heliyon&title=Antioxidant%20effects%20of%20continuous%20intake%20of%20electrolyzed%20hydrogen%20water%20in%20healthy%20adults&author=K.%20Mizuno&author=K.%20Watanabe&author=E.%20Yamano&author=K.%20Ebisu&author=K.%20Tajima&volume=8&publication_year=2022&pages=e11853&pmid=36468139&doi=10.1016/j.heliyon.2022.e11853&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1186/s41100-021-00376-2"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Ren.%20Replace.%20Ther.&title=Amelioration%20of%20fatigue%20in%20chronic%20dialysis%20patients%20with%20dialysis%20solution%20employing%20electrolyzed%20water%20containing%20molecular%20hydrogen%20(H2)%20and%20its%20association%20with%20autonomic%20function%20balance&author=Y.%20Tsujimoto&author=D.%20Kuratsune&author=S.%20Kabayama&author=M.%20Miyazaki&author=Y.%20Watanabe&volume=7&publication_year=2021&pages=58&doi=10.1186/s41100-021-00376-2&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.3390/ijms232314750"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC9738607/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/36499079/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Int.%20J.%20Mol.%20Sci.&title=Electrolyzed%E2%80%93Reduced%20Water:%20Review%20I.%20Molecular%20Hydrogen%20Is%20the%20Exclusive%20Agent%20Responsible%20for%20the%20Therapeutic%20Effects&author=T.W.%20LeBaron&author=R.%20Sharpe&author=K.%20Ohno&volume=23&publication_year=2022&pages=14750&pmid=36499079&doi=10.3390/ijms232314750&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.4251/wjgo.v14.i1.242"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC8790422/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/35116114/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=World%20J.%20Gastrointest.%20Oncol.&title=Hydrogen-rich%20water%20exerts%20anti-tumor%20effects%20comparable%20to%205-fluorouracil%20in%20a%20colorectal%20cancer%20xenograft%20model&author=F.%20Asgharzadeh&author=A.%20Tarnava&author=A.%20Mostafapour&author=M.%20Khazaei&author=T.W.%20LeBaron&volume=14&publication_year=2022&pages=242-252&pmid=35116114&doi=10.4251/wjgo.v14.i1.242&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.31557/APJCP.2023.24.1.37"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC10152878/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/36708550/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Asian%20Pac.%20J.%20Cancer%20Prev.&title=A%20Systematic%20Review%20of%20Molecular%20Hydrogen%20Therapy%20in%20Cancer%20Management&author=M.N.Z.%20Mohd%20Noor&author=A.S.%20Alauddin&author=Y.H.%20Wong&author=C.Y.%20Looi&author=E.H.%20Wong&volume=24&publication_year=2023&pages=37-47&pmid=36708550&doi=10.31557/APJCP.2023.24.1.37&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1016/j.jad.2020.08.001"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC7413844/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/32799105/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=J.%20Affect.%20Disord.&title=Impact%20of%20COVID-19%20pandemic%20on%20mental%20health%20in%20the%20general%20population:%20A%20systematic%20review&author=J.%20Xiong&author=O.%20Lipsitz&author=F.%20Nasri&author=L.M.W.%20Lui&author=H.%20Gill&volume=277&publication_year=2020&pages=55-64&pmid=32799105&doi=10.1016/j.jad.2020.08.001&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.4103/2045-9912.222448"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC5806445/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/29497485/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Med.%20Gas%20Res.&title=Hydrogen-rich%20water%20for%20improvements%20of%20mood,%20anxiety,%20and%20autonomic%20nerve%20function%20in%20daily%20life&author=K.%20Mizuno&author=A.T.%20Sasaki&author=K.%20Ebisu&author=K.%20Tajima&author=O.%20Kajimoto&volume=7&publication_year=2017&pages=247-255&pmid=29497485&doi=10.4103/2045-9912.222448&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.52965/001c.35468"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC9239392/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/35774917/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Health%20Psychol.%20Res.&title=Effects%20of%20hydrogen%20water%20and%20psychological%20treatment%20in%20a%20sample%20of%20women%20with%20panic%20disorder:%20A%20randomized%20and%20controlled%20clinical%20trial&author=A.B.%20Fern%C3%A1ndez-Serrano&author=F.J.%20Moya-Faz&author=C.A.%20Giner%20Alegr%C3%ADa&author=J.C.%20Fern%C3%A1ndez%20Rodr%C3%ADguez&author=J.F.%20Soriano%20Guilabert&volume=10&publication_year=2022&pages=35468&pmid=35774917&doi=10.52965/001c.35468&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1111/cts.12076"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC5350887/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/24127924/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Clin.%20Transl.%20Sci.&title=Effect%20of%20hydrogen-rich%20water%20on%20oxidative%20stress,%20liver%20function,%20and%20viral%20load%20in%20patients%20with%20chronic%20hepatitis%20B&author=C.%20Xia&author=W.%20Liu&author=D.%20Zeng&author=L.%20Zhu&author=X.%20Sun&volume=6&publication_year=2013&pages=372-375&pmid=24127924&doi=10.1111/cts.12076&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.3390/antiox11101935"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC9598482/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/36290657/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Antioxidants&title=Biological%20Effects%20of%20Hydrogen%20Water%20on%20Subjects%20with%20NAFLD:%20A%20Randomized,%20Placebo-Controlled%20Trial&author=B.%20Kura&author=M.%20Szantova&author=T.W.%20LeBaron&author=V.%20Mojto&author=M.%20Barancik&volume=11&publication_year=2022&pages=1935&pmid=36290657&doi=10.3390/antiox11101935&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1016/j.clinre.2019.03.008"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/30982748/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Clin.%20Res.%20Hepatol.%20Gastroenterol.&title=Hydrogen-rich%20water%20reduces%20liver%20fat%20accumulation%20and%20improves%20liver%20enzyme%20profiles%20in%20patients%20with%20non-alcoholic%20fatty%20liver%20disease:%20A%20randomized%20controlled%20pilot%20trial&author=D.%20Korovljev&author=V.%20Stajer&author=J.%20Ostojic&author=T.W.%20LeBaron&author=S.M.%20Ostojic&volume=43&publication_year=2019&pages=688-693&pmid=30982748&doi=10.1016/j.clinre.2019.03.008&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1016/j.exger.2021.111574"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/34601077/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Exp.%20Gerontol.&title=The%20effects%20of%206-month%20hydrogen-rich%20water%20intake%20on%20molecular%20and%20phenotypic%20biomarkers%20of%20aging%20in%20older%20adults%20aged%2070%20years%20and%20over:%20A%20randomized%20controlled%20pilot%20trial&author=D.%20Zanini&author=N.%20Todorovic&author=D.%20Korovljev&author=V.%20Stajer&author=J.%20Ostojic&volume=155&publication_year=2021&pages=111574&pmid=34601077&doi=10.1016/j.exger.2021.111574&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1253/circj.CJ-16-0227"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/27477846/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Circ.%20J.&title=Molecular%20Hydrogen%20Alleviates%20Cellular%20Senescence%20in%20Endothelial%20Cells&author=F.%20Hara&author=J.%20Tatebe&author=I.%20Watanabe&author=J.%20Yamazaki&author=T.%20Ikeda&volume=80&publication_year=2016&pages=2037-2046&pmid=27477846&doi=10.1253/circj.CJ-16-0227&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.3390/molecules24142627"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC6680492/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/31330936/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Molecules&title=Intake%20of%20molecular%20hydrogen%20in%20drinking%20water%20increases%20membrane%20transporters,%20p-glycoprotein,%20and%20multidrug%20resistance-associated%20protein%202%20without%20affecting%20xenobiotic-metabolizing%20enzymes%20in%20rat%20liver&author=H.T.%20Yao&author=Y.H.%20Yang&author=M.L.%20Li&volume=24&publication_year=2019&pages=2627&pmid=31330936&doi=10.3390/molecules24142627&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1016/j.clnu.2020.12.012"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/33358231/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Clin.%20Nutr.&title=Protein%20supplementation%20increases%20adaptations%20to%20endurance%20training:%20A%20systematic%20review%20and%20meta-analysis&author=Y.-N.%20Lin&author=T.-T.%20Tseng&author=P.%20Knuiman&author=W.P.%20Chan&author=S.-H.%20Wu&volume=40&publication_year=2021&pages=3123-3132&pmid=33358231&doi=10.1016/j.clnu.2020.12.012&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1080/15502783.2022.2131460"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC9559053/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/36250147/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=J.%20Int.%20Soc.%20Sports%20Nutr.&title=Effects%20of%20carbohydrate%20and%20protein%20supplement%20strategies%20on%20endurance%20capacity%20and%20muscle%20damage%20of%20endurance%20runners:%20A%20double%20blind,%20controlled%20crossover%20trial&author=Y.%20Liang&author=Y.%20Chen&author=F.%20Yang&author=J.%20Jensen&author=R.%20Gao&volume=19&publication_year=2022&pages=623-637&pmid=36250147&doi=10.1080/15502783.2022.2131460&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.5402/2013/126929"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC4045293/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/24967251/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=ISRN%20Nutr.&title=Adverse%20Effects%20Associated%20with%20Protein%20Intake%20above%20the%20Recommended%20Dietary%20Allowance%20for%20Adults&author=I.%20Delimaris&volume=2013&publication_year=2013&pages=126929&pmid=24967251&doi=10.5402/2013/126929&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1017/S0007114510000991"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/20377924/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Br.%20J.%20Nutr.&title=Effects%20of%20whey%20protein%20isolate%20on%20body%20composition,%20lipids,%20insulin%20and%20glucose%20in%20overweight%20and%20obese%20individuals&author=S.%20Pal&author=V.%20Ellis&author=S.%20Dhaliwal&volume=104&publication_year=2010&pages=716-723&pmid=20377924&doi=10.1017/S0007114510000991&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1016/j.clnesp.2021.05.018"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC8166807/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/34330513/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Clin.%20Nutr.%20ESPEN&title=Dietary%20supplements%20and%20herbal%20medicine%20for%20COVID-19:%20A%20systematic%20review%20of%20randomized%20control%20trials&author=Z.%20Feng&author=J.%20Yang&author=M.%20Xu&author=R.%20Lin&author=H.%20Yang&volume=44&publication_year=2021&pages=50-60&pmid=34330513&doi=10.1016/j.clnesp.2021.05.018&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.2174/1871527321666220128091408"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/35088681/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=CNS%20Neurol.%20Disord.%20Drug%20Targets&title=Herbal%20Approaches%20in%20the%20Management%20of%20Mental%20Depression&author=P.%20Garg&author=J.%20Alambayan&author=V.%20Garg&volume=22&publication_year=2023&pages=98-124&pmid=35088681&doi=10.2174/1871527321666220128091408&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1002/ptr.6055"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/29575228/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Phytother.%20Res.&title=Herbal%20medicines%20in%20the%20treatment%20of%20psychiatric%20disorders:%2010-year%20updated%20review&author=J.%20Sarris&volume=32&publication_year=2018&pages=1147-1162&pmid=29575228&doi=10.1002/ptr.6055&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1016/j.jpsychires.2006.05.004"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/16808927/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=J.%20Psychiatr.%20Res.&title=Ginkgo%20biloba%20special%20extract%20EGb%20761%20in%20generalized%20anxiety%20disorder%20and%20adjustment%20disorder%20with%20anxious%20mood:%20A%20randomized,%20double-blind,%20placebo-controlled%20trial&author=H.%20Woelk&author=K.H.%20Arnoldt&author=M.%20Kieser&author=R.%20Hoerr&volume=41&publication_year=2007&pages=472-480&pmid=16808927&doi=10.1016/j.jpsychires.2006.05.004&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.3390/nu15092080"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC10180699/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/37432180/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Nutrients&title=Effects%20of%20Oral%20Collagen%20for%20Skin%20Anti-Aging:%20A%20Systematic%20Review%20and%20Meta-Analysis&author=S.-Y.%20Pu&author=Y.-L.%20Huang&author=C.-M.%20Pu&author=Y.-N.%20Kang&author=K.D.%20Hoang&volume=15&publication_year=2023&pages=2080&pmid=37432180&doi=10.3390/nu15092080&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.5826/dpc.1201a18"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC8824545/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/35223163/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Dermatol.%20Pract.%20Concept.&title=Collagen%20Supplements%20for%20Aging%20and%20Wrinkles:%20A%20Paradigm%20Shift%20in%20the%20Fields%20of%20Dermatology%20and%20Cosmetics&author=H.%20Al-Atif&volume=12&publication_year=2022&pages=e2022018&pmid=35223163&doi=10.5826/dpc.1201a18&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1017/S0029665199000750"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/10604189/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Proc.%20Nutr.%20Soc.&title=Micronutrients%20and%20ageing:%20Intakes%20and%20requirements&author=M.J.%20Richard&author=A.M.%20Roussel&volume=58&publication_year=1999&pages=573-578&pmid=10604189&doi=10.1017/S0029665199000750&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.1007/s12274-022-4860-y"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Nano%20Res.&title=Fe-porphyrin:%20A%20redox-related%20biosensor%20of%20hydrogen%20molecule&author=Z.%20Jin&author=P.%20Zhao&author=W.%20Gong&author=W.%20Ding&author=Q.%20He&volume=16&publication_year=2023&pages=2020-2025&doi=10.1007/s12274-022-4860-y&"
+      },
+      {
+        "text": "DOI",
+        "href": "https://doi.org/10.3390/ijms241512477"
+      },
+      {
+        "text": "PMC free article",
+        "href": "/articles/PMC10419858/"
+      },
+      {
+        "text": "PubMed",
+        "href": "https://pubmed.ncbi.nlm.nih.gov/37569850/"
+      },
+      {
+        "text": "Google Scholar",
+        "href": "https://scholar.google.com/scholar_lookup?journal=Int.%20J.%20Mol.%20Sci.&title=The%20Effect%20of%20Adjuvant%20Therapy%20with%20Molecular%20Hydrogen%20on%20Endogenous%20Coenzyme%20Q10%20Levels%20and%20Platelet%20Mitochondrial%20Bioenergetics%20in%20Patients%20with%20Non-Alcoholic%20Fatty%20Liver%20Disease&author=Z.%20Sumbalov%C3%A1&author=J.%20Kucharsk%C3%A1&author=Z.%20Rausov%C3%A1&author=A.%20Gvozdj%C3%A1kov%C3%A1&author=M.%20Sz%C3%A1ntov%C3%A1&volume=24&publication_year=2023&pages=12477&pmid=37569850&doi=10.3390/ijms241512477&"
+      },
+      {
+        "text": "View on publisher site",
+        "href": "https://doi.org/10.3390/ijms25020973"
+      },
+      {
+        "text": "PDF (1.2 MB)",
+        "href": "pdf/ijms-25-00973.pdf"
+      },
+      {
+        "text": "Abstract",
+        "href": "#abstract1"
+      },
+      {
+        "text": "1. Introduction",
+        "href": "#sec1-ijms-25-00973"
+      },
+      {
+        "text": "2. Materials and Methods",
+        "href": "#sec2-ijms-25-00973"
+      },
+      {
+        "text": "3. Results and Discussion",
+        "href": "#sec3-ijms-25-00973"
+      },
+      {
+        "text": "4. Conclusions",
+        "href": "#sec4-ijms-25-00973"
+      },
+      {
+        "text": "Author Contributions",
+        "href": "#notes1"
+      },
+      {
+        "text": "Institutional Review Board Statement",
+        "href": "#notes2"
+      },
+      {
+        "text": "Informed Consent Statement",
+        "href": "#notes3"
+      },
+      {
+        "text": "Data Availability Statement",
+        "href": "#notes4"
+      },
+      {
+        "text": "Conflicts of Interest",
+        "href": "#notes5"
+      },
+      {
+        "text": "Funding Statement",
+        "href": "#funding-statement1"
+      },
+      {
+        "text": "Footnotes",
+        "href": "#fn-group1"
+      },
+      {
+        "text": "References",
+        "href": "#ref-list1"
+      },
+      {
+        "text": "Associated Data",
+        "href": "#_ad93_"
+      },
+      {
+        "text": "Download .nbib\n                .nbib",
+        "href": "#"
+      },
+      {
+        "text": "Please try again",
+        "href": "#"
+      },
+      {
+        "text": "NCBI on X (formerly known as Twitter)",
+        "href": "https://twitter.com/ncbi"
+      },
+      {
+        "text": "NCBI on Facebook",
+        "href": "https://www.facebook.com/ncbi.nlm"
+      },
+      {
+        "text": "NCBI on LinkedIn",
+        "href": "https://www.linkedin.com/company/ncbinlm"
+      },
+      {
+        "text": "NCBI on GitHub",
+        "href": "https://github.com/ncbi"
+      },
+      {
+        "text": "NCBI RSS feed",
+        "href": "https://ncbiinsights.ncbi.nlm.nih.gov/"
+      },
+      {
+        "text": "NLM on X (formerly known as Twitter)",
+        "href": "https://twitter.com/nlm_nih"
+      },
+      {
+        "text": "NLM on Facebook",
+        "href": "https://www.facebook.com/nationallibraryofmedicine"
+      },
+      {
+        "text": "NLM on YouTube",
+        "href": "https://www.youtube.com/user/NLMNIH"
+      },
+      {
+        "text": "National Library of Medicine\n             8600 Rockville Pike Bethesda, MD 20894",
+        "href": "https://www.google.com/maps/place/8600+Rockville+Pike,+Bethesda,+MD+20894/%4038.9959508,\n            -77.101021,17z/data%3D!3m1!4b1!4m5!3m4!1s0x89b7c95e25765ddb%3A0x19156f88b27635b8!8m2!3d38.9959508!\n            4d-77.0988323"
+      },
+      {
+        "text": "Web Policies",
+        "href": "https://www.nlm.nih.gov/web_policies.html"
+      },
+      {
+        "text": "FOIA",
+        "href": "https://www.nih.gov/institutes-nih/nih-office-director/office-communications-public-liaison/freedom-information-act-office"
+      },
+      {
+        "text": "HHS Vulnerability Disclosure",
+        "href": "https://www.hhs.gov/vulnerability-disclosure-policy/index.html"
+      },
+      {
+        "text": "Help",
+        "href": "https://support.nlm.nih.gov/?pagename=cloudpmc-viewer%3Apmc%3Aarticle%3Ajournal"
+      },
+      {
+        "text": "Accessibility",
+        "href": "https://www.nlm.nih.gov/accessibility.html"
+      },
+      {
+        "text": "Careers",
+        "href": "https://www.nlm.nih.gov/careers/careers.html"
+      },
+      {
+        "text": "NLM",
+        "href": "https://www.nlm.nih.gov/"
+      },
+      {
+        "text": "NIH",
+        "href": "https://www.nih.gov/"
+      },
+      {
+        "text": "HHS",
+        "href": "https://www.hhs.gov/"
+      },
+      {
+        "text": "USA.gov",
+        "href": "https://www.usa.gov/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "/static/img/us_flag.svg"
+      },
+      {
+        "alt": "",
+        "src": "/static/img/icon-dot-gov.svg"
+      },
+      {
+        "alt": "",
+        "src": "/static/img/icon-https.svg"
+      },
+      {
+        "alt": "NCBI home page",
+        "src": "/static/img/ncbi-logos/nih-nlm-ncbi--white.svg"
+      },
+      {
+        "alt": "Close",
+        "src": "/static/img/usa-icons/close.svg"
+      },
+      {
+        "alt": "Search",
+        "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE1LjUgMTRoLS43OWwtLjI4LS4yN0E2LjQ3MSA2LjQ3MSAwIDAgMCAxNiA5LjUgNi41IDYuNSAwIDEgMCA5LjUgMTZjMS42MSAwIDMuMDktLjU5IDQuMjMtMS41N2wuMjcuMjh2Ljc5bDUgNC45OUwyMC40OSAxOWwtNC45OS01em0tNiAwQzcuMDEgMTQgNSAxMS45OSA1IDkuNVM3LjAxIDUgOS41IDUgMTQgNy4wMSAxNCA5LjUgMTEuOTkgMTQgOS41IDE0eiIvPjwvc3ZnPg=="
+      },
+      {
+        "alt": "Search",
+        "src": "/static/img/usa-icons-bg/search--white.svg"
+      },
+      {
+        "alt": "International Journal of Molecular Sciences logo",
+        "src": "https://cdn.ncbi.nlm.nih.gov/pmc/banners/logo-ijms.png"
+      },
+      {
+        "alt": "Figure 1",
+        "src": "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/e73a/10816294/5c3d99b09338/ijms-25-00973-g001.jpg"
+      },
+      {
+        "alt": "Figure 2",
+        "src": "https://cdn.ncbi.nlm.nih.gov/pmc/blobs/e73a/10816294/ea58d5113ce1/ijms-25-00973-g002.jpg"
+      },
+      {
+        "alt": "Close",
+        "src": "/static/img/usa-icons/close.svg"
+      }
+    ],
+    "timestamp": 1760616440554,
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10816294/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

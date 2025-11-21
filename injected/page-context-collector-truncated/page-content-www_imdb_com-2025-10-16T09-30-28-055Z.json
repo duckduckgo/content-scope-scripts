@@ -1,0 +1,22 @@
+{
+  "url": "https://www.imdb.com/list/ls068693711/",
+  "extractedAt": "2025-10-16T09:30:28.055Z",
+  "content": {
+    "favicon": [],
+    "title": "403 Forbidden",
+    "metaDescription": "",
+    "content": "# 403 Forbidden",
+    "truncated": false,
+    "fullContentLength": 15,
+    "headings": [
+      {
+        "level": 1,
+        "text": "403 Forbidden"
+      }
+    ],
+    "links": [],
+    "images": [],
+    "timestamp": 1760607027601,
+    "url": "https://www.imdb.com/list/ls068693711/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}
