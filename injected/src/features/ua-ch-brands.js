@@ -6,11 +6,21 @@ export default class UaChBrands extends ContentFeature {
 
         this.cachedBrands = null;
         this.originalBrands = null;
+        
+        // DEBUG: Set immediately to verify this code is loaded
+        // @ts-expect-error - debug only
+        window.__ddg_ua_ch_brands_loaded = 'v2-2025-11-03-with-grease';
     }
 
     init() {
         const configuredBrands = this.getFeatureSetting('brands');
         this.log.info('init() - configured brands from settings:', configuredBrands ? configuredBrands.map(b => `"${b.brand}" v${b.version}`).join(', ') : 'null');
+
+        // DEBUG: Track init call
+        // @ts-expect-error - debug only
+        window.__ddg_ua_ch_brands_init_called = true;
+        // @ts-expect-error - debug only
+        window.__ddg_ua_ch_brands_config = configuredBrands;
 
         if (!configuredBrands || configuredBrands.length === 0) {
             this.log.info('No client hint brands correctly configured, feature disabled');
@@ -48,6 +58,16 @@ export default class UaChBrands extends ContentFeature {
                 this.cachedBrands = mutatedBrands;
                 this.applyBrandsOverride(mutatedBrands);
                 this.log.info('shimUserAgentDataBrands - override applied, verify brands:', mutatedBrands.length, 'brands');
+                
+                // DEBUG: Expose for testing - BUILD TIMESTAMP: 2025-11-03-DEBUG
+                // @ts-expect-error - debug only
+                window.__ddg_ua_debug = {
+                    buildVersion: 'DEBUG-2025-11-03-v2',
+                    configuredBrands: this.getFeatureSetting('brands'),
+                    originalBrands: this.originalBrands,
+                    mutatedBrands: mutatedBrands,
+                    currentBrands: navigator.userAgentData.brands
+                };
             }
         } catch (error) {
             this.log.error('Error in shimUserAgentDataBrands:', error);
