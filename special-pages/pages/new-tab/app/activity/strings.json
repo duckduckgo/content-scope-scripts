@@ -17,7 +17,7 @@
   },
   "activity_countBlockedPlural": {
     "title": "{count} Tracking attempts blocked",
-    "note": "Pill text indicating that more than 1 attempt has been blocked. Eg: '2 Tracking attempts blocked'"
+    "note": "New pill text indicating that more than 1 attempt has been blocked. Eg: '2 Tracking attempts blocked'. Uppercase T is by design"
   },
   "activity_countBlockedPluralLegacy": {
     "title": "<b>{count}</b> tracking attempts blocked",
