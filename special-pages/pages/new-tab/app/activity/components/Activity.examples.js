@@ -9,32 +9,32 @@ import { normalizeData, NormalizedDataContext } from '../NormalizeDataProvider.j
 export const activityExamples = {
     'activity.empty': {
         factory: () => {
-            return <Activity itemCount={0} batched={false} />;
+            return <Activity itemCount={0} batched={false} shouldDisplayLegacyActivity={true} />;
         },
     },
     'activity.few': {
         factory: () => (
-            <Activity itemCount={10} batched={false}>
+            <Activity itemCount={10} batched={false} shouldDisplayLegacyActivity={true}>
                 <Mock size={3}>
-                    <ActivityBody canBurn={false} visibility={'visible'} shouldDisplayLegacyActivity={false} />
+                    <ActivityBody canBurn={false} visibility={'visible'} shouldDisplayLegacyActivity={true} />
                 </Mock>
             </Activity>
         ),
     },
     'activity.noTrackers': {
         factory: () => (
-            <Activity itemCount={20} batched={false}>
+            <Activity itemCount={20} batched={false} shouldDisplayLegacyActivity={true}>
                 <Mock size={1}>
-                    <ActivityBody canBurn={false} visibility={'visible'} shouldDisplayLegacyActivity={false} />
+                    <ActivityBody canBurn={false} visibility={'visible'} shouldDisplayLegacyActivity={true} />
                 </Mock>
             </Activity>
         ),
     },
     'activity.noActivity.someTrackers': {
         factory: () => (
-            <Activity itemCount={0} batched={false}>
+            <Activity itemCount={0} batched={false} shouldDisplayLegacyActivity={true}>
                 <Mock size={0}>
-                    <ActivityBody canBurn={false} visibility={'visible'} shouldDisplayLegacyActivity={false} />
+                    <ActivityBody canBurn={false} visibility={'visible'} shouldDisplayLegacyActivity={true} />
                 </Mock>
             </Activity>
         ),
