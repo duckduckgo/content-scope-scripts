@@ -40,7 +40,6 @@ export default class UaChBrands extends ContentFeature {
             }
 
             if (this.cachedBrands) {
-                this.applyBrandsOverride(this.cachedBrands);
                 return;
             }
 
