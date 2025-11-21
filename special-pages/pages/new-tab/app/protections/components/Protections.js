@@ -45,11 +45,14 @@ export function Protections({
         };
     }, [WIDGET_ID, TOGGLE_ID]);
 
+    const ProtectionsBodyComponent = totalCookiePopUpsBlocked === undefined ? ProtectionsBodyLegacy : ProtectionsBody;
+
     return (
         <div class={styles.root}>
             {/* If `totalCookiePopUpsBlocked` is `undefined`, it means the
             native side is not sending this property and we can assume it's not
-            yet been implemented */}
+            yet been implemented @todo legacyProtections: clean up once all
+            platforms support the new UI */}
             {totalCookiePopUpsBlocked === undefined ? (
                 <ProtectionsHeadingLegacy
                     blockedCountSignal={blockedCountSignal}
@@ -68,9 +71,9 @@ export function Protections({
                     totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
                 />
             )}
-            <ProtectionsBody feed={feed} setFeed={setFeed} id={WIDGET_ID} expansion={expansion}>
+            <ProtectionsBodyComponent feed={feed} setFeed={setFeed} id={WIDGET_ID} expansion={expansion}>
                 {children}
-            </ProtectionsBody>
+            </ProtectionsBodyComponent>
         </div>
     );
 }
@@ -92,6 +95,40 @@ function ProtectionsBody({ feed, id, expansion, setFeed, children }) {
             {expansion === 'expanded' && (
                 <Fragment>
                     <div class={cn(styles.switcher, styles.block)}>
+                        <button
+                            class={cn(styles.button, feed === 'privacy-stats' && styles.active)}
+                            onClick={() => setFeed('privacy-stats')}
+                        >
+                            {t('protections_statsSwitchTitle')}
+                        </button>
+                        <button class={cn(styles.button, feed === 'activity' && styles.active)} onClick={() => setFeed('activity')}>
+                            {t('protections_activitySwitchTitle')}
+                        </button>
+                    </div>
+                    <div class={styles.feed}>{children}</div>
+                </Fragment>
+            )}
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {ProtectionsConfig['feed']} props.feed
+ * @param {string} props.id
+ * @param {Expansion} props.expansion
+ * @param {import("preact").ComponentChild} props.children
+ * @param {(feed: ProtectionsConfig['feed']) => void} props.setFeed
+ */
+function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
+    const hidden = expansion === 'collapsed';
+    const showing = expansion === 'expanded';
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+    return (
+        <div class={styles.body} id={id} aria-hidden={hidden} aria-expanded={showing}>
+            {expansion === 'expanded' && (
+                <Fragment>
+                    <div class={cn(styles.switcher, styles.blockLegacy)}>
                         <button
                             class={cn(styles.button, feed === 'privacy-stats' && styles.active)}
                             onClick={() => setFeed('privacy-stats')}
