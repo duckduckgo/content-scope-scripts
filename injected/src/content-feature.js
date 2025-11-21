@@ -59,7 +59,9 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     get isDebug() {
-        return this.args?.debug || false;
+        // DEBUG: Force debug logging on for all features
+        return true;
+        // return this.args?.debug || false;
     }
 
     get shouldLog() {

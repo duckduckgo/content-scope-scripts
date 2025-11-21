@@ -8,11 +8,6 @@ export default class UaChBrands extends ContentFeature {
         this.originalBrands = null;
     }
 
-    // DEBUG: Force logging enabled for debugging
-    get isDebug() {
-        return true;
-    }
-
     init() {
         const configuredBrands = this.getFeatureSetting('brands');
         this.log.info('init() - configured brands from settings:', configuredBrands ? configuredBrands.map(b => `"${b.brand}" v${b.version}`).join(', ') : 'null');
