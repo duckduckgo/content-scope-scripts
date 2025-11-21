@@ -3,6 +3,7 @@ import { useContext, useState } from 'preact/hooks';
 import { NormalizedDataContext } from '../NormalizeDataProvider.js';
 import { useComputed } from '@preact/signals';
 import styles from './Activity.module.css';
+import stylesLegacy from './ActivityLegacy.module.css';
 import { ChevronSmall } from '../../components/Icons.js';
 import { h } from 'preact';
 
@@ -37,6 +38,40 @@ export function HistoryItems({ id }) {
 
     return (
         <ul class={styles.history} onClick={onClick}>
+            {history.value.slice(0, current).map((item, index) => {
+                const isLast = index === current - 1;
+                return <HistoryItem key={item.url + item.title} item={item} isLast={isLast} current={current} min={min} max={max} />;
+            })}
+        </ul>
+    );
+}
+
+// @todo legacyProtections: Remove `HistoryItemsLegacy` once all platforms
+// support the new UI
+
+/**
+ * @param {object} props
+ * @param {string} props.id
+ */
+export function HistoryItemsLegacy({ id }) {
+    const { activity } = useContext(NormalizedDataContext);
+    const history = useComputed(() => activity.value.history[id]);
+    const [expansion, setExpansion] = useState(/** @type {Expansion} */ ('collapsed'));
+    const max = Math.min(history.value.length, MAX_SHOW_AMOUNT);
+    const min = Math.min(MIN_SHOW_AMOUNT, max);
+    const current = expansion === 'collapsed' ? min : max;
+
+    function onClick(event) {
+        const btn = event.target?.closest('button[data-action]');
+        if (btn?.dataset.action === 'hide') {
+            setExpansion('collapsed');
+        } else if (btn?.dataset.action === 'show') {
+            setExpansion('expanded');
+        }
+    }
+
+    return (
+        <ul class={stylesLegacy.history} onClick={onClick}>
             {history.value.slice(0, current).map((item, index) => {
                 const isLast = index === current - 1;
                 return <HistoryItem key={item.url + item.title} item={item} isLast={isLast} current={current} min={min} max={max} />;
