@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { reducer, useConfigSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
 import { ProtectionsService } from '../protections.service.js';
@@ -95,12 +95,30 @@ export function useService() {
  * @return {import("@preact/signals").Signal<number>}
  */
 export function useBlockedCount(initial) {
-    const service = useService();
+    const service = useContext(ProtectionsServiceContext);
     const signal = useSignal(initial);
+    // @todo jingram possibly refactor to include full object
     useSignalEffect(() => {
-        return service.current?.onData((evt) => {
+        return service?.onData((evt) => {
             signal.value = evt.data.totalCount;
         });
     });
+    return signal;
+}
+
+/**
+ * @param {number | null | undefined} initial
+ * @return {import("@preact/signals").Signal<undefined | number | null>}
+ */
+export function useCookiePopUpsBlockedCount(initial) {
+    const service = useContext(ProtectionsServiceContext);
+    const signal = useSignal(initial);
+
+    useSignalEffect(() => {
+        return service?.onData((evt) => {
+            signal.value = evt.data.totalCookiePopUpsBlocked;
+        });
+    });
+
     return signal;
 }
