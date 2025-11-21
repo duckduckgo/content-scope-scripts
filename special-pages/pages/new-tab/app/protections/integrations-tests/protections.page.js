@@ -48,7 +48,7 @@ export class ProtectionsPage {
             totalCookiePopUpsBlocked: 'totalCookiePopUpsBlocked' in options ? options.totalCookiePopUpsBlocked : undefined,
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} Tracking attempts blocked`);
+        await expect(this.context().getByRole('heading', { level: 3 })).toContainText(`${count} tracking attempts blocked`);
     }
 
     async hasPolishText() {
@@ -74,7 +74,7 @@ export class ProtectionsPage {
             totalCookiePopUpsBlocked: 25,
         };
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_onDataUpdate'), data);
-        await expect(this.context().getByRole('heading', { level: 3 }).first()).toContainText('100 Tracking attempts blocked');
+        await expect(this.context().getByRole('heading', { level: 3 }).first()).toContainText('100 tracking attempts blocked');
         // Cookie popup stats should be visible in the ProtectionsHeading
         const heading = this.context().getByTestId('ProtectionsHeading');
         await expect(heading.getByText(/cookie pop-up/i)).toBeVisible();
