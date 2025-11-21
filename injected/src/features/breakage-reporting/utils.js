@@ -64,7 +64,7 @@ function waitForLCP(timeoutMs = 500) {
  * Get the expanded performance metrics
  * @returns {Promise<ErrorObject | PerformanceMetricsResponse>}
  */
-export async function getExpandedPerformanceMetrics() {
+export async function getExpandedPerformanceMetrics(timeoutMs = 500) {
     try {
         if (document.readyState !== 'complete') {
             return returnError('Document not ready');
@@ -80,7 +80,7 @@ export async function getExpandedPerformanceMetrics() {
         // Get largest contentful paint if available
         let largestContentfulPaint = null;
         if (PerformanceObserver.supportedEntryTypes.includes('largest-contentful-paint')) {
-            largestContentfulPaint = await waitForLCP();
+            largestContentfulPaint = await waitForLCP(timeoutMs);
         }
 
         // Calculate total resource sizes
