@@ -53,6 +53,14 @@ export function load(args) {
         : args.site.enabledFeatures || bundledFeatureNames;
 
     for (const featureName of bundledFeatureNames) {
+        if (featureName === 'uaChBrands') {
+            console.error('[DEBUG] uaChBrands check:', {
+                inBundled: true,
+                inFeaturesToLoad: featuresToLoad.includes(featureName),
+                featuresToLoad: featuresToLoad,
+                enabledFeatures: args.site?.enabledFeatures
+            });
+        }
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
             const featureInstance = new ContentFeature(featureName, importConfig, args);

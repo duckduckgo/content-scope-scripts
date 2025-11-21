@@ -6,6 +6,13 @@ export default class UaChBrands extends ContentFeature {
 
         this.cachedBrands = null;
         this.originalBrands = null;
+        
+        console.error('[UA-CH-BRANDS] CONSTRUCTOR CALLED');
+        try {
+            this.log.info('UaChBrands constructor executed');
+        } catch (e) {
+            console.error('[UA-CH-BRANDS] constructor log.info failed:', e);
+        }
     }
 
     init() {
