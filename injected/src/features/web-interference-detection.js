@@ -11,8 +11,6 @@ export default class WebInterferenceDetection extends ContentFeature {
     init() {
         // Get settings with conditionalChanges already applied by framework
         const settings = this.getFeatureSetting('interferenceTypes');
-        const autoRunDelayMs = this.getFeatureSetting('autoRunDelayMs') ?? 100;
-        console.log('[web-interference] init', this.args?.site?.url, { settings, autoRunDelayMs });
 
         // Auto-run placeholder. Enable this when adding detectors that need early caching (e.g., ad detection, buffering)
         /*
@@ -33,8 +31,8 @@ export default class WebInterferenceDetection extends ContentFeature {
             }
             if (types.includes('fraudDetection')) {
                 results.fraudDetection = runFraudDetection(settings?.fraudDetection);
-            }            return results;
+            }
+            return results;
         });
     }
 }
-

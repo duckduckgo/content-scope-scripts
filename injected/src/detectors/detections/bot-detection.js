@@ -42,4 +42,3 @@ function findStatus(statusSelectors) {
 
     return match?.status ?? null;
 }
-

@@ -9,8 +9,7 @@ export function runFraudDetection(config = {}) {
         .filter(([_, alertConfig]) => alertConfig?.state === 'enabled')
         .map(([alertId, alertConfig]) => {
             const detected =
-                checkSelectorsWithVisibility(alertConfig.selectors) ||
-                checkTextPatterns(alertConfig.textPatterns, alertConfig.textSources);
+                checkSelectorsWithVisibility(alertConfig.selectors) || checkTextPatterns(alertConfig.textPatterns, alertConfig.textSources);
             if (!detected) {
                 return null;
             }

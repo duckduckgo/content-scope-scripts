@@ -77,9 +77,7 @@ test.describe('Breakage Reporting Feature', () => {
         expect(result.params?.detectorData).toBeDefined();
         expect(result.params?.detectorData?.botDetection.detected).toBe(true);
 
-        const recaptchaResult = result.params?.detectorData?.botDetection.results.find(
-            r => r.challengeType === 'recaptcha'
-        );
+        const recaptchaResult = result.params?.detectorData?.botDetection.results.find((r) => r.challengeType === 'recaptcha');
         expect(recaptchaResult).toBeDefined();
         expect(recaptchaResult.vendor).toBe('reCAPTCHA');
         expect(recaptchaResult.detected).toBe(true);

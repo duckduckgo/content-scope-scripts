@@ -25,12 +25,7 @@ export const DEFAULT_DETECTOR_SETTINGS = Object.freeze({
         hcaptcha: {
             state: 'enabled',
             vendor: 'hcaptcha',
-            selectors: [
-                '.h-captcha',
-                '[data-hcaptcha-widget-id]',
-                'script[src*="hcaptcha.com"]',
-                'script[src*="assets.hcaptcha.com"]',
-            ],
+            selectors: ['.h-captcha', '[data-hcaptcha-widget-id]', 'script[src*="hcaptcha.com"]', 'script[src*="assets.hcaptcha.com"]'],
             windowProperties: ['hcaptcha'],
         },
     },
