@@ -9,12 +9,12 @@
             "settings": {
                 "brands": [
                     {
-                        "brand": "Chromium",
-                        "version": "140"
+                        "brand": "DuckDuckGo",
+                        "version": "142"
                     },
                     {
-                        "brand": "DuckDuckGo",
-                        "version": "140"
+                        "brand": "Chromium",
+                        "version": "142"
                     }
                 ]
             }

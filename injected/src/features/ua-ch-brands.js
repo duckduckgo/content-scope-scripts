@@ -6,29 +6,20 @@ export default class UaChBrands extends ContentFeature {
 
         this.cachedBrands = null;
         this.originalBrands = null;
-        
-        console.error('[UA-CH-BRANDS] CONSTRUCTOR CALLED');
-        try {
-            this.log.info('UaChBrands constructor executed');
-        } catch (e) {
-            console.error('[UA-CH-BRANDS] constructor log.info failed:', e);
-        }
     }
 
     init() {
-        try {
-            this.log.info('init() called - ensuring brands are wrapped');
-            const configuredBrands = this.getFeatureSetting('brands');
-            this.log.info('init() - configured brands from settings:', configuredBrands ? configuredBrands.map(b => `"${b.brand}" v${b.version}`).join(', ') : 'null');
+        const configuredBrands = this.getFeatureSetting('brands');
+        this.log.info(
+            'init() - configured brands from settings:',
+            configuredBrands ? configuredBrands.map((b) => `"${b.brand}" v${b.version}`).join(', ') : 'null',
+        );
 
-            if (!configuredBrands || configuredBrands.length === 0) {
-                this.log.info('No client hint brands correctly configured, feature disabled');
-                return;
-            }
-            this.shimUserAgentDataBrands();
-        } catch (e) {
-            console.error('[UA-CH-BRANDS] init() error:', e);
+        if (!configuredBrands || configuredBrands.length === 0) {
+            this.log.info('No client hint brands correctly configured, feature disabled');
+            return;
         }
+        this.shimUserAgentDataBrands();
     }
 
     /**
