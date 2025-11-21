@@ -154,3 +154,12 @@ function ProtectionsBodyLegacy({ feed, id, expansion, setFeed, children }) {
 export function ProtectionsEmpty({ children }) {
     return <div class={cn(styles.block, styles.empty)}>{children}</div>;
 }
+
+/**
+ * Use this for empty-state text (legacy UI)
+ * @param {object} props
+ * @param {import("preact").ComponentChild} props.children
+ */
+export function ProtectionsEmptyLegacy({ children }) {
+    return <div class={cn(styles.blockLegacy, styles.empty)}>{children}</div>;
+}

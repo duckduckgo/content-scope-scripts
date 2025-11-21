@@ -17,10 +17,10 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js'
 import { useComputed } from '@preact/signals';
 import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js';
 import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility.js';
-import { HistoryItems } from './HistoryItems.js';
+import { HistoryItems, HistoryItemsLegacy } from './HistoryItems.js';
 import { NormalizedDataContext, SignalStateProvider } from '../NormalizeDataProvider.js';
 import { ActivityInteractionsContext } from '../../burning/ActivityInteractionsContext.js';
-import { ProtectionsEmpty } from '../../protections/components/Protections.js';
+import { ProtectionsEmpty, ProtectionsEmptyLegacy } from '../../protections/components/Protections.js';
 import { TickPill } from '../../components/TickPill/TickPill';
 
 /**
@@ -35,23 +35,36 @@ import { TickPill } from '../../components/TickPill/TickPill';
  * @param {number} props.itemCount - Object representing the count of items in the activity.
  * @param {boolean} props.batched - Boolean indicating whether the activity uses batched loading.
  * @param {import("preact").ComponentChild} [props.children]
+ * @param {boolean} props.shouldDisplayLegacyActivity
  */
-export function Activity({ itemCount, batched, children }) {
+export function Activity({ itemCount, batched, shouldDisplayLegacyActivity, children }) {
     return (
         <div class={styles.root} data-testid="Activity">
-            {itemCount === 0 && <ActivityEmptyState />}
+            {/* @todo legacyhProtections: Remove props up the tree once all
+            platforms support the new UI */}
+            {itemCount === 0 && <ActivityEmptyState shouldDisplayLegacyActivity={shouldDisplayLegacyActivity} />}
             {itemCount > 0 && children}
             {batched && itemCount > 0 && <Loader />}
         </div>
     );
 }
 
-export function ActivityEmptyState() {
+/**
+ * Renders the empty activity state text
+ *
+ * @param {Object} props - Object containing all properties required by the Activity component.
+ * @param {boolean} props.shouldDisplayLegacyActivity
+ */
+export function ActivityEmptyState({ shouldDisplayLegacyActivity }) {
     const { t } = useTypedTranslationWith(/** @type {import("../strings.json")} */ ({}));
+    // @todo: legacyProtections: Remove legacy component once all platforms
+    // support the new UI
+    const ProtectionsEmptyComponent = shouldDisplayLegacyActivity ? ProtectionsEmptyLegacy : ProtectionsEmpty;
+
     return (
-        <ProtectionsEmpty>
+        <ProtectionsEmptyComponent>
             <p>{t('activity_empty')}</p>
-        </ProtectionsEmpty>
+        </ProtectionsEmptyComponent>
     );
 }
 
@@ -154,6 +167,7 @@ const BurnableItem = memo(
         // @todo legacyProtections: Once all platforms are ready for the new
         // protections report we can use `ActivityItem`
         const ActivityItemComponent = shouldDisplayLegacyActivity ? ActivityItemLegacy : ActivityItem;
+        const HistoryItemsComponent = shouldDisplayLegacyActivity ? HistoryItemsLegacy : HistoryItems;
 
         return (
             <ActivityItemAnimationWrapper url={id}>
@@ -174,7 +188,7 @@ const BurnableItem = memo(
                     ) : (
                         <TrackerStatus id={id} trackersFound={item.value.trackersFound} />
                     )}
-                    <HistoryItems id={id} />
+                    <HistoryItemsComponent id={id} />
                 </ActivityItemComponent>
             </ActivityItemAnimationWrapper>
         );
@@ -203,6 +217,7 @@ const RemovableItem = memo(
         // @todo legacyProtections: Once all platforms are ready for the new
         // protections report we can use `ActivityItem`
         const ActivityItemComponent = shouldDisplayLegacyActivity ? ActivityItemLegacy : ActivityItem;
+        const HistoryItemsComponent = shouldDisplayLegacyActivity ? HistoryItemsLegacy : HistoryItems;
 
         return (
             <ActivityItemComponent
@@ -222,7 +237,7 @@ const RemovableItem = memo(
                 ) : (
                     <TrackerStatus id={id} trackersFound={item.value.trackersFound} />
                 )}
-                <HistoryItems id={id} />
+                <HistoryItemsComponent id={id} />
             </ActivityItemComponent>
         );
     },
@@ -324,8 +339,9 @@ function TrackerStatusLegacy({ id, trackersFound }) {
 /**
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
+ * @param {boolean} props.shouldDisplayLegacyActivity
  */
-export function ActivityConfigured({ children }) {
+export function ActivityConfigured({ shouldDisplayLegacyActivity, children }) {
     const batched = useBatchedActivityApi();
 
     const { activity } = useContext(NormalizedDataContext);
@@ -335,7 +351,7 @@ export function ActivityConfigured({ children }) {
     });
 
     return (
-        <Activity batched={batched} itemCount={itemCount.value}>
+        <Activity batched={batched} itemCount={itemCount.value} shouldDisplayLegacyActivity={shouldDisplayLegacyActivity}>
             {children}
         </Activity>
     );
@@ -365,7 +381,7 @@ export function ActivityConsumer({ showBurnAnimation, shouldDisplayLegacyActivit
         if (platformName === 'windows') {
             return (
                 <SignalStateProvider>
-                    <ActivityConfigured>
+                    <ActivityConfigured shouldDisplayLegacyActivity={shouldDisplayLegacyActivity}>
                         <ActivityBody canBurn={false} visibility={visibility} shouldDisplayLegacyActivity={shouldDisplayLegacyActivity} />
                     </ActivityConfigured>
                 </SignalStateProvider>
@@ -374,7 +390,7 @@ export function ActivityConsumer({ showBurnAnimation, shouldDisplayLegacyActivit
         return (
             <SignalStateProvider>
                 <BurnProvider service={service} showBurnAnimation={showBurnAnimation}>
-                    <ActivityConfigured>
+                    <ActivityConfigured shouldDisplayLegacyActivity={shouldDisplayLegacyActivity}>
                         <ActivityBody canBurn={true} visibility={visibility} shouldDisplayLegacyActivity={shouldDisplayLegacyActivity} />
                     </ActivityConfigured>
                 </BurnProvider>
