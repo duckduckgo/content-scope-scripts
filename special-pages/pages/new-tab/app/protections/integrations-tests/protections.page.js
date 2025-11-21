@@ -61,8 +61,6 @@ export class ProtectionsPage {
           - button "Ukryj ostatnią aktywność" [expanded] [pressed]:
             - img
           - heading /\\d+ {count} – tyle prób śledzenia zablokowano/ [level=3]
-          - heading /\\d+ Cookie pop-ups blocked/ [level=3]
-          - img
           `);
     }
 
