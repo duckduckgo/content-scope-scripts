@@ -123,7 +123,7 @@ export const protectionsHeadingExamples = {
                                         toggle={toggle}
                                         totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
                                     >
-                                        <ActivityEmptyState />
+                                        <ActivityEmptyState shouldDisplayLegacyActivity={false} />
                                     </Protections>
                                 );
                             }}
