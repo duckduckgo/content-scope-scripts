@@ -13,6 +13,7 @@ import { animateCount } from '../utils/animateCount.js';
  * @import statsStrings from "../../privacy-stats/strings.json"
  * @import activityStrings from "../../activity/strings.json"
  * @typedef {enStrings & statsStrings & activityStrings} Strings
+ * @typedef {import('../utils/animateCount.js').AnimationUpdateCallback} AnimationUpdateCallback
  * @param {object} props
  * @param {import('../../../types/new-tab.ts').Expansion} props.expansion
  * @param {import("@preact/signals").Signal<number>} props.blockedCountSignal
@@ -32,7 +33,12 @@ export function ProtectionsHeading({
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const totalTrackersBlocked = blockedCountSignal.value;
     const totalCookiePopUpsBlockedValue = totalCookiePopUpsBlockedSignal.value;
-    const totalCookiePopUpsBlocked = totalCookiePopUpsBlockedValue ?? 0;
+
+    // Defensive validation following pattern in special-pages
+    const totalCookiePopUpsBlocked =
+        typeof totalCookiePopUpsBlockedValue === 'number' && Number.isFinite(totalCookiePopUpsBlockedValue)
+            ? Math.max(0, Math.floor(totalCookiePopUpsBlockedValue))
+            : 0;
 
     // State for animated cookie pop-ups count
     // Initialize to 0 so first render triggers percentage-based animation from spec
@@ -40,13 +46,16 @@ export function ProtectionsHeading({
 
     // Track current animated value to enable smooth incremental updates
     // Initialize to 0 so first animation uses spec's percentage-based starting point
-    const animatedValueRef = useRef(0);
+    const animatedValueRef = useRef(/** @type {number} */ (0));
 
     // Memoize the update callback to avoid recreating it on every render
-    const updateAnimatedCount = useCallback((value) => {
-        animatedValueRef.current = value;
-        setAnimatedCookiePopUpsBlocked(value);
-    }, []);
+    const updateAnimatedCount = useCallback(
+        /** @type {AnimationUpdateCallback} */ ((value) => {
+            animatedValueRef.current = value;
+            setAnimatedCookiePopUpsBlocked(value);
+        }),
+        []
+    );
 
     // Animate cookie pop-ups count when it changes and page is visible
     useEffect(() => {

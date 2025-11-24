@@ -1,18 +1,62 @@
 /**
+ * @typedef {(value: number) => void} AnimationUpdateCallback
+ * @typedef {() => void} AnimationCompleteCallback
+ * @typedef {() => void} CancelAnimationFunction
+ */
+
+/**
+ * Animation configuration constants
+ * @readonly
+ * @enum {number}
+ */
+export const AnimationConstants = {
+    DURATION: 500,
+    MIN_THRESHOLD: 5,
+    UPPER_THRESHOLD: 40,
+    LOWER_START_PERCENTAGE: 0.75,
+    UPPER_START_PERCENTAGE: 0.85,
+    MAX_DISPLAY_COUNT: 9999,
+};
+
+/**
  * Animates a number count following the tracker count animation specification
  * @param {number} targetValue - The final value to animate to
- * @param {(value: number) => void} onUpdate - Callback called with the current value on each frame
- * @param {() => void} [onComplete] - Optional callback when animation completes
+ * @param {AnimationUpdateCallback} onUpdate - Callback called with the current value on each frame
+ * @param {AnimationCompleteCallback} [onComplete] - Optional callback when animation completes
  * @param {number | null} [fromValue] - Starting value for animation. If null/0, uses spec's percentage-based start
- * @returns {() => void} Cancel function to stop the animation
+ * @returns {CancelAnimationFunction} Cancel function to stop the animation
  */
 export function animateCount(targetValue, onUpdate, onComplete, fromValue = null) {
-    const ANIMATION_DURATION = 500; // ms
-    const MIN_ANIMATION_THRESHOLD = 5;
-    const UPPER_THRESHOLD = 40;
-    const LOWER_START_PERCENTAGE = 0.75;
-    const UPPER_START_PERCENTAGE = 0.85;
-    const MAX_DISPLAY_COUNT = 9999;
+    // Runtime validation following special-pages/pages/new-tab/src/index.js:reportPageException pattern
+    if (typeof targetValue !== 'number' || !Number.isFinite(targetValue) || targetValue < 0) {
+        console.warn('animateCount: invalid targetValue', targetValue);
+        // Fail gracefully - just call update with 0
+        onUpdate?.(0);
+        onComplete?.();
+        return () => {};
+    }
+
+    if (typeof onUpdate !== 'function') {
+        console.warn('animateCount: onUpdate must be a function', typeof onUpdate);
+        return () => {};
+    }
+
+    if (onComplete !== undefined && onComplete !== null && typeof onComplete !== 'function') {
+        console.warn('animateCount: onComplete must be a function or nullish', typeof onComplete);
+        onComplete = undefined; // Normalize to undefined
+    }
+
+    if (fromValue !== null && (typeof fromValue !== 'number' || !Number.isFinite(fromValue) || fromValue < 0)) {
+        console.warn('animateCount: invalid fromValue, treating as null', fromValue);
+        fromValue = null;
+    }
+
+    const ANIMATION_DURATION = AnimationConstants.DURATION;
+    const MIN_ANIMATION_THRESHOLD = AnimationConstants.MIN_THRESHOLD;
+    const UPPER_THRESHOLD = AnimationConstants.UPPER_THRESHOLD;
+    const LOWER_START_PERCENTAGE = AnimationConstants.LOWER_START_PERCENTAGE;
+    const UPPER_START_PERCENTAGE = AnimationConstants.UPPER_START_PERCENTAGE;
+    const MAX_DISPLAY_COUNT = AnimationConstants.MAX_DISPLAY_COUNT;
 
     // Cap the target value at 9999
     const cappedTarget = Math.min(targetValue, MAX_DISPLAY_COUNT);
@@ -29,9 +73,9 @@ export function animateCount(targetValue, onUpdate, onComplete, fromValue = null
         if (cappedTarget < MIN_ANIMATION_THRESHOLD) {
             onUpdate(cappedTarget);
             // Still apply 500ms delay before completing
-            const timeoutId = setTimeout(() => {
+            const timeoutId = /** @type {number | NodeJS.Timeout} */ (setTimeout(() => {
                 onComplete?.();
-            }, ANIMATION_DURATION);
+            }, ANIMATION_DURATION));
             return () => clearTimeout(timeoutId);
         }
 
