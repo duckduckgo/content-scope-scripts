@@ -105,7 +105,7 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
-     * Apply the brand override to navigator.userAgentData.brands
+     * Apply the brand override to navigator.userAgentData
      * @param {Array<{brand: string, version: string}>} newBrands - Brands to apply
      */
     applyBrandsOverride(newBrands) {
@@ -119,10 +119,20 @@ export default class UaChBrands extends ContentFeature {
         if (proto.getHighEntropyValues) {
             this.wrapMethod(proto, 'getHighEntropyValues', async (originalFn, ...args) => {
                 // @ts-expect-error - userAgentData not yet standard
-                const result = await originalFn.apply(navigator.userAgentData, args);
-                if (args[0] && args[0].includes('brands')) {
-                    result.brands = newBrands;
+                const originalResult = await originalFn.apply(navigator.userAgentData, args);
+
+                const modifiedResult = {};
+                for (const [key, value] of Object.entries(originalResult)) {
+                    let result = value;
+                    if (key === 'brands' && args[0] && args[0].includes('brands')) {
+                        result = newBrands;
+                    }
+                    if (key === 'fullVersionList' && args[0] && args[0].includes('fullVersionList')) {
+                        result = this.applyBrandMutationsToList(value);
+                    }
+                    modifiedResult[key] = result;
                 }
+                return modifiedResult;
             });
         }
     }
