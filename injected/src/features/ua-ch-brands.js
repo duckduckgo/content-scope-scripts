@@ -110,7 +110,9 @@ export default class UaChBrands extends ContentFeature {
                         result = newBrands;
                     }
                     if (key === 'fullVersionList' && args[0]?.includes('fullVersionList') && value) {
-                        result = featureInstance.applyBrandMutationsToList(value);
+                        const mutated = featureInstance.applyBrandMutationsToList(value);
+                        // Preserve original value if mutation returns null (no Edge/Chromium found)
+                        result = mutated !== null ? mutated : value;
                     }
 
                     modifiedResult[key] = result;
