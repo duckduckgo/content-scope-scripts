@@ -4,7 +4,6 @@ export default class UaChBrands extends ContentFeature {
     constructor(featureName, importConfig, args) {
         super(featureName, importConfig, args);
 
-        this.cachedBrands = null;
         this.originalBrands = null;
     }
 
@@ -33,23 +32,22 @@ export default class UaChBrands extends ContentFeature {
                 return;
             }
 
-            if (!this.originalBrands) {
-                // @ts-expect-error - userAgentData not yet standard
-                this.originalBrands = [...navigator.userAgentData.brands];
-                this.log.info('shimUserAgentDataBrands - captured original brands:', this.originalBrands.map(b => `"${b.brand}" v${b.version}`).join(', '));
-            }
-
-            if (this.cachedBrands) {
-                return;
-            }
+            // @ts-expect-error - userAgentData not yet standard
+            this.originalBrands = [...navigator.userAgentData.brands];
+            this.log.info(
+                'shimUserAgentDataBrands - captured original brands:',
+                this.originalBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
+            );
 
             const mutatedBrands = this.applyBrandMutations();
 
             if (mutatedBrands) {
-                this.log.info('shimUserAgentDataBrands - about to apply override with:', mutatedBrands.map(b => `"${b.brand}" v${b.version}`).join(', '));
-                this.cachedBrands = mutatedBrands;
+                this.log.info(
+                    'shimUserAgentDataBrands - about to apply override with:',
+                    mutatedBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
+                );
                 this.applyBrandsOverride(mutatedBrands);
-                this.log.info('shimUserAgentDataBrands - override applied, verify brands:', mutatedBrands.length, 'brands');
+                this.log.info('shimUserAgentDataBrands - override applied successfully');
             }
         } catch (error) {
             this.log.error('Error in shimUserAgentDataBrands:', error);
