@@ -1,4 +1,5 @@
 import ContentFeature from '../content-feature';
+import { DDGReflect } from '../utils';
 
 export default class UaChBrands extends ContentFeature {
     constructor(featureName, importConfig, args) {
@@ -29,7 +30,7 @@ export default class UaChBrands extends ContentFeature {
                 this.originalBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
             );
 
-            const mutatedBrands = this.applyBrandMutations();
+            const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands);
 
             if (mutatedBrands) {
                 this.log.info(
@@ -45,63 +46,40 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
-     * Apply brand mutations to any brand list (brands or fullVersionList)
-     * Filters out WebView2 and replaces Edge with DuckDuckGo
-     * @param {Array<{brand: string, version: string}>} brandList - Original brand list
-     * @returns {Array<{brand: string, version: string}>} - Mutated brand list
+     * Replace Microsoft Edge with DuckDuckGo in the brands list to match Sec-CH-UA header
+     * @param {Array<{brand: string, version: string}>} list
+     * @returns {Array<{brand: string, version: string}>|null} - Modified brands or null if no changes
      */
-    applyBrandMutationsToList(brandList) {
-        if (!brandList || brandList.length === 0) {
-            return brandList;
+    applyBrandMutationsToList(list) {
+        if (!Array.isArray(list) || !list.length) {
+            this.log.info('applyBrandMutationsToList - no brands to mutate');
+            return null;
         }
 
-        // Filter out Microsoft Edge WebView2
-        const result = brandList.filter((b) => b.brand !== 'Microsoft Edge WebView2');
-
-        if (result.length < brandList.length) {
-            this.log.info('Removed "Microsoft Edge WebView2" from list');
+        const mutated = list.filter((b) => b.brand !== 'Microsoft Edge WebView2');
+        if (mutated.length < list.length) {
+            this.log.info('Removed "Microsoft Edge WebView2" brand');
         }
 
-        // Find and replace Microsoft Edge with DuckDuckGo (preserving version)
-        const edgeIndex = result.findIndex((b) => b.brand === 'Microsoft Edge');
+        const edgeIndex = mutated.findIndex((b) => b.brand === 'Microsoft Edge');
         if (edgeIndex !== -1) {
-            const edgeVersion = result[edgeIndex].version;
-            result[edgeIndex] = { brand: 'DuckDuckGo', version: edgeVersion };
-            this.log.info(`Replaced "Microsoft Edge" with "DuckDuckGo" in list (version: ${edgeVersion})`);
+            const edgeVersion = mutated[edgeIndex].version;
+            mutated[edgeIndex] = { brand: 'DuckDuckGo', version: edgeVersion };
+            this.log.info(`Replaced "Microsoft Edge" v${edgeVersion} with "DuckDuckGo" v${edgeVersion}`);
         } else {
-            // Append DuckDuckGo with Chromium's version if available
-            const chromium = result.find((b) => b.brand === 'Chromium');
+            const chromium = mutated.find((b) => b.brand === 'Chromium');
             if (chromium) {
-                result.push({ brand: 'DuckDuckGo', version: chromium.version });
-                this.log.info(`Appended "DuckDuckGo" to list (version: ${chromium.version})`);
+                mutated.push({ brand: 'DuckDuckGo', version: chromium.version });
+                this.log.info(`Appended "DuckDuckGo" v${chromium.version} (to match Chromium version)`);
+            } else {
+                this.log.info('No Microsoft Edge or Chromium found, skipping DuckDuckGo addition');
+                return null;
             }
         }
 
-        return result;
-    }
-
-    /**
-     * Apply brand mutations by replacing Microsoft Edge with DuckDuckGo
-     * This matches the native header manipulation behavior
-     * @returns {Array<{brand: string, version: string}>|null} - Modified brands or null if no changes
-     */
-    applyBrandMutations() {
-        if (!this.originalBrands || this.originalBrands.length === 0) {
-            this.log.info('No original brands available, skipping mutations');
-            return null;
-        }
-
-        const result = this.applyBrandMutationsToList(this.originalBrands);
-
-        // Return null if no DuckDuckGo was added (nothing changed)
-        if (!result.some((b) => b.brand === 'DuckDuckGo')) {
-            this.log.info('No Microsoft Edge or Chromium found, skipping mutations');
-            return null;
-        }
-
-        const brandNames = result.map((b) => `"${b.brand}" v${b.version}`).join(', ');
+        const brandNames = mutated.map((b) => `"${b.brand}" v${b.version}`).join(', ');
         this.log.info(`Final brands: [${brandNames}]`);
-        return result;
+        return mutated;
     }
 
     /**
@@ -117,21 +95,27 @@ export default class UaChBrands extends ContentFeature {
         });
 
         if (proto.getHighEntropyValues) {
-            this.wrapMethod(proto, 'getHighEntropyValues', async (originalFn, ...args) => {
-                // @ts-expect-error - userAgentData not yet standard
-                const originalResult = await originalFn.apply(navigator.userAgentData, args);
-
+            // Need to capture feature instance in closure to access applyBrandMutationsToList
+            // while preserving dynamic `this` (userAgentData) for DDGReflect.apply.
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            const featureInstance = this;
+            this.wrapMethod(proto, 'getHighEntropyValues', async function (originalFn, ...args) {
+                const originalResult = await DDGReflect.apply(originalFn, this, args);
                 const modifiedResult = {};
+
                 for (const [key, value] of Object.entries(originalResult)) {
                     let result = value;
-                    if (key === 'brands' && args[0] && args[0].includes('brands')) {
+
+                    if (key === 'brands' && args[0]?.includes('brands')) {
                         result = newBrands;
                     }
-                    if (key === 'fullVersionList' && args[0] && args[0].includes('fullVersionList')) {
-                        result = this.applyBrandMutationsToList(value);
+                    if (key === 'fullVersionList' && args[0]?.includes('fullVersionList') && value) {
+                        result = featureInstance.applyBrandMutationsToList(value);
                     }
+
                     modifiedResult[key] = result;
                 }
+
                 return modifiedResult;
             });
         }
