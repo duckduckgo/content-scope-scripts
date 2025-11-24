@@ -51,12 +51,15 @@ export function animateCount(targetValue, onUpdate, onComplete, fromValue = null
         fromValue = null;
     }
 
-    const ANIMATION_DURATION = AnimationConstants.DURATION;
-    const MIN_ANIMATION_THRESHOLD = AnimationConstants.MIN_THRESHOLD;
-    const UPPER_THRESHOLD = AnimationConstants.UPPER_THRESHOLD;
-    const LOWER_START_PERCENTAGE = AnimationConstants.LOWER_START_PERCENTAGE;
-    const UPPER_START_PERCENTAGE = AnimationConstants.UPPER_START_PERCENTAGE;
-    const MAX_DISPLAY_COUNT = AnimationConstants.MAX_DISPLAY_COUNT;
+    // Destructure constants once for cleaner code
+    const {
+        DURATION: ANIMATION_DURATION,
+        MIN_THRESHOLD: MIN_ANIMATION_THRESHOLD,
+        UPPER_THRESHOLD,
+        LOWER_START_PERCENTAGE,
+        UPPER_START_PERCENTAGE,
+        MAX_DISPLAY_COUNT,
+    } = AnimationConstants;
 
     // Cap the target value at 9999
     const cappedTarget = Math.min(targetValue, MAX_DISPLAY_COUNT);
@@ -66,16 +69,19 @@ export function animateCount(targetValue, onUpdate, onComplete, fromValue = null
     let startValue;
     if (!isInitialDisplay) {
         // Incremental update: animate from current displayed value
-        startValue = Math.min(fromValue, MAX_DISPLAY_COUNT);
+        // fromValue is guaranteed to be a number here (not null) due to !isInitialDisplay check
+        startValue = Math.min(/** @type {number} */ (fromValue), MAX_DISPLAY_COUNT);
     } else {
         // Initial display: follow spec's percentage-based logic
         // No animation for counts < 5 on initial display
         if (cappedTarget < MIN_ANIMATION_THRESHOLD) {
             onUpdate(cappedTarget);
             // Still apply 500ms delay before completing
-            const timeoutId = /** @type {number | NodeJS.Timeout} */ (setTimeout(() => {
-                onComplete?.();
-            }, ANIMATION_DURATION));
+            const timeoutId = /** @type {ReturnType<typeof setTimeout>} */ (
+                setTimeout(() => {
+                    onComplete?.();
+                }, ANIMATION_DURATION)
+            );
             return () => clearTimeout(timeoutId);
         }
 
@@ -91,21 +97,23 @@ export function animateCount(targetValue, onUpdate, onComplete, fromValue = null
         return () => {};
     }
 
+    // Pre-calculate values that remain constant throughout animation
     const startTime = performance.now();
+    const animationRange = cappedTarget - startValue;
+    const inverseDuration = 1 / ANIMATION_DURATION; // Multiplication is faster than division
+
+    /** @type {number | undefined} */
     let rafId;
 
     function update(currentTime) {
         const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
+        const progress = Math.min(elapsed * inverseDuration, 1); // Use pre-calculated inverse
 
         // Ease-in-out cubic: approximation of CSS cubic-bezier(0.42, 0.0, 0.58, 1.0)
         // Accelerates at start, decelerates at end with cubic curve
-        const eased =
-            progress < 0.5
-                ? 4 * progress * progress * progress
-                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        const eased = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-        const currentValue = Math.floor(startValue + (cappedTarget - startValue) * eased);
+        const currentValue = Math.floor(startValue + animationRange * eased); // Use pre-calculated range
         onUpdate(currentValue);
 
         if (progress < 1) {
@@ -120,7 +128,7 @@ export function animateCount(targetValue, onUpdate, onComplete, fromValue = null
 
     // Return cancel function
     return () => {
-        if (rafId) {
+        if (rafId !== undefined) {
             cancelAnimationFrame(rafId);
         }
     };

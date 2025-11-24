@@ -1,5 +1,5 @@
-import { equal, ok, deepEqual } from 'node:assert/strict';
-import { test, mock } from 'node:test';
+import { equal, ok } from 'node:assert/strict';
+import { test } from 'node:test';
 import { animateCount } from '../utils/animateCount.js';
 
 /**
@@ -31,21 +31,21 @@ class AnimationMocker {
      */
     setup() {
         // Store originals
-        this.originalRAF = global.requestAnimationFrame;
-        this.originalCAF = global.cancelAnimationFrame;
+        this.originalRAF = globalThis.requestAnimationFrame;
+        this.originalCAF = globalThis.cancelAnimationFrame;
         this.originalPerf = performance.now;
-        this.originalSetTimeout = global.setTimeout;
-        this.originalClearTimeout = global.clearTimeout;
+        this.originalSetTimeout = globalThis.setTimeout;
+        this.originalClearTimeout = globalThis.clearTimeout;
 
         // Mock requestAnimationFrame
-        global.requestAnimationFrame = (callback) => {
+        globalThis.requestAnimationFrame = (callback) => {
             const id = this.nextFrameId++;
             this.frameCallbacks.push({ id, callback });
             return id;
         };
 
         // Mock cancelAnimationFrame
-        global.cancelAnimationFrame = (id) => {
+        globalThis.cancelAnimationFrame = (id) => {
             this.cancelledFrames.add(id);
         };
 
@@ -55,14 +55,15 @@ class AnimationMocker {
         };
 
         // Mock setTimeout
-        global.setTimeout = (callback, delay) => {
+        // @ts-expect-error - Mock implementation doesn't need full setTimeout signature
+        globalThis.setTimeout = (callback, delay) => {
             const id = this.nextTimeoutId++;
             this.timeouts.push({ id, callback, triggerTime: this.currentTime + delay });
             return id;
         };
 
         // Mock clearTimeout
-        global.clearTimeout = (id) => {
+        globalThis.clearTimeout = (id) => {
             this.cancelledTimeouts.add(id);
         };
     }
@@ -73,19 +74,19 @@ class AnimationMocker {
     cleanup() {
         // Restore originals
         if (this.originalRAF !== null) {
-            global.requestAnimationFrame = this.originalRAF;
+            globalThis.requestAnimationFrame = this.originalRAF;
         }
         if (this.originalCAF !== null) {
-            global.cancelAnimationFrame = this.originalCAF;
+            globalThis.cancelAnimationFrame = this.originalCAF;
         }
         if (this.originalPerf !== null) {
             performance.now = this.originalPerf;
         }
         if (this.originalSetTimeout !== null) {
-            global.setTimeout = this.originalSetTimeout;
+            globalThis.setTimeout = this.originalSetTimeout;
         }
         if (this.originalClearTimeout !== null) {
-            global.clearTimeout = this.originalClearTimeout;
+            globalThis.clearTimeout = this.originalClearTimeout;
         }
 
         this.frameCallbacks = [];
@@ -115,8 +116,8 @@ class AnimationMocker {
         });
 
         // Process timeouts
-        const readyTimeouts = this.timeouts.filter(t => t.triggerTime <= this.currentTime);
-        this.timeouts = this.timeouts.filter(t => t.triggerTime > this.currentTime);
+        const readyTimeouts = this.timeouts.filter((t) => t.triggerTime <= this.currentTime);
+        this.timeouts = this.timeouts.filter((t) => t.triggerTime > this.currentTime);
 
         readyTimeouts.forEach(({ id, callback }) => {
             if (!this.cancelledTimeouts.has(id)) {
@@ -159,7 +160,9 @@ test.describe('animateCount - Basic Behavior', () => {
         t.after(() => mocker.cleanup());
 
         let completed = false;
-        const onComplete = () => { completed = true; };
+        const onComplete = () => {
+            completed = true;
+        };
 
         animateCount(3, () => {}, onComplete);
 
@@ -235,7 +238,9 @@ test.describe('animateCount - Basic Behavior', () => {
         t.after(() => mocker.cleanup());
 
         let completed = false;
-        const onComplete = () => { completed = true; };
+        const onComplete = () => {
+            completed = true;
+        };
 
         animateCount(50, () => {}, onComplete);
 
@@ -417,7 +422,14 @@ test.describe('animateCount - Incremental Updates (fromValue)', () => {
         const updates = [];
         let completed = false;
 
-        animateCount(50, (v) => updates.push(v), () => { completed = true; }, 50);
+        animateCount(
+            50,
+            (v) => updates.push(v),
+            () => {
+                completed = true;
+            },
+            50,
+        );
 
         equal(updates.length, 1);
         equal(updates[0], 50);
@@ -460,7 +472,13 @@ test.describe('animateCount - Cancel Function', () => {
         t.after(() => mocker.cleanup());
 
         let completed = false;
-        const cancel = animateCount(100, () => {}, () => { completed = true; });
+        const cancel = animateCount(
+            100,
+            () => {},
+            () => {
+                completed = true;
+            },
+        );
 
         mocker.tick(100);
         cancel();
@@ -475,7 +493,13 @@ test.describe('animateCount - Cancel Function', () => {
         t.after(() => mocker.cleanup());
 
         let completed = false;
-        const cancel = animateCount(3, () => {}, () => { completed = true; });
+        const cancel = animateCount(
+            3,
+            () => {},
+            () => {
+                completed = true;
+            },
+        );
 
         cancel();
 
@@ -497,11 +521,11 @@ test.describe('animateCount - Easing Function Behavior', () => {
         animateCount(100, (value) => updates.push(value));
 
         // Collect values at different time points
-        mocker.tick(1);    // Start
-        mocker.tick(124);  // 25% through (125ms total)
-        mocker.tick(125);  // 50% through (250ms total)
-        mocker.tick(125);  // 75% through (375ms total)
-        mocker.tick(125);  // 100% through (500ms total)
+        mocker.tick(1); // Start
+        mocker.tick(124); // 25% through (125ms total)
+        mocker.tick(125); // 50% through (250ms total)
+        mocker.tick(125); // 75% through (375ms total)
+        mocker.tick(125); // 100% through (500ms total)
 
         ok(updates.length >= 4, 'Should have multiple updates');
 
@@ -556,7 +580,13 @@ test.describe('animateCount - Animation Duration', () => {
         t.after(() => mocker.cleanup());
 
         let completed = false;
-        animateCount(100, () => {}, () => { completed = true; });
+        animateCount(
+            100,
+            () => {},
+            () => {
+                completed = true;
+            },
+        );
 
         // Not completed before 500ms
         mocker.tick(499);
@@ -575,8 +605,20 @@ test.describe('animateCount - Animation Duration', () => {
         let completed1 = false;
         let completed2 = false;
 
-        animateCount(30, () => {}, () => { completed1 = true; });
-        animateCount(100, () => {}, () => { completed2 = true; });
+        animateCount(
+            30,
+            () => {},
+            () => {
+                completed1 = true;
+            },
+        );
+        animateCount(
+            100,
+            () => {},
+            () => {
+                completed2 = true;
+            },
+        );
 
         mocker.runToCompletion(500, 10);
 
@@ -676,11 +718,7 @@ test.describe('animateCount - Real-world Scenarios', () => {
 
             mocker.runToCompletion(500, 10);
 
-            equal(
-                updates[updates.length - 1],
-                target,
-                `Should reach exactly ${target}`
-            );
+            equal(updates[updates.length - 1], target, `Should reach exactly ${target}`);
         });
     });
 });
@@ -732,11 +770,7 @@ test.describe('animateCount - Callback Behavior', () => {
             animateCount(target, (v) => updates.push(v));
             mocker.runToCompletion(500, 10);
 
-            equal(
-                updates[updates.length - 1],
-                target,
-                `Final value should be exactly ${target}`
-            );
+            equal(updates[updates.length - 1], target, `Final value should be exactly ${target}`);
         });
     });
 });
