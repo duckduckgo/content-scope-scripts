@@ -20,11 +20,6 @@
                 const brands = navigator.userAgentData.brands;
                 const brandNames = new Set(brands.map(b => b.brand));
 
-                const hasGrease = brands.some(b => {
-                    const name = b.brand;
-                    return name.trim().startsWith('Not') || /[^\w\s.]/.test(name);
-                });
-
                 results.push({
                     name: 'contains Chromium brand',
                     result: brandNames.has('Chromium'),
@@ -36,22 +31,6 @@
                     result: brandNames.has('DuckDuckGo'),
                     expected: true
                 });
-
-                // Expect 3 brands if GREASE present, 2 if not
-                const expectedBrandCount = hasGrease ? 3 : 2;
-                results.push({
-                    name: `has correct number of brands (${hasGrease ? 'with GREASE' : 'without GREASE'})`,
-                    result: brands.length,
-                    expected: expectedBrandCount
-                });
-
-                if (hasGrease) {
-                    results.push({
-                        name: 'GREASE value is preserved',
-                        result: hasGrease,
-                        expected: true
-                    });
-                }
 
                 results.push({
                     name: 'does not contain Microsoft Edge brand',
@@ -69,13 +48,7 @@
                     try {
                         const highEntropyValues = await navigator.userAgentData.getHighEntropyValues(['brands']);
                         if (highEntropyValues.brands) {
-                            const heBrands = highEntropyValues.brands;
-                            const heBrandNames = new Set(heBrands.map(b => b.brand));
-                            
-                            const heHasGrease = heBrands.some(b => {
-                                const name = b.brand;
-                                return name.trim().startsWith('Not') || /[^\w\s.]/.test(name);
-                            });
+                            const heBrandNames = new Set(highEntropyValues.brands.map(b => b.brand));
 
                             results.push({
                                 name: 'high entropy contains Chromium',
@@ -87,14 +60,6 @@
                                 result: heBrandNames.has('DuckDuckGo'),
                                 expected: true
                             });
-
-                            if (heHasGrease) {
-                                results.push({
-                                    name: 'high entropy GREASE value is preserved',
-                                    result: heHasGrease,
-                                    expected: true
-                                });
-                            }
 
                             results.push({
                                 name: 'high entropy does not contain Microsoft Edge',

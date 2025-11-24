@@ -8,16 +8,6 @@ export default class UaChBrands extends ContentFeature {
     }
 
     init() {
-        const configuredBrands = this.getFeatureSetting('brands');
-        this.log.info(
-            'init() - configured brands from settings:',
-            configuredBrands ? configuredBrands.map((b) => `"${b.brand}" v${b.version}`).join(', ') : 'null',
-        );
-
-        if (!configuredBrands || configuredBrands.length === 0) {
-            this.log.info('No client hint brands correctly configured, feature disabled');
-            return;
-        }
         this.shimUserAgentDataBrands();
     }
 
@@ -55,51 +45,45 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
-     * Find the GREASE brand value from original brands
-     * @returns {{brand: string, version: string}|null} - GREASE brand or null if not found
-     */
-    findGreaseBrand() {
-        if (!this.originalBrands || this.originalBrands.length === 0) {
-            return null;
-        }
-
-        return this.originalBrands.find((brand) => {
-            const name = brand.brand;
-            // Check if it starts with "Not" or " Not" or contains special chars
-            return name.trim().startsWith('Not') || /[^\w\s.]/.test(name);
-        });
-    }
-
-    /**
-     * Apply brand mutations using the configured brands from feature settings
-     * Preserve the GREASE value from original brands at its original position
-     * @returns {Array<{brand: string, version: string}>|null} - Configured brands or null if no changes
+     * Apply brand mutations by replacing Microsoft Edge with DuckDuckGo
+     * This matches the native header manipulation behavior
+     * @returns {Array<{brand: string, version: string}>|null} - Modified brands or null if no changes
      */
     applyBrandMutations() {
-        const configuredBrands = this.getFeatureSetting('brands');
-
-        if (!configuredBrands || configuredBrands.length === 0) {
-            this.log.info('No CH brands configured, skipping mutations');
+        if (!this.originalBrands || this.originalBrands.length === 0) {
+            this.log.info('No original brands available, skipping mutations');
             return null;
         }
 
-        // Find GREASE value in original brands and preserve it
-        const greaseBrand = this.findGreaseBrand();
-        const greaseIndex = greaseBrand && this.originalBrands ? this.originalBrands.findIndex((b) => b.brand === greaseBrand.brand) : -1;
-
-        if (greaseBrand && greaseIndex !== -1) {
-            const result = [...configuredBrands];
-            // Insert GREASE at its original position or end if out of bounds
-            const insertAt = Math.min(greaseIndex, result.length);
-            result.splice(insertAt, 0, greaseBrand);
-            const brandNames = result.map((b) => `"${b.brand}" v${b.version}`).join(', ');
-            this.log.info(`Applying configured brands with GREASE at index ${insertAt}: [${brandNames}]`);
-            return result;
+        // Start with a copy and filter out Microsoft Edge WebView2
+        const result = this.originalBrands.filter((b) => b.brand !== 'Microsoft Edge WebView2');
+        
+        if (result.length < this.originalBrands.length) {
+            this.log.info('Removed "Microsoft Edge WebView2" brand');
         }
 
-        const brandNames = configuredBrands.map((b) => `"${b.brand}" v${b.version}`).join(', ');
-        this.log.info(`Applying configured brands (no GREASE found): [${brandNames}]`);
-        return configuredBrands;
+        const edgeIndex = result.findIndex((b) => b.brand === 'Microsoft Edge');
+
+        if (edgeIndex !== -1) {
+            // Replace Microsoft Edge with DuckDuckGo (keep version)
+            const edgeVersion = result[edgeIndex].version;
+            result[edgeIndex] = { brand: 'DuckDuckGo', version: edgeVersion };
+            this.log.info(`Replaced "Microsoft Edge" v${edgeVersion} with "DuckDuckGo" v${edgeVersion}`);
+        } else {
+            // Append DuckDuckGo with Chromium's version if available
+            const chromium = result.find((b) => b.brand === 'Chromium');
+            if (chromium) {
+                result.push({ brand: 'DuckDuckGo', version: chromium.version });
+                this.log.info(`Appended "DuckDuckGo" v${chromium.version} (using Chromium version)`);
+            } else {
+                this.log.info('No Microsoft Edge or Chromium found, skipping DuckDuckGo addition');
+                return null;
+            }
+        }
+
+        const brandNames = result.map((b) => `"${b.brand}" v${b.version}`).join(', ');
+        this.log.info(`Final brands: [${brandNames}]`);
+        return result;
     }
 
     /**

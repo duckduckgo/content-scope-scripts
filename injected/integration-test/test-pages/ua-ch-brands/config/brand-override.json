@@ -5,19 +5,7 @@
     "features": {
         "uaChBrands": {
             "state": "enabled",
-            "exceptions": [],
-            "settings": {
-                "brands": [
-                    {
-                        "brand": "DuckDuckGo",
-                        "version": "142"
-                    },
-                    {
-                        "brand": "Chromium",
-                        "version": "142"
-                    }
-                ]
-            }
+            "exceptions": []
         }
     }
 }
