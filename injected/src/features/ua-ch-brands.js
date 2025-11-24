@@ -45,6 +45,42 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
+     * Apply brand mutations to any brand list (brands or fullVersionList)
+     * Filters out WebView2 and replaces Edge with DuckDuckGo
+     * @param {Array<{brand: string, version: string}>} brandList - Original brand list
+     * @returns {Array<{brand: string, version: string}>} - Mutated brand list
+     */
+    applyBrandMutationsToList(brandList) {
+        if (!brandList || brandList.length === 0) {
+            return brandList;
+        }
+
+        // Filter out Microsoft Edge WebView2
+        const result = brandList.filter((b) => b.brand !== 'Microsoft Edge WebView2');
+
+        if (result.length < brandList.length) {
+            this.log.info('Removed "Microsoft Edge WebView2" from list');
+        }
+
+        // Find and replace Microsoft Edge with DuckDuckGo (preserving version)
+        const edgeIndex = result.findIndex((b) => b.brand === 'Microsoft Edge');
+        if (edgeIndex !== -1) {
+            const edgeVersion = result[edgeIndex].version;
+            result[edgeIndex] = { brand: 'DuckDuckGo', version: edgeVersion };
+            this.log.info(`Replaced "Microsoft Edge" with "DuckDuckGo" in list (version: ${edgeVersion})`);
+        } else {
+            // Append DuckDuckGo with Chromium's version if available
+            const chromium = result.find((b) => b.brand === 'Chromium');
+            if (chromium) {
+                result.push({ brand: 'DuckDuckGo', version: chromium.version });
+                this.log.info(`Appended "DuckDuckGo" to list (version: ${chromium.version})`);
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Apply brand mutations by replacing Microsoft Edge with DuckDuckGo
      * This matches the native header manipulation behavior
      * @returns {Array<{brand: string, version: string}>|null} - Modified brands or null if no changes
@@ -55,30 +91,12 @@ export default class UaChBrands extends ContentFeature {
             return null;
         }
 
-        // Start with a copy and filter out Microsoft Edge WebView2
-        const result = this.originalBrands.filter((b) => b.brand !== 'Microsoft Edge WebView2');
-        
-        if (result.length < this.originalBrands.length) {
-            this.log.info('Removed "Microsoft Edge WebView2" brand');
-        }
+        const result = this.applyBrandMutationsToList(this.originalBrands);
 
-        const edgeIndex = result.findIndex((b) => b.brand === 'Microsoft Edge');
-
-        if (edgeIndex !== -1) {
-            // Replace Microsoft Edge with DuckDuckGo (keep version)
-            const edgeVersion = result[edgeIndex].version;
-            result[edgeIndex] = { brand: 'DuckDuckGo', version: edgeVersion };
-            this.log.info(`Replaced "Microsoft Edge" v${edgeVersion} with "DuckDuckGo" v${edgeVersion}`);
-        } else {
-            // Append DuckDuckGo with Chromium's version if available
-            const chromium = result.find((b) => b.brand === 'Chromium');
-            if (chromium) {
-                result.push({ brand: 'DuckDuckGo', version: chromium.version });
-                this.log.info(`Appended "DuckDuckGo" v${chromium.version} (using Chromium version)`);
-            } else {
-                this.log.info('No Microsoft Edge or Chromium found, skipping DuckDuckGo addition');
-                return null;
-            }
+        // Return null if no DuckDuckGo was added (nothing changed)
+        if (!result.some((b) => b.brand === 'DuckDuckGo')) {
+            this.log.info('No Microsoft Edge or Chromium found, skipping mutations');
+            return null;
         }
 
         const brandNames = result.map((b) => `"${b.brand}" v${b.version}`).join(', ');
@@ -105,7 +123,6 @@ export default class UaChBrands extends ContentFeature {
                 if (args[0] && args[0].includes('brands')) {
                     result.brands = newBrands;
                 }
-                return result;
             });
         }
     }

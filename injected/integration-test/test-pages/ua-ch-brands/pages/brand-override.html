@@ -10,7 +10,7 @@
     <script src="../../shared/utils.js"></script>
     <p><a href="../index.html">[UA CH Brands]</a></p>
 
-    <p>This page verifies that navigator.userAgentData.brands uses the configured brands from the uaChBrands feature settings</p>
+    <p>This page verifies that navigator.userAgentData overwrites the UA CH brands to match the Sec-CH-UA header when the uaChBrands feature is enabled.</p>
 
     <script>
         test('Brand override', async () => {
@@ -76,6 +76,42 @@
                     } catch (error) {
                         results.push({
                             name: 'getHighEntropyValues works',
+                            result: false,
+                            expected: true
+                        });
+                    }
+
+                    try {
+                        const fullVersionData = await navigator.userAgentData.getHighEntropyValues(['fullVersionList']);
+                        if (fullVersionData.fullVersionList) {
+                            const fvlBrandNames = new Set(fullVersionData.fullVersionList.map(b => b.brand));
+
+                            results.push({
+                                name: 'fullVersionList contains Chromium',
+                                result: fvlBrandNames.has('Chromium'),
+                                expected: true
+                            });
+                            results.push({
+                                name: 'fullVersionList contains DuckDuckGo',
+                                result: fvlBrandNames.has('DuckDuckGo'),
+                                expected: true
+                            });
+
+                            results.push({
+                                name: 'fullVersionList does not contain Microsoft Edge',
+                                result: !fvlBrandNames.has('Microsoft Edge'),
+                                expected: true
+                            });
+
+                            results.push({
+                                name: 'fullVersionList does not contain Microsoft Edge WebView2',
+                                result: !fvlBrandNames.has('Microsoft Edge WebView2'),
+                                expected: true
+                            });
+                        }
+                    } catch (error) {
+                        results.push({
+                            name: 'getHighEntropyValues fullVersionList works',
                             result: false,
                             expected: true
                         });
