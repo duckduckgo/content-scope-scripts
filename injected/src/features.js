@@ -24,6 +24,7 @@ const otherFeatures = /** @type {const} */ ([
     'duckAiDataClearing',
     'harmfulApis',
     'webCompat',
+    'webInterferenceDetection',
     'windowsPermissionUsage',
     'uaChBrands',
     'brokerProtection',
@@ -38,7 +39,7 @@ const otherFeatures = /** @type {const} */ ([
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'duckAiDataClearing', 'pageContext'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webInterferenceDetection', 'duckAiDataClearing', 'pageContext'],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
@@ -49,7 +50,7 @@ export const platformSupport = {
         'messageBridge',
         'favicon',
     ],
-    android: [...baseFeatures, 'webCompat', 'breakageReporting', 'duckPlayer', 'messageBridge'],
+    android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
@@ -66,6 +67,7 @@ export const platformSupport = {
     windows: [
         'cookie',
         ...baseFeatures,
+        'webInterferenceDetection',
         'webTelemetry',
         'windowsPermissionUsage',
         'uaChBrands',
@@ -78,7 +80,7 @@ export const platformSupport = {
         'duckAiDataClearing',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
-    chrome: ['cookie', ...baseFeatures, 'clickToLoad'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad'],
+    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
     integration: [...baseFeatures, ...otherFeatures],
 };
