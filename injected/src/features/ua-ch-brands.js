@@ -32,7 +32,7 @@ export default class UaChBrands extends ContentFeature {
 
             const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands);
 
-            if (mutatedBrands) {
+            if (mutatedBrands.length) {
                 this.log.info(
                     'shimUserAgentDataBrands - about to apply override with:',
                     mutatedBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
@@ -48,12 +48,12 @@ export default class UaChBrands extends ContentFeature {
     /**
      * Replace Microsoft Edge with DuckDuckGo in the brands list to match Sec-CH-UA header
      * @param {Array<{brand: string, version: string}>} list
-     * @returns {Array<{brand: string, version: string}>|null} - Modified brands or null if no changes
+     * @returns {Array<{brand: string, version: string}>} - Modified brands array
      */
     applyBrandMutationsToList(list) {
         if (!Array.isArray(list) || !list.length) {
             this.log.info('applyBrandMutationsToList - no brands to mutate');
-            return null;
+            return [];
         }
 
         const mutated = list.filter((b) => b.brand !== 'Microsoft Edge WebView2');
@@ -71,9 +71,6 @@ export default class UaChBrands extends ContentFeature {
             if (chromium) {
                 mutated.push({ brand: 'DuckDuckGo', version: chromium.version });
                 this.log.info(`Appended "DuckDuckGo" v${chromium.version} (to match Chromium version)`);
-            } else {
-                this.log.info('No Microsoft Edge or Chromium found, skipping DuckDuckGo addition');
-                return null;
             }
         }
 
@@ -109,10 +106,8 @@ export default class UaChBrands extends ContentFeature {
                     if (key === 'brands' && args[0]?.includes('brands')) {
                         result = newBrands;
                     }
-                    if (key === 'fullVersionList' && args[0]?.includes('fullVersionList') && value) {
-                        const mutated = featureInstance.applyBrandMutationsToList(value);
-                        // Preserve original value if mutation returns null (no Edge/Chromium found)
-                        result = mutated !== null ? mutated : value;
+                    if (key === 'fullVersionList' && args[0]?.includes('fullVersionList')) {
+                        result = featureInstance.applyBrandMutationsToList(value);
                     }
 
                     modifiedResult[key] = result;
