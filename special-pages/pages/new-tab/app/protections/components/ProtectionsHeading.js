@@ -85,7 +85,7 @@ export function ProtectionsHeading({
                     {animatedTrackersBlocked === 0 && <h3 class={styles.title}>{t('protections_noRecent')}</h3>}
                     {animatedTrackersBlocked > 0 && (
                         <h3 class={styles.title}>
-                            <span>{animatedTrackersBlocked}</span> {trackersBlockedHeading}
+                            {animatedTrackersBlocked} <span>{trackersBlockedHeading}</span>
                         </h3>
                     )}
                 </div>
@@ -97,7 +97,7 @@ export function ProtectionsHeading({
                 {isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && (
                     <div class={styles.counter}>
                         <h3 class={styles.title}>
-                            <span>{animatedCookiePopUpsBlocked}</span> {cookiePopUpsBlockedHeading}
+                            {animatedCookiePopUpsBlocked} <span>{cookiePopUpsBlockedHeading}</span>
                         </h3>
                         {/* @todo `NewBadgeIcon` will be manually removed in
                         a future iteration */}

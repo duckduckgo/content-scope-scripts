@@ -75,17 +75,19 @@
 }
 
 .title {
-    color: var(--ntp-text-muted);
-    grid-area: title;
-    font-size: var(--title-3-em-font-size);
+    color: var(--ntp-text-primary);
+    font-size: 40px;
     font-weight: 400;
+    grid-area: title;
     line-height: 28px;
 
   & span {
-    color: var(--ntp-text-primary);
+    color: var(--ntp-text-muted);
     display: block;
-    font-size: 40px;
-    padding-bottom: 6px;
+    font-size: var(--title-3-em-font-size);
+    line-height: 20px;
+    padding-bottom: 4px;
+    padding-top: 12px;
   }
 }
 
