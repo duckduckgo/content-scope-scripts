@@ -74,7 +74,7 @@ export function HistoryItemsLegacy({ id }) {
         <ul class={stylesLegacy.history} onClick={onClick}>
             {history.value.slice(0, current).map((item, index) => {
                 const isLast = index === current - 1;
-                return <HistoryItem key={item.url + item.title} item={item} isLast={isLast} current={current} min={min} max={max} />;
+                return <HistoryItemLegacy key={item.url + item.title} item={item} isLast={isLast} current={current} min={min} max={max} />;
             })}
         </ul>
     );
@@ -111,6 +111,47 @@ function HistoryItem({ item, isLast, current, min, max }) {
             <small class={styles.time}>{item.relativeTime}</small>
             {isLast && showButton && (
                 <button data-action={hasMore && isLast ? 'show' : 'hide'} class={styles.historyBtn} aria-label={buttonLabel}>
+                    <ChevronSmall />
+                </button>
+            )}
+        </li>
+    );
+}
+
+// @todo legacyProtections: Remove once all platforms support the new
+// protections report UI
+
+/**
+ * Renders a legacy history item with relevant details such as title, time, and optional show/hide button.
+ *
+ * @param {object} props
+ * @param {HistoryEntry} props.item - The history item object containing details like title, URL, and relative time.
+ * @param {boolean} props.isLast - Indicates if the current item is the last item in the history list.
+ * @param {number} props.current - The current number of visible history items.
+ * @param {number} props.min - The minimum number of visible history items.
+ * @param {number} props.max - The maximum number of visible history items.
+ */
+function HistoryItemLegacy({ item, isLast, current, min, max }) {
+    const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
+
+    const hasMore = current < max;
+    const hasLess = current > min;
+    const hiddenCount = max - current;
+    const showButton = hasMore || hasLess;
+
+    // prettier-ignore
+    const buttonLabel = hasMore && isLast
+        ? t('activity_show_more_history', { count: String(hiddenCount) })
+        : t('activity_show_less_history');
+
+    return (
+        <li class={stylesLegacy.historyItem}>
+            <a href={item.url} class={stylesLegacy.historyLink} title={item.url} data-url={item.url}>
+                {item.title}
+            </a>
+            <small class={stylesLegacy.time}>{item.relativeTime}</small>
+            {isLast && showButton && (
+                <button data-action={hasMore && isLast ? 'show' : 'hide'} class={stylesLegacy.historyBtn} aria-label={buttonLabel}>
                     <ChevronSmall />
                 </button>
             )}
