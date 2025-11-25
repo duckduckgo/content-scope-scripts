@@ -4,6 +4,22 @@ import { ResultsCollector } from './page-objects/results-collector.js';
 const HTML = '/duck-ai-data-clearing/index.html';
 const CONFIG = './integration-test/test-pages/duck-ai-data-clearing/config/enabled.json';
 
+test('duck-ai-data-clearing feature is ready', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    collector.withUserPreferences({
+        messageSecret: 'ABC',
+        javascriptInterface: 'javascriptInterface',
+        messageCallback: 'messageCallback',
+    });
+    await collector.load(HTML, CONFIG);
+
+    // Wait for completion message
+    const messages = await collector.waitForMessage('duckAiClearDataReady', 1);
+
+    expect(messages).toHaveLength(1);
+    expect(messages[0].payload.method).toBe('duckAiClearDataReady');
+});
+
 test('duck-ai-data-clearing feature clears localStorage and IndexedDB', async ({ page }, testInfo) => {
     const collector = ResultsCollector.create(page, testInfo.project.use);
     collector.withUserPreferences({
