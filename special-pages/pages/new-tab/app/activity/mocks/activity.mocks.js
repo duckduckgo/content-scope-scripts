@@ -77,6 +77,7 @@ export const activityMocks = {
                     totalCount: 56,
                 },
                 history: [],
+                cookiePopUpBlocked: true,
             },
         ],
     },
@@ -115,6 +116,7 @@ export const activityMocks = {
                         relativeTime: '1 day ago',
                     },
                 ],
+                cookiePopUpBlocked: true,
             },
             {
                 favicon: { src: 'youtube-icon.png' },
@@ -139,6 +141,7 @@ export const activityMocks = {
                         relativeTime: '3 days ago',
                     },
                 ],
+                cookiePopUpBlocked: false,
             },
             {
                 favicon: { src: 'amazon-icon.png' },
@@ -158,6 +161,7 @@ export const activityMocks = {
                         relativeTime: '1 day ago',
                     },
                 ],
+                cookiePopUpBlocked: true,
             },
             {
                 favicon: { src: 'twitter-icon.png' },
@@ -177,6 +181,7 @@ export const activityMocks = {
                         relativeTime: '2 days ago',
                     },
                 ],
+                cookiePopUpBlocked: true,
             },
             {
                 favicon: { src: 'linkedin-icon.png' },
@@ -196,6 +201,7 @@ export const activityMocks = {
                         relativeTime: '2 hrs ago',
                     },
                 ],
+                cookiePopUpBlocked: false,
             },
         ],
     },

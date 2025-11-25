@@ -58,6 +58,13 @@ body[data-animate-background="true"] {
     color: var(--ntp-text-normal);
 }
 
+/* WebKit-only fix for layout shift when scrollbar appears */
+@supports (-webkit-appearance: none) {
+    .main {
+        overflow-y: scroll;
+    }
+}
+
 .themeContext {
     color: var(--ntp-text-normal);
 }
