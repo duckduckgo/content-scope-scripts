@@ -91,6 +91,14 @@
   }
 }
 
+.noRecentTitle {
+    color: var(--ntp-text-muted);
+    grid-area: title;
+    font-size: var(--title-3-em-font-size);
+    font-weight: 400;
+    line-height: 28px;
+}
+
 .subtitle {
     grid-area: label;
     color: var(--ntp-text-muted);
