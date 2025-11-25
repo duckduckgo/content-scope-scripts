@@ -82,7 +82,7 @@ export function ProtectionsHeading({
             <div class={styles.counterContainer}>
                 {/* Total Trackers Blocked  */}
                 <div class={styles.counter}>
-                    {animatedTrackersBlocked === 0 && <h3 class={styles.title}>{t('protections_noRecent')}</h3>}
+                    {animatedTrackersBlocked === 0 && <h3 class={styles.noRecentTitle}>{t('protections_noRecent')}</h3>}
                     {animatedTrackersBlocked > 0 && (
                         <h3 class={styles.title}>
                             {animatedTrackersBlocked} <span>{trackersBlockedHeading}</span>
