@@ -40,7 +40,7 @@ export class DuckAiDataClearing extends ContentFeature {
             this.notify('duckAiClearDataCompleted');
         } else {
             this.notify('duckAiClearDataFailed', {
-                error: lastError?.message
+                error: lastError?.message,
             });
         }
     }
