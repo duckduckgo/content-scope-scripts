@@ -23,10 +23,6 @@
     "title": "<b>{count}</b> tracking attempts blocked",
     "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
-  "activity_countBlockedPluralLegacy": {
-    "title": "<b>{count}</b> tracking attempts blocked",
-    "note": "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
-  },
   "activity_countBlockedSingular": {
     "title": "{count} Tracking attempt blocked",
     "note": "Pill text indicating that 1 attempt has been blocked. Eg: '1 Tracking attempt blocked'"
