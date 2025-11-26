@@ -1,0 +1,19 @@
+{
+  "readme": "This config tests domain-specific brand overrides for UA-CH-Brands feature",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "uaChBrands": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "domains": [
+          {
+            "domain": "localhost",
+            "brand": "Netscape Navigator"
+          }
+        ]
+      }
+    }
+  }
+}

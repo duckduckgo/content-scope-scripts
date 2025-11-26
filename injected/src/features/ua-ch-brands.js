@@ -13,7 +13,21 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
-     * Override navigator.userAgentData.brands to match the Sec-CH-UA header
+     * Get the target brand from domain settings or default to DuckDuckGo
+     * @returns {string} - Target brand name
+     */
+    getBrandOverride() {
+        const domainSettings = this.matchConditionalFeatureSetting('domains');
+        if (domainSettings.length && domainSettings[0].brand) {
+            const brand = domainSettings[0].brand;
+            this.log.info(`Using domain-specific brand override: "${brand}"`);
+            return brand;
+        }
+        return 'DuckDuckGo';
+    }
+
+    /**
+     * Override navigator.userAgentData to match the Sec-CH-UA header
      */
     shimUserAgentDataBrands() {
         try {
@@ -30,7 +44,8 @@ export default class UaChBrands extends ContentFeature {
                 this.originalBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
             );
 
-            const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands);
+            const targetBrand = this.getBrandOverride();
+            const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands, targetBrand);
 
             if (mutatedBrands.length) {
                 this.log.info(
@@ -46,11 +61,12 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
-     * Replace Microsoft Edge with DuckDuckGo in the brands list to match Sec-CH-UA header
-     * @param {Array<{brand: string, version: string}>} list
+     * Filter out unwanted brands and replace/append target brand to match Sec-CH-UA header
+     * @param {Array<{brand: string, version: string}>} list - Original brands list
+     * @param {string} [targetBrand='DuckDuckGo'] - Target brand
      * @returns {Array<{brand: string, version: string}>} - Modified brands array
      */
-    applyBrandMutationsToList(list) {
+    applyBrandMutationsToList(list, targetBrand = 'DuckDuckGo') {
         if (!Array.isArray(list) || !list.length) {
             this.log.info('applyBrandMutationsToList - no brands to mutate');
             return [];
@@ -64,13 +80,13 @@ export default class UaChBrands extends ContentFeature {
         const edgeIndex = mutated.findIndex((b) => b.brand === 'Microsoft Edge');
         if (edgeIndex !== -1) {
             const edgeVersion = mutated[edgeIndex].version;
-            mutated[edgeIndex] = { brand: 'DuckDuckGo', version: edgeVersion };
-            this.log.info(`Replaced "Microsoft Edge" v${edgeVersion} with "DuckDuckGo" v${edgeVersion}`);
+            mutated[edgeIndex] = { brand: targetBrand, version: edgeVersion };
+            this.log.info(`Replaced "Microsoft Edge" v${edgeVersion} with "${targetBrand}" v${edgeVersion}`);
         } else {
             const chromium = mutated.find((b) => b.brand === 'Chromium');
             if (chromium) {
-                mutated.push({ brand: 'DuckDuckGo', version: chromium.version });
-                this.log.info(`Appended "DuckDuckGo" v${chromium.version} (to match Chromium version)`);
+                mutated.push({ brand: targetBrand, version: chromium.version });
+                this.log.info(`Appended "${targetBrand}" v${chromium.version} (to match Chromium version)`);
             }
         }
 
@@ -106,8 +122,9 @@ export default class UaChBrands extends ContentFeature {
                     if (key === 'brands' && args[0]?.includes('brands')) {
                         result = newBrands;
                     }
-                    if (key === 'fullVersionList' && args[0]?.includes('fullVersionList')) {
-                        result = featureInstance.applyBrandMutationsToList(value);
+                    if (key === 'fullVersionList' && args[0]?.includes('fullVersionList') && value) {
+                        const targetBrand = featureInstance.getBrandOverride();
+                        result = featureInstance.applyBrandMutationsToList(value, targetBrand);
                     }
 
                     modifiedResult[key] = result;

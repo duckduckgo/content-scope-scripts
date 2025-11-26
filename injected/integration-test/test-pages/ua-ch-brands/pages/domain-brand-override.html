@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>UA-CH-Brands: Domain Brand Override Test</title>
+</head>
+<body>
+    <h1>UA-CH-Brands Domain Brand Override Test</h1>
+    <div id="results"></div>
+    
+    <script type="module">
+        const results = [];
+        
+        if (navigator.userAgentData?.brands) {
+            const brands = navigator.userAgentData.brands;
+            const netscapeCount = brands.filter(b => b.brand === 'Netscape Navigator').length;
+            const ddgCount = brands.filter(b => b.brand === 'DuckDuckGo').length;
+            const edgeCount = brands.filter(b => b.brand === 'Microsoft Edge').length;
+            const webview2Count = brands.filter(b => b.brand === 'Microsoft Edge WebView2').length;
+            
+            results.push({
+                test: 'brands-contains-netscape',
+                result: netscapeCount > 0 ? 'PASS' : 'FAIL',
+                details: `Found ${netscapeCount} Netscape Navigator brand(s)`
+            });
+            
+            results.push({
+                test: 'brands-no-duckduckgo',
+                result: ddgCount === 0 ? 'PASS' : 'FAIL',
+                details: `Found ${ddgCount} DuckDuckGo brand(s) (expected 0)`
+            });
+            
+            results.push({
+                test: 'brands-no-edge',
+                result: edgeCount === 0 ? 'PASS' : 'FAIL',
+                details: `Found ${edgeCount} Microsoft Edge brand(s) (expected 0)`
+            });
+            
+            results.push({
+                test: 'brands-no-webview2',
+                result: webview2Count === 0 ? 'PASS' : 'FAIL',
+                details: `Found ${webview2Count} WebView2 brand(s) (expected 0)`
+            });
+        }
+        
+        if (navigator.userAgentData?.getHighEntropyValues) {
+            try {
+                const highEntropy = await navigator.userAgentData.getHighEntropyValues(['brands']);
+                if (highEntropy.brands) {
+                    const brands = highEntropy.brands;
+                    const netscapeCount = brands.filter(b => b.brand === 'Netscape Navigator').length;
+                    const ddgCount = brands.filter(b => b.brand === 'DuckDuckGo').length;
+                    const edgeCount = brands.filter(b => b.brand === 'Microsoft Edge').length;
+                    const webview2Count = brands.filter(b => b.brand === 'Microsoft Edge WebView2').length;
+                    
+                    results.push({
+                        test: 'getHighEntropyValues-brands-contains-netscape',
+                        result: netscapeCount > 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${netscapeCount} Netscape Navigator brand(s) in getHighEntropyValues brands`
+                    });
+                    
+                    results.push({
+                        test: 'getHighEntropyValues-brands-no-duckduckgo',
+                        result: ddgCount === 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${ddgCount} DuckDuckGo brand(s) in getHighEntropyValues brands (expected 0)`
+                    });
+                    
+                    results.push({
+                        test: 'getHighEntropyValues-brands-no-edge',
+                        result: edgeCount === 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${edgeCount} Microsoft Edge brand(s) in getHighEntropyValues brands (expected 0)`
+                    });
+                    
+                    results.push({
+                        test: 'getHighEntropyValues-brands-no-webview2',
+                        result: webview2Count === 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${webview2Count} WebView2 brand(s) in getHighEntropyValues brands (expected 0)`
+                    });
+                }
+            } catch (e) {
+                results.push({
+                    test: 'getHighEntropyValues-brands-error',
+                    result: 'ERROR',
+                    details: e.message
+                });
+            }
+        }
+        
+        if (navigator.userAgentData?.getHighEntropyValues) {
+            try {
+                const highEntropy = await navigator.userAgentData.getHighEntropyValues(['fullVersionList']);
+                if (highEntropy.fullVersionList) {
+                    const fvl = highEntropy.fullVersionList;
+                    const netscapeCount = fvl.filter(b => b.brand === 'Netscape Navigator').length;
+                    const ddgCount = fvl.filter(b => b.brand === 'DuckDuckGo').length;
+                    const edgeCount = fvl.filter(b => b.brand === 'Microsoft Edge').length;
+                    const webview2Count = fvl.filter(b => b.brand === 'Microsoft Edge WebView2').length;
+                    
+                    results.push({
+                        test: 'fullVersionList-contains-netscape',
+                        result: netscapeCount > 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${netscapeCount} Netscape Navigator brand(s) in fullVersionList`
+                    });
+                    
+                    results.push({
+                        test: 'fullVersionList-no-duckduckgo',
+                        result: ddgCount === 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${ddgCount} DuckDuckGo brand(s) in fullVersionList (expected 0)`
+                    });
+                    
+                    results.push({
+                        test: 'fullVersionList-no-edge',
+                        result: edgeCount === 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${edgeCount} Microsoft Edge brand(s) in fullVersionList (expected 0)`
+                    });
+                    
+                    results.push({
+                        test: 'fullVersionList-no-webview2',
+                        result: webview2Count === 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${webview2Count} WebView2 brand(s) in fullVersionList (expected 0)`
+                    });
+                }
+            } catch (e) {
+                results.push({
+                    test: 'fullVersionList-error',
+                    result: 'ERROR',
+                    details: e.message
+                });
+            }
+        }
+        
+        window.results = results;
+        
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '<pre>' + JSON.stringify(results, null, 2) + '</pre>';
+    </script>
+</body>
+</html>
