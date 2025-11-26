@@ -99,7 +99,7 @@ export function protectionsMockTransport() {
                     dataset.totalCookiePopUpsBlocked = undefined;
 
                     if (url.searchParams.get('cpm') === 'true') {
-                        dataset.totalCookiePopUpsBlocked = 22;
+                        dataset.totalCookiePopUpsBlocked = 1222;
                     }
 
                     // CPM = 0 state
