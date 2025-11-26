@@ -49,8 +49,10 @@ body {
     --ntp-surface-border-color: var(--color-black-at-9);
     --ntp-text-normal: var(--color-black-at-84);
     --ntp-text-muted: var(--color-black-at-60);
+    --ntp-protections-text-muted: var(--color-black-at-66);
     --ntp-text-on-primary: var(--color-white-at-84);
     --ntp-color-primary: var(--ddg-color-primary);
+    --ntp-widget-expander-bg: rgba(31, 31, 31, 0.09);
     --ntp-focus-outline-color: black;
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
@@ -86,8 +88,10 @@ body {
     --ntp-surface-border-color: var(--color-white-at-12);
     --ntp-text-normal: var(--color-white-at-84);
     --ntp-text-muted: var(--color-white-at-60);
+    --ntp-protections-text-muted: var(--color-white-at-66);
     --ntp-color-primary: var(--color-blue-30);
     --ntp-text-on-primary: var(--color-black-at-84);
+    --ntp-widget-expander-bg: rgba(249, 249, 249, 0.12);
     --ntp-focus-outline-color: white;
     --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
     --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
