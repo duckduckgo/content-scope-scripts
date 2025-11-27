@@ -2879,6 +2879,7 @@
       "webCompat",
       "webInterferenceDetection",
       "windowsPermissionUsage",
+      "uaChBrands",
       "brokerProtection",
       "performanceMetrics",
       "breakageReporting",
@@ -2920,6 +2921,7 @@
       "webInterferenceDetection",
       "webTelemetry",
       "windowsPermissionUsage",
+      "uaChBrands",
       "duckPlayer",
       "brokerProtection",
       "breakageReporting",
@@ -16290,6 +16292,133 @@ ul.messages {
     }
   };
 
+  // src/features/ua-ch-brands.js
+  init_define_import_meta_trackerLookup();
+  var UaChBrands = class extends ContentFeature {
+    constructor(featureName, importConfig, args) {
+      super(featureName, importConfig, args);
+      this.originalBrands = null;
+    }
+    init() {
+      const shouldFilterWebView2 = this.getFeatureSettingEnabled("filterWebView2", "enabled");
+      const shouldOverrideEdge = this.getFeatureSettingEnabled("overrideEdge", "enabled");
+      if (!shouldFilterWebView2 && !shouldOverrideEdge) {
+        this.log.info("Both filterWebView2 and overrideEdge disabled, skipping UA-CH-Brands modifications");
+        return;
+      }
+      this.shimUserAgentDataBrands(shouldFilterWebView2, shouldOverrideEdge);
+    }
+    /**
+     * Get the override target brand from domain settings or default to DuckDuckGo
+     * @returns {string|null} - Brand name to use for replacement/append (null to skip override)
+     */
+    getBrandOverride() {
+      const brandName = this.getFeatureSetting("brandName") || "DuckDuckGo";
+      if (brandName !== "DuckDuckGo") {
+        this.log.info(`Using brand override: "${brandName}"`);
+      }
+      return brandName;
+    }
+    /**
+     * Override navigator.userAgentData.brands to match the Sec-CH-UA header
+     * @param {boolean} shouldFilterWebView2 - Whether to filter WebView2
+     * @param {boolean} shouldOverrideEdge - Whether to append/replace with target brand
+     */
+    shimUserAgentDataBrands(shouldFilterWebView2, shouldOverrideEdge) {
+      try {
+        if (!navigator.userAgentData || !navigator.userAgentData.brands) {
+          this.log.info("shimUserAgentDataBrands - navigator.userAgentData not available");
+          return;
+        }
+        this.originalBrands = [...navigator.userAgentData.brands];
+        this.log.info(
+          "shimUserAgentDataBrands - captured original brands:",
+          this.originalBrands.map((b2) => `"${b2.brand}" v${b2.version}`).join(", ")
+        );
+        const targetBrand = shouldOverrideEdge ? this.getBrandOverride() : null;
+        const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands, targetBrand, shouldFilterWebView2);
+        if (mutatedBrands.length) {
+          this.log.info(
+            "shimUserAgentDataBrands - about to apply override with:",
+            mutatedBrands.map((b2) => `"${b2.brand}" v${b2.version}`).join(", ")
+          );
+          this.applyBrandsOverride(mutatedBrands, shouldOverrideEdge, shouldFilterWebView2);
+          this.log.info("shimUserAgentDataBrands - override applied successfully");
+        }
+      } catch (error) {
+        this.log.error("Error in shimUserAgentDataBrands:", error);
+      }
+    }
+    /**
+     * Filter out unwanted brands and append/replace with target brand to match Sec-CH-UA header
+     * @param {Array<{brand: string, version: string}>} list - Original brands list
+     * @param {string|null} targetBrand - Brand to use for replacement/append (null to skip override)
+     * @param {boolean} [shouldFilterWebView2=true] - Whether to filter WebView2
+     * @returns {Array<{brand: string, version: string}>} - Modified brands array
+     */
+    applyBrandMutationsToList(list, targetBrand, shouldFilterWebView2 = true) {
+      if (!Array.isArray(list) || !list.length) {
+        this.log.info("applyBrandMutationsToList - no brands to mutate");
+        return [];
+      }
+      let mutated = [...list];
+      if (shouldFilterWebView2) {
+        mutated = mutated.filter((b2) => b2.brand !== "Microsoft Edge WebView2");
+        if (mutated.length < list.length) {
+          this.log.info('Removed "Microsoft Edge WebView2" brand');
+        }
+      }
+      if (targetBrand !== null) {
+        const edgeIndex = mutated.findIndex((b2) => b2.brand === "Microsoft Edge");
+        if (edgeIndex !== -1) {
+          const edgeVersion = mutated[edgeIndex].version;
+          mutated[edgeIndex] = { brand: targetBrand, version: edgeVersion };
+          this.log.info(`Replaced "Microsoft Edge" v${edgeVersion} with "${targetBrand}" v${edgeVersion}`);
+        } else {
+          const chromium = mutated.find((b2) => b2.brand === "Chromium");
+          if (chromium) {
+            mutated.push({ brand: targetBrand, version: chromium.version });
+            this.log.info(`Appended "${targetBrand}" v${chromium.version} (to match Chromium version)`);
+          }
+        }
+      }
+      const brandNames = mutated.map((b2) => `"${b2.brand}" v${b2.version}`).join(", ");
+      this.log.info(`Final brands: [${brandNames}]`);
+      return mutated;
+    }
+    /**
+     * Apply the brand override to navigator.userAgentData
+     * @param {Array<{brand: string, version: string}>} newBrands - Brands to apply
+     * @param {boolean} shouldOverrideEdge - Whether to replace/append brand
+     * @param {boolean} shouldFilterWebView2 - Whether to filter WebView2
+     */
+    applyBrandsOverride(newBrands, shouldOverrideEdge, shouldFilterWebView2) {
+      const proto = Object.getPrototypeOf(navigator.userAgentData);
+      this.wrapProperty(proto, "brands", {
+        get: () => newBrands
+      });
+      if (proto.getHighEntropyValues) {
+        const featureInstance2 = this;
+        this.wrapMethod(proto, "getHighEntropyValues", async function(originalFn, ...args) {
+          const originalResult = await DDGReflect.apply(originalFn, this, args);
+          const modifiedResult = {};
+          for (const [key, value] of Object.entries(originalResult)) {
+            let result = value;
+            if (key === "brands" && args[0]?.includes("brands")) {
+              result = newBrands;
+            }
+            if (key === "fullVersionList" && args[0]?.includes("fullVersionList") && value) {
+              const targetBrand = shouldOverrideEdge ? featureInstance2.getBrandOverride() : null;
+              result = featureInstance2.applyBrandMutationsToList(value, targetBrand, shouldFilterWebView2);
+            }
+            modifiedResult[key] = result;
+          }
+          return modifiedResult;
+        });
+      }
+    }
+  };
+
   // src/features/broker-protection.js
   init_define_import_meta_trackerLookup();
 
@@ -21404,6 +21533,7 @@ ${iframeContent}
     ddg_feature_webCompat: web_compat_default,
     ddg_feature_webInterferenceDetection: WebInterferenceDetection,
     ddg_feature_windowsPermissionUsage: WindowsPermissionUsage,
+    ddg_feature_uaChBrands: UaChBrands,
     ddg_feature_brokerProtection: BrokerProtection,
     ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_breakageReporting: BreakageReporting,

@@ -1,0 +1,14 @@
+{
+  "readme": "Test config with overrideEdge disabled but filterWebView2 enabled (default)",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "uaChBrands": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "overrideEdge": "disabled"
+      }
+    }
+  }
+}
