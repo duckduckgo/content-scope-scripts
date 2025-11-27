@@ -88,10 +88,10 @@ export default class WebNotifications extends ContentFeature {
              */
             constructor(title, options = {}) {
                 this.#id = crypto.randomUUID();
-                this.title = title;
-                this.body = options.body || '';
-                this.icon = options.icon || '';
-                this.tag = options.tag || '';
+                this.title = String(title);
+                this.body = options.body ? String(options.body) : '';
+                this.icon = options.icon ? String(options.icon) : '';
+                this.tag = options.tag ? String(options.tag) : '';
                 this.data = options.data;
 
                 feature.#notifications.set(this.#id, this);

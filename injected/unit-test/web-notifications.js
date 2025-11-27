@@ -110,6 +110,26 @@ describe('WebNotifications feature', () => {
             expect(notification.onerror).toBeNull();
             expect(notification.onshow).toBeNull();
         });
+
+        it('should coerce non-string options to strings', () => {
+            const notification = new globalThis.Notification(123, {
+                body: 456,
+                icon: 789,
+                tag: 42,
+            });
+            expect(notification.title).toBe('123');
+            expect(notification.body).toBe('456');
+            expect(notification.icon).toBe('789');
+            expect(notification.tag).toBe('42');
+        });
+
+        it('should send coerced string values to native', () => {
+            new globalThis.Notification(123, { tag: 42 });
+            expect(mockMessaging.notify).toHaveBeenCalledWith('showNotification', jasmine.objectContaining({
+                title: '123',
+                tag: '42',
+            }));
+        });
     });
 
     describe('Notification.close()', () => {
