@@ -30,12 +30,12 @@ export function Components() {
         userColor: null,
     };
     const dataSignal = useSignal(data);
-    const { main, browser } = useThemes(dataSignal);
+    const { main, browser, variant } = useThemes(dataSignal);
 
     return (
-        <CustomizerThemesContext.Provider value={{ main, browser }}>
+        <CustomizerThemesContext.Provider value={{ main, browser, variant }}>
             <div class={styles.main} data-main-scroller data-theme={main}>
-                <BackgroundConsumer browser={browser} />
+                <BackgroundConsumer browser={browser} variant={variant} />
                 <div data-content-tube class={styles.contentTube}>
                     {isolated && <Isolated entries={filtered} e2e={e2e} />}
                     {!isolated && (
