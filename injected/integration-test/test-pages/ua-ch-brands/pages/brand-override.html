@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>UA CH Brands - Brand Override</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[UA CH Brands]</a></p>
+
+    <p>This page verifies that navigator.userAgentData overwrites the UA CH brands to match the Sec-CH-UA header when the uaChBrands feature is enabled.</p>
+
+    <script>
+        test('Brand override', async () => {
+            const results = [];
+
+            if (navigator.userAgentData && navigator.userAgentData.brands) {
+                const brands = navigator.userAgentData.brands;
+                const brandNames = new Set(brands.map(b => b.brand));
+
+                results.push({
+                    name: 'navigator.userAgentData.brands contains DuckDuckGo',
+                    result: brandNames.has('DuckDuckGo'),
+                    expected: true
+                });
+
+                if (navigator.userAgentData.getHighEntropyValues) {
+                    try {
+                        const highEntropyValues = await navigator.userAgentData.getHighEntropyValues(['brands']);
+                        if (highEntropyValues.brands) {
+                            const heBrandNames = new Set(highEntropyValues.brands.map(b => b.brand));
+
+                            results.push({
+                                name: 'navigator.userAgentData.getHighEntropyValues brands contains DuckDuckGo',
+                                result: heBrandNames.has('DuckDuckGo'),
+                                expected: true
+                            });
+                        }
+                    } catch (error) {
+                        results.push({
+                            name: 'getHighEntropyValues brands works',
+                            result: false,
+                            expected: true
+                        });
+                    }
+
+                    try {
+                        const fullVersionData = await navigator.userAgentData.getHighEntropyValues(['fullVersionList']);
+                        if (fullVersionData.fullVersionList) {
+                            const fvlBrandNames = new Set(fullVersionData.fullVersionList.map(b => b.brand));
+
+                            results.push({
+                                name: 'navigator.userAgentData.getHighEntropyValues fullVersionList contains DuckDuckGo',
+                                result: fvlBrandNames.has('DuckDuckGo'),
+                                expected: true
+                            });
+                        }
+                    } catch (error) {
+                        results.push({
+                            name: 'getHighEntropyValues fullVersionList works',
+                            result: false,
+                            expected: true
+                        });
+                    }
+                }
+            } else {
+                results.push({
+                    name: 'navigator.userAgentData.brands available',
+                    result: false,
+                    expected: true
+                });
+            }
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>
