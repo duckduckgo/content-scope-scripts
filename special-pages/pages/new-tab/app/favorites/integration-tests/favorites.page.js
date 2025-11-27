@@ -200,6 +200,9 @@ export class FavoritesPage {
         const body = page.locator('body');
         await body.press('Tab');
         await body.press('Tab');
+        // Additional Tab for the new InfoIcon tooltip button in
+        // ProtectionsHeading
+        await body.press('Tab');
         const statsToggle = page.getByLabel('Hide recent activity');
         await expect(statsToggle).toBeFocused();
     }

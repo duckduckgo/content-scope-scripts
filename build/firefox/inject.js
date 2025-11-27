@@ -1311,6 +1311,7 @@
       "duckAiDataClearing",
       "harmfulApis",
       "webCompat",
+      "webInterferenceDetection",
       "windowsPermissionUsage",
       "brokerProtection",
       "performanceMetrics",
@@ -1322,7 +1323,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiDataClearing", "pageContext"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "duckAiDataClearing", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
@@ -1333,7 +1334,7 @@
       "messageBridge",
       "favicon"
     ],
-    android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
+    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
@@ -1350,6 +1351,7 @@
     windows: [
       "cookie",
       ...baseFeatures,
+      "webInterferenceDetection",
       "webTelemetry",
       "windowsPermissionUsage",
       "duckPlayer",
@@ -1361,8 +1363,8 @@
       "duckAiDataClearing"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
-    chrome: ["cookie", ...baseFeatures, "clickToLoad"],
-    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad"],
+    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
+    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     integration: [...baseFeatures, ...otherFeatures]
   };
 
@@ -6552,9 +6554,16 @@
     let selector = "";
     rules.forEach((rule, i) => {
       if (i !== rules.length - 1) {
-        selector = selector.concat(rule.selector, ",");
+        selector = selector.concat(
+          /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
+          rule.selector,
+          ","
+        );
       } else {
-        selector = selector.concat(rule.selector);
+        selector = selector.concat(
+          /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
+          rule.selector
+        );
       }
     });
     const styleTagProperties = "display:none!important;min-height:0!important;height:0!important;";
@@ -6565,7 +6574,10 @@
   function hideAdNodes(rules) {
     const document2 = globalThis.document;
     rules.forEach((rule) => {
-      const selector = forgivingSelector(rule.selector);
+      const selector = forgivingSelector(
+        /** @type {ElementHidingRuleHide | ElementHidingRuleModify} */
+        rule.selector
+      );
       const matchingElementArray = [...document2.querySelectorAll(selector)];
       matchingElementArray.forEach((element) => {
         collapseDomNode(element, rule);
@@ -6593,11 +6605,14 @@
       }
       let activeRules;
       const globalRules = this.getFeatureSetting("rules");
-      adLabelStrings = this.getFeatureSetting("adLabelStrings");
-      shouldInjectStyleTag = this.getFeatureSetting("useStrictHideStyleTag");
+      adLabelStrings = this.getFeatureSetting("adLabelStrings") || [];
+      shouldInjectStyleTag = this.getFeatureSetting("useStrictHideStyleTag") || false;
       hideTimeouts = this.getFeatureSetting("hideTimeouts") || hideTimeouts;
       unhideTimeouts = this.getFeatureSetting("unhideTimeouts") || unhideTimeouts;
-      mediaAndFormSelectors = this.getFeatureSetting("mediaAndFormSelectors") || mediaAndFormSelectors;
+      mediaAndFormSelectors = this.getFeatureSetting("mediaAndFormSelectors");
+      if (!mediaAndFormSelectors) {
+        mediaAndFormSelectors = "video,canvas,embed,object,audio,map,form,input,textarea,select,option,button";
+      }
       if (shouldInjectStyleTag) {
         shouldInjectStyleTag = this.matchConditionalFeatureSetting("styleTagExceptions").length === 0;
       }
@@ -6637,9 +6652,7 @@
     }
     /**
      * Apply relevant hiding rules to page at set intervals
-     * @param {Object[]} rules
-     * @param {string} rules[].selector
-     * @param {string} rules[].type
+     * @param {ElementHidingRule[]} rules
      */
     applyRules(rules) {
       const timeoutRules = extractTimeoutRules(rules);

@@ -44,8 +44,14 @@
 }
 
 .block {
+    margin-top: 32px;
+}
+
+/* @todo legacyProtections: Remove once all platforms support the new UI */
+.blockLegacy {
     margin-top: 24px;
 }
+
 .empty {
     color: var(--ntp-text-muted);
 }

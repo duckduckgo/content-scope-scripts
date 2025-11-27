@@ -48,7 +48,8 @@ title: Activity
           "url": "https://youtube.com/watch?v=abc",
           "relativeTime": "Just now"
         }
-      ]
+      ],
+      "cookiePopUpBlocked": true,
     }
   ]
 }

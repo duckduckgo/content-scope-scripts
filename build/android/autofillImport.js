@@ -2061,6 +2061,7 @@
       "duckAiDataClearing",
       "harmfulApis",
       "webCompat",
+      "webInterferenceDetection",
       "windowsPermissionUsage",
       "brokerProtection",
       "performanceMetrics",
@@ -2072,7 +2073,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "duckAiDataClearing", "pageContext"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "duckAiDataClearing", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
@@ -2083,7 +2084,7 @@
       "messageBridge",
       "favicon"
     ],
-    android: [...baseFeatures, "webCompat", "breakageReporting", "duckPlayer", "messageBridge"],
+    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
@@ -2100,6 +2101,7 @@
     windows: [
       "cookie",
       ...baseFeatures,
+      "webInterferenceDetection",
       "webTelemetry",
       "windowsPermissionUsage",
       "duckPlayer",
@@ -2111,8 +2113,8 @@
       "duckAiDataClearing"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad"],
-    chrome: ["cookie", ...baseFeatures, "clickToLoad"],
-    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad"],
+    chrome: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
+    "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     integration: [...baseFeatures, ...otherFeatures]
   };
 

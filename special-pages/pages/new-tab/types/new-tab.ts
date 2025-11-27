@@ -48,6 +48,10 @@ export type PredefinedGradient =
 export type BackgroundColorScheme = "light" | "dark";
 export type BrowserTheme = "light" | "dark" | "system";
 /**
+ * Valid theme variant values for browser UI customization
+ */
+export type ThemeVariant = "default" | "coolGray" | "slateBlue" | "green" | "violet" | "rose" | "orange" | "desert";
+/**
  * Represents the expansion state of a widget
  */
 export type Expansion = "expanded" | "collapsed";
@@ -326,6 +330,7 @@ export interface CustomizerSetThemeNotification {
 }
 export interface CustomizerSetThemeNotify {
   theme: BrowserTheme;
+  themeVariant?: ThemeVariant;
 }
 /**
  * Generated from @see "../messages/customizer_upload.notify.json"
@@ -745,6 +750,10 @@ export interface DomainActivity {
   trackersFound: boolean;
   history: HistoryEntry[];
   favorite: boolean;
+  /**
+   * A cookie pop-up has been blocked for the specific domain
+   */
+  cookiePopUpBlocked?: null | boolean;
 }
 export interface TrackingStatus {
   trackerCompanies: {
@@ -879,8 +888,12 @@ export interface NewTabPageSettings {
 export interface CustomizerData {
   background: BackgroundVariant;
   theme: BrowserTheme;
+  themeVariant?: ThemeVariant;
   userImages: UserImage[];
   userColor: null | HexValueBackground;
+  /**
+   * @deprecated
+   */
   defaultStyles?: null | DefaultStyles;
 }
 export interface DefaultStyles {
@@ -968,6 +981,10 @@ export interface ProtectionsData {
    * Total number of trackers or ads blocked since install
    */
   totalCount: number;
+  /**
+   * Total number of cookie pop-ups blocked since install
+   */
+  totalCookiePopUpsBlocked?: null | number;
 }
 /**
  * Generated from @see "../messages/rmf_getData.request.json"
@@ -1111,6 +1128,10 @@ export interface CustomizerOnThemeUpdateSubscription {
 }
 export interface ThemeData {
   theme: BrowserTheme;
+  themeVariant?: ThemeVariant;
+  /**
+   * @deprecated
+   */
   defaultStyles?: null | DefaultStyles;
 }
 /**

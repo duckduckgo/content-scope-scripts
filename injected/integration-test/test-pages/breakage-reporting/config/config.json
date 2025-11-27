@@ -6,6 +6,33 @@
     "breakageReporting": {
       "state": "enabled",
       "exceptions": []
+    },
+    "webInterferenceDetection": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "interferenceTypes": {
+          "botDetection": {
+            "cloudflare": {
+              "state": "enabled",
+              "vendor": "Cloudflare",
+              "selectors": ["#challenge-running", ".cf-browser-verification"]
+            },
+            "recaptcha": {
+              "state": "enabled",
+              "vendor": "reCAPTCHA",
+              "selectors": [".g-recaptcha", "iframe[src*='google.com/recaptcha']"]
+            }
+          },
+          "fraudDetection": {
+            "px": {
+              "state": "enabled",
+              "vendor": "PerimeterX",
+              "selectors": ["#px-captcha", "[id^='px-']"]
+            }
+          }
+        }
+      }
     }
   }
 }
