@@ -79,7 +79,13 @@ export function CustomizerProvider({ service, initialData, children }) {
             data.value = { ...data.value, background: evt.data.background };
         });
         const unsub1 = service.onTheme((evt) => {
-            data.value = { ...data.value, theme: evt.data.theme };
+            // Only update themeVariant if it's explicitly provided in the message
+            // This preserves the existing variant when just the theme changes
+            const updates = { theme: evt.data.theme };
+            if (evt.data.themeVariant !== undefined) {
+                updates.themeVariant = evt.data.themeVariant;
+            }
+            data.value = { ...data.value, ...updates };
         });
         const unsub2 = service.onImages((evt) => {
             data.value = { ...data.value, userImages: evt.data.userImages };
