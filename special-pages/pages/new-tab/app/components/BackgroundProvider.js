@@ -8,7 +8,7 @@ import { useSignalEffect } from '@preact/signals';
 import { memo } from 'preact/compat';
 
 /**
- * @import { BackgroundVariant, BrowserTheme } from "../../types/new-tab"
+ * @import { BackgroundVariant, BrowserTheme, ThemeVariant } from "../../types/new-tab"
  */
 
 /**
@@ -55,8 +55,9 @@ export function themeFromBrowser(browserTheme, system) {
 /**
  * @param {object} props
  * @param {import("@preact/signals").Signal<'light' | 'dark'>} props.browser
+ * @param {import("@preact/signals").Signal<ThemeVariant>} props.variant
  */
-export function BackgroundConsumer({ browser }) {
+export function BackgroundConsumer({ browser, variant }) {
     const { data } = useContext(CustomizerContext);
     const background = data.value.background;
 
@@ -95,6 +96,10 @@ export function BackgroundConsumer({ browser }) {
                 document.body.dataset.animateBackground = 'true';
             });
         }
+    });
+
+    useSignalEffect(() => {
+        document.body.dataset.themeVariant = variant.value;
     });
 
     switch (background.kind) {
