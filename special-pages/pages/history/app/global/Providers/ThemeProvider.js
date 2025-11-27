@@ -25,17 +25,21 @@ export function ThemeProvider({ children, initialTheme, initialThemeVariant }) {
     const { isDarkMode } = useEnv();
     const history = useMessaging();
 
-    // Use initial theme from messaging, or fall back to system preference
-    const [theme, setTheme] = useState(initialTheme ?? (isDarkMode ? 'dark' : 'light'));
-    const [themeVariant, setThemeVariant] = useState(initialThemeVariant ?? 'default');
+    // Track explicit theme updates from onThemeUpdate subscription
+    const [explicitTheme, setExplicitTheme] = useState(/** @type {BrowserTheme | undefined} */ (undefined));
+    const [explicitThemeVariant, setExplicitThemeVariant] = useState(/** @type {ThemeVariant | undefined} */ (undefined));
 
     useEffect(() => {
         const unsubscribe = history.messaging.subscribe('onThemeUpdate', (data) => {
-            setTheme(data.theme);
-            setThemeVariant(data.themeVariant);
+            setExplicitTheme(data.theme);
+            setExplicitThemeVariant(data.themeVariant);
         });
         return unsubscribe;
     }, [history]);
+
+    // Derive theme from explicit updates, initial theme, or system preference (in that order)
+    const theme = explicitTheme ?? initialTheme ?? (isDarkMode ? 'dark' : 'light');
+    const themeVariant = explicitThemeVariant ?? initialThemeVariant ?? 'default';
 
     return <ThemeContext.Provider value={{ theme, themeVariant }}>{children}</ThemeContext.Provider>;
 }
