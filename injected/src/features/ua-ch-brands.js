@@ -9,27 +9,35 @@ export default class UaChBrands extends ContentFeature {
     }
 
     init() {
-        this.shimUserAgentDataBrands();
+        const shouldFilterWebView2 = this.getFeatureSettingEnabled('filterWebView2', 'enabled');
+        const shouldOverrideEdge = this.getFeatureSettingEnabled('overrideEdge', 'enabled');
+
+        if (!shouldFilterWebView2 && !shouldOverrideEdge) {
+            this.log.info('Both filterWebView2 and overrideEdge disabled, skipping UA-CH-Brands modifications');
+            return;
+        }
+
+        this.shimUserAgentDataBrands(shouldFilterWebView2, shouldOverrideEdge);
     }
 
     /**
-     * Get the target brand from domain settings or default to DuckDuckGo
-     * @returns {string} - Target brand name
+     * Get the override target brand from domain settings or default to DuckDuckGo
+     * @returns {string|null} - Brand name to use for replacement/append (null to skip override)
      */
     getBrandOverride() {
-        const domainSettings = this.matchConditionalFeatureSetting('domains');
-        if (domainSettings.length && domainSettings[0].brand) {
-            const brand = domainSettings[0].brand;
-            this.log.info(`Using domain-specific brand override: "${brand}"`);
-            return brand;
+        const brandName = this.getFeatureSetting('brandName') || 'DuckDuckGo';
+        if (brandName !== 'DuckDuckGo') {
+            this.log.info(`Using brand override: "${brandName}"`);
         }
-        return 'DuckDuckGo';
+        return brandName;
     }
 
     /**
-     * Override navigator.userAgentData to match the Sec-CH-UA header
+     * Override navigator.userAgentData.brands to match the Sec-CH-UA header
+     * @param {boolean} shouldFilterWebView2 - Whether to filter WebView2
+     * @param {boolean} shouldOverrideEdge - Whether to append/replace with target brand
      */
-    shimUserAgentDataBrands() {
+    shimUserAgentDataBrands(shouldFilterWebView2, shouldOverrideEdge) {
         try {
             // @ts-expect-error - userAgentData not yet standard
             if (!navigator.userAgentData || !navigator.userAgentData.brands) {
@@ -44,15 +52,15 @@ export default class UaChBrands extends ContentFeature {
                 this.originalBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
             );
 
-            const targetBrand = this.getBrandOverride();
-            const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands, targetBrand);
+            const targetBrand = shouldOverrideEdge ? this.getBrandOverride() : null;
+            const mutatedBrands = this.applyBrandMutationsToList(this.originalBrands, targetBrand, shouldFilterWebView2);
 
             if (mutatedBrands.length) {
                 this.log.info(
                     'shimUserAgentDataBrands - about to apply override with:',
                     mutatedBrands.map((b) => `"${b.brand}" v${b.version}`).join(', '),
                 );
-                this.applyBrandsOverride(mutatedBrands);
+                this.applyBrandsOverride(mutatedBrands, shouldOverrideEdge, shouldFilterWebView2);
                 this.log.info('shimUserAgentDataBrands - override applied successfully');
             }
         } catch (error) {
@@ -61,32 +69,39 @@ export default class UaChBrands extends ContentFeature {
     }
 
     /**
-     * Filter out unwanted brands and replace/append target brand to match Sec-CH-UA header
+     * Filter out unwanted brands and append/replace with target brand to match Sec-CH-UA header
      * @param {Array<{brand: string, version: string}>} list - Original brands list
-     * @param {string} [targetBrand='DuckDuckGo'] - Target brand
+     * @param {string|null} targetBrand - Brand to use for replacement/append (null to skip override)
+     * @param {boolean} [shouldFilterWebView2=true] - Whether to filter WebView2
      * @returns {Array<{brand: string, version: string}>} - Modified brands array
      */
-    applyBrandMutationsToList(list, targetBrand = 'DuckDuckGo') {
+    applyBrandMutationsToList(list, targetBrand, shouldFilterWebView2 = true) {
         if (!Array.isArray(list) || !list.length) {
             this.log.info('applyBrandMutationsToList - no brands to mutate');
             return [];
         }
 
-        const mutated = list.filter((b) => b.brand !== 'Microsoft Edge WebView2');
-        if (mutated.length < list.length) {
-            this.log.info('Removed "Microsoft Edge WebView2" brand');
+        let mutated = [...list];
+
+        if (shouldFilterWebView2) {
+            mutated = mutated.filter((b) => b.brand !== 'Microsoft Edge WebView2');
+            if (mutated.length < list.length) {
+                this.log.info('Removed "Microsoft Edge WebView2" brand');
+            }
         }
 
-        const edgeIndex = mutated.findIndex((b) => b.brand === 'Microsoft Edge');
-        if (edgeIndex !== -1) {
-            const edgeVersion = mutated[edgeIndex].version;
-            mutated[edgeIndex] = { brand: targetBrand, version: edgeVersion };
-            this.log.info(`Replaced "Microsoft Edge" v${edgeVersion} with "${targetBrand}" v${edgeVersion}`);
-        } else {
-            const chromium = mutated.find((b) => b.brand === 'Chromium');
-            if (chromium) {
-                mutated.push({ brand: targetBrand, version: chromium.version });
-                this.log.info(`Appended "${targetBrand}" v${chromium.version} (to match Chromium version)`);
+        if (targetBrand !== null) {
+            const edgeIndex = mutated.findIndex((b) => b.brand === 'Microsoft Edge');
+            if (edgeIndex !== -1) {
+                const edgeVersion = mutated[edgeIndex].version;
+                mutated[edgeIndex] = { brand: targetBrand, version: edgeVersion };
+                this.log.info(`Replaced "Microsoft Edge" v${edgeVersion} with "${targetBrand}" v${edgeVersion}`);
+            } else {
+                const chromium = mutated.find((b) => b.brand === 'Chromium');
+                if (chromium) {
+                    mutated.push({ brand: targetBrand, version: chromium.version });
+                    this.log.info(`Appended "${targetBrand}" v${chromium.version} (to match Chromium version)`);
+                }
             }
         }
 
@@ -98,8 +113,10 @@ export default class UaChBrands extends ContentFeature {
     /**
      * Apply the brand override to navigator.userAgentData
      * @param {Array<{brand: string, version: string}>} newBrands - Brands to apply
+     * @param {boolean} shouldOverrideEdge - Whether to replace/append brand
+     * @param {boolean} shouldFilterWebView2 - Whether to filter WebView2
      */
-    applyBrandsOverride(newBrands) {
+    applyBrandsOverride(newBrands, shouldOverrideEdge, shouldFilterWebView2) {
         // @ts-expect-error - userAgentData not yet standard
         const proto = Object.getPrototypeOf(navigator.userAgentData);
 
@@ -123,8 +140,8 @@ export default class UaChBrands extends ContentFeature {
                         result = newBrands;
                     }
                     if (key === 'fullVersionList' && args[0]?.includes('fullVersionList') && value) {
-                        const targetBrand = featureInstance.getBrandOverride();
-                        result = featureInstance.applyBrandMutationsToList(value, targetBrand);
+                        const targetBrand = shouldOverrideEdge ? featureInstance.getBrandOverride() : null;
+                        result = featureInstance.applyBrandMutationsToList(value, targetBrand, shouldFilterWebView2);
                     }
 
                     modifiedResult[key] = result;

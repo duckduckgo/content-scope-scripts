@@ -1,5 +1,5 @@
 {
-    "readme": "This config tests that uaChBrands can override navigator.userAgentData.brands",
+    "readme": "This config tests that uaChBrands can override navigator.userAgentData brands",
     "version": 1,
     "unprotectedTemporary": [],
     "features": {
