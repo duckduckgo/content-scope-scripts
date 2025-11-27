@@ -27,6 +27,9 @@ export function detectThemeFromHex(backgroundColor) {
  * @param {import("../../types/new-tab.ts").DefaultStyles | null | undefined} defaultStyles
  */
 export function applyDefaultStyles(defaultStyles) {
+    if (defaultStyles?.lightBackgroundColor || defaultStyles?.darkBackgroundColor) {
+        console.warn('defaultStyles is deprecated. Use themeVariant instead. This will override theme variant colors.', defaultStyles);
+    }
     if (defaultStyles?.lightBackgroundColor) {
         document.body.style.setProperty('--default-light-background-color', defaultStyles.lightBackgroundColor);
     }
