@@ -1,4 +1,4 @@
-import { useTypedTranslationWith } from '../../types.js';
+import { useTypedTranslationWith, useMessaging } from '../../types.js';
 import styles from '../../privacy-stats/components/PrivacyStats.module.css';
 import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
 import cn from 'classnames';
@@ -6,6 +6,7 @@ import { h } from 'preact';
 import { InfoIcon, NewBadgeIcon } from '../../components/Icons.js';
 import { Tooltip } from '../../components/Tooltip/Tooltip.js';
 import { useAnimatedCount } from '../utils/useAnimatedCount.js';
+import { useRef, useEffect } from 'preact/hooks';
 
 /**
  * @import enStrings from "../strings.json"
@@ -29,6 +30,9 @@ export function ProtectionsHeading({
     totalCookiePopUpsBlockedSignal,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
+    const ntp = useMessaging();
+    const headingRef = useRef(/** @type {HTMLDivElement|null} */ (null));
+    const counterContainerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const totalTrackersBlocked = blockedCountSignal.value;
     const totalCookiePopUpsBlockedValue = totalCookiePopUpsBlockedSignal.value;
 
@@ -38,9 +42,16 @@ export function ProtectionsHeading({
             ? Math.max(0, Math.floor(totalCookiePopUpsBlockedValue))
             : 0;
 
-    // Animate both tracker count and cookie pop-ups count
-    const animatedTrackersBlocked = useAnimatedCount(totalTrackersBlocked);
-    const animatedCookiePopUpsBlocked = useAnimatedCount(totalCookiePopUpsBlocked);
+    // Animate both tracker count and cookie pop-ups count when counterContainer is in viewport
+    const animatedTrackersBlocked = useAnimatedCount(totalTrackersBlocked, counterContainerRef);
+    const animatedCookiePopUpsBlocked = useAnimatedCount(totalCookiePopUpsBlocked, counterContainerRef);
+
+    // Subscribe to scroll message
+    useEffect(() => {
+        return ntp.messaging.subscribe('protections_scroll', () => {
+            headingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }, [ntp]);
 
     // Native does not tell the FE if cookie pop up protection is enabled but
     // we can derive this from the value of `totalCookiePopUpsBlocked` in the
@@ -54,7 +65,7 @@ export function ProtectionsHeading({
         animatedCookiePopUpsBlocked === 1 ? t('stats_totalCookiePopUpsBlockedSingular') : t('stats_totalCookiePopUpsBlockedPlural');
 
     return (
-        <div class={styles.heading} data-testid="ProtectionsHeading">
+        <div class={styles.heading} data-testid="ProtectionsHeading" ref={headingRef}>
             <div class={cn(styles.control, animatedTrackersBlocked === 0 && styles.noTrackers)}>
                 <span class={styles.headingIcon}>
                     <img src={'./icons/Shield-Check-Color-16.svg'} alt="Privacy Shield" />
@@ -79,7 +90,7 @@ export function ProtectionsHeading({
                     </span>
                 )}
             </div>
-            <div class={styles.counterContainer}>
+            <div class={styles.counterContainer} ref={counterContainerRef}>
                 {/* Total Trackers Blocked  */}
                 <div class={styles.counter}>
                     {animatedTrackersBlocked === 0 && <h3 class={styles.noRecentTitle}>{t('protections_noRecent')}</h3>}
