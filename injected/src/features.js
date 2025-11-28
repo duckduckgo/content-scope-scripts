@@ -33,13 +33,12 @@ const otherFeatures = /** @type {const} */ ([
     'favicon',
     'webTelemetry',
     'pageContext',
-    'webNotifications',
 ]);
 
 /** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webInterferenceDetection', 'duckAiDataClearing', 'pageContext', 'webNotifications'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webInterferenceDetection', 'duckAiDataClearing', 'pageContext'],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',

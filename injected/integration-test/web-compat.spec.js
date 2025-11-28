@@ -153,6 +153,117 @@ test.describe('Ensure Notification interface is injected', () => {
     });
 });
 
+test.describe('webNotifications', () => {
+    /**
+     * @param {import("@playwright/test").Page} page
+     */
+    async function beforeWebNotifications(page) {
+        await gotoAndWait(page, '/blank.html', {
+            site: { enabledFeatures: ['webCompat'] },
+            featureSettings: { webCompat: { webNotifications: 'enabled' } },
+        });
+    }
+
+    test('should override Notification API when enabled', async ({ page }) => {
+        await beforeWebNotifications(page);
+        const hasNotification = await page.evaluate(() => 'Notification' in window);
+        expect(hasNotification).toEqual(true);
+    });
+
+    test('should return granted for permission', async ({ page }) => {
+        await beforeWebNotifications(page);
+        const permission = await page.evaluate(() => window.Notification.permission);
+        expect(permission).toEqual('granted');
+    });
+
+    test('should return 2 for maxActions', async ({ page }) => {
+        await beforeWebNotifications(page);
+        const maxActions = await page.evaluate(() => {
+            // @ts-expect-error - maxActions is experimental
+            return window.Notification.maxActions;
+        });
+        expect(maxActions).toEqual(2);
+    });
+
+    test('should send showNotification message when constructing', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.notifyCalls = [];
+            globalThis.cssMessaging.impl.notify = (msg) => {
+                globalThis.notifyCalls.push(msg);
+            };
+        });
+
+        await page.evaluate(() => new window.Notification('Test Title', { body: 'Test Body' }));
+
+        const calls = await page.evaluate(() => globalThis.notifyCalls);
+        expect(calls.length).toBeGreaterThan(0);
+        expect(calls[0]).toMatchObject({
+            featureName: 'webCompat',
+            method: 'showNotification',
+            params: { title: 'Test Title', body: 'Test Body' },
+        });
+    });
+
+    test('should send closeNotification message on close()', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.notifyCalls = [];
+            globalThis.cssMessaging.impl.notify = (msg) => {
+                globalThis.notifyCalls.push(msg);
+            };
+        });
+
+        await page.evaluate(() => {
+            const n = new window.Notification('Test');
+            n.close();
+        });
+
+        const calls = await page.evaluate(() => globalThis.notifyCalls);
+        const closeCall = calls.find((c) => c.method === 'closeNotification');
+        expect(closeCall).toBeDefined();
+        expect(closeCall).toMatchObject({
+            featureName: 'webCompat',
+            method: 'closeNotification',
+        });
+        expect(closeCall.params.id).toBeDefined();
+    });
+
+    test('should propagate requestPermission result from native', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = () => {
+                return Promise.resolve({ permission: 'denied' });
+            };
+        });
+
+        const permission = await page.evaluate(() => window.Notification.requestPermission());
+        expect(permission).toEqual('denied');
+    });
+
+    test('should default to granted when native error occurs', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = () => {
+                return Promise.reject(new Error('native error'));
+            };
+        });
+
+        const permission = await page.evaluate(() => window.Notification.requestPermission());
+        expect(permission).toEqual('granted');
+    });
+
+    test('should have native-looking toString()', async ({ page }) => {
+        await beforeWebNotifications(page);
+
+        const notificationToString = await page.evaluate(() => window.Notification.toString());
+        expect(notificationToString).toEqual('function Notification() { [native code] }');
+
+        const requestPermissionToString = await page.evaluate(() => window.Notification.requestPermission.toString());
+        expect(requestPermissionToString).toEqual('function requestPermission() { [native code] }');
+    });
+});
+
 test.describe('Permissions API', () => {
     // Fake the Permission API not existing in this browser
     const removePermissionsScript = `

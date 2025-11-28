@@ -52,12 +52,6 @@ export function load(args) {
         // point, which is why we fall back to `bundledFeatureNames`.
         : args.site.enabledFeatures || bundledFeatureNames;
 
-    // DEBUG: Log feature loading info
-    console.log('[CSS DEBUG] bundledFeatureNames:', bundledFeatureNames);
-    console.log('[CSS DEBUG] featuresToLoad:', featuresToLoad);
-    console.log('[CSS DEBUG] webNotifications in featuresToLoad:', featuresToLoad.includes('webNotifications'));
-    console.log('[CSS DEBUG] site.enabledFeatures:', args.site?.enabledFeatures);
-
     for (const featureName of bundledFeatureNames) {
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
