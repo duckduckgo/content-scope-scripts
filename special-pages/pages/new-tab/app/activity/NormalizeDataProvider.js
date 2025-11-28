@@ -36,6 +36,7 @@ import { ACTION_BURN } from '../burning/BurnProvider.js';
  * @property {Record<string, boolean>} favorites
  * @property {string[]} urls
  * @property {number} totalTrackers
+ * @property {Record<string, boolean|null|undefined>} cookiePopUpBlocked
  */
 
 /**
@@ -52,6 +53,7 @@ export function normalizeData(prev, incoming) {
         trackingStatus: {},
         urls: [],
         totalTrackers: incoming.totalTrackers,
+        cookiePopUpBlocked: {},
     };
 
     if (shallowDiffers(prev.urls, incoming.urls)) {
@@ -64,6 +66,7 @@ export function normalizeData(prev, incoming) {
         const id = item.url;
 
         output.favorites[id] = item.favorite;
+        output.cookiePopUpBlocked[id] = item.cookiePopUpBlocked;
 
         /** @type {Item} */
         const next = {
@@ -187,6 +190,7 @@ export function SignalStateProvider({ children }) {
                 favorites: {},
                 urls: [],
                 totalTrackers: 0,
+                cookiePopUpBlocked: {},
             },
             { activity: state.data.activity, urls: state.data.urls, totalTrackers: state.data.totalTrackers },
         ),

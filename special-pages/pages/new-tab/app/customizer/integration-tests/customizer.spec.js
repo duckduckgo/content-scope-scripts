@@ -284,4 +284,60 @@ test.describe('newtab customizer', () => {
             },
         });
     });
+    test('loads with initial theme variant from initialSetup', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { themeVariant: 'violet', theme: 'light' } });
+        await ntp.hasBackgroundColor({ hex: '#e7e4f5' }); // violet light color
+    });
+    test('accepts theme variant update via subscription message', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage();
+        await cp.acceptsThemeVariantUpdate('light', 'coolGray');
+        await ntp.hasBackgroundColor({ hex: '#d2d5e3' }); // coolGray light color
+    });
+    test('accepts theme variant update (dark mode)', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.darkMode();
+        await ntp.openPage();
+        await cp.acceptsThemeVariantUpdate('dark', 'slateBlue');
+        await ntp.hasBackgroundColor({ hex: '#1e3347' }); // slateBlue dark color
+    });
+    test('custom background color overrides theme variant background', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { themeVariant: 'rose', theme: 'dark' } });
+        await ntp.hasBackgroundColor({ hex: '#5b194b' }); // rose dark color
+        await cp.acceptsBackgroundUpdate({
+            kind: 'color',
+            value: 'color01',
+        });
+        await cp.hasColorBackground('rgb(0, 0, 0)'); // color01 is black, overrides rose
+    });
+    test('custom hex color overrides theme variant background', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { themeVariant: 'orange', theme: 'light' } });
+        await ntp.hasBackgroundColor({ hex: '#fcedd8' }); // orange light color
+        await cp.acceptsBackgroundUpdate({
+            kind: 'hex',
+            value: '#ff5733',
+        });
+        await ntp.hasBackgroundColor({ hex: '#ff5733' }); // custom hex overrides orange
+    });
+    test('changing browser theme preserves theme variant', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { themeVariant: 'desert', theme: 'light' } });
+        await ntp.hasBackgroundColor({ hex: '#eee9e1' }); // desert light color
+        await cp.acceptsThemeUpdate('dark');
+        await ntp.hasBackgroundColor({ hex: '#3c3833' }); // desert dark color, NOT default dark
+    });
 });
