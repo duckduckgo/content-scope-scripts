@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>UA-CH-Brands: Domain Brand Override Test</title>
+</head>
+<body>
+    <h1>UA-CH-Brands Domain Brand Override Test</h1>
+    <div id="results"></div>
+    
+    <script type="module">
+        const results = [];
+        
+        if (navigator.userAgentData?.brands) {
+            const brands = navigator.userAgentData.brands;
+            const netscapeCount = brands.filter(b => b.brand === 'Netscape Navigator').length;
+            const ddgCount = brands.filter(b => b.brand === 'DuckDuckGo').length;
+            
+            results.push({
+                test: 'brands-contains-netscape',
+                result: netscapeCount > 0 ? 'PASS' : 'FAIL',
+                details: `Found ${netscapeCount} Netscape Navigator brand(s)`
+            });
+            
+            results.push({
+                test: 'brands-no-duckduckgo',
+                result: ddgCount === 0 ? 'PASS' : 'FAIL',
+                details: `Found ${ddgCount} DuckDuckGo brand(s) (expected 0)`
+            });
+        }
+        
+        if (navigator.userAgentData?.getHighEntropyValues) {
+            try {
+                const highEntropy = await navigator.userAgentData.getHighEntropyValues(['brands']);
+                if (highEntropy.brands) {
+                    const brands = highEntropy.brands;
+                    const netscapeCount = brands.filter(b => b.brand === 'Netscape Navigator').length;
+                    const ddgCount = brands.filter(b => b.brand === 'DuckDuckGo').length;
+                    
+                    results.push({
+                        test: 'getHighEntropyValues-brands-contains-netscape',
+                        result: netscapeCount > 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${netscapeCount} Netscape Navigator brand(s) in getHighEntropyValues brands`
+                    });
+                    
+                    results.push({
+                        test: 'getHighEntropyValues-brands-no-duckduckgo',
+                        result: ddgCount === 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${ddgCount} DuckDuckGo brand(s) in getHighEntropyValues brands (expected 0)`
+                    });
+                }
+            } catch (e) {
+                results.push({
+                    test: 'getHighEntropyValues-brands-error',
+                    result: 'ERROR',
+                    details: e.message
+                });
+            }
+        }
+        
+        if (navigator.userAgentData?.getHighEntropyValues) {
+            try {
+                const highEntropy = await navigator.userAgentData.getHighEntropyValues(['fullVersionList']);
+                if (highEntropy.fullVersionList) {
+                    const fvl = highEntropy.fullVersionList;
+                    const netscapeCount = fvl.filter(b => b.brand === 'Netscape Navigator').length;
+                    const ddgCount = fvl.filter(b => b.brand === 'DuckDuckGo').length;
+                    
+                    results.push({
+                        test: 'fullVersionList-contains-netscape',
+                        result: netscapeCount > 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${netscapeCount} Netscape Navigator brand(s) in fullVersionList`
+                    });
+                    
+                    results.push({
+                        test: 'fullVersionList-no-duckduckgo',
+                        result: ddgCount === 0 ? 'PASS' : 'FAIL',
+                        details: `Found ${ddgCount} DuckDuckGo brand(s) in fullVersionList (expected 0)`
+                    });
+                }
+            } catch (e) {
+                results.push({
+                    test: 'fullVersionList-error',
+                    result: 'ERROR',
+                    details: e.message
+                });
+            }
+        }
+        
+        window.results = results;
+        
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '<pre>' + JSON.stringify(results, null, 2) + '</pre>';
+    </script>
+</body>
+</html>
