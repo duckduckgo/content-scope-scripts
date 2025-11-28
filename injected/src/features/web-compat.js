@@ -284,8 +284,6 @@ export class WebCompat extends ContentFeature {
             return;
         }
 
-        console.log('[webNotificationsFix] Starting - will override Notification API');
-        console.log('[webNotificationsFix] Current Notification exists:', !!globalThis.Notification);
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
 
@@ -331,7 +329,6 @@ export class WebCompat extends ContentFeature {
              * @returns {'default' | 'denied' | 'granted'}
              */
             static get permission() {
-                console.log('[webNotificationsFix] permission getter called, returning', permission);
                 return permission;
             }
 
@@ -340,18 +337,14 @@ export class WebCompat extends ContentFeature {
              * @returns {Promise<NotificationPermission>}
              */
             static async requestPermission(deprecatedCallback) {
-                console.log('[webNotificationsFix] requestPermission called');
                 try {
                     const result = await nativeRequest('requestPermission', {});
-                    console.log('[webNotificationsFix] requestPermission result from native:', result);
-                    const resultPermission = result?.permission || permission;
-                    console.log('[webNotificationsFix] requestPermission returning:', resultPermission);
+                    const resultPermission = /** @type {NotificationPermission} */ (result?.permission || permission);
                     if (deprecatedCallback) {
                         deprecatedCallback(resultPermission);
                     }
                     return resultPermission;
                 } catch (e) {
-                    console.log('[webNotificationsFix] requestPermission error:', e);
                     if (deprecatedCallback) {
                         deprecatedCallback(permission);
                     }
@@ -454,8 +447,6 @@ export class WebCompat extends ContentFeature {
             configurable: true,
             enumerable: true,
         });
-
-        console.log('[webNotificationsFix] Polyfill installed. Notification.permission:', globalThis.Notification.permission);
     }
 
     cleanIframeValue() {
