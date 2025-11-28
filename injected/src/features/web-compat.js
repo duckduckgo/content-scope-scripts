@@ -279,10 +279,26 @@ export class WebCompat extends ContentFeature {
      * management and notification display.
      */
     webNotificationsFix() {
+        // crypto.randomUUID() requires secure context
+        if (!globalThis.isSecureContext) {
+            return;
+        }
+
         console.log('[webNotificationsFix] Starting - will override Notification API');
         console.log('[webNotificationsFix] Current Notification exists:', !!globalThis.Notification);
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const feature = this;
+
+        // Check nativeEnabled setting - when false, install polyfill but skip native calls and return 'denied'
+        const settings = this.getFeatureSetting('webNotifications') || {};
+        const nativeEnabled = settings.nativeEnabled !== false;
+
+        // Wrap native calls - no-op when nativeEnabled is false
+        const nativeNotify = nativeEnabled ? (name, data) => feature.notify(name, data) : () => {};
+        const nativeRequest = nativeEnabled ? (name, data) => feature.request(name, data) : () => Promise.resolve({ permission: 'denied' });
+        const nativeSubscribe = nativeEnabled ? (name, cb) => feature.subscribe(name, cb) : () => () => {};
+        /** @type {NotificationPermission} */
+        const permission = nativeEnabled ? 'granted' : 'denied';
 
         /**
          * NotificationPolyfill - replaces the native Notification API
@@ -315,8 +331,8 @@ export class WebCompat extends ContentFeature {
              * @returns {'default' | 'denied' | 'granted'}
              */
             static get permission() {
-                console.log('[webNotificationsFix] permission getter called, returning granted');
-                return 'granted';
+                console.log('[webNotificationsFix] permission getter called, returning', permission);
+                return permission;
             }
 
             /**
@@ -326,21 +342,20 @@ export class WebCompat extends ContentFeature {
             static async requestPermission(deprecatedCallback) {
                 console.log('[webNotificationsFix] requestPermission called');
                 try {
-                    const result = await feature.request('requestPermission', {});
+                    const result = await nativeRequest('requestPermission', {});
                     console.log('[webNotificationsFix] requestPermission result from native:', result);
-                    const permission = result?.permission || 'granted';
-                    console.log('[webNotificationsFix] requestPermission returning:', permission);
+                    const resultPermission = result?.permission || permission;
+                    console.log('[webNotificationsFix] requestPermission returning:', resultPermission);
+                    if (deprecatedCallback) {
+                        deprecatedCallback(resultPermission);
+                    }
+                    return resultPermission;
+                } catch (e) {
+                    console.log('[webNotificationsFix] requestPermission error:', e);
                     if (deprecatedCallback) {
                         deprecatedCallback(permission);
                     }
                     return permission;
-                } catch (e) {
-                    console.log('[webNotificationsFix] requestPermission error:', e);
-                    const fallback = 'granted';
-                    if (deprecatedCallback) {
-                        deprecatedCallback(fallback);
-                    }
-                    return fallback;
                 }
             }
 
@@ -365,7 +380,7 @@ export class WebCompat extends ContentFeature {
 
                 feature.#webNotifications.set(this.#id, this);
 
-                feature.notify('showNotification', {
+                nativeNotify('showNotification', {
                     id: this.#id,
                     title: this.title,
                     body: this.body,
@@ -375,7 +390,7 @@ export class WebCompat extends ContentFeature {
             }
 
             close() {
-                feature.notify('closeNotification', { id: this.#id });
+                nativeNotify('closeNotification', { id: this.#id });
                 feature.#webNotifications.delete(this.#id);
             }
         }
@@ -391,7 +406,7 @@ export class WebCompat extends ContentFeature {
         );
 
         // Subscribe to notification events from native
-        this.subscribe('notificationEvent', (data) => {
+        nativeSubscribe('notificationEvent', (data) => {
             const notification = this.#webNotifications.get(data.id);
             if (!notification) return;
 
@@ -420,7 +435,7 @@ export class WebCompat extends ContentFeature {
 
         // Define permission getter
         this.defineProperty(globalThis.Notification, 'permission', {
-            get: () => 'granted',
+            get: () => permission,
             configurable: true,
             enumerable: true,
         });

@@ -264,6 +264,56 @@ test.describe('webNotifications', () => {
     });
 });
 
+test.describe('webNotifications with nativeEnabled: false', () => {
+    /**
+     * @param {import("@playwright/test").Page} page
+     */
+    async function beforeWebNotificationsDisabled(page) {
+        await gotoAndWait(page, '/blank.html', {
+            site: { enabledFeatures: ['webCompat'] },
+            featureSettings: { webCompat: { webNotifications: { state: 'enabled', nativeEnabled: false } } },
+        });
+    }
+
+    test('should return denied for permission when nativeEnabled is false', async ({ page }) => {
+        await beforeWebNotificationsDisabled(page);
+        const permission = await page.evaluate(() => window.Notification.permission);
+        expect(permission).toEqual('denied');
+    });
+
+    test('should not send showNotification when nativeEnabled is false', async ({ page }) => {
+        await beforeWebNotificationsDisabled(page);
+        await page.evaluate(() => {
+            globalThis.notifyCalls = [];
+            globalThis.cssMessaging.impl.notify = (msg) => {
+                globalThis.notifyCalls.push(msg);
+            };
+        });
+
+        await page.evaluate(() => new window.Notification('Test Title'));
+
+        const calls = await page.evaluate(() => globalThis.notifyCalls);
+        expect(calls.length).toEqual(0);
+    });
+
+    test('should return denied from requestPermission without calling native', async ({ page }) => {
+        await beforeWebNotificationsDisabled(page);
+        await page.evaluate(() => {
+            globalThis.requestCalls = [];
+            globalThis.cssMessaging.impl.request = (msg) => {
+                globalThis.requestCalls.push(msg);
+                return Promise.resolve({ permission: 'granted' });
+            };
+        });
+
+        const permission = await page.evaluate(() => window.Notification.requestPermission());
+        const calls = await page.evaluate(() => globalThis.requestCalls);
+
+        expect(permission).toEqual('denied');
+        expect(calls.length).toEqual(0);
+    });
+});
+
 test.describe('Permissions API', () => {
     // Fake the Permission API not existing in this browser
     const removePermissionsScript = `
