@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "NotificationEventParams",
+  "description": "Subscription for notification lifecycle events from native",
+  "additionalProperties": false,
+  "required": ["id", "event"],
+  "properties": {
+    "id": {
+      "description": "Unique identifier of the notification",
+      "type": "string"
+    },
+    "event": {
+      "description": "The event type that occurred",
+      "type": "string",
+      "enum": ["show", "close", "click", "error"]
+    }
+  }
+}
+
+
