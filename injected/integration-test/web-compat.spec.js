@@ -170,10 +170,10 @@ test.describe('webNotifications', () => {
         expect(hasNotification).toEqual(true);
     });
 
-    test('should return granted for permission', async ({ page }) => {
+    test('should return default for permission initially', async ({ page }) => {
         await beforeWebNotifications(page);
         const permission = await page.evaluate(() => window.Notification.permission);
-        expect(permission).toEqual('granted');
+        expect(permission).toEqual('default');
     });
 
     test('should return 2 for maxActions', async ({ page }) => {
@@ -241,7 +241,7 @@ test.describe('webNotifications', () => {
         expect(permission).toEqual('denied');
     });
 
-    test('should default to granted when native error occurs', async ({ page }) => {
+    test('should return denied when native error occurs', async ({ page }) => {
         await beforeWebNotifications(page);
         await page.evaluate(() => {
             globalThis.cssMessaging.impl.request = () => {
@@ -250,14 +250,11 @@ test.describe('webNotifications', () => {
         });
 
         const permission = await page.evaluate(() => window.Notification.requestPermission());
-        expect(permission).toEqual('granted');
+        expect(permission).toEqual('denied');
     });
 
-    test('should have native-looking toString()', async ({ page }) => {
+    test('requestPermission should have native-looking toString()', async ({ page }) => {
         await beforeWebNotifications(page);
-
-        const notificationToString = await page.evaluate(() => window.Notification.toString());
-        expect(notificationToString).toEqual('function Notification() { [native code] }');
 
         const requestPermissionToString = await page.evaluate(() => window.Notification.requestPermission.toString());
         expect(requestPermissionToString).toEqual('function requestPermission() { [native code] }');

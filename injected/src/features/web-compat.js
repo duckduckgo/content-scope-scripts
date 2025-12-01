@@ -2,7 +2,7 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils';
-import { wrapToString } from '../wrapper-utils.js';
+import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
@@ -295,8 +295,9 @@ export class WebCompat extends ContentFeature {
         const nativeNotify = nativeEnabled ? (name, data) => feature.notify(name, data) : () => {};
         const nativeRequest = nativeEnabled ? (name, data) => feature.request(name, data) : () => Promise.resolve({ permission: 'denied' });
         const nativeSubscribe = nativeEnabled ? (name, cb) => feature.subscribe(name, cb) : () => () => {};
+        // Permission is 'default' when enabled (not yet determined), 'denied' when disabled
         /** @type {NotificationPermission} */
-        const permission = nativeEnabled ? 'granted' : 'denied';
+        const permission = nativeEnabled ? 'default' : 'denied';
 
         /**
          * NotificationPolyfill - replaces the native Notification API
@@ -339,16 +340,16 @@ export class WebCompat extends ContentFeature {
             static async requestPermission(deprecatedCallback) {
                 try {
                     const result = await nativeRequest('requestPermission', {});
-                    const resultPermission = /** @type {NotificationPermission} */ (result?.permission || permission);
+                    const resultPermission = /** @type {NotificationPermission} */ (result?.permission || 'denied');
                     if (deprecatedCallback) {
                         deprecatedCallback(resultPermission);
                     }
                     return resultPermission;
                 } catch (e) {
                     if (deprecatedCallback) {
-                        deprecatedCallback(permission);
+                        deprecatedCallback('denied');
                     }
-                    return permission;
+                    return 'denied';
                 }
             }
 
@@ -384,12 +385,21 @@ export class WebCompat extends ContentFeature {
 
             close() {
                 nativeNotify('closeNotification', { id: this.#id });
+                // Fire onclose handler before removing from map
+                if (typeof this.onclose === 'function') {
+                    try {
+                        // @ts-expect-error - NotificationPolyfill doesn't fully implement Notification interface
+                        this.onclose(new Event('close'));
+                    } catch (e) {
+                        // Error in event handler - silently ignore
+                    }
+                }
                 feature.#webNotifications.delete(this.#id);
             }
         }
 
-        // Wrap the constructor to make toString() look native
-        const wrappedNotification = wrapToString(NotificationPolyfill, NotificationPolyfill, 'function Notification() { [native code] }');
+        // Wrap the constructor
+        const wrappedNotification = wrapFunction(NotificationPolyfill, NotificationPolyfill);
 
         // Wrap static methods
         const wrappedRequestPermission = wrapToString(
