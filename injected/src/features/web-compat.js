@@ -279,7 +279,7 @@ export class WebCompat extends ContentFeature {
      * management and notification display.
      */
     webNotificationsFix() {
-        // crypto.randomUUID() requires secure context
+        // Notification API is not supported in insecure contexts
         if (!globalThis.isSecureContext) {
             return;
         }
@@ -388,8 +388,12 @@ export class WebCompat extends ContentFeature {
             }
         }
 
-        // Wrap the constructor to make toString() look native
-        const wrappedNotification = wrapToString(NotificationPolyfill, NotificationPolyfill, 'function Notification() { [native code] }');
+        // Use shimInterface for consistent constructor wrapping
+        this.shimInterface('Notification', NotificationPolyfill, {
+            disallowConstructor: false,
+            allowConstructorCall: false,
+            wrapToString: true,
+        });
 
         // Wrap static methods
         const wrappedRequestPermission = wrapToString(
@@ -416,14 +420,6 @@ export class WebCompat extends ContentFeature {
             if (data.event === 'close') {
                 this.#webNotifications.delete(data.id);
             }
-        });
-
-        // Define the Notification property on globalThis
-        this.defineProperty(globalThis, 'Notification', {
-            value: wrappedNotification,
-            writable: true,
-            configurable: true,
-            enumerable: false,
         });
 
         // Define permission getter
