@@ -388,12 +388,8 @@ export class WebCompat extends ContentFeature {
             }
         }
 
-        // Use shimInterface for consistent constructor wrapping
-        this.shimInterface('Notification', NotificationPolyfill, {
-            disallowConstructor: false,
-            allowConstructorCall: false,
-            wrapToString: true,
-        });
+        // Wrap the constructor to make toString() look native
+        const wrappedNotification = wrapToString(NotificationPolyfill, NotificationPolyfill, 'function Notification() { [native code] }');
 
         // Wrap static methods
         const wrappedRequestPermission = wrapToString(
@@ -420,6 +416,14 @@ export class WebCompat extends ContentFeature {
             if (data.event === 'close') {
                 this.#webNotifications.delete(data.id);
             }
+        });
+
+        // Define the Notification property on globalThis
+        this.defineProperty(globalThis, 'Notification', {
+            value: wrappedNotification,
+            writable: true,
+            configurable: true,
+            enumerable: false,
         });
 
         // Define permission getter
