@@ -77,7 +77,9 @@ export const platformSupport = {
         'pageContext',
         'duckAiDataClearing',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
+    // Firefox currently only enables a subset of extension features; include breakageReporting
+    // so it can respond to getBreakageReportValues and send detector data on user reports.
+    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'breakageReporting'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
     'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
     integration: [...baseFeatures, ...otherFeatures],
