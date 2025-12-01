@@ -3,6 +3,7 @@
  */
 import { load, init, update } from '../src/content-scope-features.js';
 import { computeLimitedSiteObject } from '../src/utils.js';
+import { getSharedMessagingTransport } from '../src/sendmessage-transport.js';
 
 const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');
 
@@ -32,6 +33,15 @@ window.addEventListener(secret, ({ detail: encodedMessage }) => {
                     return;
                 }
                 init(message.argumentsObject);
+            }
+            break;
+        default:
+            // Route messages with messageType to the messaging transport for subscriptions
+            if (message.messageType) {
+                const transport = getSharedMessagingTransport();
+                if (transport?.onResponse) {
+                    transport.onResponse(message);
+                }
             }
             break;
     }
