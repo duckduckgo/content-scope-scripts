@@ -297,7 +297,7 @@ export class WebCompat extends ContentFeature {
         const nativeSubscribe = nativeEnabled ? (name, cb) => feature.subscribe(name, cb) : () => () => {};
         // Permission is 'default' when enabled (not yet determined), 'denied' when disabled
         /** @type {NotificationPermission} */
-        const permission = nativeEnabled ? 'default' : 'denied';
+        let permission = nativeEnabled ? 'default' : 'denied';
 
         /**
          * NotificationPolyfill - replaces the native Notification API
@@ -341,11 +341,15 @@ export class WebCompat extends ContentFeature {
                 try {
                     const result = await nativeRequest('requestPermission', {});
                     const resultPermission = /** @type {NotificationPermission} */ (result?.permission || 'denied');
+                    // Update cached permission so Notification.permission reflects the new state
+                    permission = resultPermission;
                     if (deprecatedCallback) {
                         deprecatedCallback(resultPermission);
                     }
                     return resultPermission;
                 } catch (e) {
+                    // On error, set permission to denied
+                    permission = 'denied';
                     if (deprecatedCallback) {
                         deprecatedCallback('denied');
                     }

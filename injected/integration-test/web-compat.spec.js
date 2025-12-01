@@ -241,6 +241,27 @@ test.describe('webNotifications', () => {
         expect(permission).toEqual('denied');
     });
 
+    test('should update Notification.permission after requestPermission resolves', async ({ page }) => {
+        await beforeWebNotifications(page);
+
+        // Initially should be 'default'
+        const initialPermission = await page.evaluate(() => window.Notification.permission);
+        expect(initialPermission).toEqual('default');
+
+        // Mock native to return 'granted'
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = () => {
+                return Promise.resolve({ permission: 'granted' });
+            };
+        });
+
+        await page.evaluate(() => window.Notification.requestPermission());
+
+        // After requestPermission, Notification.permission should reflect the new state
+        const updatedPermission = await page.evaluate(() => window.Notification.permission);
+        expect(updatedPermission).toEqual('granted');
+    });
+
     test('should return denied when native error occurs', async ({ page }) => {
         await beforeWebNotifications(page);
         await page.evaluate(() => {
