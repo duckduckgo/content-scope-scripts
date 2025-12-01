@@ -2,7 +2,7 @@ import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils';
-import { wrapToString } from '../wrapper-utils.js';
+import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth
  */
@@ -88,6 +88,9 @@ export class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeScreenLockRequest = null;
 
+    /** @type {Map<string, object>} */
+    #webNotifications = new Map();
+
     // Opt in to receive configuration updates from initial ping responses
     listenForConfigUpdates = true;
 
@@ -106,6 +109,9 @@ export class WebCompat extends ContentFeature {
         }
         if (this.getFeatureSettingEnabled('notification')) {
             this.notificationFix();
+        }
+        if (this.getFeatureSettingEnabled('webNotifications')) {
+            this.webNotificationsFix();
         }
         if (this.getFeatureSettingEnabled('permissions')) {
             const settings = this.getFeatureSetting('permissions');
@@ -261,6 +267,200 @@ export class WebCompat extends ContentFeature {
         );
 
         this.defineProperty(window.Notification, 'requestPermission', {
+            value: wrappedRequestPermission,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+        });
+    }
+
+    /**
+     * Web Notifications polyfill that communicates with native code for permission
+     * management and notification display.
+     */
+    webNotificationsFix() {
+        // Notification API is not supported in insecure contexts
+        if (!globalThis.isSecureContext) {
+            return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const feature = this;
+
+        // Check nativeEnabled setting - when false, install polyfill but skip native calls and return 'denied'
+        const settings = this.getFeatureSetting('webNotifications') || {};
+        const nativeEnabled = settings.nativeEnabled !== false;
+
+        // Wrap native calls - no-op when nativeEnabled is false
+        const nativeNotify = nativeEnabled ? (name, data) => feature.notify(name, data) : () => {};
+        const nativeRequest = nativeEnabled ? (name, data) => feature.request(name, data) : () => Promise.resolve({ permission: 'denied' });
+        const nativeSubscribe = nativeEnabled ? (name, cb) => feature.subscribe(name, cb) : () => () => {};
+        // Permission is 'default' when enabled (not yet determined), 'denied' when disabled
+        /** @type {NotificationPermission} */
+        let permission = nativeEnabled ? 'default' : 'denied';
+
+        /**
+         * NotificationPolyfill - replaces the native Notification API
+         */
+        class NotificationPolyfill {
+            /** @type {string} */
+            #id;
+            /** @type {string} */
+            title;
+            /** @type {string} */
+            body;
+            /** @type {string} */
+            icon;
+            /** @type {string} */
+            tag;
+            /** @type {any} */
+            data;
+
+            // Event handlers
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onclick = null;
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onclose = null;
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onerror = null;
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onshow = null;
+
+            /**
+             * @returns {'default' | 'denied' | 'granted'}
+             */
+            static get permission() {
+                return permission;
+            }
+
+            /**
+             * @param {NotificationPermissionCallback} [deprecatedCallback]
+             * @returns {Promise<NotificationPermission>}
+             */
+            static async requestPermission(deprecatedCallback) {
+                try {
+                    const result = await nativeRequest('requestPermission', {});
+                    const resultPermission = /** @type {NotificationPermission} */ (result?.permission || 'denied');
+                    // Update cached permission so Notification.permission reflects the new state
+                    permission = resultPermission;
+                    if (deprecatedCallback) {
+                        deprecatedCallback(resultPermission);
+                    }
+                    return resultPermission;
+                } catch (e) {
+                    // On error, set permission to denied
+                    permission = 'denied';
+                    if (deprecatedCallback) {
+                        deprecatedCallback('denied');
+                    }
+                    return 'denied';
+                }
+            }
+
+            /**
+             * @returns {number}
+             */
+            static get maxActions() {
+                return 2;
+            }
+
+            /**
+             * @param {string} title
+             * @param {NotificationOptions} [options]
+             */
+            constructor(title, options = {}) {
+                this.#id = crypto.randomUUID();
+                this.title = String(title);
+                this.body = options.body ? String(options.body) : '';
+                this.icon = options.icon ? String(options.icon) : '';
+                this.tag = options.tag ? String(options.tag) : '';
+                this.data = options.data;
+
+                feature.#webNotifications.set(this.#id, this);
+
+                nativeNotify('showNotification', {
+                    id: this.#id,
+                    title: this.title,
+                    body: this.body,
+                    icon: this.icon,
+                    tag: this.tag,
+                });
+            }
+
+            close() {
+                // Guard against multiple close() calls - only fire onclose once
+                if (!feature.#webNotifications.has(this.#id)) {
+                    return;
+                }
+                nativeNotify('closeNotification', { id: this.#id });
+                // Remove from map first to prevent duplicate onclose from native event
+                feature.#webNotifications.delete(this.#id);
+                // Fire onclose handler
+                if (typeof this.onclose === 'function') {
+                    try {
+                        // @ts-expect-error - NotificationPolyfill doesn't fully implement Notification interface
+                        this.onclose(new Event('close'));
+                    } catch (e) {
+                        // Error in event handler - silently ignore
+                    }
+                }
+            }
+        }
+
+        // Wrap the constructor
+        const wrappedNotification = wrapFunction(NotificationPolyfill, NotificationPolyfill);
+
+        // Wrap static methods
+        const wrappedRequestPermission = wrapToString(
+            NotificationPolyfill.requestPermission.bind(NotificationPolyfill),
+            NotificationPolyfill.requestPermission,
+            'function requestPermission() { [native code] }',
+        );
+
+        // Subscribe to notification events from native
+        nativeSubscribe('notificationEvent', (data) => {
+            const notification = this.#webNotifications.get(data.id);
+            if (!notification) return;
+
+            const eventName = `on${data.event}`;
+            if (typeof notification[eventName] === 'function') {
+                try {
+                    notification[eventName](new Event(data.event));
+                } catch (e) {
+                    // Error in event handler - silently ignore
+                }
+            }
+
+            // Clean up on close event
+            if (data.event === 'close') {
+                this.#webNotifications.delete(data.id);
+            }
+        });
+
+        // Define the Notification property on globalThis
+        this.defineProperty(globalThis, 'Notification', {
+            value: wrappedNotification,
+            writable: true,
+            configurable: true,
+            enumerable: false,
+        });
+
+        // Define permission getter
+        this.defineProperty(globalThis.Notification, 'permission', {
+            get: () => permission,
+            configurable: true,
+            enumerable: true,
+        });
+
+        // Define maxActions getter
+        this.defineProperty(globalThis.Notification, 'maxActions', {
+            get: () => 2,
+            configurable: true,
+            enumerable: true,
+        });
+
+        // Define requestPermission
+        this.defineProperty(globalThis.Notification, 'requestPermission', {
             value: wrappedRequestPermission,
             writable: true,
             configurable: true,

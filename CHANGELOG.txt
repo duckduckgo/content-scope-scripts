@@ -1,0 +1,2 @@
+- Add Web Notifications support (#2067)
+- History: Stub out support for theming (#2066)

@@ -3546,6 +3546,24 @@
       return Reflect.get(target, prop, receiver);
     };
   }
+  function wrapFunction(functionValue, realTarget) {
+    return new Proxy(realTarget, {
+      get(target, prop, receiver) {
+        if (prop === "toString") {
+          const method = Reflect.get(target, prop, receiver).bind(target);
+          Object.defineProperty(method, "toString", {
+            value: functionToString.bind(functionToString),
+            enumerable: false
+          });
+          return method;
+        }
+        return Reflect.get(target, prop, receiver);
+      },
+      apply(_2, thisArg, argumentsList) {
+        return Reflect.apply(functionValue, thisArg, argumentsList);
+      }
+    });
+  }
   function wrapProperty(object, propertyName, descriptor, definePropertyFn) {
     if (!object) {
       return;
@@ -15057,7 +15075,7 @@ ul.messages {
     }
     return dataToSend;
   }
-  var _activeShareRequest, _activeScreenLockRequest;
+  var _activeShareRequest, _activeScreenLockRequest, _webNotifications;
   var WebCompat = class extends ContentFeature {
     constructor() {
       super(...arguments);
@@ -15065,6 +15083,8 @@ ul.messages {
       __privateAdd(this, _activeShareRequest, null);
       /** @type {Promise<any> | null} */
       __privateAdd(this, _activeScreenLockRequest, null);
+      /** @type {Map<string, object>} */
+      __privateAdd(this, _webNotifications, /* @__PURE__ */ new Map());
       // Opt in to receive configuration updates from initial ping responses
       __publicField(this, "listenForConfigUpdates", true);
     }
@@ -15083,6 +15103,9 @@ ul.messages {
       }
       if (this.getFeatureSettingEnabled("notification")) {
         this.notificationFix();
+      }
+      if (this.getFeatureSettingEnabled("webNotifications")) {
+        this.webNotificationsFix();
       }
       if (this.getFeatureSettingEnabled("permissions")) {
         const settings = this.getFeatureSetting("permissions");
@@ -15212,6 +15235,160 @@ ul.messages {
         "function requestPermission() { [native code] }"
       );
       this.defineProperty(window.Notification, "requestPermission", {
+        value: wrappedRequestPermission,
+        writable: true,
+        configurable: true,
+        enumerable: true
+      });
+    }
+    /**
+     * Web Notifications polyfill that communicates with native code for permission
+     * management and notification display.
+     */
+    webNotificationsFix() {
+      var _id;
+      if (!globalThis.isSecureContext) {
+        return;
+      }
+      const feature = this;
+      const settings = this.getFeatureSetting("webNotifications") || {};
+      const nativeEnabled = settings.nativeEnabled !== false;
+      const nativeNotify = nativeEnabled ? (name, data2) => feature.notify(name, data2) : () => {
+      };
+      const nativeRequest = nativeEnabled ? (name, data2) => feature.request(name, data2) : () => Promise.resolve({ permission: "denied" });
+      const nativeSubscribe = nativeEnabled ? (name, cb) => feature.subscribe(name, cb) : () => () => {
+      };
+      let permission = nativeEnabled ? "default" : "denied";
+      class NotificationPolyfill {
+        /**
+         * @param {string} title
+         * @param {NotificationOptions} [options]
+         */
+        constructor(title, options = {}) {
+          /** @type {string} */
+          __privateAdd(this, _id);
+          /** @type {string} */
+          __publicField(this, "title");
+          /** @type {string} */
+          __publicField(this, "body");
+          /** @type {string} */
+          __publicField(this, "icon");
+          /** @type {string} */
+          __publicField(this, "tag");
+          /** @type {any} */
+          __publicField(this, "data");
+          // Event handlers
+          /** @type {((this: Notification, ev: Event) => any) | null} */
+          __publicField(this, "onclick", null);
+          /** @type {((this: Notification, ev: Event) => any) | null} */
+          __publicField(this, "onclose", null);
+          /** @type {((this: Notification, ev: Event) => any) | null} */
+          __publicField(this, "onerror", null);
+          /** @type {((this: Notification, ev: Event) => any) | null} */
+          __publicField(this, "onshow", null);
+          __privateSet(this, _id, crypto.randomUUID());
+          this.title = String(title);
+          this.body = options.body ? String(options.body) : "";
+          this.icon = options.icon ? String(options.icon) : "";
+          this.tag = options.tag ? String(options.tag) : "";
+          this.data = options.data;
+          __privateGet(feature, _webNotifications).set(__privateGet(this, _id), this);
+          nativeNotify("showNotification", {
+            id: __privateGet(this, _id),
+            title: this.title,
+            body: this.body,
+            icon: this.icon,
+            tag: this.tag
+          });
+        }
+        /**
+         * @returns {'default' | 'denied' | 'granted'}
+         */
+        static get permission() {
+          return permission;
+        }
+        /**
+         * @param {NotificationPermissionCallback} [deprecatedCallback]
+         * @returns {Promise<NotificationPermission>}
+         */
+        static async requestPermission(deprecatedCallback) {
+          try {
+            const result = await nativeRequest("requestPermission", {});
+            const resultPermission = (
+              /** @type {NotificationPermission} */
+              result?.permission || "denied"
+            );
+            permission = resultPermission;
+            if (deprecatedCallback) {
+              deprecatedCallback(resultPermission);
+            }
+            return resultPermission;
+          } catch (e) {
+            permission = "denied";
+            if (deprecatedCallback) {
+              deprecatedCallback("denied");
+            }
+            return "denied";
+          }
+        }
+        /**
+         * @returns {number}
+         */
+        static get maxActions() {
+          return 2;
+        }
+        close() {
+          if (!__privateGet(feature, _webNotifications).has(__privateGet(this, _id))) {
+            return;
+          }
+          nativeNotify("closeNotification", { id: __privateGet(this, _id) });
+          __privateGet(feature, _webNotifications).delete(__privateGet(this, _id));
+          if (typeof this.onclose === "function") {
+            try {
+              this.onclose(new Event("close"));
+            } catch (e) {
+            }
+          }
+        }
+      }
+      _id = new WeakMap();
+      const wrappedNotification = wrapFunction(NotificationPolyfill, NotificationPolyfill);
+      const wrappedRequestPermission = wrapToString(
+        NotificationPolyfill.requestPermission.bind(NotificationPolyfill),
+        NotificationPolyfill.requestPermission,
+        "function requestPermission() { [native code] }"
+      );
+      nativeSubscribe("notificationEvent", (data2) => {
+        const notification = __privateGet(this, _webNotifications).get(data2.id);
+        if (!notification) return;
+        const eventName = `on${data2.event}`;
+        if (typeof notification[eventName] === "function") {
+          try {
+            notification[eventName](new Event(data2.event));
+          } catch (e) {
+          }
+        }
+        if (data2.event === "close") {
+          __privateGet(this, _webNotifications).delete(data2.id);
+        }
+      });
+      this.defineProperty(globalThis, "Notification", {
+        value: wrappedNotification,
+        writable: true,
+        configurable: true,
+        enumerable: false
+      });
+      this.defineProperty(globalThis.Notification, "permission", {
+        get: () => permission,
+        configurable: true,
+        enumerable: true
+      });
+      this.defineProperty(globalThis.Notification, "maxActions", {
+        get: () => 2,
+        configurable: true,
+        enumerable: true
+      });
+      this.defineProperty(globalThis.Notification, "requestPermission", {
         value: wrappedRequestPermission,
         writable: true,
         configurable: true,
@@ -15783,6 +15960,7 @@ ul.messages {
   };
   _activeShareRequest = new WeakMap();
   _activeScreenLockRequest = new WeakMap();
+  _webNotifications = new WeakMap();
   var web_compat_default = WebCompat;
 
   // src/features/web-interference-detection.js

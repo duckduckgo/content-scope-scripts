@@ -1,7 +1,6 @@
 import { h } from 'preact';
 import cn from 'classnames';
 import styles from './App.module.css';
-import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 import { Header } from './Header.js';
 import { ResultsContainer } from './Results.js';
 import { useEffect, useRef } from 'preact/hooks';
@@ -20,11 +19,12 @@ import { useRangesData } from '../global/Providers/HistoryServiceProvider.js';
 import { usePlatformName } from '../types.js';
 import { useLayoutMode } from '../global/hooks/useLayoutMode.js';
 import { useClickAnywhereElse } from '../global/hooks/useClickAnywhereElse.jsx';
+import { useTheme } from '../global/Providers/ThemeProvider.js';
 
 export function App() {
     const platformName = usePlatformName();
     const mainRef = useRef(/** @type {HTMLElement|null} */ (null));
-    const { isDarkMode } = useEnv();
+    const { theme, themeVariant } = useTheme();
     const ranges = useRangesData();
     const query = useQueryContext();
     const mode = useLayoutMode();
@@ -66,7 +66,8 @@ export function App() {
     return (
         <div
             class={styles.layout}
-            data-theme={isDarkMode ? 'dark' : 'light'}
+            data-theme={theme}
+            data-theme-variant={themeVariant}
             data-platform={platformName}
             data-layout-mode={mode}
             onClick={clickAnywhere}
