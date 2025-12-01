@@ -36,7 +36,8 @@ window.addEventListener(secret, ({ detail: encodedMessage }) => {
             }
             break;
         default:
-            // Route messages with messageType to the messaging transport for subscriptions
+            // Messages with messageType are subscription responses from the extension.
+            // Route them to the shared transport so all subscribed features receive them.
             if (message.messageType) {
                 const transport = getSharedMessagingTransport();
                 if (transport?.onResponse) {

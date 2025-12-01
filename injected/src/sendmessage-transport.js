@@ -6,14 +6,17 @@ import { TestTransportConfig } from '../../messaging/index.js';
  * @typedef {import('@duckduckgo/messaging').MessagingTransport} MessagingTransport
  */
 
-/** @type {SendMessageMessagingTransport | null} */
+/**
+ * Singleton transport shared across all features. Without this, each feature would
+ * have its own transport/queue and wouldn't receive messages meant for other features.
+ * @type {SendMessageMessagingTransport | null}
+ */
 let sharedTransport = null;
 
 /**
  * @deprecated - A temporary constructor for the extension to make the messaging config
  */
 export function extensionConstructMessagingConfig() {
-    // Use shared transport so all features receive messages via onResponse
     if (!sharedTransport) {
         sharedTransport = new SendMessageMessagingTransport();
     }
@@ -21,7 +24,7 @@ export function extensionConstructMessagingConfig() {
 }
 
 /**
- * Get the shared messaging transport for routing messages from the background
+ * Used by entry-points to route incoming extension messages to onResponse().
  * @returns {SendMessageMessagingTransport | null}
  */
 export function getSharedMessagingTransport() {
