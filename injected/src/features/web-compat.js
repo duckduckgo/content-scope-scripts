@@ -388,8 +388,14 @@ export class WebCompat extends ContentFeature {
             }
 
             close() {
+                // Guard against multiple close() calls - only fire onclose once
+                if (!feature.#webNotifications.has(this.#id)) {
+                    return;
+                }
                 nativeNotify('closeNotification', { id: this.#id });
-                // Fire onclose handler before removing from map
+                // Remove from map first to prevent duplicate onclose from native event
+                feature.#webNotifications.delete(this.#id);
+                // Fire onclose handler
                 if (typeof this.onclose === 'function') {
                     try {
                         // @ts-expect-error - NotificationPolyfill doesn't fully implement Notification interface
@@ -398,7 +404,6 @@ export class WebCompat extends ContentFeature {
                         // Error in event handler - silently ignore
                     }
                 }
-                feature.#webNotifications.delete(this.#id);
             }
         }
 

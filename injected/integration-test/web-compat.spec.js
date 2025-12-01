@@ -229,6 +229,27 @@ test.describe('webNotifications', () => {
         expect(closeCall.params.id).toBeDefined();
     });
 
+    test('should only fire onclose once when close() is called multiple times', async ({ page }) => {
+        await beforeWebNotifications(page);
+
+        const closeCount = await page.evaluate(() => {
+            let count = 0;
+            const notification = new window.Notification('Test');
+            notification.onclose = () => {
+                count++;
+            };
+
+            // Call close() multiple times - should only fire onclose once
+            notification.close();
+            notification.close();
+            notification.close();
+
+            return count;
+        });
+
+        expect(closeCount).toEqual(1);
+    });
+
     test('should propagate requestPermission result from native', async ({ page }) => {
         await beforeWebNotifications(page);
         await page.evaluate(() => {
