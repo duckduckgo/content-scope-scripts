@@ -35,6 +35,7 @@ export default defineConfig({
                 'activity.spec.js',
                 'history.spec.js',
                 'history-selections.spec.js',
+                'history-theme.spec.js',
                 'history.screenshots.spec.js',
                 'protections.spec.js',
                 'protections.screenshots.spec.js',
