@@ -252,12 +252,12 @@ const DDG_MAX_TRACKER_ICONS = 3;
 function TrackerStatus({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
-    
+
     // Track activity.value directly to ensure we react to any changes
     // When normalizeData updates activity.value (line 228 in NormalizeDataProvider),
     // this computed will re-evaluate because activity.value is a new object reference
     const activityData = useComputed(() => activity.value);
-    
+
     // Use computed to reactively track trackingStatus changes
     // Access activityData.value.trackingStatus[id] to ensure we track the nested property
     const trackingStatus = useComputed(() => {
@@ -266,7 +266,7 @@ function TrackerStatus({ id, trackersFound }) {
         // This handles the case where a site is first logged but trackingStatus hasn't been updated
         return status || { totalCount: 0, trackerCompanies: [] };
     });
-    
+
     // Make text computation reactive so it updates when trackingStatus changes
     const totalTrackersBlocked = useComputed(() => trackingStatus.value.totalCount);
     const totalTrackersPillText = useComputed(() => {
@@ -286,21 +286,21 @@ function TrackerStatus({ id, trackersFound }) {
     // The key insight: activityData.value changes when normalizeData creates a new object,
     // so tracking activityData ensures we react to any updates
     const [, setRenderKey] = useState(0);
-    
+
     // Track activityData changes - this computed changes when activity.value changes
     // which happens when normalizeData runs (line 228 in NormalizeDataProvider)
     useSignalEffect(() => {
         // Access activityData.value to ensure Preact Signals tracks it
-        // This will run whenever activity.value changes, even if trackingStatus[id] 
+        // This will run whenever activity.value changes, even if trackingStatus[id]
         // is updated within the same normalizeData call
         const currentData = activityData.value;
-        
+
         // Access the specific properties we care about
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         currentData.trackingStatus[id];
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         currentData.cookiePopUpBlocked?.[id];
-        
+
         // Force re-render by updating state
         // This ensures the component updates when trackingStatus data arrives
         setRenderKey((prev) => prev + 1);
