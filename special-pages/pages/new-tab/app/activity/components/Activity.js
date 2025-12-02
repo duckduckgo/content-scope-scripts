@@ -3,7 +3,7 @@ import styles from './Activity.module.css';
 // @todo legacyProtections: `stylesLegacy` can be removed once all platforms
 // are ready for the new Protections Report
 import stylesLegacy from './ActivityLegacy.module.css';
-import { useContext, useEffect, useRef } from 'preact/hooks';
+import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { ActivityContext, ActivityServiceContext } from '../ActivityProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
@@ -14,7 +14,7 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
 import { ActivityItem, ActivityItemLegacy } from './ActivityItem.js';
 import { ActivityBurningSignalContext, BurnProvider } from '../../burning/BurnProvider.js';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
-import { useComputed } from '@preact/signals';
+import { useComputed, useSignalEffect } from '@preact/signals';
 import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js';
 import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility.js';
 import { HistoryItems, HistoryItemsLegacy } from './HistoryItems.js';
@@ -254,6 +254,7 @@ function TrackerStatus({ id, trackersFound }) {
     const { activity } = useContext(NormalizedDataContext);
     
     // Use computed to reactively track trackingStatus changes
+    // Access activity.value directly to ensure Preact Signals tracks it properly
     // This ensures the component updates when trackingStatus is populated via activity_onDataUpdate
     // or activity_onDataPatch messages
     const trackingStatus = useComputed(() => {
@@ -276,6 +277,42 @@ function TrackerStatus({ id, trackersFound }) {
               });
     });
     const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked?.[id]);
+
+    // Use a ref to track previous values and state to force re-renders
+    // This ensures TickPill updates when trackingStatus data arrives
+    // Initialize ref with current values to avoid false positives on first render
+    const prevValuesRef = useRef({
+        pillText: totalTrackersPillText.value,
+        blocked: totalTrackersBlocked.value,
+        cookieBlocked: !!cookiePopUpBlocked.value,
+    });
+    const [, setRenderKey] = useState(0);
+    
+    // Track computed signal changes and update state only when values actually change
+    // This ensures the component re-renders when trackingStatus data arrives
+    useSignalEffect(() => {
+        // Access computed values to ensure Preact Signals tracks them
+        const currentPillText = totalTrackersPillText.value;
+        const currentBlocked = totalTrackersBlocked.value;
+        const currentCookieBlocked = !!cookiePopUpBlocked.value;
+        
+        const prev = prevValuesRef.current;
+        
+        // Only update state if values have actually changed
+        if (
+            prev.pillText !== currentPillText ||
+            prev.blocked !== currentBlocked ||
+            prev.cookieBlocked !== currentCookieBlocked
+        ) {
+            prevValuesRef.current = {
+                pillText: currentPillText,
+                blocked: currentBlocked,
+                cookieBlocked: currentCookieBlocked,
+            };
+            // Update state to force re-render
+            setRenderKey((prev) => prev + 1);
+        }
+    });
 
     return (
         <div class={styles.companiesIconRow} data-testid="TrackerStatus">
