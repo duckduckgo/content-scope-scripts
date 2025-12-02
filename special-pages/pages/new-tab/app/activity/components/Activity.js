@@ -253,12 +253,15 @@ function TrackerStatus({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
     
+    // Track activity.value directly to ensure we react to any changes
+    // When normalizeData updates activity.value (line 228 in NormalizeDataProvider),
+    // this computed will re-evaluate because activity.value is a new object reference
+    const activityData = useComputed(() => activity.value);
+    
     // Use computed to reactively track trackingStatus changes
-    // Access activity.value directly to ensure Preact Signals tracks it properly
-    // This ensures the component updates when trackingStatus is populated via activity_onDataUpdate
-    // or activity_onDataPatch messages
+    // Access activityData.value.trackingStatus[id] to ensure we track the nested property
     const trackingStatus = useComputed(() => {
-        const status = activity.value.trackingStatus[id];
+        const status = activityData.value.trackingStatus[id];
         // Provide default if trackingStatus hasn't been populated yet
         // This handles the case where a site is first logged but trackingStatus hasn't been updated
         return status || { totalCount: 0, trackerCompanies: [] };
@@ -276,49 +279,42 @@ function TrackerStatus({ id, trackersFound }) {
                   count: String(count),
               });
     });
-    const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked?.[id]);
+    const cookiePopUpBlocked = useComputed(() => activityData.value.cookiePopUpBlocked?.[id]);
 
-    // Use a ref to track previous values and state to force re-renders
+    // Force re-render when activityData changes by tracking it with useSignalEffect
     // This ensures TickPill updates when trackingStatus data arrives
-    // Initialize ref with current values to avoid false positives on first render
-    const prevValuesRef = useRef({
-        pillText: totalTrackersPillText.value,
-        blocked: totalTrackersBlocked.value,
-        cookieBlocked: !!cookiePopUpBlocked.value,
-    });
+    // The key insight: activityData.value changes when normalizeData creates a new object,
+    // so tracking activityData ensures we react to any updates
     const [, setRenderKey] = useState(0);
     
-    // Track computed signal changes and update state only when values actually change
-    // This ensures the component re-renders when trackingStatus data arrives
+    // Track activityData changes - this computed changes when activity.value changes
+    // which happens when normalizeData runs (line 228 in NormalizeDataProvider)
     useSignalEffect(() => {
-        // Access computed values to ensure Preact Signals tracks them
-        const currentPillText = totalTrackersPillText.value;
-        const currentBlocked = totalTrackersBlocked.value;
-        const currentCookieBlocked = !!cookiePopUpBlocked.value;
+        // Access activityData.value to ensure Preact Signals tracks it
+        // This will run whenever activity.value changes, even if trackingStatus[id] 
+        // is updated within the same normalizeData call
+        const currentData = activityData.value;
         
-        const prev = prevValuesRef.current;
+        // Access the specific properties we care about
+        void currentData.trackingStatus[id];
+        void currentData.cookiePopUpBlocked?.[id];
         
-        // Only update state if values have actually changed
-        if (
-            prev.pillText !== currentPillText ||
-            prev.blocked !== currentBlocked ||
-            prev.cookieBlocked !== currentCookieBlocked
-        ) {
-            prevValuesRef.current = {
-                pillText: currentPillText,
-                blocked: currentBlocked,
-                cookieBlocked: currentCookieBlocked,
-            };
-            // Update state to force re-render
-            setRenderKey((prev) => prev + 1);
-        }
+        // Force re-render by updating state
+        // This ensures the component updates when trackingStatus data arrives
+        setRenderKey((prev) => prev + 1);
     });
+
+    // Access computed values during render to ensure Preact Signals tracks them
+    // This is the key - accessing .value in JSX should trigger reactivity
+    const pillText = totalTrackersPillText.value;
+    const showTick = totalTrackersBlocked.value > 0;
+    const showCookiePill = cookiePopUpBlocked.value;
 
     return (
         <div class={styles.companiesIconRow} data-testid="TrackerStatus">
             <div class={styles.companiesText}>
-                <TickPill text={totalTrackersPillText.value} displayTick={totalTrackersBlocked.value > 0} />
-                {cookiePopUpBlocked.value && <TickPill text={t('activity_cookiePopUpBlocked')} />}
+                <TickPill text={pillText} displayTick={showTick} />
+                {showCookiePill && <TickPill text={t('activity_cookiePopUpBlocked')} />}
             </div>
         </div>
     );
