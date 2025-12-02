@@ -17,8 +17,8 @@ export default class BreakageReporting extends ContentFeature {
             };
 
             // Only run detectors if explicitly configured
-            const interferenceTypes = this.getFeatureSetting('interferenceTypes');
-            const detectorSettings = interferenceTypes?.webInterferenceDetection;
+            // Fetch interferenceTypes from webInterferenceDetection feature settings
+            const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
             if (detectorSettings) {
                 result.detectorData = {
                     botDetection: runBotDetection(detectorSettings.botDetection),
