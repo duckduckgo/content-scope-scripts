@@ -252,29 +252,36 @@ const DDG_MAX_TRACKER_ICONS = 3;
 function TrackerStatus({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
-    const status = useComputed(() => activity.value.trackingStatus[id]);
-    const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked?.[id]).value;
     
-    // Provide default if trackingStatus hasn't been populated yet
-    // This handles the case where a site is first logged but trackingStatus hasn't been updated
-    // The component will reactively update when trackingStatus is populated via activity_onDataUpdate
+    // Use computed to reactively track trackingStatus changes
+    // This ensures the component updates when trackingStatus is populated via activity_onDataUpdate
     // or activity_onDataPatch messages
-    const trackingStatus = status.value || { totalCount: 0, trackerCompanies: [] };
-    const totalTrackersBlocked = trackingStatus.totalCount;
-    const totalTrackersPillText =
-        totalTrackersBlocked === 0
+    const trackingStatus = useComputed(() => {
+        const status = activity.value.trackingStatus[id];
+        // Provide default if trackingStatus hasn't been populated yet
+        // This handles the case where a site is first logged but trackingStatus hasn't been updated
+        return status || { totalCount: 0, trackerCompanies: [] };
+    });
+    
+    // Make text computation reactive so it updates when trackingStatus changes
+    const totalTrackersBlocked = useComputed(() => trackingStatus.value.totalCount);
+    const totalTrackersPillText = useComputed(() => {
+        const count = totalTrackersBlocked.value;
+        return count === 0
             ? trackersFound
                 ? t('activity_no_trackers_blocked')
                 : t('activity_no_trackers')
-            : t(totalTrackersBlocked === 1 ? 'activity_countBlockedSingular' : 'activity_countBlockedPlural', {
-                  count: String(totalTrackersBlocked),
+            : t(count === 1 ? 'activity_countBlockedSingular' : 'activity_countBlockedPlural', {
+                  count: String(count),
               });
+    });
+    const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked?.[id]);
 
     return (
         <div class={styles.companiesIconRow} data-testid="TrackerStatus">
             <div class={styles.companiesText}>
-                <TickPill text={totalTrackersPillText} displayTick={totalTrackersBlocked > 0} />
-                {cookiePopUpBlocked && <TickPill text={t('activity_cookiePopUpBlocked')} />}
+                <TickPill text={totalTrackersPillText.value} displayTick={totalTrackersBlocked.value > 0} />
+                {cookiePopUpBlocked.value && <TickPill text={t('activity_cookiePopUpBlocked')} />}
             </div>
         </div>
     );
