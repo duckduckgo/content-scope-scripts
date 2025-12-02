@@ -31,6 +31,12 @@ export const ProtectionsContext = createContext({
 export const ProtectionsServiceContext = createContext(/** @type {ProtectionsService|null} */ ({}));
 
 /**
+ * Context for sharing burn complete time across useBlockedCount hooks
+ * This allows a single subscription to activity_onBurnComplete at the Provider level
+ */
+export const BurnCompleteTimeContext = createContext(/** @type {import("preact").RefObject<number | null>} */ ({ current: null }));
+
+/**
  * A data provider that will use `ProtectionsService` to fetch initial data only
  *
  * @param {Object} props
@@ -54,6 +60,19 @@ export function ProtectionsProvider(props) {
     // subscribe to config updates
     useConfigSubscription({ dispatch, service });
 
+    // Set up a single subscription to activity_onBurnComplete at the Provider level
+    // This prevents duplicate subscription errors when multiple useBlockedCount hooks are used
+    const ntp = useMessaging();
+    const burnCompleteTimeRef = useRef(/** @type {number | null} */ (null));
+    
+    useEffect(() => {
+        if (!ntp) return;
+        return ntp.messaging.subscribe('activity_onBurnComplete', () => {
+            // Mark that we should skip animation if next update goes to 0
+            burnCompleteTimeRef.current = Date.now();
+        });
+    }, [ntp]);
+
     // expose a fn for sync toggling
     const toggle = useCallback(() => {
         service.current?.toggleExpansion();
@@ -69,7 +88,11 @@ export function ProtectionsProvider(props) {
 
     return (
         <ProtectionsContext.Provider value={{ state, toggle, setFeed }}>
-            <ProtectionsServiceContext.Provider value={service.current}>{props.children}</ProtectionsServiceContext.Provider>
+            <ProtectionsServiceContext.Provider value={service.current}>
+                <BurnCompleteTimeContext.Provider value={burnCompleteTimeRef}>
+                    {props.children}
+                </BurnCompleteTimeContext.Provider>
+            </ProtectionsServiceContext.Provider>
         </ProtectionsContext.Provider>
     );
 }
@@ -96,19 +119,9 @@ export function useService() {
  */
 export function useBlockedCount(initial) {
     const service = useContext(ProtectionsServiceContext);
-    const ntp = useMessaging();
+    const burnCompleteTimeRef = useContext(BurnCompleteTimeContext);
     const signal = useSignal(initial);
     const skipAnimationSignal = useSignal(false);
-    const burnCompleteTimeRef = useRef(/** @type {number | null} */ (null));
-    
-    // Track burn complete events to detect "burn all" scenario
-    useEffect(() => {
-        if (!ntp) return;
-        return ntp.messaging.subscribe('activity_onBurnComplete', () => {
-            // Mark that we should skip animation if next update goes to 0
-            burnCompleteTimeRef.current = Date.now();
-        });
-    }, [ntp]);
     
     // @todo jingram possibly refactor to include full object
     useSignalEffect(() => {
