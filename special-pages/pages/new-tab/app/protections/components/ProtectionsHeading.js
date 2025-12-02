@@ -16,6 +16,7 @@ import { useRef, useEffect } from 'preact/hooks';
  * @param {object} props
  * @param {import('../../../types/new-tab.ts').Expansion} props.expansion
  * @param {import("@preact/signals").Signal<number>} props.blockedCountSignal
+ * @param {import("@preact/signals").Signal<boolean>} [props.skipAnimationSignal]
  * @param {boolean} props.canExpand
  * @param {() => void} props.onToggle
  * @param {import('preact').ComponentProps<'button'>} [props.buttonAttrs]
@@ -25,6 +26,7 @@ export function ProtectionsHeading({
     expansion,
     canExpand,
     blockedCountSignal,
+    skipAnimationSignal,
     onToggle,
     buttonAttrs = {},
     totalCookiePopUpsBlockedSignal,
@@ -43,8 +45,13 @@ export function ProtectionsHeading({
             : 0;
 
     // Animate both tracker count and cookie pop-ups count when counterContainer is in viewport
-    const animatedTrackersBlocked = useAnimatedCount(totalTrackersBlocked, counterContainerRef);
-    const animatedCookiePopUpsBlocked = useAnimatedCount(totalCookiePopUpsBlocked, counterContainerRef);
+    // Skip animation when burning all data (skipAnimationSignal is true)
+    // Pass the signal directly so useAnimatedCount can reactively read its value
+    // Both counts use the same skipAnimationSignal to ensure consistent behavior:
+    // - When burning all: both skip animation and go directly to empty state
+    // - When burning a single domain: both animate normally to show updated counts
+    const animatedTrackersBlocked = useAnimatedCount(totalTrackersBlocked, counterContainerRef, skipAnimationSignal);
+    const animatedCookiePopUpsBlocked = useAnimatedCount(totalCookiePopUpsBlocked, counterContainerRef, skipAnimationSignal);
 
     // Subscribe to scroll message
     useEffect(() => {

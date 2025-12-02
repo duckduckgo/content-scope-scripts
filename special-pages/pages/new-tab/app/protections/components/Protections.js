@@ -19,6 +19,7 @@ import { ProtectionsHeadingLegacy } from './ProtectionsHeadingLegacy';
  * @param {object} props
  * @param {Expansion} props.expansion
  * @param {import("@preact/signals").Signal<number>} props.blockedCountSignal
+ * @param {import("@preact/signals").Signal<boolean>} [props.skipAnimationSignal]
  * @param {ProtectionsConfig['feed']} props.feed
  * @param {(feed: ProtectionsConfig['feed']) => void} props.setFeed
  * @param {import("preact").ComponentChild} [props.children]
@@ -29,6 +30,7 @@ export function Protections({
     expansion = 'expanded',
     children,
     blockedCountSignal,
+    skipAnimationSignal,
     feed,
     toggle,
     setFeed,
@@ -64,6 +66,7 @@ export function Protections({
             ) : (
                 <ProtectionsHeading
                     blockedCountSignal={blockedCountSignal}
+                    skipAnimationSignal={skipAnimationSignal}
                     onToggle={toggle}
                     expansion={expansion}
                     canExpand={true}

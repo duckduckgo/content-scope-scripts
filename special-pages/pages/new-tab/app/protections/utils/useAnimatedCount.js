@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
+import { useSignalEffect } from '@preact/signals';
 import { animateCount } from './animateCount.js';
 
 /**
@@ -20,6 +21,7 @@ import { animateCount } from './animateCount.js';
  * @param {number} targetValue - The target value to animate to
  * @param {import('preact').RefObject<HTMLElement>} [elementRef] - Optional ref
  * to element for viewport detection
+ * @param {boolean | import("@preact/signals").Signal<boolean>} [skipAnimation] - If true or signal value is true, skip animation and immediately set to target value
  * @returns {number} The current animated value
  *
  * @todo IDEAL SOLUTION: Native code should send a message (e.g.,
@@ -27,9 +29,22 @@ import { animateCount } from './animateCount.js';
  * would be more reliable than JavaScript-only detection. We could subscribe to
  * this message and trigger animation when received.
  */
-export function useAnimatedCount(targetValue, elementRef) {
+export function useAnimatedCount(targetValue, elementRef, skipAnimation = false) {
     // Initialize to 0 so first render triggers percentage-based animation from spec
     const [animatedValue, setAnimatedValue] = useState(0);
+    
+    // Track skipAnimation reactively if it's a signal
+    const isSignal = typeof skipAnimation === 'object' && 'value' in skipAnimation;
+    const [shouldSkipAnimation, setShouldSkipAnimation] = useState(
+        isSignal ? skipAnimation.value : skipAnimation
+    );
+    
+    // Reactively track signal value changes (always call hook, but only track if it's a signal)
+    useSignalEffect(() => {
+        if (isSignal) {
+            setShouldSkipAnimation(skipAnimation.value);
+        }
+    });
 
     // Track current animated value to enable smooth incremental updates
     // Initialize to 0 so first animation uses spec's percentage-based starting point
@@ -121,22 +136,36 @@ export function useAnimatedCount(targetValue, elementRef) {
         wasVisibleRef.current = isCurrentlyVisible;
 
         if (isCurrentlyVisible) {
-            // Determine starting value for animation
-            let startValue = animatedValueRef.current;
+            // If skipAnimation is true (e.g., after burn all), immediately set to target value
+            // This skips the countdown animation and goes directly to empty state (when targetValue is 0)
+            if (shouldSkipAnimation) {
+                // Cancel any ongoing animation immediately
+                cancelAnimation();
+                // Immediately set to target value without animation
+                // When targetValue is 0, this will trigger the empty state display
+                setAnimatedValue(targetValue);
+                animatedValueRef.current = targetValue;
+                hasAnimatedRef.current = true;
+                // Update last seen value so it's correct for future animations
+                lastSeenValueRef.current = targetValue;
+            } else {
+                // Determine starting value for animation
+                let startValue = animatedValueRef.current;
 
-            // If we're returning to NTP and the target value has changed, animate from last seen value
-            if (isReturningToNTP && lastSeenValueRef.current !== null && lastSeenValueRef.current !== targetValue) {
-                startValue = lastSeenValueRef.current;
-                // Reset animation state to allow re-animation
-                hasAnimatedRef.current = false;
+                // If we're returning to NTP and the target value has changed, animate from last seen value
+                if (isReturningToNTP && lastSeenValueRef.current !== null && lastSeenValueRef.current !== targetValue) {
+                    startValue = lastSeenValueRef.current;
+                    // Reset animation state to allow re-animation
+                    hasAnimatedRef.current = false;
+                }
+
+                // Animate from start value to target
+                cancelAnimation = animateCount(targetValue, updateAnimatedCount, undefined, startValue);
+                hasAnimatedRef.current = true;
+
+                // After animation starts, update last seen to target (will be updated as animation progresses)
+                // This ensures next time we hide, we save the correct final value
             }
-
-            // Animate from start value to target
-            cancelAnimation = animateCount(targetValue, updateAnimatedCount, undefined, startValue);
-            hasAnimatedRef.current = true;
-
-            // After animation starts, update last seen to target (will be updated as animation progresses)
-            // This ensures next time we hide, we save the correct final value
         } else {
             // Page is not visible
             if (wasVisible) {
@@ -164,19 +193,32 @@ export function useAnimatedCount(targetValue, elementRef) {
             wasVisibleRef.current = isNowVisible;
 
             if (isNowVisible) {
-                // Determine starting value
-                let startValue = animatedValueRef.current;
+                // If skipAnimation is true (e.g., after burn all), immediately set to target value
+                // This skips the countdown animation and goes directly to empty state (when targetValue is 0)
+                if (shouldSkipAnimation) {
+                    cancelAnimation();
+                    // Immediately set to target value without animation
+                    // When targetValue is 0, this will trigger the empty state display
+                    setAnimatedValue(targetValue);
+                    animatedValueRef.current = targetValue;
+                    hasAnimatedRef.current = true;
+                    // Update last seen value so it's correct for future animations
+                    lastSeenValueRef.current = targetValue;
+                } else {
+                    // Determine starting value
+                    let startValue = animatedValueRef.current;
 
-                // If returning to NTP and value changed, animate from last seen
-                if (isReturningToNTPNow && lastSeenValueRef.current !== null && lastSeenValueRef.current !== targetValue) {
-                    startValue = lastSeenValueRef.current;
-                    hasAnimatedRef.current = false;
+                    // If returning to NTP and value changed, animate from last seen
+                    if (isReturningToNTPNow && lastSeenValueRef.current !== null && lastSeenValueRef.current !== targetValue) {
+                        startValue = lastSeenValueRef.current;
+                        hasAnimatedRef.current = false;
+                    }
+
+                    // Page became visible and element is in viewport - start animation
+                    cancelAnimation();
+                    cancelAnimation = animateCount(targetValue, updateAnimatedCount, undefined, startValue);
+                    hasAnimatedRef.current = true;
                 }
-
-                // Page became visible and element is in viewport - start animation
-                cancelAnimation();
-                cancelAnimation = animateCount(targetValue, updateAnimatedCount, undefined, startValue);
-                hasAnimatedRef.current = true;
             } else if (document.visibilityState === 'hidden') {
                 // Page became hidden - save current value and cancel animation
                 cancelAnimation();
@@ -195,7 +237,7 @@ export function useAnimatedCount(targetValue, elementRef) {
             cancelAnimation();
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, [targetValue, updateAnimatedCount, isInViewport]);
+    }, [targetValue, updateAnimatedCount, isInViewport, shouldSkipAnimation]);
 
     return animatedValue;
 }

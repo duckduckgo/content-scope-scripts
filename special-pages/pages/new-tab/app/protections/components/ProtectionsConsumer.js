@@ -39,12 +39,13 @@ export function ProtectionsConsumer() {
  */
 function ProtectionsReadyState({ data, config }) {
     const { toggle, setFeed } = useContext(ProtectionsContext);
-    const blockedCountSignal = useBlockedCount(data.totalCount);
+    const { signal: blockedCountSignal, skipAnimation: skipAnimationSignal } = useBlockedCount(data.totalCount);
     const totalCookiePopUpsBlockedSignal = useCookiePopUpsBlockedCount(data.totalCookiePopUpsBlocked);
 
     return (
         <Protections
             blockedCountSignal={blockedCountSignal}
+            skipAnimationSignal={skipAnimationSignal}
             expansion={config.expansion}
             toggle={toggle}
             feed={config.feed}

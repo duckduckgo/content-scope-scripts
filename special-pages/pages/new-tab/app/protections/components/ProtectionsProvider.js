@@ -92,18 +92,56 @@ export function useService() {
 
 /**
  * @param {number} initial
- * @return {import("@preact/signals").Signal<number>}
+ * @return {{signal: import("@preact/signals").Signal<number>, skipAnimation: import("@preact/signals").Signal<boolean>}}
  */
 export function useBlockedCount(initial) {
     const service = useContext(ProtectionsServiceContext);
+    const ntp = useMessaging();
     const signal = useSignal(initial);
+    const skipAnimationSignal = useSignal(false);
+    const burnCompleteTimeRef = useRef(/** @type {number | null} */ (null));
+    
+    // Track burn complete events to detect "burn all" scenario
+    useEffect(() => {
+        if (!ntp) return;
+        return ntp.messaging.subscribe('activity_onBurnComplete', () => {
+            // Mark that we should skip animation if next update goes to 0
+            burnCompleteTimeRef.current = Date.now();
+        });
+    }, [ntp]);
+    
     // @todo jingram possibly refactor to include full object
     useSignalEffect(() => {
         return service?.onData((evt) => {
-            signal.value = evt.data.totalCount;
+            const newValue = evt.data.totalCount;
+            const previousValue = signal.value;
+            
+            // If transitioning to 0 and we just had a burn complete (within 1 second),
+            // this is likely a "burn all" operation - skip animation and go directly to empty state
+            if (newValue === 0 && previousValue > 0 && burnCompleteTimeRef.current !== null) {
+                const timeSinceBurn = Date.now() - burnCompleteTimeRef.current;
+                if (timeSinceBurn < 1000) {
+                    // Set skipAnimation flag before updating the signal value
+                    // This ensures useAnimatedCount immediately sets to 0 without animating
+                    skipAnimationSignal.value = true;
+                    signal.value = newValue;
+                    // Reset after animation would have completed to allow normal behavior for future updates
+                    setTimeout(() => {
+                        skipAnimationSignal.value = false;
+                        burnCompleteTimeRef.current = null;
+                    }, 500);
+                    return;
+                }
+            }
+            
+            // Normal update (including single domain burns) - allow animation for both counts
+            // This ensures both tracker count and cookie pop-ups count animate when burning a single domain
+            skipAnimationSignal.value = false;
+            signal.value = newValue;
         });
     });
-    return signal;
+    
+    return { signal, skipAnimation: skipAnimationSignal };
 }
 
 /**
