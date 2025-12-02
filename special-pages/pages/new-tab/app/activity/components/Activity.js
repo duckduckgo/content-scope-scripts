@@ -254,8 +254,13 @@ function TrackerStatus({ id, trackersFound }) {
     const { activity } = useContext(NormalizedDataContext);
     const status = useComputed(() => activity.value.trackingStatus[id]);
     const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked?.[id]).value;
-    const { totalCount: totalTrackersBlocked } = status.value;
-
+    
+    // Provide default if trackingStatus hasn't been populated yet
+    // This handles the case where a site is first logged but trackingStatus hasn't been updated
+    // The component will reactively update when trackingStatus is populated via activity_onDataUpdate
+    // or activity_onDataPatch messages
+    const trackingStatus = status.value || { totalCount: 0, trackerCompanies: [] };
+    const totalTrackersBlocked = trackingStatus.totalCount;
     const totalTrackersPillText =
         totalTrackersBlocked === 0
             ? trackersFound
