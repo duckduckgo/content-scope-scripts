@@ -39,7 +39,8 @@ export default class PerformanceMetrics extends ContentFeature {
     }
 
     async triggerExpandedPerformanceMetrics() {
-        const expandedPerformanceMetrics = await getExpandedPerformanceMetrics();
+        const permissableDelayMs = this.getFeatureSetting('expandedTimeoutMs') ?? 5000;
+        const expandedPerformanceMetrics = await getExpandedPerformanceMetrics(permissableDelayMs);
         this.messaging.notify('expandedPerformanceMetricsResult', expandedPerformanceMetrics);
     }
 }
