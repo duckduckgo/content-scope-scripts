@@ -161,9 +161,6 @@ export class ProtectionsPage {
         const heading = this.context().getByTestId('ProtectionsHeading');
         await expect(heading).toBeVisible();
 
-        // Get initial position
-        const initialPosition = await heading.boundingBox();
-
         // Scroll away from the element first
         await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
 

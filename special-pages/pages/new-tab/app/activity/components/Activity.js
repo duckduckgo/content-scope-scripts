@@ -296,8 +296,10 @@ function TrackerStatus({ id, trackersFound }) {
         const currentData = activityData.value;
         
         // Access the specific properties we care about
-        void currentData.trackingStatus[id];
-        void currentData.cookiePopUpBlocked?.[id];
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        currentData.trackingStatus[id];
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        currentData.cookiePopUpBlocked?.[id];
         
         // Force re-render by updating state
         // This ensures the component updates when trackingStatus data arrives
