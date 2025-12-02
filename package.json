@@ -40,8 +40,8 @@
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
     "@playwright/test": "^1.52.0",
     "ajv": "^8.17.1",
-    "esbuild": "^0.25.9",
-    "eslint": "^9.33.0",
+    "esbuild": "^0.25.12",
+    "eslint": "^9.37.0",
     "minimist": "^1.2.8",
     "prettier": "3.6.2",
     "stylelint": "^15.11.0",
@@ -51,7 +51,7 @@
     "typedoc": "^0.28.8",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.36.0",
-    "wait-on": "^8.0.4"
+    "wait-on": "^9.0.1"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.2",

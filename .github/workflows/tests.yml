@@ -40,7 +40,7 @@ jobs:
               run: 'npm run test-clean-tree'
     integration:
         runs-on: ubuntu-latest
-        timeout-minutes: 10
+        timeout-minutes: 15
         steps:
             - uses: actions/checkout@v5
             - name: Use Node.js
@@ -103,7 +103,7 @@ jobs:
             - name: Setup Github Pages
               uses: actions/configure-pages@v5
             - name: Upload artifact
-              uses: actions/upload-pages-artifact@v3
+              uses: actions/upload-pages-artifact@v4
               with:
                   path: docs
             - name: Deploy to GitHub Pages

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { NewtabPage } from '../../../integration-tests/new-tab.page.js';
 import { OmnibarPage } from './omnibar.page.js';
+import { CustomizerPage } from '../../customizer/integration-tests/customizer.page.js';
 
 test.describe('omnibar widget', () => {
     test('fetches config on load', async ({ page }, workerInfo) => {
@@ -306,18 +307,19 @@ test.describe('omnibar widget', () => {
     test('hiding Omnibar widget hides Duck.ai toggle', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const omnibar = new OmnibarPage(ntp);
+        const customizer = new CustomizerPage(ntp);
         await ntp.reducedMotion();
 
         await ntp.openPage({ additional: { omnibar: true } });
         await omnibar.ready();
 
         // Open Customize panel - Duck.ai toggle should be visible
-        await omnibar.customizeButton().click();
-        await expect(omnibar.toggleDuckAiButton()).toBeVisible();
+        await customizer.opensCustomizer();
+        await customizer.switchIsEnabled('Duck.ai');
 
         // Hide the Omnibar widget - Duck.ai toggle should be hidden
         await omnibar.toggleSearchButton().click();
-        await expect(omnibar.toggleDuckAiButton()).toHaveCount(0);
+        await customizer.switchIsDisabled('Duck.ai');
     });
 
     test('Duck.ai toggle is hidden when showAiSetting is false', async ({ page }, workerInfo) => {
@@ -345,7 +347,7 @@ test.describe('omnibar widget', () => {
 
         // Type "pizza dough" to get suggestions
         await omnibar.searchInput().fill('pizza dough');
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Initially no selection
         await omnibar.expectNoSelection();
@@ -357,6 +359,10 @@ test.describe('omnibar widget', () => {
         // Press arrow down again - select second item
         await omnibar.searchInput().press('ArrowDown');
         await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
+
+        // Press arrow down again - select third item (AI chat suggestion)
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
 
         // Press arrow down again - clear selection
         await omnibar.searchInput().press('ArrowDown');
@@ -399,14 +405,18 @@ test.describe('omnibar widget', () => {
 
         // Type "pizza dough" to get suggestions
         await omnibar.searchInput().fill('pizza dough');
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Initially no selection
         await omnibar.expectNoSelection();
 
         // Press arrow up - select last item (reverse direction)
         await omnibar.searchInput().press('ArrowUp');
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
+
+        // Press arrow up again - select second item
+        await omnibar.searchInput().press('ArrowUp');
+        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
 
         // Press arrow up again - select first item
         await omnibar.searchInput().press('ArrowUp');
@@ -418,7 +428,175 @@ test.describe('omnibar widget', () => {
 
         // Press arrow up again - rotate back to last item
         await omnibar.searchInput().press('ArrowUp');
-        await omnibar.expectSelectedSuggestion('Pizza Dough Calculator – example.com/search?q=Pizza%20Dough%20Calculator');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
+    });
+
+    test('clicking on AI chat suggestion should send submitChat notification', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Click on the AI chat suggestion (third item)
+        await omnibar.suggestions().nth(2).click();
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'same-tab',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
+    });
+
+    test('pressing enter on selected AI chat suggestion should send submitChat notification', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Navigate to AI chat suggestion (third item)
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
+
+        // Press enter to submit
+        await omnibar.searchInput().press('Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'same-tab',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
+    });
+
+    test('clicking AI chat suggestion with shift should send submitChat to new-window', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Shift+click on the AI chat suggestion (third item)
+        await omnibar
+            .suggestions()
+            .nth(2)
+            .click({ modifiers: ['Shift'] });
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'new-window',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
+    });
+
+    test('clicking AI chat suggestion with cmd should send submitChat to new-tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Cmd+click on the AI chat suggestion (third item)
+        await omnibar
+            .suggestions()
+            .nth(2)
+            .click({ modifiers: ['Meta'] });
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'new-tab',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
+    });
+
+    test('pressing shift+enter on selected AI chat suggestion should send submitChat to new-window', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Navigate to AI chat suggestion (third item)
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
+
+        // Press shift+enter to submit to new window
+        await omnibar.searchInput().press('Shift+Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'new-window',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
+    });
+
+    test('pressing cmd+enter on selected AI chat suggestion should send submitChat to new-tab', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        await ntp.reducedMotion();
+
+        await ntp.openPage({ additional: { omnibar: true } });
+        await omnibar.ready();
+
+        // Type "pizza dough" to get suggestions
+        await omnibar.searchInput().fill('pizza dough');
+        await omnibar.expectSuggestionsCount(3);
+
+        // Navigate to AI chat suggestion (third item)
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.searchInput().press('ArrowDown');
+        await omnibar.expectSelectedSuggestion('pizza dough – Ask Duck.ai');
+
+        // Press cmd+enter to submit to new tab
+        await omnibar.searchInput().press('Meta+Enter');
+
+        await omnibar.expectMethodCalledWith('omnibar_submitChat', {
+            chat: 'pizza dough',
+            target: 'new-tab',
+        });
+
+        // Form should be reset to blank state after submission
+        await omnibar.expectInputValue('');
     });
 
     test('arrow down and enter should open selected suggestion', async ({ page }, workerInfo) => {
@@ -431,7 +609,7 @@ test.describe('omnibar widget', () => {
 
         // Type "pizza dough" to get suggestions
         await omnibar.searchInput().fill('pizza dough');
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Press arrow down to select first suggestion
         await omnibar.searchInput().press('ArrowDown');
@@ -462,7 +640,7 @@ test.describe('omnibar widget', () => {
 
         // Type "pizza dough" to get suggestions
         await omnibar.searchInput().fill('pizza dough');
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Click on the second suggestion
         await omnibar.suggestions().nth(1).click();
@@ -489,7 +667,7 @@ test.describe('omnibar widget', () => {
 
         // Type "pizza dough" to get suggestions
         await omnibar.searchInput().fill('pizza dough');
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Initially no selection
         await omnibar.expectNoSelection();
@@ -744,7 +922,7 @@ test.describe('omnibar widget', () => {
         await omnibar.expectNoSelection();
         await omnibar.expectInputValue('pizza mar');
         await omnibar.expectInputSelection(9, 9);
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
     });
 
     test('clearing input field should hide suggestions', async ({ page }, workerInfo) => {
@@ -760,7 +938,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions appear
-        await omnibar.expectSuggestionsCount(2);
+        await omnibar.expectSuggestionsCount(3);
 
         // Clear the input field
         await omnibar.searchInput().fill('');
@@ -884,7 +1062,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions are visible
-        await omnibar.expectSuggestionsCount(18);
+        await omnibar.expectSuggestionsCount(19);
 
         // Click outside the search field (on the page body)
         await page.click('body', { position: { x: 100, y: 100 } });
@@ -909,7 +1087,7 @@ test.describe('omnibar widget', () => {
         await omnibar.waitForSuggestions();
 
         // Verify suggestions are visible
-        await omnibar.expectSuggestionsCount(18);
+        await omnibar.expectSuggestionsCount(19);
 
         // Focus outside the search form (press Shift+Tab to move focus to pill switcher)
         await omnibar.searchInput().press('Shift+Tab');
@@ -971,7 +1149,7 @@ test.describe('omnibar widget', () => {
 
         // Wait for suggestions to appear
         await omnibar.waitForSuggestions();
-        await omnibar.expectSuggestionsCount(18);
+        await omnibar.expectSuggestionsCount(19);
 
         // Click close button
         await omnibar.closeButton().click();
@@ -1001,5 +1179,106 @@ test.describe('omnibar widget', () => {
                 { id: 'protections', title: 'Protections Report' },
             ],
         });
+    });
+
+    test('customize popover appears when showCustomizePopover=true', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        await expect(omnibar.popover()).toBeVisible();
+        await expect(omnibar.popover()).toHaveText(/New/);
+        await expect(omnibar.popover()).toHaveText(/Toggle between search and AI chat/);
+        await expect(omnibar.popover()).toHaveText(/Either way, your info stays private/);
+    });
+
+    test('customize popover does not appear when showCustomizePopover=false', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': false } });
+        await omnibar.ready();
+
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('clicking close button dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Click close button
+        await omnibar.popoverCloseButton().click();
+
+        // Popover should be dismissed
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('clicking customize button opens customizer and dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        const customizer = new CustomizerPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Click customize button in popover
+        await omnibar.popoverCustomizeButton().click();
+
+        // Customizer should be open and popover should be dismissed
+        await expect(customizer.context()).toBeVisible();
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('manually opening customizer dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+        const customizer = new CustomizerPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Open customizer manually using the main customize button (not the one in popover)
+        await omnibar.customizeButton().click();
+
+        // Customizer should be open and popover should be dismissed
+        await expect(customizer.context()).toBeVisible();
+        await expect(omnibar.popover()).not.toBeVisible();
+    });
+
+    test('pressing escape dismisses popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const omnibar = new OmnibarPage(ntp);
+
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { omnibar: true, 'omnibar.showCustomizePopover': true } });
+        await omnibar.ready();
+
+        // Popover should be visible initially
+        await expect(omnibar.popover()).toBeVisible();
+
+        // Press Escape
+        await page.keyboard.press('Escape');
+
+        // Popover should be dismissed
+        await expect(omnibar.popover()).not.toBeVisible();
     });
 });

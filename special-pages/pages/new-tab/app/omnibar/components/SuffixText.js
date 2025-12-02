@@ -21,6 +21,8 @@ export function useSuffixText(suffix) {
             return ' – ' + t('omnibar_visitSuffix', { url: suffix.url });
         case 'raw':
             return ' – ' + suffix.text;
+        case 'askDuckAi':
+            return ' – ' + t('omnibar_askDuckAiSuffix');
     }
 }
 

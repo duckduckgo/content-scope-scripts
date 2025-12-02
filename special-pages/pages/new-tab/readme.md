@@ -63,13 +63,20 @@
  - **Options**:
    - `true`
 
-### Control Visual styles
-`defaultStyles`
- - **Purpose**: If set to `visual-refresh`, applies specific background color variables (`--default-light-background-color`, `--default-dark-background-color`) to the body.
- - **Parameter**: `defaultStyles`
- - **Example**: `?defaultStyles=visual-refresh`
+### Theme Variant
+ - **Purpose**: Sets a visual theme variant to customize the default background colors
+ - **Parameter**: `themeVariant`
+ - **Example**: `?themeVariant=violet&theme=light`
  - **Options**:
-   - `visual-refresh`
+   - `default` - Default gray background
+   - `coolGray` - Cool gray tones
+   - `slateBlue` - Slate blue tones
+   - `green` - Green tones
+   - `violet` - Violet tones
+   - `rose` - Rose tones
+   - `orange` - Orange tones
+   - `desert` - Desert tones
+ - **Note**: Works with default backgrounds only. Custom colors/gradients override the variant.
 
  ## Feature Parameters
 
@@ -121,6 +128,28 @@
  - **Example**: `?rmf-delay=10000`
  - **Options**: Time in milliseconds
 
+ ### Next Steps Cards
+ - **Purpose**: Displays the different Next Steps cards
+ - **Parameter**: `next-steps`
+ - **Example**: `?next-steps=bringStuff`
+ - **Options**:
+   - `bringStuff`
+   - `defaultApp`
+   - `blockCookies`
+   - `emailProtection`
+   - `duckplayer`
+   - `addAppToDockMac`
+   - `pinAppToTaskbarWindows`
+   - `subscription`
+
+ ### Freemium PIR Banner
+ - **Purpose**: Tests different PIR banner states
+ - **Parameter**: `pir`
+ - **Example**: `?pir=onboarding`
+ - **Options**:
+   - `onboarding` - Shows onboarding PIR banner
+   - `scan_results` - Shows scan results PIR banner
+
 ## Privacy Protections widget
 
  ### Activity
@@ -170,15 +199,13 @@
  - **Options**: Any positive integer
 
 
- ## Experiment Parameters
 
- ### Freemium PIR Banner
- - **Purpose**: Tests different PIR banner states
- - **Parameter**: `pir`
- - **Example**: `?pir=onboarding`
+
+### Subscription Win-back Banner
+ - **Purpose**: Tests different win-back banner states
+ - **Parameter**: `winback`
+ - **Example**: `?winback=true`
  - **Options**:
-   - `onboarding` - Shows onboarding PIR banner
-   - `scan_results` - Shows scan results PIR banner
 
 
 

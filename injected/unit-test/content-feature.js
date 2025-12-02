@@ -367,6 +367,71 @@ describe('ContentFeature class', () => {
         expect(didRun).withContext('Should run').toBeTrue();
     });
 
+    it('Should respect maxSupportedVersion as a condition', () => {
+        let didRun = false;
+        class MyTestFeature4 extends ContentFeature {
+            init() {
+                expect(this.getFeatureSetting('aiChat')).toBe('enabled');
+                expect(this.getFeatureSetting('subscriptions')).toBe('disabled');
+                didRun = true;
+            }
+        }
+
+        const args = {
+            site: {
+                domain: 'example.com',
+                url: 'http://example.com',
+            },
+            platform: {
+                version: '1.1.0',
+            },
+            bundledConfig: {
+                features: {
+                    test: {
+                        state: 'enabled',
+                        exceptions: [],
+                        settings: {
+                            aiChat: 'disabled',
+                            subscriptions: 'disabled',
+                            conditionalChanges: [
+                                {
+                                    condition: {
+                                        domain: 'example.com',
+                                        maxSupportedVersion: '1.1.0',
+                                    },
+                                    patchSettings: [
+                                        {
+                                            op: 'replace',
+                                            path: '/aiChat',
+                                            value: 'enabled',
+                                        },
+                                    ],
+                                },
+                                {
+                                    condition: {
+                                        domain: 'example.com',
+                                        maxSupportedVersion: '1.0.0',
+                                    },
+                                    patchSettings: [
+                                        {
+                                            op: 'replace',
+                                            path: '/subscriptions',
+                                            value: 'enabled',
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        };
+
+        const me = new MyTestFeature4('test', {}, args);
+        me.callInit(args);
+        expect(didRun).withContext('Should run').toBeTrue();
+    });
+
     describe('addDebugFlag', () => {
         class MyTestFeature extends ContentFeature {
             // eslint-disable-next-line
@@ -598,6 +663,531 @@ describe('ContentFeature class', () => {
             const feature = new MyTestFeature('test', {}, args);
             const result = feature.testMatchInjectNameConditional({});
             expect(result).toBe(false);
+        });
+    });
+
+    describe('maxSupportedVersion condition', () => {
+        it('should match when current version is less than max', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchMaxSupportedVersion(conditionBlock) {
+                    return this._matchMaxSupportedVersion(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    version: '1.5.0',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchMaxSupportedVersion({
+                maxSupportedVersion: '2.0.0',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should match when current version equals max', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchMaxSupportedVersion(conditionBlock) {
+                    return this._matchMaxSupportedVersion(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    version: '1.5.0',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchMaxSupportedVersion({
+                maxSupportedVersion: '1.5.0',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when current version is greater than max', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchMaxSupportedVersion(conditionBlock) {
+                    return this._matchMaxSupportedVersion(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    version: '1.5.0',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchMaxSupportedVersion({
+                maxSupportedVersion: '1.0.0',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle integer versions', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchMaxSupportedVersion(conditionBlock) {
+                    return this._matchMaxSupportedVersion(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    version: 99,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchMaxSupportedVersion({
+                maxSupportedVersion: 100,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should handle missing maxSupportedVersion condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchMaxSupportedVersion(conditionBlock) {
+                    return this._matchMaxSupportedVersion(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    version: '1.5.0',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchMaxSupportedVersion({});
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('internal condition', () => {
+        it('should match when internal is true and condition is true', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: true,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should match when internal is false and condition is false', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: false,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: false,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when internal is true but condition is false', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: false,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should not match when internal is false but condition is true', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: false,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: true,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle undefined internal state gracefully', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    // internal not set
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: true,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle missing internal condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({});
+            expect(result).toBe(false);
+        });
+
+        it('should handle truthy values for internal condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: 1, // truthy value
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: true,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should handle falsy values for internal condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchInternalConditional(conditionBlock) {
+                    return this._matchInternalConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    internal: 0, // falsy value
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchInternalConditional({
+                internal: false,
+            });
+            expect(result).toBe(true);
+        });
+    });
+
+    describe('preview condition', () => {
+        it('should match when preview is true and condition is true', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: true,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should match when preview is false and condition is false', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: false,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: false,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when preview is true but condition is false', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: false,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should not match when preview is false but condition is true', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: false,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: true,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle undefined preview state gracefully', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    // preview not set
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: true,
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle missing preview condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: true,
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({});
+            expect(result).toBe(false);
+        });
+
+        it('should handle truthy values for preview condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: 1, // truthy value
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: true,
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should handle falsy values for preview condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchPreviewConditional(conditionBlock) {
+                    return this._matchPreviewConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+                platform: {
+                    name: 'test',
+                    preview: 0, // falsy value
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchPreviewConditional({
+                preview: false,
+            });
+            expect(result).toBe(true);
         });
     });
 });

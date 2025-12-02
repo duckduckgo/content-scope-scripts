@@ -12,9 +12,11 @@
  *
  *  2. PLATFORM CONFIGURATION:
  *     The 'Platform' parameter can be passed as an argument to testPage() to simulate different
- *     platform environments. This is demonstrated in the min-supported-version tests:
+ *     platform environments. This is demonstrated in the version tests:
  *     - minSupportedVersion (string): Uses { version: '1.5.0' }
  *     - minSupportedVersion (int): Uses { version: 99 }
+ *     - maxSupportedVersion (string): Uses { version: '1.5.0' }
+ *     - maxSupportedVersion (int): Uses { version: 99 }
  *
  *     This is needed when testing features that have platform-specific behavior or version
  *     requirements. The platform object allows testing how features behave under different
@@ -152,6 +154,26 @@ test.describe('Test integration pages', () => {
             testInfo,
             '/infra/pages/min-supported-version-int.html',
             './integration-test/test-pages/infra/config/min-supported-version-int.json',
+            { version: 99 },
+        );
+    });
+
+    test('maxSupportedVersion (string)', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/infra/pages/max-supported-version-string.html',
+            './integration-test/test-pages/infra/config/max-supported-version-string.json',
+            { version: '1.5.0' },
+        );
+    });
+
+    test('maxSupportedVersion (int)', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/infra/pages/max-supported-version-int.html',
+            './integration-test/test-pages/infra/config/max-supported-version-int.json',
             { version: 99 },
         );
     });

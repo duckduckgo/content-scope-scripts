@@ -31,7 +31,10 @@ export type RangeId =
   | "friday"
   | "saturday"
   | "sunday"
-  | "older";
+  | "older"
+  | "sites";
+export type BrowserTheme = "light" | "dark";
+export type ThemeVariant = "default" | "coolGray" | "slateBlue" | "green" | "violet" | "rose" | "orange" | "desert";
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
 /**
  * Indicates the query was triggered before the UI was rendered
@@ -64,6 +67,7 @@ export interface HistoryMessages {
     | GetRangesRequest
     | InitialSetupRequest
     | QueryRequest;
+  subscriptions: OnThemeUpdateSubscription;
 }
 /**
  * Generated from @see "../messages/open.notify.json"
@@ -196,7 +200,12 @@ export interface InitialSetupResponse {
   platform: {
     name: "macos" | "windows" | "android" | "ios" | "integration";
   };
+  theme?: BrowserTheme;
+  themeVariant?: ThemeVariant;
   customizer?: {
+    /**
+     * @deprecated
+     */
     defaultStyles?: null | DefaultStyles;
   };
 }
@@ -266,7 +275,7 @@ export interface HistoryItem {
   /**
    * The time of day in 24-hour format (e.g., '11:01').
    */
-  dateTimeOfDay: string;
+  dateTimeOfDay?: string;
   /**
    * The eTLD+1 version of the domain, representing the domain and its top-level domain (e.g., 'example.com', 'localhost'). This differs from 'domain', which may include subdomains (e.g., 'www.youtube.com').
    */
@@ -285,10 +294,22 @@ export interface HistoryItem {
   url: string;
   favicon?: Favicon;
 }
+/**
+ * Generated from @see "../messages/onThemeUpdate.subscribe.json"
+ */
+export interface OnThemeUpdateSubscription {
+  subscriptionEvent: "onThemeUpdate";
+  params: OnThemeUpdateSubscribe;
+}
+export interface OnThemeUpdateSubscribe {
+  theme: BrowserTheme;
+  themeVariant: ThemeVariant;
+}
 
 declare module "../src/index.js" {
   export interface HistoryPage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<HistoryMessages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<HistoryMessages>['request']
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<HistoryMessages>['request'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<HistoryMessages>['subscribe']
   }
 }

@@ -42,6 +42,42 @@ body {
     --default-dark-background-color: var(--color-gray-85);
 }
 
+/* TODO: Use colour variables from design-tokens */
+
+body[data-theme-variant="coolGray"] {
+    --default-light-background-color: #d2d5e3;
+    --default-dark-background-color: #2b2f45;
+}
+
+body[data-theme-variant="slateBlue"] {
+    --default-light-background-color: #d2e5f3;
+    --default-dark-background-color: #1e3347;
+}
+
+body[data-theme-variant="green"] {
+    --default-light-background-color: #e3eee1;
+    --default-dark-background-color: #203b30;
+}
+
+body[data-theme-variant="violet"] {
+    --default-light-background-color: #e7e4f5;
+    --default-dark-background-color: #2e2158;
+}
+
+body[data-theme-variant="rose"] {
+    --default-light-background-color: #f8ebf5;
+    --default-dark-background-color: #5b194b;
+}
+
+body[data-theme-variant="orange"] {
+    --default-light-background-color: #fcedd8;
+    --default-dark-background-color: #54240c;
+}
+
+body[data-theme-variant="desert"] {
+    --default-light-background-color: #eee9e1;
+    --default-dark-background-color: #3c3833;
+}
 
 [data-theme=light] {
     --ntp-surface-background-color: var(--color-white-at-30);
@@ -49,8 +85,10 @@ body {
     --ntp-surface-border-color: var(--color-black-at-9);
     --ntp-text-normal: var(--color-black-at-84);
     --ntp-text-muted: var(--color-black-at-60);
+    --ntp-protections-text-muted: var(--color-black-at-66);
     --ntp-text-on-primary: var(--color-white-at-84);
     --ntp-color-primary: var(--ddg-color-primary);
+    --ntp-widget-expander-bg: rgba(31, 31, 31, 0.09);
     --ntp-focus-outline-color: black;
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
@@ -86,8 +124,10 @@ body {
     --ntp-surface-border-color: var(--color-white-at-12);
     --ntp-text-normal: var(--color-white-at-84);
     --ntp-text-muted: var(--color-white-at-60);
+    --ntp-protections-text-muted: var(--color-white-at-66);
     --ntp-color-primary: var(--color-blue-30);
     --ntp-text-on-primary: var(--color-black-at-84);
+    --ntp-widget-expander-bg: rgba(249, 249, 249, 0.12);
     --ntp-focus-outline-color: white;
     --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
     --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
@@ -103,9 +143,9 @@ body {
     --ntp-icons-primary: rgba(255, 255, 255, 0.78);
     --ntp-icons-tertiary: rgba(255, 255, 255, 0.24);
     --ntp-tone-tint: rgba(249, 249, 249, 0.12);
-    --ntp-accent-primary: var(--color-blue-20);
-    --ntp-accent-secondary: var(--color-blue-30);
-    --ntp-accent-tertiary: var(--color-blue-40);
+    --ntp-accent-primary: var(--color-blue-30);
+    --ntp-accent-secondary: var(--color-blue-40);
+    --ntp-accent-tertiary: var(--color-blue-50);
     --ntp-accent-glow: rgba(114, 149, 246, 0.2);
     --ntp-accent-content-primary: var(--color-blue-80);
     --ntp-controls-fill-primary: rgba(249, 249, 249, 0.12);

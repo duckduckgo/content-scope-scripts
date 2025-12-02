@@ -28,7 +28,7 @@ export function ProtectionsCustomized() {
 
     const { visibility, id, toggle, index } = useVisibility();
 
-    useCustomizer({ title: sectionTitle, id, icon: <DuckFoot />, toggle, visibility: visibility.value, index });
+    useCustomizer({ title: sectionTitle, id, icon: <DuckFoot />, toggle, visibility: visibility.value, index, enabled: true });
 
     if (visibility.value === 'hidden') {
         return null;

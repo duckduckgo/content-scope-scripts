@@ -76,7 +76,8 @@ test.describe('newtab favorites', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         const favorites = new FavoritesPage(ntp);
         await ntp.reducedMotion();
-        await ntp.openPage({ favorites: 0 });
+        // Use cpm: 'null' to enable new UI with InfoIcon for tab navigation test
+        await ntp.openPage({ favorites: 0, additional: { cpm: 'null' } });
         await favorites.tabsPastEmptyFavorites();
     });
     test('re-orders items', async ({ page }, workerInfo) => {

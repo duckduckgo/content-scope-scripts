@@ -7,9 +7,11 @@ import { updateNotificationExamples } from './update-notification/mocks/update-n
 import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
+import { subscriptionWinBackBannerDataExamples } from './subscription-winback-banner/mocks/subscriptionWinBackBanner.data.js';
 import { activityMockTransport } from './activity/mocks/activity.mock-transport.js';
 import { protectionsMockTransport } from './protections/mocks/protections.mock-transport.js';
 import { omnibarMockTransport } from './omnibar/mocks/omnibar.mock-transport.js';
+import { tabsMockTransport } from './tabs/tabs.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -94,6 +96,7 @@ export function mockTransport() {
     const rmfSubscriptions = new Map();
     const freemiumPIRBannerSubscriptions = new Map();
     const nextStepsSubscriptions = new Map();
+    const subscriptionWinBackBannerSubscriptions = new Map();
 
     function clearRmf() {
         const listeners = rmfSubscriptions.get('rmf_onDataUpdate') || [];
@@ -119,6 +122,7 @@ export function mockTransport() {
         activity: activityMockTransport(),
         protections: protectionsMockTransport(),
         omnibar: omnibarMockTransport(),
+        tabs: tabsMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -159,6 +163,14 @@ export function mockTransport() {
                 }
                 case 'freemiumPIRBanner_dismiss': {
                     console.log('ignoring freemiumPIRBanner_dismiss', msg.params);
+                    return;
+                }
+                case 'winBackOffer_action': {
+                    console.log('ignoring winBackOffer_action', msg.params);
+                    return;
+                }
+                case 'winBackOffer_dismiss': {
+                    console.log('ignoring winBackOffer_dismiss', msg.params);
                     return;
                 }
                 case 'favorites_setConfig': {
@@ -250,6 +262,24 @@ export function mockTransport() {
 
                     if (freemiumPIRBannerParam !== null && freemiumPIRBannerParam in freemiumPIRDataExamples) {
                         const message = freemiumPIRDataExamples[freemiumPIRBannerParam];
+                        cb(message);
+                    }
+                    return () => {};
+                }
+                case 'winBackOffer_onDataUpdate': {
+                    // store the callback for later (eg: dismiss)
+                    const prev = subscriptionWinBackBannerSubscriptions.get('winBackOffer_onDataUpdate') || [];
+                    const next = [...prev];
+                    next.push(cb);
+                    subscriptionWinBackBannerSubscriptions.set('winBackOffer_onDataUpdate', next);
+
+                    const subscriptionWinBackBannerParam = url.searchParams.get('winback');
+
+                    if (
+                        subscriptionWinBackBannerParam !== null &&
+                        subscriptionWinBackBannerParam in subscriptionWinBackBannerDataExamples
+                    ) {
+                        const message = subscriptionWinBackBannerDataExamples[subscriptionWinBackBannerParam];
                         cb(message);
                     }
                     return () => {};
@@ -469,6 +499,18 @@ export function mockTransport() {
 
                     return Promise.resolve(freemiumPIRBannerMessage);
                 }
+                case 'winBackOffer_getData': {
+                    /** @type {import('../types/new-tab.ts').SubscriptionWinBackBannerData} */
+                    let subscriptionWinBackBannerMessage = { content: null };
+
+                    const subscriptionWinBackBannerParam = url.searchParams.get('winback');
+
+                    if (subscriptionWinBackBannerParam && subscriptionWinBackBannerParam in subscriptionWinBackBannerDataExamples) {
+                        subscriptionWinBackBannerMessage = subscriptionWinBackBannerDataExamples[subscriptionWinBackBannerParam];
+                    }
+
+                    return Promise.resolve(subscriptionWinBackBannerMessage);
+                }
                 case 'favorites_getData': {
                     const param = url.searchParams.get('favorites');
                     let data;
@@ -492,68 +534,7 @@ export function mockTransport() {
                     return Promise.resolve(fromStorage);
                 }
                 case 'initialSetup': {
-                    /** @type {import('../types/new-tab.ts').Widgets} */
-                    const widgetsFromStorage = read('widgets') || [
-                        { id: 'updateNotification' },
-                        { id: 'rmf' },
-                        { id: 'freemiumPIRBanner' },
-                        { id: 'nextSteps' },
-                        { id: 'favorites' },
-                    ];
-
-                    /** @type {import('../types/new-tab.ts').WidgetConfigs} */
-                    const widgetConfigFromStorage = read('widget_config') || [{ id: 'favorites', visibility: 'visible' }];
-
-                    /** @type {UpdateNotificationData} */
-                    let updateNotification = { content: null };
-                    const isDelayed = url.searchParams.has('update-notification-delay');
-
-                    if (!isDelayed && url.searchParams.has('update-notification')) {
-                        const value = url.searchParams.get('update-notification');
-                        if (value && value in updateNotificationExamples) {
-                            updateNotification = updateNotificationExamples[value];
-                        }
-                    }
-
-                    /** @type {import('../types/new-tab.ts').InitialSetupResponse} */
-                    const initial = {
-                        widgets: widgetsFromStorage,
-                        widgetConfigs: widgetConfigFromStorage,
-                        platform: { name: 'integration' },
-                        env: 'development',
-                        locale: 'en',
-                        updateNotification,
-                    };
-
-                    widgetsFromStorage.push({ id: 'protections' });
-                    widgetConfigFromStorage.push({ id: 'protections', visibility: 'visible' });
-
-                    if (url.searchParams.has('omnibar')) {
-                        const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
-                        widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'omnibar' });
-                        const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
-                        widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: 'omnibar', visibility: 'visible' });
-                    }
-
-                    initial.customizer = customizerData();
-
-                    /** @type {import('../types/new-tab').NewTabPageSettings} */
-                    const settings = {
-                        customizerDrawer: { state: 'enabled' },
-                    };
-
-                    if (url.searchParams.get('autoOpen') === 'true' && settings.customizerDrawer) {
-                        settings.customizerDrawer.autoOpen = true;
-                    }
-
-                    if (url.searchParams.get('adBlocking') === 'enabled') {
-                        settings.adBlocking = { state: 'enabled' };
-                    }
-
-                    // feature flags
-                    initial.settings = settings;
-
-                    return Promise.resolve(initial);
+                    return Promise.resolve(initialSetup(url));
                 }
                 default: {
                     return Promise.reject(new Error('unhandled request' + msg));
@@ -561,6 +542,79 @@ export function mockTransport() {
             }
         },
     });
+}
+
+/**
+ * @param {URL} url
+ * @return {import('../types/new-tab').InitialSetupResponse}
+ */
+export function initialSetup(url) {
+    /** @type {import('../types/new-tab.ts').Widgets} */
+    const widgetsFromStorage = [
+        { id: 'updateNotification' },
+        { id: 'rmf' },
+        { id: 'freemiumPIRBanner' },
+        { id: 'subscriptionWinBackBanner' },
+        { id: 'nextSteps' },
+        { id: 'favorites' },
+    ];
+
+    /** @type {import('../types/new-tab.ts').WidgetConfigs} */
+    const widgetConfigFromStorage = [{ id: 'favorites', visibility: 'visible' }];
+
+    /** @type {UpdateNotificationData} */
+    let updateNotification = { content: null };
+    const isDelayed = url.searchParams.has('update-notification-delay');
+
+    if (!isDelayed && url.searchParams.has('update-notification')) {
+        const value = url.searchParams.get('update-notification');
+        if (value && value in updateNotificationExamples) {
+            updateNotification = updateNotificationExamples[value];
+        }
+    }
+
+    /** @type {import('../types/new-tab.ts').InitialSetupResponse} */
+    const initial = {
+        widgets: widgetsFromStorage,
+        widgetConfigs: widgetConfigFromStorage,
+        platform: { name: 'integration' },
+        env: 'development',
+        locale: 'en',
+        updateNotification,
+    };
+
+    widgetsFromStorage.push({ id: 'protections' });
+    widgetConfigFromStorage.push({ id: 'protections', visibility: 'visible' });
+
+    if (url.searchParams.has('omnibar')) {
+        const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+        widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'omnibar' });
+        const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+        widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: 'omnibar', visibility: 'visible' });
+    }
+
+    initial.customizer = customizerData();
+
+    /** @type {import('../types/new-tab').NewTabPageSettings} */
+    const settings = {
+        customizerDrawer: { state: 'enabled' },
+    };
+
+    if (url.searchParams.get('autoOpen') === 'true' && settings.customizerDrawer) {
+        settings.customizerDrawer.autoOpen = true;
+    }
+
+    if (url.searchParams.get('adBlocking') === 'enabled') {
+        settings.adBlocking = { state: 'enabled' };
+    }
+
+    if (url.searchParams.has('tabs')) {
+        initial.tabs = { tabId: '01', tabIds: ['01'] };
+    }
+
+    // feature flags
+    initial.settings = settings;
+    return initial;
 }
 
 /**

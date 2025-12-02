@@ -198,5 +198,16 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                 await expect(page).toHaveScreenshot('omnibar-sidebar-hide-ai-setting.png', { maxDiffPixels });
             });
         });
+
+        test.describe('customize popover', () => {
+            test('popover visible', async ({ page }, workerInfo) => {
+                const ntp = NewtabPage.create(page, workerInfo);
+                const omnibar = new OmnibarPage(ntp);
+                await ntp.reducedMotion();
+                await ntp.openPage({ additional: { omnibar: 'true', 'omnibar.showCustomizePopover': 'true' } });
+                await omnibar.ready();
+                await expect(page).toHaveScreenshot('omnibar-customize-popover.png', { maxDiffPixels });
+            });
+        });
     });
 });

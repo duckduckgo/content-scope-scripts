@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useCallback, useEffect, useReducer, useRef } from 'preact/hooks';
+import { useCallback, useContext, useEffect, useReducer, useRef } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { reducer, useInitialDataAndConfig, useConfigSubscription } from '../../service.hooks.js';
 import { OmnibarService } from '../omnibar.service.js';
@@ -24,6 +24,10 @@ export const OmnibarContext = createContext({
     },
     /** @type {(enableAi: NonNullable<OmnibarConfig['enableAi']>) => void} */
     setEnableAi: () => {
+        throw new Error('must implement');
+    },
+    /** @type {(showCustomizePopover: NonNullable<OmnibarConfig['showCustomizePopover']>) => void} */
+    setShowCustomizePopover: () => {
         throw new Error('must implement');
     },
     /** @type {(term: string) => Promise<SuggestionsData>} */
@@ -90,6 +94,14 @@ export function OmnibarProvider(props) {
         [service],
     );
 
+    /** @type {(showCustomizePopover: NonNullable<OmnibarConfig['showCustomizePopover']>) => void} */
+    const setShowCustomizePopover = useCallback(
+        (showCustomizePopover) => {
+            service.current?.setShowCustomizePopover(showCustomizePopover);
+        },
+        [service],
+    );
+
     /** @type {(term: string) => Promise<SuggestionsData>} */
     const getSuggestions = useCallback(
         (term) => {
@@ -138,6 +150,7 @@ export function OmnibarProvider(props) {
                 state,
                 setMode,
                 setEnableAi,
+                setShowCustomizePopover,
                 getSuggestions,
                 onSuggestions,
                 openSuggestion,
@@ -153,7 +166,7 @@ export function OmnibarProvider(props) {
 /**
  * @return {import("preact").RefObject<OmnibarService>}
  */
-export function useService() {
+function useService() {
     const service = useRef(/** @type {OmnibarService|null} */ (null));
     const ntp = useMessaging();
     useEffect(() => {
@@ -164,4 +177,8 @@ export function useService() {
         };
     }, [ntp]);
     return service;
+}
+
+export function useOmnibarService() {
+    return useContext(OmnibarServiceContext);
 }

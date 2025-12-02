@@ -601,6 +601,32 @@ export class HistoryTestPage {
         const rgb = `rgb(${[r, g, b].join(', ')})`;
         await expect(this.page.locator('[data-layout-mode="normal"]')).toHaveCSS('background-color', rgb, { timeout: 50 });
     }
+
+    async lastItemDividerHasColor({ rgb }) {
+        const lastItem = this.sidebar().locator('.Sidebar_item').last();
+        const borderTopColor = await lastItem.evaluate((el) => {
+            const before = window.getComputedStyle(el, '::before');
+            return before.borderTopColor;
+        });
+        expect(borderTopColor).toBe(rgb);
+    }
+
+    /**
+     * @param {import('../types/history.ts').BrowserTheme} theme
+     * @param {import('../types/history.ts').ThemeVariant} themeVariant
+     */
+    async acceptsThemeUpdate(theme, themeVariant) {
+        await this.mocks.simulateSubscriptionMessage('onThemeUpdate', { theme, themeVariant });
+    }
+
+    /**
+     * @param {import('../types/history.ts').BrowserTheme} theme
+     * @param {import('../types/history.ts').ThemeVariant} themeVariant
+     */
+    async hasTheme(theme, themeVariant) {
+        await expect(this.page.locator('[data-layout-mode]')).toHaveAttribute('data-theme', theme);
+        await expect(this.page.locator('[data-layout-mode]')).toHaveAttribute('data-theme-variant', themeVariant);
+    }
 }
 
 /**

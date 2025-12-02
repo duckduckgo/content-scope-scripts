@@ -50,6 +50,7 @@ const initialSetupResponse = {
     updateNotification: { content: null },
     customizer: {
         theme: 'system',
+        themeVariant: 'default',
         userImages: [],
         userColor: null,
         background: { kind: 'default' },

@@ -196,10 +196,12 @@ It's unadvisable to add custom state for tests directly in `.spec.js` files as i
 
 ### 2. Platform Configuration
 
-The `Platform` parameter can be passed to test functions to simulate different platform environments. This is demonstrated in the min-supported-version tests in [pages.spec.js](../integration-test/pages.spec.js):
+The `Platform` parameter can be passed to test functions to simulate different platform environments. This is demonstrated in the version tests in [pages.spec.js](../integration-test/pages.spec.js):
 
 - `minSupportedVersion (string)`: Uses `{ version: '1.5.0' }`
 - `minSupportedVersion (int)`: Uses `{ version: 99 }`
+- `maxSupportedVersion (string)`: Uses `{ version: '1.5.0' }`
+- `maxSupportedVersion (int)`: Uses `{ version: 99 }`
 
 This is needed when testing features that have platform-specific behavior or version requirements. The platform object allows testing how features behave under different version constraints without modifying the core test infrastructure.
 

@@ -20,6 +20,8 @@ export class CustomizerPage {
         this.ntp = ntp;
     }
 
+    context = () => this.ntp.page.locator('aside');
+
     async showsColorSelectionPanel() {
         const { page } = this.ntp;
         await page.locator('aside').getByLabel('Solid Colors').click();
@@ -199,6 +201,18 @@ export class CustomizerPage {
         const payload = { theme, defaultStyles };
         /** @type {SubscriptionEventNames} */
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onThemeUpdate'), payload);
+    }
+
+    /**
+     * @param {'light' | 'dark'} theme
+     * @param {import("../../../types/new-tab.js").ThemeVariant} themeVariant
+     */
+    async acceptsThemeVariantUpdate(theme, themeVariant) {
+        await test.step('subscription event: customizer_onThemeUpdate with variant', async () => {
+            /** @type {import('../../../types/new-tab.js').ThemeData} */
+            const payload = { theme, themeVariant };
+            await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onThemeUpdate'), payload);
+        });
     }
 
     /**
@@ -458,5 +472,49 @@ export class CustomizerPage {
         await page.getByRole('radio', { name: 'Select image 1' }).click({
             button: 'right',
         });
+    }
+
+    /**
+     * @param {string} name
+     * @returns {Promise<void>}
+     */
+    async isChecked(name) {
+        await expect(this.context().getByRole('switch', { name })).toBeChecked();
+    }
+
+    /**
+     * @param {string} name
+     * @returns {Promise<void>}
+     */
+    async isUnchecked(name) {
+        await expect(this.context().getByRole('switch', { name })).not.toBeChecked({ timeout: 1000 });
+    }
+
+    /**
+     * @param {string} name
+     */
+    async hasSwitch(name) {
+        await expect(this.context().getByRole('switch', { name })).toBeVisible();
+    }
+
+    /**
+     * @param {string} name
+     */
+    async switchIsDisabled(name) {
+        await expect(this.context().getByRole('switch', { name })).toBeDisabled();
+    }
+
+    /**
+     * @param {string} name
+     */
+    async switchIsEnabled(name) {
+        await expect(this.context().getByRole('switch', { name })).toBeEnabled();
+    }
+
+    /**
+     * @param {string} name
+     */
+    async doesntHaveSwitch(name) {
+        await expect(this.context().getByRole('switch', { name })).not.toBeVisible();
     }
 }

@@ -24,6 +24,7 @@ export default defineConfig({
             testMatch: [
                 'favorites.spec.js',
                 'freemium-pir-banner.spec.js',
+                'subscription-winback-banner.spec.js',
                 'new-tab.spec.js',
                 'new-tab.screenshots.spec.js',
                 'next-steps.spec.js',
@@ -34,10 +35,12 @@ export default defineConfig({
                 'activity.spec.js',
                 'history.spec.js',
                 'history-selections.spec.js',
+                'history-theme.spec.js',
                 'history.screenshots.spec.js',
                 'protections.spec.js',
                 'protections.screenshots.spec.js',
                 'omnibar.spec.js',
+                'omnibar.persistence.spec.js',
             ],
             use: {
                 ...devices['Desktop Chrome'],

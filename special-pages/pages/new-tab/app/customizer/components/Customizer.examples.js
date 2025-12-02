@@ -7,6 +7,47 @@ import { ColorSelection } from './ColorSelection.js';
 import { GradientSelection } from './GradientSelection.js';
 import { useSignal } from '@preact/signals';
 import { ImageSelection } from './ImageSelection.js';
+import { ArrowIndentCenteredIcon, DuckFoot, SearchIcon, Shield } from '../../components/Icons.js';
+
+/** @type {import('./CustomizerMenu.js').VisibilityRowData[]} */
+const ROWS = [
+    {
+        id: 'omnibar',
+        title: 'Search',
+        icon: <SearchIcon />,
+        toggle: noop('toggle search'),
+        visibility: 'visible',
+        index: 1,
+        enabled: true,
+    },
+    {
+        id: 'omnibar-toggleAi',
+        title: 'Duck.ai',
+        icon: <ArrowIndentCenteredIcon style={{ color: 'var(--ntp-icons-tertiary)' }} />,
+        toggle: noop('toggle Duck.ai'),
+        visibility: 'visible',
+        index: 1.1,
+        enabled: true,
+    },
+    {
+        id: 'favorites',
+        title: 'Favorites',
+        icon: <Shield />,
+        toggle: noop('toggle favorites'),
+        visibility: 'hidden',
+        index: 0,
+        enabled: true,
+    },
+    {
+        id: 'privacyStats',
+        title: 'Privacy Stats',
+        icon: <DuckFoot />,
+        toggle: noop('toggle favorites'),
+        visibility: 'visible',
+        index: 1,
+        enabled: true,
+    },
+];
 
 /** @type {Record<string, {factory: () => import("preact").ComponentChild}>} */
 export const customizerExamples = {
@@ -69,25 +110,29 @@ export const customizerExamples = {
                 <CustomizerButton isOpen={true} kind="menu" />
                 <br />
                 <div style="width: 206px; border: 1px dotted black">
+                    <EmbeddedVisibilityMenu rows={ROWS} />
+                </div>
+            </MaxContent>
+        ),
+    },
+    'customizer-menu-disabled-item': {
+        factory: () => (
+            <MaxContent>
+                <CustomizerButton isOpen={true} kind="menu" />
+                <br />
+                <div style="width: 206px; border: 1px dotted black">
                     <EmbeddedVisibilityMenu
-                        rows={[
-                            {
-                                id: 'favorites',
-                                title: 'Favorites',
-                                icon: 'star',
-                                toggle: noop('toggle favorites'),
-                                visibility: 'hidden',
-                                index: 0,
-                            },
-                            {
-                                id: 'privacyStats',
-                                title: 'Privacy Stats',
-                                icon: 'shield',
-                                toggle: noop('toggle favorites'),
-                                visibility: 'visible',
-                                index: 1,
-                            },
-                        ]}
+                        rows={ROWS.map((row) => {
+                            if (row.id === 'omnibar') {
+                                /** @type {import('./CustomizerMenu.js').VisibilityRowData}} */
+                                return { ...row, visibility: 'hidden' };
+                            }
+                            if (row.id === 'omnibar-toggleAi') {
+                                /** @type {import('./CustomizerMenu.js').VisibilityRowData}} */
+                                return { ...row, enabled: false, visibility: 'hidden' };
+                            }
+                            return row;
+                        })}
                     />
                 </div>
             </MaxContent>
