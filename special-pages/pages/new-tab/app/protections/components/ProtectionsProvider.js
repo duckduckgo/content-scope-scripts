@@ -4,6 +4,7 @@ import { useMessaging } from '../../types.js';
 import { reducer, useConfigSubscription, useInitialDataAndConfig } from '../../service.hooks.js';
 import { ProtectionsService } from '../protections.service.js';
 import { useSignal, useSignalEffect } from '@preact/signals';
+import { ActivityServiceContext } from '../../activity/ActivityProvider.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').ProtectionsData} ProtectionsData
@@ -60,18 +61,10 @@ export function ProtectionsProvider(props) {
     // subscribe to config updates
     useConfigSubscription({ dispatch, service });
 
-    // Set up a single subscription to activity_onBurnComplete at the Provider level
-    // This prevents duplicate subscription errors when multiple useBlockedCount hooks are used
-    const ntp = useMessaging();
+    // Create a shared ref for burn complete time
+    // This will be updated by listening to the custom event from BatchedActivityService
+    // instead of creating a duplicate subscription
     const burnCompleteTimeRef = useRef(/** @type {number | null} */ (null));
-    
-    useEffect(() => {
-        if (!ntp) return;
-        return ntp.messaging.subscribe('activity_onBurnComplete', () => {
-            // Mark that we should skip animation if next update goes to 0
-            burnCompleteTimeRef.current = Date.now();
-        });
-    }, [ntp]);
 
     // expose a fn for sync toggling
     const toggle = useCallback(() => {
@@ -120,8 +113,28 @@ export function useService() {
 export function useBlockedCount(initial) {
     const service = useContext(ProtectionsServiceContext);
     const burnCompleteTimeRef = useContext(BurnCompleteTimeContext);
+    const activityService = useContext(ActivityServiceContext);
     const signal = useSignal(initial);
     const skipAnimationSignal = useSignal(false);
+    
+    // Listen to the custom event from BatchedActivityService instead of creating a duplicate subscription
+    // BatchedActivityService already subscribes to activity_onBurnComplete and dispatches this event
+    useEffect(() => {
+        if (!activityService?.burns) return;
+        
+        const handleBurnComplete = () => {
+            // Mark that we should skip animation if next update goes to 0
+            burnCompleteTimeRef.current = Date.now();
+        };
+        
+        const burns = activityService.burns;
+        burns.addEventListener('activity_onBurnComplete', handleBurnComplete);
+        return () => {
+            // Use the captured burns reference to ensure we remove from the correct EventTarget
+            // even if activityService is destroyed/unmounted
+            burns?.removeEventListener('activity_onBurnComplete', handleBurnComplete);
+        };
+    }, [activityService, burnCompleteTimeRef]);
     
     // @todo jingram possibly refactor to include full object
     useSignalEffect(() => {
