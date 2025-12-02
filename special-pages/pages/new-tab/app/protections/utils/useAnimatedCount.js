@@ -135,10 +135,14 @@ export function useAnimatedCount(targetValue, elementRef, skipAnimation = false)
         // Update visibility tracking
         wasVisibleRef.current = isCurrentlyVisible;
 
+        // Read skipAnimation value directly from signal if it's a signal, otherwise use state
+        // This ensures we get the latest value synchronously, avoiding race conditions
+        const currentSkipAnimation = isSignal ? skipAnimation.value : shouldSkipAnimation;
+
         if (isCurrentlyVisible) {
             // If skipAnimation is true (e.g., after burn all), immediately set to target value
             // This skips the countdown animation and goes directly to empty state (when targetValue is 0)
-            if (shouldSkipAnimation) {
+            if (currentSkipAnimation) {
                 // Cancel any ongoing animation immediately
                 cancelAnimation();
                 // Immediately set to target value without animation
@@ -193,9 +197,12 @@ export function useAnimatedCount(targetValue, elementRef, skipAnimation = false)
             wasVisibleRef.current = isNowVisible;
 
             if (isNowVisible) {
+                // Read skipAnimation value directly from signal if it's a signal, otherwise use state
+                const currentSkipAnimation = isSignal ? skipAnimation.value : shouldSkipAnimation;
+                
                 // If skipAnimation is true (e.g., after burn all), immediately set to target value
                 // This skips the countdown animation and goes directly to empty state (when targetValue is 0)
-                if (shouldSkipAnimation) {
+                if (currentSkipAnimation) {
                     cancelAnimation();
                     // Immediately set to target value without animation
                     // When targetValue is 0, this will trigger the empty state display
