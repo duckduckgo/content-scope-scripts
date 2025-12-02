@@ -163,6 +163,23 @@ export function mockTransport() {
                         },
                     };
 
+                    // Allow theme override via URL params
+                    if (url.searchParams.has('theme')) {
+                        const value = url.searchParams.get('theme');
+                        if (value === 'light' || value === 'dark') {
+                            initial.theme = /** @type {import('../../types/history.ts').BrowserTheme} */ (value);
+                        }
+                    }
+
+                    // Allow themeVariant override via URL params
+                    if (url.searchParams.has('themeVariant')) {
+                        const value = url.searchParams.get('themeVariant');
+                        const validVariants = ['default', 'coolGray', 'slateBlue', 'green', 'violet', 'rose', 'orange', 'desert'];
+                        if (value && validVariants.includes(value)) {
+                            initial.themeVariant = /** @type {import('../../types/history.ts').ThemeVariant} */ (value);
+                        }
+                    }
+
                     return Promise.resolve(initial);
                 }
 
