@@ -1,0 +1,861 @@
+{
+  "url": "https://www.ifixit.com/Wiki/iPhone_Battery_Replacement",
+  "extractedAt": "2025-10-16T11:01:24.205Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-57x57.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-60x60.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-72x72.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-76x76.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-114x114.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-120x120.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-144x144.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-152x152.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/apple-touch-icon-180x180.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/favicon-32x32.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/android-chrome-192x192.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/favicon-96x96.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/favicon-16x16.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://assets.cdn.ifixit.com/static/icons/ifixit/safari-pinned-tab.svg",
+        "rel": "mask-icon"
+      }
+    ],
+    "title": "iPhone Battery Replacement: Costs and Considerations - iFixit",
+    "metaDescription": "Find free step-by-step repair instructions, manuals, schematics, community support, and other DIY resources. You can do it! We show you how.",
+    "content": "- [iPhone Battery Replacement: Costs and Considerations](https://www.ifixit.com/Wiki/iPhone_Battery_Replacement)\n\n- [Apple iPhone](https://www.ifixit.com/Device/iPhone)\n\n- [Phone](https://www.ifixit.com/Device/Phone)\n\n- [Device](https://www.ifixit.com/Guide)\n\n  \n- [Edit](/Wiki/Edit/iPhone_Battery_Replacement)\n \n- Options\n \n                   \n#  iPhone Battery Replacement: Costs and Considerations \n   Troubleshooting information and battery replacement guides for iPhones. Restore your battery life or diagnose the shutdown problem that is plaguing your phone.  \n  Author:  [Evan Gattuso](/User/4026158/Evan+Gattuso) [(and one other contributor)](/Wiki/History/iPhone_Battery_Replacement)                         **Fix the iPhone you already have** **– and save money and the planet in the process.**\n \n\n- If your iPhone battery is dead, no worries, you can fix it with the information provided on this page.\n\n- If you're unsure if your battery needs replacing, [start with troubleshooting](https://www.ifixit.com/Troubleshooting/iPhone).\n\n- If you're on the fence about doing the repair yourself, or wondering if it's even worth it, [jump to the FAQ section and get more information](/Wiki/iPhone_Battery_Replacement#Section_Frequently_Asked_Questions) (and motivation).\n\n Find your iPhone model below and follow a step-by-step battery replacement guide. (Each guide will also link the corresponding fix kit with all the parts and tools needed to complete the guide.)\n    [iPhone 11 Battery Replacement](/Guide/iPhone+11+Battery+Replacement/127450)   [iPhone 11 Pro Battery Replacement](/Guide/iPhone+11+Pro+Battery+Replacement/127686)   [iPhone 12 Battery Replacement](/Guide/iPhone+12+Battery+Replacement/140588)   [iPhone 12 mini Battery Replacement](/Guide/iPhone+12+mini+Battery+Replacement/139693)   [iPhone 12 Pro Battery Replacement](/Guide/iPhone+12+Pro+Battery+Replacement/140611)   [iPhone 12 Pro Max Battery Replacement](/Guide/iPhone+12+Pro+Max+Battery+Replacement/141661)   [iPhone 13 Battery Replacement](/Guide/iPhone+13+Battery+Replacement/145896)   [iPhone 13 mini Battery Replacement](/Guide/iPhone+13+mini+Battery+Replacement/145508)   [iPhone 13 Pro Battery Replacement](/Guide/iPhone+13+Pro+Battery+Replacement/146608)   [iPhone 13 Pro Max Battery Replacement](/Guide/iPhone+13+Pro+Max+Battery+Replacement/146610)   [iPhone 14 Battery Replacement](/Guide/iPhone+14+Battery+Replacement/152966)   [iPhone 14 Plus Battery Replacement](/Guide/iPhone+14+Plus+Battery+Replacement/153339)   [iPhone 14 Pro Battery Replacement](/Guide/iPhone+14+Pro+Battery+Replacement/152973)   [iPhone 14 Pro Max Battery Replacement](/Guide/iPhone+14+Pro+Max+Battery+Replacement/153006)   [iPhone 15 Battery Replacement](/Guide/iPhone+15+Battery+Replacement/165733)   [iPhone 15 Plus Battery Replacement](/Guide/iPhone+15+Plus+Battery+Replacement/166864)   [iPhone 15 Pro Battery Replacement](/Guide/iPhone+15+Pro+Battery+Replacement/166394)   [iPhone 15 Pro Max Battery Replacement](/Guide/iPhone+15+Pro+Max+Battery+Replacement/166239)   [iPhone 16 Battery Replacement](/Guide/iPhone+16+Battery+Replacement/177286)   [iPhone 16 Plus Battery Replacement](/Guide/iPhone+16+Plus+Battery+Replacement/177854)   [iPhone 7 Battery Replacement](/Guide/iPhone+7+Battery+Replacement/67528)   [iPhone 7 Plus Battery Replacement](/Guide/iPhone+7+Plus+Battery+Replacement/67612)   [iPhone 8 Battery Replacement](/Guide/iPhone+8+Battery+Replacement/101279)   [iPhone 8 Plus Battery Replacement](/Guide/iPhone+8+Plus+Battery+Replacement/98260)   [iPhone SE 2020 Battery Replacement](/Guide/iPhone+SE+2020+Battery+Replacement/133814)   [iPhone SE 2022 Battery Replacement](/Guide/iPhone+SE+2022+Battery+Replacement/150436)   [iPhone X Battery Replacement](/Guide/iPhone+X+Battery+Replacement/103390)   [iPhone XR Battery Replacement](/Guide/iPhone+XR+Battery+Replacement/116553)   [iPhone XS Battery Replacement](/Guide/iPhone+XS+Battery+Replacement/117346)   [iPhone XS Max Battery Replacement](/Guide/iPhone+XS+Max+Battery+Replacement/117345)      Yes, you can replace your iPhone battery yourself. iFixit provides free [step-by-step repair guides](/Topic/iPhone) for every iPhone and sells DIY [Battery Fix Kits](https://www.ifixit.com/en-eu/Parts/iPhone/Batteries) for iPhones ranging from the 4 series to the 15 series. These kits include all the necessary tools and parts to replace your battery.\n\nThe repair process generally involves handling adhesive, screws, connectors, the screen, and is relatively straightforward. Apple simplified the battery replacement process by making the [iPhone 14's back glass removable](https://www.ifixit.com/News/64865/iphone-14-teardown) so a fixer does not need to remove the screen to access the battery. This “open from the front and back” design became the norm with the [iPhone 16 series](https://www.ifixit.com/News/100352/we-hot-wired-the-iphone-16) (the 16's battery is also secured by a new, more repair-friendly adhesive which debonds when an electrical current passes through it).\n  Using an iFixit kit to replace your iPhone battery yourself can save you $34 to $49 compared to Apple's out-of-warranty repair costs, depending on your model. iFixit's battery replacement kits average around $40, while kits for newer models like the iPhone 15 cost around $60.\n ModelApple's Cost (Out of Warranty)^iFixit CostSavings[iPhone SE](https://www.ifixit.com/en-eu/Parts/iPhone_SE)$69$29.99$39[iPhone 7](https://www.ifixit.com/en-eu/Parts/iPhone_7)$69$29.99$39[iPhone 7 Plus](https://www.ifixit.com/en-eu/Parts/iPhone_7_Plus)$69$29.99$39[iPhone 8](https://www.ifixit.com/en-eu/Parts/iPhone_8)$69$29.99$39[iPhone 8 Plus](https://www.ifixit.com/en-eu/Parts/iPhone_8_Plus)$69$29.99$39[iPhone X](https://www.ifixit.com/en-eu/Parts/iPhone_X)$89$39.99$49[iPhone XS](https://www.ifixit.com/en-eu/Parts/iPhone_XS)$89$39.99$49[iPhone XS Max](https://www.ifixit.com/en-eu/Parts/iPhone_XS_Max)$89$39.99$49[iPhone XR](https://www.ifixit.com/en-eu/Parts/iPhone_XR)$89$39.99$49[iPhone SE 2020](https://www.ifixit.com/en-eu/Parts/iPhone_SE_2020)$69$29.99$39[iPhone 11](https://www.ifixit.com/en-eu/Parts/iPhone_11)$89$39.99$49[iPhone 11 Pro](https://www.ifixit.com/en-eu/Parts/iPhone_11_Pro)$89$39.99$49[iPhone 11 Pro Max](https://www.ifixit.com/en-eu/Parts/iPhone_11_Pro_Max)$89$39.99$49[iPhone 12](https://www.ifixit.com/en-eu/Parts/iPhone_12)$89$44.99$44[iPhone 12 Pro](https://www.ifixit.com/en-eu/Parts/iPhone_12_Pro)$89$44.99$44[iPhone 12 Pro Max](https://www.ifixit.com/en-eu/Parts/iPhone_12_Pro_Max)$89$44.99$44[iPhone 12 mini](https://www.ifixit.com/en-eu/Parts/iPhone_12_mini)$89$44.99$44[iPhone 13](https://www.ifixit.com/en-eu/Parts/iPhone_13)$89$39.99$49[iPhone 13 Pro](https://www.ifixit.com/en-eu/Parts/iPhone_13_Pro)$89$39.99$49[iPhone 13 Pro Max](https://www.ifixit.com/en-eu/Parts/iPhone_13_Pro_Max)$89$44.99$44[iPhone 13 mini](https://www.ifixit.com/en-eu/Parts/iPhone_13_mini)$89$39.99$49[iPhone SE 2022](https://www.ifixit.com/en-eu/Parts/iPhone_SE_2022)$69$34.99$34[iPhone 14](https://www.ifixit.com/en-eu/Parts/iPhone_14)$99$59.99$39[iPhone 14 Plus](https://www.ifixit.com/en-eu/Parts/iPhone_14_Plus)$99$59.99$39[iPhone 14 Pro](https://www.ifixit.com/en-eu/Parts/iPhone_14_Pro)$99$59.99$39[iPhone 14 Pro Max](https://www.ifixit.com/en-eu/Parts/iPhone_14_Pro_Max)$99$59.99$39[iPhone 15](https://www.ifixit.com/en-eu/Parts/iPhone_15)$99$59.99$39[iPhone 15 Plus](https://www.ifixit.com/en-eu/Parts/iPhone_15_Plus)$99$59.99$39[iPhone 15 Pro](https://www.ifixit.com/en-eu/Parts/iPhone_15_Pro)$99$59.99$39[iPhone 15 Pro Max](https://www.ifixit.com/en-eu/Parts/iPhone_15_Pro_Max)$99$59.99$39 **^** *Apple's shared estimates as of November 2024.*\n  While the time investment can vary based on the iPhone model and your DIY experience, repairing your iPhone battery yourself is feasible. The repair should take you anywhere from 30 minutes to a couple of hours. If you get stuck, iFixit's [community of fixers](https://www.ifixit.com/Answers/Device/iPhone) can help.\n  \n\n- [Apple Finally Promises to Enable Third-Party Parts (Mostly)](https://www.ifixit.com/News/97100/apple-finally-promises-to-enable-third-party-parts-mostly)\n\n- [6 Signs It’s Time to Replace Your iPhone Battery](https://www.ifixit.com/News/11214/6-signs-replace-iphone-battery)\n\n- [How to Properly Recycle Your Old iPhone Battery](https://www.ifixit.com/News/11199/how-to-recycle-iphone-battery)\n\n- [Batterygate: A Complete History of Apple Throttling iPhones](https://www.ifixit.com/News/11208/batterygate-timeline)\n\n- [Your Smartphone Battery Explained](https://www.ifixit.com/News/10990/your-smartphone-battery-explained)\n\n                \n###  [Author](#author) \n  with [1 other contributor](/Wiki/History/iPhone_Battery_Replacement) \n        [Evan Gattuso](/User/4026158/Evan+Gattuso)  Member since: 09/13/21\n 10,696 Reputation\n  1 Guide authored \n    [Badges: 33](/User/Graph/4026158/Evan+Gattuso) \n \n \n- \n \n- \n \n- \n \n  [+30 more badges](/User/Graph/4026158/Evan+Gattuso) \n     \n### Team\n       [iFixit](/Team/1/iFixit)    Staff \n  122 Members \n  23,419 Guides authored \n          \n###  6 Comments \n    ** Add Comment          Is there an option to have my iPhone 14 battery removed but not replaced? My battery is damaged an Verizon will not accept my phone to trade in for credit towards an upgrade with the battery still in it\n   [Sdogg](/User/4743643/Sdogg) - [Apr 27, 2025](https://www.ifixit.com/Wiki/iPhone_Battery_Replacement?automation=true%3Fautomation%3Dtrue&wait-for-init-args=tru...",
+    "truncated": true,
+    "fullContentLength": 11767,
+    "headings": [
+      {
+        "level": 1,
+        "text": "iPhone Battery Replacement: Costs and Considerations"
+      },
+      {
+        "level": 3,
+        "text": "Table of Contents"
+      },
+      {
+        "level": 2,
+        "text": "iPhone Battery Replacement Triage"
+      },
+      {
+        "level": 2,
+        "text": "Frequently Asked Questions"
+      },
+      {
+        "level": 3,
+        "text": "Can I replace my iPhone battery myself?"
+      },
+      {
+        "level": 3,
+        "text": "How much does it cost to replace my iPhone's battery myself?"
+      },
+      {
+        "level": 3,
+        "text": "How long does it take to fix an iPhone battery?"
+      },
+      {
+        "level": 2,
+        "text": "Further Reading: The World of DIY iPhone Repair"
+      },
+      {
+        "level": 3,
+        "text": "Author"
+      },
+      {
+        "level": 4,
+        "text": "Evan Gattuso"
+      },
+      {
+        "level": 3,
+        "text": "Team"
+      },
+      {
+        "level": 4,
+        "text": "iFixit                        \n                        \n                                                      Member of iFixit"
+      },
+      {
+        "level": 3,
+        "text": "6 Comments"
+      },
+      {
+        "level": 4,
+        "text": "Add Comment"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#content"
+      },
+      {
+        "text": "Repair GuidesLearn how to fix just about anything with our step-by-step guides.",
+        "href": "/Guide"
+      },
+      {
+        "text": "Answers ForumShare solutions and get help from a friend.",
+        "href": "/Answers"
+      },
+      {
+        "text": "TeardownsGet a sneak peek inside the latest gadgets.",
+        "href": "/Teardown"
+      },
+      {
+        "text": "NewsYour destination for tech repair news.",
+        "href": "/News"
+      },
+      {
+        "text": "Get InvolvedHelp teach people to make their stuff work again.",
+        "href": "/Community"
+      },
+      {
+        "text": "Right to RepairLearn about the Right to Repair movement and how to be an advocate.",
+        "href": "/Right-to-Repair"
+      },
+      {
+        "text": "RepairabilityLearn why fixable products make sense.",
+        "href": "/repairability"
+      },
+      {
+        "text": "Our ManifestoJoin the repair revolution!",
+        "href": "/Manifesto"
+      },
+      {
+        "text": "FeaturedQuality parts and tools backed by our lifetime guarantee.",
+        "href": "https://www.ifixit.com/en-eu/Store"
+      },
+      {
+        "text": "ToolsShop our wide selection of precision tools.",
+        "href": "https://www.ifixit.com/en-eu/Tools"
+      },
+      {
+        "text": "PartsShop parts backed by our quality guarantee.",
+        "href": "https://www.ifixit.com/en-eu/Parts"
+      },
+      {
+        "text": "iPhone BatteriesBatteries tested and guaranteed plus a kit with everything you need.",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone/Batteries"
+      },
+      {
+        "text": "Join",
+        "href": "/Join"
+      },
+      {
+        "text": "Log In",
+        "href": "#"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://www.ifixit.com/Info/Privacy_policy_EU"
+      },
+      {
+        "text": "iPhone Battery Replacement: Costs and Considerations",
+        "href": "#main"
+      },
+      {
+        "text": "iPhone Battery Replacement Triage",
+        "href": "#Section_iPhone_Battery_Replacement_Triage"
+      },
+      {
+        "text": "Frequently Asked Questions",
+        "href": "#Section_Frequently_Asked_Questions"
+      },
+      {
+        "text": "Can I replace my iPhone battery myself?",
+        "href": "#Section_Can_I_replace_my_iPhone_battery_myself"
+      },
+      {
+        "text": "How much does it cost to replace my iPhone's battery myself?",
+        "href": "#Section_How_much_does_it_cost_to_replace_my_iPhone_s_battery_myself"
+      },
+      {
+        "text": "How long does it take to fix an iPhone battery?",
+        "href": "#Section_How_long_does_it_take_to_fix_an_iPhone_battery"
+      },
+      {
+        "text": "Further Reading: The World of DIY iPhone Repair",
+        "href": "#Section_Further_Reading_The_World_of_DIY_iPhone_Repair"
+      },
+      {
+        "text": "iPhone Battery Replacement: Costs and Considerations",
+        "href": "https://www.ifixit.com/Wiki/iPhone_Battery_Replacement"
+      },
+      {
+        "text": "Apple iPhone",
+        "href": "https://www.ifixit.com/Device/iPhone"
+      },
+      {
+        "text": "Phone",
+        "href": "https://www.ifixit.com/Device/Phone"
+      },
+      {
+        "text": "Device",
+        "href": "https://www.ifixit.com/Guide"
+      },
+      {
+        "text": "Edit",
+        "href": "/Wiki/Edit/iPhone_Battery_Replacement"
+      },
+      {
+        "text": "History",
+        "href": "/Wiki/History/iPhone_Battery_Replacement"
+      },
+      {
+        "text": "Evan Gattuso",
+        "href": "/User/4026158/Evan+Gattuso"
+      },
+      {
+        "text": "(and one other contributor)",
+        "href": "/Wiki/History/iPhone_Battery_Replacement"
+      },
+      {
+        "text": "start with troubleshooting",
+        "href": "https://www.ifixit.com/Troubleshooting/iPhone"
+      },
+      {
+        "text": "jump to the FAQ section and get more information",
+        "href": "/Wiki/iPhone_Battery_Replacement#Section_Frequently_Asked_Questions"
+      },
+      {
+        "text": "iPhone 11 Battery Replacement",
+        "href": "/Guide/iPhone+11+Battery+Replacement/127450"
+      },
+      {
+        "text": "iPhone 11 Pro Battery Replacement",
+        "href": "/Guide/iPhone+11+Pro+Battery+Replacement/127686"
+      },
+      {
+        "text": "iPhone 12 Battery Replacement",
+        "href": "/Guide/iPhone+12+Battery+Replacement/140588"
+      },
+      {
+        "text": "iPhone 12 mini Battery Replacement",
+        "href": "/Guide/iPhone+12+mini+Battery+Replacement/139693"
+      },
+      {
+        "text": "iPhone 12 Pro Battery Replacement",
+        "href": "/Guide/iPhone+12+Pro+Battery+Replacement/140611"
+      },
+      {
+        "text": "iPhone 12 Pro Max Battery Replacement",
+        "href": "/Guide/iPhone+12+Pro+Max+Battery+Replacement/141661"
+      },
+      {
+        "text": "iPhone 13 Battery Replacement",
+        "href": "/Guide/iPhone+13+Battery+Replacement/145896"
+      },
+      {
+        "text": "iPhone 13 mini Battery Replacement",
+        "href": "/Guide/iPhone+13+mini+Battery+Replacement/145508"
+      },
+      {
+        "text": "iPhone 13 Pro Battery Replacement",
+        "href": "/Guide/iPhone+13+Pro+Battery+Replacement/146608"
+      },
+      {
+        "text": "iPhone 13 Pro Max Battery Replacement",
+        "href": "/Guide/iPhone+13+Pro+Max+Battery+Replacement/146610"
+      },
+      {
+        "text": "iPhone 14 Battery Replacement",
+        "href": "/Guide/iPhone+14+Battery+Replacement/152966"
+      },
+      {
+        "text": "iPhone 14 Plus Battery Replacement",
+        "href": "/Guide/iPhone+14+Plus+Battery+Replacement/153339"
+      },
+      {
+        "text": "iPhone 14 Pro Battery Replacement",
+        "href": "/Guide/iPhone+14+Pro+Battery+Replacement/152973"
+      },
+      {
+        "text": "iPhone 14 Pro Max Battery Replacement",
+        "href": "/Guide/iPhone+14+Pro+Max+Battery+Replacement/153006"
+      },
+      {
+        "text": "iPhone 15 Battery Replacement",
+        "href": "/Guide/iPhone+15+Battery+Replacement/165733"
+      },
+      {
+        "text": "iPhone 15 Plus Battery Replacement",
+        "href": "/Guide/iPhone+15+Plus+Battery+Replacement/166864"
+      },
+      {
+        "text": "iPhone 15 Pro Battery Replacement",
+        "href": "/Guide/iPhone+15+Pro+Battery+Replacement/166394"
+      },
+      {
+        "text": "iPhone 15 Pro Max Battery Replacement",
+        "href": "/Guide/iPhone+15+Pro+Max+Battery+Replacement/166239"
+      },
+      {
+        "text": "iPhone 16 Battery Replacement",
+        "href": "/Guide/iPhone+16+Battery+Replacement/177286"
+      },
+      {
+        "text": "iPhone 16 Plus Battery Replacement",
+        "href": "/Guide/iPhone+16+Plus+Battery+Replacement/177854"
+      },
+      {
+        "text": "iPhone 7 Battery Replacement",
+        "href": "/Guide/iPhone+7+Battery+Replacement/67528"
+      },
+      {
+        "text": "iPhone 7 Plus Battery Replacement",
+        "href": "/Guide/iPhone+7+Plus+Battery+Replacement/67612"
+      },
+      {
+        "text": "iPhone 8 Battery Replacement",
+        "href": "/Guide/iPhone+8+Battery+Replacement/101279"
+      },
+      {
+        "text": "iPhone 8 Plus Battery Replacement",
+        "href": "/Guide/iPhone+8+Plus+Battery+Replacement/98260"
+      },
+      {
+        "text": "iPhone SE 2020 Battery Replacement",
+        "href": "/Guide/iPhone+SE+2020+Battery+Replacement/133814"
+      },
+      {
+        "text": "iPhone SE 2022 Battery Replacement",
+        "href": "/Guide/iPhone+SE+2022+Battery+Replacement/150436"
+      },
+      {
+        "text": "iPhone X Battery Replacement",
+        "href": "/Guide/iPhone+X+Battery+Replacement/103390"
+      },
+      {
+        "text": "iPhone XR Battery Replacement",
+        "href": "/Guide/iPhone+XR+Battery+Replacement/116553"
+      },
+      {
+        "text": "iPhone XS Battery Replacement",
+        "href": "/Guide/iPhone+XS+Battery+Replacement/117346"
+      },
+      {
+        "text": "iPhone XS Max Battery Replacement",
+        "href": "/Guide/iPhone+XS+Max+Battery+Replacement/117345"
+      },
+      {
+        "text": "step-by-step repair guides",
+        "href": "/Topic/iPhone"
+      },
+      {
+        "text": "Battery Fix Kits",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone/Batteries"
+      },
+      {
+        "text": "iPhone 14's back glass removable",
+        "href": "https://www.ifixit.com/News/64865/iphone-14-teardown"
+      },
+      {
+        "text": "iPhone 16 series",
+        "href": "https://www.ifixit.com/News/100352/we-hot-wired-the-iphone-16"
+      },
+      {
+        "text": "iPhone SE",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_SE"
+      },
+      {
+        "text": "iPhone 7",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_7"
+      },
+      {
+        "text": "iPhone 7 Plus",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_7_Plus"
+      },
+      {
+        "text": "iPhone 8",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_8"
+      },
+      {
+        "text": "iPhone 8 Plus",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_8_Plus"
+      },
+      {
+        "text": "iPhone X",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_X"
+      },
+      {
+        "text": "iPhone XS",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_XS"
+      },
+      {
+        "text": "iPhone XS Max",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_XS_Max"
+      },
+      {
+        "text": "iPhone XR",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_XR"
+      },
+      {
+        "text": "iPhone SE 2020",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_SE_2020"
+      },
+      {
+        "text": "iPhone 11",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_11"
+      },
+      {
+        "text": "iPhone 11 Pro",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_11_Pro"
+      },
+      {
+        "text": "iPhone 11 Pro Max",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_11_Pro_Max"
+      },
+      {
+        "text": "iPhone 12",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_12"
+      },
+      {
+        "text": "iPhone 12 Pro",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_12_Pro"
+      },
+      {
+        "text": "iPhone 12 Pro Max",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_12_Pro_Max"
+      },
+      {
+        "text": "iPhone 12 mini",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_12_mini"
+      },
+      {
+        "text": "iPhone 13",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_13"
+      },
+      {
+        "text": "iPhone 13 Pro",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_13_Pro"
+      },
+      {
+        "text": "iPhone 13 Pro Max",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_13_Pro_Max"
+      },
+      {
+        "text": "iPhone 13 mini",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_13_mini"
+      },
+      {
+        "text": "iPhone SE 2022",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_SE_2022"
+      },
+      {
+        "text": "iPhone 14",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_14"
+      },
+      {
+        "text": "iPhone 14 Plus",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_14_Plus"
+      },
+      {
+        "text": "iPhone 14 Pro",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_14_Pro"
+      },
+      {
+        "text": "iPhone 14 Pro Max",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_14_Pro_Max"
+      },
+      {
+        "text": "iPhone 15",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_15"
+      },
+      {
+        "text": "iPhone 15 Plus",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_15_Plus"
+      },
+      {
+        "text": "iPhone 15 Pro",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_15_Pro"
+      },
+      {
+        "text": "iPhone 15 Pro Max",
+        "href": "https://www.ifixit.com/en-eu/Parts/iPhone_15_Pro_Max"
+      },
+      {
+        "text": "community of fixers",
+        "href": "https://www.ifixit.com/Answers/Device/iPhone"
+      },
+      {
+        "text": "Apple Finally Promises to Enable Third-Party Parts (Mostly)",
+        "href": "https://www.ifixit.com/News/97100/apple-finally-promises-to-enable-third-party-parts-mostly"
+      },
+      {
+        "text": "6 Signs It’s Time to Replace Your iPhone Battery",
+        "href": "https://www.ifixit.com/News/11214/6-signs-replace-iphone-battery"
+      },
+      {
+        "text": "How to Properly Recycle Your Old iPhone Battery",
+        "href": "https://www.ifixit.com/News/11199/how-to-recycle-iphone-battery"
+      },
+      {
+        "text": "Batterygate: A Complete History of Apple Throttling iPhones",
+        "href": "https://www.ifixit.com/News/11208/batterygate-timeline"
+      },
+      {
+        "text": "Your Smartphone Battery Explained",
+        "href": "https://www.ifixit.com/News/10990/your-smartphone-battery-explained"
+      },
+      {
+        "text": "Author",
+        "href": "#author"
+      },
+      {
+        "text": "1 other contributor",
+        "href": "/Wiki/History/iPhone_Battery_Replacement"
+      },
+      {
+        "text": "Evan Gattuso",
+        "href": "/User/4026158/Evan+Gattuso"
+      },
+      {
+        "text": "Badges:\n                           33",
+        "href": "/User/Graph/4026158/Evan+Gattuso"
+      },
+      {
+        "text": "+30 more badges",
+        "href": "/User/Graph/4026158/Evan+Gattuso"
+      },
+      {
+        "text": "iFixit",
+        "href": "/Team/1/iFixit"
+      },
+      {
+        "text": "iFixit",
+        "href": "/Team/1/iFixit"
+      },
+      {
+        "text": "Sdogg",
+        "href": "/User/4743643/Sdogg"
+      },
+      {
+        "text": "Apr 27, 2025",
+        "href": "https://www.ifixit.com/Wiki/iPhone_Battery_Replacement?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true&permalink=comment-1008625#comment-1008625"
+      },
+      {
+        "text": "Reply",
+        "href": "#reply"
+      },
+      {
+        "text": "iPhone 14 Battery Replacement",
+        "href": "/Guide/iPhone+14+Battery+Replacement/152966"
+      },
+      {
+        "text": "Manuel Haeussermann",
+        "href": "/User/4158147/Manuel+Haeussermann"
+      },
+      {
+        "text": "May 6, 2025",
+        "href": "https://www.ifixit.com/Wiki/iPhone_Battery_Replacement?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true&permalink=comment-1009888#comment-1009888"
+      },
+      {
+        "text": "this guide",
+        "href": "/Guide/iPhone+XR+Battery+Replacement/116553"
+      },
+      {
+        "text": "Marc Tabailloux",
+        "href": "/User/4725647/Marc+Tabailloux"
+      },
+      {
+        "text": "Jun 1, 2025",
+        "href": "https://www.ifixit.com/Wiki/iPhone_Battery_Replacement?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true&permalink=comment-1013423#comment-1013423"
+      },
+      {
+        "text": "Reply",
+        "href": "#reply"
+      },
+      {
+        "text": "How to Remove a Stripped Screw",
+        "href": "/Guide/How+to+Remove+a+Stripped+Screw/13213"
+      },
+      {
+        "text": "Manuel Haeussermann",
+        "href": "/User/4158147/Manuel+Haeussermann"
+      },
+      {
+        "text": "Jun 2, 2025",
+        "href": "https://www.ifixit.com/Wiki/iPhone_Battery_Replacement?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true&permalink=comment-1013463#comment-1013463"
+      },
+      {
+        "text": "KimT",
+        "href": "/User/4868481/KimT"
+      },
+      {
+        "text": "Aug 11, 2025",
+        "href": "https://www.ifixit.com/Wiki/iPhone_Battery_Replacement?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true&permalink=comment-1022279#comment-1022279"
+      },
+      {
+        "text": "Reply",
+        "href": "#reply"
+      },
+      {
+        "text": "About Us",
+        "href": "/about-us"
+      },
+      {
+        "text": "Customer Support",
+        "href": "http://www.ifixit.com/en-eu/Support"
+      },
+      {
+        "text": "Discuss iFixit",
+        "href": "https://meta.ifixit.com"
+      },
+      {
+        "text": "Careers",
+        "href": "/about-us/careers"
+      },
+      {
+        "text": "Newsletter",
+        "href": "/Newsletter"
+      },
+      {
+        "text": "API",
+        "href": "/api/2.0/doc/"
+      },
+      {
+        "text": "Press",
+        "href": "/Info/Media"
+      },
+      {
+        "text": "News",
+        "href": "/News"
+      },
+      {
+        "text": "Participate",
+        "href": "/Participate"
+      },
+      {
+        "text": "Pro Wholesale",
+        "href": "http://www.ifixit.com/en-eu/pro"
+      },
+      {
+        "text": "Retail Locator",
+        "href": "/Retail"
+      },
+      {
+        "text": "For Manufacturers",
+        "href": "/services"
+      },
+      {
+        "text": "Accessibility",
+        "href": "/Info/Accessibility"
+      },
+      {
+        "text": "Privacy",
+        "href": "https://www.ifixit.com/Info/Privacy_policy_EU"
+      },
+      {
+        "text": "Terms",
+        "href": "/Info/Terms_of_Use"
+      },
+      {
+        "text": "Let me read it first!",
+        "href": "/Newsletter"
+      },
+      {
+        "text": "Help translate",
+        "href": "/Translate"
+      },
+      {
+        "text": "Repair is noble",
+        "href": "/Manifesto"
+      },
+      {
+        "text": "Licensed under Creative Commons",
+        "href": "/Info/Licensing"
+      }
+    ],
+    "images": [
+      {
+        "alt": "iPhone Battery Replacement: Costs and Considerations",
+        "src": "https://guide-images.cdn.ifixit.com/igi/LvUnwWcRQGZJGJG5.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/dPjkPWDYjsF5c6yr.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/2sSDSmS1f1AXwvgq.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/3P3vYIESwES1TCR5.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/dOmMPxyIn4ZYLiSx.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/k1KlINOqMSRPQaCf.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/xOKysMbAyjTIlNl2.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/ORbSyqAvAy3Dbuw2.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/AIPTHElVQfnG63Kj.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/lV2MpQVRE1FRvpUB.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/SVEahqupJEQF3gS2.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/2qpgDse6XOHTCuJY.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/xXxTyfqLvd2HmVZR.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/aKacXFeobNuEc1EZ.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/ILAb3NdnGWyVZIcm.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/IGGcLVknZaV3gXwB.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/OnbDHm51ZHKylPZj.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/MmnlyZanLKXdOPSU.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/iZGtSuPdsShiDRSL.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/MwKraTtjCYHDmTck.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/bB4EFBdSvhego2TA.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/JWCS3PHnITsAmBVa.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/Ua2ydEpJ4xqtCBal.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/tNhIExDLO3ewc1hB.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/GMdqXqyyfv3XrIML.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/pWQFBwuOf13v5Lif.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/otlQ1ecA45njmkJk.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/BlY5j4lb4JWONNEU.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/JGMYBCcNS2GTHmmV.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/IZSXmOvUlPMjhLMX.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/f2oDW26QRcWtELCO.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/UiqiRwGMAZBCJonm.standard"
+      },
+      {
+        "alt": "Developer",
+        "src": "https://assets.cdn.ifixit.com/static/images/badges/devleoper.svg"
+      },
+      {
+        "alt": "Fellow",
+        "src": "https://assets.cdn.ifixit.com/static/images/badges/fellow.svg"
+      },
+      {
+        "alt": "Groundbreaker",
+        "src": "https://assets.cdn.ifixit.com/static/images/badges/groud-breaker.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://guide-images.cdn.ifixit.com/igi/TS66OmLjO4QAsbrB.standard"
+      },
+      {
+        "alt": "",
+        "src": "https://ping.ifixit.com/pp/tick.gif?key=ifixit%2Fwiki%2F614073%2Fen"
+      }
+    ],
+    "timestamp": 1760612483415,
+    "url": "https://www.ifixit.com/Wiki/iPhone_Battery_Replacement?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

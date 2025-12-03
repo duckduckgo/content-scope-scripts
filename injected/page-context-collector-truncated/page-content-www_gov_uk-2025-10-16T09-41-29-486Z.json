@@ -1,0 +1,400 @@
+{
+  "url": "https://www.gov.uk/sign-in-universal-credit",
+  "extractedAt": "2025-10-16T09:41:29.486Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.gov.uk/assets/frontend/favicon-24f9fbe064118d58937932e73edafd1d50cb60f7bd84f52308382a309bc2d655.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.gov.uk/assets/frontend/favicon-d962d21b5bb443f546c097ea21b567cde639adef7370da45be5e349ba8d62d33.svg",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.gov.uk/assets/frontend/govuk-icon-mask-cdf4265165f8d7f9eec54aa2c1dfbb3d8b6d297c5d7919f0313e0836a5804bb6.svg",
+        "rel": "mask-icon"
+      },
+      {
+        "href": "https://www.gov.uk/assets/frontend/govuk-icon-180-d45a306f0549414cfa5085f16e4a3816a77558b139e5bc226f23162d1d0decb0.png",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "Sign in to your Universal Credit account - GOV.UK",
+    "metaDescription": "Sign in to your Universal Credit account - report a change, add a note to your journal, see your payments and do other tasks ",
+    "content": "#  Sign in to your Universal Credit account \n        Sign in to your Universal Credit account to:\n \n \n- apply for an advance on your first payment\n \n- see your statement\n \n- report a change in circumstances\n \n- add a note to your journal\n \n- see your to-do list\n \n- see when your next payment will be\n \n- see your Claimant Commitment\n \n Use the username and password you set up when you applied for Universal Credit. You can ask for a reminder if you’re not sure.\n  This service is also available [in Welsh (Cymraeg)](/mewngofnodi-ich-cyfrif-credyd-cynhwysol).\n     [Sign in](https://www.universal-credit.service.gov.uk/sign-in) \n          \n##  Related content \n  \n \n- [Universal Credit](/universal-credit)\n \n   \n### Collection\n \n \n- [Universal Credit: detailed information for claimants](/government/collections/universal-credit-detailed-information-for-claimants)\n \n- [Universal Credit: information for employers](/government/collections/universal-credit-information-for-employers)\n \n- [Universal Credit: information for stakeholders and partners](/government/collections/universal-credit-information-for-stakeholders-and-partners)\n \n- [Universal Credit: information for landlords](/government/collections/universal-credit-information-for-landlords)\n \n         \n## Explore the topic\n \n \n- [Manage an existing benefit, payment or claim](/browse/benefits/manage-your-benefit)",
+    "truncated": false,
+    "fullContentLength": 1375,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Cookies on GOV.UK"
+      },
+      {
+        "level": 2,
+        "text": "Navigation menu"
+      },
+      {
+        "level": 3,
+        "text": "Services and information"
+      },
+      {
+        "level": 3,
+        "text": "Government activity"
+      },
+      {
+        "level": 3,
+        "text": "Search"
+      },
+      {
+        "level": 1,
+        "text": "Sign in to your Universal Credit account"
+      },
+      {
+        "level": 2,
+        "text": "Related content"
+      },
+      {
+        "level": 3,
+        "text": "Collection"
+      },
+      {
+        "level": 2,
+        "text": "Explore the topic"
+      },
+      {
+        "level": 2,
+        "text": "Is this page useful?"
+      },
+      {
+        "level": 2,
+        "text": "Help us improve GOV.UK"
+      },
+      {
+        "level": 2,
+        "text": "Help us improve GOV.UK"
+      },
+      {
+        "level": 2,
+        "text": "Services and information"
+      },
+      {
+        "level": 2,
+        "text": "Government activity"
+      },
+      {
+        "level": 2,
+        "text": "Support links"
+      }
+    ],
+    "links": [
+      {
+        "text": "change your cookie settings",
+        "href": "/help/cookies"
+      },
+      {
+        "text": "change your cookie settings",
+        "href": "/help/cookies"
+      },
+      {
+        "text": "View cookies",
+        "href": "/help/cookies"
+      },
+      {
+        "text": "Skip to main content",
+        "href": "#content"
+      },
+      {
+        "text": "GOV.UK",
+        "href": "/"
+      },
+      {
+        "text": "Menu",
+        "href": "/browse"
+      },
+      {
+        "text": "Benefits",
+        "href": "/browse/benefits"
+      },
+      {
+        "text": "Births, death, marriages and care",
+        "href": "/browse/births-deaths-marriages"
+      },
+      {
+        "text": "Business and self-employed",
+        "href": "/browse/business"
+      },
+      {
+        "text": "Childcare and parenting",
+        "href": "/browse/childcare-parenting"
+      },
+      {
+        "text": "Citizenship and living in the UK",
+        "href": "/browse/citizenship"
+      },
+      {
+        "text": "Crime, justice and the law",
+        "href": "/browse/justice"
+      },
+      {
+        "text": "Disabled people",
+        "href": "/browse/disabilities"
+      },
+      {
+        "text": "Driving and transport",
+        "href": "/browse/driving"
+      },
+      {
+        "text": "Education and learning",
+        "href": "/browse/education"
+      },
+      {
+        "text": "Employing people",
+        "href": "/browse/employing-people"
+      },
+      {
+        "text": "Environment and countryside",
+        "href": "/browse/environment-countryside"
+      },
+      {
+        "text": "Housing and local services",
+        "href": "/browse/housing-local-services"
+      },
+      {
+        "text": "Money and tax",
+        "href": "/browse/tax"
+      },
+      {
+        "text": "Passports, travel and living abroad",
+        "href": "/browse/abroad"
+      },
+      {
+        "text": "Visas and immigration",
+        "href": "/browse/visas-immigration"
+      },
+      {
+        "text": "Working, jobs and pensions",
+        "href": "/browse/working"
+      },
+      {
+        "text": "Departments",
+        "href": "/government/organisations"
+      },
+      {
+        "text": "News",
+        "href": "/search/news-and-communications"
+      },
+      {
+        "text": "Guidance and regulation",
+        "href": "/search/guidance-and-regulation"
+      },
+      {
+        "text": "Research and statistics",
+        "href": "/search/research-and-statistics"
+      },
+      {
+        "text": "Policy papers and consultations",
+        "href": "/search/policy-papers-and-consultations"
+      },
+      {
+        "text": "Transparency",
+        "href": "/search/transparency-and-freedom-of-information-releases"
+      },
+      {
+        "text": "Search GOV.UK",
+        "href": "/search"
+      },
+      {
+        "text": "Home",
+        "href": "/"
+      },
+      {
+        "text": "Benefits",
+        "href": "/browse/benefits"
+      },
+      {
+        "text": "Manage an existing benefit, payment or claim",
+        "href": "/browse/benefits/manage-your-benefit"
+      },
+      {
+        "text": "in Welsh (Cymraeg)",
+        "href": "/mewngofnodi-ich-cyfrif-credyd-cynhwysol"
+      },
+      {
+        "text": "Sign in",
+        "href": "https://www.universal-credit.service.gov.uk/sign-in"
+      },
+      {
+        "text": "Universal Credit",
+        "href": "/universal-credit"
+      },
+      {
+        "text": "Universal Credit: detailed information for claimants",
+        "href": "/government/collections/universal-credit-detailed-information-for-claimants"
+      },
+      {
+        "text": "Universal Credit: information for employers",
+        "href": "/government/collections/universal-credit-information-for-employers"
+      },
+      {
+        "text": "Universal Credit: information for stakeholders and partners",
+        "href": "/government/collections/universal-credit-information-for-stakeholders-and-partners"
+      },
+      {
+        "text": "Universal Credit: information for landlords",
+        "href": "/government/collections/universal-credit-information-for-landlords"
+      },
+      {
+        "text": "Manage an existing benefit, payment or claim",
+        "href": "/browse/benefits/manage-your-benefit"
+      },
+      {
+        "text": "Maybe",
+        "href": "/contact/govuk"
+      },
+      {
+        "text": "Please fill in this survey (opens in a new tab and requires JavaScript)",
+        "href": "https://www.smartsurvey.co.uk/s/gov-uk-banner/?c=/sign-in-universal-credit"
+      },
+      {
+        "text": "Benefits",
+        "href": "/browse/benefits"
+      },
+      {
+        "text": "Births, death, marriages and care",
+        "href": "/browse/births-deaths-marriages"
+      },
+      {
+        "text": "Business and self-employed",
+        "href": "/browse/business"
+      },
+      {
+        "text": "Childcare and parenting",
+        "href": "/browse/childcare-parenting"
+      },
+      {
+        "text": "Citizenship and living in the UK",
+        "href": "/browse/citizenship"
+      },
+      {
+        "text": "Crime, justice and the law",
+        "href": "/browse/justice"
+      },
+      {
+        "text": "Disabled people",
+        "href": "/browse/disabilities"
+      },
+      {
+        "text": "Driving and transport",
+        "href": "/browse/driving"
+      },
+      {
+        "text": "Education and learning",
+        "href": "/browse/education"
+      },
+      {
+        "text": "Employing people",
+        "href": "/browse/employing-people"
+      },
+      {
+        "text": "Environment and countryside",
+        "href": "/browse/environment-countryside"
+      },
+      {
+        "text": "Housing and local services",
+        "href": "/browse/housing-local-services"
+      },
+      {
+        "text": "Money and tax",
+        "href": "/browse/tax"
+      },
+      {
+        "text": "Passports, travel and living abroad",
+        "href": "/browse/abroad"
+      },
+      {
+        "text": "Visas and immigration",
+        "href": "/browse/visas-immigration"
+      },
+      {
+        "text": "Working, jobs and pensions",
+        "href": "/browse/working"
+      },
+      {
+        "text": "Departments",
+        "href": "/government/organisations"
+      },
+      {
+        "text": "News",
+        "href": "/search/news-and-communications"
+      },
+      {
+        "text": "Guidance and regulation",
+        "href": "/search/guidance-and-regulation"
+      },
+      {
+        "text": "Research and statistics",
+        "href": "/search/research-and-statistics"
+      },
+      {
+        "text": "Policy papers and consultations",
+        "href": "/search/policy-papers-and-consultations"
+      },
+      {
+        "text": "Transparency",
+        "href": "/search/transparency-and-freedom-of-information-releases"
+      },
+      {
+        "text": "How government works",
+        "href": "/government/how-government-works"
+      },
+      {
+        "text": "Get involved",
+        "href": "/government/get-involved"
+      },
+      {
+        "text": "Help",
+        "href": "/help"
+      },
+      {
+        "text": "Privacy",
+        "href": "/help/privacy-notice"
+      },
+      {
+        "text": "Cookies",
+        "href": "/help/cookies"
+      },
+      {
+        "text": "Accessibility statement",
+        "href": "/help/accessibility-statement"
+      },
+      {
+        "text": "Contact",
+        "href": "/contact"
+      },
+      {
+        "text": "Terms and conditions",
+        "href": "/help/terms-conditions"
+      },
+      {
+        "text": "Rhestr o Wasanaethau Cymraeg",
+        "href": "/cymraeg"
+      },
+      {
+        "text": "Government Digital Service",
+        "href": "/government/organisations/government-digital-service"
+      },
+      {
+        "text": "Open Government Licence v3.0",
+        "href": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+      },
+      {
+        "text": "© Crown copyright",
+        "href": "https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+      }
+    ],
+    "images": [],
+    "timestamp": 1760607688982,
+    "url": "https://www.gov.uk/sign-in-universal-credit?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

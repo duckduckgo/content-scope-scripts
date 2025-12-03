@@ -1,0 +1,1317 @@
+{
+  "url": "https://www.theknot.com/registry/couplesearch",
+  "extractedAt": "2025-10-16T10:50:18.534Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://static.xoedge.com/patterns/images/favicon.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static.xoedge.com/patterns/images/favicon.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/favicon.ico",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/favicon.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/coast-icon-228x228.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/homescreen-196x196.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/apple-touch-icon-152x152-precomposed.png",
+        "rel": "apple-touch-icon-precomposed"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/apple-touch-icon-120x120-precomposed.svg",
+        "rel": "apple-touch-icon-precomposed"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/apple-touch-icon-76x76-precomposed.svg",
+        "rel": "apple-touch-icon-precomposed"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/apple-touch-icon-60x60-precomposed.svg",
+        "rel": "apple-touch-icon-precomposed"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/apple-touch-icon-144x144.svg",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/apple-touch-icon-114x114.svg",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/apple-touch-icon-72x72.svg",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://union.theknot.com/dist/v2/brands/latest/apple-touch-icon.svg",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "Wedding Registry Search and Website Finder",
+    "metaDescription": "Use The Knot’s bridal registry and wedding website finder to search for a couple.",
+    "content": "# Find a couple's wedding registry and website\nGoing to a wedding? Search for either member of the lucky couple.First nameLast nameMonthYearSearch  Top 10 Registry Items (According to The Knot)Finding the perfect wedding present has never been easier! When it comes to wedding gift ideas, there are so many options that it can feel overwhelming. While many couples have created a registry, we know that guests sometimes need to look elsewhere for wedding gift ideas. When you're in a pinch, you can rely on this list of the best wedding gifts.0 seconds of 1 minute, 23 secondsVolume 0%  Featured Video From The Knot",
+    "truncated": false,
+    "fullContentLength": 615,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Find a couple's wedding registry and website"
+      },
+      {
+        "level": 2,
+        "text": "Do Not Sell My Personal Information"
+      },
+      {
+        "level": 3,
+        "text": "Manage Consent Preferences"
+      },
+      {
+        "level": 4,
+        "text": "Strictly Necessary Cookies"
+      },
+      {
+        "level": 4,
+        "text": "Share or Sale of Personal Data"
+      },
+      {
+        "level": 3,
+        "text": "Cookie List"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to Main Content",
+        "href": "#union-layout-main"
+      },
+      {
+        "text": "The Knot Rewards",
+        "href": "https://www.theknot.com/dashboard?rewards=true"
+      },
+      {
+        "text": "Find a couple",
+        "href": "https://www.theknot.com/registry/couplesearch"
+      },
+      {
+        "text": "Customer service",
+        "href": "https://helpcenter.theknot.com"
+      },
+      {
+        "text": "Planning tools",
+        "href": "https://www.theknot.com/"
+      },
+      {
+        "text": "Checklist",
+        "href": "https://www.theknot.com/wedding-checklist"
+      },
+      {
+        "text": "Budget Advisor",
+        "href": "https://www.theknot.com/wedding-budget"
+      },
+      {
+        "text": "Style quiz",
+        "href": "https://www.theknot.com/wedding-vision"
+      },
+      {
+        "text": "Get The Knot app",
+        "href": "https://www.theknot.com/wedding-planning-app"
+      },
+      {
+        "text": "The Engagement Era Collection",
+        "href": "https://www.theknot.com/engagement-era"
+      },
+      {
+        "text": "Take the style quiz",
+        "href": "https://www.theknot.com/wedding-vision"
+      },
+      {
+        "text": "Get The Knot app",
+        "href": "https://www.theknot.com/wedding-planning-app"
+      },
+      {
+        "text": "Explore Budget Advisor",
+        "href": "https://www.theknot.com/wedding-budget"
+      },
+      {
+        "text": "The Engagement Era Collection",
+        "href": "https://www.theknot.com/engagement-era"
+      },
+      {
+        "text": "Vendors",
+        "href": "https://www.theknot.com/marketplace"
+      },
+      {
+        "text": "Reception venues",
+        "href": "https://www.theknot.com/marketplace/wedding-reception-venues"
+      },
+      {
+        "text": "Wedding photographers",
+        "href": "https://www.theknot.com/marketplace/wedding-photographers"
+      },
+      {
+        "text": "Catering",
+        "href": "https://www.theknot.com/marketplace/catering"
+      },
+      {
+        "text": "Bridal salons",
+        "href": "https://www.theknot.com/marketplace/bridal-salons"
+      },
+      {
+        "text": "Wedding planners",
+        "href": "https://www.theknot.com/marketplace/wedding-planners"
+      },
+      {
+        "text": "Wedding cakes",
+        "href": "https://www.theknot.com/marketplace/wedding-cake-bakeries"
+      },
+      {
+        "text": "Rehearsal dinners, bridal showers & parties",
+        "href": "https://www.theknot.com/marketplace/rehearsal-dinners-bridal-showers/"
+      },
+      {
+        "text": "DJs",
+        "href": "https://www.theknot.com/marketplace/wedding-djs"
+      },
+      {
+        "text": "Videographers",
+        "href": "https://www.theknot.com/marketplace/wedding-videographers"
+      },
+      {
+        "text": "Wedding rentals",
+        "href": "https://www.theknot.com/marketplace/wedding-rentals"
+      },
+      {
+        "text": "Beauty services",
+        "href": "https://www.theknot.com/marketplace/beauty-services"
+      },
+      {
+        "text": "Florists",
+        "href": "https://www.theknot.com/marketplace/florists"
+      },
+      {
+        "text": "Wedding bands",
+        "href": "https://www.theknot.com/marketplace/live-wedding-bands"
+      },
+      {
+        "text": "Officiants & pre-marital counseling",
+        "href": "https://www.theknot.com/marketplace/wedding-officiants"
+      },
+      {
+        "text": "Photo booths",
+        "href": "https://www.theknot.com/marketplace/wedding-photo-booth-rentals"
+      },
+      {
+        "text": "Bar services",
+        "href": "https://www.theknot.com/marketplace/bar-services"
+      },
+      {
+        "text": "Transportation",
+        "href": "https://www.theknot.com/marketplace/transportation-services"
+      },
+      {
+        "text": "Jewelers",
+        "href": "https://www.theknot.com/marketplace/jewelers"
+      },
+      {
+        "text": "Soloists & ensembles",
+        "href": "https://www.theknot.com/marketplace/wedding-soloists-ensembles"
+      },
+      {
+        "text": "Dance lessons",
+        "href": "https://www.theknot.com/marketplace/wedding-dance-lessons"
+      },
+      {
+        "text": "Décor",
+        "href": "https://www.theknot.com/marketplace/wedding-decor-shops"
+      },
+      {
+        "text": "Invitations",
+        "href": "https://www.theknot.com/marketplace/invitations"
+      },
+      {
+        "text": "Favors & gifts",
+        "href": "https://www.theknot.com/marketplace/favors"
+      },
+      {
+        "text": "Travel specialists",
+        "href": "https://www.theknot.com/marketplace/wedding-travel-agents"
+      },
+      {
+        "text": "Hotel room blocks",
+        "href": "https://theknot.partners.engine.com/new-trip?utm_source=the-knot&utm_medium=channel&utm_campaign=the-knot-channel-groups-a018X00000bV3kuQAC&utm_term=tktopnavigation&referral=MKT%20-%20Partner&rel=sponsored"
+      },
+      {
+        "text": "See all categories",
+        "href": "https://www.theknot.com/marketplace"
+      },
+      {
+        "text": "Are you a vendor? Start here",
+        "href": "https://vendors.theknot.com/vendors-advertising-dr?itm_source=theknot.com&itm_medium=referral&itm_campaign=header-nav"
+      },
+      {
+        "text": "Find one-of-a-kind wedding locations",
+        "href": "https://www.theknot.com/unforgettable-venues?itm_source=meganav&itm_medium=banner&itm_campaign=Unforgettable-Venues_2024Q3&itm_content=consumer-mkt_na_banner_creative-1_na_meganav"
+      },
+      {
+        "text": "Wedding photographers",
+        "href": "https://www.theknot.com/marketplace/wedding-photographers"
+      },
+      {
+        "text": "Write a review",
+        "href": "https://www.theknot.com/review-wedding-vendors"
+      },
+      {
+        "text": "Wedding planners",
+        "href": "https://www.theknot.com/marketplace/wedding-planners"
+      },
+      {
+        "text": "Wedding website",
+        "href": "https://www.theknot.com/gs/wedding-websites"
+      },
+      {
+        "text": "Explore wedding websites",
+        "href": "https://www.theknot.com/gs/wedding-websites"
+      },
+      {
+        "text": "Start a website",
+        "href": "https://www.theknot.com/gs/wedding-websites/designs"
+      },
+      {
+        "text": "Browse website designs",
+        "href": "https://www.theknot.com/gs/wedding-websites/designs"
+      },
+      {
+        "text": "Find a couple's website",
+        "href": "https://www.theknot.com/registry/couplesearch"
+      },
+      {
+        "text": "Elegant Antique Toile Frame by Bridgerton",
+        "href": "https://www.theknot.com/gs/wedding-websites/designs/7476"
+      },
+      {
+        "text": "Beloved Floral - Red",
+        "href": "https://www.theknot.com/gs/wedding-websites/designs/536"
+      },
+      {
+        "text": "Romantic Calligraphy",
+        "href": "https://www.theknot.com/gs/wedding-websites/designs/547"
+      },
+      {
+        "text": "Elegant Glow - Blue",
+        "href": "https://www.theknot.com/gs/wedding-websites/designs/542"
+      },
+      {
+        "text": "Guests & RSVPs",
+        "href": "https://www.theknot.com/gs/guest-list"
+      },
+      {
+        "text": "Guest list",
+        "href": "https://www.theknot.com/gs/guest-list"
+      },
+      {
+        "text": "RSVPs",
+        "href": "https://www.theknot.com/gs/guest-list"
+      },
+      {
+        "text": "Message guests",
+        "href": "https://www.theknot.com/gs/guest-list"
+      },
+      {
+        "text": "Book hotel room blocks",
+        "href": "https://theknot.partners.engine.com/new-trip?utm_source=the-knot&utm_medium=channel&utm_campaign=2025-the-knot-channel-groups-a018X00000bV3kuQAC&utm_term=tkguesttopnav&referral=MKT%20-%20Partner&rel=sponsored"
+      },
+      {
+        "text": "Collect addresses",
+        "href": "https://www.theknot.com/gs/guest-list"
+      },
+      {
+        "text": "Get The Knot app",
+        "href": "https://www.theknot.com/wedding-planning-app"
+      },
+      {
+        "text": "Invitations & paper",
+        "href": "https://www.theknot.com/paper"
+      },
+      {
+        "text": "Your invitations & paper",
+        "href": "https://www.theknot.com/paper"
+      },
+      {
+        "text": "Your cart",
+        "href": "https://www.theknot.com/paper/cart"
+      },
+      {
+        "text": "Invitations",
+        "href": "https://www.theknot.com/paper/invitations"
+      },
+      {
+        "text": "All invitations",
+        "href": "https://www.theknot.com/paper/invitations"
+      },
+      {
+        "text": "Wedding invitations",
+        "href": "https://www.theknot.com/paper/invitations/wedding"
+      },
+      {
+        "text": "New! RSVP cards",
+        "href": "https://www.theknot.com/paper/rsvp-cards"
+      },
+      {
+        "text": "Enclosure cards",
+        "href": "https://www.theknot.com/paper/enclosure-cards"
+      },
+      {
+        "text": "Envelope liners",
+        "href": "https://www.theknot.com/paper/envelope-liners"
+      },
+      {
+        "text": "Bridal shower invitations",
+        "href": "https://www.theknot.com/paper/invitations/bridal-shower"
+      },
+      {
+        "text": "Rehearsal dinner invitations",
+        "href": "https://www.theknot.com/paper/invitations/rehearsal-dinner"
+      },
+      {
+        "text": "Save the dates",
+        "href": "https://www.theknot.com/paper/save-the-dates"
+      },
+      {
+        "text": "Save the dates",
+        "href": "https://www.theknot.com/paper/save-the-dates"
+      },
+      {
+        "text": "Standard save the dates",
+        "href": "https://www.theknot.com/paper/save-the-dates?format=standard"
+      },
+      {
+        "text": "Postcard save the dates",
+        "href": "https://www.theknot.com/paper/save-the-dates?format=postcard"
+      },
+      {
+        "text": "Petite save the dates",
+        "href": "https://www.theknot.com/paper/save-the-dates?format=petite"
+      },
+      {
+        "text": "Magnet save the dates",
+        "href": "https://www.theknot.com/paper/save-the-dates?format=magnet"
+      },
+      {
+        "text": "Digital save the dates",
+        "href": "https://www.theknot.com/paper/save-the-dates/digital-save-the-date-cards"
+      },
+      {
+        "text": "New! Holiday cards",
+        "href": "https://www.theknot.com/paper/holiday-cards"
+      },
+      {
+        "text": "Ceremony & reception",
+        "href": "https://www.theknot.com/paper/ceremony-reception"
+      },
+      {
+        "text": "All ceremony & reception",
+        "href": "https://www.theknot.com/paper/ceremony-reception"
+      },
+      {
+        "text": "Place cards",
+        "href": "https://www.theknot.com/paper/ceremony-reception/place-cards"
+      },
+      {
+        "text": "Programs",
+        "href": "https://www.theknot.com/paper/ceremony-reception/programs"
+      },
+      {
+        "text": "Menus",
+        "href": "https://www.theknot.com/paper/ceremony-reception/menus"
+      },
+      {
+        "text": "Guest books",
+        "href": "https://www.theknot.com/paper/ceremony-reception/guest-books"
+      },
+      {
+        "text": "Stickers",
+        "href": "https://www.theknot.com/paper/ceremony-reception/stickers"
+      },
+      {
+        "text": "Table numbers",
+        "href": "https://www.theknot.com/paper/ceremony-reception/table-numbers"
+      },
+      {
+        "text": "Signs",
+        "href": "https://www.theknot.com/paper/ceremony-reception/signs"
+      },
+      {
+        "text": "Napkins",
+        "href": "https://www.theknot.com/paper/ceremony-reception/napkins"
+      },
+      {
+        "text": "Coasters",
+        "href": "https://www.theknot.com/paper/ceremony-reception/coasters"
+      },
+      {
+        "text": "Favor bags",
+        "href": "https://www.theknot.com/paper/ceremony-reception/favor-bags"
+      },
+      {
+        "text": "Gift tags",
+        "href": "https://www.theknot.com/paper/ceremony-reception/gift-tags"
+      },
+      {
+        "text": "Thank yous",
+        "href": "https://www.theknot.com/paper/thank-yous"
+      },
+      {
+        "text": "Shop by style",
+        "href": "https://www.theknot.com/paper/invitations/wedding"
+      },
+      {
+        "text": "All styles",
+        "href": "https://www.theknot.com/paper/invitations/wedding"
+      },
+      {
+        "text": "Floral",
+        "href": "https://www.theknot.com/paper/invitations/wedding?styles=Floral"
+      },
+      {
+        "text": "Classic",
+        "href": "https://www.theknot.com/paper/invitations/wedding?styles=Classic"
+      },
+      {
+        "text": "Rustic",
+        "href": "https://www.theknot.com/paper/invitations/wedding?styles=Rustic"
+      },
+      {
+        "text": "Destination",
+        "href": "https://www.theknot.com/paper/invitations/wedding?styles=Destination"
+      },
+      {
+        "text": "Simple",
+        "href": "https://www.theknot.com/paper/invitations/wedding?styles=Simple"
+      },
+      {
+        "text": "Modern",
+        "href": "https://www.theknot.com/paper/invitations/wedding?styles=Modern"
+      },
+      {
+        "text": "Vintage",
+        "href": "https://www.theknot.com/paper/invitations/wedding?styles=Vintage"
+      },
+      {
+        "text": "Bohemian",
+        "href": "https://www.theknot.com/paper/invitations/wedding?styles=Bohemian"
+      },
+      {
+        "text": "Beach",
+        "href": "https://www.theknot.com/paper/invitations/wedding?styles=Beach"
+      },
+      {
+        "text": "New day-of essentials",
+        "href": "https://www.theknot.com/paper/ceremony-reception"
+      },
+      {
+        "text": "Holiday Cards",
+        "href": "https://www.theknot.com/paper/holiday-cards"
+      },
+      {
+        "text": "Personalized free samples",
+        "href": "https://www.theknot.com/paper/free-samples"
+      },
+      {
+        "text": "Photo save the dates",
+        "href": "https://www.theknot.com/paper/save-the-dates?photoNumber=1%2C2%2C3%2C4"
+      },
+      {
+        "text": "Registry",
+        "href": "https://www.theknot.com/registry"
+      },
+      {
+        "text": "Start a registry",
+        "href": "https://www.theknot.com/registry?signup=true"
+      },
+      {
+        "text": "Add store registries",
+        "href": "https://www.theknot.com/registry#add-store-registries"
+      },
+      {
+        "text": "Cash funds",
+        "href": "https://www.theknot.com/registry/newlywed-fund-cash-wedding-registry"
+      },
+      {
+        "text": "Find a couple's registry",
+        "href": "https://www.theknot.com/registry/couplesearch"
+      },
+      {
+        "text": "Collections",
+        "href": "https://www.theknot.com/registry/store/collections"
+      },
+      {
+        "text": "Brands",
+        "href": "https://www.theknot.com/registry/store/brands"
+      },
+      {
+        "text": "Kitchen",
+        "href": "https://www.theknot.com/registry/store/categories/kitchen"
+      },
+      {
+        "text": "All kitchen",
+        "href": "https://www.theknot.com/registry/store/categories/kitchen"
+      },
+      {
+        "text": "Appliances",
+        "href": "https://www.theknot.com/registry/store/categories/kitchen/appliances"
+      },
+      {
+        "text": "Cookware",
+        "href": "https://www.theknot.com/registry/store/categories/kitchen/cookware"
+      },
+      {
+        "text": "Bakeware",
+        "href": "https://www.theknot.com/registry/store/categories/kitchen/bakeware"
+      },
+      {
+        "text": "Knives & boards",
+        "href": "https://www.theknot.com/registry/store/categories/kitchen/knives-boards"
+      },
+      {
+        "text": "Utensils & gadgets",
+        "href": "https://www.theknot.com/registry/store/categories/kitchen/tools-gadgets"
+      },
+      {
+        "text": "Cleaning & storage",
+        "href": "https://www.theknot.com/registry/store/categories/kitchen/storage-organization"
+      },
+      {
+        "text": "Coffee & tea",
+        "href": "https://www.theknot.com/registry/store/categories/kitchen/coffee-tea"
+      },
+      {
+        "text": "Kitchen linens",
+        "href": "https://www.theknot.com/registry/store/categories/kitchen/kitchen-linens"
+      },
+      {
+        "text": "Tabletop",
+        "href": "https://www.theknot.com/registry/store/categories/tabletop"
+      },
+      {
+        "text": "All tabletop",
+        "href": "https://www.theknot.com/registry/store/categories/tabletop"
+      },
+      {
+        "text": "Dinnerware",
+        "href": "https://www.theknot.com/registry/store/categories/tabletop/dinnerware"
+      },
+      {
+        "text": "Flatware",
+        "href": "https://www.theknot.com/registry/store/categories/tabletop/flatware"
+      },
+      {
+        "text": "Serveware & entertaining",
+        "href": "https://www.theknot.com/registry/store/categories/tabletop/serveware"
+      },
+      {
+        "text": "Drinkware & bar",
+        "href": "https://www.theknot.com/registry/store/categories/tabletop/drinkware-bar"
+      },
+      {
+        "text": "Table linens",
+        "href": "https://www.theknot.com/registry/store/categories/tabletop/table-linens"
+      },
+      {
+        "text": "Home",
+        "href": "https://www.theknot.com/registry/store/categories/home"
+      },
+      {
+        "text": "All home",
+        "href": "https://www.theknot.com/registry/store/categories/home"
+      },
+      {
+        "text": "Household appliances",
+        "href": "https://www.theknot.com/registry/store/categories/home/household-appliances"
+      },
+      {
+        "text": "Storage & organization",
+        "href": "https://www.theknot.com/registry/store/categories/home/storage-organization"
+      },
+      {
+        "text": "Outdoor",
+        "href": "https://www.theknot.com/registry/store/categories/home/outdoor-travel"
+      },
+      {
+        "text": "Décor",
+        "href": "https://www.theknot.com/registry/store/categories/home/decor"
+      },
+      {
+        "text": "Smart home",
+        "href": "https://www.theknot.com/registry/store/categories/home/smart-home"
+      },
+      {
+        "text": "Furniture",
+        "href": "https://www.theknot.com/registry/store/categories/home/furniture"
+      },
+      {
+        "text": "Rugs & mats",
+        "href": "https://www.theknot.com/registry/store/categories/home/rugs-mats"
+      },
+      {
+        "text": "Bed & bath",
+        "href": "https://www.theknot.com/registry/store/categories/bed-bath"
+      },
+      {
+        "text": "All bed & bath",
+        "href": "https://www.theknot.com/registry/store/categories/bed-bath"
+      },
+      {
+        "text": "Bedding",
+        "href": "https://www.theknot.com/registry/store/categories/bed-bath/bed"
+      },
+      {
+        "text": "Bedding essentials",
+        "href": "https://www.theknot.com/registry/store/categories/bed-bath/bedding-essentials"
+      },
+      {
+        "text": "Bath",
+        "href": "https://www.theknot.com/registry/store/categories/bed-bath/bath"
+      },
+      {
+        "text": "Self-care essentials",
+        "href": "https://www.theknot.com/registry/store/categories/bed-bath/self-care-essentials"
+      },
+      {
+        "text": "Lifestyle",
+        "href": "https://www.theknot.com/registry/store/categories/lifestyle"
+      },
+      {
+        "text": "All lifestyle",
+        "href": "https://www.theknot.com/registry/store/categories/lifestyle"
+      },
+      {
+        "text": "Luggage & travel",
+        "href": "https://www.theknot.com/registry/store/categories/lifestyle/luggage"
+      },
+      {
+        "text": "Camping",
+        "href": "https://www.theknot.com/registry/store/categories/lifestyle/camping"
+      },
+      {
+        "text": "Electronics & gadgets",
+        "href": "https://www.theknot.com/registry/store/categories/lifestyle/electronics-gadgets"
+      },
+      {
+        "text": "Pets",
+        "href": "https://www.theknot.com/registry/store/categories/lifestyle/pets"
+      },
+      {
+        "text": "Sports & fitness",
+        "href": "https://www.theknot.com/registry/store/categories/lifestyle/fitness"
+      },
+      {
+        "text": "Tools & crafts",
+        "href": "https://www.theknot.com/registry/store/categories/lifestyle/home-improvement"
+      },
+      {
+        "text": "Clothing & accessories",
+        "href": "https://www.theknot.com/registry/store/categories/lifestyle/clothing-accessories"
+      },
+      {
+        "text": "Gift cards & experiences",
+        "href": "https://www.theknot.com/registry/store/categories/gift-cards-and-experiences"
+      },
+      {
+        "text": "All gift cards & experiences",
+        "href": "https://www.theknot.com/registry/store/categories/gift-cards-and-experiences"
+      },
+      {
+        "text": "Gift cards",
+        "href": "https://www.theknot.com/registry/store/categories/gift-cards-and-experiences/gift-cards"
+      },
+      {
+        "text": "Destinations",
+        "href": "https://www.theknot.com/registry/store/categories/gift-cards-and-experiences/international-experiences"
+      },
+      {
+        "text": "Experiences",
+        "href": "https://www.theknot.com/registry/store/categories/gift-cards-and-experiences/experiences"
+      },
+      {
+        "text": "Trending honeymoon destinations",
+        "href": "https://www.theknot.com/registry/store/categories/gift-cards-and-experiences/trending-destinations"
+      },
+      {
+        "text": "Meet our registry awards winners",
+        "href": "https://www.theknot.com/registry/store/collections/registry-awards "
+      },
+      {
+        "text": "Wedding registry essentials",
+        "href": "https://www.theknot.com/registry/store/collections/wedding-registry-essentials"
+      },
+      {
+        "text": "Most wanted gifts",
+        "href": "https://www.theknot.com/registry/store/collections/most-wanted-gifts"
+      },
+      {
+        "text": "Attire & Rings",
+        "href": "https://www.theknot.com/fashion/wedding-dresses"
+      },
+      {
+        "text": "Wedding dresses",
+        "href": "https://www.theknot.com/fashion/wedding-dresses"
+      },
+      {
+        "text": "All wedding dresses",
+        "href": "https://www.theknot.com/fashion/wedding-dresses"
+      },
+      {
+        "text": "A-line dresses",
+        "href": "https://www.theknot.com/fashion/a-line-wedding-dresses"
+      },
+      {
+        "text": "Ball gown dresses",
+        "href": "https://www.theknot.com/fashion/ball-gown-wedding-dresses"
+      },
+      {
+        "text": "Mermaid dresses",
+        "href": "https://www.theknot.com/fashion/mermaid-wedding-dresses"
+      },
+      {
+        "text": "Sheath dresses",
+        "href": "https://www.theknot.com/fashion/sheath-wedding-dresses"
+      },
+      {
+        "text": "Short dresses",
+        "href": "https://www.theknot.com/fashion/short-wedding-dresses"
+      },
+      {
+        "text": "Suits & tuxedos",
+        "href": "https://www.theknot.com/fashion/tuxedos"
+      },
+      {
+        "text": "Bridesmaid dresses",
+        "href": "https://www.theknot.com/fashion/bridesmaid-dresses"
+      },
+      {
+        "text": "Mother of the bride dresses",
+        "href": "https://www.theknot.com/fashion/mother-of-the-bride-dresses"
+      },
+      {
+        "text": "Flower girl dresses and ring bearer outfits",
+        "href": "https://www.theknot.com/fashion/flower-girl-dresses"
+      },
+      {
+        "text": "Engagement rings",
+        "href": "https://www.theknot.com/fashion/engagement-rings"
+      },
+      {
+        "text": "All engagement rings",
+        "href": "https://www.theknot.com/fashion/engagement-rings"
+      },
+      {
+        "text": "Princess cut",
+        "href": "https://www.theknot.com/fashion/princess-cut-engagement-rings"
+      },
+      {
+        "text": "Asscher cut",
+        "href": "https://www.theknot.com/fashion/asscher-cut-engagement-rings"
+      },
+      {
+        "text": "Cushion cut",
+        "href": "https://www.theknot.com/fashion/cushion-cut-engagement-rings"
+      },
+      {
+        "text": "Emerald cut",
+        "href": "https://www.theknot.com/fashion/emerald-cut-engagement-rings"
+      },
+      {
+        "text": "Pear cut",
+        "href": "https://www.theknot.com/fashion/pear-shaped-engagement-rings"
+      },
+      {
+        "text": "Radiant cut",
+        "href": "https://www.theknot.com/fashion/radiant-cut-engagement-rings"
+      },
+      {
+        "text": "Round cut",
+        "href": "https://www.theknot.com/fashion/round-engagement-rings"
+      },
+      {
+        "text": "Oval cut",
+        "href": "https://www.theknot.com/fashion/oval-engagement-rings"
+      },
+      {
+        "text": "Wedding rings",
+        "href": "https://www.theknot.com/fashion/wedding-rings"
+      },
+      {
+        "text": "Wedding jewelry",
+        "href": "https://www.theknot.com/fashion/wedding-jewelry"
+      },
+      {
+        "text": "Wedding accessories",
+        "href": "https://www.theknot.com/fashion/wedding-accessories"
+      },
+      {
+        "text": "Wedding dresses",
+        "href": "https://www.theknot.com/fashion/wedding-dresses"
+      },
+      {
+        "text": "Engagement rings",
+        "href": "https://www.theknot.com/fashion/engagement-rings"
+      },
+      {
+        "text": "Suits & tuxedos",
+        "href": "https://www.theknot.com/fashion/tuxedos"
+      },
+      {
+        "text": "Bridesmaid dresses",
+        "href": "https://www.theknot.com/fashion/bridesmaid-dresses"
+      },
+      {
+        "text": "Ideas & advice",
+        "href": "https://www.theknot.com/content"
+      },
+      {
+        "text": "Engagement",
+        "href": "https://www.theknot.com/content/getting-engaged-advice"
+      },
+      {
+        "text": "All engagement",
+        "href": "https://www.theknot.com/content/getting-engaged-advice"
+      },
+      {
+        "text": "Engagement rings",
+        "href": "https://www.theknot.com/content/engagement-ring-advice"
+      },
+      {
+        "text": "Wedding proposals",
+        "href": "https://www.theknot.com/content/proposal-advice"
+      },
+      {
+        "text": "Ceremony & reception",
+        "href": "https://www.theknot.com/content/wedding-advice"
+      },
+      {
+        "text": "All ceremony & reception",
+        "href": "https://www.theknot.com/content/wedding-advice"
+      },
+      {
+        "text": "Real wedding photos",
+        "href": "https://www.theknot.com/real-weddings/photos"
+      },
+      {
+        "text": "Budget advice",
+        "href": "https://www.theknot.com/content/wedding-budgeting-advice"
+      },
+      {
+        "text": "Invitations & paper",
+        "href": "https://www.theknot.com/content/wedding-stationery-advice"
+      },
+      {
+        "text": "Themes & decor",
+        "href": "https://www.theknot.com/content/wedding-style-theme-advice"
+      },
+      {
+        "text": "Wedding traditions",
+        "href": "https://www.theknot.com/content/wedding-tradition-advice"
+      },
+      {
+        "text": "Music & songs",
+        "href": "https://www.theknot.com/content/wedding-music-advice"
+      },
+      {
+        "text": "Parties & events",
+        "href": "https://www.theknot.com/content/wedding-rehearsal-party-advice"
+      },
+      {
+        "text": "All parties & events",
+        "href": "https://www.theknot.com/content/wedding-rehearsal-party-advice"
+      },
+      {
+        "text": "Engagement party",
+        "href": "https://www.theknot.com/content/engagement-party-advice"
+      },
+      {
+        "text": "Bach parties",
+        "href": "https://www.theknot.com/content/bachelorette-party-advice"
+      },
+      {
+        "text": "Wedding shower",
+        "href": "https://www.theknot.com/content/bridal-shower-advice"
+      },
+      {
+        "text": "Rehearsal dinner",
+        "href": "https://www.theknot.com/content/rehearsal-dinner-advice"
+      },
+      {
+        "text": "Travel",
+        "href": "https://www.theknot.com/content/travel-guide-advice"
+      },
+      {
+        "text": "All travel",
+        "href": "https://www.theknot.com/content/travel-guide-advice"
+      },
+      {
+        "text": "Destination weddings",
+        "href": "https://www.theknot.com/content/destination-wedding-planning-advice"
+      },
+      {
+        "text": "Honeymoons",
+        "href": "https://www.theknot.com/content/honeymoon-advice"
+      },
+      {
+        "text": "Fashion",
+        "href": "https://www.theknot.com/content/wedding-fashion-advice"
+      },
+      {
+        "text": "All fashion",
+        "href": "https://www.theknot.com/content/wedding-fashion-advice"
+      },
+      {
+        "text": "Couples attire",
+        "href": "https://www.theknot.com/content/wedding-dress-advice"
+      },
+      {
+        "text": "Rings & accessories",
+        "href": "https://www.theknot.com/content/wedding-band-advice"
+      },
+      {
+        "text": "Wedding party attire",
+        "href": "https://www.theknot.com/content/bridesmaid-dress-advice"
+      },
+      {
+        "text": "Guest attire",
+        "href": "https://www.theknot.com/content/dress-advice"
+      },
+      {
+        "text": "Beauty & wellness",
+        "href": "https://www.theknot.com/content/wedding-beauty-advice"
+      },
+      {
+        "text": "All beauty & wellness",
+        "href": "https://www.theknot.com/content/wedding-beauty-advice"
+      },
+      {
+        "text": "Hair",
+        "href": "https://www.theknot.com/content/wedding-hairstyle-advice"
+      },
+      {
+        "text": "Makeup & grooming",
+        "href": "https://www.theknot.com/content/wedding-makeup-advice"
+      },
+      {
+        "text": "Health & wellness",
+        "href": "https://www.theknot.com/content/wedding-health-wellness-advice"
+      },
+      {
+        "text": "Gifts",
+        "href": "https://www.theknot.com/content/wedding-gift-favor-advice"
+      },
+      {
+        "text": "All gifts",
+        "href": "https://www.theknot.com/content/wedding-gift-favor-advice"
+      },
+      {
+        "text": "Registry advice",
+        "href": "https://www.theknot.com/content/registry-advice"
+      },
+      {
+        "text": "Gifts for couples",
+        "href": "https://www.theknot.com/content/guest-gift-advice"
+      },
+      {
+        "text": "Favors & gifts",
+        "href": "https://www.theknot.com/content/favor-advice"
+      },
+      {
+        "text": "Anniversary gifts",
+        "href": "https://www.theknot.com/content/anniversary-gifts-advice"
+      },
+      {
+        "text": "Gift ideas",
+        "href": "https://www.theknot.com/gift-guides"
+      },
+      {
+        "text": "The Knot Magazine",
+        "href": "https://www.theknot.com/m/magazine"
+      },
+      {
+        "text": "Wedding websites",
+        "href": "/gs/wedding-websites"
+      },
+      {
+        "text": "Registry",
+        "href": "/registry"
+      },
+      {
+        "text": "Marketplace",
+        "href": "/marketplace"
+      },
+      {
+        "text": "Wedding invitations",
+        "href": "/paper/invitations/wedding"
+      },
+      {
+        "text": "Get The Knot app",
+        "href": "/wedding-planning-app"
+      },
+      {
+        "text": "Wedding budget",
+        "href": "/wedding-budget"
+      },
+      {
+        "text": "Wedding checklist",
+        "href": "/wedding-checklist"
+      },
+      {
+        "text": "Wedding guest list",
+        "href": "/gs/guest-list"
+      },
+      {
+        "text": "Wedding ideas & etiquette",
+        "href": "/content"
+      },
+      {
+        "text": "Engagement",
+        "href": "/content/getting-engaged-advice"
+      },
+      {
+        "text": "Parties & events",
+        "href": "/content/wedding-rehearsal-party-advice"
+      },
+      {
+        "text": "Wedding dresses",
+        "href": "/fashion/wedding-dresses"
+      },
+      {
+        "text": "Gifts",
+        "href": "/content/wedding-gift-favor-advice"
+      },
+      {
+        "text": "Hotel Room Blocks",
+        "href": "https://theknot.partners.engine.com/p/create-a-trip?utm_source=the-knot&utm_medium=channel&utm_campaign=2025-the-knot-channel-groups-a018X00000bV3kuQAC&utm_term=tkfooter&referral=MKT%20-%20Partner&rel=sponsored"
+      },
+      {
+        "text": "Real Wedding photos",
+        "href": "/real-weddings/photos"
+      },
+      {
+        "text": "Community",
+        "href": "https://forums.theknot.com/community"
+      },
+      {
+        "text": "The Knot Worldwide",
+        "href": "https://www.theknotww.com/"
+      },
+      {
+        "text": "About us",
+        "href": "https://www.theknotww.com/about-us/"
+      },
+      {
+        "text": "The Knot Editorial",
+        "href": "/about-editorial"
+      },
+      {
+        "text": "Careers",
+        "href": "https://www.theknotww.com/careers/"
+      },
+      {
+        "text": "International",
+        "href": "https://www.theknotww.com/international/"
+      },
+      {
+        "text": "Press",
+        "href": "https://www.theknotww.com/press-room/"
+      },
+      {
+        "text": "National advertising",
+        "href": "https://www.theknotww.com/advertising/national/"
+      },
+      {
+        "text": "Our sponsors",
+        "href": "https://www.theknot.com/partners"
+      },
+      {
+        "text": "The Bump",
+        "href": "https://www.thebump.com"
+      },
+      {
+        "text": "The Bash",
+        "href": "https://www.thebash.com"
+      },
+      {
+        "text": "Simply Eloped",
+        "href": "https://simplyeloped.com"
+      },
+      {
+        "text": "Help Center",
+        "href": "https://helpcenter.theknot.com/hc/en-us"
+      },
+      {
+        "text": "Start here",
+        "href": "https://vendors.theknot.com/vendors-advertising-dr?itm_source=theknot.com&itm_medium=referral&itm_campaign=footer-nav"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "/privacy-policy"
+      },
+      {
+        "text": "Terms of use",
+        "href": "/terms-and-conditions"
+      },
+      {
+        "text": "AI",
+        "href": "/marketplace/AI-terms"
+      },
+      {
+        "text": "Accessibility",
+        "href": "https://www.theknotww.com/accessibility-statement"
+      },
+      {
+        "text": "Do not sell my info",
+        "href": "https://theknotww.zendesk.com/hc/en-us/requests/new?ticket_form_id=360000590371"
+      },
+      {
+        "text": "CA privacy",
+        "href": "https://www.theknotww.com/ca-collection-notice/"
+      },
+      {
+        "text": "The Knot Rewards",
+        "href": "https://images.theknot.com/rules/2024/The-Knot-Rewards-Program-Terms-and-Conditions.pdf"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://www.theknotww.com/privacy-policy/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Take the style quiz",
+        "src": "https://media-api.xogrp.com/images/4c134a1a-04c9-4d91-83d2-3d5f1f682f6c~rs_144.132"
+      },
+      {
+        "alt": "Get The Knot app",
+        "src": "https://media-api.xogrp.com/images/3ca80e02-7c18-4b82-9c0d-9459fb041978~rs_144.132"
+      },
+      {
+        "alt": "Explore Budget Advisor",
+        "src": "https://media-api.xogrp.com/images/0059d82d-bc53-4c27-8d3f-0391cfb9d21e~rs_144.132"
+      },
+      {
+        "alt": "The Engagement Era Collection",
+        "src": "https://media-api.xogrp.com/images/3380fc40-4bbd-4c81-9c87-5d7206b3c6ae~rs_144.132"
+      },
+      {
+        "alt": "Find one-of-a-kind wedding locations",
+        "src": "https://media-api.xogrp.com/images/8272aa51-159d-4ce4-b991-ac68246f9995~rs_144.132"
+      },
+      {
+        "alt": "Wedding photographers",
+        "src": "https://media-api.xogrp.com/images/c58ab24f-879b-4ff6-a8d7-0b7089276e8c~rs_144.132"
+      },
+      {
+        "alt": "Write a review",
+        "src": "https://media-api.xogrp.com/images/1164219d-2a39-4c62-ba18-1cf570ab8909~rs_144.132"
+      },
+      {
+        "alt": "Wedding planners",
+        "src": "https://media-api.xogrp.com/images/4d28f55a-3ede-4cf8-bde1-d1e769b68be9~rs_144.132"
+      },
+      {
+        "alt": "Elegant Antique Toile Frame by Bridgerton",
+        "src": "https://media-api.xogrp.com/images/8bd9f5bd-9559-41d2-a1a9-9d4426e24ec1~rs_144.132"
+      },
+      {
+        "alt": "Beloved Floral - Red",
+        "src": "https://media-api.xogrp.com/images/347f9b24-043a-4d1b-af8e-1ca2d26220ca~rs_144.132"
+      },
+      {
+        "alt": "Romantic Calligraphy",
+        "src": "https://media-api.xogrp.com/images/b1f93ccd-c2af-43f1-9a8a-c87922fed513~rs_144.132"
+      },
+      {
+        "alt": "Elegant Glow - Blue",
+        "src": "https://media-api.xogrp.com/images/50d5d40e-7343-4541-adb7-f69be0e380af~rs_144.132"
+      },
+      {
+        "alt": "Collect addresses",
+        "src": "https://media-api.xogrp.com/images/81613b4b-d860-414a-a91a-6a9e7aecac91~rs_144.132"
+      },
+      {
+        "alt": "Get The Knot app",
+        "src": "https://media-api.xogrp.com/images/3ca80e02-7c18-4b82-9c0d-9459fb041978~rs_144.132"
+      },
+      {
+        "alt": "New day-of essentials",
+        "src": "https://media-api.xogrp.com/images/0a8e1e78-737e-4a65-b62a-a2f1bf111a5b~rs_144.132"
+      },
+      {
+        "alt": "Holiday Cards",
+        "src": "https://media-api.xogrp.com/images/ccb86226-5f8a-4f74-8f0c-1e12671f5afe~rs_144.132"
+      },
+      {
+        "alt": "Personalized free samples",
+        "src": "https://media-api.xogrp.com/images/3a7d7fe8-1654-49ae-b29f-8ab821c51eff~rs_144.132"
+      },
+      {
+        "alt": "Photo save the dates",
+        "src": "https://media-api.xogrp.com/images/4e717ac5-0051-4eac-b943-8132db943fce~rs_144.132"
+      },
+      {
+        "alt": "Meet our registry awards winners",
+        "src": "https://media-api.xogrp.com/images/81cbe95b-d843-466d-8b83-1e6636005f97~rs_144.132"
+      },
+      {
+        "alt": "Wedding registry essentials",
+        "src": "https://media-api.xogrp.com/images/5332157a-2e11-4b56-8cae-ab01e0df5a8f~rs_144.132"
+      },
+      {
+        "alt": "Most wanted gifts",
+        "src": "https://media-api.xogrp.com/images/2ed713d8-4c28-4026-9a6a-7c85a80bace9~rs_144.132"
+      },
+      {
+        "alt": "Get 20% off after your wedding",
+        "src": "https://media-api.xogrp.com/images/cffaabe8-4b27-4dd1-b29c-1769da1f81d8~rs_144.132"
+      },
+      {
+        "alt": "Wedding dresses",
+        "src": "https://media-api.xogrp.com/images/b2a65f1a-e1d1-4df7-ab66-abfff88e0971~rs_144.132"
+      },
+      {
+        "alt": "Engagement rings",
+        "src": "https://media-api.xogrp.com/images/52c54e3c-0c82-4fc5-9c7b-1c384e980b86~rs_144.132"
+      },
+      {
+        "alt": "Suits & tuxedos",
+        "src": "https://media-api.xogrp.com/images/d3f29d7e-29d1-40d2-a094-18578e00c8b3~rs_144.132"
+      },
+      {
+        "alt": "Bridesmaid dresses",
+        "src": "https://media-api.xogrp.com/images/90fa3460-cacc-42b4-b1de-38effb7afc48~rs_144.132"
+      },
+      {
+        "alt": "Company Logo",
+        "src": "https://cdn.cookielaw.org/logos/4708a190-b1e8-4c46-8bde-12838e4eaa32/f2ffa6c6-dd61-4e7a-920e-2b30e13dbb31/c6f67a81-cc59-4c52-b78d-dbdf48d0d55b/logo_tkww.png"
+      },
+      {
+        "alt": "Powered by Onetrust",
+        "src": "https://cdn.cookielaw.org/logos/static/powered_by_logo.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://bat.bing.net/action/0?ti=5710636&Ver=2&mid=5d75be95-c8ae-4a15-88c3-d41a441e0c62&bo=2&pi=918639831&lg=en-US&sw=1280&sh=720&sc=24&nwd=1&tl=Wedding%20Registry%20Search%20and%20Website%20Finder&p=https%3A%2F%2Fwww.theknot.com%2Fregistry%2Fcouplesearch%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue&r=&lt=860&evt=pageLoad&sv=2&asc=D&cdb=AQEZ&rn=251097"
+      }
+    ],
+    "timestamp": 1760611817789,
+    "url": "https://www.theknot.com/registry/couplesearch?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

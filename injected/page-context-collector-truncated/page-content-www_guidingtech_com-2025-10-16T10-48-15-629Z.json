@@ -1,0 +1,453 @@
+{
+  "url": "https://www.guidingtech.com/fix-text-message-notification-sound-not-working-on-iphone/",
+  "extractedAt": "2025-10-16T10:48:15.629Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.guidingtech.com/wp-content/uploads/favicon.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.guidingtech.com/wp-content/uploads/cropped-gt-logo-512x512-1-32x32.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.guidingtech.com/wp-content/uploads/cropped-gt-logo-512x512-1-192x192.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.guidingtech.com/wp-content/uploads/cropped-gt-logo-512x512-1-180x180.png",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "5 Ways to Fix No Sound When Receiving Text on iPhone - Guiding Tech",
+    "metaDescription": "Do you get text message notifications without sound? Here are the best ways to fix text message notification sound not working on iPhone.",
+    "content": "# 5 Ways to Fix No Sound When Receiving Text on iPhone\n  By  [Parth Shah](https://www.guidingtech.com/author/parth-shah/)    Updated April 23, 2024   Reviewed & Updated by  [Paras Rastogi](https://www.guidingtech.com/author/paras/)            Quick Fixes \n \n- Turn off **Focus Mode**.\n \n- Disable **Hide Alerts** for conversations.\n \n- Change your text message notification tone.\n \n  \n## Common Fixes\n \n \n- **Check the notification volume** – Open the Settings app, tap Sounds & Haptics, and maximize the Ringtone and Alerts volume slider.\n \n- **Flick the mute switch** – Disable the mute mode on your iPhone by turning off the physical mute switch on the side.\n \n- **Disconnect Bluetooth devices** – Toggle off Bluetooth under Settings > Bluetooth to disconnect all connected devices and get the text notification sound on your iPhone.\n \n- **Close and reopen Messages** – Swipe up from the bottom to switch apps and drag up the Messages card to remove it. Further, relaunch the Messages app.\n \n- **Enable iMessage** – Open iPhone Settings, tap Messages, and enable the iMessage toggle.\n \n- **Check speakers** – Ensure iPhone speakers are intact and don’t [produce any crackling sound](https://www.guidingtech.com/fix-iphone-speaker-crackling/).\n \n- **Update iOS** – Open General settings on your iPhone, tap Software Update, and select Update Now (if available).\n \n \n## Fix 1: Change Text Message Tone\n If the text message notification tone is too low or set to none, you won’t hear sound alerts for new messages. Changing the notification sound will resolve the issue.\n **Step 1:** Open iPhone Settings > tap **Sounds & Haptics** > select **Text Tone**.\n **Step 2: **Ensure the **Alert Tone** isn’t set to None, and pick an audible tone from the list.\n      \n## Fix 2: Disable Focus Mode\n The Focus mode on your iPhone silences notifications from all contacts and apps. Disabling it should restore the notification sound when a new text message arrives.\n **Step 1: Swipe down** from the top right to open the Control Center and tap the **Focus** toggle.\n **Step 2: **Tap the active **Focus mode** toggle to turn it off.\n     Alternatively, exclude the Messages app from your Focus profile. Doing this will give you sound notifications for new text messages while silencing all other app alerts.\n **Step 1: **Open **Settings** > tap **Focus** > select your **desired profile** to edit.\n     **Step 2: **Tap **Apps** > enable **Allow Notifications From** > add the **Messages app** to the list. Select **Done** to save changes.\n     \n## Fix 3: Toggle off Hide Alerts for Conversations\n If you aren’t getting sound notifications for new texts from a specific contact, you must have enabled the Hide Alerts feature for the conversation. Disabling it should restore normalcy.\n Open your desired conversation in the Messages app, tap the **contact name** at the top, and disable the **Hide Alerts** toggle.\n     \n## Fix 4: Disable Filter Unknown Senders\n By default, iOS [blocks text messages from unknown senders](https://www.guidingtech.com/how-to-block-text-messages-from-unknown-numbers-on-iphone-and-android/). To restore sound notifications for new texts from unknown senders, disable its filter in the Messages app settings.\n Open **Messages** in the iPhone Settings app, scroll down to select **Unknown & Spam**, and toggle off **Filter Unknown Senders**.\n     \n## Fix 5: Customize Text Tone for a Specific Contact\n Besides changing the message notification sound for all contacts, you can assign a different tone for specific contacts to recognize them instantly without picking up your iPhone.\n **Step 1: **Open your preferred contact in the Contacts app, tap **Edit** at the top right corner, and select **Text Tone**.\n **Step 2: **Pick your desired message tone and tap **Done** to save changes.\n      \n## Alternative: Enable Vibration for Text Messages\n If you still don’t get a text message notification sound after applying the above fixes, I recommend enabling the vibration alert to avoid missing any important messages.\n **Step 1:** Open **Sounds & Haptics** under iPhone settings and select **Text Tone**. \n     **Step 2: **Tap **Vibration** and select one from the existing vibration patterns or create a custom vibration profile for message alerts.\n        \n### Was this helpful?\n                  Last updated on 23 April, 2024\n      \n### Leave a Reply \nName * \n Email * \n Comment * \n   \n      \n### Read Next\n  [5 Fixes for iPhone Not Receiving Text Notifications https://youtu.be/bmD4KSVPxfI Basic Fixes Force quit and relaunch Messages app: This will give the app a fresh start if it has been running in the background for some time now.](https://www.guidingtech.com/best-fixes-for-iphone-not-receiving-text-notifications/) [6 Fixes for Samsung Galaxy Phones Not Receiving Text Messages Basic Fixes Check cellular network: Ensure that you have a working cellular network on your phone.](https://www.guidingtech.com/fix-samsung-phones-not-receiving-text-messages/) [Why Am I Receiving the Same Text Messages on Two iPhones Basic Fixes Check the Apple account: Open Settings on the 2nd iPhone > Profile name > Choose the iPhone name > Remove from Account.](https://www.guidingtech.com/why-two-iphones-receiving-same-text-messages/) [Receiving Texts on Your Old Phone? Here’s How to Stop It Fix 1: Disable iMessage on Your Old iPhone or via Apple Website Are you switching from an iPhone to an Android phone?](https://www.guidingtech.com/stop-texts-from-going-to-old-phone-android-iphone/) [6 Ways to Fix iPhone Not Receiving Call Issue https://youtu.be/kvx_Yard1jI Basic Fixes: Remove and reinstall the SIM card: A recent iOS update may have corrupted your phone’s SIM card system.](https://www.guidingtech.com/fix-iphone-not-receiving-call-issue/) [5 Ways to Fix iPhone Not Receiving Texts Basic Troubleshooting Check cellular connectivity: If you are in an area with low or no coverage, errors like call drop, call failing, and not receiving or sending can occur.](https://www.guidingtech.com/fix-iphone-not-receiving-text/) [5 Ways to Fix Outlook Not Receiving Emails on iPhone Common Fixes Enable and disable the Airplane Mode: Open the Settings app, toggle on the Airplane Mode, and turn it off after a few seconds.](https://www.guidingtech.com/top-ways-to-fix-outlook-not-receiving-emails-on-iphone/) [4 Ways to Fix iPhone Not Receiving Emails https://youtu.be/F6cOkDGNWuU Basic Fixes: Manually refresh the email inbox: Open the Mail app on your iPhone and swipe down from the top to refresh the inbox.](https://www.guidingtech.com/fix-iphone-not-receiving-emails/)     The article above may contain affiliate links which help support Guiding Tech. The content remains unbiased and authentic and will never affect our editorial integrity.\n                      \n### More in iOS\n  \n \n- ## [3 Ways to Fix Telegram Not Sending Messages on Android and iPhone](https://www.guidingtech.com/top-8-ways-to-fix-telegram-not-sending-messages-on-android-and-iphone/)\n \n- ## [How to Create an Email Group in Mail App on iPhone](https://www.guidingtech.com/create-email-group-in-mail-app-on-iphone/)\n \n  \n  \n### JOIN THE NEWSLETTER\n Get Guiding Tech articles delivered to your inbox.\n    \n  This field is for validation purposes and should be left unchanged.                               SHARE ON    JOIN THE NEWSLETTER  This field is for validation purposes and should be left unchanged.",
+    "truncated": false,
+    "fullContentLength": 7400,
+    "headings": [
+      {
+        "level": 1,
+        "text": "5 Ways to Fix No Sound When Receiving Text on iPhone"
+      },
+      {
+        "level": 2,
+        "text": "Common Fixes"
+      },
+      {
+        "level": 2,
+        "text": "Fix 1: Change Text Message Tone"
+      },
+      {
+        "level": 2,
+        "text": "Fix 2: Disable Focus Mode"
+      },
+      {
+        "level": 2,
+        "text": "Fix 3: Toggle off Hide Alerts for Conversations"
+      },
+      {
+        "level": 2,
+        "text": "Fix 4: Disable Filter Unknown Senders"
+      },
+      {
+        "level": 2,
+        "text": "Fix 5: Customize Text Tone for a Specific Contact"
+      },
+      {
+        "level": 2,
+        "text": "Alternative: Enable Vibration for Text Messages"
+      },
+      {
+        "level": 3,
+        "text": "Was this helpful?"
+      },
+      {
+        "level": 3,
+        "text": "Leave a Reply Cancel reply"
+      },
+      {
+        "level": 3,
+        "text": "Read Next"
+      },
+      {
+        "level": 3,
+        "text": "More in iOS"
+      },
+      {
+        "level": 2,
+        "text": "3 Ways to Fix Telegram Not Sending Messages on Android and iPhone"
+      },
+      {
+        "level": 2,
+        "text": "How to Create an Email Group in Mail App on iPhone"
+      },
+      {
+        "level": 3,
+        "text": "JOIN THE NEWSLETTER"
+      },
+      {
+        "level": 4,
+        "text": "SHARE ON"
+      },
+      {
+        "level": 4,
+        "text": "JOIN THE NEWSLETTER"
+      }
+    ],
+    "links": [
+      {
+        "text": "<img width=\"300\" height=\"167\" src=\"https://www.guidingtech.com/wp-content/uploads/logo-white-gradient-small.webp\" class=\"custom-logo\" alt=\"Guiding Tech\" decoding=\"async\" />",
+        "href": "https://www.guidingtech.com/"
+      },
+      {
+        "text": "Guiding Tech",
+        "href": "https://www.guidingtech.com"
+      },
+      {
+        "text": "Android",
+        "href": "https://www.guidingtech.com/category/android/"
+      },
+      {
+        "text": "Windows",
+        "href": "https://www.guidingtech.com/category/windows/"
+      },
+      {
+        "text": "Internet and Social",
+        "href": "https://www.guidingtech.com/category/internet-and-social/"
+      },
+      {
+        "text": "iOS",
+        "href": "https://www.guidingtech.com/category/ios/"
+      },
+      {
+        "text": "Gadgets",
+        "href": "https://www.guidingtech.com/category/gadgets/"
+      },
+      {
+        "text": "Mac",
+        "href": "https://www.guidingtech.com/category/mac/"
+      },
+      {
+        "text": "Buying Guides",
+        "href": "https://www.guidingtech.com/tag/buying-guides/"
+      },
+      {
+        "text": "Parth Shah",
+        "href": "https://www.guidingtech.com/author/parth-shah/"
+      },
+      {
+        "text": "<img alt='' src='https://secure.gravatar.com/avatar/cb81576d073c92d3c51f73a925756721f83c7c8cb78636eaa76bf33a354bfac0?s=68&#038;d=mm&#038;r=g' srcset='https://secure.gravatar.com/avatar/cb81576d073c92d3c51f73a925756721f83c7c8cb78636eaa76bf33a354bfac0?s=136&#038;d=mm&#038;r=g 2x' class='avatar avatar-68 photo' height='68' width='68' decoding='async'/>",
+        "href": "https://www.guidingtech.com/author/parth-shah/"
+      },
+      {
+        "text": "Parth Shah",
+        "href": "https://www.guidingtech.com/author/parth-shah/"
+      },
+      {
+        "text": "Learn about our Tech Review Board",
+        "href": "/about-guiding-tech#h-our-tech-review-board"
+      },
+      {
+        "text": "Paras Rastogi",
+        "href": "https://www.guidingtech.com/author/paras/"
+      },
+      {
+        "text": "<img alt='' src='https://secure.gravatar.com/avatar/a1346fdec2934a128eb8c3b0ba05cf3721dd18e0c999f8b35ff514d56aa47a28?s=68&#038;d=mm&#038;r=g' srcset='https://secure.gravatar.com/avatar/a1346fdec2934a128eb8c3b0ba05cf3721dd18e0c999f8b35ff514d56aa47a28?s=136&#038;d=mm&#038;r=g 2x' class='avatar avatar-68 photo' height='68' width='68' decoding='async'/>",
+        "href": "https://www.guidingtech.com/author/paras/"
+      },
+      {
+        "text": "Paras Rastogi",
+        "href": "https://www.guidingtech.com/author/paras/"
+      },
+      {
+        "text": "Learn about our Tech Review Board",
+        "href": "/about-guiding-tech#h-our-tech-review-board"
+      },
+      {
+        "text": "produce any crackling sound",
+        "href": "https://www.guidingtech.com/fix-iphone-speaker-crackling/"
+      },
+      {
+        "text": "blocks text messages from unknown senders",
+        "href": "https://www.guidingtech.com/how-to-block-text-messages-from-unknown-numbers-on-iphone-and-android/"
+      },
+      {
+        "text": "Cancel reply",
+        "href": "/fix-text-message-notification-sound-not-working-on-iphone/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true#respond"
+      },
+      {
+        "text": "<img width=\"300\" height=\"169\" src=\"https://www.guidingtech.com/wp-content/uploads/Best_Ways_to_Fix_iPhone_Not_Receiving_Text_Notifications.jpg\" class=\"attachment-medium size-medium wp-post-image\" alt=\"\" data-pin-nopin=\"true\" decoding=\"async\" srcset=\"https://www.guidingtech.com/wp-content/uploads//Best_Ways_to_Fix_iPhone_Not_Receiving_Text_Notifications.jpg 1920w, https://www.guidingtech.com/wp-content/uploads//Best_Ways_to_Fix_iPhone_Not_Receiving_Text_Notifications-1024x576.jpg 1024w, https://www.guidingtech.com/wp-content/uploads//Best_Ways_to_Fix_iPhone_Not_Receiving_Text_Notifications-768x432.jpg 768w, https://www.guidingtech.com/wp-content/uploads//Best_Ways_to_Fix_iPhone_Not_Receiving_Text_Notifications-1536x864.jpg 1536w\" sizes=\"(max-width: 300px) 100vw, 300px\" />        5 Fixes for iPhone Not Receiving Text Notifications\n         https://youtu.be/bmD4KSVPxfI Basic Fixes Force quit and relaunch Messages app: This will give the app a fresh start if it has been running in the background for some time now.",
+        "href": "https://www.guidingtech.com/best-fixes-for-iphone-not-receiving-text-notifications/"
+      },
+      {
+        "text": "<img width=\"300\" height=\"200\" src=\"https://www.guidingtech.com/wp-content/uploads/Fix-Samsung-Messages-Not-Sending-Error_4d470f76dc99e18ad75087b1b8410ea9.jpg\" class=\"attachment-medium size-medium wp-post-image\" alt=\"\" data-pin-nopin=\"true\" decoding=\"async\" srcset=\"https://www.guidingtech.com/wp-content/uploads//Fix-Samsung-Messages-Not-Sending-Error_4d470f76dc99e18ad75087b1b8410ea9.jpg 1392w, https://www.guidingtech.com/wp-content/uploads//Fix-Samsung-Messages-Not-Sending-Error_4d470f76dc99e18ad75087b1b8410ea9-1024x683.jpg 1024w, https://www.guidingtech.com/wp-content/uploads//Fix-Samsung-Messages-Not-Sending-Error_4d470f76dc99e18ad75087b1b8410ea9-768x512.jpg 768w\" sizes=\"(max-width: 300px) 100vw, 300px\" />        6 Fixes for Samsung Galaxy Phones Not Receiving Text Messages\n         Basic Fixes Check cellular network: Ensure that you have a working cellular network on your phone.",
+        "href": "https://www.guidingtech.com/fix-samsung-phones-not-receiving-text-messages/"
+      },
+      {
+        "text": "<img width=\"300\" height=\"169\" src=\"https://www.guidingtech.com/wp-content/uploads/Why_Am_I_Receiving_the_Same_Text_Messages_on_Two_iPhones-300x169.jpg\" class=\"attachment-medium size-medium wp-post-image\" alt=\"Why_Am_I_Receiving_the_Same_Text_Messages_on_Two_iPhones\" data-pin-nopin=\"true\" decoding=\"async\" srcset=\"https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_the_Same_Text_Messages_on_Two_iPhones-300x169.jpg 300w, https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_the_Same_Text_Messages_on_Two_iPhones-1024x576.jpg 1024w, https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_the_Same_Text_Messages_on_Two_iPhones-768x432.jpg 768w, https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_the_Same_Text_Messages_on_Two_iPhones-1536x864.jpg 1536w, https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_the_Same_Text_Messages_on_Two_iPhones-684x385.jpg 684w, https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_the_Same_Text_Messages_on_Two_iPhones.jpg 1920w\" sizes=\"(max-width: 300px) 100vw, 300px\" />        Why Am I Receiving the Same Text Messages on Two iPhones\n         Basic Fixes Check the Apple account: Open Settings on the 2nd iPhone > Profile name > Choose the iPhone name > Remove from Account.",
+        "href": "https://www.guidingtech.com/why-two-iphones-receiving-same-text-messages/"
+      },
+      {
+        "text": "<img width=\"300\" height=\"169\" src=\"https://www.guidingtech.com/wp-content/uploads/Why_Am_I_Receiving_Text_Messages_on_My_Old_Phone-300x169.jpg\" class=\"attachment-medium size-medium wp-post-image\" alt=\"Why_Am_I_Receiving_Text_Messages_on_My_Old_Phone\" data-pin-nopin=\"true\" decoding=\"async\" srcset=\"https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_Text_Messages_on_My_Old_Phone-300x169.jpg 300w, https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_Text_Messages_on_My_Old_Phone-1024x576.jpg 1024w, https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_Text_Messages_on_My_Old_Phone-768x432.jpg 768w, https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_Text_Messages_on_My_Old_Phone-1536x864.jpg 1536w, https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_Text_Messages_on_My_Old_Phone-684x385.jpg 684w, https://www.guidingtech.com/wp-content/uploads//Why_Am_I_Receiving_Text_Messages_on_My_Old_Phone.jpg 1920w\" sizes=\"(max-width: 300px) 100vw, 300px\" />        Receiving Texts on Your Old Phone? Here’s How to Stop It\n         Fix 1: Disable iMessage on Your Old iPhone or via Apple Website Are you switching from an iPhone to an Android phone?",
+        "href": "https://www.guidingtech.com/stop-texts-from-going-to-old-phone-android-iphone/"
+      },
+      {
+        "text": "<img width=\"300\" height=\"169\" src=\"https://www.guidingtech.com/wp-content/uploads/Top_N_Ways_to_Fix_iPhone_Not_Receiving_Calls-300x169.jpg\" class=\"attachment-medium size-medium wp-post-image\" alt=\"Top_N_Ways_to_Fix_iPhone_Not_Receiving_Calls\" data-pin-nopin=\"true\" decoding=\"async\" srcset=\"https://www.guidingtech.com/wp-content/uploads//Top_N_Ways_to_Fix_iPhone_Not_Receiving_Calls-300x169.jpg 300w, https://www.guidingtech.com/wp-content/uploads//Top_N_Ways_to_Fix_iPhone_Not_Receiving_Calls-1024x576.jpg 1024w, https://www.guidingtech.com/wp-content/uploads//Top_N_Ways_to_Fix_iPhone_Not_Receiving_Calls-768x432.jpg 768w, https://www.guidingtech.com/wp-content/uploads//Top_N_Ways_to_Fix_iPhone_Not_Receiving_Calls-1536x864.jpg 1536w, https://www.guidingtech.com/wp-content/uploads//Top_N_Ways_to_Fix_iPhone_Not_Receiving_Calls-684x385.jpg 684w, https://www.guidingtech.com/wp-content/uploads//Top_N_Ways_to_Fix_iPhone_Not_Receiving_Calls.jpg 1920w\" sizes=\"(max-width: 300px) 100vw, 300px\" />        6 Ways to Fix iPhone Not Receiving Call Issue\n         https://youtu.be/kvx_Yard1jI Basic Fixes: Remove and reinstall the SIM card: A recent iOS update may have corrupted your phone’s SIM card system.",
+        "href": "https://www.guidingtech.com/fix-iphone-not-receiving-call-issue/"
+      },
+      {
+        "text": "<img width=\"300\" height=\"169\" src=\"https://www.guidingtech.com/wp-content/uploads/Top_Ways_to_Fix_iPhone_Not_Receiving_Text.jpg\" class=\"attachment-medium size-medium wp-post-image\" alt=\"fix iPhone not receiving texts\" data-pin-nopin=\"true\" decoding=\"async\" srcset=\"https://www.guidingtech.com/wp-content/uploads//Top_Ways_to_Fix_iPhone_Not_Receiving_Text.jpg 1920w, https://www.guidingtech.com/wp-content/uploads//Top_Ways_to_Fix_iPhone_Not_Receiving_Text-1024x576.jpg 1024w, https://www.guidingtech.com/wp-content/uploads//Top_Ways_to_Fix_iPhone_Not_Receiving_Text-768x432.jpg 768w, https://www.guidingtech.com/wp-content/uploads//Top_Ways_to_Fix_iPhone_Not_Receiving_Text-1536x864.jpg 1536w\" sizes=\"(max-width: 300px) 100vw, 300px\" />        5 Ways to Fix iPhone Not Receiving Texts\n         Basic Troubleshooting  Check cellular connectivity: If you are in an area with low or no coverage, errors like call drop, call failing, and not receiving or sending can occur.",
+        "href": "https://www.guidingtech.com/fix-iphone-not-receiving-text/"
+      },
+      {
+        "text": "<img width=\"300\" height=\"169\" src=\"https://www.guidingtech.com/wp-content/uploads/fix-outlook-not-receiving-emails-on-iPhone.jpg\" class=\"attachment-medium size-medium wp-post-image\" alt=\"\" data-pin-nopin=\"true\" decoding=\"async\" srcset=\"https://www.guidingtech.com/wp-content/uploads//fix-outlook-not-receiving-emails-on-iPhone.jpg 1920w, https://www.guidingtech.com/wp-content/uploads//fix-outlook-not-receiving-emails-on-iPhone-1024x576.jpg 1024w, https://www.guidingtech.com/wp-content/uploads//fix-outlook-not-receiving-emails-on-iPhone-768x432.jpg 768w, https://www.guidingtech.com/wp-content/uploads//fix-outlook-not-receiving-emails-on-iPhone-1536x864.jpg 1536w\" sizes=\"(max-width: 300px) 100vw, 300px\" />        5 Ways to Fix Outlook Not Receiving Emails on iPhone\n         Common Fixes Enable and disable the Airplane Mode: Open the Settings app, toggle on the Airplane Mode, and turn it off after a few seconds.",
+        "href": "https://www.guidingtech.com/top-ways-to-fix-outlook-not-receiving-emails-on-iphone/"
+      },
+      {
+        "text": "<img width=\"300\" height=\"169\" src=\"https://www.guidingtech.com/wp-content/uploads/Top_Ways_to_Fix_iPhone_Not_Receiving_Emails.jpg\" class=\"attachment-medium size-medium wp-post-image\" alt=\"troubleshoot iPhone not receiving emails\" data-pin-nopin=\"true\" decoding=\"async\" srcset=\"https://www.guidingtech.com/wp-content/uploads//Top_Ways_to_Fix_iPhone_Not_Receiving_Emails.jpg 1920w, https://www.guidingtech.com/wp-content/uploads//Top_Ways_to_Fix_iPhone_Not_Receiving_Emails-1024x576.jpg 1024w, https://www.guidingtech.com/wp-content/uploads//Top_Ways_to_Fix_iPhone_Not_Receiving_Emails-768x432.jpg 768w, https://www.guidingtech.com/wp-content/uploads//Top_Ways_to_Fix_iPhone_Not_Receiving_Emails-1536x864.jpg 1536w\" sizes=\"(max-width: 300px) 100vw, 300px\" />        4 Ways to Fix iPhone Not Receiving Emails\n         https://youtu.be/F6cOkDGNWuU Basic Fixes: Manually refresh the email inbox: Open the Mail app on your iPhone and swipe down from the top to refresh the inbox.",
+        "href": "https://www.guidingtech.com/fix-iphone-not-receiving-emails/"
+      },
+      {
+        "text": "<img width=\"340\" height=\"191\" src=\"https://www.guidingtech.com/wp-content/uploads/Top-Ways-to-Fix-Telegram-Not-Sending-Messages-on-Android-and-iPhone.jpg\" class=\"attachment-340x200 size-340x200 wp-post-image\" alt=\"\" decoding=\"async\" srcset=\"https://www.guidingtech.com/wp-content/uploads//Top-Ways-to-Fix-Telegram-Not-Sending-Messages-on-Android-and-iPhone.jpg 1920w, https://www.guidingtech.com/wp-content/uploads//Top-Ways-to-Fix-Telegram-Not-Sending-Messages-on-Android-and-iPhone-1024x576.jpg 1024w, https://www.guidingtech.com/wp-content/uploads//Top-Ways-to-Fix-Telegram-Not-Sending-Messages-on-Android-and-iPhone-768x432.jpg 768w, https://www.guidingtech.com/wp-content/uploads//Top-Ways-to-Fix-Telegram-Not-Sending-Messages-on-Android-and-iPhone-1536x864.jpg 1536w\" sizes=\"(max-width: 340px) 100vw, 340px\" />",
+        "href": "https://www.guidingtech.com/top-8-ways-to-fix-telegram-not-sending-messages-on-android-and-iphone/"
+      },
+      {
+        "text": "3 Ways to Fix Telegram Not Sending Messages on Android and iPhone",
+        "href": "https://www.guidingtech.com/top-8-ways-to-fix-telegram-not-sending-messages-on-android-and-iphone/"
+      },
+      {
+        "text": "<img width=\"340\" height=\"191\" src=\"https://www.guidingtech.com/wp-content/uploads/send-group-email-with-Mail-app-on-iPhone.jpg\" class=\"attachment-340x200 size-340x200 wp-post-image\" alt=\"\" decoding=\"async\" srcset=\"https://www.guidingtech.com/wp-content/uploads//send-group-email-with-Mail-app-on-iPhone.jpg 1920w, https://www.guidingtech.com/wp-content/uploads//send-group-email-with-Mail-app-on-iPhone-1024x576.jpg 1024w, https://www.guidingtech.com/wp-content/uploads//send-group-email-with-Mail-app-on-iPhone-768x432.jpg 768w, https://www.guidingtech.com/wp-content/uploads//send-group-email-with-Mail-app-on-iPhone-1536x864.jpg 1536w\" sizes=\"(max-width: 340px) 100vw, 340px\" />",
+        "href": "https://www.guidingtech.com/create-email-group-in-mail-app-on-iphone/"
+      },
+      {
+        "text": "How to Create an Email Group in Mail App on iPhone",
+        "href": "https://www.guidingtech.com/create-email-group-in-mail-app-on-iphone/"
+      },
+      {
+        "text": "Android",
+        "href": "https://www.guidingtech.com/category/android/"
+      },
+      {
+        "text": "Windows",
+        "href": "https://www.guidingtech.com/category/windows/"
+      },
+      {
+        "text": "Internet and Social",
+        "href": "https://www.guidingtech.com/category/internet-and-social/"
+      },
+      {
+        "text": "iOS",
+        "href": "https://www.guidingtech.com/category/ios/"
+      },
+      {
+        "text": "Gadgets",
+        "href": "https://www.guidingtech.com/category/gadgets/"
+      },
+      {
+        "text": "Mac",
+        "href": "https://www.guidingtech.com/category/mac/"
+      },
+      {
+        "text": "Buying Guides",
+        "href": "https://www.guidingtech.com/tag/buying-guides/"
+      },
+      {
+        "text": "#How-tos",
+        "href": "/tag/how-to-guides"
+      },
+      {
+        "text": "#Comparisons",
+        "href": "/tag/comparison/"
+      },
+      {
+        "text": "#Tips & Tricks",
+        "href": "/tag/tips-tricks/"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/guidingtech"
+      },
+      {
+        "text": "Instagram",
+        "href": "https://instagram.com/guidingtech"
+      },
+      {
+        "text": "YouTube",
+        "href": "https://www.youtube.com/@GuidingTechCom/videos"
+      },
+      {
+        "text": "Twitter",
+        "href": "https://twitter.com/guidingtech"
+      },
+      {
+        "text": "<img width=\"300\" height=\"167\" src=\"https://www.guidingtech.com/wp-content/uploads/logo-white-gradient-small.webp\" class=\"custom-logo\" alt=\"Guiding Tech\" decoding=\"async\" />",
+        "href": "https://www.guidingtech.com/"
+      },
+      {
+        "text": "Guiding Tech",
+        "href": "https://www.guidingtech.com"
+      },
+      {
+        "text": "About",
+        "href": "https://www.guidingtech.com/about-guiding-tech/"
+      },
+      {
+        "text": "Contact",
+        "href": "https://www.guidingtech.com/contact-guiding-tech/"
+      },
+      {
+        "text": "Terms of Use",
+        "href": "https://www.guidingtechmedia.com/terms-of-use"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://www.guidingtechmedia.com/privacy/"
+      },
+      {
+        "text": "Advertise",
+        "href": "https://www.guidingtech.com/advertise/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Guiding Tech",
+        "src": "https://www.guidingtech.com/wp-content/uploads/logo-white-gradient-small.webp"
+      },
+      {
+        "alt": "",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='68'%20height='68'%20viewBox='0%200%2068%2068'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='68'%20height='68'%20viewBox='0%200%2068%2068'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "1 iPhone settings",
+        "src": "https://www.guidingtech.com/wp-content/uploads/1-iPhone-settings.png"
+      },
+      {
+        "alt": "2 text tone settings",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "3 change text tone",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "4 iOS control center",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='593'%20height='1281'%20viewBox='0%200%20593%201281'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "5 disable focus mode",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='593'%20height='1281'%20viewBox='0%200%20593%201281'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "6 configure focus mode",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "7 edit focus mode",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "8 add apps to focus mode",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "9 add Messages app to focus mode",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "10 conversation in Messages app",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "11 disable Hide laerts for conversations",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "unknown & Spam settings",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='593'%20height='1281'%20viewBox='0%200%20593%201281'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "disable filter unknown senders",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='593'%20height='1281'%20viewBox='0%200%20593%201281'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "12 edit contact details 1",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "13 set specific tone for contacts 1",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "14 assign new tone for contacts",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "18 4Sound and haptics settings",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "17 Text message notification sound not working on iPhone 2 473x1024 1",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "19 enable vibration for text messages",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "20 choose vibration pattern",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='473'%20height='1024'%20viewBox='0%200%20473%201024'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='169'%20viewBox='0%200%20300%20169'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='200'%20viewBox='0%200%20300%20200'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Why_Am_I_Receiving_the_Same_Text_Messages_on_Two_iPhones",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='169'%20viewBox='0%200%20300%20169'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Why_Am_I_Receiving_Text_Messages_on_My_Old_Phone",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='169'%20viewBox='0%200%20300%20169'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Top_N_Ways_to_Fix_iPhone_Not_Receiving_Calls",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='169'%20viewBox='0%200%20300%20169'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "fix iPhone not receiving texts",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='169'%20viewBox='0%200%20300%20169'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='169'%20viewBox='0%200%20300%20169'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "troubleshoot iPhone not receiving emails",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='169'%20viewBox='0%200%20300%20169'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='340'%20height='191'%20viewBox='0%200%20340%20191'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='340'%20height='191'%20viewBox='0%200%20340%20191'%3E%3C/svg%3E"
+      },
+      {
+        "alt": "Guiding Tech",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='167'%20viewBox='0%200%20300%20167'%3E%3C/svg%3E"
+      }
+    ],
+    "timestamp": 1760611695175,
+    "url": "https://www.guidingtech.com/fix-text-message-notification-sound-not-working-on-iphone/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+  }
+}

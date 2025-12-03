@@ -1,0 +1,17 @@
+{
+  "url": "https://my.roku.com/signin",
+  "extractedAt": "2025-10-16T11:14:42.236Z",
+  "content": {
+    "favicon": [],
+    "title": "Roku",
+    "metaDescription": "Roku provides the simplest way to stream entertainment to your TV. On your terms. With thousands of available channels to choose from.",
+    "content": "",
+    "truncated": false,
+    "fullContentLength": 0,
+    "headings": [],
+    "links": [],
+    "images": [],
+    "timestamp": 1760613280310,
+    "url": "https://my.roku.com/signin?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,657 @@
+{
+  "url": "https://www.home-assistant.io/installation/",
+  "extractedAt": "2025-10-16T10:50:25.801Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.home-assistant.io/images/favicon.ico",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://www.home-assistant.io/images/favicon-192x192.png",
+        "rel": "icon"
+      }
+    ],
+    "title": "Installation - Home Assistant",
+    "metaDescription": "Install Home Assistant",
+    "content": "#  Installation \n    The first step to getting started with Home Assistant is to install it on a device. There are many ways to run it for all kinds of scenarios and all kinds of skill levels. \n   Easiest \n## Plug and play with Home Assistant Green  \n  The affordable Home Assistant Green is the easiest way to start using Home Assistant. It's plug-and-play and comes with [Home Assistant Operating System](/installation/#about-installation-types) already installed. \n        \n### Home Assistant Green  \n The easiest way to get started with Home Assistant\n   **SKILLS REQUIRED** \n \n- Interest in setting up a smart home\n \n   **TOOLS REQUIRED** \n \n- Ethernet connection\n \n    [Get Home Assistant Green](/green) [View tutorial](https://support.nabucasa.com/hc/en-us/categories/24638797677853-Home-Assistant-Green)      Easy \n## DIY with Raspberry Pi  \n  Raspberry Pi, a mini low-cost computer, is one of the most popular platforms for running Home Assistant. If you want to learn how to DIY, this is a good way to start and gain experience. \n        \n### Install Home Assistant on Raspberry Pi  \n A low-cost DIY solution to get started with Home Assistant\n   **SKILLS REQUIRED** \n \n- Assembling a Raspberry Pi setup\n \n- Flashing a Raspberry Pi\n \n   **TOOLS REQUIRED** \n \n- Raspberry Pi 4 or 5 with power supply\n \n- MicroSD card\n \n- Ethernet connection\n \n    [Get Raspberry Pi](https://amzn.to/3UH6TcD) [View tutorial](/installation/raspberrypi)       \n## About installation types  \n  Home Assistant offers two different installation types. Home Assistant Operating System is the recommended installation type. \n \n \n- **Home Assistant Operating System**: An embedded, minimalistic operating system designed to run the Home Assistant ecosystem on single board computers (like the Home Assistant Green or a Raspberry Pi) or Virtual Machines. It is the most convenient option in terms of installation and maintenance and it supports add-ons. Home Assistant Operating System is the recommended installation type for most users.\n \n- **Home Assistant Container:** Container-based installation of Home Assistant. You need to bring your own system (such as Linux) with container orchestration (like Docker), and manually handle updates. Home Assistant Container installations don’t have access to add-ons.\n \n      HA OS1  Container1      [Automations](/docs/automation)     [Dashboards](/dashboards)     [Integrations](/integrations)     [Add-ons](/addons)     [Blueprints](/docs/blueprint)      One-click updates      [Backups](/common-tasks/general/#backups)       1: Names are abbreviated. The full names of the installation types are: \n \n- Home Assistant Operating System\n \n- Home Assistant Container\n \n  Intermediate \n## Extend with Home Assistant Yellow  \n  The extensible Home Assistant Yellow comes with all the ingredients you need to help you build a robust smart home. All you need to do is to bring your own Raspberry Pi Compute Module. \n        \n### Home Assistant Yellow  \n The powerful way to run Home Assistant\n   **SKILLS REQUIRED** \n \n- You're comfortable following instructions on:\n \n- Installing a compute module and a heat sink\n \n- Flashing a Raspberry Pi\n \n   **TOOLS REQUIRED** \n \n- Raspberry Pi Compute Module 4\n \n- Ethernet connection\n \n- USB storage drive\n \n- Screwdriver\n \n    [Get Home Assistant Yellow](/yellow) [View tutorial](https://support.nabucasa.com/hc/en-us/categories/24734575925149-Home-Assistant-Yellow)      Hard \n## Install on other hardware  \n  Home Assistant can be repurposed and installed on various hardware, such as an Odroid or a generic x86-64 machine. The Home Assistant Operating System allows you to install Home Assistant on these devices even if you have little to no Linux experience. \n        \n### Install Home Assistant on Odroid devices  \n A more powerful alternative to Raspberry Pi\n   **SKILLS REQUIRED** \n \n- You're comfortable following instructions on:\n \n- Writing boot images\n \n- Installing an SD card or eMMC\n \n   **TOOLS REQUIRED** \n \n- An Odroid device\n \n- MicroSD card or eMMC\n \n- Ethernet connection\n \n    [View tutorial](/installation/odroid)             \n### Install Home Assistant on x86-64 machines  \n Repurpose workstation hardware to run Home Assistant\n   **SKILLS REQUIRED** \n \n- You can use a command line and install a boot medium on your hardware\n \n- You're comfortable configuring the BIOS based on instructions.\n \n   **TOOLS REQUIRED** \n \n- An x86-64 machine\n \n- Storage hard drive\n \n- USB stick\n \n- Ethernet connection\n \n    [View tutorial](/installation/generic-x86-64)      Expert        \n### Install Home Assistant variants on Raspberry Pi  \n A low-cost DIY solution to get started with Home Assistant\n   **SKILLS REQUIRED** \n \n- Assembling a Raspberry Pi setup\n \n- Flashing a Raspberry Pi\n \n- Advanced knowledge of Linux\n \n- Using Linux command line\n \n   **TOOLS REQUIRED** \n \n- Raspberry Pi 3, 4 or 5 with power supply\n \n- MicroSD card\n \n- Ethernet connection\n \n    [Get Raspberry Pi](https://amzn.to/3UH6TcD) [View tutorial](/installation/raspberrypi-other)             \n### Install Home Assistant on Linux  \n Use Home Assistant OS, Container\n   **SKILLS REQUIRED** \n \n- Advanced knowledge of Linux\n \n- Using Linux command line\n \n- Using Docker Compose (for HA Container)\n \n   **TOOLS REQUIRED** \n \n- Machine with Linux installed\n \n    [View tutorial](/installation/linux)             \n### Install Home Assistant on macOS  \n Use Home Assistant OS on a VM\n   **SKILLS REQUIRED** \n \n- Advanced knowledge of macOS\n \n- Using macOS command line\n \n   **TOOLS REQUIRED** \n \n- Machine with macOS installed\n \n    [View tutorial](/installation/macos)             \n### Install Home Assistant on Windows  \n Use Home Assistant OS on a VM\n   **SKILLS REQUIRED** \n \n- Know how to find an IP address on your router\n \n- Advanced knowledge of Windows\n \n- Using Linux command line\n \n   **TOOLS REQUIRED** \n \n- Machine with Windows installed\n \n- VirtualBox (for VM)\n \n    [View tutorial](/installation/windows)            \n### Install Home Assistant on other systems  \n Use Home Assistant on virtual machines, NAS, and more\n   **SKILLS REQUIRED** \n \n- Know how to find an IP address on your router\n \n- Advanced knowledge of Windows\n \n- Using Linux command line\n \n   **TOOLS REQUIRED** \n \n- Machine with Windows installed\n \n- VirtualBox (for VM)\n \n    [View tutorial](/installation/alternative)       \n### Deprecated installation types  \n  Home Assistant used to offer two additional installation types for advanced users: **Home Assistant Core** and **Home Assistant Supervised**. These two methods are now [deprecated and no longer recommended for new users](https://www.home-assistant.io/blog/2025/05/22/deprecating-core-and-supervised-installation-methods-and-32-bit-systems/). \n \n \n- **Home Assistant Supervised:** Manual installation of the Supervisor.\n \n- **Home Assistant Core:** Manual installation using Python virtual environment.\n \n    ** Help us improve our documentation**  Suggest an edit to this page, or provide/view feedback for this page.  \n \n- [Edit](https://github.com/home-assistant/home-assistant.io/tree/current/source/installation/index.html)\n \n- [Provide feedback](https://github.com/home-assistant/home-assistant.io/issues/new?template=feedback.yml&url=https%3A%2F%2Fwww.home-assistant.io%2Finstallation%2F&version=2025.10.2&labels=current)\n \n- [View given feedback](https://github.com/home-assistant/home-assistant.io/issues?utf8=%E2%9C%93&q=%22%2Finstallation%2F%22&in=body)",
+    "truncated": false,
+    "fullContentLength": 7460,
+    "headings": [
+      {
+        "level": 1,
+        "text": "On this page"
+      },
+      {
+        "level": 1,
+        "text": "Installation"
+      },
+      {
+        "level": 2,
+        "text": "Plug and play with Home Assistant Green"
+      },
+      {
+        "level": 3,
+        "text": "Home Assistant Green"
+      },
+      {
+        "level": 2,
+        "text": "DIY with Raspberry Pi"
+      },
+      {
+        "level": 3,
+        "text": "Install Home Assistant on Raspberry Pi"
+      },
+      {
+        "level": 2,
+        "text": "About installation types"
+      },
+      {
+        "level": 2,
+        "text": "Extend with Home Assistant Yellow"
+      },
+      {
+        "level": 3,
+        "text": "Home Assistant Yellow"
+      },
+      {
+        "level": 2,
+        "text": "Install on other hardware"
+      },
+      {
+        "level": 3,
+        "text": "Install Home Assistant on Odroid devices"
+      },
+      {
+        "level": 3,
+        "text": "Install Home Assistant on x86-64 machines"
+      },
+      {
+        "level": 3,
+        "text": "Install Home Assistant variants on Raspberry Pi"
+      },
+      {
+        "level": 3,
+        "text": "Install Home Assistant on Linux"
+      },
+      {
+        "level": 3,
+        "text": "Install Home Assistant on macOS"
+      },
+      {
+        "level": 3,
+        "text": "Install Home Assistant on Windows"
+      },
+      {
+        "level": 3,
+        "text": "Install Home Assistant on other systems"
+      },
+      {
+        "level": 3,
+        "text": "Deprecated installation types"
+      },
+      {
+        "level": 4,
+        "text": "Help us improve our documentation"
+      },
+      {
+        "level": 1,
+        "text": "Getting started"
+      },
+      {
+        "level": 1,
+        "text": "On this page"
+      },
+      {
+        "level": 3,
+        "text": "Join us and contribute!"
+      },
+      {
+        "level": 3,
+        "text": "System status"
+      },
+      {
+        "level": 3,
+        "text": "Companion apps"
+      },
+      {
+        "level": 3,
+        "text": "Governance"
+      },
+      {
+        "level": 3,
+        "text": "Follow us"
+      }
+    ],
+    "links": [
+      {
+        "text": "2025.10.2",
+        "href": "/blog/2025/10/01/release-202510/"
+      },
+      {
+        "text": "Getting started",
+        "href": "/installation/"
+      },
+      {
+        "text": "Documentation",
+        "href": "/docs/"
+      },
+      {
+        "text": "Installation",
+        "href": "/installation/"
+      },
+      {
+        "text": "Automations",
+        "href": "/docs/automation/"
+      },
+      {
+        "text": "Dashboards",
+        "href": "/dashboards/"
+      },
+      {
+        "text": "Voice assistants",
+        "href": "/voice_control/"
+      },
+      {
+        "text": "Device organization",
+        "href": "/docs/organizing/"
+      },
+      {
+        "text": "Energy management",
+        "href": "/docs/energy/"
+      },
+      {
+        "text": "Advanced configuration",
+        "href": "/docs/configuration/"
+      },
+      {
+        "text": "Integrations",
+        "href": "/integrations/"
+      },
+      {
+        "text": "Blog",
+        "href": "/blog/"
+      },
+      {
+        "text": "Need help?",
+        "href": "/help/"
+      },
+      {
+        "text": "Plug and play with Home Assistant Green",
+        "href": "#plug-and-play-with-home-assistant-green"
+      },
+      {
+        "text": "Home Assistant Green",
+        "href": "#home-assistant-green"
+      },
+      {
+        "text": "DIY with Raspberry Pi",
+        "href": "#diy-with-raspberry-pi"
+      },
+      {
+        "text": "Install Home Assistant on Raspberry Pi",
+        "href": "#install-home-assistant-on-raspberry-pi"
+      },
+      {
+        "text": "About installation types",
+        "href": "#about-installation-types"
+      },
+      {
+        "text": "Extend with Home Assistant Yellow",
+        "href": "#extend-with-home-assistant-yellow"
+      },
+      {
+        "text": "Home Assistant Yellow",
+        "href": "#home-assistant-yellow"
+      },
+      {
+        "text": "Install on other hardware",
+        "href": "#install-on-other-hardware"
+      },
+      {
+        "text": "Install Home Assistant on Odroid devices",
+        "href": "#install-home-assistant-on-odroid-devices"
+      },
+      {
+        "text": "Install Home Assistant on x86-64 machines",
+        "href": "#install-home-assistant-on-x86-64-machines"
+      },
+      {
+        "text": "Install Home Assistant variants on Raspberry Pi",
+        "href": "#install-home-assistant-variants-on-raspberry-pi"
+      },
+      {
+        "text": "Install Home Assistant on Linux",
+        "href": "#install-home-assistant-on-linux"
+      },
+      {
+        "text": "Install Home Assistant on macOS",
+        "href": "#install-home-assistant-on-macos"
+      },
+      {
+        "text": "Install Home Assistant on Windows",
+        "href": "#install-home-assistant-on-windows"
+      },
+      {
+        "text": "Install Home Assistant on other systems",
+        "href": "#install-home-assistant-on-other-systems"
+      },
+      {
+        "text": "Deprecated installation types",
+        "href": "#deprecated-installation-types"
+      },
+      {
+        "text": "Home Assistant Operating System",
+        "href": "/installation/#about-installation-types"
+      },
+      {
+        "text": "Get Home Assistant Green",
+        "href": "/green"
+      },
+      {
+        "text": "View tutorial",
+        "href": "https://support.nabucasa.com/hc/en-us/categories/24638797677853-Home-Assistant-Green"
+      },
+      {
+        "text": "Get Raspberry Pi",
+        "href": "https://amzn.to/3UH6TcD"
+      },
+      {
+        "text": "View tutorial",
+        "href": "/installation/raspberrypi"
+      },
+      {
+        "text": "[Learn more]",
+        "href": "/getting-started/concepts-terminology/#add-ons"
+      },
+      {
+        "text": "[Learn more]",
+        "href": "/getting-started/concepts-terminology/#add-ons"
+      },
+      {
+        "text": "Automations",
+        "href": "/docs/automation"
+      },
+      {
+        "text": "Dashboards",
+        "href": "/dashboards"
+      },
+      {
+        "text": "Integrations",
+        "href": "/integrations"
+      },
+      {
+        "text": "Add-ons",
+        "href": "/addons"
+      },
+      {
+        "text": "Blueprints",
+        "href": "/docs/blueprint"
+      },
+      {
+        "text": "Backups",
+        "href": "/common-tasks/general/#backups"
+      },
+      {
+        "text": "Get Home Assistant Yellow",
+        "href": "/yellow"
+      },
+      {
+        "text": "View tutorial",
+        "href": "https://support.nabucasa.com/hc/en-us/categories/24734575925149-Home-Assistant-Yellow"
+      },
+      {
+        "text": "View tutorial",
+        "href": "/installation/odroid"
+      },
+      {
+        "text": "View tutorial",
+        "href": "/installation/generic-x86-64"
+      },
+      {
+        "text": "Get Raspberry Pi",
+        "href": "https://amzn.to/3UH6TcD"
+      },
+      {
+        "text": "View tutorial",
+        "href": "/installation/raspberrypi-other"
+      },
+      {
+        "text": "View tutorial",
+        "href": "/installation/linux"
+      },
+      {
+        "text": "View tutorial",
+        "href": "/installation/macos"
+      },
+      {
+        "text": "View tutorial",
+        "href": "/installation/windows"
+      },
+      {
+        "text": "View tutorial",
+        "href": "/installation/alternative"
+      },
+      {
+        "text": "deprecated and no longer recommended for new users",
+        "href": "https://www.home-assistant.io/blog/2025/05/22/deprecating-core-and-supervised-installation-methods-and-32-bit-systems/"
+      },
+      {
+        "text": "Edit",
+        "href": "https://github.com/home-assistant/home-assistant.io/tree/current/source/installation/index.html"
+      },
+      {
+        "text": "Provide feedback",
+        "href": "https://github.com/home-assistant/home-assistant.io/issues/new?template=feedback.yml&url=https%3A%2F%2Fwww.home-assistant.io%2Finstallation%2F&version=2025.10.2&labels=current"
+      },
+      {
+        "text": "View given feedback",
+        "href": "https://github.com/home-assistant/home-assistant.io/issues?utf8=%E2%9C%93&q=%22%2Finstallation%2F%22&in=body"
+      },
+      {
+        "text": "Installation",
+        "href": "/installation/"
+      },
+      {
+        "text": "Home Assistant Green",
+        "href": "https://support.nabucasa.com/hc/en-us/categories/24638797677853-Home-Assistant-Green"
+      },
+      {
+        "text": "Home Assistant Yellow",
+        "href": "https://support.nabucasa.com/hc/en-us/categories/24734575925149-Home-Assistant-Yellow"
+      },
+      {
+        "text": "Raspberry Pi",
+        "href": "/installation/raspberrypi/"
+      },
+      {
+        "text": "ODROID",
+        "href": "/installation/odroid/"
+      },
+      {
+        "text": "Generic x86-64",
+        "href": "/installation/generic-x86-64/"
+      },
+      {
+        "text": "Linux",
+        "href": "/installation/linux/"
+      },
+      {
+        "text": "macOS",
+        "href": "/installation/macos/"
+      },
+      {
+        "text": "Windows",
+        "href": "/installation/windows/"
+      },
+      {
+        "text": "Other systems",
+        "href": "/installation/alternative/"
+      },
+      {
+        "text": "Troubleshooting",
+        "href": "/installation/troubleshooting/"
+      },
+      {
+        "text": "Onboarding",
+        "href": "/getting-started/onboarding/"
+      },
+      {
+        "text": "Concepts and terminology",
+        "href": "/getting-started/concepts-terminology/"
+      },
+      {
+        "text": "Editing the dashboard",
+        "href": "/getting-started/onboarding_dashboard/"
+      },
+      {
+        "text": "Adding integrations",
+        "href": "/getting-started/integration/"
+      },
+      {
+        "text": "Automating devices",
+        "href": "/getting-started/automation/"
+      },
+      {
+        "text": "Presence detection",
+        "href": "/getting-started/presence-detection/"
+      },
+      {
+        "text": "Join the community",
+        "href": "/getting-started/join-the-community/"
+      },
+      {
+        "text": "Next steps",
+        "href": "/getting-started/configuration/"
+      },
+      {
+        "text": "Plug and play with Home Assistant Green",
+        "href": "#plug-and-play-with-home-assistant-green"
+      },
+      {
+        "text": "Home Assistant Green",
+        "href": "#home-assistant-green"
+      },
+      {
+        "text": "DIY with Raspberry Pi",
+        "href": "#diy-with-raspberry-pi"
+      },
+      {
+        "text": "Install Home Assistant on Raspberry Pi",
+        "href": "#install-home-assistant-on-raspberry-pi"
+      },
+      {
+        "text": "About installation types",
+        "href": "#about-installation-types"
+      },
+      {
+        "text": "Extend with Home Assistant Yellow",
+        "href": "#extend-with-home-assistant-yellow"
+      },
+      {
+        "text": "Home Assistant Yellow",
+        "href": "#home-assistant-yellow"
+      },
+      {
+        "text": "Install on other hardware",
+        "href": "#install-on-other-hardware"
+      },
+      {
+        "text": "Install Home Assistant on Odroid devices",
+        "href": "#install-home-assistant-on-odroid-devices"
+      },
+      {
+        "text": "Install Home Assistant on x86-64 machines",
+        "href": "#install-home-assistant-on-x86-64-machines"
+      },
+      {
+        "text": "Install Home Assistant variants on Raspberry Pi",
+        "href": "#install-home-assistant-variants-on-raspberry-pi"
+      },
+      {
+        "text": "Install Home Assistant on Linux",
+        "href": "#install-home-assistant-on-linux"
+      },
+      {
+        "text": "Install Home Assistant on macOS",
+        "href": "#install-home-assistant-on-macos"
+      },
+      {
+        "text": "Install Home Assistant on Windows",
+        "href": "#install-home-assistant-on-windows"
+      },
+      {
+        "text": "Install Home Assistant on other systems",
+        "href": "#install-home-assistant-on-other-systems"
+      },
+      {
+        "text": "Deprecated installation types",
+        "href": "#deprecated-installation-types"
+      },
+      {
+        "text": "Open Home Foundation",
+        "href": "https://www.openhomefoundation.org/"
+      },
+      {
+        "text": "Nabu Casa",
+        "href": "https://www.nabucasa.com/"
+      },
+      {
+        "text": "GitHub repo",
+        "href": "https://github.com/home-assistant/"
+      },
+      {
+        "text": "Developers Portal",
+        "href": "https://developers.home-assistant.io"
+      },
+      {
+        "text": "Design Portal",
+        "href": "https://design.home-assistant.io"
+      },
+      {
+        "text": "Data Science Portal",
+        "href": "https://data.home-assistant.io"
+      },
+      {
+        "text": "Community Forum",
+        "href": "https://community.home-assistant.io"
+      },
+      {
+        "text": "Creator Network",
+        "href": "https://creators.home-assistant.io/"
+      },
+      {
+        "text": "Works With Home Assistant",
+        "href": "https://works-with.home-assistant.io/"
+      },
+      {
+        "text": "Our community",
+        "href": "/community"
+      },
+      {
+        "text": "Reporting issues",
+        "href": "/help/reporting_issues/"
+      },
+      {
+        "text": "Integration Alerts",
+        "href": "https://alerts.home-assistant.io"
+      },
+      {
+        "text": "Security Alerts",
+        "href": "/security/"
+      },
+      {
+        "text": "System Status",
+        "href": "https://status.home-assistant.io"
+      },
+      {
+        "text": "iOS and Apple devices",
+        "href": "https://apps.apple.com/us/app/home-assistant/id1099568401"
+      },
+      {
+        "text": "Android and Wear OS",
+        "href": "https://play.google.com/store/apps/details?id=io.homeassistant.companion.android"
+      },
+      {
+        "text": "...and more!",
+        "href": "https://companion.home-assistant.io/"
+      },
+      {
+        "text": "Privacy Notices",
+        "href": "/privacy/"
+      },
+      {
+        "text": "Contributor License Agreement",
+        "href": "/developers/cla/"
+      },
+      {
+        "text": "Terms of Service",
+        "href": "/tos/"
+      },
+      {
+        "text": "Code of Conduct",
+        "href": "/code_of_conduct/"
+      },
+      {
+        "text": "Credits",
+        "href": "/developers/credits/"
+      },
+      {
+        "text": "License",
+        "href": "/developers/license/"
+      },
+      {
+        "text": "Sign up for our newsletter",
+        "href": "https://newsletter.openhomefoundation.org/#/portal"
+      },
+      {
+        "text": "Works With Home Assistant",
+        "href": "https://works-with.home-assistant.io/"
+      },
+      {
+        "text": "here",
+        "href": "mailto:media@openhomefoundation.org"
+      },
+      {
+        "text": "here",
+        "href": "mailto:hello@home-assistant.io"
+      },
+      {
+        "text": "Jekyll",
+        "href": "https://jekyllrb.com/"
+      },
+      {
+        "text": "Oscailte theme",
+        "href": "https://github.com/coogie/oscailte"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "/images/installation/green.jpg"
+      },
+      {
+        "alt": "",
+        "src": "/images/installation/rpi.jpg"
+      },
+      {
+        "alt": "",
+        "src": "/images/installation/yellow.jpg"
+      },
+      {
+        "alt": "",
+        "src": "/images/installation/odroid.jpg"
+      },
+      {
+        "alt": "",
+        "src": "/images/installation/x86.jpg"
+      },
+      {
+        "alt": "",
+        "src": "/images/installation/rpi.jpg"
+      },
+      {
+        "alt": "",
+        "src": "/images/installation/linux.svg"
+      },
+      {
+        "alt": "",
+        "src": "/images/installation/macos.svg"
+      },
+      {
+        "alt": "",
+        "src": "/images/installation/windows.svg"
+      },
+      {
+        "alt": "Home Assistant",
+        "src": "/images/footer-logo-text.svg"
+      },
+      {
+        "alt": "Deploys by Netlify Badge",
+        "src": "/images/frontpage/netlify.svg"
+      }
+    ],
+    "timestamp": 1760611825304,
+    "url": "https://www.home-assistant.io/installation/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

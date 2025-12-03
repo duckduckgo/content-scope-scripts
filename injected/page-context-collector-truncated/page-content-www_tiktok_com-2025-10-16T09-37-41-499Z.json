@@ -1,0 +1,48 @@
+{
+  "url": "https://www.tiktok.com/login",
+  "extractedAt": "2025-10-16T09:37:41.499Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.tiktok.com/favicon.ico",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "Log in | TikTok",
+    "metaDescription": "Log in or sign up for an account on TikTok. Start watching to discover real people and real videos that will make your day.",
+    "content": "[**TikTok**](/)[Feedback and help](https://www.tiktok.com/feedback/?lang=en)\n## Log in to TikTok\nManage your account, check notifications, comment on videos, and more.Use QR codeUse phone / email / usernameContinue with FacebookContinue with GoogleContinue with AppleBy continuing, you agree to TikTok’s  [Terms of Service](https://www.tiktok.com/legal/terms-of-use?lang=en) and confirm that you have read TikTok’s  [Privacy Policy](https://www.tiktok.com/legal/privacy-policy?lang=en).\nDon’t have an account? [Sign up](/signup?automation=true?automation=true&wait-for-init-args=true)English (US)\n© 2025 TikTokAllow cookies from TikTok on this browser?\nTikTok uses cookies and similar technologies to provide, improve, protect and analyze our services. Essential cookies are necessary for our site to work as intended. By selecting \"Allow all\", you allow us to use optional cookies for additional purposes, such as measuring the effectiveness and relevance of ads, including personalized ads on TikTok.com, depending on your settings. Optional cookies also help us do other things, such as better measure the performance of our advertising campaigns off TikTok.com. Learn more about how we use cookies and manage your choices in our [Cookies Policy](https://www.tiktok.com/legal/tiktok-website-cookies-policy?lang=en).\n Decline optional cookies Allow all",
+    "truncated": false,
+    "fullContentLength": 1354,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Log in to TikTok"
+      }
+    ],
+    "links": [
+      {
+        "text": "TikTok",
+        "href": "/"
+      },
+      {
+        "text": "Feedback and help",
+        "href": "https://www.tiktok.com/feedback/?lang=en"
+      },
+      {
+        "text": "Terms of Service",
+        "href": "https://www.tiktok.com/legal/terms-of-use?lang=en"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://www.tiktok.com/legal/privacy-policy?lang=en"
+      },
+      {
+        "text": "Sign up",
+        "href": "/signup?automation=true?automation=true&wait-for-init-args=true"
+      }
+    ],
+    "images": [],
+    "timestamp": 1760607459084,
+    "url": "https://www.tiktok.com/login?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

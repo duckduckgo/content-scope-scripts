@@ -1,0 +1,828 @@
+{
+  "url": "https://news.ycombinator.com",
+  "extractedAt": "2025-10-17T10:16:32.072Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://news.ycombinator.com/y18.svg",
+        "rel": "icon"
+      }
+    ],
+    "title": "Hacker News",
+    "metaDescription": "",
+    "content": "**[Hacker News](news)**[new](newest) | [past](front) | [comments](newcomments) | [ask](ask) | [show](show) | [jobs](jobs) | [submit](submit)[login](login?goto=news)1.[How I bypassed Amazon's Kindle web DRM](https://blog.pixelmelt.dev/kindle-web-drm/) ([pixelmelt.dev](from?site=pixelmelt.dev))1099 points by [pixelmelt](user?id=pixelmelt) [13 hours ago](item?id=45610226)  | [hide](hide?id=45610226&goto=news) | [316 comments](item?id=45610226)2.[Meow.camera](https://meow.camera/) ([meow.camera](from?site=meow.camera))258 points by [southwindcg](user?id=southwindcg) [6 hours ago](item?id=45613047)  | [hide](hide?id=45613047&goto=news) | [81 comments](item?id=45613047)3.[Reworking Memory Management in CRuby](https://railsatscale.com/2025-09-16-reworking-memory-management-in-cruby/) ([railsatscale.com](from?site=railsatscale.com))13 points by [ksec](user?id=ksec) [1 hour ago](item?id=45557669)  | [hide](hide?id=45557669&goto=news) | [3 comments](item?id=45557669)4.[Claude Skills](https://www.anthropic.com/news/skills) ([anthropic.com](from?site=anthropic.com))644 points by [meetpateltech](user?id=meetpateltech) [18 hours ago](item?id=45607117)  | [hide](hide?id=45607117&goto=news) | [348 comments](item?id=45607117)5.[Create a Custom Interactive dashboard using SVG](https://0xmm.in/posts/custom_dash/) ([0xmm.in](from?site=0xmm.in))35 points by [accessonline](user?id=accessonline) [5 hours ago](item?id=45565977)  | [hide](hide?id=45565977&goto=news) | [10 comments](item?id=45565977)6.[Ring to partner with Flock, a network of cameras used by ICE, feds, and police](https://techcrunch.com/2025/10/16/amazons-ring-to-partner-with-flock-a-network-of-ai-cameras-used-by-ice-feds-and-police/) ([techcrunch.com](from?site=techcrunch.com))32 points by [gman83](user?id=gman83) [1 hour ago](item?id=45614713)  | [hide](hide?id=45614713&goto=news) | [8 comments](item?id=45614713)7.[Next steps for BPF support in the GNU toolchain](https://lwn.net/Articles/1039827/) ([lwn.net](from?site=lwn.net))49 points by [signa11](user?id=signa11) [7 hours ago](item?id=45612987)  | [hide](hide?id=45612987&goto=news) | [9 comments](item?id=45612987)8.[Gemini 3.0 spotted in the wild through A/B testing](https://ricklamers.io/posts/gemini-3-spotted-in-the-wild/) ([ricklamers.io](from?site=ricklamers.io))369 points by [ricklamers](user?id=ricklamers) [17 hours ago](item?id=45607758)  | [hide](hide?id=45607758&goto=news) | [219 comments](item?id=45607758)9.[Cloudflare Sandbox SDK](https://sandbox.cloudflare.com/) ([cloudflare.com](from?site=cloudflare.com))207 points by [bentaber](user?id=bentaber) [13 hours ago](item?id=45610523)  | [hide](hide?id=45610523&goto=news) | [62 comments](item?id=45610523)10.[Your data model is your destiny](https://notes.mtb.xyz/p/your-data-model-is-your-destiny) ([mtb.xyz](from?site=mtb.xyz))278 points by [hunglee2](user?id=hunglee2) [15 hours ago](item?id=45583786)  | [hide](hide?id=45583786&goto=news) | [63 comments](item?id=45583786)11.[DoorDash and Waymo launch autonomous delivery service in Phoenix](https://about.doordash.com/en-us/news/waymo) ([doordash.com](from?site=doordash.com))262 points by [ChrisArchitect](user?id=ChrisArchitect) [20 hours ago](item?id=45605501)  | [hide](hide?id=45605501&goto=news) | [584 comments](item?id=45605501)12.[Codex Is Live in Zed](https://zed.dev/blog/codex-is-live-in-zed) ([zed.dev](from?site=zed.dev))235 points by [meetpateltech](user?id=meetpateltech) [18 hours ago](item?id=45606698)  | [hide](hide?id=45606698&goto=news) | [41 comments](item?id=45606698)13.[Read Your Way Through Hà NộI](https://vietnamesetypography.com/samples/read-your-way-through-ha-noi/) ([vietnamesetypography.com](from?site=vietnamesetypography.com))44 points by [jxmorris12](user?id=jxmorris12) [7 hours ago](item?id=45550969)  | [hide](hide?id=45550969&goto=news) | [24 comments](item?id=45550969)14.[A liver transplant from start to finish](https://press.asimov.com/articles/liver) ([asimov.com](from?site=asimov.com))58 points by [mailyk](user?id=mailyk) [9 hours ago](item?id=45559040)  | [hide](hide?id=45559040&goto=news) | [10 comments](item?id=45559040)15.[America’s semiconductor boom [video]](https://www.youtube.com/watch?v=T-jt3qBzJ4A) ([youtube.com](from?site=youtube.com))163 points by [zdw](user?id=zdw) [11 hours ago](item?id=45611735)  | [hide](hide?id=45611735&goto=news) | [91 comments](item?id=45611735)16.[Hyperflask – Full stack Flask and Htmx framework](https://hyperflask.dev/) ([hyperflask.dev](from?site=hyperflask.dev))323 points by [emixam](user?id=emixam) [21 hours ago](item?id=45604673)  | [hide](hide?id=45604673&goto=news) | [117 comments](item?id=45604673)17.[Talent](https://www.felixstocker.com/blog/talent) ([felixstocker.com](from?site=felixstocker.com))165 points by [BinaryIgor](user?id=BinaryIgor) [16 hours ago](item?id=45608456)  | [hide](hide?id=45608456&goto=news) | [77 comments](item?id=45608456)18.[Elixir 1.19](https://elixir-lang.org/blog/2025/10/16/elixir-v1-19-0-released/) ([elixir-lang.org](from?site=elixir-lang.org))306 points by [theanirudh](user?id=theanirudh) [1 day ago](item?id=45602428)  | [hide](hide?id=45602428&goto=news) | [92 comments](item?id=45602428)19.[Syntax highlighting is a waste of an information channel (2020)](https://buttondown.com/hillelwayne/archive/syntax-highlighting-is-a-waste-of-an-information/) ([buttondown.com/hillelwayne](from?site=buttondown.com/hillelwayne))293 points by [swyx](user?id=swyx) [1 day ago](item?id=45563576)  | [hide](hide?id=45563576&goto=news) | [129 comments](item?id=45563576)20.[Flight Simulator for the Brain Reveals How We Learn and Why Minds Go Off Course](https://now.tufts.edu/2025/10/16/flight-simulator-brain-reveals-how-we-learn-and-why-minds-sometimes-go-course) ([tufts.edu](from?site=tufts.edu))13 points by [XzetaU8](user?id=XzetaU8) [4 hours ago](item?id=45613667)  | [hide](hide?id=45613667&goto=news) | [3 comments](item?id=45613667)21.[Benjie's Humanoid Olympic Games](https://generalrobots.substack.com/p/benjies-humanoid-olympic-games) ([generalrobots.substack.com](from?site=generalrobots.substack.com))123 points by [robobenjie](user?id=robobenjie) [14 hours ago](item?id=45609922)  | [hide](hide?id=45609922&goto=news) | [91 comments](item?id=45609922)22.[Lead Limited Brain and Language Development in Neanderthals and Other Hominids?](https://today.ucsd.edu/story/did-lead-limit-brain-and-language-development-in-neanderthals-and-other-extinct-hominids) ([ucsd.edu](from?site=ucsd.edu))72 points by [gmays](user?id=gmays) [10 hours ago](item?id=45611851)  | [hide](hide?id=45611851&goto=news) | [29 comments](item?id=45611851)23.[Post office in France rolls out croissant-scented stamp](https://www.ctvnews.ca/world/article/french-post-office-rolls-out-croissant-scented-stamp/) ([ctvnews.ca](from?site=ctvnews.ca))131 points by [ohjeez](user?id=ohjeez) [17 hours ago](item?id=45529255)  | [hide](hide?id=45529255&goto=news) | [55 comments](item?id=45529255)24.[A 4k-Room Text Adventure Written by One Human in QBasic No AI](https://the-ventureweaver.itch.io/tlote4111) ([the-ventureweaver.itch.io](from?site=the-ventureweaver.itch.io))97 points by [ATiredGoat](user?id=ATiredGoat) [12 hours ago](item?id=45555709)  | [hide](hide?id=45555709&goto=news) | [78 comments](item?id=45555709)25.[Understanding Spec-Driven-Development: Kiro, Spec-Kit, and Tessl](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html) ([martinfowler.com](from?site=martinfowler.com))75 points by [janpio](user?id=janpio) [12 hours ago](item?id=45610996)  | [hide](hide?id=45610996&goto=news) | [11 comments](item?id=45610996)26.[Electricity can heal wounds three times as fast (2023)](https://www.chalmers.se/en/current/news/mc2-how-electricity-can-heal-wounds-three-times-as-fast/) ([chalmers.se](from?site=chalmers.se))168 points by [mgh2](user?id=mgh2) [21 hours ago](item?id=45604779)  | [hide](hide?id=45604779&goto=news) | [106 comments](item?id=45604779)27.[Frank founder Charlie Javice sentenced for JPMorgan fraud](https://www.bbc.com/news/articles/c4gwj15djdxo) ([bbc.com](from?site=bbc.com))11 points by [EvgeniyZh](user?id=EvgeniyZh) [1 hour ago](item?id=45614547)  | [hide](hide?id=45614547&goto=news) | [5 comments](item?id=45614547)28.[How to tame a user interface using a spreadsheet](https://blog.gingerbeardman.com/2025/10/11/how-to-tame-a-user-interface-using-a-spreadsheet/) ([gingerbeardman.com](from?site=gingerbeardman.com))128 points by [msephton](user?id=msephton) [18 hours ago](item?id=45545220)  | [hide](hide?id=45545220&goto=news) | [37 comments](item?id=45545220)29.[Microwave technique allows energy-efficient chemical reactions](https://phys.org/news/2025-10-microwave-technique-energy-efficient-chemical.html) ([phys.org](from?site=phys.org))53 points by [rolph](user?id=rolph) [13 hours ago](item?id=45543546)  | [hide](hide?id=45543546&goto=news) | [2 comments](item?id=45543546)30.[Show HN: Compression-Resistant Data Transfers](https://github.com/ianling/steg-experiments) ([github.com/ianling](from?site=github.com/ianling))11 points by [iaaan](user?id=iaaan) [6 hours ago](item?id=45555690)  | [hide](hide?id=45555690&goto=news) | [6 comments](item?id=45555690)[More](?p=2)\n [Consider applying for YC's Winter 2026 batch! Applications are open till Nov 10](https://www.ycombinator.com/apply/)\n [Guidelines](newsguidelines.html) | [FAQ](newsfaq.html) | [Lists](lists) | [API](https://github.com/HackerNews/API) | [Security](security.html) | [Legal](https://www.ycombinator.com/legal/) | [Apply to YC](https://www.ycombinator.com/apply/) | [Contact](mailto:hn@ycombinator.com)\n\n Search:",
+    "truncated": false,
+    "fullContentLength": 9619,
+    "headings": [],
+    "links": [
+      {
+        "text": "Hacker News",
+        "href": "news"
+      },
+      {
+        "text": "new",
+        "href": "newest"
+      },
+      {
+        "text": "past",
+        "href": "front"
+      },
+      {
+        "text": "comments",
+        "href": "newcomments"
+      },
+      {
+        "text": "ask",
+        "href": "ask"
+      },
+      {
+        "text": "show",
+        "href": "show"
+      },
+      {
+        "text": "jobs",
+        "href": "jobs"
+      },
+      {
+        "text": "submit",
+        "href": "submit"
+      },
+      {
+        "text": "login",
+        "href": "login?goto=news"
+      },
+      {
+        "text": "How I bypassed Amazon's Kindle web DRM",
+        "href": "https://blog.pixelmelt.dev/kindle-web-drm/"
+      },
+      {
+        "text": "pixelmelt.dev",
+        "href": "from?site=pixelmelt.dev"
+      },
+      {
+        "text": "pixelmelt",
+        "href": "user?id=pixelmelt"
+      },
+      {
+        "text": "13 hours ago",
+        "href": "item?id=45610226"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45610226&goto=news"
+      },
+      {
+        "text": "316 comments",
+        "href": "item?id=45610226"
+      },
+      {
+        "text": "Meow.camera",
+        "href": "https://meow.camera/"
+      },
+      {
+        "text": "meow.camera",
+        "href": "from?site=meow.camera"
+      },
+      {
+        "text": "southwindcg",
+        "href": "user?id=southwindcg"
+      },
+      {
+        "text": "6 hours ago",
+        "href": "item?id=45613047"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45613047&goto=news"
+      },
+      {
+        "text": "81 comments",
+        "href": "item?id=45613047"
+      },
+      {
+        "text": "Reworking Memory Management in CRuby",
+        "href": "https://railsatscale.com/2025-09-16-reworking-memory-management-in-cruby/"
+      },
+      {
+        "text": "railsatscale.com",
+        "href": "from?site=railsatscale.com"
+      },
+      {
+        "text": "ksec",
+        "href": "user?id=ksec"
+      },
+      {
+        "text": "1 hour ago",
+        "href": "item?id=45557669"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45557669&goto=news"
+      },
+      {
+        "text": "3 comments",
+        "href": "item?id=45557669"
+      },
+      {
+        "text": "Claude Skills",
+        "href": "https://www.anthropic.com/news/skills"
+      },
+      {
+        "text": "anthropic.com",
+        "href": "from?site=anthropic.com"
+      },
+      {
+        "text": "meetpateltech",
+        "href": "user?id=meetpateltech"
+      },
+      {
+        "text": "18 hours ago",
+        "href": "item?id=45607117"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45607117&goto=news"
+      },
+      {
+        "text": "348 comments",
+        "href": "item?id=45607117"
+      },
+      {
+        "text": "Create a Custom Interactive dashboard using SVG",
+        "href": "https://0xmm.in/posts/custom_dash/"
+      },
+      {
+        "text": "0xmm.in",
+        "href": "from?site=0xmm.in"
+      },
+      {
+        "text": "accessonline",
+        "href": "user?id=accessonline"
+      },
+      {
+        "text": "5 hours ago",
+        "href": "item?id=45565977"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45565977&goto=news"
+      },
+      {
+        "text": "10 comments",
+        "href": "item?id=45565977"
+      },
+      {
+        "text": "Ring to partner with Flock, a network of cameras used by ICE, feds, and police",
+        "href": "https://techcrunch.com/2025/10/16/amazons-ring-to-partner-with-flock-a-network-of-ai-cameras-used-by-ice-feds-and-police/"
+      },
+      {
+        "text": "techcrunch.com",
+        "href": "from?site=techcrunch.com"
+      },
+      {
+        "text": "gman83",
+        "href": "user?id=gman83"
+      },
+      {
+        "text": "1 hour ago",
+        "href": "item?id=45614713"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45614713&goto=news"
+      },
+      {
+        "text": "8 comments",
+        "href": "item?id=45614713"
+      },
+      {
+        "text": "Next steps for BPF support in the GNU toolchain",
+        "href": "https://lwn.net/Articles/1039827/"
+      },
+      {
+        "text": "lwn.net",
+        "href": "from?site=lwn.net"
+      },
+      {
+        "text": "signa11",
+        "href": "user?id=signa11"
+      },
+      {
+        "text": "7 hours ago",
+        "href": "item?id=45612987"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45612987&goto=news"
+      },
+      {
+        "text": "9 comments",
+        "href": "item?id=45612987"
+      },
+      {
+        "text": "Gemini 3.0 spotted in the wild through A/B testing",
+        "href": "https://ricklamers.io/posts/gemini-3-spotted-in-the-wild/"
+      },
+      {
+        "text": "ricklamers.io",
+        "href": "from?site=ricklamers.io"
+      },
+      {
+        "text": "ricklamers",
+        "href": "user?id=ricklamers"
+      },
+      {
+        "text": "17 hours ago",
+        "href": "item?id=45607758"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45607758&goto=news"
+      },
+      {
+        "text": "219 comments",
+        "href": "item?id=45607758"
+      },
+      {
+        "text": "Cloudflare Sandbox SDK",
+        "href": "https://sandbox.cloudflare.com/"
+      },
+      {
+        "text": "cloudflare.com",
+        "href": "from?site=cloudflare.com"
+      },
+      {
+        "text": "bentaber",
+        "href": "user?id=bentaber"
+      },
+      {
+        "text": "13 hours ago",
+        "href": "item?id=45610523"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45610523&goto=news"
+      },
+      {
+        "text": "62 comments",
+        "href": "item?id=45610523"
+      },
+      {
+        "text": "Your data model is your destiny",
+        "href": "https://notes.mtb.xyz/p/your-data-model-is-your-destiny"
+      },
+      {
+        "text": "mtb.xyz",
+        "href": "from?site=mtb.xyz"
+      },
+      {
+        "text": "hunglee2",
+        "href": "user?id=hunglee2"
+      },
+      {
+        "text": "15 hours ago",
+        "href": "item?id=45583786"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45583786&goto=news"
+      },
+      {
+        "text": "63 comments",
+        "href": "item?id=45583786"
+      },
+      {
+        "text": "DoorDash and Waymo launch autonomous delivery service in Phoenix",
+        "href": "https://about.doordash.com/en-us/news/waymo"
+      },
+      {
+        "text": "doordash.com",
+        "href": "from?site=doordash.com"
+      },
+      {
+        "text": "ChrisArchitect",
+        "href": "user?id=ChrisArchitect"
+      },
+      {
+        "text": "20 hours ago",
+        "href": "item?id=45605501"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45605501&goto=news"
+      },
+      {
+        "text": "584 comments",
+        "href": "item?id=45605501"
+      },
+      {
+        "text": "Codex Is Live in Zed",
+        "href": "https://zed.dev/blog/codex-is-live-in-zed"
+      },
+      {
+        "text": "zed.dev",
+        "href": "from?site=zed.dev"
+      },
+      {
+        "text": "meetpateltech",
+        "href": "user?id=meetpateltech"
+      },
+      {
+        "text": "18 hours ago",
+        "href": "item?id=45606698"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45606698&goto=news"
+      },
+      {
+        "text": "41 comments",
+        "href": "item?id=45606698"
+      },
+      {
+        "text": "Read Your Way Through Hà NộI",
+        "href": "https://vietnamesetypography.com/samples/read-your-way-through-ha-noi/"
+      },
+      {
+        "text": "vietnamesetypography.com",
+        "href": "from?site=vietnamesetypography.com"
+      },
+      {
+        "text": "jxmorris12",
+        "href": "user?id=jxmorris12"
+      },
+      {
+        "text": "7 hours ago",
+        "href": "item?id=45550969"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45550969&goto=news"
+      },
+      {
+        "text": "24 comments",
+        "href": "item?id=45550969"
+      },
+      {
+        "text": "A liver transplant from start to finish",
+        "href": "https://press.asimov.com/articles/liver"
+      },
+      {
+        "text": "asimov.com",
+        "href": "from?site=asimov.com"
+      },
+      {
+        "text": "mailyk",
+        "href": "user?id=mailyk"
+      },
+      {
+        "text": "9 hours ago",
+        "href": "item?id=45559040"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45559040&goto=news"
+      },
+      {
+        "text": "10 comments",
+        "href": "item?id=45559040"
+      },
+      {
+        "text": "America’s semiconductor boom [video]",
+        "href": "https://www.youtube.com/watch?v=T-jt3qBzJ4A"
+      },
+      {
+        "text": "youtube.com",
+        "href": "from?site=youtube.com"
+      },
+      {
+        "text": "zdw",
+        "href": "user?id=zdw"
+      },
+      {
+        "text": "11 hours ago",
+        "href": "item?id=45611735"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45611735&goto=news"
+      },
+      {
+        "text": "91 comments",
+        "href": "item?id=45611735"
+      },
+      {
+        "text": "Hyperflask – Full stack Flask and Htmx framework",
+        "href": "https://hyperflask.dev/"
+      },
+      {
+        "text": "hyperflask.dev",
+        "href": "from?site=hyperflask.dev"
+      },
+      {
+        "text": "emixam",
+        "href": "user?id=emixam"
+      },
+      {
+        "text": "21 hours ago",
+        "href": "item?id=45604673"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45604673&goto=news"
+      },
+      {
+        "text": "117 comments",
+        "href": "item?id=45604673"
+      },
+      {
+        "text": "Talent",
+        "href": "https://www.felixstocker.com/blog/talent"
+      },
+      {
+        "text": "felixstocker.com",
+        "href": "from?site=felixstocker.com"
+      },
+      {
+        "text": "BinaryIgor",
+        "href": "user?id=BinaryIgor"
+      },
+      {
+        "text": "16 hours ago",
+        "href": "item?id=45608456"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45608456&goto=news"
+      },
+      {
+        "text": "77 comments",
+        "href": "item?id=45608456"
+      },
+      {
+        "text": "Elixir 1.19",
+        "href": "https://elixir-lang.org/blog/2025/10/16/elixir-v1-19-0-released/"
+      },
+      {
+        "text": "elixir-lang.org",
+        "href": "from?site=elixir-lang.org"
+      },
+      {
+        "text": "theanirudh",
+        "href": "user?id=theanirudh"
+      },
+      {
+        "text": "1 day ago",
+        "href": "item?id=45602428"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45602428&goto=news"
+      },
+      {
+        "text": "92 comments",
+        "href": "item?id=45602428"
+      },
+      {
+        "text": "Syntax highlighting is a waste of an information channel (2020)",
+        "href": "https://buttondown.com/hillelwayne/archive/syntax-highlighting-is-a-waste-of-an-information/"
+      },
+      {
+        "text": "buttondown.com/hillelwayne",
+        "href": "from?site=buttondown.com/hillelwayne"
+      },
+      {
+        "text": "swyx",
+        "href": "user?id=swyx"
+      },
+      {
+        "text": "1 day ago",
+        "href": "item?id=45563576"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45563576&goto=news"
+      },
+      {
+        "text": "129 comments",
+        "href": "item?id=45563576"
+      },
+      {
+        "text": "Flight Simulator for the Brain Reveals How We Learn and Why Minds Go Off Course",
+        "href": "https://now.tufts.edu/2025/10/16/flight-simulator-brain-reveals-how-we-learn-and-why-minds-sometimes-go-course"
+      },
+      {
+        "text": "tufts.edu",
+        "href": "from?site=tufts.edu"
+      },
+      {
+        "text": "XzetaU8",
+        "href": "user?id=XzetaU8"
+      },
+      {
+        "text": "4 hours ago",
+        "href": "item?id=45613667"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45613667&goto=news"
+      },
+      {
+        "text": "3 comments",
+        "href": "item?id=45613667"
+      },
+      {
+        "text": "Benjie's Humanoid Olympic Games",
+        "href": "https://generalrobots.substack.com/p/benjies-humanoid-olympic-games"
+      },
+      {
+        "text": "generalrobots.substack.com",
+        "href": "from?site=generalrobots.substack.com"
+      },
+      {
+        "text": "robobenjie",
+        "href": "user?id=robobenjie"
+      },
+      {
+        "text": "14 hours ago",
+        "href": "item?id=45609922"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45609922&goto=news"
+      },
+      {
+        "text": "91 comments",
+        "href": "item?id=45609922"
+      },
+      {
+        "text": "Lead Limited Brain and Language Development in Neanderthals and Other Hominids?",
+        "href": "https://today.ucsd.edu/story/did-lead-limit-brain-and-language-development-in-neanderthals-and-other-extinct-hominids"
+      },
+      {
+        "text": "ucsd.edu",
+        "href": "from?site=ucsd.edu"
+      },
+      {
+        "text": "gmays",
+        "href": "user?id=gmays"
+      },
+      {
+        "text": "10 hours ago",
+        "href": "item?id=45611851"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45611851&goto=news"
+      },
+      {
+        "text": "29 comments",
+        "href": "item?id=45611851"
+      },
+      {
+        "text": "Post office in France rolls out croissant-scented stamp",
+        "href": "https://www.ctvnews.ca/world/article/french-post-office-rolls-out-croissant-scented-stamp/"
+      },
+      {
+        "text": "ctvnews.ca",
+        "href": "from?site=ctvnews.ca"
+      },
+      {
+        "text": "ohjeez",
+        "href": "user?id=ohjeez"
+      },
+      {
+        "text": "17 hours ago",
+        "href": "item?id=45529255"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45529255&goto=news"
+      },
+      {
+        "text": "55 comments",
+        "href": "item?id=45529255"
+      },
+      {
+        "text": "A 4k-Room Text Adventure Written by One Human in QBasic No AI",
+        "href": "https://the-ventureweaver.itch.io/tlote4111"
+      },
+      {
+        "text": "the-ventureweaver.itch.io",
+        "href": "from?site=the-ventureweaver.itch.io"
+      },
+      {
+        "text": "ATiredGoat",
+        "href": "user?id=ATiredGoat"
+      },
+      {
+        "text": "12 hours ago",
+        "href": "item?id=45555709"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45555709&goto=news"
+      },
+      {
+        "text": "78 comments",
+        "href": "item?id=45555709"
+      },
+      {
+        "text": "Understanding Spec-Driven-Development: Kiro, Spec-Kit, and Tessl",
+        "href": "https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html"
+      },
+      {
+        "text": "martinfowler.com",
+        "href": "from?site=martinfowler.com"
+      },
+      {
+        "text": "janpio",
+        "href": "user?id=janpio"
+      },
+      {
+        "text": "12 hours ago",
+        "href": "item?id=45610996"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45610996&goto=news"
+      },
+      {
+        "text": "11 comments",
+        "href": "item?id=45610996"
+      },
+      {
+        "text": "Electricity can heal wounds three times as fast (2023)",
+        "href": "https://www.chalmers.se/en/current/news/mc2-how-electricity-can-heal-wounds-three-times-as-fast/"
+      },
+      {
+        "text": "chalmers.se",
+        "href": "from?site=chalmers.se"
+      },
+      {
+        "text": "mgh2",
+        "href": "user?id=mgh2"
+      },
+      {
+        "text": "21 hours ago",
+        "href": "item?id=45604779"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45604779&goto=news"
+      },
+      {
+        "text": "106 comments",
+        "href": "item?id=45604779"
+      },
+      {
+        "text": "Frank founder Charlie Javice sentenced for JPMorgan fraud",
+        "href": "https://www.bbc.com/news/articles/c4gwj15djdxo"
+      },
+      {
+        "text": "bbc.com",
+        "href": "from?site=bbc.com"
+      },
+      {
+        "text": "EvgeniyZh",
+        "href": "user?id=EvgeniyZh"
+      },
+      {
+        "text": "1 hour ago",
+        "href": "item?id=45614547"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45614547&goto=news"
+      },
+      {
+        "text": "5 comments",
+        "href": "item?id=45614547"
+      },
+      {
+        "text": "How to tame a user interface using a spreadsheet",
+        "href": "https://blog.gingerbeardman.com/2025/10/11/how-to-tame-a-user-interface-using-a-spreadsheet/"
+      },
+      {
+        "text": "gingerbeardman.com",
+        "href": "from?site=gingerbeardman.com"
+      },
+      {
+        "text": "msephton",
+        "href": "user?id=msephton"
+      },
+      {
+        "text": "18 hours ago",
+        "href": "item?id=45545220"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45545220&goto=news"
+      },
+      {
+        "text": "37 comments",
+        "href": "item?id=45545220"
+      },
+      {
+        "text": "Microwave technique allows energy-efficient chemical reactions",
+        "href": "https://phys.org/news/2025-10-microwave-technique-energy-efficient-chemical.html"
+      },
+      {
+        "text": "phys.org",
+        "href": "from?site=phys.org"
+      },
+      {
+        "text": "rolph",
+        "href": "user?id=rolph"
+      },
+      {
+        "text": "13 hours ago",
+        "href": "item?id=45543546"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45543546&goto=news"
+      },
+      {
+        "text": "2 comments",
+        "href": "item?id=45543546"
+      },
+      {
+        "text": "Show HN: Compression-Resistant Data Transfers",
+        "href": "https://github.com/ianling/steg-experiments"
+      },
+      {
+        "text": "github.com/ianling",
+        "href": "from?site=github.com/ianling"
+      },
+      {
+        "text": "iaaan",
+        "href": "user?id=iaaan"
+      },
+      {
+        "text": "6 hours ago",
+        "href": "item?id=45555690"
+      },
+      {
+        "text": "hide",
+        "href": "hide?id=45555690&goto=news"
+      },
+      {
+        "text": "6 comments",
+        "href": "item?id=45555690"
+      },
+      {
+        "text": "More",
+        "href": "?p=2"
+      },
+      {
+        "text": "Consider applying for YC's Winter 2026 batch! Applications are open till Nov 10",
+        "href": "https://www.ycombinator.com/apply/"
+      },
+      {
+        "text": "Guidelines",
+        "href": "newsguidelines.html"
+      },
+      {
+        "text": "FAQ",
+        "href": "newsfaq.html"
+      },
+      {
+        "text": "Lists",
+        "href": "lists"
+      },
+      {
+        "text": "API",
+        "href": "https://github.com/HackerNews/API"
+      },
+      {
+        "text": "Security",
+        "href": "security.html"
+      },
+      {
+        "text": "Legal",
+        "href": "https://www.ycombinator.com/legal/"
+      },
+      {
+        "text": "Apply to YC",
+        "href": "https://www.ycombinator.com/apply/"
+      },
+      {
+        "text": "Contact",
+        "href": "mailto:hn@ycombinator.com"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "y18.svg"
+      },
+      {
+        "alt": "",
+        "src": "s.gif"
+      }
+    ],
+    "timestamp": 1760696191551,
+    "url": "https://news.ycombinator.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

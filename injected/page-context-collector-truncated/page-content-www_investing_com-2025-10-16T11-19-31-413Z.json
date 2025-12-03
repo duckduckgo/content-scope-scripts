@@ -1,0 +1,2293 @@
+{
+  "url": "https://www.investing.com/indices/us-30-futures",
+  "extractedAt": "2025-10-16T11:19:31.413Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.investing.com/favicon.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.investing.com/favicon-16x16.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.investing.com/favicon-32x32.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.investing.com/favicon-48x48.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.investing.com/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "Dow Jones Futures Live - Investing.com",
+    "metaDescription": "Live Dow Jones Futures prices and pre-market data including Dow Futures stock market news, charts, analysis and more Dow Jones Futures coverage.",
+    "content": "[U.S. stock futures rise on Fed cut bets, strong earnings](https://www.investing.com/news/stock-market-news/us-stock-futures-steady-after-wall-st-gains-on-strong-bank-earnings-fed-cut-bets-4291125)\n\n- [Investing.com](/members/contributors/209049875)\n\n- 52 minutes ago\n\n- [8](/news/stock-market-news/us-stock-futures-steady-after-wall-st-gains-on-strong-bank-earnings-fed-cut-bets-4291125#comments)",
+    "truncated": false,
+    "fullContentLength": 397,
+    "headings": [
+      {
+        "level": 4,
+        "text": "Popular Searches"
+      },
+      {
+        "level": 5,
+        "text": "Please try another search"
+      },
+      {
+        "level": 2,
+        "text": "Top Brokers"
+      },
+      {
+        "level": 1,
+        "text": "Dow Jones Futures - Dec 25"
+      },
+      {
+        "level": 2,
+        "text": "Technical Analysis"
+      },
+      {
+        "level": 2,
+        "text": "Dow Jones Futures News & Analysis"
+      },
+      {
+        "level": 2,
+        "text": "Dow Jones Futures News & Analysis"
+      },
+      {
+        "level": 2,
+        "text": "Related ETFs"
+      },
+      {
+        "level": 2,
+        "text": "ProPicks AI"
+      },
+      {
+        "level": 2,
+        "text": "ProPicks AI"
+      },
+      {
+        "level": 2,
+        "text": "Trending Stocks"
+      },
+      {
+        "level": 2,
+        "text": "We Care About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "We and our partners process data to provide:"
+      }
+    ],
+    "links": [
+      {
+        "text": "Investing.com - Financial Markets Worldwide",
+        "href": "https://www.investing.com/"
+      },
+      {
+        "text": "FLASH SALE",
+        "href": "/pro/pricing"
+      },
+      {
+        "text": "English (UK)",
+        "href": "//uk.investing.com"
+      },
+      {
+        "text": "English (India)",
+        "href": "//in.investing.com"
+      },
+      {
+        "text": "English (Canada)",
+        "href": "//ca.investing.com"
+      },
+      {
+        "text": "English (Australia)",
+        "href": "//au.investing.com"
+      },
+      {
+        "text": "English (South Africa)",
+        "href": "//za.investing.com"
+      },
+      {
+        "text": "English (Philippines)",
+        "href": "//ph.investing.com"
+      },
+      {
+        "text": "English (Nigeria)",
+        "href": "//ng.investing.com"
+      },
+      {
+        "text": "Deutsch",
+        "href": "//de.investing.com"
+      },
+      {
+        "text": "Español (España)",
+        "href": "//es.investing.com"
+      },
+      {
+        "text": "Español (México)",
+        "href": "//mx.investing.com"
+      },
+      {
+        "text": "Français",
+        "href": "//fr.investing.com"
+      },
+      {
+        "text": "Italiano",
+        "href": "//it.investing.com"
+      },
+      {
+        "text": "Nederlands",
+        "href": "//nl.investing.com"
+      },
+      {
+        "text": "Polski",
+        "href": "//pl.investing.com"
+      },
+      {
+        "text": "Português (Portugal)",
+        "href": "//pt.investing.com"
+      },
+      {
+        "text": "Português (Brasil)",
+        "href": "//br.investing.com"
+      },
+      {
+        "text": "Русский",
+        "href": "//ru.investing.com"
+      },
+      {
+        "text": "Türkçe",
+        "href": "//tr.investing.com"
+      },
+      {
+        "text": "‏العربية‏",
+        "href": "//sa.investing.com"
+      },
+      {
+        "text": "Ελληνικά",
+        "href": "//gr.investing.com"
+      },
+      {
+        "text": "Svenska",
+        "href": "//se.investing.com"
+      },
+      {
+        "text": "Suomi",
+        "href": "//fi.investing.com"
+      },
+      {
+        "text": "עברית",
+        "href": "//il.investing.com"
+      },
+      {
+        "text": "日本語",
+        "href": "//jp.investing.com"
+      },
+      {
+        "text": "한국어",
+        "href": "//kr.investing.com"
+      },
+      {
+        "text": "简体中文",
+        "href": "//cn.investing.com"
+      },
+      {
+        "text": "繁體中文",
+        "href": "//hk.investing.com"
+      },
+      {
+        "text": "Bahasa Indonesia",
+        "href": "//id.investing.com"
+      },
+      {
+        "text": "Bahasa Melayu",
+        "href": "//ms.investing.com"
+      },
+      {
+        "text": "ไทย",
+        "href": "//th.investing.com"
+      },
+      {
+        "text": "Tiếng Việt",
+        "href": "//vn.investing.com"
+      },
+      {
+        "text": "हिंदी",
+        "href": "//hi.investing.com"
+      },
+      {
+        "text": "FLASH SALE",
+        "href": "/pro/pricing"
+      },
+      {
+        "text": "Markets",
+        "href": "https://www.investing.com/markets/"
+      },
+      {
+        "text": "Indices",
+        "href": "https://www.investing.com/indices/"
+      },
+      {
+        "text": "Indices Futures",
+        "href": "https://www.investing.com/indices/indices-futures"
+      },
+      {
+        "text": "Major Indices",
+        "href": "https://www.investing.com/indices/major-indices"
+      },
+      {
+        "text": "Indices Real-Time",
+        "href": "https://www.investing.com/indices/indices-cfds"
+      },
+      {
+        "text": "World Indices",
+        "href": "https://www.investing.com/indices/world-indices"
+      },
+      {
+        "text": "Global Indices",
+        "href": "https://www.investing.com/indices/global-indices"
+      },
+      {
+        "text": "Dow Jones Futures",
+        "href": "https://www.investing.com/indices/us-30-futures"
+      },
+      {
+        "text": "S&P 500 Futures",
+        "href": "https://www.investing.com/indices/us-spx-500-futures"
+      },
+      {
+        "text": "Nasdaq Futures",
+        "href": "https://www.investing.com/indices/nq-100-futures"
+      },
+      {
+        "text": "S&P 500",
+        "href": "https://www.investing.com/indices/us-spx-500"
+      },
+      {
+        "text": "Dow Jones",
+        "href": "https://www.investing.com/indices/us-30"
+      },
+      {
+        "text": "Nasdaq 100",
+        "href": "https://www.investing.com/indices/nq-100"
+      },
+      {
+        "text": "DAX",
+        "href": "https://www.investing.com/indices/germany-30"
+      },
+      {
+        "text": "FTSE 100",
+        "href": "https://www.investing.com/indices/uk-100"
+      },
+      {
+        "text": "Euro Stoxx 50",
+        "href": "https://www.investing.com/indices/eu-stoxx50"
+      },
+      {
+        "text": "Nikkei 225",
+        "href": "https://www.investing.com/indices/japan-ni225"
+      },
+      {
+        "text": "Stocks",
+        "href": "https://www.investing.com/equities/"
+      },
+      {
+        "text": "Stock Screener",
+        "href": "https://www.investing.com/stock-screener/"
+      },
+      {
+        "text": "Trending Stocks",
+        "href": "https://www.investing.com/equities/trending-stocks"
+      },
+      {
+        "text": "Stocks Picked by AI",
+        "href": "https://www.investing.com/pro/propicks"
+      },
+      {
+        "text": "United States",
+        "href": "https://www.investing.com/equities/united-states"
+      },
+      {
+        "text": "Pre-Market",
+        "href": "https://www.investing.com/equities/pre-market"
+      },
+      {
+        "text": "After Hours",
+        "href": "https://www.investing.com/equities/after-hours"
+      },
+      {
+        "text": "Earnings Calendar",
+        "href": "https://www.investing.com/earnings-calendar/"
+      },
+      {
+        "text": "Americas",
+        "href": "https://www.investing.com/equities/americas"
+      },
+      {
+        "text": "Europe",
+        "href": "https://www.investing.com/equities/europe"
+      },
+      {
+        "text": "52 Week High",
+        "href": "https://www.investing.com/equities/52-week-high"
+      },
+      {
+        "text": "52 Week Low",
+        "href": "https://www.investing.com/equities/52-week-low"
+      },
+      {
+        "text": "Most Active",
+        "href": "https://www.investing.com/equities/most-active-stocks"
+      },
+      {
+        "text": "Top Gainers",
+        "href": "https://www.investing.com/equities/top-stock-gainers"
+      },
+      {
+        "text": "Top Losers",
+        "href": "https://www.investing.com/equities/top-stock-losers"
+      },
+      {
+        "text": "Undervalued Stocks",
+        "href": "https://www.investing.com/equities/most-undervalued"
+      },
+      {
+        "text": "Overvalued Stocks",
+        "href": "https://www.investing.com/equities/most-overvalued"
+      },
+      {
+        "text": "World ADRs",
+        "href": "https://www.investing.com/equities/world-adrs"
+      },
+      {
+        "text": "Marijuana Stocks",
+        "href": "https://www.investing.com/equities/cannabis-stocks"
+      },
+      {
+        "text": "Top Bank Stocks",
+        "href": "https://www.investing.com/discover/bank-stocks"
+      },
+      {
+        "text": "Renewable Energy Stocks",
+        "href": "https://www.investing.com/discover/renewable-energy-stocks"
+      },
+      {
+        "text": "Apple",
+        "href": "https://www.investing.com/equities/apple-computer-inc"
+      },
+      {
+        "text": "Tesla",
+        "href": "https://www.investing.com/equities/tesla-motors"
+      },
+      {
+        "text": "Meta Platforms",
+        "href": "https://www.investing.com/equities/facebook-inc"
+      },
+      {
+        "text": "Amazon.com",
+        "href": "https://www.investing.com/equities/amazon-com-inc"
+      },
+      {
+        "text": "Microsoft",
+        "href": "https://www.investing.com/equities/microsoft-corp"
+      },
+      {
+        "text": "NVIDIA",
+        "href": "https://www.investing.com/equities/nvidia-corp"
+      },
+      {
+        "text": "Netflix",
+        "href": "https://www.investing.com/equities/netflix,-inc."
+      },
+      {
+        "text": "Pfizer",
+        "href": "https://www.investing.com/equities/pfizer"
+      },
+      {
+        "text": "AMD",
+        "href": "https://www.investing.com/equities/adv-micro-device"
+      },
+      {
+        "text": "Boeing",
+        "href": "https://www.investing.com/equities/boeing-co"
+      },
+      {
+        "text": "GameStop Corp",
+        "href": "https://www.investing.com/equities/gamestop-corp"
+      },
+      {
+        "text": "AMC Entertainment",
+        "href": "https://www.investing.com/equities/amc-entertat-hld"
+      },
+      {
+        "text": "Nio A ADR",
+        "href": "https://www.investing.com/equities/nio-inc"
+      },
+      {
+        "text": "Super Micro Computer",
+        "href": "https://www.investing.com/equities/super-micro-compu"
+      },
+      {
+        "text": "Commodities",
+        "href": "https://www.investing.com/commodities/"
+      },
+      {
+        "text": "Real Time Commodities",
+        "href": "https://www.investing.com/commodities/real-time-futures"
+      },
+      {
+        "text": "Metals",
+        "href": "https://www.investing.com/commodities/metals"
+      },
+      {
+        "text": "Energy",
+        "href": "https://www.investing.com/commodities/energy"
+      },
+      {
+        "text": "Grains",
+        "href": "https://www.investing.com/commodities/grains"
+      },
+      {
+        "text": "Softs",
+        "href": "https://www.investing.com/commodities/softs"
+      },
+      {
+        "text": "Meats",
+        "href": "https://www.investing.com/commodities/meats"
+      },
+      {
+        "text": "Commodity Indices",
+        "href": "https://www.investing.com/indices/commodities-indices"
+      },
+      {
+        "text": "Gold",
+        "href": "https://www.investing.com/commodities/gold"
+      },
+      {
+        "text": "Crude Oil WTI",
+        "href": "https://www.investing.com/commodities/crude-oil"
+      },
+      {
+        "text": "Brent Oil",
+        "href": "https://www.investing.com/commodities/brent-oil"
+      },
+      {
+        "text": "Silver",
+        "href": "https://www.investing.com/commodities/silver"
+      },
+      {
+        "text": "Natural Gas",
+        "href": "https://www.investing.com/commodities/natural-gas"
+      },
+      {
+        "text": "Copper",
+        "href": "https://www.investing.com/commodities/copper"
+      },
+      {
+        "text": "US Wheat",
+        "href": "https://www.investing.com/commodities/us-wheat"
+      },
+      {
+        "text": "Cryptocurrency",
+        "href": "https://www.investing.com/crypto/"
+      },
+      {
+        "text": "All Cryptocurrencies",
+        "href": "https://www.investing.com/crypto/currencies"
+      },
+      {
+        "text": "Cryptocurrency Pairs",
+        "href": "https://www.investing.com/crypto/currency-pairs"
+      },
+      {
+        "text": "Bitcoin",
+        "href": "https://www.investing.com/crypto/bitcoin"
+      },
+      {
+        "text": "Ethereum",
+        "href": "https://www.investing.com/crypto/ethereum"
+      },
+      {
+        "text": "Cardano",
+        "href": "https://www.investing.com/crypto/cardano"
+      },
+      {
+        "text": "Solana",
+        "href": "https://www.investing.com/crypto/solana"
+      },
+      {
+        "text": "Dogecoin",
+        "href": "https://www.investing.com/crypto/dogecoin"
+      },
+      {
+        "text": "SHIBA INU",
+        "href": "https://www.investing.com/crypto/shiba-inu"
+      },
+      {
+        "text": "Polkadot",
+        "href": "https://www.investing.com/crypto/polkadot-new"
+      },
+      {
+        "text": "OFFICIAL TRUMP",
+        "href": "https://www.investing.com/crypto/official-trump"
+      },
+      {
+        "text": "XRP",
+        "href": "https://www.investing.com/crypto/xrp"
+      },
+      {
+        "text": "Currency Converter",
+        "href": "https://www.investing.com/currency-converter/?tag=Cryptocurrency"
+      },
+      {
+        "text": "BTC/USD",
+        "href": "https://www.investing.com/crypto/bitcoin/btc-usd"
+      },
+      {
+        "text": "ETH/USD",
+        "href": "https://www.investing.com/crypto/ethereum/eth-usd"
+      },
+      {
+        "text": "BCH/USD",
+        "href": "https://www.investing.com/crypto/bitcoin-cash/bch-usd"
+      },
+      {
+        "text": "LTC/USD",
+        "href": "https://www.investing.com/crypto/litecoin/ltc-usd"
+      },
+      {
+        "text": "DOGE/USD",
+        "href": "https://www.investing.com/crypto/dogecoin/doge-usd"
+      },
+      {
+        "text": "ETC/USD",
+        "href": "https://www.investing.com/crypto/ethereum-classic/etc-usd"
+      },
+      {
+        "text": "ETH/BTC",
+        "href": "https://www.investing.com/crypto/ethereum/eth-btc"
+      },
+      {
+        "text": "XRP/USD",
+        "href": "https://www.investing.com/crypto/xrp/xrp-usd"
+      },
+      {
+        "text": "pDOTn/USD",
+        "href": "https://www.investing.com/crypto/polkadot-new/pdotn-usd"
+      },
+      {
+        "text": "Bitcoin Futures CME",
+        "href": "https://www.investing.com/crypto/bitcoin/bitcoin-futures"
+      },
+      {
+        "text": "Currencies",
+        "href": "https://www.investing.com/currencies/"
+      },
+      {
+        "text": "Currency Rates",
+        "href": "https://www.investing.com/currencies/streaming-forex-rates-majors"
+      },
+      {
+        "text": "Single Currency Crosses",
+        "href": "https://www.investing.com/currencies/single-currency-crosses"
+      },
+      {
+        "text": "Live Currency Cross Rates",
+        "href": "https://www.investing.com/currencies/live-currency-cross-rates"
+      },
+      {
+        "text": "Exchange Rates Table",
+        "href": "https://www.investing.com/currencies/exchange-rates-table"
+      },
+      {
+        "text": "Forward Rates",
+        "href": "https://www.investing.com/rates-bonds/forward-rates"
+      },
+      {
+        "text": "Currency Futures",
+        "href": "https://www.investing.com/currencies/fx-futures"
+      },
+      {
+        "text": "Currency Options",
+        "href": "https://www.investing.com/currencies/forex-options"
+      },
+      {
+        "text": "EUR/USD",
+        "href": "https://www.investing.com/currencies/eur-usd"
+      },
+      {
+        "text": "GBP/USD",
+        "href": "https://www.investing.com/currencies/gbp-usd"
+      },
+      {
+        "text": "EUR/CHF",
+        "href": "https://www.investing.com/currencies/eur-chf"
+      },
+      {
+        "text": "AUD/USD",
+        "href": "https://www.investing.com/currencies/aud-usd"
+      },
+      {
+        "text": "USD/JPY",
+        "href": "https://www.investing.com/currencies/usd-jpy"
+      },
+      {
+        "text": "USD/CAD",
+        "href": "https://www.investing.com/currencies/usd-cad"
+      },
+      {
+        "text": "USD/CHF",
+        "href": "https://www.investing.com/currencies/usd-chf"
+      },
+      {
+        "text": "USD/TRY",
+        "href": "https://www.investing.com/currencies/usd-try"
+      },
+      {
+        "text": "USD/MXN",
+        "href": "https://www.investing.com/currencies/usd-mxn"
+      },
+      {
+        "text": "BTC/USD",
+        "href": "https://www.investing.com/crypto/bitcoin/btc-usd"
+      },
+      {
+        "text": "USD/RUB",
+        "href": "https://www.investing.com/currencies/usd-rub"
+      },
+      {
+        "text": "Dollar Index",
+        "href": "https://www.investing.com/currencies/us-dollar-index"
+      },
+      {
+        "text": "ETFs",
+        "href": "https://www.investing.com/etfs/"
+      },
+      {
+        "text": "World ETFs",
+        "href": "https://www.investing.com/etfs/world-etfs"
+      },
+      {
+        "text": "Major ETFs",
+        "href": "https://www.investing.com/etfs/major-etfs"
+      },
+      {
+        "text": "USA ETFs",
+        "href": "https://www.investing.com/etfs/usa-etfs"
+      },
+      {
+        "text": "Marijuana ETFs",
+        "href": "https://www.investing.com/etfs/cannabis-etfs"
+      },
+      {
+        "text": "Bitcoin ETFs",
+        "href": "https://www.investing.com/discover/bitcoin-etfs"
+      },
+      {
+        "text": "SPDR S&P 500",
+        "href": "https://www.investing.com/etfs/spdr-s-p-500"
+      },
+      {
+        "text": "iShares MSCI Emerging Markets",
+        "href": "https://www.investing.com/etfs/ishares-msci-emg-markets"
+      },
+      {
+        "text": "SPDR Dow Jones Industrial Average",
+        "href": "https://www.investing.com/etfs/diamonds-trust"
+      },
+      {
+        "text": "Invesco QQQ Trust",
+        "href": "https://www.investing.com/etfs/powershares-qqqq"
+      },
+      {
+        "text": "Funds",
+        "href": "https://www.investing.com/funds/"
+      },
+      {
+        "text": "World Funds",
+        "href": "https://www.investing.com/funds/world-funds"
+      },
+      {
+        "text": "Major Funds",
+        "href": "https://www.investing.com/funds/major-funds"
+      },
+      {
+        "text": "Vanguard 500 Index Admiral",
+        "href": "https://www.investing.com/funds/vanguard-500-index-admiral"
+      },
+      {
+        "text": "Vanguard Total Bond Market II Index Fund Investor",
+        "href": "https://www.investing.com/funds/vanguard-total-bond-market-ii-idx-i"
+      },
+      {
+        "text": "American Funds Capital Income Builder A",
+        "href": "https://www.investing.com/funds/american-funds-capital-income-bldr"
+      },
+      {
+        "text": "PIMCO Commodity Real Return Strategy Institutional",
+        "href": "https://www.investing.com/funds/pimco-commodity-real-ret-strat-inst"
+      },
+      {
+        "text": "Bonds",
+        "href": "https://www.investing.com/rates-bonds/"
+      },
+      {
+        "text": "US Treasury Yield Curve",
+        "href": "https://www.investing.com/rates-bonds/usa-government-bonds"
+      },
+      {
+        "text": "World Government Bonds",
+        "href": "https://www.investing.com/rates-bonds/world-government-bonds"
+      },
+      {
+        "text": "Financial Futures",
+        "href": "https://www.investing.com/rates-bonds/financial-futures"
+      },
+      {
+        "text": "Government Bond Spreads",
+        "href": "https://www.investing.com/rates-bonds/government-bond-spreads"
+      },
+      {
+        "text": "Bond Indices",
+        "href": "https://www.investing.com/indices/bond-indices"
+      },
+      {
+        "text": "Forward Rates",
+        "href": "https://www.investing.com/rates-bonds/forward-rates"
+      },
+      {
+        "text": "World Credit Default Swap Rates (CDS)",
+        "href": "https://www.investing.com/rates-bonds/world-cds"
+      },
+      {
+        "text": "U.S. 10Y",
+        "href": "https://www.investing.com/rates-bonds/u.s.-10-year-bond-yield"
+      },
+      {
+        "text": "U.S. 30Y",
+        "href": "https://www.investing.com/rates-bonds/u.s.-30-year-bond-yield"
+      },
+      {
+        "text": "U.S. 2Y",
+        "href": "https://www.investing.com/rates-bonds/u.s.-2-year-bond-yield"
+      },
+      {
+        "text": "U.S. 5Y",
+        "href": "https://www.investing.com/rates-bonds/u.s.-5-year-bond-yield"
+      },
+      {
+        "text": "U.S. 3M",
+        "href": "https://www.investing.com/rates-bonds/u.s.-3-month-bond-yield"
+      },
+      {
+        "text": "US 10Y T-Note",
+        "href": "https://www.investing.com/rates-bonds/us-10-yr-t-note"
+      },
+      {
+        "text": "US 30Y T-Bond",
+        "href": "https://www.investing.com/rates-bonds/us-30-yr-t-bond"
+      },
+      {
+        "text": "Euro Bund",
+        "href": "https://www.investing.com/rates-bonds/euro-bund"
+      },
+      {
+        "text": "Certificates",
+        "href": "https://www.investing.com/certificates/"
+      },
+      {
+        "text": "Major Certificates",
+        "href": "https://www.investing.com/certificates/major-certificates"
+      },
+      {
+        "text": "World Certificates",
+        "href": "https://www.investing.com/certificates/world-certificates"
+      },
+      {
+        "text": "SG FTSE MIB Gross TR 5x Daily Short Strategy RT 18",
+        "href": "https://www.investing.com/certificates/sg-ftse-mib-gross-tr-5x-s-18jun21"
+      },
+      {
+        "text": "Vontobel 7X Long Fixed Lever on Natural Gas 8.06",
+        "href": "https://www.investing.com/certificates/vontobel-7x-long-natural-gas-8.06"
+      },
+      {
+        "text": "BNP Call 500.59 EUR AEX 31Dec99",
+        "href": "https://www.investing.com/certificates/bnp-call-500.59-eur-aex-31dec99"
+      },
+      {
+        "text": "COMMERZBANK AG Put CAC FUT 05/17 31Dec99",
+        "href": "https://www.investing.com/certificates/commerz-put-cac-fut-05-17-31dec99"
+      },
+      {
+        "text": "My Watchlist",
+        "href": "https://www.investing.com/portfolio/"
+      },
+      {
+        "text": "Investing Challenges",
+        "href": "https://www.investing.com/challenges?entry=nav_menu"
+      },
+      {
+        "text": "News",
+        "href": "https://www.investing.com/news/"
+      },
+      {
+        "text": "Stock Markets",
+        "href": "https://www.investing.com/news/stock-market-news"
+      },
+      {
+        "text": "Earnings",
+        "href": "https://www.investing.com/news/earnings"
+      },
+      {
+        "text": "Analyst Ratings",
+        "href": "https://www.investing.com/news/analyst-ratings"
+      },
+      {
+        "text": "Transcripts",
+        "href": "https://www.investing.com/news/transcripts"
+      },
+      {
+        "text": "Cryptocurrency",
+        "href": "https://www.investing.com/news/cryptocurrency-news"
+      },
+      {
+        "text": "Commodities",
+        "href": "https://www.investing.com/news/commodities-news"
+      },
+      {
+        "text": "Currencies",
+        "href": "https://www.investing.com/news/forex-news"
+      },
+      {
+        "text": "Economy",
+        "href": "https://www.investing.com/news/economy"
+      },
+      {
+        "text": "Economic Indicators",
+        "href": "https://www.investing.com/news/economic-indicators"
+      },
+      {
+        "text": "Breaking News",
+        "href": "https://www.investing.com/news/headlines"
+      },
+      {
+        "text": "Pro News",
+        "href": "https://www.investing.com/news/pro"
+      },
+      {
+        "text": "Latest",
+        "href": "https://www.investing.com/news/latest-news"
+      },
+      {
+        "text": "Most Popular",
+        "href": "https://www.investing.com/news/most-popular-news"
+      },
+      {
+        "text": "Sports & General",
+        "href": "https://www.investing.com/news/general"
+      },
+      {
+        "text": "World",
+        "href": "https://www.investing.com/news/world-news"
+      },
+      {
+        "text": "Politics",
+        "href": "https://www.investing.com/news/politics"
+      },
+      {
+        "text": "Press Releases",
+        "href": "https://www.investing.com/news/press-releases"
+      },
+      {
+        "text": "Company News",
+        "href": "https://www.investing.com/news/company-news"
+      },
+      {
+        "text": "Insider Trading",
+        "href": "https://www.investing.com/news/insider-trading-news"
+      },
+      {
+        "text": "Investment Ideas",
+        "href": "https://www.investing.com/news/investment-ideas"
+      },
+      {
+        "text": "SEC Filings",
+        "href": "https://www.investing.com/news/sec-filings"
+      },
+      {
+        "text": "SWOT Analysis",
+        "href": "https://www.investing.com/news/swot-analysis"
+      },
+      {
+        "text": "Analysis",
+        "href": "https://www.investing.com/analysis/"
+      },
+      {
+        "text": "Market Overview",
+        "href": "https://www.investing.com/analysis/market-overview"
+      },
+      {
+        "text": "Currencies",
+        "href": "https://www.investing.com/analysis/forex"
+      },
+      {
+        "text": "Stock Markets",
+        "href": "https://www.investing.com/analysis/stock-markets"
+      },
+      {
+        "text": "Commodities",
+        "href": "https://www.investing.com/analysis/commodities"
+      },
+      {
+        "text": "Bonds",
+        "href": "https://www.investing.com/analysis/bonds"
+      },
+      {
+        "text": "Cryptocurrency",
+        "href": "https://www.investing.com/analysis/cryptocurrency"
+      },
+      {
+        "text": "ETFs",
+        "href": "https://www.investing.com/analysis/etfs"
+      },
+      {
+        "text": "Most Popular",
+        "href": "https://www.investing.com/analysis/most-popular-analysis"
+      },
+      {
+        "text": "Editor's Picks",
+        "href": "https://www.investing.com/analysis/editors-picks"
+      },
+      {
+        "text": "Comics",
+        "href": "https://www.investing.com/analysis/comics"
+      },
+      {
+        "text": "Charts",
+        "href": "https://www.investing.com/charts/"
+      },
+      {
+        "text": "Live Charts",
+        "href": "https://www.investing.com/charts/live-charts"
+      },
+      {
+        "text": "Currency Chart",
+        "href": "https://www.investing.com/charts/forex-charts"
+      },
+      {
+        "text": "Futures Chart",
+        "href": "https://www.investing.com/charts/futures-charts"
+      },
+      {
+        "text": "Stocks Chart",
+        "href": "https://www.investing.com/charts/stocks-charts"
+      },
+      {
+        "text": "Indices Chart",
+        "href": "https://www.investing.com/charts/indices-charts"
+      },
+      {
+        "text": "Cryptocurrency Chart",
+        "href": "https://www.investing.com/charts/cryptocurrency-charts"
+      },
+      {
+        "text": "Interactive Currency Chart",
+        "href": "https://www.investing.com/charts/real-time-forex-charts"
+      },
+      {
+        "text": "Interactive Futures Chart",
+        "href": "https://www.investing.com/charts/real-time-futures-charts"
+      },
+      {
+        "text": "Interactive Indices Chart",
+        "href": "https://www.investing.com/charts/real-time-indices-charts"
+      },
+      {
+        "text": "Interactive Stocks Chart",
+        "href": "https://www.investing.com/charts/real-time-stocks-charts"
+      },
+      {
+        "text": "Multiple Currency Charts",
+        "href": "https://www.investing.com/charts/multiple-forex-streaming-charts"
+      },
+      {
+        "text": "Multiple Indices Charts",
+        "href": "https://www.investing.com/charts/multiple-indices-streaming-charts"
+      },
+      {
+        "text": "Technical",
+        "href": "https://www.investing.com/technical/"
+      },
+      {
+        "text": "Technical Summary",
+        "href": "https://www.investing.com/technical/technical-summary"
+      },
+      {
+        "text": "Technical Analysis",
+        "href": "https://www.investing.com/technical/technical-analysis"
+      },
+      {
+        "text": "Pivot Points",
+        "href": "https://www.investing.com/technical/pivot-points"
+      },
+      {
+        "text": "Moving Averages",
+        "href": "https://www.investing.com/technical/moving-averages"
+      },
+      {
+        "text": "Indicators",
+        "href": "https://www.investing.com/technical/indicators"
+      },
+      {
+        "text": "Candlestick Patterns",
+        "href": "https://www.investing.com/technical/candlestick-patterns"
+      },
+      {
+        "text": "Candlestick Patterns",
+        "href": "https://www.investing.com/technical/candlestick-patterns"
+      },
+      {
+        "text": "Fibonacci Calculator",
+        "href": "https://www.investing.com/tools/fibonacci-calculator"
+      },
+      {
+        "text": "Pivot Point Calculator",
+        "href": "https://www.investing.com/tools/pivot-point-calculator"
+      },
+      {
+        "text": "Brokers",
+        "href": "https://www.investing.com/brokers/"
+      },
+      {
+        "text": "Currency Brokers",
+        "href": "https://www.investing.com/brokers/forex-brokers/"
+      },
+      {
+        "text": "Stock Brokers",
+        "href": "https://www.investing.com/brokers/stock-brokers/"
+      },
+      {
+        "text": "Online Brokers",
+        "href": "https://www.investing.com/brokers/online-brokers/"
+      },
+      {
+        "text": "Crypto Exchanges",
+        "href": "https://www.investing.com/brokers/crypto-exchanges/"
+      },
+      {
+        "text": "Cryptocurrency Brokers",
+        "href": "https://www.investing.com/brokers/cryptocurrency-brokers/"
+      },
+      {
+        "text": "Gold IRA",
+        "href": "https://www.investing.com/brokers/gold-ira-companies/"
+      },
+      {
+        "text": "Futures Brokers",
+        "href": "https://www.investing.com/brokers/futures-brokers/"
+      },
+      {
+        "text": "Top Brokers",
+        "href": "https://www.investing.com/brokers/"
+      },
+      {
+        "text": "More Brokers",
+        "href": "https://www.investing.com/brokers/"
+      },
+      {
+        "text": "Tools",
+        "href": "https://www.investing.com/tools/"
+      },
+      {
+        "text": "Economic Calendar",
+        "href": "https://www.investing.com/economic-calendar/"
+      },
+      {
+        "text": "Holiday Calendar",
+        "href": "https://www.investing.com/holiday-calendar/"
+      },
+      {
+        "text": "Earnings Calendar",
+        "href": "https://www.investing.com/earnings-calendar/"
+      },
+      {
+        "text": "Dividend Calendar",
+        "href": "https://www.investing.com/dividends-calendar/"
+      },
+      {
+        "text": "Splits Calendar",
+        "href": "https://www.investing.com/stock-split-calendar/"
+      },
+      {
+        "text": "IPO Calendar",
+        "href": "https://www.investing.com/ipo-calendar/"
+      },
+      {
+        "text": "Futures Expiry Calendar",
+        "href": "https://www.investing.com/futures-expiration-calendar/"
+      },
+      {
+        "text": "Stock Screener",
+        "href": "https://www.investing.com/stock-screener/"
+      },
+      {
+        "text": "Fed Rate Monitor Tool",
+        "href": "https://www.investing.com/central-banks/fed-rate-monitor"
+      },
+      {
+        "text": "Currency Converter",
+        "href": "https://www.investing.com/currency-converter/"
+      },
+      {
+        "text": "Fibonacci Calculator",
+        "href": "https://www.investing.com/tools/fibonacci-calculator"
+      },
+      {
+        "text": "Currency Correlation",
+        "href": "https://www.investing.com/tools/correlation-calculator"
+      },
+      {
+        "text": "Pivot Point Calculator",
+        "href": "https://www.investing.com/tools/pivot-point-calculator"
+      },
+      {
+        "text": "Profit Calculator",
+        "href": "https://www.investing.com/tools/profit-calculator"
+      },
+      {
+        "text": "Margin Calculator",
+        "href": "https://www.investing.com/tools/margin-calculator"
+      },
+      {
+        "text": "Currencies Heat Map",
+        "href": "https://www.investing.com/tools/currency-heatmap"
+      },
+      {
+        "text": "Currency Volatility",
+        "href": "https://www.investing.com/tools/forex-volatility-calculator"
+      },
+      {
+        "text": "Forward Rates Calculator",
+        "href": "https://www.investing.com/tools/forward-rates-calculator"
+      },
+      {
+        "text": "Mortgage Calculator",
+        "href": "https://www.investing.com/tools/mortgage-calculator"
+      },
+      {
+        "text": "Academy",
+        "href": "https://www.investing.com/academy/"
+      },
+      {
+        "text": "Master Stocks",
+        "href": "https://www.investing.com/academy/stocks/"
+      },
+      {
+        "text": "Master Crypto",
+        "href": "https://www.investing.com/academy/crypto/"
+      },
+      {
+        "text": "Master Stock Analysis",
+        "href": "https://www.investing.com/academy/analysis/"
+      },
+      {
+        "text": "Unlock Company Statistics",
+        "href": "https://www.investing.com/academy/statistics/"
+      },
+      {
+        "text": "Top Stocks",
+        "href": "https://www.investing.com/academy/stock-picks/top-stocks-to-buy/"
+      },
+      {
+        "text": "Top Dividend Stocks",
+        "href": "https://www.investing.com/academy/stock-picks/top-dividend-stocks/"
+      },
+      {
+        "text": "Top Gold ETFs",
+        "href": "https://www.investing.com/academy/stock-picks/top-gold-etfs/"
+      },
+      {
+        "text": "Economic Calendar",
+        "href": "https://www.investing.com/economic-calendar/"
+      },
+      {
+        "text": "Stock Screener",
+        "href": "https://www.investing.com/stock-screener"
+      },
+      {
+        "text": "Prop Trading",
+        "href": "https://www.investing.com/brokers/firms-prop-trading/"
+      },
+      {
+        "text": "Stock Prop Trading Firms",
+        "href": "https://www.investing.com/brokers/stock-prop-trading-firms/"
+      },
+      {
+        "text": "Alerts",
+        "href": "https://www.investing.com/alerts/"
+      },
+      {
+        "text": "Webinars",
+        "href": "https://www.investing.com/education/webinars"
+      },
+      {
+        "text": "Conferences",
+        "href": "https://www.investing.com/education/conferences"
+      },
+      {
+        "text": "Trading Guide",
+        "href": "https://www.investing.com/education/forex-trading-kit"
+      },
+      {
+        "text": "Central Banks",
+        "href": "https://www.investing.com/central-banks/"
+      },
+      {
+        "text": "Insights",
+        "href": "https://www.investing.com/insights/"
+      },
+      {
+        "text": "Ad-Free Version",
+        "href": "https://www.investing.com/ad-free-subscription?source=desktop&medium=top_menu"
+      },
+      {
+        "text": "Webmaster Tools",
+        "href": "https://www.investing.com/webmaster-tools/"
+      },
+      {
+        "text": "Broker Blacklist",
+        "href": "https://www.investing.com/broker-blacklist/"
+      },
+      {
+        "text": "Sentiments Outlook",
+        "href": "https://www.investing.com/markets/sentiment-outlook"
+      },
+      {
+        "text": "Indices",
+        "href": "https://www.investing.com/indices"
+      },
+      {
+        "text": "Major Indices",
+        "href": "https://www.investing.com/indices/major-indices"
+      },
+      {
+        "text": "World Indices",
+        "href": "https://www.investing.com/indices/world-indices"
+      },
+      {
+        "text": "Indices Futures",
+        "href": "https://www.investing.com/indices/indices-futures"
+      },
+      {
+        "text": "Indices Real-Time",
+        "href": "https://www.investing.com/indices/indices-cfds"
+      },
+      {
+        "text": "Global Indices",
+        "href": "https://www.investing.com/indices/global-indices"
+      },
+      {
+        "text": "Futures Spec.",
+        "href": "https://www.investing.com/commodities/futures-specifications"
+      },
+      {
+        "text": "Fed Rate Monitor Tool",
+        "href": "https://www.investing.com/central-banks/fed-rate-monitor"
+      },
+      {
+        "text": "Stocks Picked by AI",
+        "href": "https://www.investing.com/pro/propicks"
+      },
+      {
+        "text": "Undervalued Stocks",
+        "href": "https://www.investing.com/equities/most-undervalued"
+      },
+      {
+        "text": "Overvalued Stocks",
+        "href": "https://www.investing.com/equities/most-overvalued"
+      },
+      {
+        "text": "Claim Sale",
+        "href": "https://www.investing.com/pro/pricing"
+      },
+      {
+        "text": "Get 100% ad-free experience",
+        "href": "/ad-free-subscription?source=desktop&medium=takeover_ad"
+      },
+      {
+        "text": "YMZ25",
+        "href": "https://www.investing.com/indices/us-30-futures"
+      },
+      {
+        "text": "US30",
+        "href": "https://www.investing.com/indices/us-30-futures?cid=1175152"
+      },
+      {
+        "text": "YMc2",
+        "href": "https://www.investing.com/indices/us-30-futures?cid=1180996"
+      },
+      {
+        "text": "YMc3",
+        "href": "https://www.investing.com/indices/us-30-futures?cid=1180997"
+      },
+      {
+        "text": "Overview",
+        "href": "https://www.investing.com/indices/us-30-futures"
+      },
+      {
+        "text": "Historical Data",
+        "href": "https://www.investing.com/indices/us-30-futures-historical-data"
+      },
+      {
+        "text": "Related Instruments",
+        "href": "https://www.investing.com/indices/us-30-futures-related-instruments"
+      },
+      {
+        "text": "Contracts",
+        "href": "https://www.investing.com/indices/us-30-futures-contracts"
+      },
+      {
+        "text": "Chart",
+        "href": "https://www.investing.com/indices/us-30-futures-chart"
+      },
+      {
+        "text": "Streaming Chart",
+        "href": "https://www.investing.com/indices/us-30-futures-chart"
+      },
+      {
+        "text": "Interactive Chart",
+        "href": "https://www.investing.com/indices/us-30-futures-advanced-chart"
+      },
+      {
+        "text": "News & Analysis",
+        "href": "https://www.investing.com/indices/us-30-futures-news"
+      },
+      {
+        "text": "News",
+        "href": "https://www.investing.com/indices/us-30-futures-news"
+      },
+      {
+        "text": "Analysis & Opinion",
+        "href": "https://www.investing.com/indices/us-30-futures-opinion"
+      },
+      {
+        "text": "Technical",
+        "href": "https://www.investing.com/indices/us-30-futures-technical"
+      },
+      {
+        "text": "Technical Analysis",
+        "href": "https://www.investing.com/indices/us-30-futures-technical"
+      },
+      {
+        "text": "Candlestick Patterns",
+        "href": "https://www.investing.com/indices/us-30-futures-candlestick"
+      },
+      {
+        "text": "Forum",
+        "href": "https://www.investing.com/indices/us-30-futures-commentary"
+      },
+      {
+        "text": "Discussions",
+        "href": "https://www.investing.com/indices/us-30-futures-commentary"
+      },
+      {
+        "text": "Recent Sentiments",
+        "href": "https://www.investing.com/indices/us-30-futures-scoreboard"
+      },
+      {
+        "text": "User Rankings",
+        "href": "https://www.investing.com/indices/us-30-futures-user-rankings"
+      },
+      {
+        "text": "Historical Data",
+        "href": "https://www.investing.com/indices/us-30-futures-historical-data"
+      },
+      {
+        "text": "Related Instruments",
+        "href": "https://www.investing.com/indices/us-30-futures-related-instruments"
+      },
+      {
+        "text": "Contracts",
+        "href": "https://www.investing.com/indices/us-30-futures-contracts"
+      },
+      {
+        "text": "Technical Chart",
+        "href": "https://www.investing.com/indices/us-30-futures-chart"
+      },
+      {
+        "text": "Dow Jones Industrial Average",
+        "href": "https://www.investing.com/indices/us-30"
+      },
+      {
+        "text": "Technical Analysis",
+        "href": "https://www.investing.com/indices/us-30-futures-technical"
+      },
+      {
+        "text": "5 MinUnlock",
+        "href": "/pro/pricing?entry=tech_analysis_5m"
+      },
+      {
+        "text": "15 MinutesUnlock",
+        "href": "/pro/pricing?entry=tech_analysis_15m"
+      },
+      {
+        "text": "Dow Jones Futures News & Analysis",
+        "href": "https://www.investing.com/indices/us-30-futures-news"
+      },
+      {
+        "text": "U.S. stock futures rise on Fed cut bets, strong earnings",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-steady-after-wall-st-gains-on-strong-bank-earnings-fed-cut-bets-4291125"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/209049875"
+      },
+      {
+        "text": "8",
+        "href": "/news/stock-market-news/us-stock-futures-steady-after-wall-st-gains-on-strong-bank-earnings-fed-cut-bets-4291125#comments"
+      },
+      {
+        "text": "Nasdaq 100 Technical Outlook Suggests Caution as Overbought Levels Approach 25,500",
+        "href": "https://www.investing.com/analysis/nasdaq-100-technical-outlook-suggests-caution-as-overbought-levels-approach-25500-200668117"
+      },
+      {
+        "text": "Fiona Cincotta",
+        "href": "/members/contributors/267939346"
+      },
+      {
+        "text": "US stock futures steady after Wall St rebounds on Trump’s softer China tone",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-steady-after-wall-st-reboundson-trumps-softer-china-tone-4284678"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/264090824"
+      },
+      {
+        "text": "2",
+        "href": "/news/stock-market-news/us-stock-futures-steady-after-wall-st-reboundson-trumps-softer-china-tone-4284678#comments"
+      },
+      {
+        "text": "US stock futures inch lower after Wall St marks fresh records on tech gains",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-inch-lower-after-wall-st-marks-fresh-records-on-tech-gains-4274046"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/240569828"
+      },
+      {
+        "text": "US stock futures inch higher with Q3 earnings on tap",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-inch-higher-with-q3-earnings-on-tap-4280786"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/240569828"
+      },
+      {
+        "text": "S&P 500 Forecast Shows Rally Potential as AI Deals Drive Tech Gains",
+        "href": "https://www.investing.com/analysis/sp-500-forecast-shows-rally-potential-as-ai-deals-drive-tech-gains-200668041"
+      },
+      {
+        "text": "Fiona Cincotta",
+        "href": "/members/contributors/267939346"
+      },
+      {
+        "text": "US stock futures rise after Wall St surges on tech rebound; Powell speech awaited",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-rise-after-wall-st-surges-on-tech-rebound-powell-speech-awaited-4278546"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/240569828"
+      },
+      {
+        "text": "US stock futures rise after Wall St firms past shutdown jitters",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-rise-after-wall-st-firms-past-shutdown-jitters-4271500"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/240569828"
+      },
+      {
+        "text": "6",
+        "href": "/news/stock-market-news/us-stock-futures-rise-after-wall-st-firms-past-shutdown-jitters-4271500#comments"
+      },
+      {
+        "text": "US stock futures steady after Wall St stalls on tech losses, political uncertainty",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-steady-after-wall-st-stalls-on-tech-losses-political-uncertainty-4276071"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/240569828"
+      },
+      {
+        "text": "4",
+        "href": "/news/stock-market-news/us-stock-futures-steady-after-wall-st-stalls-on-tech-losses-political-uncertainty-4276071#comments"
+      },
+      {
+        "text": "Stock market today: S&P 500 in weekly win despite stumble amid government shutdown",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-steady-after-wall-st-rises-past-shutdown-labor-uncertainties-4269628"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/208295463"
+      },
+      {
+        "text": "119",
+        "href": "/news/stock-market-news/us-stock-futures-steady-after-wall-st-rises-past-shutdown-labor-uncertainties-4269628#comments"
+      },
+      {
+        "text": "Dow Jones Futures News & Analysis",
+        "href": "https://www.investing.com/indices/us-30-futures-news"
+      },
+      {
+        "text": "U.S. stock futures rise on Fed cut bets, strong earnings",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-steady-after-wall-st-gains-on-strong-bank-earnings-fed-cut-bets-4291125"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/209049875"
+      },
+      {
+        "text": "8",
+        "href": "/news/stock-market-news/us-stock-futures-steady-after-wall-st-gains-on-strong-bank-earnings-fed-cut-bets-4291125#comments"
+      },
+      {
+        "text": "US stock futures steady after Wall St rebounds on Trump’s softer China tone",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-steady-after-wall-st-reboundson-trumps-softer-china-tone-4284678"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/264090824"
+      },
+      {
+        "text": "2",
+        "href": "/news/stock-market-news/us-stock-futures-steady-after-wall-st-reboundson-trumps-softer-china-tone-4284678#comments"
+      },
+      {
+        "text": "US stock futures inch higher with Q3 earnings on tap",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-inch-higher-with-q3-earnings-on-tap-4280786"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/240569828"
+      },
+      {
+        "text": "US stock futures rise after Wall St surges on tech rebound; Powell speech awaited",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-rise-after-wall-st-surges-on-tech-rebound-powell-speech-awaited-4278546"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/240569828"
+      },
+      {
+        "text": "US stock futures steady after Wall St stalls on tech losses, political uncertainty",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-steady-after-wall-st-stalls-on-tech-losses-political-uncertainty-4276071"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/240569828"
+      },
+      {
+        "text": "4",
+        "href": "/news/stock-market-news/us-stock-futures-steady-after-wall-st-stalls-on-tech-losses-political-uncertainty-4276071#comments"
+      },
+      {
+        "text": "Nasdaq 100 Technical Outlook Suggests Caution as Overbought Levels Approach 25,500",
+        "href": "https://www.investing.com/analysis/nasdaq-100-technical-outlook-suggests-caution-as-overbought-levels-approach-25500-200668117"
+      },
+      {
+        "text": "Fiona Cincotta",
+        "href": "/members/contributors/267939346"
+      },
+      {
+        "text": "US stock futures inch lower after Wall St marks fresh records on tech gains",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-inch-lower-after-wall-st-marks-fresh-records-on-tech-gains-4274046"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/240569828"
+      },
+      {
+        "text": "S&P 500 Forecast Shows Rally Potential as AI Deals Drive Tech Gains",
+        "href": "https://www.investing.com/analysis/sp-500-forecast-shows-rally-potential-as-ai-deals-drive-tech-gains-200668041"
+      },
+      {
+        "text": "Fiona Cincotta",
+        "href": "/members/contributors/267939346"
+      },
+      {
+        "text": "US stock futures rise after Wall St firms past shutdown jitters",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-rise-after-wall-st-firms-past-shutdown-jitters-4271500"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/240569828"
+      },
+      {
+        "text": "6",
+        "href": "/news/stock-market-news/us-stock-futures-rise-after-wall-st-firms-past-shutdown-jitters-4271500#comments"
+      },
+      {
+        "text": "Stock market today: S&P 500 in weekly win despite stumble amid government shutdown",
+        "href": "https://www.investing.com/news/stock-market-news/us-stock-futures-steady-after-wall-st-rises-past-shutdown-labor-uncertainties-4269628"
+      },
+      {
+        "text": "Investing.com",
+        "href": "/members/contributors/208295463"
+      },
+      {
+        "text": "119",
+        "href": "/news/stock-market-news/us-stock-futures-steady-after-wall-st-rises-past-shutdown-labor-uncertainties-4269628#comments"
+      },
+      {
+        "text": "Show more",
+        "href": "https://www.investing.com/indices/us-30-futures-news"
+      },
+      {
+        "text": "Related ETFs",
+        "href": "https://www.investing.com/indices/us-30-futures-related-instruments"
+      },
+      {
+        "text": "DIASPDR Dow Jones Industrial Average",
+        "href": "https://www.investing.com/etfs/diamonds-trust"
+      },
+      {
+        "text": "SDOWProShares UltraPro Short Dow 30",
+        "href": "https://www.investing.com/etfs/proshares-ultrapro-short-dow30"
+      },
+      {
+        "text": "DOGProShares Short Dow30",
+        "href": "https://www.investing.com/etfs/proshares-short-dow30"
+      },
+      {
+        "text": "UDOWProShares UltraPro Dow30",
+        "href": "https://www.investing.com/etfs/proshares-ultrapro-dow30"
+      },
+      {
+        "text": "DXDProShares UltraShort Dow30",
+        "href": "https://www.investing.com/etfs/proshares-ultrashort-dow30"
+      },
+      {
+        "text": "DDMProShares Ultra Dow30",
+        "href": "https://www.investing.com/etfs/proshares-ultra-dow30"
+      },
+      {
+        "text": "IYYiShares Dow Jones U.S.",
+        "href": "https://www.investing.com/etfs/ishares-djsu-total-market-index"
+      },
+      {
+        "text": "ProPicks AI",
+        "href": "/pro/propicks"
+      },
+      {
+        "text": "ProPicks AI",
+        "href": "/pro/propicks"
+      },
+      {
+        "text": "View Strategy",
+        "href": "/pro/propicks/top-value-stocks"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/top-value-stocks?entry=indices_propicks"
+      },
+      {
+        "text": "Trade With A Regulated Broker",
+        "href": "https://www.investing.com/brokers/"
+      },
+      {
+        "text": "US 30",
+        "href": "https://www.investing.com/indices/us-30-futures?cid=1175152"
+      },
+      {
+        "text": "US 500",
+        "href": "https://www.investing.com/indices/us-spx-500-futures?cid=1175153"
+      },
+      {
+        "text": "Dow Jones",
+        "href": "https://www.investing.com/indices/us-30"
+      },
+      {
+        "text": "S&P 500",
+        "href": "https://www.investing.com/indices/us-spx-500"
+      },
+      {
+        "text": "Nasdaq",
+        "href": "https://www.investing.com/indices/nasdaq-composite"
+      },
+      {
+        "text": "S&P 500 VIX",
+        "href": "https://www.investing.com/indices/volatility-s-p-500"
+      },
+      {
+        "text": "Dollar Index",
+        "href": "https://www.investing.com/currencies/us-dollar-index"
+      },
+      {
+        "text": "Crude Oil WTI Futures",
+        "href": "https://www.investing.com/commodities/crude-oil"
+      },
+      {
+        "text": "Brent Oil Futures",
+        "href": "https://www.investing.com/commodities/brent-oil"
+      },
+      {
+        "text": "Natural Gas Futures",
+        "href": "https://www.investing.com/commodities/natural-gas"
+      },
+      {
+        "text": "Gold Futures",
+        "href": "https://www.investing.com/commodities/gold"
+      },
+      {
+        "text": "Silver Futures",
+        "href": "https://www.investing.com/commodities/silver"
+      },
+      {
+        "text": "Copper Futures",
+        "href": "https://www.investing.com/commodities/copper"
+      },
+      {
+        "text": "US Soybeans Futures",
+        "href": "https://www.investing.com/commodities/us-soybeans"
+      },
+      {
+        "text": "U.S. 10Y",
+        "href": "https://www.investing.com/rates-bonds/u.s.-10-year-bond-yield"
+      },
+      {
+        "text": "U.S. 30Y",
+        "href": "https://www.investing.com/rates-bonds/u.s.-30-year-bond-yield"
+      },
+      {
+        "text": "U.S. 5Y",
+        "href": "https://www.investing.com/rates-bonds/u.s.-5-year-bond-yield"
+      },
+      {
+        "text": "U.S. 3M",
+        "href": "https://www.investing.com/rates-bonds/u.s.-3-month-bond-yield"
+      },
+      {
+        "text": "US 10Y T-Note Futures",
+        "href": "https://www.investing.com/rates-bonds/us-10-yr-t-note"
+      },
+      {
+        "text": "Euro Bund Futures",
+        "href": "https://www.investing.com/rates-bonds/euro-bund"
+      },
+      {
+        "text": "10-2 Yield Spread",
+        "href": "https://www.investing.com/rates-bonds/10-2-year-treasury-yield-spread"
+      },
+      {
+        "text": "AAPL",
+        "href": "https://www.investing.com/equities/apple-computer-inc"
+      },
+      {
+        "text": "NVDA",
+        "href": "https://www.investing.com/equities/nvidia-corp"
+      },
+      {
+        "text": "GOOGL",
+        "href": "https://www.investing.com/equities/google-inc"
+      },
+      {
+        "text": "TSLA",
+        "href": "https://www.investing.com/equities/tesla-motors"
+      },
+      {
+        "text": "AMZN",
+        "href": "https://www.investing.com/equities/amazon-com-inc"
+      },
+      {
+        "text": "NFLX",
+        "href": "https://www.investing.com/equities/netflix,-inc."
+      },
+      {
+        "text": "META",
+        "href": "https://www.investing.com/equities/facebook-inc"
+      },
+      {
+        "text": "Investing Challenges",
+        "href": "https://www.investing.com/challenges?entry=workstation"
+      },
+      {
+        "text": "Market Movers",
+        "href": "https://www.investing.com/markets/united-states"
+      },
+      {
+        "text": "NVDA",
+        "href": "https://www.investing.com/equities/nvidia-corp"
+      },
+      {
+        "text": "RGTI",
+        "href": "https://www.investing.com/equities/rigetti-computing-inc"
+      },
+      {
+        "text": "AMD",
+        "href": "https://www.investing.com/equities/adv-micro-device"
+      },
+      {
+        "text": "TSLA",
+        "href": "https://www.investing.com/equities/tesla-motors"
+      },
+      {
+        "text": "AMZN",
+        "href": "https://www.investing.com/equities/amazon-com-inc"
+      },
+      {
+        "text": "AAPL",
+        "href": "https://www.investing.com/equities/apple-computer-inc"
+      },
+      {
+        "text": "AVGO",
+        "href": "https://www.investing.com/equities/avago-technologies"
+      },
+      {
+        "text": "BG",
+        "href": "https://www.investing.com/equities/bunge"
+      },
+      {
+        "text": "AMD",
+        "href": "https://www.investing.com/equities/adv-micro-device"
+      },
+      {
+        "text": "FSLR",
+        "href": "https://www.investing.com/equities/first-solar-inc"
+      },
+      {
+        "text": "WDC",
+        "href": "https://www.investing.com/equities/western-digital"
+      },
+      {
+        "text": "PLD",
+        "href": "https://www.investing.com/equities/prologis"
+      },
+      {
+        "text": "KLAC",
+        "href": "https://www.investing.com/equities/kla-tencor-corp"
+      },
+      {
+        "text": "MRNA",
+        "href": "https://www.investing.com/equities/moderna"
+      },
+      {
+        "text": "AXON",
+        "href": "https://www.investing.com/equities/taser-intl"
+      },
+      {
+        "text": "PGR",
+        "href": "https://www.investing.com/equities/the-progressive"
+      },
+      {
+        "text": "TDG",
+        "href": "https://www.investing.com/equities/transdigm-group-inc"
+      },
+      {
+        "text": "MELI",
+        "href": "https://www.investing.com/equities/mercadolibre"
+      },
+      {
+        "text": "MSI",
+        "href": "https://www.investing.com/equities/motorola-inc"
+      },
+      {
+        "text": "GEV",
+        "href": "https://www.investing.com/equities/ge-vernova-llc"
+      },
+      {
+        "text": "ALL",
+        "href": "https://www.investing.com/equities/allstate-corporation"
+      },
+      {
+        "text": "Trending Stocks",
+        "href": "https://www.investing.com/equities/trending-stocks"
+      },
+      {
+        "text": "NVDA",
+        "href": "https://www.investing.com/equities/nvidia-corp"
+      },
+      {
+        "text": "AMD",
+        "href": "https://www.investing.com/equities/adv-micro-device"
+      },
+      {
+        "text": "TSM",
+        "href": "https://www.investing.com/equities/taiwan-semicond.manufacturing-co"
+      },
+      {
+        "text": "TSLA",
+        "href": "https://www.investing.com/equities/tesla-motors"
+      },
+      {
+        "text": "RGTI",
+        "href": "https://www.investing.com/equities/rigetti-computing-inc"
+      },
+      {
+        "text": "Tech Titans",
+        "href": "/pro/propicks/tech-titans"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/tech-titans?entry=ws_propicks"
+      },
+      {
+        "text": "Top Value Stocks",
+        "href": "/pro/propicks/top-value-stocks"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/top-value-stocks?entry=ws_propicks"
+      },
+      {
+        "text": "Best of Buffett",
+        "href": "/pro/propicks/best-of-buffett"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/best-of-buffett?entry=ws_propicks"
+      },
+      {
+        "text": "Energy Elite",
+        "href": "/pro/propicks/energy-elite"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/energy-elite?entry=ws_propicks"
+      },
+      {
+        "text": "Financial Fortresses",
+        "href": "/pro/propicks/financial-fortresses"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/financial-fortresses?entry=ws_propicks"
+      },
+      {
+        "text": "Quality Compounders",
+        "href": "/pro/propicks/quality-compounders"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/quality-compounders?entry=ws_propicks"
+      },
+      {
+        "text": "Small-Cap Sprinters",
+        "href": "/pro/propicks/small-cap-sprinters"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/small-cap-sprinters?entry=ws_propicks"
+      },
+      {
+        "text": "Healthcare Heroes",
+        "href": "/pro/propicks/healthcare-heroes"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/healthcare-heroes?entry=ws_propicks"
+      },
+      {
+        "text": "Beat the S&P 500",
+        "href": "/pro/propicks/beat-sp-500"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/beat-sp-500?entry=ws_propicks"
+      },
+      {
+        "text": "Dominate the Dow",
+        "href": "/pro/propicks/dominate-the-dow"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/dominate-the-dow?entry=ws_propicks"
+      },
+      {
+        "text": "Mid-Cap Movers",
+        "href": "/pro/propicks/midcap-movers"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/midcap-movers?entry=ws_propicks"
+      },
+      {
+        "text": "Mexican Stock Exchange Leaders",
+        "href": "/pro/propicks/beat-bmv-ipc"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/beat-bmv-ipc?entry=ws_propicks"
+      },
+      {
+        "text": "Best Brazilian Stocks",
+        "href": "/pro/propicks/beat-bovespa"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/beat-bovespa?entry=ws_propicks"
+      },
+      {
+        "text": "Italian Market Elite",
+        "href": "/pro/propicks/beat-ftse-italia"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/beat-ftse-italia?entry=ws_propicks"
+      },
+      {
+        "text": "Alpha Germany Select",
+        "href": "/pro/propicks/beat-dax"
+      },
+      {
+        "text": "Unlock Strategy",
+        "href": "/pro/propicks/beat-dax?entry=ws_propicks"
+      },
+      {
+        "text": "Young Alfred",
+        "href": "/members/236927024"
+      },
+      {
+        "text": "Young Alfred",
+        "href": "/members/236927024"
+      },
+      {
+        "text": "Young Alfred",
+        "href": "/members/236927024"
+      },
+      {
+        "text": "Natty Gas",
+        "href": "/members/246487713"
+      },
+      {
+        "text": "Wa Rde",
+        "href": "/members/272611383"
+      },
+      {
+        "text": "Get 100% ad-free experience",
+        "href": "/ad-free-subscription?source=desktop&medium=comments_ws"
+      },
+      {
+        "text": "HighwayDude OnTheRoadAgain",
+        "href": "/members/272072227"
+      },
+      {
+        "text": "David Eustache",
+        "href": "/members/200887800"
+      },
+      {
+        "text": "David Eustache",
+        "href": "/members/200887800"
+      },
+      {
+        "text": "Bob Davids II",
+        "href": "/members/256169366"
+      },
+      {
+        "text": "David Eustache",
+        "href": "/members/200887800"
+      },
+      {
+        "text": "GrainTrader",
+        "href": "/members/264752182"
+      },
+      {
+        "text": "GrainTrader",
+        "href": "/members/264752182"
+      },
+      {
+        "text": "SeekingInsight",
+        "href": "/members/204125095"
+      },
+      {
+        "text": "GrainTrader",
+        "href": "/members/264752182"
+      },
+      {
+        "text": "Hex630JoeyMaggio",
+        "href": "/members/229477937"
+      },
+      {
+        "text": "GrainTrader",
+        "href": "/members/264752182"
+      },
+      {
+        "text": "Get 100% ad-free experience",
+        "href": "/ad-free-subscription?source=desktop&medium=comments_ws"
+      },
+      {
+        "text": "Economic Calendar",
+        "href": "/economic-calendar/"
+      },
+      {
+        "text": "Earnings Calendar",
+        "href": "/earnings-calendar/"
+      },
+      {
+        "text": "Holiday Calendar",
+        "href": "/holiday-calendar/"
+      },
+      {
+        "text": "Fed Rate Monitor Tool",
+        "href": "/central-banks/fed-rate-monitor"
+      },
+      {
+        "text": "US Treasury Yield Curve",
+        "href": "/rates-bonds/usa-government-bonds"
+      },
+      {
+        "text": "Stock Screener",
+        "href": "/stock-screener/"
+      },
+      {
+        "text": "Currency Converter",
+        "href": "/currency-converter/"
+      },
+      {
+        "text": "Google Play",
+        "href": "https://app.appsflyer.com/com.fusionmedia.investing?pid=direct_inv&c=refactored&af_channel=%2Findices%2Fus-30-futures&af_adset=www&af_ad=footer+install+buttons&af_pmod_priority=null&af_sub_siteid=null&click_id=null&af_sub1=null&af_ad_id=null&af_sub2=null&af_sub3=null&af_sub4=null&af_sub5=null&af_keywords=null&af_adset_id=null"
+      },
+      {
+        "text": "App Store",
+        "href": "https://app.appsflyer.com/id909998122?pid=direct_inv&c=refactored&af_channel=%2Findices%2Fus-30-futures&af_adset=www&af_ad=footer+install+buttons&af_pmod_priority=null&af_sub_siteid=null&click_id=null&af_sub1=null&af_ad_id=null&af_sub2=null&af_sub3=null&af_sub4=null&af_sub5=null&af_keywords=null&af_adset_id=null"
+      },
+      {
+        "text": "Blog",
+        "href": "https://www.investing.com/blog"
+      },
+      {
+        "text": "Mobile",
+        "href": "https://www.investing.com/mobile"
+      },
+      {
+        "text": "Portfolio",
+        "href": "https://www.investing.com/portfolio"
+      },
+      {
+        "text": "Widgets",
+        "href": "https://www.investing.com/webmaster-tools"
+      },
+      {
+        "text": "About Us",
+        "href": "https://www.investing.com/about-us"
+      },
+      {
+        "text": "Advertise",
+        "href": "https://www.investingmediakit.com/"
+      },
+      {
+        "text": "Help & Support",
+        "href": "/about-us/contact-us"
+      },
+      {
+        "text": "Authors",
+        "href": "https://www.investing.com/lp/authors"
+      },
+      {
+        "text": "Terms And Conditions",
+        "href": "https://cdn.investing.com/about-us/terms_and_conditions.pdf"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://cdn.investing.com/about-us/privacy_policy.pdf"
+      },
+      {
+        "text": "Risk Warning",
+        "href": "https://cdn.investing.com/about-us/risk_warning.pdf"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Plus500",
+        "src": "https://brokers.education.investing.com/wp-content/uploads/2025/04/216x216-Plus500-1.png"
+      },
+      {
+        "alt": "FxPro",
+        "src": "https://brokers.education.investing.com/wp-content/uploads/2025/04/FxPro_Logo_Main_RedBG.png"
+      },
+      {
+        "alt": "",
+        "src": "//cdn.investing.com/next_/images/components/instrument-chart/watermark.svg"
+      },
+      {
+        "alt": "",
+        "src": "/next_/images/investingPro/ai-star.svg"
+      },
+      {
+        "alt": "",
+        "src": "/next_/images/investingPro/ai-star.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://i-invdn-com.investing.com/defaultUserMaleTmp.png"
+      },
+      {
+        "alt": "",
+        "src": "https://i-invdn-com.investing.com/defaultUserMaleTmp.png"
+      },
+      {
+        "alt": "",
+        "src": "https://i-invdn-com.investing.com/defaultUserMaleTmp.png"
+      },
+      {
+        "alt": "",
+        "src": "https://i-invdn-com.investing.com/defaultUserMaleTmp.png"
+      },
+      {
+        "alt": "",
+        "src": "https://lh3.googleusercontent.com/a/ACg8ocKPlJxI_b6smm39HmnUWpBIt0gkfdUy6qQdC-WGgB7MA5PHGw=s96-c"
+      },
+      {
+        "alt": "",
+        "src": "https://i-invdn-com.investing.com/defaultUserMaleTmp.png"
+      },
+      {
+        "alt": "",
+        "src": "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg?sz=50"
+      },
+      {
+        "alt": "",
+        "src": "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg?sz=50"
+      },
+      {
+        "alt": "",
+        "src": "https://i-invdn-com.investing.com/defaultUserMaleTmp.png"
+      },
+      {
+        "alt": "",
+        "src": "https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg?sz=50"
+      },
+      {
+        "alt": "",
+        "src": "https://lh3.googleusercontent.com/a/ACg8ocLoAX5djPKJrOkCFDmc-L110B2OpPIht4P4IRScfdIT2c8qag=s96-c"
+      },
+      {
+        "alt": "",
+        "src": "https://lh3.googleusercontent.com/a/ACg8ocLoAX5djPKJrOkCFDmc-L110B2OpPIht4P4IRScfdIT2c8qag=s96-c"
+      },
+      {
+        "alt": "",
+        "src": "https://i-invdn-com.investing.com/defaultUserMaleTmp.png"
+      },
+      {
+        "alt": "",
+        "src": "https://lh3.googleusercontent.com/a/ACg8ocLoAX5djPKJrOkCFDmc-L110B2OpPIht4P4IRScfdIT2c8qag=s96-c"
+      },
+      {
+        "alt": "",
+        "src": "https://lh3.googleusercontent.com/a/AATXAJxuiKdg3uYRfgpmSTXHUJ2BNRr8jQa7PSayyf7I=s96-c"
+      },
+      {
+        "alt": "",
+        "src": "https://lh3.googleusercontent.com/a/ACg8ocLoAX5djPKJrOkCFDmc-L110B2OpPIht4P4IRScfdIT2c8qag=s96-c"
+      }
+    ],
+    "timestamp": 1760613570832,
+    "url": "https://www.investing.com/indices/us-30-futures?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

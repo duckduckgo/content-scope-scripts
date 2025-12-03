@@ -1,0 +1,293 @@
+{
+  "url": "https://www.mapquest.com/",
+  "extractedAt": "2025-10-16T09:49:59.306Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.mapquest.com/icon.png?645f33d294f26f93",
+        "rel": "icon"
+      }
+    ],
+    "title": "Official MapQuest - Maps, Driving Directions, Live Traffic",
+    "metaDescription": "Official MapQuest website, find driving directions, maps, live traffic updates and road conditions. Find nearby businesses, restaurants and hotels. Explore!",
+    "content": "Search places or paste a link**[Hotels](/search/Hotels)[Food](/search/Restaurants)[Shopping](/search/Shopping)[Coffee](/search/Coffee)[Grocery](/search/Groceries)[Gas](/search/Gas)\n## Looking for directions?\n[MapQuest it! **](/directions)Advertisement\nExplore top cities in the \n[United States](/us/united-states-282934758)\n\n- [New York](/us/new-york/new-york-ny-282040974)\n\n- [Chicago](/us/illinois/chicago-il-282039507)\n\n- [Los Angeles](/us/california/los-angeles-ca-282039899)\n\n- [Seattle](/us/washington/seattle-wa-282039223)\n\n- [Miami](/us/florida/miami-fl-282040379)\n\n- [Philadelphia](/us/pennsylvania/philadelphia-pa-282039520)\n\n- [Dallas](/us/texas/dallas-tx-282040340)\n\n- [Houston](/us/texas/houston-tx-282040105)\n\n- [Atlanta](/us/georgia/atlanta-ga-282041693)\n\n- [Nashville](/us/tennessee/nashville-tn-379976667)\n\n- [Phoenix](/us/arizona/phoenix-az-282039682)\n\n- [San Antonio](/us/texas/san-antonio-tx-492917792)\n\n- [San Diego](/us/california/san-diego-ca-282038949)\n\n- [San Jose](/us/california/san-jose-ca-282039961)",
+    "truncated": false,
+    "fullContentLength": 1028,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Looking for directions?"
+      },
+      {
+        "level": 2,
+        "text": "Looking for directions?"
+      },
+      {
+        "level": 6,
+        "text": "Explore top cities in the United States"
+      }
+    ],
+    "links": [
+      {
+        "text": "Get directions",
+        "href": "/directions"
+      },
+      {
+        "text": "My saved places",
+        "href": "/collections"
+      },
+      {
+        "text": "MapQuest Travel",
+        "href": "https://www.mapquest.com/travel"
+      },
+      {
+        "text": "Route Planner",
+        "href": "/routeplanner"
+      },
+      {
+        "text": "Print your map",
+        "href": "/us/washington/seattle-wa-282039223"
+      },
+      {
+        "text": "Get help",
+        "href": "https://help.mapquest.com/hc/requests/new?errorType=help&ticket_form_id=99999&sourceUrl=https://mapquest.com//"
+      },
+      {
+        "text": "Search the web",
+        "href": "https://search.mapquest.com/"
+      },
+      {
+        "text": "Send feedback",
+        "href": "https://help.mapquest.com/hc/en-us/requests/new?errorType=feedback&ticket_form_id=52820&sourceUrl=https://mapquest.com/"
+      },
+      {
+        "text": "mobile apps.",
+        "href": "https://hello.mapquest.com/mobile/?utm_medium=inad&utm_source=yogi%7Cmainnav&utm_term=iPhone%20Android%20Amazon%20Windows"
+      },
+      {
+        "text": "Enterprise solutions",
+        "href": "http://business.mapquest.com/?utm_medium=inad&utm_source=yogi%7Cmainnav&utm_term=Enterprise%20Solutions"
+      },
+      {
+        "text": "Claim your business",
+        "href": "https://listings.mapquest.com/pl/mapquest-claims?utm_medium=inad&utm_source=yogi%7cmainnav&utm_term=Claim%20your%20Business"
+      },
+      {
+        "text": "Developer resources",
+        "href": "https://developer.mapquest.com/?utm_medium=inad&utm_source=yogi%7Cmainnav&utm_term=Developer%20Resources"
+      },
+      {
+        "text": "Jobs",
+        "href": "https://hello.mapquest.com/careers"
+      },
+      {
+        "text": "Advertise with us",
+        "href": "https://system1.com/partner"
+      },
+      {
+        "text": "Terms of use",
+        "href": "https://hello.mapquest.com/terms-of-use"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "https://hello.mapquest.com/privacy"
+      },
+      {
+        "text": "Data and licenses",
+        "href": "https://hello.mapquest.com/attributions"
+      },
+      {
+        "text": "About our ads",
+        "href": "https://system1.com/advertisers"
+      },
+      {
+        "text": "Do not sell",
+        "href": "#"
+      },
+      {
+        "text": "Hotels",
+        "href": "/search/Hotels"
+      },
+      {
+        "text": "Food",
+        "href": "/search/Restaurants"
+      },
+      {
+        "text": "Shopping",
+        "href": "/search/Shopping"
+      },
+      {
+        "text": "Coffee",
+        "href": "/search/Coffee"
+      },
+      {
+        "text": "Grocery",
+        "href": "/search/Groceries"
+      },
+      {
+        "text": "Gas",
+        "href": "/search/Gas"
+      },
+      {
+        "text": "Hotels",
+        "href": "/search/Hotels"
+      },
+      {
+        "text": "Food",
+        "href": "/search/Restaurants"
+      },
+      {
+        "text": "Shopping",
+        "href": "/search/Shopping"
+      },
+      {
+        "text": "Coffee",
+        "href": "/search/Coffee"
+      },
+      {
+        "text": "Grocery",
+        "href": "/search/Groceries"
+      },
+      {
+        "text": "Gas",
+        "href": "/search/Gas"
+      },
+      {
+        "text": "MapQuest it!",
+        "href": "/directions"
+      },
+      {
+        "text": "MapQuest it!",
+        "href": "/directions"
+      },
+      {
+        "text": "United States",
+        "href": "/us/united-states-282934758"
+      },
+      {
+        "text": "New York",
+        "href": "/us/new-york/new-york-ny-282040974"
+      },
+      {
+        "text": "Chicago",
+        "href": "/us/illinois/chicago-il-282039507"
+      },
+      {
+        "text": "Los Angeles",
+        "href": "/us/california/los-angeles-ca-282039899"
+      },
+      {
+        "text": "Seattle",
+        "href": "/us/washington/seattle-wa-282039223"
+      },
+      {
+        "text": "Miami",
+        "href": "/us/florida/miami-fl-282040379"
+      },
+      {
+        "text": "Philadelphia",
+        "href": "/us/pennsylvania/philadelphia-pa-282039520"
+      },
+      {
+        "text": "Dallas",
+        "href": "/us/texas/dallas-tx-282040340"
+      },
+      {
+        "text": "Houston",
+        "href": "/us/texas/houston-tx-282040105"
+      },
+      {
+        "text": "Atlanta",
+        "href": "/us/georgia/atlanta-ga-282041693"
+      },
+      {
+        "text": "Nashville",
+        "href": "/us/tennessee/nashville-tn-379976667"
+      },
+      {
+        "text": "Phoenix",
+        "href": "/us/arizona/phoenix-az-282039682"
+      },
+      {
+        "text": "San Antonio",
+        "href": "/us/texas/san-antonio-tx-492917792"
+      },
+      {
+        "text": "San Diego",
+        "href": "/us/california/san-diego-ca-282038949"
+      },
+      {
+        "text": "San Jose",
+        "href": "/us/california/san-jose-ca-282039961"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "/_next/static/media/directions.84503bb9.svg"
+      },
+      {
+        "alt": "",
+        "src": "/_next/static/media/heart.002dc3f9.svg"
+      },
+      {
+        "alt": "Android app Google Play",
+        "src": "/_next/static/media/google-badge.315ec102.webp"
+      },
+      {
+        "alt": "Download on the App Store",
+        "src": "/_next/static/media/apple-badge.cb9bdb68.webp"
+      },
+      {
+        "alt": "",
+        "src": "/_next/static/media/hotel.aab090e3.svg"
+      },
+      {
+        "alt": "",
+        "src": "/_next/static/media/food.95d23220.svg"
+      },
+      {
+        "alt": "",
+        "src": "/_next/static/media/shopping.e482af69.svg"
+      },
+      {
+        "alt": "",
+        "src": "/_next/static/media/coffee.e53c5caf.svg"
+      },
+      {
+        "alt": "",
+        "src": "/_next/static/media/groceries.9bd01708.svg"
+      },
+      {
+        "alt": "",
+        "src": "/_next/static/media/gas.bf9ad8a1.svg"
+      },
+      {
+        "alt": "Hotels",
+        "src": "/_next/static/media/hotel.aab090e3.svg"
+      },
+      {
+        "alt": "Food",
+        "src": "/_next/static/media/food.95d23220.svg"
+      },
+      {
+        "alt": "Shopping",
+        "src": "/_next/static/media/shopping.e482af69.svg"
+      },
+      {
+        "alt": "Coffee",
+        "src": "/_next/static/media/coffee.e53c5caf.svg"
+      },
+      {
+        "alt": "Grocery",
+        "src": "/_next/static/media/groceries.9bd01708.svg"
+      },
+      {
+        "alt": "Gas",
+        "src": "/_next/static/media/gas.bf9ad8a1.svg"
+      }
+    ],
+    "timestamp": 1760608186779,
+    "url": "https://www.mapquest.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

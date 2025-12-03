@@ -1,0 +1,181 @@
+{
+  "url": "https://www.ssa.gov/myaccount/",
+  "extractedAt": "2025-10-16T10:20:14.919Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.ssa.gov/favicon.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.ssa.gov/favicon.svg",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.ssa.gov/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "my Social Security | SSA",
+    "metaDescription": "my Social Security | Open a my Social Security account today and rest easy knowing that you're in control of your future.",
+    "content": "[Learn about changes we’re making to your personal ***my* Social Security** account](https://www.ssa.gov/myaccount/account-transition-faqs.html)        \n#  Create your personal my Social Security account today \n   An online my Social Security account provides you with personalized tools, whether you receive benefits or not. With this free and secure account, you can request a replacement Social Security card, check the status of an application, estimate future benefits, or manage the benefits you already receive.\n When you create your account, opt out of paper notices to receive your notices faster and more securely than by mail. Choose the online notice option to get your annual Cost of Living Adjustment (COLA) benefit amount and tax forms up to three weeks earlier than by mail!\n  [Create an Account](https://secure.ssa.gov/RIL/) [Sign In](https://secure.ssa.gov/RIL/) \n               To create a personal my Social Security account, first you’ll need to decide whether to create a Login.gov or an ID.me account. There is no wrong choice, it’s just a matter of which account is the best fit for you. Watch the [How to Choose Your Sign-in Account for my Social Security](https://youtu.be/T1tTtn90iHQ) video for more information.\n For step-by-step instructions for creating each account type, watch:\n \n \n- [How to Create Your Login.gov Account with SSA](https://youtu.be/ploTPE5uqXE)\n \n- [How to Create Your ID.me Account with SSA](https://youtu.be/SESbUu2hY84)\n \n If you need additional assistance in creating your account, call **1-800-772-1213** and say “Help Desk” for priority service between 8:00 a.m. – 7:00 p.m. local time, Monday through Friday.\n   \n## What can you do with a my Social Security account?\n   \n \n- [Request a replacement Social Security card](https://www.ssa.gov/number-card/replace-card)\n \n   \n \n- [Upload documents and submit online forms](https://www.ssa.gov/updocs)\n \n     \n### If you are not receiving benefits:\n \n \n- [Get personalized retirement benefit estimates](https://www.ssa.gov/prepare/plan-retirement)\n \n- [Get estimates for spouse’s benefits](spousal-benefits.html)\n \n- [Get proof that you do not receive benefits](https://www.ssa.gov/manage-benefits/get-benefit-letter)\n \n- [Check your application status](https://www.ssa.gov/apply/check-application-or-appeal-status)\n \n- [Get your *Social Security Statement*](/myaccount/statement.html)\n \n   \n### If you are receiving benefits:\n \n \n- [Set up or change direct deposit](https://www.ssa.gov/manage-benefits/update-direct-deposit)\n \n- [Access your current and historical 1099 tax forms](https://www.ssa.gov/manage-benefits/get-tax-form-10991042s)\n \n- [Access your annual cost of living adjustment benefit amount](https://secure.ssa.gov/RIL/SiView.action)\n \n- [Print a benefit verification letter](https://www.ssa.gov/manage-benefits/get-benefit-letter)\n \n- [Change your address](https://www.ssa.gov/personal-record/update-contact-information)\n \n     [Create an Account](https://secure.ssa.gov/RIL/) [Sign In](https://secure.ssa.gov/RIL/) \n     \n## Why create an account?\n          \n### It’s quick\n Your personal my Social Security account gives you immediate access to important information and tools, putting you in control of your time!\n [Learn more](what.html)\n           \n### It’s secure\n We’re committed to using the best technologies available to protect your personal information. Extra security measures keep you safe and secure.\n [Learn more](security.html)\n           \n### It’s easy\n We make signing up for your personal my Social Security account convenient.\n [Learn more](create.html)",
+    "truncated": false,
+    "fullContentLength": 3592,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Create your personal my Social Security account today"
+      },
+      {
+        "level": 2,
+        "text": "What can you do with a my Social Security account?"
+      },
+      {
+        "level": 3,
+        "text": "If you are not receiving benefits:"
+      },
+      {
+        "level": 3,
+        "text": "If you are receiving benefits:"
+      },
+      {
+        "level": 2,
+        "text": "Why create an account?"
+      },
+      {
+        "level": 3,
+        "text": "It’s quick"
+      },
+      {
+        "level": 3,
+        "text": "It’s secure"
+      },
+      {
+        "level": 3,
+        "text": "It’s easy"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#content"
+      },
+      {
+        "text": "Social Security and SSI Payments will Continue during the Government Shutdown.  Visit my Social Security for Online Services.",
+        "href": "/myaccount/"
+      },
+      {
+        "text": "Get a benefit verification letter.",
+        "href": "https://www.ssa.gov/manage-benefits/get-benefit-letter"
+      },
+      {
+        "text": "Learn about changes we’re making to your personal my Social Security account",
+        "href": "https://www.ssa.gov/myaccount/account-transition-faqs.html"
+      },
+      {
+        "text": "Create an Account",
+        "href": "https://secure.ssa.gov/RIL/"
+      },
+      {
+        "text": "Sign In",
+        "href": "https://secure.ssa.gov/RIL/"
+      },
+      {
+        "text": "How to Choose Your Sign-in Account for my Social Security",
+        "href": "https://youtu.be/T1tTtn90iHQ"
+      },
+      {
+        "text": "How to Create Your Login.gov Account with SSA",
+        "href": "https://youtu.be/ploTPE5uqXE"
+      },
+      {
+        "text": "How to Create Your ID.me Account with SSA",
+        "href": "https://youtu.be/SESbUu2hY84"
+      },
+      {
+        "text": "Request a replacement Social Security card",
+        "href": "https://www.ssa.gov/number-card/replace-card"
+      },
+      {
+        "text": "Upload documents and submit online forms",
+        "href": "https://www.ssa.gov/updocs"
+      },
+      {
+        "text": "Get personalized retirement benefit estimates",
+        "href": "https://www.ssa.gov/prepare/plan-retirement"
+      },
+      {
+        "text": "Get estimates for spouse’s benefits",
+        "href": "spousal-benefits.html"
+      },
+      {
+        "text": "Get proof that you do not receive benefits",
+        "href": "https://www.ssa.gov/manage-benefits/get-benefit-letter"
+      },
+      {
+        "text": "Check your application status",
+        "href": "https://www.ssa.gov/apply/check-application-or-appeal-status"
+      },
+      {
+        "text": "Get your Social Security Statement",
+        "href": "/myaccount/statement.html"
+      },
+      {
+        "text": "Set up or change direct deposit",
+        "href": "https://www.ssa.gov/manage-benefits/update-direct-deposit"
+      },
+      {
+        "text": "Access your current and historical 1099 tax forms",
+        "href": "https://www.ssa.gov/manage-benefits/get-tax-form-10991042s"
+      },
+      {
+        "text": "Access your annual cost of living adjustment benefit amount",
+        "href": "https://secure.ssa.gov/RIL/SiView.action"
+      },
+      {
+        "text": "Print a benefit verification letter",
+        "href": "https://www.ssa.gov/manage-benefits/get-benefit-letter"
+      },
+      {
+        "text": "Change your address",
+        "href": "https://www.ssa.gov/personal-record/update-contact-information"
+      },
+      {
+        "text": "Create an Account",
+        "href": "https://secure.ssa.gov/RIL/"
+      },
+      {
+        "text": "Sign In",
+        "href": "https://secure.ssa.gov/RIL/"
+      },
+      {
+        "text": "Learn more",
+        "href": "what.html"
+      },
+      {
+        "text": "Learn more",
+        "href": "security.html"
+      },
+      {
+        "text": "Learn more",
+        "href": "create.html"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "/myaccount/assets/images/icons/quick.svg"
+      },
+      {
+        "alt": "",
+        "src": "/myaccount/assets/images/icons/secure.svg"
+      },
+      {
+        "alt": "",
+        "src": "/myaccount/assets/images/icons/easy.svg"
+      }
+    ],
+    "timestamp": 1760610013915,
+    "url": "https://www.ssa.gov/myaccount/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

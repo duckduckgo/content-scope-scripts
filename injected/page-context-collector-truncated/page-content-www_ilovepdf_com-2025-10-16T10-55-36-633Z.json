@@ -1,0 +1,413 @@
+{
+  "url": "https://www.ilovepdf.com/jpg_to_pdf",
+  "extractedAt": "2025-10-16T10:55:36.633Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.ilovepdf.com/img/app-icon.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.ilovepdf.com/img/favicons-pdf/favicon-32x32.png",
+        "rel": "icon"
+      }
+    ],
+    "title": "Convert JPG to PDF. Images JPG to PDF online",
+    "metaDescription": "Convert JPG images to PDF, rotate them or set a page margin. Convert JPG to PDF online, easily and free.",
+    "content": "# JPG to PDF\n \n## Convert JPG images to PDF in seconds. Easily adjust orientation and margins.\n    [Select JPG images](javascript:;)      or drop JPG images here",
+    "truncated": false,
+    "fullContentLength": 161,
+    "headings": [
+      {
+        "level": 1,
+        "text": "JPG to PDF"
+      },
+      {
+        "level": 2,
+        "text": "Convert JPG images to PDF in seconds. Easily adjust orientation and margins."
+      }
+    ],
+    "links": [
+      {
+        "text": "Merge PDF",
+        "href": "/merge_pdf"
+      },
+      {
+        "text": "Split PDF",
+        "href": "/split_pdf"
+      },
+      {
+        "text": "Compress PDF",
+        "href": "/compress_pdf"
+      },
+      {
+        "text": "JPG to PDF",
+        "href": "/jpg_to_pdf"
+      },
+      {
+        "text": "WORD to PDF",
+        "href": "/word_to_pdf"
+      },
+      {
+        "text": "POWERPOINT to PDF",
+        "href": "/powerpoint_to_pdf"
+      },
+      {
+        "text": "EXCEL to PDF",
+        "href": "/excel_to_pdf"
+      },
+      {
+        "text": "HTML to PDF",
+        "href": "/html-to-pdf"
+      },
+      {
+        "text": "PDF to JPG",
+        "href": "/pdf_to_jpg"
+      },
+      {
+        "text": "PDF to WORD",
+        "href": "/pdf_to_word"
+      },
+      {
+        "text": "PDF to POWERPOINT",
+        "href": "/pdf_to_powerpoint"
+      },
+      {
+        "text": "PDF to EXCEL",
+        "href": "/pdf_to_excel"
+      },
+      {
+        "text": "PDF to PDF/A",
+        "href": "/convert-pdf-to-pdfa"
+      },
+      {
+        "text": "Merge PDF",
+        "href": "/merge_pdf"
+      },
+      {
+        "text": "Split PDF",
+        "href": "/split_pdf"
+      },
+      {
+        "text": "Remove pages",
+        "href": "/remove-pages"
+      },
+      {
+        "text": "Extract pages",
+        "href": "/split_pdf#split,extract"
+      },
+      {
+        "text": "Organize PDF",
+        "href": "/organize-pdf"
+      },
+      {
+        "text": "Scan to PDF",
+        "href": "/scan-pdf"
+      },
+      {
+        "text": "Compress PDF",
+        "href": "/compress_pdf"
+      },
+      {
+        "text": "Repair PDF",
+        "href": "/repair-pdf"
+      },
+      {
+        "text": "OCR PDF",
+        "href": "/ocr-pdf"
+      },
+      {
+        "text": "JPG to PDF",
+        "href": "/jpg_to_pdf"
+      },
+      {
+        "text": "WORD to PDF",
+        "href": "/word_to_pdf"
+      },
+      {
+        "text": "POWERPOINT to PDF",
+        "href": "/powerpoint_to_pdf"
+      },
+      {
+        "text": "EXCEL to PDF",
+        "href": "/excel_to_pdf"
+      },
+      {
+        "text": "HTML to PDF",
+        "href": "/html-to-pdf"
+      },
+      {
+        "text": "PDF to JPG",
+        "href": "/pdf_to_jpg"
+      },
+      {
+        "text": "PDF to WORD",
+        "href": "/pdf_to_word"
+      },
+      {
+        "text": "PDF to POWERPOINT",
+        "href": "/pdf_to_powerpoint"
+      },
+      {
+        "text": "PDF to EXCEL",
+        "href": "/pdf_to_excel"
+      },
+      {
+        "text": "PDF to PDF/A",
+        "href": "/convert-pdf-to-pdfa"
+      },
+      {
+        "text": "Rotate PDF",
+        "href": "/rotate_pdf"
+      },
+      {
+        "text": "Add page numbers",
+        "href": "/add_pdf_page_number"
+      },
+      {
+        "text": "Add watermark",
+        "href": "/pdf_add_watermark"
+      },
+      {
+        "text": "Crop PDF",
+        "href": "/crop-pdf"
+      },
+      {
+        "text": "Edit PDF",
+        "href": "/edit-pdf"
+      },
+      {
+        "text": "Unlock PDF",
+        "href": "/unlock_pdf"
+      },
+      {
+        "text": "Protect PDF",
+        "href": "/protect-pdf"
+      },
+      {
+        "text": "Sign PDF",
+        "href": "/sign-pdf"
+      },
+      {
+        "text": "Redact PDF",
+        "href": "/redact-pdf"
+      },
+      {
+        "text": "Compare PDF",
+        "href": "/compare-pdf"
+      },
+      {
+        "text": "Login",
+        "href": "/login"
+      },
+      {
+        "text": "Sign up",
+        "href": "/register"
+      },
+      {
+        "text": "iLoveIMG\n            Effortless image editing",
+        "href": "https://www.iloveimg.com"
+      },
+      {
+        "text": "iLoveSign\n            e-Signing made simple",
+        "href": "https://www.ilovesign.com"
+      },
+      {
+        "text": "iLoveAPI\n            Document automation for developers",
+        "href": "https://www.iloveapi.com"
+      },
+      {
+        "text": "Integrations\n            Zapier, Make, Wordpress...",
+        "href": "https://www.iloveapi.com/integrations"
+      },
+      {
+        "text": "Business\n            Streamlined PDF editing and workflows for business teams",
+        "href": "/business"
+      },
+      {
+        "text": "Desktop App\n            Available for Mac and Windows",
+        "href": "/desktop"
+      },
+      {
+        "text": "Mobile App\n            Available for iOS and Android",
+        "href": "/mobile"
+      },
+      {
+        "text": "Pricing",
+        "href": "/pricing"
+      },
+      {
+        "text": "Security",
+        "href": "/help/security"
+      },
+      {
+        "text": "Features",
+        "href": "/features"
+      },
+      {
+        "text": "About us",
+        "href": "/help/about"
+      },
+      {
+        "text": "FAQ",
+        "href": "/help/faq"
+      },
+      {
+        "text": "Tools",
+        "href": "/help/documentation"
+      },
+      {
+        "text": "Legal & Privacy",
+        "href": "/help/legal"
+      },
+      {
+        "text": "Contact",
+        "href": "/contact"
+      },
+      {
+        "text": "English",
+        "href": "/"
+      },
+      {
+        "text": "Español",
+        "href": "/es"
+      },
+      {
+        "text": "Français",
+        "href": "/fr"
+      },
+      {
+        "text": "Deutsch",
+        "href": "/de"
+      },
+      {
+        "text": "Italiano",
+        "href": "/it"
+      },
+      {
+        "text": "Português",
+        "href": "/pt"
+      },
+      {
+        "text": "日本語",
+        "href": "/ja"
+      },
+      {
+        "text": "Pусский",
+        "href": "/ru"
+      },
+      {
+        "text": "한국어",
+        "href": "/ko"
+      },
+      {
+        "text": "中文 (简体)",
+        "href": "/zh-cn"
+      },
+      {
+        "text": "中文 (繁體)",
+        "href": "/zh-tw"
+      },
+      {
+        "text": "العربية",
+        "href": "/ar"
+      },
+      {
+        "text": "Български",
+        "href": "/bg"
+      },
+      {
+        "text": "Català",
+        "href": "/ca"
+      },
+      {
+        "text": "Nederlands",
+        "href": "/nl"
+      },
+      {
+        "text": "Ελληνικά",
+        "href": "/el"
+      },
+      {
+        "text": "हिन्दी",
+        "href": "/hi"
+      },
+      {
+        "text": "Bahasa Indonesia",
+        "href": "/id"
+      },
+      {
+        "text": "Bahasa Melayu",
+        "href": "/ms"
+      },
+      {
+        "text": "Polski",
+        "href": "/pl"
+      },
+      {
+        "text": "Svenska",
+        "href": "/sv"
+      },
+      {
+        "text": "ภาษาไทย",
+        "href": "/th"
+      },
+      {
+        "text": "Türkçe",
+        "href": "/tr"
+      },
+      {
+        "text": "Українська",
+        "href": "/uk"
+      },
+      {
+        "text": "Tiếng Việt",
+        "href": "/vi"
+      },
+      {
+        "text": "Login",
+        "href": "/login"
+      },
+      {
+        "text": "Sign up",
+        "href": "/register"
+      },
+      {
+        "text": "Upload your file and transform it.\n        Select JPG images",
+        "href": "javascript:;"
+      },
+      {
+        "text": "Upload from computer.",
+        "href": "javascript:;"
+      },
+      {
+        "text": "TCF vendors",
+        "href": "#"
+      },
+      {
+        "text": "ad partners",
+        "href": "#"
+      }
+    ],
+    "images": [
+      {
+        "alt": "iLovePDF",
+        "src": "/img/ilovepdf.svg"
+      },
+      {
+        "alt": "Uploading",
+        "src": "/img/svg_icons/preload.svg"
+      },
+      {
+        "alt": "Uploading",
+        "src": "/img/svg_icons/preload.svg"
+      },
+      {
+        "alt": "Processing",
+        "src": "/img/svg_icons/preload.svg"
+      }
+    ],
+    "timestamp": 1760612135970,
+    "url": "https://www.ilovepdf.com/jpg_to_pdf?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,3609 @@
+{
+  "url": "https://www.kitco.com/charts/silver",
+  "extractedAt": "2025-10-16T10:33:55.524Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.kitco.com/favicons/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.kitco.com/favicons/favicon-32x32.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.kitco.com/favicons/favicon-16x16.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.kitco.com/favicons/favicon.ico",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "Silver Price Today | Price of Silver Per Ounce | 24 Hour Spot Chart | KITCO",
+    "metaDescription": "Live Silver Charts and Silver Spot Price from International Silver Markets, Prices from New York, London, Hong Kong and Sydney provided by Kitco.",
+    "content": "# Live Charts\n\n# /\n\n# silver\n\n## Live silver Price\nOct 16, 2025 - 6:33 NY Time\nBid\n### 52.92\nUSD-0.05 (-0.09%)Ask53.04\n\n- ounce 52.92 -0.05\n\n- gram 1.70 -0.00\n\n- Kilo 1,701.44 -1.58\n\n- pennyweight 2.65 -0.00\n\n- tola 19.85 -0.02\n\n- tael 64.31 -0.06\n\n52.3853.32Day's RangeTrade Gold Today[XAGUSD Chart](https://www.tradingview.com/symbols/XAGUSD?utm_source=www.kitco.com&utm_medium=widget_new&utm_campaign=chart&utm_term=XAGUSD)By TradingView\n## Latest News\n[Gold](https://www.kitco.com/news/category/commodities/gold?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news)[### Allocate 20% to gold and silver, and miners offer the most upside – Sprott’s Schoffstall Oct 15, 2025 - 4:20 PM](https://www.kitco.com/news/article/2025-10-15/allocate-20-gold-and-silver-and-miners-offer-most-upside-sprotts?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news)[Gold](https://www.kitco.com/news/category/commodities/gold?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news)[### No reason to sell gold just yet - Tanglewood CIO Merrill Oct 15, 2025 - 3:17 PM](https://www.kitco.com/news/article/2025-10-15/no-reason-sell-gold-just-yet-tanglewood-cio-merrill?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news)[Gold](https://www.kitco.com/news/category/commodities/gold?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news)[### Gold sees solid gains, hits another all-time high; silver sharply up Oct 15, 2025 - 12:26 PM](https://www.kitco.com/news/article/2025-10-15/gold-sees-solid-gains-hits-another-all-time-high-silver-sharply?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news)[Gold](https://www.kitco.com/news/category/commodities/gold?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news)[### Gold miners are still cheap as record prices revive investor interest, says GOLDX’s Mancini Oct 15, 2025 - 11:59 AM](https://www.kitco.com/news/article/2025-10-15/gold-miners-are-still-cheap-record-prices-revive-investor-interest-says?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news)[Gold](https://www.kitco.com/news/category/commodities/gold?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news)[### Gold ‘could easily go to $5,000 or $10,000 in environments like this’ – JPMorgan’s Jamie Dimon Oct 15, 2025 - 11:12 AM](https://www.kitco.com/news/article/2025-10-15/gold-could-easily-go-5000-or-10000-environments-jpmorgans-jamie-dimon?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news)",
+    "truncated": false,
+    "fullContentLength": 2939,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Live Charts"
+      },
+      {
+        "level": 1,
+        "text": "/"
+      },
+      {
+        "level": 1,
+        "text": "silver"
+      },
+      {
+        "level": 2,
+        "text": "Live silver Price"
+      },
+      {
+        "level": 3,
+        "text": "52.92"
+      },
+      {
+        "level": 2,
+        "text": "Latest News"
+      },
+      {
+        "level": 3,
+        "text": "Allocate 20% to gold and silver, and miners offer the most upside – Sprott’s Schoffstall"
+      },
+      {
+        "level": 3,
+        "text": "No reason to sell gold just yet -  Tanglewood CIO Merrill"
+      },
+      {
+        "level": 3,
+        "text": "Gold sees solid gains, hits another all-time high; silver sharply up"
+      },
+      {
+        "level": 3,
+        "text": "Gold miners are still cheap as record prices revive investor interest, says GOLDX’s Mancini"
+      },
+      {
+        "level": 3,
+        "text": "Gold ‘could easily go to $5,000 or $10,000 in environments like this’ – JPMorgan’s Jamie Dimon"
+      },
+      {
+        "level": 3,
+        "text": "KITCO"
+      },
+      {
+        "level": 1,
+        "text": "Kitco asks for your consent to use your personal data to:"
+      },
+      {
+        "level": 1,
+        "text": "Manage your data"
+      },
+      {
+        "level": 2,
+        "text": "Store and/or access information on a device"
+      },
+      {
+        "level": 2,
+        "text": "Use limited data to select advertising"
+      },
+      {
+        "level": 2,
+        "text": "Create profiles for personalised advertising"
+      },
+      {
+        "level": 2,
+        "text": "Use profiles to select personalised advertising"
+      },
+      {
+        "level": 2,
+        "text": "Create profiles to personalise content"
+      },
+      {
+        "level": 2,
+        "text": "Use profiles to select personalised content"
+      },
+      {
+        "level": 2,
+        "text": "Measure advertising performance"
+      },
+      {
+        "level": 2,
+        "text": "Measure content performance"
+      },
+      {
+        "level": 2,
+        "text": "Understand audiences through statistics or combinations of data from different sources"
+      },
+      {
+        "level": 2,
+        "text": "Develop and improve services"
+      },
+      {
+        "level": 2,
+        "text": "Use limited data to select content"
+      },
+      {
+        "level": 2,
+        "text": "Ensure security, prevent and detect fraud, and fix errors"
+      },
+      {
+        "level": 2,
+        "text": "Deliver and present advertising and content"
+      },
+      {
+        "level": 2,
+        "text": "Save and communicate privacy choices"
+      },
+      {
+        "level": 2,
+        "text": "Match and combine data from other data sources"
+      },
+      {
+        "level": 2,
+        "text": "Link different devices"
+      },
+      {
+        "level": 2,
+        "text": "Identify devices based on information transmitted automatically"
+      },
+      {
+        "level": 2,
+        "text": "Use precise geolocation data"
+      },
+      {
+        "level": 2,
+        "text": "Store and/or access information on a device"
+      },
+      {
+        "level": 2,
+        "text": "Use limited data to select advertising"
+      },
+      {
+        "level": 2,
+        "text": "Create profiles for personalised advertising"
+      },
+      {
+        "level": 2,
+        "text": "Use profiles to select personalised advertising"
+      },
+      {
+        "level": 2,
+        "text": "Measure advertising performance"
+      },
+      {
+        "level": 2,
+        "text": "Understand audiences through statistics or combinations of data from different sources"
+      },
+      {
+        "level": 2,
+        "text": "Develop and improve services"
+      },
+      {
+        "level": 2,
+        "text": "Storage, duration, and usage details"
+      },
+      {
+        "level": 1,
+        "text": "Confirm our vendors"
+      },
+      {
+        "level": 2,
+        "text": "Exponential Interactive, Inc d/b/a VDX.tv"
+      },
+      {
+        "level": 2,
+        "text": "Roq.ad GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Index Exchange Inc."
+      },
+      {
+        "level": 2,
+        "text": "Quantcast"
+      },
+      {
+        "level": 2,
+        "text": "BeeswaxIO Corporation"
+      },
+      {
+        "level": 2,
+        "text": "Sovrn, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Adikteev"
+      },
+      {
+        "level": 2,
+        "text": "RTB House S.A."
+      },
+      {
+        "level": 2,
+        "text": "The UK Trade Desk Ltd"
+      },
+      {
+        "level": 2,
+        "text": "Nexxen Inc."
+      },
+      {
+        "level": 2,
+        "text": "Epsilon"
+      },
+      {
+        "level": 2,
+        "text": "Yahoo EMEA Limited"
+      },
+      {
+        "level": 2,
+        "text": "ADventori SAS"
+      },
+      {
+        "level": 2,
+        "text": "Triple Lift, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Xandr, Inc."
+      },
+      {
+        "level": 2,
+        "text": "NEORY GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Nexxen Group LLC"
+      },
+      {
+        "level": 2,
+        "text": "NEURAL.ONE"
+      },
+      {
+        "level": 2,
+        "text": "ADITION (Virtual Minds GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "Active Agent (Virtual Minds GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "Taboola Europe Limited"
+      },
+      {
+        "level": 2,
+        "text": "Equativ"
+      },
+      {
+        "level": 2,
+        "text": "Adform A/S"
+      },
+      {
+        "level": 2,
+        "text": "Magnite, Inc."
+      },
+      {
+        "level": 2,
+        "text": "RATEGAIN ADARA INC"
+      },
+      {
+        "level": 2,
+        "text": "Sift Media, Inc"
+      },
+      {
+        "level": 2,
+        "text": "Rakuten Marketing LLC"
+      },
+      {
+        "level": 2,
+        "text": "Lumen Research Limited"
+      },
+      {
+        "level": 2,
+        "text": "LifeStreet Corporation"
+      },
+      {
+        "level": 2,
+        "text": "OpenX"
+      },
+      {
+        "level": 2,
+        "text": "Yieldlab (Virtual Minds GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "Nano Interactive Group Ltd."
+      },
+      {
+        "level": 2,
+        "text": "Simplifi Holdings LLC"
+      },
+      {
+        "level": 2,
+        "text": "PubMatic, Inc"
+      },
+      {
+        "level": 2,
+        "text": "Comscore B.V."
+      },
+      {
+        "level": 2,
+        "text": "Flashtalking"
+      },
+      {
+        "level": 2,
+        "text": "PulsePoint, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Smaato, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Semasio GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Crimtan Holdings Limited"
+      },
+      {
+        "level": 2,
+        "text": "Genius Sports UK Limited"
+      },
+      {
+        "level": 2,
+        "text": "Criteo SA"
+      },
+      {
+        "level": 2,
+        "text": "Adloox SA"
+      },
+      {
+        "level": 2,
+        "text": "Blis Global Limited"
+      },
+      {
+        "level": 2,
+        "text": "Epsilon (Lotame)"
+      },
+      {
+        "level": 2,
+        "text": "LiveRamp"
+      },
+      {
+        "level": 2,
+        "text": "WPP Media"
+      },
+      {
+        "level": 2,
+        "text": "LoopMe Limited"
+      },
+      {
+        "level": 2,
+        "text": "Dynata LLC"
+      },
+      {
+        "level": 2,
+        "text": "Ask Locala"
+      },
+      {
+        "level": 2,
+        "text": "Azira"
+      },
+      {
+        "level": 2,
+        "text": "DoubleVerify Inc.​"
+      },
+      {
+        "level": 2,
+        "text": "BIDSWITCH GmbH"
+      },
+      {
+        "level": 2,
+        "text": "IPONWEB GmbH"
+      },
+      {
+        "level": 2,
+        "text": "NextRoll, Inc."
+      },
+      {
+        "level": 2,
+        "text": "ID5 Technology SAS"
+      },
+      {
+        "level": 2,
+        "text": "Teads France SAS"
+      },
+      {
+        "level": 2,
+        "text": "Ströer SSP GmbH (SSP)"
+      },
+      {
+        "level": 2,
+        "text": "OS Data Solutions GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Permodo GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Platform161 B.V."
+      },
+      {
+        "level": 2,
+        "text": "Media.net Advertising FZ-LLC"
+      },
+      {
+        "level": 2,
+        "text": "Basis Global Technologies, Inc."
+      },
+      {
+        "level": 2,
+        "text": "SMADEX, S.L.U."
+      },
+      {
+        "level": 2,
+        "text": "Bombora Inc."
+      },
+      {
+        "level": 2,
+        "text": "EASYmedia GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Remerge GmbH"
+      },
+      {
+        "level": 2,
+        "text": "advanced store GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Magnite CTV, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Revcontent, LLC"
+      },
+      {
+        "level": 2,
+        "text": "Delta Projects AB"
+      },
+      {
+        "level": 2,
+        "text": "usemax advertisement (Emego GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "emetriq GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Publicis Media GmbH"
+      },
+      {
+        "level": 2,
+        "text": "M.D. Primis Technologies Ltd."
+      },
+      {
+        "level": 2,
+        "text": "OneTag Limited"
+      },
+      {
+        "level": 2,
+        "text": "Cloud Technologies S.A."
+      },
+      {
+        "level": 2,
+        "text": "Smartology Limited"
+      },
+      {
+        "level": 2,
+        "text": "Improve Digital"
+      },
+      {
+        "level": 2,
+        "text": "Nativo, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Adobe Advertising Cloud"
+      },
+      {
+        "level": 2,
+        "text": "Bannerflow AB"
+      },
+      {
+        "level": 2,
+        "text": "TabMo SAS"
+      },
+      {
+        "level": 2,
+        "text": "Integral Ad Science (incorporating ADmantX)"
+      },
+      {
+        "level": 2,
+        "text": "Wizaly"
+      },
+      {
+        "level": 2,
+        "text": "Weborama"
+      },
+      {
+        "level": 2,
+        "text": "Jivox Corporation"
+      },
+      {
+        "level": 2,
+        "text": "Sojern, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Vistar Media EMEA BV"
+      },
+      {
+        "level": 2,
+        "text": "On Device Research Limited"
+      },
+      {
+        "level": 2,
+        "text": "Rockabox Media Ltd"
+      },
+      {
+        "level": 2,
+        "text": "Exactag GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Celtra Inc."
+      },
+      {
+        "level": 2,
+        "text": "Gemius SA"
+      },
+      {
+        "level": 2,
+        "text": "The Kantar Group Limited"
+      },
+      {
+        "level": 2,
+        "text": "Nielsen Media Research Ltd."
+      },
+      {
+        "level": 2,
+        "text": "Solocal SA"
+      },
+      {
+        "level": 2,
+        "text": "Pixalate, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Numberly"
+      },
+      {
+        "level": 2,
+        "text": "AudienceProject A/S"
+      },
+      {
+        "level": 2,
+        "text": "Demandbase, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Effiliation / Effinity"
+      },
+      {
+        "level": 2,
+        "text": "Arrivalist Co."
+      },
+      {
+        "level": 2,
+        "text": "Seenthis AB"
+      },
+      {
+        "level": 2,
+        "text": "Commanders Act"
+      },
+      {
+        "level": 2,
+        "text": "travel audience GmbH"
+      },
+      {
+        "level": 2,
+        "text": "HUMAN"
+      },
+      {
+        "level": 2,
+        "text": "Streamwise srl"
+      },
+      {
+        "level": 2,
+        "text": "Innovid LLC"
+      },
+      {
+        "level": 2,
+        "text": "Papirfly AS"
+      },
+      {
+        "level": 2,
+        "text": "Otto GmbH & Co. KGaA"
+      },
+      {
+        "level": 2,
+        "text": "Adobe Audience Manager, Adobe Experience Platform"
+      },
+      {
+        "level": 2,
+        "text": "Localsensor B.V."
+      },
+      {
+        "level": 2,
+        "text": "Online Solution"
+      },
+      {
+        "level": 2,
+        "text": "Relay42 Netherlands B.V."
+      },
+      {
+        "level": 2,
+        "text": "GP One GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Liftoff Monetize and Vungle Exchange"
+      },
+      {
+        "level": 2,
+        "text": "The MediaGrid Inc."
+      },
+      {
+        "level": 2,
+        "text": "Reppublika Research and Analytics Austria GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Cint AB"
+      },
+      {
+        "level": 2,
+        "text": "Google Advertising Products"
+      },
+      {
+        "level": 2,
+        "text": "GfK GmbH"
+      },
+      {
+        "level": 2,
+        "text": "RevJet"
+      },
+      {
+        "level": 2,
+        "text": "Protected Media LTD"
+      },
+      {
+        "level": 2,
+        "text": "Clinch Labs LTD"
+      },
+      {
+        "level": 2,
+        "text": "Hearts and Science München GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Amazon Ads"
+      },
+      {
+        "level": 2,
+        "text": "Moloco, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Adtriba GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Ensighten"
+      },
+      {
+        "level": 2,
+        "text": "Dianomi PLC"
+      },
+      {
+        "level": 2,
+        "text": "MetrixLab Nederland B.V."
+      },
+      {
+        "level": 2,
+        "text": "Hurra Communications GmbH"
+      },
+      {
+        "level": 2,
+        "text": "AnyClip Inc."
+      },
+      {
+        "level": 2,
+        "text": "Akamai"
+      },
+      {
+        "level": 2,
+        "text": "Meta"
+      },
+      {
+        "level": 2,
+        "text": "Aunica"
+      },
+      {
+        "level": 2,
+        "text": "Booking.com"
+      },
+      {
+        "level": 2,
+        "text": "C3 Metrics"
+      },
+      {
+        "level": 2,
+        "text": "IBM"
+      },
+      {
+        "level": 2,
+        "text": "Roku Advertising Services"
+      },
+      {
+        "level": 2,
+        "text": "eBay"
+      },
+      {
+        "level": 2,
+        "text": "Evidon"
+      },
+      {
+        "level": 2,
+        "text": "Adacado"
+      },
+      {
+        "level": 2,
+        "text": "intelliAd"
+      },
+      {
+        "level": 2,
+        "text": "Dstillery"
+      },
+      {
+        "level": 2,
+        "text": "MediaMath"
+      },
+      {
+        "level": 2,
+        "text": "Sizmek"
+      },
+      {
+        "level": 2,
+        "text": "ZMS"
+      },
+      {
+        "level": 2,
+        "text": "Omnicom Media Group"
+      },
+      {
+        "level": 2,
+        "text": "Resonate"
+      },
+      {
+        "level": 2,
+        "text": "Smart"
+      },
+      {
+        "level": 2,
+        "text": "Tradedoubler AB"
+      },
+      {
+        "level": 2,
+        "text": "TrustArc"
+      },
+      {
+        "level": 2,
+        "text": "TruEffect"
+      },
+      {
+        "level": 2,
+        "text": "Travel Data Collective"
+      },
+      {
+        "level": 2,
+        "text": "advolution.control"
+      },
+      {
+        "level": 2,
+        "text": "MainADV"
+      },
+      {
+        "level": 2,
+        "text": "AdMaxim"
+      },
+      {
+        "level": 2,
+        "text": "Batch Media"
+      },
+      {
+        "level": 2,
+        "text": "Vodafone GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Magnite"
+      },
+      {
+        "level": 2,
+        "text": "Neustar"
+      },
+      {
+        "level": 2,
+        "text": "Scenestealer"
+      },
+      {
+        "level": 2,
+        "text": "Netquest"
+      },
+      {
+        "level": 2,
+        "text": "Manage.com"
+      },
+      {
+        "level": 2,
+        "text": "Cloudflare"
+      },
+      {
+        "level": 2,
+        "text": "Salesforce DMP"
+      },
+      {
+        "level": 2,
+        "text": "Netflix"
+      },
+      {
+        "level": 2,
+        "text": "ebuilders"
+      },
+      {
+        "level": 2,
+        "text": "AppLovin Corp."
+      },
+      {
+        "level": 2,
+        "text": "Fractional Media"
+      },
+      {
+        "level": 2,
+        "text": "Rackspace"
+      },
+      {
+        "level": 2,
+        "text": "MSI-ACI"
+      },
+      {
+        "level": 2,
+        "text": "Admetrics"
+      },
+      {
+        "level": 2,
+        "text": "Navegg"
+      },
+      {
+        "level": 2,
+        "text": "Admedo"
+      },
+      {
+        "level": 2,
+        "text": "Kochava"
+      },
+      {
+        "level": 2,
+        "text": "Mobitrans"
+      },
+      {
+        "level": 2,
+        "text": "ADEX"
+      },
+      {
+        "level": 2,
+        "text": "Impact"
+      },
+      {
+        "level": 2,
+        "text": "Spotad"
+      },
+      {
+        "level": 2,
+        "text": "Aarki"
+      },
+      {
+        "level": 2,
+        "text": "SFR"
+      },
+      {
+        "level": 2,
+        "text": "Cablato"
+      },
+      {
+        "level": 2,
+        "text": "Waystack"
+      },
+      {
+        "level": 2,
+        "text": "TreSensa"
+      },
+      {
+        "level": 2,
+        "text": "gskinner"
+      },
+      {
+        "level": 2,
+        "text": "Video Research Interactive"
+      },
+      {
+        "level": 2,
+        "text": "CUBED"
+      },
+      {
+        "level": 2,
+        "text": "Optomaton"
+      },
+      {
+        "level": 2,
+        "text": "Dentsu Aegis Network"
+      },
+      {
+        "level": 2,
+        "text": "Digiseg"
+      },
+      {
+        "level": 2,
+        "text": "Haensel AMS"
+      },
+      {
+        "level": 2,
+        "text": "BDSK Handels GmbH & Co. KG"
+      },
+      {
+        "level": 2,
+        "text": "Objective Partners"
+      },
+      {
+        "level": 2,
+        "text": "Marketing Science Consulting Group, Inc."
+      },
+      {
+        "level": 2,
+        "text": "DENTSU"
+      },
+      {
+        "level": 2,
+        "text": "Kobler"
+      },
+      {
+        "level": 2,
+        "text": "Widespace"
+      },
+      {
+        "level": 2,
+        "text": "Vimeo"
+      },
+      {
+        "level": 2,
+        "text": "Oracle Data Cloud"
+      }
+    ],
+    "links": [
+      {
+        "text": "BUY/SELL GOLD & SILVERBullion Coins and Bars",
+        "href": "https://online.kitco.com/"
+      },
+      {
+        "text": "Precious MetalsAll Metal Quotes",
+        "href": "/price/precious-metals"
+      },
+      {
+        "text": "Cryptos",
+        "href": "/price/crypto"
+      },
+      {
+        "text": "Base Metals",
+        "href": "/price/base-metals"
+      },
+      {
+        "text": "Markets",
+        "href": "/markets"
+      },
+      {
+        "text": "Mining",
+        "href": "/news/category/mining"
+      },
+      {
+        "text": "News",
+        "href": "/news"
+      },
+      {
+        "text": "Kitco Forum NEW",
+        "href": "https://forum.kitco.com/categories?utm_source=kitco_website&utm_medium=navbar&utm_campaign=forum_navigation"
+      },
+      {
+        "text": "Video News",
+        "href": "/news/video"
+      },
+      {
+        "text": "Opinion",
+        "href": "/opinion"
+      },
+      {
+        "text": "Kitco Forum",
+        "href": "https://forum.kitco.com/categories?utm_source=kitco_website&utm_medium=navbar&utm_campaign=forum_navigation"
+      },
+      {
+        "text": "Jeweler Resources",
+        "href": "/jeweler-resources"
+      },
+      {
+        "text": "Newsletters",
+        "href": "https://www.kitco.com/services"
+      },
+      {
+        "text": "XAGUSD Chart",
+        "href": "https://www.tradingview.com/symbols/XAGUSD?utm_source=www.kitco.com&utm_medium=widget_new&utm_campaign=chart&utm_term=XAGUSD"
+      },
+      {
+        "text": "Gold",
+        "href": "https://www.kitco.com/news/category/commodities/gold?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news"
+      },
+      {
+        "text": "Allocate 20% to gold and silver, and miners offer the most upside – Sprott’s SchoffstallOct 15, 2025 - 4:20 PM",
+        "href": "https://www.kitco.com/news/article/2025-10-15/allocate-20-gold-and-silver-and-miners-offer-most-upside-sprotts?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news"
+      },
+      {
+        "text": "Gold",
+        "href": "https://www.kitco.com/news/category/commodities/gold?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news"
+      },
+      {
+        "text": "No reason to sell gold just yet -  Tanglewood CIO MerrillOct 15, 2025 - 3:17 PM",
+        "href": "https://www.kitco.com/news/article/2025-10-15/no-reason-sell-gold-just-yet-tanglewood-cio-merrill?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news"
+      },
+      {
+        "text": "Gold",
+        "href": "https://www.kitco.com/news/category/commodities/gold?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news"
+      },
+      {
+        "text": "Gold sees solid gains, hits another all-time high; silver sharply upOct 15, 2025 - 12:26 PM",
+        "href": "https://www.kitco.com/news/article/2025-10-15/gold-sees-solid-gains-hits-another-all-time-high-silver-sharply?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news"
+      },
+      {
+        "text": "Gold",
+        "href": "https://www.kitco.com/news/category/commodities/gold?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news"
+      },
+      {
+        "text": "Gold miners are still cheap as record prices revive investor interest, says GOLDX’s ManciniOct 15, 2025 - 11:59 AM",
+        "href": "https://www.kitco.com/news/article/2025-10-15/gold-miners-are-still-cheap-record-prices-revive-investor-interest-says?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news"
+      },
+      {
+        "text": "Gold",
+        "href": "https://www.kitco.com/news/category/commodities/gold?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news"
+      },
+      {
+        "text": "Gold ‘could easily go to $5,000 or $10,000 in environments like this’ – JPMorgan’s Jamie DimonOct 15, 2025 - 11:12 AM",
+        "href": "https://www.kitco.com/news/article/2025-10-15/gold-could-easily-go-5000-or-10000-environments-jpmorgans-jamie-dimon?utm_source=site_navigation&utm_medium=sidebar_link&utm_campaign=latest_news&utm_term=silver_ab_sidebar_news"
+      },
+      {
+        "text": "All Metal Quotes",
+        "href": "/price/precious-metals"
+      },
+      {
+        "text": "Cryptocurrencies",
+        "href": "/charts"
+      },
+      {
+        "text": "Markets",
+        "href": "/markets"
+      },
+      {
+        "text": "News",
+        "href": "/news"
+      },
+      {
+        "text": "Commentaries",
+        "href": "/opinion"
+      },
+      {
+        "text": "Mining",
+        "href": "/news/category/mining"
+      },
+      {
+        "text": "Terms of Use",
+        "href": "/terms-of-use"
+      },
+      {
+        "text": "Terms & Conditions",
+        "href": "/legal/terms-and-conditions"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "/legal/privacy-policy"
+      },
+      {
+        "text": "How can I change my choice?",
+        "href": "#"
+      },
+      {
+        "text": "What if I don't consent?",
+        "href": "#"
+      },
+      {
+        "text": "How does legitimate interest work?",
+        "href": "#"
+      },
+      {
+        "text": "Do I have to consent to everything?",
+        "href": "#"
+      },
+      {
+        "text": "134 TCF vendor(s) and 68 ad partner(s)",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Kitco logo",
+        "src": "/logos/kitco-logo.svg"
+      },
+      {
+        "alt": "YouTube Channel",
+        "src": "/social/Youtube-Channel.svg"
+      },
+      {
+        "alt": "USA Dollar",
+        "src": "/flags/USD.png"
+      },
+      {
+        "alt": "Live 24hrs silver chart",
+        "src": "https://www.kitco.com/chart-images/images/live/silver.gif"
+      },
+      {
+        "alt": "Live New York silver Chart",
+        "src": "https://www.kitco.com/chart-images/images/live/nysilver.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG0030lnb.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG0060lnb.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG0182nyb.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG0365nyb.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG1825nyb.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG3650nyb.gif"
+      },
+      {
+        "alt": "Kitco logo for Kitco.com",
+        "src": "/logos/kitco-logo.svg"
+      },
+      {
+        "alt": "Kitco logo for Kitco.com",
+        "src": "/logos/kitco-logo.svg"
+      },
+      {
+        "alt": "Kitco on AppStore",
+        "src": "/mobile_02Feb24.png"
+      },
+      {
+        "alt": "Kitco QR Code",
+        "src": "/KitcoGoldLiveAppQRCode.svg"
+      },
+      {
+        "alt": "Download Kitco on GooglePlay",
+        "src": "/jewelers/icons/ggplay_store.svg"
+      },
+      {
+        "alt": "Kitco on AppStore",
+        "src": "/jewelers/icons/app_store.svg"
+      },
+      {
+        "alt": "privacy opt out icon",
+        "src": "/privacyoptions-grayscale.svg"
+      },
+      {
+        "alt": "Welcome to Kitco",
+        "src": "https://lh3.googleusercontent.com/AAqM-a-Rs9exRf-XZfS6DrUqXxdbfE2avCE_JVDBeEv4wxenVcXJvN6TxCajBoOMX33bSxDPi9jCMzuu9i52VHvQf1oxLiyZx3XSddHOHQm2BfPzCsV9=h60"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG0030lnb.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG0060lnb.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG0182nyb.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG0365nyb.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG1825nyb.gif"
+      },
+      {
+        "alt": "Live silver chart",
+        "src": "https://www.kitco.com/chart-images/LFgif/AG3650nyb.gif"
+      },
+      {
+        "alt": "Live 24hrs silver chart",
+        "src": "https://www.kitco.com/chart-images/images/live/silver.gif"
+      },
+      {
+        "alt": "Live New York silver Chart",
+        "src": "https://www.kitco.com/chart-images/images/live/nysilver.gif"
+      }
+    ],
+    "timestamp": 1760610834515,
+    "url": "https://www.kitco.com/charts/silver?automation=true?automation=true&wait-for-init-args=true"
+  }
+}
