@@ -27,18 +27,20 @@
  * - --headful: Run with visible browser (default: headless)
  * - --timeout=N: Set browser launch timeout in seconds (default: 60)
  * - --no-truncate: Disable content truncation (removes maxContentLength limit)
+ * - --output-dir=PATH: Set output directory for crawl results (default: page-context-collector)
  * 
  * Examples:
  * - node page-context-example.js --headful urls.txt
  * - node page-context-example.js --timeout=30 https://example.com
  * - node page-context-example.js --no-truncate https://example.com
+ * - node page-context-example.js --output-dir=./custom-output urls.txt
  * 
- * Output Files:
- * - page-context-collector/page-content-{hostname}-{timestamp}.json (page content)
- * - page-context-collector/network-{hostname}-{timestamp}.har (network requests)
- * - page-context-collector/crawl-{timestamp}.log (detailed logs)
- * - page-context-collector/failed-crawls.json (failed URLs)
- * - page-context-collector/crawl-summary.json (final summary)
+ * Output Files into the output directory:
+ * - pages/{hostname}-{timestamp}.json (page content)
+ * - har/{hostname}-{timestamp}.har (network requests)
+ * - logs/{timestamp}.log (detailed logs)
+ * - failed-crawls.json (failed URLs)
+ * - crawl-summary.json (final summary)
  */
 
 import { chromium } from 'playwright';
@@ -81,7 +83,11 @@ function initializeLogging() {
     
     // Create log file with timestamp
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const logFile = join(crawlState.outputDir, `crawl-${timestamp}.log`);
+    const logsDir = join(crawlState.outputDir, 'logs');
+    if (!existsSync(logsDir)) {
+        mkdirSync(logsDir, { recursive: true });
+    }
+    const logFile = join(logsDir, `${timestamp}.log`);
     crawlState.logStream = createWriteStream(logFile, { flags: 'a' });
     
     console.log(`📝 Logging to: ${logFile}`);
@@ -185,8 +191,12 @@ async function extractPageContent(url, options = { headful: false, timeout: 60, 
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.replace(/[^a-z0-9]/gi, '_');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const harFilename = `network-${hostname}-${timestamp}.har`;
-    const harFilepath = join(crawlState.outputDir, harFilename);
+    const harDir = join(crawlState.outputDir, 'har');
+    if (!existsSync(harDir)) {
+        mkdirSync(harDir, { recursive: true });
+    }
+    const harFilename = `${hostname}-${timestamp}.har`;
+    const harFilepath = join(harDir, harFilename);
 
     // Launch browser with persistent context and HAR recording
     const launchOptions = {
@@ -297,24 +307,24 @@ async function extractPageContent(url, options = { headful: false, timeout: 60, 
 }
 
 /**
- * Write page content to a JSON file in the page-context-collector directory
+ * Write page content to a JSON file in the output directory
  * @param {Object} content - The extracted page content
  * @param {string} url - The URL that was processed
  */
 function writeContentToFile(content, url) {
-    // Create output directory if it doesn't exist
-    const outputDir = 'page-context-collector';
-    if (!existsSync(outputDir)) {
-        mkdirSync(outputDir, { recursive: true });
-        console.log(`📁 Created directory: ${outputDir}`);
+    // Create pages directory if it doesn't exist
+    const pagesDir = join(crawlState.outputDir, 'pages');
+    if (!existsSync(pagesDir)) {
+        mkdirSync(pagesDir, { recursive: true });
+        console.log(`📁 Created directory: ${pagesDir}`);
     }
     
     // Create a safe filename from the URL
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.replace(/[^a-z0-9]/gi, '_');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `page-content-${hostname}-${timestamp}.json`;
-    const filepath = join(outputDir, filename);
+    const filename = `${hostname}-${timestamp}.json`;
+    const filepath = join(pagesDir, filename);
     
     // Prepare the output data
     const outputData = {
@@ -398,15 +408,16 @@ function isUrl(input) {
 /**
  * Parse command line arguments
  * @param {string[]} args - Command line arguments
- * @returns {{input: string|null, headful: boolean, timeout: number, noTruncate: boolean}}
+ * @returns {{input: string|null, headful: boolean, timeout: number, noTruncate: boolean, outputDir: string|null}}
  */
 function parseArgs(args) {
-    /** @type {{input: string|null, headful: boolean, timeout: number, noTruncate: boolean}} */
+    /** @type {{input: string|null, headful: boolean, timeout: number, noTruncate: boolean, outputDir: string|null}} */
     const options = {
         input: null,
         headful: false,
         timeout: 60,
-        noTruncate: false
+        noTruncate: false,
+        outputDir: null
     };
 
     for (const arg of args) {
@@ -416,6 +427,8 @@ function parseArgs(args) {
             options.noTruncate = true;
         } else if (arg.startsWith('--timeout=')) {
             options.timeout = parseInt(arg.split('=')[1]) || 60;
+        } else if (arg.startsWith('--output-dir=')) {
+            options.outputDir = arg.split('=').slice(1).join('='); // Handle paths with = in them
         } else if (!arg.startsWith('--')) {
             options.input = arg;
         }
@@ -470,6 +483,11 @@ function generateSummaryReport() {
 async function main() {
     const args = process.argv.slice(2);
     const options = parseArgs(args);
+
+    // Set output directory if provided via CLI
+    if (options.outputDir) {
+        crawlState.outputDir = options.outputDir;
+    }
 
     // Initialize logging
     const logFile = initializeLogging();
