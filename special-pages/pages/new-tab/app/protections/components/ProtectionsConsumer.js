@@ -41,68 +41,61 @@ function BurnToProtectionsDataBridge() {
     const protectionsService = useContext(ProtectionsServiceContext);
 
     useEffect(() => {
-        if (!activityService?.burns || !protectionsService) {
+        if (!activityService || !protectionsService) {
             console.log('[BurnToProtectionsDataBridge] Missing service:', {
                 hasActivityService: !!activityService,
-                hasBurns: !!activityService?.burns,
                 hasProtectionsService: !!protectionsService,
             });
             return;
         }
 
-        const handleBurnComplete = () => {
-            console.log('[BurnToProtectionsDataBridge] Burn complete event received, starting polling for updated protections data');
+        // WORKAROUND: Native does not update protections data after burn (confirmed via polling).
+        // Instead, listen for activity data updates (which ARE correct) and sync protections data to match.
+        console.log('[BurnToProtectionsDataBridge] Setting up activity data listener to sync protections');
 
-            // Get the current protections count before polling
-            const initialCount = protectionsService?.dataService?.data?.totalCount;
-            console.log('[BurnToProtectionsDataBridge] Initial protections count:', initialCount);
+        let burnInProgress = false;
 
-            let retryCount = 0;
-            const maxRetries = 10; // Try for up to 1 second (10 * 100ms)
-
-            const pollForUpdate = () => {
-                retryCount++;
-                console.log(`[BurnToProtectionsDataBridge] Polling attempt ${retryCount}/${maxRetries}`);
-
-                // Fetch fresh data from native
-                protectionsService?.dataService?.triggerFetch?.().then(() => {
-                    const newCount = protectionsService?.dataService?.data?.totalCount;
-                    console.log('[BurnToProtectionsDataBridge] After fetch, protections count:', newCount);
-
-                    // Check if the data has actually changed
-                    if (newCount !== initialCount) {
-                        console.log('[BurnToProtectionsDataBridge] ✅ Protections data updated successfully!', {
-                            oldCount: initialCount,
-                            newCount: newCount,
-                            retriesNeeded: retryCount,
-                        });
-                        return; // Success! Stop polling
-                    }
-
-                    // Data hasn't changed yet
-                    if (retryCount < maxRetries) {
-                        console.log('[BurnToProtectionsDataBridge] Data still stale, retrying in 100ms...');
-                        setTimeout(pollForUpdate, 100);
-                    } else {
-                        console.warn('[BurnToProtectionsDataBridge] ❌ Max retries reached, protections data did not update', {
-                            expectedChange: true,
-                            actualCount: newCount,
-                            retriesAttempted: retryCount,
-                        });
-                    }
-                });
-            };
-
-            // Start polling after initial delay
-            setTimeout(pollForUpdate, 100);
+        const handleBurnStart = () => {
+            burnInProgress = true;
+            console.log('[BurnToProtectionsDataBridge] Burn started, waiting for activity data update...');
         };
 
-        const burns = activityService.burns;
-        burns.addEventListener('activity_onBurnComplete', handleBurnComplete);
-        console.log('[BurnToProtectionsDataBridge] Burn complete listener registered');
+        const unsubscribeActivityData = activityService.onData((evt) => {
+            if (!burnInProgress) return;
+
+            // Activity data has been updated after burn
+            const activityTotalTrackers = evt.data.totalTrackers;
+            const protectionsTotalCount = protectionsService.dataService?.data?.totalCount;
+
+            console.log('[BurnToProtectionsDataBridge] Activity data updated after burn:', {
+                activityTotalTrackers,
+                protectionsTotalCount,
+                needsSync: activityTotalTrackers !== protectionsTotalCount,
+            });
+
+            if (activityTotalTrackers !== protectionsTotalCount) {
+                // Sync protections data to match activity data
+                console.log('[BurnToProtectionsDataBridge] Syncing protections data from activity data');
+                protectionsService.dataService.update((old) => ({
+                    ...old,
+                    totalCount: activityTotalTrackers,
+                }));
+            }
+
+            burnInProgress = false;
+        });
+
+        if (activityService.burns) {
+            activityService.burns.addEventListener('activity_onBurnComplete', handleBurnStart);
+        }
+
+        console.log('[BurnToProtectionsDataBridge] Bridge initialized');
 
         return () => {
-            burns?.removeEventListener('activity_onBurnComplete', handleBurnComplete);
+            unsubscribeActivityData();
+            if (activityService.burns) {
+                activityService.burns.removeEventListener('activity_onBurnComplete', handleBurnStart);
+            }
         };
     }, [activityService, protectionsService]);
 
