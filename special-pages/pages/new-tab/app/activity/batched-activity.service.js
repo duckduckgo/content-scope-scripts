@@ -55,6 +55,11 @@ export class BatchedActivityService {
             },
             subscribe: (cb) => {
                 const sub1 = ntp.messaging.subscribe('activity_onDataUpdate', (params) => {
+                    console.log('[BatchedActivity] activity_onDataUpdate received:', {
+                        activityCount: params.activity.length,
+                        totalTrackers: params.activity.reduce((acc, item) => acc + item.trackingStatus.totalCount, 0),
+                        urls: params.activity.map((x) => x.url),
+                    });
                     cb({
                         activity: params.activity,
                         urls: params.activity.map((x) => x.url),
@@ -63,6 +68,12 @@ export class BatchedActivityService {
                 });
                 const sub2 = ntp.messaging.subscribe('activity_onDataPatch', (params) => {
                     const totalTrackers = params.totalTrackersBlocked;
+                    console.log('[BatchedActivity] activity_onDataPatch received:', {
+                        hasPatch: 'patch' in params && params.patch !== null,
+                        totalTrackers,
+                        urls: params.urls,
+                        patchUrl: params.patch?.url,
+                    });
                     if ('patch' in params && params.patch !== null) {
                         cb({ activity: [/** @type {DomainActivity} */ (params.patch)], urls: params.urls, totalTrackers });
                     } else {
@@ -91,6 +102,7 @@ export class BatchedActivityService {
         /** @type {EventTarget|null} */
         this.burns = new EventTarget();
         this.burnUnsub = this.ntp.messaging.subscribe('activity_onBurnComplete', () => {
+            console.log('[BatchedActivity] activity_onBurnComplete received from native');
             this.burns?.dispatchEvent(new CustomEvent('activity_onBurnComplete'));
         });
     }
@@ -216,10 +228,12 @@ export class BatchedActivityService {
     }
 
     enableBroadcast() {
+        console.log('[BatchedActivity] enableBroadcast called');
         this.dataService.enableBroadcast();
         this.dataService.flush();
     }
     disableBroadcast() {
+        console.log('[BatchedActivity] disableBroadcast called');
         this.dataService.disableBroadcast();
     }
 }

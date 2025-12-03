@@ -121,12 +121,13 @@ export function useBlockedCount(initial) {
     // BatchedActivityService already subscribes to activity_onBurnComplete and dispatches this event
     useEffect(() => {
         if (!activityService?.burns) return;
-        
+
         const handleBurnComplete = () => {
             // Mark that we should skip animation if next update goes to 0
+            console.log('[ProtectionsProvider.useBlockedCount] Burn complete event received, setting burnCompleteTimeRef');
             burnCompleteTimeRef.current = Date.now();
         };
-        
+
         const burns = activityService.burns;
         burns.addEventListener('activity_onBurnComplete', handleBurnComplete);
         return () => {
@@ -141,11 +142,22 @@ export function useBlockedCount(initial) {
         return service?.onData((evt) => {
             const newValue = evt.data.totalCount;
             const previousValue = signal.value;
-            
+            console.log('[ProtectionsProvider.useBlockedCount] Protections data update received:', {
+                source: evt.source,
+                previousValue,
+                newValue,
+                totalCookiePopUpsBlocked: evt.data.totalCookiePopUpsBlocked,
+                burnCompleteTimeSet: burnCompleteTimeRef.current !== null,
+            });
+
             // If transitioning to 0 and we just had a burn complete (within 1 second),
             // this is likely a "burn all" operation - skip animation and go directly to empty state
             if (newValue === 0 && previousValue > 0 && burnCompleteTimeRef.current !== null) {
                 const timeSinceBurn = Date.now() - burnCompleteTimeRef.current;
+                console.log('[ProtectionsProvider.useBlockedCount] Checking burn all condition:', {
+                    timeSinceBurn,
+                    willSkipAnimation: timeSinceBurn < 1000,
+                });
                 if (timeSinceBurn < 1000) {
                     // Set skipAnimation flag before updating the signal value
                     // This ensures useAnimatedCount immediately sets to 0 without animating
@@ -159,7 +171,7 @@ export function useBlockedCount(initial) {
                     return;
                 }
             }
-            
+
             // Normal update (including single domain burns) - allow animation for both counts
             // This ensures both tracker count and cookie pop-ups count animate when burning a single domain
             skipAnimationSignal.value = false;
@@ -180,7 +192,14 @@ export function useCookiePopUpsBlockedCount(initial) {
 
     useSignalEffect(() => {
         return service?.onData((evt) => {
-            signal.value = evt.data.totalCookiePopUpsBlocked;
+            const previousValue = signal.value;
+            const newValue = evt.data.totalCookiePopUpsBlocked;
+            console.log('[ProtectionsProvider.useCookiePopUpsBlockedCount] Cookie pop-ups count update:', {
+                source: evt.source,
+                previousValue,
+                newValue,
+            });
+            signal.value = newValue;
         });
     });
 

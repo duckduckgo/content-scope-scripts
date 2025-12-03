@@ -44,10 +44,15 @@ export function BurnProvider({ children, service, showBurnAnimation = true }) {
         if (burning.value.length > 0 || exiting.value.length > 0) return;
 
         const value = button.value;
+        console.log('[BurnProvider] Starting burn for:', value);
         const response = await service?.confirmBurn(value);
-        if (response && response.action === 'none') return;
+        if (response && response.action === 'none') {
+            console.log('[BurnProvider] Burn cancelled by user');
+            return;
+        }
 
         // stop the service broadcasting any updates for a moment
+        console.log('[BurnProvider] Disabling broadcast and marking as burning');
         service.disableBroadcast();
 
         // mark this item as burning - this will prevent further events until we're done
@@ -65,9 +70,11 @@ export function BurnProvider({ children, service, showBurnAnimation = true }) {
         // but don't wait any longer than 3 seconds
         const withTimer = any(required, timer(3000));
 
+        console.log('[BurnProvider] Waiting for FE and native signals...');
         // exec the chain
         await toPromise(withTimer);
 
+        console.log('[BurnProvider] Burn complete, clearing state and re-enabling broadcast');
         // when we get here, clear out all state
         batch(() => {
             exiting.value = [];

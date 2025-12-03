@@ -109,14 +109,17 @@ export class Service {
     }
 
     disableBroadcast() {
+        console.log('[Service] disableBroadcast called');
         this._broadcast = false;
     }
 
     enableBroadcast() {
+        console.log('[Service] enableBroadcast called');
         this._broadcast = true;
     }
 
     flush() {
+        console.log('[Service] flush called, has data:', this.data !== null);
         if (this.data) this._accept(this.data, 'manual');
     }
 
@@ -143,6 +146,12 @@ export class Service {
      * @private
      */
     _accept(data, source) {
+        console.log('[Service] _accept called:', {
+            source,
+            broadcast: this._broadcast,
+            hasData: data !== null,
+        });
+
         if (this.accept && source !== 'initial') {
             this.data = /** @type {NonNullable<Data>} */ (this.accept(/** @type {NonNullable<Data>} */ (this.data), data, source));
         } else {
@@ -155,8 +164,12 @@ export class Service {
         // always cancel any existing debounced timers
         this.clearDebounceTimer();
 
-        if (!this._broadcast) return console.warn('not broadcasting');
+        if (!this._broadcast) {
+            console.warn('[Service] NOT broadcasting - broadcast is disabled. Source:', source);
+            return;
+        }
 
+        console.log('[Service] Broadcasting data event. Source:', source);
         // always broadcast the change on the event target
         const dataEvent = new CustomEvent('data', {
             detail: {

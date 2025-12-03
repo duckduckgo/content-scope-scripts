@@ -224,11 +224,24 @@ export function SignalStateProvider({ children }) {
         if (!service) return console.warn('could not access service');
         const src = /** @type {import("./batched-activity.service.js").BatchedActivityService} */ (service);
         const unsub = src.onData((evt) => {
+            console.log('[NormalizeDataProvider] Received activity data update:', {
+                source: evt.source,
+                activityCount: evt.data.activity.length,
+                totalTrackers: evt.data.totalTrackers,
+                urls: evt.data.urls.slice(0, 5), // Log first 5 URLs
+            });
             batch(() => {
+                const oldActivity = activity.value;
                 activity.value = normalizeData(activity.value, {
                     activity: evt.data.activity,
                     urls: evt.data.urls,
                     totalTrackers: evt.data.totalTrackers,
+                });
+                console.log('[NormalizeDataProvider] Activity data normalized:', {
+                    oldTotalTrackers: oldActivity.totalTrackers,
+                    newTotalTrackers: activity.value.totalTrackers,
+                    oldItemCount: Object.keys(oldActivity.items).length,
+                    newItemCount: Object.keys(activity.value.items).length,
                 });
                 const visible = keys.value;
                 const all = activity.value.urls;
