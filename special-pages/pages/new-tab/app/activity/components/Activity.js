@@ -3,7 +3,7 @@ import styles from './Activity.module.css';
 // @todo legacyProtections: `stylesLegacy` can be removed once all platforms
 // are ready for the new Protections Report
 import stylesLegacy from './ActivityLegacy.module.css';
-import { useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { useContext, useEffect, useRef } from 'preact/hooks';
 import { memo } from 'preact/compat';
 import { ActivityContext, ActivityServiceContext } from '../ActivityProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
@@ -14,7 +14,7 @@ import { Trans } from '../../../../../shared/components/TranslationsProvider.js'
 import { ActivityItem, ActivityItemLegacy } from './ActivityItem.js';
 import { ActivityBurningSignalContext, BurnProvider } from '../../burning/BurnProvider.js';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
-import { useComputed, useSignalEffect } from '@preact/signals';
+import { useComputed } from '@preact/signals';
 import { ActivityItemAnimationWrapper } from './ActivityItemAnimationWrapper.js';
 import { useDocumentVisibility } from '../../../../../shared/components/DocumentVisibility.js';
 import { HistoryItems, HistoryItemsLegacy } from './HistoryItems.js';
@@ -252,71 +252,24 @@ const DDG_MAX_TRACKER_ICONS = 3;
 function TrackerStatus({ id, trackersFound }) {
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const { activity } = useContext(NormalizedDataContext);
+    const status = useComputed(() => activity.value.trackingStatus[id]);
+    const cookiePopUpBlocked = useComputed(() => activity.value.cookiePopUpBlocked?.[id]).value;
+    const { totalCount: totalTrackersBlocked } = status.value;
 
-    // Track activity.value directly to ensure we react to any changes
-    // When normalizeData updates activity.value (line 228 in NormalizeDataProvider),
-    // this computed will re-evaluate because activity.value is a new object reference
-    const activityData = useComputed(() => activity.value);
-
-    // Use computed to reactively track trackingStatus changes
-    // Access activityData.value.trackingStatus[id] to ensure we track the nested property
-    const trackingStatus = useComputed(() => {
-        const status = activityData.value.trackingStatus[id];
-        // Provide default if trackingStatus hasn't been populated yet
-        // This handles the case where a site is first logged but trackingStatus hasn't been updated
-        return status || { totalCount: 0, trackerCompanies: [] };
-    });
-
-    // Make text computation reactive so it updates when trackingStatus changes
-    const totalTrackersBlocked = useComputed(() => trackingStatus.value.totalCount);
-    const totalTrackersPillText = useComputed(() => {
-        const count = totalTrackersBlocked.value;
-        return count === 0
+    const totalTrackersPillText =
+        totalTrackersBlocked === 0
             ? trackersFound
                 ? t('activity_no_trackers_blocked')
                 : t('activity_no_trackers')
-            : t(count === 1 ? 'activity_countBlockedSingular' : 'activity_countBlockedPlural', {
-                  count: String(count),
+            : t(totalTrackersBlocked === 1 ? 'activity_countBlockedSingular' : 'activity_countBlockedPlural', {
+                  count: String(totalTrackersBlocked),
               });
-    });
-    const cookiePopUpBlocked = useComputed(() => activityData.value.cookiePopUpBlocked?.[id]);
-
-    // Force re-render when activityData changes by tracking it with useSignalEffect
-    // This ensures TickPill updates when trackingStatus data arrives
-    // The key insight: activityData.value changes when normalizeData creates a new object,
-    // so tracking activityData ensures we react to any updates
-    const [, setRenderKey] = useState(0);
-
-    // Track activityData changes - this computed changes when activity.value changes
-    // which happens when normalizeData runs (line 228 in NormalizeDataProvider)
-    useSignalEffect(() => {
-        // Access activityData.value to ensure Preact Signals tracks it
-        // This will run whenever activity.value changes, even if trackingStatus[id]
-        // is updated within the same normalizeData call
-        const currentData = activityData.value;
-
-        // Access the specific properties we care about
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        currentData.trackingStatus[id];
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        currentData.cookiePopUpBlocked?.[id];
-
-        // Force re-render by updating state
-        // This ensures the component updates when trackingStatus data arrives
-        setRenderKey((prev) => prev + 1);
-    });
-
-    // Access computed values during render to ensure Preact Signals tracks them
-    // This is the key - accessing .value in JSX should trigger reactivity
-    const pillText = totalTrackersPillText.value;
-    const showTick = totalTrackersBlocked.value > 0;
-    const showCookiePill = cookiePopUpBlocked.value;
 
     return (
         <div class={styles.companiesIconRow} data-testid="TrackerStatus">
             <div class={styles.companiesText}>
-                <TickPill text={pillText} displayTick={showTick} />
-                {showCookiePill && <TickPill text={t('activity_cookiePopUpBlocked')} />}
+                <TickPill text={totalTrackersPillText} displayTick={totalTrackersBlocked > 0} />
+                {cookiePopUpBlocked && <TickPill text={t('activity_cookiePopUpBlocked')} />}
             </div>
         </div>
     );
