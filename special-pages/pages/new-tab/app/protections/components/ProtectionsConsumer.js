@@ -65,20 +65,32 @@ function BurnToProtectionsDataBridge() {
 
             // Activity data has been updated after burn
             const activityTotalTrackers = evt.data.totalTrackers;
+
+            // Calculate total cookie pop-ups blocked from activity data
+            // Count how many domains have cookiePopUpBlocked === true
+            const activityTotalCookiePopUps = evt.data.activity.filter(
+                (domain) => domain.cookiePopUpBlocked === true
+            ).length;
+
             const protectionsTotalCount = protectionsService.dataService?.data?.totalCount;
+            const protectionsTotalCookiePopUps = protectionsService.dataService?.data?.totalCookiePopUpsBlocked;
 
             console.log('[BurnToProtectionsDataBridge] Activity data updated after burn:', {
                 activityTotalTrackers,
+                activityTotalCookiePopUps,
                 protectionsTotalCount,
-                needsSync: activityTotalTrackers !== protectionsTotalCount,
+                protectionsTotalCookiePopUps,
+                needsTrackerSync: activityTotalTrackers !== protectionsTotalCount,
+                needsCookieSync: activityTotalCookiePopUps !== protectionsTotalCookiePopUps,
             });
 
-            if (activityTotalTrackers !== protectionsTotalCount) {
-                // Sync protections data to match activity data
+            // Sync both trackers and cookie pop-ups if needed
+            if (activityTotalTrackers !== protectionsTotalCount || activityTotalCookiePopUps !== protectionsTotalCookiePopUps) {
                 console.log('[BurnToProtectionsDataBridge] Syncing protections data from activity data');
                 protectionsService.dataService.update((old) => ({
                     ...old,
                     totalCount: activityTotalTrackers,
+                    totalCookiePopUpsBlocked: activityTotalCookiePopUps,
                 }));
             }
 
