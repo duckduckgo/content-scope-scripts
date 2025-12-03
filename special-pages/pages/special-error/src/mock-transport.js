@@ -39,12 +39,28 @@ export function mockTransport() {
                         };
                     }
 
-                    return Promise.resolve({
+                    /** @type {import('../types/special-error.js').InitialSetupResponse} */
+                    const response = {
                         env: 'development',
                         locale: 'en',
                         platform,
                         errorData,
-                    });
+                    };
+
+                    // Allow theme override via URL params for testing
+                    const themeParam = searchParams.get('theme');
+                    if (themeParam === 'light' || themeParam === 'dark') {
+                        response.theme = /** @type {import('../types/special-error.js').BrowserTheme} */ (themeParam);
+                    }
+
+                    // Allow themeVariant override via URL params for testing
+                    const themeVariantParam = searchParams.get('themeVariant');
+                    const validVariants = ['default', 'coolGray', 'slateBlue', 'green', 'violet', 'rose', 'orange', 'desert'];
+                    if (themeVariantParam && validVariants.includes(themeVariantParam)) {
+                        response.themeVariant = /** @type {import('../types/special-error.js').ThemeVariant} */ (themeVariantParam);
+                    }
+
+                    return Promise.resolve(response);
                 }
                 default:
                     return Promise.resolve(null);

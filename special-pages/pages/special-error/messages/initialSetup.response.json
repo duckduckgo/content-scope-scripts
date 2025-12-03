@@ -113,6 +113,12 @@
     "localeStrings": {
       "type": "string",
       "description": "Optional locale-specific strings"
+    },
+    "theme": {
+      "$ref": "./types/browser-theme.json"
+    },
+    "themeVariant": {
+      "$ref": "./types/theme-variant.json"
     }
   }
 }
