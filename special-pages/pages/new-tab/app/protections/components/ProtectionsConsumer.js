@@ -51,13 +51,50 @@ function BurnToProtectionsDataBridge() {
         }
 
         const handleBurnComplete = () => {
-            console.log('[BurnToProtectionsDataBridge] Burn complete event received, scheduling protections data refresh');
-            // Add a small delay to allow native to finish updating protections data
-            // Native updates activity data first, then protections data, so we need to wait
-            setTimeout(() => {
-                console.log('[BurnToProtectionsDataBridge] Triggering protections data refresh (after delay)');
-                protectionsService?.dataService?.triggerFetch?.();
-            }, 100); // 100ms should be enough for native to update
+            console.log('[BurnToProtectionsDataBridge] Burn complete event received, starting polling for updated protections data');
+
+            // Get the current protections count before polling
+            const initialCount = protectionsService?.dataService?.data?.totalCount;
+            console.log('[BurnToProtectionsDataBridge] Initial protections count:', initialCount);
+
+            let retryCount = 0;
+            const maxRetries = 10; // Try for up to 1 second (10 * 100ms)
+
+            const pollForUpdate = () => {
+                retryCount++;
+                console.log(`[BurnToProtectionsDataBridge] Polling attempt ${retryCount}/${maxRetries}`);
+
+                // Fetch fresh data from native
+                protectionsService?.dataService?.triggerFetch?.().then(() => {
+                    const newCount = protectionsService?.dataService?.data?.totalCount;
+                    console.log('[BurnToProtectionsDataBridge] After fetch, protections count:', newCount);
+
+                    // Check if the data has actually changed
+                    if (newCount !== initialCount) {
+                        console.log('[BurnToProtectionsDataBridge] ✅ Protections data updated successfully!', {
+                            oldCount: initialCount,
+                            newCount: newCount,
+                            retriesNeeded: retryCount,
+                        });
+                        return; // Success! Stop polling
+                    }
+
+                    // Data hasn't changed yet
+                    if (retryCount < maxRetries) {
+                        console.log('[BurnToProtectionsDataBridge] Data still stale, retrying in 100ms...');
+                        setTimeout(pollForUpdate, 100);
+                    } else {
+                        console.warn('[BurnToProtectionsDataBridge] ❌ Max retries reached, protections data did not update', {
+                            expectedChange: true,
+                            actualCount: newCount,
+                            retriesAttempted: retryCount,
+                        });
+                    }
+                });
+            };
+
+            // Start polling after initial delay
+            setTimeout(pollForUpdate, 100);
         };
 
         const burns = activityService.burns;
