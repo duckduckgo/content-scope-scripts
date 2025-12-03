@@ -2,13 +2,10 @@
 <html lang="en">
 <head>
     <style>
-        html, body {
-            background: #fafafa;
-        }
-        @media screen and (prefers-color-scheme: dark) {
-            html, body {
-                background: #333;
-            }
+        body {
+            /* Token is replaced by native browser so background isn't white while History initializes */
+            --loading-color: $LOADING_COLOR$;
+            background: var(--loading-color);
         }
     </style>
     <title>History</title>
