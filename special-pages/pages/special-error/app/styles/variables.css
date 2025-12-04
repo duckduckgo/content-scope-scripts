@@ -32,6 +32,7 @@ body[data-theme='dark'][data-platform-name='ios'][data-theme-variant='default'] 
 }
 
 /* TODO: Use colour variables from design-tokens */
+
 body[data-theme-variant='coolGray'] {
     --default-light-background-color: #d2d5e3;
     --default-dark-background-color: #2b2f45;
