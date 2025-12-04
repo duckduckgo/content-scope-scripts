@@ -3,7 +3,8 @@ import styles from '../../privacy-stats/components/PrivacyStats.module.css';
 import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
 import cn from 'classnames';
 import { h } from 'preact';
-import { InfoIcon, NewBadgeIcon } from '../../components/Icons.js';
+import { InfoIcon } from '../../components/Icons.js';
+import { NewBadge } from '../../components/NewBadge.js';
 import { Tooltip } from '../../components/Tooltip/Tooltip.js';
 import { useAnimatedCount } from '../utils/useAnimatedCount.js';
 import { useRef, useEffect } from 'preact/hooks';
@@ -110,9 +111,9 @@ export function ProtectionsHeading({
                         <h3 class={styles.title}>
                             {animatedCookiePopUpsBlocked} <span>{cookiePopUpsBlockedHeading}</span>
                         </h3>
-                        {/* @todo `NewBadgeIcon` will be manually removed in
+                        {/* @todo `NewBadge` will be manually removed in
                         a future iteration */}
-                        <NewBadgeIcon />
+                        <NewBadge text={t('protections_newBadge')} />
                     </div>
                 )}
             </div>
