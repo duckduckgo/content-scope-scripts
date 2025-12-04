@@ -82,11 +82,13 @@ export async function init(messaging, baseEnvironment) {
         render(
             <EnvironmentProvider debugState={false} injectName={environment.injectName}>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <SettingsProvider settings={settings}>
-                        <SpecialErrorProvider specialError={specialError}>
-                            <Components />
-                        </SpecialErrorProvider>
-                    </SettingsProvider>
+                    <ThemeProvider initialTheme={init.theme} initialThemeVariant={init.themeVariant}>
+                        <SettingsProvider settings={settings}>
+                            <SpecialErrorProvider specialError={specialError}>
+                                <Components />
+                            </SpecialErrorProvider>
+                        </SettingsProvider>
+                    </ThemeProvider>
                 </TranslationProvider>
             </EnvironmentProvider>,
             root,
