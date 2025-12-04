@@ -148,6 +148,9 @@ export function useAnimatedCount(targetValue, elementRef) {
             // This handles the case where value changes while element is out of viewport
             setAnimatedValue(targetValue);
             animatedValueRef.current = targetValue;
+            // Clear lastSeenValueRef since we've updated to the new target
+            // This prevents stale values from causing backward jumps on re-entry
+            lastSeenValueRef.current = null;
         }
         // else: conditions not met and haven't animated yet, do nothing (wait for viewport entry)
 
@@ -164,6 +167,8 @@ export function useAnimatedCount(targetValue, elementRef) {
                 if (hasAnimatedRef.current) {
                     setAnimatedValue(targetValue);
                     animatedValueRef.current = targetValue;
+                    // Clear lastSeenValueRef since we've updated to the current target
+                    lastSeenValueRef.current = null;
                 }
             }
         };
