@@ -25,6 +25,11 @@ export function useAnimatedCount(targetValue, elementRef) {
     const lastSeenValueRef = useRef(/** @type {number | null} */ (null));
     const wasInViewportRef = useRef(false);
 
+    // Track if observer has been set up to avoid duplicate setup
+    const observerSetupRef = useRef(false);
+    // Store observer instance for cleanup
+    const observerRef = useRef(/** @type {IntersectionObserver | null} */ (null));
+
     // Memoize the update callback to avoid recreating it on every render
     const updateAnimatedCount = useCallback(
         /** @type {import('./animateCount.js').AnimationUpdateCallback} */ (
@@ -36,43 +41,88 @@ export function useAnimatedCount(targetValue, elementRef) {
         [],
     );
 
+    // Helper function to create and set up IntersectionObserver
+    const setupIntersectionObserver = useCallback(
+        (element) => {
+            // Prevent duplicate setup
+            if (observerSetupRef.current || observerRef.current) {
+                return;
+            }
+
+            observerSetupRef.current = true;
+            observerRef.current = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        const wasInViewport = wasInViewportRef.current;
+                        const isNowInViewport = entry.isIntersecting;
+
+                        // When element exits viewport, save current displayed value
+                        if (wasInViewport && !isNowInViewport) {
+                            lastSeenValueRef.current = animatedValueRef.current;
+                        }
+
+                        wasInViewportRef.current = isNowInViewport;
+                        setIsInViewport(isNowInViewport);
+                    });
+                },
+                {
+                    // Trigger when any part of the element is visible
+                    threshold: 0,
+                    // Optional: add some margin to trigger slightly before visible
+                    rootMargin: '0px',
+                },
+            );
+
+            observerRef.current.observe(element);
+        },
+        [],
+    );
+
     // Setup IntersectionObserver for viewport detection
+    // Effect runs once on mount and checks elementRef.current
+    // Since refs are assigned synchronously during commit, elementRef.current should be available
+    // But we handle the edge case where it might not be yet using a microtask
+    // Note: elementRef is not in dependencies because ref objects maintain stable identity
     useEffect(() => {
         // If no elementRef provided, element is always considered "in viewport"
-        if (!elementRef || !elementRef.current) {
+        if (!elementRef) {
             setIsInViewport(true);
             return;
         }
 
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    const wasInViewport = wasInViewportRef.current;
-                    const isNowInViewport = entry.isIntersecting;
+        // Check if element is available immediately
+        const element = elementRef.current;
+        let cancelled = false;
 
-                    // When element exits viewport, save current displayed value
-                    if (wasInViewport && !isNowInViewport) {
-                        lastSeenValueRef.current = animatedValueRef.current;
-                    }
+        if (element) {
+            // Element is available, set up observer immediately
+            setupIntersectionObserver(element);
+        } else {
+            // If element not available, use a microtask to check again
+            // This handles edge cases where ref assignment is delayed
+            Promise.resolve().then(() => {
+                // Check if effect was cleaned up before microtask executed
+                if (cancelled) {
+                    return;
+                }
 
-                    wasInViewportRef.current = isNowInViewport;
-                    setIsInViewport(isNowInViewport);
-                });
-            },
-            {
-                // Trigger when any part of the element is visible
-                threshold: 0,
-                // Optional: add some margin to trigger slightly before visible
-                rootMargin: '0px',
-            },
-        );
-
-        observer.observe(elementRef.current);
+                const delayedElement = elementRef.current;
+                if (delayedElement) {
+                    setupIntersectionObserver(delayedElement);
+                }
+            });
+        }
 
         return () => {
-            observer.disconnect();
+            cancelled = true;
+            observerSetupRef.current = false;
+            if (observerRef.current) {
+                observerRef.current.disconnect();
+                observerRef.current = null;
+            }
         };
-    }, [elementRef]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Empty array: run once on mount. elementRef is stable, setupIntersectionObserver is memoized
 
     // Animate count when it changes, page is visible, and element is in viewport
     useEffect(() => {
