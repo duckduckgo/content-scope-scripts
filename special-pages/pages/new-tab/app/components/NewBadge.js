@@ -11,7 +11,7 @@ import styles from './NewBadge.module.css';
 export function NewBadge({ text, ...rest }) {
     return (
         <span class={styles.badge} {...rest}>
-            {text}
+            {text?.toUpperCase() || 'NEW'}
         </span>
     );
 }
