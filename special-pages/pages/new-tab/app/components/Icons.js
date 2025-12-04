@@ -605,35 +605,6 @@ export function CloseSmallIcon(props) {
 /**
  * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
  */
-export function NewBadgeIcon(props) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="42" height="16" viewBox="0 0 42 16" fill="none" {...props}>
-            <path
-                d="M0 3.99792C0 1.78879 1.79086 -0.0020752 4 -0.0020752H38C40.2091 -0.0020752 42 1.78879 42 3.99792V11.9979C42 14.2071 40.2091 15.9979 38 15.9979H4C1.79086 15.9979 0 14.2071 0 11.9979V3.99792Z"
-                fill="#F9BE1A"
-            />
-            <path
-                d="M13.0913 9.1073H13.1812V3.94617H14.8032V12.0497H13.3999L9.64893 6.86707H9.55908V12.0497H7.93604V3.94617H9.35107L13.0913 9.1073Z"
-                fill="black"
-                fill-opacity="0.96"
-            />
-            <path
-                d="M22.144 5.3446H18.4722V7.29871H21.936V8.60144H18.4722V10.6512H22.144V12.0497H16.7759V3.94617H22.144V5.3446Z"
-                fill="black"
-                fill-opacity="0.96"
-            />
-            <path
-                d="M26.4663 9.73621H26.5562L28.0337 3.94617H29.4653L30.9702 9.73621H31.0601L32.312 3.94617H34.064L31.9136 12.0497H30.3247L28.7915 6.59167H28.7017L27.1851 12.0497H25.5854L23.4399 3.94617H25.2036L26.4663 9.73621Z"
-                fill="black"
-                fill-opacity="0.96"
-            />
-        </svg>
-    );
-}
-
-/**
- * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
- */
 export function InfoIcon(props) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="info-icon" {...props}>
