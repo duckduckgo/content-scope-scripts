@@ -7,6 +7,7 @@ import { Components } from './components/Components.jsx';
 import enStrings from '../public/locales/en/special-error.json';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
 import { MessagingProvider } from './providers/MessagingProvider.js';
+import { ThemeProvider } from './providers/ThemeProvider.js';
 import { SettingsProvider } from './providers/SettingsProvider.jsx';
 import { SpecialErrorProvider } from './providers/SpecialErrorProvider.js';
 import { callWithRetry } from '../../../shared/call-with-retry.js';
@@ -65,11 +66,13 @@ export async function init(messaging, baseEnvironment) {
                 <UpdateEnvironment search={window.location.search} />
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
                     <MessagingProvider messaging={messaging}>
-                        <SettingsProvider settings={settings}>
-                            <SpecialErrorProvider specialError={specialError}>
-                                <App />
-                            </SpecialErrorProvider>
-                        </SettingsProvider>
+                        <ThemeProvider initialTheme={init.theme} initialThemeVariant={init.themeVariant}>
+                            <SettingsProvider settings={settings}>
+                                <SpecialErrorProvider specialError={specialError}>
+                                    <App />
+                                </SpecialErrorProvider>
+                            </SettingsProvider>
+                        </ThemeProvider>
                     </MessagingProvider>
                 </TranslationProvider>
             </EnvironmentProvider>,
@@ -79,11 +82,13 @@ export async function init(messaging, baseEnvironment) {
         render(
             <EnvironmentProvider debugState={false} injectName={environment.injectName}>
                 <TranslationProvider translationObject={strings} fallback={enStrings} textLength={environment.textLength}>
-                    <SettingsProvider settings={settings}>
-                        <SpecialErrorProvider specialError={specialError}>
-                            <Components />
-                        </SpecialErrorProvider>
-                    </SettingsProvider>
+                    <ThemeProvider initialTheme={init.theme} initialThemeVariant={init.themeVariant}>
+                        <SettingsProvider settings={settings}>
+                            <SpecialErrorProvider specialError={specialError}>
+                                <Components />
+                            </SpecialErrorProvider>
+                        </SettingsProvider>
+                    </ThemeProvider>
                 </TranslationProvider>
             </EnvironmentProvider>,
             root,

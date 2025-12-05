@@ -1,9 +1,9 @@
 .tickPill {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 10px;
-    border-radius: 100px;
+    gap: 4px;
+    padding: 8px 8px;
+    border-radius: 1000px;
     background-color: var(--color-white-at-3);
     border: 1px solid var(--color-white-at-12);
     height: 20px;
@@ -32,8 +32,8 @@
 
 /* Light mode styles */
 [data-theme="light"] .tickPill {
-    background-color: var(--color-black-at-4);
-    border: 1px solid var(--color-black-at-12);
+    background-color: var(--color-black-at-1);
+    border: 1px solid var(--color-black-at-9);
 }
 
 [data-theme="light"] .text {
