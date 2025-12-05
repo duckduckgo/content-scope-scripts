@@ -20,7 +20,7 @@ export default class BreakageReporting extends ContentFeature {
             if (getOpener) {
                 result.opener = !!window.opener;
             }
-            const getReloaded = this.getFeatureSettingEnabled('getReloaded', 'enabled');
+            const getReloaded = this.getFeatureSettingEnabled('reloaded', 'enabled');
             if (getReloaded) {
                 result.pageReloaded =
                     (window.performance.navigation && window.performance.navigation.type === 1) ||
