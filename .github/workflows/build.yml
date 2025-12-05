@@ -57,14 +57,14 @@ jobs:
                   fi
 
                   echo "Latest tag found: $LATEST_TAG"
-                  
+
                   # Extract version numbers (remove 'v' prefix if present for backwards compatibility)
                   VERSION_WITHOUT_V=${LATEST_TAG#v}
-                  
+
                   # Parse major and minor (ignore patch since we don't support it)
                   MAJOR=$(echo $VERSION_WITHOUT_V | cut -d. -f1)
                   MINOR=$(echo $VERSION_WITHOUT_V | cut -d. -f2)
-                  
+
                   # Calculate next version based on input
                   if [ "${{ github.event.inputs.version_bump }}" = "major" ]; then
                     NEXT_MAJOR=$((MAJOR + 1))
@@ -73,10 +73,10 @@ jobs:
                     NEXT_MAJOR=$MAJOR
                     NEXT_MINOR=$((MINOR + 1))
                   fi
-                  
+
                   # Create new version (always without v prefix)
                   NEXT_VERSION="${NEXT_MAJOR}.${NEXT_MINOR}.0"
-                  
+
                   echo "Next version: $NEXT_VERSION"
                   echo "RELEASE_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
                   echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
