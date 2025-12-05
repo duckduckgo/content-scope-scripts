@@ -46,11 +46,11 @@ jobs:
             - name: Calculate next version
               id: version
               run: |
-                  # Get the latest tag, handling both v-prefixed and non-prefixed tags
-                  LATEST_TAG=$(git tag --sort=-version:refname | head -1)
+                  # Get the latest tag (no longer using v prefix, filter out legacy v-prefixed tags)
+                  LATEST_TAG=$(git tag | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
                   echo "Latest tag found: $LATEST_TAG"
                   
-                  # Extract version numbers (remove 'v' prefix if present)
+                  # Extract version numbers (remove 'v' prefix if present for backwards compatibility)
                   VERSION_WITHOUT_V=${LATEST_TAG#v}
                   
                   # Parse major and minor (ignore patch since we don't support it)
@@ -66,12 +66,8 @@ jobs:
                     NEXT_MINOR=$((MINOR + 1))
                   fi
                   
-                  # Create new version (maintain v prefix if original had one)
-                  if [[ $LATEST_TAG == v* ]]; then
-                    NEXT_VERSION="v${NEXT_MAJOR}.${NEXT_MINOR}.0"
-                  else
-                    NEXT_VERSION="${NEXT_MAJOR}.${NEXT_MINOR}.0"
-                  fi
+                  # Create new version (always without v prefix)
+                  NEXT_VERSION="${NEXT_MAJOR}.${NEXT_MINOR}.0"
                   
                   echo "Next version: $NEXT_VERSION"
                   echo "RELEASE_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
