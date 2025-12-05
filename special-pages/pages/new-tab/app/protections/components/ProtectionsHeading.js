@@ -7,7 +7,9 @@ import { InfoIcon } from '../../components/Icons.js';
 import { NewBadge } from '../../components/NewBadge.js';
 import { Tooltip } from '../../components/Tooltip/Tooltip.js';
 import { useAnimatedCount } from '../utils/useAnimatedCount.js';
-import { useRef, useEffect } from 'preact/hooks';
+import { useRef, useEffect, useMemo } from 'preact/hooks';
+import { getLocalizedNumberFormatter } from '../../../../../shared/utils.js';
+import { useLocale } from '../../../../../shared/components/EnvironmentProvider.js';
 
 /**
  * @import enStrings from "../strings.json"
@@ -32,6 +34,8 @@ export function ProtectionsHeading({
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const ntp = useMessaging();
+    const locale = useLocale();
+    const formatter = useMemo(() => getLocalizedNumberFormatter(locale), [locale]);
     const headingRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const counterContainerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const totalTrackersBlocked = blockedCountSignal.value;
@@ -97,7 +101,7 @@ export function ProtectionsHeading({
                     {animatedTrackersBlocked === 0 && <h3 class={styles.noRecentTitle}>{t('protections_noRecent')}</h3>}
                     {animatedTrackersBlocked > 0 && (
                         <h3 class={styles.title}>
-                            {animatedTrackersBlocked} <span>{trackersBlockedHeading}</span>
+                            {formatter.format(animatedTrackersBlocked)} <span>{trackersBlockedHeading}</span>
                         </h3>
                     )}
                 </div>
@@ -109,7 +113,7 @@ export function ProtectionsHeading({
                 {isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && (
                     <div class={styles.counter}>
                         <h3 class={styles.title}>
-                            {animatedCookiePopUpsBlocked} <span>{cookiePopUpsBlockedHeading}</span>
+                            {formatter.format(animatedCookiePopUpsBlocked)} <span>{cookiePopUpsBlockedHeading}</span>
                         </h3>
                         {/* @todo `NewBadge` will be manually removed in
                         a future iteration */}
