@@ -1,5 +1,6 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
 import { protectionsMocks } from './protections.mocks.js';
+import { AnimationConstants } from '../utils/animateCount.js';
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
@@ -99,7 +100,12 @@ export function protectionsMockTransport() {
                     dataset.totalCookiePopUpsBlocked = undefined;
 
                     if (url.searchParams.get('cpm') === 'true') {
-                        dataset.totalCookiePopUpsBlocked = 1222;
+                        dataset.totalCookiePopUpsBlocked = AnimationConstants.MAX_DISPLAY_COUNT;
+                    }
+
+                    if (url.searchParams.get('cpm') === 'max') {
+                        dataset.totalCount = AnimationConstants.MAX_DISPLAY_COUNT;
+                        dataset.totalCookiePopUpsBlocked = AnimationConstants.MAX_DISPLAY_COUNT;
                     }
 
                     // CPM = 0 state

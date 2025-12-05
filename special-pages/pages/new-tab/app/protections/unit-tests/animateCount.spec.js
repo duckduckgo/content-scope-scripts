@@ -1,6 +1,6 @@
 import { equal, ok, deepEqual } from 'node:assert/strict';
 import { test } from 'node:test';
-import { animateCount } from '../utils/animateCount.js';
+import { animateCount, AnimationConstants } from '../utils/animateCount.js';
 
 /**
  * Focused test suite for animateCount utility function
@@ -140,6 +140,7 @@ class AnimationMocker {
 
 test.describe('animateCount - Core Algorithm', () => {
     test('should respect threshold boundaries and percentage-based start values', (t) => {
+        const { MAX_DISPLAY_COUNT } = AnimationConstants;
         const mocker = new AnimationMocker();
         mocker.setup();
         t.after(() => mocker.cleanup());
@@ -175,13 +176,13 @@ test.describe('animateCount - Core Algorithm', () => {
         equal(updates39[0], 29); // Math.floor(39 * 0.75) = 29
         equal(updates40[0], 34); // Math.floor(40 * 0.85) = 34
 
-        // Test capping at 9999
+        // Test capping at MAX_DISPLAY_COUNT
         const updatesCapped = [];
-        animateCount(15000, (v) => updatesCapped.push(v));
+        animateCount(MAX_DISPLAY_COUNT + 1, (v) => updatesCapped.push(v));
         mocker.tick(1);
-        equal(updatesCapped[0], 8499); // Math.floor(9999 * 0.85) = 8499
+        equal(updatesCapped[0], Math.floor(MAX_DISPLAY_COUNT * 0.85));
         mocker.runToCompletion(500, 10);
-        equal(updatesCapped[updatesCapped.length - 1], 9999);
+        equal(updatesCapped[updatesCapped.length - 1], MAX_DISPLAY_COUNT);
     });
 
     test('should handle incremental updates and edge cases', (t) => {

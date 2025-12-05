@@ -65,14 +65,24 @@
 
 .counterContainer {
   display: flex;
-  gap: 24px;
+  gap: 12px;
 }
 
 .counter {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding-right: 38px;
+    width: 196px;
+    padding-right: 18px;
+    box-sizing: content-box;
+    
+    &:last-child {
+        padding-right: 0;
+    }
+}
+
+.cookiePopUpsCounter {
+    margin-left: 14px;
 }
 
 .title {
@@ -89,6 +99,8 @@
     line-height: 20px;
     padding-bottom: 4px;
     padding-top: 12px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 }
 
