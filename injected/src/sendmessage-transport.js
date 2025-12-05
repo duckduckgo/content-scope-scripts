@@ -7,11 +7,28 @@ import { TestTransportConfig } from '../../messaging/index.js';
  */
 
 /**
+ * Singleton transport shared across all features. Without this, each feature would
+ * have its own transport/queue and wouldn't receive messages meant for other features.
+ * @type {SendMessageMessagingTransport | null}
+ */
+let sharedTransport = null;
+
+/**
  * @deprecated - A temporary constructor for the extension to make the messaging config
  */
 export function extensionConstructMessagingConfig() {
-    const messagingTransport = new SendMessageMessagingTransport();
-    return new TestTransportConfig(messagingTransport);
+    if (!sharedTransport) {
+        sharedTransport = new SendMessageMessagingTransport();
+    }
+    return new TestTransportConfig(sharedTransport);
+}
+
+/**
+ * Used by entry-points to route incoming extension messages to onResponse().
+ * @returns {SendMessageMessagingTransport | null}
+ */
+export function getSharedMessagingTransport() {
+    return sharedTransport;
 }
 
 /**
