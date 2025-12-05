@@ -103,6 +103,11 @@ export function protectionsMockTransport() {
                         dataset.totalCookiePopUpsBlocked = AnimationConstants.MAX_DISPLAY_COUNT;
                     }
 
+                    if (url.searchParams.get('cpm') === 'max') {
+                        dataset.totalCount = AnimationConstants.MAX_DISPLAY_COUNT;
+                        dataset.totalCookiePopUpsBlocked = AnimationConstants.MAX_DISPLAY_COUNT;
+                    }
+
                     // CPM = 0 state
                     if (url.searchParams.get('cpm') === 'none') {
                         dataset.totalCookiePopUpsBlocked = 0;
