@@ -24,7 +24,7 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
         <div id={id} class={cn(styles.root, messageType !== 'small' && message.icon && styles.icon)}>
             {messageType !== 'small' && message.icon && (
                 <span class={styles.iconBlock}>
-                    <img src={`./icons/${message.icon}.svg`} alt="" />
+                    <img src={`./icons/${message.icon}-96.svg`} alt="" />
                 </span>
             )}
             <div class={styles.content}>
