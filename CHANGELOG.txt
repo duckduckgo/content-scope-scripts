@@ -1,2 +1,6 @@
-- Add Web Notifications support (#2067)
-- History: Stub out support for theming (#2066)
+- Update history page loading background style (#2075)
+- Special Error: Stub out support for theming (#2076)
+- Add theming support to error page (#2077)
+- Add top level and special-pages .cursorrules (#2078)
+- jingram/cpm-stats-on-ntp-with-scroll (#2073)
+- Add configurable timeout for perf metrics (#2057)

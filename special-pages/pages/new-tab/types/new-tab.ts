@@ -184,6 +184,7 @@ export interface NewTabMessages {
     | OmnibarOnConfigUpdateSubscription
     | ProtectionsOnConfigUpdateSubscription
     | ProtectionsOnDataUpdateSubscription
+    | ProtectionsScrollSubscription
     | RmfOnDataUpdateSubscription
     | StatsOnDataUpdateSubscription
     | TabsOnDataUpdateSubscription
@@ -1201,6 +1202,12 @@ export interface ProtectionsOnConfigUpdateSubscription {
 export interface ProtectionsOnDataUpdateSubscription {
   subscriptionEvent: "protections_onDataUpdate";
   params: ProtectionsData;
+}
+/**
+ * Generated from @see "../messages/protections_scroll.subscribe.json"
+ */
+export interface ProtectionsScrollSubscription {
+  subscriptionEvent: "protections_scroll";
 }
 /**
  * Generated from @see "../messages/rmf_onDataUpdate.subscribe.json"

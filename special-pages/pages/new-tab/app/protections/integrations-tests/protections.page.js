@@ -153,4 +153,24 @@ export class ProtectionsPage {
         await tooltipTrigger.press('Space');
         await expect(tooltip).toBeVisible();
     }
+
+    /**
+     * Triggers the scroll to protections heading via subscription message
+     */
+    async scrollsToProtectionsHeading() {
+        const heading = this.context().getByTestId('ProtectionsHeading');
+        await expect(heading).toBeVisible();
+
+        // Scroll away from the element first
+        await this.page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+        // Trigger the scroll message
+        await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('protections_scroll'), {});
+
+        // Wait for smooth scroll animation to complete
+        await this.page.waitForTimeout(500);
+
+        // Verify the heading is now in viewport
+        await expect(heading).toBeInViewport();
+    }
 }
