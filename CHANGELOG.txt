@@ -1,1 +1,1 @@
-- Enhance breakage reporting with opener and reload checks (#2081)
+- Enum the release version (#2082)
