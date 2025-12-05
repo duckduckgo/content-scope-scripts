@@ -54,10 +54,6 @@ const initialSetupResponse = {
         userImages: [],
         userColor: null,
         background: { kind: 'default' },
-        defaultStyles: {
-            lightBackgroundColor: '#E9EBEC',
-            darkBackgroundColor: '#27282A',
-        },
     },
 };
 
