@@ -48,6 +48,14 @@ jobs:
               run: |
                   # Get the latest tag (no longer using v prefix, filter out legacy v-prefixed tags)
                   LATEST_TAG=$(git tag | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+
+                  # Stop build if no version tag is found
+                  if [ -z "$LATEST_TAG" ]; then
+                    echo "Error: No semantic version tags found in repository"
+                    echo "Expected format: X.Y.Z (e.g., 12.5.0)"
+                    exit 1
+                  fi
+
                   echo "Latest tag found: $LATEST_TAG"
                   
                   # Extract version numbers (remove 'v' prefix if present for backwards compatibility)
