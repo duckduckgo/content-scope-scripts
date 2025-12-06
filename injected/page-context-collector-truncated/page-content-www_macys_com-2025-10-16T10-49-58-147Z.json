@@ -1,0 +1,22 @@
+{
+  "url": "https://www.macys.com/my-credit/gateway/cards/0",
+  "extractedAt": "2025-10-16T10:49:58.147Z",
+  "content": {
+    "favicon": [],
+    "title": "Access Denied",
+    "metaDescription": "",
+    "content": "# Access Denied\n You don't have permission to access the requested URL on this server. Reference: 0.2028dd17.1760611797.524132e",
+    "truncated": false,
+    "fullContentLength": 127,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Access Denied"
+      }
+    ],
+    "links": [],
+    "images": [],
+    "timestamp": 1760611797690,
+    "url": "https://www.macys.com/my-credit/gateway/cards/0?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

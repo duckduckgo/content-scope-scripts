@@ -1,0 +1,26 @@
+[2025-10-17T10:15:35.767Z] [INFO] Starting DuckDuckGo Page Context Content Extractor
+[2025-10-17T10:15:35.767Z] [INFO] Mode: Headless
+[2025-10-17T10:15:35.767Z] [INFO] Timeout: 60s
+[2025-10-17T10:15:35.767Z] [INFO] Truncation: Enabled (9500 chars max)
+[2025-10-17T10:15:35.767Z] [INFO] Processing URL 1/3: https://example.com
+[2025-10-17T10:15:35.768Z] [INFO] Starting extraction from: https://example.com
+[2025-10-17T10:15:35.768Z] [DEBUG] Launching browser...
+[2025-10-17T10:15:36.623Z] [DEBUG] Browser launched successfully
+[2025-10-17T10:15:36.673Z] [DEBUG] Loading and collecting page content
+[2025-10-17T10:15:37.768Z] [DEBUG] Collected page content
+[2025-10-17T10:15:37.797Z] [INFO] Successfully crawled https://example.com
+[2025-10-17T10:15:38.953Z] [INFO] Processing URL 2/3: https://www.wikipedia.org
+[2025-10-17T10:15:38.953Z] [INFO] Starting extraction from: https://www.wikipedia.org
+[2025-10-17T10:15:38.953Z] [DEBUG] Launching browser...
+[2025-10-17T10:15:39.250Z] [DEBUG] Browser launched successfully
+[2025-10-17T10:15:39.308Z] [DEBUG] Loading and collecting page content
+[2025-10-17T10:16:09.949Z] [ERROR] Error extracting content from https://www.wikipedia.org: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-17T10:16:09.950Z] [ERROR] Failed to crawl https://www.wikipedia.org: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-17T10:16:11.065Z] [INFO] Processing URL 3/3: https://news.ycombinator.com
+[2025-10-17T10:16:11.065Z] [INFO] Starting extraction from: https://news.ycombinator.com
+[2025-10-17T10:16:11.065Z] [DEBUG] Launching browser...
+[2025-10-17T10:16:11.473Z] [DEBUG] Browser launched successfully
+[2025-10-17T10:16:11.519Z] [DEBUG] Loading and collecting page content
+[2025-10-17T10:16:12.853Z] [DEBUG] Collected page content
+[2025-10-17T10:16:12.855Z] [INFO] Successfully crawled https://news.ycombinator.com
+[2025-10-17T10:16:13.001Z] [INFO] Crawl completed. Summary: 2/3 successful (67%)

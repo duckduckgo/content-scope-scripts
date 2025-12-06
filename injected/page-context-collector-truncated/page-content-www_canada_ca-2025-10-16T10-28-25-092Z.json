@@ -1,0 +1,433 @@
+{
+  "url": "https://www.canada.ca/en/revenue-agency/services/e-services/cra-login-services.html",
+  "extractedAt": "2025-10-16T10:28:25.092Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.canada.ca/etc/designs/canada/wet-boew/assets/favicon-mobile.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.canada.ca/etc/designs/canada/wet-boew/assets/favicon.ico",
+        "rel": "icon"
+      }
+    ],
+    "title": "Sign in to your CRA account - Canada.ca",
+    "metaDescription": "Sign in or register for My Account, My Business Account or Represent a Client with the CRA, and get help with using the CRA sign-in services.",
+    "content": "# Sign in to your CRA account\n Sign in or register to access My Account, My Business Account or Represent a Client.\n   \n## Information alerts\n        \n \n- ## Sign in to your CRA account: Option 1 Sign in with your existing credential: Before you sign in ### Signing in on behalf of someone else If you are signing in on behalf of someone else (including friends and family members) you **must** use Represent a Client in your CRA account to access their information. **Do not use autofill on a shared device** Do not use autofill for your online banking information if you are on a shared device. When you are on your Sign-In Partner's website, [ensure it is **your** information](/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/sign-in-partners.html#section4a) that is entered and not that of somebody else. If you register with someone else's banking credentials by mistake and link your SIN to them, the other person will have access to your tax information. Participating Sign-in Partners The following are our current Sign-In Partners: [Sign-In Partner: Sign in](https://ams-sga-cra-arc.fjgc-gccf.gc.ca/gol-ged/awsc/amss/commonDomain/w?target=login&lang=en&program=spoe&idp=idp1&dm=x) [CRA user ID and password: Sign in](https://ams-sga.cra-arc.gc.ca/gol-ged/awsc/amss/entry?target=login&lang=en&program=spoe&idp=cms) [Provincial partner (BC, AB): Sign in](/en/revenue-agency/services/e-services/digital-services-individuals/account-individuals/provincial-partner.html)\n \n- ## Register for a CRA account : Option 2 [Register for a CRA account](/en/revenue-agency/services/e-services/cra-login-services/register-cra-sign-in-services.html)\n \n        \n## Help\n \n### Common issues\n    You forgot your CRA user ID or password  Recovering your user ID To recover your CRA user ID:\n \n \n   Recovering your password If you have forgotten your CRA password:\n \n \n  [More help with CRA user ID and password](/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/cra-userid-password.html)\n   You did not receive your one-time passcode \n### If you have a new phone number\n If you can no longer access your old phone number, and you have not already added your new phone number or another multi-factor authentication (MFA) option to your account, you will have to [contact us](/en/revenue-agency/corporate/contact-information.html#assistance).\n \n### Authenticator app and passcode grid\n If you have already added other MFA options to your profile, you can select **Different option** to use a third-party authenticator app or a passcode grid.\n \n### When to contact us\n If you still cannot receive your one-time passcode, you will have to [contact us](/en/revenue-agency/corporate/contact-information.html#assistance).\n [More help with multi-factor authentication](/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/multi-factor-authentication.html)\n   You have not received your CRA security code If your CRA security code has been lost or has not arrived after 10 business days, you can either: \n \n \n- Use the [document verification service](/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/verify-identity.html#section1) instead to verify your identity\n \n- [Contact us](/en/revenue-agency/corporate/contact-information.html#assistance) to get a new one by mail\n \n If your CRA security code has expired, you can either:\n \n \n- Use the document verification service instead to verify your identity\n \n- Sign in to request a new CRA security code to be sent by mail\n \n   Update your information with the CRA Inform the CRA about changes to your direct deposit or contact information, such as address, phone number or name changes.\n [Update your information with the CRA](/en/revenue-agency/services/update-information-cra.html)     Your account is locked    Your CRA user ID and password have been revoked If your CRA user ID and password have been revoked, you can regain access to your account in either of the following ways:\n \n \n- Use a different sign-in option\n \n- [Contact us](/en/revenue-agency/corporate/contact-information.html#assistance) to register with a new CRA user ID and password\n \n [More help with revoked CRA user ID and password](/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/cra-userid-password.html#section3a)\n   Change the option you sign in with If you registered with a **provincial partner**, you can also create a CRA user ID and password or use a Sign-In Partner.\n If you registered with a **CRA user ID and password**, you can sign in with your CRA user ID and password and [revoke your credential](/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/cra-userid-password.html#section3c) so you can register with a different sign-in option or create a new CRA user ID and password.\n If you registered with a **Sign-In Partner**, you can sign in to your current Sign-In Partner and [switch to a different Sign-In Partner](/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/sign-in-partners.html#section5).\n    \n### Help and about sign-in\n   \n### [Help with using your CRA account](/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services.html)\n How to register, manage and update your information, use multi-factor authentication (MFA)\n   \n### [About your CRA account](/en/revenue-agency/services/e-services/cra-login-services/about-cra-sign-in-services.html)\n What’s new and updated, services, privacy commitments\n      \n## Other CRA and Government of Canada accounts\n   \n### [Candidate Profile](/en/revenue-agency/services/e-services/candidate-profile.html)\n Sign in to apply for job opportunities, view your career applications with the CRA\n     \n### [Government of Canada accounts](/en/government/sign-in-online-account.html)\n Access accounts for Government of Canada departments and agencies\n        \n## Page details\n        2025-10-03 Date modified:",
+    "truncated": false,
+    "fullContentLength": 6033,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Language selection"
+      },
+      {
+        "level": 2,
+        "text": "Search"
+      },
+      {
+        "level": 2,
+        "text": "Menu"
+      },
+      {
+        "level": 2,
+        "text": "You are here:"
+      },
+      {
+        "level": 1,
+        "text": "Sign in to your CRA account"
+      },
+      {
+        "level": 2,
+        "text": "Information alerts"
+      },
+      {
+        "level": 2,
+        "text": "Sign in to your CRA account: Option 1"
+      },
+      {
+        "level": 3,
+        "text": "Signing in on behalf of someone else"
+      },
+      {
+        "level": 2,
+        "text": "Register for a CRA account : Option 2"
+      },
+      {
+        "level": 2,
+        "text": "Help"
+      },
+      {
+        "level": 3,
+        "text": "Common issues"
+      },
+      {
+        "level": 3,
+        "text": "If you have a new phone number"
+      },
+      {
+        "level": 3,
+        "text": "Authenticator app and passcode grid"
+      },
+      {
+        "level": 3,
+        "text": "When to contact us"
+      },
+      {
+        "level": 3,
+        "text": "Help and about sign-in"
+      },
+      {
+        "level": 3,
+        "text": "Help with using your CRA account"
+      },
+      {
+        "level": 3,
+        "text": "About your CRA account"
+      },
+      {
+        "level": 2,
+        "text": "Other CRA and Government of Canada accounts"
+      },
+      {
+        "level": 3,
+        "text": "Candidate Profile"
+      },
+      {
+        "level": 3,
+        "text": "Government of Canada accounts"
+      },
+      {
+        "level": 2,
+        "text": "Page details"
+      },
+      {
+        "level": 2,
+        "text": "About this site"
+      },
+      {
+        "level": 3,
+        "text": "Canada Revenue Agency (CRA)"
+      },
+      {
+        "level": 3,
+        "text": "Government of Canada"
+      },
+      {
+        "level": 4,
+        "text": "Themes and topics"
+      },
+      {
+        "level": 3,
+        "text": "Government of Canada Corporate"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#wb-cont"
+      },
+      {
+        "text": "Skip to \"About government\"",
+        "href": "#wb-info"
+      },
+      {
+        "text": "Switch to basic HTML version",
+        "href": "?automation=true?automation&wait-for-init-args=true&wbdisable=true"
+      },
+      {
+        "text": "Français\n                            fr",
+        "href": "/fr/agence-revenu/services/services-electroniques/services-ouverture-session-arc.html"
+      },
+      {
+        "text": "/\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\tGouvernement du Canada",
+        "href": "/en.html"
+      },
+      {
+        "text": "Jobs and the workplace",
+        "href": "https://www.canada.ca/en/services/jobs.html"
+      },
+      {
+        "text": "Immigration and citizenship",
+        "href": "https://www.canada.ca/en/services/immigration-citizenship.html"
+      },
+      {
+        "text": "Travel and tourism",
+        "href": "https://travel.gc.ca/"
+      },
+      {
+        "text": "Business and industry",
+        "href": "https://www.canada.ca/en/services/business.html"
+      },
+      {
+        "text": "Benefits",
+        "href": "https://www.canada.ca/en/services/benefits.html"
+      },
+      {
+        "text": "Health",
+        "href": "https://www.canada.ca/en/services/health.html"
+      },
+      {
+        "text": "Taxes",
+        "href": "https://www.canada.ca/en/services/taxes.html"
+      },
+      {
+        "text": "Environment and natural resources",
+        "href": "https://www.canada.ca/en/services/environment.html"
+      },
+      {
+        "text": "National security and defence",
+        "href": "https://www.canada.ca/en/services/defence.html"
+      },
+      {
+        "text": "Culture, history and sport",
+        "href": "https://www.canada.ca/en/services/culture.html"
+      },
+      {
+        "text": "Policing, justice and emergencies",
+        "href": "https://www.canada.ca/en/services/policing.html"
+      },
+      {
+        "text": "Transport and infrastructure",
+        "href": "https://www.canada.ca/en/services/transport.html"
+      },
+      {
+        "text": "Canada and the world",
+        "href": "https://www.international.gc.ca/world-monde/index.aspx?lang=eng"
+      },
+      {
+        "text": "Money and finances",
+        "href": "https://www.canada.ca/en/services/finance.html"
+      },
+      {
+        "text": "Science and innovation",
+        "href": "https://www.canada.ca/en/services/science.html"
+      },
+      {
+        "text": "Manage life events",
+        "href": "https://www.canada.ca/en/services/life-events.html"
+      },
+      {
+        "text": "Canada.ca",
+        "href": "/en.html"
+      },
+      {
+        "text": "Canada Revenue Agency (CRA)",
+        "href": "/en/revenue-agency.html"
+      },
+      {
+        "text": "ensure it is your information",
+        "href": "/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/sign-in-partners.html#section4a"
+      },
+      {
+        "text": "Sign-In Partner: Sign in",
+        "href": "https://ams-sga-cra-arc.fjgc-gccf.gc.ca/gol-ged/awsc/amss/commonDomain/w?target=login&lang=en&program=spoe&idp=idp1&dm=x"
+      },
+      {
+        "text": "CRA user ID and password: Sign in",
+        "href": "https://ams-sga.cra-arc.gc.ca/gol-ged/awsc/amss/entry?target=login&lang=en&program=spoe&idp=cms"
+      },
+      {
+        "text": "Provincial partner (BC, AB): Sign in",
+        "href": "/en/revenue-agency/services/e-services/digital-services-individuals/account-individuals/provincial-partner.html"
+      },
+      {
+        "text": "Register for a CRA account",
+        "href": "/en/revenue-agency/services/e-services/cra-login-services/register-cra-sign-in-services.html"
+      },
+      {
+        "text": "More help with CRA user ID and password",
+        "href": "/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/cra-userid-password.html"
+      },
+      {
+        "text": "contact us",
+        "href": "/en/revenue-agency/corporate/contact-information.html#assistance"
+      },
+      {
+        "text": "contact us",
+        "href": "/en/revenue-agency/corporate/contact-information.html#assistance"
+      },
+      {
+        "text": "More help with multi-factor authentication",
+        "href": "/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/multi-factor-authentication.html"
+      },
+      {
+        "text": "document verification service",
+        "href": "/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/verify-identity.html#section1"
+      },
+      {
+        "text": "Contact us",
+        "href": "/en/revenue-agency/corporate/contact-information.html#assistance"
+      },
+      {
+        "text": "Update your information with the CRA",
+        "href": "/en/revenue-agency/services/update-information-cra.html"
+      },
+      {
+        "text": "Contact us",
+        "href": "/en/revenue-agency/corporate/contact-information.html#assistance"
+      },
+      {
+        "text": "More help with revoked CRA user ID and password",
+        "href": "/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/cra-userid-password.html#section3a"
+      },
+      {
+        "text": "revoke your credential",
+        "href": "/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/cra-userid-password.html#section3c"
+      },
+      {
+        "text": "switch to a different Sign-In Partner",
+        "href": "/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services/sign-in-partners.html#section5"
+      },
+      {
+        "text": "Help with using your CRA account",
+        "href": "/en/revenue-agency/services/e-services/cra-login-services/help-cra-sign-in-services.html"
+      },
+      {
+        "text": "About your CRA account",
+        "href": "/en/revenue-agency/services/e-services/cra-login-services/about-cra-sign-in-services.html"
+      },
+      {
+        "text": "Candidate Profile",
+        "href": "/en/revenue-agency/services/e-services/candidate-profile.html"
+      },
+      {
+        "text": "Government of Canada accounts",
+        "href": "/en/government/sign-in-online-account.html"
+      },
+      {
+        "text": "Contact the CRA",
+        "href": "/en/revenue-agency/corporate/contact-information.html"
+      },
+      {
+        "text": "Update your information",
+        "href": "/en/revenue-agency/services/update-information-cra.html"
+      },
+      {
+        "text": "About the CRA",
+        "href": "/en/revenue-agency/corporate/about-canada-revenue-agency-cra.html"
+      },
+      {
+        "text": "All contacts",
+        "href": "/en/contact.html"
+      },
+      {
+        "text": "Departments and agencies",
+        "href": "/en/government/dept.html"
+      },
+      {
+        "text": "About government",
+        "href": "/en/government/system.html"
+      },
+      {
+        "text": "Jobs",
+        "href": "/en/services/jobs.html"
+      },
+      {
+        "text": "Immigration and citizenship",
+        "href": "/en/services/immigration-citizenship.html"
+      },
+      {
+        "text": "Travel and tourism",
+        "href": "https://travel.gc.ca/"
+      },
+      {
+        "text": "Business",
+        "href": "/en/services/business.html"
+      },
+      {
+        "text": "Benefits",
+        "href": "/en/services/benefits.html"
+      },
+      {
+        "text": "Health",
+        "href": "/en/services/health.html"
+      },
+      {
+        "text": "Taxes",
+        "href": "/en/services/taxes.html"
+      },
+      {
+        "text": "Environment and natural resources",
+        "href": "/en/services/environment.html"
+      },
+      {
+        "text": "National security and defence",
+        "href": "/en/services/defence.html"
+      },
+      {
+        "text": "Culture, history and sport",
+        "href": "/en/services/culture.html"
+      },
+      {
+        "text": "Policing, justice and emergencies",
+        "href": "/en/services/policing.html"
+      },
+      {
+        "text": "Transport and infrastructure",
+        "href": "/en/services/transport.html"
+      },
+      {
+        "text": "Canada and the world",
+        "href": "https://www.international.gc.ca/world-monde/index.aspx?lang=eng"
+      },
+      {
+        "text": "Money and finances",
+        "href": "/en/services/finance.html"
+      },
+      {
+        "text": "Science and innovation",
+        "href": "/en/services/science.html"
+      },
+      {
+        "text": "Indigenous Peoples",
+        "href": "/en/services/indigenous-peoples.html"
+      },
+      {
+        "text": "Veterans and military",
+        "href": "/en/services/veterans-military.html"
+      },
+      {
+        "text": "Youth",
+        "href": "/en/services/youth.html"
+      },
+      {
+        "text": "Manage life events",
+        "href": "/en/services/life-events.html"
+      },
+      {
+        "text": "Social media",
+        "href": "https://www.canada.ca/en/social.html"
+      },
+      {
+        "text": "Mobile applications",
+        "href": "https://www.canada.ca/en/mobile.html"
+      },
+      {
+        "text": "About Canada.ca",
+        "href": "https://www.canada.ca/en/government/about.html"
+      },
+      {
+        "text": "Terms and conditions",
+        "href": "/en/transparency/terms.html"
+      },
+      {
+        "text": "Privacy",
+        "href": "/en/revenue-agency/corporate/privacy-notice.html"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Government of Canada",
+        "src": "/etc/designs/canada/wet-boew/assets/sig-blk-en.svg"
+      },
+      {
+        "alt": "Symbol of the Government of Canada",
+        "src": "/etc/designs/canada/wet-boew/assets/wmms-blk.svg"
+      }
+    ],
+    "timestamp": 1760610497286,
+    "url": "https://www.canada.ca/en/revenue-agency/services/e-services/cra-login-services.html?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

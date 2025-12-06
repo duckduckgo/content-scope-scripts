@@ -1,0 +1,31 @@
+{
+  "url": "https://www.nordstrom.com/",
+  "extractedAt": "2025-10-16T10:39:22.195Z",
+  "content": {
+    "favicon": [],
+    "title": "Nordstrom",
+    "metaDescription": "",
+    "content": "If you are an individual Nordstrom customer, and you believe this is a mistake, contact our Customer Service at [1.888.282.6060](tel:+1:888.282.6060) \n  To keep our site secure, we don’t allow unidentified, automated traffic. If you’d like access to our data via automation, apply to join the [Nordstrom Affiliate Network](https://shop.nordstrom.com/c/affiliate-program)! \n  © 2025 Nordstrom, Inc.",
+    "truncated": false,
+    "fullContentLength": 397,
+    "headings": [
+      {
+        "level": 1,
+        "text": "We've noticed some unusual activity"
+      }
+    ],
+    "links": [
+      {
+        "text": "1.888.282.6060",
+        "href": "tel:+1:888.282.6060"
+      },
+      {
+        "text": "Nordstrom Affiliate Network",
+        "href": "https://shop.nordstrom.com/c/affiliate-program"
+      }
+    ],
+    "images": [],
+    "timestamp": 1760611161684,
+    "url": "https://siteclosed.nordstrom.com/invitation.html"
+  }
+}

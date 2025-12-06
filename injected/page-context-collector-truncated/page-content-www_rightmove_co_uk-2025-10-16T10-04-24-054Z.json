@@ -1,0 +1,633 @@
+{
+  "url": "http://www.rightmove.co.uk/property-for-sale.html",
+  "extractedAt": "2025-10-16T10:04:24.054Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://media.rightmove.co.uk/assets/shared-assets/favicons/light/favicon.ico",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "Property for sale - Find flats and houses for sale in the UK",
+    "metaDescription": "Find property for sale. Search over 900,000 properties for sale from the top estate agents and developers in the UK - Rightmove.",
+    "content": "# UK property for sale\n\n## Search the UK's largest choice of homes\nSearch using 'town name', 'postcode' or 'station'\nFor Sale\n## Sign in to streamline your search\nSave properties, create alerts and keep track of the enquiries you send to agents.\nSign in or create an account\n## Where the nation finds their home\nA brand new home, a refurbishment project, or something in between? Whatever home you’re looking for, we’re here to help with the UK’s largest selection of homes for sale.\n\n## Tools to help you get moving\n\n### Find a local agent for a valuation\nHave a property expert value your home. No strings attached.\n[Request a free agent valuation](/agent-valuation)\n### Mortgage guides\nHelpful guides and tips to navigate your home purchase\n[View Mortgage guides](/mortgages/guides/)\n### Sold House Prices\nCheck what a home sold for plus photos, floorplans and local area insights.\n[Search house prices](/house-prices.html)\n### Property guides\nA must-have read for anyone buying or selling property\n[Learn more](/guides/)\n### Jargon Buster\nCan’t tell a MIP from your LTV? We can help.\n[Learn more](/guides/buyer/buying-a-property/jargon-buster/)\n### Energy efficiency\nCheck a home's energy rating and find out how to improve it\n[Learn more](/guides/energy-efficiency/)",
+    "truncated": false,
+    "fullContentLength": 1271,
+    "headings": [
+      {
+        "level": 1,
+        "text": "UK property for sale"
+      },
+      {
+        "level": 2,
+        "text": "Search the UK's largest choice of homes"
+      },
+      {
+        "level": 2,
+        "text": "Sign in to streamline your search"
+      },
+      {
+        "level": 2,
+        "text": "Where the nation finds their home"
+      },
+      {
+        "level": 2,
+        "text": "Tools to help you get moving"
+      },
+      {
+        "level": 3,
+        "text": "Find a local agent for a valuation"
+      },
+      {
+        "level": 3,
+        "text": "Mortgage guides"
+      },
+      {
+        "level": 3,
+        "text": "Sold House Prices"
+      },
+      {
+        "level": 3,
+        "text": "Property guides"
+      },
+      {
+        "level": 3,
+        "text": "Jargon Buster"
+      },
+      {
+        "level": 3,
+        "text": "Energy efficiency"
+      },
+      {
+        "level": 4,
+        "text": "Download the Rightmove app"
+      },
+      {
+        "level": 4,
+        "text": "Resources"
+      },
+      {
+        "level": 4,
+        "text": "Search"
+      },
+      {
+        "level": 4,
+        "text": "Locations"
+      },
+      {
+        "level": 4,
+        "text": "Rightmove"
+      },
+      {
+        "level": 4,
+        "text": "Professional"
+      },
+      {
+        "level": 2,
+        "text": "Choose your cookies"
+      },
+      {
+        "level": 3,
+        "text": "We and our partners process data to provide:"
+      }
+    ],
+    "links": [
+      {
+        "text": "Buy",
+        "href": "#"
+      },
+      {
+        "text": "Property for sale",
+        "href": "/property-for-sale.html"
+      },
+      {
+        "text": "New homes for sale",
+        "href": "/new-homes-for-sale.html"
+      },
+      {
+        "text": "Property valuation",
+        "href": "/agent-valuation"
+      },
+      {
+        "text": "Agent\n                                        valuation",
+        "href": "/agent-valuation"
+      },
+      {
+        "text": "Investors",
+        "href": "/guides/landlord/investor-newsletter/"
+      },
+      {
+        "text": "Mortgages",
+        "href": "/mortgages"
+      },
+      {
+        "text": "Rent",
+        "href": "#"
+      },
+      {
+        "text": "Property to rent",
+        "href": "/property-to-rent.html"
+      },
+      {
+        "text": "Student property to rent",
+        "href": "/student-accommodation.html"
+      },
+      {
+        "text": "House Prices",
+        "href": "#"
+      },
+      {
+        "text": "Sold house prices",
+        "href": "/house-prices.html"
+      },
+      {
+        "text": "Property valuation",
+        "href": "/agent-valuation"
+      },
+      {
+        "text": "Agent valuation",
+        "href": "/agent-valuation"
+      },
+      {
+        "text": "Instant online valuation",
+        "href": "/house-value.html"
+      },
+      {
+        "text": "Find Agent",
+        "href": "#"
+      },
+      {
+        "text": "Find estate agents",
+        "href": "/estate-agents"
+      },
+      {
+        "text": "Commercial",
+        "href": "#"
+      },
+      {
+        "text": "Commercial property to rent",
+        "href": "/commercial-property"
+      },
+      {
+        "text": "Commercial property for sale",
+        "href": "/commercial-property?buy=true"
+      },
+      {
+        "text": "Advertise commercial property",
+        "href": "/c/commercial-advertising/"
+      },
+      {
+        "text": "Inspire",
+        "href": "#"
+      },
+      {
+        "text": "Moving stories",
+        "href": "/moving-stories/"
+      },
+      {
+        "text": "Property\n                                        news",
+        "href": "/news/"
+      },
+      {
+        "text": "Energy efficiency",
+        "href": "/guides/energy-efficiency/"
+      },
+      {
+        "text": "Property\n                                        guides",
+        "href": "/guides/"
+      },
+      {
+        "text": "Housing trends",
+        "href": "/news/house-price-index/"
+      },
+      {
+        "text": "Mortgage guides",
+        "href": "/mortgages/guides/"
+      },
+      {
+        "text": "Overseas blog",
+        "href": "/overseas-magazine/"
+      },
+      {
+        "text": "Country guides",
+        "href": "/overseas-property/country-guides.html"
+      },
+      {
+        "text": "Overseas",
+        "href": "#"
+      },
+      {
+        "text": "All countries",
+        "href": "/overseas-property.html"
+      },
+      {
+        "text": "Spain",
+        "href": "/overseas-property/in-Spain.html"
+      },
+      {
+        "text": "France",
+        "href": "/overseas-property/in-France.html"
+      },
+      {
+        "text": "Portugal",
+        "href": "/overseas-property/in-Portugal.html"
+      },
+      {
+        "text": "Italy",
+        "href": "/overseas-property/in-Italy.html"
+      },
+      {
+        "text": "Greece",
+        "href": "/overseas-property/in-Greece.html"
+      },
+      {
+        "text": "Currency",
+        "href": "/overseas-property/currency-zone.html"
+      },
+      {
+        "text": "Sell overseas property",
+        "href": "/overseas-property/advertise.html"
+      },
+      {
+        "text": "Sign\n                in",
+        "href": "/login.html?from=https://www.rightmove.co.uk/property-for-sale.html?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "My Rightmove",
+        "href": "/myrightmove.html"
+      },
+      {
+        "text": "Property for sale",
+        "href": "/property-for-sale.html"
+      },
+      {
+        "text": "New\n                homes for sale",
+        "href": "/new-homes-for-sale.html"
+      },
+      {
+        "text": "Property\n                valuation",
+        "href": "/agent-valuation"
+      },
+      {
+        "text": "Investors",
+        "href": "/guides/landlord/investor-newsletter/"
+      },
+      {
+        "text": "Mortgages",
+        "href": "/mortgages"
+      },
+      {
+        "text": "Property to rent",
+        "href": "/property-to-rent.html"
+      },
+      {
+        "text": "Student property to rent",
+        "href": "/student-accommodation.html"
+      },
+      {
+        "text": "Find estate agents",
+        "href": "/estate-agents"
+      },
+      {
+        "text": "Sold house prices",
+        "href": "/house-prices.html"
+      },
+      {
+        "text": "Instant online valuation",
+        "href": "/house-value.html"
+      },
+      {
+        "text": "Commercial property to rent",
+        "href": "/commercial-property"
+      },
+      {
+        "text": "Commercial property for sale",
+        "href": "/commercial-property?buy=true"
+      },
+      {
+        "text": "Advertise",
+        "href": "/c/commercial-advertising/"
+      },
+      {
+        "text": "Moving\n                stories",
+        "href": "/moving-stories/"
+      },
+      {
+        "text": "Property news",
+        "href": "/news/"
+      },
+      {
+        "text": "Energy\n                efficiency",
+        "href": "/guides/energy-efficiency/"
+      },
+      {
+        "text": "Property\n                guides",
+        "href": "/guides/"
+      },
+      {
+        "text": "Housing trends",
+        "href": "/news/house-price-index/"
+      },
+      {
+        "text": "Overseas blog",
+        "href": "/overseas-magazine/"
+      },
+      {
+        "text": "Mortgage guides",
+        "href": "/mortgages/guides/"
+      },
+      {
+        "text": "All countries",
+        "href": "/overseas-property.html"
+      },
+      {
+        "text": "Spain",
+        "href": "/overseas-property/in-Spain.html"
+      },
+      {
+        "text": "France",
+        "href": "/overseas-property/in-France.html"
+      },
+      {
+        "text": "Portugal",
+        "href": "/overseas-property/in-Portugal.html"
+      },
+      {
+        "text": "Italy",
+        "href": "/overseas-property/in-Italy.html"
+      },
+      {
+        "text": "Greece",
+        "href": "/overseas-property/in-Greece.html"
+      },
+      {
+        "text": "Currency",
+        "href": "/overseas-property/currency-zone.html"
+      },
+      {
+        "text": "Sell Overseas property",
+        "href": "/overseas-property/advertise.html"
+      },
+      {
+        "text": "Request a free agent valuation",
+        "href": "/agent-valuation"
+      },
+      {
+        "text": "View Mortgage guides",
+        "href": "/mortgages/guides/"
+      },
+      {
+        "text": "Search house prices",
+        "href": "/house-prices.html"
+      },
+      {
+        "text": "Learn more",
+        "href": "/guides/"
+      },
+      {
+        "text": "Learn more",
+        "href": "/guides/buyer/buying-a-property/jargon-buster/"
+      },
+      {
+        "text": "Learn more",
+        "href": "/guides/energy-efficiency/"
+      },
+      {
+        "text": "Stamp Duty Calculator",
+        "href": "/stamp-duty-calculator"
+      },
+      {
+        "text": "House Price Index",
+        "href": "/news/house-price-index/"
+      },
+      {
+        "text": "Property\n                                guides",
+        "href": "/guides/"
+      },
+      {
+        "text": "Property news",
+        "href": "/news/"
+      },
+      {
+        "text": "Buyer\n                                guides",
+        "href": "/guides/buyer/"
+      },
+      {
+        "text": "Seller\n                                guides",
+        "href": "/guides/seller/"
+      },
+      {
+        "text": "Renter\n                                guides",
+        "href": "/guides/renter/"
+      },
+      {
+        "text": "Landlord guides",
+        "href": "/guides/landlord/"
+      },
+      {
+        "text": "Removals",
+        "href": "/removals.html"
+      },
+      {
+        "text": "Energy efficiency",
+        "href": "/guides/energy-efficiency/"
+      },
+      {
+        "text": "Mortgage in Principle",
+        "href": "/mortgages/mortgage-in-principle"
+      },
+      {
+        "text": "Mortgage Calculator",
+        "href": "/mortgages/calculators/mortgage-calculator"
+      },
+      {
+        "text": "Remortgage Calculator",
+        "href": "/mortgages/calculators/remortgage-calculator"
+      },
+      {
+        "text": "Mortgage guides",
+        "href": "/mortgages/guides/"
+      },
+      {
+        "text": "Search homes for sale",
+        "href": "/property-for-sale.html"
+      },
+      {
+        "text": "Search homes for rent",
+        "href": "/property-to-rent.html"
+      },
+      {
+        "text": "Commercial for sale",
+        "href": "/commercial-property?buy=true"
+      },
+      {
+        "text": "Commercial to rent",
+        "href": "/commercial-property"
+      },
+      {
+        "text": "Overseas homes for sale",
+        "href": "/overseas-property.html"
+      },
+      {
+        "text": "Search sold house prices",
+        "href": "/house-prices.html"
+      },
+      {
+        "text": "Find\n                                an agent",
+        "href": "/estate-agents"
+      },
+      {
+        "text": "Student accommodation",
+        "href": "/student-accommodation.html"
+      },
+      {
+        "text": "Retirement homes",
+        "href": "/retirement-homes-for-sale.html"
+      },
+      {
+        "text": "New\n                                homes",
+        "href": "/new-homes-for-sale.html"
+      },
+      {
+        "text": "Major towns and cities in the UK",
+        "href": "/major-cities.html"
+      },
+      {
+        "text": "London",
+        "href": "/property-for-sale/London.html"
+      },
+      {
+        "text": "Cornwall",
+        "href": "/property-for-sale/Cornwall.html"
+      },
+      {
+        "text": "Glasgow",
+        "href": "/property-for-sale/Glasgow.html"
+      },
+      {
+        "text": "Cardiff",
+        "href": "/property-for-sale/Cardiff.html"
+      },
+      {
+        "text": "Edinburgh",
+        "href": "/property-for-sale/Edinburgh.html"
+      },
+      {
+        "text": "Spain",
+        "href": "/overseas-property/in-Spain.html"
+      },
+      {
+        "text": "France",
+        "href": "/overseas-property/in-France.html"
+      },
+      {
+        "text": "Portugal",
+        "href": "/overseas-property/in-Portugal.html"
+      },
+      {
+        "text": "Tech\n                                blog",
+        "href": "https://rightmove.blog/"
+      },
+      {
+        "text": "About",
+        "href": "https://plc.rightmove.co.uk/"
+      },
+      {
+        "text": "Press\n                                centre",
+        "href": "/press-centre/"
+      },
+      {
+        "text": "Investor relations",
+        "href": "https://plc.rightmove.co.uk/#investors"
+      },
+      {
+        "text": "Contact us",
+        "href": "/rightmoveplc/rightmove-contacts.html"
+      },
+      {
+        "text": "Careers",
+        "href": "/careers/"
+      },
+      {
+        "text": "Sign in or create account",
+        "href": "/login.html"
+      },
+      {
+        "text": "HomeViews",
+        "href": "https://www.homeviews.com?utm_source=rightmove_footer"
+      },
+      {
+        "text": "Rightmove\n                                Plus",
+        "href": "https://rmplusportal.rightmove.co.uk"
+      },
+      {
+        "text": "Data\n                                Services",
+        "href": "/property-data/"
+      },
+      {
+        "text": "Advertise on Rightmove",
+        "href": "/advertise-with-us"
+      },
+      {
+        "text": "Overseas agents and developers",
+        "href": "/overseas-property/advertise.html"
+      },
+      {
+        "text": "Home and property related services",
+        "href": "/c/display-advertising/"
+      },
+      {
+        "text": "Advertise commercial property",
+        "href": "/c/commercial-advertising/"
+      },
+      {
+        "text": "HomeViews Business Hub",
+        "href": "https://business.homeviews.com/?utm_source=rightmove_footer"
+      },
+      {
+        "text": "Site map",
+        "href": "/site-map.html"
+      },
+      {
+        "text": "Help",
+        "href": "https://faq.rightmove.co.uk/support/home/"
+      },
+      {
+        "text": "Safety\n                and Security",
+        "href": "/guides/safety-and-security/"
+      },
+      {
+        "text": "Terms of Use",
+        "href": "/c/terms-of-use/"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "/c/privacy-policy/"
+      },
+      {
+        "text": "further details here",
+        "href": "/c/terms-of-use/"
+      },
+      {
+        "text": "Learn more about how we use cookies.",
+        "href": "https://www.rightmove.co.uk/this-site/cookies.html"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "https://media.rightmove.co.uk/promote_illustration2.png"
+      },
+      {
+        "alt": "",
+        "src": "https://media.rightmove.co.uk/mortgages_borrow.png"
+      },
+      {
+        "alt": "",
+        "src": "https://media.rightmove.co.uk/sold_prices2.png"
+      }
+    ],
+    "timestamp": 1760609063431,
+    "url": "https://www.rightmove.co.uk/property-for-sale.html?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "url": "https://www.facebook.com/",
+  "extractedAt": "2025-10-16T12:03:08.787Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://static.xx.fbcdn.net/rsrc.php/yx/r/e9sqr8WnkCf.ico",
+        "rel": "icon"
+      }
+    ],
+    "title": "Facebook - log in or sign up",
+    "metaDescription": "Log into Facebook to start sharing and connecting with your friends, family, and people you know.",
+    "content": "## Connect with friends and the world around you on Facebook.\nLog In[Forgot password?](https://www.facebook.com/recover/initiate/?privacy_mutation_token=eyJ0eXBlIjowLCJjcmVhdGlvbl90aW1lIjoxNzYwNjE2MTg2LCJjYWxsc2l0ZV9pZCI6MzgxMjI5MDc5NTc1OTQ2fQ%3D%3D&ars=facebook_login&next)[Create new account](/r.php?entry_point=login)[Create a Page](/pages/create/?ref_type=registration_form) for a celebrity, brand or business.",
+    "truncated": false,
+    "fullContentLength": 414,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Connect with friends and the world around you on Facebook."
+      }
+    ],
+    "links": [
+      {
+        "text": "Forgot password?",
+        "href": "https://www.facebook.com/recover/initiate/?privacy_mutation_token=eyJ0eXBlIjowLCJjcmVhdGlvbl90aW1lIjoxNzYwNjE2MTg2LCJjYWxsc2l0ZV9pZCI6MzgxMjI5MDc5NTc1OTQ2fQ%3D%3D&ars=facebook_login&next"
+      },
+      {
+        "text": "Create new account",
+        "href": "/r.php?entry_point=login"
+      },
+      {
+        "text": "Create a Page",
+        "href": "/pages/create/?ref_type=registration_form"
+      },
+      {
+        "text": "Nederlands",
+        "href": "https://www.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Frysk",
+        "href": "https://nl-nl.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Polski",
+        "href": "https://fy-nl.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Türkçe",
+        "href": "https://pl-pl.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Deutsch",
+        "href": "https://tr-tr.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Français (France)",
+        "href": "https://de-de.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "العربية",
+        "href": "https://fr-fr.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Español",
+        "href": "https://ar-ar.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Português (Brasil)",
+        "href": "https://es-la.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Italiano",
+        "href": "https://pt-br.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Sign Up",
+        "href": "/reg/"
+      },
+      {
+        "text": "Log In",
+        "href": "/login/"
+      },
+      {
+        "text": "Messenger",
+        "href": "https://messenger.com/"
+      },
+      {
+        "text": "Facebook Lite",
+        "href": "/lite/"
+      },
+      {
+        "text": "Video",
+        "href": "https://www.facebook.com/watch/"
+      },
+      {
+        "text": "Meta Pay",
+        "href": "https://about.meta.com/technologies/meta-pay"
+      },
+      {
+        "text": "Meta Store",
+        "href": "https://www.meta.com/"
+      },
+      {
+        "text": "Meta Quest",
+        "href": "https://www.meta.com/quest/"
+      },
+      {
+        "text": "Ray-Ban Meta",
+        "href": "https://www.meta.com/smart-glasses/"
+      },
+      {
+        "text": "Meta AI",
+        "href": "https://www.meta.ai/"
+      },
+      {
+        "text": "Meta AI more content",
+        "href": "https://www.meta.ai/pages/apple-watch-series-fitness-tracking-health-monitoring/?utm_source=foa_web_footer"
+      },
+      {
+        "text": "Instagram",
+        "href": "https://l.facebook.com/l.php?u=https%3A%2F%2Fwww.instagram.com%2F&h=AT2L82TQNmRTiKrrKIvSbg5Htr8MnxarM5WvQNGACQ1BNtWhFICvZZOjTegysugw4bdK40yuJXSDzv1JV3lEno-EcSQtEFdUFh5wuD1nsfFs0OIcH56V4WCYsvotMggc9xxv64RW1WOHuw"
+      },
+      {
+        "text": "Threads",
+        "href": "https://www.threads.com/"
+      },
+      {
+        "text": "Voting Information Center",
+        "href": "/votinginformationcenter/?entry_point=c2l0ZQ%3D%3D"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "/privacy/policy/?entry_point=facebook_page_footer"
+      },
+      {
+        "text": "Privacy Center",
+        "href": "/privacy/center/?entry_point=facebook_page_footer"
+      },
+      {
+        "text": "About",
+        "href": "https://about.meta.com/"
+      },
+      {
+        "text": "Create ad",
+        "href": "/ad_campaign/landing.php?placement=pflo&campaign_id=402047449186&nav_source=unknown&extra_1=auto"
+      },
+      {
+        "text": "Create Page",
+        "href": "/pages/create/?ref_type=site_footer"
+      },
+      {
+        "text": "Developers",
+        "href": "https://developers.facebook.com/?ref=pf"
+      },
+      {
+        "text": "Careers",
+        "href": "/careers/?ref=pf"
+      },
+      {
+        "text": "Cookies",
+        "href": "/policies/cookies/"
+      },
+      {
+        "text": "Ad choices",
+        "href": "https://www.facebook.com/help/568137493302217"
+      },
+      {
+        "text": "Terms",
+        "href": "/policies?ref=pf"
+      },
+      {
+        "text": "Help",
+        "href": "/help/?ref=pf"
+      },
+      {
+        "text": "Contact Uploading & Non-Users",
+        "href": "https://www.facebook.com/help/637205020878504"
+      },
+      {
+        "text": "Settings",
+        "href": "/settings"
+      },
+      {
+        "text": "Activity log",
+        "href": "/allactivity?privacy_source=activity_log_top_menu"
+      },
+      {
+        "text": "Meta Products",
+        "href": "https://www.facebook.com/help/1561485474074139"
+      },
+      {
+        "text": "Cookies Policy",
+        "href": "https://www.facebook.com/policies/cookies/"
+      },
+      {
+        "text": "other companies",
+        "href": "https://www.facebook.com/privacy/policies/cookies/?annotations[0]=explanation%2F3_companies_list"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Facebook",
+        "src": "https://static.xx.fbcdn.net/rsrc.php/y1/r/4lCu2zih0ca.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://facebook.com/security/hsts-pixel.gif"
+      },
+      {
+        "alt": "",
+        "src": "/images/cookies/cookie_info_card_image_1.png"
+      },
+      {
+        "alt": "",
+        "src": "/images/cookies/cookie_info_card_image_2.png"
+      },
+      {
+        "alt": "",
+        "src": "/images/cookies/cookie_info_card_image_3.png"
+      },
+      {
+        "alt": "",
+        "src": "/images/cookies/cookie_info_card_image_4.png"
+      }
+    ],
+    "timestamp": 1760616188191,
+    "url": "https://www.facebook.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+  }
+}

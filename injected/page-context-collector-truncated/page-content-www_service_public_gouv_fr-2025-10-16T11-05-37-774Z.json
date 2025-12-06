@@ -1,0 +1,485 @@
+{
+  "url": "https://www.service-public.gouv.fr/particuliers/actualites/A18008",
+  "extractedAt": "2025-10-16T11:05:37.774Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.service-public.gouv.fr/resources/v-740e7517aa/assets/dsfr-1.14/dist/favicon/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.service-public.gouv.fr/resources/v-740e7517aa/assets/dsfr-1.14/dist/favicon/favicon.svg",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.service-public.gouv.fr/resources/v-740e7517aa/assets/dsfr-1.14/dist/favicon/favicon.ico/",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "Scolarité -Vacances scolaires : le calendrier pour 2025-2026 | Service Public",
+    "metaDescription": "Vacances scolaires : le calendrier pour 2025-2026",
+    "content": "- [Accueil](https://www.service-public.gouv.fr/particuliers)\n\n- [Actualité de vos droits et démarches](https://www.service-public.gouv.fr/particuliers/actualites)\n\n- Vacances scolaires : le calendrier pour 2025-2026\n\n\n\n- Ajouter à mes alertes\n\n- \n\n- \n\n- Focus\n\nFR - FrançaisScolarité\n\n# Vacances scolaires : le calendrier pour 2025-2026\nPublié le 02 septembre 2025 - Direction de l'information légale et administrative (Premier ministre)\nVous avez besoin de connaître dès maintenant les dates des futures vacances scolaires de vos enfants pour pouvoir vous organiser ? *Service-Public.fr* vous donne le détail du calendrier pour toute l'année scolaire 2025-2026.\n Infographie - Vacances scolaires : le calendrier pour 2025-2026IllustrationCrédits : Service Public (DILA)[Ouvrir l’image dans une nouvelle fenêtre](https://www.service-public.gouv.fr/webapp/images/actu/extralarge/I7951.png)\n Voir la version texte de l’infographie Le calendrier scolaire 2025-2026 a été fixé par un arrêté paru au *Journal officiel* le 8 décembre 2022.\nLes dates des vacances scolaires dépendent de la zone où se situe l'établissement scolaire. La France métropolitaine est divisée en 3 zones académiques auxquelles il faut ajouter l'académie de la Corse.\nUn [simulateur](https://www.service-public.fr/simulateur/calcul/Dates_Vacances_Scolaires) vous permet d'accéder au calendrier de votre département. Vous précisez juste le nom de votre département ou de votre territoire et obtenez en un clic toutes les dates des vacances de Toussaint, de Noël, d'hiver, de printemps et d'été qui vous concernent directement.\nVous pouvez notamment y consulter les calendriers scolaires, de la Guadeloupe, de la Martinique, de la Guyane, de la Réunion, de Mayotte qui sont spécifiques à chaque académie.\nÀ savoir \nLe début des vacances a lieu après la classe et la reprise des cours, le matin des jours indiqués. Des aménagements peuvent intervenir, notamment en raison des examens de fin d'année au collège ou au lycée.\n\n## Textes de loi et références\n\n## Services en ligne et formulaires\n\n## Voir aussi\n\n\n- [Aides financières pour la scolarité](https://www.service-public.gouv.fr/particuliers/vosdroits/N67) Service-Public.fr\n\n- [Quel est le calendrier des vacances scolaires 2025-2026 ?](https://www.service-public.gouv.fr/particuliers/vosdroits/F31952) Service-Public.fr\n\n- [Calendrier scolaire](https://www.education.gouv.fr/calendrier-scolaire-100148) Ministère chargé de l'éducation\n\n- [Les régions académiques, académies et services départementaux de l'Éducation nationale](https://www.education.gouv.fr/les-regions-academiques-academies-et-services-departementaux-de-l-education-nationale-6557) Ministère chargé de l'éducation\n\n\n## Agenda\n\n\n- Du 15 oct. au 20 oct. 2025 Impôts locaux [Taxe foncière 2025 : quelle est la date limite pour payer ?](https://www.service-public.gouv.fr/particuliers/actualites/A15144) Publié le 25 septembre 2025\n\n- À partir du 27 oct. 2025 Impôts [Remboursement et paiement du solde de l'impôt 2025 : les dates à retenir](https://www.service-public.gouv.fr/particuliers/actualites/A16659) Publié le 01 juillet 2025\n\n[Voir toutes les échéances](https://www.service-public.gouv.fr/particuliers/actualites/agenda)",
+    "truncated": false,
+    "fullContentLength": 3216,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Vacances scolaires : le calendrier pour 2025-2026"
+      },
+      {
+        "level": 5,
+        "text": "Infographie - Vacances scolaires : le calendrier pour 2025-2026"
+      },
+      {
+        "level": 2,
+        "text": "Textes de loi et références"
+      },
+      {
+        "level": 2,
+        "text": "Services en ligne et formulaires"
+      },
+      {
+        "level": 2,
+        "text": "Voir aussi"
+      },
+      {
+        "level": 2,
+        "text": "Agenda"
+      },
+      {
+        "level": 2,
+        "text": "Recevoir la lettre de Service Public"
+      },
+      {
+        "level": 2,
+        "text": "Suivez-nous\n               sur les réseaux sociaux"
+      }
+    ],
+    "links": [
+      {
+        "text": "Contenu",
+        "href": "#main"
+      },
+      {
+        "text": "Menu",
+        "href": "#header-navigation"
+      },
+      {
+        "text": "Recherche",
+        "href": "#header-search-main"
+      },
+      {
+        "text": "Pied de page",
+        "href": "#footer"
+      },
+      {
+        "text": ":root {\n        --artwork-major-blue-france: #000091;\n        --artwork-minor-red-marianne: #e1000f;\n        --text-default-grey: #3a3a3a;\n      }\n      :root[data-fr-theme=dark] {\n        --text-default-grey: #cecece;\n        --artwork-major-blue-france: #8585f6;\n      }\n      .cls-4 {\n        fill: #7ab1e8;\n      }\n      .fr-artwork-minor {\n        fill: var(--artwork-minor-red-marianne);\n      }\n      .fr-artwork-major {\n        fill: var(--artwork-major-blue-france);\n      }\n      .sp-text {\n        fill: var(--text-default-grey);\n      }",
+        "href": "https://www.service-public.gouv.fr/"
+      },
+      {
+        "text": "Se connecter",
+        "href": "https://www.service-public.gouv.fr/compte/se-connecter"
+      },
+      {
+        "text": "Accéder au site pour les entreprises",
+        "href": "https://entreprendre.service-public.gouv.fr"
+      },
+      {
+        "text": "Se connecter",
+        "href": "https://www.service-public.gouv.fr/compte/se-connecter"
+      },
+      {
+        "text": "Accéder au site pour les entreprises",
+        "href": "https://entreprendre.service-public.gouv.fr"
+      },
+      {
+        "text": "Accueil",
+        "href": "https://www.service-public.gouv.fr/particuliers"
+      },
+      {
+        "text": "Actualité de vos droits et démarches",
+        "href": "https://www.service-public.gouv.fr/particuliers/actualites"
+      },
+      {
+        "text": "Je déménage",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/F14128"
+      },
+      {
+        "text": "Je cherche un emploi",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17556"
+      },
+      {
+        "text": "J’attends un enfant",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/F16225"
+      },
+      {
+        "text": "Je veux obtenir un crédit immobilier",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/F16123"
+      },
+      {
+        "text": "J'achète un logement",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/F15913"
+      },
+      {
+        "text": "Je prépare ma retraite",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/F17904"
+      },
+      {
+        "text": "Un proche est décédé",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/F16507"
+      },
+      {
+        "text": "Voir tous les événements de vie",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/comment-faire-si"
+      },
+      {
+        "text": "Papiers - Citoyenneté - Élections",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19810"
+      },
+      {
+        "text": "Famille - Scolarité",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19805"
+      },
+      {
+        "text": "Social - Santé",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19811"
+      },
+      {
+        "text": "Travail - Formation",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19806"
+      },
+      {
+        "text": "Logement",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19808"
+      },
+      {
+        "text": "Transports - Mobilité",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19812"
+      },
+      {
+        "text": "Argent - Impôts - Consommation",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19803"
+      },
+      {
+        "text": "Voir tous les thèmes",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/theme"
+      },
+      {
+        "text": "Aides financières",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N32475"
+      },
+      {
+        "text": "Démarches et outils",
+        "href": "https://www.service-public.gouv.fr/particuliers/recherche?rubricFilter=serviceEnLigne&rubricTypeFilter="
+      },
+      {
+        "text": "Annuaire de l’administration",
+        "href": "https://lannuaire.service-public.gouv.fr"
+      },
+      {
+        "text": "Contacter Service Public",
+        "href": "https://www.service-public.gouv.fr/P10017"
+      },
+      {
+        "text": "Accéder au site pour les entreprises",
+        "href": "https://entreprendre.service-public.gouv.fr"
+      },
+      {
+        "text": "Accueil",
+        "href": "https://www.service-public.gouv.fr/particuliers"
+      },
+      {
+        "text": "Actualité de vos droits et démarches",
+        "href": "https://www.service-public.gouv.fr/particuliers/actualites"
+      },
+      {
+        "text": "FR - Français",
+        "href": "https://www.service-public.gouv.fr/particuliers/actualites/A18008?automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "EN - English",
+        "href": "https://www.service-public.gouv.fr/particuliers/actualites/A18008?lang=en&automation=true?automation=true&wait-for-init-args=true"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/sharer/sharer.php?u=https://www.service-public.gouv.fr/particuliers/actualites/A18008"
+      },
+      {
+        "text": "X",
+        "href": "https://x.com/intent/tweet?text=Vacances%20scolaires%C2%A0:%20le%20calendrier%20pour%202025-2026&url=https://www.service-public.gouv.fr/particuliers/actualites/A18008"
+      },
+      {
+        "text": "Linkedin",
+        "href": "https://www.linkedin.com/shareArticle?mini=true&url=https://www.service-public.gouv.fr/particuliers/actualites/A18008&title=Vacances%20scolaires%C2%A0:%20le%20calendrier%20pour%202025-2026"
+      },
+      {
+        "text": "Email",
+        "href": "mailto:%20?subject=Service-Public.fr%20-%20Vacances%20scolaires_:%20le%20calendrier%20pour%202025-2026&body=Bonjour,%0D%0A%0D%0ACette information de service-public.fr vous est conseillée : %0D%0A%0D%0AVacances scolaires : le calendrier pour 2025-2026%0D%0A%0D%0Ahttps://www.service-public.gouv.fr/particuliers/actualites/A18008?automation=true?automation=true%26wait-for-init-args=true"
+      },
+      {
+        "text": "Ajouter à mes alertes",
+        "href": "https://www.service-public.gouv.fr/compte/se-connecter?targetUrl=/particuliers/actualites/A18008/abonnement"
+      },
+      {
+        "text": "mon compte > mes alertes",
+        "href": "/compte/mes-alertes"
+      },
+      {
+        "text": "Ouvrir l’image dans une nouvelle fenêtre",
+        "href": "https://www.service-public.gouv.fr/webapp/images/actu/extralarge/I7951.png"
+      },
+      {
+        "text": "simulateur",
+        "href": "https://www.service-public.fr/simulateur/calcul/Dates_Vacances_Scolaires"
+      },
+      {
+        "text": "Arrêté du 7 décembre 2022 fixant le calendrier scolaire des années 2023-2024, 2024-2025 et 2025-2026",
+        "href": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000046704476"
+      },
+      {
+        "text": "Connaître le calendrier des vacances scolaires de votre département",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/R51836"
+      },
+      {
+        "text": "Aides financières pour la scolarité",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N67"
+      },
+      {
+        "text": "Quel est le calendrier des vacances scolaires 2025-2026 ?",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/F31952"
+      },
+      {
+        "text": "Calendrier scolaire",
+        "href": "https://www.education.gouv.fr/calendrier-scolaire-100148"
+      },
+      {
+        "text": "Les régions académiques, académies et services départementaux de l'Éducation nationale",
+        "href": "https://www.education.gouv.fr/les-regions-academiques-academies-et-services-departementaux-de-l-education-nationale-6557"
+      },
+      {
+        "text": "Taxe foncière 2025 : quelle est la date limite pour payer ?",
+        "href": "https://www.service-public.gouv.fr/particuliers/actualites/A15144"
+      },
+      {
+        "text": "Remboursement et paiement du solde de l'impôt 2025 : les dates à retenir",
+        "href": "https://www.service-public.gouv.fr/particuliers/actualites/A16659"
+      },
+      {
+        "text": "Voir toutes les échéances",
+        "href": "https://www.service-public.gouv.fr/particuliers/actualites/agenda"
+      },
+      {
+        "text": "S’abonner",
+        "href": "https://www.service-public.gouv.fr/actualites/lettresp/abonnement"
+      },
+      {
+        "text": "Lire la dernière lettre",
+        "href": "https://www.service-public.gouv.fr/actualites/lettresp/archives/L1215"
+      },
+      {
+        "text": "Voir toutes les lettres",
+        "href": "https://www.service-public.gouv.fr/actualites/lettresp/archives"
+      },
+      {
+        "text": "facebook",
+        "href": "https://www.facebook.com/ServicePublicFr"
+      },
+      {
+        "text": "X (anciennement twitter)",
+        "href": "https://x.com/servicepublicfr"
+      },
+      {
+        "text": "linkedin",
+        "href": "https://www.linkedin.com/company/service-public-fr"
+      },
+      {
+        "text": "instagram",
+        "href": "https://www.instagram.com/servicepublicfr/"
+      },
+      {
+        "text": "youtube",
+        "href": "https://www.youtube.com/ServicePublicFrance"
+      },
+      {
+        "text": "Papiers - Citoyenneté - Élections",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19810"
+      },
+      {
+        "text": "Famille - Scolarité",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19805"
+      },
+      {
+        "text": "Social - Santé",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19811"
+      },
+      {
+        "text": "Travail - Formation",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19806"
+      },
+      {
+        "text": "Logement",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19808"
+      },
+      {
+        "text": "Transports - Mobilité",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19812"
+      },
+      {
+        "text": "Argent - Impôts - Consommation",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19803"
+      },
+      {
+        "text": "Justice",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19807"
+      },
+      {
+        "text": "Étranger - Europe",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19804"
+      },
+      {
+        "text": "Loisirs - Sports - Culture",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N19809"
+      },
+      {
+        "text": "Associations, fondations et fonds de dotation",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/N31931"
+      },
+      {
+        "text": "Démarches en ligne",
+        "href": "https://www.service-public.gouv.fr/particuliers/recherche?rubricFilter=serviceEnLigne&rubricTypeFilter=teleservice"
+      },
+      {
+        "text": "Formulaires administratifs (cerfas)",
+        "href": "https://www.service-public.gouv.fr/particuliers/recherche?rubricFilter=serviceEnLigne&rubricTypeFilter=formulaire"
+      },
+      {
+        "text": "Simulateurs",
+        "href": "https://www.service-public.gouv.fr/particuliers/recherche?rubricFilter=serviceEnLigne&rubricTypeFilter=simulateur"
+      },
+      {
+        "text": "Modèles de lettres",
+        "href": "https://www.service-public.gouv.fr/particuliers/recherche?rubricFilter=serviceEnLigne&rubricTypeFilter=modeleLettre"
+      },
+      {
+        "text": "Outils de recherche",
+        "href": "https://www.service-public.gouv.fr/particuliers/recherche?rubricFilter=serviceEnLigne&rubricTypeFilter=outilrecherche"
+      },
+      {
+        "text": "Allo Service Public",
+        "href": "https://www.service-public.gouv.fr/particuliers/vosdroits/F33683"
+      },
+      {
+        "text": "Annuaire de l'administration",
+        "href": "https://lannuaire.service-public.gouv.fr/"
+      },
+      {
+        "text": "Chiffres",
+        "href": "https://www.service-public.gouv.fr/D10002"
+      },
+      {
+        "text": "Mise à disposition des données",
+        "href": "https://www.service-public.gouv.fr/P10004"
+      },
+      {
+        "text": "Missions et valeurs",
+        "href": "https://www.service-public.gouv.fr/P10002"
+      },
+      {
+        "text": "Aide",
+        "href": "https://www.service-public.gouv.fr/D10003"
+      },
+      {
+        "text": "Vous êtes une administration ?",
+        "href": "https://www.service-public.gouv.fr/D10000"
+      },
+      {
+        "text": "Vous êtes journaliste ?",
+        "href": "https://www.service-public.gouv.fr/P10026"
+      },
+      {
+        "text": "Contacter Service Public",
+        "href": "https://www.service-public.gouv.fr/P10017"
+      },
+      {
+        "text": "Direction de l’information légale et administrative",
+        "href": "https://www.dila.premier-ministre.gouv.fr/"
+      },
+      {
+        "text": "legifrance.gouv.fr",
+        "href": "https://www.legifrance.gouv.fr/"
+      },
+      {
+        "text": "info.gouv.fr",
+        "href": "https://www.info.gouv.fr/"
+      },
+      {
+        "text": "data.gouv.fr",
+        "href": "https://www.data.gouv.fr/"
+      },
+      {
+        "text": "Plan du site",
+        "href": "https://www.service-public.gouv.fr/P10003"
+      },
+      {
+        "text": "Accessibilité : totalement conforme",
+        "href": "https://www.service-public.gouv.fr/P10000"
+      },
+      {
+        "text": "Accessibilité des services en ligne",
+        "href": "https://www.service-public.gouv.fr/P10125"
+      },
+      {
+        "text": "Mentions légales",
+        "href": "https://www.service-public.gouv.fr/P10025"
+      },
+      {
+        "text": "Données personnelles et sécurité",
+        "href": "https://www.service-public.gouv.fr/P10001"
+      },
+      {
+        "text": "Conditions générales d'utilisation",
+        "href": "https://www.service-public.gouv.fr/P10050"
+      },
+      {
+        "text": "Gestion des cookies",
+        "href": "https://www.service-public.gouv.fr/P10001"
+      },
+      {
+        "text": "licence etalab-2.0",
+        "href": "https://github.com/etalab/licence-ouverte/blob/master/LO.md"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "https://www.service-public.gouv.fr/resources/v-740e7517aa/assets/img/logo-rf-top.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www.service-public.gouv.fr/resources/v-740e7517aa/assets/img/logo-rf-bottom.svg"
+      },
+      {
+        "alt": "Illustration - Vacances scolaires : le calendrier pour 2025-2026 - plus de détails dans le texte suivant l’infographie",
+        "src": "https://www.service-public.gouv.fr/webapp/images/actu/extralarge/I7951.png"
+      },
+      {
+        "alt": "Your Europe",
+        "src": "https://www.service-public.gouv.fr/resources/v-740e7517aa/assets/img/partenaires/logo-your-europe.svg"
+      },
+      {
+        "alt": "Vie publique, au cœur du débat public",
+        "src": "https://www.service-public.gouv.fr/resources/v-740e7517aa/assets/img/partenaires/logo-VP.svg"
+      },
+      {
+        "alt": "Entreprendre.Service-Public.gouv.fr",
+        "src": "https://www.service-public.gouv.fr/resources/v-740e7517aa/assets/img/partenaires/logo-entreprendre-service-public.svg"
+      },
+      {
+        "alt": "Service Publics +",
+        "src": "https://www.service-public.gouv.fr/resources/v-740e7517aa/assets/img/partenaires/logo-spplus-footer.svg"
+      }
+    ],
+    "timestamp": 1760612737247,
+    "url": "https://www.service-public.gouv.fr/particuliers/actualites/A18008?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -19,3 +19,4 @@ injected/unit-test/fixtures/page-context/output/
 .netlify
 # VS Code user config
 .vscode
+page-context-collector/

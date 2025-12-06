@@ -1,0 +1,181 @@
+{
+  "url": "https://open.spotify.com/",
+  "extractedAt": "2025-10-16T10:10:47.220Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://open.spotifycdn.com/cdn/images/favicon32.b64ecc03.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://open.spotifycdn.com/cdn/images/favicon16.1c487bff.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://open.spotifycdn.com/cdn/images/favicon.0f31d2ea.ico",
+        "rel": "icon"
+      }
+    ],
+    "title": "Spotify - Web Player: Music for everyone",
+    "metaDescription": "Spotify is a digital music service that gives you access to millions of songs.",
+    "content": "[Skip to main content](#main-view)PremiumSupportDownload[Install App](/download)Sign upLog in",
+    "truncated": false,
+    "fullContentLength": 93,
+    "headings": [
+      {
+        "level": 2,
+        "text": "We Care About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "We and our partners process data to provide:"
+      },
+      {
+        "level": 2,
+        "text": "About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "Manage Consent Preferences"
+      },
+      {
+        "level": 4,
+        "text": "Strictly Necessary Cookies"
+      },
+      {
+        "level": 4,
+        "text": "First Party Functional Cookies"
+      },
+      {
+        "level": 4,
+        "text": "First Party Performance Cookies"
+      },
+      {
+        "level": 4,
+        "text": "First Party Targeting Cookies"
+      },
+      {
+        "level": 4,
+        "text": "Content Selection, Delivery, and Reporting"
+      },
+      {
+        "level": 4,
+        "text": "Store and/or access information on a device 74 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Store and access information on a device"
+      },
+      {
+        "level": 4,
+        "text": "Personalised advertising 70 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use profiles to select personalised advertising 57 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Create profiles for personalised advertising 56 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use limited data to select advertising 65 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Personalised content 14 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Create profiles to personalise content 14 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use profiles to select personalised content 13 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Advertising and content measurement, audience research, and services development 76 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Understand audiences through statistics or combinations of data from different sources 48 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Develop and improve services 58 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Measure content performance 25 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Measure advertising performance 70 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Ensure security, prevent and detect fraud, and fix errors 61 partners can use this special purpose"
+      },
+      {
+        "level": 4,
+        "text": "Deliver and present advertising and content 56 partners can use this special purpose"
+      },
+      {
+        "level": 4,
+        "text": "Match and combine data from other data sources 55 partners can use this feature"
+      },
+      {
+        "level": 5,
+        "text": "Match and combine data from other sources"
+      },
+      {
+        "level": 4,
+        "text": "Link different devices 57 partners can use this feature"
+      },
+      {
+        "level": 4,
+        "text": "Identify devices based on information transmitted automatically 65 partners can use this feature"
+      },
+      {
+        "level": 4,
+        "text": "Save and communicate privacy choices 53 partners can use this special purpose"
+      },
+      {
+        "level": 3,
+        "text": "Cookie List"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#main-view"
+      },
+      {
+        "text": "Spotify",
+        "href": "/"
+      },
+      {
+        "text": "Install App",
+        "href": "/download"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "https://www.spotify.com/legal/cookies-policy/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Company Logo",
+        "src": "https://cdn.cookielaw.org/logos/f1b38160-cf19-4625-89df-35263d2d97c0/01917a7a-73f2-78b3-98e7-c1d45faf3ee7/84e08f74-1ac5-4262-ab75-153657f624c1/Spotify_Logo_RGB_Green.png"
+      },
+      {
+        "alt": "Powered by Onetrust",
+        "src": "https://cdn.cookielaw.org/logos/static/powered_by_logo.svg"
+      }
+    ],
+    "timestamp": 1760609444832,
+    "url": "https://open.spotify.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

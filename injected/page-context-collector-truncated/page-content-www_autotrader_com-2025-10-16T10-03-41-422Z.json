@@ -1,0 +1,36 @@
+{
+  "url": "https://www.autotrader.com/cars-for-sale",
+  "extractedAt": "2025-10-16T10:03:41.422Z",
+  "content": {
+    "favicon": [],
+    "title": "Autotrader - page unavailable",
+    "metaDescription": "",
+    "content": "# We're sorry for any inconvenience, but the site is currently unavailable.\n Please [contact our support team](#) for help.       Incident Number: 18.77c21302.1760609020.2a508cc",
+    "truncated": false,
+    "fullContentLength": 177,
+    "headings": [
+      {
+        "level": 1,
+        "text": "We're sorry for any inconvenience, but the site is currently unavailable."
+      }
+    ],
+    "links": [
+      {
+        "text": "contact our support team",
+        "href": "#"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Buy New or Used Cars at Autotrader",
+        "src": "/akamai-block/block-images/autotrader-logo-blue.png"
+      },
+      {
+        "alt": "",
+        "src": "/akamai-block/block-images/error-message-icon.png"
+      }
+    ],
+    "timestamp": 1760609021030,
+    "url": "https://www.autotrader.com/cars-for-sale?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

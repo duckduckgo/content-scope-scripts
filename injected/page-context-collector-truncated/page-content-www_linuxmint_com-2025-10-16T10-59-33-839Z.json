@@ -1,0 +1,329 @@
+{
+  "url": "https://www.linuxmint.com/download.php",
+  "extractedAt": "2025-10-16T10:59:33.839Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.linuxmint.com/web/img/favicon.ico",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "Download Linux Mint 22.2 - Linux Mint",
+    "metaDescription": "Linux Mint is an elegant, easy to use, up to date and comfortable desktop operating system.",
+    "content": "- [**](https://blog.linuxmint.com/?feed=rss2)\n \n- [**](mailto:root@linuxmint.com)\n \n- [**](https://app.element.io/#/room/#linuxmint-space:matrix.org)\n \n- [**](https://www.facebook.com/pages/Linux-Mint/185238108180410)\n \n- [**](https://www.github.com/linuxmint)\n \n- [**](https://twitter.com/linux_mint)\n \n- [**](https://mastodon.social/@linuxmint)\n \n              \n  \n- [Home](/)\n  \n- [Download](#)\n  \n- [Project](#)\n  \n- [About](#)\n  \n- [Links](#)\n \n       [Donate](donors.php)             \n# Linux Mint 22.2 'Zara'\n         \n### Ready to download?\n Linux Mint is available in different flavors. Choose an edition below.\n For more information read the installation instructions.\n   [Installation Instructions](https://linuxmint-installation-guide.readthedocs.io/en/latest/)              Sleek, modern, innovative \n## Cinnamon Edition\n The most popular version of Linux Mint is the Cinnamon edition. Cinnamon is primarily developed for and by Linux Mint. It is slick, beautiful, and full of new features.\n  [Download](edition.php?id=322) [New Features](rel_zara_whatsnew.php) [Release Notes](rel_zara.php)          Light, simple, efficient \n## Xfce Edition\n Xfce is a lightweight desktop environment. It doesn’t support as many features as Cinnamon but it’s lighter on resource usage.\n  [Download](edition.php?id=323) [New Features](rel_zara_whatsnew.php) [Release Notes](rel_zara.php)                  Classic, traditional \n## MATE Edition\n MATE is a classic desktop environment. It is the continuation of GNOME 2, which was Linux Mint’s default desktop between 2006 and 2011.\n  [Download](edition.php?id=324) [New Features](rel_zara_whatsnew.php) [Release Notes](rel_zara.php)",
+    "truncated": false,
+    "fullContentLength": 1677,
+    "headings": [
+      {
+        "level": 4,
+        "text": "Checkout the doc!"
+      },
+      {
+        "level": 1,
+        "text": "Linux Mint 22.2 'Zara'"
+      },
+      {
+        "level": 3,
+        "text": "Ready to download?"
+      },
+      {
+        "level": 2,
+        "text": "Cinnamon Edition"
+      },
+      {
+        "level": 2,
+        "text": "Xfce Edition"
+      },
+      {
+        "level": 2,
+        "text": "MATE Edition"
+      },
+      {
+        "level": 6,
+        "text": "Quick Links"
+      },
+      {
+        "level": 6,
+        "text": "Info"
+      },
+      {
+        "level": 6,
+        "text": "Support"
+      }
+    ],
+    "links": [
+      {
+        "text": "Home",
+        "href": "/"
+      },
+      {
+        "text": "Download",
+        "href": "#"
+      },
+      {
+        "text": "Linux Mint 22.2Recommended",
+        "href": "download.php"
+      },
+      {
+        "text": "LMDE 7",
+        "href": "download_lmde.php"
+      },
+      {
+        "text": "All versions",
+        "href": "download_all.php"
+      },
+      {
+        "text": "Installation Guide",
+        "href": "https://linuxmint-installation-guide.readthedocs.io/en/latest/"
+      },
+      {
+        "text": "Project",
+        "href": "#"
+      },
+      {
+        "text": "Donors",
+        "href": "donors.php"
+      },
+      {
+        "text": "Sponsors",
+        "href": "sponsors.php"
+      },
+      {
+        "text": "Partners",
+        "href": "partners.php"
+      },
+      {
+        "text": "Store",
+        "href": "store.php"
+      },
+      {
+        "text": "Get Involved",
+        "href": "getinvolved.php"
+      },
+      {
+        "text": "Mirrors",
+        "href": "mirrors.php"
+      },
+      {
+        "text": "About",
+        "href": "#"
+      },
+      {
+        "text": "About Linux Mint",
+        "href": "about.php"
+      },
+      {
+        "text": "FAQ",
+        "href": "faq.php"
+      },
+      {
+        "text": "Documentation",
+        "href": "documentation.php"
+      },
+      {
+        "text": "Screenshots",
+        "href": "screenshots.php"
+      },
+      {
+        "text": "Privacy & Cookies",
+        "href": "privacy.php"
+      },
+      {
+        "text": "Team",
+        "href": "teams.php"
+      },
+      {
+        "text": "Contact Us",
+        "href": "contactus.php"
+      },
+      {
+        "text": "Links",
+        "href": "#"
+      },
+      {
+        "text": "WebsiteHere",
+        "href": "/"
+      },
+      {
+        "text": "Blog",
+        "href": "https://blog.linuxmint.com"
+      },
+      {
+        "text": "Forums",
+        "href": "https://forums.linuxmint.com"
+      },
+      {
+        "text": "Chat Rooms",
+        "href": "https://app.element.io/#/room/#linuxmint-space:matrix.org"
+      },
+      {
+        "text": "Community website",
+        "href": "https://community.linuxmint.com"
+      },
+      {
+        "text": "Github",
+        "href": "https://www.github.com/linuxmint"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/pages/Linux-Mint/185238108180410"
+      },
+      {
+        "text": "Twitter",
+        "href": "https://twitter.com/linux_mint"
+      },
+      {
+        "text": "Mastodon",
+        "href": "https://mastodon.social/@linuxmint"
+      },
+      {
+        "text": "Reddit",
+        "href": "https://www.reddit.com/r/linuxmint/"
+      },
+      {
+        "text": "Discord",
+        "href": "https://discord.gg/mint"
+      },
+      {
+        "text": "IRC",
+        "href": "https://kiwiirc.com/client/irc.spotchat.org/#linuxmint-help"
+      },
+      {
+        "text": "mintCast Podcast",
+        "href": "https://mintcast.org"
+      },
+      {
+        "text": "Local communities",
+        "href": "links.php"
+      },
+      {
+        "text": "Donate",
+        "href": "donors.php"
+      },
+      {
+        "text": "Installation Instructions",
+        "href": "https://linuxmint-installation-guide.readthedocs.io/en/latest/"
+      },
+      {
+        "text": "Download",
+        "href": "edition.php?id=322"
+      },
+      {
+        "text": "New Features",
+        "href": "rel_zara_whatsnew.php"
+      },
+      {
+        "text": "Release Notes",
+        "href": "rel_zara.php"
+      },
+      {
+        "text": "Download",
+        "href": "edition.php?id=323"
+      },
+      {
+        "text": "New Features",
+        "href": "rel_zara_whatsnew.php"
+      },
+      {
+        "text": "Release Notes",
+        "href": "rel_zara.php"
+      },
+      {
+        "text": "Download",
+        "href": "edition.php?id=324"
+      },
+      {
+        "text": "New Features",
+        "href": "rel_zara_whatsnew.php"
+      },
+      {
+        "text": "Release Notes",
+        "href": "rel_zara.php"
+      },
+      {
+        "text": "Download",
+        "href": "download.php"
+      },
+      {
+        "text": "Donate",
+        "href": "donors.php"
+      },
+      {
+        "text": "Get Involved",
+        "href": "getinvolved.php"
+      },
+      {
+        "text": "About",
+        "href": "about.php"
+      },
+      {
+        "text": "FAQ",
+        "href": "faq.php"
+      },
+      {
+        "text": "Privacy & Cookies",
+        "href": "privacy.php"
+      },
+      {
+        "text": "Installation Guide",
+        "href": "https://linuxmint-installation-guide.readthedocs.io/en/latest/"
+      },
+      {
+        "text": "User Guide",
+        "href": "https://linuxmint-user-guide.readthedocs.io/en/latest/"
+      },
+      {
+        "text": "Forums",
+        "href": "https://forums.linuxmint.com"
+      },
+      {
+        "text": "https://packages.ubuntu.com",
+        "href": "https://packages.ubuntu.com"
+      },
+      {
+        "text": "http://packages.linuxmint.com",
+        "href": "http://packages.linuxmint.com"
+      },
+      {
+        "text": "https://github.com/linuxmint",
+        "href": "https://github.com/linuxmint"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "/web/img/logo-mono.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www.linuxmint.com/pictures/screenshots/zara/thumb_cinnamon.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.linuxmint.com/pictures/screenshots/zara/thumb_xfce.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.linuxmint.com/pictures/screenshots/zara/thumb_mate.png"
+      },
+      {
+        "alt": "",
+        "src": "/web/img/sponsors/footer/eukhost.svg"
+      },
+      {
+        "alt": "",
+        "src": "/web/img/sponsors/footer/datadog.svg"
+      },
+      {
+        "alt": "",
+        "src": "/web/img/sponsors/footer/complex1.png"
+      },
+      {
+        "alt": "",
+        "src": "/web/img/logo.svg"
+      }
+    ],
+    "timestamp": 1760612373441,
+    "url": "https://www.linuxmint.com/download.php?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

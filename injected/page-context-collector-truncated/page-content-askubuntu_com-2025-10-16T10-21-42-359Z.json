@@ -1,0 +1,1517 @@
+{
+  "url": "https://askubuntu.com/questions/40779/how-do-i-install-a-deb-file-via-the-command-line",
+  "extractedAt": "2025-10-16T10:21:42.359Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://cdn.sstatic.net/Sites/askubuntu/Img/favicon.ico?v=928dfb7c1990",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://cdn.sstatic.net/Sites/askubuntu/Img/apple-touch-icon.png?v=e16e1315edd6",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "software installation - How do I install a .deb file via the command line? - Ask Ubuntu",
+    "metaDescription": "",
+    "content": "# [How do I install a .deb file via the command line?](/questions/40779/how-do-i-install-a-deb-file-via-the-command-line)\n   [Ask Question](/questions/ask)      Asked 14 years, 5 months ago   Modified [12 months ago](?lastactivity)   Viewed 5.5m times               1563               How do I install a .deb file via the command line?\n     \n\n- [command-line](/questions/tagged/command-line)\n\n- [software-installation](/questions/tagged/software-installation)\n\n          [Share](/q/40779)   [Improve this question](/posts/40779/edit)    Follow            [edited Sep 15, 2021 at 15:16](/posts/40779/revisions)       [Braiam](/users/169736/braiam)  69.3k3232 gold badges182182 silver badges278278 bronze badges         asked May 6, 2011 at 17:40       [TheXed](/users/3889/thexed)  27.8k1313 gold badges6262 silver badges8989 bronze badges           \n \n- 7 Complete answer : [How to install a deb file, by dpkg -i or by apt?](https://unix.stackexchange.com/q/159094/86583) – [g_p](/users/146791/g-p) [Commented Dec 4, 2018 at 11:34](#comment1809539_40779)\n \n- 1 Related: [How to let dpkg -i install dependencies for me?](https://askubuntu.com/questions/40011/how-to-let-dpkg-i-install-dependencies-for-me) – [Melebius](/users/250300/melebius) [Commented Jul 9, 2019 at 19:56](#comment1925662_40779)\n \n- 1 I use gdebi sudo gdebi ./app.deb – [STEEL](/users/190274/steel) [Commented Mar 26, 2024 at 16:07](#comment2647060_40779)\n \n   [Add a comment](#)            \n##  12 Answers  \n      Sorted by:       Highest score (default)   Date modified (newest first)   Date created (oldest first)                  1745                    Packages are **manually** installed via the **dpkg** command (Debian Package Management System). dpkg is the backend to commands like apt-get and aptitude, which in turn are the backend for GUI install apps like the Software Center and Synaptic.\n Something along the lines of:\n dpkg --> apt-get, aptitude --> Synaptic, Software Center\n But of course the easiest ways to install a package would be, first, the GUI apps (Synaptic, Software Center, etc..), followed by the terminal commands apt-get and aptitude that add a very nice user friendly approach to the backend dpkg, including but not limited to packaged dependencies, control over what is installed, needs update, not installed, broken packages, etc.. Lastly the dpkg command which is the base for all of them.\n Since dpkg is the base, you can use it to install packaged directly from the command line.\n \n### Install a package\n sudo dpkg -i DEB_PACKAGE  For example if the package file is called askubuntu_2.0.deb then you should do sudo dpkg -i askubuntu_2.0.deb. If dpkg reports an error due to dependency problems, you can run sudo apt-get install -f to download the missing dependencies and configure everything. If that reports an error, you'll have to sort out the dependencies yourself by following for example [How do I resolve unmet dependencies after adding a PPA?](https://askubuntu.com/questions/140246/how-do-i-resolve-unmet-dependencies).\n \n### Remove a package\n sudo dpkg -r PACKAGE_NAME  For example if the package is called askubuntu then you should do sudo dpkg -r askubuntu.\n \n### Reconfigure an existing package\n sudo dpkg-reconfigure PACKAGE_NAME  This is useful when you need to reconfigure something related to said package. Some useful examples it the keyboard-configuration when you want to enable the Ctrl+Alt+Backspace in order to reset the X server, so you would the following:\n sudo dpkg-reconfigure keyboard-configuration  Another great one is when you need to set the Timezone for a server or your local testing computer, so you use use the tzdata package:\n sudo dpkg-reconfigure tzdata          [Share](/a/40781)   [Improve this answer](/posts/40781/edit)    Follow            [edited Apr 13, 2017 at 12:23](/posts/40781/revisions)       [Community](/users/-1/community)Bot  1         answered May 6, 2011 at 17:43       [Luis Alvarado](/users/7035/luis-alvarado)  217k172172 gold badges556556 silver badges727727 bronze badges           \n \n- 5 Great info, had to find some way to install traceroute to help debug why my machine won't connect to the internet :) – [Jason](/users/145043/jason) [Commented Nov 20, 2013 at 15:01](#comment485182_40781)\n \n- 37 Also helpful to note that once installed programs are usually found in /usr/bin, named after what was depackaged. – [Chris Moschini](/users/174686/chris-moschini) [Commented Mar 31, 2014 at 9:10](#comment576949_40781)\n \n- If I run sudo apt-get install texlive-latex-base, it has failed for months with \"Hash Sum mismatch\". I can download the .deb file from http://gb.archive.ubuntu.com/ubuntu/pool/main/t/texlive-base/texlive-latex-base-doc_2015.20150625-1ubuntu1_all.deb. If I install it using dpkg, would it subsequently be recognised (and updated) by apt-get. – [user643722](/users/110495/user643722) [Commented Jan 19, 2016 at 17:05](#comment1069393_40781)\n \n- 3 If it's easier and better to install via aptitude or apt-get (or simply apt), why aren't examples for these commands given here? – [intuited](/users/3865/intuited) [Commented Nov 18, 2017 at 16:56](#comment1569977_40781)\n \n- 4 With modern apt I would recommend doing sudo apt install ./package.deb instead. This allows automatically installing all the dependencies and it does all the extra sanity checks that dpkg will not implement because it's a low level command. Note that without the prefix / or ./ some versions of apt may not understand that you're trying to refer to file name, not a package name from repository. – [Mikko Rantalainen](/users/50254/mikko-rantalainen) [Commented Mar 14, 2023 at 12:18](#comment2552892_40781)\n \n     [Show **3** more comments](#)                218                Debian (.deb) packages are the packages that are used in Ubuntu. You can install any .deb package in your system. .deb files can generally be installed from your file manager (Nautilus) merely by clicking on them, since file associations with the default installer is already set in Ubuntu. These instructions are for those who wish to install packages from the command-line terminal (Terminal).\n To install a downloaded Debian (Ubuntu) package (.deb): Open Terminal and type\n sudo dpkg -i packagename.deb  To remove a Debian (Ubuntu) package (.deb):\n sudo dpkg -r packagename  To Reconfigure/Repair an installed Debian (Ubuntu) package (.deb):\n sudo dpkg-reconfigure packagename          [Share](/a/225623)   [Improve this answer](/posts/225623/edit)    Follow            [edited Feb 1, 2024 at 15:37](/posts/225623/revisions)       [punkfairie](/users/1764539/punkfairie)  322 bronze badges         answered Dec 5, 2012 at 6:04       [Atul Makwana](/users/85015/atul-makwana)  2,45822 gold badges1515 silver badges1010 bronze badges           \n \n- 4 clicking on them doesn't work as of Ubuntu 22, it opens them as an archive – [iopq](/users/685200/iopq) [Commented Feb 20, 2023 at 2:42](#comment2544602_225623)\n \n   [Add a comment](#)                 131                While dpkg -i indeed installs the package, it doesn't do any automatic dependency resolution. Meanwhile there are two other alternatives, using gdebi or the apt-get tool. To use the latter just use:\n sudo apt-get install /path/to/package.deb  Even if you are on the directory with the package, you need to give a path using ./ at the start:\n sudo apt-get install ./package.deb          [Share](/a/769542)   [Improve this answer](/posts/769542/edit)    Follow            [edited Oct 16, 2024 at 13:52](/posts/769542/revisions)               answered May 8, 2016 at 23:48       [Braiam](/users/169736/braiam)  69.3k3232 gold badges182182 silver badges278278 bronze badges           \n \n- 28 This is probably the best answer. apt will prevent you from breaking your​ system if you don't have the correct dependencies. – [mlainz](/users/689509/mlainz) [Commented May 15, 2017 at 22:04](#comment1442887_769542)\n \n- This command seems to select all existing packages. – [Hibou57](/users/97838/hibou57) [Commented Sep 23, 2017 at 7:58](#comment1530932_769542)\n \n- @Hibou57 there can't be any space in the package name. – [Braiam](/users/169736/braiam) [Commented Mar 5, 2018 at 20:18](#comment1640635_769542)\n \n- I have an understanding apt-get will download and install latest deb from repos, to prevent that turn network off before install. Even cleaner install is by copying file (or several deb files together) to /var/cache/apt/archives and running sudo apt-get install --assume-yes --no-install-recommends /var/cache/apt/archives/*.deb, that way as I've noticed apt is not trying to download from internet. – [Alex Martian](/users/796396/alex-martian) [Commented Feb 12, 2023 at 8:45](#comment2541661_769542)\n \n- if you get any missing packages warning use sudo apt-get install ./package.deb --fix-broken – [Nitin S](/users/19646/nitin-s) [Commented Dec 23, 2024 at 23:45](#comment2702572_769542)\n \n     [Show **4** more comments](#)                128                My favourite is GDebi, available from both terminal/shell or graphical desktop.\n \n I usually associate .deb files with GDebi as it is fast and efficient - especially compared to Ubuntu Software Center. **One of the main feature of GDebi is it resolves dependencies and installs them.** \n For command-line run sudo gdebi <package.deb> to install a single deb file.\n         [Share](/a/170557)   [Improve this answer](/posts/170557/edit)    Follow            [edited Jun 3, 2014 at 10:43](/posts/170557/revisions)      ...",
+    "truncated": true,
+    "fullContentLength": 32730,
+    "headings": [
+      {
+        "level": 1,
+        "text": "OR"
+      },
+      {
+        "level": 4,
+        "text": "Stack Exchange Network"
+      },
+      {
+        "level": 3,
+        "text": "current community"
+      },
+      {
+        "level": 3,
+        "text": "your communities"
+      },
+      {
+        "level": 3,
+        "text": "more stack exchange communities"
+      },
+      {
+        "level": 1,
+        "text": "Hang on, you can't upvote just yet."
+      },
+      {
+        "level": 1,
+        "text": "Thanks for your vote!  You now have 5 free votes weekly."
+      },
+      {
+        "level": 1,
+        "text": "How do I install a .deb file via the command line?"
+      },
+      {
+        "level": 2,
+        "text": "12 Answers                                    12"
+      },
+      {
+        "level": 3,
+        "text": "Install a package"
+      },
+      {
+        "level": 3,
+        "text": "Remove a package"
+      },
+      {
+        "level": 3,
+        "text": "Reconfigure an existing package"
+      },
+      {
+        "level": 1,
+        "text": "DPKG commands"
+      },
+      {
+        "level": 3,
+        "text": "Install a package"
+      },
+      {
+        "level": 3,
+        "text": "Remove a package"
+      },
+      {
+        "level": 3,
+        "text": "Remove a package and its configuration files"
+      },
+      {
+        "level": 3,
+        "text": "List all installed packages."
+      },
+      {
+        "level": 3,
+        "text": "Check if the package is installed or not"
+      },
+      {
+        "level": 3,
+        "text": "Check if the package is installed or not, and if it is, launch it:"
+      },
+      {
+        "level": 3,
+        "text": "See whether a package is installed or not"
+      },
+      {
+        "level": 3,
+        "text": "Install a *.deb package from a specified location"
+      },
+      {
+        "level": 3,
+        "text": "Show package details"
+      },
+      {
+        "level": 3,
+        "text": "View the content of a package"
+      },
+      {
+        "level": 3,
+        "text": "Extract the *.deb package file"
+      },
+      {
+        "level": 3,
+        "text": "Extract and display the filenames contained in a package"
+      },
+      {
+        "level": 3,
+        "text": "Display information about a package"
+      },
+      {
+        "level": 3,
+        "text": "Reconfigure an already installed package"
+      },
+      {
+        "level": 1,
+        "text": "The gdebi command-line solution"
+      },
+      {
+        "level": 1,
+        "text": "Why gdebi?"
+      },
+      {
+        "level": 2,
+        "text": "You must log in to answer this question."
+      },
+      {
+        "level": 4,
+        "text": "Linked"
+      },
+      {
+        "level": 4,
+        "text": "Related"
+      },
+      {
+        "level": 4,
+        "text": "Hot Network Questions"
+      },
+      {
+        "level": 1,
+        "text": "Subscribe to RSS"
+      },
+      {
+        "level": 1,
+        "text": "Why are you flagging this comment?"
+      },
+      {
+        "level": 5,
+        "text": "Ask Ubuntu"
+      },
+      {
+        "level": 5,
+        "text": "Company"
+      },
+      {
+        "level": 5,
+        "text": "Stack Exchange Network"
+      },
+      {
+        "level": 2,
+        "text": "We Care About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "We and our partners perform the following based on your settings:"
+      }
+    ],
+    "links": [
+      {
+        "text": "terms of service",
+        "href": "/legal/terms-of-service/public"
+      },
+      {
+        "text": "privacy policy",
+        "href": "/legal/privacy-policy"
+      },
+      {
+        "text": "Log in",
+        "href": "/users/login"
+      },
+      {
+        "text": "Ubuntu",
+        "href": "http://www.ubuntu.com"
+      },
+      {
+        "text": "Community",
+        "href": "http://community.ubuntu.com/"
+      },
+      {
+        "text": "Ask!",
+        "href": "http://askubuntu.com"
+      },
+      {
+        "text": "Developer",
+        "href": "http://developer.ubuntu.com"
+      },
+      {
+        "text": "Design",
+        "href": "http://design.ubuntu.com"
+      },
+      {
+        "text": "Hardware",
+        "href": "http://www.ubuntu.com/certification"
+      },
+      {
+        "text": "Insights",
+        "href": "http://insights.ubuntu.com/"
+      },
+      {
+        "text": "Juju",
+        "href": "https://jujucharms.com/"
+      },
+      {
+        "text": "Shop",
+        "href": "http://shop.ubuntu.com"
+      },
+      {
+        "text": "More ›",
+        "href": "#"
+      },
+      {
+        "text": "Apps",
+        "href": "http://apps.ubuntu.com"
+      },
+      {
+        "text": "Help",
+        "href": "https://help.ubuntu.com"
+      },
+      {
+        "text": "Forum",
+        "href": "http://ubuntuforums.org"
+      },
+      {
+        "text": "Launchpad",
+        "href": "http://www.launchpad.net"
+      },
+      {
+        "text": "MAAS",
+        "href": "http://maas.ubuntu.com"
+      },
+      {
+        "text": "Canonical",
+        "href": "http://www.canonical.com"
+      },
+      {
+        "text": "Skip to main content",
+        "href": "#content"
+      },
+      {
+        "text": "Stack Overflow",
+        "href": "https://stackoverflow.com"
+      },
+      {
+        "text": "Visit Stack Exchange",
+        "href": "https://stackexchange.com"
+      },
+      {
+        "text": "Tour\n                                    \n                                        Start here for a quick overview of the site",
+        "href": "/tour"
+      },
+      {
+        "text": "Help Center\n                                \n                                    Detailed answers to any questions you might have",
+        "href": "/help"
+      },
+      {
+        "text": "Meta\n                                            \n                                                Discuss the workings and policies of this site",
+        "href": "https://meta.askubuntu.com"
+      },
+      {
+        "text": "About Us\n                                        \n                                            Learn more about Stack Overflow the company, and our products",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "current community",
+        "href": "https://askubuntu.com"
+      },
+      {
+        "text": "Ask Ubuntu",
+        "href": "https://askubuntu.com"
+      },
+      {
+        "text": "help",
+        "href": "https://askubuntu.com/help"
+      },
+      {
+        "text": "chat",
+        "href": "https://chat.stackexchange.com/?tab=all&sort=active"
+      },
+      {
+        "text": "Ask Ubuntu Meta",
+        "href": "https://meta.askubuntu.com"
+      },
+      {
+        "text": "Sign up",
+        "href": "https://askubuntu.com/users/signup?ssrc=site_switcher&returnurl=https%3a%2f%2faskubuntu.com%2fquestions%2f40779%2fhow-do-i-install-a-deb-file-via-the-command-line%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "log in",
+        "href": "https://askubuntu.com/users/login?ssrc=site_switcher&returnurl=https%3a%2f%2faskubuntu.com%2fquestions%2f40779%2fhow-do-i-install-a-deb-file-via-the-command-line%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "more stack exchange communities",
+        "href": "https://stackexchange.com/sites"
+      },
+      {
+        "text": "company blog",
+        "href": "https://stackoverflow.blog"
+      },
+      {
+        "text": "Log in",
+        "href": "https://askubuntu.com/users/login?ssrc=head&returnurl=https%3a%2f%2faskubuntu.com%2fquestions%2f40779%2fhow-do-i-install-a-deb-file-via-the-command-line%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "Sign up",
+        "href": "https://askubuntu.com/users/signup?ssrc=head&returnurl=https%3a%2f%2faskubuntu.com%2fquestions%2f40779%2fhow-do-i-install-a-deb-file-via-the-command-line%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "Home",
+        "href": "/"
+      },
+      {
+        "text": "Questions",
+        "href": "/questions"
+      },
+      {
+        "text": "Unanswered",
+        "href": "/unanswered"
+      },
+      {
+        "text": "AI Assist\nLabs",
+        "href": "https://stackoverflow.ai"
+      },
+      {
+        "text": "Tags",
+        "href": "/tags"
+      },
+      {
+        "text": "Chat",
+        "href": "https://chat.stackexchange.com/rooms/158962/stack-exchange-lobby"
+      },
+      {
+        "text": "Users",
+        "href": "/users"
+      },
+      {
+        "text": "Companies",
+        "href": "https://stackoverflow.com/jobs/companies?so_medium=askubuntu&so_source=SiteNav"
+      },
+      {
+        "text": "Try Teams for free",
+        "href": "https://stackoverflowteams.com/teams/create/free/?utm_medium=referral&utm_source=askubuntu-community&utm_campaign=side-bar&utm_content=explore-teams"
+      },
+      {
+        "text": "Explore Teams",
+        "href": "https://stackoverflow.co/teams/?utm_medium=referral&utm_source=askubuntu-community&utm_campaign=side-bar&utm_content=explore-teams"
+      },
+      {
+        "text": "Teams",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Explore Teams",
+        "href": "https://stackoverflow.co/teams/?utm_medium=referral&utm_source=askubuntu-community&utm_campaign=side-bar&utm_content=explore-teams-compact"
+      },
+      {
+        "text": "Learn more about Teams",
+        "href": "https://stackoverflow.co/teams/"
+      },
+      {
+        "text": "What's reputation and how do I get it?",
+        "href": "https://stackoverflow.com/help/whats-reputation"
+      },
+      {
+        "text": "earn reputation",
+        "href": "https://askubuntu.com/help/whats-reputation"
+      },
+      {
+        "text": "How do I install a .deb file via the command line?",
+        "href": "/questions/40779/how-do-i-install-a-deb-file-via-the-command-line"
+      },
+      {
+        "text": "Ask Question",
+        "href": "/questions/ask"
+      },
+      {
+        "text": "12 months ago",
+        "href": "?lastactivity"
+      },
+      {
+        "text": "command-line",
+        "href": "/questions/tagged/command-line"
+      },
+      {
+        "text": "software-installation",
+        "href": "/questions/tagged/software-installation"
+      },
+      {
+        "text": "Share",
+        "href": "/q/40779"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this question",
+        "href": "/posts/40779/edit"
+      },
+      {
+        "text": "edited Sep 15, 2021 at 15:16",
+        "href": "/posts/40779/revisions"
+      },
+      {
+        "text": "Braiam",
+        "href": "/users/169736/braiam"
+      },
+      {
+        "text": "TheXed",
+        "href": "/users/3889/thexed"
+      },
+      {
+        "text": "How to install a deb file, by dpkg -i or by apt?",
+        "href": "https://unix.stackexchange.com/q/159094/86583"
+      },
+      {
+        "text": "g_p",
+        "href": "/users/146791/g-p"
+      },
+      {
+        "text": "Commented\n                    Dec 4, 2018 at 11:34",
+        "href": "#comment1809539_40779"
+      },
+      {
+        "text": "How to let dpkg -i install dependencies for me?",
+        "href": "https://askubuntu.com/questions/40011/how-to-let-dpkg-i-install-dependencies-for-me"
+      },
+      {
+        "text": "Melebius",
+        "href": "/users/250300/melebius"
+      },
+      {
+        "text": "Commented\n                    Jul 9, 2019 at 19:56",
+        "href": "#comment1925662_40779"
+      },
+      {
+        "text": "STEEL",
+        "href": "/users/190274/steel"
+      },
+      {
+        "text": "Commented\n                    Mar 26, 2024 at 16:07",
+        "href": "#comment2647060_40779"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Reset to default",
+        "href": "/questions/40779/how-do-i-install-a-deb-file-via-the-command-line?answertab=scoredesc#tab-top"
+      },
+      {
+        "text": "How do I resolve unmet dependencies after adding a PPA?",
+        "href": "https://askubuntu.com/questions/140246/how-do-i-resolve-unmet-dependencies"
+      },
+      {
+        "text": "Share",
+        "href": "/a/40781"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/40781/edit"
+      },
+      {
+        "text": "edited Apr 13, 2017 at 12:23",
+        "href": "/posts/40781/revisions"
+      },
+      {
+        "text": "Community",
+        "href": "/users/-1/community"
+      },
+      {
+        "text": "Luis Alvarado",
+        "href": "/users/7035/luis-alvarado"
+      },
+      {
+        "text": "Jason",
+        "href": "/users/145043/jason"
+      },
+      {
+        "text": "Commented\n                    Nov 20, 2013 at 15:01",
+        "href": "#comment485182_40781"
+      },
+      {
+        "text": "Chris Moschini",
+        "href": "/users/174686/chris-moschini"
+      },
+      {
+        "text": "Commented\n                    Mar 31, 2014 at 9:10",
+        "href": "#comment576949_40781"
+      },
+      {
+        "text": "user643722",
+        "href": "/users/110495/user643722"
+      },
+      {
+        "text": "Commented\n                    Jan 19, 2016 at 17:05",
+        "href": "#comment1069393_40781"
+      },
+      {
+        "text": "intuited",
+        "href": "/users/3865/intuited"
+      },
+      {
+        "text": "Commented\n                    Nov 18, 2017 at 16:56",
+        "href": "#comment1569977_40781"
+      },
+      {
+        "text": "Mikko Rantalainen",
+        "href": "/users/50254/mikko-rantalainen"
+      },
+      {
+        "text": "Commented\n                    Mar 14, 2023 at 12:18",
+        "href": "#comment2552892_40781"
+      },
+      {
+        "text": "Show 3 more comments",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/225623"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/225623/edit"
+      },
+      {
+        "text": "edited Feb 1, 2024 at 15:37",
+        "href": "/posts/225623/revisions"
+      },
+      {
+        "text": "punkfairie",
+        "href": "/users/1764539/punkfairie"
+      },
+      {
+        "text": "Atul Makwana",
+        "href": "/users/85015/atul-makwana"
+      },
+      {
+        "text": "iopq",
+        "href": "/users/685200/iopq"
+      },
+      {
+        "text": "Commented\n                    Feb 20, 2023 at 2:42",
+        "href": "#comment2544602_225623"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/769542"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/769542/edit"
+      },
+      {
+        "text": "edited Oct 16, 2024 at 13:52",
+        "href": "/posts/769542/revisions"
+      },
+      {
+        "text": "Braiam",
+        "href": "/users/169736/braiam"
+      },
+      {
+        "text": "mlainz",
+        "href": "/users/689509/mlainz"
+      },
+      {
+        "text": "Commented\n                    May 15, 2017 at 22:04",
+        "href": "#comment1442887_769542"
+      },
+      {
+        "text": "Hibou57",
+        "href": "/users/97838/hibou57"
+      },
+      {
+        "text": "Commented\n                    Sep 23, 2017 at 7:58",
+        "href": "#comment1530932_769542"
+      },
+      {
+        "text": "Braiam",
+        "href": "/users/169736/braiam"
+      },
+      {
+        "text": "Commented\n                    Mar 5, 2018 at 20:18",
+        "href": "#comment1640635_769542"
+      },
+      {
+        "text": "Alex Martian",
+        "href": "/users/796396/alex-martian"
+      },
+      {
+        "text": "Commented\n                    Feb 12, 2023 at 8:45",
+        "href": "#comment2541661_769542"
+      },
+      {
+        "text": "Nitin S",
+        "href": "/users/19646/nitin-s"
+      },
+      {
+        "text": "Commented\n                    Dec 23, 2024 at 23:45",
+        "href": "#comment2702572_769542"
+      },
+      {
+        "text": "Show 4 more comments",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/170557"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/170557/edit"
+      },
+      {
+        "text": "edited Jun 3, 2014 at 10:43",
+        "href": "/posts/170557/revisions"
+      },
+      {
+        "text": "Pandya",
+        "href": "/users/256099/pandya"
+      },
+      {
+        "text": "dsto",
+        "href": "/users/80512/dsto"
+      },
+      {
+        "text": "Aquarius Power",
+        "href": "/users/46437/aquarius-power"
+      },
+      {
+        "text": "Commented\n                    Nov 13, 2014 at 3:18",
+        "href": "#comment752190_170557"
+      },
+      {
+        "text": "Jasser",
+        "href": "/users/291957/jasser"
+      },
+      {
+        "text": "Commented\n                    Aug 29, 2015 at 10:27",
+        "href": "#comment963553_170557"
+      },
+      {
+        "text": "Nisheet",
+        "href": "/users/362063/nisheet"
+      },
+      {
+        "text": "Commented\n                    Dec 27, 2016 at 11:26",
+        "href": "#comment1336688_170557"
+      },
+      {
+        "text": "Fiksdal",
+        "href": "/users/451919/fiksdal"
+      },
+      {
+        "text": "Commented\n                    Jun 4, 2017 at 16:54",
+        "href": "#comment1456542_170557"
+      },
+      {
+        "text": "bamm",
+        "href": "/users/1140983/bamm"
+      },
+      {
+        "text": "Commented\n                    Oct 27, 2020 at 11:39",
+        "href": "#comment2185024_170557"
+      },
+      {
+        "text": "Show 1 more comment",
+        "href": "#"
+      },
+      {
+        "text": "15 dpkg commands to Manage Debian based Linux Servers",
+        "href": "https://www.linuxsysadmins.com/30-dpkg-commands-to-manage-debian-based-linux-servers/"
+      },
+      {
+        "text": "Share",
+        "href": "/a/423519"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/423519/edit"
+      },
+      {
+        "text": "edited Apr 12, 2019 at 10:28",
+        "href": "/posts/423519/revisions"
+      },
+      {
+        "text": "Babin Lonston",
+        "href": "/users/35175/babin-lonston"
+      },
+      {
+        "text": "Xen2050",
+        "href": "/users/129271/xen2050"
+      },
+      {
+        "text": "Commented\n                    Feb 7, 2015 at 6:15",
+        "href": "#comment806084_423519"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "APT 1.1",
+        "href": "https://mvogt.wordpress.com/2015/11/30/apt-1-1-released/"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1324153"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1324153/edit"
+      },
+      {
+        "text": "mzuther is on OpenAI strike",
+        "href": "/users/8543/mzuther-is-on-openai-strike"
+      },
+      {
+        "text": "pbhj",
+        "href": "/users/29073/pbhj"
+      },
+      {
+        "text": "Commented\n                    Jan 13, 2022 at 23:10",
+        "href": "#comment2394642_1324153"
+      },
+      {
+        "text": "MortenB",
+        "href": "/users/720196/mortenb"
+      },
+      {
+        "text": "Commented\n                    Jan 23 at 13:46",
+        "href": "#comment2707450_1324153"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/394477"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/394477/edit"
+      },
+      {
+        "text": "tadcan",
+        "href": "/users/227937/tadcan"
+      },
+      {
+        "text": "Commented\n                    Sep 29, 2017 at 14:55",
+        "href": "#comment1534946_394477"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "gdebi",
+        "href": "http://manpages.ubuntu.com/manpages/bionic/man1/gdebi.1.html"
+      },
+      {
+        "text": "Share",
+        "href": "/a/841370"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/841370/edit"
+      },
+      {
+        "text": "edited Sep 14, 2022 at 13:14",
+        "href": "/posts/841370/revisions"
+      },
+      {
+        "text": "Benny",
+        "href": "/users/538619/benny"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "the solution to that particular issue",
+        "href": "https://askubuntu.com/a/553283/2355"
+      },
+      {
+        "text": "Share",
+        "href": "/a/864964"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/864964/edit"
+      },
+      {
+        "text": "edited Apr 13, 2017 at 12:25",
+        "href": "/posts/864964/revisions"
+      },
+      {
+        "text": "Community",
+        "href": "/users/-1/community"
+      },
+      {
+        "text": "Flimm",
+        "href": "/users/2355/flimm"
+      },
+      {
+        "text": "askubuntu.com/a/170557/158442",
+        "href": "http://askubuntu.com/a/170557/158442"
+      },
+      {
+        "text": "muru",
+        "href": "/users/158442/muru"
+      },
+      {
+        "text": "Commented\n                    Dec 27, 2016 at 11:59",
+        "href": "#comment1336699_864964"
+      },
+      {
+        "text": "Flimm",
+        "href": "/users/2355/flimm"
+      },
+      {
+        "text": "Commented\n                    Dec 27, 2016 at 12:29",
+        "href": "#comment1336725_864964"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/629921"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/629921/edit"
+      },
+      {
+        "text": "edited Dec 24, 2016 at 8:28",
+        "href": "/posts/629921/revisions"
+      },
+      {
+        "text": "muru",
+        "href": "/users/158442/muru"
+      },
+      {
+        "text": "Maythux",
+        "href": "/users/150504/maythux"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "dpkg",
+        "href": "https://man7.org/linux/man-pages/man1/dpkg.1.html"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1143739"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1143739/edit"
+      },
+      {
+        "text": "edited Feb 1, 2023 at 9:18",
+        "href": "/posts/1143739/revisions"
+      },
+      {
+        "text": "nisoojadhav",
+        "href": "/users/1598826/nisoojadhav"
+      },
+      {
+        "text": "masterpianist",
+        "href": "/users/955246/masterpianist"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1454602"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1454602/edit"
+      },
+      {
+        "text": "edited Sep 21, 2023 at 9:46",
+        "href": "/posts/1454602/revisions"
+      },
+      {
+        "text": "Alex Martian",
+        "href": "/users/796396/alex-martian"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "log in",
+        "href": "/users/login?ssrc=question_page&returnurl=https%3a%2f%2faskubuntu.com%2fquestions%2f40779"
+      },
+      {
+        "text": "Protected question",
+        "href": "/help/privileges/protect-questions"
+      },
+      {
+        "text": "association bonus",
+        "href": "https://meta.stackexchange.com/questions/141648/what-is-the-association-bonus-and-how-does-it-work"
+      },
+      {
+        "text": "Ask question",
+        "href": "/questions/ask"
+      },
+      {
+        "text": "command-line",
+        "href": "/questions/tagged/command-line"
+      },
+      {
+        "text": "software-installation",
+        "href": "/questions/tagged/software-installation"
+      },
+      {
+        "text": "AI agents for your digital chores",
+        "href": "https://stackoverflow.blog/2025/10/14/ai-agents-for-your-digital-chores/?cb=1"
+      },
+      {
+        "text": "Secure coding in JavaScript",
+        "href": "https://stackoverflow.blog/2025/10/15/secure-coding-in-javascript/?cb=1"
+      },
+      {
+        "text": "A First Look: Stack Overflow Redesign",
+        "href": "https://meta.stackexchange.com/questions/412992/a-first-look-stack-overflow-redesign?cb=1"
+      },
+      {
+        "text": "Community Asks Sprint Announcement - October/November 2025",
+        "href": "https://meta.stackexchange.com/questions/413210/community-asks-sprint-announcement-october-november-2025?cb=1"
+      },
+      {
+        "text": "Ubuntu 25.10 (Questing Quokka) is now released and is no longer off-topic",
+        "href": "https://meta.askubuntu.com/questions/20741/ubuntu-25-10-questing-quokka-is-now-released-and-is-no-longer-off-topic?cb=1"
+      },
+      {
+        "text": "27",
+        "href": "https://askubuntu.com/questions/1274180/how-do-i-upgrade-discord-to-v-0-0-12?lq=1"
+      },
+      {
+        "text": "How do I upgrade Discord to v 0.0.12?",
+        "href": "https://askubuntu.com/questions/1274180/how-do-i-upgrade-discord-to-v-0-0-12?noredirect=1&lq=1"
+      },
+      {
+        "text": "16",
+        "href": "https://askubuntu.com/questions/335752/how-to-install-deb-file-in-ubuntu-using-terminal?lq=1"
+      },
+      {
+        "text": "How to install .deb file in ubuntu using terminal?",
+        "href": "https://askubuntu.com/questions/335752/how-to-install-deb-file-in-ubuntu-using-terminal?noredirect=1&lq=1"
+      },
+      {
+        "text": "5",
+        "href": "https://askubuntu.com/questions/986525/syntax-error-near-unexpected-token-newline-error-while-installing-deb-package?lq=1"
+      },
+      {
+        "text": "Syntax error near unexpected token 'newline' error while installing .deb packages offline",
+        "href": "https://askubuntu.com/questions/986525/syntax-error-near-unexpected-token-newline-error-while-installing-deb-package?noredirect=1&lq=1"
+      },
+      {
+        "text": "11",
+        "href": "https://askubuntu.com/questions/956832/cant-install-deb-version-of-chrome?lq=1"
+      },
+      {
+        "text": "Can't install .deb version of Chrome",
+        "href": "https://askubuntu.com/questions/956832/cant-install-deb-version-of-chrome?noredirect=1&lq=1"
+      },
+      {
+        "text": "7",
+        "href": "https://askubuntu.com/questions/319650/how-can-i-install-a-deb-file-from-command-line?lq=1"
+      },
+      {
+        "text": "How can I install a .deb file from command line?",
+        "href": "https://askubuntu.com/questions/319650/how-can-i-install-a-deb-file-from-command-line?noredirect=1&lq=1"
+      },
+      {
+        "text": "5",
+        "href": "https://askubuntu.com/questions/518559/how-to-install-a-downloaded-deb-file?lq=1"
+      },
+      {
+        "text": "How to install a downloaded .deb file",
+        "href": "https://askubuntu.com/questions/518559/how-to-install-a-downloaded-deb-file?noredirect=1&lq=1"
+      },
+      {
+        "text": "5",
+        "href": "https://askubuntu.com/questions/944525/how-to-get-discord-0-0-2-to-work-on-ubuntu-16-04?lq=1"
+      },
+      {
+        "text": "How to get Discord 0.0.2 to work on Ubuntu 16.04?",
+        "href": "https://askubuntu.com/questions/944525/how-to-get-discord-0-0-2-to-work-on-ubuntu-16-04?noredirect=1&lq=1"
+      },
+      {
+        "text": "4",
+        "href": "https://askubuntu.com/questions/832143/installing-chrome-in-ubuntu-16-04?lq=1"
+      },
+      {
+        "text": "installing chrome in ubuntu 16.04",
+        "href": "https://askubuntu.com/questions/832143/installing-chrome-in-ubuntu-16-04?noredirect=1&lq=1"
+      },
+      {
+        "text": "2",
+        "href": "https://askubuntu.com/questions/44465/how-to-install-downloaded-packages-in-terminal?lq=1"
+      },
+      {
+        "text": "How to install downloaded packages in terminal",
+        "href": "https://askubuntu.com/questions/44465/how-to-install-downloaded-packages-in-terminal?noredirect=1&lq=1"
+      },
+      {
+        "text": "2",
+        "href": "https://askubuntu.com/questions/355334/how-to-execute-deb-files?lq=1"
+      },
+      {
+        "text": "how to execute .deb files?",
+        "href": "https://askubuntu.com/questions/355334/how-to-execute-deb-files?noredirect=1&lq=1"
+      },
+      {
+        "text": "See more linked questions",
+        "href": "https://askubuntu.com/questions/linked/40779?lq=1"
+      },
+      {
+        "text": "211",
+        "href": "https://askubuntu.com/questions/79280/how-to-install-chrome-browser-properly-via-command-line?rq=1"
+      },
+      {
+        "text": "How to install Chrome browser properly via command line?",
+        "href": "https://askubuntu.com/questions/79280/how-to-install-chrome-browser-properly-via-command-line?rq=1"
+      },
+      {
+        "text": "0",
+        "href": "https://askubuntu.com/questions/122006/macbuntu-10-10-installation-via-command-line?rq=1"
+      },
+      {
+        "text": "Macbuntu 10.10 installation via command line",
+        "href": "https://askubuntu.com/questions/122006/macbuntu-10-10-installation-via-command-line?rq=1"
+      },
+      {
+        "text": "5",
+        "href": "https://askubuntu.com/questions/192641/how-to-disable-sticky-edges-via-command-line?rq=1"
+      },
+      {
+        "text": "How To Disable Sticky Edges via Command Line?",
+        "href": "https://askubuntu.com/questions/192641/how-to-disable-sticky-edges-via-command-line?rq=1"
+      },
+      {
+        "text": "86",
+        "href": "https://askubuntu.com/questions/358867/how-to-view-the-bash-history-file-via-command-line?rq=1"
+      },
+      {
+        "text": "How to view the `.bash_history` file via command line?",
+        "href": "https://askubuntu.com/questions/358867/how-to-view-the-bash-history-file-via-command-line?rq=1"
+      },
+      {
+        "text": "0",
+        "href": "https://askubuntu.com/questions/485449/adding-previously-downloaded-deb-files-to-apt-using-command-line?rq=1"
+      },
+      {
+        "text": "Adding previously downloaded .deb files to apt using command line",
+        "href": "https://askubuntu.com/questions/485449/adding-previously-downloaded-deb-files-to-apt-using-command-line?rq=1"
+      },
+      {
+        "text": "3",
+        "href": "https://askubuntu.com/questions/910939/a-command-to-list-all-apps-that-arent-installed-via-package-managers-or-deb-fil?rq=1"
+      },
+      {
+        "text": "A command to list all apps that aren't installed via package managers or deb file?",
+        "href": "https://askubuntu.com/questions/910939/a-command-to-list-all-apps-that-arent-installed-via-package-managers-or-deb-fil?rq=1"
+      },
+      {
+        "text": "8",
+        "href": "https://askubuntu.com/questions/1419334/how-do-i-install-a-deb-file-that-is-actually-a-directory?rq=1"
+      },
+      {
+        "text": "How do I install a .deb file that is actually a directory?",
+        "href": "https://askubuntu.com/questions/1419334/how-do-i-install-a-deb-file-that-is-actually-a-directory?rq=1"
+      },
+      {
+        "text": "Hot Network Questions",
+        "href": "https://stackexchange.com/questions?tab=hot"
+      },
+      {
+        "text": "Does Acts 7 imply that Jesus cannot be God?",
+        "href": "https://hermeneutics.stackexchange.com/questions/108852/does-acts-7-imply-that-jesus-cannot-be-god"
+      },
+      {
+        "text": "I may have made an error in the stability of my extremely close orbit",
+        "href": "https://worldbuilding.stackexchange.com/questions/269442/i-may-have-made-an-error-in-the-stability-of-my-extremely-close-orbit"
+      },
+      {
+        "text": "An online game intended to encourage collecting garbage in an ex-Soviet Republic",
+        "href": "https://history.stackexchange.com/questions/79528/an-online-game-intended-to-encourage-collecting-garbage-in-an-ex-soviet-republic"
+      },
+      {
+        "text": "Open-loop gain measurement in LTspice",
+        "href": "https://electronics.stackexchange.com/questions/757070/open-loop-gain-measurement-in-ltspice"
+      },
+      {
+        "text": "How to find all possible splits of a list into sublists sharing exactly one element?",
+        "href": "https://mathematica.stackexchange.com/questions/315689/how-to-find-all-possible-splits-of-a-list-into-sublists-sharing-exactly-one-elem"
+      },
+      {
+        "text": "Do I really need an oven if I have an \"air fryer\"?",
+        "href": "https://cooking.stackexchange.com/questions/133260/do-i-really-need-an-oven-if-i-have-an-air-fryer"
+      },
+      {
+        "text": "Hyperelliptic curve with octahedral symmetry",
+        "href": "https://mathoverflow.net/questions/501647/hyperelliptic-curve-with-octahedral-symmetry"
+      },
+      {
+        "text": "Sci fi short story from the late 1800's to early 1900's where people no longer walk",
+        "href": "https://scifi.stackexchange.com/questions/299624/sci-fi-short-story-from-the-late-1800s-to-early-1900s-where-people-no-longer-w"
+      },
+      {
+        "text": "What's the oldest story about a mass failure of technology?",
+        "href": "https://scifi.stackexchange.com/questions/299627/whats-the-oldest-story-about-a-mass-failure-of-technology"
+      },
+      {
+        "text": "To what extent is there consensus among Christians about what constitutes the kind of \"seeing\" that Jesus presents as less desirable in John 20:29?",
+        "href": "https://christianity.stackexchange.com/questions/109044/to-what-extent-is-there-consensus-among-christians-about-what-constitutes-the-ki"
+      },
+      {
+        "text": "Pure functions from pure functions",
+        "href": "https://mathematica.stackexchange.com/questions/315686/pure-functions-from-pure-functions"
+      },
+      {
+        "text": "How to engage latex-tagging-status?",
+        "href": "https://tex.stackexchange.com/questions/752500/how-to-engage-latex-tagging-status"
+      },
+      {
+        "text": "Travel in Cambodia, close to Thai border",
+        "href": "https://travel.stackexchange.com/questions/200433/travel-in-cambodia-close-to-thai-border"
+      },
+      {
+        "text": "What was the first time a victim was shown with a laser dot on their body in a TV show or movie?",
+        "href": "https://movies.stackexchange.com/questions/128594/what-was-the-first-time-a-victim-was-shown-with-a-laser-dot-on-their-body-in-a-t"
+      },
+      {
+        "text": "How hard is it to publish in philosophy journals when you do not work in academia?",
+        "href": "https://philosophy.stackexchange.com/questions/131198/how-hard-is-it-to-publish-in-philosophy-journals-when-you-do-not-work-in-academi"
+      },
+      {
+        "text": "Is scientific explanation reducible to information compression in formal epistemology?",
+        "href": "https://philosophy.stackexchange.com/questions/131203/is-scientific-explanation-reducible-to-information-compression-in-formal-epistem"
+      },
+      {
+        "text": "Increasing points density by interpolating data in QGIS",
+        "href": "https://gis.stackexchange.com/questions/495725/increasing-points-density-by-interpolating-data-in-qgis"
+      },
+      {
+        "text": "LUKS keyslot damaged?",
+        "href": "https://unix.stackexchange.com/questions/800489/luks-keyslot-damaged"
+      },
+      {
+        "text": "References for Burnside's theorem without character theory",
+        "href": "https://mathoverflow.net/questions/501615/references-for-burnsides-theorem-without-character-theory"
+      },
+      {
+        "text": "TikZ ellipse with arrows",
+        "href": "https://tex.stackexchange.com/questions/752493/tikz-ellipse-with-arrows"
+      },
+      {
+        "text": "What did Jesus mean when He said there would be “one flock and one shepherd”?",
+        "href": "https://hermeneutics.stackexchange.com/questions/108876/what-did-jesus-mean-when-he-said-there-would-be-one-flock-and-one-shepherd"
+      },
+      {
+        "text": "If a Fighter uses Tactical Master to change a Nick weapon's mastery property to Push, Sap, or Slow, do they lose the benefit of Nick?",
+        "href": "https://rpg.stackexchange.com/questions/216815/if-a-fighter-uses-tactical-master-to-change-a-nick-weapons-mastery-property-to"
+      },
+      {
+        "text": "Why is +3 a common oxidation state of gold?",
+        "href": "https://chemistry.stackexchange.com/questions/191111/why-is-3-a-common-oxidation-state-of-gold"
+      },
+      {
+        "text": "(Why) is AI generated code/work allowed to be released under free/open/libre licenses?",
+        "href": "https://opensource.stackexchange.com/questions/15633/why-is-ai-generated-code-work-allowed-to-be-released-under-free-open-libre-lic"
+      },
+      {
+        "text": "Question feed",
+        "href": "/feeds/question/40779"
+      },
+      {
+        "text": "Abusive behavior policy",
+        "href": "/conduct/abusive-behavior"
+      },
+      {
+        "text": "Code of Conduct",
+        "href": "/conduct/abusive-behavior"
+      },
+      {
+        "text": "Ask Ubuntu",
+        "href": "/"
+      },
+      {
+        "text": "Tour",
+        "href": "/tour"
+      },
+      {
+        "text": "Help",
+        "href": "/help"
+      },
+      {
+        "text": "Chat",
+        "href": "https://chat.stackexchange.com/?tab=all&sort=active"
+      },
+      {
+        "text": "Contact",
+        "href": "/contact"
+      },
+      {
+        "text": "Feedback",
+        "href": "https://meta.askubuntu.com"
+      },
+      {
+        "text": "Company",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "Stack Overflow",
+        "href": "https://stackoverflow.com"
+      },
+      {
+        "text": "Teams",
+        "href": "https://stackoverflow.co/teams/"
+      },
+      {
+        "text": "Advertising",
+        "href": "https://stackoverflow.co/advertising/"
+      },
+      {
+        "text": "Talent",
+        "href": "https://stackoverflow.co/advertising/employer-branding/"
+      },
+      {
+        "text": "About",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "Press",
+        "href": "https://stackoverflow.co/company/press/"
+      },
+      {
+        "text": "Legal",
+        "href": "https://stackoverflow.com/legal"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://stackoverflow.com/legal/privacy-policy"
+      },
+      {
+        "text": "Terms of Service",
+        "href": "https://stackoverflow.com/legal/terms-of-service/public"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "https://policies.stackoverflow.co/stack-overflow/cookie-policy"
+      },
+      {
+        "text": "Stack Exchange Network",
+        "href": "https://stackexchange.com"
+      },
+      {
+        "text": "Technology",
+        "href": "https://stackexchange.com/sites#technology"
+      },
+      {
+        "text": "Culture & recreation",
+        "href": "https://stackexchange.com/sites#culturerecreation"
+      },
+      {
+        "text": "Life & arts",
+        "href": "https://stackexchange.com/sites#lifearts"
+      },
+      {
+        "text": "Science",
+        "href": "https://stackexchange.com/sites#science"
+      },
+      {
+        "text": "Professional",
+        "href": "https://stackexchange.com/sites#professional"
+      },
+      {
+        "text": "Business",
+        "href": "https://stackexchange.com/sites#business"
+      },
+      {
+        "text": "API",
+        "href": "https://api.stackexchange.com/"
+      },
+      {
+        "text": "Data",
+        "href": "https://data.stackexchange.com/"
+      },
+      {
+        "text": "Blog",
+        "href": "https://stackoverflow.blog?blb=1"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/officialstackoverflow/"
+      },
+      {
+        "text": "Twitter",
+        "href": "https://twitter.com/stackoverflow"
+      },
+      {
+        "text": "LinkedIn",
+        "href": "https://linkedin.com/company/stack-overflow"
+      },
+      {
+        "text": "Instagram",
+        "href": "https://www.instagram.com/thestackoverflow"
+      },
+      {
+        "text": "CC BY-SA",
+        "href": "https://stackoverflow.com/help/licensing"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "https://policies.stackoverflow.co/stack-overflow/cookie-policy/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "site logo",
+        "src": "https://cdn.sstatic.net/Sites/askubuntu/Img/icon-48.png?v=fd3b426e9803"
+      },
+      {
+        "alt": "Ask Ubuntu",
+        "src": "https://cdn.sstatic.net/Sites/askubuntu/Img/logo.svg?v=472cf2768bba"
+      },
+      {
+        "alt": "",
+        "src": "https://cdn.sstatic.net/Img/teams/teams-promo.svg?v=e507948b81bf"
+      },
+      {
+        "alt": "Illustration of upvote icon after it is clicked",
+        "src": "https://cdn.sstatic.net/Img/modal/img-upvote.png?v=fce73bd9724d"
+      },
+      {
+        "alt": "Illustration of upvote icon after it is clicked",
+        "src": "https://cdn.sstatic.net/Img/modal/img-free-votes.png?v=1c5aa3dac50b"
+      },
+      {
+        "alt": "Braiam's user avatar",
+        "src": "https://www.gravatar.com/avatar/fe47011419fe78b6f8411e909cee9215?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "TheXed's user avatar",
+        "src": "https://www.gravatar.com/avatar/fcc5b83dd722901e02ff34842692d152?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "Community's user avatar",
+        "src": "https://www.gravatar.com/avatar/a007be5a61f6aa8f3e85ae2fc18dd66e?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "Luis Alvarado's user avatar",
+        "src": "https://i.sstatic.net/HtZ3d.png?s=64"
+      },
+      {
+        "alt": "punkfairie's user avatar",
+        "src": "https://www.gravatar.com/avatar/114ba8cd748aedc6dd084105093a6520?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "Atul Makwana's user avatar",
+        "src": "https://i.sstatic.net/oAq52.png?s=64"
+      },
+      {
+        "alt": "Braiam's user avatar",
+        "src": "https://www.gravatar.com/avatar/fe47011419fe78b6f8411e909cee9215?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "screen-shot",
+        "src": "https://i.sstatic.net/1i2zU.png"
+      },
+      {
+        "alt": "Pandya's user avatar",
+        "src": "https://i.sstatic.net/QsmV3Tzn.png?s=64"
+      },
+      {
+        "alt": "dsto's user avatar",
+        "src": "https://www.gravatar.com/avatar/ea1bcafb0ac1fb898fa3e767f5f389aa?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "Babin Lonston's user avatar",
+        "src": "https://i.sstatic.net/htOQi.jpg?s=64"
+      },
+      {
+        "alt": "mzuther is on OpenAI strike's user avatar",
+        "src": "https://www.gravatar.com/avatar/37b075aaacc687b89364e53ecac6a5f0?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "tadcan's user avatar",
+        "src": "https://www.gravatar.com/avatar/38f7f173ed0d7ad688914575ca09f34a?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "Benny's user avatar",
+        "src": "https://i.sstatic.net/KhFGu.png?s=64"
+      },
+      {
+        "alt": "Community's user avatar",
+        "src": "https://www.gravatar.com/avatar/a007be5a61f6aa8f3e85ae2fc18dd66e?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "Flimm's user avatar",
+        "src": "https://www.gravatar.com/avatar/936383b387d6cc6d51279e429e5d7cd9?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "muru's user avatar",
+        "src": "https://i.sstatic.net/xNPjb.png?s=64"
+      },
+      {
+        "alt": "Maythux's user avatar",
+        "src": "https://www.gravatar.com/avatar/d0852cc25044163b6c17486d46d400ba?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "nisoojadhav's user avatar",
+        "src": "https://lh3.googleusercontent.com/a-/AOh14GhxTN_vyPLOjrEK4U1ivL2am-0hdCQvVpuYSzCjnw=k-s64"
+      },
+      {
+        "alt": "masterpianist's user avatar",
+        "src": "https://www.gravatar.com/avatar/df1ee18afea752f39d5bf86755a4f34d?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "Alex Martian's user avatar",
+        "src": "https://www.gravatar.com/avatar/0d9f4547c13a51541e9140e5e90f5046?s=64&d=identicon&r=PG&f=y&so-version=2"
+      }
+    ],
+    "timestamp": 1760610101304,
+    "url": "https://askubuntu.com/questions/40779/how-do-i-install-a-deb-file-via-the-command-line?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

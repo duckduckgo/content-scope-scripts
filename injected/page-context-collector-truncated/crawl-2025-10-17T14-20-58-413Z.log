@@ -1,0 +1,43 @@
+[2025-10-17T14:20:58.415Z] [INFO] Starting DuckDuckGo Page Context Content Extractor
+[2025-10-17T14:20:58.415Z] [INFO] Mode: Headless
+[2025-10-17T14:20:58.416Z] [INFO] Timeout: 60s
+[2025-10-17T14:20:58.416Z] [INFO] Truncation: Disabled
+[2025-10-17T14:20:58.416Z] [INFO] Processing URL 1/500: https://en.wikipedia.org/wiki/Ed_Gein
+[2025-10-17T14:20:58.417Z] [INFO] Starting extraction from: https://en.wikipedia.org/wiki/Ed_Gein
+[2025-10-17T14:20:58.417Z] [DEBUG] Launching browser...
+[2025-10-17T14:20:58.644Z] [DEBUG] Browser launched successfully
+[2025-10-17T14:20:58.681Z] [DEBUG] Using custom config with no truncation
+[2025-10-17T14:20:58.682Z] [DEBUG] Loading and collecting page content
+[2025-10-17T14:21:00.357Z] [DEBUG] Collected page content
+[2025-10-17T14:21:00.378Z] [INFO] Successfully crawled https://en.wikipedia.org/wiki/Ed_Gein
+[2025-10-17T14:21:01.565Z] [INFO] Processing URL 2/500: https://www.reddit.com/r/Piracy/comments/18eovgj/recommendations_for_free_online_movie_sites/
+[2025-10-17T14:21:01.565Z] [INFO] Starting extraction from: https://www.reddit.com/r/Piracy/comments/18eovgj/recommendations_for_free_online_movie_sites/
+[2025-10-17T14:21:01.565Z] [DEBUG] Launching browser...
+[2025-10-17T14:21:01.833Z] [DEBUG] Browser launched successfully
+[2025-10-17T14:21:01.865Z] [DEBUG] Using custom config with no truncation
+[2025-10-17T14:21:01.865Z] [DEBUG] Loading and collecting page content
+[2025-10-17T14:21:02.527Z] [DEBUG] Collected page content
+[2025-10-17T14:21:02.537Z] [INFO] Successfully crawled https://www.reddit.com/r/Piracy/comments/18eovgj/recommendations_for_free_online_movie_sites/
+[2025-10-17T14:21:03.773Z] [INFO] Processing URL 3/500: https://www.youtube.com/
+[2025-10-17T14:21:03.773Z] [INFO] Starting extraction from: https://www.youtube.com/
+[2025-10-17T14:21:03.774Z] [DEBUG] Launching browser...
+[2025-10-17T14:21:04.025Z] [DEBUG] Browser launched successfully
+[2025-10-17T14:21:04.081Z] [DEBUG] Using custom config with no truncation
+[2025-10-17T14:21:04.082Z] [DEBUG] Loading and collecting page content
+[2025-10-17T14:21:08.231Z] [DEBUG] Collected page content
+[2025-10-17T14:21:08.234Z] [INFO] Successfully crawled https://www.youtube.com/
+[2025-10-17T14:21:10.034Z] [INFO] Processing URL 4/500: https://www.facebook.com/
+[2025-10-17T14:21:10.034Z] [INFO] Starting extraction from: https://www.facebook.com/
+[2025-10-17T14:21:10.034Z] [DEBUG] Launching browser...
+[2025-10-17T14:21:10.369Z] [DEBUG] Browser launched successfully
+[2025-10-17T14:21:10.427Z] [DEBUG] Using custom config with no truncation
+[2025-10-17T14:21:10.427Z] [DEBUG] Loading and collecting page content
+[2025-10-17T14:21:11.321Z] [ERROR] Error extracting content from https://www.facebook.com/: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://www.facebook.com/?automation=true?automation=true&wait-for-init-args=true", waiting until "load"[22m
+
+[2025-10-17T14:21:11.324Z] [ERROR] Failed to crawl https://www.facebook.com/: page.goto: Target page, context or browser has been closed
+Call log:
+[2m  - navigating to "https://www.facebook.com/?automation=true?automation=true&wait-for-init-args=true", waiting until "load"[22m
+
+[2025-10-17T14:21:11.360Z] [ERROR] Error during cleanup: browserContext.close: Target page, context or browser has been closed

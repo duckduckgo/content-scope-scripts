@@ -1,0 +1,1141 @@
+{
+  "url": "https://www.zillow.com/",
+  "extractedAt": "2025-10-16T09:31:20.900Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.zillow.com/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "Zillow: Real Estate, Apartments, Mortgages & Home Values",
+    "metaDescription": "The leading real estate marketplace. Search millions of for-sale and rental listings, compare Zestimate® home values and connect with local professionals.",
+    "content": "[Skip main navigation](#skip-topnav-target)\n\n- [Buy](/homes/for_sale/)\n\n- [Rent](/homes/for_rent/)\n\n- [Sell](/sell/)\n\n- [Get a mortgage](/homeloans/)\n\n- [Find an agent](/professionals/real-estate-agent-reviews/)\n\n\n\n- [Manage rentals](/rental-manager/?source=topnav&itc=postbutton_sitenav)\n\n- [Advertise](/z/partners/advertise/)\n\n\n\n- [Get help](https://zillow.zendesk.com/hc/en-us/)\n\n\n\n- [Sign in](/auth/user/login?login_mode=redirect&entry_point=topnav)\n\n   \n# Agents. Tours. Loans. Homes.\nSubmit Search0 suggested results are available. Use up and down arrow keys to navigate\nAbout Zillow's RecommendationsRecommendations are based on your location and search activity, such as the homes you've viewed and saved and the filters you've used. We use this information to bring similar homes to your attention, so you don't miss out.\n\n\n- Real Estate\n\n- Rentals\n\n- Mortgage Rates\n\n- Browse Homes\n\n\n\n- [About](/z/corp/about/)\n\n- [Zestimates](/z/zestimate/)\n\n- [Research](/research/)\n\n- [Careers](/careers/)\n\n- [Careers - U.S. Privacy Notice](/careers/disclosure/)\n\n- [Careers - Mexico Privacy Notice](/careers/privacy-notice-zillow-mexico/)\n\n- [Help](https://zillow.zendesk.com/hc/en-us)\n\n- [Advertise](/z/partners/advertise/)\n\n- [Fair Housing Guide](https://www.zillow.com/rental-manager/resources/fair-housing-guide/)\n\n- [Advocacy](https://advocacy.zillowgroup.com/)\n\n- [Terms of use](/z/corp/terms/)\n\n- [Privacy Notice](https://www.zillowgroup.com/zg-privacy-policy/)\n\n- [Ad Choices](https://www.zillowgroup.com/zg-privacy-policy/#third-party)\n\n- [Cookie Preference](javascript:;)\n\n- [Learn](/learn/)\n\n- [AI](/tech/)\n\n- [Mobile Apps](/buy/app-download/)\n\n\n\n- [Trulia](https://www.trulia.com/)\n\n- [StreetEasy](https://streeteasy.com/)\n\n- [HotPads](https://hotpads.com/)\n\n- [Out East](https://outeast.com/)\n\n- [ShowingTime+](https://showingtimeplus.com/)\n\n[Do Not Sell or Share My Personal Information →](https://privacy.zillowgroup.com/cookie)Zillow Group is committed to ensuring digital accessibility for individuals with disabilities. We are continuously working to improve the accessibility of our web experience for everyone, and we welcome feedback and accommodation requests. If you wish to report an issue or seek an accommodation, please [let us know](https://zillow.zendesk.com/hc/en-us/requests/new?ticket_form_id=39140).\nZillow, Inc. holds real estate brokerage [licenses](/z/info/real-estate-licenses/) in multiple states. Zillow (Canada), Inc. holds real estate brokerage [licenses](/z/info/real-estate-licenses/) in multiple provinces.\nThis site is not authorized by the New York State Department of Financial Services. No mortgage solicitation activity or loan applications for properties located in the state of New York can be facilitated through this site. All mortgage lending products and information provided by Zillow Home Loans, LLC, NMLS #10287. [NMLS Consumer Access](https://www.nmlsconsumeraccess.org)\n[§ 442-H New York Standard Operating Procedures](https://www.zillowstatic.com/s3/pfs/static/SOP_NYS_10-4-23.pdf)\n[§ New York Fair Housing Notice](https://www.zillowstatic.com/s3/pfs/static/fairhousingnotice_10-4-23.pdf)\nTREC: [Information about brokerage services](https://delivery.digitalassets.zillowgroup.com/api/public/content/TREC_ZINC_pdf.pdf), [Consumer protection notice](https://www.trec.texas.gov/forms/consumer-protection-notice)\nCalifornia DRE #1522444[Contact Zillow, Inc. Brokerage](https://www.zillow.com/z/info/contact-us/)\nFor listings in Canada, the trademarks REALTOR®, REALTORS®, and the REALTOR® logo are controlled by The Canadian Real Estate Association (CREA) and identify real estate professionals who are members of CREA. The trademarks MLS®, Multiple Listing Service® and the associated logos are owned by CREA and identify the quality of services provided by real estate professionals who are members of CREA. Used under license.\n\n\n- \n\n- \n\n\n\n- \n\n- Follow us:[Visit us on facebook](https://www.facebook.com/Zillow)[Visit us on instagram](https://www.instagram.com/zillow)[Visit us on tiktok](https://www.tiktok.com/@zillow)\n\n- © 2006 to 2025 Zillow© 2006-2025 Zillow[Equal Housing Opportunity](https://www.hud.gov/program_offices/fair_housing_equal_opp)",
+    "truncated": false,
+    "fullContentLength": 4207,
+    "headings": [
+      {
+        "level": 6,
+        "text": "Started a loan application?"
+      },
+      {
+        "level": 6,
+        "text": "Your mortgage"
+      },
+      {
+        "level": 6,
+        "text": "Mortgage tools"
+      },
+      {
+        "level": 1,
+        "text": "Agents. Tours. \nLoans. Homes."
+      },
+      {
+        "level": 6,
+        "text": "About Zillow's Recommendations"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip main navigation",
+        "href": "#skip-topnav-target"
+      },
+      {
+        "text": "Sign in",
+        "href": "/auth/user/login?login_mode=redirect&entry_point=topnav"
+      },
+      {
+        "text": "Join",
+        "href": "/auth/user/login?login_mode=redirect&entry_point=topnav"
+      },
+      {
+        "text": "Homepage",
+        "href": "/"
+      },
+      {
+        "text": "Buy",
+        "href": "/homes/for_sale/"
+      },
+      {
+        "text": "Rent",
+        "href": "/homes/for_rent/"
+      },
+      {
+        "text": "Sell",
+        "href": "/sell/"
+      },
+      {
+        "text": "Get a mortgage",
+        "href": "/homeloans/"
+      },
+      {
+        "text": "Find an agent",
+        "href": "/professionals/real-estate-agent-reviews/"
+      },
+      {
+        "text": "Manage rentals",
+        "href": "/rental-manager/?source=topnav&itc=postbutton_sitenav"
+      },
+      {
+        "text": "Advertise",
+        "href": "/z/partners/advertise/"
+      },
+      {
+        "text": "Get help",
+        "href": "https://zillow.zendesk.com/hc/en-us/"
+      },
+      {
+        "text": "Sign in",
+        "href": "/auth/user/login?login_mode=redirect&entry_point=topnav"
+      },
+      {
+        "text": "Join",
+        "href": "/auth/user/login?login_mode=redirect&entry_point=topnav"
+      },
+      {
+        "text": "Home Loans dashboard",
+        "href": "/homeloans/mortgage/dashboard/login"
+      },
+      {
+        "text": "Discover Zillow Home Loans",
+        "href": "/homeloans/"
+      },
+      {
+        "text": "Calculate your BuyAbility",
+        "href": "/homeloans/buyability/"
+      },
+      {
+        "text": "Get pre-qualified",
+        "href": "/homeloans/eligibility/?utm_source=zillow&utm_medium=referral&utm_campaign=Z_Mortgageshovertopnav&source=Zillow&channel=Nav"
+      },
+      {
+        "text": "Estimate your mortgage payment",
+        "href": "/mortgage-calculator/"
+      },
+      {
+        "text": "See current mortgage rates",
+        "href": "/mortgage-rates/"
+      },
+      {
+        "text": "Learn about financing a home",
+        "href": "/learn/category/financing/"
+      },
+      {
+        "text": "Browse all homes",
+        "href": "/browse/homes/"
+      },
+      {
+        "text": "Albuquerque real estate",
+        "href": "/albuquerque-nm/"
+      },
+      {
+        "text": "Atlanta real estate",
+        "href": "/atlanta-ga/"
+      },
+      {
+        "text": "Austin real estate",
+        "href": "/austin-tx/"
+      },
+      {
+        "text": "Baltimore real estate",
+        "href": "/baltimore-md/"
+      },
+      {
+        "text": "Boston real estate",
+        "href": "/boston-ma/"
+      },
+      {
+        "text": "Calgary real estate",
+        "href": "/calgary-ab/"
+      },
+      {
+        "text": "Charlotte real estate",
+        "href": "/charlotte-nc/"
+      },
+      {
+        "text": "Chicago real estate",
+        "href": "/chicago-il/"
+      },
+      {
+        "text": "Cleveland real estate",
+        "href": "/cleveland-oh/"
+      },
+      {
+        "text": "Colorado Springs real estate",
+        "href": "/colorado-springs-co/"
+      },
+      {
+        "text": "Columbus real estate",
+        "href": "/columbus-oh/"
+      },
+      {
+        "text": "Dallas real estate",
+        "href": "/dallas-tx/"
+      },
+      {
+        "text": "Denver real estate",
+        "href": "/denver-co/"
+      },
+      {
+        "text": "Detroit real estate",
+        "href": "/detroit-mi/"
+      },
+      {
+        "text": "Edmonton real estate",
+        "href": "/edmonton-ab/"
+      },
+      {
+        "text": "El Paso real estate",
+        "href": "/el-paso-tx/"
+      },
+      {
+        "text": "Fort Worth real estate",
+        "href": "/fort-worth-tx/"
+      },
+      {
+        "text": "Fresno real estate",
+        "href": "/fresno-ca/"
+      },
+      {
+        "text": "Houston real estate",
+        "href": "/houston-tx/"
+      },
+      {
+        "text": "Indianapolis real estate",
+        "href": "/indianapolis-in/"
+      },
+      {
+        "text": "Jacksonville real estate",
+        "href": "/jacksonville-fl/"
+      },
+      {
+        "text": "Kansas City real estate",
+        "href": "/kansas-city-mo/"
+      },
+      {
+        "text": "Las Vegas real estate",
+        "href": "/las-vegas-nv/"
+      },
+      {
+        "text": "Long Beach real estate",
+        "href": "/long-beach-ca/"
+      },
+      {
+        "text": "Los Angeles real estate",
+        "href": "/los-angeles-ca/"
+      },
+      {
+        "text": "Louisville real estate",
+        "href": "/louisville-ky/"
+      },
+      {
+        "text": "Memphis real estate",
+        "href": "/memphis-tn/"
+      },
+      {
+        "text": "Mesa real estate",
+        "href": "/mesa-az/"
+      },
+      {
+        "text": "Miami real estate",
+        "href": "/miami-fl/"
+      },
+      {
+        "text": "Milwaukee real estate",
+        "href": "/milwaukee-wi/"
+      },
+      {
+        "text": "Minneapolis real estate",
+        "href": "/minneapolis-mn/"
+      },
+      {
+        "text": "Nashville real estate",
+        "href": "/nashville-tn/"
+      },
+      {
+        "text": "New Orleans real estate",
+        "href": "/new-orleans-la/"
+      },
+      {
+        "text": "New York real estate",
+        "href": "/new-york-ny/"
+      },
+      {
+        "text": "Oakland real estate",
+        "href": "/oakland-ca/"
+      },
+      {
+        "text": "Oklahoma real estate",
+        "href": "/oklahoma-city-ok/"
+      },
+      {
+        "text": "Omaha real estate",
+        "href": "/omaha-ne/"
+      },
+      {
+        "text": "Ottawa real estate",
+        "href": "/ottawa-on/"
+      },
+      {
+        "text": "Philadelphia real estate",
+        "href": "/philadelphia-pa/"
+      },
+      {
+        "text": "Phoenix real estate",
+        "href": "/phoenix-az/"
+      },
+      {
+        "text": "Portland real estate",
+        "href": "/portland-or/"
+      },
+      {
+        "text": "Raleigh real estate",
+        "href": "/raleigh-nc/"
+      },
+      {
+        "text": "Sacramento real estate",
+        "href": "/sacramento-ca/"
+      },
+      {
+        "text": "San Antonio real estate",
+        "href": "/san-antonio-tx/"
+      },
+      {
+        "text": "San Diego real estate",
+        "href": "/san-diego-ca/"
+      },
+      {
+        "text": "San Francisco real estate",
+        "href": "/san-francisco-ca/"
+      },
+      {
+        "text": "San Jose real estate",
+        "href": "/san-jose-ca/"
+      },
+      {
+        "text": "Seattle real estate",
+        "href": "/seattle-wa/"
+      },
+      {
+        "text": "Toronto real estate",
+        "href": "/toronto-on/"
+      },
+      {
+        "text": "Tucson real estate",
+        "href": "/tucson-az/"
+      },
+      {
+        "text": "Tulsa real estate",
+        "href": "/tulsa-ok/"
+      },
+      {
+        "text": "Vancouver real estate",
+        "href": "/vancouver-bc/"
+      },
+      {
+        "text": "Virginia Beach real estate",
+        "href": "/virginia-beach-va/"
+      },
+      {
+        "text": "Washington DC real estate",
+        "href": "/washington-dc/"
+      },
+      {
+        "text": "Wichita real estate",
+        "href": "/wichita-ks/"
+      },
+      {
+        "text": "Rental Buildings",
+        "href": "/browse/b/"
+      },
+      {
+        "text": "Atlanta apartments for rent",
+        "href": "/atlanta-ga/apartments/"
+      },
+      {
+        "text": "Austin apartments for rent",
+        "href": "/austin-tx/apartments/"
+      },
+      {
+        "text": "Baltimore apartments for rent",
+        "href": "/baltimore-md/apartments/"
+      },
+      {
+        "text": "Boston apartments for rent",
+        "href": "/boston-ma/apartments/"
+      },
+      {
+        "text": "Bronx NYC apartments for rent",
+        "href": "/bronx-new-york-city-ny/apartments/"
+      },
+      {
+        "text": "Brooklyn NYC apartments for rent",
+        "href": "/brooklyn-new-york-city-ny/apartments/"
+      },
+      {
+        "text": "Charlotte apartments for rent",
+        "href": "/charlotte-nc/apartments/"
+      },
+      {
+        "text": "Chicago apartments for rent",
+        "href": "/chicago-il/apartments/"
+      },
+      {
+        "text": "Dallas apartments for rent",
+        "href": "/dallas-tx/apartments/"
+      },
+      {
+        "text": "Denver apartments for rent",
+        "href": "/denver-co/apartments/"
+      },
+      {
+        "text": "Houston apartments for rent",
+        "href": "/houston-tx/apartments/"
+      },
+      {
+        "text": "Jersey City apartments for rent",
+        "href": "/jersey-city-nj/apartments/"
+      },
+      {
+        "text": "Long Beach apartments for rent",
+        "href": "/long-beach-ca/apartments/"
+      },
+      {
+        "text": "Manhattan NYC apartments for rent",
+        "href": "/manhattan-new-york-city-ny/apartments/"
+      },
+      {
+        "text": "Miami apartments for rent",
+        "href": "/miami-fl/apartments/"
+      },
+      {
+        "text": "Minneapolis apartments for rent",
+        "href": "/minneapolis-mn/apartments/"
+      },
+      {
+        "text": "New York City apartments for rent",
+        "href": "/new-york-city-ny/apartments/"
+      },
+      {
+        "text": "Oakland apartments for rent",
+        "href": "/oakland-ca/apartments/"
+      },
+      {
+        "text": "Oklahoma City apartments for rent",
+        "href": "/oklahoma-city-ok/apartments/"
+      },
+      {
+        "text": "Philadelphia apartments for rent",
+        "href": "/philadelphia-pa/apartments/"
+      },
+      {
+        "text": "Queens NYC apartments for rent",
+        "href": "/queens-new-york-city-ny/apartments/"
+      },
+      {
+        "text": "Sacramento apartments for rent",
+        "href": "/sacramento-ca/apartments/"
+      },
+      {
+        "text": "San Francisco apartments for rent",
+        "href": "/san-francisco-ca/apartments/"
+      },
+      {
+        "text": "Seattle apartments for rent",
+        "href": "/seattle-wa/apartments/"
+      },
+      {
+        "text": "Washington DC apartments for rent",
+        "href": "/washington-dc/apartments/"
+      },
+      {
+        "text": "Atlanta houses for rent",
+        "href": "/atlanta-ga/rent-houses/"
+      },
+      {
+        "text": "Austin houses for rent",
+        "href": "/austin-tx/rent-houses/"
+      },
+      {
+        "text": "Boston houses for rent",
+        "href": "/boston-ma/rent-houses/"
+      },
+      {
+        "text": "Charlotte houses for rent",
+        "href": "/charlotte-nc/rent-houses/"
+      },
+      {
+        "text": "Columbus houses for rent",
+        "href": "/columbus-oh/rent-houses/"
+      },
+      {
+        "text": "Fort Worth houses for rent",
+        "href": "/fort-worth-tx/rent-houses/"
+      },
+      {
+        "text": "Fresno houses for rent",
+        "href": "/fresno-ca/rent-houses/"
+      },
+      {
+        "text": "Houston houses for rent",
+        "href": "/houston-tx/rent-houses/"
+      },
+      {
+        "text": "Indianapolis houses for rent",
+        "href": "/indianapolis-in/rent-houses/"
+      },
+      {
+        "text": "Jacksonville houses for rent",
+        "href": "/jacksonville-fl/rent-houses/"
+      },
+      {
+        "text": "Las Vegas houses for rent",
+        "href": "/las-vegas-nv/rent-houses/"
+      },
+      {
+        "text": "Memphis houses for rent",
+        "href": "/memphis-tn/rent-houses/"
+      },
+      {
+        "text": "Milwaukee houses for rent",
+        "href": "/milwaukee-wi/rent-houses/"
+      },
+      {
+        "text": "Nashville houses for rent",
+        "href": "/nashville-tn/rent-houses/"
+      },
+      {
+        "text": "Oakland houses for rent",
+        "href": "/oakland-ca/rent-houses/"
+      },
+      {
+        "text": "Oklahoma City houses for rent",
+        "href": "/oklahoma-city-ok/rent-houses/"
+      },
+      {
+        "text": "Philadelphia houses for rent",
+        "href": "/philadelphia-pa/rent-houses/"
+      },
+      {
+        "text": "Phoenix houses for rent",
+        "href": "/phoenix-az/rent-houses/"
+      },
+      {
+        "text": "Portland houses for rent",
+        "href": "/portland-or/rent-houses/"
+      },
+      {
+        "text": "San Antonio houses for rent",
+        "href": "/san-antonio-tx/rent-houses/"
+      },
+      {
+        "text": "San Francisco houses for rent",
+        "href": "/san-francisco-ca/rent-houses/"
+      },
+      {
+        "text": "San Jose houses for rent",
+        "href": "/san-jose-ca/rent-houses/"
+      },
+      {
+        "text": "Tampa houses for rent",
+        "href": "/tampa-fl/rent-houses/"
+      },
+      {
+        "text": "Tucson houses for rent",
+        "href": "/tucson-az/rent-houses/"
+      },
+      {
+        "text": "Washington DC houses for rent",
+        "href": "/washington-dc/rent-houses/"
+      },
+      {
+        "text": "Current mortgage rates",
+        "href": "/mortgage-rates/"
+      },
+      {
+        "text": "Alaska mortgage rates",
+        "href": "/mortgage-rates/ak/"
+      },
+      {
+        "text": "Alabama mortgage rates",
+        "href": "/mortgage-rates/al/"
+      },
+      {
+        "text": "Arkansas mortgage rates",
+        "href": "/mortgage-rates/ar/"
+      },
+      {
+        "text": "Arizona mortgage rates",
+        "href": "/mortgage-rates/az/"
+      },
+      {
+        "text": "California mortgage rates",
+        "href": "/mortgage-rates/ca/"
+      },
+      {
+        "text": "Colorado mortgage rates",
+        "href": "/mortgage-rates/co/"
+      },
+      {
+        "text": "Connecticut mortgage rates",
+        "href": "/mortgage-rates/ct/"
+      },
+      {
+        "text": "Delaware mortgage rates",
+        "href": "/mortgage-rates/de/"
+      },
+      {
+        "text": "Florida mortgage rates",
+        "href": "/mortgage-rates/fl/"
+      },
+      {
+        "text": "Georgia mortgage rates",
+        "href": "/mortgage-rates/ga/"
+      },
+      {
+        "text": "Hawaii mortgage rates",
+        "href": "/mortgage-rates/hi/"
+      },
+      {
+        "text": "Iowa mortgage rates",
+        "href": "/mortgage-rates/ia/"
+      },
+      {
+        "text": "Idaho mortgage rates",
+        "href": "/mortgage-rates/id/"
+      },
+      {
+        "text": "Illinois mortgage rates",
+        "href": "/mortgage-rates/il/"
+      },
+      {
+        "text": "Indiana mortgage rates",
+        "href": "/mortgage-rates/in/"
+      },
+      {
+        "text": "Kansas mortgage rates",
+        "href": "/mortgage-rates/ks/"
+      },
+      {
+        "text": "Kentucky mortgage rates",
+        "href": "/mortgage-rates/ky/"
+      },
+      {
+        "text": "Louisiana mortgage rates",
+        "href": "/mortgage-rates/la/"
+      },
+      {
+        "text": "Massachusetts mortgage rates",
+        "href": "/mortgage-rates/ma/"
+      },
+      {
+        "text": "Maryland mortgage rates",
+        "href": "/mortgage-rates/md/"
+      },
+      {
+        "text": "Maine mortgage rates",
+        "href": "/mortgage-rates/me/"
+      },
+      {
+        "text": "Michigan mortgage rates",
+        "href": "/mortgage-rates/mi/"
+      },
+      {
+        "text": "Minnesota mortgage rates",
+        "href": "/mortgage-rates/mn/"
+      },
+      {
+        "text": "Missouri mortgage rates",
+        "href": "/mortgage-rates/mo/"
+      },
+      {
+        "text": "Mississippi mortgage rates",
+        "href": "/mortgage-rates/ms/"
+      },
+      {
+        "text": "Montana mortgage rates",
+        "href": "/mortgage-rates/mt/"
+      },
+      {
+        "text": "North Carolina mortgage rates",
+        "href": "/mortgage-rates/nc/"
+      },
+      {
+        "text": "North Dakota mortgage rates",
+        "href": "/mortgage-rates/nd/"
+      },
+      {
+        "text": "Nebraska mortgage rates",
+        "href": "/mortgage-rates/ne/"
+      },
+      {
+        "text": "New Hampshire mortgage rates",
+        "href": "/mortgage-rates/nh/"
+      },
+      {
+        "text": "New Jersey mortgage rates",
+        "href": "/mortgage-rates/nj/"
+      },
+      {
+        "text": "New Mexico mortgage rates",
+        "href": "/mortgage-rates/nm/"
+      },
+      {
+        "text": "Nevada mortgage rates",
+        "href": "/mortgage-rates/nv/"
+      },
+      {
+        "text": "New York mortgage rates",
+        "href": "/mortgage-rates/ny/"
+      },
+      {
+        "text": "Ohio mortgage rates",
+        "href": "/mortgage-rates/oh/"
+      },
+      {
+        "text": "Oklahoma mortgage rates",
+        "href": "/mortgage-rates/ok/"
+      },
+      {
+        "text": "Oregon mortgage rates",
+        "href": "/mortgage-rates/or/"
+      },
+      {
+        "text": "Pennsylvania mortgage rates",
+        "href": "/mortgage-rates/pa/"
+      },
+      {
+        "text": "Rhode Island mortgage rates",
+        "href": "/mortgage-rates/ri/"
+      },
+      {
+        "text": "South Carolina mortgage rates",
+        "href": "/mortgage-rates/sc/"
+      },
+      {
+        "text": "South Dakota mortgage rates",
+        "href": "/mortgage-rates/sd/"
+      },
+      {
+        "text": "Tennessee mortgage rates",
+        "href": "/mortgage-rates/tn/"
+      },
+      {
+        "text": "Texas mortgage rates",
+        "href": "/mortgage-rates/tx/"
+      },
+      {
+        "text": "Utah mortgage rates",
+        "href": "/mortgage-rates/ut/"
+      },
+      {
+        "text": "Virginia mortgage rates",
+        "href": "/mortgage-rates/va/"
+      },
+      {
+        "text": "Vermont mortgage rates",
+        "href": "/mortgage-rates/vt/"
+      },
+      {
+        "text": "Washington mortgage rates",
+        "href": "/mortgage-rates/wa/"
+      },
+      {
+        "text": "Wisconsin mortgage rates",
+        "href": "/mortgage-rates/wi/"
+      },
+      {
+        "text": "West Virginia mortgage rates",
+        "href": "/mortgage-rates/wv/"
+      },
+      {
+        "text": "Wyoming mortgage rates",
+        "href": "/mortgage-rates/wy/"
+      },
+      {
+        "text": "California",
+        "href": "/browse/homes/ca/"
+      },
+      {
+        "text": "Texas",
+        "href": "/browse/homes/tx/"
+      },
+      {
+        "text": "New York",
+        "href": "/browse/homes/ny/"
+      },
+      {
+        "text": "Florida",
+        "href": "/browse/homes/fl/"
+      },
+      {
+        "text": "Illinois",
+        "href": "/browse/homes/il/"
+      },
+      {
+        "text": "Pennsylvania",
+        "href": "/browse/homes/pa/"
+      },
+      {
+        "text": "Ohio",
+        "href": "/browse/homes/oh/"
+      },
+      {
+        "text": "Michigan",
+        "href": "/browse/homes/mi/"
+      },
+      {
+        "text": "Georgia",
+        "href": "/browse/homes/ga/"
+      },
+      {
+        "text": "North Carolina",
+        "href": "/browse/homes/nc/"
+      },
+      {
+        "text": "New Jersey",
+        "href": "/browse/homes/nj/"
+      },
+      {
+        "text": "Virginia",
+        "href": "/browse/homes/va/"
+      },
+      {
+        "text": "Washington",
+        "href": "/browse/homes/wa/"
+      },
+      {
+        "text": "Massachusetts",
+        "href": "/browse/homes/ma/"
+      },
+      {
+        "text": "Indiana",
+        "href": "/browse/homes/in/"
+      },
+      {
+        "text": "Arizona",
+        "href": "/browse/homes/az/"
+      },
+      {
+        "text": "Tennessee",
+        "href": "/browse/homes/tn/"
+      },
+      {
+        "text": "Missouri",
+        "href": "/browse/homes/mo/"
+      },
+      {
+        "text": "Maryland",
+        "href": "/browse/homes/md/"
+      },
+      {
+        "text": "Wisconsin",
+        "href": "/browse/homes/wi/"
+      },
+      {
+        "text": "Minnesota",
+        "href": "/browse/homes/mn/"
+      },
+      {
+        "text": "Colorado",
+        "href": "/browse/homes/co/"
+      },
+      {
+        "text": "Alabama",
+        "href": "/browse/homes/al/"
+      },
+      {
+        "text": "South Carolina",
+        "href": "/browse/homes/sc/"
+      },
+      {
+        "text": "Louisiana",
+        "href": "/browse/homes/la/"
+      },
+      {
+        "text": "Kentucky",
+        "href": "/browse/homes/ky/"
+      },
+      {
+        "text": "Oregon",
+        "href": "/browse/homes/or/"
+      },
+      {
+        "text": "Oklahoma",
+        "href": "/browse/homes/ok/"
+      },
+      {
+        "text": "Connecticut",
+        "href": "/browse/homes/ct/"
+      },
+      {
+        "text": "Iowa",
+        "href": "/browse/homes/ia/"
+      },
+      {
+        "text": "Mississippi",
+        "href": "/browse/homes/ms/"
+      },
+      {
+        "text": "Arkansas",
+        "href": "/browse/homes/ar/"
+      },
+      {
+        "text": "Kansas",
+        "href": "/browse/homes/ks/"
+      },
+      {
+        "text": "Utah",
+        "href": "/browse/homes/ut/"
+      },
+      {
+        "text": "Nevada",
+        "href": "/browse/homes/nv/"
+      },
+      {
+        "text": "New Mexico",
+        "href": "/browse/homes/nm/"
+      },
+      {
+        "text": "West Virginia",
+        "href": "/browse/homes/wv/"
+      },
+      {
+        "text": "Nebraska",
+        "href": "/browse/homes/ne/"
+      },
+      {
+        "text": "Idaho",
+        "href": "/browse/homes/id/"
+      },
+      {
+        "text": "Hawaii",
+        "href": "/browse/homes/hi/"
+      },
+      {
+        "text": "Maine",
+        "href": "/browse/homes/me/"
+      },
+      {
+        "text": "New Hampshire",
+        "href": "/browse/homes/nh/"
+      },
+      {
+        "text": "Rhode Island",
+        "href": "/browse/homes/ri/"
+      },
+      {
+        "text": "Montana",
+        "href": "/browse/homes/mt/"
+      },
+      {
+        "text": "Delaware",
+        "href": "/browse/homes/de/"
+      },
+      {
+        "text": "South Dakota",
+        "href": "/browse/homes/sd/"
+      },
+      {
+        "text": "Alaska",
+        "href": "/browse/homes/ak/"
+      },
+      {
+        "text": "North Dakota",
+        "href": "/browse/homes/nd/"
+      },
+      {
+        "text": "Vermont",
+        "href": "/browse/homes/vt/"
+      },
+      {
+        "text": "Washington, DC",
+        "href": "/browse/homes/dc/district-of-columbia-county/"
+      },
+      {
+        "text": "Wyoming",
+        "href": "/browse/homes/wy/"
+      },
+      {
+        "text": "Puerto Rico",
+        "href": "/browse/homes/pr/"
+      },
+      {
+        "text": "Virgin Islands",
+        "href": "/browse/homes/vi/"
+      },
+      {
+        "text": "About",
+        "href": "/z/corp/about/"
+      },
+      {
+        "text": "Zestimates",
+        "href": "/z/zestimate/"
+      },
+      {
+        "text": "Research",
+        "href": "/research/"
+      },
+      {
+        "text": "Careers",
+        "href": "/careers/"
+      },
+      {
+        "text": "Careers - U.S. Privacy Notice",
+        "href": "/careers/disclosure/"
+      },
+      {
+        "text": "Careers - Mexico Privacy Notice",
+        "href": "/careers/privacy-notice-zillow-mexico/"
+      },
+      {
+        "text": "Help",
+        "href": "https://zillow.zendesk.com/hc/en-us"
+      },
+      {
+        "text": "Advertise",
+        "href": "/z/partners/advertise/"
+      },
+      {
+        "text": "Fair Housing Guide",
+        "href": "https://www.zillow.com/rental-manager/resources/fair-housing-guide/"
+      },
+      {
+        "text": "Advocacy",
+        "href": "https://advocacy.zillowgroup.com/"
+      },
+      {
+        "text": "Terms of use",
+        "href": "/z/corp/terms/"
+      },
+      {
+        "text": "Privacy Notice",
+        "href": "https://www.zillowgroup.com/zg-privacy-policy/"
+      },
+      {
+        "text": "Ad Choices",
+        "href": "https://www.zillowgroup.com/zg-privacy-policy/#third-party"
+      },
+      {
+        "text": "Cookie Preference",
+        "href": "javascript:;"
+      },
+      {
+        "text": "Learn",
+        "href": "/learn/"
+      },
+      {
+        "text": "AI",
+        "href": "/tech/"
+      },
+      {
+        "text": "Mobile Apps",
+        "href": "/buy/app-download/"
+      },
+      {
+        "text": "Trulia",
+        "href": "https://www.trulia.com/"
+      },
+      {
+        "text": "StreetEasy",
+        "href": "https://streeteasy.com/"
+      },
+      {
+        "text": "HotPads",
+        "href": "https://hotpads.com/"
+      },
+      {
+        "text": "Out East",
+        "href": "https://outeast.com/"
+      },
+      {
+        "text": "ShowingTime+",
+        "href": "https://showingtimeplus.com/"
+      },
+      {
+        "text": "Do Not Sell or Share My Personal Information →",
+        "href": "https://privacy.zillowgroup.com/cookie"
+      },
+      {
+        "text": "let us know",
+        "href": "https://zillow.zendesk.com/hc/en-us/requests/new?ticket_form_id=39140"
+      },
+      {
+        "text": "licenses",
+        "href": "/z/info/real-estate-licenses/"
+      },
+      {
+        "text": "licenses",
+        "href": "/z/info/real-estate-licenses/"
+      },
+      {
+        "text": "NMLS Consumer Access",
+        "href": "https://www.nmlsconsumeraccess.org"
+      },
+      {
+        "text": "§ 442-H New York Standard Operating Procedures",
+        "href": "https://www.zillowstatic.com/s3/pfs/static/SOP_NYS_10-4-23.pdf"
+      },
+      {
+        "text": "§ New York Fair Housing Notice",
+        "href": "https://www.zillowstatic.com/s3/pfs/static/fairhousingnotice_10-4-23.pdf"
+      },
+      {
+        "text": "Information about brokerage services",
+        "href": "https://delivery.digitalassets.zillowgroup.com/api/public/content/TREC_ZINC_pdf.pdf"
+      },
+      {
+        "text": "Consumer protection notice",
+        "href": "https://www.trec.texas.gov/forms/consumer-protection-notice"
+      },
+      {
+        "text": "Contact Zillow, Inc. Brokerage",
+        "href": "https://www.zillow.com/z/info/contact-us/"
+      },
+      {
+        "text": "Visit us on facebook",
+        "href": "https://www.facebook.com/Zillow"
+      },
+      {
+        "text": "Visit us on instagram",
+        "href": "https://www.instagram.com/zillow"
+      },
+      {
+        "text": "Visit us on tiktok",
+        "href": "https://www.tiktok.com/@zillow"
+      },
+      {
+        "text": "Equal Housing Opportunity",
+        "href": "https://www.hud.gov/program_offices/fair_housing_equal_opp"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Zillow logo",
+        "src": "https://www.zillowstatic.com/s3/pfs/static/z-logo-default-visual-refresh.svg"
+      },
+      {
+        "alt": "Zillow logo",
+        "src": "https://www.zillowstatic.com/s3/pfs/static/z-logo-white-visual-refresh.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www.zillowstatic.com/bedrock/app/uploads/sites/5/2024/07/image2-xl%401x.jpg"
+      },
+      {
+        "alt": "App store logo",
+        "src": "https://www.zillowstatic.com/s3/pfs/static/app-store-badge.svg"
+      },
+      {
+        "alt": "Google play logo",
+        "src": "https://www.zillowstatic.com/s3/pfs/static/google-play-badge.svg"
+      },
+      {
+        "alt": "Zillow logo",
+        "src": "https://www.zillowstatic.com/s3/pfs/static/z-logo-default-visual-refresh.svg"
+      }
+    ],
+    "timestamp": 1760607076364,
+    "url": "https://www.zillow.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

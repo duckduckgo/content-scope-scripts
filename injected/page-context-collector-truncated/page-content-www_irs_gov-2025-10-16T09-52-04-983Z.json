@@ -1,0 +1,1041 @@
+{
+  "url": "https://www.irs.gov/filing/federal-income-tax-rates-and-brackets",
+  "extractedAt": "2025-10-16T09:52:04.983Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.irs.gov/themes/custom/pup_base/favicon.ico",
+        "rel": "icon"
+      }
+    ],
+    "title": "Federal income tax rates and brackets | Internal Revenue Service",
+    "metaDescription": "See current federal tax brackets and rates based on your income and filing status.",
+    "content": "You pay tax as a percentage of your income in layers called tax brackets. As your income goes up, the tax rate on the next layer of income is higher.\n When your income jumps to a higher tax bracket, you don't pay the higher rate on your entire income. You pay the higher rate only on the part that's in the new tax bracket.\n \n## 2024 tax rates for a single taxpayer\n For a single taxpayer, the rates are:\n    Tax rate on taxable income from . . . up to . . .     10% $0 $11,600   12% $11,601 $47,150   22% $47,151 $100,525   24% $100,526 $191,950   32% $191,951 $243,725   35% $243,726 $609,350   37% $609,351 And up    Here’s how that works for a **single person with taxable income of $58,000 per year**:\n        \n \n## 2024 tax rates for other filers\n Find the current tax rates for other filing statuses.\n      [Married filing jointly or qualifying surviving spouse](#collapseCollapsible1727890096254_304535)      [Married filing separately](#collapseCollapsible1727890096254_823157)      [Head of household](#collapseCollapsible1727890096254_997517)       \n## Tax rates and tables\n See the 2024 [tax tables](/publications/p17#d0e50262) (for money you earned in 2024).\n Find the 2025 [tax rates](/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2025) (for money you earn in 2025).\n \n## Related\n \n \n- [Taxable income](/filing/taxable-income)\n \n- [How to file your taxes: Step by step](/how-to-file-your-taxes-step-by-step)\n \n- [IRS releases tax inflation adjustments for tax year 2025](/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2025)\n \n- [Publication 17, Your Federal Income Tax](/forms-pubs/about-publication-17)",
+    "truncated": false,
+    "fullContentLength": 1648,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Information Menu"
+      },
+      {
+        "level": 2,
+        "text": "Main navigation"
+      },
+      {
+        "level": 2,
+        "text": "Information Menu"
+      },
+      {
+        "level": 2,
+        "text": "File"
+      },
+      {
+        "level": 2,
+        "text": "Pay"
+      },
+      {
+        "level": 2,
+        "text": "Refunds"
+      },
+      {
+        "level": 2,
+        "text": "Credits & Deductions"
+      },
+      {
+        "level": 2,
+        "text": "Forms & Instructions"
+      },
+      {
+        "level": 2,
+        "text": "Main navigation"
+      },
+      {
+        "level": 2,
+        "text": "Info Menu Mobile"
+      },
+      {
+        "level": 1,
+        "text": "Federal income tax rates and brackets"
+      },
+      {
+        "level": 3,
+        "text": "More In File"
+      },
+      {
+        "level": 2,
+        "text": "2024 tax rates for a single taxpayer"
+      },
+      {
+        "level": 2,
+        "text": "2024 tax rates for other filers"
+      },
+      {
+        "level": 4,
+        "text": "Married filing jointly or qualifying surviving spouse"
+      },
+      {
+        "level": 4,
+        "text": "Married filing separately"
+      },
+      {
+        "level": 4,
+        "text": "Head of household"
+      },
+      {
+        "level": 2,
+        "text": "Tax rates and tables"
+      },
+      {
+        "level": 2,
+        "text": "Related"
+      },
+      {
+        "level": 2,
+        "text": "Footer Navigation"
+      },
+      {
+        "level": 2,
+        "text": "Subfooter"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#main-content"
+      },
+      {
+        "text": "Help",
+        "href": "/help/let-us-help-you"
+      },
+      {
+        "text": "News",
+        "href": "/newsroom"
+      },
+      {
+        "text": "Español",
+        "href": "/es/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "中文 (简体)",
+        "href": "/zh-hans/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "中文 (繁體)",
+        "href": "/zh-hant/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "한국어",
+        "href": "/ko/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Русский",
+        "href": "/ru/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Tiếng Việt",
+        "href": "/vi/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Kreyòl ayisyen",
+        "href": "/ht/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Tax Pros",
+        "href": "/tax-professionals"
+      },
+      {
+        "text": "Sign in",
+        "href": "/your-account"
+      },
+      {
+        "text": "Sign in",
+        "href": "/your-account"
+      },
+      {
+        "text": "File",
+        "href": "/filing"
+      },
+      {
+        "text": "Overview",
+        "href": "/filing"
+      },
+      {
+        "text": "Individuals",
+        "href": "/individual-tax-filing"
+      },
+      {
+        "text": "Business and self-employed",
+        "href": "/businesses"
+      },
+      {
+        "text": "Charities and nonprofits",
+        "href": "/charities-and-nonprofits"
+      },
+      {
+        "text": "International filers",
+        "href": "/individuals/international-taxpayers"
+      },
+      {
+        "text": "Retirement",
+        "href": "/retirement-plans"
+      },
+      {
+        "text": "Governments and tax-exempt bonds",
+        "href": "/government-entities"
+      },
+      {
+        "text": "Indian Tribal Governments",
+        "href": "/government-entities/indian-tribal-governments"
+      },
+      {
+        "text": "How to file",
+        "href": "/filing/individuals/how-to-file"
+      },
+      {
+        "text": "When to file",
+        "href": "/filing/individuals/when-to-file"
+      },
+      {
+        "text": "Where to file",
+        "href": "/filing/where-to-file-tax-returns-addresses-listed-by-return-type"
+      },
+      {
+        "text": "Update your information",
+        "href": "/filing/individuals/update-my-information"
+      },
+      {
+        "text": "Tax record (transcript)",
+        "href": "/individuals/get-transcript"
+      },
+      {
+        "text": "Apply for an Employer ID Number (EIN)",
+        "href": "/businesses/small-businesses-self-employed/get-an-employer-identification-number"
+      },
+      {
+        "text": "Amend return",
+        "href": "/filing/file-an-amended-return"
+      },
+      {
+        "text": "Identity Protection PIN (IP PIN)",
+        "href": "/identity-theft-fraud-scams/get-an-identity-protection-pin"
+      },
+      {
+        "text": "File your taxes for free",
+        "href": "/file-your-taxes-for-free"
+      },
+      {
+        "text": "Pay",
+        "href": "/payments"
+      },
+      {
+        "text": "Overview",
+        "href": "/payments"
+      },
+      {
+        "text": "Bank Account (Direct Pay)",
+        "href": "/payments/direct-pay-with-bank-account"
+      },
+      {
+        "text": "Payment Plan (Installment Agreement)",
+        "href": "/payments/online-payment-agreement-application"
+      },
+      {
+        "text": "Electronic Federal Tax Payment System (EFTPS)",
+        "href": "/payments/eftps-the-electronic-federal-tax-payment-system"
+      },
+      {
+        "text": "Your Online Account",
+        "href": "/your-account"
+      },
+      {
+        "text": "Tax Withholding Estimator",
+        "href": "/individuals/tax-withholding-estimator"
+      },
+      {
+        "text": "Estimated Taxes",
+        "href": "/businesses/small-businesses-self-employed/estimated-taxes"
+      },
+      {
+        "text": "Penalties",
+        "href": "/payments/penalties"
+      },
+      {
+        "text": "Refunds",
+        "href": "/refunds"
+      },
+      {
+        "text": "Overview",
+        "href": "/refunds"
+      },
+      {
+        "text": "Where’s My Refund?",
+        "href": "/wheres-my-refund"
+      },
+      {
+        "text": "Direct deposit",
+        "href": "/refunds/get-your-refund-faster-tell-irs-to-direct-deposit-your-refund-to-one-two-or-three-accounts"
+      },
+      {
+        "text": "Where’s My Amended Return?",
+        "href": "/filing/wheres-my-amended-return"
+      },
+      {
+        "text": "Credits & Deductions",
+        "href": "/credits-and-deductions"
+      },
+      {
+        "text": "Overview",
+        "href": "/credits-and-deductions"
+      },
+      {
+        "text": "Individuals",
+        "href": "/credits-and-deductions-for-individuals"
+      },
+      {
+        "text": "Businesses & Self-Employed",
+        "href": "/credits-deductions/businesses"
+      },
+      {
+        "text": "Earned Income Credit (EITC)",
+        "href": "/credits-deductions/individuals/earned-income-tax-credit-eitc"
+      },
+      {
+        "text": "Child Tax Credit",
+        "href": "/credits-deductions/individuals/child-tax-credit"
+      },
+      {
+        "text": "Clean Energy and Vehicle Credits",
+        "href": "/credits-deductions/clean-vehicle-and-energy-credits"
+      },
+      {
+        "text": "Standard Deduction",
+        "href": "/help/ita/how-much-is-my-standard-deduction"
+      },
+      {
+        "text": "Retirement Plans",
+        "href": "/retirement-plans"
+      },
+      {
+        "text": "Forms & Instructions",
+        "href": "/forms-instructions"
+      },
+      {
+        "text": "Overview",
+        "href": "/forms-instructions"
+      },
+      {
+        "text": "Form 1040",
+        "href": "/forms-pubs/about-form-1040"
+      },
+      {
+        "text": "Form 1040 Instructions",
+        "href": "/instructions/i1040gi"
+      },
+      {
+        "text": "Form W-9",
+        "href": "/forms-pubs/about-form-w-9"
+      },
+      {
+        "text": "Form 4506-T",
+        "href": "/forms-pubs/about-form-4506-t"
+      },
+      {
+        "text": "Form W-4",
+        "href": "/forms-pubs/about-form-w-4"
+      },
+      {
+        "text": "Form 941",
+        "href": "/forms-pubs/about-form-941"
+      },
+      {
+        "text": "Form W-2",
+        "href": "/forms-pubs/about-form-w-2"
+      },
+      {
+        "text": "Form 9465",
+        "href": "/forms-pubs/about-form-9465"
+      },
+      {
+        "text": "Form 1040-X",
+        "href": "/forms-pubs/about-form-1040x"
+      },
+      {
+        "text": "Form 2848",
+        "href": "/forms-pubs/about-form-2848"
+      },
+      {
+        "text": "Form W-7",
+        "href": "/forms-pubs/about-form-w-7"
+      },
+      {
+        "text": "Circular 230",
+        "href": "/tax-professionals/office-of-professional-responsibility-and-circular-230"
+      },
+      {
+        "text": "Help",
+        "href": "/help/let-us-help-you"
+      },
+      {
+        "text": "News",
+        "href": "/newsroom"
+      },
+      {
+        "text": "Tax Pros",
+        "href": "/tax-professionals"
+      },
+      {
+        "text": "Sign in",
+        "href": "/your-account"
+      },
+      {
+        "text": "File",
+        "href": "#"
+      },
+      {
+        "text": "Overview",
+        "href": "/filing"
+      },
+      {
+        "text": "Individuals",
+        "href": "/individual-tax-filing"
+      },
+      {
+        "text": "Business and self-employed",
+        "href": "/businesses"
+      },
+      {
+        "text": "Charities and nonprofits",
+        "href": "/charities-and-nonprofits"
+      },
+      {
+        "text": "International filers",
+        "href": "/individuals/international-taxpayers"
+      },
+      {
+        "text": "Retirement",
+        "href": "/retirement-plans"
+      },
+      {
+        "text": "Governments and tax-exempt bonds",
+        "href": "/government-entities"
+      },
+      {
+        "text": "Indian Tribal Governments",
+        "href": "/government-entities/indian-tribal-governments"
+      },
+      {
+        "text": "How to file",
+        "href": "/filing/individuals/how-to-file"
+      },
+      {
+        "text": "When to file",
+        "href": "/filing/individuals/when-to-file"
+      },
+      {
+        "text": "Where to file",
+        "href": "/filing/where-to-file-tax-returns-addresses-listed-by-return-type"
+      },
+      {
+        "text": "Update your information",
+        "href": "/filing/individuals/update-my-information"
+      },
+      {
+        "text": "Tax record (transcript)",
+        "href": "/individuals/get-transcript"
+      },
+      {
+        "text": "Apply for an Employer ID Number (EIN)",
+        "href": "/businesses/small-businesses-self-employed/get-an-employer-identification-number"
+      },
+      {
+        "text": "Amend return",
+        "href": "/filing/file-an-amended-return"
+      },
+      {
+        "text": "Identity Protection PIN (IP PIN)",
+        "href": "/identity-theft-fraud-scams/get-an-identity-protection-pin"
+      },
+      {
+        "text": "File your taxes for free",
+        "href": "/file-your-taxes-for-free"
+      },
+      {
+        "text": "Pay",
+        "href": "#"
+      },
+      {
+        "text": "Overview",
+        "href": "/payments"
+      },
+      {
+        "text": "Bank Account (Direct Pay)",
+        "href": "/payments/direct-pay-with-bank-account"
+      },
+      {
+        "text": "Payment Plan (Installment Agreement)",
+        "href": "/payments/online-payment-agreement-application"
+      },
+      {
+        "text": "Electronic Federal Tax Payment System (EFTPS)",
+        "href": "/payments/eftps-the-electronic-federal-tax-payment-system"
+      },
+      {
+        "text": "Your Online Account",
+        "href": "/your-account"
+      },
+      {
+        "text": "Tax Withholding Estimator",
+        "href": "/individuals/tax-withholding-estimator"
+      },
+      {
+        "text": "Estimated Taxes",
+        "href": "/businesses/small-businesses-self-employed/estimated-taxes"
+      },
+      {
+        "text": "Penalties",
+        "href": "/payments/penalties"
+      },
+      {
+        "text": "Refunds",
+        "href": "#"
+      },
+      {
+        "text": "Overview",
+        "href": "/refunds"
+      },
+      {
+        "text": "Where’s My Refund?",
+        "href": "/wheres-my-refund"
+      },
+      {
+        "text": "Direct deposit",
+        "href": "/refunds/get-your-refund-faster-tell-irs-to-direct-deposit-your-refund-to-one-two-or-three-accounts"
+      },
+      {
+        "text": "Where’s My Amended Return?",
+        "href": "/filing/wheres-my-amended-return"
+      },
+      {
+        "text": "Credits & Deductions",
+        "href": "#"
+      },
+      {
+        "text": "Overview",
+        "href": "/credits-and-deductions"
+      },
+      {
+        "text": "Individuals",
+        "href": "/credits-and-deductions-for-individuals"
+      },
+      {
+        "text": "Businesses & Self-Employed",
+        "href": "/credits-deductions/businesses"
+      },
+      {
+        "text": "Earned Income Credit (EITC)",
+        "href": "/credits-deductions/individuals/earned-income-tax-credit-eitc"
+      },
+      {
+        "text": "Child Tax Credit",
+        "href": "/credits-deductions/individuals/child-tax-credit"
+      },
+      {
+        "text": "Clean Energy and Vehicle Credits",
+        "href": "/credits-deductions/clean-vehicle-and-energy-credits"
+      },
+      {
+        "text": "Standard Deduction",
+        "href": "/help/ita/how-much-is-my-standard-deduction"
+      },
+      {
+        "text": "Retirement Plans",
+        "href": "/retirement-plans"
+      },
+      {
+        "text": "Forms & Instructions",
+        "href": "#"
+      },
+      {
+        "text": "Overview",
+        "href": "/forms-instructions"
+      },
+      {
+        "text": "Form 1040",
+        "href": "/forms-pubs/about-form-1040"
+      },
+      {
+        "text": "Form 1040 Instructions",
+        "href": "/instructions/i1040gi"
+      },
+      {
+        "text": "Form W-9",
+        "href": "/forms-pubs/about-form-w-9"
+      },
+      {
+        "text": "Form 4506-T",
+        "href": "/forms-pubs/about-form-4506-t"
+      },
+      {
+        "text": "Form W-4",
+        "href": "/forms-pubs/about-form-w-4"
+      },
+      {
+        "text": "Form 941",
+        "href": "/forms-pubs/about-form-941"
+      },
+      {
+        "text": "Form W-2",
+        "href": "/forms-pubs/about-form-w-2"
+      },
+      {
+        "text": "Form 9465",
+        "href": "/forms-pubs/about-form-9465"
+      },
+      {
+        "text": "Form 1040-X",
+        "href": "/forms-pubs/about-form-1040x"
+      },
+      {
+        "text": "Form 2848",
+        "href": "/forms-pubs/about-form-2848"
+      },
+      {
+        "text": "Form W-7",
+        "href": "/forms-pubs/about-form-w-7"
+      },
+      {
+        "text": "Circular 230",
+        "href": "/tax-professionals/office-of-professional-responsibility-and-circular-230"
+      },
+      {
+        "text": "File",
+        "href": "/filing"
+      },
+      {
+        "text": "Pay",
+        "href": "/payments"
+      },
+      {
+        "text": "Refunds",
+        "href": "/refunds"
+      },
+      {
+        "text": "Credits & Deductions",
+        "href": "/credits-and-deductions"
+      },
+      {
+        "text": "Forms & Instructions",
+        "href": "/forms-instructions"
+      },
+      {
+        "text": "Charities & Nonprofits",
+        "href": "/charities-and-nonprofits"
+      },
+      {
+        "text": "Help",
+        "href": "/help/let-us-help-you"
+      },
+      {
+        "text": "Español",
+        "href": "/es/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "中文 (简体)",
+        "href": "/zh-hans/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "中文 (繁體)",
+        "href": "/zh-hant/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "한국어",
+        "href": "/ko/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Русский",
+        "href": "/ru/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Tiếng Việt",
+        "href": "/vi/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Kreyòl ayisyen",
+        "href": "/ht/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "News",
+        "href": "/newsroom"
+      },
+      {
+        "text": "Tax Pros",
+        "href": "/tax-professionals"
+      },
+      {
+        "text": "Home",
+        "href": "/"
+      },
+      {
+        "text": "File",
+        "href": "/filing"
+      },
+      {
+        "text": "Individuals",
+        "href": "/individual-tax-filing"
+      },
+      {
+        "text": "English",
+        "href": "/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Español",
+        "href": "/es/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "中文 (简体)",
+        "href": "/zh-hans/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "中文 (繁體)",
+        "href": "/zh-hant/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "한국어",
+        "href": "/ko/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Русский",
+        "href": "/ru/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Tiếng Việt",
+        "href": "/vi/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Kreyòl ayisyen",
+        "href": "/ht/filing/federal-income-tax-rates-and-brackets?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Individuals",
+        "href": "/individual-tax-filing"
+      },
+      {
+        "text": "Who should file",
+        "href": "/individuals/check-if-you-need-to-file-a-tax-return"
+      },
+      {
+        "text": "Steps to file your taxes",
+        "href": "/how-to-file-your-taxes-step-by-step"
+      },
+      {
+        "text": "File your tax return",
+        "href": "/filing/individuals/how-to-file"
+      },
+      {
+        "text": "Get an extension",
+        "href": "/filing/get-an-extension-to-file-your-tax-return"
+      },
+      {
+        "text": "Amend return",
+        "href": "/filing/file-an-amended-return"
+      },
+      {
+        "text": "Your information",
+        "href": "/filing/individuals/update-my-information"
+      },
+      {
+        "text": "Life events",
+        "href": "/individuals/managing-your-taxes-after-a-life-event"
+      },
+      {
+        "text": "Students",
+        "href": "/individuals/students"
+      },
+      {
+        "text": "Employees",
+        "href": "/individuals/employees"
+      },
+      {
+        "text": "Parents",
+        "href": "/individuals/parents"
+      },
+      {
+        "text": "Military",
+        "href": "/individuals/military"
+      },
+      {
+        "text": "Seniors and retirees",
+        "href": "/individuals/seniors-retirees"
+      },
+      {
+        "text": "Businesses and self-employed",
+        "href": "/businesses"
+      },
+      {
+        "text": "Charities and nonprofits",
+        "href": "/charities-and-nonprofits"
+      },
+      {
+        "text": "International taxpayers",
+        "href": "/individuals/international-taxpayers"
+      },
+      {
+        "text": "Governmental liaisons",
+        "href": "/government-entities/governmental-liaisons"
+      },
+      {
+        "text": "Federal, state and local governments",
+        "href": "/government-entities/federal-state-local-governments"
+      },
+      {
+        "text": "Indian tribal governments",
+        "href": "/government-entities/indian-tribal-governments"
+      },
+      {
+        "text": "Tax exempt bonds",
+        "href": "/tax-exempt-bonds"
+      },
+      {
+        "text": "Taxpayer identification numbers (TIN)",
+        "href": "/tin/taxpayer-identification-numbers-tin"
+      },
+      {
+        "text": "Married filing jointly or qualifying surviving spouse",
+        "href": "#collapseCollapsible1727890096254_304535"
+      },
+      {
+        "text": "Married filing separately",
+        "href": "#collapseCollapsible1727890096254_823157"
+      },
+      {
+        "text": "Head of household",
+        "href": "#collapseCollapsible1727890096254_997517"
+      },
+      {
+        "text": "tax tables",
+        "href": "/publications/p17#d0e50262"
+      },
+      {
+        "text": "tax rates",
+        "href": "/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2025"
+      },
+      {
+        "text": "Taxable income",
+        "href": "/filing/taxable-income"
+      },
+      {
+        "text": "How to file your taxes: Step by step",
+        "href": "/how-to-file-your-taxes-step-by-step"
+      },
+      {
+        "text": "IRS releases tax inflation adjustments for tax year 2025",
+        "href": "/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2025"
+      },
+      {
+        "text": "Publication 17, Your Federal Income Tax",
+        "href": "/forms-pubs/about-publication-17"
+      },
+      {
+        "text": "Share",
+        "href": "#"
+      },
+      {
+        "text": "Facebook",
+        "href": "/#facebook"
+      },
+      {
+        "text": "Twitter",
+        "href": "/#twitter"
+      },
+      {
+        "text": "Linkedin",
+        "href": "/#linkedin"
+      },
+      {
+        "text": "About IRS",
+        "href": "/about-irs"
+      },
+      {
+        "text": "Careers",
+        "href": "https://jobs.irs.gov/"
+      },
+      {
+        "text": "Operations and Budget",
+        "href": "/statistics/soi-tax-stats-irs-operations-and-budget"
+      },
+      {
+        "text": "Tax Statistics",
+        "href": "/statistics"
+      },
+      {
+        "text": "Help",
+        "href": "/help/let-us-help-you"
+      },
+      {
+        "text": "Find a Local Office",
+        "href": "/help/contact-your-local-irs-office"
+      },
+      {
+        "text": "Taxpayer Bill of Rights",
+        "href": "/taxpayer-bill-of-rights"
+      },
+      {
+        "text": "Taxpayer Advocate Service",
+        "href": "/taxpayer-advocate"
+      },
+      {
+        "text": "Independent Office of Appeals",
+        "href": "/appeals"
+      },
+      {
+        "text": "Civil Rights",
+        "href": "/about-irs/protecting-taxpayer-civil-rights"
+      },
+      {
+        "text": "FOIA",
+        "href": "/privacy-disclosure/irs-freedom-of-information"
+      },
+      {
+        "text": "No FEAR Act Data",
+        "href": "https://home.treasury.gov/footer/no-fear-act"
+      },
+      {
+        "text": "Reliance on Guidance",
+        "href": "/newsroom/general-overview-of-taxpayer-reliance-on-guidance-published-in-the-internal-revenue-bulletin-and-faqs"
+      },
+      {
+        "text": "IRS Notices and Letters",
+        "href": "/individuals/understanding-your-irs-notice-or-letter"
+      },
+      {
+        "text": "Identity Theft",
+        "href": "/identity-theft-central"
+      },
+      {
+        "text": "Tax scams",
+        "href": "/help/tax-scams"
+      },
+      {
+        "text": "Tax Fraud",
+        "href": "/compliance/criminal-investigation/tax-fraud-alerts"
+      },
+      {
+        "text": "Criminal Investigation",
+        "href": "/compliance/criminal-investigation"
+      },
+      {
+        "text": "Whistleblower Office",
+        "href": "/compliance/whistleblower-office"
+      },
+      {
+        "text": "Español",
+        "href": "https://www.irs.gov/es"
+      },
+      {
+        "text": "中文 (简体)",
+        "href": "https://www.irs.gov/zh-hans"
+      },
+      {
+        "text": "中文 (繁體)",
+        "href": "https://www.irs.gov/zh-hant"
+      },
+      {
+        "text": "한국어",
+        "href": "https://www.irs.gov/ko"
+      },
+      {
+        "text": "Pусский",
+        "href": "https://www.irs.gov/ru"
+      },
+      {
+        "text": "Tiếng Việt",
+        "href": "https://www.irs.gov/vi"
+      },
+      {
+        "text": "Kreyòl ayisyen",
+        "href": "https://www.irs.gov/ht"
+      },
+      {
+        "text": "English",
+        "href": "https://www.irs.gov"
+      },
+      {
+        "text": "U.S. Treasury",
+        "href": "https://www.treasury.gov/"
+      },
+      {
+        "text": "Treasury Inspector General for Tax Administration",
+        "href": "https://www.treasury.gov/tigta/"
+      },
+      {
+        "text": "USA.gov",
+        "href": "https://www.usa.gov/"
+      },
+      {
+        "text": "USAspending.gov",
+        "href": "https://www.usaspending.gov"
+      },
+      {
+        "text": "Vote.gov",
+        "href": "https://vote.gov/"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "/privacy-disclosure/irs-privacy-policy"
+      },
+      {
+        "text": "Accessibility",
+        "href": "/accessibility"
+      },
+      {
+        "text": "AddToAny",
+        "href": "https://www.addtoany.com"
+      },
+      {
+        "text": "More…",
+        "href": "#addtoany"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "/themes/custom/pup_base/images/us_flag_small.png"
+      },
+      {
+        "alt": "",
+        "src": "/themes/custom/pup_base/images/icon-dot-gov.svg"
+      },
+      {
+        "alt": "",
+        "src": "/themes/custom/pup_base/images/icon-https.svg"
+      },
+      {
+        "alt": "Locked padlock icon",
+        "src": "/themes/custom/pup_base/images/lock.svg"
+      },
+      {
+        "alt": "Home",
+        "src": "/themes/custom/pup_base/IRS-Logo.svg"
+      },
+      {
+        "alt": "Home",
+        "src": "/themes/custom/pup_irs/images/logo-print.svg"
+      },
+      {
+        "alt": "Home",
+        "src": "/themes/custom/pup_base/IRS-Logo.svg"
+      },
+      {
+        "alt": "2024 tax rates for a single person earning $58,000 per year. Income from $0 to $11,600 is taxed at 10%. Income from $11,601 to $47,150 is taxed at 12%. Income from $47,151 to $58,000 is taxed at 22%.",
+        "src": "/pub/image/tax-brackets-14nt-en.jpg"
+      },
+      {
+        "alt": "Home",
+        "src": "/themes/custom/pup_base/IRS-Logo.svg"
+      }
+    ],
+    "timestamp": 1760608324487,
+    "url": "https://www.irs.gov/filing/federal-income-tax-rates-and-brackets?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

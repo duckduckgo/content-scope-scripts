@@ -1,0 +1,1001 @@
+{
+  "url": "https://www.chip.de/news/Auch-bei-nicht-kompatibler-Hardware-So-installieren-Sie-das-neueste-Windows-11_184723487.html",
+  "extractedAt": "2025-10-16T09:48:44.411Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.chip.de/fec/assets/favicon/apple-touch-icon.png?v=02",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.chip.de/fec/assets/favicon/favicon-96x96.png?v=02",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.chip.de/fec/assets/favicon/favicon.svg?v=02",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.chip.de/fec/assets/favicon/favicon.ico?v=02",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "Auch bei nicht kompatibler Hardware: So installieren Sie das neueste Windows 11 - CHIP",
+    "metaDescription": "Windows 11 verlangt deutlich stärkere Hardware als sein Vorgänger Windows 10. Doch grundsätzlich können Sie Windows 11 auch auf nicht unterstützter Hardware nutzen. Wir zeigen, wie das geht und wie Sie die Einschränkungen umgehen.",
+    "content": "- [Home](https://www.chip.de)\n \n- [News](https://www.chip.de/nachrichten)\n \n- [Software](https://www.chip.de/nachrichten/software,42323)\n \n     \n# Auch bei nicht kompatibler Hardware: So installieren Sie das neueste Windows 11\n     04.10.2025 21:03   | Von: [Joerg Geiger](https://www.chip.de/autoren/joerg-geiger_258)  \n     \n        Hier klicken zum Abspielen        **Windows 11 verlangt deutlich stärkere Hardware als sein Vorgänger Windows 10. Doch grundsätzlich können Sie Windows 11 auch auf nicht unterstützter Hardware nutzen. Wir zeigen, wie das geht und wie Sie die Einschränkungen umgehen.**                 Unabhängig und kostenlos dank Ihres Klicks\n  Die mit einem Symbol gekennzeichneten Links sind [Affiliate-Links](https://www.chip.de/artikel/FAQ-Erloesmodelle-bei-CHIP-Online_185040792.html#Affiliate-Links). Erfolgt darüber ein Einkauf, erhalten wir eine [Provision](https://www.chip.de/artikel/FAQ-Erloesmodelle-bei-CHIP-Online_185040792.html#Provision) ohne Mehrkosten für Sie. Die redaktionelle Auswahl und Bewertung der Produkte bleibt davon unbeeinflusst. Ihr Klick hilft bei der Finanzierung unseres kostenfreien Angebots. \n       Windows 11 hat die [Hardware-Anforderungen](https://www.chip.de/news/Gratis-Tool-verraet-ob-Ihr-Rechner-Windows-11-vertraegt_183680398.html) merklich hochgeschraubt. Längst nicht jedes System, das mit Windows 10 läuft, ist nach Microsofts Einschätzung tauglich für Windows 11. Trotzdem klappen in vielen Fällen die Installation und auch der Betrieb trotzdem problemlos.\nSie können Windows 11 also oft auch dann installieren und nutzen, wenn die Hardware-Voraussetzungen nicht ganz erfüllt sind. Doch einen Nachteil hat die ganze Sache: Windows-11-Nutzer auf nicht unterstützter Hardware kriegen keine Funktionsupdates. Microsoft hat die Update-Automatik für diese Geräte gestoppt.\nDas macht aber auch nichts, denn auch diese Einschränkung lässt sich überwinden. Egal also, ob Sie von Windows 10 auf Windows 11 wechseln oder schon eine Windows-11-Version nutzen und auf eine neuere umsteigen wollen, wir zeigen Ihnen, wie Sie das neueste Windows 11 auch ohne passende Hardware installieren.\n\n\n- [Gratis-Tool prüft, ob Ihr Rechner Windows 11 kann](https://www.chip.de/news/Gratis-Tool-verraet-ob-Ihr-Rechner-Windows-11-vertraegt_183680398.html)\n\n- [PC zu schwach für Windows 11: Microsoft warnt](https://www.chip.de/news/Microsoft-warnt-PC-zu-schwach-fuer-Windows-11_183693619.html)\n\n- [Windows 11 nervt mit Wasserzeichen auf dem Desktop](https://www.chip.de/news/Was-soll-das-Microsoft-Windows-nervt-mit-Meldung-auf-dem-Desktop_184655864.html)\n\n\n     \n## Windows 11 Hardware-Kompatibilität testen\n \n \n- [### Microsoft PC Health Check: Windows 11 Test Tool 4.0.241023001-s2 Microsoft PC Health Check: Windows 11 Test Tool 4.0.241023001-s2 Der Windows PC Health Check von Microsoft überprüft, ob Ihr Computer bereit ist für Windows 11 und gibt Tipps. CHIP Bewertung: **Gut** zum Download](https://www.chip.de/downloads/Microsoft-PC-Health-Check-Windows-11-Test-Tool_183679660.html)\n \n- [### WhyNotWin11 v2.7 WhyNotWin11 v2.7 Die praktische Freeware WhyNotWin11 zeigt Ihnen, ob Ihr PC mit Windows 11 kompatibel ist. CHIP Bewertung: **Gut** zum Download](https://www.chip.de/downloads/WhyNotWin11-Windows-11-PC-Check_183683106.html)\n \n      \n##  Update-Sperre für Windows 11 \n         Auch wenn die Hardware-Anforderungen nicht erfüllt sind, lässt sich Windows 11 meist installieren. \n  Bild: Screenshot/CHIP \n           Ein paar Worte vorab zum Vorhaben: [Microsoft rät](https://support.microsoft.com/en-us/windows/installing-windows-11-on-devices-that-don-t-meet-minimum-system-requirements-0b2dc4a2-5933-4ad4-9c09-ef0a331518f1) von der Installation von Windows 11 auf nicht unterstützter Hardware ab. Die Rede ist von Kompatibilitätsproblemen, die auftreten könnten. Außerdem sei der Erhalt von Updates nicht mehr gewährleistet und überhaupt würde auch die Herstellergarantie für Schäden nicht mehr greifen. Puh, das hört sich alles nicht gut an.\nDoch so schlimm ist es in der Praxis dann doch nicht: Halbwegs aktuelle Geräte sind ohnehin fit für Windows 11. Wir reden also eher über ältere Hardware, die aber grundsätzlich noch funktioniert. Sperrt Microsoft also Geräte von Updates aus, die die Mindestanforderungen nicht erfüllen? Nein, nach unseren Beobachtungen bisher nicht komplett. Was klappt, sind die monatlichen Patchday-Updates und die sind besonders wichtig, weil damit Sicherheitslücken geschlossen werden.\nWas aber nicht ausgeliefert wird, sind Funktionsupdates. Wer mit Windows 11 23H2 angefangen hat, kriegt also nicht die aktuelle Version 24H2 angeboten. Diese Updates müssen Nutzer auf nicht unterstützter Hardware manuell einspielen. Doch das ist nicht besonders schwer.\n             MicrosoftWindows 11 Pro          19,99 €  Zum Shop   Quelle: BestCheck.de | Preise inkl. MwSt. zzgl. Versand  Weitere Angebote vergleichen           \n##  Neuestes Windows 11 installieren \n         Per ISO-Datei klappt das Update auf eine neue Windows-11-Version. \n  Bild: Screenshot/CHIP \n           Schwer ist das manuelle Einspielen von Windows-11-Updates nicht, Sie müssen nur den richtigen Weg kennen: Es klappt nämlich nicht per Windows Update, auch nicht, wenn Sie dort manuell nach Updates suchen und auch Tools wie der [Windows 11 Installationsassistent](https://www.chip.de/downloads/Windows-11-Installationsassistent_183880458.html) helfen Ihnen nicht weiter.\nSie müssen sich eine [ISO-Datei von Windows 11](https://www.chip.de/downloads/Windows-11-ISO-64-Bit_183880484.html) laden und diese per Doppelklick im Explorer öffnen. Teil des ISOs ist die Datei \"setup.exe\". Die müssen Sie aber mit einem [Trick ausführen](https://www.chip.de/news/Microsoft-austricksen-So-einfach-hebeln-Sie-eine-nervige-Einschraenkung-aus_184978988.html). Klicken Sie dazu erst mit der rechten Maustaste ins Fenster und wählen Sie \"Terminal öffnen\".\nDa hier voreingestellt die PowerShell startet, müssen Sie in der Kommandozeile **cmd** eintippen und mit der Enter-Taste bestätigen, um in die klassische Eingabeaufforderung zu kommen. Dann tippen Sie den Befehl **setup /product server** ein und schicken ihn mit der Enter-Taste ab. Der Installationsassistent startet, gibt aber an, dass er Windows Server installieren will. Keine Angst, es wird die für Ihr System passende Windows-11-Version installiert.\nBeachten Sie, dass sich Windows 11 24H2 nicht installieren lässt, wenn[bestimmte Befehlssatzerweiterungen](https://www.chip.de/news/Windows-11-verschaerft-Regeln-Auf-diesen-Prozessoren-startet-das-System-nicht-mehr_185145834.html) fehlen. Das betrifft aber nur sehr alte Systeme. Wer eine Neuinstallation von Windows 11 24H2 plant, kann sich mit dem kostenlosen Tool [Rufus](https://www.chip.de/downloads/Rufus_59931992.html) auch einen passenden Installations-Stick erstellen, der die Hardware-Prüfung von Windows 11 umgeht.\n     \n## Download: Windows 11 ISO-Datei\n \n \n- [### Windows 11 ISO 64 Bit 25H2 Windows 11 ISO 64 Bit 25H2 Hier bekommen Sie die Windows 11 ISO in der 64-Bit-Version kostenlos zum kostenlosen Download. CHIP Bewertung: **Sehr gut** zum Download](https://www.chip.de/downloads/Windows-11-ISO-64-Bit_183880484.html)\n \n          \n## Verwandte Themen und Artikel\n  \n###   **Mehr Beiträge aus diesem Bereich** \n  \n \n- [Lebensende bei Windows 10: So gut sind Sie jetzt noch vor Viren geschützt](https://www.chip.de/news/software/lebensende-bei-windows-10-so-gut-sind-sie-jetzt-noch-vor-viren-geschuetzt_fa7974b3-3a99-4d1f-9152-3d6a83a86d2e.html)\n \n- [Hunderte Euro beim Flugticket sparen: KI-Experte nennt seine besten Prompts](https://www.chip.de/news/geld-finanzen-recht/hunderte-euro-beim-flugticket-sparen-ki-experte-verraet-seine-besten-tricks_4128faec-5542-4a3f-80ba-94a77164e2a4.html)\n \n- [Windows hängt: Diese Neustart-Alternative müssen Sie kennen](https://www.chip.de/news/Windows-haengt-Diese-Neustart-Alternative-muessen-Sie-kennen_184723583.html)\n \n- [Snapchat begrenzt Speicherplatz: Wer nicht handelt, verliert seine Aufnahmen](https://www.chip.de/news/software/snapchat-begrenzt-speicherplatz-wer-nicht-handelt-verliert-seine-aufnahmen_6984828d-3aa6-411b-8a28-98815f2d684d.html)\n \n- [Android-Nutzer aufgepasst: Wichtige neue Funktion in nur wenigen Schritten aktivierbar](https://www.chip.de/news/software/android-nutzer-aufgepasst-wichtige-neue-funktion-in-nur-wenigen-schritten-aktivierbar_73658a17-f5a0-4406-8dc9-2e36ebb839e6.html)\n \n  [**Mehr zum Thema \"Software\"**](https://www.chip.de/nachrichten/software,42323)     \n### Gerade Angesagt\n [Streifenfreie Fenster ohne Aufwand: Ecovacs Winbot Mini im CHIP-Test zum Bestpreis anzeige](https://www.chip.de/angebote/chip-deals/streifenfreie-fenster-ohne-aufwand-ecovacs-winbot-mini-im-chip-test-zum-bestpreis_2265ceb8-d473-43a4-ad62-0c2097fd53c7.html)   \n###   **Die beliebtesten CHIP-News** \n  \n \n- [Neue Hecken-Regeln: BGH spricht wegweisendes Urteil](https://www.chip.de/news/Neue-Hecken-Regeln-BGH-spricht-wegweisendes-Urteil_186240195.html)\n \n- [Chefkoch stellt klar: Zwei Zutaten verhunzen jede Tomatensauce](https://www.chip.de/news/Chefkoch-stellt-klar-Zwei-Zutaten-verhunzen-jede-Tomatensauce_186122658.html)\n \n- [Wenige Blätter reichen: So vertreiben Sie Mäuse und Ratten](https://www.chip.de/news/Wenige-Blaetter-reichen-So-vertreiben-Sie-Maeuse-und-Ratten_186103308.html)\n \n- [Nach 68.000 Kilometern: Diese zwei Allwetterreifen schlagen im ADAC-Test alle anderen](https://www.chip.de/news/Nach-68.000-Kilometern-Diese-zwei-Allwetterreifen-schlagen-im-...",
+    "truncated": true,
+    "fullContentLength": 12441,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Auch bei nicht kompatibler Hardware: So installieren Sie das neueste Windows 11"
+      },
+      {
+        "level": 2,
+        "text": "Windows 11 Hardware-Kompatibilität testen"
+      },
+      {
+        "level": 3,
+        "text": "Microsoft PC Health Check: Windows 11 Test Tool 4.0.241023001-s2"
+      },
+      {
+        "level": 3,
+        "text": "WhyNotWin11 v2.7"
+      },
+      {
+        "level": 2,
+        "text": "Update-Sperre für Windows 11"
+      },
+      {
+        "level": 2,
+        "text": "Neuestes Windows 11 installieren"
+      },
+      {
+        "level": 2,
+        "text": "Download: Windows 11 ISO-Datei"
+      },
+      {
+        "level": 3,
+        "text": "Windows 11 ISO 64 Bit 25H2"
+      },
+      {
+        "level": 2,
+        "text": "Verwandte Themen und Artikel"
+      },
+      {
+        "level": 3,
+        "text": "Mehr Beiträge aus diesem Bereich"
+      },
+      {
+        "level": 3,
+        "text": "Gerade Angesagt"
+      },
+      {
+        "level": 3,
+        "text": "Die beliebtesten CHIP-News"
+      },
+      {
+        "level": 3,
+        "text": "CHIP Praxistipps"
+      }
+    ],
+    "links": [
+      {
+        "text": "Zum Inhalt springen",
+        "href": "#M1"
+      },
+      {
+        "text": "CHIP Brand Logo",
+        "href": "https://www.chip.de"
+      },
+      {
+        "text": "CHIP-Bestenlisten",
+        "href": "https://www.chip.de/artikel/CHIP-Bestenlisten-Alle-Testsieger-im-ueberblick_12823667.html"
+      },
+      {
+        "text": "Smartphone-Tests",
+        "href": "https://www.chip.de/tests/handy-zubehoer,52023"
+      },
+      {
+        "text": "Akkusauger-Kaufberatung",
+        "href": "https://www.chip.de/artikel/Akku-Staubsauger-Test-Die-besten-Akkusauger_165973314.html"
+      },
+      {
+        "text": "Verbraucher-News",
+        "href": "https://www.chip.de/nachrichten/verbraucher-news,122748"
+      },
+      {
+        "text": "Aktuelle Testberichte",
+        "href": "https://www.chip.de/testberichte"
+      },
+      {
+        "text": "Download-Charts",
+        "href": "https://www.chip.de/download/9232_Downloads/wochen-charts/"
+      },
+      {
+        "text": "Schnäppchen-Angebote",
+        "href": "https://www.chip.de/deals"
+      },
+      {
+        "text": "Test-Videos",
+        "href": "https://www.chip.de/video/test,30597"
+      },
+      {
+        "text": "Haus & Garten-Tipps",
+        "href": "https://praxistipps.chip.de/rubrik/meistgeklickte/haushalt-wohnen"
+      },
+      {
+        "text": "Merkliste",
+        "href": "https://www.chip.de/merkzettel"
+      },
+      {
+        "text": "Sofort zum richtigen Produkt",
+        "href": "https://pick.chip.de/?utm_source=chip&utm_medium=web&utm_campaign=nav&utm_content=nav_1#/"
+      },
+      {
+        "text": "Test & Kaufberatung",
+        "href": "https://www.chip.de/tests"
+      },
+      {
+        "text": "Alle Test & Kaufberatung",
+        "href": "https://www.chip.de/tests"
+      },
+      {
+        "text": "Aktuelle Testberichte",
+        "href": "https://www.chip.de/testberichte"
+      },
+      {
+        "text": "Bestenlisten",
+        "href": "https://www.chip.de/artikel/CHIP-Bestenlisten-Alle-Testsieger-im-ueberblick_12823667.html"
+      },
+      {
+        "text": "Alle Bestenlisten",
+        "href": "https://www.chip.de/artikel/CHIP-Bestenlisten-Alle-Testsieger-im-ueberblick_12823667.html"
+      },
+      {
+        "text": "Smartphones",
+        "href": "https://www.chip.de/bestenlisten/Bestenliste-Handys--index/index/id/900/"
+      },
+      {
+        "text": "In-Ear-Kopfhörer",
+        "href": "https://www.chip.de/bestenlisten/Bestenliste-True-Wireless-In-Ear-Kopfhoerer--index/index/id/1482/"
+      },
+      {
+        "text": "Smartwatches",
+        "href": "https://www.chip.de/bestenlisten/Bestenliste-Smartwatches--index/index/id/1243/"
+      },
+      {
+        "text": "Tablets",
+        "href": "https://www.chip.de/bestenlisten/Bestenliste-Tablets--index/index/id/970/"
+      },
+      {
+        "text": "Notebook",
+        "href": "https://www.chip.de/bestenlisten/Bestenliste-Notebooks--index/index/id/886/"
+      },
+      {
+        "text": "Fitness Tracker",
+        "href": "https://www.chip.de/bestenlisten/Bestenliste-Fitness-Tracker--index/index/id/1171/"
+      },
+      {
+        "text": "Staubsauger",
+        "href": "https://www.chip.de/bestenlisten/Bestenliste-Staubsauger--index/index/id/1206/"
+      },
+      {
+        "text": "Mehr Bestenlisten",
+        "href": "https://www.chip.de/artikel/CHIP-Bestenlisten-Alle-Testsieger-im-ueberblick_12823667.html"
+      },
+      {
+        "text": "Handy & Zubehör",
+        "href": "https://www.chip.de/tests/handy-zubehoer,52023"
+      },
+      {
+        "text": "Foto, Video, Kamera",
+        "href": "https://www.chip.de/tests/foto-video,43744"
+      },
+      {
+        "text": "Notebook & Co.",
+        "href": "https://www.chip.de/tests/notebooks-co,14933"
+      },
+      {
+        "text": "TV & Sound",
+        "href": "https://www.chip.de/tests/tv-sound,39535"
+      },
+      {
+        "text": "Haus & Garten",
+        "href": "https://www.chip.de/tests/haus-garten,132740"
+      },
+      {
+        "text": "Tablet-PC & eBook-Reader",
+        "href": "https://www.chip.de/tests/tablet-pc-ebook-reader,64445"
+      },
+      {
+        "text": "Weitere Test & Kaufberatungen",
+        "href": "https://www.chip.de/tests"
+      },
+      {
+        "text": "Alle Weitere Test & Kaufberatungen",
+        "href": "https://www.chip.de/tests"
+      },
+      {
+        "text": "Auto & Fahrrad",
+        "href": "https://www.chip.de/tests/auto-fahrrad,81227"
+      },
+      {
+        "text": "Drucker, Scanner, Kopierer",
+        "href": "https://www.chip.de/tests/drucker-scanner-kopierer,43736"
+      },
+      {
+        "text": "Essen & Trinken",
+        "href": "https://www.chip.de/tests/essen-trinken,125855"
+      },
+      {
+        "text": "Kleidung & Accessoires",
+        "href": "https://www.chip.de/tests/kleidung-accessoires,128429"
+      },
+      {
+        "text": "PC & Peripherie",
+        "href": "https://www.chip.de/tests/pc-peripherie,39536"
+      },
+      {
+        "text": "Smartwatches & Fitness-Tracker",
+        "href": "https://www.chip.de/tests/smartwatch-fitness-tracker,106298"
+      },
+      {
+        "text": "Freizeit & Familie",
+        "href": "https://www.chip.de/tests/freizeit-familie,128427"
+      },
+      {
+        "text": "Gaming & Zubehör",
+        "href": "https://www.chip.de/tests/gaming-zubehoer,9228"
+      },
+      {
+        "text": "WLAN & Internet",
+        "href": "https://www.chip.de/tests/wlan-internet,29960"
+      },
+      {
+        "text": "Gesundheit & Beauty",
+        "href": "https://www.chip.de/tests/gesundheit-beauty,130423"
+      },
+      {
+        "text": "News",
+        "href": "https://www.chip.de/nachrichten"
+      },
+      {
+        "text": "Alle News",
+        "href": "https://www.chip.de/nachrichten"
+      },
+      {
+        "text": "Haushalt & Garten",
+        "href": "https://www.chip.de/nachrichten/haushalt-garten,135994"
+      },
+      {
+        "text": "Auto & Fahrrad",
+        "href": "https://www.chip.de/nachrichten/autos-bikes,76634"
+      },
+      {
+        "text": "Geld, Finanzen, Recht",
+        "href": "https://www.chip.de/nachrichten/geld-finanzen-recht,125853"
+      },
+      {
+        "text": "Supermärkte & Lebensmittel",
+        "href": "https://www.chip.de/nachrichten/supermaerkte-lebensmittel,135973"
+      },
+      {
+        "text": "Software",
+        "href": "https://www.chip.de/nachrichten/software,42323"
+      },
+      {
+        "text": "Handy",
+        "href": "https://www.chip.de/nachrichten/handy,104013"
+      },
+      {
+        "text": "Gesundheit",
+        "href": "https://www.chip.de/nachrichten/gesundheit,133928"
+      },
+      {
+        "text": "Fitness & Freizeit",
+        "href": "https://www.chip.de/nachrichten/fitness-freizeit,76109"
+      },
+      {
+        "text": "Downloads",
+        "href": "https://www.chip.de/download"
+      },
+      {
+        "text": "Alle Downloads",
+        "href": "https://www.chip.de/download"
+      },
+      {
+        "text": "Download-Charts",
+        "href": "https://www.chip.de/download"
+      },
+      {
+        "text": "Alle Download-Charts",
+        "href": "https://www.chip.de/download"
+      },
+      {
+        "text": "Charts der Woche",
+        "href": "https://www.chip.de/download/9232_Downloads/wochen-charts/"
+      },
+      {
+        "text": "Charts aller Zeiten",
+        "href": "https://www.chip.de/download/9232_Downloads/gesamt-charts/"
+      },
+      {
+        "text": "Must-Have-Downloads",
+        "href": "https://www.chip.de/download/must-have-downloads,54288"
+      },
+      {
+        "text": "Spiele-Downloads",
+        "href": "https://www.chip.de/download/spiele,38911"
+      },
+      {
+        "text": "Download-Neuzugänge",
+        "href": "https://www.chip.de/download/1"
+      },
+      {
+        "text": "Microsoft Teams",
+        "href": "https://www.chip.de/downloads/Microsoft-Teams_102811749.html"
+      },
+      {
+        "text": "Omegle",
+        "href": "https://www.chip.de/downloads/webapp-Omegle_183207344.html"
+      },
+      {
+        "text": "Youtube Downloader",
+        "href": "https://www.chip.de/downloads/Free-YouTube-Download-Youtube-Videos-downloaden_34334309.html"
+      },
+      {
+        "text": "YouTube to MP3 Converter",
+        "href": "https://www.chip.de/downloads/YouTube-2-MP3-Converter_26495270.html"
+      },
+      {
+        "text": "Kategorien A - H",
+        "href": "https://www.chip.de/download"
+      },
+      {
+        "text": "Alle Kategorien A - H",
+        "href": "https://www.chip.de/download"
+      },
+      {
+        "text": "3D, Drucken & Vorlagen",
+        "href": "https://www.chip.de/download/3d-drucken-vorlagen,75411"
+      },
+      {
+        "text": "Audio & Video",
+        "href": "https://www.chip.de/download/audio-video,38909"
+      },
+      {
+        "text": "Beta-Downloads",
+        "href": "https://www.chip.de/download/beta-downloads,68105"
+      },
+      {
+        "text": "Brennen & DVD",
+        "href": "https://www.chip.de/download/brennen-dvd,38910"
+      },
+      {
+        "text": "Browser & Onlinespiele",
+        "href": "https://www.chip.de/download/flash-browser-spiele,38965"
+      },
+      {
+        "text": "Browser-Erweiterungen",
+        "href": "https://www.chip.de/download/browser-addons,38919"
+      },
+      {
+        "text": "Desktop & Modding",
+        "href": "https://www.chip.de/download/desktop-modding,38908"
+      },
+      {
+        "text": "Foto & Grafik",
+        "href": "https://www.chip.de/download/foto-grafik,38907"
+      },
+      {
+        "text": "Handy-Apps",
+        "href": "https://www.chip.de/download/handy-downloads,52056"
+      },
+      {
+        "text": "Hobby & Unterhaltung",
+        "href": "https://www.chip.de/download/hobby-unterhaltung,59328"
+      },
+      {
+        "text": "Kategorien I - Z",
+        "href": "https://www.chip.de/download"
+      },
+      {
+        "text": "Alle Kategorien I - Z",
+        "href": "https://www.chip.de/download"
+      },
+      {
+        "text": "Internet, Online & Web",
+        "href": "https://www.chip.de/download/internet-online-web,38906"
+      },
+      {
+        "text": "Linux",
+        "href": "https://www.chip.de/download/linux,38916"
+      },
+      {
+        "text": "MacOS",
+        "href": "https://www.chip.de/download/macos,38917"
+      },
+      {
+        "text": "Office & Geld",
+        "href": "https://www.chip.de/download/office-geld,38914"
+      },
+      {
+        "text": "Portable & Mobile",
+        "href": "https://www.chip.de/download/portable-mobile,38915"
+      },
+      {
+        "text": "Schule & Bildung",
+        "href": "https://www.chip.de/download/schule-bildung,134167"
+      },
+      {
+        "text": "Sicherheit & Hilfe",
+        "href": "https://www.chip.de/download/sicherheit-hilfe,38913"
+      },
+      {
+        "text": "Spiele",
+        "href": "https://www.chip.de/download/spiele,38911"
+      },
+      {
+        "text": "Tuning & System",
+        "href": "https://www.chip.de/download/tuning-system,38912"
+      },
+      {
+        "text": "Windows Apps",
+        "href": "https://www.chip.de/download/windows-apps,87932"
+      },
+      {
+        "text": "Web-Apps",
+        "href": "https://www.chip.de/download/web-apps,46949"
+      },
+      {
+        "text": "Android-Apps",
+        "href": "https://www.chip.de/download/android-apps,60988"
+      },
+      {
+        "text": "iOS-Apps",
+        "href": "https://www.chip.de/download/iphone-apps,59059"
+      },
+      {
+        "text": "Praxistipps",
+        "href": "https://praxistipps.chip.de/"
+      },
+      {
+        "text": "Alle Praxistipps",
+        "href": "https://praxistipps.chip.de/"
+      },
+      {
+        "text": "Internet",
+        "href": "https://praxistipps.chip.de/rubrik/meistgeklickte/internet"
+      },
+      {
+        "text": "Spiele",
+        "href": "https://praxistipps.chip.de/rubrik/meistgeklickte/spiele"
+      },
+      {
+        "text": "Software",
+        "href": "https://praxistipps.chip.de/rubrik/meistgeklickte/software"
+      },
+      {
+        "text": "Android",
+        "href": "https://praxistipps.chip.de/rubrik/meistgeklickte/android"
+      },
+      {
+        "text": "iOS",
+        "href": "https://praxistipps.chip.de/rubrik/meistgeklickte/ios"
+      },
+      {
+        "text": "Hardware",
+        "href": "https://praxistipps.chip.de/rubrik/meistgeklickte/hardware"
+      },
+      {
+        "text": "Windows",
+        "href": "https://praxistipps.chip.de/rubrik/meistgeklickte/windows"
+      },
+      {
+        "text": "Freizeit & Hobby",
+        "href": "https://praxistipps.chip.de/rubrik/meistgeklickte/freizeit-hobby"
+      },
+      {
+        "text": "MS Office",
+        "href": "https://praxistipps.chip.de/rubrik/meistgeklickte/ms-office"
+      },
+      {
+        "text": "Handy",
+        "href": "https://www.chip.de/tests/handy-zubehoer,52023"
+      },
+      {
+        "text": "Alle Handy",
+        "href": "https://www.chip.de/tests/handy-zubehoer,52023"
+      },
+      {
+        "text": "Handy Bestenliste",
+        "href": "https://www.chip.de/bestenlisten/Bestenliste-Handys--index/index/id/900/"
+      },
+      {
+        "text": "News",
+        "href": "https://www.chip.de/nachrichten/handy,104013"
+      },
+      {
+        "text": "App-Charts: Top 100",
+        "href": "https://www.chip.de/download/60988_Android-Apps/wochen-charts/"
+      },
+      {
+        "text": "Alle App-Charts: Top 100",
+        "href": "https://www.chip.de/download/60988_Android-Apps/wochen-charts/"
+      },
+      {
+        "text": "Top 100 iPhone-Apps",
+        "href": "https://www.chip.de/download/59059_iPhone-Apps/wochen-charts/"
+      },
+      {
+        "text": "Top 100 Android-Apps",
+        "href": "https://www.chip.de/download/60988_Android-Apps/wochen-charts/"
+      },
+      {
+        "text": "Apps & Downloads",
+        "href": "https://www.chip.de/download/handy-downloads,52056"
+      },
+      {
+        "text": "Mobilfunktarif Vergleich",
+        "href": "https://tarife.chip.de/"
+      },
+      {
+        "text": "Video",
+        "href": "https://www.chip.de/video"
+      },
+      {
+        "text": "Alle Video",
+        "href": "https://www.chip.de/video"
+      },
+      {
+        "text": "News",
+        "href": "https://www.chip.de/video/news,95957"
+      },
+      {
+        "text": "Test",
+        "href": "https://www.chip.de/video/test,30597"
+      },
+      {
+        "text": "Handy",
+        "href": "https://www.chip.de/video/handy,52223"
+      },
+      {
+        "text": "Software",
+        "href": "https://www.chip.de/video/software,30596"
+      },
+      {
+        "text": "Elektromobilität",
+        "href": "https://www.chip.de/video/elektromobilitaet,136081"
+      },
+      {
+        "text": "Verbraucher",
+        "href": "https://www.chip.de/video/verbraucher,134158"
+      },
+      {
+        "text": "Solaranlagen",
+        "href": "https://www.chip.de/video/solaranlagen,136082"
+      },
+      {
+        "text": "Wissen",
+        "href": "https://www.chip.de/video/wissen,134156"
+      },
+      {
+        "text": "Unterhaltung",
+        "href": "https://www.chip.de/video/unterhaltung,134114"
+      },
+      {
+        "text": "Schnäppchen",
+        "href": "https://www.chip.de/video/schnaeppchen,134157"
+      },
+      {
+        "text": "Spiele & Trailer",
+        "href": "https://www.chip.de/video/spiele-trailer,41236"
+      },
+      {
+        "text": "Deals",
+        "href": "https://www.chip.de/deals"
+      },
+      {
+        "text": "Alle Deals",
+        "href": "https://www.chip.de/deals"
+      },
+      {
+        "text": "Schnäppchen",
+        "href": "https://www.chip.de/deals/schnaeppchen,134829"
+      },
+      {
+        "text": "Shopping-Deals",
+        "href": "https://www.chip.de/deals/chip-deals,130295"
+      },
+      {
+        "text": "Cyberweek",
+        "href": "https://www.chip.de/deals/cyberweek,113931"
+      },
+      {
+        "text": "Black Friday",
+        "href": "https://www.chip.de/deals/black-friday,95536"
+      },
+      {
+        "text": "ePower",
+        "href": "https://www.chip.de/tests/epower,136093"
+      },
+      {
+        "text": "Home",
+        "href": "https://www.chip.de"
+      },
+      {
+        "text": "Test & Kaufberatung",
+        "href": "https://www.chip.de/tests"
+      },
+      {
+        "text": "News",
+        "href": "https://www.chip.de/nachrichten"
+      },
+      {
+        "text": "Downloads",
+        "href": "https://www.chip.de/download"
+      },
+      {
+        "text": "Praxistipps",
+        "href": "https://praxistipps.chip.de/"
+      },
+      {
+        "text": "Handy",
+        "href": "https://www.chip.de/tests/handy-zubehoer,52023"
+      },
+      {
+        "text": "Video",
+        "href": "https://www.chip.de/video"
+      },
+      {
+        "text": "Deals",
+        "href": "https://www.chip.de/deals"
+      },
+      {
+        "text": "ePower",
+        "href": "https://www.chip.de/tests/epower,136093"
+      },
+      {
+        "text": "Home",
+        "href": "https://www.chip.de"
+      },
+      {
+        "text": "News",
+        "href": "https://www.chip.de/nachrichten"
+      },
+      {
+        "text": "Software",
+        "href": "https://www.chip.de/nachrichten/software,42323"
+      },
+      {
+        "text": "Joerg Geiger",
+        "href": "https://www.chip.de/autoren/joerg-geiger_258"
+      },
+      {
+        "text": "Affiliate-Links",
+        "href": "https://www.chip.de/artikel/FAQ-Erloesmodelle-bei-CHIP-Online_185040792.html#Affiliate-Links"
+      },
+      {
+        "text": "Provision",
+        "href": "https://www.chip.de/artikel/FAQ-Erloesmodelle-bei-CHIP-Online_185040792.html#Provision"
+      },
+      {
+        "text": "Hardware-Anforderungen",
+        "href": "https://www.chip.de/news/Gratis-Tool-verraet-ob-Ihr-Rechner-Windows-11-vertraegt_183680398.html"
+      },
+      {
+        "text": "Gratis-Tool prüft, ob Ihr Rechner Windows 11 kann",
+        "href": "https://www.chip.de/news/Gratis-Tool-verraet-ob-Ihr-Rechner-Windows-11-vertraegt_183680398.html"
+      },
+      {
+        "text": "PC zu schwach für Windows 11: Microsoft warnt",
+        "href": "https://www.chip.de/news/Microsoft-warnt-PC-zu-schwach-fuer-Windows-11_183693619.html"
+      },
+      {
+        "text": "Windows 11 nervt mit Wasserzeichen auf dem Desktop",
+        "href": "https://www.chip.de/news/Was-soll-das-Microsoft-Windows-nervt-mit-Meldung-auf-dem-Desktop_184655864.html"
+      },
+      {
+        "text": "Microsoft PC Health Check: Windows 11 Test Tool 4.0.241023001-s2\n                                \n                                \n                                    \n                                        \n\n        \n\n\n    \n\n        \n\n            <img src=\"https://im.chip.de/ii/1/2/6/4/9/4/3/4/8/win8_logo-0063f15a1b7a6a2c.jpg?im=Resize%3D%28110%2C110%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%281%2C1%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&amp;hash=6d9119880025e6f09517e3f11e404321f1fde5ea841d3f7ba41fce456d91b702\" srcset=\"https://im.chip.de/ii/1/2/6/4/9/4/3/4/8/win8_logo-0063f15a1b7a6a2c.jpg?im=Resize%3D%2867%2C67%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%281%2C1%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&amp;hash=6b4644de67bb6457fa3cb64d1cb54e863ac5d427f65cb04b33c4c5531ca921c5 67w, https://im.chip.de/ii/1/2/6/4/9/4/3/4/8/win8_logo-0063f15a1b7a6a2c.jpg?im=Resize%3D%28110%2C110%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%281%2C1%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&amp;hash=6d9119880025e6f09517e3f11e404321f1fde5ea841d3f7ba41fce456d91b702 110w\" alt=\"Windows 8 Setup Tool\">\n        \n                                        \n                                    \n                                        1\n                                    \n                                \n                                \n                                    \n                                        Microsoft PC Health Check: Windows 11 Test Tool 4.0.241023001-s2\n                                        Version 1.2.39\n                                        Der Windows PC Health Check von Microsoft überprüft, ob Ihr Computer bereit ist für Windows 11 und gibt Tipps.\n                                    \n                                    \n                                                                                    CHIP Bewertung: \n                                            Gut\n                                                                                zum Download",
+        "href": "https://www.chip.de/downloads/Microsoft-PC-Health-Check-Windows-11-Test-Tool_183679660.html"
+      },
+      {
+        "text": "WhyNotWin11 v2.7\n                                \n                                \n                                    \n                                        \n\n        \n\n\n    \n\n        \n\n            <img src=\"https://im.chip.de/ii/1/2/6/4/9/5/2/4/0/Screenshot_2025-01-14_165539-5b2659fc08bf4a1d.png?im=Resize%3D%28110%2C110%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%281%2C1%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&amp;hash=8a700f40f9dfabe6449604baeb38839db893295011b9b20b9be19625e6bfff61\" srcset=\"https://im.chip.de/ii/1/2/6/4/9/5/2/4/0/Screenshot_2025-01-14_165539-5b2659fc08bf4a1d.png?im=Resize%3D%2867%2C67%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%281%2C1%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&amp;hash=125060e23f8af26e2efe7589902f259ecbe4f6c8acae82e725e4b76a88a61e6f 67w, https://im.chip.de/ii/1/2/6/4/9/5/2/4/0/Screenshot_2025-01-14_165539-5b2659fc08bf4a1d.png?im=Resize%3D%28110%2C110%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%281%2C1%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&amp;hash=8a700f40f9dfabe6449604baeb38839db893295011b9b20b9be19625e6bfff61 110w\" alt=\"WhyNotWin11\">\n        \n                                        \n                                    \n                                        1\n                                    \n                                \n                                \n                                    \n                                        WhyNotWin11 v2.7\n                                        Version 1.2.39\n                                        Die praktische Freeware WhyNotWin11 zeigt Ihnen, ob Ihr PC mit Windows 11 kompatibel ist.\n                                    \n                                    \n                                                                                    CHIP Bewertung: \n                                            Gut\n                                                                                zum Download",
+        "href": "https://www.chip.de/downloads/WhyNotWin11-Windows-11-PC-Check_183683106.html"
+      },
+      {
+        "text": "Microsoft rät",
+        "href": "https://support.microsoft.com/en-us/windows/installing-windows-11-on-devices-that-don-t-meet-minimum-system-requirements-0b2dc4a2-5933-4ad4-9c09-ef0a331518f1"
+      },
+      {
+        "text": "Windows 11 Installationsassistent",
+        "href": "https://www.chip.de/downloads/Windows-11-Installationsassistent_183880458.html"
+      },
+      {
+        "text": "ISO-Datei von Windows 11",
+        "href": "https://www.chip.de/downloads/Windows-11-ISO-64-Bit_183880484.html"
+      },
+      {
+        "text": "Trick ausführen",
+        "href": "https://www.chip.de/news/Microsoft-austricksen-So-einfach-hebeln-Sie-eine-nervige-Einschraenkung-aus_184978988.html"
+      },
+      {
+        "text": "bestimmte Befehlssatzerweiterungen",
+        "href": "https://www.chip.de/news/Windows-11-verschaerft-Regeln-Auf-diesen-Prozessoren-startet-das-System-nicht-mehr_185145834.html"
+      },
+      {
+        "text": "Rufus",
+        "href": "https://www.chip.de/downloads/Rufus_59931992.html"
+      },
+      {
+        "text": "Windows 11 ISO 64 Bit 25H2\n                                \n                                \n                                    \n                                        \n\n        \n\n\n    \n\n        \n\n            <img src=\"https://im.chip.de/ii/1/2/6/5/3/1/7/5/8/win11.jpg-51a9300661317550.png?im=Resize%3D%28110%2C110%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%281%2C1%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&amp;hash=712a3f3274bfc7f5cc14fc723bbaa9b3b006076a31f3641527b22cdace135513\" srcset=\"https://im.chip.de/ii/1/2/6/5/3/1/7/5/8/win11.jpg-51a9300661317550.png?im=Resize%3D%2867%2C67%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%281%2C1%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&amp;hash=5c83927b393f64b24f842573a3201f6bb92034f34f8c66385196f212e40397c2 67w, https://im.chip.de/ii/1/2/6/5/3/1/7/5/8/win11.jpg-51a9300661317550.png?im=Resize%3D%28110%2C110%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%281%2C1%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&amp;hash=712a3f3274bfc7f5cc14fc723bbaa9b3b006076a31f3641527b22cdace135513 110w\" alt=\"Windows 11 ISO 64 Bit\">\n        \n                                        \n                                    \n                                        1\n                                    \n                                \n                                \n                                    \n                                        Windows 11 ISO 64 Bit 25H2\n                                        Version 1.2.39\n                                        Hier bekommen Sie die Windows 11 ISO in der 64-Bit-Version kostenlos zum kostenlosen Download.\n                                    \n                                    \n                                                                                    CHIP Bewertung: \n                                            Sehr gut\n                                                                                zum Download",
+        "href": "https://www.chip.de/downloads/Windows-11-ISO-64-Bit_183880484.html"
+      },
+      {
+        "text": "Lebensende bei Windows 10: So gut sind Sie jetzt noch vor Viren geschützt",
+        "href": "https://www.chip.de/news/software/lebensende-bei-windows-10-so-gut-sind-sie-jetzt-noch-vor-viren-geschuetzt_fa7974b3-3a99-4d1f-9152-3d6a83a86d2e.html"
+      },
+      {
+        "text": "Hunderte Euro beim Flugticket sparen: KI-Experte nennt seine besten Prompts",
+        "href": "https://www.chip.de/news/geld-finanzen-recht/hunderte-euro-beim-flugticket-sparen-ki-experte-verraet-seine-besten-tricks_4128faec-5542-4a3f-80ba-94a77164e2a4.html"
+      },
+      {
+        "text": "Windows hängt: Diese Neustart-Alternative müssen Sie kennen",
+        "href": "https://www.chip.de/news/Windows-haengt-Diese-Neustart-Alternative-muessen-Sie-kennen_184723583.html"
+      },
+      {
+        "text": "Snapchat begrenzt Speicherplatz: Wer nicht handelt, verliert seine Aufnahmen",
+        "href": "https://www.chip.de/news/software/snapchat-begrenzt-speicherplatz-wer-nicht-handelt-verliert-seine-aufnahmen_6984828d-3aa6-411b-8a28-98815f2d684d.html"
+      },
+      {
+        "text": "Android-Nutzer aufgepasst: Wichtige neue Funktion in nur wenigen Schritten aktivierbar",
+        "href": "https://www.chip.de/news/software/android-nutzer-aufgepasst-wichtige-neue-funktion-in-nur-wenigen-schritten-aktivierbar_73658a17-f5a0-4406-8dc9-2e36ebb839e6.html"
+      },
+      {
+        "text": "Mehr zum Thema \"Software\"",
+        "href": "https://www.chip.de/nachrichten/software,42323"
+      },
+      {
+        "text": "<img src=\"https://im.chip.de/ii/1/2/6/9/5/7/7/7/2/Ecovacs-Winbot-Mini-54d27d5b97195236.jpg?im=Resize%3D%28298%2C168%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%28298%2C168%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&hash=74f138a39015ad249c09b8a15ead0765b621418540b135f8d7e6f4313a37eba4\"  alt=\"Die In-Ears von DasProdukt.de im CHIP Testcenter\" />\n        \n    \n                    \n\n        \n        \n            \n                Streifenfreie Fenster ohne Aufwand: Ecovacs Winbot Mini im CHIP-Test zum Bestpreis\n                \n                \n                            \n        \n    \n\n            \n            anzeige",
+        "href": "https://www.chip.de/angebote/chip-deals/streifenfreie-fenster-ohne-aufwand-ecovacs-winbot-mini-im-chip-test-zum-bestpreis_2265ceb8-d473-43a4-ad62-0c2097fd53c7.html"
+      },
+      {
+        "text": "Neue Hecken-Regeln: BGH spricht wegweisendes Urteil",
+        "href": "https://www.chip.de/news/Neue-Hecken-Regeln-BGH-spricht-wegweisendes-Urteil_186240195.html"
+      },
+      {
+        "text": "Chefkoch stellt klar: Zwei Zutaten verhunzen jede Tomatensauce",
+        "href": "https://www.chip.de/news/Chefkoch-stellt-klar-Zwei-Zutaten-verhunzen-jede-Tomatensauce_186122658.html"
+      },
+      {
+        "text": "Wenige Blätter reichen: So vertreiben Sie Mäuse und Ratten",
+        "href": "https://www.chip.de/news/Wenige-Blaetter-reichen-So-vertreiben-Sie-Maeuse-und-Ratten_186103308.html"
+      },
+      {
+        "text": "Nach 68.000 Kilometern: Diese zwei Allwetterreifen schlagen im ADAC-Test alle anderen",
+        "href": "https://www.chip.de/news/Nach-68.000-Kilometern-Diese-zwei-Allwetterreifen-schlagen-im-ADAC-Test-alle-anderen_185778864.html"
+      },
+      {
+        "text": "Keiner weiß es: Hinter diesem Aldi-Waschmittel steckt teures Markenprodukt",
+        "href": "https://www.chip.de/news/supermaerkte-lebensmittel/wussten-sie-es-hinter-diesem-aldi-waschmittel-steckt-bekannte-marke_da99253b-bb1b-436f-846e-da72bd9a118e.html"
+      },
+      {
+        "text": "Mehr",
+        "href": "https://www.chip.de/nachrichten"
+      },
+      {
+        "text": "WhatsApp: Umfragen und Abstimmungen erstellen – so geht's",
+        "href": "https://praxistipps.chip.de/whatsapp-umfrage-erstellen-so-gelingts_130162"
+      },
+      {
+        "text": "Nintendo: Liste aller Konsolen - von den Anfängen bis heute",
+        "href": "https://praxistipps.chip.de/nintendo-liste-aller-konsolen-von-den-anfaengen-bis-heute_165493"
+      },
+      {
+        "text": "Disclaimer: Bedeutung und Verwendung des Begriffs erklärt",
+        "href": "https://praxistipps.chip.de/disclaimer-bedeutung-und-verwendung-des-begriffs-erklaert_152870"
+      },
+      {
+        "text": "Floppy Disk:  Speicherplatz - so viele Daten passen auf eine Diskette",
+        "href": "https://praxistipps.chip.de/floppy-disk-speicherplatz-so-viele-daten-passen-auf-eine-diskette_161462"
+      },
+      {
+        "text": "Wann kommt Staffel 3 von \"Euphoria\"? Alles zu Termin, Story & Besetzung",
+        "href": "https://praxistipps.chip.de/wann-kommt-staffel-3-von-euphoria-alles-zu-termin-story-besetzung_190596"
+      },
+      {
+        "text": "Mehr",
+        "href": "https://praxistipps.chip.de/"
+      },
+      {
+        "text": "<img src=\"https://media-images.chip.de/f6876ff40f5a74303c2b874c26eeb219bb08a0e6/60c638af0cd21d17d0e06a0c0494aeb9aace1768/POSTER_USER_RAW/latest/poster.png?im=Resize=(360,640)&hash=d4fe387c85486077d8638835defeb38b16f8a5e29554425e3ac48cecf041f234\"  alt=\"Musik kostenlos herunterladen: So geht's\" />\n        \n    \n                                                \n                        \n                    \n                                    \n\n        \n        \n            \n                Musik kostenlos herunterladen: So geht's",
+        "href": "https://www.chip.de/video/Musik-kostenlos-herunterladen-So-geht-s-Video_170189109.html"
+      },
+      {
+        "text": "<img src=\"https://media-images.chip.de/f6876ff40f5a74303c2b874c26eeb219bb08a0e6/6030605e76fb6256a1a599eae6235bea74085c88/POSTER_USER_RAW/latest/poster.png?im=Resize=(360,640)&hash=7dce93ebef3e2d76059fedab13fd7d9c4e7bf6fef76bc58b0051c0218b6174a7\"  alt=\"Windows 11 für alle: Gratis-Tool hebt alle Hardware-Sperren auf\" />\n        \n    \n                                                \n                        \n                    \n                                    \n\n        \n        \n            \n                Windows 11 für alle: Gratis-Tool hebt alle Hardware-Sperren auf",
+        "href": "https://www.chip.de/video/Windows-11-fuer-alle-Gratis-Tool-hebt-alle-Hardware-Sperren-auf-Video_186167745.html"
+      },
+      {
+        "text": "<img src=\"https://media-images.chip.de/f6876ff40f5a74303c2b874c26eeb219bb08a0e6/78711bb8f4857c9bcd8f9d1587d10dea8f09b734/POSTER_USER_RAW/latest/poster.png?im=Resize=(360,640)&hash=b0b8ba26657036c68a814e602eeca1b15c591cfcb3736f33f0c8f46f8d66600c\"  alt=\"So können Sie Ihre WhatsApp-Tastatur ändern\" />\n        \n    \n                                                \n                        \n                    \n                                    \n\n        \n        \n            \n                So können Sie Ihre WhatsApp-Tastatur ändern",
+        "href": "https://www.chip.de/video/So-koennen-Sie-Ihre-WhatsApp-Tastatur-aendern-Video_133081778.html"
+      },
+      {
+        "text": "<img src=\"https://media-images.chip.de/f6876ff40f5a74303c2b874c26eeb219bb08a0e6/7b2ba7dda523a902bee8918197694de02e7ed84d/POSTER_USER_RAW/latest/poster.png?im=Resize=(360,640)&hash=a7841ec45c0320c90b2af7409a0a64600d114d64d3f6749ef53cb1751cd0cce5\"  alt=\"Windows-Alternative: Microsoft-Mitarbeiter macht einfach sein eigenes System\" />\n        \n    \n                                                \n                        \n                    \n                                    \n\n        \n        \n            \n                Windows-Alternative: Microsoft-Mitarbeiter macht einfach sein eigenes System",
+        "href": "https://www.chip.de/video/Windows-Alternative-Microsoft-Mitarbeiter-macht-einfach-sein-eigenes-System-Video_186122545.html"
+      },
+      {
+        "text": "<img src=\"https://media-images.chip.de/f6876ff40f5a74303c2b874c26eeb219bb08a0e6/f53d9e93a33471fdd7b23d07c6c62708752286ad/POSTER_USER_RAW/latest/poster.png?im=Resize=(360,640)&hash=9e1a7676d2f579f3eb3695ad968f6a5aeb00282cee12c754e64721a39a4a03a7\"  alt=\"Jetzt doch gratis: Microsoft verlängert Support von Windows 10\" />\n        \n    \n                                                \n                        \n                    \n                                    \n\n        \n        \n            \n                Jetzt doch gratis: Microsoft verlängert Support von Windows 10",
+        "href": "https://www.chip.de/video/Jetzt-doch-gratis-Microsoft-verlaengert-Support-von-Windows-10-Video_186077977.html"
+      },
+      {
+        "text": "<img src=\"https://media-images.chip.de/f6876ff40f5a74303c2b874c26eeb219bb08a0e6/ebae4f35c29504deb70aeb8ea802177306bb069a/POSTER_USER_RAW/latest/poster.png?im=Resize=(360,640)&hash=8878a8edbfd5fbf664cc93f94aca38cd3f715ba1d0c2991ecfe34099add2b368\"  alt=\"FlyBy11: Hardware-Anforderungen von Windows 11 einfach umgehen\" />\n        \n    \n                                                \n                        \n                    \n                                    \n\n        \n        \n            \n                FlyBy11: Hardware-Anforderungen von Windows 11 einfach umgehen",
+        "href": "https://www.chip.de/video/FlyBy11-Hardware-Anforderungen-von-Windows-11-einfach-umgehen-Video_185572900.html"
+      },
+      {
+        "text": "<img src=\"https://media-images.chip.de/f6876ff40f5a74303c2b874c26eeb219bb08a0e6/2872d1d03996fb38fa2a9452e199cfbb66a1f367/POSTER_USER_RAW/latest/poster.png?im=Resize=(360,640)&hash=c6212aea7b49032a994574879da4572b7259c4b6047a0d1e56727d3e4f243f64\"  alt=\"Microsoft-Sperre umgehen: So installieren Sie Windows 11 auf inkompatibler Hardware\" />\n        \n    \n                                                \n                        \n                    \n                                    \n\n        \n        \n            \n                Microsoft-Sperre umgehen: So installieren Sie Windows 11 auf inkompatibler Hardware",
+        "href": "https://www.chip.de/video/Microsoft-Sperre-umgehen-So-installieren-Sie-Windows-11-auf-inkompatibler-Hardware-Video_185531946.html"
+      },
+      {
+        "text": "<img src=\"https://media-images.chip.de/f6876ff40f5a74303c2b874c26eeb219bb08a0e6/e2a808a69e4c55d3a5743dd65e3e9b2165473bb2/POSTER_USER_RAW/latest/poster.png?im=Resize=(360,640)&hash=26847fb06081308045856f0c5ae8b0e6c99c405e607af7a1839b80e521c78dc0\"  alt=\"Windows Key schnell und einfach finden\" />\n        \n    \n                                                \n                        \n                    \n                                    \n\n        \n        \n            \n                Windows Key schnell und einfach finden",
+        "href": "https://www.chip.de/video/Windows-Key-schnell-und-einfach-finden-Video_110421254.html"
+      },
+      {
+        "text": "<img src=\"https://media-images.chip.de/f6876ff40f5a74303c2b874c26eeb219bb08a0e6/686dad89851aaf21e1d87b1f8eef0d81c827a24a/POSTER_USER_RAW/latest/poster.png?im=Resize=(360,640)&hash=14605e5fadf3a6e26a11258fd1cd20c742684ae3d1c1ff5d1a219244bb211a87\"  alt=\"Unberechtigte Updates auf Windows 11: Das sagt Microsoft dazu\" />\n        \n    \n                                                \n                        \n                    \n                                    \n\n        \n        \n            \n                Unberechtigte Updates auf Windows 11: Das sagt Microsoft dazu",
+        "href": "https://www.chip.de/video/Unberechtigte-Updates-auf-Windows-11-Das-sagt-Microsoft-dazu-Video_185679695.html"
+      },
+      {
+        "text": "<img src=\"https://media-images.chip.de/f6876ff40f5a74303c2b874c26eeb219bb08a0e6/3d7dbd05c267bc1fc0cafcd3bc8294dc93641f8b/POSTER_USER_RAW/latest/poster.png?im=Resize=(360,640)&hash=7d4dd7e26bb61222aba093966243fa2627952aa57a9bcf599ea003026d47ed1c\"  alt=\"Apple Pencil mit dem iPad verbinden\" />\n        \n    \n                                                \n                        \n                    \n                                    \n\n        \n        \n            \n                Apple Pencil mit dem iPad verbinden",
+        "href": "https://www.chip.de/video/Apple-Pencil-mit-dem-iPad-verbinden-Video_183043605.html"
+      },
+      {
+        "text": "Über CHIP",
+        "href": "https://www.chip.de/artikel/CHIP.de-So-arbeitet-das-groesste-Verbraucher-Portal-Deutschlands_182509333.html"
+      },
+      {
+        "text": "Autoren",
+        "href": "https://www.chip.de/artikel/Die-CHIP-Experten-aus-Redaktion-und-Testcenter_186088519.html"
+      },
+      {
+        "text": "Newsletter-Service",
+        "href": "https://services.chip.de/anmeldung"
+      },
+      {
+        "text": "RSS",
+        "href": "https://www.chip.de/artikel/RSS-Feeds-von-CHIP_182734853.html"
+      },
+      {
+        "text": "Überblick",
+        "href": "https://www.chip.de/artikel/ueberblick.html"
+      },
+      {
+        "text": "Werbepartner Inhalte",
+        "href": "https://article.chip.de/"
+      },
+      {
+        "text": "Was bedeutet der Einkaufswagen?",
+        "href": "https://www.chip.de/news/FAQ-Erloesmodelle-bei-CHIP-Online_113877092.html"
+      },
+      {
+        "text": "© BurdaForward GmbH 2025",
+        "href": "https://www.chip.info/"
+      },
+      {
+        "text": "Content Management",
+        "href": "https://www.interred.de/"
+      },
+      {
+        "text": "Impressum",
+        "href": "https://www.chip.de/intern/impressum-chip_07704620-7bee-4255-a927-3596c5f3917d.html"
+      },
+      {
+        "text": "Nutzungshinweis",
+        "href": "https://www.chip.de/intern/nutzungsbedingungen-chip_4fcb8cef-57bb-49ba-81eb-d27a76e3b8d5.html"
+      },
+      {
+        "text": "Datenschutz",
+        "href": "https://www.chip.de/intern/datenschutzerklaerung-chip_c7c1fa99-0613-448e-9dbd-6ebbeb5a0277.html"
+      },
+      {
+        "text": "Datenschutz Einstellung",
+        "href": "#/"
+      },
+      {
+        "text": "Kontakt",
+        "href": "https://www.chip.de/intern/kontaktformular-chip_763e4695-5d08-4403-bc82-0efffe2018d7.html"
+      },
+      {
+        "text": "Utiq verwalten",
+        "href": "https://www.chip.de/intern/utiq-verwalten_46ac3346-b7d8-412f-818c-b36832910235.html"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Burda Digital Health",
+        "src": "https://www.chip.de/fec/assets/img/burda-digital-health.svg?v=01"
+      },
+      {
+        "alt": "",
+        "src": "https://chip.met.vgwort.de/na/7739164412d34330bbd49e1063f7a4ab"
+      },
+      {
+        "alt": "play",
+        "src": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2228%22%20height%3D%2232%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22m2.174.214%2025.171%2014.668c.612.398.766%201.194.398%201.776-.092.153-.245.276-.398.398L2.174%2031.755c-.643.429-1.5.276-1.929-.367A1.245%201.245%200%200%201%200%2030.653V1.317A1.434%201.434%200%200%201%201.531%200c.245.031.459.092.643.214z%22%2F%3E%3C%2Fsvg%3E"
+      },
+      {
+        "alt": "Windows 8 Setup Tool",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "WhyNotWin11",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "Hinweismeldung auf inkompatible Hardware für Windows 11",
+        "src": "https://im.chip.de/ii/1/2/6/7/5/3/8/8/0/aufmacher_v3-9b61109341867613.jpg?im=AspectCrop%2Csize%3D%2816%2C9%29%2Cgravity%3DCenter%2CallowExpansion%3BResize%3D%28936%2C526%29%2Caspect%3Dfit%3BBackgroundColor%2Ccolor%3Dffffff&hash=3753b11397ea3dbbc5ab62f3aa5dfd8e03bac315ff934c77f9f25df824d90cf4"
+      },
+      {
+        "alt": "MicrosoftWindows 11 Pro",
+        "src": "https://im.bestcheck.de/img/1000000/1017000/1017568_02642f5e448b87d5159bbf0b6a5475d7234032603aadcfeace6f4c225d601515.jpg?im=Resize%3D%28200%2C150%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%28200%2C150%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&hash=c9b0f60b75a6f3ecd41d72dc6f9bdea0a912d5c66cdc60988e1ce7f8f3583cbf"
+      },
+      {
+        "alt": "Praktiker",
+        "src": "https://im.bestcheck.de/img/merchants/1387_hd.jpg?im=Resize%3D%28105%2C45%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%28105%2C45%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&hash=07906dd3c151d5417169838f4a002369e25d43da3b8333500df3f30d8bcdccf6"
+      },
+      {
+        "alt": "Trick für Installation auf nicht unterstützter Hardware",
+        "src": "https://im.chip.de/ii/1/2/6/7/5/3/8/8/0/server_trick-f24fcc5bc7baf426.jpg?im=AspectCrop%2Csize%3D%2816%2C9%29%2Cgravity%3DCenter%2CallowExpansion%3BResize%3D%28936%2C526%29%2Caspect%3Dfit%3BBackgroundColor%2Ccolor%3Dffffff&hash=34eca97b3bb510b9542a5ad19fcfc6aea4c45961fb9e4fd2c243a3e4681ecebe"
+      },
+      {
+        "alt": "Windows 11 ISO 64 Bit",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "Die In-Ears von DasProdukt.de im CHIP Testcenter",
+        "src": "https://im.chip.de/ii/1/2/6/9/5/7/7/7/2/Ecovacs-Winbot-Mini-54d27d5b97195236.jpg?im=Resize%3D%28298%2C168%29%2Caspect%3Dfit%3BAspectCrop%2Csize%3D%28298%2C168%29%2Cgravity%3DCenter%2CallowExpansion%3BBackgroundColor%2Ccolor%3Dffffff&hash=74f138a39015ad249c09b8a15ead0765b621418540b135f8d7e6f4313a37eba4"
+      },
+      {
+        "alt": "Musik kostenlos herunterladen: So geht's",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "Windows 11 für alle: Gratis-Tool hebt alle Hardware-Sperren auf",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "So können Sie Ihre WhatsApp-Tastatur ändern",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "Windows-Alternative: Microsoft-Mitarbeiter macht einfach sein eigenes System",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "Jetzt doch gratis: Microsoft verlängert Support von Windows 10",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "FlyBy11: Hardware-Anforderungen von Windows 11 einfach umgehen",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "Microsoft-Sperre umgehen: So installieren Sie Windows 11 auf inkompatibler Hardware",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "Windows Key schnell und einfach finden",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "Unberechtigte Updates auf Windows 11: Das sagt Microsoft dazu",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      },
+      {
+        "alt": "Apple Pencil mit dem iPad verbinden",
+        "src": "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs="
+      }
+    ],
+    "timestamp": 1760608123941,
+    "url": "https://www.chip.de/news/Auch-bei-nicht-kompatibler-Hardware-So-installieren-Sie-das-neueste-Windows-11_184723487.html?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

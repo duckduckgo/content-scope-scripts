@@ -1,0 +1,471 @@
+[2025-10-16T12:02:51.479Z] [INFO] Starting DuckDuckGo Page Context Content Extractor
+[2025-10-16T12:02:51.479Z] [INFO] Mode: Headless
+[2025-10-16T12:02:51.479Z] [INFO] Timeout: 60s
+[2025-10-16T12:02:51.480Z] [INFO] Processing URL 1/500: https://en.wikipedia.org/wiki/Ed_Gein
+[2025-10-16T12:02:51.481Z] [INFO] Starting extraction from: https://en.wikipedia.org/wiki/Ed_Gein
+[2025-10-16T12:02:51.482Z] [DEBUG] Launching browser...
+[2025-10-16T12:02:51.877Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:02:51.985Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:02:53.794Z] [DEBUG] Collected page content
+[2025-10-16T12:02:53.854Z] [INFO] Successfully crawled https://en.wikipedia.org/wiki/Ed_Gein
+[2025-10-16T12:02:55.270Z] [INFO] Processing URL 2/500: https://www.reddit.com/r/Piracy/comments/18eovgj/recommendations_for_free_online_movie_sites/
+[2025-10-16T12:02:55.270Z] [INFO] Starting extraction from: https://www.reddit.com/r/Piracy/comments/18eovgj/recommendations_for_free_online_movie_sites/
+[2025-10-16T12:02:55.270Z] [DEBUG] Launching browser...
+[2025-10-16T12:02:55.663Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:02:55.757Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:02:56.399Z] [DEBUG] Collected page content
+[2025-10-16T12:02:56.401Z] [INFO] Successfully crawled https://www.reddit.com/r/Piracy/comments/18eovgj/recommendations_for_free_online_movie_sites/
+[2025-10-16T12:02:57.580Z] [INFO] Processing URL 3/500: https://www.youtube.com/
+[2025-10-16T12:02:57.580Z] [INFO] Starting extraction from: https://www.youtube.com/
+[2025-10-16T12:02:57.581Z] [DEBUG] Launching browser...
+[2025-10-16T12:02:57.886Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:02:57.932Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:03:04.264Z] [DEBUG] Collected page content
+[2025-10-16T12:03:04.266Z] [INFO] Successfully crawled https://www.youtube.com/
+[2025-10-16T12:03:06.169Z] [INFO] Processing URL 4/500: https://www.facebook.com/
+[2025-10-16T12:03:06.170Z] [INFO] Starting extraction from: https://www.facebook.com/
+[2025-10-16T12:03:06.171Z] [DEBUG] Launching browser...
+[2025-10-16T12:03:06.632Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:03:06.735Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:03:08.786Z] [DEBUG] Collected page content
+[2025-10-16T12:03:08.787Z] [INFO] Successfully crawled https://www.facebook.com/
+[2025-10-16T12:03:10.070Z] [INFO] Processing URL 5/500: https://www.amazon.com/
+[2025-10-16T12:03:10.070Z] [INFO] Starting extraction from: https://www.amazon.com/
+[2025-10-16T12:03:10.070Z] [DEBUG] Launching browser...
+[2025-10-16T12:03:10.470Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:03:10.545Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:03:12.063Z] [DEBUG] Collected page content
+[2025-10-16T12:03:12.066Z] [INFO] Successfully crawled https://www.amazon.com/
+[2025-10-16T12:03:13.379Z] [INFO] Processing URL 6/500: https://no-i-am-not-a-human.fandom.com/wiki/No,_I%27m_not_a_Human_(Game)
+[2025-10-16T12:03:13.379Z] [INFO] Starting extraction from: https://no-i-am-not-a-human.fandom.com/wiki/No,_I%27m_not_a_Human_(Game)
+[2025-10-16T12:03:13.380Z] [DEBUG] Launching browser...
+[2025-10-16T12:03:13.829Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:03:13.973Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:03:17.749Z] [DEBUG] Collected page content
+[2025-10-16T12:03:17.757Z] [INFO] Successfully crawled https://no-i-am-not-a-human.fandom.com/wiki/No,_I%27m_not_a_Human_(Game)
+[2025-10-16T12:03:19.201Z] [INFO] Processing URL 7/500: https://www.imdb.com/list/ls068693711/
+[2025-10-16T12:03:19.201Z] [INFO] Starting extraction from: https://www.imdb.com/list/ls068693711/
+[2025-10-16T12:03:19.201Z] [DEBUG] Launching browser...
+[2025-10-16T12:03:19.922Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:03:20.022Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:03:20.794Z] [DEBUG] Collected page content
+[2025-10-16T12:03:20.795Z] [INFO] Successfully crawled https://www.imdb.com/list/ls068693711/
+[2025-10-16T12:03:22.012Z] [INFO] Processing URL 8/500: https://www.linkedin.com/company/hrgeckos
+[2025-10-16T12:03:22.012Z] [INFO] Starting extraction from: https://www.linkedin.com/company/hrgeckos
+[2025-10-16T12:03:22.012Z] [DEBUG] Launching browser...
+[2025-10-16T12:03:22.606Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:03:22.669Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:03:36.314Z] [DEBUG] Collected page content
+[2025-10-16T12:03:36.317Z] [INFO] Successfully crawled https://www.linkedin.com/company/hrgeckos
+[2025-10-16T12:03:37.707Z] [INFO] Processing URL 9/500: https://maps.google.com/
+[2025-10-16T12:03:37.707Z] [INFO] Starting extraction from: https://maps.google.com/
+[2025-10-16T12:03:37.707Z] [DEBUG] Launching browser...
+[2025-10-16T12:03:38.404Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:03:38.509Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:03:39.385Z] [ERROR] Error extracting content from https://maps.google.com/: page.waitForFunction: EvalError: Refused to evaluate a string as JavaScript because this document requires 'Trusted Type' assignment.
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:313:29), <anonymous>:3:38)
+    at next (eval at evaluate (:313:29), <anonymous>:25:31)
+[2025-10-16T12:03:39.385Z] [ERROR] Failed to crawl https://maps.google.com/: page.waitForFunction: EvalError: Refused to evaluate a string as JavaScript because this document requires 'Trusted Type' assignment.
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:313:29), <anonymous>:3:38)
+    at next (eval at evaluate (:313:29), <anonymous>:25:31)
+[2025-10-16T12:03:40.611Z] [INFO] Processing URL 10/500: https://www.instagram.com/
+[2025-10-16T12:03:40.611Z] [INFO] Starting extraction from: https://www.instagram.com/
+[2025-10-16T12:03:40.611Z] [DEBUG] Launching browser...
+[2025-10-16T12:03:40.992Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:03:41.086Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:03:43.764Z] [DEBUG] Collected page content
+[2025-10-16T12:03:43.766Z] [INFO] Successfully crawled https://www.instagram.com/
+[2025-10-16T12:03:45.512Z] [INFO] Processing URL 11/500: https://support.apple.com/contact
+[2025-10-16T12:03:45.514Z] [INFO] Starting extraction from: https://support.apple.com/contact
+[2025-10-16T12:03:45.514Z] [DEBUG] Launching browser...
+[2025-10-16T12:03:46.013Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:03:46.105Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:03:47.811Z] [DEBUG] Collected page content
+[2025-10-16T12:03:47.814Z] [INFO] Successfully crawled https://support.apple.com/contact
+[2025-10-16T12:03:49.161Z] [INFO] Processing URL 12/500: https://www.zillow.com/
+[2025-10-16T12:03:49.161Z] [INFO] Starting extraction from: https://www.zillow.com/
+[2025-10-16T12:03:49.161Z] [DEBUG] Launching browser...
+[2025-10-16T12:03:49.553Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:03:49.660Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:03:57.834Z] [DEBUG] Collected page content
+[2025-10-16T12:03:57.837Z] [INFO] Successfully crawled https://www.zillow.com/
+[2025-10-16T12:03:59.783Z] [INFO] Processing URL 13/500: https://github.com/santafecap/unrestricted-ai-tools
+[2025-10-16T12:03:59.783Z] [INFO] Starting extraction from: https://github.com/santafecap/unrestricted-ai-tools
+[2025-10-16T12:03:59.783Z] [DEBUG] Launching browser...
+[2025-10-16T12:04:00.347Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:04:00.498Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:04:04.237Z] [DEBUG] Collected page content
+[2025-10-16T12:04:04.239Z] [INFO] Successfully crawled https://github.com/santafecap/unrestricted-ai-tools
+[2025-10-16T12:04:05.529Z] [INFO] Processing URL 14/500: https://biz.yelp.com/login
+[2025-10-16T12:04:05.532Z] [INFO] Starting extraction from: https://biz.yelp.com/login
+[2025-10-16T12:04:05.532Z] [DEBUG] Launching browser...
+[2025-10-16T12:04:05.871Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:04:05.955Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:04:07.160Z] [DEBUG] Collected page content
+[2025-10-16T12:04:07.160Z] [INFO] Successfully crawled https://biz.yelp.com/login
+[2025-10-16T12:04:08.565Z] [INFO] Processing URL 15/500: https://www.ebay.com/
+[2025-10-16T12:04:08.565Z] [INFO] Starting extraction from: https://www.ebay.com/
+[2025-10-16T12:04:08.565Z] [DEBUG] Launching browser...
+[2025-10-16T12:04:09.063Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:04:09.167Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:04:41.620Z] [ERROR] Error extracting content from https://www.ebay.com/: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:04:41.622Z] [ERROR] Failed to crawl https://www.ebay.com/: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:04:42.998Z] [INFO] Processing URL 16/500: https://www.microsoft.com/en-us/software-download/windows11
+[2025-10-16T12:04:42.998Z] [INFO] Starting extraction from: https://www.microsoft.com/en-us/software-download/windows11
+[2025-10-16T12:04:42.998Z] [DEBUG] Launching browser...
+[2025-10-16T12:04:43.708Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:04:43.805Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:05:21.743Z] [ERROR] Error extracting content from https://www.microsoft.com/en-us/software-download/windows11: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:05:21.745Z] [ERROR] Failed to crawl https://www.microsoft.com/en-us/software-download/windows11: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:05:23.436Z] [INFO] Processing URL 17/500: https://stackoverflow.com/questions/38064042/access-files-in-var-mobile-containers-data-application-without-jailbreaking-iph
+[2025-10-16T12:05:23.436Z] [INFO] Starting extraction from: https://stackoverflow.com/questions/38064042/access-files-in-var-mobile-containers-data-application-without-jailbreaking-iph
+[2025-10-16T12:05:23.436Z] [DEBUG] Launching browser...
+[2025-10-16T12:05:23.969Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:05:24.077Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:05:29.213Z] [DEBUG] Collected page content
+[2025-10-16T12:05:29.217Z] [INFO] Successfully crawled https://stackoverflow.com/questions/38064042/access-files-in-var-mobile-containers-data-application-without-jailbreaking-iph
+[2025-10-16T12:05:30.588Z] [INFO] Processing URL 18/500: https://www.usatoday.com/story/entertainment/celebrities/2025/10/11/diane-keaton-cause-of-death/86646067007/
+[2025-10-16T12:05:30.588Z] [INFO] Starting extraction from: https://www.usatoday.com/story/entertainment/celebrities/2025/10/11/diane-keaton-cause-of-death/86646067007/
+[2025-10-16T12:05:30.588Z] [DEBUG] Launching browser...
+[2025-10-16T12:05:30.952Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:05:31.040Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:06:02.979Z] [ERROR] Error extracting content from https://www.usatoday.com/story/entertainment/celebrities/2025/10/11/diane-keaton-cause-of-death/86646067007/: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:06:02.980Z] [ERROR] Failed to crawl https://www.usatoday.com/story/entertainment/celebrities/2025/10/11/diane-keaton-cause-of-death/86646067007/: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:06:04.304Z] [INFO] Processing URL 19/500: https://www.espn.com/college-football/scoreboard
+[2025-10-16T12:06:04.304Z] [INFO] Starting extraction from: https://www.espn.com/college-football/scoreboard
+[2025-10-16T12:06:04.305Z] [DEBUG] Launching browser...
+[2025-10-16T12:06:04.723Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:06:04.796Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:06:17.153Z] [DEBUG] Collected page content
+[2025-10-16T12:06:17.158Z] [INFO] Successfully crawled https://www.espn.com/college-football/scoreboard
+[2025-10-16T12:06:19.024Z] [INFO] Processing URL 20/500: https://www.wikihow.com/Increase-Your-Ejaculate
+[2025-10-16T12:06:19.024Z] [INFO] Starting extraction from: https://www.wikihow.com/Increase-Your-Ejaculate
+[2025-10-16T12:06:19.024Z] [DEBUG] Launching browser...
+[2025-10-16T12:06:19.667Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:06:19.782Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:06:23.841Z] [DEBUG] Collected page content
+[2025-10-16T12:06:23.859Z] [INFO] Successfully crawled https://www.wikihow.com/Increase-Your-Ejaculate
+[2025-10-16T12:06:25.534Z] [INFO] Processing URL 21/500: https://archive.org/
+[2025-10-16T12:06:25.534Z] [INFO] Starting extraction from: https://archive.org/
+[2025-10-16T12:06:25.534Z] [DEBUG] Launching browser...
+[2025-10-16T12:06:26.148Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:06:26.275Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:06:29.703Z] [DEBUG] Collected page content
+[2025-10-16T12:06:29.704Z] [INFO] Successfully crawled https://archive.org/
+[2025-10-16T12:06:30.940Z] [INFO] Processing URL 22/500: https://www.msn.com/en-us/health/medical/diane-keaton-s-cause-of-death-updates-what-did-she-die-of/ar-AA1OiJrO
+[2025-10-16T12:06:30.940Z] [INFO] Starting extraction from: https://www.msn.com/en-us/health/medical/diane-keaton-s-cause-of-death-updates-what-did-she-die-of/ar-AA1OiJrO
+[2025-10-16T12:06:30.941Z] [DEBUG] Launching browser...
+[2025-10-16T12:06:31.435Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:06:31.489Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:06:39.295Z] [DEBUG] Collected page content
+[2025-10-16T12:06:39.298Z] [INFO] Successfully crawled https://www.msn.com/en-us/health/medical/diane-keaton-s-cause-of-death-updates-what-did-she-die-of/ar-AA1OiJrO
+[2025-10-16T12:06:40.957Z] [INFO] Processing URL 23/500: https://www.walmart.com/
+[2025-10-16T12:06:40.957Z] [INFO] Starting extraction from: https://www.walmart.com/
+[2025-10-16T12:06:40.957Z] [DEBUG] Launching browser...
+[2025-10-16T12:06:41.364Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:06:41.464Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:07:16.027Z] [ERROR] Error extracting content from https://www.walmart.com/: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:07:16.030Z] [ERROR] Failed to crawl https://www.walmart.com/: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:07:17.862Z] [INFO] Processing URL 24/500: https://pmc.ncbi.nlm.nih.gov/articles/PMC10816294/
+[2025-10-16T12:07:17.862Z] [INFO] Starting extraction from: https://pmc.ncbi.nlm.nih.gov/articles/PMC10816294/
+[2025-10-16T12:07:17.862Z] [DEBUG] Launching browser...
+[2025-10-16T12:07:18.637Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:07:18.744Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:07:21.753Z] [DEBUG] Collected page content
+[2025-10-16T12:07:21.762Z] [INFO] Successfully crawled https://pmc.ncbi.nlm.nih.gov/articles/PMC10816294/
+[2025-10-16T12:07:23.166Z] [INFO] Processing URL 25/500: https://www.etsy.com/
+[2025-10-16T12:07:23.167Z] [INFO] Starting extraction from: https://www.etsy.com/
+[2025-10-16T12:07:23.168Z] [DEBUG] Launching browser...
+[2025-10-16T12:07:23.720Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:07:23.801Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:07:26.138Z] [DEBUG] Collected page content
+[2025-10-16T12:07:26.142Z] [INFO] Successfully crawled https://www.etsy.com/
+[2025-10-16T12:07:27.524Z] [INFO] Processing URL 26/500: https://www.healthline.com/health/mens-health/average-penis-size
+[2025-10-16T12:07:27.525Z] [INFO] Starting extraction from: https://www.healthline.com/health/mens-health/average-penis-size
+[2025-10-16T12:07:27.525Z] [DEBUG] Launching browser...
+[2025-10-16T12:07:27.852Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:07:27.956Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:07:32.817Z] [DEBUG] Collected page content
+[2025-10-16T12:07:32.820Z] [INFO] Successfully crawled https://www.healthline.com/health/mens-health/average-penis-size
+[2025-10-16T12:07:34.432Z] [INFO] Processing URL 27/500: https://www.webmd.com/interaction-checker/default.htm
+[2025-10-16T12:07:34.432Z] [INFO] Starting extraction from: https://www.webmd.com/interaction-checker/default.htm
+[2025-10-16T12:07:34.433Z] [DEBUG] Launching browser...
+[2025-10-16T12:07:34.825Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:07:34.893Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:07:39.409Z] [DEBUG] Collected page content
+[2025-10-16T12:07:39.411Z] [INFO] Successfully crawled https://www.webmd.com/interaction-checker/default.htm
+[2025-10-16T12:07:40.771Z] [INFO] Processing URL 28/500: https://mail.yahoo.com/
+[2025-10-16T12:07:40.771Z] [INFO] Starting extraction from: https://mail.yahoo.com/
+[2025-10-16T12:07:40.771Z] [DEBUG] Launching browser...
+[2025-10-16T12:07:41.172Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:07:41.296Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:07:43.991Z] [ERROR] Error extracting content from https://mail.yahoo.com/: page.waitForFunction: EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'unsafe-inline' 'self' https://s.yimg.com https://s1.yimg.com https://jsapi.login.yahoo.com https://fc.yahoo.com https://e2e.fc.yahoo.com https://server-dev.comet.yahoo.com https://server.comet.yahoo.com https://www.googletagmanager.com https://opus.analytics.yahoo.com/tag/opus.js https://consent.cmp.oath.com/cmp.js https://search.yahoo.com https://*.search.yahoo.com 'nonce-FhRvVmHPR8g8dGBhyIJE2WLwh0FoXyXvOmtiDR4ySQgb7VnK'".
+
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:313:29), <anonymous>:3:38)
+    at next (eval at evaluate (:313:29), <anonymous>:25:31)
+[2025-10-16T12:07:43.991Z] [ERROR] Failed to crawl https://mail.yahoo.com/: page.waitForFunction: EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src 'unsafe-inline' 'self' https://s.yimg.com https://s1.yimg.com https://jsapi.login.yahoo.com https://fc.yahoo.com https://e2e.fc.yahoo.com https://server-dev.comet.yahoo.com https://server.comet.yahoo.com https://www.googletagmanager.com https://opus.analytics.yahoo.com/tag/opus.js https://consent.cmp.oath.com/cmp.js https://search.yahoo.com https://*.search.yahoo.com 'nonce-FhRvVmHPR8g8dGBhyIJE2WLwh0FoXyXvOmtiDR4ySQgb7VnK'".
+
+    at eval (<anonymous>)
+    at predicate (eval at evaluate (:313:29), <anonymous>:3:38)
+    at next (eval at evaluate (:313:29), <anonymous>:25:31)
+[2025-10-16T12:07:45.602Z] [INFO] Processing URL 29/500: https://genius.com/Taylor-swift-wood-lyrics
+[2025-10-16T12:07:45.602Z] [INFO] Starting extraction from: https://genius.com/Taylor-swift-wood-lyrics
+[2025-10-16T12:07:45.602Z] [DEBUG] Launching browser...
+[2025-10-16T12:07:46.020Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:07:46.089Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:08:16.695Z] [ERROR] Error extracting content from https://genius.com/Taylor-swift-wood-lyrics: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:08:16.697Z] [ERROR] Failed to crawl https://genius.com/Taylor-swift-wood-lyrics: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:08:18.020Z] [INFO] Processing URL 30/500: https://steamcommunity.com/sharedfiles/filedetails/?id=3584260127
+[2025-10-16T12:08:18.020Z] [INFO] Starting extraction from: https://steamcommunity.com/sharedfiles/filedetails/?id=3584260127
+[2025-10-16T12:08:18.020Z] [DEBUG] Launching browser...
+[2025-10-16T12:08:18.881Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:08:18.944Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:08:23.246Z] [DEBUG] Collected page content
+[2025-10-16T12:08:23.248Z] [INFO] Successfully crawled https://steamcommunity.com/sharedfiles/filedetails/?id=3584260127
+[2025-10-16T12:08:26.368Z] [INFO] Processing URL 31/500: https://health.clevelandclinic.org/3-types-of-chest-pain-that-wont-kill-you
+[2025-10-16T12:08:26.368Z] [INFO] Starting extraction from: https://health.clevelandclinic.org/3-types-of-chest-pain-that-wont-kill-you
+[2025-10-16T12:08:26.368Z] [DEBUG] Launching browser...
+[2025-10-16T12:08:26.900Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:08:27.006Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:08:32.795Z] [DEBUG] Collected page content
+[2025-10-16T12:08:32.799Z] [INFO] Successfully crawled https://health.clevelandclinic.org/3-types-of-chest-pain-that-wont-kill-you
+[2025-10-16T12:08:34.668Z] [INFO] Processing URL 32/500: https://www.forbes.com/sites/krisholt/2025/10/13/nyt-connections-today-hints-october-14-clues-help-answers-856/
+[2025-10-16T12:08:34.668Z] [INFO] Starting extraction from: https://www.forbes.com/sites/krisholt/2025/10/13/nyt-connections-today-hints-october-14-clues-help-answers-856/
+[2025-10-16T12:08:34.668Z] [DEBUG] Launching browser...
+[2025-10-16T12:08:35.024Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:08:35.163Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:08:35.987Z] [DEBUG] Collected page content
+[2025-10-16T12:08:35.989Z] [INFO] Successfully crawled https://www.forbes.com/sites/krisholt/2025/10/13/nyt-connections-today-hints-october-14-clues-help-answers-856/
+[2025-10-16T12:08:37.287Z] [INFO] Processing URL 33/500: https://t.me/s/koleksiasupan01?before=431
+[2025-10-16T12:08:37.288Z] [INFO] Starting extraction from: https://t.me/s/koleksiasupan01?before=431
+[2025-10-16T12:08:37.289Z] [DEBUG] Launching browser...
+[2025-10-16T12:08:37.678Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:08:37.766Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:08:39.345Z] [DEBUG] Collected page content
+[2025-10-16T12:08:39.349Z] [INFO] Successfully crawled https://t.me/s/koleksiasupan01?before=431
+[2025-10-16T12:08:40.537Z] [INFO] Processing URL 34/500: https://www.realtor.com/
+[2025-10-16T12:08:40.537Z] [INFO] Starting extraction from: https://www.realtor.com/
+[2025-10-16T12:08:40.537Z] [DEBUG] Launching browser...
+[2025-10-16T12:08:41.381Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:08:41.489Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:08:45.103Z] [DEBUG] Collected page content
+[2025-10-16T12:08:45.104Z] [INFO] Successfully crawled https://www.realtor.com/
+[2025-10-16T12:08:46.376Z] [INFO] Processing URL 35/500: https://www.homedepot.com/
+[2025-10-16T12:08:46.376Z] [INFO] Starting extraction from: https://www.homedepot.com/
+[2025-10-16T12:08:46.376Z] [DEBUG] Launching browser...
+[2025-10-16T12:08:46.902Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:08:46.995Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:08:47.907Z] [DEBUG] Collected page content
+[2025-10-16T12:08:47.909Z] [INFO] Successfully crawled https://www.homedepot.com/
+[2025-10-16T12:08:49.223Z] [INFO] Processing URL 36/500: https://www.allrecipes.com/recipe/12583/old-fashioned-apple-pie/
+[2025-10-16T12:08:49.223Z] [INFO] Starting extraction from: https://www.allrecipes.com/recipe/12583/old-fashioned-apple-pie/
+[2025-10-16T12:08:49.224Z] [DEBUG] Launching browser...
+[2025-10-16T12:08:49.667Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:08:49.726Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:09:21.198Z] [ERROR] Error extracting content from https://www.allrecipes.com/recipe/12583/old-fashioned-apple-pie/: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:09:21.199Z] [ERROR] Failed to crawl https://www.allrecipes.com/recipe/12583/old-fashioned-apple-pie/: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:09:22.752Z] [INFO] Processing URL 37/500: https://www.mylife.com/reverse-phone-lookup
+[2025-10-16T12:09:22.752Z] [INFO] Starting extraction from: https://www.mylife.com/reverse-phone-lookup
+[2025-10-16T12:09:22.753Z] [DEBUG] Launching browser...
+[2025-10-16T12:09:23.253Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:09:23.392Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:09:26.398Z] [DEBUG] Collected page content
+[2025-10-16T12:09:26.420Z] [INFO] Successfully crawled https://www.mylife.com/reverse-phone-lookup
+[2025-10-16T12:09:27.805Z] [INFO] Processing URL 38/500: https://yandex.com/search/?text=en.av4us
+[2025-10-16T12:09:27.806Z] [INFO] Starting extraction from: https://yandex.com/search/?text=en.av4us
+[2025-10-16T12:09:27.806Z] [DEBUG] Launching browser...
+[2025-10-16T12:09:28.465Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:09:28.551Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:10:00.819Z] [ERROR] Error extracting content from https://yandex.com/search/?text=en.av4us: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:10:00.823Z] [ERROR] Failed to crawl https://yandex.com/search/?text=en.av4us: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:10:02.132Z] [INFO] Processing URL 39/500: https://www.tripadvisor.com/
+[2025-10-16T12:10:02.134Z] [INFO] Starting extraction from: https://www.tripadvisor.com/
+[2025-10-16T12:10:02.134Z] [DEBUG] Launching browser...
+[2025-10-16T12:10:02.892Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:10:02.995Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:10:04.263Z] [DEBUG] Collected page content
+[2025-10-16T12:10:04.266Z] [INFO] Successfully crawled https://www.tripadvisor.com/
+[2025-10-16T12:10:05.615Z] [INFO] Processing URL 40/500: https://www.legacy.com/obituaries/search
+[2025-10-16T12:10:05.615Z] [INFO] Starting extraction from: https://www.legacy.com/obituaries/search
+[2025-10-16T12:10:05.615Z] [DEBUG] Launching browser...
+[2025-10-16T12:10:05.910Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:10:05.965Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:10:36.566Z] [ERROR] Error extracting content from https://www.legacy.com/obituaries/search: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:10:36.566Z] [ERROR] Failed to crawl https://www.legacy.com/obituaries/search: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:10:37.974Z] [INFO] Processing URL 41/500: https://www.nytimes.com/
+[2025-10-16T12:10:37.974Z] [INFO] Starting extraction from: https://www.nytimes.com/
+[2025-10-16T12:10:37.974Z] [DEBUG] Launching browser...
+[2025-10-16T12:10:38.296Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:10:38.349Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:11:14.902Z] [ERROR] Error extracting content from https://www.nytimes.com/: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:11:14.902Z] [ERROR] Failed to crawl https://www.nytimes.com/: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:11:16.406Z] [INFO] Processing URL 42/500: https://www.mayoclinic.org/diseases-conditions/high-blood-pressure/in-depth/blood-pressure/art-20050982
+[2025-10-16T12:11:16.406Z] [INFO] Starting extraction from: https://www.mayoclinic.org/diseases-conditions/high-blood-pressure/in-depth/blood-pressure/art-20050982
+[2025-10-16T12:11:16.407Z] [DEBUG] Launching browser...
+[2025-10-16T12:11:16.894Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:11:16.990Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:11:21.819Z] [DEBUG] Collected page content
+[2025-10-16T12:11:21.822Z] [INFO] Successfully crawled https://www.mayoclinic.org/diseases-conditions/high-blood-pressure/in-depth/blood-pressure/art-20050982
+[2025-10-16T12:11:23.325Z] [INFO] Processing URL 43/500: https://www.tiktok.com/login
+[2025-10-16T12:11:23.326Z] [INFO] Starting extraction from: https://www.tiktok.com/login
+[2025-10-16T12:11:23.326Z] [DEBUG] Launching browser...
+[2025-10-16T12:11:23.559Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:11:23.599Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:11:28.184Z] [DEBUG] Collected page content
+[2025-10-16T12:11:28.185Z] [INFO] Successfully crawled https://www.tiktok.com/login
+[2025-10-16T12:11:29.477Z] [INFO] Processing URL 44/500: https://www.verywellhealth.com/how-to-lower-blood-pressure-6888939
+[2025-10-16T12:11:29.477Z] [INFO] Starting extraction from: https://www.verywellhealth.com/how-to-lower-blood-pressure-6888939
+[2025-10-16T12:11:29.477Z] [DEBUG] Launching browser...
+[2025-10-16T12:11:29.811Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:11:29.857Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:12:00.800Z] [ERROR] Error extracting content from https://www.verywellhealth.com/how-to-lower-blood-pressure-6888939: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:12:00.801Z] [ERROR] Failed to crawl https://www.verywellhealth.com/how-to-lower-blood-pressure-6888939: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:12:02.085Z] [INFO] Processing URL 45/500: https://www.bbc.co.uk/sport/football/scores-fixtures
+[2025-10-16T12:12:02.085Z] [INFO] Starting extraction from: https://www.bbc.co.uk/sport/football/scores-fixtures
+[2025-10-16T12:12:02.085Z] [DEBUG] Launching browser...
+[2025-10-16T12:12:02.479Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:12:02.608Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:12:04.500Z] [ERROR] Error extracting content from https://www.bbc.co.uk/sport/football/scores-fixtures: page.evaluate: Execution context was destroyed, most likely because of a navigation
+[2025-10-16T12:12:04.500Z] [ERROR] Failed to crawl https://www.bbc.co.uk/sport/football/scores-fixtures: page.evaluate: Execution context was destroyed, most likely because of a navigation
+[2025-10-16T12:12:06.115Z] [INFO] Processing URL 46/500: https://dba.stackexchange.com/questions/1285/how-do-i-list-all-databases-and-tables-using-psql
+[2025-10-16T12:12:06.115Z] [INFO] Starting extraction from: https://dba.stackexchange.com/questions/1285/how-do-i-list-all-databases-and-tables-using-psql
+[2025-10-16T12:12:06.116Z] [DEBUG] Launching browser...
+[2025-10-16T12:12:06.429Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:12:06.506Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:12:09.517Z] [DEBUG] Collected page content
+[2025-10-16T12:12:09.520Z] [INFO] Successfully crawled https://dba.stackexchange.com/questions/1285/how-do-i-list-all-databases-and-tables-using-psql
+[2025-10-16T12:12:10.883Z] [INFO] Processing URL 47/500: https://www.dailymotion.com/video/x8lmv2v
+[2025-10-16T12:12:10.883Z] [INFO] Starting extraction from: https://www.dailymotion.com/video/x8lmv2v
+[2025-10-16T12:12:10.883Z] [DEBUG] Launching browser...
+[2025-10-16T12:12:11.136Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:12:11.270Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:12:12.313Z] [DEBUG] Collected page content
+[2025-10-16T12:12:12.314Z] [INFO] Successfully crawled https://www.dailymotion.com/video/x8lmv2v
+[2025-10-16T12:12:13.498Z] [INFO] Processing URL 48/500: https://www.biblegateway.com/passage/?search=1%20Thessalonians%205:3&version=KJV
+[2025-10-16T12:12:13.498Z] [INFO] Starting extraction from: https://www.biblegateway.com/passage/?search=1%20Thessalonians%205:3&version=KJV
+[2025-10-16T12:12:13.498Z] [DEBUG] Launching browser...
+[2025-10-16T12:12:13.753Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:12:13.786Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:12:15.544Z] [DEBUG] Collected page content
+[2025-10-16T12:12:15.545Z] [INFO] Successfully crawled https://www.biblegateway.com/passage/?search=1%20Thessalonians%205:3&version=KJV
+[2025-10-16T12:12:16.796Z] [INFO] Processing URL 49/500: https://www.whitepages.com/
+[2025-10-16T12:12:16.796Z] [INFO] Starting extraction from: https://www.whitepages.com/
+[2025-10-16T12:12:16.796Z] [DEBUG] Launching browser...
+[2025-10-16T12:12:17.088Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:12:17.137Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:12:47.514Z] [ERROR] Error extracting content from https://www.whitepages.com/: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:12:47.514Z] [ERROR] Failed to crawl https://www.whitepages.com/: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:12:48.666Z] [INFO] Processing URL 50/500: https://www.indeed.com/
+[2025-10-16T12:12:48.666Z] [INFO] Starting extraction from: https://www.indeed.com/
+[2025-10-16T12:12:48.666Z] [DEBUG] Launching browser...
+[2025-10-16T12:12:49.047Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:12:49.103Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:12:50.414Z] [DEBUG] Collected page content
+[2025-10-16T12:12:50.415Z] [INFO] Successfully crawled https://www.indeed.com/
+[2025-10-16T12:12:51.649Z] [INFO] Processing URL 51/500: https://www.amazon.co.uk/
+[2025-10-16T12:12:51.649Z] [INFO] Starting extraction from: https://www.amazon.co.uk/
+[2025-10-16T12:12:51.649Z] [DEBUG] Launching browser...
+[2025-10-16T12:12:51.909Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:12:51.960Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:12:52.859Z] [DEBUG] Collected page content
+[2025-10-16T12:12:52.860Z] [INFO] Successfully crawled https://www.amazon.co.uk/
+[2025-10-16T12:12:54.021Z] [INFO] Processing URL 52/500: https://nypost.com/
+[2025-10-16T12:12:54.021Z] [INFO] Starting extraction from: https://nypost.com/
+[2025-10-16T12:12:54.021Z] [DEBUG] Launching browser...
+[2025-10-16T12:12:54.273Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:12:54.322Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:13:30.054Z] [ERROR] Error extracting content from https://nypost.com/: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:13:30.055Z] [ERROR] Failed to crawl https://nypost.com/: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:13:31.561Z] [INFO] Processing URL 53/500: https://www.ign.com/articles/pokmon-legends-z-a-global-release-times-confirmed
+[2025-10-16T12:13:31.561Z] [INFO] Starting extraction from: https://www.ign.com/articles/pokmon-legends-z-a-global-release-times-confirmed
+[2025-10-16T12:13:31.561Z] [DEBUG] Launching browser...
+[2025-10-16T12:13:31.958Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:13:32.040Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:13:42.263Z] [DEBUG] Collected page content
+[2025-10-16T12:13:42.265Z] [INFO] Successfully crawled https://www.ign.com/articles/pokmon-legends-z-a-global-release-times-confirmed
+[2025-10-16T12:13:44.673Z] [INFO] Processing URL 54/500: https://mytargetcirclecard.target.com/
+[2025-10-16T12:13:44.673Z] [INFO] Starting extraction from: https://mytargetcirclecard.target.com/
+[2025-10-16T12:13:44.673Z] [DEBUG] Launching browser...
+[2025-10-16T12:13:45.363Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:13:45.444Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:14:18.298Z] [ERROR] Error extracting content from https://mytargetcirclecard.target.com/: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:14:18.298Z] [ERROR] Failed to crawl https://mytargetcirclecard.target.com/: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:14:19.622Z] [INFO] Processing URL 55/500: https://vk.com/search/video?q=bocil%20sd
+[2025-10-16T12:14:19.622Z] [INFO] Starting extraction from: https://vk.com/search/video?q=bocil%20sd
+[2025-10-16T12:14:19.622Z] [DEBUG] Launching browser...
+[2025-10-16T12:14:20.303Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:14:20.454Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:14:33.520Z] [DEBUG] Collected page content
+[2025-10-16T12:14:33.525Z] [INFO] Successfully crawled https://vk.com/search/video?q=bocil%20sd
+[2025-10-16T12:14:35.576Z] [INFO] Processing URL 56/500: https://people.com/diane-keaton-dead-oscar-winning-actress-dies-at-79-exclusive-8603118
+[2025-10-16T12:14:35.576Z] [INFO] Starting extraction from: https://people.com/diane-keaton-dead-oscar-winning-actress-dies-at-79-exclusive-8603118
+[2025-10-16T12:14:35.577Z] [DEBUG] Launching browser...
+[2025-10-16T12:14:36.484Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:14:36.601Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:15:08.142Z] [ERROR] Error extracting content from https://people.com/diane-keaton-dead-oscar-winning-actress-dies-at-79-exclusive-8603118: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:15:08.143Z] [ERROR] Failed to crawl https://people.com/diane-keaton-dead-oscar-winning-actress-dies-at-79-exclusive-8603118: page.waitForFunction: Timeout 30000ms exceeded.
+[2025-10-16T12:15:09.443Z] [INFO] Processing URL 57/500: https://www.justwatch.com/us/movies
+[2025-10-16T12:15:09.443Z] [INFO] Starting extraction from: https://www.justwatch.com/us/movies
+[2025-10-16T12:15:09.443Z] [DEBUG] Launching browser...
+[2025-10-16T12:15:09.902Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:15:09.968Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:15:10.829Z] [DEBUG] Collected page content
+[2025-10-16T12:15:10.830Z] [INFO] Successfully crawled https://www.justwatch.com/us/movies
+[2025-10-16T12:15:12.024Z] [INFO] Processing URL 58/500: https://biblehub.com/1_thessalonians/5-3.htm
+[2025-10-16T12:15:12.024Z] [INFO] Starting extraction from: https://biblehub.com/1_thessalonians/5-3.htm
+[2025-10-16T12:15:12.024Z] [DEBUG] Launching browser...
+[2025-10-16T12:15:12.462Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:15:12.505Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:15:16.371Z] [DEBUG] Collected page content
+[2025-10-16T12:15:16.373Z] [INFO] Successfully crawled https://biblehub.com/1_thessalonians/5-3.htm
+[2025-10-16T12:15:17.979Z] [INFO] Processing URL 59/500: https://www.gov.uk/sign-in-universal-credit
+[2025-10-16T12:15:17.980Z] [INFO] Starting extraction from: https://www.gov.uk/sign-in-universal-credit
+[2025-10-16T12:15:17.980Z] [DEBUG] Launching browser...
+[2025-10-16T12:15:18.409Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:15:18.506Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:15:19.419Z] [DEBUG] Collected page content
+[2025-10-16T12:15:19.420Z] [INFO] Successfully crawled https://www.gov.uk/sign-in-universal-credit
+[2025-10-16T12:15:20.597Z] [INFO] Processing URL 60/500: https://realestate.usnews.com/places/rankings/most-dangerous-places
+[2025-10-16T12:15:20.597Z] [INFO] Starting extraction from: https://realestate.usnews.com/places/rankings/most-dangerous-places
+[2025-10-16T12:15:20.598Z] [DEBUG] Launching browser...
+[2025-10-16T12:15:20.972Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:15:21.088Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:15:21.207Z] [ERROR] Error extracting content from https://realestate.usnews.com/places/rankings/most-dangerous-places: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://realestate.usnews.com/places/rankings/most-dangerous-places?automation=true?automation=true&wait-for-init-args=true
+Call log:
+[2m  - navigating to "https://realestate.usnews.com/places/rankings/most-dangerous-places?automation=true?automation=true&wait-for-init-args=true", waiting until "load"[22m
+
+[2025-10-16T12:15:21.208Z] [ERROR] Failed to crawl https://realestate.usnews.com/places/rankings/most-dangerous-places: page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://realestate.usnews.com/places/rankings/most-dangerous-places?automation=true?automation=true&wait-for-init-args=true
+Call log:
+[2m  - navigating to "https://realestate.usnews.com/places/rankings/most-dangerous-places?automation=true?automation=true&wait-for-init-args=true", waiting until "load"[22m
+
+[2025-10-16T12:15:22.449Z] [INFO] Processing URL 61/500: https://game8.co/games/Hollow-Knight-Silksong/archives/550596
+[2025-10-16T12:15:22.449Z] [INFO] Starting extraction from: https://game8.co/games/Hollow-Knight-Silksong/archives/550596
+[2025-10-16T12:15:22.450Z] [DEBUG] Launching browser...
+[2025-10-16T12:15:22.984Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:15:23.168Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:15:27.505Z] [DEBUG] Collected page content
+[2025-10-16T12:15:27.522Z] [INFO] Successfully crawled https://game8.co/games/Hollow-Knight-Silksong/archives/550596
+[2025-10-16T12:15:29.194Z] [INFO] Processing URL 62/500: https://www.drugs.com/drug_interactions.html
+[2025-10-16T12:15:29.195Z] [INFO] Starting extraction from: https://www.drugs.com/drug_interactions.html
+[2025-10-16T12:15:29.195Z] [DEBUG] Launching browser...
+[2025-10-16T12:15:29.697Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:15:29.804Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:16:01.738Z] [ERROR] Error extracting content from https://www.drugs.com/drug_interactions.html: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:16:01.740Z] [ERROR] Failed to crawl https://www.drugs.com/drug_interactions.html: page.waitForLoadState: Timeout 30000ms exceeded.
+[2025-10-16T12:16:03.098Z] [INFO] Processing URL 63/500: https://www.bbc.com/news/world
+[2025-10-16T12:16:03.098Z] [INFO] Starting extraction from: https://www.bbc.com/news/world
+[2025-10-16T12:16:03.098Z] [DEBUG] Launching browser...
+[2025-10-16T12:16:03.784Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:16:03.864Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:16:08.228Z] [DEBUG] Collected page content
+[2025-10-16T12:16:08.237Z] [INFO] Successfully crawled https://www.bbc.com/news/world
+[2025-10-16T12:16:10.216Z] [INFO] Processing URL 64/500: https://www.goodreads.com/book/show/123192611-the-pink-marine
+[2025-10-16T12:16:10.216Z] [INFO] Starting extraction from: https://www.goodreads.com/book/show/123192611-the-pink-marine
+[2025-10-16T12:16:10.216Z] [DEBUG] Launching browser...
+[2025-10-16T12:16:10.882Z] [DEBUG] Browser launched successfully
+[2025-10-16T12:16:10.973Z] [DEBUG] Loading and collecting page content
+[2025-10-16T12:16:11.997Z] [DEBUG] Collected page content
+[2025-10-16T12:16:12.000Z] [INFO] Successfully crawled https://www.goodreads.com/book/show/123192611-the-pink-marine

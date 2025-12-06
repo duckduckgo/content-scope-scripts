@@ -1,0 +1,1445 @@
+{
+  "url": "https://www.flightaware.com/live/",
+  "extractedAt": "2025-10-16T10:41:47.148Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.flightaware.com/images/favicon-32x32.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.flightaware.com/images/favicon-16x16.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.flightaware.com/images/favicon.ico",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://www.flightaware.com/images/apple-touch-icon-120x120.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.flightaware.com/images/apple-touch-icon-180x180.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.flightaware.com/images/apple-touch-icon-240x240.png",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "Live Flight Tracker - FlightAware",
+    "metaDescription": "Best Flight Tracker: Live Tracking Maps, Flight Status, and Airport Delays for airline flights, private/GA flights, and airports.",
+    "content": "[Join FlightAware](https://login.flightaware.com/signup)[Login](https://login.flightaware.com/signin)06:41AM EDT   العربية Čeština Deutsch English (Australia) English (Canada) English (UK) English (USA) Español (España) Español Suomi Français (Canada) Français (France) עִבְרִית हिन्दी Hrvatski Italiano 日本語 한국어 Polski Português (Brasil) Português (Portugal) Русский Türkçe 中文(简体) 中文(香港) 中文(台灣)      All\n \n- \n\n[Forgot the flight number?](/live/findflight/)[Sign Up](/account/join/) \n \n- Products\n \n- Industries\n \n- [ADS-B](/adsb/)\n \n- [Flight Tracking](/live)\n \n- Community\n \n- [Company](/about)\n \n   \n\n[Click to change](#)[Upgrade](/commercial/premium)to use more Weather Layers.\n\n- Sunlit Earth\n\n- Weather Radar\n\n- Worldwide Weather\n\n- Weather Radar (Premium)\n\n- Satellite IR\n\n- Turbulence (Global)\n\n- Icing (Global)\n\n- Volcanic Ash\n\n- Tropical Storms\n\n- TFRs\n\n- Nearby Airports\n\n500 km500 miAltitude (feet)Speed (MPH)Flight Type\n \n- \n\nAircraft Type\n \n- \n\nClear Filters              Quickly & Easily Track a Flight    AirlineFlight #      * Forgot the flight number? *      Departure airport or city    \n -and-  Arrival airport or city    Search        ([Worldwide airport delays](/live/airport/delays)) ([Live flight cancellations](/live/cancelled))\n ([FlightAware Live Flight Tracker Map](/live/map))       Browsing Suggestions   Airport Activity ([all flights](/resources/airport/browse/))  Browse by Operator ([all flights](/live/fleet/))  Browse by Aircraft Type ([all flights](/live/aircrafttype/))   [Van Nuys (KVNY)](/live/airport/KVNY)  [JetBlue (JBU)](/live/fleet/JBU)  [Boeing 737](/live/aircrafttype/B73*)   [Houston Hobby (KHOU)](/live/airport/KHOU)  [United (UAL)](/live/fleet/UAL)  [Cirrus SR20/SR22](/live/aircrafttype/SR2*)   [Teterboro (KTEB)](/live/airport/KTEB)  [NetJets (EJA)](/live/fleet/EJA)  [Beechcraft King Air](/live/aircrafttype/BE9*)   [Santa Monica (KSMO)](/live/airport/KSMO)  [FedEx (FDX)](/live/fleet/FDX)  [Cessna \"Skylane\" 182](/live/aircrafttype/C182)   [Honolulu (PHNL)](/live/airport/PHNL)  [Delta (DAL)](/live/fleet/DAL)  [Embraer 145](/live/aircrafttype/E145)   *Can't decide? Click here for a random [airport](/live/airport/random) or [flight](/live/flight/random).*    \n### Flight Tracker Overview\n  Tracking **12,796** airborne aircraft with **706,190,002** total flights in the database.\nFlightAware has tracked **190,691** arrivals in the last 24 hours.   FlightAware offers displays of airborne [special humanitarian relief flights](/live/special/) such as Lifeguard and Angel Flights\n\n              FlightAware provides accurate real-time, historical and predictive flight insights to all segments of the aviation industry.                  [Products & Services](/commercial)   [AeroAPI](/commercial/aeroapi/)   [FlightAware Firehose](/commercial/firehose/)   [FlightAware Foresight](/commercial/foresight/)   [Rapid Reports](/commercial/rapidreports/)   [Custom Reports](/commercial/customreports/)   [FlightAware Aviator](/commercial/aviator/)   [Premium Subscriptions](/commercial/premium/)   [FlightAware Global](/commercial/global/)   [FlightAware FBO Toolbox](/commercial/fbotoolbox/)   [FlightAware TV℠](/commercial/tv/)   [GlobalBeacon](/commercial/globalbeacon/)      Company    [About](/about/)   [Careers](/about/careers/)   [History](/about/history/)   [Advertise With Us](/commercial/advertising/)   [Newsroom](/news/)   [Blog](https://blog.flightaware.com/)   [Webinars](https://go.flightaware.com/webinars)   [GSA Contract # 47QTCA21D003F](https://industry.flightaware.com/usgovernment)      Community    [Photos](/photos/)   [Squawks](/squawks/)   [Discussions](https://discussions.flightaware.com/)   [Host an ADS-B Site](/adsb/piaware/build/)    Support    [Contact Us](/about/contact/)   [FAQs](/about/faq/)          English (USA) **     ** 2025 FlightAware   [Terms of Use](/about/termsofuse/)   [Privacy](/about/privacy/)   [Manage Preferences](#)                             \n## Information About Your Privacy\nWe and our 940 partners store and access personal data, like browsing data or unique identifiers, on your device. Selecting I Accept enables tracking technologies to support the purposes shown under we and our partners process data to provide. Selecting Reject All or withdrawing your consent will disable them. If trackers are disabled, some content and ads you see may not be as relevant to you. You can resurface this menu to change your choices or withdraw consent at any time by clicking the Manage Preferences link on the bottom of the webpage . Your choices will have effect within our Website. For more details, refer to our Privacy Policy.[Privacy Statement](https://www.flightaware.com/about/privacy/)\n### We and our partners process data to provide:\nUse precise geolocation data. Actively scan device characteristics for identification. Store and/or access information on a device. Personalised advertising and content, advertising and content measurement, audience research and services development.  List of Partners (vendors) \nI Accept Reject All Show Purposes",
+    "truncated": false,
+    "fullContentLength": 5056,
+    "headings": [
+      {
+        "level": 3,
+        "text": "Flight Tracker Overview"
+      },
+      {
+        "level": 4,
+        "text": "Tracking 12,796 airborne aircraft with 706,190,002 total flights in the database.FlightAware has tracked 190,691 arrivals in the last 24 hours."
+      },
+      {
+        "level": 3,
+        "text": "Login"
+      },
+      {
+        "level": 2,
+        "text": "Information About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "We and our partners process data to provide:"
+      },
+      {
+        "level": 2,
+        "text": "About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "Manage Consent Preferences"
+      },
+      {
+        "level": 4,
+        "text": "Preference Cookies"
+      },
+      {
+        "level": 4,
+        "text": "Necessary Cookies"
+      },
+      {
+        "level": 4,
+        "text": "Third-Party Cookies"
+      },
+      {
+        "level": 4,
+        "text": "Store and/or access information on a device 760 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Personalised advertising and content, advertising and content measurement, audience research and services development 906 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use limited data to select advertising 723 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Create profiles for personalised advertising 572 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use profiles to select personalised advertising 575 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Create profiles to personalise content 252 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use profiles to select personalised content 227 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Measure advertising performance 825 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Measure content performance 394 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Understand audiences through statistics or combinations of data from different sources 524 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Develop and improve services 618 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use limited data to select content 167 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Use precise geolocation data 282 partners can use this special feature"
+      },
+      {
+        "level": 4,
+        "text": "Actively scan device characteristics for identification 152 partners can use this special feature"
+      },
+      {
+        "level": 4,
+        "text": "Ensure security, prevent and detect fraud, and fix errors 581 partners can use this special purpose"
+      },
+      {
+        "level": 4,
+        "text": "Deliver and present advertising and content 580 partners can use this special purpose"
+      },
+      {
+        "level": 4,
+        "text": "Match and combine data from other data sources 414 partners can use this feature"
+      },
+      {
+        "level": 4,
+        "text": "Link different devices 354 partners can use this feature"
+      },
+      {
+        "level": 4,
+        "text": "Identify devices based on information transmitted automatically 549 partners can use this feature"
+      },
+      {
+        "level": 4,
+        "text": "Save and communicate privacy choices 428 partners can use this special purpose"
+      },
+      {
+        "level": 3,
+        "text": "Cookie List"
+      }
+    ],
+    "links": [
+      {
+        "text": "AeroAPI\n\t\t\t\tFlight data API with on-demand flight status and flight tracking data.",
+        "href": "/commercial/aeroapi/"
+      },
+      {
+        "text": "FlightAware Firehose\n\t\t\t\tStreaming flight data feed for enterprise integrations with real-time, historical and predictive flight data.",
+        "href": "/commercial/firehose/"
+      },
+      {
+        "text": "FlightAware Foresight\n\t\t\t\tPredictive technology to strengthen customer trust in your operations",
+        "href": "/commercial/foresight/"
+      },
+      {
+        "text": "Rapid Reports\n\t\t\t\tQuickly purchase historical reports delivered via email.",
+        "href": "/commercial/rapidreports/"
+      },
+      {
+        "text": "Custom Reports\n\t\t\t\tConsultative detailed and customized flight tracking data reports.",
+        "href": "/commercial/customreports/"
+      },
+      {
+        "text": "Integrated Mapping Solutions\n\t\t\t\tIncorporate FlightAware maps in your web and mobile applications",
+        "href": "https://go.flightaware.com/integratedmap"
+      },
+      {
+        "text": "FlightAware Aviator\n\t\t\t\tThe ultimate flight tracking suite for small aircraft/general aviation (GA) owners and operators.",
+        "href": "/commercial/aviator/"
+      },
+      {
+        "text": "Premium Subscriptions\n\t\t\t\tA personalized flight-following experience with unlimited alerts and more.",
+        "href": "/commercial/premium/"
+      },
+      {
+        "text": "FlightAware Global\n\t\t\t\tThe industry standard flight tracking platform for business aviation (BA) owners and operators.",
+        "href": "/commercial/global/"
+      },
+      {
+        "text": "FlightAware FBO Toolbox\n\t\t\t\tComprehensive flight tracking to enhance your FBO operations and increase sales.",
+        "href": "/commercial/fbotoolbox/"
+      },
+      {
+        "text": "FlightAware TV\n\t\t\t\tFull-screen FlightAware TV maps for operators or FBOs.",
+        "href": "/commercial/tv/"
+      },
+      {
+        "text": "GlobalBeacon\n\t\t\t\tGADSS-compliant global tracking and alerting for airlines and aircraft operators.",
+        "href": "/commercial/globalbeacon/"
+      },
+      {
+        "text": "Airports",
+        "href": "https://www.flightaware.com/industry/airports"
+      },
+      {
+        "text": "Airlines",
+        "href": "https://www.flightaware.com/industry/airlines"
+      },
+      {
+        "text": "Business",
+        "href": "https://www.flightaware.com/industry/business"
+      },
+      {
+        "text": "Government",
+        "href": "https://www.flightaware.com/industry/government"
+      },
+      {
+        "text": "Manufacturer",
+        "href": "https://www.flightaware.com/industry/manufacturer"
+      },
+      {
+        "text": "Travel",
+        "href": "https://www.flightaware.com/industry/travel"
+      },
+      {
+        "text": "ADS-B",
+        "href": "/adsb/"
+      },
+      {
+        "text": "Statistics",
+        "href": "/adsb/stats/"
+      },
+      {
+        "text": "SkyAware Anywhere",
+        "href": "https://go.flightaware.com/skyawareanywhere"
+      },
+      {
+        "text": "Coverage Map",
+        "href": "/adsb/coverage/"
+      },
+      {
+        "text": "ADS-B Store",
+        "href": "https://flightaware.store/"
+      },
+      {
+        "text": "Build a PiAware ADS-B Receiver",
+        "href": "/adsb/piaware/build/"
+      },
+      {
+        "text": "FlightFeeder",
+        "href": "/adsb/flightfeeder/"
+      },
+      {
+        "text": "FAQs",
+        "href": "/adsb/faq/"
+      },
+      {
+        "text": "Flight Tracking",
+        "href": "/live"
+      },
+      {
+        "text": "Cancellations",
+        "href": "/live/cancelled/"
+      },
+      {
+        "text": "Airport Delays",
+        "href": "/live/airport/delays/"
+      },
+      {
+        "text": "MiseryMap",
+        "href": "/miserymap/"
+      },
+      {
+        "text": "Flight Finder",
+        "href": "/live/findflight/"
+      },
+      {
+        "text": "Browse by Operator",
+        "href": "/live/fleet/"
+      },
+      {
+        "text": "Browse by Airport",
+        "href": "/resources/airport/browse/"
+      },
+      {
+        "text": "Browse by Aircraft Type",
+        "href": "/live/aircrafttype/"
+      },
+      {
+        "text": "Random Airport",
+        "href": "/live/airport/random"
+      },
+      {
+        "text": "Random Flight",
+        "href": "/live/flight/random"
+      },
+      {
+        "text": "IFR Route Analyzer",
+        "href": "/statistics/ifr-route/"
+      },
+      {
+        "text": "Popular Photos",
+        "href": "/photos/"
+      },
+      {
+        "text": "Newest Photos",
+        "href": "/photos/all/sort/date"
+      },
+      {
+        "text": "Highest Ranked",
+        "href": "/photos/all/sort/votes"
+      },
+      {
+        "text": "Staff Picks",
+        "href": "/photos/staffpicks"
+      },
+      {
+        "text": "Recent Comments",
+        "href": "/photos/recentcomments.rvt?page=1"
+      },
+      {
+        "text": "Community Tagging",
+        "href": "/photos/crowdsource"
+      },
+      {
+        "text": "Upload Your Photos",
+        "href": "/photos/upload"
+      },
+      {
+        "text": "Current Squawks",
+        "href": "/squawks/browse/general/recently/popular"
+      },
+      {
+        "text": "New Squawks",
+        "href": "/squawks/browse/general/24_hours/new"
+      },
+      {
+        "text": "Popular Squawks",
+        "href": "/squawks/"
+      },
+      {
+        "text": "All Discussions",
+        "href": "https://discussions.flightaware.com/"
+      },
+      {
+        "text": "Company",
+        "href": "/about"
+      },
+      {
+        "text": "About",
+        "href": "/about/"
+      },
+      {
+        "text": "Careers",
+        "href": "/about/careers/"
+      },
+      {
+        "text": "Data Sources",
+        "href": "/about/datasources/"
+      },
+      {
+        "text": "History",
+        "href": "/about/history.rvt"
+      },
+      {
+        "text": "Blog",
+        "href": "https://blog.flightaware.com"
+      },
+      {
+        "text": "Engineering Blog",
+        "href": "https://flightaware.engineering/"
+      },
+      {
+        "text": "Newsroom",
+        "href": "/news/"
+      },
+      {
+        "text": "Webinars",
+        "href": "https://go.flightaware.com/webinars"
+      },
+      {
+        "text": "Advertise With Us",
+        "href": "/commercial/advertising/"
+      },
+      {
+        "text": "FAQs",
+        "href": "/about/faq/"
+      },
+      {
+        "text": "Contact Us",
+        "href": "/about/contact/"
+      },
+      {
+        "text": "Create a FlightAware Account",
+        "href": "/account/join/"
+      },
+      {
+        "text": "or log in to an existing account",
+        "href": "/account/login/"
+      },
+      {
+        "text": "Join FlightAware",
+        "href": "https://login.flightaware.com/signup"
+      },
+      {
+        "text": "Login",
+        "href": "https://login.flightaware.com/signin"
+      },
+      {
+        "text": "Forgot the flight  number?",
+        "href": "/live/findflight/"
+      },
+      {
+        "text": "Sign Up",
+        "href": "/account/join/"
+      },
+      {
+        "text": "AeroAPI\n\t\t\t\tFlight data API with on-demand flight status and flight tracking data.",
+        "href": "/commercial/aeroapi/"
+      },
+      {
+        "text": "FlightAware Firehose\n\t\t\t\tStreaming flight data feed for enterprise integrations with real-time, historical and predictive flight data.",
+        "href": "/commercial/firehose/"
+      },
+      {
+        "text": "FlightAware Foresight\n\t\t\t\tPredictive technology to strengthen customer trust in your operations",
+        "href": "/commercial/foresight/"
+      },
+      {
+        "text": "Rapid Reports\n\t\t\t\tQuickly purchase historical reports delivered via email.",
+        "href": "/commercial/rapidreports/"
+      },
+      {
+        "text": "Custom Reports\n\t\t\t\tConsultative detailed and customized flight tracking data reports.",
+        "href": "/commercial/customreports/"
+      },
+      {
+        "text": "Integrated Mapping Solutions\n\t\t\t\tIncorporate FlightAware maps in your web and mobile applications",
+        "href": "https://go.flightaware.com/integratedmap"
+      },
+      {
+        "text": "FlightAware Aviator\n\t\t\t\tThe ultimate flight tracking suite for small aircraft/general aviation (GA) owners and operators.",
+        "href": "/commercial/aviator/"
+      },
+      {
+        "text": "Premium Subscriptions\n\t\t\t\tA personalized flight-following experience with unlimited alerts and more.",
+        "href": "/commercial/premium/"
+      },
+      {
+        "text": "FlightAware Global\n\t\t\t\tThe industry standard flight tracking platform for business aviation (BA) owners and operators.",
+        "href": "/commercial/global/"
+      },
+      {
+        "text": "FlightAware FBO Toolbox\n\t\t\t\tComprehensive flight tracking to enhance your FBO operations and increase sales.",
+        "href": "/commercial/fbotoolbox/"
+      },
+      {
+        "text": "FlightAware TV\n\t\t\t\tFull-screen FlightAware TV maps for operators or FBOs.",
+        "href": "/commercial/tv/"
+      },
+      {
+        "text": "GlobalBeacon\n\t\t\t\tGADSS-compliant global tracking and alerting for airlines and aircraft operators.",
+        "href": "/commercial/globalbeacon/"
+      },
+      {
+        "text": "Airports",
+        "href": "https://www.flightaware.com/industry/airports"
+      },
+      {
+        "text": "Airlines",
+        "href": "https://www.flightaware.com/industry/airlines"
+      },
+      {
+        "text": "Business",
+        "href": "https://www.flightaware.com/industry/business"
+      },
+      {
+        "text": "Government",
+        "href": "https://www.flightaware.com/industry/government"
+      },
+      {
+        "text": "Manufacturer",
+        "href": "https://www.flightaware.com/industry/manufacturer"
+      },
+      {
+        "text": "Travel",
+        "href": "https://www.flightaware.com/industry/travel"
+      },
+      {
+        "text": "ADS-B",
+        "href": "/adsb/"
+      },
+      {
+        "text": "Statistics",
+        "href": "/adsb/stats/"
+      },
+      {
+        "text": "SkyAware Anywhere",
+        "href": "https://go.flightaware.com/skyawareanywhere"
+      },
+      {
+        "text": "Coverage Map",
+        "href": "/adsb/coverage/"
+      },
+      {
+        "text": "ADS-B Store",
+        "href": "https://flightaware.store/"
+      },
+      {
+        "text": "Build a PiAware ADS-B Receiver",
+        "href": "/adsb/piaware/build/"
+      },
+      {
+        "text": "FlightFeeder",
+        "href": "/adsb/flightfeeder/"
+      },
+      {
+        "text": "FAQs",
+        "href": "/adsb/faq/"
+      },
+      {
+        "text": "Flight Tracking",
+        "href": "/live"
+      },
+      {
+        "text": "Cancellations",
+        "href": "/live/cancelled/"
+      },
+      {
+        "text": "Airport Delays",
+        "href": "/live/airport/delays/"
+      },
+      {
+        "text": "MiseryMap",
+        "href": "/miserymap/"
+      },
+      {
+        "text": "Flight Finder",
+        "href": "/live/findflight/"
+      },
+      {
+        "text": "Browse by Operator",
+        "href": "/live/fleet/"
+      },
+      {
+        "text": "Browse by Airport",
+        "href": "/resources/airport/browse/"
+      },
+      {
+        "text": "Browse by Aircraft Type",
+        "href": "/live/aircrafttype/"
+      },
+      {
+        "text": "Random Airport",
+        "href": "/live/airport/random"
+      },
+      {
+        "text": "Random Flight",
+        "href": "/live/flight/random"
+      },
+      {
+        "text": "IFR Route Analyzer",
+        "href": "/statistics/ifr-route/"
+      },
+      {
+        "text": "FlightAware app",
+        "href": "/mobile/"
+      },
+      {
+        "text": "Popular Photos",
+        "href": "/photos/"
+      },
+      {
+        "text": "Newest Photos",
+        "href": "/photos/all/sort/date"
+      },
+      {
+        "text": "Highest Ranked",
+        "href": "/photos/all/sort/votes"
+      },
+      {
+        "text": "Staff Picks",
+        "href": "/photos/staffpicks"
+      },
+      {
+        "text": "Recent Comments",
+        "href": "/photos/recentcomments.rvt?page=1"
+      },
+      {
+        "text": "Community Tagging",
+        "href": "/photos/crowdsource"
+      },
+      {
+        "text": "Upload Your Photos",
+        "href": "/photos/upload"
+      },
+      {
+        "text": "Current Squawks",
+        "href": "/squawks/browse/general/recently/popular"
+      },
+      {
+        "text": "New Squawks",
+        "href": "/squawks/browse/general/24_hours/new"
+      },
+      {
+        "text": "Popular Squawks",
+        "href": "/squawks/"
+      },
+      {
+        "text": "All Discussions",
+        "href": "https://discussions.flightaware.com/"
+      },
+      {
+        "text": "Company",
+        "href": "/about"
+      },
+      {
+        "text": "About",
+        "href": "/about/"
+      },
+      {
+        "text": "Careers",
+        "href": "/about/careers/"
+      },
+      {
+        "text": "Data Sources",
+        "href": "/about/datasources/"
+      },
+      {
+        "text": "History",
+        "href": "/about/history.rvt"
+      },
+      {
+        "text": "Blog",
+        "href": "https://blog.flightaware.com"
+      },
+      {
+        "text": "Engineering Blog",
+        "href": "https://flightaware.engineering/"
+      },
+      {
+        "text": "Newsroom",
+        "href": "/news/"
+      },
+      {
+        "text": "Webinars",
+        "href": "https://go.flightaware.com/webinars"
+      },
+      {
+        "text": "Advertise With Us",
+        "href": "/commercial/advertising/"
+      },
+      {
+        "text": "FAQs",
+        "href": "/about/faq/"
+      },
+      {
+        "text": "Contact Us",
+        "href": "/about/contact/"
+      },
+      {
+        "text": "Login to use map layers",
+        "href": "/account/login/"
+      },
+      {
+        "text": "Login to use map layers",
+        "href": "/account/login/"
+      },
+      {
+        "text": "Login to use map layers",
+        "href": "/account/login/"
+      },
+      {
+        "text": "Login to use map layers",
+        "href": "/account/login/"
+      },
+      {
+        "text": "Upgrade to use map layers",
+        "href": "/commercial/premium/"
+      },
+      {
+        "text": "Upgrade to use map layers",
+        "href": "/commercial/premium/"
+      },
+      {
+        "text": "Upgrade to use map layers",
+        "href": "/commercial/premium/"
+      },
+      {
+        "text": "Click to change",
+        "href": "#"
+      },
+      {
+        "text": "Upgrade",
+        "href": "/commercial/premium"
+      },
+      {
+        "text": "Worldwide airport delays",
+        "href": "/live/airport/delays"
+      },
+      {
+        "text": "Live flight cancellations",
+        "href": "/live/cancelled"
+      },
+      {
+        "text": "FlightAware Live Flight Tracker Map",
+        "href": "/live/map"
+      },
+      {
+        "text": "all flights",
+        "href": "/resources/airport/browse/"
+      },
+      {
+        "text": "all flights",
+        "href": "/live/fleet/"
+      },
+      {
+        "text": "all flights",
+        "href": "/live/aircrafttype/"
+      },
+      {
+        "text": "Van Nuys (KVNY)",
+        "href": "/live/airport/KVNY"
+      },
+      {
+        "text": "JetBlue (JBU)",
+        "href": "/live/fleet/JBU"
+      },
+      {
+        "text": "Boeing 737",
+        "href": "/live/aircrafttype/B73*"
+      },
+      {
+        "text": "Houston Hobby (KHOU)",
+        "href": "/live/airport/KHOU"
+      },
+      {
+        "text": "United (UAL)",
+        "href": "/live/fleet/UAL"
+      },
+      {
+        "text": "Cirrus SR20/SR22",
+        "href": "/live/aircrafttype/SR2*"
+      },
+      {
+        "text": "Teterboro (KTEB)",
+        "href": "/live/airport/KTEB"
+      },
+      {
+        "text": "NetJets (EJA)",
+        "href": "/live/fleet/EJA"
+      },
+      {
+        "text": "Beechcraft King Air",
+        "href": "/live/aircrafttype/BE9*"
+      },
+      {
+        "text": "Santa Monica (KSMO)",
+        "href": "/live/airport/KSMO"
+      },
+      {
+        "text": "FedEx (FDX)",
+        "href": "/live/fleet/FDX"
+      },
+      {
+        "text": "Cessna \"Skylane\" 182",
+        "href": "/live/aircrafttype/C182"
+      },
+      {
+        "text": "Honolulu (PHNL)",
+        "href": "/live/airport/PHNL"
+      },
+      {
+        "text": "Delta (DAL)",
+        "href": "/live/fleet/DAL"
+      },
+      {
+        "text": "Embraer 145",
+        "href": "/live/aircrafttype/E145"
+      },
+      {
+        "text": "airport",
+        "href": "/live/airport/random"
+      },
+      {
+        "text": "flight",
+        "href": "/live/flight/random"
+      },
+      {
+        "text": "special humanitarian relief flights",
+        "href": "/live/special/"
+      },
+      {
+        "text": "Forgot password?",
+        "href": "https://www.flightaware.com/account/forgot"
+      },
+      {
+        "text": "Join FlightAware",
+        "href": "/account/join/?referer=https://www.flightaware.com/live/?automation=true"
+      },
+      {
+        "text": "Products & Services",
+        "href": "/commercial"
+      },
+      {
+        "text": "AeroAPI",
+        "href": "/commercial/aeroapi/"
+      },
+      {
+        "text": "FlightAware Firehose",
+        "href": "/commercial/firehose/"
+      },
+      {
+        "text": "FlightAware Foresight",
+        "href": "/commercial/foresight/"
+      },
+      {
+        "text": "Rapid Reports",
+        "href": "/commercial/rapidreports/"
+      },
+      {
+        "text": "Custom Reports",
+        "href": "/commercial/customreports/"
+      },
+      {
+        "text": "FlightAware Aviator",
+        "href": "/commercial/aviator/"
+      },
+      {
+        "text": "Premium Subscriptions",
+        "href": "/commercial/premium/"
+      },
+      {
+        "text": "FlightAware Global",
+        "href": "/commercial/global/"
+      },
+      {
+        "text": "FlightAware FBO Toolbox",
+        "href": "/commercial/fbotoolbox/"
+      },
+      {
+        "text": "FlightAware TV℠",
+        "href": "/commercial/tv/"
+      },
+      {
+        "text": "GlobalBeacon",
+        "href": "/commercial/globalbeacon/"
+      },
+      {
+        "text": "About",
+        "href": "/about/"
+      },
+      {
+        "text": "Careers",
+        "href": "/about/careers/"
+      },
+      {
+        "text": "History",
+        "href": "/about/history/"
+      },
+      {
+        "text": "Advertise With Us",
+        "href": "/commercial/advertising/"
+      },
+      {
+        "text": "Newsroom",
+        "href": "/news/"
+      },
+      {
+        "text": "Blog",
+        "href": "https://blog.flightaware.com/"
+      },
+      {
+        "text": "Webinars",
+        "href": "https://go.flightaware.com/webinars"
+      },
+      {
+        "text": "GSA Contract # 47QTCA21D003F",
+        "href": "https://industry.flightaware.com/usgovernment"
+      },
+      {
+        "text": "Photos",
+        "href": "/photos/"
+      },
+      {
+        "text": "Squawks",
+        "href": "/squawks/"
+      },
+      {
+        "text": "Discussions",
+        "href": "https://discussions.flightaware.com/"
+      },
+      {
+        "text": "Host an ADS-B Site",
+        "href": "/adsb/piaware/build/"
+      },
+      {
+        "text": "Contact Us",
+        "href": "/about/contact/"
+      },
+      {
+        "text": "FAQs",
+        "href": "/about/faq/"
+      },
+      {
+        "text": "AeroAPI",
+        "href": "/commercial/aeroapi/"
+      },
+      {
+        "text": "FlightAware Firehose",
+        "href": "/commercial/firehose/"
+      },
+      {
+        "text": "FlightAware Foresight",
+        "href": "/commercial/foresight/"
+      },
+      {
+        "text": "Rapid Reports",
+        "href": "/commercial/rapidreports/"
+      },
+      {
+        "text": "Custom Reports",
+        "href": "/commercial/customreports/"
+      },
+      {
+        "text": "FlightAware Aviator",
+        "href": "/commercial/aviator/"
+      },
+      {
+        "text": "Premium Subscriptions",
+        "href": "/commercial/premium/"
+      },
+      {
+        "text": "FlightAware Global",
+        "href": "/commercial/global/"
+      },
+      {
+        "text": "FlightAware FBO Toolbox",
+        "href": "/commercial/fbotoolbox/"
+      },
+      {
+        "text": "FlightAware TV℠",
+        "href": "/commercial/tv/"
+      },
+      {
+        "text": "GlobalBeacon",
+        "href": "/commercial/globalbeacon/"
+      },
+      {
+        "text": "About",
+        "href": "/about/"
+      },
+      {
+        "text": "Careers",
+        "href": "/about/careers/"
+      },
+      {
+        "text": "History",
+        "href": "/about/history/"
+      },
+      {
+        "text": "Advertise With Us",
+        "href": "/commercial/advertising/"
+      },
+      {
+        "text": "Newsroom",
+        "href": "/news/"
+      },
+      {
+        "text": "Blog",
+        "href": "https://blog.flightaware.com/"
+      },
+      {
+        "text": "Webinars",
+        "href": "https://go.flightaware.com/webinars"
+      },
+      {
+        "text": "GSA Contract # 47QTCA21D003F",
+        "href": "https://industry.flightaware.com/usgovernment"
+      },
+      {
+        "text": "Photos",
+        "href": "/photos/"
+      },
+      {
+        "text": "Squawks",
+        "href": "/squawks/"
+      },
+      {
+        "text": "Discussions",
+        "href": "https://discussions.flightaware.com/"
+      },
+      {
+        "text": "Host an ADS-B Site",
+        "href": "/adsb/piaware/build/"
+      },
+      {
+        "text": "Contact Us",
+        "href": "/about/contact/"
+      },
+      {
+        "text": "FAQs",
+        "href": "/about/faq/"
+      },
+      {
+        "text": "العربية",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=ar_SA"
+      },
+      {
+        "text": "Čeština",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=cs_CZ"
+      },
+      {
+        "text": "Deutsch",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=de_DE"
+      },
+      {
+        "text": "English (Australia)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=en_AU"
+      },
+      {
+        "text": "English (Canada)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=en_CA"
+      },
+      {
+        "text": "English (UK)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=en_GB"
+      },
+      {
+        "text": "English (USA)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=en_US"
+      },
+      {
+        "text": "Español (España)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=es_ES"
+      },
+      {
+        "text": "Español",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=es_MX"
+      },
+      {
+        "text": "Suomi",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=fi_FI"
+      },
+      {
+        "text": "Français (Canada)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=fr_CA"
+      },
+      {
+        "text": "Français (France)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=fr_FR"
+      },
+      {
+        "text": "עִבְרִית",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=he_IL"
+      },
+      {
+        "text": "हिन्दी",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=he_IN"
+      },
+      {
+        "text": "Hrvatski",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=hr_HR"
+      },
+      {
+        "text": "Italiano",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=it_IT"
+      },
+      {
+        "text": "Italiano",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=it_IT"
+      },
+      {
+        "text": "日本語",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=ja_JP"
+      },
+      {
+        "text": "한국어",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=ko_KR"
+      },
+      {
+        "text": "Polski",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=pl_PL"
+      },
+      {
+        "text": "Português (Brasil)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=pt_BR"
+      },
+      {
+        "text": "Português (Portugal)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=pt_PT"
+      },
+      {
+        "text": "Русский",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=ru_RU"
+      },
+      {
+        "text": "Türkçe",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=tr_TR"
+      },
+      {
+        "text": "中文(简体)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=zh_CN"
+      },
+      {
+        "text": "中文(香港)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=zh_HK"
+      },
+      {
+        "text": "中文(台灣)",
+        "href": "/account/locale_switch.rvt?csrf_token=448541418&locale=zh_TW"
+      },
+      {
+        "text": "Terms of Use",
+        "href": "/about/termsofuse/"
+      },
+      {
+        "text": "Privacy",
+        "href": "/about/privacy/"
+      },
+      {
+        "text": "Manage Preferences",
+        "href": "#"
+      },
+      {
+        "text": "upgrade your browser",
+        "href": "https://www.microsoft.com/en-us/windows/microsoft-edge"
+      },
+      {
+        "text": "whitelist ads",
+        "href": "/about/supportus"
+      },
+      {
+        "text": "premium accounts",
+        "href": "/commercial/premium/"
+      },
+      {
+        "text": "Privacy Statement",
+        "href": "https://www.flightaware.com/about/privacy/"
+      },
+      {
+        "text": "More information",
+        "href": "https://cookiepedia.co.uk/giving-consent-to-cookies"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/flightaware-logo-color.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-aeroapi.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-firehose.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-foresight.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-rapid-reports.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-custom-reports.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-integrated-mapping.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-aviator.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-premium-subscription.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-flightaware-global.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-fbo-toolbox.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-flightaware-tv.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-globalbeacon.png"
+      },
+      {
+        "alt": "iOS App",
+        "src": "https://www.flightaware.com/images/app-store-badge.svg"
+      },
+      {
+        "alt": "Google Play App",
+        "src": "https://www.flightaware.com/images/google-play-badge.png"
+      },
+      {
+        "alt": "US Flag",
+        "src": "https://www.flightaware.com/images/countries/US.png"
+      },
+      {
+        "alt": "FlightAware",
+        "src": "https://www.flightaware.com/images/nav/flightaware-logo.png"
+      },
+      {
+        "alt": "Swap",
+        "src": "https://www.flightaware.com/images/home_main/flip_fields.svg"
+      },
+      {
+        "alt": "Submit Search",
+        "src": "https://www.flightaware.com/images/icons/searchIcon-white.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-aeroapi.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-firehose.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-foresight.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-rapid-reports.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-custom-reports.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-integrated-mapping.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-aviator.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-premium-subscription.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-flightaware-global.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-fbo-toolbox.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-flightaware-tv.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.flightaware.com/images/nav/icon-globalbeacon.png"
+      },
+      {
+        "alt": "linkedin",
+        "src": "https://www.flightaware.com/images/app-store-badge.svg"
+      },
+      {
+        "alt": "linkedin",
+        "src": "https://www.flightaware.com/images/google-play-badge.png"
+      },
+      {
+        "alt": "Loading…",
+        "src": "https://www.flightaware.com/images/loading-small.gif"
+      },
+      {
+        "alt": "Submit Search",
+        "src": "https://www.flightaware.com/images/icons/searchIcon-white.svg"
+      },
+      {
+        "alt": "logo",
+        "src": "https://www.flightaware.com/images/flightaware-logo-color-large.svg"
+      },
+      {
+        "alt": "linkedin",
+        "src": "https://www.flightaware.com/images/linkedin-icon@3x.png"
+      },
+      {
+        "alt": "facebook",
+        "src": "https://www.flightaware.com/images/facebook-icon@3x.png"
+      },
+      {
+        "alt": "twitter",
+        "src": "https://www.flightaware.com/images/twitter-icon@3x.png"
+      },
+      {
+        "alt": "iOS App",
+        "src": "https://www.flightaware.com/images/app-store-badge.svg"
+      },
+      {
+        "alt": "Google Play App",
+        "src": "https://www.flightaware.com/images/google-play-badge.png"
+      },
+      {
+        "alt": "US",
+        "src": "https://www.flightaware.com/images/countries/US.png"
+      },
+      {
+        "alt": "SA",
+        "src": "https://www.flightaware.com/images/countries/SA.png"
+      },
+      {
+        "alt": "CZ",
+        "src": "https://www.flightaware.com/images/countries/CZ.png"
+      },
+      {
+        "alt": "DE",
+        "src": "https://www.flightaware.com/images/countries/DE.png"
+      },
+      {
+        "alt": "AU",
+        "src": "https://www.flightaware.com/images/countries/AU.png"
+      },
+      {
+        "alt": "CA",
+        "src": "https://www.flightaware.com/images/countries/CA.png"
+      },
+      {
+        "alt": "GB",
+        "src": "https://www.flightaware.com/images/countries/GB.png"
+      },
+      {
+        "alt": "US",
+        "src": "https://www.flightaware.com/images/countries/US.png"
+      },
+      {
+        "alt": "ES",
+        "src": "https://www.flightaware.com/images/countries/ES.png"
+      },
+      {
+        "alt": "MX",
+        "src": "https://www.flightaware.com/images/countries/MX.png"
+      },
+      {
+        "alt": "FI",
+        "src": "https://www.flightaware.com/images/countries/FI.png"
+      },
+      {
+        "alt": "CA",
+        "src": "https://www.flightaware.com/images/countries/CA.png"
+      },
+      {
+        "alt": "FR",
+        "src": "https://www.flightaware.com/images/countries/FR.png"
+      },
+      {
+        "alt": "IL",
+        "src": "https://www.flightaware.com/images/countries/IL.png"
+      },
+      {
+        "alt": "IN",
+        "src": "https://www.flightaware.com/images/countries/IN.png"
+      },
+      {
+        "alt": "HR",
+        "src": "https://www.flightaware.com/images/countries/HR.png"
+      },
+      {
+        "alt": "IT",
+        "src": "https://www.flightaware.com/images/countries/IT.png"
+      },
+      {
+        "alt": "IT",
+        "src": "https://www.flightaware.com/images/countries/IT.png"
+      },
+      {
+        "alt": "JP",
+        "src": "https://www.flightaware.com/images/countries/JP.png"
+      },
+      {
+        "alt": "KR",
+        "src": "https://www.flightaware.com/images/countries/KR.png"
+      },
+      {
+        "alt": "PL",
+        "src": "https://www.flightaware.com/images/countries/PL.png"
+      },
+      {
+        "alt": "BR",
+        "src": "https://www.flightaware.com/images/countries/BR.png"
+      },
+      {
+        "alt": "PT",
+        "src": "https://www.flightaware.com/images/countries/PT.png"
+      },
+      {
+        "alt": "RU",
+        "src": "https://www.flightaware.com/images/countries/RU.png"
+      },
+      {
+        "alt": "TR",
+        "src": "https://www.flightaware.com/images/countries/TR.png"
+      },
+      {
+        "alt": "CN",
+        "src": "https://www.flightaware.com/images/countries/CN.png"
+      },
+      {
+        "alt": "HK",
+        "src": "https://www.flightaware.com/images/countries/HK.png"
+      },
+      {
+        "alt": "TW",
+        "src": "https://www.flightaware.com/images/countries/TW.png"
+      },
+      {
+        "alt": "Company Logo",
+        "src": "https://cdn.cookielaw.org/logos/1d78294b-889a-4731-ba8f-8f555c7478c7/018e6144-1041-7959-9793-a6e88ac12191/e4058062-49cb-48c7-a571-f1ed9ef39a45/FA-logo-OneTrust.png"
+      },
+      {
+        "alt": "Powered by Onetrust",
+        "src": "https://cdn.cookielaw.org/logos/static/powered_by_logo.svg"
+      }
+    ],
+    "timestamp": 1760611305494,
+    "url": "https://www.flightaware.com/live/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

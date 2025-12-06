@@ -1,0 +1,1469 @@
+{
+  "url": "https://en.cppreference.com/w/cpp/container/vector.html",
+  "extractedAt": "2025-10-16T10:52:53.171Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://en.cppreference.com/favicon.ico",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "std::vector - cppreference.com",
+    "metaDescription": "",
+    "content": "[Frontend Masters – Master Web Development Skills with Expert-Led Courses!](https://srv.carbonads.net/ads/click/x/GTND427NCTSDT27ECT7LYKQUCYYI6KQLCTBDEZ3JCASD4K7ICYYIEKJKCK7DT27MCEYDE53MCEADV23LCK7D623KC6SIKK3NCTADEK3EHJNCLSIZ)  [ads via Carbon](http://carbonads.net/?utm_source=cppreferencecom&utm_medium=ad_via_link&utm_campaign=in_unit&utm_term=carbon)    \n# std::vector\n            [C++](../../cpp.html) [Containers library](../container.html) **std::vector**     Defined in header [<vector>](../header/vector.html)       template<\n  class T,\n class Allocator = [std::allocator](../memory/allocator.html)<T>\n \n > class vector;  (1)       namespace pmr {\n  template< class T >\n using vector = std::vector<T, [std::pmr::polymorphic_allocator](../memory/polymorphic_allocator.html)<T>>;\n \n }  (2)   (since C++17)     1) std::vector is a sequence container that encapsulates dynamic size arrays. 2) std::pmr::vector is an alias template that uses a [polymorphic allocator](../memory/polymorphic_allocator.html). Except for the [std::vector<bool>](vector_bool.html) partial specialization, the elements are stored contiguously, which means that elements can be accessed not only through iterators, but also using offsets to regular pointers to elements. This means that a pointer to an element of a vector may be passed to any function that expects a pointer to an element of an array. \nThe storage of the vector is handled automatically, being expanded as needed. Vectors usually occupy more space than static arrays, because more memory is allocated to handle future growth. This way a vector does not need to reallocate each time an element is inserted, but only when the additional memory is exhausted. The total amount of allocated memory can be queried using [capacity()](vector/capacity.html) function. Extra memory can be returned to the system via a call to [shrink_to_fit()](vector/shrink_to_fit.html)[[1]](vector.html#cite_note-1). \nReallocations are usually costly operations in terms of performance. The [reserve()](vector/reserve.html) function can be used to eliminate reallocations if the number of elements is known beforehand. \nThe complexity (efficiency) of common operations on vectors is as follows: \n \n\n- Random access - constant 𝓞(1).\n\n- Insertion or removal of elements at the end - amortized constant 𝓞(1).\n\n- Insertion or removal of elements - linear in the distance to the end of the vector 𝓞(n).\n\n std::vector (for T other than bool) meets the requirements of [Container](../named_req/Container.html), [AllocatorAwareContainer](../named_req/AllocatorAwareContainer.html)(since C++11), [SequenceContainer](../named_req/SequenceContainer.html), [ContiguousContainer](../named_req/ContiguousContainer.html)(since C++17) and [ReversibleContainer](../named_req/ReversibleContainer.html). \n   All member functions of std::vector are constexpr: it is possible to create and use std::vector objects in the evaluation of a constant expression.However, std::vector objects generally cannot be constexpr, because any dynamically allocated storage must be released in the same evaluation of constant expression.\n  (since C++20)  \n \n- [↑](vector.html#cite_ref-1) In libstdc++, shrink_to_fit() is [not available](https://gcc.gnu.org/onlinedocs/libstdc++/manual/strings.html#strings.string.shrink) in C++98 mode.\n \n  \n###  Template parameters\n    T   -   The type of the elements.  T must meet the requirements of [CopyAssignable](../named_req/CopyAssignable.html) and [CopyConstructible](../named_req/CopyConstructible.html). (until C++11) The requirements that are imposed on the elements depend on the actual operations performed on the container. Generally, it is required that element type is a complete type and meets the requirements of [Erasable](../named_req/Erasable.html), but many member functions impose stricter requirements. (since C++11)\n(until C++17)  The requirements that are imposed on the elements depend on the actual operations performed on the container. Generally, it is required that element type meets the requirements of [Erasable](../named_req/Erasable.html), but many member functions impose stricter requirements. This container (but not its members) can be instantiated with an incomplete element type if the allocator satisfies the [allocator completeness requirements](../named_req/Allocator.html#Allocator_completeness_requirements). \n   [Feature-test](../utility/feature_test.html) macro Value Std Feature   [__cpp_lib_incomplete_container_elements](../experimental/feature_test.html#cpp_lib_incomplete_container_elements) [201505L](../compiler_support/17.html#cpp_lib_incomplete_container_elements_201505L) (C++17) Minimal incomplete type support   (since C++17)   \n    Allocator   -   An allocator that is used to acquire/release memory and to construct/destroy the elements in that memory. The type must meet the requirements of [Allocator](../named_req/Allocator.html). The behavior is undefined(until C++20)The program is ill-formed(since C++20) if Allocator::value_type is not the same as T.  \n###  Specializations\n The standard library provides a specialization of std::vector for the type bool, which may be optimized for space efficiency. \n    [vector<bool>](vector_bool.html)   space-efficient dynamic bitset \n (class template specialization)    \n###  Iterator invalidation\n   Operations  Invalidated   All read only operations  Never.   [swap](vector/swap.html), [std::swap](../utility/swap.html)  [end()](vector/end.html)   [clear](vector/clear.html), [operator=](vector/operator=.html), [assign](vector/assign.html)  Always.   [reserve](vector/reserve.html), [shrink_to_fit](vector/shrink_to_fit.html)  If the vector changed capacity, all of them. If not, none.   [erase](vector/erase.html)  Erased elements and all elements after them (including [end()](vector/end.html)).   [push_back](vector/push_back.html), [emplace_back](vector/emplace_back.html)  If the vector changed capacity, all of them. If not, only [end()](vector/end.html).   [insert](vector/insert.html), [emplace](vector/emplace.html)  If the vector changed capacity, all of them.\nIf not, only those at or after the insertion point (including [end()](vector/end.html)).   [resize](vector/resize.html)  If the vector changed capacity, all of them. If not, only [end()](vector/end.html) and any elements erased.   [pop_back](vector/pop_back.html)  The element erased and [end()](vector/end.html).  \n###  Member types\n    Member type   Definition    value_type   T    allocator_type   Allocator    size_type   Unsigned integer type (usually [std::size_t](../types/size_t.html))    difference_type   Signed integer type (usually [std::ptrdiff_t](../types/ptrdiff_t.html))    reference   value_type&    const_reference   const value_type&    pointer     Allocator::pointer \n  (until C++11)  [std::allocator_traits](../memory/allocator_traits.html)<Allocator>::pointer \n  (since C++11)     const_pointer     Allocator::const_pointer \n  (until C++11)  [std::allocator_traits](../memory/allocator_traits.html)<Allocator>::const_pointer \n  (since C++11)     iterator     [LegacyRandomAccessIterator](../named_req/RandomAccessIterator.html) and [LegacyContiguousIterator](../named_req/ContiguousIterator.html) to value_type \n  (until C++20)  [LegacyRandomAccessIterator](../named_req/RandomAccessIterator.html), [contiguous_iterator](../iterator/contiguous_iterator.html), and [ConstexprIterator](../named_req/ConstexprIterator.html) to value_type \n  (since C++20)     const_iterator     [LegacyRandomAccessIterator](../named_req/RandomAccessIterator.html) and [LegacyContiguousIterator](../named_req/ContiguousIterator.html) to const value_type \n  (until C++20)  [LegacyRandomAccessIterator](../named_req/RandomAccessIterator.html), [contiguous_iterator](../iterator/contiguous_iterator.html), and [ConstexprIterator](../named_req/ConstexprIterator.html) to const value_type \n  (since C++20)     reverse_iterator   [std::reverse_iterator](../iterator/reverse_iterator.html)<iterator>    const_reverse_iterator   [std::reverse_iterator](../iterator/reverse_iterator.html)<const_iterator>   \n###  Member functions\n    [(constructor)](vector/vector.html)   constructs the vector \n (public member function)     [(destructor)](vector/~vector.html)   destructs the vector \n (public member function)     [operator=](vector/operator=.html)   assigns values to the container \n (public member function)     [assign](vector/assign.html)   assigns values to the container \n (public member function)     [assign_range](vector/assign_range.html)(C++23)   assigns a range of values to the container \n (public member function)     [get_allocator](vector/get_allocator.html)   returns the associated allocator \n (public member function)       Element access     [at](vector/at.html)   access specified element with bounds checking \n (public member function)     [operator[]](vector/operator_at.html)   access specified element \n (public member function)     [front](vector/front.html)   access the first element \n (public member function)     [back](vector/back.html)   access the last element \n (public member function)     [data](vector/data.html)   direct access to the underlying contiguous storage \n (public member function)       Iterators     [begincbegin](vector/begin.html)(C++11)   returns an iterator to the beginning \n (public member function)     [endcend](vector/end.html)(C++11)   returns an iterator to the end \n (public member function)     [rbegincrbegin](vector/rbegin.html)(C+...",
+    "truncated": true,
+    "fullContentLength": 14129,
+    "headings": [
+      {
+        "level": 5,
+        "text": "cppreference.com"
+      },
+      {
+        "level": 5,
+        "text": "Namespaces"
+      },
+      {
+        "level": 5,
+        "text": "Variants"
+      },
+      {
+        "level": 5,
+        "text": "Views"
+      },
+      {
+        "level": 5,
+        "text": "Actions"
+      },
+      {
+        "level": 1,
+        "text": "std::vector"
+      },
+      {
+        "level": 2,
+        "text": "Contents"
+      },
+      {
+        "level": 3,
+        "text": "Template parameters"
+      },
+      {
+        "level": 3,
+        "text": "Specializations"
+      },
+      {
+        "level": 3,
+        "text": "Iterator invalidation"
+      },
+      {
+        "level": 3,
+        "text": "Member types"
+      },
+      {
+        "level": 3,
+        "text": "Member functions"
+      },
+      {
+        "level": 5,
+        "text": "Element access"
+      },
+      {
+        "level": 5,
+        "text": "Iterators"
+      },
+      {
+        "level": 5,
+        "text": "Capacity"
+      },
+      {
+        "level": 5,
+        "text": "Modifiers"
+      },
+      {
+        "level": 3,
+        "text": "Non-member functions"
+      },
+      {
+        "level": 3,
+        "text": "Deduction guides"
+      },
+      {
+        "level": 3,
+        "text": "Notes"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 3,
+        "text": "Defect reports"
+      },
+      {
+        "level": 3,
+        "text": "See also"
+      },
+      {
+        "level": 5,
+        "text": "Navigation"
+      },
+      {
+        "level": 5,
+        "text": "Toolbox"
+      }
+    ],
+    "links": [
+      {
+        "text": "cppreference.com",
+        "href": "../../../index.html"
+      },
+      {
+        "text": "Log in",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Special:UserLogin&returnto=cpp%2Fcontainer%2Fvector"
+      },
+      {
+        "text": "Page",
+        "href": "vector.html"
+      },
+      {
+        "text": "Discussion",
+        "href": "../../Talk%253Acpp/container/vector.html"
+      },
+      {
+        "text": "View",
+        "href": "vector.html"
+      },
+      {
+        "text": "View source",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=cpp/container/vector&action=edit"
+      },
+      {
+        "text": "History",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=cpp/container/vector&action=history"
+      },
+      {
+        "text": "Frontend Masters – Master Web Development Skills with Expert-Led Courses!",
+        "href": "https://srv.carbonads.net/ads/click/x/GTND427NCTSDT27ECT7LYKQUCYYI6KQLCTBDEZ3JCASD4K7ICYYIEKJKCK7DT27MCEYDE53MCEADV23LCK7D623KC6SIKK3NCTADEK3EHJNCLSIZ"
+      },
+      {
+        "text": "ads via Carbon",
+        "href": "http://carbonads.net/?utm_source=cppreferencecom&utm_medium=ad_via_link&utm_campaign=in_unit&utm_term=carbon"
+      },
+      {
+        "text": "cpp",
+        "href": "../../cpp.html"
+      },
+      {
+        "text": "container",
+        "href": "../container.html"
+      },
+      {
+        "text": "C++",
+        "href": "../../cpp.html"
+      },
+      {
+        "text": "Compiler support",
+        "href": "../compiler_support.html"
+      },
+      {
+        "text": "Freestanding and hosted",
+        "href": "../freestanding.html"
+      },
+      {
+        "text": "Language",
+        "href": "../language.html"
+      },
+      {
+        "text": "Standard library",
+        "href": "../standard_library.html"
+      },
+      {
+        "text": "Standard library headers",
+        "href": "../headers.html"
+      },
+      {
+        "text": "Named requirements",
+        "href": "../iterator/concepts.html"
+      },
+      {
+        "text": "Feature test macros",
+        "href": "../experimental/feature_test.html"
+      },
+      {
+        "text": "Language support library",
+        "href": "../utility.html#Language_support"
+      },
+      {
+        "text": "Concepts library",
+        "href": "../concepts.html"
+      },
+      {
+        "text": "Diagnostics library",
+        "href": "../error.html"
+      },
+      {
+        "text": "Memory management library",
+        "href": "../memory.html"
+      },
+      {
+        "text": "Metaprogramming library",
+        "href": "../meta.html"
+      },
+      {
+        "text": "General utilities library",
+        "href": "../utility.html"
+      },
+      {
+        "text": "Containers library",
+        "href": "../container.html"
+      },
+      {
+        "text": "Iterators library",
+        "href": "../iterator.html"
+      },
+      {
+        "text": "Ranges library",
+        "href": "../ranges.html"
+      },
+      {
+        "text": "Algorithms library",
+        "href": "../algorithm.html"
+      },
+      {
+        "text": "Strings library",
+        "href": "../string.html"
+      },
+      {
+        "text": "Text processing library",
+        "href": "../text.html"
+      },
+      {
+        "text": "Numerics library",
+        "href": "../numeric.html"
+      },
+      {
+        "text": "Date and time library",
+        "href": "../chrono.html"
+      },
+      {
+        "text": "Input/output library",
+        "href": "../io.html"
+      },
+      {
+        "text": "Filesystem library",
+        "href": "../filesystem.html"
+      },
+      {
+        "text": "Concurrency support library",
+        "href": "../atomic.html"
+      },
+      {
+        "text": "Execution control library",
+        "href": "../experimental/execution.html"
+      },
+      {
+        "text": "Technical specifications",
+        "href": "../experimental.html"
+      },
+      {
+        "text": "Symbols index",
+        "href": "../symbol_index.html"
+      },
+      {
+        "text": "External libraries",
+        "href": "../links/libs.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/navbar_content&action=edit"
+      },
+      {
+        "text": "Containers library",
+        "href": "../container.html"
+      },
+      {
+        "text": "node-handle",
+        "href": "node_handle.html"
+      },
+      {
+        "text": "Sequence",
+        "href": "../container.html#Sequence_containers"
+      },
+      {
+        "text": "array",
+        "href": "array.html"
+      },
+      {
+        "text": "vector<bool>",
+        "href": "vector_bool.html"
+      },
+      {
+        "text": "inplace_vector",
+        "href": "inplace_vector.html"
+      },
+      {
+        "text": "hive",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=cpp/container/hive&action=edit&redlink=1"
+      },
+      {
+        "text": "deque",
+        "href": "deque.html"
+      },
+      {
+        "text": "forward_list",
+        "href": "forward_list.html"
+      },
+      {
+        "text": "list",
+        "href": "list.html"
+      },
+      {
+        "text": "Associative",
+        "href": "../container.html#Associative_containers"
+      },
+      {
+        "text": "set",
+        "href": "set.html"
+      },
+      {
+        "text": "multiset",
+        "href": "multiset.html"
+      },
+      {
+        "text": "map",
+        "href": "map.html"
+      },
+      {
+        "text": "multimap",
+        "href": "multimap.html"
+      },
+      {
+        "text": "Unordered associative",
+        "href": "../container.html#Unordered_associative_containers"
+      },
+      {
+        "text": "unordered_set",
+        "href": "unordered_set.html"
+      },
+      {
+        "text": "unordered_multiset",
+        "href": "unordered_multiset.html"
+      },
+      {
+        "text": "unordered_map",
+        "href": "unordered_map.html"
+      },
+      {
+        "text": "unordered_multimap",
+        "href": "unordered_multimap.html"
+      },
+      {
+        "text": "Adaptors",
+        "href": "../container.html#Container_adaptors"
+      },
+      {
+        "text": "stack",
+        "href": "stack.html"
+      },
+      {
+        "text": "queue",
+        "href": "queue.html"
+      },
+      {
+        "text": "priority_queue",
+        "href": "priority_queue.html"
+      },
+      {
+        "text": "flat_set",
+        "href": "flat_set.html"
+      },
+      {
+        "text": "flat_multiset",
+        "href": "flat_multiset.html"
+      },
+      {
+        "text": "flat_map",
+        "href": "flat_map.html"
+      },
+      {
+        "text": "flat_multimap",
+        "href": "flat_multimap.html"
+      },
+      {
+        "text": "Views",
+        "href": "../container.html#Views"
+      },
+      {
+        "text": "span",
+        "href": "span.html"
+      },
+      {
+        "text": "mdspan",
+        "href": "mdspan.html"
+      },
+      {
+        "text": "Iterator invalidation",
+        "href": "../container.html#Iterator_invalidation"
+      },
+      {
+        "text": "Member function table",
+        "href": "../container.html#Member_function_table"
+      },
+      {
+        "text": "Non-member function table",
+        "href": "../container.html#Non-member_function_table"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/navbar_content&action=edit"
+      },
+      {
+        "text": "Member types",
+        "href": "vector.html#Member_types"
+      },
+      {
+        "text": "Member functions",
+        "href": "vector.html#Member_functions"
+      },
+      {
+        "text": "vector::vector",
+        "href": "vector/vector.html"
+      },
+      {
+        "text": "vector::~vector",
+        "href": "vector/~vector.html"
+      },
+      {
+        "text": "vector::operator=",
+        "href": "vector/operator=.html"
+      },
+      {
+        "text": "vector::assign",
+        "href": "vector/assign.html"
+      },
+      {
+        "text": "vector::assign_range",
+        "href": "vector/assign_range.html"
+      },
+      {
+        "text": "vector::get_allocator",
+        "href": "vector/get_allocator.html"
+      },
+      {
+        "text": "Element access",
+        "href": "vector.html#Element_access"
+      },
+      {
+        "text": "vector::operator[]",
+        "href": "vector/operator_at.html"
+      },
+      {
+        "text": "vector::at",
+        "href": "vector/at.html"
+      },
+      {
+        "text": "vector::data",
+        "href": "vector/data.html"
+      },
+      {
+        "text": "vector::front",
+        "href": "vector/front.html"
+      },
+      {
+        "text": "vector::back",
+        "href": "vector/back.html"
+      },
+      {
+        "text": "Iterators",
+        "href": "vector.html#Iterators"
+      },
+      {
+        "text": "vector::beginvector::cbegin",
+        "href": "vector/begin.html"
+      },
+      {
+        "text": "vector::endvector::cend",
+        "href": "vector/end.html"
+      },
+      {
+        "text": "vector::rbeginvector::crbegin",
+        "href": "vector/rbegin.html"
+      },
+      {
+        "text": "vector::rendvector::crend",
+        "href": "vector/rend.html"
+      },
+      {
+        "text": "Capacity",
+        "href": "vector.html#Capacity"
+      },
+      {
+        "text": "vector::empty",
+        "href": "vector/empty.html"
+      },
+      {
+        "text": "vector::size",
+        "href": "vector/size.html"
+      },
+      {
+        "text": "vector::max_size",
+        "href": "vector/max_size.html"
+      },
+      {
+        "text": "vector::reserve",
+        "href": "vector/reserve.html"
+      },
+      {
+        "text": "vector::capacity",
+        "href": "vector/capacity.html"
+      },
+      {
+        "text": "vector::shrink_to_fit",
+        "href": "vector/shrink_to_fit.html"
+      },
+      {
+        "text": "Modifiers",
+        "href": "vector.html#Modifiers"
+      },
+      {
+        "text": "vector::clear",
+        "href": "vector/clear.html"
+      },
+      {
+        "text": "vector::erase",
+        "href": "vector/erase.html"
+      },
+      {
+        "text": "vector::insert",
+        "href": "vector/insert.html"
+      },
+      {
+        "text": "vector::insert_range",
+        "href": "vector/insert_range.html"
+      },
+      {
+        "text": "vector::append_range",
+        "href": "vector/append_range.html"
+      },
+      {
+        "text": "vector::emplace",
+        "href": "vector/emplace.html"
+      },
+      {
+        "text": "vector::emplace_back",
+        "href": "vector/emplace_back.html"
+      },
+      {
+        "text": "vector::push_back",
+        "href": "vector/push_back.html"
+      },
+      {
+        "text": "vector::pop_back",
+        "href": "vector/pop_back.html"
+      },
+      {
+        "text": "vector::resize",
+        "href": "vector/resize.html"
+      },
+      {
+        "text": "vector::swap",
+        "href": "vector/swap.html"
+      },
+      {
+        "text": "Non-member functions",
+        "href": "vector.html#Non-member_functions"
+      },
+      {
+        "text": "operator==operator<=>",
+        "href": "vector/operator_cmp.html"
+      },
+      {
+        "text": "swap(std::vector)",
+        "href": "vector/std_swap.html"
+      },
+      {
+        "text": "erase(std::vector)erase_if(std::vector)",
+        "href": "vector/erase2.html"
+      },
+      {
+        "text": "operator!=operator<operator>operator<=operator>=",
+        "href": "vector/operator_cmp.html"
+      },
+      {
+        "text": "Deduction guides",
+        "href": "vector/deduction_guides.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/vector/navbar_content&action=edit"
+      },
+      {
+        "text": "<vector>",
+        "href": "../header/vector.html"
+      },
+      {
+        "text": "std::allocator",
+        "href": "../memory/allocator.html"
+      },
+      {
+        "text": "std::pmr::polymorphic_allocator",
+        "href": "../memory/polymorphic_allocator.html"
+      },
+      {
+        "text": "polymorphic allocator",
+        "href": "../memory/polymorphic_allocator.html"
+      },
+      {
+        "text": "std::vector<bool>",
+        "href": "vector_bool.html"
+      },
+      {
+        "text": "capacity()",
+        "href": "vector/capacity.html"
+      },
+      {
+        "text": "shrink_to_fit()",
+        "href": "vector/shrink_to_fit.html"
+      },
+      {
+        "text": "[1]",
+        "href": "vector.html#cite_note-1"
+      },
+      {
+        "text": "reserve()",
+        "href": "vector/reserve.html"
+      },
+      {
+        "text": "Container",
+        "href": "../named_req/Container.html"
+      },
+      {
+        "text": "AllocatorAwareContainer",
+        "href": "../named_req/AllocatorAwareContainer.html"
+      },
+      {
+        "text": "SequenceContainer",
+        "href": "../named_req/SequenceContainer.html"
+      },
+      {
+        "text": "ContiguousContainer",
+        "href": "../named_req/ContiguousContainer.html"
+      },
+      {
+        "text": "ReversibleContainer",
+        "href": "../named_req/ReversibleContainer.html"
+      },
+      {
+        "text": "↑",
+        "href": "vector.html#cite_ref-1"
+      },
+      {
+        "text": "not available",
+        "href": "https://gcc.gnu.org/onlinedocs/libstdc++/manual/strings.html#strings.string.shrink"
+      },
+      {
+        "text": "1 Template parameters",
+        "href": "vector.html#Template_parameters"
+      },
+      {
+        "text": "2 Specializations",
+        "href": "vector.html#Specializations"
+      },
+      {
+        "text": "3 Iterator invalidation",
+        "href": "vector.html#Iterator_invalidation"
+      },
+      {
+        "text": "4 Member types",
+        "href": "vector.html#Member_types"
+      },
+      {
+        "text": "5 Member functions",
+        "href": "vector.html#Member_functions"
+      },
+      {
+        "text": "5.1 Element access",
+        "href": "vector.html#Element_access"
+      },
+      {
+        "text": "5.2 Iterators",
+        "href": "vector.html#Iterators"
+      },
+      {
+        "text": "5.3 Capacity",
+        "href": "vector.html#Capacity"
+      },
+      {
+        "text": "5.4 Modifiers",
+        "href": "vector.html#Modifiers"
+      },
+      {
+        "text": "6 Non-member functions",
+        "href": "vector.html#Non-member_functions"
+      },
+      {
+        "text": "7 Deduction guides",
+        "href": "vector.html#Deduction_guides"
+      },
+      {
+        "text": "8 Notes",
+        "href": "vector.html#Notes"
+      },
+      {
+        "text": "9 Example",
+        "href": "vector.html#Example"
+      },
+      {
+        "text": "10 Defect reports",
+        "href": "vector.html#Defect_reports"
+      },
+      {
+        "text": "11 See also",
+        "href": "vector.html#See_also"
+      },
+      {
+        "text": "CopyAssignable",
+        "href": "../named_req/CopyAssignable.html"
+      },
+      {
+        "text": "CopyConstructible",
+        "href": "../named_req/CopyConstructible.html"
+      },
+      {
+        "text": "Erasable",
+        "href": "../named_req/Erasable.html"
+      },
+      {
+        "text": "Erasable",
+        "href": "../named_req/Erasable.html"
+      },
+      {
+        "text": "allocator completeness requirements",
+        "href": "../named_req/Allocator.html#Allocator_completeness_requirements"
+      },
+      {
+        "text": "Feature-test",
+        "href": "../utility/feature_test.html"
+      },
+      {
+        "text": "__cpp_lib_incomplete_container_elements",
+        "href": "../experimental/feature_test.html#cpp_lib_incomplete_container_elements"
+      },
+      {
+        "text": "201505L",
+        "href": "../compiler_support/17.html#cpp_lib_incomplete_container_elements_201505L"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/param_list_T&action=edit"
+      },
+      {
+        "text": "Allocator",
+        "href": "../named_req/Allocator.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/param_list_Allocator&action=edit"
+      },
+      {
+        "text": "vector<bool>",
+        "href": "vector_bool.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_vector_bool&action=edit"
+      },
+      {
+        "text": "swap",
+        "href": "vector/swap.html"
+      },
+      {
+        "text": "std::swap",
+        "href": "../utility/swap.html"
+      },
+      {
+        "text": "end()",
+        "href": "vector/end.html"
+      },
+      {
+        "text": "clear",
+        "href": "vector/clear.html"
+      },
+      {
+        "text": "operator=",
+        "href": "vector/operator=.html"
+      },
+      {
+        "text": "assign",
+        "href": "vector/assign.html"
+      },
+      {
+        "text": "reserve",
+        "href": "vector/reserve.html"
+      },
+      {
+        "text": "shrink_to_fit",
+        "href": "vector/shrink_to_fit.html"
+      },
+      {
+        "text": "erase",
+        "href": "vector/erase.html"
+      },
+      {
+        "text": "end()",
+        "href": "vector/end.html"
+      },
+      {
+        "text": "push_back",
+        "href": "vector/push_back.html"
+      },
+      {
+        "text": "emplace_back",
+        "href": "vector/emplace_back.html"
+      },
+      {
+        "text": "end()",
+        "href": "vector/end.html"
+      },
+      {
+        "text": "insert",
+        "href": "vector/insert.html"
+      },
+      {
+        "text": "emplace",
+        "href": "vector/emplace.html"
+      },
+      {
+        "text": "end()",
+        "href": "vector/end.html"
+      },
+      {
+        "text": "resize",
+        "href": "vector/resize.html"
+      },
+      {
+        "text": "end()",
+        "href": "vector/end.html"
+      },
+      {
+        "text": "pop_back",
+        "href": "vector/pop_back.html"
+      },
+      {
+        "text": "end()",
+        "href": "vector/end.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_value_type&action=edit"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_allocator_type&action=edit"
+      },
+      {
+        "text": "std::size_t",
+        "href": "../types/size_t.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_size_type&action=edit"
+      },
+      {
+        "text": "std::ptrdiff_t",
+        "href": "../types/ptrdiff_t.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_difference_type&action=edit"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_reference&action=edit"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_const_reference&action=edit"
+      },
+      {
+        "text": "std::allocator_traits",
+        "href": "../memory/allocator_traits.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_pointer&action=edit"
+      },
+      {
+        "text": "std::allocator_traits",
+        "href": "../memory/allocator_traits.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_const_pointer&action=edit"
+      },
+      {
+        "text": "LegacyRandomAccessIterator",
+        "href": "../named_req/RandomAccessIterator.html"
+      },
+      {
+        "text": "LegacyContiguousIterator",
+        "href": "../named_req/ContiguousIterator.html"
+      },
+      {
+        "text": "LegacyRandomAccessIterator",
+        "href": "../named_req/RandomAccessIterator.html"
+      },
+      {
+        "text": "contiguous_iterator",
+        "href": "../iterator/contiguous_iterator.html"
+      },
+      {
+        "text": "ConstexprIterator",
+        "href": "../named_req/ConstexprIterator.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_iterator&action=edit"
+      },
+      {
+        "text": "LegacyRandomAccessIterator",
+        "href": "../named_req/RandomAccessIterator.html"
+      },
+      {
+        "text": "LegacyContiguousIterator",
+        "href": "../named_req/ContiguousIterator.html"
+      },
+      {
+        "text": "LegacyRandomAccessIterator",
+        "href": "../named_req/RandomAccessIterator.html"
+      },
+      {
+        "text": "contiguous_iterator",
+        "href": "../iterator/contiguous_iterator.html"
+      },
+      {
+        "text": "ConstexprIterator",
+        "href": "../named_req/ConstexprIterator.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_const_iterator&action=edit"
+      },
+      {
+        "text": "std::reverse_iterator",
+        "href": "../iterator/reverse_iterator.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_reverse_iterator&action=edit"
+      },
+      {
+        "text": "std::reverse_iterator",
+        "href": "../iterator/reverse_iterator.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_const_reverse_iterator&action=edit"
+      },
+      {
+        "text": "(constructor)",
+        "href": "vector/vector.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_constructor&action=edit"
+      },
+      {
+        "text": "(destructor)",
+        "href": "vector/~vector.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_destructor&action=edit"
+      },
+      {
+        "text": "operator=",
+        "href": "vector/operator=.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_operator%3D&action=edit"
+      },
+      {
+        "text": "assign",
+        "href": "vector/assign.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_assign&action=edit"
+      },
+      {
+        "text": "assign_range",
+        "href": "vector/assign_range.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_assign_range&action=edit"
+      },
+      {
+        "text": "get_allocator",
+        "href": "vector/get_allocator.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_get_allocator&action=edit"
+      },
+      {
+        "text": "at",
+        "href": "vector/at.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_at&action=edit"
+      },
+      {
+        "text": "operator[]",
+        "href": "vector/operator_at.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_operator_at&action=edit"
+      },
+      {
+        "text": "front",
+        "href": "vector/front.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_front&action=edit"
+      },
+      {
+        "text": "back",
+        "href": "vector/back.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_back&action=edit"
+      },
+      {
+        "text": "data",
+        "href": "vector/data.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_data&action=edit"
+      },
+      {
+        "text": "begincbegin",
+        "href": "vector/begin.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_begin&action=edit"
+      },
+      {
+        "text": "endcend",
+        "href": "vector/end.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_end&action=edit"
+      },
+      {
+        "text": "rbegincrbegin",
+        "href": "vector/rbegin.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_rbegin&action=edit"
+      },
+      {
+        "text": "rendcrend",
+        "href": "vector/rend.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_rend&action=edit"
+      },
+      {
+        "text": "empty",
+        "href": "vector/empty.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_empty&action=edit"
+      },
+      {
+        "text": "size",
+        "href": "vector/size.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_size&action=edit"
+      },
+      {
+        "text": "max_size",
+        "href": "vector/max_size.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_max_size&action=edit"
+      },
+      {
+        "text": "reserve",
+        "href": "vector/reserve.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_reserve&action=edit"
+      },
+      {
+        "text": "capacity",
+        "href": "vector/capacity.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_capacity&action=edit"
+      },
+      {
+        "text": "shrink_to_fit",
+        "href": "vector/shrink_to_fit.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_shrink_to_fit&action=edit"
+      },
+      {
+        "text": "clear",
+        "href": "vector/clear.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_clear&action=edit"
+      },
+      {
+        "text": "insert",
+        "href": "vector/insert.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_insert&action=edit"
+      },
+      {
+        "text": "insert_range",
+        "href": "vector/insert_range.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_insert_range&action=edit"
+      },
+      {
+        "text": "emplace",
+        "href": "vector/emplace.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_emplace&action=edit"
+      },
+      {
+        "text": "erase",
+        "href": "vector/erase.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_erase&action=edit"
+      },
+      {
+        "text": "push_back",
+        "href": "vector/push_back.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_push_back&action=edit"
+      },
+      {
+        "text": "emplace_back",
+        "href": "vector/emplace_back.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_emplace_back&action=edit"
+      },
+      {
+        "text": "append_range",
+        "href": "vector/append_range.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_append_range&action=edit"
+      },
+      {
+        "text": "pop_back",
+        "href": "vector/pop_back.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_pop_back&action=edit"
+      },
+      {
+        "text": "resize",
+        "href": "vector/resize.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_resize&action=edit"
+      },
+      {
+        "text": "swap",
+        "href": "vector/swap.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_swap&action=edit"
+      },
+      {
+        "text": "operator==operator!=operator<operator<=operator>operator>=operator<=>",
+        "href": "vector/operator_cmp.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_operator_cmp&action=edit"
+      },
+      {
+        "text": "std::swap(std::vector)",
+        "href": "vector/std_swap.html"
+      },
+      {
+        "text": "std::swap",
+        "href": "../utility/swap.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_swap2&action=edit"
+      },
+      {
+        "text": "erase(std::vector)erase_if(std::vector)",
+        "href": "vector/erase2.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_erase_seq&action=edit"
+      },
+      {
+        "text": "Deduction guides",
+        "href": "vector/deduction_guides.html"
+      },
+      {
+        "text": "Feature-test",
+        "href": "../utility/feature_test.html"
+      },
+      {
+        "text": "__cpp_lib_containers_ranges",
+        "href": "../experimental/feature_test.html#cpp_lib_containers_ranges"
+      },
+      {
+        "text": "202202L",
+        "href": "../compiler_support/23.html#cpp_lib_containers_ranges_202202L"
+      },
+      {
+        "text": "__cpp_lib_ranges_reserve_hint",
+        "href": "../experimental/feature_test.html#cpp_lib_ranges_reserve_hint"
+      },
+      {
+        "text": "202502L",
+        "href": "../compiler_support/26.html#cpp_lib_ranges_reserve_hint_202502L"
+      },
+      {
+        "text": "std::cout",
+        "href": "../io/cout.html"
+      },
+      {
+        "text": "std::cout",
+        "href": "../io/cout.html"
+      },
+      {
+        "text": "LWG 69",
+        "href": "https://cplusplus.github.io/LWG/issue69"
+      },
+      {
+        "text": "LWG 230",
+        "href": "https://cplusplus.github.io/LWG/issue230"
+      },
+      {
+        "text": "CopyConstructible",
+        "href": "../named_req/CopyConstructible.html"
+      },
+      {
+        "text": "CopyConstructible",
+        "href": "../named_req/CopyConstructible.html"
+      },
+      {
+        "text": "LWG 464",
+        "href": "https://cplusplus.github.io/LWG/issue464"
+      },
+      {
+        "text": "inplace_vector",
+        "href": "inplace_vector.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_inplace_vector&action=edit"
+      },
+      {
+        "text": "array",
+        "href": "array.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_array&action=edit"
+      },
+      {
+        "text": "deque",
+        "href": "deque.html"
+      },
+      {
+        "text": "[edit]",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=Template:cpp/container/dsc_deque&action=edit"
+      },
+      {
+        "text": "https://en.cppreference.com/mwiki/index.php?title=cpp/container/vector&oldid=182825",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=cpp/container/vector&oldid=182825"
+      },
+      {
+        "text": "Support us",
+        "href": "http://www.cppreference.com/support"
+      },
+      {
+        "text": "Recent changes",
+        "href": "https://en.cppreference.com/w/Special:RecentChanges"
+      },
+      {
+        "text": "FAQ",
+        "href": "../../Cppreference%253AAbout.html"
+      },
+      {
+        "text": "Offline version",
+        "href": "../../Cppreference%253AArchives.html"
+      },
+      {
+        "text": "What links here",
+        "href": "https://en.cppreference.com/w/Special:WhatLinksHere/cpp/container/vector"
+      },
+      {
+        "text": "Related changes",
+        "href": "https://en.cppreference.com/w/Special:RecentChangesLinked/cpp/container/vector"
+      },
+      {
+        "text": "Upload file",
+        "href": "http://upload.cppreference.com/w/Special:Upload"
+      },
+      {
+        "text": "Special pages",
+        "href": "https://en.cppreference.com/w/Special:SpecialPages"
+      },
+      {
+        "text": "Printable version",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=cpp/container/vector&printable=yes"
+      },
+      {
+        "text": "Permanent link",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=cpp/container/vector&oldid=182825"
+      },
+      {
+        "text": "Page information",
+        "href": "https://en.cppreference.com/mwiki/index.php?title=cpp/container/vector&action=info"
+      },
+      {
+        "text": "Česky",
+        "href": "http://cs.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "Deutsch",
+        "href": "http://de.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "Español",
+        "href": "http://es.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "Français",
+        "href": "http://fr.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "Italiano",
+        "href": "http://it.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "日本語",
+        "href": "http://ja.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "한국어",
+        "href": "http://ko.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "Polski",
+        "href": "http://pl.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "Português",
+        "href": "http://pt.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "Русский",
+        "href": "http://ru.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "中文",
+        "href": "http://zh.cppreference.com/w/cpp/container/vector"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "../../Cppreference%253APrivacy_policy.html"
+      },
+      {
+        "text": "About cppreference.com",
+        "href": "../../Cppreference%253AAbout.html"
+      },
+      {
+        "text": "Disclaimers",
+        "href": "../../Cppreference%253AGeneral_disclaimer.html"
+      }
+    ],
+    "images": [
+      {
+        "alt": "ads via Carbon",
+        "src": "https://srv.carbonads.net/static/30242/75dd292262b51c4fedced0ce4e76293bf16c44b5"
+      },
+      {
+        "alt": "ads via Carbon",
+        "src": "https://cnv.event.prod.bidr.io/log/cnv?tag_id=3503&buzz_key=dsp&value=&account_id=79&order=[ORDER]&ord=[CACHEBUSTER]"
+      },
+      {
+        "alt": "ads via Carbon",
+        "src": "https://segment.prod.bidr.io/associate-segment?buzz_key=dsp&segment_key=dsp-19102"
+      },
+      {
+        "alt": "ads via Carbon",
+        "src": "https://secure.adnxs.com/px?id=1777282&t=2\n"
+      },
+      {
+        "alt": "ads via Carbon",
+        "src": "https://secure.adnxs.com/seg?add=37012073&t=2"
+      },
+      {
+        "alt": "Powered by MediaWiki",
+        "src": "../../../mwiki/skins/common/images/poweredby_mediawiki_88x31.png"
+      },
+      {
+        "alt": "Powered by GeSHi",
+        "src": "https://upload.cppreference.com/mwiki/images/2/2b/powered_by_geshi_88x31.png"
+      },
+      {
+        "alt": "Hosted by Tiger Technologies",
+        "src": "https://upload.cppreference.com/mwiki/images/9/94/powered_by_tigertech_88x31.png"
+      }
+    ],
+    "timestamp": 1760611972680,
+    "url": "https://en.cppreference.com/w/cpp/container/vector.html?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

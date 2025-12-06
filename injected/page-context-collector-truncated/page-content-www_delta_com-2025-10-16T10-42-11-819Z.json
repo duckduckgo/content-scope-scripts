@@ -1,0 +1,22 @@
+{
+  "url": "https://www.delta.com/",
+  "extractedAt": "2025-10-16T10:42:11.819Z",
+  "content": {
+    "favicon": [],
+    "title": "Access Denied",
+    "metaDescription": "",
+    "content": "# Access Denied\n You don't have permission to access this server. Reference 0.58071002.1760611331.17bbc98f",
+    "truncated": false,
+    "fullContentLength": 106,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Access Denied"
+      }
+    ],
+    "links": [],
+    "images": [],
+    "timestamp": 1760611331477,
+    "url": "https://www.delta.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}
