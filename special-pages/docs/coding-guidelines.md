@@ -4,10 +4,6 @@
 
 ## Code Style
 
-### Naming Conventions
-- Use descriptive names for variables, functions, and classes
-- Follow existing naming patterns in the codebase
-
 ### Component and Hook Usage
 
 #### Preact Attributes
@@ -73,9 +69,6 @@ const message = t('key_name');
 - Maintain parameter order in method signatures to prevent breaking changes
 - Avoid overriding falsy values incorrectly
 
-### Documentation Updates
-- Update documentation to reflect critical changes, such as method parameter reordering
-
 ## Security & Privacy
 
 ### Controlled Component State
@@ -87,14 +80,7 @@ const message = t('key_name');
 ### Memory Management
 - Clean up subscriptions and event listeners in component unmount
 
-### Console Log Statements
-- Remove `console.log` statements from production code
-
 ## Error Handling
-
-### Error Messages
-- Ensure error messages are accurate and specific
-- Replace generic 'unknown error' with specific error messages
 
 ### Async/Await Usage
 - Use `await` with asynchronous operations to ensure errors are caught:

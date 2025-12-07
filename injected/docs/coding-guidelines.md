@@ -75,10 +75,6 @@ if (document.readyState === 'loading') {
 
 ## Security & Privacy
 
-### XSS Vulnerabilities
-
-- Isolate and unit test any logic that manipulates HTML or sets content dynamically
-
 ### Element Validation
 
 - Validate elements and their types before operations:
@@ -122,16 +118,7 @@ navigations.delete(event.target);
 - Avoid global or static caches for message bridges
 - Include all relevant parameters (`featureName`, `messageSecret`) in cache keys
 
-### Console Log Statements
-
-- Remove `console.log` statements from production code
-
 ## Error Handling
-
-### Error Messages
-
-- Ensure error messages are accurate and specific
-- Replace generic 'unknown error' with context-specific messages
 
 ### Async/Await Usage
 
