@@ -15,11 +15,13 @@ JavaScript features injected into web pages for privacy protections. Features ex
 
 ```
 src/features/<name>.js    # Feature implementation (extends ContentFeature)
-src/features.js           # Feature registry
+src/features.js           # Feature registry (baseFeatures + otherFeatures arrays)
 entry-points/<platform>.js # Platform-specific bundles
 integration-test/         # Playwright integration tests
 unit-test/                # Jasmine unit tests
 ```
+
+**Adding a new feature:** Add to `baseFeatures` or `otherFeatures` in `src/features.js`, then add to relevant platform arrays in `platformSupport`.
 
 ## Feature Pattern
 
@@ -51,6 +53,32 @@ export default class MyFeature extends ContentFeature {
 }
 ```
 
+### SideEffects Helper
+
+Use `SideEffects` from `src/features/duckplayer/util.js` to track and cleanup side effects:
+
+```javascript
+import { SideEffects } from './duckplayer/util.js';
+
+class MyFeature extends ContentFeature {
+    sideEffects = new SideEffects();
+    
+    init() {
+        // Wrap side effects with descriptive names for debugging
+        this.sideEffects.add('observing DOM mutations', () => {
+            const observer = new MutationObserver(this.handleMutation);
+            observer.observe(document.body, { childList: true });
+            return () => observer.disconnect(); // Return cleanup function
+        });
+    }
+    
+    destroy() {
+        this.sideEffects.destroy(); // Calls all cleanup functions
+        // Or destroy specific effect: this.sideEffects.destroy('observing DOM mutations');
+    }
+}
+```
+
 ## Remote Configuration
 
 Use `getFeatureSetting()` and `getFeatureSettingEnabled()` to read config:
@@ -78,6 +106,8 @@ Config structure example (from privacy-configuration):
   }
 }
 ```
+
+**Feature state values:** `"enabled"` or `"disabled"`. Features default to disabled unless explicitly enabled.
 
 Types are generated from `@duckduckgo/privacy-configuration/schema/features/<name>.json`.
 
@@ -123,7 +153,7 @@ Use `conditionalChanges` to apply JSON Patch operations based on runtime conditi
 **Key rules:**
 - All conditions in a block must match (AND logic)
 - Array of condition blocks uses OR logic (any block matching applies the patch)
-- Use JSON Pointer paths (`/setting/nested`) in `patchSettings`
+- `patchSettings` uses [RFC 6902 JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902) with [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) paths (`/setting/nested`)
 - Unsupported conditions cause the block to fail (for backwards compatibility)
 
 For A/B testing, see [privacy-configuration experiments guide](https://github.com/duckduckgo/privacy-configuration/blob/main/.cursor/rules/content-scope-experiments.mdc).
