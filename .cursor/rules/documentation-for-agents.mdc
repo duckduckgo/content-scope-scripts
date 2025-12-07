@@ -1,0 +1,125 @@
+---
+description: Guidelines for writing and reviewing documentation optimized for AI agents
+globs: "**/*.md,**/*.mdc,**/.cursorrules"
+---
+
+# Documentation for AI Agents
+
+Guidelines for creating and reviewing documentation that AI coding agents can effectively use.
+
+## Core Principles
+
+**Actionable over advisory** — Agents need specifics they can apply, not general best practices.
+
+**Technical over generic** — "Use `WeakMap` for DOM references" beats "manage memory properly."
+
+**Examples over explanations** — Show the pattern, don't just describe it.
+
+**Concrete over abstract** — Include actual config schemas, error messages, API signatures.
+
+## What to Include
+
+### High-Value Content
+
+- **Decision trees** — When to use X vs Y, with clear criteria
+- **Config/schema examples** — Real JSON structures agents can reference
+- **Error signatures** — Exact error types and messages for API shims
+- **Platform-specific behavior** — Entry points, conditionals, platform checks
+- **Lifecycle methods** — What runs when, with initialization order
+- **Registration patterns** — How to add new features/components to the system
+
+### Links Over Duplication
+
+- Reference external docs rather than copying content
+- Link to source code for canonical definitions (e.g., `ConditionBlock` typedef)
+- Point to generated types rather than manually documenting schemas
+
+## What to Remove
+
+### Low-Value Content
+
+- Generic advice: "Use descriptive names", "Write tests", "Update documentation"
+- Process guidance: "Address regressions promptly", "Review PRs carefully"
+- Obvious patterns: Basic null checks, standard async/await usage
+- Duplicated sections across multiple files
+- Security warnings without specific mitigations
+
+### Red Flags
+
+- Sections that could apply to any codebase
+- Advice that doesn't reference project-specific APIs or patterns
+- Abstract examples with placeholder code (`// do something here`)
+- Warnings without actionable guidance
+
+## Structure Guidelines
+
+### Feature-Specific Docs
+
+Place documentation close to the code it describes:
+- Feature-specific patterns → in the feature directory
+- Cross-cutting concerns → in shared docs with clear scope
+
+### Cursor Rules (`.mdc` files)
+
+Keep concise and scannable:
+- Lead with the most important patterns
+- Use tables for quick reference (commands, conditions, options)
+- Include one complete example showing the full pattern
+- Link to detailed docs for deep dives
+
+### Scope Accuracy
+
+Be precise about what the docs cover:
+- ❌ "privacy features" (too narrow)
+- ✅ "features running in web page DOM environments" (accurate scope)
+
+## Review Checklist
+
+When reviewing documentation for agent usefulness:
+
+1. **Would an agent produce correct code from this?** If not, what's missing?
+2. **Is there project-specific information?** Generic advice should be removed.
+3. **Are there concrete examples?** Abstract descriptions need code samples.
+4. **Is it in the right place?** Feature-specific docs belong with the feature.
+5. **Are there broken/missing links?** External references must be valid.
+6. **Is there duplication?** Consolidate or link instead.
+
+## Example Transformations
+
+### Before (Low Value)
+```markdown
+### Error Handling
+- Handle errors appropriately
+- Use try/catch blocks
+- Log errors for debugging
+```
+
+### After (High Value)
+```markdown
+### API Shim Errors
+Match native error signatures:
+```js
+throw new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required");
+throw new DOMException('Permission denied', 'NotAllowedError');
+```
+Common DOMException names: `InvalidStateError`, `NotAllowedError`, `NotFoundError`, `AbortError`.
+```
+
+### Before (Too Generic)
+```markdown
+## Architecture
+- Keep code modular
+- Separate concerns appropriately
+```
+
+### After (Decision-Oriented)
+```markdown
+## When to Use C-S-S vs Native
+
+| Scenario | Recommendation |
+|----------|----------------|
+| DOM API modification | **Must** be in C-S-S |
+| WebView API available | Prefer Native |
+| Needs config/breakage tooling | Prefer C-S-S |
+| Page structure dependent | Use config to alter; avoid if possible |
+```
