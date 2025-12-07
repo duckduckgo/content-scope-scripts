@@ -1,0 +1,106 @@
+---
+description: Guidelines for injected privacy features development
+globs: injected/**
+---
+
+# Injected Features
+
+JavaScript features injected into web pages for privacy protections. Features extend `ConfigFeature` and integrate with remote configuration for per-site enable/disable.
+
+**See also:** `docs/coding-guidelines.md` for code style and best practices.
+
+## Structure
+
+```
+src/features/<name>.js    # Feature implementation (extends ContentFeature)
+src/features.js           # Feature registry
+entry-points/<platform>.js # Platform-specific bundles
+integration-test/         # Playwright integration tests
+unit-test/                # Jasmine unit tests
+```
+
+## Feature Pattern
+
+Features extend `ContentFeature` and implement lifecycle methods:
+
+```javascript
+import ContentFeature from '../content-feature.js';
+
+export default class MyFeature extends ContentFeature {
+    init() {
+        // Main initialization - feature is enabled for this site
+        if (this.getFeatureSettingEnabled('someSetting')) {
+            this.applySomeFix();
+        }
+    }
+    
+    load() {
+        // Early load - before remote config (use sparingly)
+    }
+    
+    update(data) {
+        // Receive updates from browser
+    }
+}
+```
+
+## Remote Configuration
+
+Use `getFeatureSetting()` and `getFeatureSettingEnabled()` to read config:
+
+```javascript
+// Boolean check with default
+if (this.getFeatureSettingEnabled('settingName')) { ... }
+if (this.getFeatureSettingEnabled('settingName', 'disabled')) { ... }  // default disabled
+
+// Get setting value
+const settings = this.getFeatureSetting('settingName');
+```
+
+## Messaging
+
+Use inherited messaging methods:
+
+```javascript
+// Fire-and-forget
+this.notify('messageName', { data });
+
+// Request/response
+const response = await this.request('messageName', { data });
+
+// Subscribe to updates
+this.subscribe('eventName', (data) => { ... });
+```
+
+## TypeScript
+
+JSDoc types in JavaScript files. Import types via `@typedef`:
+
+```javascript
+/** @typedef {import('../types/feature.js').SettingType} SettingType */
+```
+
+## Testing
+
+Run from `injected/` directory:
+
+| Command | Purpose |
+|---------|---------|
+| `npm run test-unit` | Jasmine unit tests |
+| `npm run test-int` | Playwright integration tests |
+| `npm run build` | Build all platform bundles |
+
+Integration tests use test pages in `integration-test/test-pages/`.
+
+## Key Patterns
+
+- **Event listeners**: Use `handleEvent` pattern or stored references (avoid `.bind(this)`)
+- **API existence**: Check `typeof API === 'function'` before wrapping
+- **DOM timing**: Check `document.readyState` before accessing DOM
+- **Error types**: Use appropriate types (`DOMException`, `TypeError`) in shims
+
+## Notes
+
+- When running Playwright commands, use `--reporter list` to prevent hanging
+- Features can be enabled/disabled per-site via remote config
+- Add debug flags with `this.addDebugFlag()` for breakage reports

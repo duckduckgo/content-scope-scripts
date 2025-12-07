@@ -1,3 +1,7 @@
+/**
+ * @file Page Context Feature
+ * @see injected/docs/coding-guidelines.md for general patterns
+ */
 import ContentFeature from '../content-feature.js';
 import { getFaviconList } from './favicon.js';
 import { isDuckAi, isBeingFramed, getTabUrl } from '../utils.js';
@@ -179,6 +183,7 @@ export function domToMarkdown(node, settings, depth = 0) {
 }
 
 /**
+ * Safely get attribute or empty string to avoid null in markdown output
  * @param {Element} node
  * @param {string} attr
  * @returns {string}
@@ -192,15 +197,17 @@ function collapseAndTrim(str) {
     return collapseWhitespace(str).trim();
 }
 
+/**
+ * Note: The whitespace difference between href/non-href cases is intentional.
+ * With href: collapse AND trim (for clean markdown links)
+ * Without href: collapse only (retain surrounding space context)
+ */
 function getLinkText(node, children, settings) {
     const href = node.getAttribute('href');
     const trimmedContent = collapseAndTrim(children);
     if (settings.trimBlankLinks && trimmedContent.length === 0) {
         return '';
     }
-    // The difference in whitespace handling is intentional here.
-    // Where we don't wrap in a link:
-    // we should retain at least one preceding and following space.
     return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
 }
 
@@ -373,6 +380,8 @@ export default class PageContext extends ContentFeature {
         this.#delayedRecheckTimer = setTimeout(() => {
             this.log.info('Performing delayed recheck after navigation');
             this.recheckCount++;
+            // Note: invalidateCache() is safe here because we pass false to prevent
+            // resetRecheckCount, avoiding unintended recheck loops
             this.invalidateCache();
 
             this.handleContentCollectionRequest(false);
@@ -445,6 +454,8 @@ export default class PageContext extends ContentFeature {
         }
 
         // Cache the result - setter handles timestamp and observer
+        // Note: We only cache if content exists. Consider caching empty content too
+        // if mutation observation is needed for initially empty pages.
         if (content.content.length > 0) {
             this.cachedContent = content;
         }
@@ -504,6 +515,7 @@ export default class PageContext extends ContentFeature {
             const result = domToMarkdown(root, {
                 maxLength: upperLimit,
                 maxDepth,
+                // Use getFeatureSettingEnabled with default, not `|| true` which ignores explicit false
                 includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
                 excludeSelectors: excludeSelectorsString,
                 trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),

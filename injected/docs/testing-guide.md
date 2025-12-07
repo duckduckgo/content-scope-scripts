@@ -68,3 +68,79 @@ If you drop a `debugger;` line in the scripts and open DevTools window, the DevT
 ### Verifying CSS is Loaded
 
 Open DevTools, go to the Console tab and enter `navigator.duckduckgo`. If it's defined, then Content Scope Scripts is running.
+
+## Testing Best Practices
+
+### Test Independence in Playwright
+
+- Ensure Playwright tests are independent to allow safe parallel execution. Avoid shared setup outside of each test block
+- Utilize Playwright's test fixtures for complex setup requirements
+
+### Async/Await in Tests
+- Always use `await` with asynchronous operations to ensure the test waits for the operation to complete. This is crucial for accurately testing operations that may throw errors:
+
+```javascript
+// Correct
+await overlays.opensShort(url)
+
+// Incorrect
+overlays.opensShort(url)
+```
+
+### Test Case Isolation
+- Refactor tests to ensure independence and allow for safe parallel execution. Avoid shared setup that prevents running tests in parallel:
+
+```javascript
+// Refactor shared setup into individual test blocks for isolation
+test('example test', async ({ page }) => {
+    // Setup code here
+});
+```
+
+### Specificity in Test File Selection
+- Use specific glob patterns to include only test files, avoiding the inclusion of non-test files which could cause unexpected behavior or test failures:
+
+```javascript
+// Correct
+'integration-test/broker-protection-tests/**/*.spec.js'
+
+// Incorrect
+'integration-test/broker-protection-tests/**'
+```
+
+### Unit Testing Security-sensitive Code
+- Extract security-sensitive logic, such as markdown-to-HTML conversion, to a separate file. This allows for focused unit testing to prevent security vulnerabilities like XSS:
+
+```javascript
+// Extract to markdownToHtml.js
+export function convertMarkdownToHTML(markdown) {
+    // Conversion logic here
+}
+```
+
+### Mocking and Test Data
+- Include comprehensive scenarios in mocks to accurately test behavior, especially for edge cases. This ensures tests cover a wide range of possible states:
+
+```javascript
+// Adding missing scenario in mocks
+case 'new_scenario': {
+    // Mock logic here
+    break;
+}
+```
+
+### Correct Test Setup for Feature Flags
+- Ensure test setup accurately reflects the intended test conditions, especially when testing with feature flags or configurations that enable or disable features:
+
+```javascript
+// Correct setup for disabled feature
+await setupTestWithFeatureDisabled(page);
+```
+
+### Handling Undefined in Test Expectations
+- Account for `undefined` values in test expectations, especially when testing conditions that may not set a variable or return a value:
+
+```javascript
+// Correct expectation handling for undefined values
+expect(window.someTestVariable).toBeUndefined();
+```
