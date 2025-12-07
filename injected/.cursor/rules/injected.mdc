@@ -7,7 +7,9 @@ globs: injected/**
 
 JavaScript features injected into web pages for privacy protections. Features extend `ContentFeature` and `ConfigFeature` and integrate with remote configuration for per-site enable/disable.
 
-**See also:** `docs/coding-guidelines.md` for code style and best practices.
+**See also:**
+- `docs/coding-guidelines.md` for code style and best practices
+- [privacy-configuration experiments guide](https://github.com/duckduckgo/privacy-configuration/blob/main/.cursor/rules/content-scope-experiments.mdc) for A/B testing features
 
 ## Structure
 
@@ -78,6 +80,8 @@ Config structure example (from privacy-configuration):
 ```
 
 Types are generated from `@duckduckgo/privacy-configuration/schema/features/<name>.json`.
+
+For A/B testing features, use `contentScopeExperiments` with `conditionalChanges` in the target feature. See [privacy-configuration experiments guide](https://github.com/duckduckgo/privacy-configuration/blob/main/.cursor/rules/content-scope-experiments.mdc).
 
 ## Messaging
 
