@@ -165,20 +165,6 @@ if (object != null) {
 }
 ```
 
-### Broker Protection Error Handling
-
-> **Note:** These patterns are specific to the `broker-protection` feature.
-
-- Use `PirError` for typed errors in broker-protection:
-
-```js
-import { PirError } from './broker-protection/types.js';
-
-if (PirError.isError(result)) {
-    return createError(result.error.message);
-}
-```
-
 ## Testing
 
 See [Testing Guide](./testing-guide.md) for comprehensive testing documentation.

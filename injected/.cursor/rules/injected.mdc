@@ -58,9 +58,26 @@ Use `getFeatureSetting()` and `getFeatureSettingEnabled()` to read config:
 if (this.getFeatureSettingEnabled('settingName')) { ... }
 if (this.getFeatureSettingEnabled('settingName', 'disabled')) { ... }  // default disabled
 
-// Get setting value
+// Get setting value (returns typed object from privacy-configuration schema)
 const settings = this.getFeatureSetting('settingName');
 ```
+
+Config structure example (from privacy-configuration):
+```json
+{
+  "features": {
+    "webCompat": {
+      "state": "enabled",
+      "settings": {
+        "permissions": { "supportedPermissions": { "geolocation": { "native": true } } },
+        "viewportWidth": { "forcedDesktopValue": "width=1280" }
+      }
+    }
+  }
+}
+```
+
+Types are generated from `@duckduckgo/privacy-configuration/schema/features/<name>.json`.
 
 ## Messaging
 
@@ -102,7 +119,42 @@ Integration tests use test pages in `integration-test/test-pages/`.
 - **Event listeners**: Use `handleEvent` pattern or stored references (avoid `.bind(this)`)
 - **API existence**: Check `typeof API === 'function'` before wrapping
 - **DOM timing**: Check `document.readyState` before accessing DOM
-- **Error types**: Use appropriate types (`DOMException`, `TypeError`) in shims
+- **Error types**: Match native error signatures in API shims (see below)
+
+## API Shims & Error Types
+
+When shimming browser APIs, use the correct error types to match native behavior:
+
+```javascript
+// TypeError for invalid arguments
+throw new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required");
+
+// DOMException with name for API-specific errors
+throw new DOMException('Share already in progress', 'InvalidStateError');
+throw new DOMException('Permission denied', 'NotAllowedError');
+return Promise.reject(new DOMException('No device selected.', 'NotFoundError'));
+```
+
+Common DOMException names: `InvalidStateError`, `NotAllowedError`, `NotFoundError`, `AbortError`, `DataError`, `SecurityError`.
+
+## Platform Considerations
+
+Features are bundled per-platform in `entry-points/`:
+- `apple.js` - iOS/macOS
+- `android.js` - Android  
+- `windows.js` - Windows
+- `extension-mv3.js` - Browser extension
+
+Platform-specific behavior:
+```javascript
+// Check platform in feature code
+if (this.platform.name === 'ios' || this.platform.name === 'android') {
+    // Mobile-specific logic
+}
+
+// Some features are platform-specific (see utils.js platformSpecificFeatures)
+const platformSpecificFeatures = ['navigatorInterface', 'windowsPermissionUsage', 'messageBridge', 'favicon'];
+```
 
 ## Notes
 
