@@ -1,11 +1,11 @@
 ---
-description: Guidelines for injected privacy features development
+description: Guidelines for features running in web page DOM environments
 globs: injected/**
 ---
 
 # Injected Features
 
-JavaScript features injected into web pages for privacy protections. Features extend `ContentFeature` and `ConfigFeature` and integrate with remote configuration for per-site enable/disable.
+JavaScript features injected into web pages or running in DOM environments of DuckDuckGo browsers. Features extend `ContentFeature` and `ConfigFeature` and integrate with remote configuration for per-site enable/disable.
 
 **See also:**
 - `docs/coding-guidelines.md` for code style and best practices
