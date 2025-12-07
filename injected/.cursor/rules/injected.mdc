@@ -21,7 +21,7 @@ unit-test/                # Jasmine unit tests
 
 ## Feature Pattern
 
-Features extend `ContentFeature` and implement lifecycle methods:
+Features extend `ContentFeature` (which itself extends `ConfigFeature`). Use `ContentFeature` for features that need messaging, logging, and DOM interaction. Implement lifecycle methods:
 
 ```javascript
 import ContentFeature from '../content-feature.js';
@@ -40,6 +40,11 @@ export default class MyFeature extends ContentFeature {
     
     update(data) {
         // Receive updates from browser
+    }
+    
+    destroy() {
+        // Cleanup: remove event listeners, observers, etc.
+        this.sideEffects.destroy();
     }
 }
 ```

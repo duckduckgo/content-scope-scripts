@@ -71,69 +71,62 @@ Open DevTools, go to the Console tab and enter `navigator.duckduckgo`. If it's d
 
 ## Testing Best Practices
 
-### Test Independence in Playwright
+### Test Independence
 
-- Ensure Playwright tests are independent to allow safe parallel execution. Avoid shared setup outside of each test block
-- Utilize Playwright's test fixtures for complex setup requirements
-
-### Async/Await in Tests
-- Always use `await` with asynchronous operations to ensure the test waits for the operation to complete. This is crucial for accurately testing operations that may throw errors:
+Playwright tests must be independent for safe parallel execution:
 
 ```javascript
-// Correct
-await overlays.opensShort(url)
+// ✅ Each test is self-contained
+test('overlay displays correctly', async ({ page }) => {
+    const overlays = OverlaysPage.create(page);
+    await overlays.openPage(url);
+    await expect(overlays.element).toBeVisible();
+});
 
-// Incorrect
-overlays.opensShort(url)
+// ❌ Avoid shared state between tests
+let sharedPage; // Don't do this
 ```
 
-### Test Case Isolation
-- Refactor tests to ensure independence and allow for safe parallel execution. Avoid shared setup that prevents running tests in parallel:
+Use Playwright's [test fixtures](https://playwright.dev/docs/test-fixtures) for complex setup.
+
+### Async/Await
+
+Always `await` async operations—missing `await` causes flaky tests:
 
 ```javascript
-// Refactor shared setup into individual test blocks for isolation
-test('example test', async ({ page }) => {
-    // Setup code here
+// ✅ Correct
+await overlays.opensShort(url);
+
+// ❌ Test passes incorrectly (promise not awaited)
+overlays.opensShort(url);
+```
+
+### Glob Patterns
+
+Use specific patterns to avoid including non-test files:
+
+```javascript
+// ✅ Correct - only .spec.js files
+'integration-test/**/*.spec.js';
+
+// ❌ Incorrect - includes config, fixtures, etc.
+'integration-test/**';
+```
+
+### Feature Flag Testing
+
+Match test setup to the feature state being tested:
+
+```javascript
+// Testing disabled state
+test('feature disabled shows fallback', async ({ page }) => {
+    await page.addInitScript(() => {
+        window.__ddg_config__ = { features: { myFeature: { state: 'disabled' } } };
+    });
+    // ...
 });
 ```
 
-### Specificity in Test File Selection
-- Use specific glob patterns to include only test files, avoiding the inclusion of non-test files which could cause unexpected behavior or test failures:
+### Security-Sensitive Code
 
-```javascript
-// Correct
-'integration-test/broker-protection-tests/**/*.spec.js'
-
-// Incorrect
-'integration-test/broker-protection-tests/**'
-```
-
-### Unit Testing Security-sensitive Code
-- Extract security-sensitive logic, such as content conversion, to a separate file. This allows for focused unit testing to prevent security vulnerabilities like XSS.
-
-### Mocking and Test Data
-- Include comprehensive scenarios in mocks to accurately test behavior, especially for edge cases. This ensures tests cover a wide range of possible states:
-
-```javascript
-// Adding missing scenario in mocks
-case 'new_scenario': {
-    // Mock logic here
-    break;
-}
-```
-
-### Correct Test Setup for Feature Flags
-- Ensure test setup accurately reflects the intended test conditions, especially when testing with feature flags or configurations that enable or disable features:
-
-```javascript
-// Correct setup for disabled feature
-await setupTestWithFeatureDisabled(page);
-```
-
-### Handling Undefined in Test Expectations
-- Account for `undefined` values in test expectations, especially when testing conditions that may not set a variable or return a value:
-
-```javascript
-// Correct expectation handling for undefined values
-expect(window.someTestVariable).toBeUndefined();
-```
+Extract DOM manipulation and HTML generation to separate files for focused unit testing. This prevents XSS vulnerabilities from slipping through integration-only testing.
