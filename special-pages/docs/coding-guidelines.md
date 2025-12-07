@@ -69,10 +69,6 @@ const message = t('key_name');
 - Ensure props (especially `style`) are handled correctly
 - Do not couple functionality to UI visibility—control functionality independently from whether UI elements are shown
 
-### AI Functionality and UI Coupling
-- Decouple AI functionality from its setting UI visibility
-- Ensure functionality is controlled independently from UI elements
-
 ### Feature State Management
 - Maintain parameter order in method signatures to prevent breaking changes
 - Avoid overriding falsy values incorrectly
@@ -81,18 +77,6 @@ const message = t('key_name');
 - Update documentation to reflect critical changes, such as method parameter reordering
 
 ## Security & Privacy
-
-### XSS Vulnerabilities
-- Isolate and unit test any logic that manipulates HTML or sets content dynamically
-- Markdown to HTML conversion should be in a separate file with extensive testing:
-
-```javascript
-// In a separate utility file with unit tests
-export function convertMarkdownToHTML(markdown) {
-    const regex = /\*\*(.*?)\*\*/g;
-    return markdown.replace(regex, '<strong>$1</strong>');
-}
-```
 
 ### Controlled Component State
 - Avoid directly manipulating properties like `value` on controlled components
