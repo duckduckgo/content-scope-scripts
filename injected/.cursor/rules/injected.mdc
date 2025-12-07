@@ -45,37 +45,6 @@ export default class MyFeature extends ContentFeature {
     update(data) {
         // Receive updates from browser
     }
-    
-    destroy() {
-        // Cleanup: remove event listeners, observers, etc.
-        this.sideEffects.destroy();
-    }
-}
-```
-
-### SideEffects Helper
-
-Use `SideEffects` from `src/features/duckplayer/util.js` to track and cleanup side effects:
-
-```javascript
-import { SideEffects } from './duckplayer/util.js';
-
-class MyFeature extends ContentFeature {
-    sideEffects = new SideEffects();
-    
-    init() {
-        // Wrap side effects with descriptive names for debugging
-        this.sideEffects.add('observing DOM mutations', () => {
-            const observer = new MutationObserver(this.handleMutation);
-            observer.observe(document.body, { childList: true });
-            return () => observer.disconnect(); // Return cleanup function
-        });
-    }
-    
-    destroy() {
-        this.sideEffects.destroy(); // Calls all cleanup functions
-        // Or destroy specific effect: this.sideEffects.destroy('observing DOM mutations');
-    }
 }
 ```
 
