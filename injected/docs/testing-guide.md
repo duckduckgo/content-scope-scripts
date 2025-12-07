@@ -53,9 +53,9 @@ npm run build
 
 ## Test Builds for Ship Review
 
-Test builds are created with a GitHub workflow. The assets for Content Scope Scripts will be created on demand if they are absent (which they will be, if you're pointing to a branch of CSS).
+Test builds are created with a GitHub workflow. The assets for Content Scope Scripts will be created on demand if they are absent (which they will be, if you're pointing to a branch of C-S-S).
 
-1. Commit any changes to CSS and push a branch to the remote
+1. Commit any changes to C-S-S and push a branch to the remote
 2. Make sure you commit the submodule reference update in the Windows PR
 3. Continue with "Build an installer for ship review / test"
 
@@ -65,7 +65,7 @@ Test builds are created with a GitHub workflow. The assets for Content Scope Scr
 
 If you drop a `debugger;` line in the scripts and open DevTools window, the DevTools will breakpoint and navigate to that exact line in code when the debug point has been hit.
 
-### Verifying CSS is Loaded
+### Verifying C-S-S is Loaded
 
 Open DevTools, go to the Console tab and enter `navigator.duckduckgo`. If it's defined, then Content Scope Scripts is running.
 
@@ -109,14 +109,7 @@ test('example test', async ({ page }) => {
 ```
 
 ### Unit Testing Security-sensitive Code
-- Extract security-sensitive logic, such as markdown-to-HTML conversion, to a separate file. This allows for focused unit testing to prevent security vulnerabilities like XSS:
-
-```javascript
-// Extract to markdownToHtml.js
-export function convertMarkdownToHTML(markdown) {
-    // Conversion logic here
-}
-```
+- Extract security-sensitive logic, such as content conversion, to a separate file. This allows for focused unit testing to prevent security vulnerabilities like XSS.
 
 ### Mocking and Test Data
 - Include comprehensive scenarios in mocks to accurately test behavior, especially for edge cases. This ensures tests cover a wide range of possible states:

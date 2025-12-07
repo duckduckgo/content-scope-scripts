@@ -44,7 +44,7 @@ class MyFeature extends ContentFeature {
 
 ### Error Handling and Debugging
 - Avoid hardcoding debug flags; ensure they are configurable and environment-dependent
-- Remove `console.log` statements from production code
+- Remove `console.log` statements from production code and prefer `this.log.info` instead as this will be disabled in release.
 
 ## Architecture & Design
 
@@ -106,7 +106,7 @@ if ((isInputElement(element) && ['text', 'hidden'].includes(element.type)) || is
 - Handle permissions with custom behaviors or name overrides correctly
 
 ### API Usage in Iframes
-- Be cautious enabling APIs like Web Share within iframes—may cause security issues or runtime errors
+- Be cautious enabling APIs like Web Share within iframes, understand that you're exposing message overhead and potential side effects to a third party.
 
 ## Performance
 
@@ -196,6 +196,3 @@ overlays.opensShort(url);
 // Incorrect - includes non-test files
 'integration-test/**'
 ```
-
-### Unit Testing Security-sensitive Code
-- Extract security-sensitive logic to separate files for focused unit testing
