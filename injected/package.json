@@ -41,7 +41,7 @@
     "@types/jasmine": "^5.1.13",
     "@types/node": "^24.1.0",
     "@typescript-eslint/eslint-plugin": "^8.46.0",
-    "fast-check": "^4.2.0",
+    "fast-check": "^4.4.0",
     "jasmine": "^5.13.0",
     "jsdom": "^27.2.0",
     "web-ext": "^9.2.0"
