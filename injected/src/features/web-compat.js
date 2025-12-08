@@ -737,8 +737,8 @@ export class WebCompat extends ContentFeature {
                 playbackState = 'none';
 
                 setActionHandler() {}
-                setCameraActive() {}
-                setMicrophoneActive() {}
+                async setCameraActive() {}
+                async setMicrophoneActive() {}
                 setPositionState() {}
             }
 
