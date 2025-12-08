@@ -35,15 +35,15 @@
     "urlpattern-polyfill": "^10.1.0"
   },
   "devDependencies": {
-    "@canvas/image-data": "^1.0.0",
+    "@canvas/image-data": "^1.1.0",
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@types/chrome": "^0.1.1",
     "@types/jasmine": "^5.1.13",
     "@types/node": "^24.1.0",
-    "@typescript-eslint/eslint-plugin": "^8.46.0",
-    "fast-check": "^4.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "fast-check": "^4.4.0",
     "jasmine": "^5.13.0",
     "jsdom": "^27.2.0",
-    "web-ext": "^9.0.0"
+    "web-ext": "^9.2.0"
   }
 }
