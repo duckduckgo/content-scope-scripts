@@ -34,11 +34,17 @@ function run(cmd, args, opts = {}) {
 async function waitForServer(url, timeout = 30000, interval = 500) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
+        const remaining = timeout - (Date.now() - start);
+        const controller = new AbortController();
+        const requestTimeout = Math.max(100, Math.min(5000, remaining));
+        const timer = setTimeout(() => controller.abort(), requestTimeout);
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, { signal: controller.signal });
             if (response.ok) return;
         } catch {
             // Server not ready yet, continue polling
+        } finally {
+            clearTimeout(timer);
         }
         await new Promise((resolve) => setTimeout(resolve, interval));
     }
