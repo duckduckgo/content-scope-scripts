@@ -2,6 +2,10 @@ import { DDGPromise } from '../utils';
 import ContentFeature from '../content-feature';
 import { createPageWorldBridge } from './message-bridge/create-page-world-bridge.js';
 
+/**
+ * @import { MessagingInterface } from "./message-bridge/schema.js"
+ */
+
 const store = {};
 
 export default class NavigatorInterface extends ContentFeature {
@@ -33,7 +37,6 @@ export default class NavigatorInterface extends ContentFeature {
                         return DDGPromise.resolve(true);
                     },
                     /**
-                     * @import { MessagingInterface } from "./message-bridge/schema.js"
                      * @param {string} featureName
                      * @return {MessagingInterface}
                      * @throws {Error}
