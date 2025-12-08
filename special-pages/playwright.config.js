@@ -11,6 +11,7 @@ export default defineConfig({
                 'onboarding.spec.js',
                 'special-error.spec.js',
                 'special-error-screenshots.spec.js',
+                'special-error-theme.spec.js',
             ],
             use: {
                 ...devices['Desktop Edge'],
@@ -57,6 +58,7 @@ export default defineConfig({
                 'release-notes.spec.js',
                 'special-error.spec.js',
                 'special-error-screenshots.spec.js',
+                'special-error-theme.spec.js',
             ],
             use: {
                 ...devices['Desktop Safari'],
@@ -89,6 +91,7 @@ export default defineConfig({
                 'duckplayer-screenshots.spec.js',
                 'special-error.spec.js',
                 'special-error-screenshots.spec.js',
+                'special-error-theme.spec.js',
             ],
             use: {
                 ...devices['iPhone 14'],

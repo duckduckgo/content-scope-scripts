@@ -98,4 +98,14 @@ test.describe('protections report', () => {
         await protections.ready();
         await protections.hasInfoTooltip();
     });
+
+    test('scrolls to protections heading via subscription message', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'protections.feed': 'activity' } });
+
+        const protections = new ProtectionsPage(ntp);
+        await protections.ready();
+        await protections.scrollsToProtectionsHeading();
+    });
 });

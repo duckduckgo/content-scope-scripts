@@ -72,6 +72,15 @@ export class SpecialErrorPage {
     advancedInfo() {
         this.messaging.notify('advancedInfo');
     }
+
+    /**
+     * Subscribe to theme update notifications from the native layer.
+     * @param {(data: import('../types/special-error.ts').OnThemeUpdateSubscribe) => void} callback
+     * @returns {() => void} Unsubscribe function
+     */
+    onThemeUpdate(callback) {
+        return this.messaging.subscribe('onThemeUpdate', callback);
+    }
 }
 
 const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);

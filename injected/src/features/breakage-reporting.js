@@ -16,6 +16,18 @@ export default class BreakageReporting extends ContentFeature {
                 referrer,
             };
 
+            const getOpener = this.getFeatureSettingEnabled('opener', 'enabled');
+            if (getOpener) {
+                result.opener = !!window.opener;
+            }
+            const getReloaded = this.getFeatureSettingEnabled('reloaded', 'enabled');
+            if (getReloaded) {
+                result.pageReloaded =
+                    (window.performance.navigation && window.performance.navigation.type === 1) ||
+                    /** @type {PerformanceNavigationTiming[]} */
+                    (window.performance.getEntriesByType('navigation')).map((nav) => nav.type).includes('reload');
+            }
+
             // Only run detectors if explicitly configured
             const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
             if (detectorSettings) {

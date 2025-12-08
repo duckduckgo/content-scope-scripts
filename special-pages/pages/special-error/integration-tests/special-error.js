@@ -40,8 +40,16 @@ export class SpecialErrorPage {
      * @param {keyof sampleData} [params.errorId] - ID of the error to be mocked (see sampleData.js)
      * @param {PlatformInfo['name']} [params.platformName] - platform name
      * @param {string} [params.locale] - locale
+     * @param {Record<string, any>} [params.additional] - Optional map of key/values to add to initialSetup
      */
-    async openPage({ env = 'app', willThrow = false, errorId = 'ssl.expired', platformName = this.platform.name, locale } = {}) {
+    async openPage({
+        env = 'app',
+        willThrow = false,
+        errorId = 'ssl.expired',
+        platformName = this.platform.name,
+        locale,
+        additional,
+    } = {}) {
         if (platformName === 'extension') {
             throw new Error(`Unsupported platform ${platformName}`);
         }
@@ -65,6 +73,10 @@ export class SpecialErrorPage {
             const localeStrings = readFileSync(require.resolve(`../public/locales/${locale}/special-error.json`), 'utf8');
             initialSetup.localeStrings = localeStrings;
             initialSetup.locale = locale;
+        }
+
+        if (additional) {
+            Object.assign(initialSetup, additional);
         }
 
         this.mocks.defaultResponses({
@@ -395,5 +407,35 @@ export class SpecialErrorPage {
                 body: 'OK',
             }),
         );
+    }
+
+    /**
+     * @param {object} params
+     * @param {string} params.hex
+     * @returns {Promise<void>}
+     */
+    async hasBackgroundColor({ hex }) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        const rgb = `rgb(${[r, g, b].join(', ')})`;
+        await expect(this.page.locator('body')).toHaveCSS('background-color', rgb, { timeout: 50 });
+    }
+
+    /**
+     * @param {import('../types/special-error.ts').BrowserTheme} theme
+     * @param {import('../types/special-error.ts').ThemeVariant} themeVariant
+     */
+    async acceptsThemeUpdate(theme, themeVariant) {
+        await this.mocks.simulateSubscriptionMessage('onThemeUpdate', { theme, themeVariant });
+    }
+
+    /**
+     * @param {import('../types/special-error.ts').BrowserTheme} theme
+     * @param {import('../types/special-error.ts').ThemeVariant} themeVariant
+     */
+    async hasTheme(theme, themeVariant) {
+        await expect(this.page.locator('body')).toHaveAttribute('data-theme', theme);
+        await expect(this.page.locator('body')).toHaveAttribute('data-theme-variant', themeVariant);
     }
 }

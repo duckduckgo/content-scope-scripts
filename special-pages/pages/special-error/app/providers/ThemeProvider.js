@@ -1,11 +1,11 @@
 import { createContext, h } from 'preact';
 import { useContext, useEffect, useState } from 'preact/hooks';
-import { useMessaging } from '../../types.js';
-import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
+import { useMessaging } from './MessagingProvider.js';
+import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 
 /**
- * @typedef {import('../../../types/history').BrowserTheme} BrowserTheme
- * @typedef {import('../../../types/history').ThemeVariant} ThemeVariant
+ * @typedef {import('../../types/special-error').BrowserTheme} BrowserTheme
+ * @typedef {import('../../types/special-error').ThemeVariant} ThemeVariant
  */
 
 const ThemeContext = createContext({
@@ -23,23 +23,32 @@ const ThemeContext = createContext({
  */
 export function ThemeProvider({ children, initialTheme, initialThemeVariant }) {
     const { isDarkMode } = useEnv();
-    const history = useMessaging();
+    const { messaging } = useMessaging();
 
     // Track explicit theme updates from onThemeUpdate subscription
     const [explicitTheme, setExplicitTheme] = useState(/** @type {BrowserTheme | undefined} */ (undefined));
     const [explicitThemeVariant, setExplicitThemeVariant] = useState(/** @type {ThemeVariant | undefined} */ (undefined));
 
     useEffect(() => {
-        const unsubscribe = history.onThemeUpdate((data) => {
+        if (!messaging) return;
+        const unsubscribe = messaging.onThemeUpdate((data) => {
             setExplicitTheme(data.theme);
             setExplicitThemeVariant(data.themeVariant);
         });
         return unsubscribe;
-    }, [history]);
+    }, [messaging]);
 
     // Derive theme from explicit updates, initial theme, or system preference (in that order)
     const theme = explicitTheme ?? initialTheme ?? (isDarkMode ? 'dark' : 'light');
     const themeVariant = explicitThemeVariant ?? initialThemeVariant ?? 'default';
+
+    // Sync theme attributes to <body>
+    useEffect(() => {
+        document.body.dataset.theme = theme;
+    }, [theme]);
+    useEffect(() => {
+        document.body.dataset.themeVariant = themeVariant;
+    }, [themeVariant]);
 
     return <ThemeContext.Provider value={{ theme, themeVariant }}>{children}</ThemeContext.Provider>;
 }
