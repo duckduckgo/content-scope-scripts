@@ -55,10 +55,10 @@ jobs:
 
             - run: npm run test-int-snapshots
 
-            - uses: actions/upload-artifact@v4
+            - uses: actions/upload-artifact@v5
               if: always()
               with:
-                  name: playwright-report-pages
+                  name: snapshots-playwright-report
                   path: |
                       special-pages/playwright-report/**
                       special-pages/test-results/**
