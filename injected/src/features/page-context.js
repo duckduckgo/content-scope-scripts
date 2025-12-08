@@ -515,7 +515,6 @@ export default class PageContext extends ContentFeature {
             const result = domToMarkdown(root, {
                 maxLength: upperLimit,
                 maxDepth,
-                // Use getFeatureSettingEnabled with default, not `|| true` which ignores explicit false
                 includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled'),
                 excludeSelectors: excludeSelectorsString,
                 trimBlankLinks: this.getFeatureSettingEnabled('trimBlankLinks', 'enabled'),

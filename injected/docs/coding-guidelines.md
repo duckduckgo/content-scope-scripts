@@ -8,6 +8,16 @@
 
 Avoid constants in the code and prefer using `this.getFeatureSetting('constantName') ?? defaultValue` to allow for remote configuration to modify the value.
 
+When using `getFeatureSettingEnabled()`, use its built-in default parameter rather than `|| true`:
+
+```js
+// ✅ Correct - uses second parameter for default
+includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled')
+
+// ❌ Wrong - || true ignores explicit false from config
+includeIframes: this.getFeatureSettingEnabled('includeIframes') || true
+```
+
 ### Event Listener Management
 
 Use stored references or the class-based `handleEvent` pattern to ensure proper removal:
