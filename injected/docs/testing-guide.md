@@ -152,22 +152,20 @@ Create config fixtures that match privacy-configuration schema:
 
 ```json
 {
-  "features": {
-    "featureName": {
-      "state": "enabled",
-      "settings": {
-        "settingName": "value",
-        "conditionalChanges": [
-          {
-            "condition": { "domain": "localhost" },
-            "patchSettings": [
-              { "op": "replace", "path": "/settingName", "value": "testValue" }
-            ]
-          }
-        ]
-      }
+    "features": {
+        "featureName": {
+            "state": "enabled",
+            "settings": {
+                "settingName": "value",
+                "conditionalChanges": [
+                    {
+                        "condition": { "domain": "localhost" },
+                        "patchSettings": [{ "op": "replace", "path": "/settingName", "value": "testValue" }]
+                    }
+                ]
+            }
+        }
     }
-  }
 }
 ```
 
@@ -176,10 +174,10 @@ Create config fixtures that match privacy-configuration schema:
 ```javascript
 test('feature behavior', async ({ page }) => {
     await page.goto('/test-pages/feature/pages/test.html');
-    
+
     // Wait for feature initialization
     await page.waitForFunction(() => window.__ddg_feature_ready__);
-    
+
     // Test feature behavior
     const result = await page.evaluate(() => someAPI());
     expect(result).toBe(expectedValue);

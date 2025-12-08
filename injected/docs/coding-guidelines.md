@@ -71,14 +71,15 @@ Enable URL tracking for features that need to respond to SPA navigation:
 
 ```js
 export default class MyFeature extends ContentFeature {
-    listenForUrlChanges = true;  // Enable URL change tracking
-    
+    listenForUrlChanges = true; // Enable URL change tracking
+
     init() {
         this.applyFeature();
     }
-    
-    urlChanged(navigationType) {  // Called automatically on URL changes
-        this.recomputeSiteObject();  // Update config for new path
+
+    urlChanged(navigationType) {
+        // Called automatically on URL changes
+        this.recomputeSiteObject(); // Update config for new path
         this.applyFeature();
     }
 }
@@ -130,17 +131,14 @@ Use built-in retry utilities for operations that may need multiple attempts:
 import { retry, withRetry } from '../timer-utils';
 
 // Simple retry with config (returns { result, exceptions } for debugging)
-const { result, exceptions } = await retry(
-    () => findElement(selector),
-    { interval: { ms: 1000 }, maxAttempts: 30 }
-);
+const { result, exceptions } = await retry(() => findElement(selector), { interval: { ms: 1000 }, maxAttempts: 30 });
 
 // Retry with automatic error handling
 const element = await withRetry(
     () => document.querySelector(selector),
-    4,           // maxAttempts
-    500,         // delay ms
-    'exponential' // strategy: 'linear' | 'exponential'
+    4, // maxAttempts
+    500, // delay ms
+    'exponential', // strategy: 'linear' | 'exponential'
 );
 ```
 
