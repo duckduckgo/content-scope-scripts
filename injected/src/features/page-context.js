@@ -380,10 +380,10 @@ export default class PageContext extends ContentFeature {
         this.#delayedRecheckTimer = setTimeout(() => {
             this.log.info('Performing delayed recheck after navigation');
             this.recheckCount++;
-            // Note: invalidateCache() is safe here because we pass false to prevent
-            // resetRecheckCount, avoiding unintended recheck loops
             this.invalidateCache();
 
+            // Note: Pass false to handleContentCollectionRequest to prevent
+            // resetRecheckCount, avoiding unintended recheck loops
             this.handleContentCollectionRequest(false);
         }, delayMs);
     }
