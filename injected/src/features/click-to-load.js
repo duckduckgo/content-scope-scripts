@@ -1964,6 +1964,7 @@ export default class ClickToLoad extends ContentFeature {
                     trackingElements = Array.from(document.querySelectorAll(selector));
                 }
 
+                /* eslint-disable @typescript-eslint/await-thenable */
                 await Promise.all(
                     trackingElements.map((trackingElement) => {
                         if (knownTrackingElements.has(trackingElement)) {
@@ -1976,6 +1977,7 @@ export default class ClickToLoad extends ContentFeature {
                         return createPlaceholderElementAndReplace(widget, trackingElement);
                     }),
                 );
+                /* eslint-enable @typescript-eslint/await-thenable */
             }
         }
     }
