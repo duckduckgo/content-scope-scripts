@@ -1964,18 +1964,16 @@ export default class ClickToLoad extends ContentFeature {
                     trackingElements = Array.from(document.querySelectorAll(selector));
                 }
 
-                await Promise.all(
-                    trackingElements.map((trackingElement) => {
-                        if (knownTrackingElements.has(trackingElement)) {
-                            return Promise.resolve();
-                        }
+                for (const trackingElement of trackingElements) {
+                    if (knownTrackingElements.has(trackingElement)) {
+                        continue;
+                    }
 
-                        knownTrackingElements.add(trackingElement);
+                    knownTrackingElements.add(trackingElement);
 
-                        const widget = new DuckWidget(widgetData, trackingElement, entity, this.platform);
-                        return createPlaceholderElementAndReplace(widget, trackingElement);
-                    }),
-                );
+                    const widget = new DuckWidget(widgetData, trackingElement, entity, this.platform);
+                    createPlaceholderElementAndReplace(widget, trackingElement);
+                }
             }
         }
     }
