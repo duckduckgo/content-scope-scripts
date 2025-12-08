@@ -29,7 +29,7 @@ test.describe('newtab remote messaging framework rmf', () => {
         await ntp.reducedMotion();
         await ntp.openPage({ rmf: 'big_two_action' });
 
-        await page.getByRole('button', { name: 'Take Survey' }).click();
+        await page.getByRole('button', { name: 'View Results' }).click();
         await ntp.mocks.waitForCallCount({ method: 'rmf_primaryAction', count: 1 });
     });
 
@@ -38,7 +38,7 @@ test.describe('newtab remote messaging framework rmf', () => {
         await ntp.reducedMotion();
         await ntp.openPage({ rmf: 'big_two_action' });
 
-        await page.getByRole('button', { name: 'Remind me' }).click();
+        await page.getByRole('button', { name: 'Remind me later' }).click();
         await ntp.mocks.waitForCallCount({ method: 'rmf_secondaryAction', count: 1 });
     });
 });

@@ -44,4 +44,58 @@ export const otherRMFExamples = {
             />
         ),
     },
+    'rmf.big-single-action-announce': {
+        factory: () => (
+            <RemoteMessagingFramework
+                message={rmfDataExamples.big_single_action_announce.content}
+                primaryAction={noop('rmf_primaryAction')}
+                dismiss={noop('rmf_dismiss')}
+            />
+        ),
+    },
+    'rmf.big-single-action-app-update': {
+        factory: () => (
+            <RemoteMessagingFramework
+                message={rmfDataExamples.big_single_action_app_update.content}
+                primaryAction={noop('rmf_primaryAction')}
+                dismiss={noop('rmf_dismiss')}
+            />
+        ),
+    },
+    'rmf.big-single-action-critical-update': {
+        factory: () => (
+            <RemoteMessagingFramework
+                message={rmfDataExamples.big_single_action_critical_update.content}
+                primaryAction={noop('rmf_primaryAction')}
+                dismiss={noop('rmf_dismiss')}
+            />
+        ),
+    },
+    'rmf.big-single-action-pir': {
+        factory: () => (
+            <RemoteMessagingFramework
+                message={rmfDataExamples.big_single_action_pir.content}
+                primaryAction={noop('rmf_primaryAction')}
+                dismiss={noop('rmf_dismiss')}
+            />
+        ),
+    },
+    'rmf.big-single-action-radar': {
+        factory: () => (
+            <RemoteMessagingFramework
+                message={rmfDataExamples.big_single_action_radar.content}
+                primaryAction={noop('rmf_primaryAction')}
+                dismiss={noop('rmf_dismiss')}
+            />
+        ),
+    },
+    'rmf.big-single-action-subscription': {
+        factory: () => (
+            <RemoteMessagingFramework
+                message={rmfDataExamples.big_single_action_subscription.content}
+                primaryAction={noop('rmf_primaryAction')}
+                dismiss={noop('rmf_dismiss')}
+            />
+        ),
+    },
 };
