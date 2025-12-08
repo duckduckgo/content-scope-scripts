@@ -12,10 +12,10 @@ When using `getFeatureSettingEnabled()`, use its built-in default parameter rath
 
 ```js
 // ✅ Correct - uses second parameter for default
-includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled')
+includeIframes: this.getFeatureSettingEnabled('includeIframes', 'enabled');
 
 // ❌ Wrong - || true ignores explicit false from config
-includeIframes: this.getFeatureSettingEnabled('includeIframes') || true
+includeIframes: this.getFeatureSettingEnabled('includeIframes') || true;
 ```
 
 ### Event Listener Management
