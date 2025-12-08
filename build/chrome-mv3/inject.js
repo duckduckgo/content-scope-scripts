@@ -1459,7 +1459,7 @@
   };
 
   // src/wrapper-utils.js
-  var ddgShimMark = Symbol("ddgShimMark");
+  var ddgShimMark = /* @__PURE__ */ Symbol("ddgShimMark");
   function defineProperty(object, propertyName, descriptor) {
     objectDefineProperty(object, propertyName, descriptor);
   }
@@ -1991,7 +1991,15 @@
           this.wkSend(handler, data);
         });
         const cipher = new this.globals.Uint8Array([...ciphertext, ...tag]);
-        const decrypted = await this.decrypt(cipher, key, iv);
+        const decrypted = await this.decrypt(
+          /** @type {BufferSource} */
+          /** @type {unknown} */
+          cipher,
+          /** @type {BufferSource} */
+          /** @type {unknown} */
+          key,
+          iv
+        );
         return this.globals.JSONparse(decrypted || "{}");
       } catch (e) {
         if (e instanceof MissingHandler) {
@@ -6381,7 +6389,6 @@
               return DDGPromise.resolve(true);
             },
             /**
-             * @import { MessagingInterface } from "./message-bridge/schema.js"
              * @param {string} featureName
              * @return {MessagingInterface}
              * @throws {Error}
