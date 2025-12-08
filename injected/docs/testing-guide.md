@@ -130,3 +130,60 @@ test('feature disabled shows fallback', async ({ page }) => {
 ### Security-Sensitive Code
 
 Extract DOM manipulation and HTML generation to separate files for focused unit testing. This prevents XSS vulnerabilities from slipping through integration-only testing.
+
+## Integration Test Structure
+
+### Test Page Directory Layout
+
+```
+integration-test/
+├── test-pages/
+│   └── <feature-name>/
+│       ├── config/
+│       │   └── config.json       # Feature config fixtures
+│       ├── pages/
+│       │   └── test-page.html    # Test HTML pages
+│       └── <feature-name>.spec.js # Playwright tests
+```
+
+### Config Fixture Pattern
+
+Create config fixtures that match privacy-configuration schema:
+
+```json
+{
+  "features": {
+    "featureName": {
+      "state": "enabled",
+      "settings": {
+        "settingName": "value",
+        "conditionalChanges": [
+          {
+            "condition": { "domain": "localhost" },
+            "patchSettings": [
+              { "op": "replace", "path": "/settingName", "value": "testValue" }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### Playwright Test Pattern
+
+```javascript
+test('feature behavior', async ({ page }) => {
+    await page.goto('/test-pages/feature/pages/test.html');
+    
+    // Wait for feature initialization
+    await page.waitForFunction(() => window.__ddg_feature_ready__);
+    
+    // Test feature behavior
+    const result = await page.evaluate(() => someAPI());
+    expect(result).toBe(expectedValue);
+});
+```
+
+For conditional changes and config schema details, see the [injected cursor rules](../.cursor/rules/injected.mdc#conditional-changes).
