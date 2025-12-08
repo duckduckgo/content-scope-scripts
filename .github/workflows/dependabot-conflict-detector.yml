@@ -1,44 +1,43 @@
 name: Dependabot conflict detector
 
 on:
-  push:
-    branches: [main]
+    push:
+        branches: [main]
 
 permissions:
-  pull-requests: write
+    pull-requests: write
 
 jobs:
-  check-conflicts:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Dependabot PRs for conflicts
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: pulls } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-            });
+    check-conflicts:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Dependabot PRs for conflicts
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const { data: pulls } = await github.rest.pulls.list({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        state: 'open',
+                      });
 
-            const dependabotPRs = pulls.filter(pr => pr.user.login === 'dependabot[bot]');
+                      const dependabotPRs = pulls.filter(pr => pr.user.login === 'dependabot[bot]');
 
-            for (const pr of dependabotPRs) {
-              // Fetch full PR to get accurate mergeable status
-              const { data: fullPR } = await github.rest.pulls.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-              });
+                      for (const pr of dependabotPRs) {
+                        // Fetch full PR to get accurate mergeable status
+                        const { data: fullPR } = await github.rest.pulls.get({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: pr.number,
+                        });
 
-              if (fullPR.mergeable === false) {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: pr.number,
-                  body: '@dependabot recreate',
-                });
-                console.log(`Requested recreate for PR #${pr.number}`);
-              }
-            }
-
+                        if (fullPR.mergeable === false) {
+                          await github.rest.issues.createComment({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: pr.number,
+                            body: '@dependabot recreate',
+                          });
+                          console.log(`Requested recreate for PR #${pr.number}`);
+                        }
+                      }
