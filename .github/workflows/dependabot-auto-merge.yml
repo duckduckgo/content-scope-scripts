@@ -32,6 +32,7 @@ jobs:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Request Cursor review
+              if: github.event.action == 'opened'
               run: |
                   gh pr comment "$PR_URL" --body "@cursoragent can you review against the current code and outline potential impacts based on the changelogs of the update?
 
