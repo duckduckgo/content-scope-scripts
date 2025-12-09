@@ -93,7 +93,7 @@
     line-height: 28px;
 
   & span {
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-text-secondary);
     display: block;
     font-size: var(--title-3-em-font-size);
     line-height: 20px;
@@ -105,7 +105,7 @@
 }
 
 .noRecentTitle {
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-text-secondary);
     grid-area: title;
     font-size: var(--title-3-em-font-size);
     font-weight: 400;
@@ -114,7 +114,7 @@
 
 .subtitle {
     grid-area: label;
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-text-secondary);
     line-height: var(--body-line-height);
     text-transform: uppercase;
 
@@ -162,7 +162,7 @@
 
 .otherTrackersRow {
     padding-left: var(--sp-1);
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-text-secondary);
     display: flex;
     align-items: center;
 
@@ -192,7 +192,7 @@
 .count {
     grid-area: count;
     text-align: right;
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-text-primary);
     line-height: 1;
 }
 

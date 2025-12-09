@@ -7,7 +7,7 @@
     padding: 0;
     line-height: 1;
     background-color: transparent;
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-text-secondary);
     border: none;
     border-radius: 50%;
     transition: all .3s;
@@ -26,7 +26,7 @@
 
     &:active {
         background-color: var(--color-black-at-18);
-        color: var(--ntp-text-normal);
+        color: var(--ds-color-text-primary);
     }
 
     &:disabled {

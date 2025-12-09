@@ -33,8 +33,8 @@
     --border-radius-md: 8px;
     --border-radius-sm: 6px;
     --border-radius-xs: 4px;
-    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
-    --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
+    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-accent-primary);
+    --focus-ring-thin: 0px 0px 0px 1px var(--ds-color-accent-primary), 0px 0px 0px 1px  var(--color-white);
 }
 
 [data-theme="light"] {
@@ -739,7 +739,7 @@
     --ds-color-highlight-primary: var(--ds-color-desert-dark-highlight-primary);
 }
 
-body[data-theme-variant="default"] {
+body {
     --default-light-background-color: var(--ds-color-default-light-surface-canvas);
     --default-dark-background-color: var(--ds-color-default-dark-surface-canvas);
 }
@@ -779,38 +779,37 @@ body[data-theme-variant="desert"] {
     --default-dark-background-color: var(--ds-color-desert-dark-surface-canvas);
 }
 
+[data-theme="light"],
+[data-theme="dark"] {
+    --ntp-surface-background-color: var(--ds-color-tone-tint-primary);
+}
+
+[data-background-kind="color"],
+[data-background-kind="gradient"],
+[data-background-kind="userImage"] {
+    [data-theme="light"] {
+        --ntp-surface-background-color: var(--color-white-at-30);
+    }
+
+    [data-theme="dark"] {
+        --ntp-surface-background-color: var(--color-black-at-18);
+    }
+}
+
 [data-theme=light] {
-    --ntp-surface-background-color: var(--color-white-at-30);
-    --ntp-surfaces-panel-background-color: white;
-    --ntp-surface-border-color: var(--color-black-at-9);
-    --ntp-text-normal: var(--color-black-at-84);
-    --ntp-text-muted: var(--color-black-at-60);
-    --ntp-protections-text-muted: var(--color-black-at-66);
-    --ntp-text-on-primary: var(--color-white-at-84);
-    --ntp-color-primary: var(--ddg-color-primary);
     --ntp-widget-expander-bg: rgba(31, 31, 31, 0.09);
-    --ntp-focus-outline-color: black;
-    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
-    --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
-    --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-color-primary);
+    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-accent-primary);
+    --focus-ring-thin: 0px 0px 0px 1px var(--ds-color-accent-primary), 0px 0px 0px 1px var(--color-white);
+    --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: #3A69EF;
 }
 
 [data-theme=dark] {
-    --ntp-surface-background-color: var(--color-black-at-18);
-    --ntp-surfaces-panel-background-color: #222222;
-    --ntp-surface-border-color: var(--color-white-at-12);
-    --ntp-text-normal: var(--color-white-at-84);
-    --ntp-text-muted: var(--color-white-at-60);
-    --ntp-protections-text-muted: var(--color-white-at-66);
-    --ntp-color-primary: var(--color-blue-30);
-    --ntp-text-on-primary: var(--color-black-at-84);
     --ntp-widget-expander-bg: rgba(249, 249, 249, 0.12);
-    --ntp-focus-outline-color: white;
-    --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
-    --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
-    --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ntp-color-primary);
+    --focus-ring: 0px 0px 0px 1px var(--ds-color-accent-primary), 0px 0px 0px 3px var(--color-white);
+    --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ds-color-accent-primary);
+    --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ds-color-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: var(--color-blue-30);
 }

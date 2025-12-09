@@ -76,7 +76,7 @@
     width: 100%;
 }
 .borderedSection {
-    border-top: 1px solid var(--ntp-surface-border-color);
+    border-top: 1px solid var(--ds-color-container-border-primary);
     padding-top: calc(18 * var(--px-in-rem))
 }
 .sectionBody {
@@ -114,7 +114,7 @@
     justify-content: center;
     border: none;
     outline: none;
-    box-shadow: 0 0 0 1px var(--ntp-surface-border-color) inset;
+    box-shadow: 0 0 0 1px var(--ds-color-container-border-primary) inset;
 
     &[aria-checked="true"] {
         box-shadow: var(--focus-ring-primary);
@@ -254,7 +254,7 @@
     justify-content: space-between;
     align-items: center;
     text-decoration: none;
-    color: var(--ntp-color-primary);
+    color: var(--ds-color-accent-primary);
     margin-bottom: var(--sp-3);
 
     &:focus {

@@ -6,7 +6,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-text-primary);
 
     > * {
         pointer-events: none;
@@ -35,7 +35,7 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0px 2px 4px 0px var(--color-black-at-12), 0px 0px 3px 0px var(--color-black-at-18);
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-text-secondary);
 
     [data-theme="dark"] & {
         box-shadow: 0px 2px 4px 0px var(--color-white-at-6), 0px 0px 3px 0px var(--color-white-at-9);
@@ -48,7 +48,7 @@
     border-radius: 50%;
     padding-inline: 0;
     background-color: transparent;
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-text-secondary);
 
     .iconBlock {
         backdrop-filter: unset;
@@ -85,8 +85,8 @@
     font-size: var(--callout-font-size);
     font-weight: var(--callout-font-weight);
     line-height: var(--callout-line-height);
-    border: 1px solid var(--ntp-surface-border-color);
-    color: var(--ntp-text-muted);
+    border: 1px solid var(--ds-color-container-border-primary);
+    color: var(--ds-color-text-secondary);
 }
 
 .fill {

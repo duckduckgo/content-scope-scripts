@@ -1,5 +1,5 @@
 .list {
-    border-top: 1px solid var(--ntp-surface-border-color);
+    border-top: 1px solid var(--ds-color-container-border-primary);
     display: flex;
     flex-direction: column;
     margin-top: -1px; /* - 1px to account for the border-top */
@@ -13,7 +13,7 @@
 }
 
 .main + .footer {
-    border-top: 1px solid var(--ntp-surface-border-color);
+    border-top: 1px solid var(--ds-color-container-border-primary);
 }
 
 .item {

@@ -1,7 +1,7 @@
 .root {
     background-color: var(--ntp-surface-background-color);
     backdrop-filter: blur(48px);
-    border: 1px solid var(--ntp-surface-border-color);
+    border: 1px solid var(--ds-color-container-border-primary);
     padding: calc(14 * var(--px-in-rem)) var(--sp-8) calc(14 * var(--px-in-rem)) var(--sp-4);
     border-radius: var(--border-radius-lg);
     position: relative;
@@ -9,7 +9,7 @@
     justify-content: flex-start;
     align-items: flex-start;
     font-family: system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto;
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-text-primary);
     width: 100%;
     animation: animate-fade .2s cubic-bezier(0.55, 0.055, 0.666, 0.19);
     margin-bottom: var(--ntp-gap);
