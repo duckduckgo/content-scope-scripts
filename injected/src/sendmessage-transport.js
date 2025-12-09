@@ -17,17 +17,18 @@ let sharedTransport = null;
  * @deprecated - A temporary constructor for the extension to make the messaging config
  */
 export function extensionConstructMessagingConfig() {
-    if (!sharedTransport) {
-        sharedTransport = new SendMessageMessagingTransport();
-    }
-    return new TestTransportConfig(sharedTransport);
+    return new TestTransportConfig(getSharedMessagingTransport());
 }
 
 /**
  * Used by entry-points to route incoming extension messages to onResponse().
- * @returns {SendMessageMessagingTransport | null}
+ * Ensures a singleton transport exists.
+ * @returns {SendMessageMessagingTransport}
  */
 export function getSharedMessagingTransport() {
+    if (!sharedTransport) {
+        sharedTransport = new SendMessageMessagingTransport();
+    }
     return sharedTransport;
 }
 
