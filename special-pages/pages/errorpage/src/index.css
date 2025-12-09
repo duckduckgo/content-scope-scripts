@@ -1,0 +1,90 @@
+@import url("../../../shared/styles/design-tokens.css");
+
+body {
+    font-family:'-apple-system-font';
+    background: rgb(255, 255, 255);
+
+    display: flex;
+    height: 100vh;
+    margin: 0 auto;
+
+    text-align: center;
+    align-items: center;
+
+    cursor: default;
+}
+
+.content-container {
+    min-width: 320px;
+    max-width: 580px;
+    margin: 0 auto;
+}
+
+.error-header {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 18px;
+    margin: 0 auto;
+    padding: 0px;
+}
+
+.error-description {
+    font-size: 13px;
+    line-height: 16px;
+    margin: 0 auto;
+    padding: 8px;
+}
+
+.header-container .description-container {
+    color: rgb(44, 44, 44);
+    position: relative;
+    width: 100%;
+    word-wrap: break-word;
+}
+
+.watermark-container {
+    display: inline-block;
+    position: fixed;
+    width: 100px;
+    height: 100px;
+    bottom: 20px;
+    right: 20px;
+    opacity: 0.5;
+    filter: grayscale(100%);
+    pointer-events: none;
+}
+
+.watermark {
+    max-width: 100px;
+    max-height: 100px;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: rgb(51, 51, 51);
+    }
+
+    .error-description, .error-header {
+        color: rgb(210, 210, 210);
+    }
+}
+
+/* Theme variants - light mode */
+[data-theme-variant="coolGray"] { background: var(--ds-color-cool-gray-light-surface-primary); }
+[data-theme-variant="slateBlue"] { background: var(--ds-color-slate-blue-light-surface-primary); }
+[data-theme-variant="green"] { background: var(--ds-color-green-light-surface-primary); }
+[data-theme-variant="violet"] { background: var(--ds-color-violet-light-surface-primary); }
+[data-theme-variant="rose"] { background: var(--ds-color-rose-light-surface-primary); }
+[data-theme-variant="orange"] { background: var(--ds-color-orange-light-surface-primary); }
+[data-theme-variant="desert"] { background: var(--ds-color-desert-light-surface-primary); }
+
+/* Theme variants - dark mode */
+@media (prefers-color-scheme: dark) {
+    [data-theme-variant="coolGray"] { background: var(--ds-color-cool-gray-dark-surface-primary); }
+    [data-theme-variant="slateBlue"] { background: var(--ds-color-slate-blue-dark-surface-primary); }
+    [data-theme-variant="green"] { background: var(--ds-color-green-dark-surface-primary); }
+    [data-theme-variant="violet"] { background: var(--ds-color-violet-dark-surface-primary); }
+    [data-theme-variant="rose"] { background: var(--ds-color-rose-dark-surface-primary); }
+    [data-theme-variant="orange"] { background: var(--ds-color-orange-dark-surface-primary); }
+    [data-theme-variant="desert"] { background: var(--ds-color-desert-dark-surface-primary); }
+}
