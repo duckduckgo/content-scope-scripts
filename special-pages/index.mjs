@@ -9,6 +9,7 @@ import { buildSync } from 'esbuild';
 import { cwd, parseArgs } from '../scripts/script-utils.js';
 import inliner from 'web-resource-inliner';
 import { baseEsbuildOptions } from './opts.mjs';
+import { pages } from './pages.mjs';
 
 const CWD = cwd(import.meta.url);
 const ROOT = join(CWD, '../');
@@ -17,65 +18,16 @@ const args = parseArgs(process.argv.slice(2), []);
 const NODE_ENV = args.env || 'production';
 const DEBUG = Boolean(args.debug);
 
-export const support = {
-    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
-    duckplayer: {
-        integration: ['copy', 'build-js'],
-        windows: ['copy', 'build-js'],
-        apple: ['copy', 'build-js', 'inline-html'],
-        android: ['copy', 'build-js'],
-    },
-    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
-    errorpage: {
-        integration: ['copy'],
-        apple: ['copy', 'inline-html'],
-    },
-    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
-    onboarding: {
-        integration: ['copy', 'build-js'],
-        windows: ['copy', 'build-js'],
-        apple: ['copy', 'build-js'],
-    },
-    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
-    example: {
-        integration: ['copy', 'build-js'],
-    },
-    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
-    'release-notes': {
-        integration: ['copy', 'build-js'],
-        apple: ['copy', 'build-js'],
-        windows: ['copy', 'build-js'],
-    },
-    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
-    'special-error': {
-        integration: ['copy', 'build-js'],
-        apple: ['copy', 'build-js', 'inline-html'],
-        windows: ['copy', 'build-js', 'inline-html'],
-    },
-    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
-    'new-tab': {
-        integration: ['copy', 'build-js'],
-        windows: ['copy', 'build-js'],
-        apple: ['copy', 'build-js'],
-    },
-    /** @type {Partial<Record<ImportMeta['injectName'], string[]>>} */
-    history: {
-        integration: ['copy', 'build-js'],
-        windows: ['copy', 'build-js'],
-        apple: ['copy', 'build-js'],
-    },
-};
-
 /** @type {{src: string, dest: string, dist: string, injectName: string}[]} */
 const copyJobs = [];
-/** @type {{outputDir: string, injectName: ImportMeta['injectName'], pageName: string}[]} */
+/** @type {{outputDir: string, injectName: ImportMeta['injectName'], pageName: string, entry?: string[]}[]} */
 const buildJobs = [];
 /** @type {{src: string}[]} */
 const inlineJobs = [];
 const errors = [];
 const DRY_RUN = false;
 
-for (const [pageName, injectNames] of Object.entries(support)) {
+for (const [pageName, injectNames] of Object.entries(pages)) {
     const publicDir = join(CWD, 'pages', pageName, 'public');
     if (!existsSync(publicDir)) {
         errors.push(`${publicDir} does not exist. Each page must have a 'src' directory`);
@@ -102,6 +54,15 @@ for (const [pageName, injectNames] of Object.entries(support)) {
                     outputDir,
                     injectName: /** @type {ImportMeta['injectName']} */ (injectNameKey),
                     pageName,
+                });
+            }
+            if (job === 'build-css') {
+                const outputDir = join(pageOutputDirectory, 'dist');
+                buildJobs.push({
+                    outputDir,
+                    injectName: /** @type {ImportMeta['injectName']} */ (injectNameKey),
+                    pageName,
+                    entry: ['index.css'],
                 });
             }
             if (job === 'inline-html') {
@@ -142,7 +103,10 @@ for (const buildJob of buildJobs) {
     if (DEBUG) console.log('\t- import.meta.env: ', NODE_ENV);
     if (DEBUG) console.log('\t- import.meta.injectName: ', buildJob.injectName);
     if (!DRY_RUN) {
-        const opts = baseEsbuildOptions(buildJob.pageName, buildJob.injectName, NODE_ENV, buildJob.outputDir);
+        /** @type {import('./opts.mjs').EsbuildOptionsConfig} */
+        const config = { output: buildJob.outputDir };
+        if (buildJob.entry) config.entry = buildJob.entry;
+        const opts = baseEsbuildOptions(buildJob.pageName, buildJob.injectName, NODE_ENV, config);
         buildSync(opts);
     }
 }

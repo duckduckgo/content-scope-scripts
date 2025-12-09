@@ -15,7 +15,7 @@ export const AnimationConstants = {
     UPPER_THRESHOLD: 40,
     LOWER_START_PERCENTAGE: 0.75,
     UPPER_START_PERCENTAGE: 0.85,
-    MAX_DISPLAY_COUNT: 9999,
+    MAX_DISPLAY_COUNT: 9999999,
 };
 
 /**
@@ -61,7 +61,7 @@ export function animateCount(targetValue, onUpdate, onComplete, fromValue = null
         MAX_DISPLAY_COUNT,
     } = AnimationConstants;
 
-    // Cap the target value at 9999
+    // Cap the target value at MAX_DISPLAY_COUNT
     const cappedTarget = Math.min(targetValue, MAX_DISPLAY_COUNT);
     const isInitialDisplay = fromValue === null || fromValue === 0;
 

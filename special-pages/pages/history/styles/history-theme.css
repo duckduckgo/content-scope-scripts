@@ -69,39 +69,37 @@ body {
     --history-text-muted: var(--color-white-at-60);
 }
 
-/* TODO: Use colour variables from design-tokens */
-
 [data-theme-variant="coolGray"] {
-    --default-light-background-color: #d2d5e3;
-    --default-dark-background-color: #2b2f45;
+    --default-light-background-color: var(--ds-color-cool-gray-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-cool-gray-dark-surface-primary);
 }
 
 [data-theme-variant="slateBlue"] {
-    --default-light-background-color: #d2e5f3;
-    --default-dark-background-color: #1e3347;
+    --default-light-background-color: var(--ds-color-slate-blue-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-slate-blue-dark-surface-primary);
 }
 
 [data-theme-variant="green"] {
-    --default-light-background-color: #e3eee1;
-    --default-dark-background-color: #203b30;
+    --default-light-background-color: var(--ds-color-green-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-green-dark-surface-primary);
 }
 
 [data-theme-variant="violet"] {
-    --default-light-background-color: #e7e4f5;
-    --default-dark-background-color: #2e2158;
+    --default-light-background-color: var(--ds-color-violet-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-violet-dark-surface-primary);
 }
 
 [data-theme-variant="rose"] {
-    --default-light-background-color: #f8ebf5;
-    --default-dark-background-color: #5b194b;
+    --default-light-background-color: var(--ds-color-rose-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-rose-dark-surface-primary);
 }
 
 [data-theme-variant="orange"] {
-    --default-light-background-color: #fcedd8;
-    --default-dark-background-color: #54240c;
+    --default-light-background-color: var(--ds-color-orange-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-orange-dark-surface-primary);
 }
 
 [data-theme-variant="desert"] {
-    --default-light-background-color: #eee9e1;
-    --default-dark-background-color: #3c3833;
+    --default-light-background-color: var(--ds-color-desert-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-desert-dark-surface-primary);
 }

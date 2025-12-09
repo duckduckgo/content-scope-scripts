@@ -54,6 +54,15 @@ export class HistoryPage {
     reportInitException(params) {
         this.messaging.notify('reportInitException', params);
     }
+
+    /**
+     * Subscribe to theme update notifications from the native layer.
+     * @param {(data: import('../types/history.ts').OnThemeUpdateSubscribe) => void} callback
+     * @returns {() => void} Unsubscribe function
+     */
+    onThemeUpdate(callback) {
+        return this.messaging.subscribe('onThemeUpdate', callback);
+    }
 }
 
 const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env);
