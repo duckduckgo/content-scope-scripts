@@ -7115,7 +7115,7 @@
   // pages/new-tab/app/freemium-pir-banner/components/FreemiumPIRBanner.js
   function FreemiumPIRBanner({ message, action, dismiss }) {
     const processedMessageDescription = convertMarkdownToHTMLForStrongTags(message.descriptionText);
-    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames6.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ _("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/Information-Remover-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
+    return /* @__PURE__ */ _("div", { id: message.id, class: (0, import_classnames6.default)(FreemiumPIRBanner_default.root, FreemiumPIRBanner_default.icon) }, /* @__PURE__ */ _("span", { class: FreemiumPIRBanner_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/PIR-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.content }, message.titleText && /* @__PURE__ */ _("h2", { class: FreemiumPIRBanner_default.title }, message.titleText), /* @__PURE__ */ _("p", { class: FreemiumPIRBanner_default.description, dangerouslySetInnerHTML: { __html: processedMessageDescription } })), message.messageType === "big_single_action" && message?.actionText && action && /* @__PURE__ */ _("div", { class: FreemiumPIRBanner_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => action(message.id) }, message.actionText)), message.id && dismiss && /* @__PURE__ */ _(DismissButton, { className: FreemiumPIRBanner_default.dismissBtn, onClick: () => dismiss(message.id) }));
   }
   function FreemiumPIRBannerConsumer() {
     const { state, action, dismiss } = x2(FreemiumPIRBannerContext);
@@ -9711,6 +9711,7 @@
         widgetExpander: "PrivacyStats_widgetExpander",
         counterContainer: "PrivacyStats_counterContainer",
         counter: "PrivacyStats_counter",
+        cookiePopUpsCounter: "PrivacyStats_cookiePopUpsCounter",
         title: "PrivacyStats_title",
         noRecentTitle: "PrivacyStats_noRecentTitle",
         subtitle: "PrivacyStats_subtitle",
@@ -9907,7 +9908,7 @@
         UPPER_THRESHOLD: 40,
         LOWER_START_PERCENTAGE: 0.75,
         UPPER_START_PERCENTAGE: 0.85,
-        MAX_DISPLAY_COUNT: 9999
+        MAX_DISPLAY_COUNT: 9999999
       };
     }
   });
@@ -10056,6 +10057,8 @@
       {}
     );
     const ntp = useMessaging();
+    const locale = useLocale();
+    const formatter = T2(() => getLocalizedNumberFormatter(locale), [locale]);
     const headingRef = A2(
       /** @type {HTMLDivElement|null} */
       null
@@ -10088,7 +10091,7 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, animatedTrackersBlocked, " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, animatedCookiePopUpsBlocked, " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), /* @__PURE__ */ _(NewBadge, { text: t4("protections_newBadge") }))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), /* @__PURE__ */ _(NewBadge, { text: t4("protections_newBadge") }))));
   }
   var import_classnames9;
   var init_ProtectionsHeading = __esm({
@@ -10104,6 +10107,8 @@
       init_Tooltip2();
       init_useAnimatedCount();
       init_hooks_module();
+      init_utils3();
+      init_EnvironmentProvider();
     }
   });
 
@@ -28770,7 +28775,7 @@
   function RemoteMessagingFramework({ message, primaryAction, secondaryAction, dismiss }) {
     const { id, messageType, titleText, descriptionText } = message;
     const platform = usePlatformName();
-    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames15.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
+    return /* @__PURE__ */ _("div", { id, class: (0, import_classnames15.default)(RemoteMessagingFramework_default.root, messageType !== "small" && message.icon && RemoteMessagingFramework_default.icon) }, messageType !== "small" && message.icon && /* @__PURE__ */ _("span", { class: RemoteMessagingFramework_default.iconBlock }, /* @__PURE__ */ _("img", { src: `./icons/${message.icon}-96.svg`, alt: "" })), /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.content }, /* @__PURE__ */ _("h2", { class: RemoteMessagingFramework_default.title }, titleText), /* @__PURE__ */ _("p", { class: RemoteMessagingFramework_default.description }, descriptionText), messageType === "big_two_action" && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnRow }, platform === "windows" ? /* @__PURE__ */ _(k, null, primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText), secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText)) : /* @__PURE__ */ _(k, null, secondaryAction && message.secondaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => secondaryAction(id) }, message.secondaryActionText), primaryAction && message.primaryActionText.length > 0 && /* @__PURE__ */ _(Button, { variant: "accentBrand", onClick: () => primaryAction(id) }, message.primaryActionText)))), messageType === "big_single_action" && message.primaryActionText && primaryAction && /* @__PURE__ */ _("div", { class: RemoteMessagingFramework_default.btnBlock }, /* @__PURE__ */ _(Button, { variant: "standard", onClick: () => primaryAction(id) }, message.primaryActionText)), /* @__PURE__ */ _(DismissButton, { className: RemoteMessagingFramework_default.dismissBtn, onClick: () => dismiss(id) }));
   }
   function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = x2(RMFContext);
@@ -31889,11 +31894,11 @@
       content: {
         messageType: "big_two_action",
         id: "id-big-two",
-        titleText: "Tell Us Your Thoughts on Privacy Pro",
-        descriptionText: "Take our short anonymous survey and share your feedback.",
-        icon: "Announce",
-        primaryActionText: "Take Survey",
-        secondaryActionText: "Remind me"
+        titleText: "Personal Information Removal Scan Complete",
+        descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
+        icon: "RadarCheck",
+        primaryActionText: "View Results",
+        secondaryActionText: "Remind me later"
       }
     },
     big_two_action_overflow: {
@@ -31905,6 +31910,66 @@
         descriptionText: "Support for Windows 10 is ending soon. Update to Windows 11 or newer before July 8, 2024, to keep getting the latest browser updates and improvements.",
         primaryActionText: "How to update Windows",
         secondaryActionText: "Remind me later, but only if I\u2019m actually going to update soon"
+      }
+    },
+    big_single_action_announce: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single-alt",
+        titleText: "Personal Information Removal",
+        descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
+        icon: "Announce",
+        primaryActionText: "View Results"
+      }
+    },
+    big_single_action_app_update: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single-alt",
+        titleText: "Personal Information Removal",
+        descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
+        icon: "AppUpdate",
+        primaryActionText: "View Results"
+      }
+    },
+    big_single_action_critical_update: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single-alt",
+        titleText: "Personal Information Removal",
+        descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
+        icon: "CriticalUpdate",
+        primaryActionText: "View Results"
+      }
+    },
+    big_single_action_pir: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single-alt",
+        titleText: "Personal Information Removal",
+        descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
+        icon: "PIR",
+        primaryActionText: "View Results"
+      }
+    },
+    big_single_action_radar: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single-alt",
+        titleText: "Personal Information Removal",
+        descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
+        icon: "Radar",
+        primaryActionText: "View Results"
+      }
+    },
+    big_single_action_subscription: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single-alt",
+        titleText: "Something about a subscription",
+        descriptionText: "Something about a subscription. ",
+        icon: "Subscription",
+        primaryActionText: "Learn more"
       }
     }
   };
@@ -31947,6 +32012,66 @@
           message: rmfDataExamples.big_two_action_overflow.content,
           primaryAction: noop("rmf_primaryAction"),
           secondaryAction: noop("rmf_secondaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-single-action-announce": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action_announce.content,
+          primaryAction: noop("rmf_primaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-single-action-app-update": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action_app_update.content,
+          primaryAction: noop("rmf_primaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-single-action-critical-update": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action_critical_update.content,
+          primaryAction: noop("rmf_primaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-single-action-pir": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action_pir.content,
+          primaryAction: noop("rmf_primaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-single-action-radar": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action_radar.content,
+          primaryAction: noop("rmf_primaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-single-action-subscription": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action_subscription.content,
+          primaryAction: noop("rmf_primaryAction"),
           dismiss: noop("rmf_dismiss")
         }
       )
@@ -33960,6 +34085,7 @@
   var url3 = new URL(window.location.href);
 
   // pages/new-tab/app/protections/mocks/protections.mock-transport.js
+  init_animateCount();
   var url4 = typeof window !== "undefined" ? new URL(window.location.href) : new URL("https://example.com");
 
   // pages/new-tab/app/omnibar/mocks/omnibar.mock-transport.js
