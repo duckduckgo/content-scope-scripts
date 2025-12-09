@@ -40,7 +40,7 @@ async function waitForServer(url, timeout = 30000, interval = 500) {
         } catch {
             // Server not ready yet
         }
-        await new Promise(resolve => setTimeout(resolve, interval));
+        await new Promise((resolve) => setTimeout(resolve, interval));
     }
     throw new Error(`Timeout waiting for ${url}`);
 }
