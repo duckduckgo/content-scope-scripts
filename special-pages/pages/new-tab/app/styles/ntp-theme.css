@@ -33,8 +33,6 @@
     --border-radius-md: 8px;
     --border-radius-sm: 6px;
     --border-radius-xs: 4px;
-    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
-    --focus-ring-thin: 0px 0px 0px 1px var(--ds-color-theme-accent-primary), 0px 0px 0px 1px  var(--color-white);
 }
 
 [data-theme="light"] {
