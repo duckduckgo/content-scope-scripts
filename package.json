@@ -41,16 +41,16 @@
     "@playwright/test": "^1.52.0",
     "ajv": "^8.17.1",
     "esbuild": "^0.27.1",
-    "eslint": "^9.37.0",
+    "eslint": "^9.39.1",
     "minimist": "^1.2.8",
     "prettier": "3.7.4",
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
     "stylelint-csstree-validator": "^3.0.0",
     "ts-json-schema-generator": "^2.4.0",
-    "typedoc": "^0.28.8",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.36.0"
+    "typedoc": "^0.28.15",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.1"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.2",
