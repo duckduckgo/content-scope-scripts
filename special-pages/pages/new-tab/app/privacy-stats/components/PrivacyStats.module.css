@@ -47,7 +47,7 @@
     flex: 1;
 
     & [aria-controls] {
-        background-color: var(--ntp-widget-expander-bg);
+        background-color: var(--ds-color-theme-control-fill-primary);
         width: 24px;
         height: 24px;
         position: absolute;
@@ -75,7 +75,7 @@
     width: 196px;
     padding-right: 18px;
     box-sizing: content-box;
-    
+
     &:last-child {
         padding-right: 0;
     }

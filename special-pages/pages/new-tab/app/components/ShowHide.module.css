@@ -64,11 +64,13 @@
 
     &:hover {
         .iconBlock {
-            background-color: var(--color-black-at-6);
+            background-color: var(--ds-color-theme-control-fill-secondary);
+        }
+    }
 
-            [data-theme=dark] & {
-                background-color: var(--color-white-at-12);
-            }
+    &:active {
+        .iconBlock {
+            background-color: var(--ds-color-theme-control-fill-tertiary);
         }
     }
 

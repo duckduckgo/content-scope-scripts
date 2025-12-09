@@ -795,7 +795,6 @@ body[data-theme-variant="desert"] {
 }
 
 [data-theme=light] {
-    --ntp-widget-expander-bg: rgba(31, 31, 31, 0.09);
     --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --focus-ring-thin: 0px 0px 0px 1px var(--ds-color-theme-accent-primary), 0px 0px 0px 1px var(--color-white);
     --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
@@ -804,7 +803,6 @@ body[data-theme-variant="desert"] {
 }
 
 [data-theme=dark] {
-    --ntp-widget-expander-bg: rgba(249, 249, 249, 0.12);
     --focus-ring: 0px 0px 0px 1px var(--ds-color-theme-accent-primary), 0px 0px 0px 3px var(--color-white);
     --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ds-color-theme-accent-primary);
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
