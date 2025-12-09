@@ -15,7 +15,7 @@
 }
 
 .content {
-    background: var(--ds-color-surface-tertiary);
+    background: var(--ds-color-theme-surface-tertiary);
     border-radius: 16px;
     flex: auto;
     padding: var(--sp-4) var(--sp-11) var(--sp-4) var(--sp-5);
@@ -26,7 +26,7 @@
     background: none;
     border-radius: 100%;
     border: none;
-    color: var(--ds-color-icons-primary);
+    color: var(--ds-color-theme-icons-primary);
     cursor: pointer;
     padding: 0;
     position: absolute;
@@ -74,22 +74,22 @@
     button {
         background: none;
         border: none;
-        color: var(--ds-color-accent-primary);
+        color: var(--ds-color-theme-accent-primary);
         cursor: pointer;
         padding: 0;
         transform: translateZ(0); /* Fix shadow rendering issue on .popover in WebKit */
 
         &:hover {
-            color: var(--ds-color-accent-secondary);
+            color: var(--ds-color-theme-accent-secondary);
         }
 
         &:active {
-            color: var(--ds-color-accent-tertiary);
+            color: var(--ds-color-theme-accent-tertiary);
         }
     }
 }
 
 .arrow {
-    color: var(--ds-color-surface-tertiary);
+    color: var(--ds-color-theme-surface-tertiary);
     margin-right: -1px;
 }

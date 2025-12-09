@@ -61,7 +61,7 @@
 
 .subtitle {
     grid-area: label;
-    color: var(--ds-color-text-secondary);
+    color: var(--ds-color-theme-text-secondary);
     line-height: var(--body-line-height);
     text-transform: uppercase;
 
@@ -109,7 +109,7 @@
 
 .otherTrackersRow {
     padding-left: var(--sp-1);
-    color: var(--ds-color-text-secondary);
+    color: var(--ds-color-theme-text-secondary);
     display: flex;
     align-items: center;
 
@@ -139,7 +139,7 @@
 .count {
     grid-area: count;
     text-align: right;
-    color: var(--ds-color-text-primary);
+    color: var(--ds-color-theme-text-primary);
     line-height: 1;
 }
 

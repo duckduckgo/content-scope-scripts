@@ -8,14 +8,14 @@
 .customizeButton {
     backdrop-filter: blur(48px);
     background-color: var(--ntp-surface-background-color);
-    border: 1px solid var(--ds-color-container-border-primary);
+    border: 1px solid var(--ds-color-theme-container-border-primary);
     border-radius: var(--border-radius-sm);
     padding: var(--sp-2) var(--sp-3);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: calc(6 * var(--px-in-rem));
-    color: var(--ds-color-text-primary);
+    color: var(--ds-color-theme-text-primary);
 
     [data-theme=dark] & {
         border-color: var(--color-white-at-9);
@@ -53,7 +53,3 @@
         }
     }
 }
-
-
-
-

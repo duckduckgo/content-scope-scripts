@@ -1,5 +1,5 @@
 .tabSwitcher {
-    background: var(--ds-color-control-raised-backdrop);
+    background: var(--ds-color-theme-control-raised-backdrop);
     border-radius: 99px;
     display: grid;
     gap: var(--sp-0_5);
@@ -17,7 +17,7 @@
     align-items: center;
     background: none;
     border: none;
-    color: var(--ds-color-text-primary);
+    color: var(--ds-color-theme-text-primary);
     cursor: pointer;
     display: flex;
     gap: 6px;
@@ -29,7 +29,7 @@
     z-index: 1;
 
     &:hover:not([aria-selected="true"])::before {
-        background: var(--ds-color-control-fill-primary);
+        background: var(--ds-color-theme-control-fill-primary);
         border-radius: 99px;
         content: '';
         inset: 0;
@@ -42,9 +42,9 @@
 }
 
 .blob {
-    background-color: var(--ds-color-control-raised-fill-primary);
+    background-color: var(--ds-color-theme-control-raised-fill-primary);
     border-radius: 18px;
-    box-shadow: 0 1px 0 0 var(--ds-color-tone-tint-primary) inset, 0 1px 4px 0 var(--ds-color-shadow-secondary), 0 4px 8px 0 var(--ds-color-shadow-secondary);
+    box-shadow: 0 1px 0 0 var(--ds-color-theme-tone-tint-primary) inset, 0 1px 4px 0 var(--ds-color-theme-shadow-secondary), 0 4px 8px 0 var(--ds-color-theme-shadow-secondary);
     height: var(--sp-8);
     left: 0;
     position: absolute;
@@ -56,7 +56,7 @@
     z-index: 0;
 
     [data-theme="dark"] & {
-        box-shadow: 0 4px 4px var(--ds-color-shadow-secondary), 0 1px 2px var(--ds-color-shadow-secondary), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        box-shadow: 0 4px 4px var(--ds-color-theme-shadow-secondary), 0 1px 2px var(--ds-color-theme-shadow-secondary), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
     @media (prefers-reduced-motion: reduce) {

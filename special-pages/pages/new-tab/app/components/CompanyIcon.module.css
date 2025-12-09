@@ -13,7 +13,7 @@
     }
 
     &:has([data-errored=true]) {
-        outline: 1px solid var(--ds-color-container-border-primary);
+        outline: 1px solid var(--ds-color-theme-container-border-primary);
         [data-theme=dark] & {
             outline-color: var(--color-white-at-9);
         }

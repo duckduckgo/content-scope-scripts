@@ -2,7 +2,7 @@
     margin-top: calc(-40 * var(--px-in-rem));
 }
 .root {
-    border-bottom: 1px solid var(--ds-color-container-border-primary);
+    border-bottom: 1px solid var(--ds-color-theme-container-border-primary);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -77,4 +77,3 @@
     top: calc(var(--sp-6) - var(--sp-1));
     right: var(--sp-2);
 }
-

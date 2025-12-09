@@ -98,7 +98,7 @@
     font-size: var(--title-3-em-font-size);
     font-weight: var(--title-3-em-font-weight);
     text-decoration: none;
-    color: var(--ds-color-text-primary);
+    color: var(--ds-color-theme-text-primary);
     height: 35px;
     display: flex;
     align-items: center;
@@ -109,7 +109,7 @@
     min-width: 0;
 
     &:hover, &:focus-visible {
-        color: var(--ds-color-accent-primary);
+        color: var(--ds-color-theme-accent-primary);
         .favicon {
             transform: scale(1.08)
         }
@@ -133,7 +133,7 @@
     background: transparent;
     padding: 0;
     margin: 0;
-    color: var(--ds-color-text-primary);
+    color: var(--ds-color-theme-text-primary);
     svg {
         position: absolute;
         top: 50%;
@@ -218,7 +218,7 @@
     font-size: var(--small-label-font-size);
     font-weight: var(--small-label-font-weight);
     line-height: var(--small-label-line-height);
-    color: var(--ds-color-text-primary);
+    color: var(--ds-color-theme-text-primary);
     text-decoration: none;
     min-width: 0;
     white-space: nowrap;
@@ -226,7 +226,7 @@
     text-overflow: ellipsis;
 
     &:hover, &:focus-visible {
-        color: var(--ds-color-accent-primary)
+        color: var(--ds-color-theme-accent-primary)
     }
 
     &:hover .time {
@@ -238,7 +238,7 @@
 .time {
     flex-shrink: 0;
     margin-left: 8px;
-    color: var(--ds-color-text-secondary);
+    color: var(--ds-color-theme-text-secondary);
     opacity: 0.6;
     font-size: var(--small-label-font-size);
     font-weight: var(--small-label-font-weight);
