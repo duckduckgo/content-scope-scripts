@@ -37,7 +37,7 @@
     --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
 }
 
-[data-theme-variant="default"] [data-theme="light"] {
+[data-theme="light"] {
     --ds-color-surface-primary: var(--ds-color-default-light-surface-primary);
     --ds-color-surface-secondary: var(--ds-color-default-light-surface-secondary);
     --ds-color-surface-tertiary: var(--ds-color-default-light-surface-tertiary);
@@ -78,9 +78,16 @@
     --ds-color-accent-glow-primary: var(--ds-color-default-light-accent-glow-primary);
     --ds-color-accent-glow-secondary: var(--ds-color-default-light-accent-glow-secondary);
     --ds-color-highlight-primary: var(--ds-color-default-light-highlight-primary);
+
+    /* Only exist in default variant: */
+    --ds-color-tone-tint-primary: var(--ds-color-default-light-tone-tint-primary);
+    --ds-color-control-raised-backdrop: var(--ds-color-default-light-control-raised-backdrop);
+    --ds-color-control-raised-fill-primary: var(--ds-color-default-light-control-raised-fill-primary);
+    --ds-color-shadow-primary: var(--ds-color-default-light-shadow-primary);
+    --ds-color-shadow-secondary: var(--ds-color-default-light-shadow-secondary);
 }
 
-[data-theme-variant="default"] [data-theme="dark"] {
+[data-theme="dark"] {
     --ds-color-surface-primary: var(--ds-color-default-dark-surface-primary);
     --ds-color-surface-secondary: var(--ds-color-default-dark-surface-secondary);
     --ds-color-surface-tertiary: var(--ds-color-default-dark-surface-tertiary);
@@ -121,6 +128,13 @@
     --ds-color-accent-glow-primary: var(--ds-color-default-dark-accent-glow-primary);
     --ds-color-accent-glow-secondary: var(--ds-color-default-dark-accent-glow-secondary);
     --ds-color-highlight-primary: var(--ds-color-default-dark-highlight-primary);
+
+    /* Only exist in default variant: */
+    --ds-color-tone-tint-primary: var(--ds-color-default-dark-tone-tint-primary);
+    --ds-color-control-raised-backdrop: var(--ds-color-default-dark-control-raised-backdrop);
+    --ds-color-control-raised-fill-primary: var(--ds-color-default-dark-control-raised-fill-primary);
+    --ds-color-shadow-primary: var(--ds-color-default-dark-shadow-primary);
+    --ds-color-shadow-secondary: var(--ds-color-default-dark-shadow-secondary);
 }
 
 [data-theme-variant="coolGray"] [data-theme="light"] {
@@ -781,27 +795,6 @@ body[data-theme-variant="desert"] {
     --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-color-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: #3A69EF;
-
-    /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
-    /* @todo: This palette is what the native apps use, we should gradually move over to it */
-    --ntp-surface-tertiary: #FFFFFF;
-    --ntp-text-primary: rgba(0, 0, 0, 0.96);
-    --ntp-text-tertiary: rgba(0, 0, 0, 0.42);
-    --ntp-icons-primary: rgba(0, 0, 0, 0.84);
-    --ntp-icons-tertiary: rgba(0, 0, 0, 0.36);
-    --ntp-tone-tint: rgba(255, 255, 255, 0.48);
-    --ntp-accent-primary: var(--color-blue-50);
-    --ntp-accent-secondary: var(--color-blue-60);
-    --ntp-accent-tertiary: var(--color-blue-70);
-    --ntp-accent-glow: rgba(57, 105, 239, 0.2);
-    --ntp-accent-content-primary: #FFFFFF;
-    --ntp-controls-fill-primary: rgba(31, 31, 31, 0.09);
-    --ntp-controls-fill-secondary: rgba(31, 31, 31, 0.12);
-    --ntp-controls-raised-fill-primary: #FFFFFF;
-    --ntp-controls-raised-backdrop: rgba(0, 0, 0, 0.09);
-    --ntp-decoration-tertiary: rgba(0, 0, 0, 0.09);
-    --ntp-shadow-primary: rgba(0, 0, 0, 0.05);
-    --ntp-shadow-secondary: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme=dark] {
@@ -820,27 +813,6 @@ body[data-theme-variant="desert"] {
     --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ntp-color-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: var(--color-blue-30);
-
-    /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
-    /* @todo: This palette is what the native apps use, we should gradually move over to it */
-    --ntp-surface-tertiary: #474747;
-    --ntp-text-primary: rgba(255, 255, 255, 0.96);
-    --ntp-text-tertiary: rgba(255, 255, 255, 0.36);
-    --ntp-icons-primary: rgba(255, 255, 255, 0.78);
-    --ntp-icons-tertiary: rgba(255, 255, 255, 0.24);
-    --ntp-tone-tint: rgba(249, 249, 249, 0.12);
-    --ntp-accent-primary: var(--color-blue-30);
-    --ntp-accent-secondary: var(--color-blue-40);
-    --ntp-accent-tertiary: var(--color-blue-50);
-    --ntp-accent-glow: rgba(114, 149, 246, 0.2);
-    --ntp-accent-content-primary: var(--color-blue-80);
-    --ntp-controls-fill-primary: rgba(249, 249, 249, 0.12);
-    --ntp-controls-fill-secondary: rgba(249, 249, 249, 0.18);
-    --ntp-controls-raised-fill-primary: rgba(255, 255, 255, 0.18);
-    --ntp-controls-raised-backdrop: rgba(255, 255, 255, 0.12);
-    --ntp-decoration-tertiary: rgba(255, 255, 255, 0.12);
-    --ntp-shadow-primary: rgba(0, 0, 0, 0.16);
-    --ntp-shadow-secondary: rgba(0, 0, 0, 0.24);
 }
 
 /* This comes from the application settings */

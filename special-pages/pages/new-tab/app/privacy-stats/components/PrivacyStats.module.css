@@ -86,7 +86,7 @@
 }
 
 .title {
-    color: var(--ntp-text-primary);
+    color: var(--ds-color-text-primary);
     font-size: 40px;
     font-weight: 400;
     grid-area: title;
