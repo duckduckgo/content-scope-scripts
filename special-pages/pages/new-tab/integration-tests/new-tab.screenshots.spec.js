@@ -50,6 +50,18 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                             maxDiffPixels,
                         });
                     });
+
+                    test('cpm', async ({ page }, workerInfo) => {
+                        const ntp = NewtabPage.create(page, workerInfo);
+                        const stats = new PrivacyStatsPage(page, ntp);
+                        await ntp.reducedMotion();
+                        if (theme.dark) await ntp.darkMode();
+                        await ntp.openPage({ additional: { stats: 'few', cpm: 'true' } });
+                        await stats.hasRows(4);
+                        await expect(page).toHaveScreenshot(screenshotName('stats-cpm', viewport, theme), {
+                            maxDiffPixels,
+                        });
+                    });
                 });
 
                 test.describe('activity widget', () => {
@@ -171,7 +183,9 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                         if (theme.dark) await ntp.darkMode();
                         await ntp.openPage({ additional: { 'omnibar.showCustomizePopover': 'true' } });
                         await omnibar.ready();
-                        await expect(page).toHaveScreenshot(screenshotName('omnibar-customize-popover', viewport, theme), { maxDiffPixels });
+                        await expect(page).toHaveScreenshot(screenshotName('omnibar-customize-popover', viewport, theme), {
+                            maxDiffPixels,
+                        });
                     });
                 });
 
@@ -186,7 +200,9 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                             await ntp.openPage();
                             await omnibar.ready();
                             await omnibar.customizeButton().click();
-                            await expect(page).toHaveScreenshot(screenshotName('omnibar-sidebar-ai-enabled', viewport, theme), { maxDiffPixels });
+                            await expect(page).toHaveScreenshot(screenshotName('omnibar-sidebar-ai-enabled', viewport, theme), {
+                                maxDiffPixels,
+                            });
                         });
 
                         test('sidebar ai disabled', async ({ page }, workerInfo) => {
@@ -197,7 +213,9 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                             await ntp.openPage({ additional: { 'omnibar.enableAi': 'false' } });
                             await omnibar.ready();
                             await omnibar.customizeButton().click();
-                            await expect(page).toHaveScreenshot(screenshotName('omnibar-sidebar-ai-disabled', viewport, theme), { maxDiffPixels });
+                            await expect(page).toHaveScreenshot(screenshotName('omnibar-sidebar-ai-disabled', viewport, theme), {
+                                maxDiffPixels,
+                            });
                         });
 
                         test('sidebar hide ai setting', async ({ page }, workerInfo) => {
@@ -208,7 +226,9 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
                             await ntp.openPage({ additional: { 'omnibar.showAiSetting': 'false' } });
                             await omnibar.ready();
                             await omnibar.customizeButton().click();
-                            await expect(page).toHaveScreenshot(screenshotName('omnibar-sidebar-hide-ai-setting', viewport, theme), { maxDiffPixels });
+                            await expect(page).toHaveScreenshot(screenshotName('omnibar-sidebar-hide-ai-setting', viewport, theme), {
+                                maxDiffPixels,
+                            });
                         });
                     });
                 }
