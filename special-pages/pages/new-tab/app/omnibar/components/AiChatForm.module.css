@@ -10,7 +10,7 @@
     background: none;
     border: none;
     box-sizing: content-box;
-    color: var(--ntp-text-primary);
+    color: var(--ds-color-theme-text-primary);
     line-height: 16px;
     max-height: 10lh;
     padding: var(--sp-3) var(--sp-3) 0;
@@ -21,7 +21,7 @@
     }
 
     &::placeholder {
-        color: var(--ntp-text-tertiary);
+        color: var(--ds-color-theme-text-tertiary);
     }
 
     [data-platform="windows"] &::selection {
@@ -34,7 +34,7 @@
     }
 
     .hasScroll & {
-        border-bottom: 1px solid var(--ntp-decoration-tertiary);
+        border-bottom: 1px solid var(--ds-color-theme-surface-decoration-tertiary);
         padding-bottom: var(--sp-3);
     }
 }
@@ -52,10 +52,10 @@
 .submitButton {
     align-items: center;
     animation: fadeIn 0.3s ease-in-out;
-    background: var(--ntp-accent-primary);
+    background: var(--ds-color-theme-accent-primary);
     border-radius: 100%;
     border: none;
-    color: var(--ntp-accent-content-primary);
+    color: var(--ds-color-theme-accent-content-primary);
     cursor: pointer;
     display: flex;
     height: var(--sp-7);
@@ -66,16 +66,16 @@
 
     &[disabled] {
         background: none;
-        color: color-mix(in srgb, var(--ntp-icons-primary) 30%, transparent);
+        color: color-mix(in srgb, var(--ds-color-theme-icons-primary) 30%, transparent);
         cursor: default;
     }
 
     &:hover:not([disabled]) {
-        background: var(--ntp-accent-secondary);
+        background: var(--ds-color-theme-accent-secondary);
     }
 
     &:active:not([disabled]) {
-        background: var(--ntp-accent-tertiary);
+        background: var(--ds-color-theme-accent-tertiary);
     }
 
     &:focus-visible {

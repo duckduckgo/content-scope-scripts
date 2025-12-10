@@ -111,7 +111,7 @@ test.describe('newtab widgets', () => {
             await ntp.darkMode();
             await ntp.openPage();
             await ntp.waitForCustomizer();
-            await ntp.hasBackgroundColor({ hex: '#333333' });
+            await ntp.hasBackgroundColor({ hex: '#1c1c1c' });
         });
         test('with overrides from initial setup (light)', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
