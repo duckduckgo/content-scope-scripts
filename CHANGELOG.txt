@@ -1,2 +1,1 @@
-- Update copy on subscription next steps card (#2094)
-- Special Pages: Import tokens.css from design-tokens (#2085)
+- NTP: Use design system colors (#2095)

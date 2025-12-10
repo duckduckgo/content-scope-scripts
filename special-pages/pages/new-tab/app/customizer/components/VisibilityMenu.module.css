@@ -21,7 +21,7 @@
     height: calc(28 * var(--px-in-rem));
 
     &:has(input[disabled]) .title {
-        color: var(--ntp-text-tertiary)
+        color: var(--ds-color-theme-text-tertiary)
     }
 }
 

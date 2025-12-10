@@ -9422,7 +9422,7 @@
     useCustomizer({
       title: t4("omnibar_toggleDuckAi"),
       id: `_${id}-toggleAi`,
-      icon: /* @__PURE__ */ _(ArrowIndentCenteredIcon, { style: { color: "var(--ntp-icons-tertiary)" } }),
+      icon: /* @__PURE__ */ _(ArrowIndentCenteredIcon, { style: { color: "var(--ds-color-theme-icons-tertiary)" } }),
       toggle: () => setEnableAi(!enableAi),
       /**
        * Duck.ai is only ever shown as 'visible' (eg: switch is checked) if the omnibar is also visible.
@@ -34234,29 +34234,198 @@
   init_signals_module();
   init_BackgroundProvider();
   init_CustomizerProvider();
+
+  // pages/new-tab/app/customizer/mocks.js
+  init_values();
   var url2 = new URL(window.location.href);
+  function customizerMockTransport() {
+    let channel;
+    if (typeof globalThis.BroadcastChannel !== "undefined") {
+      channel = new BroadcastChannel("ntp_customizer");
+    }
+    const subscriptions = /* @__PURE__ */ new Map();
+    function broadcastHere(named, data2) {
+      setTimeout(() => {
+        channel?.postMessage({
+          subscriptionName: named,
+          params: data2
+        });
+      }, 100);
+    }
+    channel?.addEventListener("message", (msg) => {
+      if (msg.data.subscriptionName) {
+        const cb = subscriptions.get(msg.data.subscriptionName);
+        if (!cb) return console.warn(`missing subscription for ${msg.data.subscriptionName}`);
+        cb(msg.data.params);
+      }
+    });
+    return new TestTransportConfig({
+      notify(_msg) {
+        const msg = (
+          /** @type {any} */
+          _msg
+        );
+        switch (msg.method) {
+          case "customizer_setTheme": {
+            broadcastHere("customizer_onThemeUpdate", msg.params);
+            return;
+          }
+          case "customizer_setBackground": {
+            broadcastHere("customizer_onBackgroundUpdate", msg.params);
+            if (msg.params.background.kind === "hex") {
+              const userColorData = { userColor: msg.params.background };
+              broadcastHere("customizer_onColorUpdate", userColorData);
+            }
+            return;
+          }
+          default: {
+            console.warn("unhandled customizer notification", msg);
+          }
+        }
+      },
+      subscribe(_msg, cb) {
+        const sub2 = (
+          /** @type {any} */
+          _msg.subscriptionName
+        );
+        switch (sub2) {
+          case "customizer_onColorUpdate":
+          case "customizer_onThemeUpdate":
+          case "customizer_onBackgroundUpdate":
+          case "customizer_onImagesUpdate": {
+            subscriptions.set(sub2, cb);
+            return () => {
+              console.log("-- did remove sub", sub2);
+              return subscriptions.delete(sub2);
+            };
+          }
+        }
+        return () => {
+        };
+      },
+      // eslint-ignore-next-line require-await
+      request(_msg) {
+        const msg = (
+          /** @type {any} */
+          _msg
+        );
+        switch (msg.method) {
+          default: {
+            return Promise.reject(new Error("unhandled request" + msg));
+          }
+        }
+      }
+    });
+  }
+  function getDefaultStyles() {
+    if (url2.searchParams.get("defaultStyles") === "visual-refresh") {
+      return {
+        lightBackgroundColor: "#E9EBEC",
+        darkBackgroundColor: "#27282A"
+      };
+    }
+    return null;
+  }
+  function customizerData() {
+    const customizer = {
+      userImages: [],
+      userColor: null,
+      theme: "system",
+      background: { kind: "default" },
+      defaultStyles: getDefaultStyles()
+    };
+    if (url2.searchParams.has("background")) {
+      const backgroundParam = url2.searchParams.get("background");
+      if (backgroundParam && backgroundParam in values.colors) {
+        customizer.background = {
+          kind: "color",
+          value: (
+            /** @type {import('../../types/new-tab').PredefinedColor} */
+            backgroundParam
+          )
+        };
+      } else if (backgroundParam && backgroundParam in values.gradients) {
+        customizer.background = {
+          kind: "gradient",
+          value: (
+            /** @type {import('../../types/new-tab').PredefinedGradient} */
+            backgroundParam
+          )
+        };
+      } else if (backgroundParam && backgroundParam.startsWith("hex:")) {
+        const hex = backgroundParam.slice(4);
+        if (hex.length === 6 || hex.length === 8) {
+          const value2 = `#${hex.slice(0, 6)}`;
+          customizer.background = {
+            kind: "hex",
+            value: value2
+          };
+        } else {
+          console.warn("invalid hex values");
+        }
+      } else if (backgroundParam && backgroundParam.startsWith("userImage:")) {
+        const image = backgroundParam.slice(10);
+        if (image in values.userImages) {
+          const value2 = values.userImages[image];
+          customizer.background = {
+            kind: "userImage",
+            value: value2
+          };
+        } else {
+          console.warn("unknown user image");
+        }
+      } else if (backgroundParam && backgroundParam === "default") {
+        customizer.background = { kind: "default" };
+      }
+    }
+    if (url2.searchParams.has("userImages")) {
+      customizer.userImages = [values.userImages["01"], values.userImages["02"], values.userImages["03"]];
+      if (url2.searchParams.get("willThrowPageException") === "userImages") {
+        customizer.userImages[0] = {
+          ...customizer.userImages[0],
+          id: "__will_throw__"
+        };
+      }
+    }
+    if (url2.searchParams.has("userColor")) {
+      const hex = `#` + url2.searchParams.get("userColor");
+      customizer.userColor = { kind: "hex", value: hex };
+    }
+    if (url2.searchParams.has("theme")) {
+      const value2 = url2.searchParams.get("theme");
+      if (value2 === "light" || value2 === "dark" || value2 === "system") {
+        customizer.theme = value2;
+      }
+    }
+    if (url2.searchParams.has("themeVariant")) {
+      const value2 = url2.searchParams.get("themeVariant");
+      const validVariants = ["default", "coolGray", "slateBlue", "green", "violet", "rose", "orange", "desert"];
+      if (value2 && validVariants.includes(value2)) {
+        customizer.themeVariant = /** @type {import('../../types/new-tab').ThemeVariant} */
+        value2;
+      }
+    }
+    return customizer;
+  }
+
+  // pages/new-tab/app/components/Components.jsx
+  var url3 = new URL(window.location.href);
   var list = {
     ...mainExamples,
     ...otherExamples
   };
   var entries3 = Object.entries(list);
   function Components() {
-    const ids = url2.searchParams.getAll("id");
-    const isolated = url2.searchParams.has("isolate");
-    const e2e = url2.searchParams.has("e2e");
+    const ids = url3.searchParams.getAll("id");
+    const isolated = url3.searchParams.has("isolate");
+    const e2e = url3.searchParams.has("e2e");
     const entryIds = entries3.map(([id]) => id);
     const validIds = ids.filter((id) => entryIds.includes(id));
     const filtered = validIds.length ? validIds.map((id) => (
       /** @type {const} */
       [id, list[id]]
     )) : entries3;
-    const data2 = {
-      background: { kind: "default" },
-      userImages: [],
-      theme: "system",
-      userColor: null
-    };
-    const dataSignal = useSignal(data2);
+    const dataSignal = useSignal(customizerData());
     const { main, browser, variant } = useThemes(dataSignal);
     return /* @__PURE__ */ _(CustomizerThemesContext.Provider, { value: { main, browser, variant } }, /* @__PURE__ */ _("div", { class: Components_default.main, "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _(BackgroundConsumer, { browser, variant }), /* @__PURE__ */ _("div", { "data-content-tube": true, class: Components_default.contentTube }, isolated && /* @__PURE__ */ _(Isolated, { entries: filtered, e2e }), !isolated && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(DebugBar, { id: ids[0], ids, entries: entries3 }), /* @__PURE__ */ _(Stage, { entries: (
       /** @type {any} */
@@ -34265,16 +34434,16 @@
   }
   function Stage({ entries: entries4 }) {
     return /* @__PURE__ */ _("div", { class: Components_default.componentList, "data-testid": "stage" }, entries4.map(([id, item]) => {
-      const next = new URL(url2);
+      const next = new URL(url3);
       next.searchParams.set("isolate", "true");
       next.searchParams.set("id", id);
-      const selected = new URL(url2);
+      const selected = new URL(url3);
       selected.searchParams.set("id", id);
-      const e2e = new URL(url2);
+      const e2e = new URL(url3);
       e2e.searchParams.set("isolate", "true");
       e2e.searchParams.set("id", id);
       e2e.searchParams.set("e2e", "true");
-      const without = new URL(url2);
+      const without = new URL(url3);
       const current = without.searchParams.getAll("id");
       const others = current.filter((x4) => x4 !== id);
       const matching = current.filter((x4) => x4 === id);
@@ -34301,20 +34470,20 @@
   }
   function TextLength() {
     function onClick() {
-      url2.searchParams.set("textLength", "1.5");
-      window.location.href = url2.toString();
+      url3.searchParams.set("textLength", "1.5");
+      window.location.href = url3.toString();
     }
     function onReset() {
-      url2.searchParams.delete("textLength");
-      window.location.href = url2.toString();
+      url3.searchParams.delete("textLength");
+      window.location.href = url3.toString();
     }
     return /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("button", { onClick: onReset, type: "button" }, "Text Length 1x"), /* @__PURE__ */ _("button", { onClick, type: "button" }, "Text Length 1.5x"));
   }
   function Isolate() {
-    const next = new URL(url2);
+    const next = new URL(url3);
     next.searchParams.set("isolate", "true");
     const prod = new URL("/build/pages/new-tab", "https://content-scope-scripts.netlify.app");
-    prod.search = url2.search;
+    prod.search = url3.search;
     return /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank" }, "Isolate (open in a new tab)"), /* @__PURE__ */ _("a", { href: prod.toString(), target: "_blank" }, "Open in Production (new tab)"));
   }
   function ExampleSelector({ entries: entries4, id }) {
@@ -34832,179 +35001,6 @@
 
   // pages/new-tab/app/mock-transport.js
   init_nextsteps_data();
-
-  // pages/new-tab/app/customizer/mocks.js
-  init_values();
-  var url3 = new URL(window.location.href);
-  function customizerMockTransport() {
-    let channel;
-    if (typeof globalThis.BroadcastChannel !== "undefined") {
-      channel = new BroadcastChannel("ntp_customizer");
-    }
-    const subscriptions = /* @__PURE__ */ new Map();
-    function broadcastHere(named, data2) {
-      setTimeout(() => {
-        channel?.postMessage({
-          subscriptionName: named,
-          params: data2
-        });
-      }, 100);
-    }
-    channel?.addEventListener("message", (msg) => {
-      if (msg.data.subscriptionName) {
-        const cb = subscriptions.get(msg.data.subscriptionName);
-        if (!cb) return console.warn(`missing subscription for ${msg.data.subscriptionName}`);
-        cb(msg.data.params);
-      }
-    });
-    return new TestTransportConfig({
-      notify(_msg) {
-        const msg = (
-          /** @type {any} */
-          _msg
-        );
-        switch (msg.method) {
-          case "customizer_setTheme": {
-            broadcastHere("customizer_onThemeUpdate", msg.params);
-            return;
-          }
-          case "customizer_setBackground": {
-            broadcastHere("customizer_onBackgroundUpdate", msg.params);
-            if (msg.params.background.kind === "hex") {
-              const userColorData = { userColor: msg.params.background };
-              broadcastHere("customizer_onColorUpdate", userColorData);
-            }
-            return;
-          }
-          default: {
-            console.warn("unhandled customizer notification", msg);
-          }
-        }
-      },
-      subscribe(_msg, cb) {
-        const sub2 = (
-          /** @type {any} */
-          _msg.subscriptionName
-        );
-        switch (sub2) {
-          case "customizer_onColorUpdate":
-          case "customizer_onThemeUpdate":
-          case "customizer_onBackgroundUpdate":
-          case "customizer_onImagesUpdate": {
-            subscriptions.set(sub2, cb);
-            return () => {
-              console.log("-- did remove sub", sub2);
-              return subscriptions.delete(sub2);
-            };
-          }
-        }
-        return () => {
-        };
-      },
-      // eslint-ignore-next-line require-await
-      request(_msg) {
-        const msg = (
-          /** @type {any} */
-          _msg
-        );
-        switch (msg.method) {
-          default: {
-            return Promise.reject(new Error("unhandled request" + msg));
-          }
-        }
-      }
-    });
-  }
-  function getDefaultStyles() {
-    if (url3.searchParams.get("defaultStyles") === "visual-refresh") {
-      return {
-        lightBackgroundColor: "#E9EBEC",
-        darkBackgroundColor: "#27282A"
-      };
-    }
-    return null;
-  }
-  function customizerData() {
-    const customizer = {
-      userImages: [],
-      userColor: null,
-      theme: "system",
-      background: { kind: "default" },
-      defaultStyles: getDefaultStyles()
-    };
-    if (url3.searchParams.has("background")) {
-      const backgroundParam = url3.searchParams.get("background");
-      if (backgroundParam && backgroundParam in values.colors) {
-        customizer.background = {
-          kind: "color",
-          value: (
-            /** @type {import('../../types/new-tab').PredefinedColor} */
-            backgroundParam
-          )
-        };
-      } else if (backgroundParam && backgroundParam in values.gradients) {
-        customizer.background = {
-          kind: "gradient",
-          value: (
-            /** @type {import('../../types/new-tab').PredefinedGradient} */
-            backgroundParam
-          )
-        };
-      } else if (backgroundParam && backgroundParam.startsWith("hex:")) {
-        const hex = backgroundParam.slice(4);
-        if (hex.length === 6 || hex.length === 8) {
-          const value2 = `#${hex.slice(0, 6)}`;
-          customizer.background = {
-            kind: "hex",
-            value: value2
-          };
-        } else {
-          console.warn("invalid hex values");
-        }
-      } else if (backgroundParam && backgroundParam.startsWith("userImage:")) {
-        const image = backgroundParam.slice(10);
-        if (image in values.userImages) {
-          const value2 = values.userImages[image];
-          customizer.background = {
-            kind: "userImage",
-            value: value2
-          };
-        } else {
-          console.warn("unknown user image");
-        }
-      } else if (backgroundParam && backgroundParam === "default") {
-        customizer.background = { kind: "default" };
-      }
-    }
-    if (url3.searchParams.has("userImages")) {
-      customizer.userImages = [values.userImages["01"], values.userImages["02"], values.userImages["03"]];
-      if (url3.searchParams.get("willThrowPageException") === "userImages") {
-        customizer.userImages[0] = {
-          ...customizer.userImages[0],
-          id: "__will_throw__"
-        };
-      }
-    }
-    if (url3.searchParams.has("userColor")) {
-      const hex = `#` + url3.searchParams.get("userColor");
-      customizer.userColor = { kind: "hex", value: hex };
-    }
-    if (url3.searchParams.has("theme")) {
-      const value2 = url3.searchParams.get("theme");
-      if (value2 === "light" || value2 === "dark" || value2 === "system") {
-        customizer.theme = value2;
-      }
-    }
-    if (url3.searchParams.has("themeVariant")) {
-      const value2 = url3.searchParams.get("themeVariant");
-      const validVariants = ["default", "coolGray", "slateBlue", "green", "violet", "rose", "orange", "desert"];
-      if (value2 && validVariants.includes(value2)) {
-        customizer.themeVariant = /** @type {import('../../types/new-tab').ThemeVariant} */
-        value2;
-      }
-    }
-    return customizer;
-  }
 
   // pages/new-tab/app/protections/mocks/protections.mocks.js
   var protectionsMocks = {

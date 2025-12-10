@@ -70,36 +70,36 @@ body {
 }
 
 [data-theme-variant="coolGray"] {
-    --default-light-background-color: var(--ds-color-cool-gray-light-surface-primary);
-    --default-dark-background-color: var(--ds-color-cool-gray-dark-surface-primary);
+    --default-light-background-color: var(--ds-color-theme-cool-gray-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-cool-gray-dark-surface-primary);
 }
 
 [data-theme-variant="slateBlue"] {
-    --default-light-background-color: var(--ds-color-slate-blue-light-surface-primary);
-    --default-dark-background-color: var(--ds-color-slate-blue-dark-surface-primary);
+    --default-light-background-color: var(--ds-color-theme-slate-blue-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-slate-blue-dark-surface-primary);
 }
 
 [data-theme-variant="green"] {
-    --default-light-background-color: var(--ds-color-green-light-surface-primary);
-    --default-dark-background-color: var(--ds-color-green-dark-surface-primary);
+    --default-light-background-color: var(--ds-color-theme-green-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-green-dark-surface-primary);
 }
 
 [data-theme-variant="violet"] {
-    --default-light-background-color: var(--ds-color-violet-light-surface-primary);
-    --default-dark-background-color: var(--ds-color-violet-dark-surface-primary);
+    --default-light-background-color: var(--ds-color-theme-violet-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-violet-dark-surface-primary);
 }
 
 [data-theme-variant="rose"] {
-    --default-light-background-color: var(--ds-color-rose-light-surface-primary);
-    --default-dark-background-color: var(--ds-color-rose-dark-surface-primary);
+    --default-light-background-color: var(--ds-color-theme-rose-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-rose-dark-surface-primary);
 }
 
 [data-theme-variant="orange"] {
-    --default-light-background-color: var(--ds-color-orange-light-surface-primary);
-    --default-dark-background-color: var(--ds-color-orange-dark-surface-primary);
+    --default-light-background-color: var(--ds-color-theme-orange-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-orange-dark-surface-primary);
 }
 
 [data-theme-variant="desert"] {
-    --default-light-background-color: var(--ds-color-desert-light-surface-primary);
-    --default-dark-background-color: var(--ds-color-desert-dark-surface-primary);
+    --default-light-background-color: var(--ds-color-theme-desert-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-desert-dark-surface-primary);
 }

@@ -9417,7 +9417,7 @@
     useCustomizer({
       title: t4("omnibar_toggleDuckAi"),
       id: `_${id}-toggleAi`,
-      icon: /* @__PURE__ */ _(ArrowIndentCenteredIcon, { style: { color: "var(--ntp-icons-tertiary)" } }),
+      icon: /* @__PURE__ */ _(ArrowIndentCenteredIcon, { style: { color: "var(--ds-color-theme-icons-tertiary)" } }),
       toggle: () => setEnableAi(!enableAi),
       /**
        * Duck.ai is only ever shown as 'visible' (eg: switch is checked) if the omnibar is also visible.
@@ -33643,7 +33643,13 @@
   init_signals_module();
   init_BackgroundProvider();
   init_CustomizerProvider();
+
+  // pages/new-tab/app/customizer/mocks.js
+  init_values();
   var url2 = new URL(window.location.href);
+
+  // pages/new-tab/app/components/Components.jsx
+  var url3 = new URL(window.location.href);
   var list = {
     ...mainExamples,
     ...otherExamples
@@ -34079,10 +34085,6 @@
 
   // pages/new-tab/app/mock-transport.js
   init_nextsteps_data();
-
-  // pages/new-tab/app/customizer/mocks.js
-  init_values();
-  var url3 = new URL(window.location.href);
 
   // pages/new-tab/app/protections/mocks/protections.mock-transport.js
   init_animateCount();

@@ -136,7 +136,7 @@ export class CustomizerPage {
 
     async hasDefaultDarkBackground() {
         const { page } = this.ntp;
-        await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(51, 51, 51)');
+        await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(28, 28, 28)');
     }
 
     /**
