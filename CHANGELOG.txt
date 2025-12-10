@@ -1,2 +1,2 @@
-- Add and update RMF icons, update docs (#2080)
-- Increase tracker and cookie pop-up counter capacity (#2083)
+- Update copy on subscription next steps card (#2094)
+- Special Pages: Import tokens.css from design-tokens (#2085)
