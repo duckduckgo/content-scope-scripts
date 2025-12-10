@@ -32,7 +32,7 @@
 }
 
 .preview {
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-theme-text-primary);
     transform: scale(0.8);
     img {
         opacity: 0.8;

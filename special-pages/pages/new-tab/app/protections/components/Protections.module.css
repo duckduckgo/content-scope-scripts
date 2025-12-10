@@ -1,7 +1,7 @@
 .root {
     background: var(--ntp-surface-background-color);
     backdrop-filter: blur(48px);
-    border: 1px solid var(--ntp-surface-border-color);
+    border: 1px solid var(--ds-color-theme-container-border-primary);
     padding: var(--sp-6);
     border-radius: var(--border-radius-lg);
     display: grid;
@@ -53,13 +53,13 @@
 }
 
 .empty {
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-theme-text-secondary);
 }
 
 .feed {}
 
 .button {
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-theme-text-primary);
     border-radius: 5px;
     background: transparent;
 }
@@ -88,7 +88,7 @@
             transform: translateX(-50%);
             left: 50%;
             border-radius: 16px;
-            background: var(--ntp-color-primary);
+            background: var(--ds-color-theme-accent-primary);
         }
     }
 }
@@ -112,4 +112,3 @@
         }
     }
 }
-
