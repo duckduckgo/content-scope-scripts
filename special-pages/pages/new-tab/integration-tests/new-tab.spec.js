@@ -27,6 +27,7 @@ test.describe('newtab widgets', () => {
                     context: 'specialPages',
                     featureName: 'newTabPage',
                     params: [
+                        { id: 'omnibar', visibility: 'visible' },
                         { id: 'favorites', visibility: 'visible' },
                         { id: 'protections', visibility: 'hidden' },
                     ],
@@ -60,6 +61,7 @@ test.describe('newtab widgets', () => {
                     context: 'specialPages',
                     featureName: 'newTabPage',
                     params: [
+                        { id: 'omnibar', visibility: 'visible' },
                         { id: 'favorites', visibility: 'visible' },
                         { id: 'protections', visibility: 'visible' },
                     ],
@@ -85,6 +87,10 @@ test.describe('newtab widgets', () => {
             method: 'contextMenu',
             params: {
                 visibilityMenuItems: [
+                    {
+                        id: 'omnibar',
+                        title: 'Search',
+                    },
                     {
                         id: 'favorites',
                         title: 'Favorites',
