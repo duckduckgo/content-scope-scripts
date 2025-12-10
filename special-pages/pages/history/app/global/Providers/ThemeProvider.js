@@ -30,7 +30,7 @@ export function ThemeProvider({ children, initialTheme, initialThemeVariant }) {
     const [explicitThemeVariant, setExplicitThemeVariant] = useState(/** @type {ThemeVariant | undefined} */ (undefined));
 
     useEffect(() => {
-        const unsubscribe = history.messaging.subscribe('onThemeUpdate', (data) => {
+        const unsubscribe = history.onThemeUpdate((data) => {
             setExplicitTheme(data.theme);
             setExplicitThemeVariant(data.themeVariant);
         });
