@@ -7,7 +7,7 @@ body {
     font-weight: var(--body-font-weight);
     line-height: var(--body-line-height);
     background-color: var(--history-background-color);
-    color: var(--history-text-normal);
+    color: var(--ds-color-theme-text-primary);
 }
 
 .layout {
@@ -55,7 +55,7 @@ body {
     padding: 10px 16px;
     /* Nav child will handle this to accommodate a scrollbar */
     padding-right: 0;
-    border-right: 1px solid var(--history-surface-border-color);
+    border-right: 1px solid var(--ds-color-theme-surface-decoration-primary);
 }
 
 .main {

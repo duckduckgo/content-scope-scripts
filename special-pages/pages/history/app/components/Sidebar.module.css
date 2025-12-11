@@ -11,7 +11,7 @@
 }
 
 .pageTitle {
-    color: var(--history-text-normal);
+    color: var(--ds-color-theme-text-primary);
     font-size: var(--title-font-size);
     font-weight: var(--title-font-weight);
     line-height: 24px;
@@ -84,7 +84,7 @@
     font-size: var(--label-font-size);
     font-weight: var(--label-font-weight);
     line-height: var(--label-line-height);
-    color: var(--history-text-normal);
+    color: var(--ds-color-theme-text-primary);
 
     height: 40px;
     display: flex;
@@ -115,7 +115,7 @@
     border: none;
     cursor: pointer;
     opacity: 0;
-    color: var(--history-text-normal);
+    color: var(--ds-color-theme-text-primary);
 
     &:not([aria-disabled="true"]) {
 

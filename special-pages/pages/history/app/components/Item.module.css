@@ -10,7 +10,7 @@
     font-weight: var(--title-3-em-font-weight);
     line-height: var(--title-3-em-line-height);
     white-space: nowrap;
-    color: var(--history-text-normal);
+    color: var(--ds-color-theme-text-primary);
     display: flex;
     align-items: center;
     padding-left: 8px;
@@ -32,7 +32,7 @@
 .hover {
     --row-bg: inherit;
     --row-radius: 5px;
-    --row-color: var(--history-text-normal);
+    --row-color: var(--ds-color-theme-text-primary);
     --dots-bg-hover: var(--color-black-at-9);
     --dots-opacity: 0;
     --time-opacity: 0.6;
