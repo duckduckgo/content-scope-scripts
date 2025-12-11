@@ -41,7 +41,10 @@ export function ThemeProvider({ children, initialTheme, initialThemeVariant }) {
     const theme = explicitTheme ?? initialTheme ?? (isDarkMode ? 'dark' : 'light');
     const themeVariant = explicitThemeVariant ?? initialThemeVariant ?? 'default';
 
-    // Sync theme attributes to <body> - use useLayoutEffect to prevent flash on dynamic updates
+    // Sync theme attributes to <body>
+    useLayoutEffect(() => {
+        document.body.dataset.theme = theme;
+    }, [theme]);
     useLayoutEffect(() => {
         document.body.dataset.themeVariant = themeVariant;
     }, [themeVariant]);

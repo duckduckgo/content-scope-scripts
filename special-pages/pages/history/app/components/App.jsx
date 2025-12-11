@@ -64,7 +64,7 @@ export function App() {
     }, [onKeyDown, query]);
 
     return (
-        <div class={styles.layout} data-theme={theme} data-platform={platformName} data-layout-mode={mode} onClick={clickAnywhere}>
+        <div class={styles.layout} data-platform={platformName} data-layout-mode={mode} onClick={clickAnywhere}>
             <aside class={styles.aside}>
                 <Sidebar ranges={ranges} />
             </aside>
