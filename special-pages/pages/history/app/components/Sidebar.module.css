@@ -29,15 +29,11 @@
 
     &:hover,
     &:focus-visible {
-        background: var(--color-black-at-6);
+        background: var(--ds-color-theme-control-fill-primary);
     }
 
-    [data-theme="dark"] & {
-
-        &:hover,
-        &:focus-visible {
-            background: var(--color-white-at-6);
-        }
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
     }
 
     &.item_sites {
@@ -49,11 +45,7 @@
             top: -8px;
             left: 16px;
             right: 16px;
-            border-top: 1px solid var(--color-black-at-6);
-        }
-
-        [data-theme="dark"] &::before {
-            border-top: 1px solid var(--color-white-at-6);
+            border-top: 1px solid var(--ds-color-theme-surface-decoration-primary);
         }
     }
 }
@@ -64,18 +56,10 @@
 }
 
 .active {
-    background: var(--color-black-at-12);
+    background: var(--ds-color-theme-control-fill-secondary);
 
     &:hover {
-        background: var(--color-black-at-18);
-    }
-
-    [data-theme="dark"] & {
-        background: var(--color-white-at-9);
-
-        &:hover {
-            background: var(--color-white-at-12);
-        }
+        background: var(--ds-color-theme-control-fill-tertiary);
     }
 }
 
@@ -121,22 +105,12 @@
 
         &:hover,
         &:focus-visible {
-            background: var(--color-black-at-9);
+            background: var(--ds-color-theme-control-fill-primary);
             opacity: 1;
-        }
-    }
-
-    &:active {
-        background: var(--color-black-at-12);
-    }
-
-    [data-theme="dark"] & {
-        &:hover {
-            background: var(--color-white-at-9);
         }
 
         &:active {
-            background: var(--color-white-at-12);
+            background: var(--ds-color-theme-control-fill-secondary);
         }
     }
 
