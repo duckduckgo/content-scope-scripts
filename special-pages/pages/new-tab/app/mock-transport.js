@@ -585,7 +585,7 @@ export function initialSetup(url) {
     widgetsFromStorage.push({ id: 'protections' });
     widgetConfigFromStorage.push({ id: 'protections', visibility: 'visible' });
 
-    if (url.searchParams.has('omnibar')) {
+    if (url.searchParams.get('omnibar') !== 'false') {
         const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
         widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'omnibar' });
         const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
