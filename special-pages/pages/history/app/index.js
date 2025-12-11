@@ -60,6 +60,9 @@ export async function init(root, messaging, baseEnvironment) {
         messaging.reportInitException({ message });
     };
 
+    // apply initial theme variant to body synchronously to prevent flash of default background
+    document.body.dataset.themeVariant = init.themeVariant ?? 'default';
+
     // apply default styles
     applyDefaultStyles(init.customizer?.defaultStyles);
 

@@ -1,5 +1,5 @@
 import { createContext, h } from 'preact';
-import { useContext, useEffect, useState } from 'preact/hooks';
+import { useContext, useEffect, useLayoutEffect, useState } from 'preact/hooks';
 import { useMessaging } from '../../types.js';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 
@@ -41,8 +41,8 @@ export function ThemeProvider({ children, initialTheme, initialThemeVariant }) {
     const theme = explicitTheme ?? initialTheme ?? (isDarkMode ? 'dark' : 'light');
     const themeVariant = explicitThemeVariant ?? initialThemeVariant ?? 'default';
 
-    // Sync theme attributes to <body>
-    useEffect(() => {
+    // Sync theme attributes to <body> - use useLayoutEffect to prevent flash on dynamic updates
+    useLayoutEffect(() => {
         document.body.dataset.themeVariant = themeVariant;
     }, [themeVariant]);
 
