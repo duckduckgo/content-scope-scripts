@@ -50,6 +50,7 @@ export const platformSupport = {
         'messageBridge',
         'favicon',
     ],
+    'apple-ai-clear': ['duckAiDataClearing'],
     android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-import': ['autofillImport'],
