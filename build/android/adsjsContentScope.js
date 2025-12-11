@@ -4121,7 +4121,10 @@
         this.viewportWidthFix();
       }
     }
-    /** Shim Web Share API in Android WebView */
+    /**
+     * Shim Web Share API in Android WebView
+     * Note: Always verify API existence before shimming
+     */
     shimWebShare() {
       if (typeof navigator.canShare === "function" || typeof navigator.share === "function") return;
       this.defineProperty(Navigator.prototype, "canShare", {
@@ -4456,6 +4459,7 @@
     }
     /**
      * Fixes screen lock/unlock APIs for Android WebView.
+     * Uses wrapProperty to match original property descriptors.
      */
     screenLockFix() {
       const validOrientations = [

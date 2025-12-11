@@ -1,10 +1,15 @@
+/**
+ * @file Web Compatibility Feature
+ * @see injected/docs/coding-guidelines.md for general patterns
+ */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils';
 import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
- * Fixes incorrect sizing value for outerHeight and outerWidth
+ * Fixes incorrect sizing value for outerHeight and outerWidth.
+ * Note: Avoid hardcoding window geometry values - use calculations or config where possible.
  */
 function windowSizingFix() {
     if (window.outerHeight !== 0 && window.outerWidth !== 0) {
@@ -167,7 +172,10 @@ export class WebCompat extends ContentFeature {
         }
     }
 
-    /** Shim Web Share API in Android WebView */
+    /**
+     * Shim Web Share API in Android WebView
+     * Note: Always verify API existence before shimming
+     */
     shimWebShare() {
         if (typeof navigator.canShare === 'function' || typeof navigator.share === 'function') return;
 
@@ -341,7 +349,7 @@ export class WebCompat extends ContentFeature {
                 try {
                     const result = await nativeRequest('requestPermission', {});
                     const resultPermission = /** @type {NotificationPermission} */ (result?.permission || 'denied');
-                    // Update cached permission so Notification.permission reflects the new state
+                    // Update cached permission so Notification.permission getter reflects new state
                     permission = resultPermission;
                     if (deprecatedCallback) {
                         deprecatedCallback(resultPermission);
@@ -393,9 +401,9 @@ export class WebCompat extends ContentFeature {
                     return;
                 }
                 nativeNotify('closeNotification', { id: this.#id });
-                // Remove from map first to prevent duplicate onclose from native event
+                // Remove from map BEFORE firing onclose to prevent duplicate events from native
                 feature.#webNotifications.delete(this.#id);
-                // Fire onclose handler
+                // Fire onclose handler after cleanup
                 if (typeof this.onclose === 'function') {
                     try {
                         // @ts-expect-error - NotificationPolyfill doesn't fully implement Notification interface
@@ -535,14 +543,17 @@ export class WebCompat extends ContentFeature {
                         "Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.",
                     );
                 }
+                // Don't bypass - all supportedPermissions need handling, including non-native with name overrides
                 if (!settings.supportedPermissions || !(query.name in settings.supportedPermissions)) {
                     throw new TypeError(
                         `Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`,
                     );
                 }
                 const permSetting = settings.supportedPermissions[query.name];
+                // Use custom permission name if configured, else original query name
                 const returnName = permSetting.name || query.name;
                 let returnStatus = settings.permissionResponse || 'prompt';
+                // Only query native for permissions marked native:true
                 if (permSetting.native) {
                     try {
                         const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
@@ -566,6 +577,7 @@ export class WebCompat extends ContentFeature {
 
     /**
      * Fixes screen lock/unlock APIs for Android WebView.
+     * Uses wrapProperty to match original property descriptors.
      */
     screenLockFix() {
         const validOrientations = [
@@ -869,19 +881,22 @@ export class WebCompat extends ContentFeature {
         // This should never occur, but keeps typescript happy
         if (!settings) return;
 
+        // Handler strategies: 'reflect' (pass through), 'undefined' (hide), 'polyfill' (stub)
         const proxy = new Proxy(globalThis.webkit.messageHandlers, {
             get(target, messageName, receiver) {
                 const handlerName = String(messageName);
 
-                // handle known message names, such as DDG webkit messaging
+                // 'reflect': pass through to real handler (e.g., DDG webkit messaging)
                 if (settings.handlerStrategies.reflect.includes(handlerName)) {
                     return Reflect.get(target, messageName, receiver);
                 }
 
+                // 'undefined': hide handler existence
                 if (settings.handlerStrategies.undefined.includes(handlerName)) {
                     return undefined;
                 }
 
+                // 'polyfill': return stub (use '*' for catch-all)
                 if (settings.handlerStrategies.polyfill.includes('*') || settings.handlerStrategies.polyfill.includes(handlerName)) {
                     return {
                         postMessage() {
@@ -901,12 +916,14 @@ export class WebCompat extends ContentFeature {
     }
 
     viewportWidthFix() {
+        // Note: This guard is intentional for legacy mode. onUserPreferencesMerged() calls
+        // this without the guard for cases where re-application is needed.
         if (this._viewportWidthFixApplied) {
             return;
         }
         this._viewportWidthFixApplied = true;
+        // Re-entrancy pattern: check readyState to avoid missing DOM elements
         if (document.readyState === 'loading') {
-            // if the document is not ready, we may miss the original viewport tag
             document.addEventListener('DOMContentLoaded', () => this.viewportWidthFixInner());
         } else {
             this.viewportWidthFixInner();
@@ -933,7 +950,7 @@ export class WebCompat extends ContentFeature {
     viewportWidthFixInner() {
         /** @type {NodeListOf<HTMLMetaElement>} **/
         const viewportTags = document.querySelectorAll('meta[name=viewport i]');
-        // Chrome respects only the last viewport tag
+        // Chrome respects only the last viewport tag - modify existing rather than adding new
         const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1];
         const viewportContent = viewportTag?.getAttribute('content') || '';
         /** @type {readonly string[]} **/

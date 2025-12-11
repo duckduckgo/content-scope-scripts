@@ -9021,7 +9021,7 @@
       __privateAdd(this, _domLoaded);
       __privateAdd(this, _processingBookmark);
       __privateAdd(this, _isBookmarkModalVisible, false);
-      /** @type {WeakSet<Element>} */
+      /** @type {WeakSet<Element>} Use WeakSet for DOM refs to allow GC */
       __privateAdd(this, _tappedElements, /* @__PURE__ */ new WeakSet());
     }
     /**
@@ -9339,6 +9339,8 @@
       return await this.runWithRetry(() => document.querySelector(this.signinButtonSelector));
     }
     /**
+     * Event handler using class instance pattern.
+     * Use `addEventListener('scroll', this)` not `.bind(this)` to allow removal.
      * @param {Event} event
      */
     handleEvent(event) {
@@ -9357,6 +9359,7 @@
     }
     /**
      * Checks if the path is supported for animation.
+     * NOTE: All paths here must have corresponding handlers in getElementAndStyleFromPath()
      * @param {string} path
      * @returns {boolean}
      */

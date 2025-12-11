@@ -9731,28 +9731,6 @@
     }
   });
 
-  // pages/new-tab/app/components/NewBadge.module.css
-  var NewBadge_default;
-  var init_NewBadge = __esm({
-    "pages/new-tab/app/components/NewBadge.module.css"() {
-      NewBadge_default = {
-        badge: "NewBadge_badge"
-      };
-    }
-  });
-
-  // pages/new-tab/app/components/NewBadge.js
-  function NewBadge({ text: text2, ...rest }) {
-    return /* @__PURE__ */ _("span", { class: NewBadge_default.badge, ...rest }, text2?.toUpperCase() || "NEW");
-  }
-  var init_NewBadge2 = __esm({
-    "pages/new-tab/app/components/NewBadge.js"() {
-      "use strict";
-      init_preact_module();
-      init_NewBadge();
-    }
-  });
-
   // pages/new-tab/app/components/Tooltip/Tooltip.module.css
   var Tooltip_default;
   var init_Tooltip = __esm({
@@ -10091,7 +10069,7 @@
         onClick: onToggle,
         label: expansion === "expanded" ? t4("stats_hideLabel") : t4("stats_toggleLabel")
       }
-    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)), /* @__PURE__ */ _(NewBadge, { text: t4("protections_newBadge") }))));
+    ))), /* @__PURE__ */ _("div", { class: PrivacyStats_default.counterContainer, ref: counterContainerRef }, /* @__PURE__ */ _("div", { class: PrivacyStats_default.counter }, animatedTrackersBlocked === 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.noRecentTitle }, t4("protections_noRecent")), animatedTrackersBlocked > 0 && /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedTrackersBlocked), " ", /* @__PURE__ */ _("span", null, trackersBlockedHeading))), isCpmEnabled && animatedTrackersBlocked > 0 && totalCookiePopUpsBlocked > 0 && /* @__PURE__ */ _("div", { class: (0, import_classnames9.default)(PrivacyStats_default.counter, PrivacyStats_default.cookiePopUpsCounter) }, /* @__PURE__ */ _("h3", { class: PrivacyStats_default.title }, formatter.format(animatedCookiePopUpsBlocked), " ", /* @__PURE__ */ _("span", null, cookiePopUpsBlockedHeading)))));
   }
   var import_classnames9;
   var init_ProtectionsHeading = __esm({
@@ -10103,7 +10081,6 @@
       import_classnames9 = __toESM(require_classnames(), 1);
       init_preact_module();
       init_Icons2();
-      init_NewBadge2();
       init_Tooltip2();
       init_useAnimatedCount();
       init_hooks_module();

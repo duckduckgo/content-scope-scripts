@@ -15157,7 +15157,10 @@ ul.messages {
         this.viewportWidthFix();
       }
     }
-    /** Shim Web Share API in Android WebView */
+    /**
+     * Shim Web Share API in Android WebView
+     * Note: Always verify API existence before shimming
+     */
     shimWebShare() {
       if (typeof navigator.canShare === "function" || typeof navigator.share === "function") return;
       this.defineProperty(Navigator.prototype, "canShare", {
@@ -15492,6 +15495,7 @@ ul.messages {
     }
     /**
      * Fixes screen lock/unlock APIs for Android WebView.
+     * Uses wrapProperty to match original property descriptors.
      */
     screenLockFix() {
       const validOrientations = [
@@ -20420,7 +20424,7 @@ ul.messages {
       __privateAdd(this, _domLoaded);
       __privateAdd(this, _processingBookmark);
       __privateAdd(this, _isBookmarkModalVisible, false);
-      /** @type {WeakSet<Element>} */
+      /** @type {WeakSet<Element>} Use WeakSet for DOM refs to allow GC */
       __privateAdd(this, _tappedElements, /* @__PURE__ */ new WeakSet());
     }
     /**
@@ -20738,6 +20742,8 @@ ul.messages {
       return await this.runWithRetry(() => document.querySelector(this.signinButtonSelector));
     }
     /**
+     * Event handler using class instance pattern.
+     * Use `addEventListener('scroll', this)` not `.bind(this)` to allow removal.
      * @param {Event} event
      */
     handleEvent(event) {
@@ -20756,6 +20762,7 @@ ul.messages {
     }
     /**
      * Checks if the path is supported for animation.
+     * NOTE: All paths here must have corresponding handlers in getElementAndStyleFromPath()
      * @param {string} path
      * @returns {boolean}
      */

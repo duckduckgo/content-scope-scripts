@@ -69,7 +69,7 @@ test.describe('newtab favorites', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         const favorites = new FavoritesPage(ntp);
         await ntp.reducedMotion();
-        await ntp.openPage();
+        await ntp.openPage({ additional: { omnibar: 'false' } });
         await favorites.tabsThroughItems();
     });
     test('initial empty state', async ({ page }, workerInfo) => {
@@ -77,7 +77,8 @@ test.describe('newtab favorites', () => {
         const favorites = new FavoritesPage(ntp);
         await ntp.reducedMotion();
         // Use cpm: 'null' to enable new UI with InfoIcon for tab navigation test
-        await ntp.openPage({ favorites: 0, additional: { cpm: 'null' } });
+        // Use omnibar: 'false' to hide omnibar so tab order is predictable
+        await ntp.openPage({ favorites: 0, additional: { cpm: 'null', omnibar: 'false' } });
         await favorites.tabsPastEmptyFavorites();
     });
     test('re-orders items', async ({ page }, workerInfo) => {
