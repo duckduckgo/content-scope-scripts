@@ -103,7 +103,16 @@ export type NextStepsCards = {
   id: NextStepsCardTypes;
 }[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
-export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro" | "DuckAi";
+export type RMFIcon =
+  | "Announce"
+  | "AppUpdate"
+  | "CriticalUpdate"
+  | "DDGAnnounce"
+  | "DuckAi"
+  | "PIR"
+  | "Radar"
+  | "RadarCheck"
+  | "Subscription";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature

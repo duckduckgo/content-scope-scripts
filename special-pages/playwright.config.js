@@ -27,7 +27,6 @@ export default defineConfig({
                 'freemium-pir-banner.spec.js',
                 'subscription-winback-banner.spec.js',
                 'new-tab.spec.js',
-                'new-tab.screenshots.spec.js',
                 'next-steps.spec.js',
                 'privacy-stats.spec.js',
                 'rmf.spec.js',
@@ -47,6 +46,28 @@ export default defineConfig({
                 ...devices['Desktop Chrome'],
                 injectName: 'integration',
                 platform: 'windows',
+            },
+        },
+        {
+            name: 'ntp-screenshots-light',
+            testMatch: ['new-tab.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Chrome'],
+                injectName: 'integration',
+                platform: 'windows',
+                colorScheme: 'light',
+                viewport: { width: 1000, height: 1500 },
+            },
+        },
+        {
+            name: 'ntp-screenshots-dark',
+            testMatch: ['new-tab.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Chrome'],
+                injectName: 'integration',
+                platform: 'windows',
+                colorScheme: 'dark',
+                viewport: { width: 1000, height: 1500 },
             },
         },
         {

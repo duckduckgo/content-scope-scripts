@@ -288,7 +288,7 @@ test.describe('newtab customizer', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { themeVariant: 'violet', theme: 'light' } });
-        await ntp.hasBackgroundColor({ hex: '#e7e4f5' }); // violet light color
+        await ntp.hasBackgroundColor({ hex: '#efeffa' }); // violet light surface-canvas
     });
     test('accepts theme variant update via subscription message', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -296,7 +296,7 @@ test.describe('newtab customizer', () => {
         await ntp.reducedMotion();
         await ntp.openPage();
         await cp.acceptsThemeVariantUpdate('light', 'coolGray');
-        await ntp.hasBackgroundColor({ hex: '#d2d5e3' }); // coolGray light color
+        await ntp.hasBackgroundColor({ hex: '#e3e5ec' }); // coolGray light surface-canvas
     });
     test('accepts theme variant update (dark mode)', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -305,14 +305,14 @@ test.describe('newtab customizer', () => {
         await ntp.darkMode();
         await ntp.openPage();
         await cp.acceptsThemeVariantUpdate('dark', 'slateBlue');
-        await ntp.hasBackgroundColor({ hex: '#1e3347' }); // slateBlue dark color
+        await ntp.hasBackgroundColor({ hex: '#243a50' }); // slateBlue dark surface-canvas
     });
     test('custom background color overrides theme variant background', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         const cp = new CustomizerPage(ntp);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { themeVariant: 'rose', theme: 'dark' } });
-        await ntp.hasBackgroundColor({ hex: '#5b194b' }); // rose dark color
+        await ntp.hasBackgroundColor({ hex: '#511442' }); // rose dark surface-canvas
         await cp.acceptsBackgroundUpdate({
             kind: 'color',
             value: 'color01',
@@ -324,7 +324,7 @@ test.describe('newtab customizer', () => {
         const cp = new CustomizerPage(ntp);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { themeVariant: 'orange', theme: 'light' } });
-        await ntp.hasBackgroundColor({ hex: '#fcedd8' }); // orange light color
+        await ntp.hasBackgroundColor({ hex: '#fdf4e6' }); // orange light surface-canvas
         await cp.acceptsBackgroundUpdate({
             kind: 'hex',
             value: '#ff5733',
@@ -336,8 +336,8 @@ test.describe('newtab customizer', () => {
         const cp = new CustomizerPage(ntp);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { themeVariant: 'desert', theme: 'light' } });
-        await ntp.hasBackgroundColor({ hex: '#eee9e1' }); // desert light color
+        await ntp.hasBackgroundColor({ hex: '#f5f4ef' }); // desert light surface-canvas
         await cp.acceptsThemeUpdate('dark');
-        await ntp.hasBackgroundColor({ hex: '#3c3833' }); // desert dark color, NOT default dark
+        await ntp.hasBackgroundColor({ hex: '#312e2a' }); // desert dark surface-canvas, NOT default dark
     });
 });
