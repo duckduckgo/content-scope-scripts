@@ -625,7 +625,7 @@ export class HistoryTestPage {
      */
     async hasTheme(theme, themeVariant) {
         await expect(this.page.locator('[data-layout-mode]')).toHaveAttribute('data-theme', theme);
-        await expect(this.page.locator('[data-layout-mode]')).toHaveAttribute('data-theme-variant', themeVariant);
+        await expect(this.page.locator('body')).toHaveAttribute('data-theme-variant', themeVariant);
     }
 }
 

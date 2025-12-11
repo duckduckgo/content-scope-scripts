@@ -41,6 +41,11 @@ export function ThemeProvider({ children, initialTheme, initialThemeVariant }) {
     const theme = explicitTheme ?? initialTheme ?? (isDarkMode ? 'dark' : 'light');
     const themeVariant = explicitThemeVariant ?? initialThemeVariant ?? 'default';
 
+    // Sync theme attributes to <body>
+    useEffect(() => {
+        document.body.dataset.themeVariant = themeVariant;
+    }, [themeVariant]);
+
     return <ThemeContext.Provider value={{ theme, themeVariant }}>{children}</ThemeContext.Provider>;
 }
 

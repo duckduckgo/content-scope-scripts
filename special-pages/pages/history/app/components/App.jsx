@@ -67,7 +67,6 @@ export function App() {
         <div
             class={styles.layout}
             data-theme={theme}
-            data-theme-variant={themeVariant}
             data-platform={platformName}
             data-layout-mode={mode}
             onClick={clickAnywhere}
