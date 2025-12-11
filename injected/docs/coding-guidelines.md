@@ -2,6 +2,126 @@
 
 > Guidelines for injected features development.
 
+## Feature Pattern
+
+Features extend `ContentFeature` (which itself extends `ConfigFeature`). Use `ContentFeature` for features that need messaging, logging, and DOM interaction. Implement lifecycle methods:
+
+```js
+import ContentFeature from '../content-feature.js';
+
+export default class MyFeature extends ContentFeature {
+    init() {
+        // Main initialization - feature is enabled for this site
+        if (this.getFeatureSettingEnabled('someSetting')) {
+            this.applySomeFix();
+        }
+    }
+    
+    load() {
+        // Early load - before remote config (use sparingly)
+    }
+    
+    update(data) {
+        // Receive updates from browser
+    }
+}
+```
+
+## Remote Configuration
+
+Use `getFeatureSetting()` and `getFeatureSettingEnabled()` to read config:
+
+```js
+// Boolean check with default
+if (this.getFeatureSettingEnabled('settingName')) { ... }
+if (this.getFeatureSettingEnabled('settingName', 'disabled')) { ... }  // default disabled
+
+// Get setting value (returns typed object from privacy-configuration schema)
+const settings = this.getFeatureSetting('settingName');
+```
+
+**Feature state values:** `"enabled"` or `"disabled"`. Features default to disabled unless explicitly enabled.
+
+Types are generated from `@duckduckgo/privacy-configuration/schema/features/<name>.json`.
+
+### Conditional Changes
+
+Use `conditionalChanges` to apply JSON Patch operations based on runtime conditions. Conditions are evaluated in `src/config-feature.js` (see `ConditionBlock` typedef and `_matchConditionalBlock`).
+
+**Supported conditions:**
+
+| Condition | Description | Example |
+|-----------|-------------|---------|
+| `domain` | Match hostname | `"domain": "example.com"` |
+| `urlPattern` | Match URL (URLPattern API) | `"urlPattern": "https://*.example.com/*"` |
+| `experiment` | Match A/B test cohort | `"experiment": { "experimentName": "test", "cohort": "treatment" }` |
+| `context` | Match frame type | `"context": { "frame": true }` or `"context": { "top": true }` |
+| `minSupportedVersion` | Minimum platform version | `"minSupportedVersion": { "ios": "17.0" }` |
+| `maxSupportedVersion` | Maximum platform version | `"maxSupportedVersion": { "ios": "18.0" }` |
+| `injectName` | Match inject context | `"injectName": "apple-isolated"` |
+| `internal` | Internal builds only | `"internal": true` |
+| `preview` | Preview builds only | `"preview": true` |
+
+**Config example:**
+```json
+{
+  "settings": {
+    "conditionalChanges": [
+      {
+        "condition": { "domain": "example.com" },
+        "patchSettings": [{ "op": "replace", "path": "/someSetting", "value": true }]
+      },
+      {
+        "condition": [
+          { "urlPattern": "https://site1.com/*" },
+          { "urlPattern": "https://site2.com/path/*" }
+        ],
+        "patchSettings": [{ "op": "add", "path": "/newSetting", "value": "enabled" }]
+      }
+    ]
+  }
+}
+```
+
+**Key rules:**
+- All conditions in a block must match (AND logic)
+- Array of condition blocks uses OR logic (any block matching applies the patch)
+- `patchSettings` uses [RFC 6902 JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902) with [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) paths (`/setting/nested`)
+- Unsupported conditions cause the block to fail (for backwards compatibility)
+
+For A/B testing, see [privacy-configuration experiments guide](https://github.com/duckduckgo/privacy-configuration/blob/main/.cursor/rules/content-scope-experiments.mdc).
+
+## Messaging
+
+Use inherited messaging methods:
+
+```js
+// Fire-and-forget
+this.notify('messageName', { data });
+
+// Request/response
+const response = await this.request('messageName', { data });
+
+// Subscribe to updates
+this.subscribe('eventName', (data) => { ... });
+```
+
+## API Shims & Error Types
+
+When shimming browser APIs, use the correct error types to match native behavior:
+
+```js
+// TypeError for invalid arguments
+throw new TypeError("Failed to execute 'lock' on 'ScreenOrientation': 1 argument required");
+
+// DOMException with name for API-specific errors
+throw new DOMException('Share already in progress', 'InvalidStateError');
+throw new DOMException('Permission denied', 'NotAllowedError');
+return Promise.reject(new DOMException('No device selected.', 'NotFoundError'));
+```
+
+Common DOMException names: `InvalidStateError`, `NotAllowedError`, `NotFoundError`, `AbortError`, `DataError`, `SecurityError`.
+
 ## Code Style
 
 ### Constants
