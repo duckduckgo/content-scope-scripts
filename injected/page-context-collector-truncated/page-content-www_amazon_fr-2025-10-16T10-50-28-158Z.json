@@ -1,0 +1,36 @@
+{
+  "url": "https://www.amazon.fr/",
+  "extractedAt": "2025-10-16T10:50:28.158Z",
+  "content": {
+    "favicon": [],
+    "title": "Amazon.fr",
+    "metaDescription": "",
+    "content": "**   ** Cliquez sur le bouton ci-dessous pour continuer vos achats             Continuer les achats            [Conditions générales de vente](https://www.amazon.fr/gp/help/customer/display.html/ref=footer_cou?ie=UTF8&nodeId=548524)     [Vos informations personnelles](https://www.amazon.fr/gp/help/customer/display.html/ref=footer_privacy?ie=UTF8&nodeId=3329781)   © 1996-2025, Amazon.com, Inc. ou ses filiales.",
+    "truncated": false,
+    "fullContentLength": 412,
+    "headings": [
+      {
+        "level": 4,
+        "text": "Cliquez sur le bouton ci-dessous pour continuer vos achats"
+      }
+    ],
+    "links": [
+      {
+        "text": "Conditions générales de vente",
+        "href": "https://www.amazon.fr/gp/help/customer/display.html/ref=footer_cou?ie=UTF8&nodeId=548524"
+      },
+      {
+        "text": "Vos informations personnelles",
+        "href": "https://www.amazon.fr/gp/help/customer/display.html/ref=footer_privacy?ie=UTF8&nodeId=3329781"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "https://fls-eu.amazon.fr/1/oc-csi/1/OP/requestId=7Z300MBXW3Y0WB97G548&js=1"
+      }
+    ],
+    "timestamp": 1760611827670,
+    "url": "https://www.amazon.fr/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

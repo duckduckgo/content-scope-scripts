@@ -1,0 +1,17 @@
+{
+  "url": "https://www.justwatch.com/us/movies",
+  "extractedAt": "2025-10-16T12:15:10.829Z",
+  "content": {
+    "favicon": [],
+    "title": "403",
+    "metaDescription": "",
+    "content": "403 Forbidden",
+    "truncated": false,
+    "fullContentLength": 13,
+    "headings": [],
+    "links": [],
+    "images": [],
+    "timestamp": 1760616910456,
+    "url": "https://www.justwatch.com/us/movies?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

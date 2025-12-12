@@ -1,0 +1,561 @@
+{
+  "url": "https://www.thegamer.com/battlefield-6-enable-secure-boot-how-to-guide/",
+  "extractedAt": "2025-10-16T10:11:03.382Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://static0.thegamerimages.com/assets/images/favicon-48x48.1631f6a1.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static0.thegamerimages.com/assets/images/favicon-96x96.61ee40f6.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static0.thegamerimages.com/assets/images/favicon-144x144.dc490895.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static0.thegamerimages.com/assets/images/favicon-192x192.5fe3b524.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static0.thegamerimages.com/assets/images/favicon-240x240.21b137ff.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://static0.thegamerimages.com/assets/images/favicon-240x240.21b137ff.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://static0.thegamerimages.com/assets/images/favicon-192x192.5fe3b524.png",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "How To Turn On Secure Boot For Call Of Duty: Black Ops 7 And Battlefield 6",
+    "metaDescription": "To get stuck into the latest shooters like COD: Blops7 and BF6, you need to enable Secure Boot in the BIOS.",
+    "content": "# Battlefield 6: How To Enable Secure Boot\n                   By  [James Lucas](/author/james-lucas/)    Published 6 days ago   James Lucas is an Executive Editor from Newcastle, England. They have written for sites like IGN, NME, GaymingMag, and VG247, with a special focus on FPS games, Soulslikes, and survival horror.                                                 Here is a fact-based summary of the story contents:                       To play [**Battlefield 6**](https://www.thegamer.com/tag/battlefield-6/) and [**Call of Duty: Black Ops 7**](https://www.thegamer.com/tag/call-of-duty-black-ops-7/) on PC, you need to enable Secure Boot. This provides developers with features that make it harder for hackers to use kernel-level cheats, memory manipulation, spoofing, and other forms of tampering.\n It's a huge help in addressing the rampant cheating problem on PC, but it does present a hurdle for the ordinary player, especially if you're not used to tinkering with your BIOS. If that's you, then here's how you can quickly and easily enable Secure Boot and get stuck into the games you want to play.\n \n##  How To Check If Secure Boot Is Enabled \n           Before we start,** it's worth checking if Secure Boot is already enabled**. You can do this by searching '**Device security**' on Windows, or [opening the 'Help' tab on Steam and selecting 'System Information'](https://www.thegamer.com/battlefield-6-call-of-duty-black-ops-7-blops-7-steam-update-secure-boot-system-information/) - both of these will tell you if Secure Boot is on or off.\n \n##  How To Enable Secure Boot \n           If Secure Boot is disabled, then you'll need to **open the BIOS and manually toggle it**. That might seem intimidating given that you're unravelling the innards of your PC, but it's surprisingly simple, and doesn't take long to do.\n      How To Access The BIOS\n                   Search for **Advanced Startup Options** on Windows.\n                 Next to 'Advanced startup', click '**Restart now**'.\n                 Once your PC turns back on, you'll be presented with a few options. Select '**Troubleshoot**', '**Advanced options**', and then '**UEFI Firmware**'.\n   Alternatively, restart your PC and press F2/Del during the start-up.\n                    **You are now in the BIOS**. Each one will look different depending on your manufacturer, but the layout should be roughly the same.\n                 **Select the 'Boot' menu** (sometimes marked by a keybind), and toggle '**Secure Boot state**' to enabled.\n   Some BIOSs also let you search for this option.\n     **Save and quit**, and you'll now be able to access games like Battlefield 6 and Black Ops 7.\n           \n \n- [Triple-A Games](/aaa-games/)\n \n- [Battlefield 6](/tag/battlefield-6/)\n \n- [Call of Duty: Black Ops 7](/tag/call-of-duty-black-ops-7/)\n \n       Follow         Like         Share                 Thread     We want to hear from you! Share your opinions in the thread below and remember to keep it respectful.\n         Be the first to post            Images             This thread is open for discussion.\n Be the first to post your thoughts.\n       \n \n   \n \n- [Terms](https://www.valnetinc.com/en/terms-of-use)\n \n- [Privacy](/page/our-privacy-policy/)\n \n- [Feedback](/contact)\n \n         Recommended       Oct 3, 2025   \n###  [There Are More People Googling How To Cancel Their Game Pass Subscription Than Ever Before](/cancel-xbox-game-pass-google-searches-spike-trends/) \n        Oct 4, 2025   \n###  [Kingmakers, One Of Steam's Most Wishlisted Games, Indefinitely Delayed Days Before Launch](/kingmakers-suddenly-indefinitely-delayed-days-before-launch-steam-top-wishlisted/) \n        Oct 4, 2025   \n###  [Resident Evil 3 Director Is Confused How Raccoon City Is Still Standing In Requiem, Asks If Time Travel Was Involved](/resident-evil-3-nemesis-director-confused-raccoon-city-resident-evil-9-requiem/) \n        Oct 3, 2025   \n###  [A Surprising Borderlands 4 Level Has Me Wishing The Whole Game Was Like That](/borderlands-4-level-another-day-universe-wish-whole-game-like-that/)",
+    "truncated": false,
+    "fullContentLength": 4068,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Battlefield 6: How To Enable Secure Boot"
+      },
+      {
+        "level": 3,
+        "text": "Jump Links"
+      },
+      {
+        "level": 3,
+        "text": "Jump Links"
+      },
+      {
+        "level": 2,
+        "text": "How To Check If Secure Boot Is Enabled"
+      },
+      {
+        "level": 2,
+        "text": "How To Enable Secure Boot"
+      },
+      {
+        "level": 3,
+        "text": "There Are More People Googling How To Cancel Their Game Pass Subscription Than Ever Before"
+      },
+      {
+        "level": 3,
+        "text": "Kingmakers, One Of Steam's Most Wishlisted Games, Indefinitely Delayed Days Before Launch"
+      },
+      {
+        "level": 3,
+        "text": "Resident Evil 3 Director Is Confused How Raccoon City Is Still Standing In Requiem, Asks If Time Travel Was Involved"
+      },
+      {
+        "level": 3,
+        "text": "A Surprising Borderlands 4 Level Has Me Wishing The Whole Game Was Like That"
+      },
+      {
+        "level": 5,
+        "text": "Rockstar Is So Worried About GTA 6 Leaks That It May Lock Reviewers In A Secret Location For Days"
+      },
+      {
+        "level": 5,
+        "text": "Hollow Knight: Silksong Players Have Figured Out How To Completely Skip Its Worst Boss Fight"
+      },
+      {
+        "level": 5,
+        "text": "We've Just Been Given Our First Look At Pokemon TCG Pocket's Upcoming Mega Evolutions Set"
+      }
+    ],
+    "links": [
+      {
+        "text": "Guides",
+        "href": "/category/game-guides/"
+      },
+      {
+        "text": "Gaming News",
+        "href": "/category/game-news/"
+      },
+      {
+        "text": "Triple-A Games",
+        "href": "/aaa-games/"
+      },
+      {
+        "text": "Features",
+        "href": "/aaa-games/features/"
+      },
+      {
+        "text": "News",
+        "href": "/aaa-games/news/"
+      },
+      {
+        "text": "Lists",
+        "href": "/aaa-games/lists/"
+      },
+      {
+        "text": "Live-Service Games",
+        "href": "/live-service-games/"
+      },
+      {
+        "text": "Features",
+        "href": "/live-service-games/features/"
+      },
+      {
+        "text": "News",
+        "href": "/live-service-games/news/"
+      },
+      {
+        "text": "Lists",
+        "href": "/live-service-games/lists/"
+      },
+      {
+        "text": "Indie Games",
+        "href": "/indie-games/"
+      },
+      {
+        "text": "Features",
+        "href": "/indie-games/features/"
+      },
+      {
+        "text": "News",
+        "href": "/indie-games/news/"
+      },
+      {
+        "text": "Lists",
+        "href": "/indie-games/lists/"
+      },
+      {
+        "text": "Streaming",
+        "href": "/streaming/"
+      },
+      {
+        "text": "Features",
+        "href": "/streaming/features/"
+      },
+      {
+        "text": "News",
+        "href": "/streaming/news/"
+      },
+      {
+        "text": "Movies & Shows",
+        "href": "/movies-tv-anime/"
+      },
+      {
+        "text": "Features",
+        "href": "/movies-tv-anime/features/"
+      },
+      {
+        "text": "News",
+        "href": "/movies-tv-anime/news/"
+      },
+      {
+        "text": "Videos",
+        "href": "/videos/"
+      },
+      {
+        "text": "Podcast",
+        "href": "/your-favorite-game-thegamer-podcast/"
+      },
+      {
+        "text": "Threads",
+        "href": "/threads/"
+      },
+      {
+        "text": "All Features",
+        "href": "/category/tg-originals/"
+      },
+      {
+        "text": "All Lists",
+        "href": "/category/lists/"
+      },
+      {
+        "text": "Explainers",
+        "href": "/category/explainer/"
+      },
+      {
+        "text": "Reviews & Previews",
+        "href": "/reviews-previews/"
+      },
+      {
+        "text": "Tabletop",
+        "href": "/category/tabletop/"
+      },
+      {
+        "text": "Sign in",
+        "href": "#"
+      },
+      {
+        "text": "Newsletter",
+        "href": "/page/newsletter/"
+      },
+      {
+        "text": "Threads",
+        "href": "#threads"
+      },
+      {
+        "text": "Dying Light: The Beast",
+        "href": "/tag/dying-light-the-beast/"
+      },
+      {
+        "text": "Borderlands 4",
+        "href": "/tag/borderlands-4/"
+      },
+      {
+        "text": "Hollow Knight: Silksong",
+        "href": "/tag/hollow-knight-silksong/"
+      },
+      {
+        "text": "Wuchang: Fallen Feathers",
+        "href": "/tag/wuchang-fallen-feathers/"
+      },
+      {
+        "text": "Donkey Kong Bananza",
+        "href": "/tag/donkey-kong-bananza/"
+      },
+      {
+        "text": "Monster Hunter Wilds",
+        "href": "/tag/monster-hunter-wilds/"
+      },
+      {
+        "text": "Assassin's Creed Shadows",
+        "href": "/tag/assassins-creed-shadows/"
+      },
+      {
+        "text": "Silent Hill f",
+        "href": "/tag/silent-hill-f/"
+      },
+      {
+        "text": "Oblivion Remastered",
+        "href": "/tag/the-elder-scrolls-iv-oblivion-remastered/"
+      },
+      {
+        "text": "James Lucas",
+        "href": "/author/james-lucas/"
+      },
+      {
+        "text": "How To Check If Secure Boot Is Enabled",
+        "href": "#how-to-check-if-secure-boot-is-enabled"
+      },
+      {
+        "text": "How To Enable Secure Boot",
+        "href": "#how-to-enable-secure-boot"
+      },
+      {
+        "text": "Thread",
+        "href": "#threads"
+      },
+      {
+        "text": "How To Check If Secure Boot Is Enabled",
+        "href": "#how-to-check-if-secure-boot-is-enabled"
+      },
+      {
+        "text": "How To Enable Secure Boot",
+        "href": "#how-to-enable-secure-boot"
+      },
+      {
+        "text": "Battlefield 6",
+        "href": "https://www.thegamer.com/tag/battlefield-6/"
+      },
+      {
+        "text": "Call of Duty: Black Ops 7",
+        "href": "https://www.thegamer.com/tag/call-of-duty-black-ops-7/"
+      },
+      {
+        "text": "opening the 'Help' tab on Steam and selecting 'System Information'",
+        "href": "https://www.thegamer.com/battlefield-6-call-of-duty-black-ops-7-blops-7-steam-update-secure-boot-system-information/"
+      },
+      {
+        "text": "Triple-A Games",
+        "href": "/aaa-games/"
+      },
+      {
+        "text": "Battlefield 6",
+        "href": "/tag/battlefield-6/"
+      },
+      {
+        "text": "Call of Duty: Black Ops 7",
+        "href": "/tag/call-of-duty-black-ops-7/"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.thegamer.com%2Fbattlefield-6-enable-secure-boot-how-to-guide%2F%2F&src=sdkpreparse"
+      },
+      {
+        "text": "X",
+        "href": "https://twitter.com/intent/tweet?text=Battlefield%206%3A%20How%20To%20Enable%20Secure%20Boot&url=https%3A%2F%2Fwww.thegamer.com%2Fbattlefield-6-enable-secure-boot-how-to-guide%2F"
+      },
+      {
+        "text": "LinkedIn",
+        "href": "https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fwww.thegamer.com%2Fbattlefield-6-enable-secure-boot-how-to-guide%2F&title=Battlefield%206%3A%20How%20To%20Enable%20Secure%20Boot&source=www.thegamer.com&summary=Don%27t%20be%20intimidated%20by%20your%20BIOS%20-%20enabling%20Secure%20Boot%20is%20deceptively%20simple."
+      },
+      {
+        "text": "Reddit",
+        "href": "https://www.reddit.com/submit?url=https%3A%2F%2Fwww.thegamer.com%2Fbattlefield-6-enable-secure-boot-how-to-guide%2F"
+      },
+      {
+        "text": "Flipboard",
+        "href": "http://share.flipboard.com/bookmarklet/popout?v=2&title=Battlefield%206%3A%20How%20To%20Enable%20Secure%20Boot&url=https%3A%2F%2Fwww.thegamer.com%2Fbattlefield-6-enable-secure-boot-how-to-guide%2F&utm_campaign=tools&utm_medium=article-share&utm_source=www.thegamer.com"
+      },
+      {
+        "text": "Copy link",
+        "href": "javascript:;"
+      },
+      {
+        "text": "Email",
+        "href": "mailto:?Subject=Battlefield 6: How To Enable Secure Boot&Body=Check%20this%20out%21%0Ahttps://www.thegamer.com/battlefield-6-enable-secure-boot-how-to-guide/"
+      },
+      {
+        "text": "community guidelines",
+        "href": "https://www.valnetinc.com/en/terms-of-use#community-guidelines"
+      },
+      {
+        "text": "Send confirmation email",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Terms",
+        "href": "https://www.valnetinc.com/en/terms-of-use"
+      },
+      {
+        "text": "Privacy",
+        "href": "/page/our-privacy-policy/"
+      },
+      {
+        "text": "Feedback",
+        "href": "/contact"
+      },
+      {
+        "text": "There Are More People Googling How To Cancel Their Game Pass Subscription Than Ever Before",
+        "href": "/cancel-xbox-game-pass-google-searches-spike-trends/"
+      },
+      {
+        "text": "Kingmakers, One Of Steam's Most Wishlisted Games, Indefinitely Delayed Days Before Launch",
+        "href": "/kingmakers-suddenly-indefinitely-delayed-days-before-launch-steam-top-wishlisted/"
+      },
+      {
+        "text": "Resident Evil 3 Director Is Confused How Raccoon City Is Still Standing In Requiem, Asks If Time Travel Was Involved",
+        "href": "/resident-evil-3-nemesis-director-confused-raccoon-city-resident-evil-9-requiem/"
+      },
+      {
+        "text": "A Surprising Borderlands 4 Level Has Me Wishing The Whole Game Was Like That",
+        "href": "/borderlands-4-level-another-day-universe-wish-whole-game-like-that/"
+      },
+      {
+        "text": "Rockstar Is So Worried About GTA 6 Leaks That It May Lock Reviewers In A Secret Location For Days",
+        "href": "/gta-6-review-rockstar-leaks-secret-location/"
+      },
+      {
+        "text": "Hollow Knight: Silksong Players Have Figured Out How To Completely Skip Its Worst Boss Fight",
+        "href": "/hollow-knight-silksong-groal-the-great-skip-worst-boss-voltvessels/"
+      },
+      {
+        "text": "We've Just Been Given Our First Look At Pokemon TCG Pocket's Upcoming Mega Evolutions Set",
+        "href": "/pokemon-tcg-pocket-mega-evolutions-three-booster-packs-expansion/"
+      },
+      {
+        "text": "Join Our Team",
+        "href": "/work-with-us/"
+      },
+      {
+        "text": "Our Audience",
+        "href": "/page/advertise/"
+      },
+      {
+        "text": "About Us",
+        "href": "/page/about/"
+      },
+      {
+        "text": "Press & Events",
+        "href": "/page/press-events/"
+      },
+      {
+        "text": "Media Coverage",
+        "href": "/page/media/"
+      },
+      {
+        "text": "Contact Us",
+        "href": "/contact/"
+      },
+      {
+        "text": "Advertising",
+        "href": "https://www.valnetinc.com/en/advertising"
+      },
+      {
+        "text": "Careers",
+        "href": "https://www.valnetinc.com/en/careers"
+      },
+      {
+        "text": "Terms",
+        "href": "https://www.valnetinc.com/en/terms-of-use"
+      },
+      {
+        "text": "Privacy",
+        "href": "/page/our-privacy-policy/"
+      },
+      {
+        "text": "Policies",
+        "href": "/page/our-editorial-guidelines/"
+      },
+      {
+        "text": "TheGamer",
+        "href": "/"
+      },
+      {
+        "text": "Valnet Publishing Group",
+        "href": "https://www.valnetinc.com/en/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "TheGamer logo",
+        "src": "https://static0.thegamerimages.com/assets/images/tg-logo-full-colored-light.svg?v=3.1"
+      },
+      {
+        "alt": "TheGamer logo",
+        "src": "https://static0.thegamerimages.com/assets/images/tg-logo-icon-colored-light.svg?v=3.1"
+      },
+      {
+        "alt": "Dying Light The Beast Logo.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/09/dying-light-the-beast-logo.png?q=49&fit=contain&w=190&h=80&dpr=2"
+      },
+      {
+        "alt": "The Borderlands 4 logo.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/09/the-borderlands-4-logo.png?q=49&fit=contain&w=190&h=80&dpr=2"
+      },
+      {
+        "alt": "Hollow Knight Silksong Logo.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/09/hollow-knight-silksong-logo.png?q=49&fit=contain&w=190&h=80&dpr=2"
+      },
+      {
+        "alt": "Wuchang Fallen Feathers logo",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/07/wuchang-fallen-feathers-logo.png?q=49&fit=contain&w=190&h=80&dpr=2"
+      },
+      {
+        "alt": "Donkey Kong Bananza's logo.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/07/donkey-kong-bananza-s-logo.png?q=49&fit=contain&w=190&h=80&dpr=2"
+      },
+      {
+        "alt": "Monster_Hunter_Wilds_Logo",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/02/monster_hunter_wilds_logo.png?q=49&fit=contain&w=190&h=80&dpr=2"
+      },
+      {
+        "alt": "Assassin's_Creed_Shadow",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/03/assassin-s_creed_shadow.png?q=49&fit=contain&w=190&h=80&dpr=2"
+      },
+      {
+        "alt": "Silent_Hill_f_logo",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/09/silent_hill_f_logo.png?q=49&fit=contain&w=190&h=80&dpr=2"
+      },
+      {
+        "alt": "Elder Scrolls 4 Oblivion Remastered Title",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/04/elder-scrolls-4-oblivion-remastered-title.png?q=49&fit=contain&w=190&h=80&dpr=2"
+      },
+      {
+        "alt": "BIOS menu, displaying the motherboard and CPU.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/10/bios-menu-displaying-the-motherboard-and-cpu.jpg?&fit=crop&w=1600&h=900"
+      },
+      {
+        "alt": "4",
+        "src": "https://static0.thegamerimages.com/wordpress%2Fwp-content%2Fauthors%2F6706a5dcde437-James%20T.jpg?fit=crop&w=90&h=90"
+      },
+      {
+        "alt": "Steam system information showing that Secure Boot is enabled.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/wm/2025/10/steam-system-information-showing-that-secure-boot-is-enabled.jpg?q=49&fit=crop&w=825&dpr=2"
+      },
+      {
+        "alt": "Close-up of a BIOS on a motherboard.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/10/close-up-of-a-bios-on-a-motherboard.jpg?q=49&fit=crop&w=825&dpr=2"
+      },
+      {
+        "alt": "Windows 11 searching for advanced startup options.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/wm/2025/10/windows-11-searching-for-advanced-startup-options.jpg?q=49&fit=crop&w=825&dpr=2"
+      },
+      {
+        "alt": "Advanced Startup Windows 11 option highlighted in orange.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/wm/2025/10/advanced-startup-windows-11-option-highlighted-in-orange.jpg?q=49&fit=crop&w=825&dpr=2"
+      },
+      {
+        "alt": "Windows 11 troubleshoot start-up menu.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/10/windows-11-troubleshoot-start-up-menu.jpg?q=49&fit=crop&w=825&dpr=2"
+      },
+      {
+        "alt": "MSi Click BIOS menu.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/10/msi-click-bios-menu.jpg?q=49&fit=crop&w=825&dpr=2"
+      },
+      {
+        "alt": "BIOS Boot menu highlighted.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/10/bios-boot-menu-highlighted.jpg?q=49&fit=crop&w=825&dpr=2"
+      },
+      {
+        "alt": "Triple-A Games",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2024/09/threads-triple-a.jpg?q=50&fit=crop&w=32&h=32&dpr=1.5"
+      },
+      {
+        "alt": "Battlefield 6",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/sharedimages/2025/07/battlefield-6-tag-page-cover-art.jpg?q=50&fit=crop&w=32&h=32&dpr=1.5"
+      },
+      {
+        "alt": "Call of Duty: Black Ops 7",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/sharedimages/2025/06/cod-black-ops-7-tag-page-cover-art.jpg?q=50&fit=crop&w=32&h=32&dpr=1.5"
+      },
+      {
+        "alt": "NEWS Xbox red ring of death over a grungy black background.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/wm/2024/11/news-xbox-red-ring-of-death-over-a-grungy-black-background.jpg?q=49&fit=crop&w=266&h=350&dpr=2"
+      },
+      {
+        "alt": "A knight being aimed at with a gun in Kingmakers.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/10/kingmakersknight-1.jpg?q=49&fit=crop&w=266&h=350&dpr=2"
+      },
+      {
+        "alt": "Raccoon City being wiped out in the original Resident Evil 3.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/10/raccoon-city-being-wiped-out-in-the-original-resident-evil-3.jpg?q=49&fit=crop&w=266&h=350&dpr=2"
+      },
+      {
+        "alt": "Rafa from Boderlands 4 with the Another Day, Another Universe level in the background and Callis in robot form to the right.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/wm/2025/10/3-a-surprising-borderlands-4-level.jpg?q=49&fit=crop&w=266&h=350&dpr=2"
+      },
+      {
+        "alt": "cal hampton in a pool on a floaty flamingo in gta 6 trailer.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/2025/10/cal-hampton-in-a-pool-on-a-floaty-flamingo-in-gta-6-trailer.jpg?q=49&fit=crop&w=100&h=67&dpr=2"
+      },
+      {
+        "alt": "Hornet fighting against Groal The Great in Hollow Knight: Silksong.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/wm/2025/09/hornet-fighting-against-groal-the-great-in-hollow-knight-silksong.jpg?q=49&fit=crop&w=100&h=67&dpr=2"
+      },
+      {
+        "alt": "mega blaziken looking down from a tree at some pokemon cards.",
+        "src": "https://static0.thegamerimages.com/wordpress/wp-content/uploads/wm/2025/10/new-project-2025-10-15t113130-121.jpg?q=49&fit=crop&w=100&h=67&dpr=2"
+      },
+      {
+        "alt": "TheGamer logo",
+        "src": "https://static0.thegamerimages.com/assets/images/tg-logo-symbol-white.svg?v=2.4"
+      },
+      {
+        "alt": "Valnet Logo",
+        "src": "https://static0.thegamerimages.com/assets/images/valnet-logo-icon-white.svg?v=2.4"
+      }
+    ],
+    "timestamp": 1760609462786,
+    "url": "https://www.thegamer.com/battlefield-6-enable-secure-boot-how-to-guide/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

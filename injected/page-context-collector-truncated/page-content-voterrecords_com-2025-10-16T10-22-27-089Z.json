@@ -1,0 +1,39 @@
+{
+  "url": "https://voterrecords.com/voters/",
+  "extractedAt": "2025-10-16T10:22:27.089Z",
+  "content": {
+    "favicon": [],
+    "title": "Attention Required! | Cloudflare",
+    "metaDescription": "",
+    "content": "# Sorry, you have been blocked\n \n## You are unable to access voterrecords.com\n            \n## Why have I been blocked?\n This website is using a security service to protect itself from online attacks. The action you just performed triggered the security solution. There are several actions that could trigger this block including submitting a certain word or phrase, a SQL command or malformed data.\n   \n## What can I do to resolve this?\n You can email the site owner to let them know you were blocked. Please include what you were doing when this page came up and the Cloudflare Ray ID found at the bottom of this page.\n      Cloudflare Ray ID: **98f6d5c4eba2f5df** •  Your IP: Click to reveal  •  Performance & security by [Cloudflare](https://www.cloudflare.com/5xx-error-landing)",
+    "truncated": false,
+    "fullContentLength": 782,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Sorry, you have been blocked"
+      },
+      {
+        "level": 2,
+        "text": "You are unable to access voterrecords.com"
+      },
+      {
+        "level": 2,
+        "text": "Why have I been blocked?"
+      },
+      {
+        "level": 2,
+        "text": "What can I do to resolve this?"
+      }
+    ],
+    "links": [
+      {
+        "text": "Cloudflare",
+        "href": "https://www.cloudflare.com/5xx-error-landing"
+      }
+    ],
+    "images": [],
+    "timestamp": 1760610146602,
+    "url": "https://voterrecords.com/voters/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,1221 @@
+{
+  "url": "https://support.hp.com/us-en/drivers",
+  "extractedAt": "2025-10-16T10:10:53.930Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://support.hp.com/wcc-assets/images/favicon.ico",
+        "rel": "shortcut icon"
+      }
+    ],
+    "title": "Official HP® Drivers and Software Download | HP® Support",
+    "metaDescription": "Download the latest drivers, software, firmware, and diagnostics for your HP products from the official HP Support website.",
+    "content": "- [Support Home](/us-en)\n\n- Products\n\n- [Software and Drivers](/us-en/drivers)\n\n- Diagnostics\n\n- [Contact Us](javascript:void(0))\n\n- Business Support\n\n- My HP Account\n\n\n\n- [1](javascript:void(0);)\n\n- \n\n Information **Need Windows 11 help? Check the information on compatibility, upgrade, and available fixes from HP and Microsoft. **[Windows 11 Support Center](/us-en/help/windows-10-support-center)[1Identify](javascript:void(0))[2Download](javascript:void(0))[3Install](javascript:void(0)) Already have an HP account? Select from the products you own. [Sign in](https://support.hp.com/wcc-services/s/signin?cc=us&lc=en&pageurl=https%3A%2F%2Fsupport.hp.com%2Fus-en%2Fdrivers%3Fautomation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue) / [Create an account](https://support.hp.com/wcc-services/s/registration?cc=us&lc=en&pageurl=https%3A%2F%2Fsupport.hp.com%2Fus-en%2Fdrivers%3Fautomation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue)\n# Welcome to HP Software and Drivers\n\n## Select your product type below\n[Printer](/us-en/drivers/printers)[Laptop](/us-en/drivers/laptops)[Desktop](/us-en/drivers/desktops)[Poly](/us-en/drivers/poly)[Other](/us-en/drivers/products)\n### About HP Software and Drivers\n[What is a driver?](#)[When might I need to install or update a driver?](#)[What is a printer firmware update?](#)[What kind of software is available?](#)[Ask our Virtual Assistant](javascript:void(0);)Country/Region:[United States](javascript:void(0))",
+    "truncated": false,
+    "fullContentLength": 1480,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Welcome to HP Software and Drivers"
+      },
+      {
+        "level": 2,
+        "text": "Select your product type below"
+      },
+      {
+        "level": 3,
+        "text": "About HP Software and Drivers"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to Content",
+        "href": "#skiptobody"
+      },
+      {
+        "text": "Skip to Footer",
+        "href": "#skiptofooter"
+      },
+      {
+        "text": "Sign in",
+        "href": "https://support.hp.com/wcc-services/s/signin?cc=us&lc=en&pageurl=https%3A%2F%2Fsupport.hp.com%2Fus-en%2Fdrivers%3Fautomation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Manage my HP Account                                                Manage my HP Account",
+        "href": "https://account.hp.com"
+      },
+      {
+        "text": "Sign out                                                                                            Sign out",
+        "href": "https://support.hp.com/wcc-services/s/logout?cc=us&lc=en&pageurl=https%3A%2F%2Fsupport.hp.com%2Fus-en%2Fdrivers%3Fautomation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Poly",
+        "href": "https://www.hp.com/us-en/poly.html"
+      },
+      {
+        "text": "Security",
+        "href": "https://www.hp.com/us-en/security/endpoint-security-solutions.html"
+      },
+      {
+        "text": "Hybrid Work",
+        "href": "https://www.hp.com/us-en/solutions/hybrid-work.html"
+      },
+      {
+        "text": "Instant Ink",
+        "href": "https://www.hp.com/us-en/printers/instant-ink.html"
+      },
+      {
+        "text": "3D Print",
+        "href": "https://www.hp.com/us-en/printers/3d-printers.html"
+      },
+      {
+        "text": "Construction Layout Robot",
+        "href": "https://www.hp.com/us-en/printers/site-print/layout-robot.html"
+      },
+      {
+        "text": "Government & Education",
+        "href": "https://www.hp.com/us-en/solutions/us-public-sector.html"
+      },
+      {
+        "text": "Small & Medium Business",
+        "href": "https://www.hp.com/us-en/smb/small-and-medium-business-solutions.html"
+      },
+      {
+        "text": "Working Relationship Index",
+        "href": "https://www.hp.com/us-en/work-relationship-index.html"
+      },
+      {
+        "text": "Copilot+ PCs",
+        "href": "https://www.hp.com/us-en/software/microsoft-copilot-pcs.html"
+      },
+      {
+        "text": "Next Gen AI PCs",
+        "href": "https://www.hp.com/us-en/ai-solutions/next-gen-ai-pcs.html"
+      },
+      {
+        "text": "Laptops",
+        "href": "https://www.hp.com/us-en/laptops-and-2-in-1s.html"
+      },
+      {
+        "text": "Desktops",
+        "href": "https://www.hp.com/us-en/desktops-and-all-in-ones.html"
+      },
+      {
+        "text": "Business Computers",
+        "href": "https://www.hp.com/us-en/business-computers.html"
+      },
+      {
+        "text": "Gaming",
+        "href": "https://www.hp.com/us-en/gaming-pc.html"
+      },
+      {
+        "text": "Monitors",
+        "href": "https://www.hp.com/us-en/monitors-accessories/computer-monitors.html"
+      },
+      {
+        "text": "Accessories",
+        "href": "https://www.hp.com/us-en/monitors-accessories/computer-accessories.html"
+      },
+      {
+        "text": "Workstations",
+        "href": "https://www.hp.com/us-en/workstations/workstation-pcs.html"
+      },
+      {
+        "text": "Retail Solutions",
+        "href": "https://www.hp.com/us-en/solutions/pos-systems.html#All-in-OneSystems"
+      },
+      {
+        "text": "HP All-In Plan",
+        "href": "https://www.hp.com/us-en/all-in-plan/printers.html"
+      },
+      {
+        "text": "Ink, Toner & Papers",
+        "href": "https://www.hp.com/us-en/cartridge/ink-toner-paper.html"
+      },
+      {
+        "text": "Home Printers",
+        "href": "https://www.hp.com/us-en/printers/home-printers.html"
+      },
+      {
+        "text": "Home Office & Business Printers",
+        "href": "https://www.hp.com/us-en/printers/business-printers.html"
+      },
+      {
+        "text": "Enterprise Printers",
+        "href": "https://www.hp.com/us-en/printers/enterprise-printers.html"
+      },
+      {
+        "text": "Tank Printers",
+        "href": "https://www.hp.com/us-en/printers/smart-tank.html"
+      },
+      {
+        "text": "Scanners",
+        "href": "https://www.hp.com/us-en/printers/scanners.html"
+      },
+      {
+        "text": "Large-Format Printers & Plotters",
+        "href": "https://www.hp.com/us-en/printers/large-format.html"
+      },
+      {
+        "text": "Industrial Presses",
+        "href": "https://www.hp.com/us-en/industrial-digital-presses.html"
+      },
+      {
+        "text": "Specialty Printing Solutions",
+        "href": "https://www.hp.com/us-en/specialty-printing-solutions.html"
+      },
+      {
+        "text": "Shape the Future of Work",
+        "href": "https://www.hp.com/us-en/solutions/future-of-work.html"
+      },
+      {
+        "text": "Services & Solutions",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions.html"
+      },
+      {
+        "text": "Workforce Experience Platform",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions/workforce-experience-platform.html"
+      },
+      {
+        "text": "Computing Services",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions/workforce-computing.html"
+      },
+      {
+        "text": "Document & Print Services",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions/document-printing.html"
+      },
+      {
+        "text": "Collaboration Solutions",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions/communication-collaboration.html"
+      },
+      {
+        "text": "Security Solutions",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions/workforce-security-solution.html"
+      },
+      {
+        "text": "HP.com store",
+        "href": "https://www.hp.com/us-en/shop"
+      },
+      {
+        "text": "Ink & toner cartridges",
+        "href": "https://www.hp.com/us-en/shop/cat/ink--toner---paper"
+      },
+      {
+        "text": "Business store",
+        "href": "https://www.hp.com/us-en/shop/cat/business-solutions"
+      },
+      {
+        "text": "Weekly Deals",
+        "href": "https://www.hp.com/us-en/shop/slp/weekly-deals"
+      },
+      {
+        "text": "HP Laptop Subscription",
+        "href": "https://hplaptopsubscription.hp.com"
+      },
+      {
+        "text": "HP Financing",
+        "href": "https://www.hp.com/us-en/shop/cv/hpfinancing"
+      },
+      {
+        "text": "HP Education Store",
+        "href": "https://www.hp.com/us-en/shop/cv/hp-education"
+      },
+      {
+        "text": "HP Business Technology Advisors",
+        "href": "https://www.hp.com/us-en/shop/cv/smallbusinessadvisor"
+      },
+      {
+        "text": "Laptops",
+        "href": "https://www.hp.com/us-en/shop/cat/laptops"
+      },
+      {
+        "text": "Business laptops",
+        "href": "https://www.hp.com/us-en/shop/vwa/business-solutions/bizcat=Laptop"
+      },
+      {
+        "text": "Desktops",
+        "href": "https://www.hp.com/us-en/shop/cat/desktops"
+      },
+      {
+        "text": "Business desktops",
+        "href": "https://www.hp.com/us-en/shop/mlp/business-solutions/desktops-and-workstations"
+      },
+      {
+        "text": "Z Workstations",
+        "href": "https://www.hp.com/us-en/shop/mlp/business-solutions/workstations"
+      },
+      {
+        "text": "Gaming PCs",
+        "href": "https://www.hp.com/us-en/shop/cat/gaming-3074457345617980168--1"
+      },
+      {
+        "text": "Chromebooks",
+        "href": "https://www.hp.com/us-en/shop/cv/hp-chromebooks"
+      },
+      {
+        "text": "Thin Clients",
+        "href": "https://www.hp.com/us-en/shop/mlp/business-solutions/hp-thin-clients"
+      },
+      {
+        "text": "Ink, Toner, & Paper",
+        "href": "https://www.hp.com/us-en/shop/cat/ink--toner---paper"
+      },
+      {
+        "text": "Printers",
+        "href": "https://hp.com/us-en/shop/cat/printers"
+      },
+      {
+        "text": "Laser printers",
+        "href": "https://www.hp.com/us-en/shop/vwa/printers/prnttyp=Laser"
+      },
+      {
+        "text": "Business printers",
+        "href": "https://www.hp.com/us-en/shop/vwa/printers/prntbrnd=LaserJet,LaserJet-Tank,OfficeJet,Smart-Tank"
+      },
+      {
+        "text": "Large format plotter printers",
+        "href": "https://www.hp.com/us-en/shop/slp/designjet-plotter-printers"
+      },
+      {
+        "text": "Home printers",
+        "href": "https://www.hp.com/us-en/shop/vwa/printers/segm=Home"
+      },
+      {
+        "text": "Inkjet printers",
+        "href": "https://www.hp.com/us-en/shop/vwa/printers/prntbrnd=DeskJet,ENVY,OfficeJet,Smart-Tank,Tango"
+      },
+      {
+        "text": "Tank printers",
+        "href": "https://www.hp.com/us-en/shop/vwa/printers/prntbrnd=LaserJet-Tank,Smart-Tank"
+      },
+      {
+        "text": "HP All-In Plan",
+        "href": "https://www.hp.com/us-en/shop/cv/all-in-plan-printers"
+      },
+      {
+        "text": "Instant Ink",
+        "href": "https://www.hp.com/us-en/shop/cv/instantink"
+      },
+      {
+        "text": "View all accessories",
+        "href": "https://www.hp.com/us-en/shop/cat/accessories-88342--1"
+      },
+      {
+        "text": "Monitors",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Monitors"
+      },
+      {
+        "text": "Docking stations & hubs",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Docking-Stations-Hubs"
+      },
+      {
+        "text": "Mice & keyboards",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Mice-Keyboards"
+      },
+      {
+        "text": "Headsets",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Headsets"
+      },
+      {
+        "text": "Software",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Software"
+      },
+      {
+        "text": "Chargers & power adapters",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Chargers-Adapters"
+      },
+      {
+        "text": "Bundles",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/ordr=Bundles"
+      },
+      {
+        "text": "Care Packs & services",
+        "href": "https://www.hp.com/us-en/shop/cat/care-packs-88343--1"
+      },
+      {
+        "text": "Hybrid Work",
+        "href": "https://www.hp.com/us-en/shop/cat/hybrid-work"
+      },
+      {
+        "text": "Support & troubleshooting",
+        "href": "https://support.hp.com/us-en"
+      },
+      {
+        "text": "Software & drivers",
+        "href": "https://support.hp.com/us-en/drivers"
+      },
+      {
+        "text": "Diagnostic tools",
+        "href": "https://support.hp.com/us-en/topic/diagnostics"
+      },
+      {
+        "text": "Community",
+        "href": "https://h30434.www3.hp.com/"
+      },
+      {
+        "text": "Windows 10 / Windows 11 Support",
+        "href": "https://support.hp.com/us-en/topic/windows-10-support-center"
+      },
+      {
+        "text": "Printing",
+        "href": "https://support.hp.com/us-en/printer"
+      },
+      {
+        "text": "Computing",
+        "href": "https://support.hp.com/us-en/computer"
+      },
+      {
+        "text": "Instant Ink",
+        "href": "https://www.hp.com/support/instantink"
+      },
+      {
+        "text": "HP All-In Plan",
+        "href": "https://support.hp.com/us-en/service/all-in-plan/2101795773"
+      },
+      {
+        "text": "Poly Collaboration Devices",
+        "href": "https://support.hp.com/us-en/poly"
+      },
+      {
+        "text": "HP Anyware",
+        "href": "https://anyware.hp.com/"
+      },
+      {
+        "text": "Other Products",
+        "href": "https://support.hp.com/us-en/products"
+      },
+      {
+        "text": "Contact us",
+        "href": "https://www.hp.com/us-en/contact-hp/contact.html"
+      },
+      {
+        "text": "Check warranty",
+        "href": "https://support.hp.com/us-en/checkwarranty"
+      },
+      {
+        "text": "Authorized service providers",
+        "href": "https://support.hp.com/us-en/service-center"
+      },
+      {
+        "text": "Security bulletin archive",
+        "href": "https://support.hp.com/us-en/security-bulletins"
+      },
+      {
+        "text": "Parts store",
+        "href": "https://www.hp.com/us-en/parts-store"
+      },
+      {
+        "text": "Consumer services",
+        "href": "https://www.hp.com/us-en/services/consumer/services-overview.html"
+      },
+      {
+        "text": "Business services",
+        "href": "https://www.hp.com/us-en/solutions/business-solutions.html"
+      },
+      {
+        "text": "Skip to Content",
+        "href": "#skiptobody"
+      },
+      {
+        "text": "Skip to Footer",
+        "href": "#skiptofooter"
+      },
+      {
+        "text": "Shopping Cart",
+        "href": "https://www.hp.com/webapp/wcs/stores/servlet/AjaxOrderItemDisplayView?langId=-1&catalogId=10051&storeId=10151"
+      },
+      {
+        "text": "Close Shopping Cart popup",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "Sign in",
+        "href": "https://support.hp.com/wcc-services/s/signin?cc=us&lc=en&pageurl=https%3A%2F%2Fsupport.hp.com%2Fus-en%2Fdrivers%3Fautomation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Manage my HP Account                                                            Manage my HP Account",
+        "href": "https://account.hp.com"
+      },
+      {
+        "text": "Sign out                                                                                                                    Sign out",
+        "href": "https://support.hp.com/wcc-services/s/logout?cc=us&lc=en&pageurl=https%3A%2F%2Fsupport.hp.com%2Fus-en%2Fdrivers%3Fautomation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Poly",
+        "href": "https://www.hp.com/us-en/poly.html"
+      },
+      {
+        "text": "Security",
+        "href": "https://www.hp.com/us-en/security/endpoint-security-solutions.html"
+      },
+      {
+        "text": "Hybrid Work",
+        "href": "https://www.hp.com/us-en/solutions/hybrid-work.html"
+      },
+      {
+        "text": "Instant Ink",
+        "href": "https://www.hp.com/us-en/printers/instant-ink.html"
+      },
+      {
+        "text": "3D Print",
+        "href": "https://www.hp.com/us-en/printers/3d-printers.html"
+      },
+      {
+        "text": "Construction Layout Robot",
+        "href": "https://www.hp.com/us-en/printers/site-print/layout-robot.html"
+      },
+      {
+        "text": "Government & Education",
+        "href": "https://www.hp.com/us-en/solutions/us-public-sector.html"
+      },
+      {
+        "text": "Small & Medium Business",
+        "href": "https://www.hp.com/us-en/smb/small-and-medium-business-solutions.html"
+      },
+      {
+        "text": "Working Relationship Index",
+        "href": "https://www.hp.com/us-en/work-relationship-index.html"
+      },
+      {
+        "text": "Copilot+ PCs",
+        "href": "https://www.hp.com/us-en/software/microsoft-copilot-pcs.html"
+      },
+      {
+        "text": "Next Gen AI PCs",
+        "href": "https://www.hp.com/us-en/ai-solutions/next-gen-ai-pcs.html"
+      },
+      {
+        "text": "Laptops",
+        "href": "https://www.hp.com/us-en/laptops-and-2-in-1s.html"
+      },
+      {
+        "text": "Desktops",
+        "href": "https://www.hp.com/us-en/desktops-and-all-in-ones.html"
+      },
+      {
+        "text": "Business Computers",
+        "href": "https://www.hp.com/us-en/business-computers.html"
+      },
+      {
+        "text": "Gaming",
+        "href": "https://www.hp.com/us-en/gaming-pc.html"
+      },
+      {
+        "text": "Monitors",
+        "href": "https://www.hp.com/us-en/monitors-accessories/computer-monitors.html"
+      },
+      {
+        "text": "Accessories",
+        "href": "https://www.hp.com/us-en/monitors-accessories/computer-accessories.html"
+      },
+      {
+        "text": "Workstations",
+        "href": "https://www.hp.com/us-en/workstations/workstation-pcs.html"
+      },
+      {
+        "text": "Retail Solutions",
+        "href": "https://www.hp.com/us-en/solutions/pos-systems.html#All-in-OneSystems"
+      },
+      {
+        "text": "HP All-In Plan",
+        "href": "https://www.hp.com/us-en/all-in-plan/printers.html"
+      },
+      {
+        "text": "Ink, Toner & Papers",
+        "href": "https://www.hp.com/us-en/cartridge/ink-toner-paper.html"
+      },
+      {
+        "text": "Home Printers",
+        "href": "https://www.hp.com/us-en/printers/home-printers.html"
+      },
+      {
+        "text": "Home Office & Business Printers",
+        "href": "https://www.hp.com/us-en/printers/business-printers.html"
+      },
+      {
+        "text": "Enterprise Printers",
+        "href": "https://www.hp.com/us-en/printers/enterprise-printers.html"
+      },
+      {
+        "text": "Tank Printers",
+        "href": "https://www.hp.com/us-en/printers/smart-tank.html"
+      },
+      {
+        "text": "Scanners",
+        "href": "https://www.hp.com/us-en/printers/scanners.html"
+      },
+      {
+        "text": "Large-Format Printers & Plotters",
+        "href": "https://www.hp.com/us-en/printers/large-format.html"
+      },
+      {
+        "text": "Industrial Presses",
+        "href": "https://www.hp.com/us-en/industrial-digital-presses.html"
+      },
+      {
+        "text": "Specialty Printing Solutions",
+        "href": "https://www.hp.com/us-en/specialty-printing-solutions.html"
+      },
+      {
+        "text": "Shape the Future of Work",
+        "href": "https://www.hp.com/us-en/solutions/future-of-work.html"
+      },
+      {
+        "text": "Services & Solutions",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions.html"
+      },
+      {
+        "text": "Workforce Experience Platform",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions/workforce-experience-platform.html"
+      },
+      {
+        "text": "Computing Services",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions/workforce-computing.html"
+      },
+      {
+        "text": "Document & Print Services",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions/document-printing.html"
+      },
+      {
+        "text": "Collaboration Solutions",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions/communication-collaboration.html"
+      },
+      {
+        "text": "Security Solutions",
+        "href": "https://www.hp.com/us-en/services/workforce-solutions/workforce-security-solution.html"
+      },
+      {
+        "text": "HP.com store",
+        "href": "https://www.hp.com/us-en/shop"
+      },
+      {
+        "text": "Ink & toner cartridges",
+        "href": "https://www.hp.com/us-en/shop/cat/ink--toner---paper"
+      },
+      {
+        "text": "Business store",
+        "href": "https://www.hp.com/us-en/shop/cat/business-solutions"
+      },
+      {
+        "text": "Weekly Deals",
+        "href": "https://www.hp.com/us-en/shop/slp/weekly-deals"
+      },
+      {
+        "text": "HP Laptop Subscription",
+        "href": "https://hplaptopsubscription.hp.com"
+      },
+      {
+        "text": "HP Financing",
+        "href": "https://www.hp.com/us-en/shop/cv/hpfinancing"
+      },
+      {
+        "text": "HP Education Store",
+        "href": "https://www.hp.com/us-en/shop/cv/hp-education"
+      },
+      {
+        "text": "HP Business Technology Advisors",
+        "href": "https://www.hp.com/us-en/shop/cv/smallbusinessadvisor"
+      },
+      {
+        "text": "Laptops",
+        "href": "https://www.hp.com/us-en/shop/cat/laptops"
+      },
+      {
+        "text": "Business laptops",
+        "href": "https://www.hp.com/us-en/shop/vwa/business-solutions/bizcat=Laptop"
+      },
+      {
+        "text": "Desktops",
+        "href": "https://www.hp.com/us-en/shop/cat/desktops"
+      },
+      {
+        "text": "Business desktops",
+        "href": "https://www.hp.com/us-en/shop/mlp/business-solutions/desktops-and-workstations"
+      },
+      {
+        "text": "Z Workstations",
+        "href": "https://www.hp.com/us-en/shop/mlp/business-solutions/workstations"
+      },
+      {
+        "text": "Gaming PCs",
+        "href": "https://www.hp.com/us-en/shop/cat/gaming-3074457345617980168--1"
+      },
+      {
+        "text": "Chromebooks",
+        "href": "https://www.hp.com/us-en/shop/cv/hp-chromebooks"
+      },
+      {
+        "text": "Thin Clients",
+        "href": "https://www.hp.com/us-en/shop/mlp/business-solutions/hp-thin-clients"
+      },
+      {
+        "text": "Ink, Toner, & Paper",
+        "href": "https://www.hp.com/us-en/shop/cat/ink--toner---paper"
+      },
+      {
+        "text": "Printers",
+        "href": "https://hp.com/us-en/shop/cat/printers"
+      },
+      {
+        "text": "Laser printers",
+        "href": "https://www.hp.com/us-en/shop/vwa/printers/prnttyp=Laser"
+      },
+      {
+        "text": "Business printers",
+        "href": "https://www.hp.com/us-en/shop/vwa/printers/prntbrnd=LaserJet,LaserJet-Tank,OfficeJet,Smart-Tank"
+      },
+      {
+        "text": "Large format plotter printers",
+        "href": "https://www.hp.com/us-en/shop/slp/designjet-plotter-printers"
+      },
+      {
+        "text": "Home printers",
+        "href": "https://www.hp.com/us-en/shop/vwa/printers/segm=Home"
+      },
+      {
+        "text": "Inkjet printers",
+        "href": "https://www.hp.com/us-en/shop/vwa/printers/prntbrnd=DeskJet,ENVY,OfficeJet,Smart-Tank,Tango"
+      },
+      {
+        "text": "Tank printers",
+        "href": "https://www.hp.com/us-en/shop/vwa/printers/prntbrnd=LaserJet-Tank,Smart-Tank"
+      },
+      {
+        "text": "HP All-In Plan",
+        "href": "https://www.hp.com/us-en/shop/cv/all-in-plan-printers"
+      },
+      {
+        "text": "Instant Ink",
+        "href": "https://www.hp.com/us-en/shop/cv/instantink"
+      },
+      {
+        "text": "View all accessories",
+        "href": "https://www.hp.com/us-en/shop/cat/accessories-88342--1"
+      },
+      {
+        "text": "Monitors",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Monitors"
+      },
+      {
+        "text": "Docking stations & hubs",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Docking-Stations-Hubs"
+      },
+      {
+        "text": "Mice & keyboards",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Mice-Keyboards"
+      },
+      {
+        "text": "Headsets",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Headsets"
+      },
+      {
+        "text": "Software",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Software"
+      },
+      {
+        "text": "Chargers & power adapters",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/subcat=Chargers-Adapters"
+      },
+      {
+        "text": "Bundles",
+        "href": "https://www.hp.com/us-en/shop/vwa/accessories-88342--1/ordr=Bundles"
+      },
+      {
+        "text": "Care Packs & services",
+        "href": "https://www.hp.com/us-en/shop/cat/care-packs-88343--1"
+      },
+      {
+        "text": "Hybrid Work",
+        "href": "https://www.hp.com/us-en/shop/cat/hybrid-work"
+      },
+      {
+        "text": "Support & troubleshooting",
+        "href": "https://support.hp.com/us-en"
+      },
+      {
+        "text": "Software & drivers",
+        "href": "https://support.hp.com/us-en/drivers"
+      },
+      {
+        "text": "Diagnostic tools",
+        "href": "https://support.hp.com/us-en/topic/diagnostics"
+      },
+      {
+        "text": "Community",
+        "href": "https://h30434.www3.hp.com/"
+      },
+      {
+        "text": "Windows 10 / Windows 11 Support",
+        "href": "https://support.hp.com/us-en/topic/windows-10-support-center"
+      },
+      {
+        "text": "Printing",
+        "href": "https://support.hp.com/us-en/printer"
+      },
+      {
+        "text": "Computing",
+        "href": "https://support.hp.com/us-en/computer"
+      },
+      {
+        "text": "Instant Ink",
+        "href": "https://www.hp.com/support/instantink"
+      },
+      {
+        "text": "HP All-In Plan",
+        "href": "https://support.hp.com/us-en/service/all-in-plan/2101795773"
+      },
+      {
+        "text": "Poly Collaboration Devices",
+        "href": "https://support.hp.com/us-en/poly"
+      },
+      {
+        "text": "HP Anyware",
+        "href": "https://anyware.hp.com/"
+      },
+      {
+        "text": "Other Products",
+        "href": "https://support.hp.com/us-en/products"
+      },
+      {
+        "text": "Contact us",
+        "href": "https://www.hp.com/us-en/contact-hp/contact.html"
+      },
+      {
+        "text": "Check warranty",
+        "href": "https://support.hp.com/us-en/checkwarranty"
+      },
+      {
+        "text": "Authorized service providers",
+        "href": "https://support.hp.com/us-en/service-center"
+      },
+      {
+        "text": "Security bulletin archive",
+        "href": "https://support.hp.com/us-en/security-bulletins"
+      },
+      {
+        "text": "Parts store",
+        "href": "https://www.hp.com/us-en/parts-store"
+      },
+      {
+        "text": "Consumer services",
+        "href": "https://www.hp.com/us-en/services/consumer/services-overview.html"
+      },
+      {
+        "text": "Business services",
+        "href": "https://www.hp.com/us-en/solutions/business-solutions.html"
+      },
+      {
+        "text": "See all",
+        "href": "#"
+      },
+      {
+        "text": "Software and Drivers",
+        "href": "https://support.hp.com/us-en/drivers"
+      },
+      {
+        "text": "Printer Support",
+        "href": "https://support.hp.com/us-en/printer"
+      },
+      {
+        "text": "Computer Support",
+        "href": "https://support.hp.com/us-en/computer"
+      },
+      {
+        "text": "Skip to                    Content",
+        "href": "#skiptobody"
+      },
+      {
+        "text": "Skip to                    Footer",
+        "href": "#skiptofooter"
+      },
+      {
+        "text": "Software and Drivers",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Support Home",
+        "href": "/us-en"
+      },
+      {
+        "text": "Printer Support",
+        "href": "/us-en/printer"
+      },
+      {
+        "text": "Computer Support",
+        "href": "/us-en/computer"
+      },
+      {
+        "text": "Poly Collaboration Devices",
+        "href": "/us-en/poly"
+      },
+      {
+        "text": "Ink & Toner Cartridges",
+        "href": "https://learn-about-supplies.ext.hp.com/?jumpid=re_r11839_us/en/ink_secnav"
+      },
+      {
+        "text": "All",
+        "href": "/us-en/products"
+      },
+      {
+        "text": "Software and Drivers",
+        "href": "/us-en/drivers"
+      },
+      {
+        "text": "Printer Diagonostic Tools",
+        "href": "/us-en/help/diagnostics?category=printing"
+      },
+      {
+        "text": "Computer Diagnostic Tools",
+        "href": "/us-en/help/diagnostics?category=computing"
+      },
+      {
+        "text": "Windows Support",
+        "href": "/us-en/help/windows-10-support-center"
+      },
+      {
+        "text": "Print and Scan Doctor",
+        "href": "/us-en/document/ish_12490059-12490108-16"
+      },
+      {
+        "text": "HP PC Hardware Diagnostics",
+        "href": "/us-en/help/hp-pc-hardware-diagnostics"
+      },
+      {
+        "text": "Contact Us",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Create a new case",
+        "href": "https://mycrm.support.hp.com/"
+      },
+      {
+        "text": "Find an existing case",
+        "href": "https://mycrm.support.hp.com/my-cases"
+      },
+      {
+        "text": "Manage contracts and warranties",
+        "href": "https://mycrm.support.hp.com/en-US/contract-warranties/"
+      },
+      {
+        "text": "Register an account",
+        "href": "https://mycrm.support.hp.com/en-US/signup/"
+      },
+      {
+        "text": "MyHPSupport Help",
+        "href": "/us-en/document/ish_9335347-9335391-16"
+      },
+      {
+        "text": "Security Bulletins",
+        "href": "/us-en/security-bulletins"
+      },
+      {
+        "text": "Poly Collaboration Devices",
+        "href": "/us-en/poly"
+      },
+      {
+        "text": "Support Dashboard",
+        "href": "/us-en/dashboard"
+      },
+      {
+        "text": "HP Account benefits",
+        "href": "/us-en/help/hp-account"
+      },
+      {
+        "text": "1",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "Windows 11 Support Center",
+        "href": "/us-en/help/windows-10-support-center"
+      },
+      {
+        "text": "1Identify",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "2Download",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "3Install",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Sign in",
+        "href": "https://support.hp.com/wcc-services/s/signin?cc=us&lc=en&pageurl=https%3A%2F%2Fsupport.hp.com%2Fus-en%2Fdrivers%3Fautomation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Create an account",
+        "href": "https://support.hp.com/wcc-services/s/registration?cc=us&lc=en&pageurl=https%3A%2F%2Fsupport.hp.com%2Fus-en%2Fdrivers%3Fautomation%3Dtrue%253Fautomation%253Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Printer",
+        "href": "/us-en/drivers/printers"
+      },
+      {
+        "text": "Laptop",
+        "href": "/us-en/drivers/laptops"
+      },
+      {
+        "text": "Desktop",
+        "href": "/us-en/drivers/desktops"
+      },
+      {
+        "text": "Poly",
+        "href": "/us-en/drivers/poly"
+      },
+      {
+        "text": "Other",
+        "href": "/us-en/drivers/products"
+      },
+      {
+        "text": "What is a driver?",
+        "href": "#"
+      },
+      {
+        "text": "When might I need to install or update a driver?",
+        "href": "#"
+      },
+      {
+        "text": "What is a printer firmware update?",
+        "href": "#"
+      },
+      {
+        "text": "What kind of software is available?",
+        "href": "#"
+      },
+      {
+        "text": "Ask our Virtual Assistant Try asking HP's Virtual Assistant.",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "United States",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "About Us",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "About Us",
+        "href": "https://www.hp.com/us-en/hp-information.html"
+      },
+      {
+        "text": "About Us",
+        "href": "https://www.hp.com/us-en/hp-information.html"
+      },
+      {
+        "text": "Contact HP",
+        "href": "https://www.hp.com/us-en/contact-hp/contact.html"
+      },
+      {
+        "text": "Careers",
+        "href": "https://jobs.hp.com/"
+      },
+      {
+        "text": "Investor relations",
+        "href": "https://investor.hp.com/home/default.aspx"
+      },
+      {
+        "text": "Sustainable impact",
+        "href": "https://www.hp.com/us-en/sustainable-impact.html"
+      },
+      {
+        "text": "Inclusion at HP",
+        "href": "https://www.hp.com/us-en/hp-information/about-hp/diversity.html"
+      },
+      {
+        "text": "Newsroom",
+        "href": "https://www.hp.com/us-en/newsroom.html"
+      },
+      {
+        "text": "Tech Takes",
+        "href": "https://www.hp.com/us-en/shop/tech-takes"
+      },
+      {
+        "text": "HP Store Newsletter",
+        "href": "https://www.hp.com/us-en/shop/ManageSubscription?catalogId=10051&langId=-1&storeId=10151"
+      },
+      {
+        "text": "HP Printables Newsletter",
+        "href": "https://printables.hp.com/us/en/newsletter"
+      },
+      {
+        "text": "Ways to buy",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "Shop online",
+        "href": "https://www.hp.com/us-en/shop"
+      },
+      {
+        "text": "Call an HP rep",
+        "href": "https://www.hp.com/us-en/shop/cv/hp-store-contacts"
+      },
+      {
+        "text": "Find a reseller",
+        "href": "https://locator.hp.com/us/en/?ml___lang=en-US%20(1)&ml___region=us&ml___cont=US"
+      },
+      {
+        "text": "Enterprise store",
+        "href": "https://www.hp.com/us-en/hp-information/business-site.html"
+      },
+      {
+        "text": "Public sector purchasing",
+        "href": "https://h20429.www2.hp.com/HP2B/landingpages/US_Public_Sector.html"
+      },
+      {
+        "text": "Support",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "Support",
+        "href": "https://support.hp.com/us-en/"
+      },
+      {
+        "text": "Support",
+        "href": "https://support.hp.com/us-en/"
+      },
+      {
+        "text": "Download drivers",
+        "href": "https://support.hp.com/us-en/drivers"
+      },
+      {
+        "text": "Support & troubleshooting",
+        "href": "https://support.hp.com/us-en/"
+      },
+      {
+        "text": "Community",
+        "href": "https://h30434.www3.hp.com/"
+      },
+      {
+        "text": "Authorized service providers",
+        "href": "https://support.hp.com/us-en/service-center"
+      },
+      {
+        "text": "Check repair status",
+        "href": "https://h20212.www2.hp.com/Cso_Status/CsoStatus.aspx?lc=en&cc=us"
+      },
+      {
+        "text": "Fraud alert",
+        "href": "https://www.hp.com/us-en/hpfraud-alert.html"
+      },
+      {
+        "text": "Security Center",
+        "href": "https://www.hp.com/us-en/security/cyber-security-center.html"
+      },
+      {
+        "text": "HP Partners",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "HP Amplify Partner Program",
+        "href": "https://www.hp.com/us-en/solutions/hp-amplify-partner-program.html"
+      },
+      {
+        "text": "HP Partner Portal",
+        "href": "https://partner.hp.com/login"
+      },
+      {
+        "text": "Developers",
+        "href": "https://developers.hp.com/"
+      },
+      {
+        "text": "Stay connected",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "Recalls",
+        "href": "https://www.hp.com/us-en/hp-information/recalls.html"
+      },
+      {
+        "text": "Product recycling",
+        "href": "https://www.hp.com/us-en/hp-information/sustainable-impact/planet-product-recycling.html"
+      },
+      {
+        "text": "Accessibility",
+        "href": "https://www.hp.com/us-en/hp-information/accessibility-aging.html"
+      },
+      {
+        "text": "CA Supply Chains Act",
+        "href": "https://h20195.www2.hp.com/v2/GetDocument.aspx?docname=c05388050"
+      },
+      {
+        "text": "Privacy",
+        "href": "https://www.hp.com/us-en/privacy/privacy-central.html"
+      },
+      {
+        "text": "Use of cookies",
+        "href": "javascript:;"
+      },
+      {
+        "text": "Your privacy choices",
+        "href": "https://www.hp.com/us-en/privacy/your-privacy-choices.html"
+      },
+      {
+        "text": "Terms of use",
+        "href": "https://www.hp.com/us-en/terms-of-use.html"
+      },
+      {
+        "text": "Limited warranty statement",
+        "href": "https://www.hp.com/us-en/privacy/limited_warranty.html"
+      },
+      {
+        "text": "Terms & conditions of sales & service",
+        "href": "https://www.hp.com/us-en/shop/cv/termsandconditions?jumpid=re_r11662_redirect_ETR&ts=20151012014516_LIymYBM9Ho1W"
+      },
+      {
+        "text": "IP Notices",
+        "href": "https://h20195.www2.hp.com/v2/GetDocument.aspx?docname=c09169992"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Software and Drivers",
+        "src": "https://www.hp.com/content/dam/sites/worldwide/dems/search/support/Group%2011990@2x.png"
+      },
+      {
+        "alt": "Printer Support",
+        "src": "https://www.hp.com/content/dam/sites/worldwide/dems/search/support/Group%2011991@2x.png"
+      },
+      {
+        "alt": "Computer Support",
+        "src": "https://www.hp.com/content/dam/sites/worldwide/dems/search/support/Group%2011992@2x.png"
+      },
+      {
+        "alt": "info",
+        "src": "/wcc-assets/content/dam/hp-wcc/fe-assets/images/swd/info.png"
+      },
+      {
+        "alt": "Printer",
+        "src": "/wcc-assets/content/dam/hp-wcc/headless-assets/images/swd/swd-landing/printer.png"
+      },
+      {
+        "alt": "Laptop",
+        "src": "/wcc-assets/content/dam/hp-wcc/headless-assets/images/swd/swd-landing/laptop.png"
+      },
+      {
+        "alt": "Desktop",
+        "src": "/wcc-assets/content/dam/hp-wcc/headless-assets/images/swd/swd-landing/desktop.png"
+      },
+      {
+        "alt": "Poly",
+        "src": "/wcc-assets/content/dam/hp-wcc/headless-assets/images/swd/swd-landing/poly.svg"
+      },
+      {
+        "alt": "Other",
+        "src": "/wcc-assets/content/dam/hp-wcc/headless-assets/images/swd/swd-landing/other.png"
+      },
+      {
+        "alt": "Virtual Assistant",
+        "src": "/wcc-assets/content/dam/hp-wcc/fe-assets/images/VA_Smile_Charli.svg"
+      },
+      {
+        "alt": "Flag",
+        "src": "/wcc-assets/images/flags/flag_us.gif"
+      }
+    ],
+    "timestamp": 1760609452861,
+    "url": "https://support.hp.com/us-en/drivers?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+  }
+}

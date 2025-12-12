@@ -1,0 +1,661 @@
+{
+  "url": "https://www.plex.tv/watch-free/",
+  "extractedAt": "2025-10-16T10:28:30.019Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.plex.tv/wp-content/themes/plex/assets/img/favicons/favicon.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.plex.tv/wp-content/themes/plex/assets/img/favicons/plex-76.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.plex.tv/wp-content/themes/plex/assets/img/favicons/plex-120.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.plex.tv/wp-content/themes/plex/assets/img/favicons/plex-152.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.plex.tv/wp-content/themes/plex/assets/img/favicons/plex-167.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.plex.tv/wp-content/themes/plex/assets/img/favicons/plex-180.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.plex.tv/wp-content/themes/plex/assets/img/favicons/plex-192.png",
+        "rel": "icon"
+      }
+    ],
+    "title": "Watch Free Movies Online with Plex",
+    "metaDescription": "Paying to watch movies is a thing of the past. Watch FREE MOVIES ONLINE at zero cost on any device with Plex. Browse our collection of 100,000+ FREE movies and shows.",
+    "content": "## Plex’s use of cookies\n Necessary cookies make our site work. We’d also like to enable analytics cookies, optional to you, to help us improve the site and your experience. This tool will set a cookie on your device to remember your preferences once you have accepted. You can change your mind and change your consent choices at any time by returning to this site.\n For more information on how these cookies work please see our [Tracking Technologies page](https://www.plex.tv/about/privacy-legal/tracking-technologies/).\n \n### Necessary cookies\n Necessary cookies enable core functionality on our site, such as security, network management, and accessibility. You may disable these by changing your browser settings, but it may affect how the site functions.\n \n### Analytics cookies\n Analytics cookies help us improve our website by collecting and reporting information on how you use it; we specifically use Google analytics to derive insights about who is doing what on our site. These cookies collect information anonymously.\n    OFF     \n### Third Party Cookies\n Third-party cookies enable us to correctly attribute traffic driven to our site; specifically, we use Facebook cookies to measure performance of Facebook campaigns, as well as cookies from Commission Junction, which help us see traffic directed to our site by affiliates we work with in marketing.\n    OFF       Accept All      Reject All     Save & Exit",
+    "truncated": false,
+    "fullContentLength": 1423,
+    "headings": [
+      {
+        "level": 4,
+        "text": "Hey!"
+      },
+      {
+        "level": 1,
+        "text": "Free Movies to Watch, Anytime Anywhere."
+      },
+      {
+        "level": 4,
+        "text": "Works Worldwide"
+      },
+      {
+        "level": 4,
+        "text": "Thousands of Titles"
+      },
+      {
+        "level": 4,
+        "text": "Always 100% Free"
+      },
+      {
+        "level": 4,
+        "text": "Device-Friendly"
+      },
+      {
+        "level": 2,
+        "text": "See what’s new on  Pluto TV, Tubi, & more."
+      },
+      {
+        "level": 2,
+        "text": "It has never been easier to watch free movies online."
+      },
+      {
+        "level": 2,
+        "text": "Playing now on Plex"
+      },
+      {
+        "level": 4,
+        "text": "Sorry, this Hub is not available at the moment."
+      },
+      {
+        "level": 2,
+        "text": "Don’t forget free TV."
+      },
+      {
+        "level": 4,
+        "text": "Sorry, this Hub is not available at the moment."
+      },
+      {
+        "level": 2,
+        "text": "We’re compatible."
+      },
+      {
+        "level": 2,
+        "text": "Proud Partners with:"
+      },
+      {
+        "level": 4,
+        "text": "We value your privacy."
+      },
+      {
+        "level": 3,
+        "text": "The Best of Plex"
+      },
+      {
+        "level": 3,
+        "text": "The Best of Plex"
+      },
+      {
+        "level": 2,
+        "text": "Let the streaming begin"
+      },
+      {
+        "level": 3,
+        "text": "Account Sign in\n\t\t\t\t\t\t\t\tCreate your free account"
+      },
+      {
+        "level": 4,
+        "text": "We value your privacy."
+      },
+      {
+        "level": 2,
+        "text": "Plex’s use of cookies"
+      },
+      {
+        "level": 3,
+        "text": "Necessary cookies"
+      },
+      {
+        "level": 3,
+        "text": "Analytics cookies"
+      },
+      {
+        "level": 3,
+        "text": "Third Party Cookies"
+      },
+      {
+        "level": 2,
+        "text": "Introducing streaming music powered by TIDAL"
+      },
+      {
+        "level": 2,
+        "text": "Level up your music library with 60 million high-quality songs."
+      }
+    ],
+    "links": [
+      {
+        "text": "Featured",
+        "href": "https://watch.plex.tv/"
+      },
+      {
+        "text": "Movies & TV Shows",
+        "href": "https://watch.plex.tv/movies-and-shows"
+      },
+      {
+        "text": "Live TV Channels",
+        "href": "https://watch.plex.tv/live-tv"
+      },
+      {
+        "text": "Most Popular",
+        "href": "https://watch.plex.tv/movies-and-shows/list/trending"
+      },
+      {
+        "text": "Leaving Soon",
+        "href": "https://watch.plex.tv/movies-and-shows/list/expiring"
+      },
+      {
+        "text": "What to Watch",
+        "href": "https://www.plex.tv/what-to-watch/"
+      },
+      {
+        "text": "Browse Channels",
+        "href": "https://watch.plex.tv/live-tv"
+      },
+      {
+        "text": "600+ Free Live TV Channels Tune in anytime, on any device.",
+        "href": "https://www.plex.tv/watch-free-tv/"
+      },
+      {
+        "text": "Free Movies & Shows Stream 50,000+ titles on demand.",
+        "href": "https://www.plex.tv/watch-free/"
+      },
+      {
+        "text": "Experience Discover on Plex Find a movie. Find a show. Find your friends.",
+        "href": "https://www.plex.tv/discover/"
+      },
+      {
+        "text": "Stream on Almost Any Device Download our free app to start.",
+        "href": "https://www.plex.tv/apps-devices/"
+      },
+      {
+        "text": "Add Your Personal Media Organize & stream your own collection.",
+        "href": "https://www.plex.tv/your-media/"
+      },
+      {
+        "text": "Choose a Plan Upgrade to stream your personal media remotely & more.",
+        "href": "https://www.plex.tv/plans/"
+      },
+      {
+        "text": "Plexamp Experience the app made for audiophiles.",
+        "href": "https://www.plex.tv/plexamp/"
+      },
+      {
+        "text": "Ultimate DVR (Plex Pass Exclusive) Watch & record broadcast TV.",
+        "href": "https://www.plex.tv/tv/"
+      },
+      {
+        "text": "For TVs Roku, Fire TV, Samsung & more",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-app"
+      },
+      {
+        "text": "For Mobile iOS & Android",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-app"
+      },
+      {
+        "text": "For Consoles PlayStation & Xbox",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-app"
+      },
+      {
+        "text": "For Desktop Mac, Windows & Web",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-app"
+      },
+      {
+        "text": "Plex Media Server Create, organize, and store your collections.",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-media-server"
+      },
+      {
+        "text": "Plexamp Experience the app made for audiophiles.",
+        "href": "https://www.plex.tv/plexamp/#downloads"
+      },
+      {
+        "text": "Plex Photos New All your photo collections. One easy app.",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-plexphotos"
+      },
+      {
+        "text": "Plex Dash (Plex Pass Exclusive) A custom app for remote server monitoring.",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-plexdash"
+      },
+      {
+        "text": "Sign In",
+        "href": "https://www.plex.tv/sign-in/?forward=https%3A%2F%2Fwww.plex.tv%2Fwatch-free%2F&twop=1"
+      },
+      {
+        "text": "Sign Up Free",
+        "href": "https://www.plex.tv/sign-up/?forward=web&twop=1"
+      },
+      {
+        "text": "Sign Up Free",
+        "href": "https://www.plex.tv/sign-up/?forward=web&twop=1"
+      },
+      {
+        "text": "Sign In",
+        "href": "https://www.plex.tv/sign-in/?forward=https%3A%2F%2Fwww.plex.tv%2Fwatch-free%2F&twop=1"
+      },
+      {
+        "text": "Featured",
+        "href": "https://watch.plex.tv/"
+      },
+      {
+        "text": "Movies & Shows",
+        "href": "https://watch.plex.tv/movies-and-shows/"
+      },
+      {
+        "text": "Live TV Channels",
+        "href": "https://watch.plex.tv/live-tv"
+      },
+      {
+        "text": "Plex Picks",
+        "href": "https://watch.plex.tv/movies-and-shows/list/plex-picks-of-the-week"
+      },
+      {
+        "text": "Most Popular",
+        "href": "https://watch.plex.tv/movies-and-shows/list/popular/"
+      },
+      {
+        "text": "Leaving Soon",
+        "href": "https://watch.plex.tv/movies-and-shows/list/expiring/"
+      },
+      {
+        "text": "What to Watch",
+        "href": "https://www.plex.tv/what-to-watch/"
+      },
+      {
+        "text": "Browse Channels",
+        "href": "https://watch.plex.tv/live-tv"
+      },
+      {
+        "text": "Categories",
+        "href": "https://watch.plex.tv/live-tv/category"
+      },
+      {
+        "text": "Live TV Channels",
+        "href": "https://www.plex.tv/watch-free-tv/"
+      },
+      {
+        "text": "On Demand Movies & Shows",
+        "href": "https://www.plex.tv/watch-free/"
+      },
+      {
+        "text": "Stream on Almost Any Device",
+        "href": "https://www.plex.tv/apps-devices/"
+      },
+      {
+        "text": "Pause, Save, Resume",
+        "href": "https://www.plex.tv/watch-free/"
+      },
+      {
+        "text": "Add Your Personal Media",
+        "href": "https://www.plex.tv/your-media/"
+      },
+      {
+        "text": "Upgrade to Plex Pass",
+        "href": "https://www.plex.tv/plex-pass/"
+      },
+      {
+        "text": "Plexamp (Plex Pass Exclusive)",
+        "href": "https://www.plex.tv/plexamp/"
+      },
+      {
+        "text": "Ultimate TV & DVR (Plex Pass Exclusive)",
+        "href": "https://www.plex.tv/tv/"
+      },
+      {
+        "text": "For TVs",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-app"
+      },
+      {
+        "text": "For Mobile",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-app"
+      },
+      {
+        "text": "For Consoles",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-app"
+      },
+      {
+        "text": "For Desktop",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-app"
+      },
+      {
+        "text": "Plex Media Server",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-media-server"
+      },
+      {
+        "text": "Plexamp (Plex Pass Exclusive)",
+        "href": "https://www.plex.tv/plexamp/#downloads"
+      },
+      {
+        "text": "Plex Photos",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-plexphotos"
+      },
+      {
+        "text": "Plex Dash (Plex Pass Exclusive)",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-plexdash"
+      },
+      {
+        "text": "Watch Free",
+        "href": "https://watch.plex.tv/?plex_utm=1&utm_source=Plex&utm_medium=marketing-site&utm_campaign=Watch%20Free%20Movies%20Online%20with%20Plex&utm_internal=marketing-site%7CWatch%20Free%20Movies%20Online%20with%20Plex&origin=marketing"
+      },
+      {
+        "text": "Discover More Now",
+        "href": "https://www.plex.tv/blog/discover-together/"
+      },
+      {
+        "text": "Watch Free",
+        "href": "https://www.plex.tv/sign-up/"
+      },
+      {
+        "text": "See What’s On",
+        "href": "https://watch.plex.tv/movies-and-shows?plex_utm=1&utm_source=Plex&utm_medium=marketing-site&utm_campaign=Watch%20Free%20Movies%20Online%20with%20Plex&utm_internal=marketing-site%7CWatch%20Free%20Movies%20Online%20with%20Plex&origin=marketing"
+      },
+      {
+        "text": "See What’s On Now",
+        "href": "https://watch.plex.tv/live-tv?plex_utm=1&utm_source=Plex&utm_medium=marketing-site&utm_campaign=Watch%20Free%20Movies%20Online%20with%20Plex&utm_internal=marketing-site%7CWatch%20Free%20Movies%20Online%20with%20Plex&origin=marketing"
+      },
+      {
+        "text": "Stream Free Now",
+        "href": "https://watch.plex.tv/?plex_utm=1&utm_source=Plex&utm_medium=marketing-site&utm_campaign=Watch%20Free%20Movies%20Online%20with%20Plex&utm_internal=marketing-site%7CWatch%20Free%20Movies%20Online%20with%20Plex&origin=marketing"
+      },
+      {
+        "text": "Company",
+        "href": "https://www.plex.tv/about/"
+      },
+      {
+        "text": "About",
+        "href": "https://www.plex.tv/about/"
+      },
+      {
+        "text": "Careers",
+        "href": "https://www.plex.tv/careers/"
+      },
+      {
+        "text": "Our Culture",
+        "href": "https://www.plex.tv/about/culture/"
+      },
+      {
+        "text": "Giving",
+        "href": "https://www.plex.tv/about/giving/"
+      },
+      {
+        "text": "Partners",
+        "href": "https://www.plex.tv/about/partners/"
+      },
+      {
+        "text": "News",
+        "href": "https://www.plex.tv/press/"
+      },
+      {
+        "text": "Plex Gear",
+        "href": "https://plex-gear.myshopify.com/"
+      },
+      {
+        "text": "The Plex Blog",
+        "href": "https://www.plex.tv/blog/"
+      },
+      {
+        "text": "Advertise with Us",
+        "href": "https://www.plex.tv/advertising/"
+      },
+      {
+        "text": "Go Premium",
+        "href": "https://www.plex.tv/plex-pass/"
+      },
+      {
+        "text": "Plans",
+        "href": "https://www.plex.tv/plans/"
+      },
+      {
+        "text": "Plexamp",
+        "href": "https://www.plex.tv/plexamp/"
+      },
+      {
+        "text": "Plex Labs",
+        "href": "https://www.plex.tv/plex-labs/"
+      },
+      {
+        "text": "Get Perks",
+        "href": "https://www.plex.tv/plex-pass/perks/"
+      },
+      {
+        "text": "Downloads",
+        "href": "https://www.plex.tv/media-server-downloads/"
+      },
+      {
+        "text": "Plex Media Server",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-media-server"
+      },
+      {
+        "text": "Plex",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-app"
+      },
+      {
+        "text": "Plexamp",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-plexamp"
+      },
+      {
+        "text": "Plex Photos",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-plexphotos"
+      },
+      {
+        "text": "Plex Dash",
+        "href": "https://www.plex.tv/media-server-downloads/#plex-plexdash"
+      },
+      {
+        "text": "Where to Watch",
+        "href": "https://www.plex.tv/apps-devices/"
+      },
+      {
+        "text": "Support",
+        "href": "https://support.plex.tv"
+      },
+      {
+        "text": "Finding Help",
+        "href": "https://support.plex.tv"
+      },
+      {
+        "text": "Support Library",
+        "href": "https://support.plex.tv/articles"
+      },
+      {
+        "text": "Community Forums",
+        "href": "https://forums.plex.tv"
+      },
+      {
+        "text": "Community Guidelines",
+        "href": "https://www.plex.tv/about/community-guidelines/"
+      },
+      {
+        "text": "Billing Questions",
+        "href": "https://www.plex.tv/contact/?option=plex-pass-billing"
+      },
+      {
+        "text": "Status",
+        "href": "https://status.plex.tv"
+      },
+      {
+        "text": "Bug Bounty",
+        "href": "https://support.plex.tv/articles/reporting-security-issues/"
+      },
+      {
+        "text": "CordCutter",
+        "href": "https://cordcutter.plex.tv"
+      },
+      {
+        "text": "Get in Touch",
+        "href": "https://www.plex.tv/contact/"
+      },
+      {
+        "text": "Watch Free",
+        "href": "https://watch.plex.tv/movies-and-shows"
+      },
+      {
+        "text": "Discover on Plex",
+        "href": "https://www.plex.tv/discover/"
+      },
+      {
+        "text": "TV Channel Finder",
+        "href": "https://www.plex.tv/live-tv-channels/"
+      },
+      {
+        "text": "What to Watch",
+        "href": "https://www.plex.tv/what-to-watch/"
+      },
+      {
+        "text": "What To Watch on Netflix",
+        "href": "https://www.plex.tv/what-to-watch/netflix/"
+      },
+      {
+        "text": "What To Watch on Hulu",
+        "href": "https://www.plex.tv/what-to-watch/hulu/"
+      },
+      {
+        "text": "A24 Movies",
+        "href": "https://www.plex.tv/a24-movies/"
+      },
+      {
+        "text": "Valentine’s Day Movies",
+        "href": "https://www.plex.tv/valentines-day-movies/"
+      },
+      {
+        "text": "Christmas Movies",
+        "href": "https://www.plex.tv/best-christmas-movies/"
+      },
+      {
+        "text": "Privacy & Legal",
+        "href": "https://www.plex.tv/about/privacy-legal/"
+      },
+      {
+        "text": "Accessibility",
+        "href": "https://www.plex.tv/accessibility-statement-eaa/"
+      },
+      {
+        "text": "Manage Cookies",
+        "href": "#"
+      },
+      {
+        "text": "English (US)",
+        "href": "https://www.plex.tv/watch-free/"
+      },
+      {
+        "text": "中文 (中国)",
+        "href": "https://www.plex.tv/zh/watch-free/"
+      },
+      {
+        "text": "Nederlands",
+        "href": "https://www.plex.tv/nl/watch-free/"
+      },
+      {
+        "text": "English (Australia)",
+        "href": "https://www.plex.tv/en-au/watch-free/"
+      },
+      {
+        "text": "English (Canada)",
+        "href": "https://www.plex.tv/en-ca/watch-free/"
+      },
+      {
+        "text": "English (UK)",
+        "href": "https://www.plex.tv/en-gb/watch-free/"
+      },
+      {
+        "text": "Français",
+        "href": "https://www.plex.tv/fr/watch-free/"
+      },
+      {
+        "text": "Deutsch",
+        "href": "https://www.plex.tv/de/watch-free/"
+      },
+      {
+        "text": "हिन्दी",
+        "href": "https://www.plex.tv/hi/watch-free/"
+      },
+      {
+        "text": "日本語",
+        "href": "https://www.plex.tv/ja/watch-free/"
+      },
+      {
+        "text": "한국어",
+        "href": "https://www.plex.tv/ko/watch-free/"
+      },
+      {
+        "text": "Português",
+        "href": "https://www.plex.tv/pt/watch-free/"
+      },
+      {
+        "text": "Português (Brasil)",
+        "href": "https://www.plex.tv/pt-br/watch-free/"
+      },
+      {
+        "text": "Русский",
+        "href": "https://www.plex.tv/ru/watch-free/"
+      },
+      {
+        "text": "Español",
+        "href": "https://www.plex.tv/es/watch-free/"
+      },
+      {
+        "text": "Svenska",
+        "href": "https://www.plex.tv/sv/watch-free/"
+      },
+      {
+        "text": "Do Not Sell or Share My Personal Information / Opt-out of Targeted Advertising",
+        "href": "https://www.plex.tv/vendors-us/"
+      },
+      {
+        "text": "Learn More",
+        "href": "https://www.plex.tv/plex-pass/"
+      },
+      {
+        "text": "Learn More",
+        "href": "https://www.plex.tv/plex-pass/"
+      },
+      {
+        "text": "Tracking Technologies page",
+        "href": "https://www.plex.tv/about/privacy-legal/tracking-technologies/"
+      },
+      {
+        "text": "Start 30-Day Free Trial",
+        "href": "https://www.plex.tv/music/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Plex",
+        "src": "https://www.plex.tv/wp-content/themes/plex/assets/img/plex-logo.svg"
+      },
+      {
+        "alt": "",
+        "src": "https://www.plex.tv/wp-content/uploads/2025/03/watch-free-disco_hero-1024x778.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.plex.tv/wp-content/uploads/2020/03/avod-device-icons-1.png"
+      },
+      {
+        "alt": "Plex",
+        "src": "https://www.plex.tv/wp-content/themes/plex/assets/img/plex-logo.svg"
+      }
+    ],
+    "timestamp": 1760610509391,
+    "url": "https://www.plex.tv/watch-free/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

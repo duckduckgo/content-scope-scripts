@@ -1,0 +1,47 @@
+{
+  "url": "https://nuwber.com/phone-search",
+  "extractedAt": "2025-10-16T10:50:30.456Z",
+  "content": {
+    "favicon": [],
+    "title": "Error - IP/Country Block",
+    "metaDescription": "",
+    "content": "# SORRY, YOU HAVE BEEN BLOCKED.\n   You are unable to access [Nuwber.com](https://nuwber.com/)     \n# WHY HAVE I BEEN BLOCKED?\n   It appears that your current location is restricted from accessing our services. Our platform is not available for users from your country due to geographical restrictions.     \n# WHAT CAN I DO TO RESOLVE THIS?\n   If you are trying to access from the USA region, you can send an email to [support@nuwber.com](mailto:support@nuwber.com) to let us know that you are unable to access our website. Please include the Cloudflare Ray ID and IP found at the bottom of this page.     Your IP address: 20.61.34.40\n Ray ID: 98f6fedfcdd8dac7\n Location: NL",
+    "truncated": false,
+    "fullContentLength": 673,
+    "headings": [
+      {
+        "level": 1,
+        "text": "SORRY, YOU HAVE BEEN BLOCKED."
+      },
+      {
+        "level": 1,
+        "text": "WHY HAVE I BEEN BLOCKED?"
+      },
+      {
+        "level": 1,
+        "text": "WHAT CAN I DO TO RESOLVE THIS?"
+      }
+    ],
+    "links": [
+      {
+        "text": "Nuwber.com",
+        "href": "https://nuwber.com/"
+      },
+      {
+        "text": "support@nuwber.com",
+        "href": "mailto:support@nuwber.com"
+      },
+      {
+        "text": "Terms\n                        & Conditions",
+        "href": "https://nuwber.com/terms"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://nuwber.com/policy"
+      }
+    ],
+    "images": [],
+    "timestamp": 1760611829962,
+    "url": "https://nuwber.com/phone-search?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

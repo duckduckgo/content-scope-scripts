@@ -1,0 +1,36 @@
+{
+  "url": "https://resources.healthgrades.com/right-care/high-blood-pressure/high-blood-pressure-medication",
+  "extractedAt": "2025-10-16T10:10:49.887Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://photos.healthgrades.com/common/favicon.ico",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://photos.healthgrades.com/common/favicon.ico",
+        "rel": "icon"
+      }
+    ],
+    "title": "Healthgrades - This page is not available in your area",
+    "metaDescription": "",
+    "content": "# Oops\n    **This page is not available in your area.** \n Our servers have detected that you are accessing this site from a restricted area. This content is not available in your current region. \n             He has a right to criticize, who has a heart to help.\n - Abraham Lincoln",
+    "truncated": false,
+    "fullContentLength": 281,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Oops"
+      }
+    ],
+    "links": [
+      {
+        "text": "Healthgrades",
+        "href": "/"
+      }
+    ],
+    "images": [],
+    "timestamp": 1760609449408,
+    "url": "https://resources.healthgrades.com/right-care/high-blood-pressure/high-blood-pressure-medication?automation=true?automation=true&wait-for-init-args=true"
+  }
+}
