@@ -68,6 +68,11 @@
         &:active {
             color: var(--ds-color-theme-accent-tertiary);
         }
+
+        &:focus-visible {
+            box-shadow: var(--focus-ring);
+            outline: none;
+        }
     }
 }
 

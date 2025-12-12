@@ -122,10 +122,9 @@
         opacity: 0;
     }
 
-    &:hover {
-        [data-show-hide] {
-            opacity: 1;
-        }
+    &:hover [data-show-hide],
+    [data-show-hide]:focus-within {
+        opacity: 1;
     }
 }
 

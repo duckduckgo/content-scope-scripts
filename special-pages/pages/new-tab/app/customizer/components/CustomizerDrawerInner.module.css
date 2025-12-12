@@ -253,10 +253,8 @@
     color: var(--ds-color-theme-accent-primary);
     margin-bottom: var(--sp-3);
 
-    &:focus {
-        outline: none;
-    }
     &:focus-visible {
-        text-decoration: underline;
+        box-shadow: var(--focus-ring);
+        outline: none;
     }
 }
