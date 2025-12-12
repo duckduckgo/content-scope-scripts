@@ -23,27 +23,9 @@
 }
 
 .closeButton {
-    background: none;
-    border-radius: 100%;
-    border: none;
-    color: var(--ds-color-theme-icons-primary);
-    cursor: pointer;
-    padding: 0;
     position: absolute;
     right: var(--sp-4);
     top: var(--sp-4);
-
-    &:hover {
-        background: rgba(0, 0, 0, 0.06); /* @todo: dark mode? */
-    }
-
-    &:active {
-        background: rgba(0, 0, 0, 0.12); /* @todo: dark mode? */
-    }
-
-    &:focus-visible {
-        box-shadow: var(--focus-ring);
-    }
 }
 
 .heading {

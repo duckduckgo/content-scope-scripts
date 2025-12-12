@@ -37,18 +37,14 @@
     position: relative;
     flex-shrink: 0;
 
-    color: var(--color-black-at-84);
-    background-color: var(--color-black-at-9);
-    &:hover {
-        background-color: var(--color-black-at-18);
+    background-color: var(--ds-color-theme-control-fill-primary);
+
+    &:hover:not(:disabled) {
+        background-color: var(--ds-color-theme-control-fill-secondary);
     }
 
-    [data-theme="dark"] & {
-        color: var(--color-white-at-84);
-        background-color: var(--color-white-at-9);
-        &:hover {
-            background-color: var(--color-white-at-18);
-        }
+    &:active:not(:disabled) {
+        background-color: var(--ds-color-theme-control-fill-tertiary);
     }
 }
 .backBtn {
