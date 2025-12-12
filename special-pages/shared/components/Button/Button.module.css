@@ -135,7 +135,7 @@ body:not([data-platform-name]) {
     --macos-control-accent-branded-shadow-hover: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.00) inset, 0px 0px 0px 0.5px rgba(0, 122, 255, 0.05), 0px 0px 1px 0px rgba(0, 122, 255, 0.05), 0px 1px 1px 0px rgba(0, 122, 255, 0.10);
     --macos-control-accent-branded-shadow-disabled: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 0.5px rgba(0, 0, 0, 0.10), 0px 0px 1px 0px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.20);
 
-    &[data-theme="dark"] {
+    [data-theme="dark"] & {
         --macos-accent-color: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
         --macos-accent-color-secondary: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
         --macos-accent-color-tertiary: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-dark-accent-tertiary));
