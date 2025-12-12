@@ -8,9 +8,6 @@
 
 /* macOS Base Style */
 [data-platform-name="macos"] .button {
-    /* Focus ring: 2px outline with 1px transparent offset */
-    --focus-ring-color: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
-
     border: 0;
     border-radius: calc(5 * var(--px-in-rem));
     box-shadow: var(--button-shadow);
@@ -43,12 +40,13 @@
         }
     }
 
+    &:focus,
     &:focus-visible {
         background: var(--button-bg--focus, var(--button-bg));
+        box-shadow: var(--button-shadow--focus, var(--button-shadow));
         color: var(--button-text--focus, var(--button-text));
         opacity: var(--button-opacity--focus, var(--button-opacity));
-        outline: 2px solid var(--focus-ring-color);
-        outline-offset: 1px;
+        outline: none;
     }
 
     &:hover {
@@ -115,6 +113,9 @@ body:not([data-platform-name]) {
 
 /* macOS Design System Button Tokens */
 [data-platform-name="macos"] {
+    /* Shared among all variants */
+    --macos-control-focused-shadow: 0 0 0 2.5px var(--ds-color-theme-accent-glow-primary, var(--ds-color-theme-default-light-accent-glow-primary)), 0 0 0 1px var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary)) inset, 0 0 1px 0 var(--ds-color-theme-shadow-primary, var(--ds-color-theme-default-light-shadow-primary)), 0 1px 1px 0 var(--ds-color-theme-shadow-primary, var(--ds-color-theme-default-light-shadow-primary));
+
     /* Standard button variant */
     --macos-control-standard-background-rest: var(--color-white);
     --macos-control-standard-background-rest--dark: rgba(255, 255, 255, 0.28);
@@ -136,6 +137,7 @@ body:not([data-platform-name]) {
     --macos-control-accent-branded-shadow-disabled: 0px 0.5px 0px 0px rgba(255, 255, 255, 0.20) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.05) inset, 0px 0px 0px 0.5px rgba(0, 0, 0, 0.10), 0px 0px 1px 0px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.20);
 
     [data-theme="dark"] & {
+        --macos-control-focused-shadow: 0 0 0 2.5px var(--ds-color-theme-accent-glow-primary, var(--ds-color-theme-default-dark-accent-glow-primary)), 0 0 0 1px var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary)) inset, 0 0 1px 0 var(--ds-color-theme-shadow-primary, var(--ds-color-theme-default-dark-shadow-primary)), 0 1px 1px 0 var(--ds-color-theme-shadow-primary, var(--ds-color-theme-default-dark-shadow-primary));
         --macos-accent-color: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
         --macos-accent-color-secondary: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
         --macos-accent-color-tertiary: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-dark-accent-tertiary));
@@ -158,6 +160,9 @@ body:not([data-platform-name]) {
         --button-text--disabled: var(--macos-text-primary);
         --button-shadow--disabled: var(--macos-control-standard-shadow);
         --button-opacity--disabled: 0.4;
+
+        /* Focus */
+        --button-shadow--focus: var(--macos-control-focused-shadow);
 
         /* Hover */
         /* TODO: No difference on hover according to Figma(?) */
@@ -182,6 +187,7 @@ body:not([data-platform-name]) {
 
         /* Focus */
         --button-bg--focus: var(--macos-control-accent-branded-background-focus);
+        --button-shadow--focus: var(--macos-control-focused-shadow);
 
         /* Hover */
         --button-bg--hover: var(--macos-control-accent-branded-background-hover);
@@ -189,8 +195,6 @@ body:not([data-platform-name]) {
     }
 
     [data-theme=dark] & {
-        --focus-ring-color: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
-
         &.standard {
             --button-bg: var(--macos-control-standard-background-rest--dark);
             --button-text: var(--color-white-at-84);
