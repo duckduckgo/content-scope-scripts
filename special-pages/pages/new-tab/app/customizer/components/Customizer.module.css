@@ -17,30 +17,19 @@
     gap: calc(6 * var(--px-in-rem));
     color: var(--ds-color-theme-text-primary);
 
-    [data-theme=dark] & {
-        border-color: var(--color-white-at-9);
-    }
-
     &:focus-visible {
         box-shadow: var(--focus-ring);
         outline: none;
     }
 
     &:hover {
-        background-color: var(--color-black-at-6);
-        border-color: var(--color-black-at-18);
-        [data-theme=dark] & {
-            background-color: var(--color-white-at-18);
-            border-color: var(--color-white-at-36);
-        }
+        background-color: var(--ds-color-theme-control-fill-secondary);
+        border-color: var(--ds-color-theme-control-border-secondary);
     }
 
     &:active {
-        background-color: var(--color-white-at-12);
-        [data-theme=dark] & {
-            background-color: var(--color-white-at-24);
-            border-color: var(--color-white-at-50);
-        }
+        background-color: var(--ds-color-theme-control-fill-tertiary);
+        border-color: var(--ds-color-theme-control-border-tertiary);
     }
 
     &[data-kind="drawer"][aria-expanded="true"] {

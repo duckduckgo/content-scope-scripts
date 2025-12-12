@@ -7,7 +7,7 @@
 }
 
 .tooltipContainer:focus-visible {
-    outline: 2px solid var(--color-blue-50);
+    outline: 2px solid var(--ds-color-theme-accent-primary);
     outline-offset: 2px;
 }
 
@@ -17,11 +17,11 @@
     left: calc(100% + 8px);
     padding: 8px 16px;
     border-radius: 12px;
-    background-color: rgba(255, 255, 255, 0.98);
+    background-color: var(--ds-color-theme-surface-tertiary);
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.20);
     font-size: 12px;
     line-height: 15px;
-    color: var(--color-black-at-96);
+    color: var(--ds-color-theme-text-primary);
     white-space: normal;
     width: 236px;
     z-index: 1000;
@@ -31,12 +31,6 @@
       display: block;
       margin-top: 22px;
     }
-}
-
-/* Dark mode styles */
-[data-theme="dark"] .tooltip {
-    background-color: rgb(71, 71, 71);
-    color: var(--color-white-at-96);
 }
 
 @keyframes tooltipFadeIn {
