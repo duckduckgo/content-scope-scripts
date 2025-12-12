@@ -177,6 +177,7 @@ body:not([data-platform-name]) {
 
         /* Active */
         --button-bg--active: var(--macos-control-accent-branded-background-pressed);
+        --button-text--active: color-mix(in srgb, var(--ds-color-theme-accent-content-primary, var(--ds-color-theme-default-light-accent-content-primary)) 80%, transparent);
         --button-shadow--active: var(--macos-control-accent-branded-shadow-pressed);
 
         /* Disabled */
@@ -203,6 +204,7 @@ body:not([data-platform-name]) {
         &.accent,
         &.accentBrand {
             --button-text: var(--ds-color-theme-accent-content-primary, var(--ds-color-theme-default-dark-accent-content-primary));
+            --button-text--active: color-mix(in srgb, var(--ds-color-theme-accent-content-primary, var(--ds-color-theme-default-dark-accent-content-primary)) 80%, transparent);
         }
     }
 }
