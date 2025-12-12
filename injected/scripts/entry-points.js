@@ -19,6 +19,10 @@ const builds = {
         input: 'entry-points/apple.js',
         output: ['../build/apple/contentScope.js'],
     },
+    'apple-ai-clear': {
+        input: 'entry-points/apple.js',
+        output: ['../build/apple/duckAiDataClearing.js'],
+    },
     'apple-isolated': {
         input: 'entry-points/apple.js',
         output: ['../build/apple/contentScopeIsolated.js'],
