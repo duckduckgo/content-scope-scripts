@@ -1,5 +1,2 @@
-- Initial code comments from PR reviews (#2084)
-- Remove "NEW" badge from protections report (#2098)
-- NTP: Expand screenshot tests (#2096)
-- Add dependency checker comment (#2093)
-- refactor: remove wait-on dependency (#2092)
+- breakage reporting messaging for extensions (#2072)
+- History: Use design system colors (#2097)

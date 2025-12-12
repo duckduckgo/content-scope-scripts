@@ -5153,6 +5153,12 @@
     }, [history]);
     const theme = explicitTheme ?? initialTheme ?? (isDarkMode ? "dark" : "light");
     const themeVariant = explicitThemeVariant ?? initialThemeVariant ?? "default";
+    _2(() => {
+      document.body.dataset.theme = theme;
+    }, [theme]);
+    _2(() => {
+      document.body.dataset.themeVariant = themeVariant;
+    }, [themeVariant]);
     return /* @__PURE__ */ _(ThemeContext.Provider, { value: { theme, themeVariant } }, children);
   }
   function useTheme() {
@@ -5190,20 +5196,7 @@
         unsubscribe();
       };
     }, [onKeyDown, query]);
-    return /* @__PURE__ */ _(
-      "div",
-      {
-        class: App_default.layout,
-        "data-theme": theme,
-        "data-theme-variant": themeVariant,
-        "data-platform": platformName,
-        "data-layout-mode": mode,
-        onClick: clickAnywhere
-      },
-      /* @__PURE__ */ _("aside", { class: App_default.aside }, /* @__PURE__ */ _(Sidebar, { ranges })),
-      /* @__PURE__ */ _("header", { class: App_default.header }, /* @__PURE__ */ _(Header, null)),
-      /* @__PURE__ */ _("main", { class: (0, import_classnames5.default)(App_default.main, App_default.customScroller), ref: mainRef, onClick }, /* @__PURE__ */ _(ResultsContainer, null))
-    );
+    return /* @__PURE__ */ _("div", { class: App_default.layout, "data-platform": platformName, "data-layout-mode": mode, onClick: clickAnywhere }, /* @__PURE__ */ _("aside", { class: App_default.aside }, /* @__PURE__ */ _(Sidebar, { ranges })), /* @__PURE__ */ _("header", { class: App_default.header }, /* @__PURE__ */ _(Header, null)), /* @__PURE__ */ _("main", { class: (0, import_classnames5.default)(App_default.main, App_default.customScroller), ref: mainRef, onClick }, /* @__PURE__ */ _(ResultsContainer, null)));
   }
   function AppLevelErrorBoundaryFallback({ children }) {
     return /* @__PURE__ */ _("div", { class: App_default.paddedError }, /* @__PURE__ */ _("p", null, children), /* @__PURE__ */ _("div", { class: App_default.paddedErrorRecovery }, "You can try to", " ", /* @__PURE__ */ _(

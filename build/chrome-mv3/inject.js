@@ -1364,7 +1364,7 @@
       "pageContext",
       "duckAiDataClearing"
     ],
-    firefox: ["cookie", ...baseFeatures, "clickToLoad"],
+    firefox: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     integration: [...baseFeatures, ...otherFeatures]
@@ -2790,9 +2790,15 @@
   };
 
   // src/sendmessage-transport.js
+  var sharedTransport = null;
   function extensionConstructMessagingConfig() {
-    const messagingTransport = new SendMessageMessagingTransport();
-    return new TestTransportConfig(messagingTransport);
+    return new TestTransportConfig(getSharedMessagingTransport());
+  }
+  function getSharedMessagingTransport() {
+    if (!sharedTransport) {
+      sharedTransport = new SendMessageMessagingTransport();
+    }
+    return sharedTransport;
   }
   var SendMessageMessagingTransport = class {
     constructor() {
@@ -10022,6 +10028,14 @@
             return;
           }
           init(message.argumentsObject);
+        }
+        break;
+      default:
+        if (message.messageType) {
+          const transport = getSharedMessagingTransport();
+          if (transport?.onResponse) {
+            transport.onResponse(message);
+          }
         }
         break;
     }

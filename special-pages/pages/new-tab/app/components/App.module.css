@@ -1,4 +1,5 @@
 @import url("../../../../shared/styles/variables.css");
+@import url("../../../../shared/styles/theme-mappings.css");
 @import url("../styles/base.css");
 @import url("../styles/ntp-theme.css");
 

@@ -1364,7 +1364,7 @@
       "pageContext",
       "duckAiDataClearing"
     ],
-    firefox: ["cookie", ...baseFeatures, "clickToLoad"],
+    firefox: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     "chrome-mv3": ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     integration: [...baseFeatures, ...otherFeatures]
@@ -2790,9 +2790,15 @@
   };
 
   // src/sendmessage-transport.js
+  var sharedTransport = null;
   function extensionConstructMessagingConfig() {
-    const messagingTransport = new SendMessageMessagingTransport();
-    return new TestTransportConfig(messagingTransport);
+    return new TestTransportConfig(getSharedMessagingTransport());
+  }
+  function getSharedMessagingTransport() {
+    if (!sharedTransport) {
+      sharedTransport = new SendMessageMessagingTransport();
+    }
+    return sharedTransport;
   }
   var SendMessageMessagingTransport = class {
     constructor() {
@@ -9573,6 +9579,274 @@
   };
   _messagingContext = new WeakMap();
 
+  // src/detectors/utils/detection-utils.js
+  function checkSelectors(selectors) {
+    if (!selectors || !Array.isArray(selectors)) {
+      return false;
+    }
+    return selectors.some((selector) => document.querySelector(selector));
+  }
+  function checkSelectorsWithVisibility(selectors) {
+    if (!selectors || !Array.isArray(selectors)) {
+      return false;
+    }
+    return selectors.some((selector) => {
+      const element = document.querySelector(selector);
+      return element && isVisible(element);
+    });
+  }
+  function checkWindowProperties(properties) {
+    if (!properties || !Array.isArray(properties)) {
+      return false;
+    }
+    return properties.some((prop) => typeof window?.[prop] !== "undefined");
+  }
+  function isVisible(element) {
+    const computedStyle = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0.5 && rect.height > 0.5 && computedStyle.display !== "none" && computedStyle.visibility !== "hidden" && +computedStyle.opacity > 0.05;
+  }
+  function getTextContent(element, sources) {
+    if (!sources || sources.length === 0) {
+      return element.textContent || "";
+    }
+    return sources.map((source) => element[source] || "").join(" ");
+  }
+  function matchesSelectors(selectors) {
+    if (!selectors || !Array.isArray(selectors)) {
+      return false;
+    }
+    const elements = queryAllSelectors(selectors);
+    return elements.length > 0;
+  }
+  function matchesTextPatterns(element, patterns, sources) {
+    if (!patterns || !Array.isArray(patterns)) {
+      return false;
+    }
+    const text = getTextContent(element, sources);
+    return patterns.some((pattern) => {
+      const regex = new RegExp(pattern, "i");
+      return regex.test(text);
+    });
+  }
+  function checkTextPatterns(patterns, sources) {
+    if (!patterns || !Array.isArray(patterns)) {
+      return false;
+    }
+    return matchesTextPatterns(document.body, patterns, sources);
+  }
+  function queryAllSelectors(selectors, root = document) {
+    if (!selectors || !Array.isArray(selectors) || selectors.length === 0) {
+      return [];
+    }
+    const elements = root.querySelectorAll(selectors.join(","));
+    return Array.from(elements);
+  }
+
+  // src/detectors/detections/bot-detection.js
+  function runBotDetection(config2 = {}) {
+    const results = Object.entries(config2).filter(([_2, challengeConfig]) => challengeConfig?.state === "enabled").map(([challengeId, challengeConfig]) => {
+      const detected = checkSelectors(challengeConfig.selectors) || checkWindowProperties(challengeConfig.windowProperties || []);
+      if (!detected) {
+        return null;
+      }
+      const challengeStatus = findStatus(challengeConfig.statusSelectors);
+      return {
+        detected: true,
+        vendor: challengeConfig.vendor,
+        challengeType: challengeId,
+        challengeStatus
+      };
+    }).filter(Boolean);
+    return {
+      detected: results.length > 0,
+      type: "botDetection",
+      results
+    };
+  }
+  function findStatus(statusSelectors) {
+    if (!Array.isArray(statusSelectors)) {
+      return null;
+    }
+    const match = statusSelectors.find((statusConfig) => {
+      const { selectors, textPatterns, textSources } = statusConfig;
+      return matchesSelectors(selectors) || matchesTextPatterns(document.body, textPatterns, textSources);
+    });
+    return match?.status ?? null;
+  }
+
+  // src/detectors/detections/fraud-detection.js
+  function runFraudDetection(config2 = {}) {
+    const results = Object.entries(config2).filter(([_2, alertConfig]) => alertConfig?.state === "enabled").map(([alertId, alertConfig]) => {
+      const detected = checkSelectorsWithVisibility(alertConfig.selectors) || checkTextPatterns(alertConfig.textPatterns, alertConfig.textSources);
+      if (!detected) {
+        return null;
+      }
+      return {
+        detected: true,
+        alertId,
+        category: alertConfig.type
+      };
+    }).filter(Boolean);
+    return {
+      detected: results.length > 0,
+      type: "fraudDetection",
+      results
+    };
+  }
+
+  // src/features/web-interference-detection.js
+  var WebInterferenceDetection = class extends ContentFeature {
+    init() {
+      const settings = this.getFeatureSetting("interferenceTypes");
+      this.messaging.subscribe("detectInterference", (params) => {
+        const { types = [] } = (
+          /** @type {DetectInterferenceParams} */
+          params ?? {}
+        );
+        const results = {};
+        if (types.includes("botDetection")) {
+          results.botDetection = runBotDetection(settings?.botDetection);
+        }
+        if (types.includes("fraudDetection")) {
+          results.fraudDetection = runFraudDetection(settings?.fraudDetection);
+        }
+        return results;
+      });
+    }
+  };
+
+  // src/features/breakage-reporting/utils.js
+  function getJsPerformanceMetrics() {
+    const paintResources = performance.getEntriesByType("paint");
+    const firstPaint = paintResources.find((entry) => entry.name === "first-contentful-paint");
+    return firstPaint ? [firstPaint.startTime] : [];
+  }
+  function returnError(errorMessage) {
+    return { error: errorMessage, success: false };
+  }
+  function waitForLCP(timeoutMs = 500) {
+    return new Promise((resolve) => {
+      let timeoutId;
+      let observer;
+      const cleanup = () => {
+        if (observer) observer.disconnect();
+        if (timeoutId) clearTimeout(timeoutId);
+      };
+      timeoutId = setTimeout(() => {
+        cleanup();
+        resolve(null);
+      }, timeoutMs);
+      observer = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const lastEntry = entries[entries.length - 1];
+        if (lastEntry) {
+          cleanup();
+          resolve(lastEntry.startTime);
+        }
+      });
+      try {
+        observer.observe({ type: "largest-contentful-paint", buffered: true });
+      } catch (error) {
+        cleanup();
+        resolve(null);
+      }
+    });
+  }
+  async function getExpandedPerformanceMetrics(timeoutMs = 500) {
+    try {
+      if (document.readyState !== "complete") {
+        return returnError("Document not ready");
+      }
+      const navigation = (
+        /** @type {PerformanceNavigationTiming} */
+        performance.getEntriesByType("navigation")[0]
+      );
+      const paint = performance.getEntriesByType("paint");
+      const resources = (
+        /** @type {PerformanceResourceTiming[]} */
+        performance.getEntriesByType("resource")
+      );
+      const fcp = paint.find((p) => p.name === "first-contentful-paint");
+      let largestContentfulPaint = null;
+      if (PerformanceObserver.supportedEntryTypes.includes("largest-contentful-paint")) {
+        largestContentfulPaint = await waitForLCP(timeoutMs);
+      }
+      const totalResourceSize = resources.reduce((sum, r) => sum + (r.transferSize || 0), 0);
+      if (navigation) {
+        return {
+          success: true,
+          metrics: {
+            // Core timing metrics (in milliseconds)
+            loadComplete: navigation.loadEventEnd - navigation.fetchStart,
+            domComplete: navigation.domComplete - navigation.fetchStart,
+            domContentLoaded: navigation.domContentLoadedEventEnd - navigation.fetchStart,
+            domInteractive: navigation.domInteractive - navigation.fetchStart,
+            // Paint metrics
+            firstContentfulPaint: fcp ? fcp.startTime : null,
+            largestContentfulPaint,
+            // Network metrics
+            timeToFirstByte: navigation.responseStart - navigation.fetchStart,
+            responseTime: navigation.responseEnd - navigation.responseStart,
+            serverTime: navigation.responseStart - navigation.requestStart,
+            // Size metrics (in octets)
+            transferSize: navigation.transferSize,
+            encodedBodySize: navigation.encodedBodySize,
+            decodedBodySize: navigation.decodedBodySize,
+            // Resource metrics
+            resourceCount: resources.length,
+            totalResourcesSize: totalResourceSize,
+            // Additional metadata
+            protocol: navigation.nextHopProtocol,
+            redirectCount: navigation.redirectCount,
+            navigationType: navigation.type
+          }
+        };
+      }
+      return returnError("No navigation timing found");
+    } catch (e) {
+      return returnError("JavaScript execution error: " + e.message);
+    }
+  }
+
+  // src/features/breakage-reporting.js
+  var BreakageReporting = class extends ContentFeature {
+    init() {
+      const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled("expandedPerformanceMetrics", "enabled");
+      this.messaging.subscribe("getBreakageReportValues", async () => {
+        const jsPerformance = getJsPerformanceMetrics();
+        const referrer = document.referrer;
+        const result = {
+          jsPerformance,
+          referrer
+        };
+        const getOpener = this.getFeatureSettingEnabled("opener", "enabled");
+        if (getOpener) {
+          result.opener = !!window.opener;
+        }
+        const getReloaded = this.getFeatureSettingEnabled("reloaded", "enabled");
+        if (getReloaded) {
+          result.pageReloaded = window.performance.navigation && window.performance.navigation.type === 1 || /** @type {PerformanceNavigationTiming[]} */
+          window.performance.getEntriesByType("navigation").map((nav) => nav.type).includes("reload");
+        }
+        const detectorSettings = this.getFeatureSetting("interferenceTypes", "webInterferenceDetection");
+        if (detectorSettings) {
+          result.detectorData = {
+            botDetection: runBotDetection(detectorSettings.botDetection),
+            fraudDetection: runFraudDetection(detectorSettings.fraudDetection)
+          };
+        }
+        if (isExpandedPerformanceMetricsEnabled) {
+          const expandedPerformanceMetrics = await getExpandedPerformanceMetrics();
+          if (expandedPerformanceMetrics.success) {
+            result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
+          }
+        }
+        this.messaging.notify("breakageReportResult", result);
+      });
+    }
+  };
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_cookie: CookieFeature,
@@ -9589,7 +9863,9 @@
     ddg_feature_elementHiding: ElementHiding,
     ddg_feature_exceptionHandler: ExceptionHandler,
     ddg_feature_apiManipulation: ApiManipulation,
-    ddg_feature_clickToLoad: ClickToLoad
+    ddg_feature_clickToLoad: ClickToLoad,
+    ddg_feature_webInterferenceDetection: WebInterferenceDetection,
+    ddg_feature_breakageReporting: BreakageReporting
   };
 
   // src/url-change.js
@@ -9752,6 +10028,14 @@
             return;
           }
           init(message.argumentsObject);
+        }
+        break;
+      default:
+        if (message.messageType) {
+          const transport = getSharedMessagingTransport();
+          if (transport?.onResponse) {
+            transport.onResponse(message);
+          }
         }
         break;
     }

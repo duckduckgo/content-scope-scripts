@@ -6165,6 +6165,9 @@
       }
     });
     useSignalEffect(() => {
+      document.body.dataset.theme = browser.value;
+    });
+    useSignalEffect(() => {
       document.body.dataset.themeVariant = variant.value;
     });
     switch (background.kind) {
