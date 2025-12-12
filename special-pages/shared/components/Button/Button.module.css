@@ -289,23 +289,18 @@ body:not([data-platform-name]) {
             color: var(--ds-color-theme-text-primary, var(--ds-color-theme-default-light-text-primary));
             border-width: 0;
 
-            &:hover {
+            &:hover:not(:disabled) {
                 background-color: var(--ds-color-theme-control-fill-secondary, var(--ds-color-theme-default-light-control-fill-secondary));
                 cursor: pointer;
             }
 
-            &:active {
+            &:active:not(:disabled) {
                 background-color: var(--ds-color-theme-control-fill-tertiary, var(--ds-color-theme-default-light-control-fill-tertiary));
             }
 
             &:disabled {
-                color: var(--ds-color-theme-text-primary, var(--ds-color-theme-default-light-text-primary));
-                opacity: 0.4;
-            }
-
-            &:disabled:hover {
+                opacity: 0.8;
                 cursor: not-allowed;
-                background-color: var(--ds-color-theme-control-fill-primary, var(--ds-color-theme-default-light-control-fill-primary));
             }
         }
 
@@ -314,21 +309,17 @@ body:not([data-platform-name]) {
             background-color: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
             color: var(--ds-color-theme-accent-content-primary, var(--ds-color-theme-default-light-accent-content-primary));
 
-            &:hover {
+            &:hover:not(:disabled) {
                 background-color: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
             }
 
-            &:active {
+            &:active:not(:disabled) {
                 background-color: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-light-accent-tertiary));
             }
 
             &:disabled {
-                opacity: 0.4;
-            }
-
-            &:disabled:hover {
+                opacity: 0.8;
                 cursor: not-allowed;
-                background-color: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
             }
         }
 
@@ -339,21 +330,12 @@ body:not([data-platform-name]) {
                 color: var(--ds-color-theme-text-primary, var(--ds-color-theme-default-dark-text-primary));
                 background-color: var(--ds-color-theme-control-fill-primary, var(--ds-color-theme-default-dark-control-fill-primary));
 
-                &:hover {
+                &:hover:not(:disabled) {
                     background-color: var(--ds-color-theme-control-fill-secondary, var(--ds-color-theme-default-dark-control-fill-secondary));
                 }
 
-                &:active {
+                &:active:not(:disabled) {
                     background-color: var(--ds-color-theme-control-fill-tertiary, var(--ds-color-theme-default-dark-control-fill-tertiary));
-                }
-
-                &:disabled {
-                    color: var(--ds-color-theme-text-primary, var(--ds-color-theme-default-dark-text-primary));
-                    opacity: 0.4;
-                }
-
-                &:disabled:hover {
-                    background-color: var(--ds-color-theme-control-fill-primary, var(--ds-color-theme-default-dark-control-fill-primary));
                 }
             }
 
@@ -362,20 +344,12 @@ body:not([data-platform-name]) {
                 color: var(--ds-color-theme-accent-content-primary, var(--ds-color-theme-default-dark-accent-content-primary));
                 background-color: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
 
-                &:hover {
+                &:hover:not(:disabled) {
                     background-color: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
                 }
 
-                &:active {
+                &:active:not(:disabled) {
                     background-color: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-dark-accent-tertiary));
-                }
-
-                &:disabled {
-                    opacity: 0.4;
-                }
-
-                &:disabled:hover {
-                    background-color: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
                 }
             }
         }
