@@ -72,7 +72,7 @@
     width: 100%;
 }
 .borderedSection {
-    border-top: 1px solid var(--ds-color-theme-container-border-primary);
+    border-top: 1px solid var(--ds-color-theme-surface-decoration-primary);
     padding-top: calc(18 * var(--px-in-rem))
 }
 .sectionBody {
