@@ -57,55 +57,28 @@
         transition: opacity .3s ease-out;
 
         &:active {
-            background-color: var(--color-black-at-6);
+            background-color: var(--ds-color-theme-control-fill-tertiary);
             opacity: 0;
         }
     }
 
-    &:hover {
-        background-color: var(--color-black-at-6);
+    &:hover:not(:disabled) {
+        background-color: var(--ds-color-theme-control-fill-secondary);
         cursor: pointer;
     }
 
-    &:active {
-        background-color: var(--ds-color-theme-accent-primary);
-        color: var(--ds-color-theme-accent-content-primary);
+    &:active:not(:disabled) {
+        background-color: var(--ds-color-theme-control-fill-tertiary);
     }
 
     &:disabled {
-        color: var(--color-black-at-84);
-    }
-
-    &:disabled:hover {
+        opacity: 0.4;
         cursor: not-allowed;
-        background-color: var(--color-white-at-6);
     }
 
     &:focus-visible {
         box-shadow: var(--focus-ring);
         outline: none;
-    }
-
-    [data-theme=dark] & {
-        &.supressActiveStateForSwitchToConfirmationText {
-            &:active {
-                background-color: var(--color-black-at-9);
-            }
-        }
-
-        &:hover:not(:active) {
-            background-color: var(--color-black-at-9);
-        }
-
-        &:disabled {
-            color: var(--color-white-at-12);
-            opacity: 0.8;
-        }
-
-        &:disabled:hover {
-            cursor: not-allowed;
-            background-color: var(--color-white-at-12);
-        }
     }
 }
 
