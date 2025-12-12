@@ -114,6 +114,7 @@ body:not([data-platform-name]) {
     --macos-control-standard-background-rest: var(--color-white);
     --macos-control-standard-background-rest--dark: rgba(255, 255, 255, 0.28);
     --macos-control-standard-background-pressed: #e7e7e7;
+    --macos-control-standard-background-pressed--dark: rgba(255, 255, 255, 0.4);
     --macos-control-standard-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.2) inset, 0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 1px 0 rgba(0, 0, 0, 0.05), 0 1px 1px 0 rgba(0, 0, 0, 0.2);
 
     /* Accent Branded variant */
@@ -193,6 +194,7 @@ body:not([data-platform-name]) {
         &.standard {
             --button-bg: var(--macos-control-standard-background-rest--dark);
             --button-text: var(--color-white-at-84);
+            --button-bg--active: var(--macos-control-standard-background-pressed--dark);
         }
 
         &.accent,
