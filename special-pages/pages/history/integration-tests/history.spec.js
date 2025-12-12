@@ -247,7 +247,7 @@ test.describe('history', () => {
             await hp.darkMode();
             await hp.openPage();
             await hp.hasEmptyState();
-            await hp.hasBackgroundColor({ hex: '#333333' });
+            await hp.hasBackgroundColor({ hex: '#1c1c1c' }); // default dark surface-canvas
         });
         test('with overrides from initial setup (light)', async ({ page }, workerInfo) => {
             const hp = HistoryTestPage.create(page, workerInfo).withEntries(0);

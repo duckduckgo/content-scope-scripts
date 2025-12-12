@@ -2,6 +2,8 @@
 
 Preact-based HTML/CSS/JS applications embedded in DuckDuckGo browsers. Each page is an isolated app with privileged native API access.
 
+**See also:** `docs/coding-guidelines.md` for code style and best practices.
+
 ## Structure
 
 ```
