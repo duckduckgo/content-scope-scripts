@@ -100,7 +100,7 @@ body[data-animate-background="true"] {
 
 .aside {
     color: var(--ds-color-theme-text-primary);
-    background: var(--ds-color-theme-surface-tertiary);
+    background: var(--ds-color-theme-surface-secondary);
     grid-area: aside;
     height: 100vh;
     z-index: 1;

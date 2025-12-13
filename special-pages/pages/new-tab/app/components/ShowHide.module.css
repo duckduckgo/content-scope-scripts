@@ -104,24 +104,13 @@
     }
 
     &:hover {
-        background-color: var(--color-black-at-6);
+        background-color: var(--ds-color-theme-control-fill-secondary);
+        border-color: var(--ds-color-theme-control-border-secondary);
     }
 
     &:active {
-        background-color: var(--color-black-at-12);
-    }
-
-    [data-theme=dark] & {
-        border-color: var(--color-white-at-9);
-
-        &:hover {
-            border-color: var(--color-white-at-18);
-            background-color: var(--color-white-at-6);
-        }
-
-        &:active {
-            background-color: var(--color-white-at-12);
-        }
+        background-color: var(--ds-color-theme-control-fill-tertiary);
+        border-color: var(--ds-color-theme-control-border-tertiary);
     }
 }
 

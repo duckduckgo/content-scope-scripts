@@ -42,7 +42,7 @@
         }
 
         .badge {
-            background: var(--color-white-at-30); /* @fixme: Should use a --ntp theme variable for this. This pill design differs from Figma, though */
+            background: var(--ds-color-theme-accent-secondary);
         }
     }
 

@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useEffect, useId, useRef } from 'preact/hooks';
 import { useTypedTranslationWith } from '../types.js';
-import { Cross } from './Icons.js';
+import { DismissButton } from './DismissButton.jsx';
 import styles from './Popover.module.css';
 
 /**
@@ -44,9 +44,11 @@ export function Popover({ title, badge, onClose, children }) {
                 />
             </svg>
             <div class={styles.content}>
-                <button class={styles.closeButton} onClick={onClose} aria-label={t('ntp_popover_close_button')}>
-                    <Cross />
-                </button>
+                <DismissButton
+                    className={styles.closeButton}
+                    onClick={onClose}
+                    buttonProps={{ 'aria-label': t('ntp_popover_close_button') }}
+                />
                 <h3 id={titleId} class={styles.heading}>
                     {badge && <span class={styles.badge}>{badge}</span>}
                     <span class={styles.title}>{title}</span>
