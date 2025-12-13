@@ -66,13 +66,13 @@ jobs:
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
             - run: npm run test-int-x
-            - uses: actions/upload-artifact@v5
+            - uses: actions/upload-artifact@v6
               if: always()
               with:
                   name: tests-playwright-report-pages
                   path: special-pages/playwright-report
                   retention-days: 5
-            - uses: actions/upload-artifact@v5
+            - uses: actions/upload-artifact@v6
               if: always()
               with:
                   name: tests-playwright-report-injected
