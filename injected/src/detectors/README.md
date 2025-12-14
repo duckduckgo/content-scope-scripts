@@ -20,7 +20,6 @@ detectors/
 │   └── fraud-detection.js         # fraud/phishing warning utility
 ├── utils/
 │   └── detection-utils.js         # DOM helpers (selectors, text matching, visibility)
-└── default-config.js              # fallback detector settings
 ```
 
 ## How It Works
