@@ -186,7 +186,7 @@ body:not([data-platform-name]) {
         --button-shadow--focus: var(--macos-control-focused-shadow);
 
         /* Hover */
-        --button-bg--hover: var(--macos-control-accent-branded-background-hover);
+        --button-bg--hover: var(--macos-control-accent-branded-background-rest);
         --button-shadow--hover: var(--macos-control-accent-branded-shadow-hover);
     }
 
