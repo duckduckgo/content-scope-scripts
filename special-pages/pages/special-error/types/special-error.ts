@@ -6,7 +6,7 @@
  * @module SpecialError Messages
  */
 
-export type BrowserTheme = "light" | "dark";
+export type BrowserTheme = "light" | "dark" | "system";
 export type ThemeVariant = "default" | "coolGray" | "slateBlue" | "green" | "violet" | "rose" | "orange" | "desert";
 
 /**
