@@ -9161,7 +9161,14 @@
         d: "M9.20362 6.3927L0.510957 13.8636C-0.183621 14.4619 -0.16344 15.5367 0.531137 16.1351L9.20362 23.606C10.9677 25.1256 11.9819 27.3368 11.9819 29.6632L11.9819 30.0003L11.9819 -0.000488281V0.335449C11.9819 2.66185 10.9677 4.87302 9.20362 6.3927Z",
         fill: "currentColor"
       }
-    )), /* @__PURE__ */ _("div", { class: Popover_default.content }, /* @__PURE__ */ _("button", { class: Popover_default.closeButton, onClick: onClose, "aria-label": t4("ntp_popover_close_button") }, /* @__PURE__ */ _(Cross, null)), /* @__PURE__ */ _("h3", { id: titleId, class: Popover_default.heading }, badge && /* @__PURE__ */ _("span", { class: Popover_default.badge }, badge), /* @__PURE__ */ _("span", { class: Popover_default.title }, title)), /* @__PURE__ */ _("p", { id: descriptionId, class: Popover_default.description }, children)));
+    )), /* @__PURE__ */ _("div", { class: Popover_default.content }, /* @__PURE__ */ _(
+      DismissButton,
+      {
+        className: Popover_default.closeButton,
+        onClick: onClose,
+        buttonProps: { "aria-label": t4("ntp_popover_close_button") }
+      }
+    ), /* @__PURE__ */ _("h3", { id: titleId, class: Popover_default.heading }, badge && /* @__PURE__ */ _("span", { class: Popover_default.badge }, badge), /* @__PURE__ */ _("span", { class: Popover_default.title }, title)), /* @__PURE__ */ _("p", { id: descriptionId, class: Popover_default.description }, children)));
   }
   var init_Popover2 = __esm({
     "pages/new-tab/app/components/Popover.js"() {
@@ -9169,7 +9176,7 @@
       init_preact_module();
       init_hooks_module();
       init_types();
-      init_Icons2();
+      init_DismissButton2();
       init_Popover();
     }
   });

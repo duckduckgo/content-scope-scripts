@@ -25,7 +25,7 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v4
+            - uses: actions/cache@v5
               with:
                   path: |
                       ~/.npm
@@ -55,7 +55,7 @@ jobs:
 
             - run: npm run test-int-snapshots
 
-            - uses: actions/upload-artifact@v5
+            - uses: actions/upload-artifact@v6
               if: always()
               with:
                   name: snapshots-playwright-report
