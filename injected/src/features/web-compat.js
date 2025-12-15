@@ -1,10 +1,15 @@
+/**
+ * @file Web Compatibility Feature
+ * @see injected/docs/coding-guidelines.md for general patterns
+ */
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
 import { DDGProxy, DDGReflect } from '../utils';
-import { wrapToString } from '../wrapper-utils.js';
+import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
- * Fixes incorrect sizing value for outerHeight and outerWidth
+ * Fixes incorrect sizing value for outerHeight and outerWidth.
+ * Note: Avoid hardcoding window geometry values - use calculations or config where possible.
  */
 function windowSizingFix() {
     if (window.outerHeight !== 0 && window.outerWidth !== 0) {
@@ -88,6 +93,9 @@ export class WebCompat extends ContentFeature {
     /** @type {Promise<any> | null} */
     #activeScreenLockRequest = null;
 
+    /** @type {Map<string, object>} */
+    #webNotifications = new Map();
+
     // Opt in to receive configuration updates from initial ping responses
     listenForConfigUpdates = true;
 
@@ -106,6 +114,9 @@ export class WebCompat extends ContentFeature {
         }
         if (this.getFeatureSettingEnabled('notification')) {
             this.notificationFix();
+        }
+        if (this.getFeatureSettingEnabled('webNotifications')) {
+            this.webNotificationsFix();
         }
         if (this.getFeatureSettingEnabled('permissions')) {
             const settings = this.getFeatureSetting('permissions');
@@ -161,7 +172,10 @@ export class WebCompat extends ContentFeature {
         }
     }
 
-    /** Shim Web Share API in Android WebView */
+    /**
+     * Shim Web Share API in Android WebView
+     * Note: Always verify API existence before shimming
+     */
     shimWebShare() {
         if (typeof navigator.canShare === 'function' || typeof navigator.share === 'function') return;
 
@@ -268,6 +282,200 @@ export class WebCompat extends ContentFeature {
         });
     }
 
+    /**
+     * Web Notifications polyfill that communicates with native code for permission
+     * management and notification display.
+     */
+    webNotificationsFix() {
+        // Notification API is not supported in insecure contexts
+        if (!globalThis.isSecureContext) {
+            return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        const feature = this;
+
+        // Check nativeEnabled setting - when false, install polyfill but skip native calls and return 'denied'
+        const settings = this.getFeatureSetting('webNotifications') || {};
+        const nativeEnabled = settings.nativeEnabled !== false;
+
+        // Wrap native calls - no-op when nativeEnabled is false
+        const nativeNotify = nativeEnabled ? (name, data) => feature.notify(name, data) : () => {};
+        const nativeRequest = nativeEnabled ? (name, data) => feature.request(name, data) : () => Promise.resolve({ permission: 'denied' });
+        const nativeSubscribe = nativeEnabled ? (name, cb) => feature.subscribe(name, cb) : () => () => {};
+        // Permission is 'default' when enabled (not yet determined), 'denied' when disabled
+        /** @type {NotificationPermission} */
+        let permission = nativeEnabled ? 'default' : 'denied';
+
+        /**
+         * NotificationPolyfill - replaces the native Notification API
+         */
+        class NotificationPolyfill {
+            /** @type {string} */
+            #id;
+            /** @type {string} */
+            title;
+            /** @type {string} */
+            body;
+            /** @type {string} */
+            icon;
+            /** @type {string} */
+            tag;
+            /** @type {any} */
+            data;
+
+            // Event handlers
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onclick = null;
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onclose = null;
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onerror = null;
+            /** @type {((this: Notification, ev: Event) => any) | null} */
+            onshow = null;
+
+            /**
+             * @returns {'default' | 'denied' | 'granted'}
+             */
+            static get permission() {
+                return permission;
+            }
+
+            /**
+             * @param {NotificationPermissionCallback} [deprecatedCallback]
+             * @returns {Promise<NotificationPermission>}
+             */
+            static async requestPermission(deprecatedCallback) {
+                try {
+                    const result = await nativeRequest('requestPermission', {});
+                    const resultPermission = /** @type {NotificationPermission} */ (result?.permission || 'denied');
+                    // Update cached permission so Notification.permission getter reflects new state
+                    permission = resultPermission;
+                    if (deprecatedCallback) {
+                        deprecatedCallback(resultPermission);
+                    }
+                    return resultPermission;
+                } catch (e) {
+                    // On error, set permission to denied
+                    permission = 'denied';
+                    if (deprecatedCallback) {
+                        deprecatedCallback('denied');
+                    }
+                    return 'denied';
+                }
+            }
+
+            /**
+             * @returns {number}
+             */
+            static get maxActions() {
+                return 2;
+            }
+
+            /**
+             * @param {string} title
+             * @param {NotificationOptions} [options]
+             */
+            constructor(title, options = {}) {
+                this.#id = crypto.randomUUID();
+                this.title = String(title);
+                this.body = options.body ? String(options.body) : '';
+                this.icon = options.icon ? String(options.icon) : '';
+                this.tag = options.tag ? String(options.tag) : '';
+                this.data = options.data;
+
+                feature.#webNotifications.set(this.#id, this);
+
+                nativeNotify('showNotification', {
+                    id: this.#id,
+                    title: this.title,
+                    body: this.body,
+                    icon: this.icon,
+                    tag: this.tag,
+                });
+            }
+
+            close() {
+                // Guard against multiple close() calls - only fire onclose once
+                if (!feature.#webNotifications.has(this.#id)) {
+                    return;
+                }
+                nativeNotify('closeNotification', { id: this.#id });
+                // Remove from map BEFORE firing onclose to prevent duplicate events from native
+                feature.#webNotifications.delete(this.#id);
+                // Fire onclose handler after cleanup
+                if (typeof this.onclose === 'function') {
+                    try {
+                        // @ts-expect-error - NotificationPolyfill doesn't fully implement Notification interface
+                        this.onclose(new Event('close'));
+                    } catch (e) {
+                        // Error in event handler - silently ignore
+                    }
+                }
+            }
+        }
+
+        // Wrap the constructor
+        const wrappedNotification = wrapFunction(NotificationPolyfill, NotificationPolyfill);
+
+        // Wrap static methods
+        const wrappedRequestPermission = wrapToString(
+            NotificationPolyfill.requestPermission.bind(NotificationPolyfill),
+            NotificationPolyfill.requestPermission,
+            'function requestPermission() { [native code] }',
+        );
+
+        // Subscribe to notification events from native
+        nativeSubscribe('notificationEvent', (data) => {
+            const notification = this.#webNotifications.get(data.id);
+            if (!notification) return;
+
+            const eventName = `on${data.event}`;
+            if (typeof notification[eventName] === 'function') {
+                try {
+                    notification[eventName](new Event(data.event));
+                } catch (e) {
+                    // Error in event handler - silently ignore
+                }
+            }
+
+            // Clean up on close event
+            if (data.event === 'close') {
+                this.#webNotifications.delete(data.id);
+            }
+        });
+
+        // Define the Notification property on globalThis
+        this.defineProperty(globalThis, 'Notification', {
+            value: wrappedNotification,
+            writable: true,
+            configurable: true,
+            enumerable: false,
+        });
+
+        // Define permission getter
+        this.defineProperty(globalThis.Notification, 'permission', {
+            get: () => permission,
+            configurable: true,
+            enumerable: true,
+        });
+
+        // Define maxActions getter
+        this.defineProperty(globalThis.Notification, 'maxActions', {
+            get: () => 2,
+            configurable: true,
+            enumerable: true,
+        });
+
+        // Define requestPermission
+        this.defineProperty(globalThis.Notification, 'requestPermission', {
+            value: wrappedRequestPermission,
+            writable: true,
+            configurable: true,
+            enumerable: true,
+        });
+    }
+
     cleanIframeValue() {
         function cleanValueData(val) {
             const clone = Object.assign({}, val);
@@ -335,14 +543,17 @@ export class WebCompat extends ContentFeature {
                         "Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': Required member is undefined.",
                     );
                 }
+                // Don't bypass - all supportedPermissions need handling, including non-native with name overrides
                 if (!settings.supportedPermissions || !(query.name in settings.supportedPermissions)) {
                     throw new TypeError(
                         `Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`,
                     );
                 }
                 const permSetting = settings.supportedPermissions[query.name];
+                // Use custom permission name if configured, else original query name
                 const returnName = permSetting.name || query.name;
                 let returnStatus = settings.permissionResponse || 'prompt';
+                // Only query native for permissions marked native:true
                 if (permSetting.native) {
                     try {
                         const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
@@ -366,6 +577,7 @@ export class WebCompat extends ContentFeature {
 
     /**
      * Fixes screen lock/unlock APIs for Android WebView.
+     * Uses wrapProperty to match original property descriptors.
      */
     screenLockFix() {
         const validOrientations = [
@@ -525,8 +737,8 @@ export class WebCompat extends ContentFeature {
                 playbackState = 'none';
 
                 setActionHandler() {}
-                setCameraActive() {}
-                setMicrophoneActive() {}
+                async setCameraActive() {}
+                async setMicrophoneActive() {}
                 setPositionState() {}
             }
 
@@ -669,19 +881,22 @@ export class WebCompat extends ContentFeature {
         // This should never occur, but keeps typescript happy
         if (!settings) return;
 
+        // Handler strategies: 'reflect' (pass through), 'undefined' (hide), 'polyfill' (stub)
         const proxy = new Proxy(globalThis.webkit.messageHandlers, {
             get(target, messageName, receiver) {
                 const handlerName = String(messageName);
 
-                // handle known message names, such as DDG webkit messaging
+                // 'reflect': pass through to real handler (e.g., DDG webkit messaging)
                 if (settings.handlerStrategies.reflect.includes(handlerName)) {
                     return Reflect.get(target, messageName, receiver);
                 }
 
+                // 'undefined': hide handler existence
                 if (settings.handlerStrategies.undefined.includes(handlerName)) {
                     return undefined;
                 }
 
+                // 'polyfill': return stub (use '*' for catch-all)
                 if (settings.handlerStrategies.polyfill.includes('*') || settings.handlerStrategies.polyfill.includes(handlerName)) {
                     return {
                         postMessage() {
@@ -701,12 +916,14 @@ export class WebCompat extends ContentFeature {
     }
 
     viewportWidthFix() {
+        // Note: This guard is intentional for legacy mode. onUserPreferencesMerged() calls
+        // this without the guard for cases where re-application is needed.
         if (this._viewportWidthFixApplied) {
             return;
         }
         this._viewportWidthFixApplied = true;
+        // Re-entrancy pattern: check readyState to avoid missing DOM elements
         if (document.readyState === 'loading') {
-            // if the document is not ready, we may miss the original viewport tag
             document.addEventListener('DOMContentLoaded', () => this.viewportWidthFixInner());
         } else {
             this.viewportWidthFixInner();
@@ -733,7 +950,7 @@ export class WebCompat extends ContentFeature {
     viewportWidthFixInner() {
         /** @type {NodeListOf<HTMLMetaElement>} **/
         const viewportTags = document.querySelectorAll('meta[name=viewport i]');
-        // Chrome respects only the last viewport tag
+        // Chrome respects only the last viewport tag - modify existing rather than adding new
         const viewportTag = viewportTags.length === 0 ? null : viewportTags[viewportTags.length - 1];
         const viewportContent = viewportTag?.getAttribute('content') || '';
         /** @type {readonly string[]} **/

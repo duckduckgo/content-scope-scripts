@@ -9,17 +9,19 @@ import ContentFeature from '../content-feature.js';
 export class DuckAiDataClearing extends ContentFeature {
     init() {
         this.messaging.subscribe('duckAiClearData', (_) => this.clearData());
+
+        this.notify('duckAiClearDataReady');
     }
 
     async clearData() {
-        let success = true;
+        let lastError = null;
 
         const localStorageKeys = this.getFeatureSetting('chatsLocalStorageKeys');
         for (const localStorageKey of localStorageKeys) {
             try {
                 this.clearSavedAIChats(localStorageKey);
             } catch (error) {
-                success = false;
+                lastError = error;
                 this.log.error('Error clearing saved chats:', error);
             }
         }
@@ -29,15 +31,17 @@ export class DuckAiDataClearing extends ContentFeature {
             try {
                 await this.clearChatImagesStore(indexDbName, objectStoreName);
             } catch (error) {
-                success = false;
+                lastError = error;
                 this.log.error('Error clearing saved chat images:', error);
             }
         }
 
-        if (success) {
+        if (lastError === null) {
             this.notify('duckAiClearDataCompleted');
         } else {
-            this.notify('duckAiClearDataFailed');
+            this.notify('duckAiClearDataFailed', {
+                error: lastError?.message,
+            });
         }
     }
 

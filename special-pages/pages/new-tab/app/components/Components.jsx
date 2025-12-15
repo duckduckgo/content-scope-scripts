@@ -5,6 +5,8 @@ import { useThemes } from '../customizer/themes.js';
 import { useSignal } from '@preact/signals';
 import { BackgroundConsumer } from './BackgroundProvider.js';
 import { CustomizerThemesContext } from '../customizer/CustomizerProvider.js';
+import { customizerData } from '../customizer/mocks.js';
+
 const url = new URL(window.location.href);
 
 const list = {
@@ -22,20 +24,13 @@ export function Components() {
     const validIds = ids.filter((id) => entryIds.includes(id));
     const filtered = validIds.length ? validIds.map((id) => /** @type {const} */ ([id, list[id]])) : entries;
 
-    /** @type {import('../../types/new-tab').CustomizerData} */
-    const data = {
-        background: { kind: 'default' },
-        userImages: [],
-        theme: 'system',
-        userColor: null,
-    };
-    const dataSignal = useSignal(data);
-    const { main, browser } = useThemes(dataSignal);
+    const dataSignal = useSignal(customizerData());
+    const { main, browser, variant } = useThemes(dataSignal);
 
     return (
-        <CustomizerThemesContext.Provider value={{ main, browser }}>
+        <CustomizerThemesContext.Provider value={{ main, browser, variant }}>
             <div class={styles.main} data-main-scroller data-theme={main}>
-                <BackgroundConsumer browser={browser} />
+                <BackgroundConsumer browser={browser} variant={variant} />
                 <div data-content-tube class={styles.contentTube}>
                     {isolated && <Isolated entries={filtered} e2e={e2e} />}
                     {!isolated && (

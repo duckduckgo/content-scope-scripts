@@ -175,6 +175,13 @@ export function customizerData() {
             customizer.theme = value;
         }
     }
+    if (url.searchParams.has('themeVariant')) {
+        const value = url.searchParams.get('themeVariant');
+        const validVariants = ['default', 'coolGray', 'slateBlue', 'green', 'violet', 'rose', 'orange', 'desert'];
+        if (value && validVariants.includes(value)) {
+            customizer.themeVariant = /** @type {import('../../types/new-tab').ThemeVariant} */ (value);
+        }
+    }
 
     return customizer;
 }

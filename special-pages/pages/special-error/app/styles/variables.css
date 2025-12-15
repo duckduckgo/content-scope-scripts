@@ -1,6 +1,10 @@
 :root {
-    /* Light theme colors */
-    --theme-background-color: var(--color-gray-20);
+    --default-light-background-color: var(--color-gray-20);
+    --default-dark-background-color: var(--color-gray-85);
+}
+
+body[data-theme='light'] {
+    --theme-background-color: var(--default-light-background-color);
     --theme-text-primary-color: var(--color-black-at-84);
     --link-color: var(--color-black);
     --border-color: rgba(0, 0, 0, 0.1);
@@ -11,23 +15,53 @@
     --visit-site-color: var(--color-black);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        /* Dark theme colors */
-        --theme-background-color: var(--color-gray-85);
-        --theme-text-primary-color: var(--color-white-at-84);
-        --link-color: var(--color-gray-40);
-        --border-color: var(--color-white-at-18);
+body[data-theme='dark'] {
+    --theme-background-color: var(--default-dark-background-color);
+    --theme-text-primary-color: var(--color-white-at-84);
+    --link-color: var(--color-gray-40);
+    --border-color: var(--color-white-at-18);
 
-        --container-bg: var(--color-gray-90);
-        --advanced-info-bg: #2f2f2f;
+    --container-bg: var(--color-gray-90);
+    --advanced-info-bg: #2f2f2f;
 
-        --visit-site-color: var(--color-gray-40);
-    }
-
-    [data-platform-name="ios"] {
-        --theme-background-color: #222;
-    }
+    --visit-site-color: var(--color-gray-40);
 }
 
+body[data-theme='dark'][data-platform-name='ios'][data-theme-variant='default'] {
+    --theme-background-color: #222;
+}
 
+body[data-theme-variant='coolGray'] {
+    --default-light-background-color: var(--ds-color-theme-cool-gray-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-cool-gray-dark-surface-primary);
+}
+
+body[data-theme-variant='slateBlue'] {
+    --default-light-background-color: var(--ds-color-theme-slate-blue-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-slate-blue-dark-surface-primary);
+}
+
+body[data-theme-variant='green'] {
+    --default-light-background-color: var(--ds-color-theme-green-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-green-dark-surface-primary);
+}
+
+body[data-theme-variant='violet'] {
+    --default-light-background-color: var(--ds-color-theme-violet-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-violet-dark-surface-primary);
+}
+
+body[data-theme-variant='rose'] {
+    --default-light-background-color: var(--ds-color-theme-rose-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-rose-dark-surface-primary);
+}
+
+body[data-theme-variant='orange'] {
+    --default-light-background-color: var(--ds-color-theme-orange-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-orange-dark-surface-primary);
+}
+
+body[data-theme-variant='desert'] {
+    --default-light-background-color: var(--ds-color-theme-desert-light-surface-primary);
+    --default-dark-background-color: var(--ds-color-theme-desert-dark-surface-primary);
+}

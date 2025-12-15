@@ -41,11 +41,11 @@ export function App() {
     const tabIndex = useComputed(() => (hidden.value ? -1 : 0));
     const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
-    const { main, browser } = useContext(CustomizerThemesContext);
+    const { main, browser, variant } = useContext(CustomizerThemesContext);
 
     return (
         <Fragment>
-            <BackgroundConsumer browser={browser} />
+            <BackgroundConsumer browser={browser} variant={variant} />
             <div class={styles.layout} data-animating={animating} data-drawer-visibility={visibility}>
                 <main class={cn(styles.main, styles.mainLayout, styles.mainScroller)} data-main-scroller data-theme={main}>
                     <div class={styles.content}>

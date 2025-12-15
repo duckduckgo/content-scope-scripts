@@ -87,6 +87,7 @@ export function activityMockTransport() {
                         trackersFound: false,
                         trackingStatus: { trackerCompanies: [], totalCount: 0 },
                         title: 'example.com',
+                        cookiePopUpBlocked: true,
                     });
                     count += 1;
                     console.log('sent', dataset);
@@ -339,6 +340,7 @@ export function generateSampleData(count) {
                 trackerCompanies,
                 totalCount: trackerCompanies.length === 0 ? 0 : Math.round(trackerCompanies.length * 1.5),
             },
+            cookiePopUpBlocked: true,
         });
     }
     return data;

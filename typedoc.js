@@ -6,6 +6,8 @@ const config = {
     projectDocuments: [
         'special-pages/pages/new-tab/app/new-tab.md',
         'special-pages/pages/history/app/history.md',
+        'special-pages/pages/special-error/app/special-error.md',
+        'special-pages/pages/errorpage/app/errorpage.md',
         'injected/docs/*.md',
         'messaging/docs/messaging.md',
 

@@ -39,12 +39,12 @@
 
 /* Rest */
 .popup {
-    background: var(--ntp-surface-tertiary);
+    background: var(--ds-color-theme-surface-tertiary);
     border-radius: 12px;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 0 rgba(0, 0, 0, 0.08); /* Elevation 30 */
     display: flow-root; /* Prevent margin collapse on .field */
     margin: 3px;
-    outline: 1px solid var(--ntp-controls-raised-backdrop);
+    outline: 1px solid var(--ds-color-theme-control-raised-backdrop);
 
     [data-background-kind="color"] [data-theme="light"] &,
     [data-background-kind="gradient"] [data-theme="light"] &,
@@ -74,10 +74,10 @@
 /* Focused */
 .root:has(input:focus:placeholder-shown, textarea:focus:placeholder-shown) .popup {
     border-radius: 15px;
-    border: 2px solid var(--ntp-accent-primary);
+    border: 2px solid var(--ds-color-theme-accent-primary);
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1), 0 20px 40px 0 rgba(0, 0, 0, 0.08); /* Elevation 90 */
     margin: 0;
-    outline: 2px solid var(--ntp-accent-glow);
+    outline: 2px solid var(--ds-color-theme-accent-glow-primary);
 
     .field {
         margin: 1px; /* Use margin on .field instead of padding on .popup so that position: absolute respects the spacing */

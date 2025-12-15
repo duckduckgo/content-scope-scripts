@@ -53,9 +53,9 @@ npm run build
 
 ## Test Builds for Ship Review
 
-Test builds are created with a GitHub workflow. The assets for Content Scope Scripts will be created on demand if they are absent (which they will be, if you're pointing to a branch of CSS).
+Test builds are created with a GitHub workflow. The assets for Content Scope Scripts will be created on demand if they are absent (which they will be, if you're pointing to a branch of C-S-S).
 
-1. Commit any changes to CSS and push a branch to the remote
+1. Commit any changes to C-S-S and push a branch to the remote
 2. Make sure you commit the submodule reference update in the Windows PR
 3. Continue with "Build an installer for ship review / test"
 
@@ -65,6 +65,123 @@ Test builds are created with a GitHub workflow. The assets for Content Scope Scr
 
 If you drop a `debugger;` line in the scripts and open DevTools window, the DevTools will breakpoint and navigate to that exact line in code when the debug point has been hit.
 
-### Verifying CSS is Loaded
+### Verifying C-S-S is Loaded
 
 Open DevTools, go to the Console tab and enter `navigator.duckduckgo`. If it's defined, then Content Scope Scripts is running.
+
+## Testing Best Practices
+
+### Test Independence
+
+Playwright tests must be independent for safe parallel execution:
+
+```javascript
+// ✅ Each test is self-contained
+test('overlay displays correctly', async ({ page }) => {
+    const overlays = OverlaysPage.create(page);
+    await overlays.openPage(url);
+    await expect(overlays.element).toBeVisible();
+});
+
+// ❌ Avoid shared state between tests
+let sharedPage; // Don't do this
+```
+
+Use Playwright's [test fixtures](https://playwright.dev/docs/test-fixtures) for complex setup.
+
+### Async/Await
+
+Always `await` async operations—missing `await` causes flaky tests:
+
+```javascript
+// ✅ Correct
+await overlays.opensShort(url);
+
+// ❌ Test passes incorrectly (promise not awaited)
+overlays.opensShort(url);
+```
+
+### Glob Patterns
+
+Use specific patterns to avoid including non-test files:
+
+```javascript
+// ✅ Correct - only .spec.js files
+'integration-test/**/*.spec.js';
+
+// ❌ Incorrect - includes config, fixtures, etc.
+'integration-test/**';
+```
+
+### Feature Flag Testing
+
+Match test setup to the feature state being tested:
+
+```javascript
+// Testing disabled state
+test('feature disabled shows fallback', async ({ page }) => {
+    await page.addInitScript(() => {
+        window.__ddg_config__ = { features: { myFeature: { state: 'disabled' } } };
+    });
+    // ...
+});
+```
+
+### Security-Sensitive Code
+
+Extract DOM manipulation and HTML generation to separate files for focused unit testing. This prevents XSS vulnerabilities from slipping through integration-only testing.
+
+## Integration Test Structure
+
+### Test Page Directory Layout
+
+```
+integration-test/
+├── test-pages/
+│   └── <feature-name>/
+│       ├── config/
+│       │   └── config.json       # Feature config fixtures
+│       ├── pages/
+│       │   └── test-page.html    # Test HTML pages
+│       └── <feature-name>.spec.js # Playwright tests
+```
+
+### Config Fixture Pattern
+
+Create config fixtures that match privacy-configuration schema:
+
+```json
+{
+    "features": {
+        "featureName": {
+            "state": "enabled",
+            "settings": {
+                "settingName": "value",
+                "conditionalChanges": [
+                    {
+                        "condition": { "domain": "localhost" },
+                        "patchSettings": [{ "op": "replace", "path": "/settingName", "value": "testValue" }]
+                    }
+                ]
+            }
+        }
+    }
+}
+```
+
+### Playwright Test Pattern
+
+```javascript
+test('feature behavior', async ({ page }) => {
+    await page.goto('/test-pages/feature/pages/test.html');
+
+    // Wait for feature initialization
+    await page.waitForFunction(() => window.__ddg_feature_ready__);
+
+    // Test feature behavior
+    const result = await page.evaluate(() => someAPI());
+    expect(result).toBe(expectedValue);
+});
+```
+
+For conditional changes and config schema details, see the [injected cursor rules](../.cursor/rules/injected.mdc#conditional-changes).

@@ -136,7 +136,7 @@ export class CustomizerPage {
 
     async hasDefaultDarkBackground() {
         const { page } = this.ntp;
-        await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(51, 51, 51)');
+        await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(28, 28, 28)');
     }
 
     /**
@@ -201,6 +201,18 @@ export class CustomizerPage {
         const payload = { theme, defaultStyles };
         /** @type {SubscriptionEventNames} */
         await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onThemeUpdate'), payload);
+    }
+
+    /**
+     * @param {'light' | 'dark'} theme
+     * @param {import("../../../types/new-tab.js").ThemeVariant} themeVariant
+     */
+    async acceptsThemeVariantUpdate(theme, themeVariant) {
+        await test.step('subscription event: customizer_onThemeUpdate with variant', async () => {
+            /** @type {import('../../../types/new-tab.js').ThemeData} */
+            const payload = { theme, themeVariant };
+            await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onThemeUpdate'), payload);
+        });
     }
 
     /**

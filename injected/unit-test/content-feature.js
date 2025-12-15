@@ -508,10 +508,10 @@ describe('ContentFeature class', () => {
             expect(object.someProp).toBe('someValue');
             const newDesc = Object.getOwnPropertyDescriptor(object, 'someProp');
             expect(newDesc).toBeDefined();
-            // @ts-expect-error - this must be defined
+            // @ts-expect-error - this must be defined, and setting to null for test
             newDesc.get = null;
+            // @ts-expect-error testing edge case with null value
             expect(newDesc).toEqual({
-                // @ts-expect-error get is overridden
                 get: null,
                 set: undefined,
                 enumerable: true,
@@ -531,11 +531,11 @@ describe('ContentFeature class', () => {
             expect((object.someProp = 'someValue')).toBe('someValue');
             const newDesc = Object.getOwnPropertyDescriptor(object, 'someProp');
             expect(newDesc).toBeDefined();
-            // @ts-expect-error - this must be defined
+            // @ts-expect-error - this must be defined, and setting to null for test
             newDesc.set = null;
+            // @ts-expect-error testing edge case with null value
             expect(newDesc).toEqual({
                 get: undefined,
-                // @ts-expect-error set is overridden
                 set: null,
                 enumerable: true,
                 configurable: true,

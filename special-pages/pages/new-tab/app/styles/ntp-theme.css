@@ -33,91 +33,41 @@
     --border-radius-md: 8px;
     --border-radius-sm: 6px;
     --border-radius-xs: 4px;
-    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
-    --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
 }
 
-body {
-    --default-light-background-color: var(--color-gray-0);
-    --default-dark-background-color: var(--color-gray-85);
+[data-theme="light"],
+[data-theme="dark"] {
+    --ntp-surface-background-color: var(--ds-color-theme-tone-tint-primary);
 }
 
+[data-background-kind="color"],
+[data-background-kind="gradient"],
+[data-background-kind="userImage"] {
+    [data-theme="light"] {
+        --ntp-surface-background-color: var(--color-white-at-30);
+    }
+
+    [data-theme="dark"] {
+        --ntp-surface-background-color: var(--color-black-at-18);
+    }
+}
 
 [data-theme=light] {
-    --ntp-surface-background-color: var(--color-white-at-30);
-    --ntp-surfaces-panel-background-color: white;
-    --ntp-surface-border-color: var(--color-black-at-9);
-    --ntp-text-normal: var(--color-black-at-84);
-    --ntp-text-muted: var(--color-black-at-60);
-    --ntp-text-on-primary: var(--color-white-at-84);
-    --ntp-color-primary: var(--ddg-color-primary);
-    --ntp-focus-outline-color: black;
-    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-focus-outline-color);
-    --focus-ring-thin: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 1px  var(--color-white);
-    --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ntp-color-primary);
+    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-black);
+    --focus-ring-thin: 0px 0px 0px 1px var(--color-black), 0px 0px 0px 1px  var(--color-white);
+    --focus-ring-primary: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: #3A69EF;
-
-    /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
-    /* @todo: This palette is what the native apps use, we should gradually move over to it */
-    --ntp-surface-tertiary: #FFFFFF;
-    --ntp-text-primary: rgba(0, 0, 0, 0.96);
-    --ntp-text-tertiary: rgba(0, 0, 0, 0.42);
-    --ntp-icons-primary: rgba(0, 0, 0, 0.84);
-    --ntp-icons-tertiary: rgba(0, 0, 0, 0.36);
-    --ntp-tone-tint: rgba(255, 255, 255, 0.48);
-    --ntp-accent-primary: var(--color-blue-50);
-    --ntp-accent-secondary: var(--color-blue-60);
-    --ntp-accent-tertiary: var(--color-blue-70);
-    --ntp-accent-glow: rgba(57, 105, 239, 0.2);
-    --ntp-accent-content-primary: #FFFFFF;
-    --ntp-controls-fill-primary: rgba(31, 31, 31, 0.09);
-    --ntp-controls-fill-secondary: rgba(31, 31, 31, 0.12);
-    --ntp-controls-raised-fill-primary: #FFFFFF;
-    --ntp-controls-raised-backdrop: rgba(0, 0, 0, 0.09);
-    --ntp-decoration-tertiary: rgba(0, 0, 0, 0.09);
-    --ntp-shadow-primary: rgba(0, 0, 0, 0.05);
-    --ntp-shadow-secondary: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme=dark] {
-    --ntp-surface-background-color: var(--color-black-at-18);
-    --ntp-surfaces-panel-background-color: #222222;
-    --ntp-surface-border-color: var(--color-white-at-12);
-    --ntp-text-normal: var(--color-white-at-84);
-    --ntp-text-muted: var(--color-white-at-60);
-    --ntp-color-primary: var(--color-blue-30);
-    --ntp-text-on-primary: var(--color-black-at-84);
-    --ntp-focus-outline-color: white;
-    --focus-ring: 0px 0px 0px 1px var(--ntp-focus-outline-color), 0px 0px 0px 3px var(--color-white);
-    --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--ntp-focus-outline-color);
-    --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ntp-color-primary);
+    --focus-ring: 0px 0px 0px 1px var(--color-white), 0px 0px 0px 3px var(--color-white);
+    --focus-ring-thin: 0px 0px 0px 1px  var(--color-white), 0px 0px 0px 1px var(--color-white);
+    --focus-ring-primary: 0px 0px 0px 1px var(--default-dark-background-color), 0px 0px 0px 3px var(--ds-color-theme-accent-primary);
     --ntp-selection-color: var(--color-white);
     --ntp-selection-background-color: var(--color-blue-30);
-
-    /* Global Colors & Styles - https://www.figma.com/design/3W4vi0zX8hrpQc7zInQQB6/%F0%9F%8E%A8-Global-Colors---Styles?node-id=11-1&p=f&vars=1&m=dev */
-    /* @todo: This palette is what the native apps use, we should gradually move over to it */
-    --ntp-surface-tertiary: #474747;
-    --ntp-text-primary: rgba(255, 255, 255, 0.96);
-    --ntp-text-tertiary: rgba(255, 255, 255, 0.36);
-    --ntp-icons-primary: rgba(255, 255, 255, 0.78);
-    --ntp-icons-tertiary: rgba(255, 255, 255, 0.24);
-    --ntp-tone-tint: rgba(249, 249, 249, 0.12);
-    --ntp-accent-primary: var(--color-blue-30);
-    --ntp-accent-secondary: var(--color-blue-40);
-    --ntp-accent-tertiary: var(--color-blue-50);
-    --ntp-accent-glow: rgba(114, 149, 246, 0.2);
-    --ntp-accent-content-primary: var(--color-blue-80);
-    --ntp-controls-fill-primary: rgba(249, 249, 249, 0.12);
-    --ntp-controls-fill-secondary: rgba(249, 249, 249, 0.18);
-    --ntp-controls-raised-fill-primary: rgba(255, 255, 255, 0.18);
-    --ntp-controls-raised-backdrop: rgba(255, 255, 255, 0.12);
-    --ntp-decoration-tertiary: rgba(255, 255, 255, 0.12);
-    --ntp-shadow-primary: rgba(0, 0, 0, 0.16);
-    --ntp-shadow-secondary: rgba(0, 0, 0, 0.24);
 }
 
-/* This comes from the application settings */
 :root:has(body[data-platform-name="windows"]) {
     /* Windows/System/Body */
     --body-font-size: 14px;
