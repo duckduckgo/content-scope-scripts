@@ -44,7 +44,7 @@
     }
 
     &:hover:not(:disabled) {
-        background: var(--button-bg);
+        background: var(--button-bg--hover, var(--button-bg));
         box-shadow: var(--button-shadow--hover, var(--button-shadow));
         color: var(--button-text--hover, var(--button-text));
         opacity: var(--button-opacity--hover, var(--button-opacity));
