@@ -733,6 +733,16 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
 }
 
 /**
+ * Extract the properties needed for the load() function from processedConfig.
+ * @param {Record<string, any>} processedConfig
+ * @returns {import('./content-scope-features.js').LoadArgs}
+ */
+export function getLoadArgs(processedConfig) {
+    const { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts } = processedConfig;
+    return { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts };
+}
+
+/**
  * Retutns a list of enabled features
  * @param {RemoteConfig} data
  * @param {string | null} topLevelHostname

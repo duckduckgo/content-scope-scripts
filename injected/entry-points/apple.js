@@ -2,7 +2,7 @@
  * @module Apple integration
  */
 import { load, init } from '../src/content-scope-features.js';
-import { processConfig, platformSpecificFeatures } from './../src/utils';
+import { processConfig, platformSpecificFeatures, getLoadArgs } from './../src/utils';
 import { WebkitMessagingConfig } from '../../messaging/index.js';
 
 function initCode() {
@@ -21,14 +21,7 @@ function initCode() {
         hasModernWebkitAPI: true,
     });
 
-    load({
-        platform: processedConfig.platform,
-        site: processedConfig.site,
-        bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig,
-        messageSecret: processedConfig.messageSecret,
-        messagingContextName: processedConfig.messagingContextName,
-    });
+    load(getLoadArgs(processedConfig));
 
     init(processedConfig);
 

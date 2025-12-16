@@ -1,6 +1,6 @@
 import { load, init, updateFeatureArgs } from '../src/content-scope-features.js';
 import { TestTransportConfig } from '../../messaging/index.js';
-import { getTabUrl } from '../src/utils.js';
+import { getTabUrl, getLoadArgs } from '../src/utils.js';
 
 function generateConfig() {
     const topLevelUrl = getTabUrl();
@@ -93,15 +93,7 @@ async function initCode() {
         },
     });
 
-    load({
-        // @ts-expect-error Types of property 'name' are incompatible.
-        platform: processedConfig.platform,
-        site: processedConfig.site,
-        bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig,
-        currentCohorts: processedConfig.currentCohorts,
-        messagingContextName: processedConfig.messagingContextName,
-    });
+    load(getLoadArgs(processedConfig));
 
     // mark this phase as loaded
     setStatus('loaded');
