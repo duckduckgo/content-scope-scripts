@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { NextStepsContext, NextStepsProvider } from './NextStepsProvider.js';
 import { useContext } from 'preact/hooks';
+import { variants as nextSteps } from './nextsteps.data.js';
 import { NextStepsCardGroup } from './components/NextStepsGroup.js';
 
 /**
@@ -32,7 +33,7 @@ export function NextStepsCustomized() {
 export function NextStepsConsumer() {
     const { state, toggle } = useContext(NextStepsContext);
     if (state.status === 'ready' && state.data.content) {
-        const ids = state.data.content.map((x) => x.id);
+        const ids = state.data.content.filter((x) => x.id in nextSteps).map((x) => x.id);
         const { action, dismiss } = useContext(NextStepsContext);
         return <NextStepsCardGroup types={ids} toggle={toggle} expansion={state.config.expansion} action={action} dismiss={dismiss} />;
     }
