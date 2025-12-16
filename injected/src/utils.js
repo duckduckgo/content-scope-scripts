@@ -573,6 +573,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @property {number} [versionNumber] - Android version number only
  * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
+ * @property {string} [messagingContextName] - The context name for messaging (e.g. 'contentScopeScripts')
  */
 
 /**
@@ -726,8 +727,8 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
     output.featureSettings = parseFeatureSettings(data, enabledFeatures);
     output.bundledConfig = data;
 
-    // Set messaging context name, using scriptContext from native if provided
-    output.messagingContextName = output.scriptContext || 'contentScopeScripts';
+    // Set messaging context name, using messagingContextName from native if provided
+    output.messagingContextName = output.messagingContextName || 'contentScopeScripts';
 
     return output;
 }
