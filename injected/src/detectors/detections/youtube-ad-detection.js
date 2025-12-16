@@ -166,6 +166,22 @@ function initDetector(config) {
         videoElement.addEventListener('loadstart', onLoadStart);
         videoElement.addEventListener('playing', onPlaying);
         videoElement.addEventListener('waiting', onWaiting);
+
+        // Check if video already has data (we missed loadstart)
+        // readyState: 0=HAVE_NOTHING, 1=HAVE_METADATA, 2=HAVE_CURRENT_DATA, 3=HAVE_FUTURE_DATA, 4=HAVE_ENOUGH_DATA
+        const vid = getVideoId();
+        if (videoElement.readyState >= 1 || !videoElement.paused) {
+            if (vid && vid !== lastLoggedVideoId) {
+                lastLoggedVideoId = vid;
+                currentVideoId = vid;
+                state.videoLoads++;
+                // Can't measure accurate load time since we missed loadstart,
+                // but record that a video loaded
+            }
+        } else if (vid) {
+            // Video not ready yet but we have an ID - set up to catch it
+            lastLoggedVideoId = null; // Reset so loadstart can catch it
+        }
     };
 
     /**
