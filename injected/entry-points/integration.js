@@ -7,6 +7,7 @@ function generateConfig() {
     return {
         debug: false,
         sessionKey: 'randomVal',
+        messagingContextName: 'contentScopeScripts',
         platform: {
             name: 'extension',
         },
@@ -99,6 +100,7 @@ async function initCode() {
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,
         currentCohorts: processedConfig.currentCohorts,
+        messagingContextName: processedConfig.messagingContextName,
     });
 
     // mark this phase as loaded

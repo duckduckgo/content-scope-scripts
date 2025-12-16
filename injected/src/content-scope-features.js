@@ -26,6 +26,7 @@ const isHTMLDocument =
  * @property {import('./utils.js').RemoteConfig} bundledConfig
  * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
  * @property {string} [messageSecret] - optional, used in the messageBridge creation
+ * @property {string} messagingContextName - the context name for messaging (e.g. 'contentScopeScripts')
  */
 
 /**

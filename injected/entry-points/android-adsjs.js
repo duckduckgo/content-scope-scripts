@@ -22,7 +22,7 @@ async function sendInitialPingAndUpdate(messagingConfig, processedConfig) {
     try {
         // Create messaging context for the initial ping
         const messagingContext = new MessagingContext({
-            context: 'contentScopeScripts',
+            context: processedConfig.messagingContextName,
             env: processedConfig.debug ? 'development' : 'production',
             featureName: 'messaging',
         });
@@ -79,6 +79,7 @@ function initCode() {
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,
         messageSecret: processedConfig.messageSecret,
+        messagingContextName: processedConfig.messagingContextName,
     });
 
     init(processedConfig);

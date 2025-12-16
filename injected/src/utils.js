@@ -726,6 +726,9 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
     output.featureSettings = parseFeatureSettings(data, enabledFeatures);
     output.bundledConfig = data;
 
+    // Set messaging context name, using scriptContext from native if provided
+    output.messagingContextName = output.scriptContext || 'contentScopeScripts';
+
     return output;
 }
 

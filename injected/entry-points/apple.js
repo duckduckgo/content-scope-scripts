@@ -15,14 +15,8 @@ function initCode() {
 
     const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
 
-    const handlerNames = [];
-    if (import.meta.injectName === 'apple-isolated') {
-        handlerNames.push('contentScopeScriptsIsolated');
-    } else {
-        handlerNames.push('contentScopeScripts');
-    }
     processedConfig.messagingConfig = new WebkitMessagingConfig({
-        webkitMessageHandlerNames: handlerNames,
+        webkitMessageHandlerNames: [processedConfig.messagingContextName],
         secret: '',
         hasModernWebkitAPI: true,
     });
@@ -33,6 +27,7 @@ function initCode() {
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,
         messageSecret: processedConfig.messageSecret,
+        messagingContextName: processedConfig.messagingContextName,
     });
 
     init(processedConfig);

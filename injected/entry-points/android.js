@@ -33,6 +33,7 @@ function initCode() {
         bundledConfig: processedConfig.bundledConfig,
         messagingConfig: processedConfig.messagingConfig,
         messageSecret: processedConfig.messageSecret,
+        messagingContextName: processedConfig.messagingContextName,
     });
 
     init(processedConfig);

@@ -35,6 +35,7 @@ export default class ConfigFeature {
      *   assets?: import('./content-feature.js').AssetConfig | undefined,
      *   site: import('./content-feature.js').Site,
      *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
+     *   messagingContextName: string,
      *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
      * } | null}
      */
