@@ -456,17 +456,7 @@ export function mockTransport() {
                     if (ids.length) {
                         /** @type {NextStepsData} */
                         data = {
-                            content: ids
-                                .filter((id) => {
-                                    if (!(id in nextSteps)) {
-                                        console.warn(`${id} missing in nextSteps data`);
-                                        return false;
-                                    }
-                                    return true;
-                                })
-                                .map((id) => {
-                                    return { id: /** @type {any} */ (id) };
-                                }),
+                            content: ids.map((id) => ({ id: /** @type {any} */ (id) })),
                         };
                         write('nextSteps_data', data);
                     }
