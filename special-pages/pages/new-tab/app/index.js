@@ -22,9 +22,12 @@ import { TabsDebug, TabsProvider } from './tabs/TabsProvider.js';
 /**
  * @import {Telemetry} from "./telemetry/telemetry.js"
  * @import { Environment } from "../../../shared/environment";
+ */
+
+/**
  * @param {Element} root
  * @param {import("../src/index.js").NewTabPage} messaging
- * @param {import("./telemetry/telemetry.js").Telemetry} telemetry
+ * @param {Telemetry} telemetry
  * @param {Environment} baseEnvironment
  * @throws Error
  */
