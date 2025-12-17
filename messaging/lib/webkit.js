@@ -200,10 +200,7 @@ export class WebkitMessagingTransport {
      * @internal
      */
     generateRandomMethod(randomMethodName, callback) {
-        const target = ensureNavigatorDuckDuckGo({
-            window,
-            defineProperty: objectDefineProperty,
-        });
+        const target = ensureNavigatorDuckDuckGo();
         objectDefineProperty(target, randomMethodName, {
             enumerable: false,
             // configurable, To allow for deletion later
@@ -310,10 +307,7 @@ export class WebkitMessagingTransport {
      * @param {(value: unknown) => void} callback
      */
     subscribe(msg, callback) {
-        const target = ensureNavigatorDuckDuckGo({
-            window,
-            defineProperty: objectDefineProperty,
-        });
+        const target = ensureNavigatorDuckDuckGo();
         // for now, bail if there's already a handler setup for this subscription
         if (msg.subscriptionName in target) {
             throw new Error(`A subscription with the name ${msg.subscriptionName} already exists`);
