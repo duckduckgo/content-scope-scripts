@@ -1,1 +1,1 @@
-- chore: Add/update rmf radar icons (#2116)
+- Conditionally display "NEW" label based on protections property (#2112)
