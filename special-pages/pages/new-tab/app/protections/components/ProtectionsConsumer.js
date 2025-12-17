@@ -1,9 +1,5 @@
 import { useContext } from 'preact/hooks';
-import {
-    ProtectionsContext,
-    useBlockedCount,
-    useCookiePopUpsBlockedCount,
-} from './ProtectionsProvider.js';
+import { ProtectionsContext, useBlockedCount, useCookiePopUpsBlockedCount } from './ProtectionsProvider.js';
 import { h } from 'preact';
 import { Protections } from './Protections.js';
 import { ActivityProvider } from '../../activity/ActivityProvider.js';
