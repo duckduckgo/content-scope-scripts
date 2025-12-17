@@ -1,8 +1,10 @@
-a {
-    color: var(--ds-color-theme-accent-text-primary, var(--ds-color-theme-default-light-accent-text-primary));
+.root {
+    a {
+        color: var(--ds-color-theme-accent-text-primary, var(--ds-color-theme-default-light-accent-text-primary));
 
-    [data-theme="dark"] & {
-        color: var(--ds-color-theme-accent-text-primary, var(--ds-color-theme-default-dark-accent-text-primary));
+        [data-theme="dark"] & {
+            color: var(--ds-color-theme-accent-text-primary, var(--ds-color-theme-default-dark-accent-text-primary));
+        }
     }
 }
 
