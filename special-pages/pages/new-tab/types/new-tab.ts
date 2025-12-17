@@ -111,7 +111,8 @@ export type RMFIcon =
   | "DuckAi"
   | "PIR"
   | "Radar"
-  | "RadarCheck"
+  | "RadarCheckGreen"
+  | "RadarCheckPurple"
   | "Subscription";
 
 /**
