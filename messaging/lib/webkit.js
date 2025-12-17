@@ -11,13 +11,13 @@ import { MessagingTransport, MissingHandler } from '../index.js';
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
 import { ensureNavigatorDuckDuckGo } from '../../injected/src/navigator-global.js';
 import {
-    TextDecoder,
-    Uint8Array,
-    Uint32Array,
+    TextDecoder as _TextDecoder,
+    Uint8Array as _Uint8Array,
+    Uint32Array as _Uint32Array,
     JSONparse,
     Arrayfrom,
-    Promise,
-    Error,
+    Promise as _Promise,
+    Error as _Error,
     ReflectDeleteProperty,
     objectDefineProperty,
     getRandomValues,
@@ -134,7 +134,7 @@ export class WebkitMessagingTransport {
             const key = await this.createRandKey();
             const iv = this.createRandIv();
 
-            const { ciphertext, tag } = await new Promise((/** @type {any} */ resolve) => {
+            const { ciphertext, tag } = await new _Promise((/** @type {any} */ resolve) => {
                 this.generateRandomMethod(randMethodName, resolve);
 
                 // @ts-expect-error - this is a carve-out for catalina that will be removed soon
@@ -147,7 +147,7 @@ export class WebkitMessagingTransport {
                 this.wkSend(handler, data);
             });
 
-            const cipher = new Uint8Array([...ciphertext, ...tag]);
+            const cipher = new _Uint8Array([...ciphertext, ...tag]);
             const decrypted = await this.decryptResponse(
                 /** @type {BufferSource} */ (/** @type {unknown} */ (cipher)),
                 /** @type {BufferSource} */ (/** @type {unknown} */ (key)),
@@ -185,11 +185,11 @@ export class WebkitMessagingTransport {
             }
             // forward the error if one was given explicity
             if (data.error) {
-                throw new Error(data.error.message);
+                throw new _Error(data.error.message);
             }
         }
 
-        throw new Error('an unknown error occurred');
+        throw new _Error('an unknown error occurred');
     }
 
     /**
@@ -221,7 +221,7 @@ export class WebkitMessagingTransport {
      * @return {string}
      */
     randomString() {
-        return '' + getRandomValues(new Uint32Array(1))[0];
+        return '' + getRandomValues(new _Uint32Array(1))[0];
     }
 
     /**
@@ -248,7 +248,7 @@ export class WebkitMessagingTransport {
     async createRandKey() {
         const key = await generateKey(this.algoObj, true, ['encrypt', 'decrypt']);
         const exportedKey = await exportKey('raw', key);
-        return new Uint8Array(exportedKey);
+        return new _Uint8Array(exportedKey);
     }
 
     /**
@@ -256,7 +256,7 @@ export class WebkitMessagingTransport {
      * @internal
      */
     createRandIv() {
-        return getRandomValues(new Uint8Array(12));
+        return getRandomValues(new _Uint8Array(12));
     }
 
     /**
@@ -275,7 +275,7 @@ export class WebkitMessagingTransport {
 
         const decrypted = await decrypt(algo, cryptoKey, ciphertext);
 
-        const dec = new TextDecoder();
+        const dec = new _TextDecoder();
         return dec.decode(decrypted);
     }
 
@@ -310,7 +310,7 @@ export class WebkitMessagingTransport {
         const target = ensureNavigatorDuckDuckGo();
         // for now, bail if there's already a handler setup for this subscription
         if (msg.subscriptionName in target) {
-            throw new Error(`A subscription with the name ${msg.subscriptionName} already exists`);
+            throw new _Error(`A subscription with the name ${msg.subscriptionName} already exists`);
         }
         objectDefineProperty(target, msg.subscriptionName, {
             enumerable: false,
@@ -408,4 +408,3 @@ export class SecureMessagingParams {
         this.iv = params.iv;
     }
 }
-

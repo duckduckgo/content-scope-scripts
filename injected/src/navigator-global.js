@@ -22,4 +22,3 @@ export function ensureNavigatorDuckDuckGo({ defineProperty = objectDefinePropert
     });
     return target;
 }
-
