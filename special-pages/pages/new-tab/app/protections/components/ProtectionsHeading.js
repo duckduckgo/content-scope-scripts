@@ -4,7 +4,7 @@ import { ShowHideButtonCircle } from '../../components/ShowHideButton.jsx';
 import cn from 'classnames';
 import { h } from 'preact';
 import { InfoIcon } from '../../components/Icons.js';
-// import { NewBadge } from '../../components/NewBadge.js';
+import { NewBadge } from '../../components/NewBadge.js';
 import { Tooltip } from '../../components/Tooltip/Tooltip.js';
 import { useAnimatedCount } from '../utils/useAnimatedCount.js';
 import { useRef, useEffect, useMemo } from 'preact/hooks';
@@ -23,6 +23,7 @@ import { useLocale } from '../../../../../shared/components/EnvironmentProvider.
  * @param {() => void} props.onToggle
  * @param {import('preact').ComponentProps<'button'>} [props.buttonAttrs]
  * @param {import("@preact/signals").Signal<undefined | number | null>} props.totalCookiePopUpsBlockedSignal
+ * @param {import("@preact/signals").Signal<boolean | undefined>} [props.showProtectionsReportNewLabelSignal]
  */
 export function ProtectionsHeading({
     expansion,
@@ -31,6 +32,7 @@ export function ProtectionsHeading({
     onToggle,
     buttonAttrs = {},
     totalCookiePopUpsBlockedSignal,
+    showProtectionsReportNewLabelSignal,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const ntp = useMessaging();
@@ -40,6 +42,7 @@ export function ProtectionsHeading({
     const counterContainerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const totalTrackersBlocked = blockedCountSignal.value;
     const totalCookiePopUpsBlockedValue = totalCookiePopUpsBlockedSignal.value;
+    const showProtectionsReportNewLabel = showProtectionsReportNewLabelSignal?.value;
 
     // Defensive validation following pattern in special-pages
     const totalCookiePopUpsBlocked =
@@ -115,9 +118,7 @@ export function ProtectionsHeading({
                         <h3 class={styles.title}>
                             {formatter.format(animatedCookiePopUpsBlocked)} <span>{cookiePopUpsBlockedHeading}</span>
                         </h3>
-                        {/* @todo `NewBadge` will be added in a future release.
-                        See https://app.asana.com/1/137249556945/task/1211734332014683/comment/1212338797552994?focus=true */}
-                        {/* <NewBadge text={t('protections_newBadge')} /> */}
+                        {showProtectionsReportNewLabel && <NewBadge text={t('protections_newBadge')} />}
                     </div>
                 )}
             </div>

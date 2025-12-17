@@ -593,6 +593,10 @@ export interface ProtectionsConfig {
    * Boolean flag to explicitly enable or disable the burn animations
    */
   showBurnAnimation?: boolean;
+  /**
+   * Display or hide the 'New' badge (label) on the protections report
+   */
+  showProtectionsReportNewLabel?: boolean;
 }
 /**
  * Generated from @see "../messages/reportInitException.notify.json"
