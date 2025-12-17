@@ -24,7 +24,7 @@ import { ProtectionsHeadingLegacy } from './ProtectionsHeadingLegacy';
  * @param {import("preact").ComponentChild} [props.children]
  * @param {()=>void} props.toggle
  * @param {import("@preact/signals").Signal<undefined | number | null>} props.totalCookiePopUpsBlockedSignal
- * @param {import("@preact/signals").Signal<boolean | undefined>} props.showProtectionsReportNewLabelSignal
+ * @param {import("@preact/signals").Signal<boolean | undefined>} [props.showProtectionsReportNewLabelSignal]
  */
 export function Protections({
     expansion = 'expanded',
