@@ -76,7 +76,7 @@ export function ThemeSection({ data, setTheme }) {
                 </button>
             </div>
 
-            <div class={styles.variantGrid} role="radiogroup" aria-label={t('customizer_section_title_theme_variant')}>
+            <div class={styles.variantGrid} role="radiogroup" aria-label={t('customizer_theme_variant_grid_label')}>
                 {THEME_VARIANTS.map((variant) => (
                     <button
                         key={variant.value}
