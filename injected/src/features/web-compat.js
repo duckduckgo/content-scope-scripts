@@ -551,6 +551,9 @@ export class WebCompat extends ContentFeature {
 
     permissionsPresentFix(settings) {
         const originalQuery = window.navigator.permissions.query;
+        if (typeof originalQuery !== 'function') {
+            return;
+        }
         window.navigator.permissions.query = new Proxy(originalQuery, {
             apply: async (target, thisArg, args) => {
                 this.addDebugFlag();
