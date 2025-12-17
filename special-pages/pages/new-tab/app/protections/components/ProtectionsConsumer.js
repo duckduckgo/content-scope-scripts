@@ -50,6 +50,7 @@ function ProtectionsReadyState({ data, config }) {
             feed={config.feed}
             setFeed={setFeed}
             totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
+            showProtectionsReportNewLabel={config.showProtectionsReportNewLabel}
         >
             {config.feed === 'activity' && (
                 <ActivityProvider>
