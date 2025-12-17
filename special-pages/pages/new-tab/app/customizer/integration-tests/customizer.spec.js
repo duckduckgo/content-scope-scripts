@@ -340,4 +340,42 @@ test.describe('newtab customizer', () => {
         await cp.acceptsThemeUpdate('dark');
         await ntp.hasBackgroundColor({ hex: '#312e2a' }); // desert dark surface-canvas, NOT default dark
     });
+    test('shows ThemeSection when themeVariant is truthy', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { autoOpen: 'true', themeVariant: 'default' } });
+        await cp.themeSectionIsVisible();
+    });
+    test('shows BrowserThemeSection when themeVariant is not set', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { autoOpen: 'true' } });
+        await cp.browserThemeSectionIsVisible();
+    });
+    test('theme and theme variant are correctly selected', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { autoOpen: 'true', themeVariant: 'violet', theme: 'dark' } });
+        await cp.themeIsSelected('dark');
+        await cp.themeVariantIsSelected('violet');
+    });
+    test('can select a theme and customizer_setTheme is called', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { autoOpen: 'true', themeVariant: 'default', theme: 'light' } });
+        await cp.themeIsSelected('light');
+        await cp.selectsTheme('dark', 'default');
+    });
+    test('can select a theme variant and customizer_setTheme is called', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { autoOpen: 'true', themeVariant: 'default', theme: 'system' } });
+        await cp.themeVariantIsSelected('default');
+        await cp.selectsThemeVariant('rose', 'system');
+    });
 });
