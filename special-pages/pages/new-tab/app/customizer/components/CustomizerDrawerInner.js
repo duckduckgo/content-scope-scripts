@@ -61,14 +61,15 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                 <TwoCol
                     left={({ push }) => (
                         <div class={styles.sections}>
-                            <CustomizerSection title={t('customizer_section_title_background')}>
-                                <BackgroundSection data={data} onNav={push} onUpload={onUpload} select={select} />
-                            </CustomizerSection>
-                            {hasThemeVariants ? (
+                            {hasThemeVariants && (
                                 <CustomizerSection title={t('customizer_section_title_theme_variant')}>
                                     <ThemeSection data={data} setTheme={setTheme} />
                                 </CustomizerSection>
-                            ) : (
+                            )}
+                            <CustomizerSection title={t('customizer_section_title_background')}>
+                                <BackgroundSection data={data} onNav={push} onUpload={onUpload} select={select} />
+                            </CustomizerSection>
+                            {!hasThemeVariants && (
                                 <CustomizerSection title={t('customizer_section_title_theme')}>
                                     <BrowserThemeSection data={data} setTheme={setTheme} />
                                 </CustomizerSection>
