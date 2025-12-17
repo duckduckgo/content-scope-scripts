@@ -28,3 +28,20 @@ export const console = globalThis.console;
 export const consoleLog = console.log.bind(console);
 export const consoleWarn = console.warn.bind(console);
 export const consoleError = console.error.bind(console);
+export const TextEncoder = globalThis.TextEncoder;
+export const TextDecoder = globalThis.TextDecoder;
+export const Uint8Array = globalThis.Uint8Array;
+export const Uint16Array = globalThis.Uint16Array;
+export const Uint32Array = globalThis.Uint32Array;
+export const JSONstringify = JSON.stringify;
+export const JSONparse = JSON.parse;
+export const Arrayfrom = Array.from;
+export const ReflectDeleteProperty = Reflect.deleteProperty.bind(Reflect);
+export const getRandomValues = globalThis.crypto?.getRandomValues?.bind(globalThis.crypto);
+
+// Secure context only - crypto.subtle is unavailable on HTTP
+export const generateKey = globalThis.crypto?.subtle?.generateKey?.bind(globalThis.crypto?.subtle);
+export const exportKey = globalThis.crypto?.subtle?.exportKey?.bind(globalThis.crypto?.subtle);
+export const importKey = globalThis.crypto?.subtle?.importKey?.bind(globalThis.crypto?.subtle);
+export const encrypt = globalThis.crypto?.subtle?.encrypt?.bind(globalThis.crypto?.subtle);
+export const decrypt = globalThis.crypto?.subtle?.decrypt?.bind(globalThis.crypto?.subtle);
