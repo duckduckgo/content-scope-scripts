@@ -613,7 +613,7 @@ export class WebCompat extends ContentFeature {
                 const permSetting = settings.supportedPermissions[query.name];
                 // Use custom permission name if configured, else original query name
                 const returnName = permSetting.name || query.name;
-const returnStatus = settings.permissionResponse || 'prompt';
+                const returnStatus = settings.permissionResponse || 'prompt';
                 return Promise.resolve(new PermissionStatus(returnName, returnStatus));
             },
             {

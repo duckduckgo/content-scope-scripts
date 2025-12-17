@@ -9,7 +9,7 @@ function createApiTestRunner(testName, testFunction) {
         test.describe('with API deleted', () => {
             testFunction({ removeApi: true });
         });
-        
+
         test.describe('with API shimmed', () => {
             testFunction({ removeApi: false });
         });
