@@ -3,6 +3,7 @@
   "title": "Browser Theme",
   "enum": [
     "light",
-    "dark"
+    "dark",
+    "system"
   ]
 }

@@ -59,7 +59,7 @@ export default class AutofillImport extends ActionExecutorBase {
 
     #isBookmarkModalVisible = false;
 
-    /** @type {WeakSet<Element>} */
+    /** @type {WeakSet<Element>} Use WeakSet for DOM refs to allow GC */
     #tappedElements = new WeakSet();
 
     /**
@@ -430,6 +430,8 @@ export default class AutofillImport extends ActionExecutorBase {
     }
 
     /**
+     * Event handler using class instance pattern.
+     * Use `addEventListener('scroll', this)` not `.bind(this)` to allow removal.
      * @param {Event} event
      */
     handleEvent(event) {
@@ -451,6 +453,7 @@ export default class AutofillImport extends ActionExecutorBase {
 
     /**
      * Checks if the path is supported for animation.
+     * NOTE: All paths here must have corresponding handlers in getElementAndStyleFromPath()
      * @param {string} path
      * @returns {boolean}
      */

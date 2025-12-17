@@ -16,7 +16,8 @@ import { Settings } from './settings.js';
 import { SpecialError } from './specialError.js';
 
 import '../../../shared/styles/global.css'; // global styles
-import './styles/variables.css';
+import '../../../shared/styles/theme-mappings.css';
+import './styles/special-error-theme.css';
 
 /**
  * @param {import("../src/index.js").SpecialErrorPage} messaging

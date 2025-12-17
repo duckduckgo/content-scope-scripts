@@ -17,6 +17,7 @@
     "test-int-snapshots-update": "npm run test-int-snapshots-update --workspaces --if-present",
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
     "docs": "typedoc",
+    "docs-netlify": "npm run build-locales -w injected && npm run build -w special-pages && npm run docs && cp -R build/integration/ docs/build",
     "docs-watch": "typedoc --watch",
     "tsc": "tsc",
     "tsc-watch": "tsc --watch",
@@ -41,7 +42,7 @@
     "@playwright/test": "^1.52.0",
     "ajv": "^8.17.1",
     "esbuild": "^0.27.1",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "minimist": "^1.2.8",
     "prettier": "3.7.4",
     "stylelint": "^15.11.0",
@@ -50,7 +51,7 @@
     "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.15",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.48.1"
+    "typescript-eslint": "^8.49.0"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.2",

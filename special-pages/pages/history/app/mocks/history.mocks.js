@@ -4,6 +4,13 @@ import { HistoryService } from '../history.service.js';
  * @type {Record<string, import("../../types/history").HistoryQueryResponse>}
  */
 export const historyMocks = {
+    empty: {
+        info: {
+            finished: true,
+            query: { term: '' },
+        },
+        value: [],
+    },
     few: {
         info: {
             finished: true,

@@ -1,3 +1,12 @@
+/**
+ * @file Click to Load Feature
+ * @see injected/docs/coding-guidelines.md for general patterns
+ *
+ * Key reminders:
+ * - Don't set `inset: 'auto'` after copying positioning styles
+ * - Use `{ key: value }` message payloads, not primitives
+ * - Handler name is `contentScopeScripts` (not `contentScopeScriptsIsolated`)
+ */
 import { Messaging, TestTransportConfig } from '../../../messaging/index.js';
 import { createCustomEvent, originalWindowDispatchEvent } from '../utils.js';
 import { logoImg, loadingImages, closeIcon, facebookLogo } from './click-to-load/ctl-assets.js';

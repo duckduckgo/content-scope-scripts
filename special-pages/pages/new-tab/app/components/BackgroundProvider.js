@@ -98,6 +98,10 @@ export function BackgroundConsumer({ browser, variant }) {
         }
     });
 
+    // Sync theme attributes to <body>
+    useSignalEffect(() => {
+        document.body.dataset.theme = browser.value;
+    });
     useSignalEffect(() => {
         document.body.dataset.themeVariant = variant.value;
     });
