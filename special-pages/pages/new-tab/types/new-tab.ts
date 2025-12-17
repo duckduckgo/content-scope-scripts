@@ -103,7 +103,17 @@ export type NextStepsCards = {
   id: NextStepsCardTypes;
 }[];
 export type RMFMessage = SmallMessage | MediumMessage | BigSingleActionMessage | BigTwoActionMessage;
-export type RMFIcon = "Announce" | "DDGAnnounce" | "CriticalUpdate" | "AppUpdate" | "PrivacyPro" | "DuckAi";
+export type RMFIcon =
+  | "Announce"
+  | "AppUpdate"
+  | "CriticalUpdate"
+  | "DDGAnnounce"
+  | "DuckAi"
+  | "PIR"
+  | "Radar"
+  | "RadarCheckGreen"
+  | "RadarCheckPurple"
+  | "Subscription";
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -184,6 +194,7 @@ export interface NewTabMessages {
     | OmnibarOnConfigUpdateSubscription
     | ProtectionsOnConfigUpdateSubscription
     | ProtectionsOnDataUpdateSubscription
+    | ProtectionsScrollSubscription
     | RmfOnDataUpdateSubscription
     | StatsOnDataUpdateSubscription
     | TabsOnDataUpdateSubscription
@@ -582,6 +593,10 @@ export interface ProtectionsConfig {
    * Boolean flag to explicitly enable or disable the burn animations
    */
   showBurnAnimation?: boolean;
+  /**
+   * Display or hide the 'New' badge (label) on the protections report
+   */
+  showProtectionsReportNewLabel?: boolean;
 }
 /**
  * Generated from @see "../messages/reportInitException.notify.json"
@@ -1201,6 +1216,12 @@ export interface ProtectionsOnConfigUpdateSubscription {
 export interface ProtectionsOnDataUpdateSubscription {
   subscriptionEvent: "protections_onDataUpdate";
   params: ProtectionsData;
+}
+/**
+ * Generated from @see "../messages/protections_scroll.subscribe.json"
+ */
+export interface ProtectionsScrollSubscription {
+  subscriptionEvent: "protections_scroll";
 }
 /**
  * Generated from @see "../messages/rmf_onDataUpdate.subscribe.json"

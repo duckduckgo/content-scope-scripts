@@ -20,8 +20,8 @@ describe('Shim API', () => {
                 return 123;
             }
 
-            setCameraActive() {}
-            setMicrophoneActive() {}
+            async setCameraActive() {}
+            async setMicrophoneActive() {}
             setPositionState() {}
         };
         definePropertyFn = spyOn(Object, 'defineProperty').and.callThrough();

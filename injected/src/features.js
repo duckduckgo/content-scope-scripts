@@ -79,7 +79,7 @@ export const platformSupport = {
         'pageContext',
         'duckAiDataClearing',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad'],
+    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
     'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
     integration: [...baseFeatures, ...otherFeatures],

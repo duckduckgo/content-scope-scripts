@@ -15,7 +15,7 @@ export const AnimationConstants = {
     UPPER_THRESHOLD: 40,
     LOWER_START_PERCENTAGE: 0.75,
     UPPER_START_PERCENTAGE: 0.85,
-    MAX_DISPLAY_COUNT: 9999,
+    MAX_DISPLAY_COUNT: 9999999,
 };
 
 /**
@@ -61,7 +61,7 @@ export function animateCount(targetValue, onUpdate, onComplete, fromValue = null
         MAX_DISPLAY_COUNT,
     } = AnimationConstants;
 
-    // Cap the target value at 9999
+    // Cap the target value at MAX_DISPLAY_COUNT
     const cappedTarget = Math.min(targetValue, MAX_DISPLAY_COUNT);
     const isInitialDisplay = fromValue === null || fromValue === 0;
 
@@ -111,7 +111,15 @@ export function animateCount(targetValue, onUpdate, onComplete, fromValue = null
 
         // Ease-in-out cubic: approximation of CSS cubic-bezier(0.42, 0.0, 0.58, 1.0)
         // Accelerates at start, decelerates at end with cubic curve
-        const eased = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        // Optimized: use ** operator instead of Math.pow, and pre-calculate progress^2
+        let eased;
+        if (progress < 0.5) {
+            const p2 = progress * progress;
+            eased = 4 * p2 * progress;
+        } else {
+            const t = -2 * progress + 2;
+            eased = 1 - (t * t * t) / 2;
+        }
 
         const currentValue = Math.floor(startValue + animationRange * eased); // Use pre-calculated range
         onUpdate(currentValue);

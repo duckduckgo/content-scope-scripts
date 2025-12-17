@@ -15,10 +15,9 @@
         margin-bottom: var(--sp-4);
     }
 
-    &:hover {
-        [data-show-hide] {
-            opacity: 1;
-        }
+    &:hover [data-show-hide],
+    & [data-show-hide]:focus-within {
+        opacity: 1;
     }
 }
 

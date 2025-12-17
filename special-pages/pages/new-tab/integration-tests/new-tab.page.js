@@ -123,7 +123,13 @@ export class NewtabPage {
         }
 
         for (const [key, value] of Object.entries(additional || {})) {
-            searchParams.set(key, value);
+            if (Array.isArray(value)) {
+                for (const item of value) {
+                    searchParams.append(key, item);
+                }
+            } else {
+                searchParams.set(key, value);
+            }
         }
 
         // eslint-disable-next-line no-undef

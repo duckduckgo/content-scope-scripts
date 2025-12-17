@@ -30,9 +30,9 @@ const rmfDataBigSingleActionMsg = {
     content: {
         messageType: 'big_single_action',
         id: 'id-big-single',
-        titleText: 'Tell Us Your Thoughts on Privacy Pro',
+        titleText: 'Why did you cancel your subscription?',
         descriptionText: 'Take our short anonymous survey and share your feedback.',
-        icon: 'PrivacyPro',
+        icon: 'Subscription',
         primaryActionText: 'Take Survey',
     },
 };

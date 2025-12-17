@@ -3,17 +3,21 @@ name: Release
 on:
     workflow_dispatch:
         inputs:
-            version:
+            version_bump:
                 required: true
-                description: 'Release version'
+                description: 'Version bump type'
+                type: choice
+                options:
+                    - major
+                    - minor
 
 jobs:
     release_pr:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v5
-            - uses: actions/setup-node@v4
+            - uses: actions/checkout@v6
+            - uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
                   cache: 'npm'
@@ -38,6 +42,44 @@ jobs:
                   else
                     git checkout -b releases origin/releases
                   fi
+
+            - name: Calculate next version
+              id: version
+              run: |
+                  # Get the latest tag (no longer using v prefix, filter out legacy v-prefixed tags)
+                  LATEST_TAG=$(git tag | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+
+                  # Stop build if no version tag is found
+                  if [ -z "$LATEST_TAG" ]; then
+                    echo "Error: No semantic version tags found in repository"
+                    echo "Expected format: X.Y.Z (e.g., 12.5.0)"
+                    exit 1
+                  fi
+
+                  echo "Latest tag found: $LATEST_TAG"
+
+                  # Extract version numbers (remove 'v' prefix if present for backwards compatibility)
+                  VERSION_WITHOUT_V=${LATEST_TAG#v}
+
+                  # Parse major and minor (ignore patch since we don't support it)
+                  MAJOR=$(echo $VERSION_WITHOUT_V | cut -d. -f1)
+                  MINOR=$(echo $VERSION_WITHOUT_V | cut -d. -f2)
+
+                  # Calculate next version based on input
+                  if [ "${{ github.event.inputs.version_bump }}" = "major" ]; then
+                    NEXT_MAJOR=$((MAJOR + 1))
+                    NEXT_MINOR=0
+                  else
+                    NEXT_MAJOR=$MAJOR
+                    NEXT_MINOR=$((MINOR + 1))
+                  fi
+
+                  # Create new version (always without v prefix)
+                  NEXT_VERSION="${NEXT_MAJOR}.${NEXT_MINOR}.0"
+
+                  echo "Next version: $NEXT_VERSION"
+                  echo "RELEASE_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
+                  echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
             - name: Collect commit ranges
               run: |
@@ -69,7 +111,7 @@ jobs:
             - name: Commit build files
               uses: stefanzweifel/git-auto-commit-action@v7
               with:
-                  commit_message: 'Release build ${{ github.event.inputs.version }} [ci release]'
+                  commit_message: 'Release build ${{ steps.version.outputs.version }} [ci release]'
                   commit_options: '--allow-empty'
                   skip_checkout: true
                   branch: 'releases'
@@ -87,5 +129,5 @@ jobs:
                   body_path: ${{ github.workspace }}/CHANGELOG.txt
                   draft: false
                   prerelease: false
-                  tag_name: ${{ github.event.inputs.version }}
+                  tag_name: ${{ steps.version.outputs.version }}
                   target_commitish: 'releases'

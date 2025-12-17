@@ -539,7 +539,7 @@ const permissionsTestCases = {
     },
 };
 
-createApiTestRunner('Permissions API', async ({ removeApi }) => {
+createApiTestRunner('Permissions API', ({ removeApi }) => {
     function checkObjectDescriptorIsNotPresent() {
         const descriptor = Object.getOwnPropertyDescriptor(window.navigator, 'permissions');
         return descriptor === undefined;

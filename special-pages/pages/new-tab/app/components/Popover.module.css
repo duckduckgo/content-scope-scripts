@@ -15,7 +15,7 @@
 }
 
 .content {
-    background: var(--ntp-surface-tertiary);
+    background: var(--ds-color-theme-surface-tertiary);
     border-radius: 16px;
     flex: auto;
     padding: var(--sp-4) var(--sp-11) var(--sp-4) var(--sp-5);
@@ -23,27 +23,9 @@
 }
 
 .closeButton {
-    background: none;
-    border-radius: 100%;
-    border: none;
-    color: var(--ntp-icons-primary);
-    cursor: pointer;
-    padding: 0;
     position: absolute;
     right: var(--sp-4);
     top: var(--sp-4);
-
-    &:hover {
-        background: rgba(0, 0, 0, 0.06); /* @todo: dark mode? */
-    }
-
-    &:active {
-        background: rgba(0, 0, 0, 0.12); /* @todo: dark mode? */
-    }
-
-    &:focus-visible {
-        box-shadow: var(--focus-ring);
-    }
 }
 
 .heading {
@@ -74,22 +56,27 @@
     button {
         background: none;
         border: none;
-        color: var(--ntp-accent-primary);
+        color: var(--ds-color-theme-accent-primary);
         cursor: pointer;
         padding: 0;
         transform: translateZ(0); /* Fix shadow rendering issue on .popover in WebKit */
 
         &:hover {
-            color: var(--ntp-accent-secondary);
+            color: var(--ds-color-theme-accent-secondary);
         }
 
         &:active {
-            color: var(--ntp-accent-tertiary);
+            color: var(--ds-color-theme-accent-tertiary);
+        }
+
+        &:focus-visible {
+            box-shadow: var(--focus-ring);
+            outline: none;
         }
     }
 }
 
 .arrow {
-    color: var(--ntp-surface-tertiary);
+    color: var(--ds-color-theme-surface-tertiary);
     margin-right: -1px;
 }
