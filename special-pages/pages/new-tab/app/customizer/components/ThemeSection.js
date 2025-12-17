@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { useComputed } from '@preact/signals';
 import { useTypedTranslationWith } from '../../types.js';
+import styles from './ThemeSection.module.css';
+import { LightThemeIcon, DarkThemeIcon, SystemThemeIcon } from '../../components/Icons.js';
 
 /**
  * @import enStrings from '../strings.json';
@@ -35,58 +37,79 @@ export function ThemeSection({ data, setTheme }) {
     const { t } = useTypedTranslationWith(/** @type {strings} */ ({}));
 
     return (
-        <div>
-            <ul>
-                <li>
-                    <button
-                        role="radio"
-                        type="button"
-                        aria-checked={currentTheme.value === 'light'}
-                        tabindex={currentTheme.value === 'light' ? -1 : 0}
-                        onClick={() => setTheme({ theme: 'light', themeVariant: currentVariant.value })}
-                    >
-                        {t('customizer_browser_theme_light')}
-                    </button>
-                </li>
-                <li>
-                    <button
-                        role="radio"
-                        type="button"
-                        aria-checked={currentTheme.value === 'dark'}
-                        tabindex={currentTheme.value === 'dark' ? -1 : 0}
-                        onClick={() => setTheme({ theme: 'dark', themeVariant: currentVariant.value })}
-                    >
-                        {t('customizer_browser_theme_dark')}
-                    </button>
-                </li>
-                <li>
-                    <button
-                        role="radio"
-                        type="button"
-                        aria-checked={currentTheme.value === 'system'}
-                        tabindex={currentTheme.value === 'system' ? -1 : 0}
-                        onClick={() => setTheme({ theme: 'system', themeVariant: currentVariant.value })}
-                    >
-                        {t('customizer_browser_theme_system')}
-                    </button>
-                </li>
-            </ul>
+        <div class={styles.root}>
+            <div class={styles.segmentedControl} role="radiogroup" aria-label={t('customizer_section_title_theme_variant')}>
+                <button
+                    class={styles.segment}
+                    role="radio"
+                    type="button"
+                    aria-checked={currentTheme.value === 'light'}
+                    tabIndex={currentTheme.value === 'light' ? -1 : 0}
+                    onClick={() => setTheme({ theme: 'light', themeVariant: currentVariant.value })}
+                >
+                    <LightThemeIcon aria-hidden="true" />
+                    <span>{t('customizer_browser_theme_light')}</span>
+                </button>
+                <span class={styles.separator} aria-hidden="true" />
+                <button
+                    class={styles.segment}
+                    role="radio"
+                    type="button"
+                    aria-checked={currentTheme.value === 'dark'}
+                    tabIndex={currentTheme.value === 'dark' ? -1 : 0}
+                    onClick={() => setTheme({ theme: 'dark', themeVariant: currentVariant.value })}
+                >
+                    <DarkThemeIcon aria-hidden="true" />
+                    <span>{t('customizer_browser_theme_dark')}</span>
+                </button>
+                <span class={styles.separator} aria-hidden="true" />
+                <button
+                    class={styles.segment}
+                    role="radio"
+                    type="button"
+                    aria-checked={currentTheme.value === 'system'}
+                    tabIndex={currentTheme.value === 'system' ? -1 : 0}
+                    onClick={() => setTheme({ theme: 'system', themeVariant: currentVariant.value })}
+                >
+                    <SystemThemeIcon aria-hidden="true" />
+                    <span>{t('customizer_browser_theme_system')}</span>
+                </button>
+            </div>
 
-            <ul>
+            <div class={styles.variantGrid} role="radiogroup" aria-label={t('customizer_section_title_theme_variant')}>
                 {THEME_VARIANTS.map((variant) => (
-                    <li key={variant.value}>
-                        <button
-                            role="radio"
-                            type="button"
-                            aria-checked={currentVariant.value === variant.value}
-                            tabindex={currentVariant.value === variant.value ? -1 : 0}
-                            onClick={() => setTheme({ theme: currentTheme.value, themeVariant: variant.value })}
-                        >
-                            {t(variant.labelKey)}
-                        </button>
-                    </li>
+                    <button
+                        key={variant.value}
+                        class={styles.variantButton}
+                        role="radio"
+                        type="button"
+                        aria-checked={currentVariant.value === variant.value}
+                        aria-label={t(variant.labelKey)}
+                        tabIndex={currentVariant.value === variant.value ? -1 : 0}
+                        onClick={() => setTheme({ theme: currentTheme.value, themeVariant: variant.value })}
+                    >
+                        <ThemeSwatch variant={variant.value} />
+                    </button>
                 ))}
-            </ul>
+            </div>
+        </div>
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {ThemeVariant} props.variant
+ */
+function ThemeSwatch({ variant }) {
+    return (
+        <div class={styles.swatch} data-variant={variant}>
+            <div class={styles.swatchBackdrop}>
+                <div class={styles.swatchPrimary}>
+                    <div class={styles.swatchSecondary}>
+                        <div class={styles.swatchAccent} />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
