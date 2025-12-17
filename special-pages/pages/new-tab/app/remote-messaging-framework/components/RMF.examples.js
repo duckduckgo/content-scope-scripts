@@ -89,6 +89,15 @@ export const otherRMFExamples = {
             />
         ),
     },
+    'rmf.big-single-action-radar-check-purple': {
+        factory: () => (
+            <RemoteMessagingFramework
+                message={rmfDataExamples.big_single_action_radar_check_purple.content}
+                primaryAction={noop('rmf_primaryAction')}
+                dismiss={noop('rmf_dismiss')}
+            />
+        ),
+    },
     'rmf.big-single-action-subscription': {
         factory: () => (
             <RemoteMessagingFramework

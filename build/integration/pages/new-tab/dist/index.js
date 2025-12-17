@@ -32045,7 +32045,7 @@
         id: "id-big-two",
         titleText: "Personal Information Removal Scan Complete",
         descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
-        icon: "RadarCheck",
+        icon: "RadarCheckGreen",
         primaryActionText: "View Results",
         secondaryActionText: "Remind me later"
       }
@@ -32106,8 +32106,18 @@
         messageType: "big_single_action",
         id: "id-big-single-alt",
         titleText: "Personal Information Removal",
-        descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
+        descriptionText: "Scrub your data from broker websites like PeopleFinder",
         icon: "Radar",
+        primaryActionText: "View Results"
+      }
+    },
+    big_single_action_radar_check_purple: {
+      content: {
+        messageType: "big_single_action",
+        id: "id-big-single-alt",
+        titleText: "Personal Information Removal",
+        descriptionText: "Your free personal information scan found 19 records about you on 3 different sites",
+        icon: "RadarCheckPurple",
         primaryActionText: "View Results"
       }
     },
@@ -32210,6 +32220,16 @@
         RemoteMessagingFramework,
         {
           message: rmfDataExamples.big_single_action_radar.content,
+          primaryAction: noop("rmf_primaryAction"),
+          dismiss: noop("rmf_dismiss")
+        }
+      )
+    },
+    "rmf.big-single-action-radar-check-purple": {
+      factory: () => /* @__PURE__ */ _(
+        RemoteMessagingFramework,
+        {
+          message: rmfDataExamples.big_single_action_radar_check_purple.content,
           primaryAction: noop("rmf_primaryAction"),
           dismiss: noop("rmf_dismiss")
         }

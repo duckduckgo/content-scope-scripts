@@ -1,3 +1,1 @@
-- Support setting "theme": "system" in History and Special Error pages (#2113)
-- Use design system colors in Special Error and Error pages (#2115)
-- Access check prototypes that aren't present in http:// (#2045)
+- chore: Add/update rmf radar icons (#2116)
