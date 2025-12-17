@@ -23,7 +23,7 @@ import { useLocale } from '../../../../../shared/components/EnvironmentProvider.
  * @param {() => void} props.onToggle
  * @param {import('preact').ComponentProps<'button'>} [props.buttonAttrs]
  * @param {import("@preact/signals").Signal<undefined | number | null>} props.totalCookiePopUpsBlockedSignal
- * @param {import("@preact/signals").Signal<boolean | undefined>} [props.showProtectionsReportNewLabelSignal]
+ * @param {boolean | undefined} [props.showProtectionsReportNewLabel]
  */
 export function ProtectionsHeading({
     expansion,
@@ -32,7 +32,7 @@ export function ProtectionsHeading({
     onToggle,
     buttonAttrs = {},
     totalCookiePopUpsBlockedSignal,
-    showProtectionsReportNewLabelSignal,
+    showProtectionsReportNewLabel,
 }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const ntp = useMessaging();
@@ -42,7 +42,6 @@ export function ProtectionsHeading({
     const counterContainerRef = useRef(/** @type {HTMLDivElement|null} */ (null));
     const totalTrackersBlocked = blockedCountSignal.value;
     const totalCookiePopUpsBlockedValue = totalCookiePopUpsBlockedSignal.value;
-    const showProtectionsReportNewLabel = showProtectionsReportNewLabelSignal?.value;
 
     // Defensive validation following pattern in special-pages
     const totalCookiePopUpsBlocked =

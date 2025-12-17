@@ -122,20 +122,3 @@ export function useCookiePopUpsBlockedCount(initial) {
 
     return signal;
 }
-
-/**
- * @param {boolean | undefined} initial
- * @return {import("@preact/signals").Signal<boolean | undefined>}
- */
-export function useShowProtectionsReportNewLabel(initial) {
-    const service = useContext(ProtectionsServiceContext);
-    const signal = useSignal(initial);
-
-    useSignalEffect(() => {
-        return service?.onConfig((evt) => {
-            signal.value = evt.data.showProtectionsReportNewLabel;
-        });
-    });
-
-    return signal;
-}

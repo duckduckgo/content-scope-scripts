@@ -24,7 +24,7 @@ import { ProtectionsHeadingLegacy } from './ProtectionsHeadingLegacy';
  * @param {import("preact").ComponentChild} [props.children]
  * @param {()=>void} props.toggle
  * @param {import("@preact/signals").Signal<undefined | number | null>} props.totalCookiePopUpsBlockedSignal
- * @param {import("@preact/signals").Signal<boolean | undefined>} [props.showProtectionsReportNewLabelSignal]
+ * @param {boolean | undefined} [props.showProtectionsReportNewLabel]
  */
 export function Protections({
     expansion = 'expanded',
@@ -34,7 +34,7 @@ export function Protections({
     toggle,
     setFeed,
     totalCookiePopUpsBlockedSignal,
-    showProtectionsReportNewLabelSignal,
+    showProtectionsReportNewLabel,
 }) {
     const WIDGET_ID = useId();
     const TOGGLE_ID = useId();
@@ -71,7 +71,7 @@ export function Protections({
                     canExpand={true}
                     buttonAttrs={attrs}
                     totalCookiePopUpsBlockedSignal={totalCookiePopUpsBlockedSignal}
-                    showProtectionsReportNewLabelSignal={showProtectionsReportNewLabelSignal}
+                    showProtectionsReportNewLabel={showProtectionsReportNewLabel}
                 />
             )}
             <ProtectionsBodyComponent feed={feed} setFeed={setFeed} id={WIDGET_ID} expansion={expansion}>
