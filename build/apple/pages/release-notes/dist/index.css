@@ -379,10 +379,10 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
 }
 
 /* shared/components/Text/Text.module.css */
-a {
+.Text_root a {
   color: var(--ds-color-theme-accent-text-primary, var(--ds-color-theme-default-light-accent-text-primary));
 }
-[data-theme=dark] a {
+[data-theme=dark] :is(.Text_root a) {
   color: var(--ds-color-theme-accent-text-primary, var(--ds-color-theme-default-dark-accent-text-primary));
 }
 .Text_title-1 {
