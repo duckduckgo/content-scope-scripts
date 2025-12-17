@@ -9,6 +9,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MessagingTransport, MissingHandler } from '../index.js';
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
+import { ensureNavigatorDuckDuckGo } from '../../injected/src/navigator-global.js';
 
 /**
  * @example
@@ -23,16 +24,16 @@ import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
  * ```
  *
  * @example
- * On macOS 10 however, the process is a little more involved. A method will be appended to `window`
+ * On macOS 10 however, the process is a little more involved. A method will be appended to `navigator.duckduckgo`
  * that allows the response to be delivered there instead. It's not exactly this, but you can visualize the flow
  * as being something along the lines of:
  *
  * ```js
- * // add the window method
- * window["_0123456"] = (response) => {
+ * // add the callback method to navigator.duckduckgo
+ * navigator.duckduckgo["_0123456"] = (response) => {
  *    // decrypt `response` and deliver the result to the caller here
  *    // then remove the temporary method
- *    delete window['_0123456']
+ *    delete navigator.duckduckgo['_0123456']
  * };
  *
  * // send the data + `messageHanding` values
@@ -48,7 +49,7 @@ import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
  *
  * // later in swift, the following JavaScript snippet will be executed
  * (() => {
- *   window['_0123456']({
+ *   navigator.duckduckgo['_0123456']({
  *     ciphertext: [12, 13, 4],
  *     tag: [3, 5, 67, 56]
  *   })
@@ -174,14 +175,18 @@ export class WebkitMessagingTransport {
     }
 
     /**
-     * Generate a random method name and adds it to the global scope
+     * Generate a random method name and adds it to navigator.duckduckgo
      * The native layer will use this method to send the response
      * @param {string | number} randomMethodName
      * @param {Function} callback
      * @internal
      */
     generateRandomMethod(randomMethodName, callback) {
-        this.globals.ObjectDefineProperty(this.globals.window, randomMethodName, {
+        const target = ensureNavigatorDuckDuckGo({
+            window: this.globals.window,
+            defineProperty: this.globals.ObjectDefineProperty,
+        });
+        this.globals.ObjectDefineProperty(target, randomMethodName, {
             enumerable: false,
             // configurable, To allow for deletion later
             configurable: true,
@@ -191,7 +196,7 @@ export class WebkitMessagingTransport {
              */
             value: (...args) => {
                 callback(...args);
-                delete this.globals.window[randomMethodName];
+                this.globals.ReflectDeleteProperty(target, randomMethodName);
             },
         });
     }
@@ -287,11 +292,15 @@ export class WebkitMessagingTransport {
      * @param {(value: unknown) => void} callback
      */
     subscribe(msg, callback) {
+        const target = ensureNavigatorDuckDuckGo({
+            window: this.globals.window,
+            defineProperty: this.globals.ObjectDefineProperty,
+        });
         // for now, bail if there's already a handler setup for this subscription
-        if (msg.subscriptionName in this.globals.window) {
+        if (msg.subscriptionName in target) {
             throw new this.globals.Error(`A subscription with the name ${msg.subscriptionName} already exists`);
         }
-        this.globals.ObjectDefineProperty(this.globals.window, msg.subscriptionName, {
+        this.globals.ObjectDefineProperty(target, msg.subscriptionName, {
             enumerable: false,
             configurable: true,
             writable: false,
@@ -304,7 +313,7 @@ export class WebkitMessagingTransport {
             },
         });
         return () => {
-            this.globals.ReflectDeleteProperty(this.globals.window, msg.subscriptionName);
+            this.globals.ReflectDeleteProperty(target, msg.subscriptionName);
         };
     }
 }
@@ -370,7 +379,7 @@ export class SecureMessagingParams {
      */
     constructor(params) {
         /**
-         * The method that's been appended to `window` to be called later
+         * The method that's been appended to `navigator.duckduckgo` to be called later
          */
         this.methodName = params.methodName;
         /**
