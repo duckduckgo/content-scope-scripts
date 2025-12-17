@@ -50,4 +50,12 @@ test.describe('history theme and theme variants', () => {
         await hp.hasTheme('light', 'green');
         await hp.hasBackgroundColor({ hex: '#ecf5ea' }); // green light surface-canvas
     });
+
+    test('respects CSS media query for light/dark when browser theme is "system"', async ({ page }, workerInfo) => {
+        const hp = HistoryTestPage.create(page, workerInfo);
+        await hp.openPage({ additional: { theme: 'system' } });
+        await hp.hasTheme('light', 'default');
+        await hp.darkMode();
+        await hp.hasTheme('dark', 'default');
+    });
 });

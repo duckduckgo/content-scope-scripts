@@ -56,4 +56,12 @@ test.describe('special-error theme and theme variants', () => {
         await sp.hasTheme('light', 'green');
         await sp.hasBackgroundColor({ hex: isIOS ? '#eeeeee' : '#ecf5ea' });
     });
+
+    test('respects CSS media query for light/dark when browser theme is "system"', async ({ page }, workerInfo) => {
+        const sp = SpecialErrorPage.create(page, workerInfo);
+        await sp.openPage({ additional: { theme: 'system' } });
+        await sp.hasTheme('light', 'default');
+        await sp.darkMode();
+        await sp.hasTheme('dark', 'default');
+    });
 });
