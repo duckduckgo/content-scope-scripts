@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "check-lockfile": "node scripts/check-lockfile.mjs",
     "test-unit": "npm run test-unit --workspaces --if-present",
     "test-int": "npm run test-int --workspaces --if-present",
     "test-int-x": "npm run test-int-x --workspaces --if-present",
@@ -21,7 +22,7 @@
     "docs-watch": "typedoc --watch",
     "tsc": "tsc",
     "tsc-watch": "tsc --watch",
-    "lint": "eslint . && npm run tsc && npm run lint-no-output-globals && npx prettier . --check",
+    "lint": "npm run check-lockfile && eslint . && npm run tsc && npm run lint-no-output-globals && npx prettier . --check",
     "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js build/apple/contentScope.js",
     "postlint": "npm run lint --workspaces --if-present",
     "lint-fix": "eslint . --fix && npx prettier . --write && npm run tsc",

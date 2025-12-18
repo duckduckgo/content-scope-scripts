@@ -99,6 +99,9 @@ jobs:
                   # Copy files from main branch
                   git checkout main -- .
 
+            - name: Check lockfile sync
+              run: npm run check-lockfile
+
             - name: Build release
               run: |
                   npm ci
