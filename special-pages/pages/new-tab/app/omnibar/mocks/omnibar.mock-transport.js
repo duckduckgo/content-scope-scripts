@@ -7,6 +7,9 @@ export function omnibarMockTransport() {
     /** @type {import('../../../types/new-tab.ts').OmnibarConfig} */
     const config = {
         mode: 'search',
+        enableAi: true,
+        showAiSetting: true,
+        showCustomizePopover: false,
     };
 
     /** @type {Map<string, (d: any) => void>} */
@@ -53,6 +56,10 @@ export function omnibarMockTransport() {
                     const showAiSettingOverride = url.searchParams.get('omnibar.showAiSetting');
                     if (showAiSettingOverride === 'true' || showAiSettingOverride === 'false') {
                         config.showAiSetting = showAiSettingOverride === 'true';
+                    }
+                    const showCustomizePopoverOverride = url.searchParams.get('omnibar.showCustomizePopover');
+                    if (showCustomizePopoverOverride === 'true' || showCustomizePopoverOverride === 'false') {
+                        config.showCustomizePopover = showCustomizePopoverOverride === 'true';
                     }
                     return config;
                 }

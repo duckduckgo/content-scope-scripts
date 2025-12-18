@@ -11,6 +11,7 @@ children:
   - ./customizer/customizer.md
   - ./protections/protections.md
   - ./omnibar/omnibar.md
+  - ./tabs/tabs.md
 ---
 
 ## Requests
@@ -33,6 +34,7 @@ children:
 - Sent when the user right-clicks in the page
 - Note: Other widgets might prevent this (and send their own, eg: favorites)
 - Sends: {@link "NewTab Messages".ContextMenuNotify}
+- **DEPRECATED**: The `visibilityMenuItems` property is deprecated and will be removed in a future version. Native apps should populate the context menu themselves instead of relying on frontend to tell it what widgets exist in the New Tab Page.
 - Example:
 
 ```json

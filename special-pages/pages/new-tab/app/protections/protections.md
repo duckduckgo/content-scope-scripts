@@ -29,7 +29,8 @@ title: Protections Report
 - returns {@link "NewTab Messages".ProtectionsData}
 ```json
 {
-   "totalCount": 84
+   "totalCount": 84,
+   "totalCookiePopUpsBlocked": 23
 }
 ```
 
@@ -41,7 +42,8 @@ title: Protections Report
 {
    "expansion": "collapsed",
    "feed": "privacy-stats",
-   "showBurnAnimation": true
+   "showBurnAnimation": true,
+   "showProtectionsReportNewLabel": true
 }
 ```
 

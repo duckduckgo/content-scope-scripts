@@ -3,6 +3,7 @@
  */
 import { load, init, update } from '../src/content-scope-features.js';
 import { computeLimitedSiteObject } from '../src/utils.js';
+import { getSharedMessagingTransport } from '../src/sendmessage-transport.js';
 
 const secret = (crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32).toString().replace('0.', '');
 
@@ -27,7 +28,21 @@ window.addEventListener(secret, ({ detail: encodedMessage }) => {
         case 'register':
             if (message.argumentsObject) {
                 message.argumentsObject.messageSecret = secret;
+                if (!message.argumentsObject?.site?.enabledFeatures) {
+                    // Potentially corrupted site object, don't init
+                    return;
+                }
                 init(message.argumentsObject);
+            }
+            break;
+        default:
+            // Messages with messageType are subscription responses from the extension.
+            // Route them to the shared transport so all subscribed features receive them.
+            if (message.messageType) {
+                const transport = getSharedMessagingTransport();
+                if (transport?.onResponse) {
+                    transport.onResponse(message);
+                }
             }
             break;
     }

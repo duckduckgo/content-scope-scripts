@@ -28,6 +28,10 @@
     "title" : "Personnaliser la nouvelle page d'onglet",
     "note" : "Heading text describing that there's a list of toggles for customizing the page layout."
   },
+  "ntp_popover_close_button" : {
+    "title" : "Fermer",
+    "note" : "Button that closes the current popover."
+  },
   "updateNotification_updated_version" : {
     "title" : "Mise à jour : le navigateur est passé à la version {version}.",
     "note" : "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
@@ -56,6 +60,10 @@
     "title" : "Aucune activité de pistage récente",
     "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
   },
+  "protections_newBadge" : {
+    "title" : "Nouveau",
+    "note" : "Text displayed in a badge to indicate a new feature or statistic."
+  },
   "stats_menuTitle" : {
     "title" : "Tentatives de pistage bloquées",
     "note" : "Used as a label in a customization menu"
@@ -73,10 +81,18 @@
     "note" : "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
   },
   "stats_countBlockedSingular" : {
+    "title" : "Tentative de pistage bloquée",
+    "note" : "The sub headline indicating that a single tracker was blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedSingularLegacy" : {
     "title" : "1 tentative de pistage bloquée",
     "note" : "The main headline indicating that a single tracker was blocked"
   },
   "stats_countBlockedPlural" : {
+    "title" : "Tentatives de pistage bloquées",
+    "note" : "The sub headline indicating that more than 1 tracker has been blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedPluralLegacy" : {
     "title" : "{count} tentatives de pistage bloquées",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
@@ -88,13 +104,25 @@
     "title" : "Protections actives",
     "note" : "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
   },
-  "stats_countBlockedAdsAndTrackersSingular" : {
+  "stats_countBlockedAdsAndTrackersSingularLegacy" : {
     "title" : "<b>1</b> publicité ou tentative de pistage bloquée",
     "note" : "The main headline indicating that a single ad or tracking attempt was blocked"
   },
-  "stats_countBlockedAdsAndTrackersPlural" : {
+  "stats_countBlockedAdsAndTrackersPluralLegacy" : {
     "title" : "<b>{count}</b> tentatives de publicité et de pistage bloquées",
     "note" : "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
+  },
+  "stats_totalCookiePopUpsBlockedSingular" : {
+    "title" : "Fenêtre contextuelle de cookies bloquée",
+    "note" : "The heading indicating that a single cookie pop-up was handled by the CPM"
+  },
+  "stats_totalCookiePopUpsBlockedPlural" : {
+    "title" : "Fenêtres contextuelles de cookies bloquée",
+    "note" : "The heading indicating multiple cookie pop-ups were handled by the CPM"
+  },
+  "stats_protectionsReportInfo" : {
+    "title" : "Affiche les tentatives de pistage bloquées au cours des 7 derniers jours et le nombre de fenêtres contextuelles de cookies bloquées depuis que vous avez commencé à utiliser le navigateur.",
+    "note" : "Text explaining how to reset the protections stats"
   },
   "stats_feedCountBlockedSingular" : {
     "title" : "1 tentative bloquée par DuckDuckGo au cours des 7 derniers jours",
@@ -175,6 +203,26 @@
   "omnibar_visitSuffix" : {
     "title" : "Visiter {url}",
     "description" : "Text placed after suggestions that will open a webpage."
+  },
+  "omnibar_askDuckAiSuffix" : {
+    "title" : "Demandez à Duck.ai",
+    "description" : "Text placed after aiChat suggestions that will submit a chat query."
+  },
+  "omnibar_switchToTab" : {
+    "title" : "Passer à l'onglet",
+    "description" : "Badge text shown next to open tab suggestions."
+  },
+  "omnibar_customizePopoverTitle" : {
+    "title" : "Basculer entre la recherche et le chat IA",
+    "description" : "Title for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverBadge" : {
+    "title" : "Nouveau",
+    "description" : "Badge text for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverDescription" : {
+    "title" : "Dans tous les cas, vos informations restent privées.<br />Ce n'est pas ce que vous souhaitez&nbsp;? <button>Personnaliser</button>",
+    "description" : "Description message in the popover including privacy statement and customize option."
   },
   "nextSteps_sectionTitle" : {
     "title" : "Étapes suivantes",
@@ -271,6 +319,18 @@
   "nextSteps_pinAppToTaskbarWindows_confirmationText" : {
     "title" : "Épinglée à la barre des tâches !",
     "note" : "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_subscription_title" : {
+    "title" : "Débloquez les fonctionnalités Premium",
+    "note" : "Title of the Next Steps card for unlocking your free trial of DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_summary" : {
+    "title" : "Profitez d'un essai gratuit de notre abonnement comprenant un VPN et plus fonctionnalités avancées.",
+    "note" : "Summary of the Next Steps card about the DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_actionText" : {
+    "title" : "Essayez Gratuitement",
+    "note" : "Button text of the Next Steps card for trying the DuckDuckGo subscription"
   },
   "favorites_show_less" : {
     "title" : "Réduire",
@@ -373,8 +433,20 @@
     "note" : "Placeholder message indicating that no trackers are blocked"
   },
   "activity_countBlockedPlural" : {
+    "title" : "{count} tentatives de pistage bloquées",
+    "note" : "New pill text indicating that more than 1 attempt has been blocked. Eg: '2 Tracking attempts blocked'. Uppercase T is by design"
+  },
+  "activity_countBlockedPluralLegacy" : {
     "title" : "<b>{count}</b> tentative(s) de pistage bloquée(s)",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_countBlockedSingular" : {
+    "title" : "{count} tentative de pistage bloquée",
+    "note" : "Pill text indicating that 1 attempt has been blocked. Eg: '1 Tracking attempt blocked'"
+  },
+  "activity_cookiePopUpBlocked" : {
+    "title" : "Fenêtre contextuelle de cookies bloquée",
+    "note" : "Pill text indicating that we have blocked cookie pop-ups"
   },
   "activity_noRecentAdsAndTrackers_subtitle" : {
     "title" : "Les sites récemment visités apparaîtront ici. Continuez à naviguer pour voir combien de publicités et de traqueurs nous bloquons.",

@@ -8,7 +8,11 @@
     "theme": {
       "$ref": "./browser-theme.json"
     },
+    "themeVariant": {
+      "$ref": "./theme-variant.json"
+    },
     "defaultStyles": {
+      "deprecated": true,
       "oneOf": [
         {
           "type": "null"

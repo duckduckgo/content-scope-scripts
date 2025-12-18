@@ -15,6 +15,7 @@ export function DebugCustomized({ index, isOpenInitially = false }) {
         visibility: isOpen ? 'visible' : 'hidden',
         toggle: (_id) => setOpen((prev) => !prev),
         index,
+        enabled: true,
     });
     return <div>{isOpen && <Debug telemetry={telemetry} isOpen={true} />}</div>;
 }

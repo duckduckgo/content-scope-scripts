@@ -13,8 +13,9 @@ import styles from './Switch.module.css';
  * @param {'small' | 'medium' | 'large'} [props.size] - Which size?
  * @param {Function} props.onChecked - Callback function to be called when the switch is checked.
  * @param {Function} props.onUnchecked - Callback function to be called when the switch is unchecked.
+ * @param {import("preact").ComponentProps<"input">} [props.inputProps] - Callback function to be called when the switch is unchecked.
  */
-export function Switch({ checked = false, platformName, size, theme, ...props }) {
+export function Switch({ checked = false, platformName, size, theme, inputProps, ...props }) {
     const { onChecked, onUnchecked, ariaLabel, pending } = props;
     function change(e) {
         if (e.target.checked === true) {
@@ -33,6 +34,7 @@ export function Switch({ checked = false, platformName, size, theme, ...props })
                 class={styles.input}
                 checked={checked}
                 onChange={change}
+                {...inputProps}
             />
             <span class={styles.switch} style="transition-duration: 130ms;transition-delay: 0ms;"></span>
         </label>

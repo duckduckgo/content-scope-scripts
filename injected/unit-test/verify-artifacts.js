@@ -7,7 +7,7 @@ const ROOT = join(cwd(import.meta.url), '..', '..');
 console.log(ROOT);
 const BUILD = join(ROOT, 'build');
 
-let CSS_OUTPUT_SIZE = 770_000;
+let CSS_OUTPUT_SIZE = 800_000;
 if (process.platform === 'win32') {
     CSS_OUTPUT_SIZE = CSS_OUTPUT_SIZE * 1.1; // 10% larger for Windows due to line endings
 }

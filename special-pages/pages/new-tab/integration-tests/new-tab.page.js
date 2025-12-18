@@ -71,6 +71,7 @@ export class NewtabPage {
      * @param {string} [params.updateNotification] - Optional flag to point to display=components view with certain rmf example visible
      * @param {string} [params.pir] - Optional flag to add certain Freemium PIR Banner example
      * @param {string} [params.platformName] - Optional parameters for opening the page.
+     * @param {string} [params.winback] - Optional parameters for Subscription Win-back Banner.
      */
     async openPage({
         mode = 'debug',
@@ -82,6 +83,7 @@ export class NewtabPage {
         rmf,
         pir,
         updateNotification,
+        winback,
     } = {}) {
         await this.mocks.install();
         const searchParams = new URLSearchParams({ mode, willThrow: String(willThrow) });
@@ -108,6 +110,10 @@ export class NewtabPage {
             searchParams.set('pir', pir);
         }
 
+        if (winback !== undefined) {
+            searchParams.set('winback', winback);
+        }
+
         if (platformName !== undefined) {
             searchParams.set('platform', platformName);
         }
@@ -117,7 +123,13 @@ export class NewtabPage {
         }
 
         for (const [key, value] of Object.entries(additional || {})) {
-            searchParams.set(key, value);
+            if (Array.isArray(value)) {
+                for (const item of value) {
+                    searchParams.append(key, item);
+                }
+            } else {
+                searchParams.set(key, value);
+            }
         }
 
         // eslint-disable-next-line no-undef

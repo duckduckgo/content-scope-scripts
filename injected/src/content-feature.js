@@ -2,7 +2,7 @@ import { processAttr } from './utils.js';
 import { PerformanceMonitor } from './performance.js';
 import { defineProperty, shimInterface, shimProperty, wrapMethod, wrapProperty, wrapToString } from './wrapper-utils.js';
 // eslint-disable-next-line no-redeclare
-import { Proxy, Reflect } from './captured-globals.js';
+import { Proxy, Reflect, consoleLog, consoleWarn, consoleError } from './captured-globals.js';
 import { Messaging, MessagingContext } from '../../messaging/index.js';
 import { extensionConstructMessagingConfig } from './sendmessage-transport.js';
 import { isTrackerOrigin } from './trackers.js';
@@ -36,6 +36,18 @@ export default class ContentFeature extends ConfigFeature {
      */
     listenForUrlChanges = false;
 
+    /**
+     * Set this to true if you wish to get update calls (legacy).
+     * @type {boolean}
+     */
+    listenForUpdateChanges = false;
+
+    /**
+     * Set this to true if you wish to receive configuration updates from initial ping responses (Android only).
+     * @type {boolean}
+     */
+    listenForConfigUpdates = false;
+
     /** @type {ImportMeta} */
     #importConfig;
 
@@ -48,6 +60,40 @@ export default class ContentFeature extends ConfigFeature {
 
     get isDebug() {
         return this.args?.debug || false;
+    }
+
+    get shouldLog() {
+        return this.isDebug;
+    }
+
+    /**
+     * Logging utility for this feature (Stolen some inspo from DuckPlayer logger, will unify in the future)
+     */
+    get log() {
+        const shouldLog = this.shouldLog;
+        const prefix = `${this.name.padEnd(20, ' ')} |`;
+
+        return {
+            // These are getters to have the call site be the reported line number.
+            get info() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return consoleLog.bind(console, prefix);
+            },
+            get warn() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return consoleWarn.bind(console, prefix);
+            },
+            get error() {
+                if (!shouldLog) {
+                    return () => {};
+                }
+                return consoleError.bind(console, prefix);
+            },
+        };
     }
 
     get desktopModeEnabled() {
@@ -216,6 +262,17 @@ export default class ContentFeature extends ConfigFeature {
      * @deprecated - use messaging instead.
      */
     update() {}
+
+    /**
+     * Called when user preferences are merged from initial ping response. (Android only)
+     * Override this method in your feature to handle user preference updates.
+     * This only happens once during initialization when the platform responds with user-specific settings.
+     * @param {object} _updatedConfig - The configuration with merged user preferences
+     */
+    onUserPreferencesMerged(_updatedConfig) {
+        // Default implementation does nothing
+        // Features can override this to handle user preference updates
+    }
 
     /**
      * Register a flag that will be added to page breakage reports

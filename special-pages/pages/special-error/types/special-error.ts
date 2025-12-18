@@ -6,6 +6,9 @@
  * @module SpecialError Messages
  */
 
+export type BrowserTheme = "light" | "dark" | "system";
+export type ThemeVariant = "default" | "coolGray" | "slateBlue" | "green" | "violet" | "rose" | "orange" | "desert";
+
 /**
  * Requests, Notifications and Subscriptions from the SpecialError feature
  */
@@ -17,6 +20,7 @@ export interface SpecialErrorMessages {
     | ReportPageExceptionNotification
     | VisitSiteNotification;
   requests: InitialSetupRequest;
+  subscriptions: OnThemeUpdateSubscription;
 }
 /**
  * Generated from @see "../messages/advancedInfo.notify.json"
@@ -74,6 +78,8 @@ export interface InitialSetupResponse {
    * Optional locale-specific strings
    */
   localeStrings?: string;
+  theme?: BrowserTheme;
+  themeVariant?: ThemeVariant;
 }
 export interface MaliciousSite {
   kind: "phishing" | "malware" | "scam";
@@ -100,10 +106,22 @@ export interface SSLWrongHost {
   domain: string;
   eTldPlus1: string;
 }
+/**
+ * Generated from @see "../messages/onThemeUpdate.subscribe.json"
+ */
+export interface OnThemeUpdateSubscription {
+  subscriptionEvent: "onThemeUpdate";
+  params: OnThemeUpdateSubscribe;
+}
+export interface OnThemeUpdateSubscribe {
+  theme: BrowserTheme;
+  themeVariant: ThemeVariant;
+}
 
 declare module "../src/index.js" {
   export interface SpecialErrorPage {
     notify: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SpecialErrorMessages>['notify'],
-    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SpecialErrorMessages>['request']
+    request: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SpecialErrorMessages>['request'],
+    subscribe: import("@duckduckgo/messaging/lib/shared-types").MessagingBase<SpecialErrorMessages>['subscribe']
   }
 }

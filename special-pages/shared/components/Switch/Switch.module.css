@@ -2,37 +2,63 @@
     --switch-width: 40px;
     --switch-height: 20px;
     --switch-handle-size: 12px;
-    --switch-handle-color-checked: white;
     --switch-handle-offset: 4px;
-    --switch-handle-color: var(--color-black-at-60);
     --switch-checked-offset: translateX(calc(100% + 8px));
-
-    --track-bg-color: var(--color-black-at-3);
-    --track-border: 1px solid var(--track-border-color);
-    --track-border-color: var(--color-black-at-60);
     --track-border-radius: 11px;
-    --track-bg-color-active: var(--color-black-at-9);
+    --track-border: 1px solid var(--track-border-color);
 
-    --track-bg-color-checked: var(--ddg-color-primary);
-    --track-border-color-checked: var(--ddg-color-primary);
+    /* Off state - Rest */
+    --track-border-color: var(--ds-color-theme-control-border-secondary, var(--ds-color-theme-default-light-control-border-secondary));
+    --track-bg-color: var(--ds-color-theme-control-fill-primary, var(--ds-color-theme-default-light-control-fill-primary));
+    --switch-handle-color: var(--ds-color-theme-icons-secondary, var(--ds-color-theme-default-light-icons-secondary));
 
-    /* todo(Shane): naming/vars/design tokens */
-    --track-bg-color-checked-active: #2B55CA;
-    --track-border-color-checked-active: #2B55CA;
+    /* Off state - Hover */
+    --track-border-color-hover: var(--ds-color-theme-control-border-tertiary, var(--ds-color-theme-default-light-control-border-tertiary));
+    --track-bg-color-hover: var(--ds-color-theme-control-fill-secondary, var(--ds-color-theme-default-light-control-fill-secondary));
+
+    /* Off state - Pressed */
+    --track-border-color-active: var(--ds-color-theme-control-border-quaternary, var(--ds-color-theme-default-light-control-border-quaternary));
+    --track-bg-color-active: var(--ds-color-theme-control-fill-tertiary, var(--ds-color-theme-default-light-control-fill-tertiary));
+
+    /* On state - Rest */
+    --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
+    --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
+    --switch-handle-color-checked: var(--ds-color-theme-accent-content-secondary, var(--ds-color-theme-default-light-accent-content-secondary));
+
+    /* On state - Hover */
+    --track-border-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
+    --track-bg-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
+
+    /* On state - Pressed */
+    --track-border-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-light-accent-tertiary));
+    --track-bg-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-light-accent-tertiary));
 
     &[data-theme="dark"] {
-        --track-border-color: var(--color-white-at-60);
-        --track-bg-color: var(--color-black-at-9);
-        --track-bg-color-active: var(--color-white-at-9);
+        /* Off state - Rest */
+        --track-border-color: var(--ds-color-theme-control-border-secondary, var(--ds-color-theme-default-dark-control-border-secondary));
+        --track-bg-color: var(--ds-color-theme-control-fill-primary, var(--ds-color-theme-default-dark-control-fill-primary));
+        --switch-handle-color: var(--ds-color-theme-icons-secondary, var(--ds-color-theme-default-dark-icons-secondary));
 
-        --switch-handle-color: var(--color-white-at-84);
-        --switch-handle-color-checked: black;
+        /* Off state - Hover */
+        --track-border-color-hover: var(--ds-color-theme-control-border-tertiary, var(--ds-color-theme-default-dark-control-border-tertiary));
+        --track-bg-color-hover: var(--ds-color-theme-control-fill-secondary, var(--ds-color-theme-default-dark-control-fill-secondary));
 
-        --track-bg-color-checked: var(--ddg-color-primary-dark);
-        --track-border-color-checked: var(--ddg-color-primary-dark);
+        /* Off state - Pressed */
+        --track-border-color-active: var(--ds-color-theme-control-border-quaternary, var(--ds-color-theme-default-dark-control-border-quaternary));
+        --track-bg-color-active: var(--ds-color-theme-control-fill-tertiary, var(--ds-color-theme-default-dark-control-fill-tertiary));
 
-        --track-bg-color-checked-active: var(--ddg-color-primary);
-        --track-border-color-checked-active: var(--ddg-color-primary);
+        /* On state - Rest */
+        --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
+        --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
+        --switch-handle-color-checked: var(--ds-color-theme-accent-content-secondary, var(--ds-color-theme-default-dark-accent-content-secondary));
+
+        /* On state - Hover */
+        --track-border-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
+        --track-bg-color-checked-hover: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
+
+        /* On state - Pressed */
+        --track-border-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-dark-accent-tertiary));
+        --track-bg-color-checked-active: var(--ds-color-theme-accent-tertiary, var(--ds-color-theme-default-dark-accent-tertiary));
     }
 
     &[data-platform-name="macos"] {
@@ -40,11 +66,29 @@
         --switch-height: 15px;
         --switch-handle-size: 13px;
         --switch-handle-offset: 1px;
-        --switch-handle-color: var(--color-white-at-84);
         --switch-checked-offset: translateX(calc(100% - 2px));
-        --track-bg-color: var(--color-black-at-9);
-        --track-border: 0;
         --track-border-radius: 10px;
+        --track-border: 0;
+
+        /* Off state - use system colors */
+        --track-bg-color: var(--color-black-at-9);
+        --switch-handle-color: var(--color-white-at-84);
+
+        /* Disable hover */
+        --track-bg-color-hover: var(--track-bg-color);
+        --track-border-color-hover: var(--track-border-color);
+        --track-bg-color-checked-hover: var(--track-bg-color-checked);
+        --track-border-color-checked-hover: var(--track-border-color-checked);
+
+        /* On state - use theme accent for track, system colors for handle */
+        --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
+        --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-light-accent-primary));
+        --switch-handle-color-checked: white;
+
+        /* Pressed states */
+        --track-bg-color-active: var(--track-bg-color);
+        --track-bg-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
+        --track-border-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-light-accent-secondary));
     }
 
     &[data-platform-name="macos"][data-size="medium"] {
@@ -52,9 +96,20 @@
         --switch-height: 18px;
         --switch-handle-size: 16px;
     }
+
     &[data-platform-name="macos"][data-theme="dark"] {
+        /* Off state - use system colors */
         --track-bg-color: var(--color-white-at-9);
+        --switch-handle-color: var(--color-white-at-84);
+
+        /* On state - use theme accent for track, system colors for handle */
+        --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
+        --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
         --switch-handle-color-checked: #CECECE;
+
+        /* Pressed states */
+        --track-bg-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
+        --track-border-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
     }
 
     vertical-align: top;
@@ -81,8 +136,14 @@
     appearance: auto;
     background-color: initial;
 
+    &:hover + .switch:after {
+        background-color: var(--track-bg-color-hover);
+        border-color: var(--track-border-color-hover);
+    }
+
     &:active + .switch:after {
         background-color: var(--track-bg-color-active);
+        border-color: var(--track-border-color-active);
     }
 
     &:checked + .switch:before {
@@ -101,13 +162,21 @@
     }
 
     [data-theme="dark"][data-platform-name="macos"] &:checked + .switch:after {
-        background: linear-gradient(180deg, #3969EF 0%, #2C4AAC 0.01%, #3152BF 100%);
         box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
+    }
+
+    &:checked:hover + .switch:after {
+        background-color: var(--track-bg-color-checked-hover);
+        border-color: var(--track-border-color-checked-hover);
     }
 
     &:checked:active + .switch:after {
         background-color: var(--track-bg-color-checked-active);
         border-color: var(--track-border-color-checked-active);
+    }
+
+    &[disabled] {
+        cursor: not-allowed;
     }
 }
 
@@ -180,6 +249,7 @@
     [data-platform-name="macos"] &:after {
         box-shadow: 0px 0.5px 1px 1px rgba(10, 15, 20, 0.04) inset, 0px 0px 0px 0.5px rgba(10, 15, 20, 0.12) inset;
     }
+
     [data-platform-name="macos"][data-theme="dark"] &:after {
         box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
     }

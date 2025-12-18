@@ -48,7 +48,6 @@ function PageTitle() {
 
 export function App() {
     const { messaging } = useMessaging();
-    const { isDarkMode } = useEnv();
 
     /**
      * @param {Error} error
@@ -60,7 +59,7 @@ export function App() {
     }
 
     return (
-        <main className={styles.main} data-theme={isDarkMode ? 'dark' : 'light'}>
+        <main className={styles.main}>
             <PageTitle />
             <ErrorBoundary didCatch={({ error }) => didCatch(error)} fallback={<ErrorFallback />}>
                 <SpecialErrorView />

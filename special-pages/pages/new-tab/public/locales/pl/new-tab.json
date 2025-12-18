@@ -28,6 +28,10 @@
     "title" : "Dostosuj stronę nowej karty",
     "note" : "Heading text describing that there's a list of toggles for customizing the page layout."
   },
+  "ntp_popover_close_button" : {
+    "title" : "Zamknij",
+    "note" : "Button that closes the current popover."
+  },
   "updateNotification_updated_version" : {
     "title" : "Przeglądarka została zaktualizowana do wersji {version}.",
     "note" : "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
@@ -56,6 +60,10 @@
     "title" : "Brak ostatniej aktywności w zakresie śledzenia",
     "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
   },
+  "protections_newBadge" : {
+    "title" : "Nowa",
+    "note" : "Text displayed in a badge to indicate a new feature or statistic."
+  },
   "stats_menuTitle" : {
     "title" : "Zablokowane próby śledzenia",
     "note" : "Used as a label in a customization menu"
@@ -73,10 +81,18 @@
     "note" : "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
   },
   "stats_countBlockedSingular" : {
+    "title" : "Próba śledzenia została zablokowana",
+    "note" : "The sub headline indicating that a single tracker was blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedSingularLegacy" : {
     "title" : "1 zablokowana próba śledzenia",
     "note" : "The main headline indicating that a single tracker was blocked"
   },
   "stats_countBlockedPlural" : {
+    "title" : "Zablokowano próby śledzenia",
+    "note" : "The sub headline indicating that more than 1 tracker has been blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedPluralLegacy" : {
     "title" : "{count} – tyle prób śledzenia zablokowano",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
@@ -88,13 +104,25 @@
     "title" : "Ochrona aktywna",
     "note" : "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
   },
-  "stats_countBlockedAdsAndTrackersSingular" : {
+  "stats_countBlockedAdsAndTrackersSingularLegacy" : {
     "title" : "<b>1</b> reklama i próba śledzenia zablokowana",
     "note" : "The main headline indicating that a single ad or tracking attempt was blocked"
   },
-  "stats_countBlockedAdsAndTrackersPlural" : {
+  "stats_countBlockedAdsAndTrackersPluralLegacy" : {
     "title" : "Zablokowanych reklam i prób śledzenia: <b>{count}</b>",
     "note" : "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
+  },
+  "stats_totalCookiePopUpsBlockedSingular" : {
+    "title" : "Zablokowano wyskakujące okienko z informacją o plikach cookie",
+    "note" : "The heading indicating that a single cookie pop-up was handled by the CPM"
+  },
+  "stats_totalCookiePopUpsBlockedPlural" : {
+    "title" : "Zablokowano wyskakujące okienka z informacją o plikach cookie",
+    "note" : "The heading indicating multiple cookie pop-ups were handled by the CPM"
+  },
+  "stats_protectionsReportInfo" : {
+    "title" : "Wyświetla próby śledzenia zablokowane w ciągu ostatnich 7 dni oraz liczbę wyskakujących okienek z informacją o plikach cookie zablokowanych od czasu rozpoczęcia korzystania z przeglądarki.",
+    "note" : "Text explaining how to reset the protections stats"
   },
   "stats_feedCountBlockedSingular" : {
     "title" : "1 próba zablokowana przez DuckDuckGo w ciągu ostatnich 7 dni",
@@ -175,6 +203,26 @@
   "omnibar_visitSuffix" : {
     "title" : "Odwiedź {url}",
     "description" : "Text placed after suggestions that will open a webpage."
+  },
+  "omnibar_askDuckAiSuffix" : {
+    "title" : "Zapytaj Duck.ai",
+    "description" : "Text placed after aiChat suggestions that will submit a chat query."
+  },
+  "omnibar_switchToTab" : {
+    "title" : "Przełącz na kartę",
+    "description" : "Badge text shown next to open tab suggestions."
+  },
+  "omnibar_customizePopoverTitle" : {
+    "title" : "Przełączanie między wyszukiwaniem a czatem AI",
+    "description" : "Title for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverBadge" : {
+    "title" : "Nowa",
+    "description" : "Badge text for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverDescription" : {
+    "title" : "W każdym przypadku Twoje dane pozostaną prywatne.<br />Nie chcesz tego? <button>Dostosuj</button>",
+    "description" : "Description message in the popover including privacy statement and customize option."
   },
   "nextSteps_sectionTitle" : {
     "title" : "Dalsze kroki",
@@ -271,6 +319,18 @@
   "nextSteps_pinAppToTaskbarWindows_confirmationText" : {
     "title" : "Przypięto do paska zadań!",
     "note" : "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_subscription_title" : {
+    "title" : "Zdobądź funkcje premium",
+    "note" : "Title of the Next Steps card for unlocking your free trial of DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_summary" : {
+    "title" : "Wypróbuj za darmo naszą subskrypcję obejmującą sieć VPN i więcej zaawansowanych funkcji.",
+    "note" : "Summary of the Next Steps card about the DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_actionText" : {
+    "title" : "Wypróbuj Bezpłatnie",
+    "note" : "Button text of the Next Steps card for trying the DuckDuckGo subscription"
   },
   "favorites_show_less" : {
     "title" : "Pokaż mniej",
@@ -373,8 +433,20 @@
     "note" : "Placeholder message indicating that no trackers are blocked"
   },
   "activity_countBlockedPlural" : {
+    "title" : "{count} – tyle prób śledzenia zablokowano",
+    "note" : "New pill text indicating that more than 1 attempt has been blocked. Eg: '2 Tracking attempts blocked'. Uppercase T is by design"
+  },
+  "activity_countBlockedPluralLegacy" : {
     "title" : "Zablokowanych prób śledzenia: <b>{count}</b>",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_countBlockedSingular" : {
+    "title" : "Zablokowane próby śledzenia: {count}",
+    "note" : "Pill text indicating that 1 attempt has been blocked. Eg: '1 Tracking attempt blocked'"
+  },
+  "activity_cookiePopUpBlocked" : {
+    "title" : "Zablokowano wyskakujące okienko z informacją o plikach cookie",
+    "note" : "Pill text indicating that we have blocked cookie pop-ups"
   },
   "activity_noRecentAdsAndTrackers_subtitle" : {
     "title" : "Tutaj będą widoczne ostatnio odwiedzone witryny. Przeglądaj dalej, aby zobaczyć liczbę zablokowanych reklam i mechanizmów śledzących.",

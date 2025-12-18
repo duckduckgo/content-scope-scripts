@@ -56,6 +56,10 @@ export function load(args) {
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
             const featureInstance = new ContentFeature(featureName, importConfig, args);
+            // Short term fix to disable the feature whilst we roll out Android adsjs
+            if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
+                continue;
+            }
             featureInstance.callLoad();
             features.push({ featureName, featureInstance });
         }
@@ -74,6 +78,10 @@ export async function init(args) {
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+            // Short term fix to disable the feature whilst we roll out Android adsjs
+            if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
+                return;
+            }
             featureInstance.callInit(args);
             // Either listenForUrlChanges or urlChanged ensures the feature listens.
             if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
@@ -109,6 +117,34 @@ export function update(args) {
     updateFeaturesInner(args);
 }
 
+/**
+ * Update the args for feature instances that opt in to configuration updates.
+ * This is useful for applying configuration updates received after initial loading.
+ *
+ * @param {object} updatedArgs - The new arguments to apply to opted-in features
+ */
+export async function updateFeatureArgs(updatedArgs) {
+    if (!isHTMLDocument) {
+        return;
+    }
+
+    const resolvedFeatures = await Promise.all(features);
+    resolvedFeatures.forEach(({ featureInstance }) => {
+        // Only update features that have opted in to config updates
+        if (featureInstance && featureInstance.listenForConfigUpdates) {
+            // Update the feature's args
+            if (typeof featureInstance.setArgs === 'function') {
+                featureInstance.setArgs(updatedArgs);
+            }
+
+            // Call the optional onUserPreferencesMerged method if it exists
+            if (typeof featureInstance.onUserPreferencesMerged === 'function') {
+                featureInstance.onUserPreferencesMerged(updatedArgs);
+            }
+        }
+    });
+}
+
 function alwaysInitExtensionFeatures(args, featureName) {
     return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
 }
@@ -116,7 +152,7 @@ function alwaysInitExtensionFeatures(args, featureName) {
 async function updateFeaturesInner(args) {
     const resolvedFeatures = await Promise.all(features);
     resolvedFeatures.forEach(({ featureInstance, featureName }) => {
-        if (!isFeatureBroken(initArgs, featureName) && featureInstance.update) {
+        if (!isFeatureBroken(initArgs, featureName) && featureInstance.listenForUpdateChanges) {
             featureInstance.update(args);
         }
     });

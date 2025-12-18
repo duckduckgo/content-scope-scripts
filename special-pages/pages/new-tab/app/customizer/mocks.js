@@ -71,7 +71,6 @@ export function customizerMockTransport() {
                 case 'customizer_onBackgroundUpdate':
                 case 'customizer_onImagesUpdate': {
                     subscriptions.set(sub, cb);
-                    console.log('did add sub', sub);
                     return () => {
                         console.log('-- did remove sub', sub);
                         return subscriptions.delete(sub);
@@ -174,6 +173,13 @@ export function customizerData() {
         const value = url.searchParams.get('theme');
         if (value === 'light' || value === 'dark' || value === 'system') {
             customizer.theme = value;
+        }
+    }
+    if (url.searchParams.has('themeVariant')) {
+        const value = url.searchParams.get('themeVariant');
+        const validVariants = ['default', 'coolGray', 'slateBlue', 'green', 'violet', 'rose', 'orange', 'desert'];
+        if (value && validVariants.includes(value)) {
+            customizer.themeVariant = /** @type {import('../../types/new-tab').ThemeVariant} */ (value);
         }
     }
 

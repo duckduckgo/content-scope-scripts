@@ -28,6 +28,10 @@
     "title" : "Personalizar página Novo separador",
     "note" : "Heading text describing that there's a list of toggles for customizing the page layout."
   },
+  "ntp_popover_close_button" : {
+    "title" : "Fechar",
+    "note" : "Button that closes the current popover."
+  },
   "updateNotification_updated_version" : {
     "title" : "Navegador atualizado para a versão {version}.",
     "note" : "Text to indicate which new version was updated. `{version}` will be formatted like `1.22.0`"
@@ -56,6 +60,10 @@
     "title" : "Nenhuma atividade de rastreamento recente",
     "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
   },
+  "protections_newBadge" : {
+    "title" : "Novo",
+    "note" : "Text displayed in a badge to indicate a new feature or statistic."
+  },
   "stats_menuTitle" : {
     "title" : "Tentativas de rastreamento bloqueadas",
     "note" : "Used as a label in a customization menu"
@@ -73,10 +81,18 @@
     "note" : "Placeholder to indicate that no tracking activity was blocked in the last 7 days"
   },
   "stats_countBlockedSingular" : {
+    "title" : "Tentativa de rastreamento bloqueada",
+    "note" : "The sub headline indicating that a single tracker was blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedSingularLegacy" : {
     "title" : "1 tentativa de rastreamento bloqueada",
     "note" : "The main headline indicating that a single tracker was blocked"
   },
   "stats_countBlockedPlural" : {
+    "title" : "Tentativas de rastreamento bloqueadas",
+    "note" : "The sub headline indicating that more than 1 tracker has been blocked. This sub headline starts with a capital letter"
+  },
+  "stats_countBlockedPluralLegacy" : {
     "title" : "{count} tentativas de rastreamento bloqueadas",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
   },
@@ -88,13 +104,25 @@
     "title" : "Proteções ativas",
     "note" : "Placeholder to indicate that no ads or tracking activity was blocked in the last 7 days"
   },
-  "stats_countBlockedAdsAndTrackersSingular" : {
+  "stats_countBlockedAdsAndTrackersSingularLegacy" : {
     "title" : "<b>1</b> tentativa de publicidade e rastreamento bloqueada",
     "note" : "The main headline indicating that a single ad or tracking attempt was blocked"
   },
-  "stats_countBlockedAdsAndTrackersPlural" : {
+  "stats_countBlockedAdsAndTrackersPluralLegacy" : {
     "title" : "<b>{count}</b> tentativas de publicidade e rastreamento bloqueadas",
     "note" : "The main headline indicating that more than 1 ad or tracking attempt has been blocked. Eg: '2 advertising & tracking attempts blocked"
+  },
+  "stats_totalCookiePopUpsBlockedSingular" : {
+    "title" : "Pop-up de cookies bloqueado",
+    "note" : "The heading indicating that a single cookie pop-up was handled by the CPM"
+  },
+  "stats_totalCookiePopUpsBlockedPlural" : {
+    "title" : "Pop-ups de cookies bloqueados",
+    "note" : "The heading indicating multiple cookie pop-ups were handled by the CPM"
+  },
+  "stats_protectionsReportInfo" : {
+    "title" : "Mostra as tentativas de rastreamento bloqueadas nos últimos 7 dias e o número de pop-ups de cookies bloqueados desde que começaste a usar o navegador.",
+    "note" : "Text explaining how to reset the protections stats"
   },
   "stats_feedCountBlockedSingular" : {
     "title" : "1 tentativa bloqueada pelo DuckDuckGo nos últimos 7 dias",
@@ -175,6 +203,26 @@
   "omnibar_visitSuffix" : {
     "title" : "Visitar {url}",
     "description" : "Text placed after suggestions that will open a webpage."
+  },
+  "omnibar_askDuckAiSuffix" : {
+    "title" : "Pergunta ao Duck.ai",
+    "description" : "Text placed after aiChat suggestions that will submit a chat query."
+  },
+  "omnibar_switchToTab" : {
+    "title" : "Mudar para separador",
+    "description" : "Badge text shown next to open tab suggestions."
+  },
+  "omnibar_customizePopoverTitle" : {
+    "title" : "Alterna entre pesquisa e chat com IA",
+    "description" : "Title for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverBadge" : {
+    "title" : "Novo",
+    "description" : "Badge text for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverDescription" : {
+    "title" : "De qualquer forma, as tuas informações permanecem privadas.<br />Não queres isto? <button>Personalizar</button>",
+    "description" : "Description message in the popover including privacy statement and customize option."
   },
   "nextSteps_sectionTitle" : {
     "title" : "Passos seguintes",
@@ -271,6 +319,18 @@
   "nextSteps_pinAppToTaskbarWindows_confirmationText" : {
     "title" : "Afixado na barra de tarefas!",
     "note" : "Button text after clicking on the Next Steps card for adding DDG app to OS dock"
+  },
+  "nextSteps_subscription_title" : {
+    "title" : "Desbloquear funcionalidades Premium",
+    "note" : "Title of the Next Steps card for unlocking your free trial of DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_summary" : {
+    "title" : "Experimenta um período de teste gratuito da nossa subscrição com VPN e funcionalidades mais avançadas.",
+    "note" : "Summary of the Next Steps card about the DuckDuckGo subscription"
+  },
+  "nextSteps_subscription_actionText" : {
+    "title" : "Experimentar Gratuitamente",
+    "note" : "Button text of the Next Steps card for trying the DuckDuckGo subscription"
   },
   "favorites_show_less" : {
     "title" : "Mostrar menos",
@@ -373,8 +433,20 @@
     "note" : "Placeholder message indicating that no trackers are blocked"
   },
   "activity_countBlockedPlural" : {
+    "title" : "{count} tentativas de rastreamento bloqueadas",
+    "note" : "New pill text indicating that more than 1 attempt has been blocked. Eg: '2 Tracking attempts blocked'. Uppercase T is by design"
+  },
+  "activity_countBlockedPluralLegacy" : {
     "title" : "<b>{count}</b> tentativas de rastreamento bloqueadas",
     "note" : "The main headline indicating that more than 1 attempt has been blocked. Eg: '2 tracking attempts blocked'"
+  },
+  "activity_countBlockedSingular" : {
+    "title" : "{count} tentativa de rastreamento bloqueada",
+    "note" : "Pill text indicating that 1 attempt has been blocked. Eg: '1 Tracking attempt blocked'"
+  },
+  "activity_cookiePopUpBlocked" : {
+    "title" : "Pop-up de cookies bloqueado",
+    "note" : "Pill text indicating that we have blocked cookie pop-ups"
   },
   "activity_noRecentAdsAndTrackers_subtitle" : {
     "title" : "Os sites visitados recentemente aparecem aqui. Continua a navegar para veres quantos anúncios e rastreadores bloqueamos.",

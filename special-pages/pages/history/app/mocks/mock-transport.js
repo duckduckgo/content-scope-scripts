@@ -40,6 +40,7 @@ export function mockTransport() {
             { id: 'saturday', count: 1 },
             { id: 'friday', count: 1 },
             { id: 'older', count: 1 },
+            { id: 'sites', count: 1 },
         ],
     };
 
@@ -162,6 +163,23 @@ export function mockTransport() {
                         },
                     };
 
+                    // Allow theme override via URL params
+                    if (url.searchParams.has('theme')) {
+                        const value = url.searchParams.get('theme');
+                        if (value === 'light' || value === 'dark') {
+                            initial.theme = /** @type {import('../../types/history.ts').BrowserTheme} */ (value);
+                        }
+                    }
+
+                    // Allow themeVariant override via URL params
+                    if (url.searchParams.has('themeVariant')) {
+                        const value = url.searchParams.get('themeVariant');
+                        const validVariants = ['default', 'coolGray', 'slateBlue', 'green', 'violet', 'rose', 'orange', 'desert'];
+                        if (value && validVariants.includes(value)) {
+                            initial.themeVariant = /** @type {import('../../types/history.ts').ThemeVariant} */ (value);
+                        }
+                    }
+
                     return Promise.resolve(initial);
                 }
 
@@ -268,8 +286,10 @@ function queryResponseFrom(memory, msg) {
         const response = asResponse(memory.slice(0, 10), msg.params.offset, msg.params.limit);
         const range = msg.params.query.range;
         response.value = response.value.map((item) => {
+            if (!('range' in msg.params.query)) return item; // unreachable
             return {
                 ...item,
+                dateTimeOfDay: msg.params.query.range === 'sites' ? undefined : item.dateTimeOfDay,
                 title: 'range:' + range + ' ' + item.title,
             };
         });

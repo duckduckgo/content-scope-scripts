@@ -5,7 +5,7 @@ import { DismissButton } from '../../components/DismissButton';
 import styles from './FreemiumPIRBanner.module.css';
 import { FreemiumPIRBannerContext } from '../FreemiumPIRBannerProvider';
 import { useContext } from 'preact/hooks';
-import { convertMarkdownToHTMLForStrongTags } from '../freemiumPIRBanner.utils';
+import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils';
 
 /**
  * @typedef { import("../../../types/new-tab").FreemiumPIRBannerMessage} FreemiumPIRBannerMessage
@@ -20,7 +20,7 @@ export function FreemiumPIRBanner({ message, action, dismiss }) {
     return (
         <div id={message.id} class={cn(styles.root, styles.icon)}>
             <span class={styles.iconBlock}>
-                <img src={`./icons/Information-Remover-96.svg`} alt="" />
+                <img src={`./icons/PIR-96.svg`} alt="" />
             </span>
             <div class={styles.content}>
                 {message.titleText && <h2 class={styles.title}>{message.titleText}</h2>}
