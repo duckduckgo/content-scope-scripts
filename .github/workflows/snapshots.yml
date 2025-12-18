@@ -40,8 +40,6 @@ jobs:
 
             - run: npm run lint
               continue-on-error: true
-              env:
-                  SKIP_LOCKFILE_CHECK: '1'
 
             - run: npm run stylelint
               continue-on-error: true

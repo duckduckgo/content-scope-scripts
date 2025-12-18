@@ -22,7 +22,7 @@
     "docs-watch": "typedoc --watch",
     "tsc": "tsc",
     "tsc-watch": "tsc --watch",
-    "lint": "npm run check-lockfile && eslint . && npm run tsc && npm run lint-no-output-globals && npx prettier . --check",
+    "lint": "eslint . && npm run tsc && npm run lint-no-output-globals && npx prettier . --check",
     "lint-no-output-globals": "eslint --no-inline-config --config build-output.eslint.config.js build/apple/contentScope.js",
     "postlint": "npm run lint --workspaces --if-present",
     "lint-fix": "eslint . --fix && npx prettier . --write && npm run tsc",

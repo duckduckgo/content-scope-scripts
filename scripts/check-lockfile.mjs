@@ -8,11 +8,6 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, posix as pathPosix } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-if (process.env.SKIP_LOCKFILE_CHECK === '1' || process.env.SKIP_LOCKFILE_CHECK === 'true') {
-    console.log('↷ package-lock.json sync check skipped (SKIP_LOCKFILE_CHECK set)');
-    process.exit(0);
-}
-
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(scriptDir, '..');
 
