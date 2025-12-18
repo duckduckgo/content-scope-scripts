@@ -33,7 +33,7 @@ export type RangeId =
   | "sunday"
   | "older"
   | "sites";
-export type BrowserTheme = "light" | "dark";
+export type BrowserTheme = "light" | "dark" | "system";
 export type ThemeVariant = "default" | "coolGray" | "slateBlue" | "green" | "violet" | "rose" | "orange" | "desert";
 export type QueryKind = SearchTerm | DomainFilter | RangeFilter;
 /**

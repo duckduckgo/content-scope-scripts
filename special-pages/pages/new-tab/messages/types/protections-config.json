@@ -20,6 +20,10 @@
     "showBurnAnimation": {
       "description": "Boolean flag to explicitly enable or disable the burn animations",
       "type": "boolean"
+    },
+    "showProtectionsReportNewLabel": {
+      "description": "Display or hide the 'New' badge (label) on the protections report",
+      "type": "boolean"
     }
   }
 }

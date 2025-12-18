@@ -128,6 +128,13 @@ export function protectionsMockTransport() {
                         config.showBurnAnimation = false;
                     }
 
+                    if (url.searchParams.get('protections.newLabel') === 'true') {
+                        config.showProtectionsReportNewLabel = true;
+                    }
+                    if (url.searchParams.get('protections.newLabel') === 'false') {
+                        config.showProtectionsReportNewLabel = false;
+                    }
+
                     return Promise.resolve(config);
                 }
                 default: {
