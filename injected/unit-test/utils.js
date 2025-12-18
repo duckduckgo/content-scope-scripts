@@ -4,9 +4,15 @@ import {
     initStringExemptionLists,
     processConfig,
     satisfiesMinVersion,
+    isMaxSupportedVersion,
     getTabHostname,
+    processAttr,
 } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
+
+/**
+ * @typedef {import('../src/utils.js').ConfigSetting} ConfigSetting
+ */
 
 polyfillProcessGlobals();
 
@@ -251,6 +257,84 @@ describe('Helpers checks', () => {
         }
     });
 
+    describe('utils.isMaxSupportedVersion', () => {
+        // Max version, Current version, outcome (should current version be allowed)
+        /** @type {[string, string, boolean][]} */
+        const stringCases = [
+            ['12', '13', false],
+            ['12', '12', true],
+            ['12', '11', true],
+            ['12.1', '12.2', false],
+            ['12.1', '12.1', true],
+            ['12.1', '12.0', true],
+            ['12.1.1', '12.1.2', false],
+            ['12.1.1', '12.1.1', true],
+            ['12.1.1', '12.1.0', true],
+            ['12.2.0', '12.2.1', false],
+            ['12.2.0', '12.1.1', true],
+            ['12.12.12', '13.12.12', false],
+            ['12.12.12', '12.13.12', false],
+            ['12.12.12', '12.12.13', false],
+            ['12.12.12', '12.12.12', true],
+            ['12.12.12', '12.12.11', true],
+            ['102.12.11', '102.12.12', false],
+            ['102.12.12', '102.12.12', true],
+            ['102.12.13', '102.12.14', false],
+            ['102.12.13', '102.12.12', true],
+            ['101', '102.12.12.1', false],
+            ['103', '102.12.12.1', true],
+            ['104', '102.12.12.1', true],
+            ['102.12.12.1', '103', false],
+            ['102.12.12.1', '101', true],
+            ['102.13.12', '102.14.12', false],
+            ['102.13.12', '102.12.12.1', true],
+            ['102.12.12', '102.12.12.1', false],
+            ['102.12.12.1', '102.12.12.2', false],
+            ['102.12.12.2', '102.12.12.3', false],
+            ['102.12.12.2', '102.12.12.1', true],
+            ['102.12.12.1', '102.12.12.1', true],
+            ['102.12.12.3', '102.12.12.4', false],
+            ['102.12.12.3', '102.12.12.1', true],
+            ['102.12.12.1.1', '102.12.12.1.2', false],
+            ['102.12.12.1.1', '102.12.12.1', true],
+            ['102.12.12.2.1', '102.12.12.2.2', false],
+            ['102.12.12.2.1', '102.12.12.1', true],
+            ['102.12.12.1.1.1.1.1.1.1', '102.12.12.1.1.1.1.1.1.2', false],
+            ['102.12.12.1.1.1.1.1.1.1', '102.12.12.1', true],
+        ];
+        for (const testCase of stringCases) {
+            const [maxVersionString, currentVersionString, expectedOutcome] = testCase;
+            it(`returns ${JSON.stringify(expectedOutcome)} for max version ${maxVersionString} with current ${currentVersionString}`, () => {
+                expect(isMaxSupportedVersion(maxVersionString, currentVersionString)).toEqual(expectedOutcome);
+            });
+        }
+
+        // Max version, Current version, outcome (integers)
+        /** @type {[number, number, boolean][]} */
+        const intCases = [
+            [100, 99, true],
+            [100, 100, true],
+            [100, 101, false],
+            [99, 99, true],
+            [99, 98, true],
+            [98, 99, false],
+            [0, 0, true],
+            [0, 1, false],
+            [1, 0, true],
+            [200, 199, true],
+            [200, 201, false],
+            [150, 150, true],
+            [150, 151, false],
+            [151, 150, true],
+        ];
+        for (const testCase of intCases) {
+            const [maxVersion, currentVersion, expectedOutcome] = testCase;
+            it(`returns ${JSON.stringify(expectedOutcome)} for max version ${maxVersion} with current ${currentVersion} (integers)`, () => {
+                expect(isMaxSupportedVersion(maxVersion, currentVersion)).toEqual(expectedOutcome);
+            });
+        }
+    });
+
     describe('utils.postDebugMessage', () => {
         const counters = new Map();
         globalThis.postMessage = (message) => {
@@ -301,6 +385,331 @@ describe('Helpers checks', () => {
             const hostname5 = getTabHostname();
             expect(hostname5).toEqual('example.com');
             reset2();
+        });
+    });
+
+    describe('processAttr', () => {
+        describe('Basic types', () => {
+            it('returns default value when configSetting is undefined', () => {
+                expect(processAttr(/** @type {any} */ (undefined), 'default')).toBe('default');
+            });
+
+            it('returns default value when configSetting is not an object', () => {
+                expect(processAttr(/** @type {any} */ ('string'), 'default')).toBe('default');
+                expect(processAttr(/** @type {any} */ (123), 'default')).toBe('default');
+                expect(processAttr(/** @type {any} */ (true), 'default')).toBe('default');
+            });
+
+            it('returns default value when configSetting has no type', () => {
+                expect(processAttr(/** @type {any} */ ({}), 'default')).toBe('default');
+            });
+
+            it('handles undefined type', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = { type: 'undefined' };
+                expect(processAttr(configSetting)).toBe(undefined);
+            });
+
+            it('handles string type', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = { type: 'string', value: 'hello' };
+                expect(processAttr(configSetting)).toBe('hello');
+            });
+
+            it('handles number type', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = { type: 'number', value: 42 };
+                expect(processAttr(configSetting)).toBe(42);
+            });
+
+            it('handles boolean type', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = { type: 'boolean', value: true };
+                expect(processAttr(configSetting)).toBe(true);
+            });
+
+            it('handles null type', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = { type: 'null', value: null };
+                expect(processAttr(configSetting)).toBe(null);
+            });
+
+            it('handles array type', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = { type: 'array', value: [1, 2, 3] };
+                expect(processAttr(configSetting)).toEqual([1, 2, 3]);
+            });
+
+            it('handles object type', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = { type: 'object', value: { key: 'value' } };
+                expect(processAttr(configSetting)).toEqual({ key: 'value' });
+            });
+        });
+
+        describe('Function type', () => {
+            it('handles function type with functionName', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = { type: 'function', functionName: 'noop' };
+                const result = processAttr(configSetting);
+                expect(typeof result).toBe('function');
+                expect(result()).toBe(undefined); // noop returns undefined
+            });
+
+            it('handles function type with functionValue', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'function',
+                    functionValue: {
+                        type: 'number',
+                        value: 1,
+                    },
+                };
+                const result = processAttr(configSetting);
+                expect(typeof result).toBe('function');
+                expect(result()).toBe(1);
+            });
+
+            it('handles function type with complex functionValue', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'function',
+                    functionValue: {
+                        type: 'string',
+                        value: 'hello world',
+                    },
+                };
+                const result = processAttr(configSetting);
+                expect(typeof result).toBe('function');
+                expect(result()).toBe('hello world');
+            });
+
+            it('handles function type with nested object functionValue', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'function',
+                    functionValue: {
+                        type: 'object',
+                        value: { message: 'test', count: 5 },
+                    },
+                };
+                const result = processAttr(configSetting);
+                expect(typeof result).toBe('function');
+                expect(result()).toEqual({ message: 'test', count: 5 });
+            });
+
+            it('handles function type with array functionValue', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'function',
+                    functionValue: {
+                        type: 'array',
+                        value: ['a', 'b', 'c'],
+                    },
+                };
+                const result = processAttr(configSetting);
+                expect(typeof result).toBe('function');
+                expect(result()).toEqual(['a', 'b', 'c']);
+            });
+
+            it('prefers functionName over functionValue when both are present', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'function',
+                    functionName: 'noop',
+                    functionValue: {
+                        type: 'string',
+                        value: 'should not be used',
+                    },
+                };
+                const result = processAttr(configSetting);
+                expect(typeof result).toBe('function');
+                expect(result()).toBe(undefined); // noop returns undefined
+            });
+        });
+
+        describe('Async support', () => {
+            it('handles async string', async () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'string',
+                    value: 'boop',
+                    async: true,
+                };
+                const result = processAttr(configSetting);
+                expect(result instanceof Promise).toBe(true);
+                const resolvedValue = await result;
+                expect(resolvedValue).toBe('boop');
+            });
+
+            it('handles async number', async () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'number',
+                    value: 123,
+                    async: true,
+                };
+                const result = processAttr(configSetting);
+                expect(result instanceof Promise).toBe(true);
+                const resolvedValue = await result;
+                expect(resolvedValue).toBe(123);
+            });
+
+            it('handles async boolean', async () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'boolean',
+                    value: false,
+                    async: true,
+                };
+                const result = processAttr(configSetting);
+                expect(result instanceof Promise).toBe(true);
+                const resolvedValue = await result;
+                expect(resolvedValue).toBe(false);
+            });
+
+            it('handles async array', async () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'array',
+                    value: [1, 2, 'test'],
+                    async: true,
+                };
+                const result = processAttr(configSetting);
+                expect(result instanceof Promise).toBe(true);
+                const resolvedValue = await result;
+                expect(resolvedValue).toEqual([1, 2, 'test']);
+            });
+
+            it('handles async object', async () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'object',
+                    value: { key: 'async-value', nested: { prop: 'test' } },
+                    async: true,
+                };
+                const result = processAttr(configSetting);
+                expect(result instanceof Promise).toBe(true);
+                const resolvedValue = await result;
+                expect(resolvedValue).toEqual({ key: 'async-value', nested: { prop: 'test' } });
+            });
+
+            it('handles async null', async () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'null',
+                    value: null,
+                    async: true,
+                };
+                const result = processAttr(configSetting);
+                expect(result instanceof Promise).toBe(true);
+                const resolvedValue = await result;
+                expect(resolvedValue).toBe(null);
+            });
+
+            it('non-async values should not be wrapped in Promise', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'string',
+                    value: 'not async',
+                };
+                const result = processAttr(configSetting);
+                expect(result instanceof Promise).toBe(false);
+                expect(result).toBe('not async');
+            });
+        });
+
+        describe('Criteria support', () => {
+            it('handles array with criteria selection - fallback case', () => {
+                /** @type {ConfigSetting[]} */
+                const configSetting = [
+                    {
+                        type: 'string',
+                        value: 'fallback',
+                    },
+                    {
+                        type: 'string',
+                        value: 'criteria-based',
+                        criteria: { arch: 'SomeOtherArch' }, // This won't match, so should use fallback
+                    },
+                ];
+                const result = processAttr(configSetting);
+                expect(result).toBe('fallback');
+            });
+
+            it('handles async array with criteria selection - fallback case', async () => {
+                /** @type {ConfigSetting[]} */
+                const configSetting = [
+                    {
+                        type: 'string',
+                        value: 'fallback',
+                        async: true,
+                    },
+                    {
+                        type: 'string',
+                        value: 'criteria-based',
+                        criteria: { arch: 'SomeOtherArch' }, // This won't match, so should use fallback
+                        async: true,
+                    },
+                ];
+                const result = processAttr(configSetting);
+                expect(result instanceof Promise).toBe(true);
+                const resolvedValue = await result;
+                expect(resolvedValue).toBe('fallback');
+            });
+        });
+
+        describe('Complex combinations', () => {
+            it('handles function with async functionValue', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'function',
+                    functionValue: {
+                        type: 'string',
+                        value: 'async result',
+                        async: true,
+                    },
+                };
+                const result = processAttr(configSetting);
+                expect(typeof result).toBe('function');
+                const functionResult = result();
+                expect(functionResult instanceof Promise).toBe(true);
+            });
+
+            it('function returns correct async value', async () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'function',
+                    functionValue: {
+                        type: 'object',
+                        value: { data: 'complex async object' },
+                        async: true,
+                    },
+                };
+                const result = processAttr(configSetting);
+                const functionResult = result();
+                const resolvedValue = await functionResult;
+                expect(resolvedValue).toEqual({ data: 'complex async object' });
+            });
+
+            it('nested function with nested processAttr calls', () => {
+                /** @type {ConfigSetting} */
+                const configSetting = {
+                    type: 'function',
+                    functionValue: {
+                        type: 'function',
+                        functionValue: {
+                            type: 'number',
+                            value: 42,
+                        },
+                    },
+                };
+                const result = processAttr(configSetting);
+                expect(typeof result).toBe('function');
+                const nestedFunction = result();
+                expect(typeof nestedFunction).toBe('function');
+                expect(nestedFunction()).toBe(42);
+            });
         });
     });
 });

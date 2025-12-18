@@ -1,14 +1,18 @@
-import { useContext, useEffect } from 'preact/hooks';
-import { OmnibarContext } from './OmnibarProvider.js';
-import { h } from 'preact';
-import { Omnibar } from './Omnibar.js';
-import { CustomizerContext } from '../../customizer/CustomizerProvider.js';
-import { AiChatIcon } from '../../components/Icons.js';
+import { Fragment, h } from 'preact';
+import { useContext } from 'preact/hooks';
+import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 import { useTypedTranslationWith } from '../../types.js';
+import { useVisibility } from '../../widget-list/widget-config.provider.js';
+import { Omnibar } from './Omnibar.js';
+import { OmnibarContext } from './OmnibarProvider.js';
+import { ArrowIndentCenteredIcon } from '../../components/Icons.js';
+import { useModeWithLocalPersistence } from './PersistentOmnibarValuesProvider.js';
+import { useTabState } from '../../tabs/TabsProvider.js';
 
 /**
  * @typedef {import('../strings.json')} Strings
  * @typedef {import('../../../types/new-tab.js').OmnibarConfig} OmnibarConfig
+ * @typedef {import('../../../types/new-tab.js').OmnibarMode} Mode
  */
 
 /**
@@ -24,41 +28,63 @@ import { useTypedTranslationWith } from '../../types.js';
  * ```
  */
 export function OmnibarConsumer() {
-    const { state } = useContext(OmnibarContext);
-    if (state.status === 'ready') {
-        return <OmnibarReadyState config={state.config} />;
-    }
-    return null;
+    const { state, setEnableAi } = useContext(OmnibarContext);
+    const { current } = useTabState();
+    const { visibility } = useVisibility();
+    if (state.status !== 'ready') return null;
+
+    const visible = visibility.value === 'visible';
+    return (
+        <>
+            {state.config.showAiSetting && (
+                <AiSetting enableAi={state.config?.enableAi === true} setEnableAi={setEnableAi} omnibarVisible={visible} />
+            )}
+            {visible && <OmnibarReadyState config={state.config} key={current.value} tabId={current.value} />}
+        </>
+    );
 }
 
 /**
  * @param {object} props
  * @param {OmnibarConfig} props.config
+ * @param {string} props.tabId
  */
-function OmnibarReadyState({ config: { enableAi = true, showAiSetting = true, mode } }) {
+function OmnibarReadyState({ config, tabId }) {
+    const { enableAi = true, showAiSetting = true, showCustomizePopover = false, mode: defaultMode } = config;
+    const { setMode } = useContext(OmnibarContext);
+    const modeForCurrentTab = useModeWithLocalPersistence(tabId, defaultMode);
+
+    return (
+        <Omnibar
+            mode={modeForCurrentTab}
+            setMode={setMode}
+            enableAi={showAiSetting && enableAi}
+            showCustomizePopover={showCustomizePopover}
+            tabId={tabId}
+        />
+    );
+}
+
+/**
+ * @param {object} props
+ * @param {boolean} props.enableAi
+ * @param {(enable: boolean) => void} props.setEnableAi
+ * @param {boolean} props.omnibarVisible
+ */
+export function AiSetting({ enableAi, setEnableAi, omnibarVisible }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
-
-    const { settingsLinks } = useContext(CustomizerContext);
-    const { setMode, setEnableAi } = useContext(OmnibarContext);
-
-    useEffect(() => {
-        if (!showAiSetting) {
-            return;
-        }
-
-        settingsLinks.value = {
-            ...settingsLinks.value,
-            duckAi: {
-                title: enableAi ? t('omnibar_hideDuckAi') : t('omnibar_showDuckAi'),
-                icon: <AiChatIcon />,
-                onClick: () => setEnableAi(!enableAi),
-            },
-        };
-        return () => {
-            const { duckAi: _, ...rest } = settingsLinks.value;
-            settingsLinks.value = rest;
-        };
-    }, [enableAi, showAiSetting]);
-
-    return <Omnibar mode={mode} setMode={setMode} enableAi={enableAi} />;
+    const { id, index } = useVisibility();
+    useCustomizer({
+        title: t('omnibar_toggleDuckAi'),
+        id: `_${id}-toggleAi`,
+        icon: <ArrowIndentCenteredIcon style={{ color: 'var(--ds-color-theme-icons-tertiary)' }} />,
+        toggle: () => setEnableAi(!enableAi),
+        /**
+         * Duck.ai is only ever shown as 'visible' (eg: switch is checked) if the omnibar is also visible.
+         */
+        visibility: omnibarVisible && enableAi ? 'visible' : 'hidden',
+        index: index + 0.1,
+        enabled: omnibarVisible,
+    });
+    return null;
 }

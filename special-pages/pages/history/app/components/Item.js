@@ -18,7 +18,7 @@ export const Item = memo(
      * @param {string} props.url - The text to be displayed for the item.
      * @param {string} props.domain - The text to be displayed for the domain
      * @param {number} props.kind - The kind or type of the item that determines its visual style.
-     * @param {string} props.dateTimeOfDay - the time of day, like 11.00am.
+     * @param {string} [props.dateTimeOfDay] - the time of day, like 11.00am.
      * @param {string} props.dateRelativeDay - the time of day, like 11.00am.
      * @param {string|null} props.etldPlusOne
      * @param {number} props.index - original index
@@ -63,7 +63,7 @@ export const Item = memo(
                     <span class={styles.domain} data-testid="Item.domain" title={props.domain}>
                         {props.domain}
                     </span>
-                    <span class={styles.time}>{dateTimeOfDay}</span>
+                    {dateTimeOfDay && <span className={styles.time}>{dateTimeOfDay}</span>}
                     <button class={styles.dots} data-action={BTN_ACTION_ENTRIES_MENU} data-index={index} value={props.id} tabindex={-1}>
                         <Dots />
                     </button>

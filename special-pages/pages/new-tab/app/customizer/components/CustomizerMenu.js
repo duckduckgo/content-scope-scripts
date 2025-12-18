@@ -5,7 +5,18 @@ import { CustomizeIcon } from '../../components/Icons.js';
 import { useMessaging, useTypedTranslation } from '../../types.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
+ * @import { WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
+ */
+
+/**
+ * @typedef {object} VisibilityRowData
+ * @property {string} id - a unique id
+ * @property {boolean} enabled - whether this row can be interacted with
+ * @property {string} title - the title as it should appear in the menu
+ * @property {import('preact').ComponentChild} icon - icon to display in the menu
+ * @property {(id: string) => void} toggle - toggle function for this item
+ * @property {number} index - position in the menu
+ * @property {WidgetVisibility} visibility - known icon name, maps to an SVG
  */
 
 export const OPEN_EVENT = 'ntp-customizer-open';
@@ -37,7 +48,7 @@ export function useContextMenu() {
             const items = getItems();
             /** @type {VisibilityMenuItem[]} */
             const simplified = items
-                .filter((x) => x.id !== 'debug')
+                .filter((x) => !x.id.startsWith('_'))
                 .map((item) => {
                     return {
                         id: item.id,
@@ -74,6 +85,7 @@ export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonR
             aria-controls={menuId}
             data-kind={kind}
             id={buttonId}
+            data-testid="customizer-button"
         >
             <CustomizeIcon />
             <span>{t('ntp_customizer_button')}</span>
@@ -85,40 +97,23 @@ export function CustomizerMenuPositionedFixed({ children }) {
     return <div class={styles.lowerRightFixed}>{children}</div>;
 }
 
-export class VisibilityRowData {
-    /**
-     * @param {object} params
-     * @param {string} params.id - a unique id
-     * @param {string} params.title - the title as it should appear in the menu
-     * @param {'shield' | 'star' | 'search'} params.icon - known icon name, maps to an SVG
-     * @param {(id: string) => void} params.toggle - toggle function for this item
-     * @param {number} params.index - position in the menu
-     * @param {WidgetVisibility} params.visibility - known icon name, maps to an SVG
-     */
-    constructor({ id, title, icon, toggle, visibility, index }) {
-        this.id = id;
-        this.title = title;
-        this.icon = icon;
-        this.toggle = toggle;
-        this.index = index;
-        this.visibility = visibility;
-    }
-}
-
 /**
  * Call this to opt-in to the visibility menu
  * @param {VisibilityRowData} row
  */
-export function useCustomizer({ title, id, icon, toggle, visibility, index }) {
+export function useCustomizer({ title, id, icon, toggle, visibility, index, enabled }) {
     useEffect(() => {
-        const handler = (/** @type {CustomEvent<any>} */ e) => {
-            e.detail.register({ title, id, icon, toggle, visibility, index });
+        const handler = (/** @type {CustomEvent<{register: (d: VisibilityRowData) => void}>} */ e) => {
+            e.detail.register({ title, id, icon, toggle, visibility, index, enabled });
         };
         window.addEventListener(OPEN_EVENT, handler);
         return () => window.removeEventListener(OPEN_EVENT, handler);
-    }, [title, id, icon, toggle, visibility, index]);
+    }, [title, id, icon, toggle, visibility, index, enabled]);
 
     useEffect(() => {
         window.dispatchEvent(new Event(UPDATE_EVENT));
+        return () => {
+            window.dispatchEvent(new Event(UPDATE_EVENT));
+        };
     }, [visibility]);
 }

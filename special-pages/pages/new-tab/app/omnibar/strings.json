@@ -31,13 +31,13 @@
     "title": "Search privately",
     "description": "Placeholder text for the search input field."
   },
-  "omnibar_hideDuckAi": {
-    "title": "Hide Duck.ai",
-    "description": "Label for the button to hide the Duck.ai chat interface."
+  "omnibar_searchFormCloseButtonLabel": {
+    "title": "Close",
+    "description": "Accessible label for the close button in the search form."
   },
-  "omnibar_showDuckAi": {
-    "title": "Show Duck.ai",
-    "description": "Label for the button to show the Duck.ai chat interface."
+  "omnibar_toggleDuckAi": {
+    "title": "Duck.ai",
+    "description": "Label for the button to toggle the Duck.ai chat interface."
   },
   "omnibar_searchDuckDuckGoSuffix": {
     "title": "Search DuckDuckGo",
@@ -50,5 +50,25 @@
   "omnibar_visitSuffix": {
     "title": "Visit {url}",
     "description": "Text placed after suggestions that will open a webpage."
+  },
+  "omnibar_askDuckAiSuffix": {
+    "title": "Ask Duck.ai",
+    "description": "Text placed after aiChat suggestions that will submit a chat query."
+  },
+  "omnibar_switchToTab": {
+    "title": "Switch to Tab",
+    "description": "Badge text shown next to open tab suggestions."
+  },
+  "omnibar_customizePopoverTitle": {
+    "title": "Toggle between search and AI chat",
+    "description": "Title for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverBadge": {
+    "title": "New",
+    "description": "Badge text for the popover that introduces the search/AI toggle feature."
+  },
+  "omnibar_customizePopoverDescription": {
+    "title": "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",
+    "description": "Description message in the popover including privacy statement and customize option."
   }
 }

@@ -1,5 +1,5 @@
 /**
- * @typedef {import('../../types/new-tab.js').Suggestion} Suggestion
+ * @typedef {import('./components/useSuggestions.js').SuggestionModel} SuggestionModel
  */
 
 /**
@@ -8,6 +8,7 @@
  *  | { kind: 'duckDuckGo' }
  *  | { kind: 'visit', url: string }
  *  | { kind: 'raw', text: string }
+ *  | { kind: 'askDuckAi' }
  *  | null
  * )} Suffix
  */
@@ -21,47 +22,28 @@
 
 /**
  * @param {string} term
- * @param {Suggestion|null} selectedSuggestion
+ * @param {SuggestionModel | null} selectedSuggestion
  * @returns {Suffix}
  */
 export function getInputSuffix(term, selectedSuggestion) {
-    if (!term) {
-        return null;
-    }
+    // Intentionally differs from the macOS app's implementation, which returns
+    // "Search DuckDuckGo" or "Visit $url" when there is a term and no selection
+    if (!term || !selectedSuggestion) return null;
 
-    if (selectedSuggestion) {
-        return getSuggestionInputSuffix(selectedSuggestion, term);
-    }
-
-    if (isURLish(term)) {
-        const url = parseURL(term);
-        if (!url) throw new Error('isURLish returned true but parseURL failed');
-        return { kind: 'visit', url: formatURL(url, { scheme: false, trailingSlash: false, search: false, hash: false }) };
-    } else {
-        return { kind: 'searchDuckDuckGo' };
-    }
-}
-
-/**
- * @param {Suggestion} suggestion
- * @param {string} term
- * @returns {Suffix}
- */
-function getSuggestionInputSuffix(suggestion, term) {
-    switch (suggestion.kind) {
+    switch (selectedSuggestion.kind) {
         case 'phrase':
             return { kind: 'searchDuckDuckGo' };
         case 'website': {
-            const url = parseURL(suggestion.url);
+            const url = parseURL(selectedSuggestion.url);
             if (!url) return null;
             return { kind: 'visit', url: formatURL(url, { scheme: false, trailingSlash: false, search: false, hash: false }) };
         }
         case 'bookmark':
         case 'historyEntry':
         case 'internalPage': {
-            const title = getSuggestionTitle(suggestion, term);
-            const autocompletion = getSuggestionCompletionString(suggestion, term);
-            const url = parseURL(suggestion.url);
+            const title = getSuggestionTitle(selectedSuggestion, term);
+            const autocompletion = getSuggestionCompletionString(selectedSuggestion, term);
+            const url = parseURL(selectedSuggestion.url);
             if (title && title !== autocompletion) {
                 return { kind: 'raw', text: title };
             } else if (url) {
@@ -72,11 +54,13 @@ function getSuggestionInputSuffix(suggestion, term) {
         }
         case 'openTab':
             return { kind: 'duckDuckGo' };
+        case 'aiChat':
+            return { kind: 'askDuckAi' };
     }
 }
 
 /**
- * @param {Suggestion} suggestion
+ * @param {SuggestionModel} suggestion
  * @param {string} term
  * @returns {string}
  */
@@ -109,11 +93,13 @@ export function getSuggestionTitle(suggestion, term) {
         case 'internalPage':
         case 'openTab':
             return suggestion.title;
+        case 'aiChat':
+            return suggestion.chat;
     }
 }
 
 /**
- * @param {Suggestion} suggestion
+ * @param {SuggestionModel} suggestion
  * @param {string} term
  * @returns {string}
  */
@@ -130,14 +116,15 @@ export function getSuggestionCompletionString(suggestion, term) {
                 return getSuggestionTitle(suggestion, term);
             }
         }
+        case 'aiChat':
+            return getSuggestionTitle(suggestion, term);
         default:
             return getSuggestionTitle(suggestion, term);
     }
 }
 
 /**
- *
- * @param {Suggestion} suggestion
+ * @param {SuggestionModel} suggestion
  * @returns {Suffix}
  */
 export function getSuggestionSuffix(suggestion) {
@@ -157,6 +144,8 @@ export function getSuggestionSuffix(suggestion) {
         }
         case 'internalPage':
             return { kind: 'duckDuckGo' };
+        case 'aiChat':
+            return { kind: 'askDuckAi' };
     }
 }
 
@@ -172,15 +161,6 @@ export function parseURL(string) {
         return new URL(`https://${string}`);
     } catch {}
     return null;
-}
-
-/**
- * @param {string} string
- * @returns {boolean}
- */
-export function isURLish(string) {
-    // @todo: This is overly simplistic.
-    return string.includes('.') && parseURL(string) !== null;
 }
 
 /**

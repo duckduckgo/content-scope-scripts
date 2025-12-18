@@ -20,12 +20,12 @@ jobs:
             matrix:
                 os: [ubuntu-latest, windows-latest]
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Use Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v4
+            - uses: actions/cache@v5
               with:
                   path: ~/.npm
                   key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -40,14 +40,14 @@ jobs:
               run: 'npm run test-clean-tree'
     integration:
         runs-on: ubuntu-latest
-        timeout-minutes: 10
+        timeout-minutes: 15
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Use Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - uses: actions/cache@v4
+            - uses: actions/cache@v5
               with:
                   path: ~/.npm
                   key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -59,23 +59,23 @@ jobs:
                   npm run build
             - name: Cache docs output
               id: docs-output
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: docs
                   key: docs-output-${{ github.run_id }}
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
             - run: npm run test-int-x
-            - uses: actions/upload-artifact@v4
+            - uses: actions/upload-artifact@v6
               if: always()
               with:
-                  name: playwright-report-pages
+                  name: tests-playwright-report-pages
                   path: special-pages/playwright-report
                   retention-days: 5
-            - uses: actions/upload-artifact@v4
+            - uses: actions/upload-artifact@v6
               if: always()
               with:
-                  name: playwright-report-injected
+                  name: tests-playwright-report-injected
                   path: injected/playwright-report
                   retention-days: 5
             - name: Build docs
@@ -89,21 +89,21 @@ jobs:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Use Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
             - name: Cache build outputs
               id: docs-output
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: docs
                   key: docs-output-${{ github.run_id }}
             - name: Setup Github Pages
               uses: actions/configure-pages@v5
             - name: Upload artifact
-              uses: actions/upload-pages-artifact@v3
+              uses: actions/upload-pages-artifact@v4
               with:
                   path: docs
             - name: Deploy to GitHub Pages
@@ -115,9 +115,9 @@ jobs:
     production-deps:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Use Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
             - name: Install production dependencies only (injected/)

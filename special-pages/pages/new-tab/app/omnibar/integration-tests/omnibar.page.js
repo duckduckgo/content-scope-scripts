@@ -1,4 +1,9 @@
-import { expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+
+/**
+ * @typedef {import("../../../types/new-tab.js").OmnibarMode} Mode
+ * @typedef {import("../../../types/new-tab.js").OmnibarConfig} Config
+ */
 
 export class OmnibarPage {
     /**
@@ -7,6 +12,7 @@ export class OmnibarPage {
     constructor(ntp) {
         this.ntp = ntp;
         this.page = this.ntp.page;
+        this.page.on('console', (msg) => console.log(msg.text()));
     }
 
     context() {
@@ -54,19 +60,35 @@ export class OmnibarPage {
     }
 
     customizeButton() {
-        return this.page.getByRole('button', { name: 'Customize' });
+        return this.page.getByTestId('customizer-button');
     }
 
     toggleSearchButton() {
         return this.page.getByRole('switch', { name: 'Toggle Search' });
     }
 
-    showDuckAiButton() {
-        return this.page.getByRole('link', { name: 'Show Duck.ai' });
+    toggleDuckAiButton() {
+        return this.page.getByRole('switch', { name: 'Toggle Duck.ai' });
     }
 
-    hideDuckAiButton() {
-        return this.page.getByRole('link', { name: 'Hide Duck.ai' });
+    closeButton() {
+        return this.context().getByRole('button', { name: 'Close' });
+    }
+
+    popover() {
+        return this.context().getByRole('dialog');
+    }
+
+    popoverCloseButton() {
+        return this.popover().getByRole('button', { name: 'Close' });
+    }
+
+    popoverCustomizeButton() {
+        return this.popover().getByRole('button', { name: 'Customize' });
+    }
+
+    root() {
+        return this.context().locator('[data-mode]');
     }
 
     /**
@@ -96,6 +118,13 @@ export class OmnibarPage {
      */
     async expectInputValue(value) {
         await expect(this.searchInput()).toHaveValue(value);
+    }
+
+    /**
+     * @param {string} value
+     */
+    async expectChatValue(value) {
+        await expect(this.chatInput()).toHaveValue(value);
     }
 
     /**
@@ -133,6 +162,13 @@ export class OmnibarPage {
     }
 
     /**
+     * @param {'search' | 'ai'} mode
+     */
+    async expectDataMode(mode) {
+        await expect(this.root()).toHaveAttribute('data-mode', mode);
+    }
+
+    /**
      * @param {string} method
      * @param {number} count
      */
@@ -156,4 +192,94 @@ export class OmnibarPage {
         const calls = await this.ntp.mocks.outgoing({ names: [method] });
         expect(calls).toHaveLength(0);
     }
+
+    /**
+     * @param {string} tabId
+     * @param {string[]} tabIds
+     * @returns {Promise<void>}
+     */
+    async didSwitchToTab(tabId, tabIds) {
+        await test.step(`simulate tab change event, to: ${tabId} `, async () => {
+            const event = sub('tabs_onDataUpdate').payload({ tabId, tabIds });
+            await this.ntp.mocks.simulateSubscriptionEvent(event);
+        });
+    }
+
+    /**
+     * @param {Config} config
+     * @returns {Promise<void>}
+     */
+    async didReceiveConfig(config) {
+        const event = sub('omnibar_onConfigUpdate').payload(config);
+        await test.step(`simulates global disabled (eg: settings): ${JSON.stringify(event.name)} ${JSON.stringify(event.payload)} `, async () => {
+            await this.ntp.mocks.simulateSubscriptionEvent(event);
+        });
+    }
+
+    /**
+     * @param {object} props
+     * @param {Mode} props.mode
+     * @returns {Promise<void>}
+     */
+    switchMode({ mode }) {
+        switch (mode) {
+            case 'ai': {
+                return this.aiTab().click();
+            }
+            case 'search': {
+                return this.searchTab().click();
+            }
+        }
+    }
+
+    /**
+     * @param {object} props
+     * @param {Mode} props.mode
+     * @param {string} props.value
+     */
+    async expectValue({ mode, value }) {
+        switch (mode) {
+            case 'ai': {
+                return await expect(this.chatInput()).toHaveValue(value);
+            }
+            case 'search': {
+                return await expect(this.searchInput()).toHaveValue(value);
+            }
+        }
+    }
+
+    /**
+     * @param {object} props
+     * @param {Mode} props.mode
+     * @param {string} props.value
+     * @returns {Promise<void>}
+     */
+    types({ mode, value }) {
+        switch (mode) {
+            case 'ai': {
+                return this.chatInput().fill(value);
+            }
+            case 'search': {
+                return this.searchInput().fill(value);
+            }
+        }
+    }
+
+    async clearsInput() {
+        await this.searchInput().hover();
+        await this.closeButton().click();
+    }
+}
+
+/**
+ * @template {import("../../../types/new-tab.js").NewTabMessages["subscriptions"]["subscriptionEvent"]} SubName
+ * @param {SubName} name
+ * @return {{payload: (payload: Extract<import("../../../types/new-tab.js").NewTabMessages["subscriptions"], {subscriptionEvent: SubName}>['params']) => {name: string, payload: any}}}
+ */
+function sub(name) {
+    return {
+        payload: (payload) => {
+            return { name, payload };
+        },
+    };
 }

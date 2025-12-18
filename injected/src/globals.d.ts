@@ -20,7 +20,8 @@ interface ImportMeta {
         | 'integration'
         | 'chrome-mv3'
         | 'android-broker-protection'
-        | 'android-autofill-password-import';
+        | 'android-autofill-import'
+        | 'android-adsjs';
     trackerLookup?: Record<string, unknown>;
     pageName?: string;
 }

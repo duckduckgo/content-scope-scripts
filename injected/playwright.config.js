@@ -10,8 +10,10 @@ export default defineConfig({
                 'integration-test/duckplayer-remote-config.spec.js',
                 'integration-test/harmful-apis.spec.js',
                 'integration-test/windows-permissions.spec.js',
+                'integration-test/ua-ch-brands.spec.js',
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/breakage-reporting.spec.js',
+                'integration-test/duck-ai-data-clearing.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
@@ -55,9 +57,9 @@ export default defineConfig({
             use: { injectName: 'android', platform: 'android', ...devices['Galaxy S5'] },
         },
         {
-            name: 'android-autofill-password-import',
-            testMatch: ['integration-test/autofill-password-import.spec.js'],
-            use: { injectName: 'android-autofill-password-import', platform: 'android', ...devices['Galaxy S5'] },
+            name: 'android-autofill-import',
+            testMatch: ['integration-test/autofill-import.spec.js'],
+            use: { injectName: 'android-autofill-import', platform: 'android', ...devices['Galaxy S5'] },
         },
         {
             name: 'chrome-mv3',

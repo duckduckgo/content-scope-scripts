@@ -1,7 +1,7 @@
 .card {
     background-color: var(--ntp-surface-background-color);
     backdrop-filter: blur(48px);
-    border: 1px solid var(--ntp-surface-border-color);
+    border: 1px solid var(--ds-color-theme-container-border-primary);
     padding: var(--sp-2) var(--sp-4);
     border-radius: var(--border-radius-lg);
     position: relative;
@@ -26,7 +26,7 @@
     font-weight: 590;
     line-height: var(--body-line-height);
     letter-spacing: -0.08px;
-    color: var(--ntp-text-normal);
+    color: var(--ds-color-theme-text-primary);
     margin-bottom: var(--sp-1);
 }
 
@@ -35,7 +35,7 @@
     line-height: calc(14 * var(--px-in-rem));
     letter-spacing: 0.06px;
     flex-grow: 1;
-    color: var(--ntp-text-muted);
+    color: var(--ds-color-theme-text-secondary);
     margin-bottom: var(--sp-1);
 }
 
@@ -47,7 +47,7 @@
     font-weight: 600;
     font-size: calc(11 * var(--px-in-rem));
     line-height: calc(14 * var(--px-in-rem));
-    color: var(--ntp-color-primary);
+    color: var(--ds-color-theme-accent-primary);
     /* needed for some languages */
     text-wrap: wrap;
 
@@ -57,55 +57,28 @@
         transition: opacity .3s ease-out;
 
         &:active {
-            background-color: var(--color-black-at-6);
+            background-color: var(--ds-color-theme-control-fill-tertiary);
             opacity: 0;
         }
     }
 
-    &:hover {
-        background-color: var(--color-black-at-6);
+    &:hover:not(:disabled) {
+        background-color: var(--ds-color-theme-control-fill-secondary);
         cursor: pointer;
     }
 
-    &:active {
-        background-color: var(--ntp-color-primary);
-        color: var(--ntp-text-on-primary);
+    &:active:not(:disabled) {
+        background-color: var(--ds-color-theme-control-fill-tertiary);
     }
 
     &:disabled {
-        color: var(--color-black-at-84);
-    }
-
-    &:disabled:hover {
+        opacity: 0.4;
         cursor: not-allowed;
-        background-color: var(--color-white-at-6);
     }
 
     &:focus-visible {
         box-shadow: var(--focus-ring);
         outline: none;
-    }
-
-    [data-theme=dark] & {
-        &.supressActiveStateForSwitchToConfirmationText {
-            &:active {
-                background-color: var(--color-black-at-9);
-            }
-        }
-
-        &:hover:not(:active) {
-            background-color: var(--color-black-at-9);
-        }
-
-        &:disabled {
-            color: var(--color-white-at-12);
-            opacity: 0.8;
-        }
-
-        &:disabled:hover {
-            cursor: not-allowed;
-            background-color: var(--color-white-at-12);
-        }
     }
 }
 
@@ -149,10 +122,9 @@
         opacity: 0;
     }
 
-    &:hover {
-        [data-show-hide] {
-            opacity: 1;
-        }
+    &:hover [data-show-hide],
+    & [data-show-hide]:focus-within {
+        opacity: 1;
     }
 }
 
@@ -177,11 +149,11 @@
     left: 0;
 
     svg path {
-        fill: var(--ntp-color-primary);
+        fill: var(--ds-color-theme-accent-primary);
     }
 
     div {
-        background-color: var(--ntp-color-primary);
+        background-color: var(--ds-color-theme-accent-primary);
         height: calc(20 * var(--px-in-rem));
         display: flex;
         align-items: center;
@@ -190,7 +162,7 @@
         margin: 0 -1px;
 
         h2 {
-            color: var(--ntp-text-on-primary);
+            color: var(--ds-color-theme-accent-content-primary);
             letter-spacing: 0.06px;
             font-weight: 600;
             line-height: normal;

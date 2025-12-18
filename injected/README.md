@@ -4,7 +4,7 @@ Content Scope Scripts handles injecting DOM modifications in a browser context; 
 
 ## Quick Start
 
-Content Scope Scripts provides a unified API for browser privacy features across multiple platforms (Firefox, Chrome, Safari, Android, iOS). Features are loaded dynamically based on remote configuration and can be enabled/disabled per site.
+Content Scope Scripts provides a unified API for features running in web page DOM environments across multiple platforms (Firefox, Chrome, Safari, Android, iOS). Features are loaded dynamically based on remote configuration and can be enabled/disabled per site.
 
 ## Documentation
 
@@ -23,12 +23,12 @@ Content Scope Scripts provides a unified API for browser privacy features across
 Content Scope Scripts contains two main sub-projects:
 
 - **[Special Pages](../special-pages/)** - HTML/CSS/JS applications loaded into browsers (DuckPlayer, Release Notes, New Tab page, etc.)
-- **Injected Features** - Features injected into websites (privacy protections, compatibility fixes)
+- **Injected Features** - Features injected into websites (privacy protections, compatibility fixes, DOM manipulations)
 
 > **For Special Pages development**, see the [Special Pages README](../special-pages/README.md) for detailed getting started instructions.
 
 ### Features
-Features are JavaScript modules that implement privacy protections. Each feature:
+Features are JavaScript modules running in web page DOM environments. Each feature:
 - Extends the `ConfigFeature` class for remote configuration support
 - Implements the feature lifecycle (`load`, `init`, `update`)
 - Can be enabled/disabled per site via remote configuration
@@ -76,7 +76,37 @@ npm run fake-extension # Runs an example extension used within the integration t
 
 > **For detailed development setup instructions, debugging tips, and test build workflows, see the [Development Utilities](./docs/development-utilities.md) and [Testing Guide](./docs/testing-guide.md).**
 
-## Third-Party Libraries
-- [Adguard Scriptlets](https://github.com/AdguardTeam/Scriptlets)
+**Running specific tests:**
+
+To run a specific test or test suite, you can use the `--grep` flag to filter tests by name:
+
+```shell
+# Run tests containing "Test infra" in their name
+npx playwright test pages.spec.js --grep "Test infra"
+
+# Run tests containing "Conditional frame matching" in their name
+npx playwright test pages.spec.js --grep "Conditional frame matching"
+
+# Run tests in headed mode (shows browser window)
+npx playwright test pages.spec.js --grep "Test infra" --headed
+```
+
+**Debugging tests:**
+
+For debugging, you can run tests in headed mode and add debugging output:
+
+```shell
+# Run with browser visible and debugging enabled
+npx playwright test pages.spec.js --grep "Test infra" --headed --debug
+```
+
+#### Feature Build process
+
+To produce all artefacts that are used by platforms, just run the `npm run build` command.
+This will create platform specific code within the `build` folder (that is not checked in)
+
+```shell
+npm run build
+```
 
 For detailed information about any specific topic, please refer to the [documentation](./docs/).

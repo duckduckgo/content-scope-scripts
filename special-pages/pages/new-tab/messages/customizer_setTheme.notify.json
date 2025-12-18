@@ -5,6 +5,9 @@
   "properties": {
     "theme": {
       "$ref": "types/browser-theme.json"
+    },
+    "themeVariant": {
+      "$ref": "types/theme-variant.json"
     }
   }
 }

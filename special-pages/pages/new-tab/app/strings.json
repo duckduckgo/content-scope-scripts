@@ -18,5 +18,9 @@
   "widgets_visibility_menu_title": {
     "title": "Customize New Tab Page",
     "note": "Heading text describing that there's a list of toggles for customizing the page layout."
+  },
+  "ntp_popover_close_button": {
+    "title": "Close",
+    "note": "Button that closes the current popover."
   }
 }

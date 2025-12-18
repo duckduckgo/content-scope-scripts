@@ -28,6 +28,7 @@ const iconMap = {
     saturday: 'icons/day.svg',
     sunday: 'icons/day.svg',
     older: 'icons/older.svg',
+    sites: 'icons/sites.svg',
 };
 
 /** @type {Record<RangeId, (t: (s: keyof json) => string) => string>} */
@@ -43,6 +44,7 @@ const titleMap = {
     saturday: (t) => t('range_saturday'),
     sunday: (t) => t('range_sunday'),
     older: (t) => t('range_older'),
+    sites: (t) => t('range_sites'),
 };
 
 /**
@@ -106,7 +108,7 @@ function Item({ current, range, onClick, onDelete, count }) {
         if (range === 'all' && current.value === null) {
             return cn(styles.item, styles.active);
         }
-        return cn(styles.item, current.value === range && styles.active);
+        return cn(styles.item, current.value === range && styles.active, styles[`item_${range}`]);
     });
 
     return (
@@ -182,6 +184,7 @@ function labels(range, t) {
         case 'thursday':
         case 'friday':
         case 'saturday':
+        case 'sites':
         case 'sunday':
             return { linkLabel: t('show_history_for', { range }), buttonLabel: t('delete_history_for', { range }) };
         case 'older':

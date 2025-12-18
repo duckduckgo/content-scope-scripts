@@ -1,3 +1,0 @@
-[submodule "injected/src/features/Scriptlets"]
-	path = injected/src/features/Scriptlets
-	url = https://github.com/AdguardTeam/Scriptlets.git

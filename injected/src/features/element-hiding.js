@@ -1,12 +1,65 @@
 import ContentFeature from '../content-feature';
 import { isBeingFramed, injectGlobalStyles } from '../utils';
 
+/**
+ * @typedef {Object} ElementHidingValue
+ * @property {string} property
+ * @property {string} value
+ */
+
+/**
+ * @typedef {Object} ElementHidingRuleHide
+ * @property {string} selector
+ * @property {'hide-empty' | 'hide' | 'closest-empty' | 'override'} type
+ */
+
+/**
+ * @typedef {Object} ElementHidingRuleModify
+ * @property {string} selector
+ * @property {'modify-style' | 'modify-attr'} type
+ * @property {ElementHidingValue[]} values
+ */
+
+/**
+ * @typedef {Object} ElementHidingRuleWithoutSelector
+ * @property {'disable-default'} type
+ */
+
+/**
+ * @typedef {ElementHidingRuleHide | ElementHidingRuleModify | ElementHidingRuleWithoutSelector} ElementHidingRule
+ */
+
+/**
+ * @typedef {Object} ElementHidingDomain
+ * @property {string | string[]} domain
+ * @property {ElementHidingRule[]} rules
+ */
+
+/**
+ * @typedef {Object} StyleTagException
+ * @property {string} domain
+ * @property {string} reason
+ */
+
+/**
+ * @typedef {Object} ElementHidingConfiguration
+ * @property {boolean} [useStrictHideStyleTag]
+ * @property {ElementHidingRule[]} rules
+ * @property {ElementHidingDomain[]} domains
+ * @property {number[]} [hideTimeouts]
+ * @property {number[]} [unhideTimeouts]
+ * @property {string} [mediaAndFormSelectors]
+ * @property {string[]} [adLabelStrings]
+ * @property {StyleTagException[]} [styleTagExceptions]
+ */
+
 let adLabelStrings = [];
 const parser = new DOMParser();
 let hiddenElements = new WeakMap();
 let modifiedElements = new WeakMap();
 let appliedRules = new Set();
 let shouldInjectStyleTag = false;
+let styleTagInjected = false;
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
 let hideTimeouts = [0, 100, 300, 500, 1000, 2000, 3000];
 let unhideTimeouts = [1250, 2250, 3000];
@@ -17,7 +70,7 @@ let featureInstance;
 /**
  * Hide DOM element if rule conditions met
  * @param {HTMLElement} element
- * @param {Object} rule
+ * @param {ElementHidingRule} rule
  * @param {HTMLElement} [previousElement]
  */
 function collapseDomNode(element, rule, previousElement) {
@@ -66,7 +119,7 @@ function collapseDomNode(element, rule, previousElement) {
 /**
  * Unhide previously hidden DOM element if content loaded into it
  * @param {HTMLElement} element
- * @param {Object} rule
+ * @param {ElementHidingRule} rule
  */
 function expandNonEmptyDomNode(element, rule) {
     if (!element) {
@@ -184,9 +237,7 @@ function isDomNodeEmpty(node) {
 /**
  * Modify specified attribute(s) on element
  * @param {HTMLElement} element
- * @param {Object[]} values
- * @param {string} values[].property
- * @param {string} values[].value
+ * @param {ElementHidingValue[]} values
  */
 function modifyAttribute(element, values) {
     values.forEach((item) => {
@@ -198,9 +249,7 @@ function modifyAttribute(element, values) {
 /**
  * Modify specified style(s) on element
  * @param {HTMLElement} element
- * @param {Object[]} values
- * @param {string} values[].property
- * @param {string} values[].value
+ * @param {ElementHidingValue[]} values
  */
 function modifyStyle(element, values) {
     values.forEach((item) => {
@@ -211,9 +260,7 @@ function modifyStyle(element, values) {
 
 /**
  * Separate strict hide rules to inject as style tag if enabled
- * @param {Object[]} rules
- * @param {string} rules[].selector
- * @param {string} rules[].type
+ * @param {ElementHidingRule[]} rules
  */
 function extractTimeoutRules(rules) {
     if (!shouldInjectStyleTag) {
@@ -237,39 +284,40 @@ function extractTimeoutRules(rules) {
 
 /**
  * Create styletag for strict hide rules and append it to the document
- * @param {Object[]} rules
- * @param {string} rules[].selector
- * @param {string} rules[].type
+ * @param {ElementHidingRule[]} rules
  */
 function injectStyleTag(rules) {
+    // if style tag already injected on SPA url change, don't inject again
+    if (styleTagInjected) {
+        return;
+    }
     // wrap selector list in :is(...) to make it a forgiving selector list. this enables
     // us to use selectors not supported in all browsers, eg :has in Firefox
     let selector = '';
 
     rules.forEach((rule, i) => {
         if (i !== rules.length - 1) {
-            selector = selector.concat(rule.selector, ',');
+            selector = selector.concat(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector, ',');
         } else {
-            selector = selector.concat(rule.selector);
+            selector = selector.concat(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
         }
     });
     const styleTagProperties = 'display:none!important;min-height:0!important;height:0!important;';
     const styleTagContents = `${forgivingSelector(selector)} {${styleTagProperties}}`;
 
     injectGlobalStyles(styleTagContents);
+    styleTagInjected = true;
 }
 
 /**
  * Apply list of active element hiding rules to page
- * @param {Object[]} rules
- * @param {string} rules[].selector
- * @param {string} rules[].type
+ * @param {ElementHidingRule[]} rules
  */
 function hideAdNodes(rules) {
     const document = globalThis.document;
 
     rules.forEach((rule) => {
-        const selector = forgivingSelector(rule.selector);
+        const selector = forgivingSelector(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
         const matchingElementArray = [...document.querySelectorAll(selector)];
         matchingElementArray.forEach((element) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
@@ -311,14 +359,23 @@ export default class ElementHiding extends ContentFeature {
         }
 
         let activeRules;
+        /** @type {ElementHidingRule[]} */
         const globalRules = this.getFeatureSetting('rules');
-        adLabelStrings = this.getFeatureSetting('adLabelStrings');
-        shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag');
+        /** @type {string[]} */
+        adLabelStrings = this.getFeatureSetting('adLabelStrings') || [];
+        /** @type {boolean} */
+        shouldInjectStyleTag = this.getFeatureSetting('useStrictHideStyleTag') || false;
+        /** @type {number[]} */
         hideTimeouts = this.getFeatureSetting('hideTimeouts') || hideTimeouts;
+        /** @type {number[]} */
         unhideTimeouts = this.getFeatureSetting('unhideTimeouts') || unhideTimeouts;
-        mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors') || mediaAndFormSelectors;
+        /** @type {string} */
+        mediaAndFormSelectors = this.getFeatureSetting('mediaAndFormSelectors');
+        // Fall back to default value if setting is missing, null, empty, or other falsy values
+        if (!mediaAndFormSelectors) {
+            mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
+        }
 
-        // determine whether strict hide rules should be injected as a style tag
         if (shouldInjectStyleTag) {
             shouldInjectStyleTag = this.matchConditionalFeatureSetting('styleTagExceptions').length === 0;
         }
@@ -371,9 +428,7 @@ export default class ElementHiding extends ContentFeature {
 
     /**
      * Apply relevant hiding rules to page at set intervals
-     * @param {Object[]} rules
-     * @param {string} rules[].selector
-     * @param {string} rules[].type
+     * @param {ElementHidingRule[]} rules
      */
     applyRules(rules) {
         const timeoutRules = extractTimeoutRules(rules);

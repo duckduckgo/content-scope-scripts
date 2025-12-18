@@ -12,6 +12,7 @@ import { applyDefaultStyles } from './utils.js';
  * @typedef {import('../../types/new-tab.js').UserImageContextMenu} UserImageContextMenu
  * @typedef {import('../service.hooks.js').State<CustomizerData, undefined>} State
  * @typedef {import('../service.hooks.js').Events<CustomizerData, undefined>} Events
+ * @typedef {import('../../types/new-tab.js').ThemeVariant} ThemeVariant
  */
 
 /**
@@ -30,6 +31,8 @@ export const CustomizerThemesContext = createContext({
     main: signal('light'),
     /** @type {import("@preact/signals").Signal<'light' | 'dark'>} */
     browser: signal('light'),
+    /** @type {import("@preact/signals").Signal<ThemeVariant>} */
+    variant: signal('default'),
 });
 
 export const CustomizerContext = createContext({
@@ -55,10 +58,6 @@ export const CustomizerContext = createContext({
      * @param {UserImageContextMenu} _params
      */
     customizerContextMenu: (_params) => {},
-    /**
-     * @type {import('@preact/signals').Signal<Record<string, SettingsLinkData>>}
-     */
-    settingsLinks: signal({}),
 });
 
 /**
@@ -73,14 +72,20 @@ export const CustomizerContext = createContext({
 export function CustomizerProvider({ service, initialData, children }) {
     // const [state, dispatch] = useReducer(withLog('RMFProvider', reducer), initial)
     const data = useSignal(initialData);
-    const { main, browser } = useThemes(data);
+    const { main, browser, variant } = useThemes(data);
 
     useSignalEffect(() => {
         const unsub = service.onBackground((evt) => {
             data.value = { ...data.value, background: evt.data.background };
         });
         const unsub1 = service.onTheme((evt) => {
-            data.value = { ...data.value, theme: evt.data.theme };
+            // Only update themeVariant if it's explicitly provided in the message
+            // This preserves the existing variant when just the theme changes
+            const updates = { theme: evt.data.theme };
+            if (evt.data.themeVariant !== undefined) {
+                updates.themeVariant = evt.data.themeVariant;
+            }
+            data.value = { ...data.value, ...updates };
         });
         const unsub2 = service.onImages((evt) => {
             data.value = { ...data.value, userImages: evt.data.userImages };
@@ -138,12 +143,9 @@ export function CustomizerProvider({ service, initialData, children }) {
     /** @type {(p: UserImageContextMenu) => void} */
     const customizerContextMenu = useCallback((params) => service.contextMenu(params), [service]);
 
-    /** @type {import('@preact/signals').Signal<Record<string, SettingsLinkData>>} */
-    const settingsLinks = useSignal({});
-
     return (
-        <CustomizerContext.Provider value={{ data, select, upload, setTheme, deleteImage, customizerContextMenu, settingsLinks }}>
-            <CustomizerThemesContext.Provider value={{ main, browser }}>{children}</CustomizerThemesContext.Provider>
+        <CustomizerContext.Provider value={{ data, select, upload, setTheme, deleteImage, customizerContextMenu }}>
+            <CustomizerThemesContext.Provider value={{ main, browser, variant }}>{children}</CustomizerThemesContext.Provider>
         </CustomizerContext.Provider>
     );
 }

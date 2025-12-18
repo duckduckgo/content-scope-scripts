@@ -16,6 +16,8 @@ import { CustomizerService } from './customizer/customizer.service.js';
 import { InlineErrorBoundary } from './InlineErrorBoundary.js';
 import { DocumentVisibilityProvider } from '../../../shared/components/DocumentVisibility.js';
 import { applyDefaultStyles } from './customizer/utils.js';
+import { TabsService } from './tabs/tabs.service.js';
+import { TabsDebug, TabsProvider } from './tabs/TabsProvider.js';
 
 /**
  * @import {Telemetry} from "./telemetry/telemetry.js"
@@ -89,6 +91,7 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
 
     // Resolve the entry points for each selected widget
     const entryPoints = await resolveEntryPoints(init.widgets, didCatch);
+    const tabs = new TabsService(messaging, init.tabs || TabsService.DEFAULT);
 
     // Create an instance of the global widget api
     const widgetConfigAPI = new WidgetConfigService(messaging, init.widgetConfigs);
@@ -129,7 +132,10 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
                                                 widgets={init.widgets}
                                                 entryPoints={entryPoints}
                                             >
-                                                <App />
+                                                <TabsProvider service={tabs}>
+                                                    {environment.urlParams.has('tabs.debug') && <TabsDebug />}
+                                                    <App />
+                                                </TabsProvider>
                                             </WidgetConfigProvider>
                                         </DocumentVisibilityProvider>
                                     </CustomizerProvider>

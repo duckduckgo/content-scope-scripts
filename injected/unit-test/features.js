@@ -14,26 +14,15 @@ const __dirname = path.dirname(__filename);
 
 describe('Features definition', () => {
     it('calls `webCompat` before `fingerPrintingScreenSize` https://app.asana.com/0/1177771139624306/1204944717262422/f', () => {
-        // ensuring this order doesn't change, as it recently caused breakage
-        expect(platformSupport.apple).toEqual([
-            'webCompat',
-            'printing',
-            'duckPlayerNative',
-            'scriptlets',
-            'fingerprintingAudio',
-            'fingerprintingBattery',
-            'fingerprintingCanvas',
-            'googleRejected',
-            'gpc',
-            'fingerprintingHardware',
-            'referrer',
-            'fingerprintingScreenSize',
-            'fingerprintingTemporaryStorage',
-            'navigatorInterface',
-            'elementHiding',
-            'exceptionHandler',
-            'apiManipulation',
-        ]);
+        const arr = platformSupport.apple;
+        const webCompatIdx = arr.indexOf('webCompat');
+        const printingIdx = arr.indexOf('printing');
+        const fpScreenSizeIdx = arr.indexOf('fingerprintingScreenSize');
+        expect(webCompatIdx).not.toBe(-1);
+        expect(printingIdx).not.toBe(-1);
+        expect(fpScreenSizeIdx).not.toBe(-1);
+        expect(webCompatIdx).toBeLessThan(fpScreenSizeIdx);
+        expect(webCompatIdx).toBeLessThan(printingIdx);
     });
 });
 

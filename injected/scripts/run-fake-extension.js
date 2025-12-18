@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { spawn } from 'child_process';
-import waitOn from 'wait-on';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -23,6 +22,27 @@ function run(cmd, args, opts = {}) {
         });
         proc.on('error', reject);
     });
+}
+
+/**
+ * Wait for a URL to become available.
+ * @param {string} url - The URL to poll
+ * @param {number} [timeout=30000] - Timeout in milliseconds
+ * @param {number} [interval=500] - Polling interval in milliseconds
+ * @returns {Promise<void>}
+ */
+async function waitForServer(url, timeout = 30000, interval = 500) {
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+        try {
+            const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+            if (response.ok) return;
+        } catch {
+            // Server not ready yet
+        }
+        await new Promise((resolve) => setTimeout(resolve, interval));
+    }
+    throw new Error(`Timeout waiting for ${url}`);
 }
 
 async function main() {
@@ -60,7 +80,7 @@ async function main() {
     });
 
     // 3. Wait for server
-    await waitOn({ resources: ['http://localhost:3220/index.html'] });
+    await waitForServer('http://localhost:3220/index.html');
 
     // 4. Run web-ext
     try {

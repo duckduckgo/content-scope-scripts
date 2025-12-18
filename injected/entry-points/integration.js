@@ -1,21 +1,9 @@
-import { load, init } from '../src/content-scope-features.js';
+import { load, init, updateFeatureArgs } from '../src/content-scope-features.js';
 import { TestTransportConfig } from '../../messaging/index.js';
-function getTopLevelURL() {
-    try {
-        // FROM: https://stackoverflow.com/a/7739035/73479
-        // FIX: Better capturing of top level URL so that trackers in embedded documents are not considered first party
-        if (window.location !== window.parent.location) {
-            return new URL(window.location.href !== 'about:blank' ? document.referrer : window.parent.location.href);
-        } else {
-            return new URL(window.location.href);
-        }
-    } catch (error) {
-        return new URL(location.href);
-    }
-}
+import { getTabUrl } from '../src/utils.js';
 
 function generateConfig() {
-    const topLevelUrl = getTopLevelURL();
+    const topLevelUrl = getTabUrl();
     return {
         debug: false,
         sessionKey: 'randomVal',
@@ -35,8 +23,8 @@ function generateConfig() {
             },
         ],
         site: {
-            domain: topLevelUrl.hostname,
-            url: topLevelUrl.href,
+            domain: topLevelUrl?.hostname || '',
+            url: topLevelUrl?.href || '',
             isBroken: false,
             allowlisted: false,
             enabledFeatures: [
@@ -86,7 +74,7 @@ function mergeDeep(target, ...sources) {
 }
 
 async function initCode() {
-    const topLevelUrl = getTopLevelURL();
+    const topLevelUrl = getTabUrl();
     const processedConfig = generateConfig();
 
     // mock Messaging and allow for tests to intercept them
@@ -116,7 +104,7 @@ async function initCode() {
     // mark this phase as loaded
     setStatus('loaded');
 
-    if (!topLevelUrl.searchParams.has('wait-for-init-args')) {
+    if (!topLevelUrl?.searchParams.has('wait-for-init-args')) {
         await init(processedConfig);
         setStatus('initialized');
         return;
@@ -128,11 +116,15 @@ async function initCode() {
         async (evt) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             const merged = mergeDeep(processedConfig, evt.detail);
+            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+            window.__testContentScopeArgs = merged;
             // init features
             await init(merged);
+            await updateFeatureArgs(merged);
 
             // set status to initialized so that tests can resume
             setStatus('initialized');
+            document.dispatchEvent(new CustomEvent('content-scope-init-completed'));
         },
         { once: true },
     );

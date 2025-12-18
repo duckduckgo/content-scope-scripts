@@ -1,33 +1,27 @@
-.inputContainer {
+.form {
     align-items: center;
     display: flex;
-    padding: var(--sp-1) 7px;
-
-    svg {
-        flex: none;
-        margin: var(--sp-2);
-    }
+    height: var(--sp-10);
+    padding: var(--sp-3);
+    padding-right: var(--sp-1);
 }
 
 .input {
     background: none;
     border: none;
-    color: var(--ntp-text-primary);
+    color: var(--ds-color-theme-text-primary);
     font: var(--input-font);
-    height: var(--sp-8);
-    left: 7px;
-    padding-bottom: 0;
-    padding-left: calc(var(--sp-2) + var(--sp-4) + var(--sp-2));
-    padding-right: var(--suffix-text-width);
-    padding-top: 0;
+    left: 0;
+    padding: var(--sp-3);
+    padding-right: calc(var(--suffix-text-width) + var(--sp-1) + var(--sp-8) + var(--sp-1)); /* Suffix + padding + close button + padding */
     position: absolute;
-    right: 7px;
+    right: 0;
 
     &::placeholder {
-        color: var(--ntp-text-tertiary);
+        color: var(--ds-color-theme-text-tertiary);
     }
 
-    [data-platform="windows"] &::selection {
+    [data-platform='windows'] &::selection {
         background: var(--ntp-selection-background-color);
         color: var(--ntp-selection-color);
     }
@@ -45,7 +39,52 @@
 }
 
 .suffix {
-    color: var(--ntp-accent-primary);
+    color: var(--ds-color-theme-accent-primary);
     flex: none;
     font: var(--input-font);
+}
+
+.closeButton {
+    align-items: center;
+    background: none;
+    border-radius: 9px;
+    border: none;
+    color: var(--ds-color-theme-text-primary);
+    cursor: pointer;
+    display: flex;
+    flex: none;
+    height: var(--sp-8);
+    justify-content: center;
+    margin-left: auto;
+    outline: none;
+    padding: 0;
+    width: var(--sp-8);
+    z-index: 1;
+    visibility: hidden;
+
+    &:hover {
+        background: var(--ds-color-theme-control-fill-primary);
+    }
+
+    &:active {
+        background: var(--ds-color-theme-control-fill-secondary);
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+    }
+
+    .form:hover & {
+        visibility: visible;
+    }
+
+    [data-entry-point='omnibar']:has([role='listbox']) & {
+        visibility: visible;
+    }
+}
+
+[data-platform='windows'] {
+	.input {
+		line-height: normal;
+	}
 }

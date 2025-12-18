@@ -24,3 +24,7 @@ export const String = globalThis.String;
 export const Map = globalThis.Map;
 export const Error = globalThis.Error;
 export const randomUUID = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+export const console = globalThis.console;
+export const consoleLog = console.log.bind(console);
+export const consoleWarn = console.warn.bind(console);
+export const consoleError = console.error.bind(console);

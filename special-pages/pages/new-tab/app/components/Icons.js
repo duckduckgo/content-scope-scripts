@@ -196,15 +196,52 @@ export function SearchColorIcon(props) {
     return (
         <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
             <g clip-path="url(#Search-Find-Color-16_svg__a)">
-                <path fill="#ADC2FC" d="M12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0Z" />
+                <path fill="#CCDAFF" d="M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z" />
                 <path fill="#fff" d="M7 2a4.98 4.98 0 0 1 3.403 1.338 5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z" opacity=".5" />
                 <path
-                    fill="#557FF3"
+                    fill="url(#Search-Find-Color-16_svg__b)"
                     d="M7 0a7 7 0 0 1 5.372 11.488l3.445 3.445.043.047a.625.625 0 0 1-.88.88l-.047-.043-3.445-3.445A7 7 0 1 1 7 0Zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 7 1Z"
                 />
             </g>
             <defs>
+                <linearGradient id="Search-Find-Color-16_svg__b" x1="8" x2="8" y1="0" y2="16" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#557FF3" />
+                    <stop offset="1" stop-color="#2B55CA" />
+                </linearGradient>
                 <clipPath id="Search-Find-Color-16_svg__a">
+                    <path fill="#fff" d="M0 0h16v16H0z" />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Color/16px/Search-Find-Color-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function SearchOnDarkColorIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <g clip-path="url(#Search-Find-OnDark-Color-16_svg__a)">
+                <path fill="#000" d="M13 7A6 6 0 1 1 1 7a6 6 0 0 1 12 0Z" opacity=".2" />
+                <path
+                    fill="#fff"
+                    fill-opacity=".4"
+                    d="M7 2c1.315 0 2.512.508 3.404 1.339a5.5 5.5 0 0 0-7.065 7.065A5 5 0 0 1 7 2Z"
+                    opacity=".5"
+                />
+                <path
+                    fill="url(#Search-Find-OnDark-Color-16_svg__b)"
+                    d="M7 0a7 7 0 0 1 5.371 11.486l3.446 3.447.08.098a.626.626 0 0 1-.866.867l-.098-.08-3.447-3.447A7 7 0 1 1 7 0Zm0 1a6 6 0 1 0 0 12A6 6 0 0 0 7 1Z"
+                />
+            </g>
+            <defs>
+                <linearGradient id="Search-Find-OnDark-Color-16_svg__b" x1="8" x2="8" y1="0" y2="16" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#CCDAFF" />
+                    <stop offset="1" stop-color="#8FABF9" />
+                </linearGradient>
+                <clipPath id="Search-Find-OnDark-Color-16_svg__a">
                     <path fill="#fff" d="M0 0h16v16H0z" />
                 </clipPath>
             </defs>
@@ -243,13 +280,13 @@ export function AiChatIcon(props) {
 export function AiChatColorIcon(props) {
     return (
         <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
-            <g clip-path="url(#Ai-Chat-Gradient-Color-16_svg__a)">
+            <g clip-path="url(#Ai-Chat-Color-16_svg__a)">
                 <path
-                    fill="url(#Ai-Chat-Gradient-Color-16_svg__b)"
+                    fill="url(#Ai-Chat-Color-16_svg__b)"
                     d="M1.164 14.763c-.441.51-.014 1.284.65 1.17 2.655-.457 7.306-1.338 9.199-2.206C13.938 12.667 16 10.111 16 7.125 16 3.19 12.418 0 8 0S0 3.19 0 7.125c0 1.974.902 3.76 2.358 5.051.32.283.38.773.1 1.095l-1.294 1.492Z"
                 />
                 <path
-                    fill="url(#Ai-Chat-Gradient-Color-16_svg__c)"
+                    fill="url(#Ai-Chat-Color-16_svg__c)"
                     d="M15 7.125c0 2.495-1.729 4.72-4.328 5.662l-.039.014-.037.017c-.838.384-2.376.803-4.114 1.19a98.74 98.74 0 0 1-4.03.797l.762-.878c.68-.785.487-1.898-.193-2.5-1.227-1.087-1.973-2.55-2.019-4.147L1 7.125C1 3.848 4.022 1 8 1V0l-.207.003C3.54.099.11 3.153.003 6.94L0 7.125c0 1.913.846 3.649 2.223 4.929l.135.122c.32.283.38.773.1 1.096l-1.293 1.491c-.442.51-.015 1.284.65 1.17 2.654-.456 7.305-1.338 9.198-2.206C13.938 12.667 16 10.111 16 7.125l-.002-.184C15.888 3.091 12.349.001 8 .001v1c3.916 0 6.905 2.759 6.998 5.97l.002.154Z"
                 />
                 <path
@@ -257,7 +294,7 @@ export function AiChatColorIcon(props) {
                     d="M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
                 />
                 <path
-                    fill="url(#Ai-Chat-Gradient-Color-16_svg__d)"
+                    fill="url(#Ai-Chat-Color-16_svg__d)"
                     d="M6.662 2.544C7 1.195 8.867 1.154 9.3 2.418l.038.126.438 1.753c.114.457.47.813.927.927l1.753.438c1.392.348 1.392 2.328 0 2.676l-1.753.438c-.457.114-.813.47-.927.927l-.438 1.753c-.348 1.392-2.328 1.392-2.676 0l-.438-1.753a1.274 1.274 0 0 0-.927-.927l-1.753-.438c-1.392-.348-1.392-2.328 0-2.676l1.753-.438c.457-.114.813-.47.927-.927l.438-1.753ZM8 5.271A3.273 3.273 0 0 1 6.27 7 3.273 3.273 0 0 1 8 8.729 3.274 3.274 0 0 1 9.729 7 3.273 3.273 0 0 1 8 5.27Z"
                 />
                 <path
@@ -266,19 +303,69 @@ export function AiChatColorIcon(props) {
                 />
             </g>
             <defs>
-                <linearGradient id="Ai-Chat-Gradient-Color-16_svg__b" x1="8" x2="8" y1="0" y2="15.944" gradientUnits="userSpaceOnUse">
+                <linearGradient id="Ai-Chat-Color-16_svg__b" x1="8" x2="8" y1="0" y2="15.944" gradientUnits="userSpaceOnUse">
                     <stop stop-color="#A7B7FD" />
-                    <stop offset="1" stop-color="#5981F3" />
+                    <stop offset="1" stop-color="#3969EF" />
                 </linearGradient>
-                <linearGradient id="Ai-Chat-Gradient-Color-16_svg__c" x1="8" x2="8" y1="0" y2="15.944" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#7C99F7" />
-                    <stop offset="1" stop-color="#4B74EE" />
+                <linearGradient id="Ai-Chat-Color-16_svg__c" x1="8" x2="8" y1="15.944" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#2B55CA" />
+                    <stop offset="1" stop-color="#557FF3" />
                 </linearGradient>
-                <linearGradient id="Ai-Chat-Gradient-Color-16_svg__d" x1="8" x2="8" y1="2.5" y2="11.5" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#8EA6FA" />
-                    <stop offset="1" stop-color="#6186F4" />
+                <linearGradient id="Ai-Chat-Color-16_svg__d" x1="8" x2="8" y1="2.5" y2="11.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#839DF9" />
+                    <stop offset="1" stop-color="#3969EF" />
                 </linearGradient>
-                <clipPath id="Ai-Chat-Gradient-Color-16_svg__a">
+                <clipPath id="Ai-Chat-Color-16_svg__a">
+                    <path fill="#fff" d="M0 0h16v16H0z" />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
+
+/**
+ * https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Color/16px/Ai-Chat-OnDark-Color-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function AiChatOnDarkColorIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <g clip-path="url(#Ai-Chat-OnDark-Color-16_svg__a)">
+                <path
+                    fill="url(#Ai-Chat-OnDark-Color-16_svg__b)"
+                    d="M1.164 14.763c-.441.51-.014 1.284.65 1.17 2.655-.457 7.306-1.338 9.199-2.206C13.938 12.667 16 10.111 16 7.125 16 3.19 12.418 0 8 0S0 3.19 0 7.125c0 1.974.902 3.76 2.358 5.051.32.283.38.773.1 1.095l-1.294 1.492Z"
+                />
+                <path
+                    fill="url(#Ai-Chat-OnDark-Color-16_svg__c)"
+                    d="M15 7.125c0 2.495-1.729 4.72-4.328 5.662l-.039.014-.037.017c-.838.384-2.376.803-4.114 1.19a98.74 98.74 0 0 1-4.03.797l.762-.878c.68-.785.487-1.898-.193-2.5-1.227-1.087-1.973-2.55-2.019-4.147L1 7.125C1 3.848 4.022 1 8 1V0l-.207.003C3.54.099.11 3.153.003 6.94L0 7.125c0 1.913.846 3.649 2.223 4.929l.135.122c.32.283.38.773.1 1.096l-1.293 1.491c-.442.51-.015 1.284.65 1.17 2.654-.456 7.305-1.338 9.198-2.206C13.938 12.667 16 10.111 16 7.125l-.002-.184C15.888 3.091 12.349.001 8 .001v1c3.916 0 6.905 2.759 6.998 5.97l.002.154Z"
+                />
+                <path
+                    fill="#fff"
+                    d="M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
+                />
+                <path
+                    fill="url(#Ai-Chat-OnDark-Color-16_svg__d)"
+                    d="M6.662 2.544C7 1.195 8.867 1.154 9.3 2.418l.038.126.438 1.753c.114.457.47.813.927.927l1.753.438c1.392.348 1.392 2.328 0 2.676l-1.753.438c-.457.114-.813.47-.927.927l-.438 1.753c-.348 1.392-2.328 1.392-2.676 0l-.438-1.753a1.274 1.274 0 0 0-.927-.927l-1.753-.438c-1.392-.348-1.392-2.328 0-2.676l1.753-.438c.457-.114.813-.47.927-.927l.438-1.753ZM8 5.271A3.273 3.273 0 0 1 6.27 7 3.273 3.273 0 0 1 8 8.729 3.274 3.274 0 0 1 9.729 7 3.273 3.273 0 0 1 8 5.27Z"
+                />
+                <path
+                    fill="#2B55CA"
+                    d="M7.632 2.787c.096-.383.64-.383.736 0l.438 1.753c.203.815.84 1.45 1.654 1.654l1.753.438c.383.096.383.64 0 .736l-1.753.438c-.815.203-1.45.84-1.654 1.654l-.438 1.753c-.096.383-.64.383-.736 0L7.194 9.46A2.273 2.273 0 0 0 5.54 7.806l-1.753-.438c-.383-.096-.383-.64 0-.736l1.753-.438A2.273 2.273 0 0 0 7.194 4.54l.438-1.753Z"
+                />
+            </g>
+            <defs>
+                <linearGradient id="Ai-Chat-OnDark-Color-16_svg__b" x1="8" x2="8" y1="0" y2="15.944" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#CCDAFF" />
+                    <stop offset="1" stop-color="#8FABF9" />
+                </linearGradient>
+                <linearGradient id="Ai-Chat-OnDark-Color-16_svg__c" x1="8" x2="8" y1="15.944" y2="0" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#557FF3" />
+                    <stop offset="1" stop-color="#ADC2FC" />
+                </linearGradient>
+                <linearGradient id="Ai-Chat-OnDark-Color-16_svg__d" x1="8" x2="8" y1="2.5" y2="11.5" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#CCDAFF" />
+                    <stop offset="1" stop-color="#ADC2FC" />
+                </linearGradient>
+                <clipPath id="Ai-Chat-OnDark-Color-16_svg__a">
                     <path fill="#fff" d="M0 0h16v16H0z" />
                 </clipPath>
             </defs>
@@ -480,6 +567,92 @@ export function LogoStacked(props) {
             <path
                 fill="currentColor"
                 d="M78.35 144.8h-3.9l-7.1 7.3v-14.6h-3v24.9h3v-8.2l8.1 8.1.1.1h3.6v-.3l-9.1-9 8.3-8.3Zm-19.2 13.3c-1.1 1.1-2.7 1.7-4.5 1.7-3.1 0-6.2-1.9-6.2-6.3 0-3.7 2.6-6.3 6.2-6.3 1.6 0 3.1.6 4.3 1.7l.1.1 1.9-2-.1-.1c-1.8-1.7-3.9-2.5-6.3-2.5-5.5 0-9.2 3.7-9.2 9.1 0 6.3 4.6 9.1 9.2 9.1h.1c2.4 0 4.7-.9 6.3-2.6l.1-.1-2-2 .1.2Zm-20.3-3.9c0 3.2-2.2 5.6-5.3 5.7-3.3 0-5.3-2-5.3-5.4v-9.7h-3v9.7c0 5 3 8.2 7.7 8.2h.1c2.3 0 4.4-1.1 5.8-2.8l.1-.2.1 2.7h2.8v-17.6h-3v9.4Zm-29.5-16.8H.25v25h9.1c8.7 0 12.5-6.4 12.5-12.7 0-5.9-3.9-12.3-12.5-12.3Zm9.4 12.2c0 4.8-2.9 9.6-9.3 9.6h-6v-18.7h5.9c6.4 0 9.4 4.7 9.4 9.1Zm154.9 1.9h7.7v5.8c-1.9 1.6-4.2 2.5-6.7 2.5-6.8 0-9.9-4.9-9.9-9.7 0-4.9 3.1-10.2 9.8-10.2 2.7 0 5.2 1 7.2 2.8l.1.1 1.8-2.1-.1-.1c-2.4-2.4-5.6-3.6-9.1-3.6-3.8 0-7 1.2-9.3 3.6-2.4 2.4-3.7 5.8-3.6 9.6 0 5.9 3.4 12.7 13 12.7h.2c3.6 0 7-1.5 9.4-4.2v-9.9h-10.6v2.7h.1Zm-82.6-14.1h-9.1v25h9.1c8.7 0 12.5-6.4 12.5-12.7 0-5.9-3.9-12.3-12.5-12.3Zm9.4 12.2c0 4.8-2.9 9.6-9.3 9.6h-5.9v-18.7h5.9c6.3 0 9.3 4.7 9.3 9.1Zm95.9-5.2c-5.3 0-9.1 3.9-9.1 9.2 0 5.3 3.8 9.1 9.1 9.1s9.2-3.8 9.2-9.1c0-5.4-3.8-9.2-9.2-9.2Zm6.2 9.2c0 3.7-2.6 6.3-6.2 6.3-3.5 0-6.1-2.6-6.1-6.3 0-3.8 2.5-6.5 6.2-6.5 3.5.1 6.1 2.8 6.1 6.5Zm-82 .6c0 3.2-2.2 5.6-5.3 5.7-3.3 0-5.3-2-5.3-5.4v-9.7h-3v9.7c0 5 3 8.2 7.6 8.2h.1c2.3 0 4.4-1.1 5.8-2.8l.1-.2.1 2.7h2.8v-17.6h-3v9.4h.1Zm20.3 3.9c-1.1 1.1-2.7 1.7-4.5 1.7-3.1 0-6.2-1.9-6.2-6.3 0-3.7 2.6-6.3 6.2-6.3 1.6 0 3.1.6 4.3 1.7l.1.1 1.9-2-.1-.1c-1.8-1.7-3.9-2.5-6.3-2.5-5.5 0-9.2 3.7-9.2 9.1 0 6.3 4.6 9.1 9.2 9.1h.1c2.4 0 4.7-.9 6.3-2.6l.1-.1-2-2 .1.2Zm19.2-13.3h-3.9l-7.1 7.3v-14.6h-3v24.9h3v-8.2l8.1 8.1.1.1h3.6v-.3l-9.1-9 8.3-8.3Z"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Arrow-Indent-Centerd-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function ArrowIndentCenteredIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M3.625 1c.345 0 .625.28.625.625V5c0 1.52 1.23 2.75 2.749 2.75h7.117l-2.683-2.683a.625.625 0 0 1 .86-.906l.024.022 2.69 2.69c.83.83.83 2.175 0 3.005l-2.69 2.689a.625.625 0 1 1-.884-.884L14.116 9H7a3.999 3.999 0 0 1-4-4V1.625C3 1.28 3.28 1 3.625 1Z"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Close-Small-16.svg.
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function CloseSmallIcon(props) {
+    return (
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M11.933 3.183a.625.625 0 1 1 .884.884L8.884 8l3.933 3.933a.625.625 0 1 1-.884.884L8 8.884l-3.933 3.933a.625.625 0 1 1-.884-.884L7.116 8 3.183 4.067a.625.625 0 1 1 .884-.884L8 7.116l3.933-3.933Z"
+            />
+        </svg>
+    );
+}
+
+/**
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function InfoIcon(props) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" class="info-icon" {...props}>
+            <path
+                d="M8.48319 3.64453C7.73951 3.64453 7.28748 4.24239 7.28748 4.7965C7.28748 5.46726 7.79784 5.68599 8.24988 5.68599C9.08104 5.68599 9.43101 5.05897 9.43101 4.54861C9.43101 3.907 8.92064 3.64453 8.48319 3.64453Z"
+                class="info-icon-fill"
+            />
+            <path
+                d="M8.91304 6.54504L7.08645 6.84036C7.03054 7.28244 6.95011 7.72956 6.86842 8.18373C6.71074 9.06033 6.54834 9.96319 6.54834 10.9066C6.54834 11.8434 7.10858 12.3547 7.99455 12.3547C9.00639 12.3547 9.17956 11.7196 9.21882 11.1442C8.37999 11.2659 8.19573 10.8873 8.33282 9.99619C8.46991 9.10509 8.91304 6.54504 8.91304 6.54504Z"
+                class="info-icon-fill"
+            />
+            <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM1.25 8C1.25 4.27208 4.27208 1.25 8 1.25C11.7279 1.25 14.75 4.27208 14.75 8C14.75 11.7279 11.7279 14.75 8 14.75C4.27208 14.75 1.25 11.7279 1.25 8Z"
+                class="info-icon-fill"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Check-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function Check(props) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
+            <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M14.7573 2.12724C15.0304 2.35035 15.0807 2.73423 14.8576 3.00731L6.97593 13.4341C6.43147 14.1336 5.36195 14.1258 4.82836 13.4027L1.12448 9.00075C0.904738 8.7249 0.946807 8.33307 1.22265 8.11333C1.4985 7.89359 1.89033 7.93566 2.11007 8.2115L5.81395 12.6132C5.93397 12.7636 6.14954 12.7645 6.27138 12.6152L14.153 2.18824C14.3761 1.91517 14.76 1.86459 14.7573 2.12724Z"
+                fill="white"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Fire-Solid-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function FireIcon(props) {
+    return (
+        <svg fill="none" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" class={styles.fireIcon} {...props}>
+            <path
+                fill="currentColor"
+                d="M6.498.03a.63.63 0 0 1 .536.075l.074.05c.756.533 1.148 1.26 1.394 1.983.126.37.218.75.299 1.107.083.368.152.703.24 1.03l.008.026c.025.074.096.245.235.398.142.157.356.301.716.301.34 0 .537-.111.66-.222a1.05 1.05 0 0 0 .26-.385l.012-.036c.03-.094.063-.263.101-.478.018-.1.04-.221.063-.312.009-.035.03-.123.075-.208.013-.026.082-.166.242-.263a.63.63 0 0 1 .727.047l.028.023.049.046C12.6 3.575 15 5.996 15 10c0 2.516-1.796 4.569-4.16 5.477a.625.625 0 0 1-.698-.99c.395-.459.608-1.08.608-1.768 0-.565-.342-1.223-.981-1.996-.513-.62-1.139-1.225-1.77-1.846-.637.617-1.256 1.193-1.771 1.803-.63.747-.978 1.407-.978 2.039 0 .688.213 1.31.608 1.767a.625.625 0 0 1-.673 1l-.025-.009C2.796 14.57 1 12.516 1 10c0-2.22.957-3.611 2.039-4.941C4.119 3.73 5.305 2.473 6.104.4l.014-.033a.63.63 0 0 1 .38-.338Z"
             />
         </svg>
     );

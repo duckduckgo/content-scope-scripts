@@ -1,21 +1,23 @@
 .tabSwitcher {
-    backdrop-filter: blur(48px);
-    background: var(--ntp-controls-raised-backdrop);
+    background: var(--ds-color-theme-control-raised-backdrop);
     border-radius: 99px;
-    box-shadow: 0px 1px 0px 0px var(--ntp-shadow-primary) inset;
     display: grid;
     gap: var(--sp-0_5);
     grid-template-columns: repeat(var(--tab-count), 1fr);
-    overflow: hidden;
     padding: var(--sp-0_5);
     position: relative;
+
+    body:not([data-background-kind="default"]) & {
+        backdrop-filter: blur(48px);
+    }
 }
 
 .tab {
     align-items: center;
     background: none;
+    border-radius: 99px;
     border: none;
-    color: var(--ntp-text-primary);
+    color: var(--ds-color-theme-text-primary);
     cursor: pointer;
     display: flex;
     gap: 6px;
@@ -26,8 +28,13 @@
     transform: translateZ(0); /* Force .tab into its own stacking context. Workaround for WebKit mistakenly layering .blob on top of .tab when .App_mainLayout animates. */
     z-index: 1;
 
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+
     &:hover:not([aria-selected="true"])::before {
-        background: var(--ntp-controls-fill-primary);
+        background: var(--ds-color-theme-control-fill-primary);
         border-radius: 99px;
         content: '';
         inset: 0;
@@ -40,9 +47,9 @@
 }
 
 .blob {
-    background-color: var(--ntp-controls-raised-fill-primary);
+    background-color: var(--ds-color-theme-control-raised-fill-primary);
     border-radius: 18px;
-    box-shadow: 0 4px 4px var(--ntp-shadow-secondary), 0 1px 2px var(--ntp-shadow-secondary), inset 0 1px 0 rgba(255, 255, 255, 0.48);
+    box-shadow: 0 1px 0 0 var(--ds-color-theme-tone-tint-primary) inset, 0 1px 4px 0 var(--ds-color-theme-shadow-secondary), 0 4px 8px 0 var(--ds-color-theme-shadow-secondary);
     height: var(--sp-8);
     left: 0;
     position: absolute;
@@ -54,7 +61,7 @@
     z-index: 0;
 
     [data-theme="dark"] & {
-        box-shadow: 0 4px 4px var(--ntp-shadow-secondary), 0 1px 2px var(--ntp-shadow-secondary), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        box-shadow: 0 4px 4px var(--ds-color-theme-shadow-secondary), 0 1px 2px var(--ds-color-theme-shadow-secondary), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
     @media (prefers-reduced-motion: reduce) {

@@ -20,11 +20,13 @@ Configure initial history system settings.
   "env": "production",
   "platform": {
     "name": "macos"
-  }
+  },
+  "theme": "light",
+  "themeVariant": "default"
 }
 ```
 
-With {@link "History Messages".DefaultStyles} overrides 
+With a different theme variant:
 
 ```json
 {
@@ -33,14 +35,12 @@ With {@link "History Messages".DefaultStyles} overrides
   "platform": {
     "name": "macos"
   },
-  "customizer": {
-    "defaultStyles": {
-      "lightBackgroundColor": "#E9EBEC",
-      "darkBackgroundColor": "#27282A"
-    }
-  }
+  "theme": "dark",
+  "themeVariant": "violet"
 }
 ```
+
+Available theme variants: `default`, `coolGray`, `slateBlue`, `green`, `violet`, `rose`, `orange`, `desert`
 
 ### `getRanges`
 {@link "History Messages".GetRangesRequest}
@@ -267,6 +267,27 @@ still reply with an {@link "History Messages".ActionResponse} when the action wa
 
 If multiple `id`s are sent, then present a modal window for confirmation, eventually 
 responding to the message with {@link "History Messages".ActionResponse}
+
+## Subscriptions
+
+### `onThemeUpdate`
+- {@link "History Messages".OnThemeUpdateSubscription}
+- Sends {@link "History Messages".OnThemeUpdateSubscribe} whenever the browser theme changes.
+- For example:
+```json
+{
+  "theme": "dark",
+  "themeVariant": "default"
+}
+```
+- Or, with a different theme variant:
+```json
+{
+  "theme": "light",
+  "themeVariant": "violet"
+}
+```
+- Available theme variants: `default`, `coolGray`, `slateBlue`, `green`, `violet`, `rose`, `orange`, `desert`
 
 ## Notifications
 

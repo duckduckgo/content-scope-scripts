@@ -11,6 +11,7 @@ export default defineConfig({
                 'onboarding.spec.js',
                 'special-error.spec.js',
                 'special-error-screenshots.spec.js',
+                'special-error-theme.spec.js',
             ],
             use: {
                 ...devices['Desktop Edge'],
@@ -24,8 +25,8 @@ export default defineConfig({
             testMatch: [
                 'favorites.spec.js',
                 'freemium-pir-banner.spec.js',
+                'subscription-winback-banner.spec.js',
                 'new-tab.spec.js',
-                'new-tab.screenshots.spec.js',
                 'next-steps.spec.js',
                 'privacy-stats.spec.js',
                 'rmf.spec.js',
@@ -34,15 +35,39 @@ export default defineConfig({
                 'activity.spec.js',
                 'history.spec.js',
                 'history-selections.spec.js',
+                'history-theme.spec.js',
                 'history.screenshots.spec.js',
                 'protections.spec.js',
                 'protections.screenshots.spec.js',
                 'omnibar.spec.js',
+                'omnibar.persistence.spec.js',
             ],
             use: {
                 ...devices['Desktop Chrome'],
                 injectName: 'integration',
                 platform: 'windows',
+            },
+        },
+        {
+            name: 'ntp-screenshots-light',
+            testMatch: ['new-tab.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Chrome'],
+                injectName: 'integration',
+                platform: 'windows',
+                colorScheme: 'light',
+                viewport: { width: 1000, height: 1500 },
+            },
+        },
+        {
+            name: 'ntp-screenshots-dark',
+            testMatch: ['new-tab.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Chrome'],
+                injectName: 'integration',
+                platform: 'windows',
+                colorScheme: 'dark',
+                viewport: { width: 1000, height: 1500 },
             },
         },
         {
@@ -54,6 +79,7 @@ export default defineConfig({
                 'release-notes.spec.js',
                 'special-error.spec.js',
                 'special-error-screenshots.spec.js',
+                'special-error-theme.spec.js',
             ],
             use: {
                 ...devices['Desktop Safari'],
@@ -86,6 +112,7 @@ export default defineConfig({
                 'duckplayer-screenshots.spec.js',
                 'special-error.spec.js',
                 'special-error-screenshots.spec.js',
+                'special-error-theme.spec.js',
             ],
             use: {
                 ...devices['iPhone 14'],

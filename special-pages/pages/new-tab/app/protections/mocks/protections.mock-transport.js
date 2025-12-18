@@ -1,5 +1,6 @@
 import { TestTransportConfig } from '@duckduckgo/messaging';
 import { protectionsMocks } from './protections.mocks.js';
+import { AnimationConstants } from '../utils/animateCount.js';
 
 const url = typeof window !== 'undefined' ? new URL(window.location.href) : new URL('https://example.com');
 
@@ -68,6 +69,9 @@ export function protectionsMockTransport() {
                 subs.set(sub, cb);
                 return () => {};
             }
+            if (sub === 'protections_onDataUpdate') {
+                return () => {};
+            }
             console.warn('unhandled sub', sub);
             return () => {};
         },
@@ -77,12 +81,43 @@ export function protectionsMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'protections_getData':
+                    // No data. Setting `stats=none` (totalCount = 0) also
+                    // hides CPM stats
                     if (url.searchParams.get('stats') === 'none') {
                         dataset.totalCount = 0;
                     }
                     if (url.searchParams.get('activity') === 'empty') {
                         dataset.totalCount = 0;
                     }
+
+                    // Setting `totalCookiePopUpsBlocked` to `undefined` as the
+                    // default allows us to see the legacy protections report as
+                    // the default. The new experience can be viewed by passing
+                    // the `cpm` parameters outlined below. Useful until all
+                    // platforms adopt the new schema
+                    // @todo legacyProtections: Remove next line once all
+                    // platforms support the new UI
+                    dataset.totalCookiePopUpsBlocked = undefined;
+
+                    if (url.searchParams.get('cpm') === 'true') {
+                        dataset.totalCookiePopUpsBlocked = AnimationConstants.MAX_DISPLAY_COUNT;
+                    }
+
+                    if (url.searchParams.get('cpm') === 'max') {
+                        dataset.totalCount = AnimationConstants.MAX_DISPLAY_COUNT;
+                        dataset.totalCookiePopUpsBlocked = AnimationConstants.MAX_DISPLAY_COUNT;
+                    }
+
+                    // CPM = 0 state
+                    if (url.searchParams.get('cpm') === 'none') {
+                        dataset.totalCookiePopUpsBlocked = 0;
+                    }
+
+                    // CPM disabled state
+                    if (url.searchParams.get('cpm') === 'null') {
+                        dataset.totalCookiePopUpsBlocked = null;
+                    }
+
                     return Promise.resolve(dataset);
                 case 'protections_getConfig': {
                     if (url.searchParams.get('protections.feed') === 'activity') {
@@ -91,6 +126,13 @@ export function protectionsMockTransport() {
 
                     if (url.searchParams.get('protections.burn') === 'false') {
                         config.showBurnAnimation = false;
+                    }
+
+                    if (url.searchParams.get('protections.newLabel') === 'true') {
+                        config.showProtectionsReportNewLabel = true;
+                    }
+                    if (url.searchParams.get('protections.newLabel') === 'false') {
+                        config.showProtectionsReportNewLabel = false;
                     }
 
                     return Promise.resolve(config);

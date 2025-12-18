@@ -13,7 +13,7 @@ export function CustomizerDrawer({ displayChildren }) {
 }
 
 function CustomizerConsumer() {
-    const { data, select, upload, setTheme, deleteImage, customizerContextMenu, settingsLinks } = useContext(CustomizerContext);
+    const { data, select, upload, setTheme, deleteImage, customizerContextMenu } = useContext(CustomizerContext);
     return (
         <CustomizerDrawerInner
             data={data}
@@ -22,7 +22,6 @@ function CustomizerConsumer() {
             setTheme={setTheme}
             deleteImage={deleteImage}
             customizerContextMenu={customizerContextMenu}
-            settingsLinks={settingsLinks}
         />
     );
 }

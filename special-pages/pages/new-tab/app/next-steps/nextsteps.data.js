@@ -60,6 +60,14 @@ export const variants = {
         summary: t('nextSteps_pinAppToTaskbarWindows_summary'),
         actionText: t('nextSteps_pinAppToTaskbarWindows_actionText'),
     }),
+    /** @param {(translationId: keyof enStrings) => string} t */
+    subscription: (t) => ({
+        id: 'subscription',
+        icon: 'Subscription',
+        title: t('nextSteps_subscription_title'),
+        summary: t('nextSteps_subscription_summary'),
+        actionText: t('nextSteps_subscription_actionText'),
+    }),
 };
 
 export const otherText = {

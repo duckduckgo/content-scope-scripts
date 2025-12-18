@@ -130,6 +130,226 @@ test.describe('Ensure Notification interface is injected', () => {
             return window.Notification.maxActions;
         });
         expect(maxActionsPropDenied).toEqual(2);
+
+        const notificationToString = await page.evaluate(() => {
+            return window.Notification.toString();
+        });
+        expect(notificationToString).toEqual('function Notification() { [native code] }');
+
+        const requestPermissionToString = await page.evaluate(() => {
+            return window.Notification.requestPermission.toString();
+        });
+        expect(requestPermissionToString).toEqual('function requestPermission() { [native code] }');
+
+        const notificationToStringToString = await page.evaluate(() => {
+            return window.Notification.toString.toString();
+        });
+        expect(notificationToStringToString).toEqual('function toString() { [native code] }');
+
+        const requestPermissionToStringToString = await page.evaluate(() => {
+            return window.Notification.requestPermission.toString.toString();
+        });
+        expect(requestPermissionToStringToString).toEqual('function toString() { [native code] }');
+    });
+});
+
+test.describe('webNotifications', () => {
+    /**
+     * @param {import("@playwright/test").Page} page
+     */
+    async function beforeWebNotifications(page) {
+        await gotoAndWait(page, '/blank.html', {
+            site: { enabledFeatures: ['webCompat'] },
+            featureSettings: { webCompat: { webNotifications: 'enabled' } },
+        });
+    }
+
+    test('should override Notification API when enabled', async ({ page }) => {
+        await beforeWebNotifications(page);
+        const hasNotification = await page.evaluate(() => 'Notification' in window);
+        expect(hasNotification).toEqual(true);
+    });
+
+    test('should return default for permission initially', async ({ page }) => {
+        await beforeWebNotifications(page);
+        const permission = await page.evaluate(() => window.Notification.permission);
+        expect(permission).toEqual('default');
+    });
+
+    test('should return 2 for maxActions', async ({ page }) => {
+        await beforeWebNotifications(page);
+        const maxActions = await page.evaluate(() => {
+            // @ts-expect-error - maxActions is experimental
+            return window.Notification.maxActions;
+        });
+        expect(maxActions).toEqual(2);
+    });
+
+    test('should send showNotification message when constructing', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.notifyCalls = [];
+            globalThis.cssMessaging.impl.notify = (msg) => {
+                globalThis.notifyCalls.push(msg);
+            };
+        });
+
+        await page.evaluate(() => new window.Notification('Test Title', { body: 'Test Body' }));
+
+        const calls = await page.evaluate(() => globalThis.notifyCalls);
+        expect(calls.length).toBeGreaterThan(0);
+        expect(calls[0]).toMatchObject({
+            featureName: 'webCompat',
+            method: 'showNotification',
+            params: { title: 'Test Title', body: 'Test Body' },
+        });
+    });
+
+    test('should send closeNotification message on close()', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.notifyCalls = [];
+            globalThis.cssMessaging.impl.notify = (msg) => {
+                globalThis.notifyCalls.push(msg);
+            };
+        });
+
+        await page.evaluate(() => {
+            const n = new window.Notification('Test');
+            n.close();
+        });
+
+        const calls = await page.evaluate(() => globalThis.notifyCalls);
+        const closeCall = calls.find((c) => c.method === 'closeNotification');
+        expect(closeCall).toBeDefined();
+        expect(closeCall).toMatchObject({
+            featureName: 'webCompat',
+            method: 'closeNotification',
+        });
+        expect(closeCall.params.id).toBeDefined();
+    });
+
+    test('should only fire onclose once when close() is called multiple times', async ({ page }) => {
+        await beforeWebNotifications(page);
+
+        const closeCount = await page.evaluate(() => {
+            let count = 0;
+            const notification = new window.Notification('Test');
+            notification.onclose = () => {
+                count++;
+            };
+
+            // Call close() multiple times - should only fire onclose once
+            notification.close();
+            notification.close();
+            notification.close();
+
+            return count;
+        });
+
+        expect(closeCount).toEqual(1);
+    });
+
+    test('should propagate requestPermission result from native', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = () => {
+                return Promise.resolve({ permission: 'denied' });
+            };
+        });
+
+        const permission = await page.evaluate(() => window.Notification.requestPermission());
+        expect(permission).toEqual('denied');
+    });
+
+    test('should update Notification.permission after requestPermission resolves', async ({ page }) => {
+        await beforeWebNotifications(page);
+
+        // Initially should be 'default'
+        const initialPermission = await page.evaluate(() => window.Notification.permission);
+        expect(initialPermission).toEqual('default');
+
+        // Mock native to return 'granted'
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = () => {
+                return Promise.resolve({ permission: 'granted' });
+            };
+        });
+
+        await page.evaluate(() => window.Notification.requestPermission());
+
+        // After requestPermission, Notification.permission should reflect the new state
+        const updatedPermission = await page.evaluate(() => window.Notification.permission);
+        expect(updatedPermission).toEqual('granted');
+    });
+
+    test('should return denied when native error occurs', async ({ page }) => {
+        await beforeWebNotifications(page);
+        await page.evaluate(() => {
+            globalThis.cssMessaging.impl.request = () => {
+                return Promise.reject(new Error('native error'));
+            };
+        });
+
+        const permission = await page.evaluate(() => window.Notification.requestPermission());
+        expect(permission).toEqual('denied');
+    });
+
+    test('requestPermission should have native-looking toString()', async ({ page }) => {
+        await beforeWebNotifications(page);
+
+        const requestPermissionToString = await page.evaluate(() => window.Notification.requestPermission.toString());
+        expect(requestPermissionToString).toEqual('function requestPermission() { [native code] }');
+    });
+});
+
+test.describe('webNotifications with nativeEnabled: false', () => {
+    /**
+     * @param {import("@playwright/test").Page} page
+     */
+    async function beforeWebNotificationsDisabled(page) {
+        await gotoAndWait(page, '/blank.html', {
+            site: { enabledFeatures: ['webCompat'] },
+            featureSettings: { webCompat: { webNotifications: { state: 'enabled', nativeEnabled: false } } },
+        });
+    }
+
+    test('should return denied for permission when nativeEnabled is false', async ({ page }) => {
+        await beforeWebNotificationsDisabled(page);
+        const permission = await page.evaluate(() => window.Notification.permission);
+        expect(permission).toEqual('denied');
+    });
+
+    test('should not send showNotification when nativeEnabled is false', async ({ page }) => {
+        await beforeWebNotificationsDisabled(page);
+        await page.evaluate(() => {
+            globalThis.notifyCalls = [];
+            globalThis.cssMessaging.impl.notify = (msg) => {
+                globalThis.notifyCalls.push(msg);
+            };
+        });
+
+        await page.evaluate(() => new window.Notification('Test Title'));
+
+        const calls = await page.evaluate(() => globalThis.notifyCalls);
+        expect(calls.length).toEqual(0);
+    });
+
+    test('should return denied from requestPermission without calling native', async ({ page }) => {
+        await beforeWebNotificationsDisabled(page);
+        await page.evaluate(() => {
+            globalThis.requestCalls = [];
+            globalThis.cssMessaging.impl.request = (msg) => {
+                globalThis.requestCalls.push(msg);
+                return Promise.resolve({ permission: 'granted' });
+            };
+        });
+
+        const permission = await page.evaluate(() => window.Notification.requestPermission());
+        const calls = await page.evaluate(() => globalThis.requestCalls);
+
+        expect(permission).toEqual('denied');
+        expect(calls.length).toEqual(0);
     });
 });
 
