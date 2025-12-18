@@ -241,8 +241,8 @@ describe('ContentFeature class', () => {
                                 },
                             ],
                             patchSettings: [
-                                { op: 'replace', path: '/test2', value: 'noop' },
-                                { op: 'replace', path: '/otherTest2', value: 'me' },
+                                { op: 'add', path: '/test2', value: 'noop' },
+                                { op: 'add', path: '/otherTest2', value: 'me' },
                             ],
                         },
                         {
@@ -255,8 +255,8 @@ describe('ContentFeature class', () => {
                                 },
                             ],
                             patchSettings: [
-                                { op: 'replace', path: '/test3', value: 'yep' },
-                                { op: 'replace', path: '/otherTest3', value: 'expected' },
+                                { op: 'add', path: '/test3', value: 'yep' },
+                                { op: 'add', path: '/otherTest3', value: 'expected' },
                             ],
                         },
                         {
@@ -283,8 +283,8 @@ describe('ContentFeature class', () => {
                                 },
                             ],
                             patchSettings: [
-                                { op: 'replace', path: '/test5', value: 'yep' },
-                                { op: 'replace', path: '/otherTest5', value: 'expected' },
+                                { op: 'add', path: '/test5', value: 'yep' },
+                                { op: 'add', path: '/otherTest5', value: 'expected' },
                             ],
                         },
                     ],
