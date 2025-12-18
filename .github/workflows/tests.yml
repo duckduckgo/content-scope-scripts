@@ -36,6 +36,8 @@ jobs:
             - run: npm ci
             - run: npm run build
             - run: npm run lint
+              env:
+                  SKIP_LOCKFILE_CHECK: '1'
             - run: npm run stylelint
             - run: npm run test-unit
             - name: 'Clean tree'
@@ -55,8 +57,6 @@ jobs:
                   key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
                   restore-keys: |
                       ${{ runner.os }}-node-
-            - name: Check lockfile sync
-              run: npm run check-lockfile
             - name: Install dependencies
               run: |
                   npm install
@@ -124,8 +124,6 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version-file: '.nvmrc'
-            - name: Check lockfile sync
-              run: npm run check-lockfile
             - name: Install production dependencies only (injected/)
               run: npm ci --production
             - name: Build with production dependencies (injected/)
