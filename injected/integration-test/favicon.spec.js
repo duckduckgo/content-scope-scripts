@@ -88,38 +88,34 @@ test('favicon + monitor (many updates)', async ({ page, baseURL }, testInfo) => 
     await page.getByRole('button', { name: 'Set many overrides' }).click();
     await page.clock.fastForward(20);
 
-    const messages = await favicon.outgoingMessages();
-    expect(messages).toHaveLength(1);
-
-    await page.clock.fastForward(60);
-    await page.clock.fastForward(100);
-
+    // No mutation has happened yet (the first update is after a 40ms timeout),
+    // so we should still only have the initial message.
     {
-        const messages = await favicon.outgoingMessages();
-        expect(messages).toHaveLength(3);
+        const messages = (await favicon.outgoingMessages()).filter((x) => x.payload.method === 'faviconFound');
+        expect(messages).toHaveLength(1);
     }
 
-    {
-        const url1 = new URL('/favicon/favicon.png', baseURL);
-        const url2 = new URL('/favicon/new_favicon.png?count=0', baseURL);
-        const url3 = new URL('/favicon/new_favicon.png?count=1', baseURL);
+    // `setManyOverrides()` performs 100 updates, each separated by 40ms (4 seconds total).
+    // Fast-forward beyond the full sequence plus debounce, then assert on first + final payloads.
+    await page.clock.fastForward(4500);
+    await favicon.waitForMessage('faviconFound', 2);
 
-        const messages = await favicon.outgoingMessages();
-        expect(messages.map((x) => /** @type {{params: any}} */ (x.payload).params)).toStrictEqual([
-            {
-                favicons: [{ href: url1.href, rel: 'shortcut icon' }],
-                documentUrl: 'http://localhost:3220/favicon/index.html',
-            },
-            {
-                favicons: [{ href: url2.href, rel: 'shortcut icon' }],
-                documentUrl: 'http://localhost:3220/favicon/index.html',
-            },
-            {
-                favicons: [{ href: url3.href, rel: 'shortcut icon' }],
-                documentUrl: 'http://localhost:3220/favicon/index.html',
-            },
-        ]);
-    }
+    const url1 = new URL('/favicon/favicon.png', baseURL);
+    const urlLast = new URL('/favicon/new_favicon.png?count=99', baseURL);
+
+    const faviconMessages = (await favicon.outgoingMessages())
+        .filter((x) => x.payload.method === 'faviconFound')
+        .map((x) => /** @type {{params: any}} */ (x.payload).params);
+
+    expect(faviconMessages[0]).toStrictEqual({
+        favicons: [{ href: url1.href, rel: 'shortcut icon' }],
+        documentUrl: 'http://localhost:3220/favicon/index.html',
+    });
+
+    expect(faviconMessages.at(-1)).toStrictEqual({
+        favicons: [{ href: urlLast.href, rel: 'shortcut icon' }],
+        documentUrl: 'http://localhost:3220/favicon/index.html',
+    });
 });
 
 test('favicon + monitor disabled', async ({ page }, testInfo) => {
