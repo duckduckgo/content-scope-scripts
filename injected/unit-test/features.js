@@ -128,6 +128,8 @@ describe('ApiManipulation', () => {
         };
         apiManipulation.wrapApiDescriptor(dummyTarget, 'definedByConfig', change);
         expect(dummyTarget.definedByConfig).toBe('defined!');
+        const desc = Object.getOwnPropertyDescriptor(dummyTarget, 'definedByConfig');
+        expect(desc?.get?.toString()).toBe('function get definedByConfig() { [native code] }');
     });
 
     it('does not define a property if define is not set and property does not exist', () => {
@@ -140,11 +142,14 @@ describe('ApiManipulation', () => {
     });
 
     it('wraps an existing property if present', () => {
+        const origGetter = () => 4;
         Object.defineProperty(dummyTarget, 'hardwareConcurrency', {
-            get: () => 4,
+            get: origGetter,
             configurable: true,
             enumerable: true,
         });
+        const originalDescriptor = Object.getOwnPropertyDescriptor(dummyTarget, 'hardwareConcurrency');
+        const originalGetterToString = originalDescriptor?.get?.toString();
         const change = {
             type: 'descriptor',
             getterValue: { type: 'number', value: 222 },
@@ -152,5 +157,7 @@ describe('ApiManipulation', () => {
         apiManipulation.wrapApiDescriptor(dummyTarget, 'hardwareConcurrency', change);
         // The getter should now return 222
         expect(dummyTarget.hardwareConcurrency).toBe(222);
+        const updatedDescriptor = Object.getOwnPropertyDescriptor(dummyTarget, 'hardwareConcurrency');
+        expect(updatedDescriptor?.get?.toString()).toBe(originalGetterToString);
     });
 });
