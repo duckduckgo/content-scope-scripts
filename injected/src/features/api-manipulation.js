@@ -116,9 +116,7 @@ export default class ApiManipulation extends ContentFeature {
             // If we are overriding an existing getter, we should preserve its `toString()` output
             // to avoid exposing that the API was modified. If we are defining a new property,
             // provide a generic "native code" getter string.
-            // @ts-expect-error - dynamic descriptor access
             const origDescriptor = getOwnPropertyDescriptor(api, key);
-            // @ts-expect-error - descriptor typing
             const origGetter = origDescriptor?.get;
 
             const getter = () => processAttr(getterValue, undefined);
