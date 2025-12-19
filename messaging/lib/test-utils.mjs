@@ -434,8 +434,14 @@ export function simulateSubscriptionMessage(params) {
         }
         case 'apple':
         case 'apple-isolated': {
-            if (!(params.name in window)) throw new Error('subscription fn not found for: ' + params.injectName);
-            window[params.name](subscriptionEvent);
+            // WebKit subscriptions are delivered via `navigator.duckduckgo[subscriptionName](event)`
+            // (see WebkitMessagingTransport.subscribe). For backwards compatibility in tests, also
+            // support the legacy `window[subscriptionName]` exposure.
+            const fn = navigator?.duckduckgo?.[params.name] ?? window?.[params.name];
+            if (typeof fn !== 'function') {
+                throw new Error(`subscription fn not found for: ${params.name} (${params.injectName})`);
+            }
+            fn(subscriptionEvent);
             break;
         }
         case 'integration': {
