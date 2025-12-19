@@ -44,6 +44,10 @@ Run from `injected/` directory:
 
 Integration tests use test pages in `integration-test/test-pages/`.
 
+## Linting
+
+After making code changes, **always run** `npm run lint-fix` (from repo root) and incorporate any auto-fixes before returning results.
+
 ## Key Patterns
 
 - **Event listeners**: Use `handleEvent` pattern or stored references (avoid `.bind(this)`)
