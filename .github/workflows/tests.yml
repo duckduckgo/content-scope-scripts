@@ -14,6 +14,27 @@ permissions:
     deployments: write
 
 jobs:
+    unit-tests:
+        name: Unit tests (${{ matrix.workspace }})
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [ubuntu-latest, windows-latest]
+                workspace: [injected, special-pages, types-generator]
+        steps:
+            - uses: actions/checkout@v6
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v5
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - run: npm ci
+            - run: npm run test-unit -w ${{ matrix.workspace }}
     unit:
         runs-on: ${{ matrix.os }}
         strategy:
@@ -35,9 +56,47 @@ jobs:
             - run: npm run build
             - run: npm run lint
             - run: npm run stylelint
-            - run: npm run test-unit
             - name: 'Clean tree'
               run: 'npm run test-clean-tree'
+
+    integration-tests:
+        name: Integration tests (${{ matrix.workspace }})
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        strategy:
+            matrix:
+                workspace: [injected, special-pages]
+        steps:
+            - uses: actions/checkout@v6
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v5
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - name: Install dependencies
+              run: |
+                  npm install
+                  npm run build
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
+            - run: npm run test-int-x -w ${{ matrix.workspace }}
+            - uses: actions/upload-artifact@v6
+              if: ${{ always() && matrix.workspace == 'special-pages' }}
+              with:
+                  name: tests-playwright-report-pages
+                  path: special-pages/playwright-report
+                  retention-days: 5
+            - uses: actions/upload-artifact@v6
+              if: ${{ always() && matrix.workspace == 'injected' }}
+              with:
+                  name: tests-playwright-report-injected
+                  path: injected/playwright-report
+                  retention-days: 5
     integration:
         runs-on: ubuntu-latest
         timeout-minutes: 15
@@ -63,23 +122,9 @@ jobs:
               with:
                   path: docs
                   key: docs-output-${{ github.run_id }}
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
-            - run: npm run test-int-x
-            - uses: actions/upload-artifact@v6
-              if: always()
-              with:
-                  name: tests-playwright-report-pages
-                  path: special-pages/playwright-report
-                  retention-days: 5
-            - uses: actions/upload-artifact@v6
-              if: always()
-              with:
-                  name: tests-playwright-report-injected
-                  path: injected/playwright-report
-                  retention-days: 5
             - name: Build docs
               run: npm run docs
+        needs: integration-tests
 
     deploy-docs:
         runs-on: ubuntu-latest
