@@ -437,9 +437,7 @@ export function simulateSubscriptionMessage(params) {
             // WebKit subscriptions are delivered via `navigator.duckduckgo[subscriptionName](event)`
             // (see WebkitMessagingTransport.subscribe). For backwards compatibility in tests, also
             // support the legacy `window[subscriptionName]` exposure.
-            // TS: `navigator.duckduckgo` is a DDG-specific extension.
-            const ddg = /** @type {any} */ (navigator)?.duckduckgo;
-            const fn = ddg?.[params.name] ?? /** @type {any} */ (window)?.[params.name];
+            const fn = navigator.duckduckgo?.[params.name] ?? /** @type {Record<string, any>} */ (window)?.[params.name];
             if (typeof fn !== 'function') {
                 throw new Error(`subscription fn not found for: ${params.name} (${params.injectName})`);
             }

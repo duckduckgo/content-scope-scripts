@@ -8,9 +8,7 @@ import { objectDefineProperty } from './captured-globals.js';
  * @returns {object} The navigator.duckduckgo object
  */
 export function ensureNavigatorDuckDuckGo({ defineProperty = objectDefineProperty } = {}) {
-    // @ts-expect-error - duckduckgo is a custom property added at runtime
     if (navigator.duckduckgo) {
-        // @ts-expect-error - duckduckgo is a custom property added at runtime
         return navigator.duckduckgo;
     }
     const target = {};

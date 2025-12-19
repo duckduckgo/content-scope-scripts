@@ -486,9 +486,7 @@ export class DuckPlayerPage {
         await this.build.switch({
             apple: async () => {
                 await this.page.waitForFunction(() => {
-                    // TS: `navigator.duckduckgo` is a DDG test-time global.
-                    const ddg = /** @type {any} */ (navigator)?.duckduckgo;
-                    const fn = ddg?.onUserValuesChanged;
+                    const fn = navigator.duckduckgo?.onUserValuesChanged;
                     return typeof fn === 'function';
                 });
             },

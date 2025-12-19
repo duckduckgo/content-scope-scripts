@@ -25,7 +25,6 @@ export default class NavigatorInterface extends ContentFeature {
             if (!args.platform || !args.platform.name) {
                 return;
             }
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             if (navigator.duckduckgo?.platform) {
                 // Already fully initialized
                 return;
