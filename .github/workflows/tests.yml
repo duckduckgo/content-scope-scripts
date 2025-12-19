@@ -20,7 +20,7 @@ jobs:
         strategy:
             matrix:
                 os: [ubuntu-latest, windows-latest]
-                workspace: [injected, special-pages, types-generator]
+                workspace: [injected, special-pages]
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
@@ -34,6 +34,9 @@ jobs:
                   restore-keys: |
                       ${{ runner.os }}-node-
             - run: npm ci
+            - name: Build (injected only)
+              if: ${{ matrix.workspace == 'injected' }}
+              run: npm run build -w injected
             - run: npm run test-unit -w ${{ matrix.workspace }}
     unit:
         runs-on: ${{ matrix.os }}
@@ -56,6 +59,7 @@ jobs:
             - run: npm run build
             - run: npm run lint
             - run: npm run stylelint
+            - run: npm run test-unit -w types-generator
             - name: 'Clean tree'
               run: 'npm run test-clean-tree'
 
