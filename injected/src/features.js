@@ -18,6 +18,7 @@ export const baseFeatures = /** @type {const} */ ([
 const otherFeatures = /** @type {const} */ ([
     'clickToLoad',
     'cookie',
+    'daxEasterEggLogos',
     'messageBridge',
     'duckPlayer',
     'duckPlayerNative',
@@ -43,6 +44,7 @@ export const platformSupport = {
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
+        'daxEasterEggLogos',
         'brokerProtection',
         'breakageReporting',
         'performanceMetrics',
