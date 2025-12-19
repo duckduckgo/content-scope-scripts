@@ -98,8 +98,9 @@ export class ReleaseNotesPage {
         // Wait for the subscription handler to appear before trying to simulate push events.
         // This prevents a race condition where playwright is sending data before `.subscribe` was called
         await this.page.waitForFunction(() => {
-            const ddg = navigator && navigator.duckduckgo;
-            const fn = (ddg && ddg.onUpdate) || window.onUpdate;
+            // TS: `navigator.duckduckgo` + `window.onUpdate` are DDG test-time globals.
+            const ddg = /** @type {any} */ (navigator)?.duckduckgo;
+            const fn = ddg?.onUpdate || /** @type {any} */ (window)?.onUpdate;
             return typeof fn === 'function';
         });
 

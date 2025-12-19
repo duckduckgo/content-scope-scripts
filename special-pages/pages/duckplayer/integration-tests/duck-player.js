@@ -481,8 +481,9 @@ export class DuckPlayerPage {
         // Wait for the subscription handler to appear before trying to simulate push events.
         // On WebKit platforms this is exposed via `navigator.duckduckgo[subscriptionName]`.
         await this.page.waitForFunction(() => {
-            const ddg = navigator && navigator.duckduckgo;
-            const fn = (ddg && ddg.onUserValuesChanged) || window.onUserValuesChanged;
+            // TS: `navigator.duckduckgo` + `window.onUserValuesChanged` are DDG test-time globals.
+            const ddg = /** @type {any} */ (navigator)?.duckduckgo;
+            const fn = ddg?.onUserValuesChanged || /** @type {any} */ (window)?.onUserValuesChanged;
             return typeof fn === 'function';
         });
 
