@@ -554,7 +554,6 @@ export function initialSetup(url) {
         { id: 'rmf' },
         { id: 'freemiumPIRBanner' },
         { id: 'subscriptionWinBackBanner' },
-        { id: 'nextSteps' },
         { id: 'favorites' },
     ];
 
@@ -590,6 +589,12 @@ export function initialSetup(url) {
         widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'omnibar' });
         const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
         widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: 'omnibar', visibility: 'visible' });
+    }
+
+    // Insert nextSteps after omnibar (or at the beginning if omnibar is not present) and before favorites
+    if (url.searchParams.has('next-steps')) {
+        const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+        widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'nextSteps' });
     }
 
     initial.customizer = customizerData();
