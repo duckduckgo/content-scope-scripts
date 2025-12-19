@@ -194,4 +194,3 @@ export class Messaging {
         return this.transport.subscribe(msg, callback);
     }
 }
-
