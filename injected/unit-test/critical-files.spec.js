@@ -1,43 +1,98 @@
-import { existsSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 import { cwd } from '../../scripts/script-utils.js';
 
 /**
- * A growing list of files that *must* exist for native/platform integrations.
+ * Ensure imported assets exist on disk.
  *
- * Rationale: missing assets will fail builds anyway, but this provides a fast,
- * targeted, easy-to-understand failure mode (and avoids confusing build errors).
+ * This catches missing/misnamed CSS files early with a targeted error message,
+ * instead of failing later during bundling or native integration.
  */
-describe('Critical file presence', () => {
+describe('Imported asset presence', () => {
     // `cwd(import.meta.url)` resolves to `.../injected/unit-test/`
-    // Keep paths rooted to the injected workspace to avoid ambiguity.
-    const INJECTED_ROOT = join(cwd(import.meta.url), '..');
+    const INJECTED_ROOT = resolve(cwd(import.meta.url), '..');
+    const SRC_ROOT = join(INJECTED_ROOT, 'src');
 
-    /** @type {Record<string, string[]>} */
-    const requiredFilesByPlatform = {
-        // Native DuckPlayer integrations depend on these CSS assets being present.
-        apple: [
-            'src/features/duckplayer-native/overlays/thumbnail-overlay.css',
-            'src/features/duckplayer-native/custom-error/custom-error.css',
-        ],
-        windows: [
-            'src/features/duckplayer-native/overlays/thumbnail-overlay.css',
-            'src/features/duckplayer-native/custom-error/custom-error.css',
-        ],
-        android: [
-            'src/features/duckplayer-native/overlays/thumbnail-overlay.css',
-            'src/features/duckplayer-native/custom-error/custom-error.css',
-        ],
-    };
-
-    for (const [platformName, relFiles] of Object.entries(requiredFilesByPlatform)) {
-        for (const relFile of relFiles) {
-            const absFile = join(INJECTED_ROOT, relFile);
-            const shownPath = relative(INJECTED_ROOT, absFile);
-
-            it(`${platformName}: '${shownPath}' exists`, () => {
-                expect(existsSync(absFile)).withContext(`Missing critical file for ${platformName}: ${shownPath}`).toBeTrue();
-            });
+    /**
+     * @param {string} root
+     * @returns {string[]}
+     */
+    function walkFiles(root) {
+        /** @type {string[]} */
+        const out = [];
+        /** @type {string[]} */
+        const queue = [root];
+        while (queue.length) {
+            const next = queue.pop();
+            if (!next) continue;
+            for (const entry of readdirSync(next)) {
+                const full = join(next, entry);
+                const st = statSync(full);
+                if (st.isDirectory()) {
+                    queue.push(full);
+                } else if (st.isFile()) {
+                    out.push(full);
+                }
+            }
         }
+        return out;
     }
+
+    /**
+     * @returns {{ importer: string, specifier: string, resolved: string }[]}
+     */
+    function collectCssImports() {
+        const candidates = walkFiles(SRC_ROOT).filter((p) => /\.(?:[cm]?js|jsx|ts|tsx)$/.test(p));
+
+        /** @type {{ importer: string, specifier: string, resolved: string }[]} */
+        const found = [];
+
+        // 1) `import x from './foo.css'` + `import './foo.css'`
+        const importFromRe = /import\s+[^'"]*?\sfrom\s*['"]([^'"]+?\.css)['"]/g;
+        const importBareRe = /import\s*['"]([^'"]+?\.css)['"]/g;
+        // 2) `new URL('./foo.css', import.meta.url)`
+        const urlRe = /new\s+URL\s*\(\s*['"]([^'"]+?\.css)['"]\s*,\s*import\.meta\.url\s*\)/g;
+
+        for (const importer of candidates) {
+            const text = readFileSync(importer, 'utf8');
+            const dir = dirname(importer);
+
+            /** @param {RegExp} re */
+            const apply = (re) => {
+                re.lastIndex = 0;
+                let m;
+                while ((m = re.exec(text))) {
+                    const specifier = m[1];
+                    // Only enforce local/relative specifiers; skip any potential package imports.
+                    if (!specifier.startsWith('.')) continue;
+                    found.push({
+                        importer,
+                        specifier,
+                        resolved: resolve(dir, specifier),
+                    });
+                }
+            };
+
+            apply(importFromRe);
+            apply(importBareRe);
+            apply(urlRe);
+        }
+        return found;
+    }
+
+    const cssImports = collectCssImports();
+
+    for (const { importer, specifier, resolved: resolvedPath } of cssImports) {
+        const importerShown = relative(INJECTED_ROOT, importer);
+        const resolvedShown = relative(INJECTED_ROOT, resolvedPath);
+        it(`resolves '${specifier}' imported by '${importerShown}'`, () => {
+            expect(existsSync(resolvedPath))
+                .withContext(`Missing imported CSS: '${specifier}' from '${importerShown}' -> '${resolvedShown}'`)
+                .toBeTrue();
+        });
+    }
+
+    it('found at least one css import (sanity)', () => {
+        expect(cssImports.length).toBeGreaterThan(0);
+    });
 });
