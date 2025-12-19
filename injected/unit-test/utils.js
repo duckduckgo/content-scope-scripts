@@ -104,6 +104,7 @@ describe('Helpers checks', () => {
             versionNumber: 99,
             sessionKey: 'testSessionKey',
             bundledConfig: configIn,
+            messagingContextName: 'contentScopeScripts',
         });
     });
 
@@ -183,6 +184,7 @@ describe('Helpers checks', () => {
             versionString: '0.9.9',
             sessionKey: 'testSessionKey',
             bundledConfig: configIn,
+            messagingContextName: 'contentScopeScripts',
         });
     });
 
