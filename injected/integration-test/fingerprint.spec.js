@@ -23,7 +23,10 @@ const expectedFingerprintValues = {
 
 const pagePath = '/index.html';
 const TEST_PAGE_SERVER_PORT = 3220;
-const tests = [{ url: `http://localhost:${TEST_PAGE_SERVER_PORT}${pagePath}` }, { url: `http://127.0.0.1:${TEST_PAGE_SERVER_PORT}${pagePath}` }];
+const tests = [
+    { url: `http://localhost:${TEST_PAGE_SERVER_PORT}${pagePath}` },
+    { url: `http://127.0.0.1:${TEST_PAGE_SERVER_PORT}${pagePath}` },
+];
 const enabledCanvasArgs = {
     site: {
         enabledFeatures: ['fingerprintingCanvas'],
