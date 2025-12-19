@@ -1,0 +1,35 @@
+---
+description: Change reporting shortcut for single-workspace diffs
+# Apply across the monorepo workspaces
+# (injected/, special-pages/, messaging/, types-generator/)
+globs: "**/*"
+---
+
+# Single-workspace change reporting
+
+When summarizing work or reporting what changed, first determine whether the diff touches **only one** top-level workspace directory:
+
+- `injected/`
+- `special-pages/`
+- `messaging/`
+- `types-generator/`
+
+## Rule
+
+- If **all changed files** are under exactly one of the directories above, **do not** produce a multi-file or cross-workspace change report.
+- Instead, report **only**:
+  - the **current branch name**, and
+  - a **link to the branch** on GitHub.
+
+Use this branch URL shape:
+
+- `https://github.com/duckduckgo/content-scope-scripts/tree/<branch>`
+
+## Output template
+
+- **Branch**: `<branch>`
+- **Link**: `https://github.com/duckduckgo/content-scope-scripts/tree/<branch>`
+
+## Notes
+
+- If changes span **multiple** workspace directories (or touch files outside these directories), produce the normal detailed report.
