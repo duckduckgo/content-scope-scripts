@@ -12,6 +12,21 @@ This document provides platform-specific build instructions, troubleshooting ste
     - Run `npm link` in your C-S-S check out.
     - Run `npm link @duckduckgo/content-scope-scripts` in your `apple-browsers` project.
     - Whenever files change run: `npm run build-content-scope-scripts`
+- **Force-enable/disable a C-S-S remote-config feature locally (no remote flag needed):**
+    - Use `userPreferences.featureOverrides` (guarded by `userPreferences.debug === true` or `userPreferences.platform.internal === true`).
+    - This is intended for internal/debug builds and is useful for CSS/config-driven behavior where you don’t want to touch the remote privacy config just to test.
+    - Example:
+        ```js
+        userPreferences = {
+            // ...
+            debug: true,
+            featureOverrides: {
+                clickToLoad: { state: 'enabled' },
+                // optionally override the full settings object too:
+                // webCompat: { state: 'enabled', settings: { ... } }
+            },
+        };
+        ```
 - **Set up Autofill as a Local Dependency:**
     - Drag the folder from Finder into the directory panel in Xcode.
 - **Privacy Config Files:**
@@ -22,6 +37,13 @@ This document provides platform-specific build instructions, troubleshooting ste
     - Clean Project with `cmd+K`
     - Delete all files inside `~/Library/Developer/Xcode/DerivedData`
     - If none of that works, ask for help in the [Apple Devs Mattermost channel](https://chat.duckduckgo.com/ddg/channels/devs).
+- **If Xcode doesn’t pick up CSS-only changes (suspected caching):**
+    - Ensure you rebuilt the affected artifacts (`npm run build-content-scope-scripts` in `apple-browsers`, or `npm run build -w special-pages` for Special Pages CSS).
+    - Then try, in order:
+        - Product → Clean Build Folder
+        - File → Packages → Reset Package Caches
+        - Delete DerivedData (`~/Library/Developer/Xcode/DerivedData`)
+    - If the issue persists, it’s often because the app integration is consuming stale built assets (copy phase caching) rather than your local checkout output; prefer `npm link` workflows and verify the on-disk `build/` outputs changed.
 
 ## Android
 
