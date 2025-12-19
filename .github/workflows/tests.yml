@@ -15,7 +15,7 @@ permissions:
 
 jobs:
     unit-tests:
-        name: Unit tests (${{ matrix.workspace }})
+        name: Unit tests (${{ matrix.workspace }}, ${{ matrix.os }})
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
@@ -64,7 +64,7 @@ jobs:
               run: 'npm run test-clean-tree'
 
     integration-tests:
-        name: Integration tests (${{ matrix.workspace }})
+        name: Integration tests (${{ matrix.workspace }}, ubuntu-latest)
         runs-on: ubuntu-latest
         timeout-minutes: 15
         strategy:
@@ -175,3 +175,30 @@ jobs:
               run: cd injected && npm run build
             - name: Simulate extension esbuild for GPC feature (production deps only)
               run: npx esbuild injected/src/features/gpc.js --bundle --outfile=/tmp/gpc-bundle.js
+
+    # Single stable check to use for branch protection rules.
+    # This job will fail if any required job fails/skips/cancels.
+    ci-gate:
+        name: CI gate
+        runs-on: ubuntu-latest
+        if: ${{ always() }}
+        needs:
+            - unit
+            - unit-tests
+            - integration
+            - integration-tests
+            - production-deps
+        steps:
+            - name: Ensure all required jobs succeeded
+              run: |
+                  echo "unit: ${{ needs.unit.result }}"
+                  echo "unit-tests: ${{ needs.unit-tests.result }}"
+                  echo "integration: ${{ needs.integration.result }}"
+                  echo "integration-tests: ${{ needs.integration-tests.result }}"
+                  echo "production-deps: ${{ needs.production-deps.result }}"
+
+                  test "${{ needs.unit.result }}" = "success"
+                  test "${{ needs.unit-tests.result }}" = "success"
+                  test "${{ needs.integration.result }}" = "success"
+                  test "${{ needs.integration-tests.result }}" = "success"
+                  test "${{ needs.production-deps.result }}" = "success"
