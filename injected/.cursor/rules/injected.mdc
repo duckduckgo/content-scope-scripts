@@ -69,24 +69,6 @@ Platform-specific features: `navigatorInterface`, `windowsPermissionUsage`, `mes
 - Features can be enabled/disabled per-site via remote config
 - Add debug flags with `this.addDebugFlag()` for breakage reports
 
-## Local feature-flag overrides (dev/internal builds)
-
-`processConfig()` supports local-only overrides via `userPreferences.featureOverrides`, guarded by `userPreferences.debug === true` **or** `userPreferences.platform.internal === true`.
-
-This is the fastest way to force-enable a feature locally (including config-driven CSS behavior) without creating/updating a remote privacy-config flag.
-
-Example shape (keys must match remote-config feature names, e.g. `clickToLoad`):
-
-```javascript
-{
-  debug: true, // or platform: { ..., internal: true }
-  featureOverrides: {
-    clickToLoad: { state: 'enabled' },
-    webCompat: { state: 'enabled', settings: { /* override full settings object */ } }
-  }
-}
-```
-
 ## “internal” / “preview” conditional config
 
 The injected config system supports `internal` and `preview` keys inside conditional blocks (see `ConfigFeature` in `injected/src/config-feature.js`). These values come from `userPreferences.platform.internal` / `userPreferences.platform.preview` and are not inferred automatically.

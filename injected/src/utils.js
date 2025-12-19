@@ -574,9 +574,6 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
  * @property {string} [messagingContextName] - The context name for messaging (e.g. 'contentScopeScripts')
- * @property {Record<string, {state?: 'enabled' | 'disabled', settings?: any}>} [featureOverrides]
- *   Local-only feature overrides (applied only when `debug` or `platform.internal` is true).
- *   Keys must match remote-config feature names (e.g. `clickToLoad`).
  */
 
 /**
@@ -707,7 +704,6 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
  * @param {string[]} platformSpecificFeatures
  */
 export function processConfig(data, userList, preferences, platformSpecificFeatures = []) {
-    data = applyLocalFeatureOverrides(data, preferences);
     const topLevelHostname = getTabHostname();
     const site = computeLimitedSiteObject();
     const allowlisted = userList.filter((domain) => domain === topLevelHostname).length > 0;
@@ -735,49 +731,6 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
     output.messagingContextName = output.messagingContextName || 'contentScopeScripts';
 
     return output;
-}
-
-/**
- * Applies local-only overrides to remote-config features.
- *
- * This is intended for internal/debug builds and integration tests, to support
- * forcing a feature ON/OFF (and optionally overriding its settings) without
- * requiring changes to the remote privacy config.
- *
- * @param {RemoteConfig} data
- * @param {UserPreferences} preferences
- * @returns {RemoteConfig}
- */
-function applyLocalFeatureOverrides(data, preferences) {
-    const overrides = preferences?.featureOverrides;
-    if (!overrides) return data;
-
-    const allowLocalOverrides = Boolean(preferences?.debug || preferences?.platform?.internal);
-    if (!allowLocalOverrides) return data;
-
-    // Shallow clone, so we don't mutate the injected/bundled config object.
-    const features = { ...data.features };
-
-    for (const [featureName, override] of Object.entries(overrides)) {
-        if (!features[featureName]) {
-            // Avoid creating new feature keys by default; only override existing remote-config entries.
-            continue;
-        }
-        if (!override || typeof override !== 'object') continue;
-
-        const current = features[featureName];
-        // Ensure we don't mutate existing feature objects.
-        features[featureName] = { ...current };
-
-        if (override.state === 'enabled' || override.state === 'disabled') {
-            features[featureName].state = override.state;
-        }
-        if (override.settings !== undefined) {
-            features[featureName].settings = override.settings;
-        }
-    }
-
-    return { ...data, features };
 }
 
 /**
