@@ -1324,7 +1324,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "duckAiDataClearing", "pageContext"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
@@ -1335,6 +1335,7 @@
       "messageBridge",
       "favicon"
     ],
+    "apple-ai-clear": ["duckAiDataClearing"],
     android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-import": ["autofillImport"],
@@ -3981,7 +3982,8 @@
        *   assets?: import('./content-feature.js').AssetConfig | undefined,
        *   site: import('./content-feature.js').Site,
        *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
-       *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
+       *   messagingContextName: string,
+       *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
        * } | null}
        */
       __privateAdd(this, _args);
@@ -4476,9 +4478,9 @@
      * @return {MessagingContext}
      */
     _createMessagingContext() {
-      const contextName = this.injectName === "apple-isolated" ? "contentScopeScriptsIsolated" : "contentScopeScripts";
+      if (!this.args) throw new Error("messaging requires args to be set");
       return new MessagingContext({
-        context: contextName,
+        context: this.args.messagingContextName,
         env: this.isDebug ? "development" : "production",
         featureName: this.name
       });
@@ -9565,13 +9567,7 @@
         this._messaging = new Messaging(this.messagingContext, config2);
         return this._messaging;
       } else if (this.platform.name === "ios" || this.platform.name === "macos") {
-        const config2 = new WebkitMessagingConfig({
-          secret: "",
-          hasModernWebkitAPI: true,
-          webkitMessageHandlerNames: ["contentScopeScriptsIsolated"]
-        });
-        this._messaging = new Messaging(this.messagingContext, config2);
-        return this._messaging;
+        return super.messaging;
       } else {
         throw new Error("Messaging not supported yet on platform: " + this.name);
       }
@@ -10012,7 +10008,8 @@
     },
     site: computeLimitedSiteObject(),
     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-    bundledConfig: $BUNDLED_CONFIG$
+    bundledConfig: $BUNDLED_CONFIG$,
+    messagingContextName: "contentScopeScripts"
   });
   window.addEventListener(secret, ({ detail: encodedMessage }) => {
     if (!encodedMessage) return;

@@ -2766,6 +2766,10 @@
     }
     return false;
   }
+  function getLoadArgs(processedConfig) {
+    const { platform, site, bundledConfig, messagingConfig, messageSecret: messageSecret2, messagingContextName, currentCohorts } = processedConfig;
+    return { platform, site, bundledConfig, messagingConfig, messageSecret: messageSecret2, messagingContextName, currentCohorts };
+  }
   function computeEnabledFeatures(data2, topLevelHostname, platformVersion, platformSpecificFeatures2 = []) {
     const remoteFeatureNames = Object.keys(data2.features);
     const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures2.filter(
@@ -2890,7 +2894,7 @@
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "duckAiDataClearing", "pageContext"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webInterferenceDetection", "pageContext"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
@@ -2901,6 +2905,7 @@
       "messageBridge",
       "favicon"
     ],
+    "apple-ai-clear": ["duckAiDataClearing"],
     android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-import": ["autofillImport"],
@@ -6073,7 +6078,8 @@
        *   assets?: import('./content-feature.js').AssetConfig | undefined,
        *   site: import('./content-feature.js').Site,
        *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
-       *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
+       *   messagingContextName: string,
+       *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
        * } | null}
        */
       __privateAdd(this, _args);
@@ -6568,9 +6574,9 @@
      * @return {MessagingContext}
      */
     _createMessagingContext() {
-      const contextName = this.injectName === "apple-isolated" ? "contentScopeScriptsIsolated" : "contentScopeScripts";
+      if (!this.args) throw new Error("messaging requires args to be set");
       return new MessagingContext({
-        context: contextName,
+        context: this.args.messagingContextName,
         env: this.isDebug ? "development" : "production",
         featureName: this.name
       });
@@ -11005,13 +11011,7 @@
         this._messaging = new Messaging(this.messagingContext, config2);
         return this._messaging;
       } else if (this.platform.name === "ios" || this.platform.name === "macos") {
-        const config2 = new WebkitMessagingConfig({
-          secret: "",
-          hasModernWebkitAPI: true,
-          webkitMessageHandlerNames: ["contentScopeScriptsIsolated"]
-        });
-        this._messaging = new Messaging(this.messagingContext, config2);
-        return this._messaging;
+        return super.messaging;
       } else {
         throw new Error("Messaging not supported yet on platform: " + this.name);
       }
@@ -21901,6 +21901,7 @@ ${iframeContent}
     return {
       debug: false,
       sessionKey: "randomVal",
+      messagingContextName: "contentScopeScripts",
       platform: {
         name: "extension"
       },
@@ -21965,14 +21966,7 @@ ${iframeContent}
         };
       }
     });
-    load({
-      // @ts-expect-error Types of property 'name' are incompatible.
-      platform: processedConfig.platform,
-      site: processedConfig.site,
-      bundledConfig: processedConfig.bundledConfig,
-      messagingConfig: processedConfig.messagingConfig,
-      currentCohorts: processedConfig.currentCohorts
-    });
+    load(getLoadArgs(processedConfig));
     setStatus("loaded");
     if (!topLevelUrl?.searchParams.has("wait-for-init-args")) {
       await init(processedConfig);

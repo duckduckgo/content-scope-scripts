@@ -35877,7 +35877,6 @@
       { id: "rmf" },
       { id: "freemiumPIRBanner" },
       { id: "subscriptionWinBackBanner" },
-      { id: "nextSteps" },
       { id: "favorites" }
     ];
     const widgetConfigFromStorage = [{ id: "favorites", visibility: "visible" }];
@@ -35904,6 +35903,10 @@
       widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: "omnibar" });
       const favoritesWidgetConfigIndex = widgetConfigFromStorage.findIndex((widget) => widget.id === "favorites") ?? 0;
       widgetConfigFromStorage.splice(favoritesWidgetConfigIndex, 0, { id: "omnibar", visibility: "visible" });
+    }
+    if (url8.searchParams.has("next-steps")) {
+      const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === "favorites") ?? 0;
+      widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: "nextSteps" });
     }
     initial.customizer = customizerData();
     const settings = {
