@@ -406,10 +406,10 @@ export class SpecialErrorPage {
             .route(
                 /dub\.duckduckgo\.com|use-devtesting..\.duckduckgo\.com|duckduckgo\.com\/duckduckgo-help-pages\/|duckduckgo\.com\/malicious-site-protection\/report-error/,
                 (route) =>
-            route.fulfill({
-                status: 200,
-                body: 'OK',
-            }),
+                    route.fulfill({
+                        status: 200,
+                        body: 'OK',
+                    }),
             );
     }
 
