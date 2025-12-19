@@ -122,6 +122,105 @@
             return results;
         });
 
+        test('PresentationRequest behavior', async () => {
+            const results = [];
+
+            function assertRejectsNotSupportedError(promise) {
+                return promise.then(
+                    () => 'resolved',
+                    (e) => (e && e.name) || String(e)
+                );
+            }
+
+            results.push({
+                name: 'PresentationRequest exists',
+                result: typeof globalThis.PresentationRequest,
+                expected: 'function'
+            });
+
+            let request;
+            try {
+                request = new PresentationRequest('https://example.invalid/presentation');
+                results.push({
+                    name: 'new PresentationRequest(string) works',
+                    result: true,
+                    expected: true
+                });
+            } catch (e) {
+                results.push({
+                    name: 'new PresentationRequest(string) works',
+                    result: (e && e.name) || String(e),
+                    expected: true
+                });
+            }
+
+            if (request) {
+                results.push({
+                    name: 'PresentationRequest.urls is an array',
+                    result: Array.isArray(request.urls),
+                    expected: true
+                });
+
+                results.push({
+                    name: 'PresentationRequest.urls returns provided URL',
+                    result: request.urls && request.urls[0],
+                    expected: 'https://example.invalid/presentation'
+                });
+
+                const urls = request.urls;
+                urls.push('https://example.invalid/mutation');
+                results.push({
+                    name: 'PresentationRequest.urls is a copy (mutation does not persist)',
+                    result: request.urls.length,
+                    expected: 1
+                });
+
+                results.push({
+                    name: 'PresentationRequest.onconnectionavailable defaults to null',
+                    result: request.onconnectionavailable,
+                    expected: null
+                });
+
+                results.push({
+                    name: 'PresentationRequest.start rejects NotSupportedError',
+                    result: await assertRejectsNotSupportedError(request.start()),
+                    expected: 'NotSupportedError'
+                });
+
+                results.push({
+                    name: 'PresentationRequest.reconnect rejects NotSupportedError',
+                    result: await assertRejectsNotSupportedError(request.reconnect('dummy')),
+                    expected: 'NotSupportedError'
+                });
+
+                results.push({
+                    name: 'PresentationRequest.getAvailability rejects NotSupportedError',
+                    result: await assertRejectsNotSupportedError(request.getAvailability()),
+                    expected: 'NotSupportedError'
+                });
+
+                // defaultRequest is writable in the spec and is used by feature detection.
+                // @ts-expect-error - presentation is not in TS Navigator type
+                navigator.presentation.defaultRequest = request;
+                // @ts-expect-error - presentation is not in TS Navigator type
+                results.push({
+                    name: 'navigator.presentation.defaultRequest accepts PresentationRequest',
+                    result: navigator.presentation.defaultRequest === request,
+                    expected: true
+                });
+                // @ts-expect-error - presentation is not in TS Navigator type
+                navigator.presentation.defaultRequest = null;
+                // @ts-expect-error - presentation is not in TS Navigator type
+                results.push({
+                    name: 'navigator.presentation.defaultRequest accepts null',
+                    result: navigator.presentation.defaultRequest,
+                    expected: null
+                });
+            }
+
+            return results;
+        });
+
         // eslint-disable-next-line no-undef
         renderResults();
     </script>
