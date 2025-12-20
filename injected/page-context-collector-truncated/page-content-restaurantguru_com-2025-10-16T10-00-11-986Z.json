@@ -1,0 +1,4233 @@
+{
+  "url": "https://restaurantguru.com/",
+  "extractedAt": "2025-10-16T10:00:11.986Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://1014042311.rsc.cdn77.org/img/icons/favicon.ico",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://1014042311.rsc.cdn77.org/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://1014042311.rsc.cdn77.org/img/icons/76x76.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://1014042311.rsc.cdn77.org/img/icons/120x120.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://1014042311.rsc.cdn77.org/img/icons/120x120.png",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "Best Restaurants 2025 Near Me - Restaurant Guru",
+    "metaDescription": "Restaurant Guru allows you to discover great places to eat at near your location. Read restaurant menus and users' reviews about tasty food. View photos and ratings of open restaurants around you.",
+    "content": "For business",
+    "truncated": false,
+    "fullContentLength": 12,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Restaurant Guru - find best restaurants nearby"
+      },
+      {
+        "level": 2,
+        "text": "Meet Pierre — your personal smart assistant"
+      },
+      {
+        "level": 2,
+        "text": "Cities near me"
+      },
+      {
+        "level": 2,
+        "text": "Food guides for travelers"
+      },
+      {
+        "level": 2,
+        "text": "Recipes"
+      },
+      {
+        "level": 2,
+        "text": "Restaurant Guru award gallery"
+      },
+      {
+        "level": 2,
+        "text": "Media highlights"
+      },
+      {
+        "level": 2,
+        "text": "Restaurants near me"
+      },
+      {
+        "level": 2,
+        "text": "Food and Drink near me"
+      },
+      {
+        "level": 1,
+        "text": "Restaurant Guru asks for your consent to use your personal data to:"
+      },
+      {
+        "level": 1,
+        "text": "Manage your data"
+      },
+      {
+        "level": 2,
+        "text": "Store and/or access information on a device"
+      },
+      {
+        "level": 2,
+        "text": "Use limited data to select advertising"
+      },
+      {
+        "level": 2,
+        "text": "Create profiles for personalised advertising"
+      },
+      {
+        "level": 2,
+        "text": "Use profiles to select personalised advertising"
+      },
+      {
+        "level": 2,
+        "text": "Create profiles to personalise content"
+      },
+      {
+        "level": 2,
+        "text": "Use profiles to select personalised content"
+      },
+      {
+        "level": 2,
+        "text": "Measure advertising performance"
+      },
+      {
+        "level": 2,
+        "text": "Measure content performance"
+      },
+      {
+        "level": 2,
+        "text": "Understand audiences through statistics or combinations of data from different sources"
+      },
+      {
+        "level": 2,
+        "text": "Develop and improve services"
+      },
+      {
+        "level": 2,
+        "text": "Use limited data to select content"
+      },
+      {
+        "level": 2,
+        "text": "Ensure security, prevent and detect fraud, and fix errors"
+      },
+      {
+        "level": 2,
+        "text": "Deliver and present advertising and content"
+      },
+      {
+        "level": 2,
+        "text": "Save and communicate privacy choices"
+      },
+      {
+        "level": 2,
+        "text": "Match and combine data from other data sources"
+      },
+      {
+        "level": 2,
+        "text": "Link different devices"
+      },
+      {
+        "level": 2,
+        "text": "Identify devices based on information transmitted automatically"
+      },
+      {
+        "level": 2,
+        "text": "Use precise geolocation data"
+      },
+      {
+        "level": 2,
+        "text": "Storage, duration, and usage details"
+      },
+      {
+        "level": 1,
+        "text": "Confirm our vendors"
+      },
+      {
+        "level": 2,
+        "text": "Exponential Interactive, Inc d/b/a VDX.tv"
+      },
+      {
+        "level": 2,
+        "text": "Index Exchange Inc."
+      },
+      {
+        "level": 2,
+        "text": "Quantcast"
+      },
+      {
+        "level": 2,
+        "text": "BeeswaxIO Corporation"
+      },
+      {
+        "level": 2,
+        "text": "Sovrn, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Adkernel LLC"
+      },
+      {
+        "level": 2,
+        "text": "Adikteev"
+      },
+      {
+        "level": 2,
+        "text": "RTB House S.A."
+      },
+      {
+        "level": 2,
+        "text": "The UK Trade Desk Ltd"
+      },
+      {
+        "level": 2,
+        "text": "Nexxen Inc."
+      },
+      {
+        "level": 2,
+        "text": "Epsilon"
+      },
+      {
+        "level": 2,
+        "text": "Yahoo EMEA Limited"
+      },
+      {
+        "level": 2,
+        "text": "ADventori SAS"
+      },
+      {
+        "level": 2,
+        "text": "Triple Lift, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Xandr, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Nexxen Group LLC"
+      },
+      {
+        "level": 2,
+        "text": "NEURAL.ONE"
+      },
+      {
+        "level": 2,
+        "text": "ADITION (Virtual Minds GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "Active Agent (Virtual Minds GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "Equativ"
+      },
+      {
+        "level": 2,
+        "text": "Adform A/S"
+      },
+      {
+        "level": 2,
+        "text": "Magnite, Inc."
+      },
+      {
+        "level": 2,
+        "text": "RATEGAIN ADARA INC"
+      },
+      {
+        "level": 2,
+        "text": "Sift Media, Inc"
+      },
+      {
+        "level": 2,
+        "text": "Lumen Research Limited"
+      },
+      {
+        "level": 2,
+        "text": "OpenX"
+      },
+      {
+        "level": 2,
+        "text": "Yieldlab (Virtual Minds GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "Simplifi Holdings LLC"
+      },
+      {
+        "level": 2,
+        "text": "PubMatic, Inc"
+      },
+      {
+        "level": 2,
+        "text": "Comscore B.V."
+      },
+      {
+        "level": 2,
+        "text": "Flashtalking"
+      },
+      {
+        "level": 2,
+        "text": "Sharethrough, Inc"
+      },
+      {
+        "level": 2,
+        "text": "PulsePoint, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Smaato, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Crimtan Holdings Limited"
+      },
+      {
+        "level": 2,
+        "text": "Criteo SA"
+      },
+      {
+        "level": 2,
+        "text": "Adloox SA"
+      },
+      {
+        "level": 2,
+        "text": "LiveRamp"
+      },
+      {
+        "level": 2,
+        "text": "WPP Media"
+      },
+      {
+        "level": 2,
+        "text": "Sonobi, Inc"
+      },
+      {
+        "level": 2,
+        "text": "LoopMe Limited"
+      },
+      {
+        "level": 2,
+        "text": "Dynata LLC"
+      },
+      {
+        "level": 2,
+        "text": "Ask Locala"
+      },
+      {
+        "level": 2,
+        "text": "Azira"
+      },
+      {
+        "level": 2,
+        "text": "DoubleVerify Inc.​"
+      },
+      {
+        "level": 2,
+        "text": "BIDSWITCH GmbH"
+      },
+      {
+        "level": 2,
+        "text": "IPONWEB GmbH"
+      },
+      {
+        "level": 2,
+        "text": "NextRoll, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Media.net Advertising FZ-LLC"
+      },
+      {
+        "level": 2,
+        "text": "LiveIntent Inc."
+      },
+      {
+        "level": 2,
+        "text": "Basis Global Technologies, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Seedtag Advertising S.L"
+      },
+      {
+        "level": 2,
+        "text": "SMADEX, S.L.U."
+      },
+      {
+        "level": 2,
+        "text": "Bombora Inc."
+      },
+      {
+        "level": 2,
+        "text": "Outbrain UK."
+      },
+      {
+        "level": 2,
+        "text": "Yieldmo, Inc."
+      },
+      {
+        "level": 2,
+        "text": "A Million Ads"
+      },
+      {
+        "level": 2,
+        "text": "Remerge GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Affle Iberia SL"
+      },
+      {
+        "level": 2,
+        "text": "Magnite CTV, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Delta Projects AB"
+      },
+      {
+        "level": 2,
+        "text": "Zemanta Inc."
+      },
+      {
+        "level": 2,
+        "text": "AcuityAds Inc."
+      },
+      {
+        "level": 2,
+        "text": "Rockerbox, Inc"
+      },
+      {
+        "level": 2,
+        "text": "StackAdapt Inc."
+      },
+      {
+        "level": 2,
+        "text": "OneTag Limited"
+      },
+      {
+        "level": 2,
+        "text": "Smartology Limited"
+      },
+      {
+        "level": 2,
+        "text": "Improve Digital"
+      },
+      {
+        "level": 2,
+        "text": "Adobe Advertising Cloud"
+      },
+      {
+        "level": 2,
+        "text": "Bannerflow AB"
+      },
+      {
+        "level": 2,
+        "text": "TabMo SAS"
+      },
+      {
+        "level": 2,
+        "text": "Integral Ad Science (incorporating ADmantX)"
+      },
+      {
+        "level": 2,
+        "text": "Wizaly"
+      },
+      {
+        "level": 2,
+        "text": "Weborama"
+      },
+      {
+        "level": 2,
+        "text": "Readpeak Oy"
+      },
+      {
+        "level": 2,
+        "text": "Jivox Corporation"
+      },
+      {
+        "level": 2,
+        "text": "Sojern, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Polar Mobile Group Inc."
+      },
+      {
+        "level": 2,
+        "text": "On Device Research Limited"
+      },
+      {
+        "level": 2,
+        "text": "Exactag GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Celtra Inc."
+      },
+      {
+        "level": 2,
+        "text": "ADTIMING TECHNOLOGY PTE. LTD"
+      },
+      {
+        "level": 2,
+        "text": "Gemius SA"
+      },
+      {
+        "level": 2,
+        "text": "InMobi Pte Ltd"
+      },
+      {
+        "level": 2,
+        "text": "The Kantar Group Limited"
+      },
+      {
+        "level": 2,
+        "text": "Samba TV UK Limited"
+      },
+      {
+        "level": 2,
+        "text": "Nielsen Media Research Ltd."
+      },
+      {
+        "level": 2,
+        "text": "RevX"
+      },
+      {
+        "level": 2,
+        "text": "Pixalate, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Triapodi Ltd. d/b/a Digital Turbine"
+      },
+      {
+        "level": 2,
+        "text": "AudienceProject A/S"
+      },
+      {
+        "level": 2,
+        "text": "Eulerian Technologies"
+      },
+      {
+        "level": 2,
+        "text": "Seenthis AB"
+      },
+      {
+        "level": 2,
+        "text": "travel audience GmbH"
+      },
+      {
+        "level": 2,
+        "text": "HUMAN"
+      },
+      {
+        "level": 2,
+        "text": "Streamwise srl"
+      },
+      {
+        "level": 2,
+        "text": "Innovid LLC"
+      },
+      {
+        "level": 2,
+        "text": "Zeta Global Corp."
+      },
+      {
+        "level": 2,
+        "text": "Madington"
+      },
+      {
+        "level": 2,
+        "text": "Opinary (Affinity Global GmbH)"
+      },
+      {
+        "level": 2,
+        "text": "PLAYGROUND XYZ EMEA LTD"
+      },
+      {
+        "level": 2,
+        "text": "Lucid Holdings, LLC"
+      },
+      {
+        "level": 2,
+        "text": "Jampp LTD"
+      },
+      {
+        "level": 2,
+        "text": "Realtime Technologies GmbH"
+      },
+      {
+        "level": 2,
+        "text": "DeepIntent, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Happydemics"
+      },
+      {
+        "level": 2,
+        "text": "Otto GmbH & Co. KGaA"
+      },
+      {
+        "level": 2,
+        "text": "Adobe Audience Manager, Adobe Experience Platform"
+      },
+      {
+        "level": 2,
+        "text": "CHEQ AI TECHNOLOGIES"
+      },
+      {
+        "level": 2,
+        "text": "Localsensor B.V."
+      },
+      {
+        "level": 2,
+        "text": "Adnami Aps"
+      },
+      {
+        "level": 2,
+        "text": "Blue"
+      },
+      {
+        "level": 2,
+        "text": "Relay42 Netherlands B.V."
+      },
+      {
+        "level": 2,
+        "text": "Mobsuccess"
+      },
+      {
+        "level": 2,
+        "text": "Liftoff Monetize and Vungle Exchange"
+      },
+      {
+        "level": 2,
+        "text": "The MediaGrid Inc."
+      },
+      {
+        "level": 2,
+        "text": "Go.pl sp. z o.o."
+      },
+      {
+        "level": 2,
+        "text": "HyperTV, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Appier PTE Ltd"
+      },
+      {
+        "level": 2,
+        "text": "6Sense Insights, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Google Advertising Products"
+      },
+      {
+        "level": 2,
+        "text": "GfK GmbH"
+      },
+      {
+        "level": 2,
+        "text": "Clinch Labs LTD"
+      },
+      {
+        "level": 2,
+        "text": "Amazon Ads"
+      },
+      {
+        "level": 2,
+        "text": "LinkedIn Ireland Unlimited Company"
+      },
+      {
+        "level": 2,
+        "text": "Moloco, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Mintegral International Limited"
+      },
+      {
+        "level": 2,
+        "text": "PRECISO SRL"
+      },
+      {
+        "level": 2,
+        "text": "Pelmorex Corp."
+      },
+      {
+        "level": 2,
+        "text": "Extreme Reach, Inc"
+      },
+      {
+        "level": 2,
+        "text": "Somplo Ltd"
+      },
+      {
+        "level": 2,
+        "text": "Adelaide Metrics Inc"
+      },
+      {
+        "level": 2,
+        "text": "Baidu (Hong Kong) Limited"
+      },
+      {
+        "level": 2,
+        "text": "Arpeely Ltd."
+      },
+      {
+        "level": 2,
+        "text": "Adventure Media SARL"
+      },
+      {
+        "level": 2,
+        "text": "Microsoft Advertising"
+      },
+      {
+        "level": 2,
+        "text": "Opera Software Ireland Limited"
+      },
+      {
+        "level": 2,
+        "text": "xpln.ai SAS"
+      },
+      {
+        "level": 2,
+        "text": "ABCS INSIGHTS"
+      },
+      {
+        "level": 2,
+        "text": "Affle Inc"
+      },
+      {
+        "level": 2,
+        "text": "Admaster Private Limited"
+      },
+      {
+        "level": 2,
+        "text": "Artsai"
+      },
+      {
+        "level": 2,
+        "text": "Meta"
+      },
+      {
+        "level": 2,
+        "text": "C3 Metrics"
+      },
+      {
+        "level": 2,
+        "text": "Roku Advertising Services"
+      },
+      {
+        "level": 2,
+        "text": "eBay"
+      },
+      {
+        "level": 2,
+        "text": "Evidon"
+      },
+      {
+        "level": 2,
+        "text": "GroovinAds"
+      },
+      {
+        "level": 2,
+        "text": "Sizmek"
+      },
+      {
+        "level": 2,
+        "text": "Smart"
+      },
+      {
+        "level": 2,
+        "text": "SMN Corporation"
+      },
+      {
+        "level": 2,
+        "text": "TrustArc"
+      },
+      {
+        "level": 2,
+        "text": "CyberAgent"
+      },
+      {
+        "level": 2,
+        "text": "MicroAd"
+      },
+      {
+        "level": 2,
+        "text": "AdMaxim"
+      },
+      {
+        "level": 2,
+        "text": "Magnite"
+      },
+      {
+        "level": 2,
+        "text": "Yango"
+      },
+      {
+        "level": 2,
+        "text": "Singular Labs Inc."
+      },
+      {
+        "level": 2,
+        "text": "Neustar"
+      },
+      {
+        "level": 2,
+        "text": "Netquest"
+      },
+      {
+        "level": 2,
+        "text": "Cloudflare"
+      },
+      {
+        "level": 2,
+        "text": "Salesforce DMP"
+      },
+      {
+        "level": 2,
+        "text": "Bridgewell"
+      },
+      {
+        "level": 2,
+        "text": "AppLovin Corp."
+      },
+      {
+        "level": 2,
+        "text": "AdTheorent, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Rackspace"
+      },
+      {
+        "level": 2,
+        "text": "Placed"
+      },
+      {
+        "level": 2,
+        "text": "Aarki"
+      },
+      {
+        "level": 2,
+        "text": "NinthDecimal"
+      },
+      {
+        "level": 2,
+        "text": "TreSensa"
+      },
+      {
+        "level": 2,
+        "text": "Bigabid"
+      },
+      {
+        "level": 2,
+        "text": "Optimize LCC D.B.A Genius Monkey"
+      },
+      {
+        "level": 2,
+        "text": "gskinner"
+      },
+      {
+        "level": 2,
+        "text": "Yahoo! Japan"
+      },
+      {
+        "level": 2,
+        "text": "Chalk Digital"
+      },
+      {
+        "level": 2,
+        "text": "jsdelivr"
+      },
+      {
+        "level": 2,
+        "text": "HockeyCurve"
+      },
+      {
+        "level": 2,
+        "text": "Upwave"
+      },
+      {
+        "level": 2,
+        "text": "IQM"
+      },
+      {
+        "level": 2,
+        "text": "fluct"
+      },
+      {
+        "level": 2,
+        "text": "Zucks"
+      },
+      {
+        "level": 2,
+        "text": "Bidease"
+      },
+      {
+        "level": 2,
+        "text": "UNICORN"
+      },
+      {
+        "level": 2,
+        "text": "AdFalcon"
+      },
+      {
+        "level": 2,
+        "text": "Supership"
+      },
+      {
+        "level": 2,
+        "text": "Marketing Science Consulting Group, Inc."
+      },
+      {
+        "level": 2,
+        "text": "Kobler"
+      },
+      {
+        "level": 2,
+        "text": "Adstra"
+      },
+      {
+        "level": 2,
+        "text": "Persona.ly"
+      },
+      {
+        "level": 2,
+        "text": "Oracle Data Cloud"
+      },
+      {
+        "level": 2,
+        "text": "Throtle"
+      },
+      {
+        "level": 2,
+        "text": "ironSource Mobile"
+      },
+      {
+        "level": 2,
+        "text": "MediaPal"
+      },
+      {
+        "level": 2,
+        "text": "Tuky Data"
+      },
+      {
+        "level": 2,
+        "text": "CONTXTFUL"
+      },
+      {
+        "level": 2,
+        "text": "MarketCast LLC"
+      },
+      {
+        "level": 2,
+        "text": "LeadsRx"
+      },
+      {
+        "level": 2,
+        "text": "Pangle DSP"
+      },
+      {
+        "level": 2,
+        "text": "clean.io"
+      },
+      {
+        "level": 2,
+        "text": "Intango Ltd."
+      },
+      {
+        "level": 2,
+        "text": "Unity Ads"
+      },
+      {
+        "level": 2,
+        "text": "Loblaw Media"
+      },
+      {
+        "level": 2,
+        "text": "Ad Lightning"
+      },
+      {
+        "level": 2,
+        "text": "Lacuna"
+      },
+      {
+        "level": 2,
+        "text": "Coupang"
+      },
+      {
+        "level": 2,
+        "text": "Playable Factory"
+      },
+      {
+        "level": 2,
+        "text": "Prism Partner"
+      },
+      {
+        "level": 2,
+        "text": "TemuDSP"
+      },
+      {
+        "level": 2,
+        "text": "DISQO"
+      },
+      {
+        "level": 2,
+        "text": "Mercado Livre"
+      }
+    ],
+    "links": [
+      {
+        "text": "Log In",
+        "href": "#"
+      },
+      {
+        "text": "Español",
+        "href": "https://es.restaurantguru.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Русский",
+        "href": "https://ru.restaurantguru.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Français",
+        "href": "https://fr.restaurantguru.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Deutsch",
+        "href": "https://de.restaurantguru.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Italiano",
+        "href": "https://restaurantguru.it/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Português",
+        "href": "https://pt.restaurantguru.com/?automation=true%3Fautomation%3Dtrue&wait-for-init-args=true"
+      },
+      {
+        "text": "Add a business",
+        "href": "#"
+      },
+      {
+        "text": "Log in to business account",
+        "href": "https://admin.restaurantguru.com/"
+      },
+      {
+        "text": "Explore Restaurant Guru for business",
+        "href": "https://restaurantguru.com/businessLanding"
+      },
+      {
+        "text": "Use my precise location",
+        "href": "https://search.restaurantguru.com/best-restaurants-nearby-b"
+      },
+      {
+        "text": "App Store",
+        "href": "https://restaurantadvisor.app/api/v1/app"
+      },
+      {
+        "text": "Google Play",
+        "href": "https://play.google.com/store/apps/details?id=restaurant.guru"
+      },
+      {
+        "text": "Amsterdam\n                                                11k restaurants",
+        "href": "https://restaurantguru.com/Amsterdam"
+      },
+      {
+        "text": "Amstelveen\n                                                434 restaurants",
+        "href": "https://restaurantguru.com/Amstelveen"
+      },
+      {
+        "text": "Haarlem\n                                                1k restaurants",
+        "href": "https://restaurantguru.com/Haarlem"
+      },
+      {
+        "text": "Diemen\n                                                134 restaurants",
+        "href": "https://restaurantguru.com/Diemen"
+      },
+      {
+        "text": "Rotterdam\n                                                4k restaurants",
+        "href": "https://restaurantguru.com/Rotterdam"
+      },
+      {
+        "text": "The Hague\n                                                4k restaurants",
+        "href": "https://restaurantguru.com/The-Hague"
+      },
+      {
+        "text": "See more",
+        "href": "https://restaurantguru.com/guides"
+      },
+      {
+        "text": "The biggest pros and cons of living in Amsterdam, the Netherlands",
+        "href": "https://restaurantguru.com/guides/the-biggest-pros-and-cons-of-living-in-amsterdam-the-netherlands"
+      },
+      {
+        "text": "Top 5 best restaurants in the center of Amsterdam, the Netherlands (updated 2025)",
+        "href": "https://restaurantguru.com/guides/the-best-restaurants-in-the-heart-of-amsterdam"
+      },
+      {
+        "text": "Best wine bars in Amsterdam, the Netherlands",
+        "href": "https://restaurantguru.com/guides/best-wine-bars-in-amsterdam-the-netherlands"
+      },
+      {
+        "text": "Best Michelin-starred dining experience in Amsterdam",
+        "href": "https://restaurantguru.com/guides/best-michelin-starred-dining-experience-in-amsterdam"
+      },
+      {
+        "text": "Crazy Things to Do in Amsterdam, the Netherlands",
+        "href": "https://restaurantguru.com/guides/crazy-things-to-do-in-amsterdam-the-netherlands"
+      },
+      {
+        "text": "See more",
+        "href": "https://restaurantguru.com/recipes"
+      },
+      {
+        "text": "Salmon tartare with cured yolk – a Spanish specialty",
+        "href": "https://restaurantguru.com/recipes/salmon-tartare-with-cured-yolk-a-spanish-specialty"
+      },
+      {
+        "text": "Vegan cookies with chocolate chips and Oreo",
+        "href": "https://restaurantguru.com/recipes/vegan-cookies-with-chocolate-chips-and-oreo"
+      },
+      {
+        "text": "Lentils coconut green curry stew for veggie lovers",
+        "href": "https://restaurantguru.com/recipes/lentils-coconut-green-curry-stew-for-veggie-lovers"
+      },
+      {
+        "text": "Vermouth cocktail with orange peel and maraschino cherries",
+        "href": "https://restaurantguru.com/recipes/vermouth-cocktail-with-orange-peel-and-maraschino-cherries"
+      },
+      {
+        "text": "Biryani: not as difficult as it might seem in London, UK",
+        "href": "https://restaurantguru.com/recipes/biryani-not-as-difficult-as-it-might-seem-in-london-uk"
+      },
+      {
+        "text": "See more",
+        "href": "https://restaurantguru.com/award-gallery"
+      },
+      {
+        "text": "Restaurant Guru award gallery",
+        "href": "https://restaurantguru.com/award-gallery"
+      },
+      {
+        "text": "Oblomov",
+        "href": "https://restaurantguru.com/Oblomov-Moscow"
+      },
+      {
+        "text": "The Shack Of Ellijay",
+        "href": "https://restaurantguru.com/The-Shack-of-Ellijay-Ellijay"
+      },
+      {
+        "text": "Bistro Ristoro",
+        "href": "https://restaurantguru.com/Bistro-Ristoro-Ottawa"
+      },
+      {
+        "text": "Lan Lamoon Authentic Thai Bistro",
+        "href": "https://restaurantguru.com/Lan-Lamoon-Authentic-Thai-Bistro-South-Daytona"
+      },
+      {
+        "text": "Hostaria del vicolo",
+        "href": "https://restaurantguru.com/Hostaria-del-Vicolo-Sciacca"
+      },
+      {
+        "text": "See more",
+        "href": "https://restaurantguru.com/mass_media_about_us"
+      },
+      {
+        "text": "southwalesargus.co.uk",
+        "href": "https://www.southwalesargus.co.uk/news/24102395.restaurant-guru-2024-newport-indian-restaurant-wins-award/"
+      },
+      {
+        "text": "actu.fr",
+        "href": "https://actu.fr/pays-de-la-loire/chateaubriant_44036/chateaubriant-ce-restaurant-recoit-un-certificat-dexcellence_60716830.html"
+      },
+      {
+        "text": "largsandmillportnews.com",
+        "href": "https://www.largsandmillportnews.com/news/23685616.largs-allegria-italian-eatery-honoured-restaurant-guru/"
+      },
+      {
+        "text": "Pubs & bars near me",
+        "href": "https://restaurantguru.com/pub-and-bar-near-me"
+      },
+      {
+        "text": "Fast food near me",
+        "href": "https://restaurantguru.com/fast-food-near-me"
+      },
+      {
+        "text": "BBQs near me",
+        "href": "https://restaurantguru.com/bbq-near-me"
+      },
+      {
+        "text": "Steakhouses near me",
+        "href": "https://restaurantguru.com/steakhouse-near-me"
+      },
+      {
+        "text": "Chinese food near me",
+        "href": "https://restaurantguru.com/chinese-food-near-me"
+      },
+      {
+        "text": "Thai food near me",
+        "href": "https://restaurantguru.com/thai-food-near-me"
+      },
+      {
+        "text": "Vietnamese food near me",
+        "href": "https://restaurantguru.com/vietnamese-food-near-me"
+      },
+      {
+        "text": "Mexican food near me",
+        "href": "https://restaurantguru.com/mexican-food-near-me"
+      },
+      {
+        "text": "Asian food near me",
+        "href": "https://restaurantguru.com/asian-food-near-me"
+      },
+      {
+        "text": "Indian restaurants near me",
+        "href": "https://restaurantguru.com/indian-restaurants-near-me"
+      },
+      {
+        "text": "Italian restaurants near me",
+        "href": "https://restaurantguru.com/italian-restaurants-near-me"
+      },
+      {
+        "text": "Seafood restaurants near me",
+        "href": "https://restaurantguru.com/seafood-restaurants-near-me"
+      },
+      {
+        "text": "Korean restaurants near me",
+        "href": "https://restaurantguru.com/korean-restaurants-near-me"
+      },
+      {
+        "text": "Japanese restaurants near me",
+        "href": "https://restaurantguru.com/japanese-restaurants-near-me"
+      },
+      {
+        "text": "Pizza near me",
+        "href": "https://restaurantguru.com/pizza-near-me"
+      },
+      {
+        "text": "Sushi near me",
+        "href": "https://restaurantguru.com/sushi-near-me"
+      },
+      {
+        "text": "Burgers near me",
+        "href": "https://restaurantguru.com/burgers-near-me"
+      },
+      {
+        "text": "Coffee near me",
+        "href": "https://restaurantguru.com/coffee-near-me"
+      },
+      {
+        "text": "Salads near me",
+        "href": "https://restaurantguru.com/salads-near-me"
+      },
+      {
+        "text": "Sandwiches near me",
+        "href": "https://restaurantguru.com/sandwiches-near-me"
+      },
+      {
+        "text": "Fried chicken near me",
+        "href": "https://restaurantguru.com/fried-chicken-near-me"
+      },
+      {
+        "text": "Soup near me",
+        "href": "https://restaurantguru.com/soup-near-me"
+      },
+      {
+        "text": "Fish and chips near me",
+        "href": "https://restaurantguru.com/fish-and-chips-near-me"
+      },
+      {
+        "text": "Desserts near me",
+        "href": "https://restaurantguru.com/desserts-near-me"
+      },
+      {
+        "text": "Breakfast near me",
+        "href": "https://restaurantguru.com/breakfast-near-me"
+      },
+      {
+        "text": "Brunch near me",
+        "href": "https://restaurantguru.com/brunch-near-me"
+      },
+      {
+        "text": "Lunch near me",
+        "href": "https://restaurantguru.com/lunch-near-me"
+      },
+      {
+        "text": "Dinner near me",
+        "href": "https://restaurantguru.com/dinner-near-me"
+      },
+      {
+        "text": "Food delivery near me",
+        "href": "https://restaurantguru.com/food-delivery-near-me"
+      },
+      {
+        "text": "Åland Islands",
+        "href": "https://restaurantguru.com/Aland-Islands"
+      },
+      {
+        "text": "Albania",
+        "href": "https://restaurantguru.com/Albania"
+      },
+      {
+        "text": "Andorra",
+        "href": "https://restaurantguru.com/Andorra"
+      },
+      {
+        "text": "Argentina",
+        "href": "https://restaurantguru.com/Argentina"
+      },
+      {
+        "text": "Australia",
+        "href": "https://restaurantguru.com/Australia"
+      },
+      {
+        "text": "Austria",
+        "href": "https://restaurantguru.com/Austria"
+      },
+      {
+        "text": "Belarus",
+        "href": "https://restaurantguru.com/Belarus"
+      },
+      {
+        "text": "Belgium",
+        "href": "https://restaurantguru.com/Belgium"
+      },
+      {
+        "text": "Bosnia and Herzegovina",
+        "href": "https://restaurantguru.com/Bosnia-and-Herzegovina"
+      },
+      {
+        "text": "Brazil",
+        "href": "https://restaurantguru.com/Brazil"
+      },
+      {
+        "text": "Bulgaria",
+        "href": "https://restaurantguru.com/Bulgaria"
+      },
+      {
+        "text": "Canada",
+        "href": "https://restaurantguru.com/Canada"
+      },
+      {
+        "text": "Colombia",
+        "href": "https://restaurantguru.com/Colombia"
+      },
+      {
+        "text": "Croatia",
+        "href": "https://restaurantguru.com/Croatia"
+      },
+      {
+        "text": "Cuba",
+        "href": "https://restaurantguru.com/Cuba"
+      },
+      {
+        "text": "Cyprus",
+        "href": "https://restaurantguru.com/Cyprus"
+      },
+      {
+        "text": "Czech Republic",
+        "href": "https://restaurantguru.com/Czech-Republic"
+      },
+      {
+        "text": "Denmark",
+        "href": "https://restaurantguru.com/Denmark"
+      },
+      {
+        "text": "Dominicana",
+        "href": "https://restaurantguru.com/Dominicana"
+      },
+      {
+        "text": "Egypt",
+        "href": "https://restaurantguru.com/Egypt"
+      },
+      {
+        "text": "Estonia",
+        "href": "https://restaurantguru.com/Estonia"
+      },
+      {
+        "text": "Finland",
+        "href": "https://restaurantguru.com/Finland"
+      },
+      {
+        "text": "France",
+        "href": "https://restaurantguru.com/France"
+      },
+      {
+        "text": "Georgia",
+        "href": "https://restaurantguru.com/Georgia"
+      },
+      {
+        "text": "Germany",
+        "href": "https://restaurantguru.com/Germany"
+      },
+      {
+        "text": "Gibraltar",
+        "href": "https://restaurantguru.com/Gibraltar"
+      },
+      {
+        "text": "Greece",
+        "href": "https://restaurantguru.com/Greece"
+      },
+      {
+        "text": "Hong Kong",
+        "href": "https://restaurantguru.com/Hong-Kong"
+      },
+      {
+        "text": "Hungary",
+        "href": "https://restaurantguru.com/Hungary"
+      },
+      {
+        "text": "Iceland",
+        "href": "https://restaurantguru.com/Iceland"
+      },
+      {
+        "text": "India",
+        "href": "https://restaurant-guru.in"
+      },
+      {
+        "text": "Indonesia",
+        "href": "https://restaurantguru.com/Indonesia"
+      },
+      {
+        "text": "Ireland",
+        "href": "https://restaurantguru.com/Ireland"
+      },
+      {
+        "text": "Israel",
+        "href": "https://restaurantguru.com/Israel"
+      },
+      {
+        "text": "Italy",
+        "href": "https://restaurantguru.com/Italy"
+      },
+      {
+        "text": "Kosovo",
+        "href": "https://restaurantguru.com/Kosovo"
+      },
+      {
+        "text": "Latvia",
+        "href": "https://restaurantguru.com/Latvia"
+      },
+      {
+        "text": "Liechtenstein",
+        "href": "https://restaurantguru.com/Liechtenstein"
+      },
+      {
+        "text": "Lithuania",
+        "href": "https://restaurantguru.com/Lithuania"
+      },
+      {
+        "text": "Luxembourg",
+        "href": "https://restaurantguru.com/Luxembourg"
+      },
+      {
+        "text": "Macedonia",
+        "href": "https://restaurantguru.com/Macedonia-FYROM"
+      },
+      {
+        "text": "Malta",
+        "href": "https://restaurantguru.com/Malta"
+      },
+      {
+        "text": "Mexico",
+        "href": "https://restaurantguru.com/Mexico"
+      },
+      {
+        "text": "Moldova",
+        "href": "https://restaurantguru.com/Moldova"
+      },
+      {
+        "text": "Monaco",
+        "href": "https://restaurantguru.com/Monaco-Ville"
+      },
+      {
+        "text": "Montenegro",
+        "href": "https://restaurantguru.com/Montenegro"
+      },
+      {
+        "text": "Morocco",
+        "href": "https://restaurantguru.com/Morocco"
+      },
+      {
+        "text": "Netherlands",
+        "href": "https://restaurantguru.com/Netherlands"
+      },
+      {
+        "text": "New Zealand",
+        "href": "https://restaurantguru.com/New-Zealand"
+      },
+      {
+        "text": "Norway",
+        "href": "https://restaurantguru.com/Norway"
+      },
+      {
+        "text": "Peru",
+        "href": "https://restaurantguru.com/Peru"
+      },
+      {
+        "text": "Philippines",
+        "href": "https://restaurantguru.com/Philippines"
+      },
+      {
+        "text": "Poland",
+        "href": "https://restaurantguru.com/Poland"
+      },
+      {
+        "text": "Portugal",
+        "href": "https://restaurantguru.com/Portugal"
+      },
+      {
+        "text": "Romania",
+        "href": "https://restaurantguru.com/Romania"
+      },
+      {
+        "text": "Russia",
+        "href": "https://restaurantguru.com/Russia"
+      },
+      {
+        "text": "San Marino",
+        "href": "https://restaurantguru.com/San-Marino"
+      },
+      {
+        "text": "Serbia",
+        "href": "https://restaurantguru.com/Serbia"
+      },
+      {
+        "text": "Slovakia",
+        "href": "https://restaurantguru.com/Slovakia"
+      },
+      {
+        "text": "Slovenia",
+        "href": "https://restaurantguru.com/Slovenia"
+      },
+      {
+        "text": "South Africa",
+        "href": "https://restaurantguru.com/South-Africa"
+      },
+      {
+        "text": "South Korea",
+        "href": "https://restaurantguru.com/South-Korea"
+      },
+      {
+        "text": "Spain",
+        "href": "https://restaurantguru.com/Spain"
+      },
+      {
+        "text": "Sweden",
+        "href": "https://restaurantguru.com/Sweden"
+      },
+      {
+        "text": "Switzerland",
+        "href": "https://restaurantguru.com/Switzerland"
+      },
+      {
+        "text": "Thailand",
+        "href": "https://restaurantguru.com/Thailand"
+      },
+      {
+        "text": "Tunisia",
+        "href": "https://restaurantguru.com/Tunisia"
+      },
+      {
+        "text": "Turkey",
+        "href": "https://restaurantguru.com/Turkey"
+      },
+      {
+        "text": "Ukraine",
+        "href": "https://restaurantguru.com/Ukraine"
+      },
+      {
+        "text": "United Arab Emirates",
+        "href": "https://restaurantguru.com/United-Arab-Emirates"
+      },
+      {
+        "text": "United Kingdom",
+        "href": "https://restaurantguru.com/United-Kingdom"
+      },
+      {
+        "text": "USA",
+        "href": "https://restaurantguru.com/United-States"
+      },
+      {
+        "text": "Vietnam",
+        "href": "https://restaurantguru.com/Vietnam"
+      },
+      {
+        "text": "International,",
+        "href": "https://restaurantguru.com/"
+      },
+      {
+        "text": "Spain,",
+        "href": "https://es.restaurantguru.com/"
+      },
+      {
+        "text": "France,",
+        "href": "https://fr.restaurantguru.com/"
+      },
+      {
+        "text": "Germany,",
+        "href": "https://de.restaurantguru.com/"
+      },
+      {
+        "text": "Italy,",
+        "href": "https://restaurantguru.it/"
+      },
+      {
+        "text": "Portugal,",
+        "href": "https://pt.restaurantguru.com/"
+      },
+      {
+        "text": "Russia,",
+        "href": "https://restaurantguru.ru/"
+      },
+      {
+        "text": "Brazil,",
+        "href": "https://restaurantguru.com.br/"
+      },
+      {
+        "text": "India",
+        "href": "https://restaurant-guru.in/"
+      },
+      {
+        "text": "Restaurant Guru",
+        "href": "https://restaurantguru.com"
+      },
+      {
+        "text": "Contact us",
+        "href": "https://restaurantguru.com/contactus"
+      },
+      {
+        "text": "Request content removal",
+        "href": "https://restaurantguru.com/request_content_removal"
+      },
+      {
+        "text": "About us",
+        "href": "https://restaurantguru.com/aboutus"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "https://restaurantguru.com/privacy_policy"
+      },
+      {
+        "text": "Disclaimer",
+        "href": "https://restaurantguru.com/disclaimer"
+      },
+      {
+        "text": "Help",
+        "href": "https://restaurantguru.com/tutorial"
+      },
+      {
+        "text": "Terms of use",
+        "href": "https://restaurantguru.com/terms_of_use"
+      },
+      {
+        "text": "Cookie policy",
+        "href": "https://restaurantguru.com/cookie_policy"
+      },
+      {
+        "text": "How can I change my choice?",
+        "href": "#"
+      },
+      {
+        "text": "What if I don't consent?",
+        "href": "#"
+      },
+      {
+        "text": "How does legitimate interest work?",
+        "href": "#"
+      },
+      {
+        "text": "Do I have to consent to everything?",
+        "href": "#"
+      },
+      {
+        "text": "141 TCF vendor(s) and 69 ad partner(s)",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "more",
+        "href": "#"
+      },
+      {
+        "text": "View details",
+        "href": "#"
+      },
+      {
+        "text": "Storage details",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "#"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Restaurant Guru",
+        "src": "https://1014042311.rsc.cdn77.org/img/site/responsive/logo_guru_white.svg"
+      },
+      {
+        "alt": "Restaurant Guru",
+        "src": "https://1014042311.rsc.cdn77.org/img/site/new/logo_guru_fixed.svg"
+      },
+      {
+        "alt": "login",
+        "src": "https://1014042311.rsc.cdn77.org/img/site/responsive/user-default.svg"
+      },
+      {
+        "alt": "user",
+        "src": "https://1014042311.rsc.cdn77.org/img/site/responsive/user-default.svg"
+      },
+      {
+        "alt": "Pierre",
+        "src": "/img/pierre_assist/suggestion_Piere.png"
+      },
+      {
+        "alt": "qr_code",
+        "src": "https://1014042311.rsc.cdn77.org/img/site/banner_desktop/banner_desktop__qr.png"
+      },
+      {
+        "alt": "phone",
+        "src": "https://1014042311.rsc.cdn77.org/img/site/banner_desktop/banner_desktop__phone.png"
+      },
+      {
+        "alt": "Amsterdam",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Amstelveen",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Haarlem",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Diemen",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Rotterdam",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "The Hague",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "The biggest pros and cons of living in Amsterdam, the Netherlands",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Top 5 best restaurants in the center of Amsterdam, the Netherlands (updated 2025)",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Best wine bars in Amsterdam, the Netherlands",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Best Michelin-starred dining experience in Amsterdam",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Crazy Things to Do in Amsterdam, the Netherlands",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Salmon tartare with cured yolk – a Spanish specialty",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Vegan cookies with chocolate chips and Oreo",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Lentils coconut green curry stew for veggie lovers",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Vermouth cocktail with orange peel and maraschino cherries",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "Biryani: not as difficult as it might seem in London, UK",
+        "src": "https://1014042311.rsc.cdn77.org/log.gif"
+      },
+      {
+        "alt": "photo",
+        "src": "https://1014042311.rsc.cdn77.org/img/certificates/preview/T2Jsb21vdi1Nb3Njb3c_preview.jpg"
+      },
+      {
+        "alt": "photo",
+        "src": "https://1014042311.rsc.cdn77.org/img/certificates/preview/VGhlLVNoYWNrLW9mLUVsbGlqYXktRWxsaWpheQ_preview.jpg"
+      },
+      {
+        "alt": "photo",
+        "src": "https://1014042311.rsc.cdn77.org/img/certificates/preview/QmlzdHJvLVJpc3Rvcm8tT3R0YXdh_preview.jpg"
+      },
+      {
+        "alt": "instagram",
+        "src": "https://1014042311.rsc.cdn77.org/img/certificates/preview/TGFuLUxhbW9vbi1BdXRoZW50aWMtVGhhaS1CaXN0cm8tU291dGgtRGF5dG9uYQ_preview.jpg"
+      },
+      {
+        "alt": "instagram",
+        "src": "https://1014042311.rsc.cdn77.org/img/certificates/preview/SG9zdGFyaWEtZGVsLVZpY29sby1TY2lhY2Nh_preview.jpg"
+      },
+      {
+        "alt": "Popular Newport takeaway wins award for food delivery",
+        "src": "https://1014042311.rsc.cdn77.org/img/mass-media/logos/argus.svg"
+      },
+      {
+        "alt": "South Wales Argus",
+        "src": "https://1014042311.rsc.cdn77.org/img/mass-media/southwalesargus.jpg"
+      },
+      {
+        "alt": "L'Éclaireur de Châteaubriant",
+        "src": "https://1014042311.rsc.cdn77.org/img/mass-media/logos/actu.svg"
+      },
+      {
+        "alt": "Le Castel Pub de Châteaubriant (Loire-Atlantique) a reçu un certificat d'excellence.",
+        "src": "https://1014042311.rsc.cdn77.org/img/mass-media/chateaubriant.jpg"
+      },
+      {
+        "alt": "Largs and Millport Weekly News",
+        "src": "https://1014042311.rsc.cdn77.org/img/mass-media/logos/landm.svg"
+      },
+      {
+        "alt": "Allegria was hailed by online site Restaurant Guru",
+        "src": "https://1014042311.rsc.cdn77.org/img/mass-media/largsandmillportnews.jpg"
+      },
+      {
+        "alt": "avatar",
+        "src": "https://1014042311.rsc.cdn77.org/img/pierre_assist/chat__avatar_a.gif"
+      },
+      {
+        "alt": "img",
+        "src": "https://restaurantguru.com/log.php?id=9942,8760,8807,9471,9784,9472,6078,8535,9022,8730,8791,7176&r=30776"
+      },
+      {
+        "alt": "",
+        "src": "https://1014042311.rsc.cdn77.org/ads/banner.gif"
+      },
+      {
+        "alt": "Welcome to Restaurant Guru",
+        "src": "https://lh3.googleusercontent.com/fxyO-WlNbb6qLW9IrL-Qam8CNwr3whUoRSfknSy34LyLX-zaD_t9Lw2oFD9ktLK-WSSBz1-joauzmtOkcs_BHoBZZ7DnNJcfncZGAu-Kv-sSwPdaZe6I2w=h60"
+      }
+    ],
+    "timestamp": 1760608811143,
+    "url": "https://restaurantguru.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

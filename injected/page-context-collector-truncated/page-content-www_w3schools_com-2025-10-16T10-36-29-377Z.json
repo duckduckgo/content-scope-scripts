@@ -1,0 +1,4149 @@
+{
+  "url": "https://www.w3schools.com/python/python_for_loops.asp",
+  "extractedAt": "2025-10-16T10:36:29.378Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.w3schools.com/favicon.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.w3schools.com/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.w3schools.com/favicon-32x32.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.w3schools.com/favicon-16x16.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.w3schools.com/safari-pinned-tab.svg",
+        "rel": "mask-icon"
+      }
+    ],
+    "title": "Python For Loops",
+    "metaDescription": "",
+    "content": "# Python For Loops\n  [❮ Previous](python_while_loops.asp) [Next ❯](python_functions.asp)    \n## Python For Loops\n A [for](ref_keyword_for.asp) loop is used for iterating over a sequence (that is either a list, a tuple, a dictionary, a set, or a string).\n This is less like the [for](ref_keyword_for.asp) keyword in other programming languages, and works more like an iterator method as found in other object-orientated programming languages.\n With the [for](ref_keyword_for.asp) loop we can execute a set of statements, once for each item in a list, tuple, set etc.\n  \n### Example[Get your own Python Server](/python/python_server.asp)\n Print each fruit in a fruit list:\n   fruits = [\"apple\", \"banana\", \"cherry\"]\nfor   x in fruits:\n  print(x)   [Try it Yourself »](trypython.asp?filename=demo_for)  The [for](ref_keyword_for.asp) loop does not require an indexing variable to set beforehand.\n    \n## Looping Through a String\n Even strings are iterable objects, they contain a sequence of characters:\n  \n### Example\n Loop through the letters in the word \"banana\":\n   for x in \"banana\":\n print(x)   [Try it Yourself »](trypython.asp?filename=demo_for_string)     \n## The break Statement\n With the [break](ref_keyword_break.asp) statement we can stop the loop before it has looped through all the items:\n  \n### Example\n Exit the loop when x is \"banana\":\n   fruits = [\"apple\", \"banana\", \"cherry\"]\nfor x in fruits:\n print(x)  \n if x ==   \"banana\":\n break\n   [Try it Yourself »](trypython.asp?filename=demo_for_break)   \n### Example\n Exit the loop when x is \"banana\", but this time the break comes before the print:\n   fruits = [\"apple\", \"banana\", \"cherry\"]\nfor x in fruits:\n if x ==   \"banana\":\n break\n print(x)   [Try it Yourself »](trypython.asp?filename=demo_for_break2)       [REMOVE ADS](https://order.w3schools.com/plans)\n   \n## The continue Statement\n With the [continue](ref_keyword_continue.asp) statement we can stop the current iteration of the loop, and continue with the next:\n  \n### Example\n Do not print banana:\n   fruits = [\"apple\", \"banana\", \"cherry\"]\nfor x in fruits:\n if x ==   \"banana\":\n continue\n print(x)   [Try it Yourself »](trypython.asp?filename=demo_for_continue)     \n## The range() Function\n To loop through a set of code a specified number of times, we can use the [range()](ref_func_range.asp) function,\n The [range()](ref_func_range.asp) function returns a sequence of numbers, starting from 0 by default, and increments by 1 (by default), and ends at a specified number.\n  \n### Example\n Using the range() function:\n   for x in range(6):\n  print(x)   [Try it Yourself »](trypython.asp?filename=demo_for_range)   Note that range(6) is not the values of 0 to 6, but the values 0 to 5.\n    The [range()](ref_func_range.asp) function defaults to 0 as a starting value, however it is possible to specify the starting value by adding a parameter: range(2, 6), which means values from 2 to 6 (but not including 6):\n  \n### Example\n Using the start parameter:\n   for x in range(2, 6):\n  print(x)   [Try it Yourself »](trypython.asp?filename=demo_for_range2)  The [range()](ref_func_range.asp) function defaults to increment the sequence by 1, however it is possible to specify the increment value by adding a third parameter: range(2, 30, **3**):\n  \n### Example\n Increment the sequence with 3 (default is 1):\n   for x in range(2, 30, 3):\n  print(x)   [Try it Yourself »](trypython.asp?filename=demo_for_range3)     \n## Else in For Loop\n The [else](ref_keyword_else.asp) keyword in a [for](ref_keyword_for.asp) loop specifies a block of code to be executed when the loop is finished:\n  \n### Example\n Print all numbers from 0 to 5, and print a message when the loop has ended:\n   for x in range(6):\n print(x)\nelse:\n print(\"Finally finished!\")  [Try it Yourself »](trypython.asp?filename=demo_for_else)   **Note:** The [else](ref_keyword_else.asp) block will NOT be executed if the loop is stopped by a [break](ref_keyword_break.asp) statement.\n   \n### Example\n Break the loop when x is 3, and see what happens with the [else](ref_keyword_else.asp) block:\n   for x in range(6):\n if x == 3: break\n print(x)\nelse:\n print(\"Finally finished!\")  [Try it Yourself »](trypython.asp?filename=demo_for_else_break)     \n## Nested Loops\n A nested loop is a loop inside a loop.\n The \"inner loop\" will be executed one time for each iteration of the \"outer loop\":\n  \n### Example\n Print each adjective for every fruit:\n   adj = [\"red\", \"big\", \"tasty\"]\nfruits = [\"apple\", \"banana\", \"cherry\"]\n  \nfor x in adj:\n for y in fruits:\n print(x, y)  [Try it Yourself »](trypython.asp?filename=demo_for_nested)     \n## The pass Statement\n [for](ref_keyword_for.asp) loops cannot be empty, but if you for some reason have a [for](ref_keyword_for.asp) loop with no content, put in the [pass](ref_keyword_pass.asp) statement to avoid getting an error.\n  \n### Example\n   for x in [0, 1, 2]:\n pass  [Try it Yourself »](trypython.asp?filename=demo_for_pass)    \n## Exercise?\nWhat will be the result of the following code:\nfor x in range(3):\n print(x)\n\n0\n1\n20\n1\n2\n31\n2\n3\nSubmit Answer »   [❮ Previous](python_while_loops.asp) [Next ❯](python_functions.asp)      [Sign in to track progress](https://profile.w3schools.com/log-in?redirect_url=https%3A%2F%2Fpathfinder.w3schools.com&origin=https%3A%2F%2Fwww.w3schools.com%2Fpython%2Fpython_for_loops.asp%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue)",
+    "truncated": false,
+    "fullContentLength": 5400,
+    "headings": [
+      {
+        "level": 2,
+        "text": "Tutorials"
+      },
+      {
+        "level": 3,
+        "text": "HTML and CSS"
+      },
+      {
+        "level": 3,
+        "text": "Data Analytics"
+      },
+      {
+        "level": 3,
+        "text": "Web Building"
+      },
+      {
+        "level": 3,
+        "text": "JavaScript"
+      },
+      {
+        "level": 3,
+        "text": "Web Building"
+      },
+      {
+        "level": 3,
+        "text": "Backend"
+      },
+      {
+        "level": 3,
+        "text": "Data Analytics"
+      },
+      {
+        "level": 3,
+        "text": "Web Building"
+      },
+      {
+        "level": 2,
+        "text": "References"
+      },
+      {
+        "level": 3,
+        "text": "HTML and CSS"
+      },
+      {
+        "level": 3,
+        "text": "JavaScript"
+      },
+      {
+        "level": 3,
+        "text": "Backend"
+      },
+      {
+        "level": 2,
+        "text": "Exercises"
+      },
+      {
+        "level": 3,
+        "text": "HTML and CSS"
+      },
+      {
+        "level": 3,
+        "text": "Data Analytics"
+      },
+      {
+        "level": 3,
+        "text": "JavaScript"
+      },
+      {
+        "level": 3,
+        "text": "Backend"
+      },
+      {
+        "level": 3,
+        "text": "Data Analytics"
+      },
+      {
+        "level": 2,
+        "text": "Certificates"
+      },
+      {
+        "level": 3,
+        "text": "HTML and CSS"
+      },
+      {
+        "level": 3,
+        "text": "Data Analytics"
+      },
+      {
+        "level": 3,
+        "text": "Programs"
+      },
+      {
+        "level": 3,
+        "text": "JavaScript"
+      },
+      {
+        "level": 3,
+        "text": "Programs"
+      },
+      {
+        "level": 3,
+        "text": "Programs"
+      },
+      {
+        "level": 3,
+        "text": "Backend"
+      },
+      {
+        "level": 3,
+        "text": "Data Analytics"
+      },
+      {
+        "level": 2,
+        "text": "All Our Services"
+      },
+      {
+        "level": 4,
+        "text": "Free Tutorials"
+      },
+      {
+        "level": 4,
+        "text": "References"
+      },
+      {
+        "level": 4,
+        "text": "Create a Website"
+      },
+      {
+        "level": 4,
+        "text": "Exercises"
+      },
+      {
+        "level": 4,
+        "text": "Quizzes"
+      },
+      {
+        "level": 4,
+        "text": "Get Certified"
+      },
+      {
+        "level": 4,
+        "text": "Log in / Sign Up"
+      },
+      {
+        "level": 4,
+        "text": "My Learning"
+      },
+      {
+        "level": 4,
+        "text": "Upgrade"
+      },
+      {
+        "level": 4,
+        "text": "Where To Start"
+      },
+      {
+        "level": 4,
+        "text": "Code Editor (Try it)"
+      },
+      {
+        "level": 4,
+        "text": "Videos"
+      },
+      {
+        "level": 4,
+        "text": "Templates"
+      },
+      {
+        "level": 4,
+        "text": "Web Hosting"
+      },
+      {
+        "level": 4,
+        "text": "Create a Server"
+      },
+      {
+        "level": 4,
+        "text": "How To's"
+      },
+      {
+        "level": 4,
+        "text": "CSS Framework"
+      },
+      {
+        "level": 4,
+        "text": "Browser Statistics"
+      },
+      {
+        "level": 4,
+        "text": "Typing Speed"
+      },
+      {
+        "level": 4,
+        "text": "Color Picker"
+      },
+      {
+        "level": 4,
+        "text": "Code Game"
+      },
+      {
+        "level": 4,
+        "text": "Newsletter"
+      },
+      {
+        "level": 4,
+        "text": "For Teachers"
+      },
+      {
+        "level": 4,
+        "text": "For Businesses"
+      },
+      {
+        "level": 4,
+        "text": "Contact Us"
+      },
+      {
+        "level": 4,
+        "text": "Emojis Reference"
+      },
+      {
+        "level": 4,
+        "text": "UTF-8 Reference"
+      },
+      {
+        "level": 2,
+        "text": "Python Tutorial"
+      },
+      {
+        "level": 2,
+        "text": "File Handling"
+      },
+      {
+        "level": 2,
+        "text": "Python Modules"
+      },
+      {
+        "level": 2,
+        "text": "Python Matplotlib"
+      },
+      {
+        "level": 2,
+        "text": "Machine Learning"
+      },
+      {
+        "level": 2,
+        "text": "Python DSA"
+      },
+      {
+        "level": 2,
+        "text": "Python MySQL"
+      },
+      {
+        "level": 2,
+        "text": "Python MongoDB"
+      },
+      {
+        "level": 2,
+        "text": "Python Reference"
+      },
+      {
+        "level": 2,
+        "text": "Module Reference"
+      },
+      {
+        "level": 2,
+        "text": "Python How To"
+      },
+      {
+        "level": 2,
+        "text": "Python Examples"
+      },
+      {
+        "level": 1,
+        "text": "Python For Loops"
+      },
+      {
+        "level": 2,
+        "text": "Python For Loops"
+      },
+      {
+        "level": 3,
+        "text": "ExampleGet your own Python Server"
+      },
+      {
+        "level": 2,
+        "text": "Looping Through a String"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 2,
+        "text": "The break Statement"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 2,
+        "text": "The continue Statement"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 2,
+        "text": "The range() Function"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 2,
+        "text": "Else in For Loop"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 2,
+        "text": "Nested Loops"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 2,
+        "text": "The pass Statement"
+      },
+      {
+        "level": 3,
+        "text": "Example"
+      },
+      {
+        "level": 2,
+        "text": "Exercise?What is this?Test your skills by answering a few questions about the topics of this page"
+      },
+      {
+        "level": 4,
+        "text": "COLOR PICKER"
+      },
+      {
+        "level": 2,
+        "text": "Contact Sales"
+      },
+      {
+        "level": 2,
+        "text": "Report Error"
+      },
+      {
+        "level": 5,
+        "text": "Top Tutorials"
+      },
+      {
+        "level": 5,
+        "text": "Top References"
+      },
+      {
+        "level": 5,
+        "text": "Top Examples"
+      },
+      {
+        "level": 5,
+        "text": "Get Certified"
+      },
+      {
+        "level": 1,
+        "text": "We care about your privacy!"
+      },
+      {
+        "level": 3,
+        "text": "Learn more why you are seeing this"
+      }
+    ],
+    "links": [
+      {
+        "text": "Tutorials",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "References",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Exercises",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Certificates",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Menu",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "See More",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "★\n\n        +1",
+        "href": "https://profile.w3schools.com/log-in?redirect_url=https%3A%2F%2Fwww.w3schools.com%2Fpython%2Fpython_for_loops.asp%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Get Certified",
+        "href": "https://campus.w3schools.com/collections/course-catalog"
+      },
+      {
+        "text": "Upgrade",
+        "href": "https://order.w3schools.com/plans"
+      },
+      {
+        "text": "For Teachers",
+        "href": "/academy/index.php"
+      },
+      {
+        "text": "Spaces",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "Get Certified",
+        "href": "https://campus.w3schools.com/collections/course-catalog"
+      },
+      {
+        "text": "Upgrade",
+        "href": "https://order.w3schools.com/plans"
+      },
+      {
+        "text": "For Teachers",
+        "href": "/academy/index.php"
+      },
+      {
+        "text": "Spaces",
+        "href": "https://spaces.w3schools.com/space/"
+      },
+      {
+        "text": "My W3Schools",
+        "href": "https://pathfinder.w3schools.com"
+      },
+      {
+        "text": "Spaces",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "Get Certified",
+        "href": "https://campus.w3schools.com/collections/course-catalog"
+      },
+      {
+        "text": "Plus",
+        "href": "https://order.w3schools.com/plans"
+      },
+      {
+        "text": "Academy",
+        "href": "/academy/index.php"
+      },
+      {
+        "text": "Logout",
+        "href": "https://profile.w3schools.com/logout"
+      },
+      {
+        "text": "",
+        "href": "https://www.linkedin.com/company/w3schools.com/"
+      },
+      {
+        "text": "",
+        "href": "https://discord.com/invite/w3schools"
+      },
+      {
+        "text": "",
+        "href": "https://www.facebook.com/w3schoolscom/"
+      },
+      {
+        "text": "",
+        "href": "https://www.instagram.com/w3schools.com_official/"
+      },
+      {
+        "text": "Learn\n                    HTML",
+        "href": "/html/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/html/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/tags/default.asp"
+      },
+      {
+        "text": "Learn\n                    CSS",
+        "href": "/css/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/css/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/cssref/default.asp"
+      },
+      {
+        "text": "Learn\n                    RWD",
+        "href": "/css/css_rwd_intro.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/css/css_rwd_intro.asp"
+      },
+      {
+        "text": "Learn\n                    Bootstrap",
+        "href": "/bootstrap/bootstrap_ver.asp"
+      },
+      {
+        "text": "Overview",
+        "href": "/bootstrap/bootstrap_ver.asp"
+      },
+      {
+        "text": "Learn\n                    W3.CSS",
+        "href": "/w3css/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/w3css/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/w3css/w3css_references.asp"
+      },
+      {
+        "text": "Learn\n                    Sass",
+        "href": "/sass/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/sass/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/sass/sass_functions_string.asp"
+      },
+      {
+        "text": "Learn\n                    Colors",
+        "href": "/colors/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/colors/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/colors/colors_fs595.asp"
+      },
+      {
+        "text": "Learn\n                    Icons",
+        "href": "/icons/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/icons/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/icons/icons_reference.asp"
+      },
+      {
+        "text": "Learn\n                    SVG",
+        "href": "/graphics/svg_intro.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/graphics/svg_intro.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/graphics/svg_reference.asp"
+      },
+      {
+        "text": "Learn\n                    Canvas",
+        "href": "/graphics/canvas_intro.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/graphics/canvas_intro.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/graphics/canvas_reference.asp"
+      },
+      {
+        "text": "Learn\n                    Graphics",
+        "href": "/graphics/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/graphics/default.asp"
+      },
+      {
+        "text": "Learn\n                    UTF-8 and Emojis",
+        "href": "/charsets/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/charsets/default.asp"
+      },
+      {
+        "text": "Learn\n                    How To",
+        "href": "/howto/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/howto/default.asp"
+      },
+      {
+        "text": "Learn\n                    AI",
+        "href": "/ai/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/ai/default.asp"
+      },
+      {
+        "text": "Learn\n                    Generative AI",
+        "href": "/gen_ai/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/gen_ai/index.php"
+      },
+      {
+        "text": "Learn\n                    ChatGPT-3.5",
+        "href": "/gen_ai/chatgpt-3-5/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/gen_ai/chatgpt-3-5/index.php"
+      },
+      {
+        "text": "Learn\n                    ChatGPT-4",
+        "href": "/gen_ai/chatgpt-4/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/gen_ai/chatgpt-4/index.php"
+      },
+      {
+        "text": "Learn\n                    Google Bard",
+        "href": "/gen_ai/bard/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/gen_ai/bard/index.php"
+      },
+      {
+        "text": "Learn\n                    Machine Learning",
+        "href": "/python/python_ml_getting_started.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/python_ml_getting_started.asp"
+      },
+      {
+        "text": "Learn\n                    DSA",
+        "href": "/dsa/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/dsa/index.php"
+      },
+      {
+        "text": "Learn\n                    Data Science",
+        "href": "/datascience/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/datascience/default.asp"
+      },
+      {
+        "text": "Learn\n                    NumPy",
+        "href": "/python/numpy/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/numpy/default.asp"
+      },
+      {
+        "text": "Learn\n                    Pandas",
+        "href": "/python/pandas/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/pandas/default.asp"
+      },
+      {
+        "text": "Learn\n                    SciPy",
+        "href": "/python/scipy/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/scipy/index.php"
+      },
+      {
+        "text": "Learn\n                    Matplotlib",
+        "href": "/python/matplotlib_intro.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/matplotlib_intro.asp"
+      },
+      {
+        "text": "Learn\n                    Statistics",
+        "href": "/statistics/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/statistics/index.php"
+      },
+      {
+        "text": "Learn\n                    Excel",
+        "href": "/excel/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/excel/index.php"
+      },
+      {
+        "text": "Learn\n                    Google Sheets",
+        "href": "/googlesheets/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/googlesheets/index.php"
+      },
+      {
+        "text": "Create a Website\n                    \n                      HOT!",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "Create a Server\n                    NEW",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "Where To Start",
+        "href": "/where_to_start.asp"
+      },
+      {
+        "text": "Web Templates",
+        "href": "/w3css/w3css_templates.asp"
+      },
+      {
+        "text": "Web Statistics",
+        "href": "/browsers/default.asp"
+      },
+      {
+        "text": "Web Certificates",
+        "href": "https://campus.w3schools.com"
+      },
+      {
+        "text": "Web Development",
+        "href": "/whatis/default.asp"
+      },
+      {
+        "text": "Introduction to Programming",
+        "href": "/programming/index.php"
+      },
+      {
+        "text": "Code Editor",
+        "href": "/tryit/default.asp"
+      },
+      {
+        "text": "Test Your Typing Speed",
+        "href": "/typingspeed/default.asp"
+      },
+      {
+        "text": "Play a Code Game",
+        "href": "/codegame/index.html"
+      },
+      {
+        "text": "Cyber Security",
+        "href": "/cybersecurity/index.php"
+      },
+      {
+        "text": "Accessibility",
+        "href": "/accessibility/index.php"
+      },
+      {
+        "text": "Join our Newsletter",
+        "href": "https://campus.w3schools.com/pages/newsletter"
+      },
+      {
+        "text": "Learn\n                    JavaScript",
+        "href": "/js/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/js/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/jsref/default.asp"
+      },
+      {
+        "text": "Learn\n                    React",
+        "href": "/react/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/react/default.asp"
+      },
+      {
+        "text": "Learn\n                    jQuery",
+        "href": "/jquery/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/jquery/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/jquery/jquery_ref_overview.asp"
+      },
+      {
+        "text": "Learn\n                    Vue",
+        "href": "/vue/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/vue/index.php"
+      },
+      {
+        "text": "Reference",
+        "href": "/vue/vue_ref_builtin-attributes.php"
+      },
+      {
+        "text": "Learn\n                    Angular",
+        "href": "/angular/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/angular/default.asp"
+      },
+      {
+        "text": "Learn\n                    AngularJS",
+        "href": "/angularjs/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/angularjs/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/angularjs/angularjs_ref_directives.asp"
+      },
+      {
+        "text": "Learn\n                    JSON",
+        "href": "/js/js_json_intro.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/js/js_json_intro.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/jsref/jsref_obj_json.asp"
+      },
+      {
+        "text": "Learn\n                    AJAX",
+        "href": "/js/js_ajax_intro.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/js/js_ajax_intro.asp"
+      },
+      {
+        "text": "Learn\n                    AppML",
+        "href": "/appml/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/appml/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/appml/appml_reference.asp"
+      },
+      {
+        "text": "Learn\n                    W3.JS",
+        "href": "/w3js/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/w3js/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/w3js/w3js_references.asp"
+      },
+      {
+        "text": "Create a Website\n                    \n                      HOT!",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "Create a Server\n                    NEW",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "Where To Start",
+        "href": "/where_to_start.asp"
+      },
+      {
+        "text": "Web Templates",
+        "href": "/w3css/w3css_templates.asp"
+      },
+      {
+        "text": "Web Statistics",
+        "href": "/browsers/default.asp"
+      },
+      {
+        "text": "Web Certificates",
+        "href": "https://campus.w3schools.com"
+      },
+      {
+        "text": "Web Development",
+        "href": "/whatis/default.asp"
+      },
+      {
+        "text": "Introduction to Programming",
+        "href": "/programming/index.php"
+      },
+      {
+        "text": "Code Editor",
+        "href": "/tryit/default.asp"
+      },
+      {
+        "text": "Test Your Typing Speed",
+        "href": "/typingspeed/default.asp"
+      },
+      {
+        "text": "Play a Code Game",
+        "href": "/codegame/index.html"
+      },
+      {
+        "text": "Cyber Security",
+        "href": "/cybersecurity/index.php"
+      },
+      {
+        "text": "Accessibility",
+        "href": "/accessibility/index.php"
+      },
+      {
+        "text": "Join our Newsletter",
+        "href": "https://campus.w3schools.com/pages/newsletter"
+      },
+      {
+        "text": "Learn\n                    Python",
+        "href": "/python/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/python/python_reference.asp"
+      },
+      {
+        "text": "Learn\n                    SQL",
+        "href": "/sql/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/sql/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/sql/sql_ref_keywords.asp"
+      },
+      {
+        "text": "Learn\n                    MySQL",
+        "href": "/mysql/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/mysql/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/mysql/mysql_datatypes.asp"
+      },
+      {
+        "text": "Learn\n                    PHP",
+        "href": "/php/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/php/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/php/php_ref_overview.asp"
+      },
+      {
+        "text": "Learn\n                    Java",
+        "href": "/java/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/java/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/java/java_ref_reference.asp"
+      },
+      {
+        "text": "Learn\n                    C",
+        "href": "/c/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/c/index.php"
+      },
+      {
+        "text": "Reference",
+        "href": "/c/c_ref_reference.php"
+      },
+      {
+        "text": "Learn\n                    C++",
+        "href": "/cpp/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/cpp/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/cpp/cpp_ref_reference.asp"
+      },
+      {
+        "text": "Learn\n                    C#",
+        "href": "/cs/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/cs/index.php"
+      },
+      {
+        "text": "Learn\n                    R",
+        "href": "/r/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/r/default.asp"
+      },
+      {
+        "text": "Learn\n                    Kotlin",
+        "href": "/kotlin/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/kotlin/index.php"
+      },
+      {
+        "text": "Learn\n                    Rust",
+        "href": "/rust/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/rust/index.php"
+      },
+      {
+        "text": "Learn\n                    Go",
+        "href": "/go/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/go/index.php"
+      },
+      {
+        "text": "Learn\n                    Django",
+        "href": "/django/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/django/index.php"
+      },
+      {
+        "text": "Reference",
+        "href": "/django/django_ref_template_tags.php"
+      },
+      {
+        "text": "Learn\n                    PostgreSQL",
+        "href": "/postgresql/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/postgresql/index.php"
+      },
+      {
+        "text": "Learn\n                    TypeScript",
+        "href": "/typescript/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/typescript/index.php"
+      },
+      {
+        "text": "Learn\n                    ASP",
+        "href": "/asp/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/asp/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/asp/asp_ref_vbscript_functions.asp"
+      },
+      {
+        "text": "Learn\n                    Node.js",
+        "href": "/nodejs/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/nodejs/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/nodejs/ref_modules.asp"
+      },
+      {
+        "text": "Learn\n                    Raspberry Pi",
+        "href": "/nodejs/nodejs_raspberrypi.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/nodejs/nodejs_raspberrypi.asp"
+      },
+      {
+        "text": "Learn\n                    Git",
+        "href": "/git/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/git/default.asp"
+      },
+      {
+        "text": "Learn\n                    Bash",
+        "href": "/bash/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/bash/index.php"
+      },
+      {
+        "text": "Learn\n                    MongoDB",
+        "href": "/mongodb/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/mongodb/index.php"
+      },
+      {
+        "text": "Learn\n                    XML",
+        "href": "/xml/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/xml/default.asp"
+      },
+      {
+        "text": "Reference",
+        "href": "/xml/dom_nodetype.asp"
+      },
+      {
+        "text": "Learn\n                    AI",
+        "href": "/ai/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/ai/default.asp"
+      },
+      {
+        "text": "Learn\n                    Generative AI",
+        "href": "/gen_ai/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/gen_ai/index.php"
+      },
+      {
+        "text": "Learn\n                    ChatGPT-3.5",
+        "href": "/gen_ai/chatgpt-3-5/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/gen_ai/chatgpt-3-5/index.php"
+      },
+      {
+        "text": "Learn\n                    ChatGPT-4",
+        "href": "/gen_ai/chatgpt-4/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/gen_ai/chatgpt-4/index.php"
+      },
+      {
+        "text": "Learn\n                    Google Bard",
+        "href": "/gen_ai/bard/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/gen_ai/bard/index.php"
+      },
+      {
+        "text": "Learn\n                    Machine Learning",
+        "href": "/python/python_ml_getting_started.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/python_ml_getting_started.asp"
+      },
+      {
+        "text": "Learn\n                    DSA",
+        "href": "/dsa/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/dsa/index.php"
+      },
+      {
+        "text": "Learn\n                    Data Science",
+        "href": "/datascience/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/datascience/default.asp"
+      },
+      {
+        "text": "Learn\n                    NumPy",
+        "href": "/python/numpy/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/numpy/default.asp"
+      },
+      {
+        "text": "Learn\n                    Pandas",
+        "href": "/python/pandas/default.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/pandas/default.asp"
+      },
+      {
+        "text": "Learn\n                    SciPy",
+        "href": "/python/scipy/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/scipy/index.php"
+      },
+      {
+        "text": "Learn\n                    Matplotlib",
+        "href": "/python/matplotlib_intro.asp"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/python/matplotlib_intro.asp"
+      },
+      {
+        "text": "Learn\n                    Statistics",
+        "href": "/statistics/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/statistics/index.php"
+      },
+      {
+        "text": "Learn\n                    Excel",
+        "href": "/excel/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/excel/index.php"
+      },
+      {
+        "text": "Learn\n                    Google Sheets",
+        "href": "/googlesheets/index.php"
+      },
+      {
+        "text": "Tutorial",
+        "href": "/googlesheets/index.php"
+      },
+      {
+        "text": "Create a Website\n                    \n                      HOT!",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "Create a Server\n                    NEW",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "Where To Start",
+        "href": "/where_to_start.asp"
+      },
+      {
+        "text": "Web Templates",
+        "href": "/w3css/w3css_templates.asp"
+      },
+      {
+        "text": "Web Statistics",
+        "href": "/browsers/default.asp"
+      },
+      {
+        "text": "Web Certificates",
+        "href": "https://campus.w3schools.com"
+      },
+      {
+        "text": "Web Development",
+        "href": "/whatis/default.asp"
+      },
+      {
+        "text": "Introduction to Programming",
+        "href": "/programming/index.php"
+      },
+      {
+        "text": "Code Editor",
+        "href": "/tryit/default.asp"
+      },
+      {
+        "text": "Test Your Typing Speed",
+        "href": "/typingspeed/default.asp"
+      },
+      {
+        "text": "Play a Code Game",
+        "href": "/codegame/index.html"
+      },
+      {
+        "text": "Cyber Security",
+        "href": "/cybersecurity/index.php"
+      },
+      {
+        "text": "Accessibility",
+        "href": "/accessibility/index.php"
+      },
+      {
+        "text": "Join our Newsletter",
+        "href": "https://campus.w3schools.com/pages/newsletter"
+      },
+      {
+        "text": "HTML Tags Reference",
+        "href": "/tags/default.asp"
+      },
+      {
+        "text": "CSS Reference",
+        "href": "/cssref/default.asp"
+      },
+      {
+        "text": "W3.CSS Reference",
+        "href": "/w3css/w3css_references.asp"
+      },
+      {
+        "text": "Bootstrap 3 Reference",
+        "href": "/bootstrap/bootstrap_ref_all_classes.asp"
+      },
+      {
+        "text": "Bootstrap 4 Reference",
+        "href": "/bootstrap4/bootstrap_ref_all_classes.asp"
+      },
+      {
+        "text": "Color Names",
+        "href": "/colors/colors_names.asp"
+      },
+      {
+        "text": "Icons Reference",
+        "href": "/icons/default.asp"
+      },
+      {
+        "text": "SVG Reference",
+        "href": "/graphics/svg_reference.asp"
+      },
+      {
+        "text": "Canvas Reference",
+        "href": "/graphics/canvas_reference.asp"
+      },
+      {
+        "text": "Sass Reference",
+        "href": "/sass/sass_functions_string.php"
+      },
+      {
+        "text": "UTF-8 Charset Reference",
+        "href": "/charsets/default.asp"
+      },
+      {
+        "text": "UTF-8 Emojis Reference",
+        "href": "/charsets/ref_emoji_smileys.asp"
+      },
+      {
+        "text": "JavaScript Reference",
+        "href": "/jsref/default.asp"
+      },
+      {
+        "text": "jQuery Reference",
+        "href": "/jquery/jquery_ref_overview.asp"
+      },
+      {
+        "text": "Vue Reference",
+        "href": "/vue/vue_ref_builtin-attributes.php"
+      },
+      {
+        "text": "Angular Reference",
+        "href": "/angular/angularjs_ref_directives.asp"
+      },
+      {
+        "text": "JSON Reference",
+        "href": "/jsref/jsref_obj_json.asp"
+      },
+      {
+        "text": "AppML Reference",
+        "href": "/appml/appml_reference.asp"
+      },
+      {
+        "text": "W3.JS Reference",
+        "href": "/e3js/w3js_references.asp"
+      },
+      {
+        "text": "Python Reference",
+        "href": "/python/python_reference.asp"
+      },
+      {
+        "text": "SQL Reference",
+        "href": "/sql/sql_ref_keywords.asp"
+      },
+      {
+        "text": "MySQL Reference",
+        "href": "/mysql/mysql_datatypes.asp"
+      },
+      {
+        "text": "PHP Reference",
+        "href": "/php/php_ref_overview.asp"
+      },
+      {
+        "text": "Java Reference",
+        "href": "/java/java_ref_reference.asp"
+      },
+      {
+        "text": "C Reference",
+        "href": "/c/c_ref_reference.php"
+      },
+      {
+        "text": "C++ Reference",
+        "href": "/cpp/cpp_ref_reference.asp"
+      },
+      {
+        "text": "Django Reference",
+        "href": "/django/django_ref_template_tags.php"
+      },
+      {
+        "text": "ASP Reference",
+        "href": "/asp/asp_ref_vbscript_functions.asp"
+      },
+      {
+        "text": "Node.js Reference",
+        "href": "/nodejs/ref_modules.asp"
+      },
+      {
+        "text": "XML Reference",
+        "href": "/xml/dom_nodetype.asp"
+      },
+      {
+        "text": "HTML",
+        "href": "/html/html_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/html/html_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/html/html_quiz.asp"
+      },
+      {
+        "text": "CSS",
+        "href": "/css/css_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/css/css_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/css/css_quiz.asp"
+      },
+      {
+        "text": "Bootstrap 3",
+        "href": "/bootstrap/bootstrap_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/bootstrap/bootstrap_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/bootstrap/bootstrap_quiz.asp"
+      },
+      {
+        "text": "Bootstrap 4",
+        "href": "/bootstrap4/bootstrap_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/bootstrap4/bootstrap_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/bootstrap4/bootstrap_quiz.asp"
+      },
+      {
+        "text": "Bootstrap 5",
+        "href": "/bootstrap5/bootstrap_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/bootstrap5/bootstrap_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/bootstrap5/bootstrap_quiz.php"
+      },
+      {
+        "text": "DSA",
+        "href": "/dsa/dsa_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/dsa/dsa_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/dsa/dsa_quiz.php"
+      },
+      {
+        "text": "NumPy",
+        "href": "/python/numpy/numpy_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/python/numpy/numpy_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/python/numpy/numpy_quiz.asp"
+      },
+      {
+        "text": "Pandas",
+        "href": "/python/pandas/pandas_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/python/pandas/pandas_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/python/pandas/pandas_quiz.asp"
+      },
+      {
+        "text": "SciPy",
+        "href": "/python/scipy/scipy_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/python/scipy/scipy_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/python/scipy/scipy_quiz.php"
+      },
+      {
+        "text": "Excel",
+        "href": "/excel/excel_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/excel/excel_exercises.php"
+      },
+      {
+        "text": "What is an Exercise?",
+        "href": "/exercises/index.php"
+      },
+      {
+        "text": "What is a Quiz?",
+        "href": "/quiztest/default.asp"
+      },
+      {
+        "text": "JavaScript",
+        "href": "/js/js_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/js/js_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/js/js_quiz.asp"
+      },
+      {
+        "text": "React",
+        "href": "/react/react_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/react/react_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/react/react_quiz.asp"
+      },
+      {
+        "text": "jQuery",
+        "href": "/jquery/jquery_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/jquery/jquery_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/jquery/jquery_quiz.asp"
+      },
+      {
+        "text": "Vue",
+        "href": "/vue/vue_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/vue/vue_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/vue/vue_quiz.php"
+      },
+      {
+        "text": "Angular",
+        "href": "/angular/angular_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/angular/angular_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/angular/angular_quiz.asp"
+      },
+      {
+        "text": "Python",
+        "href": "/python/python_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/python/python_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/python/python_quiz.asp"
+      },
+      {
+        "text": "SQL",
+        "href": "/sql/sql_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/sql/sql_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/sql/sql_quiz.asp"
+      },
+      {
+        "text": "MySQL",
+        "href": "/mysql/mysql_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/mysql/mysql_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/mysql/mysql_quiz.asp"
+      },
+      {
+        "text": "PHP",
+        "href": "/php/php_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/php/php_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/php/php_quiz.asp"
+      },
+      {
+        "text": "Java",
+        "href": "/java/java_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/java/java_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/java/java_quiz.asp"
+      },
+      {
+        "text": "C",
+        "href": "/c/c_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/c/c_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/c/c_quiz.php"
+      },
+      {
+        "text": "C++",
+        "href": "/cpp/cpp_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/cpp/cpp_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/cpp/cpp_quiz.asp"
+      },
+      {
+        "text": "C#",
+        "href": "/cs/cs_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/cs/cs_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/cs/cs_quiz.php"
+      },
+      {
+        "text": "R",
+        "href": "/r/r_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/r/r_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/r/r_quiz.asp"
+      },
+      {
+        "text": "Kotlin",
+        "href": "/kotlin/kotlin_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/kotlin/kotlin_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/kotlin/kotlin_quiz.php"
+      },
+      {
+        "text": "Django",
+        "href": "/django/django_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/django/django_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/django/django_quiz.php"
+      },
+      {
+        "text": "Node.js",
+        "href": "/nodejs/nodejs_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/nodejs/nodejs_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/nodejs/nodejs_quiz.asp"
+      },
+      {
+        "text": "PostgreSQL",
+        "href": "/postgresql/postgresql_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/postgresql/postgresql_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/postgresql/postgresql_quiz.php"
+      },
+      {
+        "text": "TypeScript",
+        "href": "/typescript/typescript_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/typescript/typescript_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/typescript/typescript_quiz.php"
+      },
+      {
+        "text": "Git",
+        "href": "/git/git_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/git/git_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/git/git_quiz.asp"
+      },
+      {
+        "text": "Bash",
+        "href": "/bash/bash_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/bash/bash_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/bash/bash_quiz.php"
+      },
+      {
+        "text": "Go",
+        "href": "/go/go_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/go/go_exercises.php"
+      },
+      {
+        "text": "MongoDB",
+        "href": "/mongodb/mongodb_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/mongodb/mongodb_exercises.php"
+      },
+      {
+        "text": "DSA",
+        "href": "/dsa/dsa_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/dsa/dsa_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/dsa/dsa_quiz.php"
+      },
+      {
+        "text": "NumPy",
+        "href": "/python/numpy/numpy_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/python/numpy/numpy_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/python/numpy/numpy_quiz.asp"
+      },
+      {
+        "text": "Pandas",
+        "href": "/python/pandas/pandas_exercises.asp"
+      },
+      {
+        "text": "Exercise",
+        "href": "/python/pandas/pandas_exercises.asp"
+      },
+      {
+        "text": "Quiz",
+        "href": "/python/pandas/pandas_quiz.asp"
+      },
+      {
+        "text": "SciPy",
+        "href": "/python/scipy/scipy_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/python/scipy/scipy_exercises.php"
+      },
+      {
+        "text": "Quiz",
+        "href": "/python/scipy/scipy_quiz.php"
+      },
+      {
+        "text": "Excel",
+        "href": "/excel/excel_exercises.php"
+      },
+      {
+        "text": "Exercise",
+        "href": "/excel/excel_exercises.php"
+      },
+      {
+        "text": "What is an Exercise?",
+        "href": "/exercises/index.php"
+      },
+      {
+        "text": "What is a Quiz?",
+        "href": "/quiztest/default.asp"
+      },
+      {
+        "text": "HTML",
+        "href": "https://campus.w3schools.com/collections/certifications/products/html-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/html-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/html-course"
+      },
+      {
+        "text": "CSS",
+        "href": "https://campus.w3schools.com/collections/certifications/products/css-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/css-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/css-course"
+      },
+      {
+        "text": "Bootstrap 3",
+        "href": "https://campus.w3schools.com/collections/certifications/products/bootstrap-3-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/bootstrap-3-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/single-courses/products/bootstrap-course"
+      },
+      {
+        "text": "Bootstrap 4",
+        "href": "https://campus.w3schools.com/collections/certifications/products/bootstrap-4-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/bootstrap-4-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/single-courses/products/bootstrap-4-course"
+      },
+      {
+        "text": "Bootstrap 5",
+        "href": "https://campus.w3schools.com/collections/certifications/products/bootstrap-5-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/bootstrap-5-certificate"
+      },
+      {
+        "text": "DSA",
+        "href": "https://campus.w3schools.com/products/dsa-certification-exam"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/products/dsa-certification-exam"
+      },
+      {
+        "text": "Data Analytics",
+        "href": "https://campus.w3schools.com/products/data-analytics-program"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/products/data-analytics-program"
+      },
+      {
+        "text": "NumPy",
+        "href": "https://campus.w3schools.com/products/numpy-certification-exam"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/products/numpy-certification-exam"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/products/numpy-course"
+      },
+      {
+        "text": "Pandas",
+        "href": "https://campus.w3schools.com/products/pandas-certification-exam"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/products/pandas-certification-exam"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/products/pandas-course"
+      },
+      {
+        "text": "Excel",
+        "href": "https://campus.w3schools.com/products/excel-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/products/excel-certificate"
+      },
+      {
+        "text": "Social Media",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/social-media-marketing-course"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/social-media-marketing-course"
+      },
+      {
+        "text": "What is a Certificate?",
+        "href": "https://campus.w3schools.com"
+      },
+      {
+        "text": "Full Access\n                    \n                      Best Value!",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/w3schools-full-access-course"
+      },
+      {
+        "text": "Front End",
+        "href": "https://campus.w3schools.com/collections/certifications/products/front-end-course"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/front-end-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/front-end-course"
+      },
+      {
+        "text": "Web Dev.",
+        "href": "https://campus.w3schools.com/collections/certifications/products/modern-web-development-certification"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/modern-web-development-certification"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/learn-modern-web-development"
+      },
+      {
+        "text": "Web App",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-application-development-certificates"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-application-development-certificates"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/web-application-development-course"
+      },
+      {
+        "text": "Web Design",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-design-certification"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-design-certification"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/learn-web-design"
+      },
+      {
+        "text": "JavaScript",
+        "href": "https://campus.w3schools.com/collections/certifications/products/javascript-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/javascript-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/javascript-course"
+      },
+      {
+        "text": "React",
+        "href": "https://campus.w3schools.com/collections/certifications/products/react-js-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/react-js-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/react-js-course"
+      },
+      {
+        "text": "jQuery",
+        "href": "https://campus.w3schools.com/collections/certifications/products/jquery-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/jquery-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/jquery-course"
+      },
+      {
+        "text": "Vue",
+        "href": "https://campus.w3schools.com/products/vue-js-certification-exam"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/products/vue-js-certification-exam"
+      },
+      {
+        "text": "Full Access\n                    \n                      Best Value!",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/w3schools-full-access-course"
+      },
+      {
+        "text": "Front End",
+        "href": "https://campus.w3schools.com/collections/certifications/products/front-end-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/front-end-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/front-end-course"
+      },
+      {
+        "text": "Web Dev.",
+        "href": "https://campus.w3schools.com/collections/certifications/products/modern-web-development-certification"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/modern-web-development-certification"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/learn-modern-web-development"
+      },
+      {
+        "text": "Web App",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-application-development-certificates"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-application-development-certificates"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/web-application-development-course"
+      },
+      {
+        "text": "Web Design",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-design-certification"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-design-certification"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/learn-web-design"
+      },
+      {
+        "text": "Full Access\n                    \n                      Best Value!",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/w3schools-full-access-course"
+      },
+      {
+        "text": "Front End",
+        "href": "https://campus.w3schools.com/collections/certifications/products/front-end-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/front-end-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/front-end-course"
+      },
+      {
+        "text": "Web Dev.",
+        "href": "https://campus.w3schools.com/collections/certifications/products/modern-web-development-certification"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/modern-web-development-certification"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/learn-modern-web-development"
+      },
+      {
+        "text": "Web App",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-application-development-certificates"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-application-development-certificates"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/web-application-development-course"
+      },
+      {
+        "text": "Web Design",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-design-certification"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/web-design-certification"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/learn-web-design"
+      },
+      {
+        "text": "Python",
+        "href": "https://campus.w3schools.com/collections/certifications/products/python-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/python-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/python-course"
+      },
+      {
+        "text": "SQL",
+        "href": "https://campus.w3schools.com/collections/certifications/products/sql-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/sql-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/sql-course"
+      },
+      {
+        "text": "MySQL",
+        "href": "https://campus.w3schools.com/collections/certifications/products/mysql-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/mysql-certificate"
+      },
+      {
+        "text": "PHP",
+        "href": "https://campus.w3schools.com/collections/certifications/products/php-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/php-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/php-course"
+      },
+      {
+        "text": "Java",
+        "href": "https://campus.w3schools.com/collections/certifications/products/java-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/java-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/java-course"
+      },
+      {
+        "text": "C",
+        "href": "https://campus.w3schools.com/products/c-certification-exam"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/products/c-certification-exam"
+      },
+      {
+        "text": "C++",
+        "href": "https://campus.w3schools.com/collections/certifications/products/c-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/c-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/c-course-1"
+      },
+      {
+        "text": "C#",
+        "href": "https://campus.w3schools.com/collections/certifications/products/c-certificate-1"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/c-certificate-1"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/c-course"
+      },
+      {
+        "text": "R",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/r-course"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/r-course"
+      },
+      {
+        "text": "Django",
+        "href": "https://campus.w3schools.com/products/django-certification-exam"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/products/django-certification-exam"
+      },
+      {
+        "text": "NodeJS",
+        "href": "https://campus.w3schools.com/products/nodejs-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/products/nodejs-certificate"
+      },
+      {
+        "text": "TypeScript",
+        "href": "https://campus.w3schools.com/collections/certifications/products/typescript-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/typescript-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/products/learn-typescript"
+      },
+      {
+        "text": "XML",
+        "href": "https://campus.w3schools.com/collections/certifications/products/xml-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/xml-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-catalog/products/xml-course"
+      },
+      {
+        "text": "Cyber Security",
+        "href": "https://campus.w3schools.com/collections/certifications/products/cyber-security-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/cyber-security-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/products/cyber-security-course"
+      },
+      {
+        "text": "Accessibility",
+        "href": "https://campus.w3schools.com/collections/certifications/products/accessibility-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/accessibility-certificate"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/products/accessibility-course"
+      },
+      {
+        "text": "DSA",
+        "href": "https://campus.w3schools.com/products/dsa-certification-exam"
+      },
+      {
+        "text": "Exam",
+        "href": "https://campus.w3schools.com/products/dsa-certification-exam"
+      },
+      {
+        "text": "Data Analytics",
+        "href": "https://campus.w3schools.com/products/data-analytics-program"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/products/data-analytics-program"
+      },
+      {
+        "text": "NumPy",
+        "href": "https://campus.w3schools.com/products/numpy-course"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/products/numpy-course"
+      },
+      {
+        "text": "Pandas",
+        "href": "https://campus.w3schools.com/products/pandas-course"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/products/pandas-course"
+      },
+      {
+        "text": "Excel",
+        "href": "https://campus.w3schools.com/products/excel-certificate"
+      },
+      {
+        "text": "Certificate",
+        "href": "https://campus.w3schools.com/products/excel-certificate"
+      },
+      {
+        "text": "Social Media",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/social-media-marketing-course"
+      },
+      {
+        "text": "Course",
+        "href": "https://campus.w3schools.com/collections/course-best-sellers/products/social-media-marketing-course"
+      },
+      {
+        "text": "What is a Certificate?",
+        "href": "https://campus.w3schools.com"
+      },
+      {
+        "text": "Free Tutorials\n                    \n                      Enjoy our free tutorials like millions of other internet\n                      users since 1999",
+        "href": "/tutorials/index.php"
+      },
+      {
+        "text": "References\n                    \n                      Explore our selection of references covering all popular\n                      coding languages",
+        "href": "/references/index.php"
+      },
+      {
+        "text": "Create a Website\n                    \n                      Create your own website with\n                      W3Schools Spaces\n                      - no setup required",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "Exercises\n                    Test your skills with different exercises",
+        "href": "/exercises/index.php"
+      },
+      {
+        "text": "Quizzes\n                    Test yourself with multiple choice questions",
+        "href": "/quiztest/default.asp"
+      },
+      {
+        "text": "Get Certified\n                    Document your knowledge",
+        "href": "https://campus.w3schools.com/collections/certifications"
+      },
+      {
+        "text": "Log in / Sign Up\n                    \n                      Create a\n                      free\n                      W3Schools Account to Improve Your Learning Experience",
+        "href": "https://profile.w3schools.com/sign-up?redirect_url=https%3A%2F%2Fwww.w3schools.com%2Fpython%2Fpython_for_loops.asp%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "My Learning\n                    \n                      Track your learning progress at W3Schools and collect\n                      rewards",
+        "href": "https://profile.w3schools.com/sign-up?redirect_url=https%3A%2F%2Fwww.w3schools.com%2Fpython%2Fpython_for_loops.asp%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Upgrade\n                    \n                      Become a PLUS user and unlock powerful features (ad-free,\n                      hosting, support,..)",
+        "href": "https://order.w3schools.com/plans"
+      },
+      {
+        "text": "Where To Start\n                    \n                      Not sure where you want to start? Follow our guided path",
+        "href": "/where_to_start.asp"
+      },
+      {
+        "text": "Code Editor (Try it)\n                    \n                      With our online code editor, you can edit code and view\n                      the result in your browser",
+        "href": "/tryit/default.asp"
+      },
+      {
+        "text": "Videos\n                    \n                      Learn the basics of HTML in a fun and engaging video\n                      tutorial",
+        "href": "/videos/index.php"
+      },
+      {
+        "text": "Templates\n                    \n                      We have created a bunch of responsive website templates\n                      you can use - for free!",
+        "href": "/w3css/w3css_templates.asp"
+      },
+      {
+        "text": "Web Hosting\n                    \n                      Host your own website, and share it to the world with\n                      W3Schools Spaces",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "Create a Server\n                    \n                      Create your own server using Python, PHP, React.js,\n                      Node.js, Java, C#, etc.",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "How To's\n                    \n                      Large collection of code snippets for HTML, CSS and\n                      JavaScript",
+        "href": "/howto/default.asp"
+      },
+      {
+        "text": "CSS Framework\n                    \n                      Build fast and responsive sites using our free\n                      W3.CSS\n                      framework",
+        "href": "/w3css/default.asp"
+      },
+      {
+        "text": "Browser Statistics\n                    Read long term trends of browser usage",
+        "href": "/browsers/default.asp"
+      },
+      {
+        "text": "Typing Speed\n                    Test your typing speed",
+        "href": "/typingspeed/default.asp"
+      },
+      {
+        "text": "Color Picker\n                    \n                      Use our color picker to find different RGB, HEX and HSL\n                      colors.",
+        "href": "/colors/colors_picker.asp"
+      },
+      {
+        "text": "Code Game\n                    \n                      W3Schools Coding Game! Help the lynx collect pine cones",
+        "href": "/codegame/index.html"
+      },
+      {
+        "text": "Newsletter\n                    \n                      Join our newsletter and get access to exclusive content\n                      every month",
+        "href": "https://campus.w3schools.com/pages/newsletter"
+      },
+      {
+        "text": "For Teachers\n                    \n                      Contact us about W3Schools Academy for educational\n                      institutions",
+        "href": "/academy/index.php"
+      },
+      {
+        "text": "For Businesses\n                    \n                      Contact us about W3Schools Academy for your organization",
+        "href": "/academy/index.php"
+      },
+      {
+        "text": "Emojis Reference\n                    Check out our refererence page with all the emojis supported in HTML\n                      😊",
+        "href": "/charsets/ref_emoji_intro.asp"
+      },
+      {
+        "text": "UTF-8 Reference\n                    Check out our full UTF-8 Character reference",
+        "href": "/charsets/default.asp"
+      },
+      {
+        "text": "",
+        "href": "https://www.linkedin.com/company/w3schools.com/"
+      },
+      {
+        "text": "",
+        "href": "https://discord.com/invite/w3schools"
+      },
+      {
+        "text": "",
+        "href": "https://www.facebook.com/w3schoolscom/"
+      },
+      {
+        "text": "",
+        "href": "https://www.instagram.com/w3schools.com_official/"
+      },
+      {
+        "text": "HTML",
+        "href": "/html/default.asp"
+      },
+      {
+        "text": "CSS",
+        "href": "/css/default.asp"
+      },
+      {
+        "text": "JAVASCRIPT",
+        "href": "/js/default.asp"
+      },
+      {
+        "text": "SQL",
+        "href": "/sql/default.asp"
+      },
+      {
+        "text": "PYTHON",
+        "href": "/python/default.asp"
+      },
+      {
+        "text": "JAVA",
+        "href": "/java/default.asp"
+      },
+      {
+        "text": "PHP",
+        "href": "/php/default.asp"
+      },
+      {
+        "text": "HOW TO",
+        "href": "/howto/default.asp"
+      },
+      {
+        "text": "W3.CSS",
+        "href": "/w3css/default.asp"
+      },
+      {
+        "text": "C",
+        "href": "/c/index.php"
+      },
+      {
+        "text": "C++",
+        "href": "/cpp/default.asp"
+      },
+      {
+        "text": "C#",
+        "href": "/cs/index.php"
+      },
+      {
+        "text": "BOOTSTRAP",
+        "href": "/bootstrap/bootstrap_ver.asp"
+      },
+      {
+        "text": "REACT",
+        "href": "/react/default.asp"
+      },
+      {
+        "text": "MYSQL",
+        "href": "/mysql/default.asp"
+      },
+      {
+        "text": "JQUERY",
+        "href": "/jquery/default.asp"
+      },
+      {
+        "text": "EXCEL",
+        "href": "/excel/index.php"
+      },
+      {
+        "text": "XML",
+        "href": "/xml/default.asp"
+      },
+      {
+        "text": "DJANGO",
+        "href": "/django/index.php"
+      },
+      {
+        "text": "NUMPY",
+        "href": "/python/numpy/default.asp"
+      },
+      {
+        "text": "PANDAS",
+        "href": "/python/pandas/default.asp"
+      },
+      {
+        "text": "NODEJS",
+        "href": "/nodejs/default.asp"
+      },
+      {
+        "text": "DSA",
+        "href": "/dsa/index.php"
+      },
+      {
+        "text": "TYPESCRIPT",
+        "href": "/typescript/index.php"
+      },
+      {
+        "text": "ANGULAR",
+        "href": "/angular/default.asp"
+      },
+      {
+        "text": "ANGULARJS",
+        "href": "/angularjs/default.asp"
+      },
+      {
+        "text": "GIT",
+        "href": "/git/default.asp"
+      },
+      {
+        "text": "POSTGRESQL",
+        "href": "/postgresql/index.php"
+      },
+      {
+        "text": "MONGODB",
+        "href": "/mongodb/index.php"
+      },
+      {
+        "text": "ASP",
+        "href": "/asp/default.asp"
+      },
+      {
+        "text": "AI",
+        "href": "/ai/default.asp"
+      },
+      {
+        "text": "R",
+        "href": "/r/default.asp"
+      },
+      {
+        "text": "GO",
+        "href": "/go/index.php"
+      },
+      {
+        "text": "KOTLIN",
+        "href": "/kotlin/index.php"
+      },
+      {
+        "text": "SASS",
+        "href": "/sass/default.asp"
+      },
+      {
+        "text": "VUE",
+        "href": "/vue/index.php"
+      },
+      {
+        "text": "GEN AI",
+        "href": "/gen_ai/index.php"
+      },
+      {
+        "text": "SCIPY",
+        "href": "/python/scipy/index.php"
+      },
+      {
+        "text": "CYBERSECURITY",
+        "href": "/cybersecurity/index.php"
+      },
+      {
+        "text": "DATA SCIENCE",
+        "href": "/datascience/default.asp"
+      },
+      {
+        "text": "INTRO TO PROGRAMMING",
+        "href": "/programming/index.php"
+      },
+      {
+        "text": "BASH",
+        "href": "/bash/index.php"
+      },
+      {
+        "text": "RUST",
+        "href": "/rust/index.php"
+      },
+      {
+        "text": "Python HOME",
+        "href": "default.asp"
+      },
+      {
+        "text": "Python Intro",
+        "href": "python_intro.asp"
+      },
+      {
+        "text": "Python Get Started",
+        "href": "python_getstarted.asp"
+      },
+      {
+        "text": "Python Syntax",
+        "href": "python_syntax.asp"
+      },
+      {
+        "text": "Syntax",
+        "href": "python_syntax.asp"
+      },
+      {
+        "text": "Statements",
+        "href": "python_statements.asp"
+      },
+      {
+        "text": "Python Output",
+        "href": "python_output.asp"
+      },
+      {
+        "text": "Print Text",
+        "href": "python_output.asp"
+      },
+      {
+        "text": "Print Numbers",
+        "href": "python_output_numbers.asp"
+      },
+      {
+        "text": "Python Comments",
+        "href": "python_comments.asp"
+      },
+      {
+        "text": "Python Variables",
+        "href": "python_variables.asp"
+      },
+      {
+        "text": "Python Variables",
+        "href": "python_variables.asp"
+      },
+      {
+        "text": "Variable Names",
+        "href": "python_variables_names.asp"
+      },
+      {
+        "text": "Assign Multiple Values",
+        "href": "python_variables_multiple.asp"
+      },
+      {
+        "text": "Output Variables",
+        "href": "python_variables_output.asp"
+      },
+      {
+        "text": "Global Variables",
+        "href": "python_variables_global.asp"
+      },
+      {
+        "text": "Variable Exercises",
+        "href": "python_variables_exercises.asp"
+      },
+      {
+        "text": "Python Data Types",
+        "href": "python_datatypes.asp"
+      },
+      {
+        "text": "Python Numbers",
+        "href": "python_numbers.asp"
+      },
+      {
+        "text": "Python Casting",
+        "href": "python_casting.asp"
+      },
+      {
+        "text": "Python Strings",
+        "href": "python_strings.asp"
+      },
+      {
+        "text": "Python Strings",
+        "href": "python_strings.asp"
+      },
+      {
+        "text": "Slicing Strings",
+        "href": "python_strings_slicing.asp"
+      },
+      {
+        "text": "Modify Strings",
+        "href": "python_strings_modify.asp"
+      },
+      {
+        "text": "Concatenate Strings",
+        "href": "python_strings_concatenate.asp"
+      },
+      {
+        "text": "Format Strings",
+        "href": "python_strings_format.asp"
+      },
+      {
+        "text": "Escape Characters",
+        "href": "python_strings_escape.asp"
+      },
+      {
+        "text": "String Methods",
+        "href": "python_strings_methods.asp"
+      },
+      {
+        "text": "String Exercises",
+        "href": "python_strings_exercises.asp"
+      },
+      {
+        "text": "Python Booleans",
+        "href": "python_booleans.asp"
+      },
+      {
+        "text": "Python Operators",
+        "href": "python_operators.asp"
+      },
+      {
+        "text": "Python Lists",
+        "href": "python_lists.asp"
+      },
+      {
+        "text": "Python Lists",
+        "href": "python_lists.asp"
+      },
+      {
+        "text": "Access List Items",
+        "href": "python_lists_access.asp"
+      },
+      {
+        "text": "Change List Items",
+        "href": "python_lists_change.asp"
+      },
+      {
+        "text": "Add List Items",
+        "href": "python_lists_add.asp"
+      },
+      {
+        "text": "Remove List Items",
+        "href": "python_lists_remove.asp"
+      },
+      {
+        "text": "Loop Lists",
+        "href": "python_lists_loop.asp"
+      },
+      {
+        "text": "List Comprehension",
+        "href": "python_lists_comprehension.asp"
+      },
+      {
+        "text": "Sort Lists",
+        "href": "python_lists_sort.asp"
+      },
+      {
+        "text": "Copy Lists",
+        "href": "python_lists_copy.asp"
+      },
+      {
+        "text": "Join Lists",
+        "href": "python_lists_join.asp"
+      },
+      {
+        "text": "List Methods",
+        "href": "python_lists_methods.asp"
+      },
+      {
+        "text": "List Exercises",
+        "href": "python_lists_exercises.asp"
+      },
+      {
+        "text": "Python Tuples",
+        "href": "python_tuples.asp"
+      },
+      {
+        "text": "Python Tuples",
+        "href": "python_tuples.asp"
+      },
+      {
+        "text": "Access Tuples",
+        "href": "python_tuples_access.asp"
+      },
+      {
+        "text": "Update Tuples",
+        "href": "python_tuples_update.asp"
+      },
+      {
+        "text": "Unpack Tuples",
+        "href": "python_tuples_unpack.asp"
+      },
+      {
+        "text": "Loop Tuples",
+        "href": "python_tuples_loop.asp"
+      },
+      {
+        "text": "Join Tuples",
+        "href": "python_tuples_join.asp"
+      },
+      {
+        "text": "Tuple Methods",
+        "href": "python_tuples_methods.asp"
+      },
+      {
+        "text": "Tuple Exercises",
+        "href": "python_tuples_exercises.asp"
+      },
+      {
+        "text": "Python Sets",
+        "href": "python_sets.asp"
+      },
+      {
+        "text": "Python Sets",
+        "href": "python_sets.asp"
+      },
+      {
+        "text": "Access Set Items",
+        "href": "python_sets_access.asp"
+      },
+      {
+        "text": "Add Set Items",
+        "href": "python_sets_add.asp"
+      },
+      {
+        "text": "Remove Set Items",
+        "href": "python_sets_remove.asp"
+      },
+      {
+        "text": "Loop Sets",
+        "href": "python_sets_loop.asp"
+      },
+      {
+        "text": "Join Sets",
+        "href": "python_sets_join.asp"
+      },
+      {
+        "text": "Frozenset",
+        "href": "python_frozenset.asp"
+      },
+      {
+        "text": "Set Methods",
+        "href": "python_sets_methods.asp"
+      },
+      {
+        "text": "Set Exercises",
+        "href": "python_sets_exercises.asp"
+      },
+      {
+        "text": "Python Dictionaries",
+        "href": "python_dictionaries.asp"
+      },
+      {
+        "text": "Python Dictionaries",
+        "href": "python_dictionaries.asp"
+      },
+      {
+        "text": "Access Items",
+        "href": "python_dictionaries_access.asp"
+      },
+      {
+        "text": "Change Items",
+        "href": "python_dictionaries_change.asp"
+      },
+      {
+        "text": "Add Items",
+        "href": "python_dictionaries_add.asp"
+      },
+      {
+        "text": "Remove Items",
+        "href": "python_dictionaries_remove.asp"
+      },
+      {
+        "text": "Loop Dictionaries",
+        "href": "python_dictionaries_loop.asp"
+      },
+      {
+        "text": "Copy Dictionaries",
+        "href": "python_dictionaries_copy.asp"
+      },
+      {
+        "text": "Nested Dictionaries",
+        "href": "python_dictionaries_nested.asp"
+      },
+      {
+        "text": "Dictionary Methods",
+        "href": "python_dictionaries_methods.asp"
+      },
+      {
+        "text": "Dictionary Exercises",
+        "href": "python_dictionaries_exercises.asp"
+      },
+      {
+        "text": "Python If...Else",
+        "href": "python_conditions.asp"
+      },
+      {
+        "text": "Python Match",
+        "href": "python_match.asp"
+      },
+      {
+        "text": "Python While Loops",
+        "href": "python_while_loops.asp"
+      },
+      {
+        "text": "Python For Loops",
+        "href": "python_for_loops.asp"
+      },
+      {
+        "text": "Python Functions",
+        "href": "python_functions.asp"
+      },
+      {
+        "text": "Python Functions",
+        "href": "python_functions.asp"
+      },
+      {
+        "text": "Python Arguments",
+        "href": "python_arguments.asp"
+      },
+      {
+        "text": "Python *args / **kwargs",
+        "href": "python_args_kwargs.asp"
+      },
+      {
+        "text": "Python Scope",
+        "href": "python_scope.asp"
+      },
+      {
+        "text": "Python Decorators",
+        "href": "python_decorators.asp"
+      },
+      {
+        "text": "Python Lambda",
+        "href": "python_lambda.asp"
+      },
+      {
+        "text": "Python Recursion",
+        "href": "python_recursion.asp"
+      },
+      {
+        "text": "Python Generators",
+        "href": "python_generators.asp"
+      },
+      {
+        "text": "Python Range",
+        "href": "python_range.asp"
+      },
+      {
+        "text": "Python Arrays",
+        "href": "python_arrays.asp"
+      },
+      {
+        "text": "Python OOP",
+        "href": "python_oop.asp"
+      },
+      {
+        "text": "Python Classes/Objects",
+        "href": "python_classes.asp"
+      },
+      {
+        "text": "Python Inheritance",
+        "href": "python_inheritance.asp"
+      },
+      {
+        "text": "Python Iterators",
+        "href": "python_iterators.asp"
+      },
+      {
+        "text": "Python Polymorphism",
+        "href": "python_polymorphism.asp"
+      },
+      {
+        "text": "Python Modules",
+        "href": "python_modules.asp"
+      },
+      {
+        "text": "Python Dates",
+        "href": "python_datetime.asp"
+      },
+      {
+        "text": "Python Math",
+        "href": "python_math.asp"
+      },
+      {
+        "text": "Python JSON",
+        "href": "python_json.asp"
+      },
+      {
+        "text": "Python RegEx",
+        "href": "python_regex.asp"
+      },
+      {
+        "text": "Python PIP",
+        "href": "python_pip.asp"
+      },
+      {
+        "text": "Python Try...Except",
+        "href": "python_try_except.asp"
+      },
+      {
+        "text": "Python String Formatting",
+        "href": "python_string_formatting.asp"
+      },
+      {
+        "text": "Python None",
+        "href": "python_none.asp"
+      },
+      {
+        "text": "Python User Input",
+        "href": "python_user_input.asp"
+      },
+      {
+        "text": "Python VirtualEnv",
+        "href": "python_virtualenv.asp"
+      },
+      {
+        "text": "Python File Handling",
+        "href": "python_file_handling.asp"
+      },
+      {
+        "text": "Python Read Files",
+        "href": "python_file_open.asp"
+      },
+      {
+        "text": "Python Write/Create Files",
+        "href": "python_file_write.asp"
+      },
+      {
+        "text": "Python Delete Files",
+        "href": "python_file_remove.asp"
+      },
+      {
+        "text": "NumPy Tutorial",
+        "href": "numpy/default.asp"
+      },
+      {
+        "text": "Pandas Tutorial",
+        "href": "pandas/default.asp"
+      },
+      {
+        "text": "SciPy Tutorial",
+        "href": "scipy/index.php"
+      },
+      {
+        "text": "Django Tutorial",
+        "href": "/django/index.php"
+      },
+      {
+        "text": "Matplotlib Intro",
+        "href": "matplotlib_intro.asp"
+      },
+      {
+        "text": "Matplotlib Get Started",
+        "href": "matplotlib_getting_started.asp"
+      },
+      {
+        "text": "Matplotlib Pyplot",
+        "href": "matplotlib_pyplot.asp"
+      },
+      {
+        "text": "Matplotlib Plotting",
+        "href": "matplotlib_plotting.asp"
+      },
+      {
+        "text": "Matplotlib Markers",
+        "href": "matplotlib_markers.asp"
+      },
+      {
+        "text": "Matplotlib Line",
+        "href": "matplotlib_line.asp"
+      },
+      {
+        "text": "Matplotlib Labels",
+        "href": "matplotlib_labels.asp"
+      },
+      {
+        "text": "Matplotlib Grid",
+        "href": "matplotlib_grid.asp"
+      },
+      {
+        "text": "Matplotlib Subplot",
+        "href": "matplotlib_subplot.asp"
+      },
+      {
+        "text": "Matplotlib Scatter",
+        "href": "matplotlib_scatter.asp"
+      },
+      {
+        "text": "Matplotlib Bars",
+        "href": "matplotlib_bars.asp"
+      },
+      {
+        "text": "Matplotlib Histograms",
+        "href": "matplotlib_histograms.asp"
+      },
+      {
+        "text": "Matplotlib Pie Charts",
+        "href": "matplotlib_pie_charts.asp"
+      },
+      {
+        "text": "Getting Started",
+        "href": "python_ml_getting_started.asp"
+      },
+      {
+        "text": "Mean Median Mode",
+        "href": "python_ml_mean_median_mode.asp"
+      },
+      {
+        "text": "Standard Deviation",
+        "href": "python_ml_standard_deviation.asp"
+      },
+      {
+        "text": "Percentile",
+        "href": "python_ml_percentile.asp"
+      },
+      {
+        "text": "Data Distribution",
+        "href": "python_ml_data_distribution.asp"
+      },
+      {
+        "text": "Normal Data Distribution",
+        "href": "python_ml_normal_data_distribution.asp"
+      },
+      {
+        "text": "Scatter Plot",
+        "href": "python_ml_scatterplot.asp"
+      },
+      {
+        "text": "Linear Regression",
+        "href": "python_ml_linear_regression.asp"
+      },
+      {
+        "text": "Polynomial Regression",
+        "href": "python_ml_polynomial_regression.asp"
+      },
+      {
+        "text": "Multiple Regression",
+        "href": "python_ml_multiple_regression.asp"
+      },
+      {
+        "text": "Scale",
+        "href": "python_ml_scale.asp"
+      },
+      {
+        "text": "Train/Test",
+        "href": "python_ml_train_test.asp"
+      },
+      {
+        "text": "Decision Tree",
+        "href": "python_ml_decision_tree.asp"
+      },
+      {
+        "text": "Confusion Matrix",
+        "href": "python_ml_confusion_matrix.asp"
+      },
+      {
+        "text": "Hierarchical Clustering",
+        "href": "python_ml_hierarchial_clustering.asp"
+      },
+      {
+        "text": "Logistic Regression",
+        "href": "python_ml_logistic_regression.asp"
+      },
+      {
+        "text": "Grid Search",
+        "href": "python_ml_grid_search.asp"
+      },
+      {
+        "text": "Categorical Data",
+        "href": "python_ml_preprocessing.asp"
+      },
+      {
+        "text": "K-means",
+        "href": "python_ml_k-means.asp"
+      },
+      {
+        "text": "Bootstrap Aggregation",
+        "href": "python_ml_bagging.asp"
+      },
+      {
+        "text": "Cross Validation",
+        "href": "python_ml_cross_validation.asp"
+      },
+      {
+        "text": "AUC - ROC Curve",
+        "href": "python_ml_auc_roc.asp"
+      },
+      {
+        "text": "K-nearest neighbors",
+        "href": "python_ml_knn.asp"
+      },
+      {
+        "text": "Python DSA",
+        "href": "python_dsa.asp"
+      },
+      {
+        "text": "Lists and Arrays",
+        "href": "python_dsa_lists.asp"
+      },
+      {
+        "text": "Stacks",
+        "href": "python_dsa_stacks.asp"
+      },
+      {
+        "text": "Queues",
+        "href": "python_dsa_queues.asp"
+      },
+      {
+        "text": "Linked Lists",
+        "href": "python_dsa_linkedlists.asp"
+      },
+      {
+        "text": "Hash Tables",
+        "href": "python_dsa_hashtables.asp"
+      },
+      {
+        "text": "Trees",
+        "href": "python_dsa_trees.asp"
+      },
+      {
+        "text": "Binary Trees",
+        "href": "python_dsa_binarytrees.asp"
+      },
+      {
+        "text": "Binary Search Trees",
+        "href": "python_dsa_binarysearchtrees.asp"
+      },
+      {
+        "text": "AVL Trees",
+        "href": "python_dsa_avltrees.asp"
+      },
+      {
+        "text": "Graphs",
+        "href": "python_dsa_graphs.asp"
+      },
+      {
+        "text": "Linear Search",
+        "href": "python_dsa_linearsearch.asp"
+      },
+      {
+        "text": "Binary Search",
+        "href": "python_dsa_binarysearch.asp"
+      },
+      {
+        "text": "Bubble Sort",
+        "href": "python_dsa_bubblesort.asp"
+      },
+      {
+        "text": "Selection Sort",
+        "href": "python_dsa_selectionsort.asp"
+      },
+      {
+        "text": "Insertion Sort",
+        "href": "python_dsa_insertionsort.asp"
+      },
+      {
+        "text": "Quick Sort",
+        "href": "python_dsa_quicksort.asp"
+      },
+      {
+        "text": "Counting Sort",
+        "href": "python_dsa_countingsort.asp"
+      },
+      {
+        "text": "Radix Sort",
+        "href": "python_dsa_radixsort.asp"
+      },
+      {
+        "text": "Merge Sort",
+        "href": "python_dsa_mergesort.asp"
+      },
+      {
+        "text": "MySQL Get Started",
+        "href": "python_mysql_getstarted.asp"
+      },
+      {
+        "text": "MySQL Create Database",
+        "href": "python_mysql_create_db.asp"
+      },
+      {
+        "text": "MySQL Create Table",
+        "href": "python_mysql_create_table.asp"
+      },
+      {
+        "text": "MySQL Insert",
+        "href": "python_mysql_insert.asp"
+      },
+      {
+        "text": "MySQL Select",
+        "href": "python_mysql_select.asp"
+      },
+      {
+        "text": "MySQL Where",
+        "href": "python_mysql_where.asp"
+      },
+      {
+        "text": "MySQL Order By",
+        "href": "python_mysql_orderby.asp"
+      },
+      {
+        "text": "MySQL Delete",
+        "href": "python_mysql_delete.asp"
+      },
+      {
+        "text": "MySQL Drop Table",
+        "href": "python_mysql_drop_table.asp"
+      },
+      {
+        "text": "MySQL Update",
+        "href": "python_mysql_update.asp"
+      },
+      {
+        "text": "MySQL Limit",
+        "href": "python_mysql_limit.asp"
+      },
+      {
+        "text": "MySQL Join",
+        "href": "python_mysql_join.asp"
+      },
+      {
+        "text": "MongoDB Get Started",
+        "href": "python_mongodb_getstarted.asp"
+      },
+      {
+        "text": "MongoDB Create DB",
+        "href": "python_mongodb_create_db.asp"
+      },
+      {
+        "text": "MongoDB Collection",
+        "href": "python_mongodb_create_collection.asp"
+      },
+      {
+        "text": "MongoDB Insert",
+        "href": "python_mongodb_insert.asp"
+      },
+      {
+        "text": "MongoDB Find",
+        "href": "python_mongodb_find.asp"
+      },
+      {
+        "text": "MongoDB Query",
+        "href": "python_mongodb_query.asp"
+      },
+      {
+        "text": "MongoDB Sort",
+        "href": "python_mongodb_sort.asp"
+      },
+      {
+        "text": "MongoDB Delete",
+        "href": "python_mongodb_delete.asp"
+      },
+      {
+        "text": "MongoDB Drop Collection",
+        "href": "python_mongodb_drop_collection.asp"
+      },
+      {
+        "text": "MongoDB Update",
+        "href": "python_mongodb_update.asp"
+      },
+      {
+        "text": "MongoDB Limit",
+        "href": "python_mongodb_limit.asp"
+      },
+      {
+        "text": "Python Overview",
+        "href": "python_reference.asp"
+      },
+      {
+        "text": "Python Built-in Functions",
+        "href": "python_ref_functions.asp"
+      },
+      {
+        "text": "Python String Methods",
+        "href": "python_ref_string.asp"
+      },
+      {
+        "text": "Python List Methods",
+        "href": "python_ref_list.asp"
+      },
+      {
+        "text": "Python Dictionary Methods",
+        "href": "python_ref_dictionary.asp"
+      },
+      {
+        "text": "Python Tuple Methods",
+        "href": "python_ref_tuple.asp"
+      },
+      {
+        "text": "Python Set Methods",
+        "href": "python_ref_set.asp"
+      },
+      {
+        "text": "Python File Methods",
+        "href": "python_ref_file.asp"
+      },
+      {
+        "text": "Python Keywords",
+        "href": "python_ref_keywords.asp"
+      },
+      {
+        "text": "Python Exceptions",
+        "href": "python_ref_exceptions.asp"
+      },
+      {
+        "text": "Python Glossary",
+        "href": "python_ref_glossary.asp"
+      },
+      {
+        "text": "Built-in Modules",
+        "href": "python_ref_modules.asp"
+      },
+      {
+        "text": "Random Module",
+        "href": "module_random.asp"
+      },
+      {
+        "text": "Requests Module",
+        "href": "module_requests.asp"
+      },
+      {
+        "text": "Statistics Module",
+        "href": "module_statistics.asp"
+      },
+      {
+        "text": "Math Module",
+        "href": "module_math.asp"
+      },
+      {
+        "text": "cMath Module",
+        "href": "module_cmath.asp"
+      },
+      {
+        "text": "Remove List Duplicates",
+        "href": "python_howto_remove_duplicates.asp"
+      },
+      {
+        "text": "Reverse a String",
+        "href": "python_howto_reverse_string.asp"
+      },
+      {
+        "text": "Add Two Numbers",
+        "href": "python_howto_add_two_numbers.asp"
+      },
+      {
+        "text": "Python Examples",
+        "href": "python_examples.asp"
+      },
+      {
+        "text": "Python Compiler",
+        "href": "python_compiler.asp"
+      },
+      {
+        "text": "Python Exercises",
+        "href": "python_exercises.asp"
+      },
+      {
+        "text": "Python Quiz",
+        "href": "python_quiz.asp"
+      },
+      {
+        "text": "Python Server",
+        "href": "python_server.asp"
+      },
+      {
+        "text": "Python Syllabus",
+        "href": "python_syllabus.asp"
+      },
+      {
+        "text": "Python Study Plan",
+        "href": "python_study_plan.asp"
+      },
+      {
+        "text": "Python Interview Q&A",
+        "href": "python_interview_questions.asp"
+      },
+      {
+        "text": "Python Bootcamp",
+        "href": "python_bootcamp.asp"
+      },
+      {
+        "text": "Python Certificate",
+        "href": "python_exam.asp"
+      },
+      {
+        "text": "Python Training",
+        "href": "python_training.asp"
+      },
+      {
+        "text": "❮ Previous",
+        "href": "python_while_loops.asp"
+      },
+      {
+        "text": "Next ❯",
+        "href": "python_functions.asp"
+      },
+      {
+        "text": "for",
+        "href": "ref_keyword_for.asp"
+      },
+      {
+        "text": "for",
+        "href": "ref_keyword_for.asp"
+      },
+      {
+        "text": "for",
+        "href": "ref_keyword_for.asp"
+      },
+      {
+        "text": "Get your own Python Server",
+        "href": "/python/python_server.asp"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for"
+      },
+      {
+        "text": "for",
+        "href": "ref_keyword_for.asp"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_string"
+      },
+      {
+        "text": "break",
+        "href": "ref_keyword_break.asp"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_break"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_break2"
+      },
+      {
+        "text": "REMOVE ADS",
+        "href": "https://order.w3schools.com/plans"
+      },
+      {
+        "text": "continue",
+        "href": "ref_keyword_continue.asp"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_continue"
+      },
+      {
+        "text": "range()",
+        "href": "ref_func_range.asp"
+      },
+      {
+        "text": "range()",
+        "href": "ref_func_range.asp"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_range"
+      },
+      {
+        "text": "range()",
+        "href": "ref_func_range.asp"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_range2"
+      },
+      {
+        "text": "range()",
+        "href": "ref_func_range.asp"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_range3"
+      },
+      {
+        "text": "else",
+        "href": "ref_keyword_else.asp"
+      },
+      {
+        "text": "for",
+        "href": "ref_keyword_for.asp"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_else"
+      },
+      {
+        "text": "else",
+        "href": "ref_keyword_else.asp"
+      },
+      {
+        "text": "break",
+        "href": "ref_keyword_break.asp"
+      },
+      {
+        "text": "else",
+        "href": "ref_keyword_else.asp"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_else_break"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_nested"
+      },
+      {
+        "text": "for",
+        "href": "ref_keyword_for.asp"
+      },
+      {
+        "text": "for",
+        "href": "ref_keyword_for.asp"
+      },
+      {
+        "text": "pass",
+        "href": "ref_keyword_pass.asp"
+      },
+      {
+        "text": "Try it Yourself »",
+        "href": "trypython.asp?filename=demo_for_pass"
+      },
+      {
+        "text": "❮ Previous",
+        "href": "python_while_loops.asp"
+      },
+      {
+        "text": "Next ❯",
+        "href": "python_functions.asp"
+      },
+      {
+        "text": "★\n\n      +1",
+        "href": "https://profile.w3schools.com/log-in?redirect_url=https%3A%2F%2Fwww.w3schools.com%2Fpython%2Fpython_for_loops.asp%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Sign in to track progress",
+        "href": "https://profile.w3schools.com/log-in?redirect_url=https%3A%2F%2Fpathfinder.w3schools.com&origin=https%3A%2F%2Fwww.w3schools.com%2Fpython%2Fpython_for_loops.asp%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "COLOR PICKER",
+        "href": "/colors/colors_picker.asp"
+      },
+      {
+        "text": "REMOVE ADS",
+        "href": "https://order.w3schools.com/plans"
+      },
+      {
+        "text": "PLUS",
+        "href": "/plus/index.php"
+      },
+      {
+        "text": "SPACES",
+        "href": "/spaces/index.php"
+      },
+      {
+        "text": "GET CERTIFIED",
+        "href": "https://campus.w3schools.com/collections/certifications"
+      },
+      {
+        "text": "FOR TEACHERS",
+        "href": "/academy/index.php"
+      },
+      {
+        "text": "FOR BUSINESS",
+        "href": "/academy/index.php"
+      },
+      {
+        "text": "CONTACT US",
+        "href": "javascript:void(0);"
+      },
+      {
+        "text": "HTML Tutorial",
+        "href": "/html/default.asp"
+      },
+      {
+        "text": "CSS Tutorial",
+        "href": "/css/default.asp"
+      },
+      {
+        "text": "JavaScript Tutorial",
+        "href": "/js/default.asp"
+      },
+      {
+        "text": "How To Tutorial",
+        "href": "/howto/default.asp"
+      },
+      {
+        "text": "SQL Tutorial",
+        "href": "/sql/default.asp"
+      },
+      {
+        "text": "Python Tutorial",
+        "href": "/python/default.asp"
+      },
+      {
+        "text": "W3.CSS Tutorial",
+        "href": "/w3css/default.asp"
+      },
+      {
+        "text": "Bootstrap Tutorial",
+        "href": "/bootstrap/bootstrap_ver.asp"
+      },
+      {
+        "text": "PHP Tutorial",
+        "href": "/php/default.asp"
+      },
+      {
+        "text": "Java Tutorial",
+        "href": "/java/default.asp"
+      },
+      {
+        "text": "C++ Tutorial",
+        "href": "/cpp/default.asp"
+      },
+      {
+        "text": "jQuery Tutorial",
+        "href": "/jquery/default.asp"
+      },
+      {
+        "text": "HTML Reference",
+        "href": "/tags/default.asp"
+      },
+      {
+        "text": "CSS Reference",
+        "href": "/cssref/index.php"
+      },
+      {
+        "text": "JavaScript Reference",
+        "href": "/jsref/default.asp"
+      },
+      {
+        "text": "SQL Reference",
+        "href": "/sql/sql_ref_keywords.asp"
+      },
+      {
+        "text": "Python Reference",
+        "href": "/python/python_reference.asp"
+      },
+      {
+        "text": "W3.CSS Reference",
+        "href": "/w3css/w3css_references.asp"
+      },
+      {
+        "text": "Bootstrap Reference",
+        "href": "/bootstrap/bootstrap_ref_all_classes.asp"
+      },
+      {
+        "text": "PHP Reference",
+        "href": "/php/php_ref_overview.asp"
+      },
+      {
+        "text": "HTML Colors",
+        "href": "/colors/colors_names.asp"
+      },
+      {
+        "text": "Java Reference",
+        "href": "/java/java_ref_keywords.asp"
+      },
+      {
+        "text": "AngularJS Reference",
+        "href": "/angularjs/angularjs_ref_directives.asp"
+      },
+      {
+        "text": "jQuery Reference",
+        "href": "/jquery/jquery_ref_overview.asp"
+      },
+      {
+        "text": "HTML Examples",
+        "href": "/html/html_examples.asp"
+      },
+      {
+        "text": "CSS Examples",
+        "href": "/css/css_examples.asp"
+      },
+      {
+        "text": "JavaScript Examples",
+        "href": "/js/js_examples.asp"
+      },
+      {
+        "text": "How To Examples",
+        "href": "/howto/default.asp"
+      },
+      {
+        "text": "SQL Examples",
+        "href": "/sql/sql_examples.asp"
+      },
+      {
+        "text": "Python Examples",
+        "href": "/python/python_examples.asp"
+      },
+      {
+        "text": "W3.CSS Examples",
+        "href": "/w3css/w3css_examples.asp"
+      },
+      {
+        "text": "Bootstrap Examples",
+        "href": "/bootstrap/bootstrap_examples.asp"
+      },
+      {
+        "text": "PHP Examples",
+        "href": "/php/php_examples.asp"
+      },
+      {
+        "text": "Java Examples",
+        "href": "/java/java_examples.asp"
+      },
+      {
+        "text": "XML Examples",
+        "href": "/xml/xml_examples.asp"
+      },
+      {
+        "text": "jQuery Examples",
+        "href": "/jquery/jquery_examples.asp"
+      },
+      {
+        "text": "Get Certified",
+        "href": "https://campus.w3schools.com/collections/course-catalog"
+      },
+      {
+        "text": "HTML Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/html-certificate"
+      },
+      {
+        "text": "CSS Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/css-certificate"
+      },
+      {
+        "text": "JavaScript Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/javascript-certificate"
+      },
+      {
+        "text": "Front End Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/front-end-certificate"
+      },
+      {
+        "text": "SQL Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/sql-certificate"
+      },
+      {
+        "text": "Python Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/python-certificate"
+      },
+      {
+        "text": "PHP Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/php-certificate"
+      },
+      {
+        "text": "jQuery Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/jquery-certificate"
+      },
+      {
+        "text": "Java Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/java-certificate"
+      },
+      {
+        "text": "C++ Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/c-certificate"
+      },
+      {
+        "text": "C# Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/c-certificate-1"
+      },
+      {
+        "text": "XML Certificate",
+        "href": "https://campus.w3schools.com/collections/certifications/products/xml-certificate"
+      },
+      {
+        "text": "",
+        "href": "https://www.linkedin.com/company/w3schools.com/"
+      },
+      {
+        "text": "",
+        "href": "https://discord.com/invite/w3schools"
+      },
+      {
+        "text": "",
+        "href": "https://www.facebook.com/w3schoolscom/"
+      },
+      {
+        "text": "",
+        "href": "https://www.instagram.com/w3schools.com_official/"
+      },
+      {
+        "text": "FORUM",
+        "href": "/forum/default.asp"
+      },
+      {
+        "text": "ABOUT",
+        "href": "/about/default.asp"
+      },
+      {
+        "text": "ACADEMY",
+        "href": "/academy/index.php"
+      },
+      {
+        "text": "terms of use",
+        "href": "/about/about_copyright.asp"
+      },
+      {
+        "text": "cookie and privacy policy",
+        "href": "/about/about_privacy.asp"
+      },
+      {
+        "text": "Copyright 1999-2025",
+        "href": "/about/about_copyright.asp"
+      },
+      {
+        "text": "W3Schools is Powered by W3.CSS",
+        "href": "//www.w3schools.com/w3css/default.asp"
+      },
+      {
+        "text": "EU law",
+        "href": "https://eur-lex.europa.eu/legal-content/EN/TXT/?qid=1528874672298&uri=CELEX%3A32016R0679"
+      },
+      {
+        "text": "privacy policy page",
+        "href": "https://www.w3schools.com/about/about_privacy.asp"
+      }
+    ],
+    "images": [
+      {
+        "alt": "A circular color wheel showing the gradation of colors in the spectrum",
+        "src": "/images/colorpicker2000.png"
+      },
+      {
+        "alt": "Lynx logo",
+        "src": "/signup/lynxlogo.svg"
+      },
+      {
+        "alt": "Get Certified",
+        "src": "/images/img_account_300.jpg"
+      },
+      {
+        "alt": "colorpicker",
+        "src": "/images/colorpicker2000.png"
+      },
+      {
+        "alt": "Website CMP logo",
+        "src": "https://www.w3schools.com/images/w3schools_logo_500_04AA6D.png"
+      }
+    ],
+    "timestamp": 1760610986370,
+    "url": "https://www.w3schools.com/python/python_for_loops.asp?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

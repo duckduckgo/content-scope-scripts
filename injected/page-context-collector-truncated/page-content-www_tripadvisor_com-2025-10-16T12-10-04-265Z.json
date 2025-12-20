@@ -1,0 +1,17 @@
+{
+  "url": "https://www.tripadvisor.com/",
+  "extractedAt": "2025-10-16T12:10:04.265Z",
+  "content": {
+    "favicon": [],
+    "title": "tripadvisor.com",
+    "metaDescription": "",
+    "content": "",
+    "truncated": false,
+    "fullContentLength": 0,
+    "headings": [],
+    "links": [],
+    "images": [],
+    "timestamp": 1760616603897,
+    "url": "https://www.tripadvisor.com/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

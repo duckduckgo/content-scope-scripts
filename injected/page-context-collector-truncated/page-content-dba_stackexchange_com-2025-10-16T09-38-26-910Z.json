@@ -1,0 +1,1145 @@
+{
+  "url": "https://dba.stackexchange.com/questions/1285/how-do-i-list-all-databases-and-tables-using-psql",
+  "extractedAt": "2025-10-16T09:38:26.910Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://cdn.sstatic.net/Sites/dba/Img/favicon.ico?v=fccaf00a9c8c",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://cdn.sstatic.net/Sites/dba/Img/apple-touch-icon.png?v=cdcd5ff7b29e",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "postgresql - How do I list all databases and tables using psql? - Database Administrators Stack Exch...",
+    "metaDescription": "",
+    "content": "# [How do I list all databases and tables using psql?](/questions/1285/how-do-i-list-all-databases-and-tables-using-psql)\n   [Ask Question](/questions/ask)      Asked 14 years, 8 months ago   Modified [2 years ago](?lastactivity)   Viewed 3.4m times               1601               When I log in with psql --username=postgres, how do I list all databases and tables?\n I have tried \\d, d and dS+ but nothing is listed. I have created two databases and a few tables with pgAdmin III, so I know they should be listed.\n     \n\n- [postgresql](/questions/tagged/postgresql)\n\n- [tools](/questions/tagged/tools)\n\n- [psql](/questions/tagged/psql)\n\n- [command-line](/questions/tagged/command-line)\n\n          [Share](/q/1285)   [Improve this question](/posts/1285/edit)    Follow            [edited May 19, 2023 at 22:29](/posts/1285/revisions)       [Mehdi Charife](/users/269726/mehdi-charife)  13111 silver badge1212 bronze badges         asked Feb 17, 2011 at 8:45       [Jonas](/users/106/jonas)  34k2727 gold badges6262 silver badges6464 bronze badges            [Add a comment](#)            \n##  9 Answers  \n      Sorted by:       Highest score (default)   Date modified (newest first)   Date created (oldest first)                  2074                    Please note the following commands:\n \n \n- \\list or \\l: list all databases\n \n- \\c <db name>: connect to a certain database\n \n- \\dt: list all tables in the current database using your search_path\n \n- \\dt *.: list all tables in the current database regardless your search_path\n \n You will never see tables in other databases, these tables aren't visible. You have to connect to the correct database to see its tables (and other objects).\n To switch databases:\n \\connect database_name or \\c database_name\n See the manual about [psql](http://www.postgresql.org/docs/current/interactive/app-psql.html).\n         [Share](/a/1288)   [Improve this answer](/posts/1288/edit)    Follow            [edited Jun 4, 2021 at 9:33](/posts/1288/revisions)       [DimiDak](/users/163180/dimidak)  10333 bronze badges         answered Feb 17, 2011 at 9:36       [Frank Heikens](/users/322/frank-heikens)  24.2k11 gold badge2929 silver badges2020 bronze badges           \n \n- Note you can extend on the \"Informational\" commands to use wildcard searches. Full list of other options can be shown with \\? \\l *somestring* \\dn *somestring* \\dt *somestring* – [Jay](/users/250290/jay) [Commented Nov 9, 2023 at 5:01](#comment648307_1288)\n \n- Can I combine these options, like \\dt and \\df at the same time? Currently I can redirect to a file using \\o then list all I want via several commands, wondering if it can be done in one command. – [Rafs](/users/93601/rafs) [Commented Aug 1, 2024 at 13:40](#comment663669_1288)\n \n   [Add a comment](#)                  530                This lists databases:\n SELECT datname FROM pg_database WHERE datistemplate = false;  This lists tables in the current database\n SELECT table_schema,table_name FROM information_schema.tables ORDER BY table_schema,table_name;          [Share](/a/1304)   [Improve this answer](/posts/1304/edit)    Follow            [edited Jul 21, 2012 at 18:44](/posts/1304/revisions)               answered Feb 17, 2011 at 18:30       [RolandoMySQLDBA](/users/877/rolandomysqldba)  185k3434 gold badges327327 silver badges542542 bronze badges           \n \n- 66 If you start psql with the -E flag, it will display the real query when you use a meta-command. – [Deebster](/users/84501/deebster) [Commented Jan 13, 2016 at 9:03](#comment232687_1304)\n \n   [Add a comment](#)                 157                \n## In Postgresql these terminal commands list the databases available\n el@defiant$ /bin/psql -h localhost --username=pgadmin --list  Or the command stated more simply:\n psql -U pgadmin -l  Those commands print this on the terminal:\n  List of databases Name | Owner | Encoding | Collate | Ctype | Access privileges -----------+----------+----------+-------------+-------------+----------------------- kurz_prod | pgadmin | UTF8 | en_US.UTF-8 | en_US.UTF-8 | pgadmin | pgadmin | UTF8 | en_US.UTF-8 | en_US.UTF-8 | postgres | postgres | UTF8 | en_US.UTF-8 | en_US.UTF-8 | template0 | postgres | UTF8 | en_US.UTF-8 | en_US.UTF-8 | =c/postgres + | | | | | postgres=CTc/postgres template1 | postgres | UTF8 | en_US.UTF-8 | en_US.UTF-8 | =c/postgres + | | | | | postgres=CTc/postgres (5 rows)  These are the available databases.\n \n## In PSQL these commands list the tables available\n You have to specify a database before you can list the tables in that database.\n el@defiant$ psql -U pgadmin -d kurz_prod  This brings you to a psql terminal:\n kurz_prod=#  Use the command \\d meaning show all tables, views, and sequences\n kurz_prod=# \\d  This prints:\n  List of relations Schema | Name | Type | Owner --------+---------+----------+--------- public | mytable | table | pgadmin public | testing | sequence | pgadmin (2 rows)  Then, to exit the psql terminal, type \\q and press enter. Or Ctrl-D does the same thing. These are the tables in that database.\n         [Share](/a/27034)   [Improve this answer](/posts/27034/edit)    Follow            [edited Nov 8, 2013 at 15:34](/posts/27034/revisions)               answered Oct 16, 2012 at 14:51       [Eric Leschinski](/users/14506/eric-leschinski)  1,75111 gold badge1010 silver badges1313 bronze badges            [Add a comment](#)                  87                \\l is also shorthand for \\list. There are quite a few slash commands, which you can list in psql by using \\?.\n         [Share](/a/1294)   [Improve this answer](/posts/1294/edit)    Follow            answered Feb 17, 2011 at 15:00       [Derek Arnold](/users/940/derek-arnold)  1,17666 silver badges44 bronze badges            [Add a comment](#)                 48                To gain more info on database and table list, You can do :\n \\l+ to list databases\n  List of databases Name | Owner | Encoding | Collate | Ctype | Access privileges | Size | Tablespace | Description ------------+----------+----------+-------------+-------------+-----------------------+---------+------------+-------------------------------------------- pgbench | postgres | UTF8 | en_US.UTF-8 | en_US.UTF-8 | | 29 MB | pg_default | postgres | postgres | UTF8 | en_US.UTF-8 | en_US.UTF-8 | | 6073 kB | pg_default | default administrative connection database slonmaster | postgres | UTF8 | en_US.UTF-8 | en_US.UTF-8 | | 1401 MB | movespace | slonslave | postgres | UTF8 | en_US.UTF-8 | en_US.UTF-8 | | 32 MB | pg_default | template0 | postgres | UTF8 | en_US.UTF-8 | en_US.UTF-8 | =c/postgres +| 5785 kB | pg_default | unmodifiable empty database | | | | | postgres=CTc/postgres | | | template1 | postgres | UTF8 | en_US.UTF-8 | en_US.UTF-8 | =c/postgres +| 5985 kB | pg_default | default template for new databases | | | | | postgres=CTc/postgres | | | test | postgres | UTF8 | en_US.UTF-8 | en_US.UTF-8 | | 13 MB | pg_default | (7 rows)  and\n \\d+ to list all tables in current search_path schema in current database.\n test=# \\dn+ --list schemas List of schemas Name | Owner | Access privileges | Description --------+----------+----------------------+------------------------ public | postgres | postgres=UC/postgres+| standard public schema | | =UC/postgres | schema1 | postgres | postgres=UC/postgres+| | | =UC/postgres | (2 row) test=# set search_path to schema1, public; SET test=# \\d+ List of relations Schema | Name | Type | Owner | Size | Description ---------+-----------------+-------+--------------+------------+------------- public | all_units | table | postgres | 0 bytes | public | asset | table | postgres | 16 kB | public | asset_attribute | table | postgres | 8192 bytes | public | food | table | postgres | 48 kB | public | name_log | table | postgres | 8192 bytes | public | outable | table | ordinaryuser | 0 bytes | public | outable2 | table | ordinaryuser | 0 bytes | public | test | table | postgres | 16 kB | public | usr | table | postgres | 5008 kB | schema1 | t1 | table | postgres | 0 bytes | (10 rows)          [Share](/a/76612)   [Improve this answer](/posts/76612/edit)    Follow            [edited Feb 5, 2015 at 12:23](/posts/76612/revisions)               answered Sep 15, 2014 at 19:42       [Soni Harriz](/users/45509/soni-harriz)  1,17099 silver badges66 bronze badges            [Add a comment](#)                 39                From pg_Admin you can simply run the following on your current database and it will get all the tables for the specified schema:\n SELECT * FROM information_schema.tables WHERE table_type = 'BASE TABLE' AND table_schema = 'public' ORDER BY table_type, table_name  This will get you a list of all the permanent tables (generally the tables you're looking for). You can get just the table names if you change the * wildcard to just the table_name. The public table_schema is the default schema for most databases unless your admin has set up a new schema.\n         [Share](/a/29528)   [Improve this answer](/posts/29528/edit)    Follow            [edited Nov 29, 2012 at 17:55](/posts/29528/revisions)       [András Váczi](/users/6219/andr%c3%a1s-v%c3%a1czi)  31.8k1313 gold badges103103 silver badges152152 bronze badges         answered Nov 29, 2012 at 17:44       [Larry W](/users/15754/larry-w)  39933 silver badges22 bronze badges            [Add a comment](#)                 23                It is possible that you have inserted the tables into a schema that is not in your search path, or the default, ie, public and so the tables will no...",
+    "truncated": true,
+    "fullContentLength": 22901,
+    "headings": [
+      {
+        "level": 1,
+        "text": "OR"
+      },
+      {
+        "level": 4,
+        "text": "Stack Exchange Network"
+      },
+      {
+        "level": 3,
+        "text": "current community"
+      },
+      {
+        "level": 3,
+        "text": "your communities"
+      },
+      {
+        "level": 3,
+        "text": "more stack exchange communities"
+      },
+      {
+        "level": 1,
+        "text": "Hang on, you can't upvote just yet."
+      },
+      {
+        "level": 1,
+        "text": "Thanks for your vote!  You now have 5 free votes weekly."
+      },
+      {
+        "level": 1,
+        "text": "How do I list all databases and tables using psql?"
+      },
+      {
+        "level": 2,
+        "text": "9 Answers                                    9"
+      },
+      {
+        "level": 2,
+        "text": "In Postgresql these terminal commands list the databases available"
+      },
+      {
+        "level": 2,
+        "text": "In PSQL these commands list the tables available"
+      },
+      {
+        "level": 2,
+        "text": "<Database>"
+      },
+      {
+        "level": 2,
+        "text": "<Table>"
+      },
+      {
+        "level": 4,
+        "text": "Linked"
+      },
+      {
+        "level": 4,
+        "text": "Related"
+      },
+      {
+        "level": 4,
+        "text": "Hot Network Questions"
+      },
+      {
+        "level": 1,
+        "text": "Subscribe to RSS"
+      },
+      {
+        "level": 1,
+        "text": "Why are you flagging this comment?"
+      },
+      {
+        "level": 5,
+        "text": "Database Administrators"
+      },
+      {
+        "level": 5,
+        "text": "Company"
+      },
+      {
+        "level": 5,
+        "text": "Stack Exchange Network"
+      },
+      {
+        "level": 2,
+        "text": "We Care About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "We and our partners perform the following based on your settings:"
+      },
+      {
+        "level": 2,
+        "text": "About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "Manage Consent Preferences"
+      },
+      {
+        "level": 4,
+        "text": "Strictly Necessary Cookies 246 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Deliver and present advertising and content 183 partners can use this special purpose"
+      },
+      {
+        "level": 5,
+        "text": "Ensure security, prevent and detect fraud, and fix errors 190 partners can use this special purpose"
+      },
+      {
+        "level": 5,
+        "text": "Identify devices based on information transmitted automatically 173 partners can use this feature"
+      },
+      {
+        "level": 4,
+        "text": "Functional Cookies 183 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use precise geolocation data 81 partners can use this special feature"
+      },
+      {
+        "level": 5,
+        "text": "Actively scan device characteristics for identification 37 partners can use this special feature"
+      },
+      {
+        "level": 5,
+        "text": "Link different devices 139 partners can use this feature"
+      },
+      {
+        "level": 4,
+        "text": "Performance Cookies 270 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Store and/or access information on a device 249 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Develop and improve services 187 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Measure content performance 100 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Measure advertising performance 235 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Targeting Cookies 250 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Understand audiences through statistics or combinations of data from different sources 150 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Create profiles to personalise content 80 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use limited data to select content 40 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use limited data to select advertising 216 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Create profiles for personalised advertising 195 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use profiles to select personalised advertising 192 partners can use this purpose"
+      },
+      {
+        "level": 5,
+        "text": "Use profiles to select personalised content 71 partners can use this purpose"
+      },
+      {
+        "level": 4,
+        "text": "Save and communicate privacy choices 148 partners can use this special purpose"
+      },
+      {
+        "level": 3,
+        "text": "Vendors List"
+      }
+    ],
+    "links": [
+      {
+        "text": "terms of service",
+        "href": "/legal/terms-of-service/public"
+      },
+      {
+        "text": "privacy policy",
+        "href": "/legal/privacy-policy"
+      },
+      {
+        "text": "Log in",
+        "href": "/users/login"
+      },
+      {
+        "text": "Skip to main content",
+        "href": "#content"
+      },
+      {
+        "text": "Stack Overflow",
+        "href": "https://stackoverflow.com"
+      },
+      {
+        "text": "Visit Stack Exchange",
+        "href": "https://stackexchange.com"
+      },
+      {
+        "text": "Tour\n                                    \n                                        Start here for a quick overview of the site",
+        "href": "/tour"
+      },
+      {
+        "text": "Help Center\n                                \n                                    Detailed answers to any questions you might have",
+        "href": "/help"
+      },
+      {
+        "text": "Meta\n                                            \n                                                Discuss the workings and policies of this site",
+        "href": "https://dba.meta.stackexchange.com"
+      },
+      {
+        "text": "About Us\n                                        \n                                            Learn more about Stack Overflow the company, and our products",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "current community",
+        "href": "https://dba.stackexchange.com"
+      },
+      {
+        "text": "Database Administrators",
+        "href": "https://dba.stackexchange.com"
+      },
+      {
+        "text": "help",
+        "href": "https://dba.stackexchange.com/help"
+      },
+      {
+        "text": "chat",
+        "href": "https://chat.stackexchange.com/?tab=all&sort=active"
+      },
+      {
+        "text": "Database Administrators Meta",
+        "href": "https://dba.meta.stackexchange.com"
+      },
+      {
+        "text": "Sign up",
+        "href": "https://dba.stackexchange.com/users/signup?ssrc=site_switcher&returnurl=https%3a%2f%2fdba.stackexchange.com%2fquestions%2f1285%2fhow-do-i-list-all-databases-and-tables-using-psql%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "log in",
+        "href": "https://dba.stackexchange.com/users/login?ssrc=site_switcher&returnurl=https%3a%2f%2fdba.stackexchange.com%2fquestions%2f1285%2fhow-do-i-list-all-databases-and-tables-using-psql%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "more stack exchange communities",
+        "href": "https://stackexchange.com/sites"
+      },
+      {
+        "text": "company blog",
+        "href": "https://stackoverflow.blog"
+      },
+      {
+        "text": "Log in",
+        "href": "https://dba.stackexchange.com/users/login?ssrc=head&returnurl=https%3a%2f%2fdba.stackexchange.com%2fquestions%2f1285%2fhow-do-i-list-all-databases-and-tables-using-psql%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "Sign up",
+        "href": "https://dba.stackexchange.com/users/signup?ssrc=head&returnurl=https%3a%2f%2fdba.stackexchange.com%2fquestions%2f1285%2fhow-do-i-list-all-databases-and-tables-using-psql%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "Home",
+        "href": "/"
+      },
+      {
+        "text": "Questions",
+        "href": "/questions"
+      },
+      {
+        "text": "Unanswered",
+        "href": "/unanswered"
+      },
+      {
+        "text": "AI Assist\nLabs",
+        "href": "https://stackoverflow.ai"
+      },
+      {
+        "text": "Tags",
+        "href": "/tags"
+      },
+      {
+        "text": "Chat",
+        "href": "https://chat.stackexchange.com/rooms/158962/stack-exchange-lobby"
+      },
+      {
+        "text": "Users",
+        "href": "/users"
+      },
+      {
+        "text": "Companies",
+        "href": "https://stackoverflow.com/jobs/companies?so_medium=dba&so_source=SiteNav"
+      },
+      {
+        "text": "Try Teams for free",
+        "href": "https://stackoverflowteams.com/teams/create/free/?utm_medium=referral&utm_source=dba-community&utm_campaign=side-bar&utm_content=explore-teams"
+      },
+      {
+        "text": "Explore Teams",
+        "href": "https://stackoverflow.co/teams/?utm_medium=referral&utm_source=dba-community&utm_campaign=side-bar&utm_content=explore-teams"
+      },
+      {
+        "text": "Teams",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Explore Teams",
+        "href": "https://stackoverflow.co/teams/?utm_medium=referral&utm_source=dba-community&utm_campaign=side-bar&utm_content=explore-teams-compact"
+      },
+      {
+        "text": "Learn more about Teams",
+        "href": "https://stackoverflow.co/teams/"
+      },
+      {
+        "text": "What's reputation and how do I get it?",
+        "href": "https://stackoverflow.com/help/whats-reputation"
+      },
+      {
+        "text": "earn reputation",
+        "href": "https://dba.stackexchange.com/help/whats-reputation"
+      },
+      {
+        "text": "How do I list all databases and tables using psql?",
+        "href": "/questions/1285/how-do-i-list-all-databases-and-tables-using-psql"
+      },
+      {
+        "text": "Ask Question",
+        "href": "/questions/ask"
+      },
+      {
+        "text": "2 years ago",
+        "href": "?lastactivity"
+      },
+      {
+        "text": "postgresql",
+        "href": "/questions/tagged/postgresql"
+      },
+      {
+        "text": "tools",
+        "href": "/questions/tagged/tools"
+      },
+      {
+        "text": "psql",
+        "href": "/questions/tagged/psql"
+      },
+      {
+        "text": "command-line",
+        "href": "/questions/tagged/command-line"
+      },
+      {
+        "text": "Share",
+        "href": "/q/1285"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this question",
+        "href": "/posts/1285/edit"
+      },
+      {
+        "text": "edited May 19, 2023 at 22:29",
+        "href": "/posts/1285/revisions"
+      },
+      {
+        "text": "Mehdi Charife",
+        "href": "/users/269726/mehdi-charife"
+      },
+      {
+        "text": "Jonas",
+        "href": "/users/106/jonas"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Reset to default",
+        "href": "/questions/1285/how-do-i-list-all-databases-and-tables-using-psql?answertab=scoredesc#tab-top"
+      },
+      {
+        "text": "psql",
+        "href": "http://www.postgresql.org/docs/current/interactive/app-psql.html"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1288"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1288/edit"
+      },
+      {
+        "text": "edited Jun 4, 2021 at 9:33",
+        "href": "/posts/1288/revisions"
+      },
+      {
+        "text": "DimiDak",
+        "href": "/users/163180/dimidak"
+      },
+      {
+        "text": "Frank Heikens",
+        "href": "/users/322/frank-heikens"
+      },
+      {
+        "text": "Jay",
+        "href": "/users/250290/jay"
+      },
+      {
+        "text": "Commented\n                    Nov 9, 2023 at 5:01",
+        "href": "#comment648307_1288"
+      },
+      {
+        "text": "Rafs",
+        "href": "/users/93601/rafs"
+      },
+      {
+        "text": "Commented\n                    Aug 1, 2024 at 13:40",
+        "href": "#comment663669_1288"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1304"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1304/edit"
+      },
+      {
+        "text": "edited Jul 21, 2012 at 18:44",
+        "href": "/posts/1304/revisions"
+      },
+      {
+        "text": "RolandoMySQLDBA",
+        "href": "/users/877/rolandomysqldba"
+      },
+      {
+        "text": "Deebster",
+        "href": "/users/84501/deebster"
+      },
+      {
+        "text": "Commented\n                    Jan 13, 2016 at 9:03",
+        "href": "#comment232687_1304"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/27034"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/27034/edit"
+      },
+      {
+        "text": "edited Nov 8, 2013 at 15:34",
+        "href": "/posts/27034/revisions"
+      },
+      {
+        "text": "Eric Leschinski",
+        "href": "/users/14506/eric-leschinski"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/1294"
+      },
+      {
+        "text": "CC BY-SA 2.5",
+        "href": "https://creativecommons.org/licenses/by-sa/2.5/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/1294/edit"
+      },
+      {
+        "text": "Derek Arnold",
+        "href": "/users/940/derek-arnold"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/76612"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/76612/edit"
+      },
+      {
+        "text": "edited Feb 5, 2015 at 12:23",
+        "href": "/posts/76612/revisions"
+      },
+      {
+        "text": "Soni Harriz",
+        "href": "/users/45509/soni-harriz"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/29528"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/29528/edit"
+      },
+      {
+        "text": "edited Nov 29, 2012 at 17:55",
+        "href": "/posts/29528/revisions"
+      },
+      {
+        "text": "András Váczi",
+        "href": "/users/6219/andr%c3%a1s-v%c3%a1czi"
+      },
+      {
+        "text": "Larry W",
+        "href": "/users/15754/larry-w"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Share",
+        "href": "/a/34419"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/34419/edit"
+      },
+      {
+        "text": "edited Apr 3, 2014 at 14:48",
+        "href": "/posts/34419/revisions"
+      },
+      {
+        "text": "John Powell",
+        "href": "/users/1997/john-powell"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "here",
+        "href": "https://www.postgresql.org/docs/current/app-psql.html"
+      },
+      {
+        "text": "manual",
+        "href": "https://www.postgresql.org/docs/current/app-psql.html"
+      },
+      {
+        "text": "Share",
+        "href": "/a/323451"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/323451/edit"
+      },
+      {
+        "text": "edited Feb 14, 2023 at 13:26",
+        "href": "/posts/323451/revisions"
+      },
+      {
+        "text": "Vérace",
+        "href": "/users/34007/v%c3%a9race"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "public",
+        "href": "https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PUBLIC"
+      },
+      {
+        "text": "Share",
+        "href": "/a/331504"
+      },
+      {
+        "text": "CC BY-SA 4.0",
+        "href": "https://creativecommons.org/licenses/by-sa/4.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/331504/edit"
+      },
+      {
+        "text": "edited Sep 26, 2023 at 13:02",
+        "href": "/posts/331504/revisions"
+      },
+      {
+        "text": "Super Kai - Kazuya Ito",
+        "href": "/users/260203/super-kai-kazuya-ito"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Protected question",
+        "href": "/help/privileges/protect-questions"
+      },
+      {
+        "text": "association bonus",
+        "href": "https://meta.stackexchange.com/questions/141648/what-is-the-association-bonus-and-how-does-it-work"
+      },
+      {
+        "text": "Ask question",
+        "href": "/questions/ask"
+      },
+      {
+        "text": "postgresql",
+        "href": "/questions/tagged/postgresql"
+      },
+      {
+        "text": "tools",
+        "href": "/questions/tagged/tools"
+      },
+      {
+        "text": "psql",
+        "href": "/questions/tagged/psql"
+      },
+      {
+        "text": "command-line",
+        "href": "/questions/tagged/command-line"
+      },
+      {
+        "text": "AI agents for your digital chores",
+        "href": "https://stackoverflow.blog/2025/10/14/ai-agents-for-your-digital-chores/?cb=1"
+      },
+      {
+        "text": "Secure coding in JavaScript",
+        "href": "https://stackoverflow.blog/2025/10/15/secure-coding-in-javascript/?cb=1"
+      },
+      {
+        "text": "A First Look: Stack Overflow Redesign",
+        "href": "https://meta.stackexchange.com/questions/412992/a-first-look-stack-overflow-redesign?cb=1"
+      },
+      {
+        "text": "Community Asks Sprint Announcement - October/November 2025",
+        "href": "https://meta.stackexchange.com/questions/413210/community-asks-sprint-announcement-october-november-2025?cb=1"
+      },
+      {
+        "text": "-2",
+        "href": "https://dba.stackexchange.com/questions/108282/how-can-i-get-list-of-postgresql-database-through-php-or-using-just-sql-query?lq=1"
+      },
+      {
+        "text": "How can i get list of postgresql database through php or using just sql query?",
+        "href": "https://dba.stackexchange.com/questions/108282/how-can-i-get-list-of-postgresql-database-through-php-or-using-just-sql-query?noredirect=1&lq=1"
+      },
+      {
+        "text": "10",
+        "href": "https://dba.stackexchange.com/questions/95880/display-only-table-names-with-psql?lq=1"
+      },
+      {
+        "text": "Display only table names with psql",
+        "href": "https://dba.stackexchange.com/questions/95880/display-only-table-names-with-psql?noredirect=1&lq=1"
+      },
+      {
+        "text": "4",
+        "href": "https://dba.stackexchange.com/questions/73493/how-do-i-list-all-databases-and-tables-using-psql-in-a-pipable-format?lq=1"
+      },
+      {
+        "text": "How do I list all databases and tables using psql in a pipable format?",
+        "href": "https://dba.stackexchange.com/questions/73493/how-do-i-list-all-databases-and-tables-using-psql-in-a-pipable-format?noredirect=1&lq=1"
+      },
+      {
+        "text": "4",
+        "href": "https://dba.stackexchange.com/questions/15836/psql-wont-list-databases?rq=1"
+      },
+      {
+        "text": "psql won't list databases",
+        "href": "https://dba.stackexchange.com/questions/15836/psql-wont-list-databases?rq=1"
+      },
+      {
+        "text": "6",
+        "href": "https://dba.stackexchange.com/questions/49139/psql-getting-a-list-of-databases-to-be-parsed-by-a-script?rq=1"
+      },
+      {
+        "text": "psql, getting a list of databases to be parsed by a script",
+        "href": "https://dba.stackexchange.com/questions/49139/psql-getting-a-list-of-databases-to-be-parsed-by-a-script?rq=1"
+      },
+      {
+        "text": "1",
+        "href": "https://dba.stackexchange.com/questions/75444/reset-password-for-postgres-on-v9-3-win-srv?rq=1"
+      },
+      {
+        "text": "Reset password for 'postgres' on v9.3 (Win Srv)",
+        "href": "https://dba.stackexchange.com/questions/75444/reset-password-for-postgres-on-v9-3-win-srv?rq=1"
+      },
+      {
+        "text": "2",
+        "href": "https://dba.stackexchange.com/questions/136585/is-it-possible-to-tell-when-databases-schemas-and-tables-were-created-in-postgr?rq=1"
+      },
+      {
+        "text": "Is it possible to tell when databases, schemas and tables were created in Postgres?",
+        "href": "https://dba.stackexchange.com/questions/136585/is-it-possible-to-tell-when-databases-schemas-and-tables-were-created-in-postgr?rq=1"
+      },
+      {
+        "text": "6",
+        "href": "https://dba.stackexchange.com/questions/221209/grant-all-on-all-tables-in-schema-does-not-allow-user-to-see-tables?rq=1"
+      },
+      {
+        "text": "GRANT ALL ON ALL TABLES IN SCHEMA does not allow user to see tables",
+        "href": "https://dba.stackexchange.com/questions/221209/grant-all-on-all-tables-in-schema-does-not-allow-user-to-see-tables?rq=1"
+      },
+      {
+        "text": "0",
+        "href": "https://dba.stackexchange.com/questions/298091/psql-on-wsl-not-listing-all-databases-for-owner-postgres?rq=1"
+      },
+      {
+        "text": "psql on WSL: Not listing all databases for owner postgres",
+        "href": "https://dba.stackexchange.com/questions/298091/psql-on-wsl-not-listing-all-databases-for-owner-postgres?rq=1"
+      },
+      {
+        "text": "0",
+        "href": "https://dba.stackexchange.com/questions/303234/postgres-list-only-users-database-and-keep-other-hidden?rq=1"
+      },
+      {
+        "text": "Postgres list only user's database and keep other hidden?",
+        "href": "https://dba.stackexchange.com/questions/303234/postgres-list-only-users-database-and-keep-other-hidden?rq=1"
+      },
+      {
+        "text": "0",
+        "href": "https://dba.stackexchange.com/questions/314644/in-postgres-12-how-do-i-set-a-default-schema-when-logging-in-using-psql?rq=1"
+      },
+      {
+        "text": "In Postgres 12, how do I set a default schema when logging in using psql?",
+        "href": "https://dba.stackexchange.com/questions/314644/in-postgres-12-how-do-i-set-a-default-schema-when-logging-in-using-psql?rq=1"
+      },
+      {
+        "text": "Hot Network Questions",
+        "href": "https://stackexchange.com/questions?tab=hot"
+      },
+      {
+        "text": "Stack memory in a freestanding environment",
+        "href": "https://stackoverflow.com/questions/79790059/stack-memory-in-a-freestanding-environment"
+      },
+      {
+        "text": "Angle between lines on pentagons",
+        "href": "https://puzzling.stackexchange.com/questions/133594/angle-between-lines-on-pentagons"
+      },
+      {
+        "text": "Old series on Netflix or Amazon, boys find metal cylinder partially buried",
+        "href": "https://scifi.stackexchange.com/questions/299604/old-series-on-netflix-or-amazon-boys-find-metal-cylinder-partially-buried"
+      },
+      {
+        "text": "Is Tauriel in any of Tolkien's actual writings?",
+        "href": "https://literature.stackexchange.com/questions/29873/is-tauriel-in-any-of-tolkiens-actual-writings"
+      },
+      {
+        "text": "What statistical test do you use when analysing relation height and species abundance over time [BIOLOGICAL DATA]",
+        "href": "https://stats.stackexchange.com/questions/670777/what-statistical-test-do-you-use-when-analysing-relation-height-and-species-abun"
+      },
+      {
+        "text": "Low power draw voltage limiter for small solar cell project?",
+        "href": "https://electronics.stackexchange.com/questions/757111/low-power-draw-voltage-limiter-for-small-solar-cell-project"
+      },
+      {
+        "text": "Why did my fudge turn out taffy-like?",
+        "href": "https://cooking.stackexchange.com/questions/133262/why-did-my-fudge-turn-out-taffy-like"
+      },
+      {
+        "text": "Why do White Balance sliders stop me from pushing the adjustments even further?",
+        "href": "https://photo.stackexchange.com/questions/137076/why-do-white-balance-sliders-stop-me-from-pushing-the-adjustments-even-further"
+      },
+      {
+        "text": "Is tenure track status required for emeritus status?",
+        "href": "https://academia.stackexchange.com/questions/221743/is-tenure-track-status-required-for-emeritus-status"
+      },
+      {
+        "text": "Chemfig: ChemDraw-esque custom font & bond length commands breaking halfway through the molecule",
+        "href": "https://tex.stackexchange.com/questions/752481/chemfig-chemdraw-esque-custom-font-bond-length-commands-breaking-halfway-thro"
+      },
+      {
+        "text": "At what altitude could the Mars Ingenuity helicopter hover on Earth?",
+        "href": "https://aviation.stackexchange.com/questions/111510/at-what-altitude-could-the-mars-ingenuity-helicopter-hover-on-earth"
+      },
+      {
+        "text": "What planar convex shape maximizes the probability that a random circle contains the centre? (Surprisingly, it's not a disk.)",
+        "href": "https://math.stackexchange.com/questions/5101873/what-planar-convex-shape-maximizes-the-probability-that-a-random-circle-contains"
+      },
+      {
+        "text": "Syntax and case",
+        "href": "https://german.stackexchange.com/questions/81827/syntax-and-case"
+      },
+      {
+        "text": "If a Fighter uses Tactical Master to change a Nick weapon's mastery property to Push, Sap, or Slow, do they lose the benefit of Nick?",
+        "href": "https://rpg.stackexchange.com/questions/216815/if-a-fighter-uses-tactical-master-to-change-a-nick-weapons-mastery-property-to"
+      },
+      {
+        "text": "Does the constant horizontal velocity of a projectile with relativistic velocity components reduce as it accelerates downward?",
+        "href": "https://physics.stackexchange.com/questions/860886/does-the-constant-horizontal-velocity-of-a-projectile-with-relativistic-velocity"
+      },
+      {
+        "text": "What book is this? (fractions)",
+        "href": "https://puzzling.stackexchange.com/questions/133582/what-book-is-this-fractions"
+      },
+      {
+        "text": "A simple equation that seemingly can't be solved algebraically?",
+        "href": "https://math.stackexchange.com/questions/5102138/a-simple-equation-that-seemingly-cant-be-solved-algebraically"
+      },
+      {
+        "text": "Is it feasible to use a solar escape burn to get to another planet in less time than in a Hohmann transfer?",
+        "href": "https://space.stackexchange.com/questions/70012/is-it-feasible-to-use-a-solar-escape-burn-to-get-to-another-planet-in-less-time"
+      },
+      {
+        "text": "TikZ ellipse with arrows",
+        "href": "https://tex.stackexchange.com/questions/752493/tikz-ellipse-with-arrows"
+      },
+      {
+        "text": "Do coast FIRE calculations apply only to the individual?",
+        "href": "https://money.stackexchange.com/questions/166824/do-coast-fire-calculations-apply-only-to-the-individual"
+      },
+      {
+        "text": "Were warning messages at the beginning of 90's - 00's Capcom and Konami games mandated by anybody?",
+        "href": "https://retrocomputing.stackexchange.com/questions/32156/were-warning-messages-at-the-beginning-of-90s-00s-capcom-and-konami-games-ma"
+      },
+      {
+        "text": "How can my boarding time be one hour before the incoming plane arrives?",
+        "href": "https://travel.stackexchange.com/questions/200418/how-can-my-boarding-time-be-one-hour-before-the-incoming-plane-arrives"
+      },
+      {
+        "text": "Phone checks at the port of entry",
+        "href": "https://travel.stackexchange.com/questions/200416/phone-checks-at-the-port-of-entry"
+      },
+      {
+        "text": "Confusion about Confusion",
+        "href": "https://rpg.stackexchange.com/questions/216820/confusion-about-confusion"
+      },
+      {
+        "text": "Question feed",
+        "href": "/feeds/question/1285"
+      },
+      {
+        "text": "Abusive behavior policy",
+        "href": "/conduct/abusive-behavior"
+      },
+      {
+        "text": "Code of Conduct",
+        "href": "/conduct/abusive-behavior"
+      },
+      {
+        "text": "Database Administrators",
+        "href": "/"
+      },
+      {
+        "text": "Tour",
+        "href": "/tour"
+      },
+      {
+        "text": "Help",
+        "href": "/help"
+      },
+      {
+        "text": "Chat",
+        "href": "https://chat.stackexchange.com/?tab=all&sort=active"
+      },
+      {
+        "text": "Contact",
+        "href": "/contact"
+      },
+      {
+        "text": "Feedback",
+        "href": "https://dba.meta.stackexchange.com"
+      },
+      {
+        "text": "Company",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "Stack Overflow",
+        "href": "https://stackoverflow.com"
+      },
+      {
+        "text": "Teams",
+        "href": "https://stackoverflow.co/teams/"
+      },
+      {
+        "text": "Advertising",
+        "href": "https://stackoverflow.co/advertising/"
+      },
+      {
+        "text": "Talent",
+        "href": "https://stackoverflow.co/advertising/employer-branding/"
+      },
+      {
+        "text": "About",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "Press",
+        "href": "https://stackoverflow.co/company/press/"
+      },
+      {
+        "text": "Legal",
+        "href": "https://stackoverflow.com/legal"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://stackoverflow.com/legal/privacy-policy"
+      },
+      {
+        "text": "Terms of Service",
+        "href": "https://stackoverflow.com/legal/terms-of-service/public"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "https://policies.stackoverflow.co/stack-overflow/cookie-policy"
+      },
+      {
+        "text": "Stack Exchange Network",
+        "href": "https://stackexchange.com"
+      },
+      {
+        "text": "Technology",
+        "href": "https://stackexchange.com/sites#technology"
+      },
+      {
+        "text": "Culture & recreation",
+        "href": "https://stackexchange.com/sites#culturerecreation"
+      },
+      {
+        "text": "Life & arts",
+        "href": "https://stackexchange.com/sites#lifearts"
+      },
+      {
+        "text": "Science",
+        "href": "https://stackexchange.com/sites#science"
+      },
+      {
+        "text": "Professional",
+        "href": "https://stackexchange.com/sites#professional"
+      },
+      {
+        "text": "Business",
+        "href": "https://stackexchange.com/sites#business"
+      },
+      {
+        "text": "API",
+        "href": "https://api.stackexchange.com/"
+      },
+      {
+        "text": "Data",
+        "href": "https://data.stackexchange.com/"
+      },
+      {
+        "text": "Blog",
+        "href": "https://stackoverflow.blog?blb=1"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/officialstackoverflow/"
+      },
+      {
+        "text": "Twitter",
+        "href": "https://twitter.com/stackoverflow"
+      },
+      {
+        "text": "LinkedIn",
+        "href": "https://linkedin.com/company/stack-overflow"
+      },
+      {
+        "text": "Instagram",
+        "href": "https://www.instagram.com/thestackoverflow"
+      },
+      {
+        "text": "CC BY-SA",
+        "href": "https://stackoverflow.com/help/licensing"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "https://policies.stackoverflow.co/stack-overflow/cookie-policy/"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "https://policies.stackoverflow.co/stack-overflow/cookie-policy/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "site logo",
+        "src": "https://cdn.sstatic.net/Sites/dba/Img/icon-48.png?v=2e482ed8daa4"
+      },
+      {
+        "alt": "Database Administrators",
+        "src": "https://cdn.sstatic.net/Sites/dba/Img/logo.svg?v=d844126b2d09"
+      },
+      {
+        "alt": "",
+        "src": "https://cdn.sstatic.net/Img/teams/teams-promo.svg?v=e507948b81bf"
+      },
+      {
+        "alt": "Illustration of upvote icon after it is clicked",
+        "src": "https://cdn.sstatic.net/Img/modal/img-upvote.png?v=fce73bd9724d"
+      },
+      {
+        "alt": "Illustration of upvote icon after it is clicked",
+        "src": "https://cdn.sstatic.net/Img/modal/img-free-votes.png?v=1c5aa3dac50b"
+      },
+      {
+        "alt": "Mehdi Charife's user avatar",
+        "src": "https://i.sstatic.net/7kVWX.jpg?s=64"
+      },
+      {
+        "alt": "Jonas's user avatar",
+        "src": "https://www.gravatar.com/avatar/894e4c1f3bc33e5f9a5008d355287830?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "DimiDak's user avatar",
+        "src": "https://i.sstatic.net/zWBW2.jpg?s=64"
+      },
+      {
+        "alt": "Frank Heikens's user avatar",
+        "src": "https://i.sstatic.net/H3bQRCRO.png?s=64"
+      },
+      {
+        "alt": "RolandoMySQLDBA's user avatar",
+        "src": "https://i.sstatic.net/Tyn6s.jpg?s=64"
+      },
+      {
+        "alt": "Eric Leschinski's user avatar",
+        "src": "https://i.sstatic.net/2b4pE.jpg?s=64"
+      },
+      {
+        "alt": "Derek Arnold's user avatar",
+        "src": "https://www.gravatar.com/avatar/552c4eeb953987ffc1c410da07d73cbb?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "Soni Harriz's user avatar",
+        "src": "https://www.gravatar.com/avatar/353fdac9a353f294f543caf3ababfe00?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "András Váczi's user avatar",
+        "src": "https://www.gravatar.com/avatar/11db73037dd7fb30ea7f8af83faa3147?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "Larry W's user avatar",
+        "src": "https://www.gravatar.com/avatar/b6b7eedab1ff57ae128b73539d64c25e?s=64&d=identicon&r=PG"
+      },
+      {
+        "alt": "John Powell's user avatar",
+        "src": "https://i.sstatic.net/0iahm.jpg?s=64"
+      },
+      {
+        "alt": "Vérace's user avatar",
+        "src": "https://i.sstatic.net/DwuXu.jpg?s=64"
+      },
+      {
+        "alt": "Super Kai - Kazuya Ito's user avatar",
+        "src": "https://i.sstatic.net/An3gf.jpg?s=64"
+      },
+      {
+        "alt": "Company Logo",
+        "src": "https://cdn.cookielaw.org/logos/481fe84d-93cd-45d7-9ee5-d340809f8e77/00c1f3da-b56f-4a0f-b68c-8cc7c45075e6/7decf476-b15c-434c-ba3e-9543bf130283/so.png"
+      },
+      {
+        "alt": "Powered by Onetrust",
+        "src": "https://cdn.cookielaw.org/logos/static/powered_by_logo.svg"
+      }
+    ],
+    "timestamp": 1760607506357,
+    "url": "https://dba.stackexchange.com/questions/1285/how-do-i-list-all-databases-and-tables-using-psql?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "url": "https://www.amazon.de/gp/video/storefront",
+  "extractedAt": "2025-10-16T09:41:46.990Z",
+  "content": {
+    "favicon": [],
+    "title": "Amazon.de",
+    "metaDescription": "",
+    "content": "**   ** Klicke auf die Schaltfläche unten, um mit dem Einkauf fortzufahren             Weiter shoppen            [Unsere AGB](https://www.amazon.de/gp/help/customer/display.html/ref=footer_cou/275-2496043-9483305?ie=UTF8&nodeId=505048)     [Datenschutzerklärung](https://www.amazon.de/gp/help/customer/display.html/ref=footer_privacy?ie=UTF8&nodeId=3312401)   © 1996-2025, Amazon.com, Inc. oder Tochtergesellschaften",
+    "truncated": false,
+    "fullContentLength": 416,
+    "headings": [
+      {
+        "level": 4,
+        "text": "Klicke auf die Schaltfläche unten, um mit dem Einkauf fortzufahren"
+      }
+    ],
+    "links": [
+      {
+        "text": "Unsere AGB",
+        "href": "https://www.amazon.de/gp/help/customer/display.html/ref=footer_cou/275-2496043-9483305?ie=UTF8&nodeId=505048"
+      },
+      {
+        "text": "Datenschutzerklärung",
+        "href": "https://www.amazon.de/gp/help/customer/display.html/ref=footer_privacy?ie=UTF8&nodeId=3312401"
+      }
+    ],
+    "images": [
+      {
+        "alt": "",
+        "src": "https://fls-eu.amazon.de/1/oc-csi/1/OP/requestId=X780ET3BYS1V7NMYSNHC&js=1"
+      }
+    ],
+    "timestamp": 1760607706514,
+    "url": "https://www.amazon.de/gp/video/storefront?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,13 @@
+[2025-10-17T10:16:30.385Z] [INFO] Starting DuckDuckGo Page Context Content Extractor
+[2025-10-17T10:16:30.385Z] [INFO] Mode: Headless
+[2025-10-17T10:16:30.385Z] [INFO] Timeout: 60s
+[2025-10-17T10:16:30.385Z] [INFO] Truncation: Disabled
+[2025-10-17T10:16:30.386Z] [INFO] Processing URL 1/1: https://news.ycombinator.com
+[2025-10-17T10:16:30.386Z] [INFO] Starting extraction from: https://news.ycombinator.com
+[2025-10-17T10:16:30.386Z] [DEBUG] Launching browser...
+[2025-10-17T10:16:30.667Z] [DEBUG] Browser launched successfully
+[2025-10-17T10:16:30.719Z] [DEBUG] Using custom config with no truncation
+[2025-10-17T10:16:30.719Z] [DEBUG] Loading and collecting page content
+[2025-10-17T10:16:32.052Z] [DEBUG] Collected page content
+[2025-10-17T10:16:32.074Z] [INFO] Successfully crawled https://news.ycombinator.com
+[2025-10-17T10:16:32.284Z] [INFO] Crawl completed. Summary: 1/1 successful (100%)

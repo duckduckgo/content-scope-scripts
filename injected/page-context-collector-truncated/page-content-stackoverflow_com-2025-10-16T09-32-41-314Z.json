@@ -1,0 +1,881 @@
+{
+  "url": "https://stackoverflow.com/questions/38064042/access-files-in-var-mobile-containers-data-application-without-jailbreaking-iph",
+  "extractedAt": "2025-10-16T09:32:41.314Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico?v=ec617d715196",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://cdn.sstatic.net/Sites/stackoverflow/Img/apple-touch-icon.png?v=c78bd457575a",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "ios - Access files in /var/mobile/Containers/Data/Application without jailbreaking iPhone - Stack Ov...",
+    "metaDescription": "",
+    "content": "# [Access files in /var/mobile/Containers/Data/Application without jailbreaking iPhone](/questions/38064042/access-files-in-var-mobile-containers-data-application-without-jailbreaking-iph)\n   [Ask Question](/questions/ask)      Asked 9 years, 3 months ago   Modified [7 years ago](?lastactivity)   Viewed 1.1m times    Part of [Mobile Development](/collectives/mobile-dev) Collective               52               A program logs some message in directory /var/mobile/Containers/Data/Application on iPhone. Is there any way I can get access to this directory without jailbreaking iPhone? If no, is there any directory on iPhone that I can log into and read my logs without jailbreaking?\n      \n\n- [ios](/questions/tagged/ios)\n\n- [iphone](/questions/tagged/iphone)\n\n          [Share](/q/38064042)   [Improve this question](/posts/38064042/edit)    Follow            asked Jun 27, 2016 at 22:14       [ZigZagZebra](/users/4592639/zigzagzebra)  1,45933 gold badges1717 silver badges2727 bronze badges            [Add a comment](#)             \n##  1 Answer  \n      Sorted by:       Highest score (default)   Trending (recent votes count more)   Date modified (newest first)   Date created (oldest first)                  184                      If this is your app, if you connect the device to your computer, you can use the \"Devices\" option on Xcode's \"Window\" menu and then download the app's data container to your computer. Just select your app from the list of installed apps, and click on the \"gear\" icon and choose \"Download Container\". \n \n Once you've downloaded it, right click on the file in the Finder and choose \"Show Package Contents\".\n         [Share](/a/38064225)   [Improve this answer](/posts/38064225/edit)    Follow            [edited Jun 27, 2016 at 22:36](/posts/38064225/revisions)               answered Jun 27, 2016 at 22:31       [Rob](/users/1271826/rob)  441k7474 gold badges848848 silver badges1.1k1.1k bronze badges             Sign up to request clarification or add additional context in comments.       \n## 6 Comments\n   Add a comment\n   [ZigZagZebra](/users/4592639/zigzagzebra) [Over a year ago](#comment63568513_38064225)    I found that the data container only has three most recent logs. Is there any way that I can get older logs?   0  Reply        [Rob](/users/1271826/rob) [Over a year ago](#comment63568567_38064225)    AFAIK, that container contains everything on the device. Maybe app was reinstalled at some point. Or maybe the logs were purged at some point due to storage constraints. But I'm pretty sure this container contains everything that is available.   1  Reply        [ZigZagZebra](/users/4592639/zigzagzebra) [Over a year ago](#comment63568705_38064225)    Oh, yeah. I reinstalled the app during this time. Thanks.   0  Reply        [user3752049](/users/3752049/user3752049) [Over a year ago](#comment73773179_38064225)    @Rob Is there a way to access the shared \"/Shared/AppGroup/\" location too without the jailbreak ?   3  Reply        [Priyal](/users/3251516/priyal) [Over a year ago](#comment84646796_38064225)    is there a way to do that for release builds?   0  Reply       Add a comment | Show 1 more comment                 **[Protected question](/help/privileges/protect-questions)**. To answer this question, you need to have at least 10 reputation on this site (not counting the [association bonus](https://meta.stackexchange.com/questions/141648/what-is-the-association-bonus-and-how-does-it-work)). The reputation requirement helps protect this question from spam and non-answer activity.          Start asking to get answers\n Find the answer to your question by asking.\n [Ask question](/questions/ask)     Explore related questions\n \n\n- [ios](/questions/tagged/ios)\n\n- [iphone](/questions/tagged/iphone)\n\n See similar questions with these tags.\n         [Mobile Development Collective See more](/collectives/mobile-dev)    [This question is in a collective:](/collectives) a subcommunity defined by tags with relevant content and experts.      \n \n- The Overflow Blog\n \n- [AI agents for your digital chores](https://stackoverflow.blog/2025/10/14/ai-agents-for-your-digital-chores/?cb=1)\n \n- [Secure coding in JavaScript](https://stackoverflow.blog/2025/10/15/secure-coding-in-javascript/?cb=1)\n \n- Featured on Meta\n \n- [A First Look: Stack Overflow Redesign](https://meta.stackexchange.com/questions/412992/a-first-look-stack-overflow-redesign?cb=1)\n \n- [Community Asks Sprint Announcement - October/November 2025](https://meta.stackexchange.com/questions/413210/community-asks-sprint-announcement-october-november-2025?cb=1)\n \n- [Policy: Generative AI (e.g., ChatGPT) is banned](https://meta.stackoverflow.com/questions/421831/policy-generative-ai-e-g-chatgpt-is-banned?cb=1)\n \n- [Exploring new types of questions on Stack Overflow](https://meta.stackoverflow.com/questions/435121/exploring-new-types-of-questions-on-stack-overflow?cb=1)\n \n             [14 people chatting](https://chat.stackoverflow.com/)      Community activity Last 1 hr Loading…   Linked   [4](https://stackoverflow.com/questions/45179968/how-to-open-file-private-var-mobile-containers-shared-appgroup-folder-on-mac?lq=1) [How to open file:///private/var/mobile/Containers/Shared/AppGroup/ folder on Mac?](https://stackoverflow.com/questions/45179968/how-to-open-file-private-var-mobile-containers-shared-appgroup-folder-on-mac?noredirect=1&lq=1)   [3](https://stackoverflow.com/questions/63575539/swift-ios-save-video-to-library?lq=1) [Swift iOS: Save Video to Library](https://stackoverflow.com/questions/63575539/swift-ios-save-video-to-library?noredirect=1&lq=1)   [2](https://stackoverflow.com/questions/56197472/where-are-the-contents-of-filemanager-in-ios?lq=1) [Where are the contents of FileManager in iOS?](https://stackoverflow.com/questions/56197472/where-are-the-contents-of-filemanager-in-ios?noredirect=1&lq=1)   [-1](https://stackoverflow.com/questions/41774600/how-to-find-the-path-of-sqlite-sql-file-and-print-it?lq=1) [How to find the path of sqlite.sql file and print it?](https://stackoverflow.com/questions/41774600/how-to-find-the-path-of-sqlite-sql-file-and-print-it?noredirect=1&lq=1)   [2](https://stackoverflow.com/questions/42653293/how-to-use-fmdb-on-the-generic-ios-device-instead-of-simulator?lq=1) [How to use FMDB on the generic iOS device instead of simulator?](https://stackoverflow.com/questions/42653293/how-to-use-fmdb-on-the-generic-ios-device-instead-of-simulator?noredirect=1&lq=1)   [1](https://stackoverflow.com/questions/60689567/iphone-as-xcode-simulator-doesnt-read-from-sqlite-database?lq=1) [iPhone as Xcode simulator doesn't read from sqlite database](https://stackoverflow.com/questions/60689567/iphone-as-xcode-simulator-doesnt-read-from-sqlite-database?noredirect=1&lq=1)     Related   [1503](https://stackoverflow.com/questions/5210535/passing-data-between-view-controllers?rq=1) [Passing data between view controllers](https://stackoverflow.com/questions/5210535/passing-data-between-view-controllers?rq=1)   [1047](https://stackoverflow.com/questions/538996/constants-in-objective-c?rq=1) [Constants in Objective-C](https://stackoverflow.com/questions/538996/constants-in-objective-c?rq=1)   [613](https://stackoverflow.com/questions/4808433/is-it-possible-to-disable-the-network-in-ios-simulator?rq=1) [Is it possible to disable the network in iOS Simulator?](https://stackoverflow.com/questions/4808433/is-it-possible-to-disable-the-network-in-ios-simulator?rq=1)   [201](https://stackoverflow.com/questions/37464/iphone-app-minus-app-store?rq=1) [iPhone App Minus App Store?](https://stackoverflow.com/questions/37464/iphone-app-minus-app-store?rq=1)   [469](https://stackoverflow.com/questions/40154/how-do-you-beta-test-an-iphone-app?rq=1) [How do you beta test an iphone app?](https://stackoverflow.com/questions/40154/how-do-you-beta-test-an-iphone-app?rq=1)   [27](https://stackoverflow.com/questions/7473939/iphone-add-entry-to-etc-hosts-without-jailbreaking?rq=1) [iPhone: add entry to /etc/hosts without jailbreaking](https://stackoverflow.com/questions/7473939/iphone-add-entry-to-etc-hosts-without-jailbreaking?rq=1)   [23](https://stackoverflow.com/questions/445579/how-to-read-iphone-files-without-jailbreaking?rq=1) [How to read iPhone files without jailbreaking?](https://stackoverflow.com/questions/445579/how-to-read-iphone-files-without-jailbreaking?rq=1)   [235](https://stackoverflow.com/questions/3736807/how-do-i-remove-the-blue-styling-of-telephone-numbers-on-iphone-ios?rq=1) [How do I remove the blue styling of telephone numbers on iPhone/iOS?](https://stackoverflow.com/questions/3736807/how-do-i-remove-the-blue-styling-of-telephone-numbers-on-iphone-ios?rq=1)   [310](https://stackoverflow.com/questions/1482586/comparison-between-corona-phonegap-titanium?rq=1) [Comparison between Corona, Phonegap, Titanium](https://stackoverflow.com/questions/1482586/comparison-between-corona-phonegap-titanium?rq=1)   [676](https://stackoverflow.com/questions/24333981/ios-app-with-framework-crashed-on-device-dyld-library-not-loaded-xcode-6-beta?rq=1) [iOS app with framework crashed on device, dyld: Library not loaded, Xcode 6 Beta](https://stackoverflow.com/questions/24333981/ios-app-with-framework-crashed-on-device-dyld-library-not-loaded-xcode-6-beta?rq=1)       [Hot Network Questions](https://stackexchange.com/questions?tab=hot)  \n \n- [What was the first game to voluntarily provide an in-game content warning?](https://gaming.stackexchange.com/questions/413675/what-was-th...",
+    "truncated": true,
+    "fullContentLength": 10367,
+    "headings": [
+      {
+        "level": 1,
+        "text": "OR"
+      },
+      {
+        "level": 3,
+        "text": "current community"
+      },
+      {
+        "level": 3,
+        "text": "your communities"
+      },
+      {
+        "level": 3,
+        "text": "more stack exchange communities"
+      },
+      {
+        "level": 1,
+        "text": "Let's set up your homepage Select a few topics you're interested in:"
+      },
+      {
+        "level": 5,
+        "text": "Collectives™ on Stack Overflow"
+      },
+      {
+        "level": 1,
+        "text": "Hang on, you can't upvote just yet."
+      },
+      {
+        "level": 1,
+        "text": "Thanks for your vote!  You now have 5 free votes weekly."
+      },
+      {
+        "level": 1,
+        "text": "Access files in /var/mobile/Containers/Data/Application without jailbreaking iPhone"
+      },
+      {
+        "level": 2,
+        "text": "1 Answer                                    1"
+      },
+      {
+        "level": 2,
+        "text": "6 Comments"
+      },
+      {
+        "level": 4,
+        "text": "Linked"
+      },
+      {
+        "level": 4,
+        "text": "Related"
+      },
+      {
+        "level": 4,
+        "text": "Hot Network Questions"
+      },
+      {
+        "level": 1,
+        "text": "Subscribe to RSS"
+      },
+      {
+        "level": 1,
+        "text": "Why are you flagging this comment?"
+      },
+      {
+        "level": 5,
+        "text": "Stack Overflow"
+      },
+      {
+        "level": 5,
+        "text": "Products"
+      },
+      {
+        "level": 5,
+        "text": "Company"
+      },
+      {
+        "level": 5,
+        "text": "Stack Exchange Network"
+      },
+      {
+        "level": 2,
+        "text": "We Care About Your Privacy"
+      },
+      {
+        "level": 3,
+        "text": "We and our partners perform the following based on your settings:"
+      }
+    ],
+    "links": [
+      {
+        "text": "terms of service",
+        "href": "/legal/terms-of-service/public"
+      },
+      {
+        "text": "privacy policy",
+        "href": "/legal/privacy-policy"
+      },
+      {
+        "text": "Log in",
+        "href": "/users/login"
+      },
+      {
+        "text": "Skip to main content",
+        "href": "#content"
+      },
+      {
+        "text": "Stack Overflow",
+        "href": "https://stackoverflow.com"
+      },
+      {
+        "text": "About",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "For Teams",
+        "href": "https://stackoverflow.co/teams/"
+      },
+      {
+        "text": "Stack Overflow for Teams\n\t\t\t\t\t\t\tWhere developers & technologists share private knowledge with coworkers",
+        "href": "https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=stack-overflow-for-teams"
+      },
+      {
+        "text": "Advertising\n\t\t\t\t\t\t\tReach devs & technologists worldwide about your product, service or employer brand",
+        "href": "https://stackoverflow.co/advertising/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=stack-overflow-advertising"
+      },
+      {
+        "text": "Knowledge Solutions\n\t\t\t\t\t\t\tData licensing offering for businesses to build and improve AI tools and models",
+        "href": "https://stackoverflow.co/api-solutions/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=overflow-api"
+      },
+      {
+        "text": "Labs\n\t\t\t\t\t\t\tThe future of collective knowledge sharing",
+        "href": "https://stackoverflow.co/labs/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=labs"
+      },
+      {
+        "text": "About the company",
+        "href": "https://stackoverflow.co/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=about-the-company"
+      },
+      {
+        "text": "Visit the blog",
+        "href": "https://stackoverflow.blog/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=top-nav&utm_content=blog"
+      },
+      {
+        "text": "current community",
+        "href": "https://stackoverflow.com"
+      },
+      {
+        "text": "Stack Overflow",
+        "href": "https://stackoverflow.com"
+      },
+      {
+        "text": "help",
+        "href": "https://stackoverflow.com/help"
+      },
+      {
+        "text": "chat",
+        "href": "https://chat.stackoverflow.com/?tab=explore"
+      },
+      {
+        "text": "Meta Stack Overflow",
+        "href": "https://meta.stackoverflow.com"
+      },
+      {
+        "text": "Sign up",
+        "href": "https://stackoverflow.com/users/signup?ssrc=site_switcher&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f38064042%2faccess-files-in-var-mobile-containers-data-application-without-jailbreaking-iph%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "log in",
+        "href": "https://stackoverflow.com/users/login?ssrc=site_switcher&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f38064042%2faccess-files-in-var-mobile-containers-data-application-without-jailbreaking-iph%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "more stack exchange communities",
+        "href": "https://stackexchange.com/sites"
+      },
+      {
+        "text": "company blog",
+        "href": "https://stackoverflow.blog"
+      },
+      {
+        "text": "Log in",
+        "href": "https://stackoverflow.com/users/login?ssrc=head&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f38064042%2faccess-files-in-var-mobile-containers-data-application-without-jailbreaking-iph%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "Sign up",
+        "href": "https://stackoverflow.com/users/signup?ssrc=head&returnurl=https%3a%2f%2fstackoverflow.com%2fquestions%2f38064042%2faccess-files-in-var-mobile-containers-data-application-without-jailbreaking-iph%3fautomation%3dtrue%3fautomation%3dtrue%26wait-for-init-args%3dtrue"
+      },
+      {
+        "text": "Home",
+        "href": "/"
+      },
+      {
+        "text": "Questions",
+        "href": "/questions"
+      },
+      {
+        "text": "AI Assist\nLabs",
+        "href": "https://stackoverflow.ai"
+      },
+      {
+        "text": "Tags",
+        "href": "/tags"
+      },
+      {
+        "text": "Challenges",
+        "href": "/beta/challenges"
+      },
+      {
+        "text": "Chat",
+        "href": "https://chat.stackoverflow.com/rooms/259507/stack-overflow-lobby"
+      },
+      {
+        "text": "Articles",
+        "href": "https://stackoverflow.blog/contributed?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=so-blog&utm_content=experiment-articles"
+      },
+      {
+        "text": "Users",
+        "href": "/users"
+      },
+      {
+        "text": "Jobs",
+        "href": "/jobs?source=so-left-nav"
+      },
+      {
+        "text": "Companies",
+        "href": "https://stackoverflow.com/jobs/companies?so_medium=stackoverflow&so_source=SiteNav"
+      },
+      {
+        "text": "Collectives",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Explore all Collectives",
+        "href": "/collectives-all"
+      },
+      {
+        "text": "Try Teams for free",
+        "href": "https://stackoverflowteams.com/teams/create/free/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=side-bar&utm_content=explore-teams"
+      },
+      {
+        "text": "Explore Teams",
+        "href": "https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=side-bar&utm_content=explore-teams"
+      },
+      {
+        "text": "Teams",
+        "href": "javascript:void(0)"
+      },
+      {
+        "text": "Explore Teams",
+        "href": "https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=side-bar&utm_content=explore-teams-compact"
+      },
+      {
+        "text": "Learn more about Collectives",
+        "href": "/collectives"
+      },
+      {
+        "text": "Learn more about Teams",
+        "href": "https://stackoverflow.co/teams/"
+      },
+      {
+        "text": "What's reputation and how do I get it?",
+        "href": "https://stackoverflow.com/help/whats-reputation"
+      },
+      {
+        "text": "earn reputation",
+        "href": "https://stackoverflow.com/help/whats-reputation"
+      },
+      {
+        "text": "Access files in /var/mobile/Containers/Data/Application without jailbreaking iPhone",
+        "href": "/questions/38064042/access-files-in-var-mobile-containers-data-application-without-jailbreaking-iph"
+      },
+      {
+        "text": "Ask Question",
+        "href": "/questions/ask"
+      },
+      {
+        "text": "7 years ago",
+        "href": "?lastactivity"
+      },
+      {
+        "text": "Mobile Development",
+        "href": "/collectives/mobile-dev"
+      },
+      {
+        "text": "ios",
+        "href": "/questions/tagged/ios"
+      },
+      {
+        "text": "iphone",
+        "href": "/questions/tagged/iphone"
+      },
+      {
+        "text": "Share",
+        "href": "/q/38064042"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this question",
+        "href": "/posts/38064042/edit"
+      },
+      {
+        "text": "ZigZagZebra",
+        "href": "/users/4592639/zigzagzebra"
+      },
+      {
+        "text": "Add a comment",
+        "href": "#"
+      },
+      {
+        "text": "Reset to default",
+        "href": "/questions/38064042/access-files-in-var-mobile-containers-data-application-without-jailbreaking-iph?answertab=scoredesc#tab-top"
+      },
+      {
+        "text": "Share",
+        "href": "/a/38064225"
+      },
+      {
+        "text": "CC BY-SA 3.0",
+        "href": "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "text": "Improve this answer",
+        "href": "/posts/38064225/edit"
+      },
+      {
+        "text": "edited Jun 27, 2016 at 22:36",
+        "href": "/posts/38064225/revisions"
+      },
+      {
+        "text": "Rob",
+        "href": "/users/1271826/rob"
+      },
+      {
+        "text": "ZigZagZebra",
+        "href": "/users/4592639/zigzagzebra"
+      },
+      {
+        "text": "Over a year ago",
+        "href": "#comment63568513_38064225"
+      },
+      {
+        "text": "Rob",
+        "href": "/users/1271826/rob"
+      },
+      {
+        "text": "Over a year ago",
+        "href": "#comment63568567_38064225"
+      },
+      {
+        "text": "ZigZagZebra",
+        "href": "/users/4592639/zigzagzebra"
+      },
+      {
+        "text": "Over a year ago",
+        "href": "#comment63568705_38064225"
+      },
+      {
+        "text": "user3752049",
+        "href": "/users/3752049/user3752049"
+      },
+      {
+        "text": "Over a year ago",
+        "href": "#comment73773179_38064225"
+      },
+      {
+        "text": "Priyal",
+        "href": "/users/3251516/priyal"
+      },
+      {
+        "text": "Over a year ago",
+        "href": "#comment84646796_38064225"
+      },
+      {
+        "text": "Protected question",
+        "href": "/help/privileges/protect-questions"
+      },
+      {
+        "text": "association bonus",
+        "href": "https://meta.stackexchange.com/questions/141648/what-is-the-association-bonus-and-how-does-it-work"
+      },
+      {
+        "text": "Ask question",
+        "href": "/questions/ask"
+      },
+      {
+        "text": "ios",
+        "href": "/questions/tagged/ios"
+      },
+      {
+        "text": "iphone",
+        "href": "/questions/tagged/iphone"
+      },
+      {
+        "text": "Mobile Development\n                        Collective\n                    \n                    \n                    See more",
+        "href": "/collectives/mobile-dev"
+      },
+      {
+        "text": "This question is in a collective:",
+        "href": "/collectives"
+      },
+      {
+        "text": "AI agents for your digital chores",
+        "href": "https://stackoverflow.blog/2025/10/14/ai-agents-for-your-digital-chores/?cb=1"
+      },
+      {
+        "text": "Secure coding in JavaScript",
+        "href": "https://stackoverflow.blog/2025/10/15/secure-coding-in-javascript/?cb=1"
+      },
+      {
+        "text": "A First Look: Stack Overflow Redesign",
+        "href": "https://meta.stackexchange.com/questions/412992/a-first-look-stack-overflow-redesign?cb=1"
+      },
+      {
+        "text": "Community Asks Sprint Announcement - October/November 2025",
+        "href": "https://meta.stackexchange.com/questions/413210/community-asks-sprint-announcement-october-november-2025?cb=1"
+      },
+      {
+        "text": "Policy: Generative AI (e.g., ChatGPT) is banned",
+        "href": "https://meta.stackoverflow.com/questions/421831/policy-generative-ai-e-g-chatgpt-is-banned?cb=1"
+      },
+      {
+        "text": "Exploring new types of questions on Stack Overflow",
+        "href": "https://meta.stackoverflow.com/questions/435121/exploring-new-types-of-questions-on-stack-overflow?cb=1"
+      },
+      {
+        "text": "14 people chatting",
+        "href": "https://chat.stackoverflow.com/"
+      },
+      {
+        "text": "4",
+        "href": "https://stackoverflow.com/questions/45179968/how-to-open-file-private-var-mobile-containers-shared-appgroup-folder-on-mac?lq=1"
+      },
+      {
+        "text": "How to open file:///private/var/mobile/Containers/Shared/AppGroup/ folder on Mac?",
+        "href": "https://stackoverflow.com/questions/45179968/how-to-open-file-private-var-mobile-containers-shared-appgroup-folder-on-mac?noredirect=1&lq=1"
+      },
+      {
+        "text": "3",
+        "href": "https://stackoverflow.com/questions/63575539/swift-ios-save-video-to-library?lq=1"
+      },
+      {
+        "text": "Swift iOS: Save Video to Library",
+        "href": "https://stackoverflow.com/questions/63575539/swift-ios-save-video-to-library?noredirect=1&lq=1"
+      },
+      {
+        "text": "2",
+        "href": "https://stackoverflow.com/questions/56197472/where-are-the-contents-of-filemanager-in-ios?lq=1"
+      },
+      {
+        "text": "Where are the contents of FileManager in iOS?",
+        "href": "https://stackoverflow.com/questions/56197472/where-are-the-contents-of-filemanager-in-ios?noredirect=1&lq=1"
+      },
+      {
+        "text": "-1",
+        "href": "https://stackoverflow.com/questions/41774600/how-to-find-the-path-of-sqlite-sql-file-and-print-it?lq=1"
+      },
+      {
+        "text": "How to find the path of sqlite.sql file and print it?",
+        "href": "https://stackoverflow.com/questions/41774600/how-to-find-the-path-of-sqlite-sql-file-and-print-it?noredirect=1&lq=1"
+      },
+      {
+        "text": "2",
+        "href": "https://stackoverflow.com/questions/42653293/how-to-use-fmdb-on-the-generic-ios-device-instead-of-simulator?lq=1"
+      },
+      {
+        "text": "How to use FMDB on the generic iOS device instead of simulator?",
+        "href": "https://stackoverflow.com/questions/42653293/how-to-use-fmdb-on-the-generic-ios-device-instead-of-simulator?noredirect=1&lq=1"
+      },
+      {
+        "text": "1",
+        "href": "https://stackoverflow.com/questions/60689567/iphone-as-xcode-simulator-doesnt-read-from-sqlite-database?lq=1"
+      },
+      {
+        "text": "iPhone as Xcode simulator doesn't read from sqlite database",
+        "href": "https://stackoverflow.com/questions/60689567/iphone-as-xcode-simulator-doesnt-read-from-sqlite-database?noredirect=1&lq=1"
+      },
+      {
+        "text": "1503",
+        "href": "https://stackoverflow.com/questions/5210535/passing-data-between-view-controllers?rq=1"
+      },
+      {
+        "text": "Passing data between view controllers",
+        "href": "https://stackoverflow.com/questions/5210535/passing-data-between-view-controllers?rq=1"
+      },
+      {
+        "text": "1047",
+        "href": "https://stackoverflow.com/questions/538996/constants-in-objective-c?rq=1"
+      },
+      {
+        "text": "Constants in Objective-C",
+        "href": "https://stackoverflow.com/questions/538996/constants-in-objective-c?rq=1"
+      },
+      {
+        "text": "613",
+        "href": "https://stackoverflow.com/questions/4808433/is-it-possible-to-disable-the-network-in-ios-simulator?rq=1"
+      },
+      {
+        "text": "Is it possible to disable the network in iOS Simulator?",
+        "href": "https://stackoverflow.com/questions/4808433/is-it-possible-to-disable-the-network-in-ios-simulator?rq=1"
+      },
+      {
+        "text": "201",
+        "href": "https://stackoverflow.com/questions/37464/iphone-app-minus-app-store?rq=1"
+      },
+      {
+        "text": "iPhone App Minus App Store?",
+        "href": "https://stackoverflow.com/questions/37464/iphone-app-minus-app-store?rq=1"
+      },
+      {
+        "text": "469",
+        "href": "https://stackoverflow.com/questions/40154/how-do-you-beta-test-an-iphone-app?rq=1"
+      },
+      {
+        "text": "How do you beta test an iphone app?",
+        "href": "https://stackoverflow.com/questions/40154/how-do-you-beta-test-an-iphone-app?rq=1"
+      },
+      {
+        "text": "27",
+        "href": "https://stackoverflow.com/questions/7473939/iphone-add-entry-to-etc-hosts-without-jailbreaking?rq=1"
+      },
+      {
+        "text": "iPhone: add entry to /etc/hosts without jailbreaking",
+        "href": "https://stackoverflow.com/questions/7473939/iphone-add-entry-to-etc-hosts-without-jailbreaking?rq=1"
+      },
+      {
+        "text": "23",
+        "href": "https://stackoverflow.com/questions/445579/how-to-read-iphone-files-without-jailbreaking?rq=1"
+      },
+      {
+        "text": "How to read iPhone files without jailbreaking?",
+        "href": "https://stackoverflow.com/questions/445579/how-to-read-iphone-files-without-jailbreaking?rq=1"
+      },
+      {
+        "text": "235",
+        "href": "https://stackoverflow.com/questions/3736807/how-do-i-remove-the-blue-styling-of-telephone-numbers-on-iphone-ios?rq=1"
+      },
+      {
+        "text": "How do I remove the blue styling of telephone numbers on iPhone/iOS?",
+        "href": "https://stackoverflow.com/questions/3736807/how-do-i-remove-the-blue-styling-of-telephone-numbers-on-iphone-ios?rq=1"
+      },
+      {
+        "text": "310",
+        "href": "https://stackoverflow.com/questions/1482586/comparison-between-corona-phonegap-titanium?rq=1"
+      },
+      {
+        "text": "Comparison between Corona, Phonegap, Titanium",
+        "href": "https://stackoverflow.com/questions/1482586/comparison-between-corona-phonegap-titanium?rq=1"
+      },
+      {
+        "text": "676",
+        "href": "https://stackoverflow.com/questions/24333981/ios-app-with-framework-crashed-on-device-dyld-library-not-loaded-xcode-6-beta?rq=1"
+      },
+      {
+        "text": "iOS app with framework crashed on device, dyld: Library not loaded, Xcode 6 Beta",
+        "href": "https://stackoverflow.com/questions/24333981/ios-app-with-framework-crashed-on-device-dyld-library-not-loaded-xcode-6-beta?rq=1"
+      },
+      {
+        "text": "Hot Network Questions",
+        "href": "https://stackexchange.com/questions?tab=hot"
+      },
+      {
+        "text": "What was the first game to voluntarily provide an in-game content warning?",
+        "href": "https://gaming.stackexchange.com/questions/413675/what-was-the-first-game-to-voluntarily-provide-an-in-game-content-warning"
+      },
+      {
+        "text": "What planar convex shape maximizes the probability that a random circle contains the centre? (Surprisingly, it's not a disk.)",
+        "href": "https://math.stackexchange.com/questions/5101873/what-planar-convex-shape-maximizes-the-probability-that-a-random-circle-contains"
+      },
+      {
+        "text": "Low power draw voltage limiter for small solar cell project?",
+        "href": "https://electronics.stackexchange.com/questions/757111/low-power-draw-voltage-limiter-for-small-solar-cell-project"
+      },
+      {
+        "text": "Travel in Cambodia, close to Thai border",
+        "href": "https://travel.stackexchange.com/questions/200433/travel-in-cambodia-close-to-thai-border"
+      },
+      {
+        "text": "Which triangle has the larger area?",
+        "href": "https://puzzling.stackexchange.com/questions/133573/which-triangle-has-the-larger-area"
+      },
+      {
+        "text": "Hyperelliptic curve with octahedral symmetry",
+        "href": "https://mathoverflow.net/questions/501647/hyperelliptic-curve-with-octahedral-symmetry"
+      },
+      {
+        "text": "Pure functions from pure functions",
+        "href": "https://mathematica.stackexchange.com/questions/315686/pure-functions-from-pure-functions"
+      },
+      {
+        "text": "How does the invincibility frame system work in Hollow Knight?",
+        "href": "https://gaming.stackexchange.com/questions/413676/how-does-the-invincibility-frame-system-work-in-hollow-knight"
+      },
+      {
+        "text": "Covering a rectangular floor with prime tiles",
+        "href": "https://puzzling.stackexchange.com/questions/133586/covering-a-rectangular-floor-with-prime-tiles"
+      },
+      {
+        "text": "Mysterious letters from two banks. Should I be worried?",
+        "href": "https://money.stackexchange.com/questions/166813/mysterious-letters-from-two-banks-should-i-be-worried"
+      },
+      {
+        "text": "Is this a saga or trilogy",
+        "href": "https://writing.stackexchange.com/questions/71914/is-this-a-saga-or-trilogy"
+      },
+      {
+        "text": "Is Git's signed-off-by actually legally useful?",
+        "href": "https://law.stackexchange.com/questions/111158/is-gits-signed-off-by-actually-legally-useful"
+      },
+      {
+        "text": "What's the oldest story about a mass failure of technology?",
+        "href": "https://scifi.stackexchange.com/questions/299627/whats-the-oldest-story-about-a-mass-failure-of-technology"
+      },
+      {
+        "text": "Is Tauriel in any of Tolkien's actual writings?",
+        "href": "https://literature.stackexchange.com/questions/29873/is-tauriel-in-any-of-tolkiens-actual-writings"
+      },
+      {
+        "text": "How hard is it to publish in philosophy journals when you do not work in academia?",
+        "href": "https://philosophy.stackexchange.com/questions/131198/how-hard-is-it-to-publish-in-philosophy-journals-when-you-do-not-work-in-academi"
+      },
+      {
+        "text": "Do coast FIRE calculations apply only to the individual?",
+        "href": "https://money.stackexchange.com/questions/166824/do-coast-fire-calculations-apply-only-to-the-individual"
+      },
+      {
+        "text": "Why did my fudge turn out taffy-like?",
+        "href": "https://cooking.stackexchange.com/questions/133262/why-did-my-fudge-turn-out-taffy-like"
+      },
+      {
+        "text": "Is it feasible to use a solar escape burn to get to another planet in less time than in a Hohmann transfer?",
+        "href": "https://space.stackexchange.com/questions/70012/is-it-feasible-to-use-a-solar-escape-burn-to-get-to-another-planet-in-less-time"
+      },
+      {
+        "text": "LUKS keyslot damaged?",
+        "href": "https://unix.stackexchange.com/questions/800489/luks-keyslot-damaged"
+      },
+      {
+        "text": "If the Antichrist is a political ruler, why does Scripture say there are many antichrists, as mentioned by Jesus and Paul?",
+        "href": "https://hermeneutics.stackexchange.com/questions/108842/if-the-antichrist-is-a-political-ruler-why-does-scripture-say-there-are-many-an"
+      },
+      {
+        "text": "Why is +3 a common oxidation state of gold?",
+        "href": "https://chemistry.stackexchange.com/questions/191111/why-is-3-a-common-oxidation-state-of-gold"
+      },
+      {
+        "text": "Does a distance guard make cars overtake with greater distance?",
+        "href": "https://bicycles.stackexchange.com/questions/97625/does-a-distance-guard-make-cars-overtake-with-greater-distance"
+      },
+      {
+        "text": "map a function with a parameter",
+        "href": "https://mathematica.stackexchange.com/questions/315697/map-a-function-with-a-parameter"
+      },
+      {
+        "text": "Does the constant horizontal velocity of a projectile with relativistic velocity components reduce as it accelerates downward?",
+        "href": "https://physics.stackexchange.com/questions/860886/does-the-constant-horizontal-velocity-of-a-projectile-with-relativistic-velocity"
+      },
+      {
+        "text": "more hot questions",
+        "href": "#"
+      },
+      {
+        "text": "Question feed",
+        "href": "/feeds/question/38064042"
+      },
+      {
+        "text": "failing to disclose the author's affiliation",
+        "href": "/help/promotion"
+      },
+      {
+        "text": "Abusive behavior policy",
+        "href": "/conduct/abusive-behavior"
+      },
+      {
+        "text": "Stack Overflow",
+        "href": "https://stackoverflow.com"
+      },
+      {
+        "text": "Questions",
+        "href": "/questions"
+      },
+      {
+        "text": "Help",
+        "href": "/help"
+      },
+      {
+        "text": "Chat",
+        "href": "https://chat.stackoverflow.com/?tab=explore"
+      },
+      {
+        "text": "Products",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "Teams",
+        "href": "https://stackoverflow.co/teams/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=footer&utm_content=teams"
+      },
+      {
+        "text": "Advertising",
+        "href": "https://stackoverflow.co/advertising/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=footer&utm_content=advertising"
+      },
+      {
+        "text": "Talent",
+        "href": "https://stackoverflow.co/advertising/employer-branding/?utm_medium=referral&utm_source=stackoverflow-community&utm_campaign=footer&utm_content=talent"
+      },
+      {
+        "text": "Company",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "About",
+        "href": "https://stackoverflow.co/"
+      },
+      {
+        "text": "Press",
+        "href": "https://stackoverflow.co/company/press/"
+      },
+      {
+        "text": "Work Here",
+        "href": "https://stackoverflow.co/company/work-here/"
+      },
+      {
+        "text": "Legal",
+        "href": "https://stackoverflow.com/legal"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://stackoverflow.com/legal/privacy-policy"
+      },
+      {
+        "text": "Terms of Service",
+        "href": "https://stackoverflow.com/legal/terms-of-service/public"
+      },
+      {
+        "text": "Contact Us",
+        "href": "/contact"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "https://policies.stackoverflow.co/stack-overflow/cookie-policy"
+      },
+      {
+        "text": "Stack Exchange Network",
+        "href": "https://stackexchange.com"
+      },
+      {
+        "text": "Technology",
+        "href": "https://stackexchange.com/sites#technology"
+      },
+      {
+        "text": "Culture & recreation",
+        "href": "https://stackexchange.com/sites#culturerecreation"
+      },
+      {
+        "text": "Life & arts",
+        "href": "https://stackexchange.com/sites#lifearts"
+      },
+      {
+        "text": "Science",
+        "href": "https://stackexchange.com/sites#science"
+      },
+      {
+        "text": "Professional",
+        "href": "https://stackexchange.com/sites#professional"
+      },
+      {
+        "text": "Business",
+        "href": "https://stackexchange.com/sites#business"
+      },
+      {
+        "text": "API",
+        "href": "https://api.stackexchange.com/"
+      },
+      {
+        "text": "Data",
+        "href": "https://data.stackexchange.com/"
+      },
+      {
+        "text": "Blog",
+        "href": "https://stackoverflow.blog?blb=1"
+      },
+      {
+        "text": "Facebook",
+        "href": "https://www.facebook.com/officialstackoverflow/"
+      },
+      {
+        "text": "Twitter",
+        "href": "https://twitter.com/stackoverflow"
+      },
+      {
+        "text": "LinkedIn",
+        "href": "https://linkedin.com/company/stack-overflow"
+      },
+      {
+        "text": "Instagram",
+        "href": "https://www.instagram.com/thestackoverflow"
+      },
+      {
+        "text": "CC BY-SA",
+        "href": "https://stackoverflow.com/help/licensing"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "https://policies.stackoverflow.co/stack-overflow/cookie-policy/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "site logo",
+        "src": "https://cdn.sstatic.net/Sites/stackoverflow/Img/icon-48.png?v=b7e36f88ff92"
+      },
+      {
+        "alt": "",
+        "src": "https://cdn.sstatic.net/Img/teams/teams-promo.svg?v=e507948b81bf"
+      },
+      {
+        "alt": "Illustration of upvote icon after it is clicked",
+        "src": "https://cdn.sstatic.net/Img/modal/img-upvote.png?v=fce73bd9724d"
+      },
+      {
+        "alt": "Illustration of upvote icon after it is clicked",
+        "src": "https://cdn.sstatic.net/Img/modal/img-free-votes.png?v=1c5aa3dac50b"
+      },
+      {
+        "alt": "ZigZagZebra's user avatar",
+        "src": "https://www.gravatar.com/avatar/bb13c0fb87654a6b62f96e9c718a7464?s=64&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "enter image description here",
+        "src": "https://i.sstatic.net/Q8cwN.png"
+      },
+      {
+        "alt": "Rob's user avatar",
+        "src": "https://i.sstatic.net/fzzfuum6.jpg?s=64"
+      },
+      {
+        "alt": "",
+        "src": "https://www.gravatar.com/avatar/bb13c0fb87654a6b62f96e9c718a7464?s=48&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "",
+        "src": "https://i.sstatic.net/fzzfuum6.jpg?s=64"
+      },
+      {
+        "alt": "",
+        "src": "https://www.gravatar.com/avatar/bb13c0fb87654a6b62f96e9c718a7464?s=48&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "",
+        "src": "https://www.gravatar.com/avatar/e03c679660f111bf08d40f202e742a15?s=48&d=identicon&r=PG&f=y&so-version=2"
+      },
+      {
+        "alt": "",
+        "src": "https://www.gravatar.com/avatar/7e810fb933a3e65498b4d4c7027eccf4?s=48&d=identicon&r=PG&f=y&so-version=2"
+      }
+    ],
+    "timestamp": 1760607160557,
+    "url": "https://stackoverflow.com/questions/38064042/access-files-in-var-mobile-containers-data-application-without-jailbreaking-iph?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "url": "https://www.countyoffice.org/property-records/",
+  "extractedAt": "2025-10-16T10:18:40.116Z",
+  "content": {
+    "favicon": [],
+    "title": "",
+    "metaDescription": "",
+    "content": "# 403 Forbidden\nRequest forbidden by administrative rules.",
+    "truncated": false,
+    "fullContentLength": 58,
+    "headings": [
+      {
+        "level": 1,
+        "text": "403 Forbidden"
+      }
+    ],
+    "links": [],
+    "images": [],
+    "timestamp": 1760609919664,
+    "url": "https://www.countyoffice.org/property-records/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

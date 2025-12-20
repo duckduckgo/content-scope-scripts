@@ -1,0 +1,865 @@
+{
+  "url": "https://www.tomshardware.com/how-to/bypass-windows-11-tpm-requirement",
+  "extractedAt": "2025-10-16T10:21:31.836Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://vanilla.futurecdn.net/tomshardware/1428835/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://vanilla.futurecdn.net/tomshardware/1428835/favicon.ico",
+        "rel": "icon"
+      },
+      {
+        "href": "https://vanilla.futurecdn.net/tomshardware/1428835/apple-touch-icon.png",
+        "rel": "icon"
+      }
+    ],
+    "title": "How to Bypass Windows 11's TPM, CPU and RAM Requirements | Tom's Hardware",
+    "metaDescription": "Use simple utilities to install or upgrade Windows 11 on any PC, regardless of its TPM status or hardware.",
+    "content": "Trending\n\n- [Panther Lake](https://www.tomshardware.com/pc-components/cpus/intel-takes-the-wraps-off-panther-lake-first-18a-client-processor-brings-the-best-of-lunar-lake-and-arrow-lake-together-in-one-package)\n\n- [Battlefield 6](https://www.tomshardware.com/tag/battlefield-6)\n\n- [Intel 18A](https://www.tomshardware.com/tag/intel-18a)\n\n- [Apple A19 vs Ryzen 9](https://www.tomshardware.com/pc-components/cpus/apples-a19-pro-beats-ryzen-9-9950x-in-single-thread-geekbench-tests-iphone-17-pro-chip-packs-11-12-percent-cpu-performance-bump-gpu-performance-up-37-percent-over-predecessor)\n\n- [RTX 5090](https://www.tomshardware.com/tag/rtx-5090)\n\n              \n \n- [Software](https://www.tomshardware.com/software)\n \n- [Operating Systems](https://www.tomshardware.com/software/operating-systems)\n \n- [Windows](https://www.tomshardware.com/software/operating-systems/windows)\n \n  \n# How to Bypass Windows 11's TPM, CPU and RAM Requirements\n   [How-To](https://www.tomshardware.com/how-to)   By [Les Pounder](https://www.tomshardware.com/author/les-pounder), [Avram Piltch](https://www.tomshardware.com/author/avram-piltch)   last updated September 30, 2025    Use simple utilities to install Windows 11 on any PC.\n  \n \n- \n \n- \n  \n- [**](https://www.reddit.com/submit?url=https://www.tomshardware.com/how-to/bypass-windows-11-tpm-requirement&title=How%20to%20Bypass%20Windows%2011's%20TPM,%20CPU%20and%20RAM%20Requirements)\n \n- \n \n- \n \n- [**](mailto:?subject=I%20found%20this%20webpage&body=Hi,%20I%20found%20this%20webpage%20and%20thought%20you%20might%20like%20it%20https://www.tomshardware.com/how-to/bypass-windows-11-tpm-requirement)\n \n [** Comments (75)](#xenforo-comments-3726776)     When you purchase through links on our site, we may earn an affiliate commission. [Here’s how it works](https://www.tomshardware.com/reviews/about-us,4260.html#section-affiliate-advertising-disclosure). \n                    (Image credit: Tom's Hardware)     \n## TL;DR How to Bypass Windows 11's TPM, CPU and RAM Requirements\n\n\n- Bypassing Windows 11's hardware requirements is trivial, there is even an official means, but that requires TMP 1.2.\n\n- Install Windows 11 using a clean install, then edit the registry as part of the install process.\n\n- Create a custom Windows 11 USB install drive (using a tool like [Rufus](https://www.google.com/url?q=https://rufus.ie/en/&sa=D&source=editors&ust=1635559421771000&usg=AOvVaw0Gtfedpjms67-b7NhuuW_C)), which can then be used to automatically bypass the requirements.\n\n[Microsoft](https://www.tomshardware.com/tag/microsoft)'s strict hardware requirements to install [Windows 11](https://www.tomshardware.com/tag/windows-11), which includes TPM 2.0 means that upgrading older computers to the latest OS will be met with \"this PC doesn't currently meet Windows 11 system requirements\" error message, but we can bypass this and the other requirements by performing a clean install and editing the registry during the setup process or we can use a tool like Rufus to create a custom Windows 11 installation USB stick.\nFortunately, there are several simple ways you can get bypass Windows 11's TPM, RAM and other requirements. If you're doing a clean install with a Windows 11 ISO, you can edit the registry in the middle of the setup process and tell it to skip requirement checks. We'll show you how to modify the registry in the first section below.\nIf you don't want to have to modify the registry mid-install, you can create a Windows 11 USB install disk that will bypass Windows 11's TPM requirement, and its need for 8GB of RAM and a supported CPU. Using a free tool called Rufus and at least a 16GB Flash drive, you can either perform an in-place upgrade of Windows 10 to 11 or a Windows 11 clean install while getting around these minimums. In the second section of our tutorial below, we'll show you how to use Rufus to create a requirement-free Windows 11 install disc.\nLatest Videos From Tom's Hardware  You may like  \n \n- [Ditching Windows 10? Here's how I installed Windows 11, removed AI, and stripped out unnecessary features](https://www.tomshardware.com/software/windows/ditching-windows-10-heres-how-i-installed-windows-11-removed-ai-and-stripped-out-unnecessary-options-using-flyoobe)\n \n- [How to upgrade to Windows 11 — make your update as painless as possible now windows 10 support has ended](https://www.tomshardware.com/software/windows/i-was-forced-to-update-to-windows-11-and-it-wasnt-as-bad-as-i-thought-how-to-upgrade-from-windows-10-to-windows-11-without-tearing-your-hair-out)\n \n- [How to tweak your Windows 11 and Windows 10 setup with Winaero Tweaker — easily remove ads, tracking, AI copilot, and more](https://www.tomshardware.com/software/windows/how-to-tweak-your-windows-11-and-windows-10-setup-with-winaero-tweaker-easily-remove-ads-tracking-ai-copilot-and-more)\n \n If you have Windows 10 or an earlier build of Windows 11 installed on a PC that didn't meet the requirements (perhaps a VM), you try to update to a new build with Windows Update and you get the \"doesn't meet requirements\" error message, there's a workaround for that. As we'll detail in the third section below, a script from AveYo's Media Creation tool github page will allow you to bypass Windows 11's TPM requirement even with Windows Update.\nNote that Microsoft also has also created an official registry hack to bypass TPM 2.0 and CPU requirements for an in-place upgrade. However, this method still requires at least TPM 1.2 so, if you have no TPM at all, it's worthless. We'll talk about this at the bottom, in case you want to try it.\nAlso note that, by default, Microsoft's OS wants you to set it up with a Microsoft account. However, we have another tutorial on [how to install Windows 11 without a Microsoft Account](https://www.tomshardware.com/how-to/install-windows-11-without-microsoft-account) by using a few tricks.\n    \n(Image credit: Tom's Hardware)\n## How to Bypass Windows 11's TPM Requirement Using Registry Hacks\nIf you just have a regular Windows 11 install disk or ISO, you can bypass the Windows TPM and RAM requirements by making some registry changes during the install. Note that this method only works on a clean install and does not allow you to bypass the requirement for at least a dual-core CPU.\nStay On the Cutting Edge: Get the Tom's Hardware NewsletterGet Tom's Hardware's best news and in-depth reviews, straight to your inbox.\nContact me with news and offers from other Future brandsReceive email from us on behalf of our trusted partners or sponsorsBy submitting your information you agree to the [Terms & Conditions](https://futureplc.com/terms-conditions/) and [Privacy Policy](https://futureplc.com/privacy-policy/) and are aged 16 or over.1. **Boot off of your Windows 11 install disk**. If you don't have one, see our story on [how to download Windows 11](https://www.tomshardware.com/how-to/clean-install-windows-11). The first screen should ask you to choose the language of your install (which will probably be correct).\n    \n(Image credit: Tom's Hardware)2. **Hit SHIFT + F10 **to launch the command prompt.\n    \n(Image credit: Tom's Hardware)3. **Type regedit **and hit Enter to launch registry editor.\n  You may like  \n \n- [Ditching Windows 10? Here's how I installed Windows 11, removed AI, and stripped out unnecessary features](https://www.tomshardware.com/software/windows/ditching-windows-10-heres-how-i-installed-windows-11-removed-ai-and-stripped-out-unnecessary-options-using-flyoobe)\n \n- [How to upgrade to Windows 11 — make your update as painless as possible now windows 10 support has ended](https://www.tomshardware.com/software/windows/i-was-forced-to-update-to-windows-11-and-it-wasnt-as-bad-as-i-thought-how-to-upgrade-from-windows-10-to-windows-11-without-tearing-your-hair-out)\n \n- [How to tweak your Windows 11 and Windows 10 setup with Winaero Tweaker — easily remove ads, tracking, AI copilot, and more](https://www.tomshardware.com/software/windows/how-to-tweak-your-windows-11-and-windows-10-setup-with-winaero-tweaker-easily-remove-ads-tracking-ai-copilot-and-more)\n \n     \n(Image credit: Tom's Hardware)4. **Navigate to *****HKEY_LOCAL_MACHINE\\SYSTEM\\Setup. ***\n    \n(Image credit: Tom's Hardware)5. **Create a new registry key under Setup **and **name it *****LabConfig. ***To create a registry key, right click in the right window pane and select New->Key. Then enter the key name.\n    \n(Image credit: Tom's Hardware)6. Within LabConfig, **create DWORDs values called *****BypassTPMCheck***** and *****BypassSecureBootCheck ***and **set each to 1**. To create a new DWORD value, right click in the right window and select new DWORD (32-bit) Value then name the key, double click to open it and set it to 1.\n    \n(Image credit: Tom's Hardware)If you also want to bypass the RAM requirement, **add a DWORD values for *****BypassRAMCheck***.\n7. **Close regedit** and the **command prompt**.\nYou should be able to continue with your Windows 11 installation as normal.\n\n## How to Bypass Windows 11's TPM Requirement Using Rufus\nWith Rufus, a free utility, you can create a Windows 11 install disk on a USB Flash drive with settings that disable the TPM, RAM and CPU requirements. You can either boot off of this USB Flash drive to do a clean Windows 11 install or run the setup file off of the drive from within Windows 10 to do an in-place upgrade.\nFor most people, this method is ideal, but there are a couple of disadvantages. First, it requires a 16GB or larger USB Flash drive. Second, ...",
+    "truncated": true,
+    "fullContentLength": 24330,
+    "headings": [
+      {
+        "level": 1,
+        "text": "How to Bypass Windows 11's TPM, CPU and RAM Requirements"
+      },
+      {
+        "level": 2,
+        "text": "TL;DR How to Bypass Windows 11's TPM, CPU and RAM Requirements"
+      },
+      {
+        "level": 2,
+        "text": "How to Bypass Windows 11's TPM Requirement Using Registry Hacks"
+      },
+      {
+        "level": 2,
+        "text": "How to Bypass Windows 11's TPM Requirement Using Rufus"
+      },
+      {
+        "level": 2,
+        "text": "How to Bypass Windows 11 TPM Check From Windows Update"
+      },
+      {
+        "level": 2,
+        "text": "How to Bypass Windows 11 TPM the Official Microsoft Way"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to main content",
+        "href": "#main"
+      },
+      {
+        "text": "Tom's Hardware",
+        "href": "https://www.tomshardware.com"
+      },
+      {
+        "text": "UK",
+        "href": "https://www.tomshardware.com/how-to/bypass-windows-11-tpm-requirement"
+      },
+      {
+        "text": "US",
+        "href": "https://www.tomshardware.com/how-to/bypass-windows-11-tpm-requirement"
+      },
+      {
+        "text": "Australia",
+        "href": "https://www.tomshardware.com/how-to/bypass-windows-11-tpm-requirement"
+      },
+      {
+        "text": "Canada",
+        "href": "https://www.tomshardware.com/how-to/bypass-windows-11-tpm-requirement"
+      },
+      {
+        "text": "RSS",
+        "href": "https://www.tomshardware.com/feeds.xml"
+      },
+      {
+        "text": "Best Picks",
+        "href": "https://www.tomshardware.com/best-picks"
+      },
+      {
+        "text": "CPUs",
+        "href": "https://www.tomshardware.com/pc-components/cpus"
+      },
+      {
+        "text": "GPUs",
+        "href": "https://www.tomshardware.com/pc-components/gpus"
+      },
+      {
+        "text": "SSDs",
+        "href": "https://www.tomshardware.com/pc-components/storage/ssds"
+      },
+      {
+        "text": "News",
+        "href": "https://www.tomshardware.com/news"
+      },
+      {
+        "text": "Laptops",
+        "href": "https://www.tomshardware.com/laptops"
+      },
+      {
+        "text": "Premium",
+        "href": "https://www.tomshardware.com/premium"
+      },
+      {
+        "text": "Coupons",
+        "href": "/coupons"
+      },
+      {
+        "text": "Newsletter",
+        "href": "https://www.tomshardware.com/how-to/sign-up-for-newsletter"
+      },
+      {
+        "text": "Reviews",
+        "href": "https://www.tomshardware.com/reviews"
+      },
+      {
+        "text": "PC Components",
+        "href": "https://www.tomshardware.com/pc-components"
+      },
+      {
+        "text": "PC Building",
+        "href": "https://www.tomshardware.com/desktops/pc-building"
+      },
+      {
+        "text": "Motherboards",
+        "href": "https://www.tomshardware.com/pc-components/motherboards"
+      },
+      {
+        "text": "Cases",
+        "href": "https://www.tomshardware.com/pc-components/pc-cases"
+      },
+      {
+        "text": "Cooling",
+        "href": "https://www.tomshardware.com/pc-components/cooling"
+      },
+      {
+        "text": "Power Supplies",
+        "href": "https://www.tomshardware.com/pc-components/power-supplies"
+      },
+      {
+        "text": "RAM",
+        "href": "https://www.tomshardware.com/pc-components/ram"
+      },
+      {
+        "text": "Desktops",
+        "href": "https://www.tomshardware.com/desktops"
+      },
+      {
+        "text": "3D Printers",
+        "href": "https://www.tomshardware.com/3d-printing"
+      },
+      {
+        "text": "Peripherals",
+        "href": "https://www.tomshardware.com/peripherals"
+      },
+      {
+        "text": "Monitors",
+        "href": "https://www.tomshardware.com/monitors"
+      },
+      {
+        "text": "Windows 11",
+        "href": "https://www.tomshardware.com/tag/windows-11"
+      },
+      {
+        "text": "Gaming",
+        "href": "https://www.tomshardware.com/tag/gaming"
+      },
+      {
+        "text": "Overclocking",
+        "href": "https://www.tomshardware.com/pc-components/overclocking"
+      },
+      {
+        "text": "About Us",
+        "href": "https://www.tomshardware.com/reviews/about-us,4260.html"
+      },
+      {
+        "text": "Forums",
+        "href": "https://forums.tomshardware.com/"
+      },
+      {
+        "text": "Panther Lake",
+        "href": "https://www.tomshardware.com/pc-components/cpus/intel-takes-the-wraps-off-panther-lake-first-18a-client-processor-brings-the-best-of-lunar-lake-and-arrow-lake-together-in-one-package"
+      },
+      {
+        "text": "Battlefield 6",
+        "href": "https://www.tomshardware.com/tag/battlefield-6"
+      },
+      {
+        "text": "Intel 18A",
+        "href": "https://www.tomshardware.com/tag/intel-18a"
+      },
+      {
+        "text": "Apple A19 vs Ryzen 9",
+        "href": "https://www.tomshardware.com/pc-components/cpus/apples-a19-pro-beats-ryzen-9-9950x-in-single-thread-geekbench-tests-iphone-17-pro-chip-packs-11-12-percent-cpu-performance-bump-gpu-performance-up-37-percent-over-predecessor"
+      },
+      {
+        "text": "RTX 5090",
+        "href": "https://www.tomshardware.com/tag/rtx-5090"
+      },
+      {
+        "text": "CPUs\nIntel vs AMD: Which CPUs Are Better in 2025?",
+        "href": "https://www.tomshardware.com/features/amd-vs-intel-cpus"
+      },
+      {
+        "text": "RAM\nRAM Benchmark Hierarchy 2025: DDR5, DDR4 for AMD, Intel CPUs",
+        "href": "https://www.tomshardware.com/news/ram-benchmark-hierarchy"
+      },
+      {
+        "text": "Gaming PCs\nBest Gaming PCs of 2025",
+        "href": "https://www.tomshardware.com/best-picks/best-gaming-pcs"
+      },
+      {
+        "text": "Peripherals\nThese 15 gadgets under $50 have upgraded my tech life, and you can still get them on sale for Prime Day",
+        "href": "https://www.tomshardware.com/peripherals/best-cheap-pc-gadgets-amazon-prime-day-15-under-50-dollars"
+      },
+      {
+        "text": "Windows\nDitching Windows 10? Here's how I installed Windows 11, removed AI, and stripped out unnecessary features",
+        "href": "https://www.tomshardware.com/software/windows/ditching-windows-10-heres-how-i-installed-windows-11-removed-ai-and-stripped-out-unnecessary-options-using-flyoobe"
+      },
+      {
+        "text": "Windows\nHow to upgrade to Windows 11 — make your update as painless as possible now windows 10 support has ended",
+        "href": "https://www.tomshardware.com/software/windows/i-was-forced-to-update-to-windows-11-and-it-wasnt-as-bad-as-i-thought-how-to-upgrade-from-windows-10-to-windows-11-without-tearing-your-hair-out"
+      },
+      {
+        "text": "Windows\nHow to tweak your Windows 11 and Windows 10 setup with Winaero Tweaker — easily remove ads, tracking, AI copilot, and more",
+        "href": "https://www.tomshardware.com/software/windows/how-to-tweak-your-windows-11-and-windows-10-setup-with-winaero-tweaker-easily-remove-ads-tracking-ai-copilot-and-more"
+      },
+      {
+        "text": "Operating Systems\nHere's how I installed Windows 11 using a nano-sized 2.4GB ISO",
+        "href": "https://www.tomshardware.com/software/operating-systems/heres-how-i-installed-windows-11-using-a-nano-sized-2-4gb-iso-final-install-weighed-in-at-a-mere-8-36gb-two-thirds-the-size-of-a-normal-windows-install-courtesy-of-nano11-builder"
+      },
+      {
+        "text": "Windows\nWindows 10 support ends today",
+        "href": "https://www.tomshardware.com/software/windows/windows-10-is-no-longer-safe-to-run-heres-whos-affected-and-what-you-need-to-do"
+      },
+      {
+        "text": "Windows\nMicrosoft clamping down on Windows 11 local account setup",
+        "href": "https://www.tomshardware.com/software/windows/microsoft-clamping-down-on-windows-11-local-account-setup-latest-insider-build-removes-local-only-commands-skipping-microsoft-account-sign-in-will-crash-setup-process"
+      },
+      {
+        "text": "Windows\nNano11 compresses Windows 11 install footprint to as little as 2.8GB",
+        "href": "https://www.tomshardware.com/software/windows/nano11-compresses-windows-11-install-footprint-to-as-little-as-2-8gb-extreme-experimental-script-is-3-5-times-smaller-than-tiny11-and-comes-with-none-of-the-fluff"
+      },
+      {
+        "text": "Windows\nMicrosoft’s August 2025 security updates are breaking recovery tools on Windows 10 and Windows 11 PCs",
+        "href": "https://www.tomshardware.com/software/windows/microsofts-august-2025-security-updates-are-breaking-recovery-tools-on-windows-10-and-windows-11-pcs"
+      },
+      {
+        "text": "PC Gaming\nCheck that you're ready for invasive DRM with new feature built right into Steam",
+        "href": "https://www.tomshardware.com/video-games/pc-gaming/check-that-youre-ready-for-invasive-drm-with-new-feature-built-right-into-steam-secure-boot-and-tpm-status-now-listed-right-in-the-app"
+      },
+      {
+        "text": "Operating Systems\nCustom Windows 11 builder axes Microsoft's AI features, whack-a-moling Copilot, Outlook, and Teams",
+        "href": "https://www.tomshardware.com/software/operating-systems/custom-windows-11-builder-axes-microsofts-ai-features-whack-a-moling-copilot-outlook-and-teams-new-tiny11-builder-release-should-be-windows-11-25h2-ready"
+      },
+      {
+        "text": "RAM\nHow to Test RAM: Making Sure Bad Memory Isn't Crashing Your PC",
+        "href": "https://www.tomshardware.com/how-to/how-to-test-ram"
+      },
+      {
+        "text": "Software",
+        "href": "https://www.tomshardware.com/software"
+      },
+      {
+        "text": "Operating Systems",
+        "href": "https://www.tomshardware.com/software/operating-systems"
+      },
+      {
+        "text": "Windows",
+        "href": "https://www.tomshardware.com/software/operating-systems/windows"
+      },
+      {
+        "text": "How-To",
+        "href": "https://www.tomshardware.com/how-to"
+      },
+      {
+        "text": "Les Pounder",
+        "href": "https://www.tomshardware.com/author/les-pounder"
+      },
+      {
+        "text": "Avram Piltch",
+        "href": "https://www.tomshardware.com/author/avram-piltch"
+      },
+      {
+        "text": "Comments (75)",
+        "href": "#xenforo-comments-3726776"
+      },
+      {
+        "text": "Here’s how it works",
+        "href": "https://www.tomshardware.com/reviews/about-us,4260.html#section-affiliate-advertising-disclosure"
+      },
+      {
+        "text": "Rufus",
+        "href": "https://www.google.com/url?q=https://rufus.ie/en/&sa=D&source=editors&ust=1635559421771000&usg=AOvVaw0Gtfedpjms67-b7NhuuW_C"
+      },
+      {
+        "text": "Microsoft",
+        "href": "https://www.tomshardware.com/tag/microsoft"
+      },
+      {
+        "text": "Windows 11",
+        "href": "https://www.tomshardware.com/tag/windows-11"
+      },
+      {
+        "text": "Ditching Windows 10? Here's how I installed Windows 11, removed AI, and stripped out unnecessary features",
+        "href": "https://www.tomshardware.com/software/windows/ditching-windows-10-heres-how-i-installed-windows-11-removed-ai-and-stripped-out-unnecessary-options-using-flyoobe"
+      },
+      {
+        "text": "How to upgrade to Windows 11 — make your update as painless as possible now windows 10 support has ended",
+        "href": "https://www.tomshardware.com/software/windows/i-was-forced-to-update-to-windows-11-and-it-wasnt-as-bad-as-i-thought-how-to-upgrade-from-windows-10-to-windows-11-without-tearing-your-hair-out"
+      },
+      {
+        "text": "How to tweak your Windows 11 and Windows 10 setup with Winaero Tweaker — easily remove ads, tracking, AI copilot, and more",
+        "href": "https://www.tomshardware.com/software/windows/how-to-tweak-your-windows-11-and-windows-10-setup-with-winaero-tweaker-easily-remove-ads-tracking-ai-copilot-and-more"
+      },
+      {
+        "text": "how to install Windows 11 without a Microsoft Account",
+        "href": "https://www.tomshardware.com/how-to/install-windows-11-without-microsoft-account"
+      },
+      {
+        "text": "Terms & Conditions",
+        "href": "https://futureplc.com/terms-conditions/"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://futureplc.com/privacy-policy/"
+      },
+      {
+        "text": "how to download Windows 11",
+        "href": "https://www.tomshardware.com/how-to/clean-install-windows-11"
+      },
+      {
+        "text": "Ditching Windows 10? Here's how I installed Windows 11, removed AI, and stripped out unnecessary features",
+        "href": "https://www.tomshardware.com/software/windows/ditching-windows-10-heres-how-i-installed-windows-11-removed-ai-and-stripped-out-unnecessary-options-using-flyoobe"
+      },
+      {
+        "text": "How to upgrade to Windows 11 — make your update as painless as possible now windows 10 support has ended",
+        "href": "https://www.tomshardware.com/software/windows/i-was-forced-to-update-to-windows-11-and-it-wasnt-as-bad-as-i-thought-how-to-upgrade-from-windows-10-to-windows-11-without-tearing-your-hair-out"
+      },
+      {
+        "text": "How to tweak your Windows 11 and Windows 10 setup with Winaero Tweaker — easily remove ads, tracking, AI copilot, and more",
+        "href": "https://www.tomshardware.com/software/windows/how-to-tweak-your-windows-11-and-windows-10-setup-with-winaero-tweaker-easily-remove-ads-tracking-ai-copilot-and-more"
+      },
+      {
+        "text": "Download the latest version of Rufus",
+        "href": "https://www.google.com/url?q=https://rufus.ie/en/&sa=D&source=editors&ust=1635559421771000&usg=AOvVaw0Gtfedpjms67-b7NhuuW_C"
+      },
+      {
+        "text": "how to enter your BIOS",
+        "href": "https://www.tomshardware.com/reviews/bios-keys-to-access-your-firmware,5732.html"
+      },
+      {
+        "text": "Navigate to the Skip_TPM_Check_on_Dynamic_Update.cmd",
+        "href": "https://github.com/AveYo/MediaCreationTool.bat/blob/main/bypass11/Skip_TPM_Check_on_Dynamic_Update.cmd"
+      },
+      {
+        "text": "How to Get a Windows 11 ISO File and Do a Clean Install",
+        "href": "https://www.tomshardware.com/how-to/clean-install-windows-11"
+      },
+      {
+        "text": "How to Enable God Mode in Windows 11 or 10",
+        "href": "https://www.tomshardware.com/how-to/enable-god-mode-windows-11"
+      },
+      {
+        "text": "How to Uninstall Windows 11 and Return to 10",
+        "href": "https://www.tomshardware.com/how-to/uninstall-windows-11"
+      },
+      {
+        "text": "How to Clean Install Windows 11, No Product Key Required",
+        "href": "https://www.tomshardware.com/how-to/clean-install-windows-11"
+      },
+      {
+        "text": "How to Install Windows 11 in a Virtual Machine",
+        "href": "https://www.tomshardware.com/how-to/install-windows-11-virtual-machine"
+      },
+      {
+        "text": "Windows 11",
+        "href": "https://www.tomshardware.com/tag/windows-11"
+      },
+      {
+        "text": "Microsoft",
+        "href": "https://www.tomshardware.com/tag/microsoft"
+      },
+      {
+        "text": "flash",
+        "href": "https://www.tomshardware.com/tag/flash"
+      },
+      {
+        "text": "GitHub",
+        "href": "https://www.tomshardware.com/tag/github"
+      },
+      {
+        "text": "Flash Memory",
+        "href": "https://www.tomshardware.com/tag/flash-memory"
+      },
+      {
+        "text": "See all comments (75)",
+        "href": "#xenforo-comments-3726776"
+      },
+      {
+        "text": "Avram Piltch",
+        "href": "https://www.tomshardware.com/author/avram-piltch"
+      },
+      {
+        "text": "Ditching Windows 10? Here's how I installed Windows 11, removed AI, and stripped out unnecessary features",
+        "href": "https://www.tomshardware.com/software/windows/ditching-windows-10-heres-how-i-installed-windows-11-removed-ai-and-stripped-out-unnecessary-options-using-flyoobe"
+      },
+      {
+        "text": "How to upgrade to Windows 11 — make your update as painless as possible now windows 10 support has ended",
+        "href": "https://www.tomshardware.com/software/windows/i-was-forced-to-update-to-windows-11-and-it-wasnt-as-bad-as-i-thought-how-to-upgrade-from-windows-10-to-windows-11-without-tearing-your-hair-out"
+      },
+      {
+        "text": "How to tweak your Windows 11 and Windows 10 setup with Winaero Tweaker — easily remove ads, tracking, AI copilot, and more",
+        "href": "https://www.tomshardware.com/software/windows/how-to-tweak-your-windows-11-and-windows-10-setup-with-winaero-tweaker-easily-remove-ads-tracking-ai-copilot-and-more"
+      },
+      {
+        "text": "Here's how I installed Windows 11 using a nano-sized 2.4GB ISO",
+        "href": "https://www.tomshardware.com/software/operating-systems/heres-how-i-installed-windows-11-using-a-nano-sized-2-4gb-iso-final-install-weighed-in-at-a-mere-8-36gb-two-thirds-the-size-of-a-normal-windows-install-courtesy-of-nano11-builder"
+      },
+      {
+        "text": "Windows 10 support ends today",
+        "href": "https://www.tomshardware.com/software/windows/windows-10-is-no-longer-safe-to-run-heres-whos-affected-and-what-you-need-to-do"
+      },
+      {
+        "text": "Microsoft clamping down on Windows 11 local account setup",
+        "href": "https://www.tomshardware.com/software/windows/microsoft-clamping-down-on-windows-11-local-account-setup-latest-insider-build-removes-local-only-commands-skipping-microsoft-account-sign-in-will-crash-setup-process"
+      },
+      {
+        "text": "As Windows 10 signs off, ReactOS devs are exploring a long-awaited feature in WDDM support",
+        "href": "https://www.tomshardware.com/software/windows/as-windows-10-signs-off-reactos-devs-are-exploring-a-long-awaited-feature-in-wddm-support-investigation-could-pave-the-way-for-newer-gpu-hardware-compatibility"
+      },
+      {
+        "text": "Windows 10 support ends today",
+        "href": "https://www.tomshardware.com/software/windows/windows-10-is-no-longer-safe-to-run-heres-whos-affected-and-what-you-need-to-do"
+      },
+      {
+        "text": "Microsoft breaks Media Creation Tool on the eve of Windows 10 end-of-life",
+        "href": "https://www.tomshardware.com/software/windows/microsoft-breaks-media-creation-tool-on-the-eve-of-windows-10-end-of-life-company-confirms-windows-11-upgrade-tool-might-not-work-as-expected-outlines-alternatives"
+      },
+      {
+        "text": "How to upgrade to Windows 11 — make your update as painless as possible now windows 10 support has ended",
+        "href": "https://www.tomshardware.com/software/windows/i-was-forced-to-update-to-windows-11-and-it-wasnt-as-bad-as-i-thought-how-to-upgrade-from-windows-10-to-windows-11-without-tearing-your-hair-out"
+      },
+      {
+        "text": "The true story behind the most famous product activation key of all time: infamous Windows XP 'FCKGW' licensing key was actually 'a disastrous leak'",
+        "href": "https://www.tomshardware.com/software/windows/legendary-microsoft-developer-reveals-the-true-story-behind-the-most-famous-product-activation-key-of-all-time-infamous-windows-xp-fckgw-licensing-key-was-actually-a-disastrous-leak"
+      },
+      {
+        "text": "Microsoft clamping down on Windows 11 local account setup",
+        "href": "https://www.tomshardware.com/software/windows/microsoft-clamping-down-on-windows-11-local-account-setup-latest-insider-build-removes-local-only-commands-skipping-microsoft-account-sign-in-will-crash-setup-process"
+      },
+      {
+        "text": "Hack to the Future — here's how you can write BASIC code on a modern-day PC",
+        "href": "https://www.tomshardware.com/software/programming/hack-to-the-future-heres-how-you-can-write-basic-code-on-a-modern-day-pc"
+      },
+      {
+        "text": "How to make graphical Python apps the EasyGUI way",
+        "href": "https://www.tomshardware.com/software/python/how-to-make-graphical-python-apps-the-easygui-way"
+      },
+      {
+        "text": "Here's how I multi-task in the Linux terminal with Tmux",
+        "href": "https://www.tomshardware.com/software/linux/heres-how-i-multi-task-in-the-linux-terminal-with-tmux"
+      },
+      {
+        "text": "I built a configurable ADB-to-USB adaptor to use a 1990 Apple keyboard with modern Windows and USB",
+        "href": "https://www.tomshardware.com/peripherals/mechanical-keyboards/i-built-a-configurable-adb-to-usb-adaptor-to-use-a-vintage-1990-apple-keyboard-with-modern-windows-and-usb-modern-keyboards-and-magnetic-switches-cant-compete-with-alps"
+      },
+      {
+        "text": "How to transfer and share files over a network without a USB flash drive — and with just one line of code",
+        "href": "https://www.tomshardware.com/software/how-to-transfer-and-share-files-over-a-network-without-a-usb-flash-drive-and-with-just-one-line-of-code"
+      },
+      {
+        "text": "I'm organizing my life with a 3D printer and Bento3D — here's how you can build your own organizer",
+        "href": "https://www.tomshardware.com/3d-printing/im-organizing-my-life-with-a-3d-printer-and-bento3d-heres-how-you-can-build-your-own-organizer"
+      },
+      {
+        "text": "Comment from the forums",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Reply",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Reply",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Reply",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Reply",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Reply",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Reply",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Reply",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Reply",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Reply",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Reply",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "View All 75 Comments",
+        "href": "https://forums.tomshardware.com/threads/how-to-bypass-windows-11s-tpm-requirement-and-upgrade-from-windows-10.3726776/"
+      },
+      {
+        "text": "Visit our corporate site",
+        "href": "https://futureplc.com/"
+      },
+      {
+        "text": "Terms and conditions",
+        "href": "https://futureplc.com/terms-conditions/"
+      },
+      {
+        "text": "Contact Future's experts",
+        "href": "https://futureplc.com/contact/"
+      },
+      {
+        "text": "Privacy policy",
+        "href": "https://futureplc.com/privacy-policy/"
+      },
+      {
+        "text": "Cookies policy",
+        "href": "https://futureplc.com/cookies-policy/"
+      },
+      {
+        "text": "Accessibility Statement",
+        "href": "https://futureplc.com/accessibility-statement/"
+      },
+      {
+        "text": "Advertise with us",
+        "href": "https://go.future-advertising.com/Toms-Hardware-Media-Kit.html"
+      },
+      {
+        "text": "About us",
+        "href": "https://www.tomshardware.com/reviews/about-us,4260.html#section-contact-info"
+      },
+      {
+        "text": "Coupons",
+        "href": "https://www.tomshardware.com/coupons"
+      },
+      {
+        "text": "Careers",
+        "href": "https://futureplc.com/careers/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "Tom's Hardware",
+        "src": "/media/img/brand_logo.svg"
+      },
+      {
+        "alt": "flag of US",
+        "src": "https://vanilla.futurecdn.net/tomshardware/media/shared/img/flags/nosize/US.svg"
+      },
+      {
+        "alt": "flag of UK",
+        "src": "https://vanilla.futurecdn.net/tomshardware/media/shared/img/flags/nosize/GB.svg"
+      },
+      {
+        "alt": "flag of US",
+        "src": "https://vanilla.futurecdn.net/tomshardware/media/shared/img/flags/nosize/US.svg"
+      },
+      {
+        "alt": "flag of Australia",
+        "src": "https://vanilla.futurecdn.net/tomshardware/media/shared/img/flags/nosize/AU.svg"
+      },
+      {
+        "alt": "flag of Canada",
+        "src": "https://vanilla.futurecdn.net/tomshardware/media/shared/img/flags/nosize/CA.svg"
+      },
+      {
+        "alt": "Intel vs AMD",
+        "src": "https://cdn.mos.cms.futurecdn.net/ZT89RwnfySndiR8Favks9k.jpg"
+      },
+      {
+        "alt": "RAM Benchmark Hierarchy",
+        "src": "https://cdn.mos.cms.futurecdn.net/N435TKXwPMnd3GuxfhvTPZ.jpg"
+      },
+      {
+        "alt": "Mirror Maze PC Build",
+        "src": "https://cdn.mos.cms.futurecdn.net/kj3ZbACtQnnhFTB6nCMFUC.jpg"
+      },
+      {
+        "alt": "Under $50 Gadgets",
+        "src": "https://cdn.mos.cms.futurecdn.net/eaFGYePs6wJtjQ4D6fGryA.jpg"
+      },
+      {
+        "alt": "Flyoobe",
+        "src": "https://cdn.mos.cms.futurecdn.net/f54de8wW8FBxnDFMrWsAVE.jpg"
+      },
+      {
+        "alt": "Windows 10 to 11",
+        "src": "https://cdn.mos.cms.futurecdn.net/co4jMFVgLxDSkYMtRxvZKA.jpg"
+      },
+      {
+        "alt": "AeroTweaker",
+        "src": "https://cdn.mos.cms.futurecdn.net/GtvTQqbVxe7rFivdZmqqai.jpg"
+      },
+      {
+        "alt": "Smol Windows",
+        "src": "https://cdn.mos.cms.futurecdn.net/EBbpnnW3ZQ6sYrtqs2UdxE.jpg"
+      },
+      {
+        "alt": "Windows 10 laptop sitting on a desk in a dark room.",
+        "src": "https://cdn.mos.cms.futurecdn.net/ySimRFAV4FPfQqYuTyEg33.jpg"
+      },
+      {
+        "alt": "Windows 11",
+        "src": "https://cdn.mos.cms.futurecdn.net/A3bqjPsbEd6W9WtTAebSpJ.jpg"
+      },
+      {
+        "alt": "Nano11 Builder",
+        "src": "https://cdn.mos.cms.futurecdn.net/Ritfuyc62CTzuimqyEqCMU.jpg"
+      },
+      {
+        "alt": "Windows 11 Reset this PC feature",
+        "src": "https://cdn.mos.cms.futurecdn.net/VaqWzpra88zy5ZuPq5qabY.jpg"
+      },
+      {
+        "alt": "Steam cover art ",
+        "src": "https://cdn.mos.cms.futurecdn.net/CBt66kAwURokqymNekYL97.jpg"
+      },
+      {
+        "alt": "Tiny11 Builder updated",
+        "src": "https://cdn.mos.cms.futurecdn.net/HuZtrGRTdh6S8t7p6EVYjV.jpg"
+      },
+      {
+        "alt": "RAM",
+        "src": "https://cdn.mos.cms.futurecdn.net/5oh5yLqiCafUmrFN6BuD5e.jpg"
+      },
+      {
+        "alt": "Bypass Windows 11 TPM",
+        "src": "https://cdn.mos.cms.futurecdn.net/8mUWftaodG5yLHD4Aousrh.png"
+      },
+      {
+        "alt": "Flyoobe",
+        "src": "https://cdn.mos.cms.futurecdn.net/f54de8wW8FBxnDFMrWsAVE.jpg"
+      },
+      {
+        "alt": "Windows 10 to 11",
+        "src": "https://cdn.mos.cms.futurecdn.net/co4jMFVgLxDSkYMtRxvZKA.jpg"
+      },
+      {
+        "alt": "AeroTweaker",
+        "src": "https://cdn.mos.cms.futurecdn.net/GtvTQqbVxe7rFivdZmqqai.jpg"
+      },
+      {
+        "alt": "Bypass Windows 11 TPM",
+        "src": "https://cdn.mos.cms.futurecdn.net/NqMzRKjp8kqciAQ3T6CVSf.png"
+      },
+      {
+        "alt": "Windows 11 installer",
+        "src": "https://cdn.mos.cms.futurecdn.net/2eCEctwLVJmAuSLKqoP5SK.png"
+      },
+      {
+        "alt": "command prompt in Windows 11 installer",
+        "src": "https://cdn.mos.cms.futurecdn.net/i7K7krvTGyuyPkpEbdqTUY.png"
+      },
+      {
+        "alt": "Flyoobe",
+        "src": "https://cdn.mos.cms.futurecdn.net/f54de8wW8FBxnDFMrWsAVE.jpg"
+      },
+      {
+        "alt": "Windows 10 to 11",
+        "src": "https://cdn.mos.cms.futurecdn.net/co4jMFVgLxDSkYMtRxvZKA.jpg"
+      },
+      {
+        "alt": "AeroTweaker",
+        "src": "https://cdn.mos.cms.futurecdn.net/GtvTQqbVxe7rFivdZmqqai.jpg"
+      },
+      {
+        "alt": "launch regedit",
+        "src": "https://cdn.mos.cms.futurecdn.net/Cogy7mjz8MtR3pwZKBaDUf.png"
+      },
+      {
+        "alt": "Navigate to the hkey_local_machine system setup key",
+        "src": "https://cdn.mos.cms.futurecdn.net/JrpMwHUzMwwo9EoUFDetMC.png"
+      },
+      {
+        "alt": "Create a registry key called LabConfig",
+        "src": "https://cdn.mos.cms.futurecdn.net/VhisnzE9aYdpHrWTW2upDb.png"
+      },
+      {
+        "alt": "Create DWORD values",
+        "src": "https://cdn.mos.cms.futurecdn.net/mQaqUXCygReUzkpPr6qLYM.png"
+      },
+      {
+        "alt": "Select USB drive",
+        "src": "https://cdn.mos.cms.futurecdn.net/8fUAXyvNoSRFFAMK5ivCbH.png"
+      },
+      {
+        "alt": "click Download",
+        "src": "https://cdn.mos.cms.futurecdn.net/fvbC7FWctXXRp73dozddAM.png"
+      },
+      {
+        "alt": "select windows 11",
+        "src": "https://cdn.mos.cms.futurecdn.net/bY8uvWmot2vgCXd33ax8sP.png"
+      },
+      {
+        "alt": "select latest release",
+        "src": "https://cdn.mos.cms.futurecdn.net/VWj43AQmyfZwjok3JQpt8T.png"
+      },
+      {
+        "alt": "select edition",
+        "src": "https://cdn.mos.cms.futurecdn.net/NYLcLrqTHcdztPwRsAhy2W.png"
+      },
+      {
+        "alt": "select language",
+        "src": "https://cdn.mos.cms.futurecdn.net/No39KUk56Uzy3srwVEb8VY.png"
+      },
+      {
+        "alt": "Select architecture and click download",
+        "src": "https://cdn.mos.cms.futurecdn.net/yoW6ZDu3y7Mwv3REodQuUd.png"
+      },
+      {
+        "alt": "wait for download",
+        "src": "https://cdn.mos.cms.futurecdn.net/V6S3zfEKbyxckpLCBRsqoh.png"
+      },
+      {
+        "alt": "select extended windows 11 installation",
+        "src": "https://cdn.mos.cms.futurecdn.net/eRGWVPyCELgWPuUittPtWm.png"
+      },
+      {
+        "alt": "click on start",
+        "src": "https://cdn.mos.cms.futurecdn.net/SPk2kSBH2ePXfz9KvrbXV5.png"
+      },
+      {
+        "alt": "Run setup.exe to upgrade or boot to do a clean install",
+        "src": "https://cdn.mos.cms.futurecdn.net/6EnLp3SoPynTdiWkLaX6TW.png"
+      },
+      {
+        "alt": "Copy raw contents",
+        "src": "https://cdn.mos.cms.futurecdn.net/dmegEJ4CADCi4NTPn7Gm6A.jpg"
+      },
+      {
+        "alt": "skip_tpm.cmd",
+        "src": "https://cdn.mos.cms.futurecdn.net/JWsnrFYz8aSyrfqb5kmktP.jpg"
+      },
+      {
+        "alt": "paste in code",
+        "src": "https://cdn.mos.cms.futurecdn.net/aXQ3dd4m8TJqpskhiJRigf.png"
+      },
+      {
+        "alt": "Click Yes",
+        "src": "https://cdn.mos.cms.futurecdn.net/baezKGiURDNpSEpsGXTqJ9.png"
+      },
+      {
+        "alt": "Skip TPM installed",
+        "src": "https://cdn.mos.cms.futurecdn.net/Gczp6MjJPkA535zeEBaKXW.png"
+      },
+      {
+        "alt": "open regedit",
+        "src": "https://cdn.mos.cms.futurecdn.net/nnfUaJEip69h9Rk9s8mpGe.png"
+      },
+      {
+        "alt": "navigate to mosetup",
+        "src": "https://cdn.mos.cms.futurecdn.net/GwC5Hkf3RhE5u48RNz4cT7.png"
+      },
+      {
+        "alt": "set to 1",
+        "src": "https://cdn.mos.cms.futurecdn.net/gwsDk93mMUbU6yhnCdzxfU.png"
+      },
+      {
+        "alt": "Avram Piltch",
+        "src": "https://cdn.mos.cms.futurecdn.net/tZRyr8x24p5QjawJwGTqAX.jpg"
+      },
+      {
+        "alt": "Flyoobe",
+        "src": "https://cdn.mos.cms.futurecdn.net/f54de8wW8FBxnDFMrWsAVE.jpg"
+      },
+      {
+        "alt": "Windows 10 to 11",
+        "src": "https://cdn.mos.cms.futurecdn.net/co4jMFVgLxDSkYMtRxvZKA.jpg"
+      },
+      {
+        "alt": "AeroTweaker",
+        "src": "https://cdn.mos.cms.futurecdn.net/GtvTQqbVxe7rFivdZmqqai.jpg"
+      },
+      {
+        "alt": "Smol Windows",
+        "src": "https://cdn.mos.cms.futurecdn.net/EBbpnnW3ZQ6sYrtqs2UdxE.jpg"
+      },
+      {
+        "alt": "Windows 10 laptop sitting on a desk in a dark room.",
+        "src": "https://cdn.mos.cms.futurecdn.net/ySimRFAV4FPfQqYuTyEg33.jpg"
+      },
+      {
+        "alt": "Windows 11",
+        "src": "https://cdn.mos.cms.futurecdn.net/A3bqjPsbEd6W9WtTAebSpJ.jpg"
+      },
+      {
+        "alt": "ReactOS",
+        "src": "https://cdn.mos.cms.futurecdn.net/QnDSN7UqmUThesPVu6zigC.jpg"
+      },
+      {
+        "alt": "Windows 10 laptop sitting on a desk in a dark room.",
+        "src": "https://cdn.mos.cms.futurecdn.net/ySimRFAV4FPfQqYuTyEg33.jpg"
+      },
+      {
+        "alt": "Windows 10 to 11 upgrade wrinkles",
+        "src": "https://cdn.mos.cms.futurecdn.net/cM2mvqXmPS4BCDUtEFvUXX.jpg"
+      },
+      {
+        "alt": "Windows 10 to 11",
+        "src": "https://cdn.mos.cms.futurecdn.net/co4jMFVgLxDSkYMtRxvZKA.jpg"
+      },
+      {
+        "alt": "Windows XP launch bill gates",
+        "src": "https://cdn.mos.cms.futurecdn.net/nJypDTw9bgszdPmDyhxCvC.jpg"
+      },
+      {
+        "alt": "Windows 11",
+        "src": "https://cdn.mos.cms.futurecdn.net/A3bqjPsbEd6W9WtTAebSpJ.jpg"
+      },
+      {
+        "alt": "BASIC 2025",
+        "src": "https://cdn.mos.cms.futurecdn.net/paWRVk9iKNaURtRbd5vLFU.gif"
+      },
+      {
+        "alt": "Easygui",
+        "src": "https://cdn.mos.cms.futurecdn.net/J6QDDUzXJ2n3yeKAPUcVLn.jpg"
+      },
+      {
+        "alt": "Tmux",
+        "src": "https://cdn.mos.cms.futurecdn.net/kyjhf3rSqZr64ZwnfrgzrR.jpg"
+      },
+      {
+        "alt": "Apple ADB to USB interface for modern PCs",
+        "src": "https://cdn.mos.cms.futurecdn.net/2zezVh3tMLYJV8kfXMo2HV.jpg"
+      },
+      {
+        "alt": "File Transfer",
+        "src": "https://cdn.mos.cms.futurecdn.net/QgVYoo5VXQzTrVg8GQ5sMP.jpg"
+      },
+      {
+        "alt": "Bento3D",
+        "src": "https://cdn.mos.cms.futurecdn.net/3mMytPkEModMbrEbWiNCTM.jpg"
+      }
+    ],
+    "timestamp": 1760610090787,
+    "url": "https://www.tomshardware.com/how-to/bypass-windows-11-tpm-requirement?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

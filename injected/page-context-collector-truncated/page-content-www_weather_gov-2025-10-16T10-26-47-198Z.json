@@ -1,0 +1,508 @@
+{
+  "url": "https://www.weather.gov/",
+  "extractedAt": "2025-10-16T10:26:47.198Z",
+  "content": {
+    "favicon": [],
+    "title": "National Weather Service",
+    "metaDescription": "",
+    "content": "- [HOME](#)\n \n- [FORECAST](https://www.weather.gov/forecastmaps/)\n \n- [PAST WEATHER](https://www.weather.gov/wrh/climate)\n \n- [SAFETY](https://www.weather.gov/safety/)\n \n- [INFORMATION](https://www.weather.gov/informationcenter)\n \n- [EDUCATION](https://www.weather.gov/education/)\n \n- [NEWS](https://www.weather.gov/news)\n \n- [SEARCH](https://www.weather.gov/search/)\n \n- [ABOUT](https://www.weather.gov/about/)",
+    "truncated": false,
+    "fullContentLength": 411,
+    "headings": [
+      {
+        "level": 1,
+        "text": "Heavy Rain and Thunderstorms in the Plains; Snow in the Northern Rockies"
+      }
+    ],
+    "links": [
+      {
+        "text": "commerce.gov/news/blog",
+        "href": "https://commerce.gov/news/blog"
+      },
+      {
+        "text": "HOME",
+        "href": "#"
+      },
+      {
+        "text": "FORECAST",
+        "href": "https://www.weather.gov/forecastmaps/"
+      },
+      {
+        "text": "Local",
+        "href": "https://www.weather.gov"
+      },
+      {
+        "text": "Graphical",
+        "href": "https://digital.weather.gov"
+      },
+      {
+        "text": "Aviation",
+        "href": "https://aviationweather.gov"
+      },
+      {
+        "text": "Marine",
+        "href": "https://www.weather.gov/marine/"
+      },
+      {
+        "text": "Rivers and Lakes",
+        "href": "https://water.noaa.gov"
+      },
+      {
+        "text": "Hurricanes",
+        "href": "https://www.nhc.noaa.gov"
+      },
+      {
+        "text": "Severe Weather",
+        "href": "https://www.spc.noaa.gov"
+      },
+      {
+        "text": "Fire Weather",
+        "href": "https://www.weather.gov/fire/"
+      },
+      {
+        "text": "Sunrise/Sunset",
+        "href": "https://gml.noaa.gov/grad/solcalc/"
+      },
+      {
+        "text": "Long Range Forecasts",
+        "href": "https://www.cpc.ncep.noaa.gov"
+      },
+      {
+        "text": "Climate Prediction",
+        "href": "https://www.cpc.ncep.noaa.gov"
+      },
+      {
+        "text": "Space Weather",
+        "href": "https://www.swpc.noaa.gov"
+      },
+      {
+        "text": "PAST WEATHER",
+        "href": "https://www.weather.gov/wrh/climate"
+      },
+      {
+        "text": "Past Weather",
+        "href": "https://www.weather.gov/wrh/climate"
+      },
+      {
+        "text": "Astronomical Data",
+        "href": "https://gml.noaa.gov/grad/solcalc/"
+      },
+      {
+        "text": "Certified Weather Data",
+        "href": "https://www.climate.gov/maps-data/dataset/past-weather-zip-code-data-table"
+      },
+      {
+        "text": "SAFETY",
+        "href": "https://www.weather.gov/safety/"
+      },
+      {
+        "text": "INFORMATION",
+        "href": "https://www.weather.gov/informationcenter"
+      },
+      {
+        "text": "Wireless Emergency Alerts",
+        "href": "https://www.weather.gov/wrn/wea"
+      },
+      {
+        "text": "Weather-Ready Nation",
+        "href": "https://www.weather.gov/wrn/"
+      },
+      {
+        "text": "Brochures",
+        "href": "https://www.weather.gov/owlie/publication_brochures"
+      },
+      {
+        "text": "Cooperative Observers",
+        "href": "https://www.weather.gov/coop/"
+      },
+      {
+        "text": "Daily Briefing",
+        "href": "https://www.weather.gov/briefing/"
+      },
+      {
+        "text": "Damage/Fatality/Injury Statistics",
+        "href": "https://www.weather.gov/hazstat"
+      },
+      {
+        "text": "Forecast Models",
+        "href": "http://mag.ncep.noaa.gov"
+      },
+      {
+        "text": "GIS Data Portal",
+        "href": "https://www.weather.gov/gis/"
+      },
+      {
+        "text": "NOAA Weather Radio",
+        "href": "https://www.weather.gov/nwr"
+      },
+      {
+        "text": "Publications",
+        "href": "https://www.weather.gov/publications/"
+      },
+      {
+        "text": "SKYWARN Storm Spotters",
+        "href": "https://www.weather.gov/skywarn/"
+      },
+      {
+        "text": "StormReady",
+        "href": "https://www.weather.gov/stormready"
+      },
+      {
+        "text": "TsunamiReady",
+        "href": "https://www.weather.gov/tsunamiready/"
+      },
+      {
+        "text": "Service Change Notices",
+        "href": "https://www.weather.gov/notification/"
+      },
+      {
+        "text": "EDUCATION",
+        "href": "https://www.weather.gov/education/"
+      },
+      {
+        "text": "NEWS",
+        "href": "https://www.weather.gov/news"
+      },
+      {
+        "text": "SEARCH",
+        "href": "https://www.weather.gov/search/"
+      },
+      {
+        "text": "ABOUT",
+        "href": "https://www.weather.gov/about/"
+      },
+      {
+        "text": "About NWS",
+        "href": "https://www.weather.gov/about/"
+      },
+      {
+        "text": "Organization",
+        "href": "https://www.weather.gov/organization"
+      },
+      {
+        "text": "For NWS Employees",
+        "href": "https://sites.google.com/a/noaa.gov/nws-insider/"
+      },
+      {
+        "text": "National Centers",
+        "href": "https://www.weather.gov/ncep/"
+      },
+      {
+        "text": "Careers",
+        "href": "https://www.noaa.gov/nws-careers"
+      },
+      {
+        "text": "Contact Us",
+        "href": "https://www.weather.gov/contact"
+      },
+      {
+        "text": "Glossary",
+        "href": "https://forecast.weather.gov/glossary.php"
+      },
+      {
+        "text": "Social Media",
+        "href": "https://www.weather.gov/socialmedia"
+      },
+      {
+        "text": "NWS Transformation",
+        "href": "https://www.noaa.gov/NWStransformation"
+      },
+      {
+        "text": "Location Help",
+        "href": "javascript:void(window.open('https://www.weather.gov/ForecastSearchHelp.html','locsearchhelp','status=0,toolbar=0,location=0,menubar=0,directories=0,resizable=1,scrollbars=1,height=500,width=530').focus());"
+      },
+      {
+        "text": "Read More >",
+        "href": "http://www.wpc.ncep.noaa.gov/discussions/hpcdiscussions.php?disc=pmdspd"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "/privacy.php"
+      },
+      {
+        "text": "ACTIVE ALERTS",
+        "href": "/alerts"
+      },
+      {
+        "text": "FORECAST MAPS",
+        "href": "/forecastmaps/"
+      },
+      {
+        "text": "RADAR",
+        "href": "https://radar.weather.gov/region/conus/standard"
+      },
+      {
+        "text": "Standard Radar (Low Bandwidth)",
+        "href": "https://radar.weather.gov/region/conus-large/standard"
+      },
+      {
+        "text": "Enhanced Radar",
+        "href": "https://radar.weather.gov"
+      },
+      {
+        "text": "RIVERS, LAKES, RAINFALL",
+        "href": "https://water.noaa.gov/"
+      },
+      {
+        "text": "AIR QUALITY",
+        "href": "https://airquality.weather.gov"
+      },
+      {
+        "text": "SATELLITE",
+        "href": "/satellite"
+      },
+      {
+        "text": "CURRENT",
+        "href": "/current"
+      },
+      {
+        "text": "American Samoa",
+        "href": "/ppg/"
+      },
+      {
+        "text": "Guam",
+        "href": "/gum/"
+      },
+      {
+        "text": "Puerto Rico/Virgin Islands",
+        "href": "/sju/"
+      },
+      {
+        "text": "Public Alerts in XML/CAP v1.2 and ATOM Formats",
+        "href": "https://vlab.noaa.gov/web/nws-common-alerting-protocol"
+      },
+      {
+        "text": "Special Marine Warning",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Special%20Marine%20Warning"
+      },
+      {
+        "text": "Winter Storm Warning",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Winter%20Storm%20Warning"
+      },
+      {
+        "text": "High Wind Warning",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=High%20Wind%20Warning"
+      },
+      {
+        "text": "Storm Warning",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Storm%20Warning"
+      },
+      {
+        "text": "Flood Warning",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Flood%20Warning"
+      },
+      {
+        "text": "Gale Warning",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Gale%20Warning"
+      },
+      {
+        "text": "Freeze Warning",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Freeze%20Warning"
+      },
+      {
+        "text": "Winter Weather Advisory",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Winter%20Weather%20Advisory"
+      },
+      {
+        "text": "Coastal Flood Advisory",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Coastal%20Flood%20Advisory"
+      },
+      {
+        "text": "Dense Fog Advisory",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Dense%20Fog%20Advisory"
+      },
+      {
+        "text": "Small Craft Advisory",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Small%20Craft%20Advisory"
+      },
+      {
+        "text": "Frost Advisory",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Frost%20Advisory"
+      },
+      {
+        "text": "Rip Current Statement",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Rip%20Current%20Statement"
+      },
+      {
+        "text": "Beach Hazards Statement",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Beach%20Hazards%20Statement"
+      },
+      {
+        "text": "High Wind Watch",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=High%20Wind%20Watch"
+      },
+      {
+        "text": "Freeze Watch",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Freeze%20Watch"
+      },
+      {
+        "text": "Coastal Flood Statement",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Coastal%20Flood%20Statement"
+      },
+      {
+        "text": "Special Weather Statement",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Special%20Weather%20Statement"
+      },
+      {
+        "text": "Marine Weather Statement",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Marine%20Weather%20Statement"
+      },
+      {
+        "text": "Air Quality Alert",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Air%20Quality%20Alert"
+      },
+      {
+        "text": "Hydrologic Outlook",
+        "href": "https://forecast.weather.gov/wwamap/wwatxtget.php?cwa=usa&wwa=Hydrologic%20Outlook"
+      },
+      {
+        "text": "Safety",
+        "href": "http://weather.gov/safety"
+      },
+      {
+        "text": "Follow us on X",
+        "href": "http://twitter.com/nws"
+      },
+      {
+        "text": "Follow us on Facebook",
+        "href": "http://www.facebook.com/nws"
+      },
+      {
+        "text": "Follow us on YouTube",
+        "href": "http://www.youtube.com/usweathergov"
+      },
+      {
+        "text": "Follow us on Instagram",
+        "href": "https://instagram.com/nws"
+      },
+      {
+        "text": "Follow us on Bluesky",
+        "href": "https://bsky.app/profile/nws.noaa.gov"
+      },
+      {
+        "text": "NWS RSS Feed",
+        "href": "/rss_page.php?site_name=nws"
+      },
+      {
+        "text": "US Dept of Commerce",
+        "href": "http://www.commerce.gov"
+      },
+      {
+        "text": "National Oceanic and Atmospheric Administration",
+        "href": "http://www.noaa.gov"
+      },
+      {
+        "text": "National Weather Service",
+        "href": "https://www.weather.gov"
+      },
+      {
+        "text": "Comments? Questions? Please Contact Us.",
+        "href": "https://www.weather.gov/Contact"
+      },
+      {
+        "text": "Disclaimer",
+        "href": "https://www.weather.gov/disclaimer"
+      },
+      {
+        "text": "Information Quality",
+        "href": "http://www.cio.noaa.gov/services_programs/info_quality.html"
+      },
+      {
+        "text": "Help",
+        "href": "https://www.weather.gov/help"
+      },
+      {
+        "text": "Glossary",
+        "href": "/glossary"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://www.weather.gov/privacy"
+      },
+      {
+        "text": "Freedom of Information Act (FOIA)",
+        "href": "https://www.noaa.gov/foia-freedom-of-information-act"
+      },
+      {
+        "text": "About Us",
+        "href": "https://www.weather.gov/about"
+      },
+      {
+        "text": "Career Opportunities",
+        "href": "https://www.weather.gov/careers"
+      },
+      {
+        "text": "Continue",
+        "href": "#"
+      },
+      {
+        "text": "New Window",
+        "href": "#"
+      },
+      {
+        "text": "Cancel",
+        "href": "#"
+      }
+    ],
+    "images": [
+      {
+        "alt": "National Weather Service",
+        "src": "/bundles/templating/images/header/header.png"
+      },
+      {
+        "alt": "United States Department of Commerce",
+        "src": "/bundles/templating/images/header/header_doc.png"
+      },
+      {
+        "alt": "",
+        "src": "/bundles/templating/images/top_news/important.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.weather.gov/wwamap/png/US.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.weather.gov/wwamap/png/ak.png"
+      },
+      {
+        "alt": "",
+        "src": "https://www.weather.gov/wwamap/png/hi.png"
+      },
+      {
+        "alt": "Safety",
+        "src": "/images/nws/features/safetybannerComp.png"
+      },
+      {
+        "alt": "Follow us on X",
+        "src": "/bundles/templating/images/social/x.png"
+      },
+      {
+        "alt": "Follow us on Facebook",
+        "src": "/bundles/templating/images/social/facebook.png"
+      },
+      {
+        "alt": "Follow us on YouTube",
+        "src": "/bundles/templating/images/social/youtube.png"
+      },
+      {
+        "alt": "Follow us on Instagram",
+        "src": "/images/nws/ig.png"
+      },
+      {
+        "alt": "Follow us on Bluesky",
+        "src": "/images/nws/bluesky.png"
+      },
+      {
+        "alt": "NWS RSS Feed",
+        "src": "/bundles/templating/images/social/rss.png"
+      },
+      {
+        "alt": "usa.gov",
+        "src": "/bundles/templating/images/footer/usa_gov.png"
+      }
+    ],
+    "timestamp": 1760610406732,
+    "url": "https://www.weather.gov/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

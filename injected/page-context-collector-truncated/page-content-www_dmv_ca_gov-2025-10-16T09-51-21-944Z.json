@@ -1,0 +1,641 @@
+{
+  "url": "https://www.dmv.ca.gov/portal/vehicle-registration/registration-fees/vehicle-registration-fee-calculator/calculate-my-fees/",
+  "extractedAt": "2025-10-16T09:51:21.944Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.dmv.ca.gov/portal/uploads/2020/02/cropped-dmv_favicon_Final_png-1-32x32.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.dmv.ca.gov/portal/uploads/2020/02/cropped-dmv_favicon_Final_png-1-192x192.png",
+        "rel": "icon"
+      },
+      {
+        "href": "https://www.dmv.ca.gov/portal/uploads/2020/02/cropped-dmv_favicon_Final_png-1-180x180.png",
+        "rel": "apple-touch-icon"
+      }
+    ],
+    "title": "Calculate My Fees - California DMV",
+    "metaDescription": "DMV Fee calculator for VLF, renewal, new vehicles, new residents, and used vehicles.",
+    "content": "- [Home](/portal)\n \n- [Vehicle Registration](/portal/vehicle-registration/)\n \n- [Registration Fees](/portal/vehicle-registration/registration-fees/)\n \n- [Vehicle Registration & Licensing Fee Calculators](/portal/vehicle-registration/registration-fees/vehicle-registration-fee-calculator/)\n \n- Calculate My Fees\n \n     \n# Calculate My Fees\n          \n## Tax Season\n [Vehicle License Fee](/wasapp/FeeCalculatorWeb/vlfForm.do) (VLF) paid for tax purposes\n \n## Select a Calculator to Begin\n \n \n- Registration [renewal](/wasapp/FeeCalculatorWeb/renewalForm.do) fees\n \n- Registration fees for [new vehicles](/wasapp/FeeCalculatorWeb/newVehicleForm.do) that will be purchased in California from a licensed California dealer\n \n- Registration fees for [new resident vehicles](/wasapp/FeeCalculatorWeb/newResidentForm.do) registered outside the state of California\n \n- Registration fees for [used vehicles](/wasapp/FeeCalculatorWeb/usedVehicleForm.do) that will be purchased in California\n \n Note Disregard transportation improvement fee (TIF) generated for commercial vehicles with Unladen Weight of 10,001 pounds or greater. These vehicles are exempt from paying the TIF. The vehicle registration fee calculator will be corrected soon.\n       \n### Renew Registration\n Skip the line and renew your vehicle registration online.\n   [Vehicle Registration](/portal/vehicle-registration/vehicle-registration-renewal/)     \n### Title Transfer and Changes\n Anytime a vehicle/vessel is bought or sold, or the registered owner or lienholder changes, the title needs to be transferred to the new owner.\n   [Title Transfer](/portal/vehicle-registration/titles/title-transfers-and-changes/)     \n### Online Services\n DMV offers many services that can be handled online.\n   [Online Services](/portal/dmv-online/)",
+    "truncated": false,
+    "fullContentLength": 1790,
+    "headings": [
+      {
+        "level": 6,
+        "text": "General Disclaimer"
+      },
+      {
+        "level": 3,
+        "text": "Top Search Results"
+      },
+      {
+        "level": 2,
+        "text": "Renew Registration"
+      },
+      {
+        "level": 2,
+        "text": "New Registration"
+      },
+      {
+        "level": 2,
+        "text": "Replace Registration"
+      },
+      {
+        "level": 2,
+        "text": "Submit Proof of Insurance"
+      },
+      {
+        "level": 2,
+        "text": "Request Vehicle Record"
+      },
+      {
+        "level": 2,
+        "text": "Plates, Stickers, Placards"
+      },
+      {
+        "level": 2,
+        "text": "Renew DL/ID"
+      },
+      {
+        "level": 2,
+        "text": "New DL/ID Card Application"
+      },
+      {
+        "level": 2,
+        "text": "Replace DL"
+      },
+      {
+        "level": 2,
+        "text": "Join the mDL Pilot"
+      },
+      {
+        "level": 2,
+        "text": "Request Driver Record"
+      },
+      {
+        "level": 2,
+        "text": "Payments & Refunds"
+      },
+      {
+        "level": 2,
+        "text": "Pay Late Registration Fee"
+      },
+      {
+        "level": 2,
+        "text": "Pay Reinstatement Fee"
+      },
+      {
+        "level": 2,
+        "text": "Dishonored Check Payment"
+      },
+      {
+        "level": 2,
+        "text": "Fee Calculator"
+      },
+      {
+        "level": 2,
+        "text": "Shopping Cart"
+      },
+      {
+        "level": 2,
+        "text": "Locations & Hours"
+      },
+      {
+        "level": 2,
+        "text": "Get in Line Now"
+      },
+      {
+        "level": 2,
+        "text": "Schedule Appointment"
+      },
+      {
+        "level": 2,
+        "text": "Online Testing"
+      },
+      {
+        "level": 2,
+        "text": "Driver Handbooks"
+      },
+      {
+        "level": 2,
+        "text": "Specialty Driver Guides"
+      },
+      {
+        "level": 2,
+        "text": "How-To Videos"
+      },
+      {
+        "level": 2,
+        "text": "Practice Tests"
+      },
+      {
+        "level": 2,
+        "text": "Change of Address Status"
+      },
+      {
+        "level": 2,
+        "text": "Virtual Office Case Status"
+      },
+      {
+        "level": 2,
+        "text": "Driver Safety Case Status"
+      },
+      {
+        "level": 2,
+        "text": "Registration Renewal Status"
+      },
+      {
+        "level": 2,
+        "text": "DL/ID Renewal Status"
+      },
+      {
+        "level": 2,
+        "text": "mDL Status"
+      },
+      {
+        "level": 2,
+        "text": "IBC Case Status"
+      },
+      {
+        "level": 1,
+        "text": "Calculate My Fees"
+      },
+      {
+        "level": 2,
+        "text": "Tax Season"
+      },
+      {
+        "level": 2,
+        "text": "Select a Calculator to Begin"
+      },
+      {
+        "level": 3,
+        "text": "Renew Registration"
+      },
+      {
+        "level": 3,
+        "text": "Title Transfer and Changes"
+      },
+      {
+        "level": 3,
+        "text": "Online Services"
+      },
+      {
+        "level": 2,
+        "text": "Google™ Translate Disclaimer"
+      },
+      {
+        "level": 1,
+        "text": "Please install the Google Toolbar"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to content",
+        "href": "#main"
+      },
+      {
+        "text": "State of California",
+        "href": "https://www.ca.gov/"
+      },
+      {
+        "text": "State of California Department of Motor Vehicles",
+        "href": "/portal/"
+      },
+      {
+        "text": "REAL ID",
+        "href": "/portal/driver-licenses-identification-cards/real-id/"
+      },
+      {
+        "text": "Online Services",
+        "href": "/portal/dmv-online/"
+      },
+      {
+        "text": "Translate",
+        "href": "#"
+      },
+      {
+        "text": "MyDMV",
+        "href": "/portal/mydmv"
+      },
+      {
+        "text": "Menu",
+        "href": "#js-site-header__main-nav"
+      },
+      {
+        "text": "Vehicle Registration",
+        "href": "#menu-item__sub-menu-0"
+      },
+      {
+        "text": "Renew Registration",
+        "href": "https://www.dmv.ca.gov/portal/vehicle-registration/vehicle-registration-renewal/"
+      },
+      {
+        "text": "Renew Registration",
+        "href": "/portal/vehicle-registration/vehicle-registration-renewal/"
+      },
+      {
+        "text": "New Registration",
+        "href": "https://www.dmv.ca.gov/portal/vehicle-registration/new-registration/"
+      },
+      {
+        "text": "New Registration",
+        "href": "/portal/vehicle-registration/new-registration/"
+      },
+      {
+        "text": "Replace Registration",
+        "href": "https://www.dmv.ca.gov/portal/vehicle-registration/online-replacement-sticker-or-registration-card/"
+      },
+      {
+        "text": "Replace Registration",
+        "href": "/portal/vehicle-registration/online-replacement-sticker-or-registration-card/"
+      },
+      {
+        "text": "Submit Proof of Insurance",
+        "href": "https://www.dmv.ca.gov/portal/vehicle-registration/insurance-requirements/suspended-vehicle-registration/"
+      },
+      {
+        "text": "Submit Proof of Insurance",
+        "href": "/portal/vehicle-registration/insurance-requirements/suspended-vehicle-registration/"
+      },
+      {
+        "text": "Request Vehicle Record",
+        "href": "https://www.dmv.ca.gov/portal/customer-service/request-vehicle-or-driver-records/online-vehicle-record-request/"
+      },
+      {
+        "text": "Request Vehicle Record",
+        "href": "/portal/customer-service/request-vehicle-or-driver-records/online-vehicle-record-request/"
+      },
+      {
+        "text": "Plates, Stickers, Placards",
+        "href": "https://www.dmv.ca.gov/portal/vehicle-registration/license-plates-decals-and-placards/"
+      },
+      {
+        "text": "Plates, Stickers, Placards",
+        "href": "/portal/vehicle-registration/license-plates-decals-and-placards/"
+      },
+      {
+        "text": "Driver's Licenses & IDs",
+        "href": "#menu-item__sub-menu-1"
+      },
+      {
+        "text": "Renew DL/ID",
+        "href": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/driver-license-id-card-online-renewal/"
+      },
+      {
+        "text": "Renew DL/ID",
+        "href": "/portal/driver-licenses-identification-cards/driver-license-id-card-online-renewal/"
+      },
+      {
+        "text": "New DL/ID Card Application",
+        "href": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/dl-id-online-app-edl-44/"
+      },
+      {
+        "text": "New DL/ID Card Application",
+        "href": "/portal/driver-licenses-identification-cards/dl-id-online-app-edl-44/"
+      },
+      {
+        "text": "Replace DL",
+        "href": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/online-duplicate-driver-license-request/"
+      },
+      {
+        "text": "Replace DL",
+        "href": "/portal/driver-licenses-identification-cards/replace-your-driver-license-or-identification-dl-id-card/online-duplicate-driver-license-request/"
+      },
+      {
+        "text": "Join the mDL Pilot",
+        "href": "https://www.dmv.ca.gov/portal/california-mdl/"
+      },
+      {
+        "text": "Join the mDL Pilot",
+        "href": "/portal/california-mdl/"
+      },
+      {
+        "text": "Request Driver Record",
+        "href": "https://www.dmv.ca.gov/portal/customer-service/request-vehicle-or-driver-records/online-driver-record-request/"
+      },
+      {
+        "text": "Request Driver Record",
+        "href": "/portal/customer-service/request-vehicle-or-driver-records/online-driver-record-request/"
+      },
+      {
+        "text": "Make a Payment",
+        "href": "#menu-item__sub-menu-2"
+      },
+      {
+        "text": "Payments & Refunds",
+        "href": "https://www.dmv.ca.gov/portal/customer-service/payments-refunds/"
+      },
+      {
+        "text": "Payments & Refunds",
+        "href": "/portal/customer-service/payments-refunds/"
+      },
+      {
+        "text": "Pay Late Registration Fee",
+        "href": "https://www.dmv.ca.gov/portal/vehicle-registration/vehicle-registration-renewal/"
+      },
+      {
+        "text": "Pay Late Registration Fee",
+        "href": "/portal/vehicle-registration/vehicle-registration-renewal/"
+      },
+      {
+        "text": "Pay Reinstatement Fee",
+        "href": "https://www.dmv.ca.gov/portal/vehicle-registration/insurance-requirements/suspended-vehicle-registration/"
+      },
+      {
+        "text": "Pay Reinstatement Fee",
+        "href": "/portal/vehicle-registration/insurance-requirements/suspended-vehicle-registration/"
+      },
+      {
+        "text": "Dishonored Check Payment",
+        "href": "https://www.dmv.ca.gov/portal/dmv-virtual-office/dishonored-check-payment/"
+      },
+      {
+        "text": "Dishonored Check Payment",
+        "href": "/portal/dmv-virtual-office/dishonored-check-payment/"
+      },
+      {
+        "text": "Fee Calculator",
+        "href": "https://www.dmv.ca.gov/portal/vehicle-registration/registration-fees/vehicle-registration-fee-calculator/"
+      },
+      {
+        "text": "Fee Calculator",
+        "href": "/portal/vehicle-registration/registration-fees/vehicle-registration-fee-calculator/"
+      },
+      {
+        "text": "Shopping Cart",
+        "href": "https://www.dmv.ca.gov/portal/shopping-cart/"
+      },
+      {
+        "text": "Shopping Cart",
+        "href": "/portal/shopping-cart/"
+      },
+      {
+        "text": "Appointments",
+        "href": "#menu-item__sub-menu-3"
+      },
+      {
+        "text": "Locations & Hours",
+        "href": "https://www.dmv.ca.gov/portal/locations/"
+      },
+      {
+        "text": "Locations & Hours",
+        "href": "/portal/locations/"
+      },
+      {
+        "text": "Get in Line Now",
+        "href": "https://mt-cadmvoas.us.qmatic.cloud/branches"
+      },
+      {
+        "text": "Get in Line Now",
+        "href": "https://mt-cadmvoas.us.qmatic.cloud/branches"
+      },
+      {
+        "text": "Schedule Appointment",
+        "href": "https://www.dmv.ca.gov/portal/appointments/"
+      },
+      {
+        "text": "Schedule Appointment",
+        "href": "/portal/appointments/"
+      },
+      {
+        "text": "Testing",
+        "href": "#menu-item__sub-menu-4"
+      },
+      {
+        "text": "Online Testing",
+        "href": "https://www.dmv.ca.gov/portal/driver-education-and-safety/online-learning-and-tests/"
+      },
+      {
+        "text": "Online Testing",
+        "href": "/portal/driver-education-and-safety/online-learning-and-tests/"
+      },
+      {
+        "text": "Driver Handbooks",
+        "href": "https://www.dmv.ca.gov/portal/driver-handbooks/"
+      },
+      {
+        "text": "Driver Handbooks",
+        "href": "/portal/driver-handbooks/"
+      },
+      {
+        "text": "Specialty Driver Guides",
+        "href": "https://www.dmv.ca.gov/portal/driver-education-and-safety/special-interest-driver-guides/"
+      },
+      {
+        "text": "Specialty Driver Guides",
+        "href": "/portal/driver-education-and-safety/special-interest-driver-guides/"
+      },
+      {
+        "text": "How-To Videos",
+        "href": "https://www.dmv.ca.gov/portal/driver-education-and-safety/educational-materials/videos-2/"
+      },
+      {
+        "text": "How-To Videos",
+        "href": "/portal/driver-education-and-safety/educational-materials/videos-2/"
+      },
+      {
+        "text": "Practice Tests",
+        "href": "https://www.dmv.ca.gov/portal/driver-education-and-safety/educational-materials/sample-driver-license-dl-knowledge-tests/"
+      },
+      {
+        "text": "Practice Tests",
+        "href": "/portal/driver-education-and-safety/educational-materials/sample-driver-license-dl-knowledge-tests/"
+      },
+      {
+        "text": "Check Status",
+        "href": "#menu-item__sub-menu-5"
+      },
+      {
+        "text": "Change of Address Status",
+        "href": "https://www.dmv.ca.gov/portal/mydmv/"
+      },
+      {
+        "text": "Change of Address Status",
+        "href": "/portal/mydmv/"
+      },
+      {
+        "text": "Virtual Office Case Status",
+        "href": "https://www.dmv.ca.gov/portal/dmv-virtual-office/case-status/"
+      },
+      {
+        "text": "Virtual Office Case Status",
+        "href": "/portal/dmv-virtual-office/case-status/"
+      },
+      {
+        "text": "Driver Safety Case Status",
+        "href": "https://www.dmv.ca.gov/portal/driver-safety-portal/"
+      },
+      {
+        "text": "Driver Safety Case Status",
+        "href": "/portal/driver-safety-portal/"
+      },
+      {
+        "text": "Registration Renewal Status",
+        "href": "https://www.dmv.ca.gov/portal/vehicle-registration/vehicle-registration-status/"
+      },
+      {
+        "text": "Registration Renewal Status",
+        "href": "/portal/vehicle-registration/vehicle-registration-status/"
+      },
+      {
+        "text": "DL/ID Renewal Status",
+        "href": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/drivers-license-id-card-status/"
+      },
+      {
+        "text": "DL/ID Renewal Status",
+        "href": "/portal/driver-licenses-identification-cards/drivers-license-id-card-status/"
+      },
+      {
+        "text": "mDL Status",
+        "href": "https://www.dmv.ca.gov/portal/california-mdl/login/"
+      },
+      {
+        "text": "mDL Status",
+        "href": "/portal/california-mdl/login/"
+      },
+      {
+        "text": "IBC Case Status",
+        "href": "https://www.dmv.ca.gov/portal/dmv-virtual-office/ibc-case-status-request/"
+      },
+      {
+        "text": "IBC Case Status",
+        "href": "/portal/dmv-virtual-office/ibc-case-status-request/"
+      },
+      {
+        "text": "Home",
+        "href": "/portal"
+      },
+      {
+        "text": "Vehicle Registration",
+        "href": "/portal/vehicle-registration/"
+      },
+      {
+        "text": "Registration Fees",
+        "href": "/portal/vehicle-registration/registration-fees/"
+      },
+      {
+        "text": "Vehicle Registration & Licensing Fee Calculators",
+        "href": "/portal/vehicle-registration/registration-fees/vehicle-registration-fee-calculator/"
+      },
+      {
+        "text": "Vehicle License Fee",
+        "href": "/wasapp/FeeCalculatorWeb/vlfForm.do"
+      },
+      {
+        "text": "renewal",
+        "href": "/wasapp/FeeCalculatorWeb/renewalForm.do"
+      },
+      {
+        "text": "new vehicles",
+        "href": "/wasapp/FeeCalculatorWeb/newVehicleForm.do"
+      },
+      {
+        "text": "new resident vehicles",
+        "href": "/wasapp/FeeCalculatorWeb/newResidentForm.do"
+      },
+      {
+        "text": "used vehicles",
+        "href": "/wasapp/FeeCalculatorWeb/usedVehicleForm.do"
+      },
+      {
+        "text": "Vehicle Registration",
+        "href": "/portal/vehicle-registration/vehicle-registration-renewal/"
+      },
+      {
+        "text": "Title Transfer",
+        "href": "/portal/vehicle-registration/titles/title-transfers-and-changes/"
+      },
+      {
+        "text": "Online Services",
+        "href": "/portal/dmv-online/"
+      },
+      {
+        "text": "About DMV",
+        "href": "/portal/about-the-california-department-of-motor-vehicles/"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "/portal/privacy-and-security/"
+      },
+      {
+        "text": "Cookie Policy",
+        "href": "/portal/cookie-policy/"
+      },
+      {
+        "text": "Conditions of Use",
+        "href": "/portal/conditions-of-use/"
+      },
+      {
+        "text": "Site Map",
+        "href": "/portal/site-map/"
+      },
+      {
+        "text": "Accessibility",
+        "href": "/portal/accessibility/"
+      },
+      {
+        "text": "Forms",
+        "href": "/portal/forms/"
+      },
+      {
+        "text": "Share Screen",
+        "href": "#"
+      },
+      {
+        "text": "Logo",
+        "href": "https://www.facebook.com/CADMV"
+      },
+      {
+        "text": "Logo",
+        "href": "https://x.com/ca_dmv"
+      },
+      {
+        "text": "Logo",
+        "href": "https://www.youtube.com/user/CaliforniaDMV"
+      },
+      {
+        "text": "Logo",
+        "href": "https://instagram.com/ca_dmv/"
+      },
+      {
+        "text": "Logo",
+        "href": "https://www.linkedin.com/company/ca-department-of-motor-vehicles"
+      },
+      {
+        "text": "Translate",
+        "href": "https://translate.google.com"
+      },
+      {
+        "text": "install the Google Toolbar (opens in new window)",
+        "href": "https://support.google.com/toolbar/answer/81376"
+      }
+    ],
+    "images": [
+      {
+        "alt": "California State Logo",
+        "src": "/portal/wp-content/themes/dmv/dist/images/logo-ca-gov.svg"
+      },
+      {
+        "alt": "California State Department of Motor Vehicles Logo",
+        "src": "/portal/wp-content/themes/dmv/dist/images/logo-ca-dmv-white.svg"
+      },
+      {
+        "alt": "Car Side",
+        "src": "/portal/wp-content/themes/dmv/assets/images/illustrations/car_side.svg"
+      },
+      {
+        "alt": "Google Translate",
+        "src": "https://www.gstatic.com/images/branding/googlelogo/1x/googlelogo_color_42x16dp.png"
+      },
+      {
+        "alt": "",
+        "src": "https://fonts.gstatic.com/s/i/productlogos/translate/v14/24px.svg"
+      }
+    ],
+    "timestamp": 1760608280643,
+    "url": "https://www.dmv.ca.gov/portal/vehicle-registration/registration-fees/vehicle-registration-fee-calculator/calculate-my-fees/?automation=true?automation=true&wait-for-init-args=true"
+  }
+}

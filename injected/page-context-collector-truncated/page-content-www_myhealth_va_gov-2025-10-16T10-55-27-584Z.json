@@ -1,0 +1,253 @@
+{
+  "url": "https://www.myhealth.va.gov/",
+  "extractedAt": "2025-10-16T10:55:27.584Z",
+  "content": {
+    "favicon": [
+      {
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/favicon.ico",
+        "rel": "shortcut icon"
+      },
+      {
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/apple-touch-icon.png",
+        "rel": "apple-touch-icon-precomposed"
+      },
+      {
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/apple-touch-icon.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/apple-touch-icon-72x72.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/apple-touch-icon-114x114.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/apple-touch-icon-114x114.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/apple-touch-icon-152x152.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/apple-touch-icon-152x152.png",
+        "rel": "apple-touch-icon"
+      },
+      {
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/favicon.ico",
+        "rel": "icon"
+      }
+    ],
+    "title": "Home - My HealtheVet - My HealtheVet",
+    "metaDescription": "Description",
+    "content": "My HealtheVet has moved to VA.gov On June 4, 2025, we transitioned to the new My HealtheVet on VA.gov experience. You will now manage your health records, medications, and messages on VA.gov.\n [Go to My HealtheVet on VA.gov](https://www.va.gov/health-care/manage-health)\n [Learn more about My HealtheVet on VA.gov changes](https://www.va.gov/resources/my-healthevet-on-vagov-what-to-know/)\n                           \n## In the Spotlight\n        [Manage Your Medications on VA.gov](https://www.myhealth.va.gov/mhv-portal-web/ss20240624-try-new-medications-tool-va?redirect=%2Fmhv-portal-web%2Fhome%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue) \n      Your My HealtheVet medications information is now only available on VA.gov. Start using the new My HealtheVet experience on VA.gov to manage your medications.       [Send and Receive Secure Messages on VA.gov](https://www.myhealth.va.gov/mhv-portal-web/ss20231205-try-messages-va?redirect=%2Fmhv-portal-web%2Fhome%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue) \n      Your My HealtheVet messages are now only available on VA.gov. Start using the new My HealtheVet experience on VA.gov to send and receive secure messages.       [Manage Your Medical Records on VA.gov](https://www.myhealth.va.gov/mhv-portal-web/ss20250102-try-new-medical-records-tool-on-va-gov?redirect=%2Fmhv-portal-web%2Fhome%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue) \n      Your My HealtheVet medical records are now only available on VA.gov. Start using the new My HealtheVet experience on VA.gov to review your medical records.       [Manage Appointments on VA.gov](https://www.myhealth.va.gov/mhv-portal-web/ss20231103-try-appointments-va?redirect=%2Fmhv-portal-web%2Fhome%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue) \n      Your My HealtheVet appointments information is now only available on VA.gov. Start using the new My HealtheVet experience on VA.gov to manage your appointments.",
+    "truncated": false,
+    "fullContentLength": 2005,
+    "headings": [
+      {
+        "level": 5,
+        "text": "The .gov means it's official."
+      },
+      {
+        "level": 5,
+        "text": "The site is secure."
+      },
+      {
+        "level": 4,
+        "text": "My HealtheVet has moved to VA.gov"
+      },
+      {
+        "level": 2,
+        "text": "In the Spotlight"
+      },
+      {
+        "level": 4,
+        "text": "VA Resources"
+      },
+      {
+        "level": 4,
+        "text": "Policies"
+      },
+      {
+        "level": 4,
+        "text": "Important Links"
+      },
+      {
+        "level": 3,
+        "text": "Subscribe to Receive My HealtheVet Updates"
+      },
+      {
+        "level": 3,
+        "text": "We're here anytime, day or night - 24/7"
+      }
+    ],
+    "links": [
+      {
+        "text": "Skip to Content",
+        "href": "#main-content"
+      },
+      {
+        "text": "VA",
+        "href": "https://www.va.gov/"
+      },
+      {
+        "text": "My HealtheVet",
+        "href": "/mhv-portal-web/home"
+      },
+      {
+        "text": "Contact us",
+        "href": "contact-mhv"
+      },
+      {
+        "text": "What's new",
+        "href": "whats-new"
+      },
+      {
+        "text": "Home",
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/home"
+      },
+      {
+        "text": "Account Information",
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/account-information"
+      },
+      {
+        "text": "Account Activity History",
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/account-activity-history"
+      },
+      {
+        "text": "In the Spotlight",
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/in-the-spotlight"
+      },
+      {
+        "text": "Contact us",
+        "href": "contact-mhv"
+      },
+      {
+        "text": "What's new",
+        "href": "whats-new"
+      },
+      {
+        "text": "Sign in or create an account",
+        "href": "https://www.va.gov/sign-in/?application=mhv&to=home&oauth=false"
+      },
+      {
+        "text": "Learn more about upcoming My HealtheVet changes",
+        "href": "whats-new"
+      },
+      {
+        "text": "Go to My HealtheVet on VA.gov",
+        "href": "https://www.va.gov/health-care/manage-health"
+      },
+      {
+        "text": "Learn more about My HealtheVet on VA.gov changes",
+        "href": "https://www.va.gov/resources/my-healthevet-on-vagov-what-to-know/"
+      },
+      {
+        "text": "Manage Your Medications on VA.gov",
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/ss20240624-try-new-medications-tool-va?redirect=%2Fmhv-portal-web%2Fhome%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Send and Receive Secure Messages on VA.gov",
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/ss20231205-try-messages-va?redirect=%2Fmhv-portal-web%2Fhome%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Manage Your Medical Records on VA.gov",
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/ss20250102-try-new-medical-records-tool-on-va-gov?redirect=%2Fmhv-portal-web%2Fhome%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Manage Appointments on VA.gov",
+        "href": "https://www.myhealth.va.gov/mhv-portal-web/ss20231103-try-appointments-va?redirect=%2Fmhv-portal-web%2Fhome%3Fautomation%3Dtrue%3Fautomation%3Dtrue%26wait-for-init-args%3Dtrue"
+      },
+      {
+        "text": "Back to top",
+        "href": "#wrapper"
+      },
+      {
+        "text": "VA Home",
+        "href": "https://www.va.gov/"
+      },
+      {
+        "text": "Careers at VA",
+        "href": "https://vacareers.va.gov/"
+      },
+      {
+        "text": "Find a VA Form",
+        "href": "https://www.va.gov/find-forms/"
+      },
+      {
+        "text": "Privacy Policy",
+        "href": "https://www.va.gov/privacy-policy/ "
+      },
+      {
+        "text": "Terms & Conditions",
+        "href": "https://www.va.gov/terms-of-use"
+      },
+      {
+        "text": "Web Policies",
+        "href": "https://digital.va.gov/web-governance/standards-and-policies/web-policies/"
+      },
+      {
+        "text": "Facility and Service Locator",
+        "href": "https://www.va.gov/find-locations/"
+      },
+      {
+        "text": "Mobile Apps",
+        "href": "https://mobile.va.gov/appstore?filter%5Bapp_audience%5D=25"
+      },
+      {
+        "text": "White House",
+        "href": "https://www.whitehouse.gov/"
+      },
+      {
+        "text": "DIAL 988 then PRESS 1",
+        "href": "tel:988"
+      },
+      {
+        "text": "Text 838255",
+        "href": "sms:838255"
+      },
+      {
+        "text": "Start a confidential chat",
+        "href": "https://www.veteranscrisisline.net/get-help-now/chat/"
+      },
+      {
+        "text": "Call TTY if you have hearing loss 800-799-4889",
+        "href": "tel:18007994889"
+      },
+      {
+        "text": "VeteransCrisisLine.net",
+        "href": "https://www.veteranscrisisline.net/"
+      }
+    ],
+    "images": [
+      {
+        "alt": "U.S. flag",
+        "src": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/us_flag_small.png"
+      },
+      {
+        "alt": "Dot gov",
+        "src": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/icon-dot-gov.svg"
+      },
+      {
+        "alt": "SSL",
+        "src": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/icon-https.svg"
+      },
+      {
+        "alt": "Talk to the Veterans Crisis Line now",
+        "src": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/arrow-right-white.svg"
+      },
+      {
+        "alt": "Go to My HealtheVet",
+        "src": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/MHVLogoWhite-143x50.png"
+      },
+      {
+        "alt": "Close",
+        "src": "https://www.myhealth.va.gov/mhv-portal-web/o/mhv-portal-theme/images/close-white.svg"
+      }
+    ],
+    "timestamp": 1760612127103,
+    "url": "https://www.myhealth.va.gov/mhv-portal-web/home?automation=true?automation=true&wait-for-init-args=true"
+  }
+}
