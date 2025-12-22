@@ -34,7 +34,7 @@ function displayDiffs(dir1Files, dir2Files) {
      * @param {string} string
      * @param {string} [summary]
      */
-    function add(fileName, string, summary = undefined) {
+    function add(fileName, string, summary) {
         if (summary === undefined) {
             summary = string;
         }
