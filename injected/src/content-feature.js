@@ -67,29 +67,85 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
-     * Logging utility for this feature (Stolen some inspo from DuckPlayer logger, will unify in the future)
+     * Whether to route logs to native on Apple platforms
+     * @returns {boolean}
+     */
+    get _shouldRouteToNative() {
+        const platformName = this.platform?.name;
+        return this.shouldLog && (platformName === 'ios' || platformName === 'macos');
+    }
+
+    /**
+     * Route log to native webkit handler for Xcode visibility (Apple DX enhancement)
+     * @param {string} level - Log level (info, warn, error)
+     * @param {any[]} args - Log arguments
+     */
+    _routeLogToNative(level, args) {
+        if (!this._messaging) return;
+        try {
+            this._messaging.notify('debugLog', {
+                level,
+                feature: this.name,
+                timestamp: Date.now(),
+                args: args.map((arg) => {
+                    if (arg instanceof Error) {
+                        return { type: 'error', message: arg.message, stack: arg.stack };
+                    }
+                    if (typeof arg === 'object') {
+                        try {
+                            return JSON.stringify(arg);
+                        } catch {
+                            return String(arg);
+                        }
+                    }
+                    return String(arg);
+                }),
+            });
+        } catch {
+            // Handler might not exist, silently ignore
+        }
+    }
+
+    /**
+     * Logging utility for this feature
+     *
+     * On Apple platforms (iOS/macOS), when debug mode is enabled, logs are also
+     * routed to native webkit handlers for visibility in Xcode console.
      */
     get log() {
         const shouldLog = this.shouldLog;
         const prefix = `${this.name.padEnd(20, ' ')} |`;
+        const routeToNative = this._shouldRouteToNative;
+        const routeLog = this._routeLogToNative.bind(this);
 
         return {
-            // These are getters to have the call site be the reported line number.
             get info() {
-                if (!shouldLog) {
-                    return () => {};
+                if (!shouldLog) return () => {};
+                if (routeToNative) {
+                    return (/** @type {any[]} */ ...args) => {
+                        routeLog('info', args);
+                        consoleLog.call(console, prefix, ...args);
+                    };
                 }
                 return consoleLog.bind(console, prefix);
             },
             get warn() {
-                if (!shouldLog) {
-                    return () => {};
+                if (!shouldLog) return () => {};
+                if (routeToNative) {
+                    return (/** @type {any[]} */ ...args) => {
+                        routeLog('warn', args);
+                        consoleWarn.call(console, prefix, ...args);
+                    };
                 }
                 return consoleWarn.bind(console, prefix);
             },
             get error() {
-                if (!shouldLog) {
-                    return () => {};
+                if (!shouldLog) return () => {};
+                if (routeToNative) {
+                    return (/** @type {any[]} */ ...args) => {
+                        routeLog('error', args);
+                        consoleError.call(console, prefix, ...args);
+                    };
                 }
                 return consoleError.bind(console, prefix);
             },

@@ -1,0 +1,299 @@
+/**
+ * Tracker Stats Feature
+ *
+ * Consolidates Apple's contentblockerrules.js, contentblocker.js, and surrogates.js
+ * into a single C-S-S feature with:
+ * - Tracker detection against TDS
+ * - Surrogate loading for blocked scripts
+ * - Stats reporting to native for privacy dashboard
+ * - Debug logging to native console (Xcode)
+ *
+ * @module features/tracker-stats
+ */
+
+import ContentFeature from '../content-feature.js';
+import { TrackerResolver } from './tracker-stats/tracker-resolver.js';
+
+/**
+ * CTL surrogates that require CTL feature to be enabled
+ */
+const CTL_SURROGATES = ['fb-sdk.js'];
+
+/**
+ * Get the tab's top-level URL, handling iframes
+ * @returns {URL | null}
+ */
+function getTabURL() {
+    let framingOrigin = null;
+
+    try {
+        framingOrigin = globalThis.top?.location.href;
+    } catch {
+        framingOrigin = globalThis.document.referrer;
+    }
+
+    // ancestorOrigins gives us the actual top frame URL in cross-origin iframes
+    if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
+        framingOrigin = globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);
+    }
+
+    try {
+        return framingOrigin ? new URL(framingOrigin) : null;
+    } catch {
+        return null;
+    }
+}
+
+export class TrackerStats extends ContentFeature {
+    init() {
+        /** @type {TrackerResolver | null} */
+        this._resolver = null;
+        /** @type {Set<string>} */
+        this._loadedSurrogates = new Set();
+        /** @type {Set<string>} */
+        this._seenUrls = new Set();
+        /** @type {URL | null} */
+        this._topLevelUrl = null;
+        /** @type {boolean} */
+        this._blockingEnabled = true;
+        /** @type {boolean} */
+        this._isUnprotectedDomain = false;
+        /** @type {MutationObserver | null} */
+        this._observer = null;
+
+        // Get top-level URL for tracker matching
+        this._topLevelUrl = getTabURL();
+        if (!this._topLevelUrl) {
+            this.log.warn('Could not determine top-level URL');
+            return;
+        }
+
+        // Check if blocking is enabled via config
+        this._blockingEnabled = this.getFeatureSetting('blockingEnabled') !== false;
+        if (!this._blockingEnabled) {
+            this.log.info('Tracker blocking disabled via config');
+            return;
+        }
+
+        // Initialize tracker resolver with config data
+        this._resolver = new TrackerResolver({
+            trackerData: this.getFeatureSetting('trackerData'),
+            surrogates: this._processSurrogates(this.getFeatureSetting('surrogates')),
+            allowlist: this.getFeatureSetting('allowlist'),
+            unprotectedDomains: [
+                ...(this.getFeatureSetting('tempUnprotectedDomains') || []),
+                ...(this.getFeatureSetting('userUnprotectedDomains') || []),
+            ],
+        });
+
+        // Check if current domain is unprotected
+        this._isUnprotectedDomain = this._resolver.isUnprotectedDomain(this._topLevelUrl.host);
+        if (this._isUnprotectedDomain) {
+            this.log.info('Domain is unprotected:', this._topLevelUrl.host);
+        }
+
+        this._setupInterception();
+    }
+
+    /**
+     * Process surrogate text into executable functions
+     * Matches format from Apple's SurrogatesUserScript.swift
+     * @param {string | Record<string, () => void>} surrogates
+     */
+    _processSurrogates(surrogates) {
+        // If already processed (object of functions), return as-is
+        if (typeof surrogates === 'object' && surrogates !== null) {
+            return surrogates;
+        }
+
+        // Parse text format (legacy)
+        if (typeof surrogates !== 'string') {
+            return {};
+        }
+
+        const result = {};
+        const blocks = surrogates.trim().split('\n\n');
+
+        for (const block of blocks) {
+            const lines = block.split('\n').filter((line) => !line.startsWith('#'));
+            if (!lines.length) continue;
+
+            const firstLine = lines.shift();
+            const pattern = firstLine?.split(' ')[0]?.split('/').pop();
+            if (!pattern) continue;
+
+            const code = lines.join('\n');
+            // Create a function that executes the surrogate code
+            // eslint-disable-next-line no-new-func
+            result[pattern] = new Function(code);
+        }
+
+        return result;
+    }
+
+    /**
+     * Set up resource interception for tracker detection
+     */
+    _setupInterception() {
+        // Mutation observer for dynamically added scripts
+        this._observer = new MutationObserver((records) => {
+            for (const record of records) {
+                for (const node of record.addedNodes) {
+                    if (node instanceof HTMLScriptElement && node.src) {
+                        this._checkAndBlock(node.src, 'script', node);
+                    }
+                }
+                // Handle src attribute changes
+                if (record.target instanceof HTMLScriptElement && record.attributeName === 'src') {
+                    this._checkAndBlock(record.target.src, 'script', record.target);
+                }
+            }
+        });
+
+        const rootElement = document.body || document.documentElement;
+        this._observer.observe(rootElement, {
+            childList: true,
+            subtree: true,
+            attributeFilter: ['src'],
+        });
+
+        // Process existing elements on load
+        window.addEventListener(
+            'load',
+            () => {
+                this._processPage();
+            },
+            { once: true },
+        );
+
+        this.log.info('Tracker interception initialized');
+    }
+
+    /**
+     * Process existing page elements for tracker detection
+     */
+    _processPage() {
+        const scripts = [...document.scripts].filter((el) => el.src && !this._seenUrls.has(el.src));
+        for (const script of scripts) {
+            this._checkAndBlock(script.src, 'script', script);
+        }
+    }
+
+    /**
+     * Check URL and potentially block/surrogate it
+     * @param {string} url
+     * @param {string} resourceType
+     * @param {HTMLElement | null} element
+     */
+    async _checkAndBlock(url, resourceType, element = null) {
+        if (!url || !this._resolver || this._seenUrls.has(url)) {
+            return false;
+        }
+
+        this._seenUrls.add(url);
+
+        if (!this._blockingEnabled) {
+            return false;
+        }
+
+        const topUrl = this._topLevelUrl?.toString() || '';
+        const result = this._resolver.getTrackerData(url, topUrl, { type: resourceType });
+
+        if (!result) {
+            return false;
+        }
+
+        let blocked = false;
+        if (this._isUnprotectedDomain) {
+            result.reason = 'unprotectedDomain';
+        } else if (result.action !== 'ignore') {
+            blocked = true;
+        }
+
+        const isSurrogate = Boolean(result.matchedRule?.surrogate);
+        const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
+
+        // Handle surrogate loading
+        if (blocked && isSurrogate && !isAllowlisted) {
+            const surrogateName = result.matchedRule.surrogate;
+
+            // Check CTL enabled for CTL-specific surrogates
+            if (CTL_SURROGATES.includes(surrogateName)) {
+                try {
+                    const ctlEnabled = await this.request('isCTLEnabled');
+                    if (!ctlEnabled) {
+                        this.log.info('CTL disabled, skipping surrogate:', surrogateName);
+                        return false;
+                    }
+                } catch {
+                    // Handler might not exist, continue anyway
+                }
+            }
+
+            // Load the surrogate
+            this._loadSurrogate(surrogateName, element);
+
+            // Report to native for privacy dashboard
+            this.notify('surrogateInjected', {
+                url,
+                blocked: true,
+                reason: result.reason,
+                isSurrogate: true,
+                pageUrl: this._topLevelUrl?.href || '',
+            });
+
+            this.log.info('Surrogate injected:', surrogateName, 'for', url);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Load a surrogate script
+     * @param {string} pattern
+     * @param {HTMLElement | null} targetElement
+     */
+    _loadSurrogate(pattern, targetElement) {
+        if (this._loadedSurrogates.has(pattern)) {
+            return;
+        }
+
+        const surrogateCode = this._resolver?.getSurrogate(pattern);
+        if (!surrogateCode) {
+            this.log.warn('Surrogate not found:', pattern);
+            return;
+        }
+
+        try {
+            // Clear error handler on original element
+            if (targetElement && 'onerror' in targetElement) {
+                targetElement.onerror = null;
+            }
+
+            // Execute surrogate
+            if (typeof surrogateCode === 'function') {
+                surrogateCode();
+            }
+
+            this._loadedSurrogates.add(pattern);
+
+            // Trigger load event on original element
+            if (targetElement && 'onload' in targetElement && typeof targetElement.onload === 'function') {
+                targetElement.onload(new Event('load'));
+            }
+        } catch (e) {
+            this.log.error('Surrogate execution failed:', pattern, e);
+        }
+    }
+
+    /**
+     * Clean up on feature destroy
+     */
+    destroy() {
+        this._observer?.disconnect();
+        this._observer = null;
+    }
+}
+
+export default TrackerStats;
