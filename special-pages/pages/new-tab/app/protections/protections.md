@@ -42,7 +42,8 @@ title: Protections Report
 {
    "expansion": "collapsed",
    "feed": "privacy-stats",
-   "showBurnAnimation": true
+   "showBurnAnimation": true,
+   "showProtectionsReportNewLabel": true
 }
 ```
 

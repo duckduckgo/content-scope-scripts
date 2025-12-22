@@ -15,6 +15,7 @@ interface ImportMeta {
         | 'firefox'
         | 'apple'
         | 'apple-isolated'
+        | 'apple-ai-clear'
         | 'android'
         | 'windows'
         | 'integration'

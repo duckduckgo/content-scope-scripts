@@ -149,10 +149,9 @@ export default class ContentFeature extends ConfigFeature {
      * @return {MessagingContext}
      */
     _createMessagingContext() {
-        const contextName = this.injectName === 'apple-isolated' ? 'contentScopeScriptsIsolated' : 'contentScopeScripts';
-
+        if (!this.args) throw new Error('messaging requires args to be set');
         return new MessagingContext({
-            context: contextName,
+            context: this.args.messagingContextName,
             env: this.isDebug ? 'development' : 'production',
             featureName: this.name,
         });

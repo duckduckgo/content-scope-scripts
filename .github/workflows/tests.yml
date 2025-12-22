@@ -14,6 +14,30 @@ permissions:
     deployments: write
 
 jobs:
+    unit-tests:
+        name: Unit tests (${{ matrix.workspace }}, ${{ matrix.os }})
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [ubuntu-latest, windows-latest]
+                workspace: [injected, special-pages]
+        steps:
+            - uses: actions/checkout@v6
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v5
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - run: npm ci
+            - name: Build (injected only)
+              if: ${{ matrix.workspace == 'injected' }}
+              run: npm run build -w injected
+            - run: npm run test-unit -w ${{ matrix.workspace }}
     unit:
         runs-on: ${{ matrix.os }}
         strategy:
@@ -35,9 +59,48 @@ jobs:
             - run: npm run build
             - run: npm run lint
             - run: npm run stylelint
-            - run: npm run test-unit
+            - run: npm run test-unit -w types-generator
             - name: 'Clean tree'
               run: 'npm run test-clean-tree'
+
+    integration-tests:
+        name: Integration tests (${{ matrix.workspace }}, ubuntu-latest)
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        strategy:
+            matrix:
+                workspace: [injected, special-pages]
+        steps:
+            - uses: actions/checkout@v6
+            - name: Use Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v5
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - name: Install dependencies
+              run: |
+                  npm install
+                  npm run build
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
+            - run: npm run test-int-x -w ${{ matrix.workspace }}
+            - uses: actions/upload-artifact@v6
+              if: ${{ always() && matrix.workspace == 'special-pages' }}
+              with:
+                  name: tests-playwright-report-pages
+                  path: special-pages/playwright-report
+                  retention-days: 5
+            - uses: actions/upload-artifact@v6
+              if: ${{ always() && matrix.workspace == 'injected' }}
+              with:
+                  name: tests-playwright-report-injected
+                  path: injected/playwright-report
+                  retention-days: 5
     integration:
         runs-on: ubuntu-latest
         timeout-minutes: 15
@@ -63,23 +126,9 @@ jobs:
               with:
                   path: docs
                   key: docs-output-${{ github.run_id }}
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
-            - run: npm run test-int-x
-            - uses: actions/upload-artifact@v6
-              if: always()
-              with:
-                  name: tests-playwright-report-pages
-                  path: special-pages/playwright-report
-                  retention-days: 5
-            - uses: actions/upload-artifact@v6
-              if: always()
-              with:
-                  name: tests-playwright-report-injected
-                  path: injected/playwright-report
-                  retention-days: 5
             - name: Build docs
               run: npm run docs
+        needs: integration-tests
 
     deploy-docs:
         runs-on: ubuntu-latest
@@ -126,3 +175,30 @@ jobs:
               run: cd injected && npm run build
             - name: Simulate extension esbuild for GPC feature (production deps only)
               run: npx esbuild injected/src/features/gpc.js --bundle --outfile=/tmp/gpc-bundle.js
+
+    # Single stable check to use for branch protection rules.
+    # This job will fail if any required job fails/skips/cancels.
+    ci-gate:
+        name: CI gate
+        runs-on: ubuntu-latest
+        if: ${{ always() }}
+        needs:
+            - unit
+            - unit-tests
+            - integration
+            - integration-tests
+            - production-deps
+        steps:
+            - name: Ensure all required jobs succeeded
+              run: |
+                  echo "unit: ${{ needs.unit.result }}"
+                  echo "unit-tests: ${{ needs.unit-tests.result }}"
+                  echo "integration: ${{ needs.integration.result }}"
+                  echo "integration-tests: ${{ needs.integration-tests.result }}"
+                  echo "production-deps: ${{ needs.production-deps.result }}"
+
+                  test "${{ needs.unit.result }}" = "success"
+                  test "${{ needs.unit-tests.result }}" = "success"
+                  test "${{ needs.integration.result }}" = "success"
+                  test "${{ needs.integration-tests.result }}" = "success"
+                  test "${{ needs.production-deps.result }}" = "success"

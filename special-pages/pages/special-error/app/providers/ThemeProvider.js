@@ -1,7 +1,6 @@
 import { createContext, h } from 'preact';
 import { useContext, useEffect, useState } from 'preact/hooks';
 import { useMessaging } from './MessagingProvider.js';
-import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
 
 /**
  * @typedef {import('../../types/special-error').BrowserTheme} BrowserTheme
@@ -9,11 +8,29 @@ import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
  */
 
 const ThemeContext = createContext({
-    /** @type {BrowserTheme} */
+    /** @type {'light' | 'dark'} */
     theme: 'light',
     /** @type {ThemeVariant} */
     themeVariant: 'default',
 });
+
+const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+/**
+ * Hook that tracks the system color scheme preference via media query.
+ * @return {'light' | 'dark'}
+ */
+function useSystemTheme() {
+    const [systemTheme, setSystemTheme] = useState(/** @type {'light' | 'dark'} */ (darkModeMediaQuery.matches ? 'dark' : 'light'));
+
+    useEffect(() => {
+        const listener = (e) => setSystemTheme(e.matches ? 'dark' : 'light');
+        darkModeMediaQuery.addEventListener('change', listener);
+        return () => darkModeMediaQuery.removeEventListener('change', listener);
+    }, []);
+
+    return systemTheme;
+}
 
 /**
  * @param {object} props
@@ -22,8 +39,8 @@ const ThemeContext = createContext({
  * @param {ThemeVariant | undefined} props.initialThemeVariant
  */
 export function ThemeProvider({ children, initialTheme, initialThemeVariant }) {
-    const { isDarkMode } = useEnv();
     const { messaging } = useMessaging();
+    const systemTheme = useSystemTheme();
 
     // Track explicit theme updates from onThemeUpdate subscription
     const [explicitTheme, setExplicitTheme] = useState(/** @type {BrowserTheme | undefined} */ (undefined));
@@ -39,8 +56,9 @@ export function ThemeProvider({ children, initialTheme, initialThemeVariant }) {
     }, [messaging]);
 
     // Derive theme from explicit updates, initial theme, or system preference (in that order)
-    const theme = explicitTheme ?? initialTheme ?? (isDarkMode ? 'dark' : 'light');
+    const browserTheme = explicitTheme ?? initialTheme ?? 'system';
     const themeVariant = explicitThemeVariant ?? initialThemeVariant ?? 'default';
+    const theme = browserTheme === 'system' ? systemTheme : browserTheme;
 
     // Sync theme attributes to <body>
     useEffect(() => {

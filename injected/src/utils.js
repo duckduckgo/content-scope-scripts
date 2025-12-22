@@ -573,6 +573,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @property {number} [versionNumber] - Android version number only
  * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
+ * @property {string} [messagingContextName] - The context name for messaging (e.g. 'contentScopeScripts')
  */
 
 /**
@@ -726,7 +727,20 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
     output.featureSettings = parseFeatureSettings(data, enabledFeatures);
     output.bundledConfig = data;
 
+    // Set messaging context name, using messagingContextName from native if provided
+    output.messagingContextName = output.messagingContextName || 'contentScopeScripts';
+
     return output;
+}
+
+/**
+ * Extract the properties needed for the load() function from processedConfig.
+ * @param {Record<string, any>} processedConfig
+ * @returns {import('./content-scope-features.js').LoadArgs}
+ */
+export function getLoadArgs(processedConfig) {
+    const { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts } = processedConfig;
+    return { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts };
 }
 
 /**

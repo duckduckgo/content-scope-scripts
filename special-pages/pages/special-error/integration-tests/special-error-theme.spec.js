@@ -6,21 +6,24 @@ test.describe('special-error theme and theme variants', () => {
         const sp = SpecialErrorPage.create(page, workerInfo);
         await sp.openPage({ additional: { theme: 'dark', themeVariant: 'violet' } });
         await sp.hasTheme('dark', 'violet');
-        await sp.hasBackgroundColor({ hex: '#2e2158' });
+        const isIOS = sp.platform.name === 'ios';
+        await sp.hasBackgroundColor({ hex: isIOS ? '#222222' : '#271c49' });
     });
 
     test('setting theme = light and themeVariant via initialSetup', async ({ page }, workerInfo) => {
         const sp = SpecialErrorPage.create(page, workerInfo);
         await sp.openPage({ additional: { theme: 'light', themeVariant: 'coolGray' } });
         await sp.hasTheme('light', 'coolGray');
-        await sp.hasBackgroundColor({ hex: '#d2d5e3' });
+        const isIOS = sp.platform.name === 'ios';
+        await sp.hasBackgroundColor({ hex: isIOS ? '#eeeeee' : '#e3e5ec' });
     });
 
     test('light theme and default themeVariant when unspecified', async ({ page }, workerInfo) => {
         const sp = SpecialErrorPage.create(page, workerInfo);
         await sp.openPage();
         await sp.hasTheme('light', 'default');
-        await sp.hasBackgroundColor({ hex: '#eeeeee' });
+        const isIOS = sp.platform.name === 'ios';
+        await sp.hasBackgroundColor({ hex: isIOS ? '#eeeeee' : '#fafafa' });
     });
 
     test('dark theme and default themeVariant when unspecified', async ({ page }, workerInfo) => {
@@ -28,27 +31,37 @@ test.describe('special-error theme and theme variants', () => {
         await sp.darkMode();
         await sp.openPage();
         await sp.hasTheme('dark', 'default');
-        const isIOS = sp.platform.name === 'ios'; // iOS has a different default background color
-        await sp.hasBackgroundColor({ hex: isIOS ? '#222222' : '#333333' });
+        const isIOS = sp.platform.name === 'ios';
+        await sp.hasBackgroundColor({ hex: isIOS ? '#222222' : '#1c1c1c' });
     });
 
     test('changing theme to dark and themeVariant using onThemeUpdate', async ({ page }, workerInfo) => {
         const sp = SpecialErrorPage.create(page, workerInfo);
         await sp.openPage({ additional: { theme: 'light', themeVariant: 'desert' } });
         await sp.hasTheme('light', 'desert');
-        await sp.hasBackgroundColor({ hex: '#eee9e1' });
+        const isIOS = sp.platform.name === 'ios';
+        await sp.hasBackgroundColor({ hex: isIOS ? '#eeeeee' : '#f5f4ef' });
         await sp.acceptsThemeUpdate('dark', 'slateBlue');
         await sp.hasTheme('dark', 'slateBlue');
-        await sp.hasBackgroundColor({ hex: '#1e3347' });
+        await sp.hasBackgroundColor({ hex: isIOS ? '#222222' : '#243a50' });
     });
 
     test('changing theme to light and themeVariant using onThemeUpdate', async ({ page }, workerInfo) => {
         const sp = SpecialErrorPage.create(page, workerInfo);
         await sp.openPage({ additional: { theme: 'dark', themeVariant: 'rose' } });
         await sp.hasTheme('dark', 'rose');
-        await sp.hasBackgroundColor({ hex: '#5b194b' });
+        const isIOS = sp.platform.name === 'ios';
+        await sp.hasBackgroundColor({ hex: isIOS ? '#222222' : '#511442' });
         await sp.acceptsThemeUpdate('light', 'green');
         await sp.hasTheme('light', 'green');
-        await sp.hasBackgroundColor({ hex: '#e3eee1' });
+        await sp.hasBackgroundColor({ hex: isIOS ? '#eeeeee' : '#ecf5ea' });
+    });
+
+    test('respects CSS media query for light/dark when browser theme is "system"', async ({ page }, workerInfo) => {
+        const sp = SpecialErrorPage.create(page, workerInfo);
+        await sp.openPage({ additional: { theme: 'system' } });
+        await sp.hasTheme('light', 'default');
+        await sp.darkMode();
+        await sp.hasTheme('dark', 'default');
     });
 });
