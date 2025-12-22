@@ -248,6 +248,8 @@ export class ResultsCollector {
                 locale,
                 ...this.#userPreferences,
             },
+            // Empty object for surrogates - native platforms inject real surrogates at runtime
+            $SURROGATES$: {},
         });
 
         // attach the JS
