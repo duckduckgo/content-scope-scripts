@@ -287,8 +287,8 @@ describe('TrackerResolver', () => {
                 { type: 'script' },
             );
             expect(scriptResult).not.toBeNull();
-            expect(scriptResult.matchedRule).not.toBeNull();
-            expect(scriptResult.action).toBe('block');
+            expect(scriptResult?.matchedRule).not.toBeNull();
+            expect(scriptResult?.action).toBe('block');
 
             // Should not match image type (defaults to default action)
             const imageResult = resolverWithOptions.getTrackerData(
@@ -297,8 +297,8 @@ describe('TrackerResolver', () => {
                 { type: 'image' },
             );
             expect(imageResult).not.toBeNull();
-            expect(imageResult.matchedRule).toBeFalsy(); // undefined when no rule matches
-            expect(imageResult.action).toBe('ignore'); // default action
+            expect(imageResult?.matchedRule).toBeFalsy(); // undefined when no rule matches
+            expect(imageResult?.action).toBe('ignore'); // default action
         });
     });
 
@@ -334,8 +334,8 @@ describe('TrackerResolver', () => {
                 'https://example.com',
             );
             expect(blockedResult).not.toBeNull();
-            expect(blockedResult.action).toBe('block');
-            expect(blockedResult.matchedRuleException).toBe(false);
+            expect(blockedResult?.action).toBe('block');
+            expect(blockedResult?.matchedRuleException).toBe(false);
 
             // Should be allowed on exception domain
             const allowedResult = resolverWithExceptions.getTrackerData(
@@ -343,9 +343,9 @@ describe('TrackerResolver', () => {
                 'https://allowed.com',
             );
             expect(allowedResult).not.toBeNull();
-            expect(allowedResult.action).toBe('ignore');
-            expect(allowedResult.matchedRuleException).toBe(true);
-            expect(allowedResult.reason).toBe('matched rule - exception');
+            expect(allowedResult?.action).toBe('ignore');
+            expect(allowedResult?.matchedRuleException).toBe(true);
+            expect(allowedResult?.reason).toBe('matched rule - exception');
         });
     });
 });

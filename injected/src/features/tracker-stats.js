@@ -189,7 +189,7 @@ export class TrackerStats extends ContentFeature {
             // Check CTL enabled for CTL-specific surrogates
             if (CTL_SURROGATES.includes(surrogateName)) {
                 try {
-                    const ctlEnabled = await this.request('isCTLEnabled');
+                    const ctlEnabled = await this.request('isCTLEnabled', {});
                     if (!ctlEnabled) {
                         this.log.info('CTL disabled, skipping surrogate:', surrogateName);
                         return false;
