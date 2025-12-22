@@ -76,9 +76,12 @@ export class TrackerStats extends ContentFeature {
         }
 
         // Initialize tracker resolver with config data
+        // Surrogates are passed via args (injected as $SURROGATES$ in apple.js entry point)
+        // They're actual JS functions, avoiding CSP issues with new Function()
+        const surrogates = this.args?.surrogates || {};
         this._resolver = new TrackerResolver({
             trackerData: this.getFeatureSetting('trackerData'),
-            surrogates: this._processSurrogates(this.getFeatureSetting('surrogates')),
+            surrogates,
             allowlist: this.getFeatureSetting('allowlist'),
             unprotectedDomains: [
                 ...(this.getFeatureSetting('tempUnprotectedDomains') || []),
@@ -93,42 +96,6 @@ export class TrackerStats extends ContentFeature {
         }
 
         this._setupInterception();
-    }
-
-    /**
-     * Process surrogate text into executable functions
-     * Matches format from Apple's SurrogatesUserScript.swift
-     * @param {string | Record<string, () => void>} surrogates
-     */
-    _processSurrogates(surrogates) {
-        // If already processed (object of functions), return as-is
-        if (typeof surrogates === 'object' && surrogates !== null) {
-            return surrogates;
-        }
-
-        // Parse text format (legacy)
-        if (typeof surrogates !== 'string') {
-            return {};
-        }
-
-        const result = {};
-        const blocks = surrogates.trim().split('\n\n');
-
-        for (const block of blocks) {
-            const lines = block.split('\n').filter((line) => !line.startsWith('#'));
-            if (!lines.length) continue;
-
-            const firstLine = lines.shift();
-            const pattern = firstLine?.split(' ')[0]?.split('/').pop();
-            if (!pattern) continue;
-
-            const code = lines.join('\n');
-            // Create a function that executes the surrogate code
-            // eslint-disable-next-line no-new-func
-            result[pattern] = new Function(code);
-        }
-
-        return result;
     }
 
     /**
@@ -173,7 +140,9 @@ export class TrackerStats extends ContentFeature {
      * Process existing page elements for tracker detection
      */
     _processPage() {
-        const scripts = [...document.scripts].filter((el) => el.src && !this._seenUrls.has(el.src));
+        if (!this._seenUrls) return;
+        const seenUrls = this._seenUrls;
+        const scripts = [...document.scripts].filter((el) => el.src && !seenUrls.has(el.src));
         for (const script of scripts) {
             this._checkAndBlock(script.src, 'script', script);
         }
@@ -186,7 +155,7 @@ export class TrackerStats extends ContentFeature {
      * @param {HTMLElement | null} element
      */
     async _checkAndBlock(url, resourceType, element = null) {
-        if (!url || !this._resolver || this._seenUrls.has(url)) {
+        if (!url || !this._resolver || !this._seenUrls || this._seenUrls.has(url)) {
             return false;
         }
 
@@ -250,17 +219,25 @@ export class TrackerStats extends ContentFeature {
     }
 
     /**
-     * Load a surrogate script
-     * @param {string} pattern
-     * @param {HTMLElement | null} targetElement
+     * Load a surrogate script.
+     *
+     * Surrogates are pre-injected by native as actual JS functions in window.__ddgSurrogates.
+     * This avoids CSP issues since we're not using new Function() or eval().
+     *
+     * @param {string} pattern - Surrogate pattern (e.g., "adsbygoogle.js")
+     * @param {HTMLElement | null} targetElement - Original element being replaced
      */
     _loadSurrogate(pattern, targetElement) {
+        if (!this._loadedSurrogates || !this._resolver) {
+            return;
+        }
+
         if (this._loadedSurrogates.has(pattern)) {
             return;
         }
 
-        const surrogateCode = this._resolver?.getSurrogate(pattern);
-        if (!surrogateCode) {
+        const surrogateFn = this._resolver.getSurrogate(pattern);
+        if (typeof surrogateFn !== 'function') {
             this.log.warn('Surrogate not found:', pattern);
             return;
         }
@@ -271,10 +248,8 @@ export class TrackerStats extends ContentFeature {
                 targetElement.onerror = null;
             }
 
-            // Execute surrogate
-            if (typeof surrogateCode === 'function') {
-                surrogateCode();
-            }
+            // Execute surrogate (it's a real function, not a string)
+            surrogateFn();
 
             this._loadedSurrogates.add(pattern);
 

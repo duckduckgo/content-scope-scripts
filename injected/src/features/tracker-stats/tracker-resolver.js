@@ -4,6 +4,36 @@
  */
 
 /**
+ * @typedef {object} TrackerRule
+ * @property {string | RegExp} rule
+ * @property {string} [surrogate]
+ * @property {string} [action]
+ * @property {object} [options]
+ * @property {object} [exceptions]
+ */
+
+/**
+ * @typedef {object} TrackerOwner
+ * @property {string} [name]
+ * @property {string} [displayName]
+ */
+
+/**
+ * @typedef {object} Tracker
+ * @property {string} domain
+ * @property {string | TrackerOwner} [owner]
+ * @property {string} [default]
+ * @property {TrackerRule[]} [rules]
+ */
+
+/**
+ * @typedef {object} Entity
+ * @property {string[]} [domains]
+ * @property {string} [displayName]
+ * @property {number} [prevalence]
+ */
+
+/**
  * @typedef {object} TrackerData
  * @property {Record<string, Tracker>} trackers
  * @property {Record<string, Entity>} entities
@@ -15,7 +45,6 @@
  * @property {'block' | 'ignore' | 'redirect'} action
  * @property {string} reason
  * @property {boolean} firstParty
- * @property {string} [redirectUrl]
  * @property {object} [matchedRule]
  * @property {boolean} [matchedRuleException]
  * @property {object} tracker
@@ -33,7 +62,7 @@ export class TrackerResolver {
     constructor(config) {
         /** @type {TrackerData | null} */
         this._trackerData = null;
-        /** @type {Record<string, string>} */
+        /** @type {Record<string, () => void>} */
         this._surrogateList = {};
         /** @type {Record<string, object[]>} */
         this._allowlist = {};
@@ -133,7 +162,8 @@ export class TrackerResolver {
         }
 
         const matchedRule = this._findRule(tracker, requestData);
-        const redirectUrl = matchedRule?.surrogate ? this._surrogateList[matchedRule.surrogate] : undefined;
+        // Check if surrogate exists for this rule (don't store the function itself)
+        const hasSurrogate = matchedRule?.surrogate ? Boolean(this._surrogateList[matchedRule.surrogate]) : false;
         const matchedRuleException = matchedRule ? this._matchesRuleDefinition(matchedRule, 'exceptions', requestData) : false;
         const trackerOwner = this._findTrackerOwner(requestData.urlToCheckDomain);
         const websiteOwner = this._findWebsiteOwner(requestData);
@@ -145,14 +175,13 @@ export class TrackerResolver {
             matchedRule,
             matchedRuleException,
             defaultAction: tracker.default,
-            redirectUrl: Boolean(redirectUrl),
+            redirectUrl: hasSurrogate,
         });
 
         return {
             action,
             reason,
             firstParty,
-            redirectUrl,
             matchedRule,
             matchedRuleException,
             tracker,
@@ -247,36 +276,38 @@ export class TrackerResolver {
 
     /**
      * Determine blocking action and reason
+     * @param {object} params
+     * @param {boolean} params.firstParty
+     * @param {object} [params.matchedRule]
+     * @param {boolean} params.matchedRuleException
+     * @param {string} [params.defaultAction]
+     * @param {boolean} params.redirectUrl - whether a surrogate redirect is available
+     * @returns {{ action: 'block' | 'ignore' | 'redirect', reason: string }}
      */
     _getAction({ firstParty, matchedRule, matchedRuleException, defaultAction, redirectUrl }) {
-        let action, reason;
-
         if (firstParty) {
-            action = 'ignore';
-            reason = 'first party';
-        } else if (matchedRuleException) {
-            action = 'ignore';
-            reason = 'matched rule - exception';
-        } else if (!matchedRule && defaultAction === 'ignore') {
-            action = 'ignore';
-            reason = 'default ignore';
-        } else if (matchedRule?.action === 'ignore') {
-            action = 'ignore';
-            reason = 'matched rule - ignore';
-        } else if (!matchedRule && defaultAction === 'block') {
-            action = 'block';
-            reason = 'default block';
-        } else if (matchedRule) {
-            if (redirectUrl) {
-                action = 'redirect';
-                reason = 'matched rule - surrogate';
-            } else {
-                action = 'block';
-                reason = 'matched rule - block';
-            }
+            return { action: 'ignore', reason: 'first party' };
         }
-
-        return { action, reason };
+        if (matchedRuleException) {
+            return { action: 'ignore', reason: 'matched rule - exception' };
+        }
+        if (!matchedRule && defaultAction === 'ignore') {
+            return { action: 'ignore', reason: 'default ignore' };
+        }
+        if (matchedRule?.action === 'ignore') {
+            return { action: 'ignore', reason: 'matched rule - ignore' };
+        }
+        if (!matchedRule && defaultAction === 'block') {
+            return { action: 'block', reason: 'default block' };
+        }
+        if (matchedRule) {
+            if (redirectUrl) {
+                return { action: 'redirect', reason: 'matched rule - surrogate' };
+            }
+            return { action: 'block', reason: 'matched rule - block' };
+        }
+        // Default: no matching rule and no default action
+        return { action: 'ignore', reason: 'no match' };
     }
 
     /**
@@ -341,8 +372,9 @@ export class TrackerResolver {
     }
 
     /**
-     * Get surrogate code for a pattern
+     * Get surrogate function for a pattern
      * @param {string} pattern
+     * @returns {(() => void) | undefined}
      */
     getSurrogate(pattern) {
         return this._surrogateList[pattern];
