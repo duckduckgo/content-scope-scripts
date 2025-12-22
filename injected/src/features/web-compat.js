@@ -157,6 +157,10 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('viewportWidthLegacy', 'disabled')) {
             this.viewportWidthFix();
         }
+        // Enabled by default for iOS WKWebView compatibility
+        if (this.getFeatureSettingEnabled('fullscreenVideo', 'enabled')) {
+            this.fullscreenVideoFix();
+        }
     }
 
     /**
@@ -1158,6 +1162,57 @@ export class WebCompat extends ContentFeature {
         });
 
         enumerateDevicesProxy.overload();
+    }
+
+    /**
+     * WKWebView fullscreen polyfill for iOS.
+     *
+     * WKWebView doesn't define the fullscreenEnabled property, although it does support
+     * webkitEnterFullscreen on HTMLVideoElement. This workaround:
+     * 1. Overrides document.fullscreenEnabled (if not already defined)
+     * 2. Adds a custom HTMLElement.prototype.requestFullscreen that calls webkitEnterFullscreen
+     *    on the first video element found within the target element.
+     *
+     * Note: YouTube Mobile won't exit fullscreen correctly if requestFullscreen is overridden,
+     * so this fix is skipped on mobile user agents.
+     * Reference: https://github.com/brave/brave-ios/pull/2002
+     */
+    fullscreenVideoFix() {
+        // @ts-expect-error - webkitEnterFullscreen is a Safari/WebKit-specific API
+        const canEnterFullscreen = HTMLVideoElement.prototype.webkitEnterFullscreen !== undefined;
+        // @ts-expect-error - webkitFullscreenEnabled is a Safari/WebKit-specific API
+        const browserHasExistingFullScreenSupport = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+        const isMobile = /mobile/i.test(navigator.userAgent);
+
+        if (!browserHasExistingFullScreenSupport && canEnterFullscreen && !isMobile) {
+            this.defineProperty(document, 'fullscreenEnabled', {
+                value: true,
+                writable: false,
+                configurable: true,
+                enumerable: true,
+            });
+
+            /**
+             * @this {HTMLElement}
+             * @returns {Promise<void>}
+             */
+            function requestFullscreenShim() {
+                const video = this.querySelector('video');
+                if (video) {
+                    // @ts-expect-error - webkitEnterFullscreen is a Safari/WebKit-specific API
+                    video.webkitEnterFullscreen();
+                    return Promise.resolve();
+                }
+                return Promise.reject(new TypeError('No video element found'));
+            }
+
+            this.defineProperty(HTMLElement.prototype, 'requestFullscreen', {
+                value: requestFullscreenShim,
+                writable: true,
+                configurable: true,
+                enumerable: true,
+            });
+        }
     }
 }
 

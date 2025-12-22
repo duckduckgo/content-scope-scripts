@@ -656,6 +656,132 @@ test.describe('ScreenOrientation API', () => {
     });
 });
 
+test.describe('Fullscreen Video fix', () => {
+    // Script to simulate WKWebView environment:
+    // - Remove fullscreenEnabled/webkitFullscreenEnabled
+    // - Add webkitEnterFullscreen to video prototype
+    const simulateWKWebViewScript = `
+        Object.defineProperty(document, 'fullscreenEnabled', { value: undefined, writable: true, configurable: true });
+        Object.defineProperty(document, 'webkitFullscreenEnabled', { value: undefined, writable: true, configurable: true });
+        HTMLVideoElement.prototype.webkitEnterFullscreen = function() { window.__webkitEnterFullscreenCalled = true; };
+    `;
+
+    test('should not apply fix when fullscreenEnabled already exists', async ({ page }) => {
+        await gotoAndWait(page, '/blank.html', {
+            site: { enabledFeatures: ['webCompat'] },
+            featureSettings: { webCompat: { fullscreenVideo: 'enabled' } },
+        });
+
+        // Chromium has native fullscreen support, so fix should not be applied
+        const fullscreenEnabled = await page.evaluate(() => document.fullscreenEnabled);
+        expect(fullscreenEnabled).toEqual(true);
+
+        // Original requestFullscreen should still work (not our shim)
+        const requestFullscreenExists = await page.evaluate(() => typeof HTMLElement.prototype.requestFullscreen === 'function');
+        expect(requestFullscreenExists).toEqual(true);
+    });
+
+    test('should apply fix when fullscreen APIs are not available and webkitEnterFullscreen exists', async ({ page }) => {
+        await gotoAndWait(
+            page,
+            '/blank.html',
+            {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { fullscreenVideo: 'enabled' } },
+            },
+            simulateWKWebViewScript,
+        );
+
+        // Our fix should have set fullscreenEnabled to true
+        const fullscreenEnabled = await page.evaluate(() => document.fullscreenEnabled);
+        expect(fullscreenEnabled).toEqual(true);
+    });
+
+    test('should call webkitEnterFullscreen on video when requestFullscreen is called', async ({ page }) => {
+        await gotoAndWait(
+            page,
+            '/blank.html',
+            {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { fullscreenVideo: 'enabled' } },
+            },
+            simulateWKWebViewScript,
+        );
+
+        // Create a div with a video inside
+        const result = await page.evaluate(async () => {
+            const div = document.createElement('div');
+            const video = document.createElement('video');
+            div.appendChild(video);
+            document.body.appendChild(div);
+
+            try {
+                await div.requestFullscreen();
+                // @ts-expect-error - test helper property
+                return { called: window.__webkitEnterFullscreenCalled };
+            } catch (e) {
+                return { error: e.message };
+            }
+        });
+
+        expect(result.called).toEqual(true);
+    });
+
+    test('should reject when no video element is found', async ({ page }) => {
+        await gotoAndWait(
+            page,
+            '/blank.html',
+            {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { fullscreenVideo: 'enabled' } },
+            },
+            simulateWKWebViewScript,
+        );
+
+        // Create a div without a video
+        const result = await page.evaluate(async () => {
+            const div = document.createElement('div');
+            document.body.appendChild(div);
+
+            try {
+                await div.requestFullscreen();
+                return { resolved: true };
+            } catch (e) {
+                return { rejected: true, message: e.message };
+            }
+        });
+
+        expect(result.rejected).toEqual(true);
+        expect(result.message).toContain('No video element found');
+    });
+
+    test('should not apply fix on mobile user agent', async ({ page }) => {
+        // Override navigator.userAgent to include "mobile"
+        const mobileUAScript =
+            simulateWKWebViewScript +
+            `
+            Object.defineProperty(navigator, 'userAgent', { 
+                value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
+                configurable: true
+            });
+        `;
+
+        await gotoAndWait(
+            page,
+            '/blank.html',
+            {
+                site: { enabledFeatures: ['webCompat'] },
+                featureSettings: { webCompat: { fullscreenVideo: 'enabled' } },
+            },
+            mobileUAScript,
+        );
+
+        // Fix should not be applied on mobile
+        const fullscreenEnabled = await page.evaluate(() => document.fullscreenEnabled);
+        expect(fullscreenEnabled).toBeUndefined();
+    });
+});
+
 test.describe('Viewport fixes', () => {
     function getViewportValue() {
         return document.querySelector('meta[name="viewport"]')?.getAttribute('content');
