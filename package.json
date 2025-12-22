@@ -41,7 +41,7 @@
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
     "@playwright/test": "^1.57.0",
     "ajv": "^8.17.1",
-    "esbuild": "^0.27.1",
+    "esbuild": "^0.27.2",
     "eslint": "^9.39.2",
     "minimist": "^1.2.8",
     "prettier": "3.7.4",
@@ -51,7 +51,7 @@
     "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.15",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.49.0"
+    "typescript-eslint": "^8.50.0"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.2",
