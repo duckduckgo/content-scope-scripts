@@ -281,21 +281,17 @@ describe('TrackerResolver', () => {
             });
 
             // Should match script type
-            const scriptResult = resolverWithOptions.getTrackerData(
-                'https://option-tracker.com/script.js',
-                'https://example.com',
-                { type: 'script' },
-            );
+            const scriptResult = resolverWithOptions.getTrackerData('https://option-tracker.com/script.js', 'https://example.com', {
+                type: 'script',
+            });
             expect(scriptResult).not.toBeNull();
             expect(scriptResult?.matchedRule).not.toBeNull();
             expect(scriptResult?.action).toBe('block');
 
             // Should not match image type (defaults to default action)
-            const imageResult = resolverWithOptions.getTrackerData(
-                'https://option-tracker.com/script.js',
-                'https://example.com',
-                { type: 'image' },
-            );
+            const imageResult = resolverWithOptions.getTrackerData('https://option-tracker.com/script.js', 'https://example.com', {
+                type: 'image',
+            });
             expect(imageResult).not.toBeNull();
             expect(imageResult?.matchedRule).toBeFalsy(); // undefined when no rule matches
             expect(imageResult?.action).toBe('ignore'); // default action
@@ -329,19 +325,13 @@ describe('TrackerResolver', () => {
             });
 
             // Should be blocked on normal site
-            const blockedResult = resolverWithExceptions.getTrackerData(
-                'https://exception-tracker.com/script.js',
-                'https://example.com',
-            );
+            const blockedResult = resolverWithExceptions.getTrackerData('https://exception-tracker.com/script.js', 'https://example.com');
             expect(blockedResult).not.toBeNull();
             expect(blockedResult?.action).toBe('block');
             expect(blockedResult?.matchedRuleException).toBe(false);
 
             // Should be allowed on exception domain
-            const allowedResult = resolverWithExceptions.getTrackerData(
-                'https://exception-tracker.com/script.js',
-                'https://allowed.com',
-            );
+            const allowedResult = resolverWithExceptions.getTrackerData('https://exception-tracker.com/script.js', 'https://allowed.com');
             expect(allowedResult).not.toBeNull();
             expect(allowedResult?.action).toBe('ignore');
             expect(allowedResult?.matchedRuleException).toBe(true);
