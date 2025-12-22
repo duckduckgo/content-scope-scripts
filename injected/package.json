@@ -40,7 +40,7 @@
     "@types/chrome": "^0.1.32",
     "@types/jasmine": "^5.1.13",
     "@types/node": "^25.0.2",
-    "@typescript-eslint/eslint-plugin": "^8.49.0",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
     "fast-check": "^4.4.0",
     "jasmine": "^5.13.0",
     "jsdom": "^27.2.0",
