@@ -42,4 +42,4 @@ jobs:
                   Can you draft a separate PR with any fixes that might be needed?"
               env:
                   PR_URL: ${{ github.event.pull_request.html_url }}
-                  GH_TOKEN: ${{ secrets.DAX_PAT }}
+                  GH_TOKEN: ${{ secrets.CURSOR_PAT }}

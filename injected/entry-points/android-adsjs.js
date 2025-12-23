@@ -2,7 +2,7 @@
  * @module Android AdsJS integration
  */
 import { load, init, updateFeatureArgs } from '../src/content-scope-features.js';
-import { processConfig, isBeingFramed } from './../src/utils';
+import { processConfig, isBeingFramed, getLoadArgs } from './../src/utils';
 import { AndroidAdsjsMessagingConfig, MessagingContext, Messaging } from '../../messaging/index.js';
 
 /**
@@ -22,7 +22,7 @@ async function sendInitialPingAndUpdate(messagingConfig, processedConfig) {
     try {
         // Create messaging context for the initial ping
         const messagingContext = new MessagingContext({
-            context: 'contentScopeScripts',
+            context: processedConfig.messagingContextName,
             env: processedConfig.debug ? 'development' : 'production',
             featureName: 'messaging',
         });
@@ -73,13 +73,7 @@ function initCode() {
     sendInitialPingAndUpdate(processedConfig.messagingConfig, processedConfig);
 
     // Load and init features immediately with base configuration
-    load({
-        platform: processedConfig.platform,
-        site: processedConfig.site,
-        bundledConfig: processedConfig.bundledConfig,
-        messagingConfig: processedConfig.messagingConfig,
-        messageSecret: processedConfig.messageSecret,
-    });
+    load(getLoadArgs(processedConfig));
 
     init(processedConfig);
 }
