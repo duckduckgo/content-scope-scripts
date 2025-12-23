@@ -25,6 +25,9 @@
 
     <p>This page verifies that element hiding works correctly</p>
 
+    <!-- Results will be inserted here -->
+    <div id="results-container"></div>
+
     <!-- Hide rule test elements -->
     <div id="hide">
         <div class="container hide-test" id="hide-basic">
@@ -376,8 +379,40 @@
             ];
         });
 
-        // eslint-disable-next-line no-undef
-        renderResults();
+        // Custom renderResults that inserts at the top of the page
+        async function renderResultsAtTop() {
+            const results = {};
+            // @ts-expect-error - ongoingTests is not defined in the type definition
+            for (const testItem of window.ongoingTests) {
+                const result = await testItem.test().catch((e) => console.error(`${testItem.name} threw`, e));
+                results[testItem.name] = result;
+            }
+
+            // Update the status header
+            const totalTests = Object.values(results).flat().length;
+            const passed = Object.values(results)
+                .flat()
+                .filter((result) => result.result === result.expected).length;
+            const output = document.getElementById('test-status');
+            if (output) {
+                output.textContent = totalTests > 0 && passed === totalTests ? 'pass' : 'fail';
+            }
+
+            // Move summary to results container and add table
+            const container = document.getElementById('results-container');
+            const summary = document.querySelector('summary');
+            if (container && summary) {
+                container.appendChild(summary);
+                // eslint-disable-next-line no-undef
+                container.appendChild(buildResultTable(results));
+            }
+
+            // @ts-expect-error - results is not defined in the type definition
+            window.results = results;
+            window.dispatchEvent(new CustomEvent('results-ready', { detail: results }));
+        }
+
+        renderResultsAtTop();
     </script>
 </body>
 </html>
