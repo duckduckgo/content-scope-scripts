@@ -60,6 +60,8 @@ let modifiedElements = new WeakMap();
 let appliedRules = new Set();
 let shouldInjectStyleTag = false;
 let styleTagInjected = false;
+/** @type {boolean} Cached per-pass to avoid checking custom elements on every isDomNodeEmpty call */
+let useDOMParser = false;
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
 let hideTimeouts = [0, 100, 300, 500, 1000, 2000, 3000];
 let unhideTimeouts = [1250, 2250, 3000];
@@ -216,9 +218,10 @@ function isDomNodeEmpty(node) {
 
     // Use cloneNode for performance, but fall back to DOMParser when custom elements
     // are present to avoid triggering custom element constructors (page-observable).
+    // useDOMParser is cached per-pass via hasCustomElements check in hideAdNodes/unhideLoadedAds.
     /** @type {HTMLElement} */
     let parsedNode;
-    if (hasCustomElements(node)) {
+    if (useDOMParser) {
         // DOMParser wraps content in <html><head>...</head><body>...</body></html>
         parsedNode = parser.parseFromString(node.outerHTML, 'text/html').documentElement;
     } else {
@@ -240,8 +243,7 @@ function isDomNodeEmpty(node) {
     const frameElements = rootIsIframe ? [/** @type {HTMLIFrameElement} */ (parsedNode)] : [...parsedNode.querySelectorAll('iframe')];
     // query original node instead of parsedNode for img elements since heuristic relies
     // on size of image elements
-    const rootIsImage = node.tagName === 'IMG' || node.tagName === 'SVG';
-    const imageElements = rootIsImage ? [node] : [...node.querySelectorAll('img,svg')];
+    const imageElements = [...node.querySelectorAll('img,svg')];
     // about:blank iframes don't count as content, return true if:
     // - node doesn't contain any iframes
     // - node contains iframes, all of which are hidden or have src='about:blank'
@@ -342,6 +344,9 @@ function injectStyleTag(rules) {
 function hideAdNodes(rules) {
     const document = globalThis.document;
 
+    // Cache custom elements check once per pass to avoid repeated DOM traversal
+    useDOMParser = hasCustomElements(document.body);
+
     rules.forEach((rule) => {
         const selector = forgivingSelector(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
         const matchingElementArray = [...document.querySelectorAll(selector)];
@@ -357,6 +362,9 @@ function hideAdNodes(rules) {
  */
 function unhideLoadedAds() {
     const document = globalThis.document;
+
+    // Cache custom elements check once per pass to avoid repeated DOM traversal
+    useDOMParser = hasCustomElements(document.body);
 
     appliedRules.forEach((rule) => {
         const selector = forgivingSelector(rule.selector);
