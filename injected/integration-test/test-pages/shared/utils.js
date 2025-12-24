@@ -105,18 +105,12 @@ function updateResultsHeader(results) {
 }
 
 /**
- * @typedef {object} RenderResultsOptions
- * @property {Element} [container] Optional container element to render results into. Defaults to document.body.
- * @property {boolean} [includeSummary] If true, moves the summary element into the container. Defaults to false.
- */
-
-/**
  * Renders test results to the page.
- * @param {RenderResultsOptions} [options] Options for rendering results.
+ * @param {Element} [container] Optional container element to render results into. Defaults to document.body.
+ *                              When a custom container is provided, the summary header is also moved there.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function renderResults(options = {}) {
-    const { container = document.body, includeSummary = false } = options;
+async function renderResults(container = document.body) {
     const results = {};
     if (isInAutomation) {
         await isReadyPromise;
@@ -128,7 +122,8 @@ async function renderResults(options = {}) {
     }
     updateResultsHeader(results);
 
-    if (includeSummary) {
+    // Move summary to container if using custom container (summary and results belong together)
+    if (container !== document.body) {
         const summary = document.querySelector('summary');
         if (summary) {
             container.appendChild(summary);
