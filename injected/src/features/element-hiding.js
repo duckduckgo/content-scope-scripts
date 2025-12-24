@@ -54,6 +54,7 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  */
 
 let adLabelStrings = [];
+const parser = new DOMParser();
 let hiddenElements = new WeakMap();
 let modifiedElements = new WeakMap();
 let appliedRules = new Set();
@@ -189,6 +190,21 @@ function unhideNode(element) {
 }
 
 /**
+ * Check if element or any descendants contain custom elements (hyphenated tag names).
+ * Custom elements may have constructors that execute observable code when cloned.
+ * @param {HTMLElement} el
+ * @returns {boolean}
+ */
+function hasCustomElements(el) {
+    if (el.tagName.includes('-')) return true;
+    const all = el.getElementsByTagName('*');
+    for (let i = 0; i < all.length; i++) {
+        if (all[i].tagName.includes('-')) return true;
+    }
+    return false;
+}
+
+/**
  * Check if DOM element contains visible content
  * @param {HTMLElement} node
  */
@@ -197,9 +213,18 @@ function isDomNodeEmpty(node) {
     if (node.tagName === 'BODY') {
         return false;
     }
-    // use a clonedNode to remove all metadata elements before checking if
-    // the node is empty.
-    const parsedNode = /** @type {HTMLElement} */ (node.cloneNode(true));
+
+    // Use cloneNode for performance, but fall back to DOMParser when custom elements
+    // are present to avoid triggering custom element constructors (page-observable).
+    /** @type {HTMLElement} */
+    let parsedNode;
+    if (hasCustomElements(node)) {
+        // DOMParser wraps content in <html><head>...</head><body>...</body></html>
+        parsedNode = parser.parseFromString(node.outerHTML, 'text/html').documentElement;
+    } else {
+        parsedNode = /** @type {HTMLElement} */ (node.cloneNode(true));
+    }
+
     if (!parsedNode) {
         return false;
     }
@@ -208,11 +233,15 @@ function isDomNodeEmpty(node) {
     });
 
     const visibleText = parsedNode.innerText.trim().toLocaleLowerCase().replace(/:$/, '');
-    const mediaAndFormContent = parsedNode.querySelector(mediaAndFormSelectors);
-    const frameElements = [...parsedNode.querySelectorAll('iframe')];
+    // Check if root node itself matches (cloneNode doesn't wrap, so querySelector misses root)
+    const rootMatchesMediaForm = parsedNode.matches?.(mediaAndFormSelectors) ?? false;
+    const mediaAndFormContent = rootMatchesMediaForm || parsedNode.querySelector(mediaAndFormSelectors) !== null;
+    const rootIsIframe = parsedNode.tagName === 'IFRAME';
+    const frameElements = rootIsIframe ? [/** @type {HTMLIFrameElement} */ (parsedNode)] : [...parsedNode.querySelectorAll('iframe')];
     // query original node instead of parsedNode for img elements since heuristic relies
     // on size of image elements
-    const imageElements = [...node.querySelectorAll('img,svg')];
+    const rootIsImage = node.tagName === 'IMG' || node.tagName === 'SVG';
+    const imageElements = rootIsImage ? [node] : [...node.querySelectorAll('img,svg')];
     // about:blank iframes don't count as content, return true if:
     // - node doesn't contain any iframes
     // - node contains iframes, all of which are hidden or have src='about:blank'
@@ -225,12 +254,7 @@ function isDomNodeEmpty(node) {
         return image.getBoundingClientRect().width > 20 || image.getBoundingClientRect().height > 20;
     });
 
-    if (
-        (visibleText === '' || adLabelStrings.includes(visibleText)) &&
-        mediaAndFormContent === null &&
-        noFramesWithContent &&
-        !visibleImages
-    ) {
+    if ((visibleText === '' || adLabelStrings.includes(visibleText)) && !mediaAndFormContent && noFramesWithContent && !visibleImages) {
         return true;
     }
     return false;
