@@ -79,8 +79,25 @@ export class TrackerStats extends ContentFeature {
         // Surrogates are passed via args (injected as $SURROGATES$ in apple.js entry point)
         // They're actual JS functions, avoiding CSP issues with new Function()
         const surrogates = this.args?.surrogates || {};
+
+        // Parse trackerData - it's passed as a JSON string from native
+        let trackerData = this.getFeatureSetting('trackerData');
+        if (typeof trackerData === 'string') {
+            try {
+                trackerData = JSON.parse(trackerData);
+            } catch (e) {
+                this.log.warn('Failed to parse trackerData:', e);
+                trackerData = null;
+            }
+        }
+
+        if (!trackerData) {
+            this.log.warn('No tracker data available');
+            return;
+        }
+
         this._resolver = new TrackerResolver({
-            trackerData: this.getFeatureSetting('trackerData'),
+            trackerData,
             surrogates,
             allowlist: this.getFeatureSetting('allowlist'),
             unprotectedDomains: [
@@ -124,7 +141,10 @@ export class TrackerStats extends ContentFeature {
             attributeFilter: ['src'],
         });
 
-        // Process existing elements on load
+        // Process existing scripts immediately (they might already be in DOM)
+        this._processExistingScripts();
+
+        // Also process on load for any scripts we might have missed
         window.addEventListener(
             'load',
             () => {
@@ -133,7 +153,31 @@ export class TrackerStats extends ContentFeature {
             { once: true },
         );
 
+        // Process again on DOMContentLoaded for scripts added during parse
+        if (document.readyState === 'loading') {
+            document.addEventListener(
+                'DOMContentLoaded',
+                () => {
+                    this._processPage();
+                },
+                { once: true },
+            );
+        }
+
         this.log.info('Tracker interception initialized');
+    }
+
+    /**
+     * Process scripts that might already exist in the DOM at initialization time
+     */
+    _processExistingScripts() {
+        if (!this._seenUrls) return;
+        const seenUrls = this._seenUrls;
+        // Check existing scripts - they might already be in DOM before observer started
+        const scripts = [...document.scripts].filter((el) => el.src && !seenUrls.has(el.src));
+        for (const script of scripts) {
+            this._checkAndBlock(script.src, 'script', script);
+        }
     }
 
     /**
