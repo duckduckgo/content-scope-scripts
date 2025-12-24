@@ -54,7 +54,6 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  */
 
 let adLabelStrings = [];
-const parser = new DOMParser();
 let hiddenElements = new WeakMap();
 let modifiedElements = new WeakMap();
 let appliedRules = new Set();
