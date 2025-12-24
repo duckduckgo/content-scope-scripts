@@ -107,7 +107,6 @@ function updateResultsHeader(results) {
 /**
  * Renders test results to the page.
  * @param {Element} [container] Optional container element to render results into. Defaults to document.body.
- *                              When a custom container is provided, the summary header is also moved there.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function renderResults(container = document.body) {
@@ -122,14 +121,11 @@ async function renderResults(container = document.body) {
     }
     updateResultsHeader(results);
 
-    // Move summary to container if using custom container (summary and results belong together)
-    if (container !== document.body) {
-        const summary = document.querySelector('summary');
-        if (summary) {
-            container.appendChild(summary);
-        }
+    // Keep summary and results table together
+    const summary = document.querySelector('summary');
+    if (summary) {
+        container.appendChild(summary);
     }
-
     // @ts-expect-error - buildResultTable is not defined in the type definition
     container.appendChild(buildResultTable(results));
     // @ts-expect-error - results is not defined in the type definition
