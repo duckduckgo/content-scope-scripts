@@ -21930,7 +21930,8 @@ ${iframeContent}
           "webCompat",
           "apiManipulation",
           "duckPlayer",
-          "duckPlayerNative"
+          "duckPlayerNative",
+          "elementHiding"
         ]
       }
     };
