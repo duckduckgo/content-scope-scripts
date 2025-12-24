@@ -15,7 +15,7 @@ export type IsCTLEnabledResponse = boolean;
  * Requests, Notifications and Subscriptions from the TrackerStats feature
  */
 export interface TrackerStatsMessages {
-  notifications: SurrogateInjectedNotification;
+  notifications: SurrogateInjectedNotification | TrackerDetectedNotification;
   requests: IsCTLEnabledRequest;
 }
 /**
@@ -49,6 +49,58 @@ export interface SurrogateInjected {
    * The URL of the page where the tracker was detected
    */
   pageUrl: string;
+}
+/**
+ * Generated from @see "../messages/tracker-stats/trackerDetected.notify.json"
+ */
+export interface TrackerDetectedNotification {
+  method: "trackerDetected";
+  params: TrackerDetected;
+}
+/**
+ * Notification sent when a tracker is detected (blocked or allowed)
+ */
+export interface TrackerDetected {
+  /**
+   * The URL of the detected tracker resource
+   */
+  url: string;
+  /**
+   * Whether the request was blocked
+   */
+  blocked: boolean;
+  /**
+   * The reason for the action
+   */
+  reason?: string | null;
+  /**
+   * Whether a surrogate will be/was injected
+   */
+  isSurrogate: boolean;
+  /**
+   * The URL of the page where the tracker was detected
+   */
+  pageUrl: string;
+  /**
+   * The display name of the tracker entity
+   */
+  entityName?: string | null;
+  /**
+   * The owner name of the tracker
+   */
+  ownerName?: string | null;
+  /**
+   * The category of the tracker
+   */
+  category?: string | null;
+  /**
+   * The prevalence of the tracker entity
+   */
+  prevalence?: number | null;
+  /**
+   * Whether the tracker is allowlisted
+   */
+  isAllowlisted?: boolean | null;
 }
 /**
  * Generated from @see "../messages/tracker-stats/isCTLEnabled.request.json"

@@ -182,6 +182,25 @@ export class TrackerStats extends ContentFeature {
         const isSurrogate = Boolean(result.matchedRule?.surrogate);
         const isAllowlisted = this._resolver.isAllowlisted(topUrl, url);
 
+        // Report all detected trackers to native for privacy dashboard
+        if (result.tracker) {
+            const trackerData = {
+                url,
+                blocked,
+                reason: result.reason || null,
+                isSurrogate: isSurrogate && blocked && !isAllowlisted,
+                pageUrl: this._topLevelUrl?.href || '',
+                entityName: result.tracker.owner?.displayName || null,
+                ownerName: result.tracker.owner?.name || null,
+                category: result.tracker.categories?.[0] || null,
+                prevalence: result.tracker.owner?.prevalence || null,
+                isAllowlisted,
+            };
+
+            this.notify('trackerDetected', trackerData);
+            this.log.info('Tracker detected:', url, blocked ? '(blocked)' : '(allowed)');
+        }
+
         // Handle surrogate loading
         if (blocked && isSurrogate && !isAllowlisted) {
             const surrogateName = result.matchedRule.surrogate;
@@ -202,7 +221,7 @@ export class TrackerStats extends ContentFeature {
             // Load the surrogate
             this._loadSurrogate(surrogateName, element);
 
-            // Report to native for privacy dashboard
+            // Report surrogate injection specifically
             this.notify('surrogateInjected', {
                 url,
                 blocked: true,
@@ -215,7 +234,7 @@ export class TrackerStats extends ContentFeature {
             return true;
         }
 
-        return false;
+        return blocked;
     }
 
     /**
