@@ -104,8 +104,19 @@ function updateResultsHeader(results) {
     output.textContent = totalTests > 0 && passed === totalTests ? 'pass' : 'fail';
 }
 
+/**
+ * @typedef {object} RenderResultsOptions
+ * @property {Element} [container] Optional container element to render results into. Defaults to document.body.
+ * @property {boolean} [includeSummary] If true, moves the summary element into the container. Defaults to false.
+ */
+
+/**
+ * Renders test results to the page.
+ * @param {RenderResultsOptions} [options] Options for rendering results.
+ */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function renderResults() {
+async function renderResults(options = {}) {
+    const { container = document.body, includeSummary = false } = options;
     const results = {};
     if (isInAutomation) {
         await isReadyPromise;
@@ -116,8 +127,16 @@ async function renderResults() {
         results[test.name] = result;
     }
     updateResultsHeader(results);
+
+    if (includeSummary) {
+        const summary = document.querySelector('summary');
+        if (summary) {
+            container.appendChild(summary);
+        }
+    }
+
     // @ts-expect-error - buildResultTable is not defined in the type definition
-    document.body.appendChild(buildResultTable(results));
+    container.appendChild(buildResultTable(results));
     // @ts-expect-error - results is not defined in the type definition
     window.results = results;
     window.dispatchEvent(new CustomEvent('results-ready', { detail: results }));
