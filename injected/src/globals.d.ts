@@ -22,7 +22,8 @@ interface ImportMeta {
         | 'chrome-mv3'
         | 'android-broker-protection'
         | 'android-autofill-import'
-        | 'android-adsjs';
+        | 'android-adsjs'
+        | 'android-adsjs-lm';
     trackerLookup?: Record<string, unknown>;
     pageName?: string;
 }
