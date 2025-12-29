@@ -66,13 +66,20 @@ async function init() {
     const requiredFields = [];
     const args = parseArgs(process.argv.slice(2), requiredFields);
 
+    // Enable source maps via --sourcemap flag or CSS_SOURCEMAPS env var
+    const sourcemap = args.sourcemap || process.env.CSS_SOURCEMAPS === '1';
+
+    if (sourcemap) {
+        console.log('🗺️  Inline source maps enabled');
+    }
+
     // if a platform was given as an argument, just build that platform
     if (args.platform) {
         const build = builds[args.platform];
         if (!build) {
             throw new Error('unsupported platform: ' + args.platform);
         }
-        const output = await bundle({ scriptPath: build.input, platform: args.platform });
+        const output = await bundle({ scriptPath: build.input, platform: args.platform, sourcemap });
 
         // bundle and write the output
         write([build.output], output);
@@ -82,7 +89,7 @@ async function init() {
 
     // otherwise, just build them all
     for (const [injectName, build] of Object.entries(builds)) {
-        const output = await bundle({ scriptPath: build.input, platform: injectName });
+        const output = await bundle({ scriptPath: build.input, platform: injectName, sourcemap });
         write(build.output, output);
         console.log('✅', injectName, build.output[0]);
     }
