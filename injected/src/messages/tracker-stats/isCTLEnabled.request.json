@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "IsCTLEnabled",
+  "description": "Request to check if Click-to-Load feature is enabled (for fb-sdk.js surrogate)",
+  "properties": {}
+}
