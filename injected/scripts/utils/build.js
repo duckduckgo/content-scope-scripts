@@ -15,10 +15,11 @@ const prefixMessage = '/*! © DuckDuckGo ContentScopeScripts $INJECT_NAME$ https
  * @param {string} params.platform
  * @param {string[]} [params.featureNames]
  * @param {string} [params.name]
+ * @param {boolean} [params.sourcemap] - Enable inline source maps for debugging
  * @return {Promise<string>}
  */
 export async function bundle(params) {
-    const { scriptPath, platform, name, featureNames } = params;
+    const { scriptPath, platform, name, featureNames, sourcemap = false } = params;
 
     const extensions = ['firefox', 'chrome-mv3'];
     const isExtension = extensions.includes(platform);
@@ -56,6 +57,9 @@ export async function bundle(params) {
         banner: {
             js: outputPrefixName,
         },
+        // Inline source maps embed mapping data as base64 data URL - useful for debugging
+        // without requiring separate .map files. Only parsed when DevTools are open.
+        ...(sourcemap && { sourcemap: 'inline' }),
     };
 
     const result = await esbuild.build(buildOptions);
