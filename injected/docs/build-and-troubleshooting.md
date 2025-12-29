@@ -4,6 +4,41 @@ This document provides platform-specific build instructions, troubleshooting ste
 
 ---
 
+## Debugging with Source Maps
+
+Enable inline source maps to see original file names and line numbers in browser DevTools instead of the bundled output (e.g., `tracker-stats.js:304` instead of `contentScope.js:10484`).
+
+### Enabling Source Maps
+
+**Via environment variable:**
+```bash
+CSS_SOURCEMAPS=1 npm run build
+```
+
+**Via CLI flag:**
+```bash
+npm run bundle-entry-points -- --sourcemap
+# Or for a specific platform:
+npm run bundle-entry-points -- --platform apple --sourcemap
+```
+
+### How It Works
+
+- Inline source maps embed mapping data as a base64 data URL at the end of the JS file
+- Browser DevTools automatically detect and use them when open
+- No performance impact in production (only parsed when DevTools are open)
+- File size increases ~30-50%, acceptable for debugging builds
+
+### Copying to Native Apps
+
+After building with source maps, copy to the native app:
+```bash
+# In the meta repo
+npm run bootstrap -- --force-build-css
+```
+
+---
+
 ## iOS/macOS
 
 - **Check Xcode Version:**
