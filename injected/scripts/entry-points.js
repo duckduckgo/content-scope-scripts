@@ -66,8 +66,8 @@ async function init() {
     const requiredFields = [];
     const args = parseArgs(process.argv.slice(2), requiredFields);
 
-    // Enable source maps via --sourcemap flag or CSS_SOURCEMAPS env var
-    const sourcemap = args.sourcemap || process.env.CSS_SOURCEMAPS === '1';
+    // Enable source maps via --sourcemap flag or C_S_S_SOURCEMAPS env var
+    const sourcemap = args.sourcemap || process.env.C_S_S_SOURCEMAPS === '1';
 
     if (sourcemap) {
         console.log('🗺️  Inline source maps enabled');

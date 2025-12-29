@@ -8,16 +8,15 @@ This document provides platform-specific build instructions, troubleshooting ste
 
 Enable inline source maps to see original file names and line numbers in browser DevTools instead of the bundled output (e.g., `web-compat.js:142` instead of `contentScope.js:10484`).
 
-**Via environment variable:**
 ```bash
-CSS_SOURCEMAPS=1 npm run build
-```
+# Full build with source maps
+C_S_S_SOURCEMAPS=1 npm run build
 
-**Via CLI flag:**
-```bash
+# Single platform
+C_S_S_SOURCEMAPS=1 npm run bundle-entry-points -- --platform apple
+
+# Or via CLI flag
 npm run bundle-entry-points -- --sourcemap
-# Or for a specific platform:
-npm run bundle-entry-points -- --platform apple --sourcemap
 ```
 
 ---
