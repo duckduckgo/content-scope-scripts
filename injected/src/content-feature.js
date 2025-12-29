@@ -68,11 +68,15 @@ export default class ContentFeature extends ConfigFeature {
 
     /**
      * Whether to route logs to native on Apple platforms
+     * When true, logs go ONLY to native (not browser console)
+     * When false, logs go ONLY to browser console
      * @returns {boolean}
      */
     get _shouldRouteToNative() {
         const platformName = this.platform?.name;
-        return this.shouldLog && (platformName === 'ios' || platformName === 'macos');
+        // Enable this to send to native console
+        const shouldLogNative = false;
+        return shouldLogNative && (platformName === 'ios' || platformName === 'macos');
     }
 
     /**
@@ -109,8 +113,11 @@ export default class ContentFeature extends ConfigFeature {
     /**
      * Logging utility for this feature
      *
-     * On Apple platforms (iOS/macOS), when debug mode is enabled, logs are also
-     * routed to native webkit handlers for visibility in Xcode console.
+     * Choose between browser console (with correct line numbers) OR native console:
+     * - When _shouldRouteToNative is false: logs go to browser console only
+     * - When _shouldRouteToNative is true: logs go to native console only (no browser console)
+     *
+     * Note: Returns bound console functions directly to preserve caller's line numbers.
      */
     get log() {
         const shouldLog = this.shouldLog;
@@ -122,31 +129,28 @@ export default class ContentFeature extends ConfigFeature {
             get info() {
                 if (!shouldLog) return () => {};
                 if (routeToNative) {
-                    return (/** @type {any[]} */ ...args) => {
-                        routeLog('info', args);
-                        consoleLog.call(console, prefix, ...args);
-                    };
+                    // Native only - no browser console
+                    return (/** @type {any[]} */ ...args) => routeLog('info', args);
                 }
+                // Browser console only - return bound console directly for correct line numbers
                 return consoleLog.bind(console, prefix);
             },
             get warn() {
                 if (!shouldLog) return () => {};
                 if (routeToNative) {
-                    return (/** @type {any[]} */ ...args) => {
-                        routeLog('warn', args);
-                        consoleWarn.call(console, prefix, ...args);
-                    };
+                    // Native only - no browser console
+                    return (/** @type {any[]} */ ...args) => routeLog('warn', args);
                 }
+                // Browser console only - return bound console directly for correct line numbers
                 return consoleWarn.bind(console, prefix);
             },
             get error() {
                 if (!shouldLog) return () => {};
                 if (routeToNative) {
-                    return (/** @type {any[]} */ ...args) => {
-                        routeLog('error', args);
-                        consoleError.call(console, prefix, ...args);
-                    };
+                    // Native only - no browser console
+                    return (/** @type {any[]} */ ...args) => routeLog('error', args);
                 }
+                // Browser console only - return bound console directly for correct line numbers
                 return consoleError.bind(console, prefix);
             },
         };
