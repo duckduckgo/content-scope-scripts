@@ -29,14 +29,6 @@ npm run bundle-entry-points -- --platform apple --sourcemap
 - No performance impact in production (only parsed when DevTools are open)
 - File size increases ~30-50%, acceptable for debugging builds
 
-### Copying to Native Apps
-
-After building with source maps, copy to the native app:
-```bash
-# In the meta repo
-npm run bootstrap -- --force-build-css
-```
-
 ---
 
 ## iOS/macOS
