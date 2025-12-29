@@ -3,7 +3,8 @@
 import PackageDescription
 
 let package = Package(
-    name: "ContentScopeScriptsResources",
+    name: "content-scope-scripts",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v15),
         .macOS(.v11),
