@@ -117,9 +117,17 @@ export async function gotoAndWait(page, urlString, args = {}, evalBeforeInit = n
     }
 
     // wait until contentScopeFeatures.load() has completed
-    // CSP-safe detection: Extension dispatches CustomEvent and adds meta tag marker
-    // waitForSelector doesn't use eval, so it bypasses CSP
-    await page.waitForSelector('meta[name="content-scope-loaded"]', { timeout: 30000 });
+    // CSP-safe detection: Listen for CustomEvent dispatched by extension
+    // This doesn't use eval, so it bypasses CSP
+    await page.evaluate(() => {
+        return new Promise((resolve) => {
+            if (window.__content_scope_status === 'loaded') {
+                resolve();
+            } else {
+                document.addEventListener('content-scope-loaded', () => resolve(), { once: true });
+            }
+        });
+    });
 
     if (evalBeforeInit) {
         await page.evaluate(evalBeforeInit);
@@ -136,6 +144,14 @@ export async function gotoAndWait(page, urlString, args = {}, evalBeforeInit = n
     await page.evaluate(evalString);
 
     // wait until contentScopeFeatures.init(args) has completed
-    // CSP-safe detection: Extension dispatches CustomEvent and adds meta tag marker
-    await page.waitForSelector('meta[name="content-scope-initialized"]', { timeout: 30000 });
+    // CSP-safe detection: Listen for CustomEvent dispatched by extension
+    await page.evaluate(() => {
+        return new Promise((resolve) => {
+            if (window.__content_scope_status === 'initialized') {
+                resolve();
+            } else {
+                document.addEventListener('content-scope-initialized', () => resolve(), { once: true });
+            }
+        });
+    });
 }

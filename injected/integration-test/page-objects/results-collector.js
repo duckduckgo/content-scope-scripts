@@ -137,8 +137,16 @@ export class ResultsCollector {
                 url: './integration-test/extension/contentScope.js',
             });
             // Wait for the integration script to initialize
-            // CSP-safe detection: Extension dispatches CustomEvent and adds meta tag marker
-            await this.page.waitForSelector('meta[name="content-scope-loaded"]', { timeout: 30000 });
+            // CSP-safe detection: Listen for CustomEvent dispatched by extension
+            await this.page.evaluate(() => {
+                return new Promise((resolve) => {
+                    if (window.__content_scope_status === 'loaded') {
+                        resolve();
+                    } else {
+                        document.addEventListener('content-scope-loaded', () => resolve(), { once: true });
+                    }
+                });
+            });
             
             // Send the config via custom event
             const evalString = `
@@ -151,8 +159,16 @@ export class ResultsCollector {
             await this.page.evaluate(evalString);
             
             // Wait for initialization to complete
-            // CSP-safe detection: Extension dispatches CustomEvent and adds meta tag marker
-            await this.page.waitForSelector('meta[name="content-scope-initialized"]', { timeout: 30000 });
+            // CSP-safe detection: Listen for CustomEvent dispatched by extension
+            await this.page.evaluate(() => {
+                return new Promise((resolve) => {
+                    if (window.__content_scope_status === 'initialized') {
+                        resolve();
+                    } else {
+                        document.addEventListener('content-scope-initialized', () => resolve(), { once: true });
+                    }
+                });
+            });
         } else {
             await gotoAndWait(this.page, htmlPath + '?automation=true', processedConfig);
         }
