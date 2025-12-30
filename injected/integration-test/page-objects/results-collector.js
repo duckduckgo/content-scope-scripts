@@ -137,10 +137,8 @@ export class ResultsCollector {
                 url: './integration-test/extension/contentScope.js',
             });
             // Wait for the integration script to initialize
-            await this.page.waitForFunction(() => {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                return window.__content_scope_status === 'loaded';
-            });
+            // CSP-safe detection: Use DOM attribute instead of waitForFunction (which uses eval)
+            await this.page.waitForSelector('html[data-content-scope-loaded="true"]', { timeout: 30000 });
             
             // Send the config via custom event
             const evalString = `
@@ -153,10 +151,8 @@ export class ResultsCollector {
             await this.page.evaluate(evalString);
             
             // Wait for initialization to complete
-            await this.page.waitForFunction(() => {
-                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                return window.__content_scope_status === 'initialized';
-            });
+            // CSP-safe detection: Use DOM attribute instead of waitForFunction
+            await this.page.waitForSelector('html[data-content-scope-initialized="true"]', { timeout: 30000 });
         } else {
             await gotoAndWait(this.page, htmlPath + '?automation=true', processedConfig);
         }

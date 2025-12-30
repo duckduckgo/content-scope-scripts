@@ -117,10 +117,9 @@ export async function gotoAndWait(page, urlString, args = {}, evalBeforeInit = n
     }
 
     // wait until contentScopeFeatures.load() has completed
-    await page.waitForFunction(() => {
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        return window.__content_scope_status === 'loaded';
-    });
+    // CSP-safe detection: Use DOM attribute instead of waitForFunction (which uses eval)
+    // The extension sets data-content-scope-loaded="true" when ready
+    await page.waitForSelector('html[data-content-scope-loaded="true"]', { timeout: 30000 });
 
     if (evalBeforeInit) {
         await page.evaluate(evalBeforeInit);
@@ -137,9 +136,6 @@ export async function gotoAndWait(page, urlString, args = {}, evalBeforeInit = n
     await page.evaluate(evalString);
 
     // wait until contentScopeFeatures.init(args) has completed
-    await page.waitForFunction(() => {
-        window.dispatchEvent(new Event('content-scope-init-complete'));
-        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-        return window.__content_scope_status === 'initialized';
-    });
+    // CSP-safe detection: Use DOM attribute instead of waitForFunction
+    await page.waitForSelector('html[data-content-scope-initialized="true"]', { timeout: 30000 });
 }

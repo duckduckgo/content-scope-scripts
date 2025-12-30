@@ -251,6 +251,9 @@ async function extractPageContent(browser, url, options = { headful: false, time
             }
         };
 
+        // Set Playwright timeout to match our collection timeout
+        page.setDefaultTimeout(60000); // 60s to match collection timeout
+        
         // Create the page context collector
         const scriptDir = new URL('.', import.meta.url).pathname;
         const configDir = join(scriptDir, 'test-pages/page-context/config');
