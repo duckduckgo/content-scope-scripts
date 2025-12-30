@@ -137,8 +137,8 @@ export class ResultsCollector {
                 url: './integration-test/extension/contentScope.js',
             });
             // Wait for the integration script to initialize
-            // CSP-safe detection: Use DOM attribute instead of waitForFunction (which uses eval)
-            await this.page.waitForSelector('html[data-content-scope-loaded="true"]', { timeout: 30000 });
+            // CSP-safe detection: Extension dispatches CustomEvent and adds meta tag marker
+            await this.page.waitForSelector('meta[name="content-scope-loaded"]', { timeout: 30000 });
             
             // Send the config via custom event
             const evalString = `
@@ -151,8 +151,8 @@ export class ResultsCollector {
             await this.page.evaluate(evalString);
             
             // Wait for initialization to complete
-            // CSP-safe detection: Use DOM attribute instead of waitForFunction
-            await this.page.waitForSelector('html[data-content-scope-initialized="true"]', { timeout: 30000 });
+            // CSP-safe detection: Extension dispatches CustomEvent and adds meta tag marker
+            await this.page.waitForSelector('meta[name="content-scope-initialized"]', { timeout: 30000 });
         } else {
             await gotoAndWait(this.page, htmlPath + '?automation=true', processedConfig);
         }

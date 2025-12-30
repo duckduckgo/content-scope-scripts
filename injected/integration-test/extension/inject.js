@@ -8,15 +8,27 @@ function injectContentScript(src) {
     elem.appendChild(script);
 }
 
-// CSP-safe status signaling: Use DOM attributes instead of window.__content_scope_status
+// CSP-safe status signaling: Use CustomEvent + meta tag markers
 // This avoids eval() which is blocked by strict CSP
-function pollForStatus() {
+function setupStatusSignaling() {
     const checkInterval = setInterval(() => {
         if (window.__content_scope_status === 'loaded') {
-            document.documentElement.setAttribute('data-content-scope-loaded', 'true');
+            // Dispatch custom event
+            document.dispatchEvent(new CustomEvent('content-scope-loaded'));
+            // Add meta tag marker for CSP-safe detection via waitForSelector
+            const meta = document.createElement('meta');
+            meta.name = 'content-scope-loaded';
+            meta.content = 'true';
+            document.head.appendChild(meta);
         }
         if (window.__content_scope_status === 'initialized') {
-            document.documentElement.setAttribute('data-content-scope-initialized', 'true');
+            // Dispatch custom event
+            document.dispatchEvent(new CustomEvent('content-scope-initialized'));
+            // Add meta tag marker
+            const meta = document.createElement('meta');
+            meta.name = 'content-scope-initialized';
+            meta.content = 'true';
+            document.head.appendChild(meta);
             clearInterval(checkInterval);
         }
     }, 50); // Check every 50ms
@@ -26,4 +38,4 @@ function pollForStatus() {
 }
 
 injectContentScript(chrome.runtime.getURL('/contentScope.js'));
-pollForStatus();
+setupStatusSignaling();

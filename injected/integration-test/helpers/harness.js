@@ -117,9 +117,9 @@ export async function gotoAndWait(page, urlString, args = {}, evalBeforeInit = n
     }
 
     // wait until contentScopeFeatures.load() has completed
-    // CSP-safe detection: Use DOM attribute instead of waitForFunction (which uses eval)
-    // The extension sets data-content-scope-loaded="true" when ready
-    await page.waitForSelector('html[data-content-scope-loaded="true"]', { timeout: 30000 });
+    // CSP-safe detection: Extension dispatches CustomEvent and adds meta tag marker
+    // waitForSelector doesn't use eval, so it bypasses CSP
+    await page.waitForSelector('meta[name="content-scope-loaded"]', { timeout: 30000 });
 
     if (evalBeforeInit) {
         await page.evaluate(evalBeforeInit);
@@ -136,6 +136,6 @@ export async function gotoAndWait(page, urlString, args = {}, evalBeforeInit = n
     await page.evaluate(evalString);
 
     // wait until contentScopeFeatures.init(args) has completed
-    // CSP-safe detection: Use DOM attribute instead of waitForFunction
-    await page.waitForSelector('html[data-content-scope-initialized="true"]', { timeout: 30000 });
+    // CSP-safe detection: Extension dispatches CustomEvent and adds meta tag marker
+    await page.waitForSelector('meta[name="content-scope-initialized"]', { timeout: 30000 });
 }
