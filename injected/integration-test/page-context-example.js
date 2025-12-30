@@ -161,20 +161,47 @@ function logSuccess(url, contentFile, harFile = undefined) {
 }
 
 /**
- * Read URLs from a text file (one URL per line)
+ * Read URLs from a text file (one URL per line) or CSV file
  * @param {string} filePath - Path to the text file containing URLs
  * @returns {string[]} Array of URLs
  */
 function readUrlsFromFile(filePath) {
     try {
         const fileContent = readFileSync(filePath, 'utf8');
-        const urls = fileContent
-            .split('\n')
-            .map(line => line.trim())
-            .filter(line => line && !line.startsWith('#')); // Skip empty lines and comments
+        const lines = fileContent.split('\n').map(line => line.trim()).filter(line => line);
         
-        console.log(`📁 Loaded ${urls.length} URLs from ${filePath}`);
-        return urls;
+        // Check if it's a CSV file (has commas and potentially a header)
+        if (filePath.endsWith('.csv') || (lines.length > 0 && lines[0].includes(','))) {
+            console.log(`📊 Detected CSV format, extracting URLs from 'top_url' column...`);
+            
+            // Parse CSV - assume first line is header
+            const header = lines[0].split(',');
+            const urlColumnIndex = header.findIndex(col => col.toLowerCase().includes('url'));
+            
+            if (urlColumnIndex === -1) {
+                console.error(`❌ Could not find URL column in CSV header: ${header.join(', ')}`);
+                process.exit(1);
+            }
+            
+            console.log(`📌 Using column index ${urlColumnIndex} (${header[urlColumnIndex]}) for URLs`);
+            
+            // Extract URLs from the column (skip header row)
+            const urls = lines.slice(1)
+                .map(line => {
+                    // Simple CSV parsing - split by comma and extract the URL column
+                    const columns = line.split(',');
+                    return columns[urlColumnIndex] ? columns[urlColumnIndex].trim() : null;
+                })
+                .filter(url => url && url.startsWith('http')); // Only keep valid HTTP(S) URLs
+            
+            console.log(`📁 Loaded ${urls.length} URLs from CSV file: ${filePath}`);
+            return urls;
+        } else {
+            // Plain text file - one URL per line
+            const urls = lines.filter(line => !line.startsWith('#')); // Skip comments
+            console.log(`📁 Loaded ${urls.length} URLs from ${filePath}`);
+            return urls;
+        }
     } catch (error) {
         console.error(`❌ Failed to read URL file ${filePath}: ${error.message}`);
         process.exit(1);
