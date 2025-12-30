@@ -204,6 +204,87 @@ function readUrlsFromFile(filePath) {
 }
 
 /**
+ * Create self-contained HTML with inlined CSS and base64 images
+ * @param {import('playwright').Page} page - The page to process
+ * @returns {Promise<string>} HTML string with inlined resources
+ */
+async function createSelfContainedHtml(page) {
+    return await page.evaluate(() => {
+        const doc = document.cloneNode(true);
+        
+        // Inline all stylesheets
+        const stylesheets = document.querySelectorAll('link[rel="stylesheet"]');
+        stylesheets.forEach((link) => {
+            try {
+                const href = link.href;
+                // Find corresponding stylesheet in CSSOM
+                for (let i = 0; i < document.styleSheets.length; i++) {
+                    const sheet = document.styleSheets[i];
+                    if (sheet.href === href) {
+                        try {
+                            const rules = Array.from(sheet.cssRules || sheet.rules || []);
+                            const cssText = rules.map(rule => rule.cssText).join('\n');
+                            if (cssText) {
+                                const style = document.createElement('style');
+                                style.textContent = cssText;
+                                link.parentNode.insertBefore(style, link);
+                            }
+                        } catch (e) {
+                            // CORS or other access issues - skip
+                        }
+                        break;
+                    }
+                }
+            } catch (e) {
+                // Skip problematic stylesheets
+            }
+        });
+        
+        // Remove original link tags
+        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => link.remove());
+        
+        // Convert images to base64 (for small images)
+        const images = document.querySelectorAll('img[src]');
+        const imagePromises = Array.from(images).map(async (img) => {
+            try {
+                const src = img.src;
+                if (src.startsWith('data:')) return; // Already base64
+                if (!src.startsWith('http')) return; // Relative URLs might not work
+                
+                // Fetch and convert to base64
+                const response = await fetch(src);
+                if (!response.ok) return;
+                
+                const blob = await response.blob();
+                // Only inline small images (< 100KB)
+                if (blob.size > 100000) return;
+                
+                const reader = new FileReader();
+                return new Promise((resolve) => {
+                    reader.onloadend = () => {
+                        img.src = reader.result;
+                        resolve();
+                    };
+                    reader.onerror = () => resolve(); // Skip on error
+                    reader.readAsDataURL(blob);
+                });
+            } catch (e) {
+                // Skip problematic images
+            }
+        });
+        
+        // Wait for all images to process (with timeout)
+        await Promise.race([
+            Promise.all(imagePromises),
+            new Promise(resolve => setTimeout(resolve, 5000))
+        ]);
+        
+        // Return the modified HTML
+        return document.documentElement.outerHTML;
+    });
+}
+
+/**
  * Capture page assets (screenshot, HTML, MHTML)
  * @param {import('playwright').Page} page - The page to capture
  * @param {string} url - The URL being processed
@@ -253,20 +334,33 @@ async function capturePageAssets(page, url) {
         screenshotPath = null;
     }
     
-    // Capture raw HTML
+    // Capture self-contained HTML (with inlined CSS and base64 images)
     try {
         htmlPath = join(htmlDir, `${baseFilename}.html`);
-        const html = await page.content();
+        logMessage('Creating self-contained HTML with inlined styles...', 'DEBUG');
+        const html = await createSelfContainedHtml(page);
         writeFileSync(htmlPath, html, 'utf8');
         logMessage(`HTML saved: ${htmlPath}`, 'DEBUG');
         console.log(`📄 HTML saved: ${baseFilename}.html`);
     } catch (error) {
-        logMessage(`Failed to capture HTML: ${error.message}`, 'WARN');
-        console.warn(`⚠️  Failed to capture HTML: ${error.message}`);
-        htmlPath = null;
+        logMessage(`Failed to capture self-contained HTML, falling back to raw HTML: ${error.message}`, 'WARN');
+        console.warn(`⚠️  Failed to inline resources, using raw HTML: ${error.message}`);
+        try {
+            const html = await page.content();
+            writeFileSync(htmlPath, html, 'utf8');
+            logMessage(`Raw HTML saved: ${htmlPath}`, 'DEBUG');
+            console.log(`📄 Raw HTML saved: ${baseFilename}.html`);
+        } catch (fallbackError) {
+            logMessage(`Failed to capture HTML: ${fallbackError.message}`, 'WARN');
+            console.warn(`⚠️  Failed to capture HTML: ${fallbackError.message}`);
+            htmlPath = null;
+        }
     }
     
-    // Capture MHTML using Chrome DevTools Protocol
+    // Note: MHTML capture disabled by default (doesn't render well in Label Studio)
+    // The self-contained HTML with inlined styles works better for display
+    // Uncomment below if you need MHTML for other purposes:
+    /*
     try {
         mhtmlPath = join(mhtmlDir, `${baseFilename}.mhtml`);
         const cdp = await page.context().newCDPSession(page);
@@ -280,6 +374,7 @@ async function capturePageAssets(page, url) {
         console.warn(`⚠️  Failed to capture MHTML: ${error.message}`);
         mhtmlPath = null;
     }
+    */
     
     return { screenshotPath, htmlPath, mhtmlPath };
 }
