@@ -50,17 +50,19 @@ Use `conditionalChanges` to apply JSON Patch operations based on runtime conditi
 
 **Supported conditions:**
 
-| Condition             | Description                | Example                                                             |
-| --------------------- | -------------------------- | ------------------------------------------------------------------- |
-| `domain`              | Match hostname             | `"domain": "example.com"`                                           |
-| `urlPattern`          | Match URL (URLPattern API) | `"urlPattern": "https://*.example.com/*"`                           |
-| `experiment`          | Match A/B test cohort      | `"experiment": { "experimentName": "test", "cohort": "treatment" }` |
-| `context`             | Match frame type           | `"context": { "frame": true }` or `"context": { "top": true }`      |
-| `minSupportedVersion` | Minimum platform version   | `"minSupportedVersion": { "ios": "17.0" }`                          |
-| `maxSupportedVersion` | Maximum platform version   | `"maxSupportedVersion": { "ios": "18.0" }`                          |
-| `injectName`          | Match inject context       | `"injectName": "apple-isolated"`                                    |
-| `internal`            | Internal builds only       | `"internal": true`                                                  |
-| `preview`             | Preview builds only        | `"preview": true`                                                   |
+| Condition             | Description                             | Example                                                             |
+| --------------------- | --------------------------------------- | ------------------------------------------------------------------- |
+| `domain`              | Match hostname                          | `"domain": "example.com"`                                           |
+| `urlPattern`          | Match URL (URLPattern API)              | `"urlPattern": "https://*.example.com/*"`                           |
+| `experiment`          | Match A/B test cohort                   | `"experiment": { "experimentName": "test", "cohort": "treatment" }` |
+| `context`             | Match frame type                        | `"context": { "frame": true }` or `"context": { "top": true }`      |
+| `minSupportedVersion` | Minimum platform version                | `"minSupportedVersion": { "ios": "17.0" }`                          |
+| `maxSupportedVersion` | Maximum platform version                | `"maxSupportedVersion": { "ios": "18.0" }`                          |
+| `injectName`          | Match inject context                    | `"injectName": "apple-isolated"`                                    |
+| `internal`            | Internal builds only                    | `"internal": true`                                                  |
+| `preview`             | Preview builds only                     | `"preview": true`                                                   |
+| `iframeUrlPattern`    | Match iframe's own URL (URLPattern API) | `"iframeUrlPattern": "https://*.tracker.com/*"`                     |
+| `iframeDomain`        | Match iframe's own hostname             | `"iframeDomain": "ads.example.com"`                                 |
 
 **Config example:**
 
@@ -75,11 +77,21 @@ Use `conditionalChanges` to apply JSON Patch operations based on runtime conditi
             {
                 "condition": [{ "urlPattern": "https://site1.com/*" }, { "urlPattern": "https://site2.com/path/*" }],
                 "patchSettings": [{ "op": "add", "path": "/newSetting", "value": "enabled" }]
+            },
+            {
+                "condition": { "iframeDomain": "ads.tracker.com" },
+                "patchSettings": [{ "op": "replace", "path": "/blockAds", "value": true }]
+            },
+            {
+                "condition": { "iframeUrlPattern": "https://*.analytics.com/embed/*" },
+                "patchSettings": [{ "op": "replace", "path": "/disableTracking", "value": true }]
             }
         ]
     }
 }
 ```
+
+**Note:** `iframeUrlPattern` and `iframeDomain` conditions only match when the code is running inside an iframe. They use the iframe's own URL/hostname (not the parent page's). This is useful for applying settings specifically to third-party iframes.
 
 **Key rules:**
 

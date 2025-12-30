@@ -137,6 +137,8 @@ export default class ConfigFeature {
      * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
      * @property {boolean} [internal] - true if the condition applies to internal builds
      * @property {boolean} [preview] - true if the condition applies to preview builds
+     * @property {string | object} [iframeUrlPattern] - URL pattern to match against the iframe's own URL (only matches in frames)
+     * @property {string} [iframeDomain] - hostname to match against the iframe's own domain (only matches in frames)
      */
 
     /**
@@ -170,6 +172,8 @@ export default class ConfigFeature {
             injectName: this._matchInjectNameConditional,
             internal: this._matchInternalConditional,
             preview: this._matchPreviewConditional,
+            iframeUrlPattern: this._matchIframeUrlPatternConditional,
+            iframeDomain: this._matchIframeDomainConditional,
         };
 
         for (const key in conditionBlock) {
@@ -315,6 +319,42 @@ export default class ConfigFeature {
         const isPreview = this.#args?.platform?.preview;
         if (isPreview === undefined) return false;
         return Boolean(conditionBlock.preview) === Boolean(isPreview);
+    }
+
+    /**
+     * Takes a condition block and returns true if the current iframe URL matches the iframeUrlPattern.
+     * This only matches when running inside a frame - returns false for top-level pages.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchIframeUrlPatternConditional(conditionBlock) {
+        if (!conditionBlock.iframeUrlPattern) return false;
+        // Only match in frames
+        const isFrame = window.self !== window.top;
+        if (!isFrame) return false;
+        // Use the iframe's own URL (not the parent page URL)
+        const iframeUrl = window.location.href;
+        if (typeof conditionBlock.iframeUrlPattern === 'string') {
+            return new URLPattern(conditionBlock.iframeUrlPattern, iframeUrl).test(iframeUrl);
+        }
+        const pattern = new URLPattern(conditionBlock.iframeUrlPattern);
+        return pattern.test(iframeUrl);
+    }
+
+    /**
+     * Takes a condition block and returns true if the current iframe hostname matches the iframeDomain.
+     * This only matches when running inside a frame - returns false for top-level pages.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchIframeDomainConditional(conditionBlock) {
+        if (!conditionBlock.iframeDomain) return false;
+        // Only match in frames
+        const isFrame = window.self !== window.top;
+        if (!isFrame) return false;
+        // Use the iframe's own hostname (not the parent page hostname)
+        const iframeHostname = window.location.hostname;
+        return matchHostname(iframeHostname, conditionBlock.iframeDomain);
     }
 
     /**

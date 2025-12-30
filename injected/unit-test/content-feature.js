@@ -1190,4 +1190,311 @@ describe('ContentFeature class', () => {
             expect(result).toBe(true);
         });
     });
+
+    describe('iframeUrlPattern condition', () => {
+        let originalWindow;
+
+        beforeEach(() => {
+            // Store original window if it exists
+            originalWindow = globalThis.window;
+        });
+
+        afterEach(() => {
+            // Restore original window
+            if (originalWindow !== undefined) {
+                globalThis.window = originalWindow;
+            } else {
+                // @ts-expect-error - cleaning up test mock
+                delete globalThis.window;
+            }
+        });
+
+        /**
+         * Helper to set up a mock window for iframe tests
+         * @param {boolean} isFrame - whether to simulate being in an iframe
+         * @param {string} href - the iframe's URL
+         * @param {string} hostname - the iframe's hostname
+         */
+        function setupMockWindow(isFrame, href, hostname) {
+            const mockWindow = {
+                location: { href, hostname },
+            };
+            // Set self to the mock window
+            mockWindow.self = mockWindow;
+            // Set top to either the same (top frame) or different (iframe)
+            mockWindow.top = isFrame ? {} : mockWindow;
+            // @ts-expect-error - minimal mock for testing
+            globalThis.window = mockWindow;
+        }
+
+        it('should match when in iframe and URL pattern matches', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchIframeUrlPatternConditional(conditionBlock) {
+                    return this._matchIframeUrlPatternConditional(conditionBlock);
+                }
+            }
+
+            // Simulate being in an iframe
+            setupMockWindow(true, 'https://iframe.example.com/path/to/page', 'iframe.example.com');
+
+            const args = {
+                site: {
+                    domain: 'parent.com',
+                    url: 'http://parent.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchIframeUrlPatternConditional({
+                iframeUrlPattern: 'https://iframe.example.com/*',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should match with object-style URLPattern', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchIframeUrlPatternConditional(conditionBlock) {
+                    return this._matchIframeUrlPatternConditional(conditionBlock);
+                }
+            }
+
+            // Simulate being in an iframe
+            setupMockWindow(true, 'https://iframe.example.com/specific/path', 'iframe.example.com');
+
+            const args = {
+                site: {
+                    domain: 'parent.com',
+                    url: 'http://parent.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchIframeUrlPatternConditional({
+                iframeUrlPattern: {
+                    hostname: 'iframe.example.com',
+                    pathname: '/specific/*',
+                },
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when not in iframe (top frame)', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchIframeUrlPatternConditional(conditionBlock) {
+                    return this._matchIframeUrlPatternConditional(conditionBlock);
+                }
+            }
+
+            // Simulate being in the top frame (self === top)
+            setupMockWindow(false, 'https://example.com/page', 'example.com');
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchIframeUrlPatternConditional({
+                iframeUrlPattern: 'https://example.com/*',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should not match when in iframe but URL pattern does not match', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchIframeUrlPatternConditional(conditionBlock) {
+                    return this._matchIframeUrlPatternConditional(conditionBlock);
+                }
+            }
+
+            // Simulate being in an iframe
+            setupMockWindow(true, 'https://other-iframe.com/page', 'other-iframe.com');
+
+            const args = {
+                site: {
+                    domain: 'parent.com',
+                    url: 'http://parent.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchIframeUrlPatternConditional({
+                iframeUrlPattern: 'https://iframe.example.com/*',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle missing iframeUrlPattern condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchIframeUrlPatternConditional(conditionBlock) {
+                    return this._matchIframeUrlPatternConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchIframeUrlPatternConditional({});
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('iframeDomain condition', () => {
+        let originalWindow;
+
+        beforeEach(() => {
+            // Store original window if it exists
+            originalWindow = globalThis.window;
+        });
+
+        afterEach(() => {
+            // Restore original window
+            if (originalWindow !== undefined) {
+                globalThis.window = originalWindow;
+            } else {
+                // @ts-expect-error - cleaning up test mock
+                delete globalThis.window;
+            }
+        });
+
+        /**
+         * Helper to set up a mock window for iframe tests
+         * @param {boolean} isFrame - whether to simulate being in an iframe
+         * @param {string} href - the iframe's URL
+         * @param {string} hostname - the iframe's hostname
+         */
+        function setupMockWindow(isFrame, href, hostname) {
+            const mockWindow = {
+                location: { href, hostname },
+            };
+            // Set self to the mock window
+            mockWindow.self = mockWindow;
+            // Set top to either the same (top frame) or different (iframe)
+            mockWindow.top = isFrame ? {} : mockWindow;
+            // @ts-expect-error - minimal mock for testing
+            globalThis.window = mockWindow;
+        }
+
+        it('should match when in iframe and hostname matches exactly', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchIframeDomainConditional(conditionBlock) {
+                    return this._matchIframeDomainConditional(conditionBlock);
+                }
+            }
+
+            // Simulate being in an iframe
+            setupMockWindow(true, 'https://iframe.example.com/page', 'iframe.example.com');
+
+            const args = {
+                site: {
+                    domain: 'parent.com',
+                    url: 'http://parent.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchIframeDomainConditional({
+                iframeDomain: 'iframe.example.com',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should match when in iframe and hostname is a subdomain', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchIframeDomainConditional(conditionBlock) {
+                    return this._matchIframeDomainConditional(conditionBlock);
+                }
+            }
+
+            // Simulate being in an iframe
+            setupMockWindow(true, 'https://sub.iframe.example.com/page', 'sub.iframe.example.com');
+
+            const args = {
+                site: {
+                    domain: 'parent.com',
+                    url: 'http://parent.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchIframeDomainConditional({
+                iframeDomain: 'example.com',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when not in iframe (top frame)', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchIframeDomainConditional(conditionBlock) {
+                    return this._matchIframeDomainConditional(conditionBlock);
+                }
+            }
+
+            // Simulate being in the top frame (self === top)
+            setupMockWindow(false, 'https://example.com/page', 'example.com');
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchIframeDomainConditional({
+                iframeDomain: 'example.com',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should not match when in iframe but hostname does not match', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchIframeDomainConditional(conditionBlock) {
+                    return this._matchIframeDomainConditional(conditionBlock);
+                }
+            }
+
+            // Simulate being in an iframe
+            setupMockWindow(true, 'https://other-iframe.com/page', 'other-iframe.com');
+
+            const args = {
+                site: {
+                    domain: 'parent.com',
+                    url: 'http://parent.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchIframeDomainConditional({
+                iframeDomain: 'iframe.example.com',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle missing iframeDomain condition', () => {
+            class MyTestFeature extends ContentFeature {
+                testMatchIframeDomainConditional(conditionBlock) {
+                    return this._matchIframeDomainConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'http://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchIframeDomainConditional({});
+            expect(result).toBe(false);
+        });
+    });
 });
