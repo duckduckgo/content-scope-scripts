@@ -160,13 +160,28 @@ export class ResultsCollector {
             
             // Wait for initialization to complete
             // Hybrid approach: Try waitForFunction, fallback if CSP blocks
+            
+            // DEBUG: Check if extension is loading at all
+            const statusCheck = await this.page.evaluate(() => {
+                // @ts-expect-error
+                return {
+                    hasStatus: typeof window.__content_scope_status !== 'undefined',
+                    // @ts-expect-error
+                    status: window.__content_scope_status,
+                    // @ts-expect-error
+                    hasMessaging: typeof window.__duck_messaging !== 'undefined'
+                };
+            }).catch(e => ({ error: e.message }));
+            console.log(`[DEBUG] Extension status check:`, JSON.stringify(statusCheck));
+            
             try {
                 await this.page.waitForFunction(() => {
                     // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
                     return window.__content_scope_status === 'initialized';
                 }, { timeout: 30000 });
+                console.log(`[DEBUG] Extension initialized successfully`);
             } catch (e) {
-                console.warn(`Could not detect extension init, waiting 1s`);
+                console.warn(`Could not detect extension init (timeout), waiting 1s`);
                 await this.page.waitForTimeout(1000);
             }
         } else {
