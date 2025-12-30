@@ -251,8 +251,8 @@ async function extractPageContent(browser, url, options = { headful: false, time
             }
         };
 
-        // Set Playwright timeout to match our collection timeout
-        page.setDefaultTimeout(60000); // 60s to match collection timeout
+        // Set Playwright timeout to 30s (reasonable for most sites)
+        page.setDefaultTimeout(30000);
         
         // Create the page context collector
         const scriptDir = new URL('.', import.meta.url).pathname;
@@ -269,13 +269,13 @@ async function extractPageContent(browser, url, options = { headful: false, time
         logMessage('Loading and collecting page content', 'DEBUG');
         console.log('Loading and collecting page content');
         
-        // Load and collect page content with 60s timeout (allows time for CSP-heavy sites)
+        // Load and collect page content with 30s timeout (reasonable for most sites)
         let content;
         try {
             content = await Promise.race([
                 collector.loadAndCollect(url),
                 new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Collection timeout - site may block extension')), 60000)
+                    setTimeout(() => reject(new Error('Collection timeout - site may block extension')), 30000)
                 )
             ]);
             logMessage("Collected page content", 'DEBUG');
