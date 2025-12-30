@@ -1190,4 +1190,247 @@ describe('ContentFeature class', () => {
             expect(result).toBe(true);
         });
     });
+
+    describe('frameUrlPattern condition', () => {
+        it('should match when in frame and URL pattern matches', () => {
+            class MyTestFeature extends ContentFeature {
+                _isFrame() {
+                    return true;
+                }
+                testMatchFrameUrlPatternConditional(conditionBlock) {
+                    return this._matchFrameUrlPatternConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'iframe.example.com',
+                    url: 'https://iframe.example.com/embed/video',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchFrameUrlPatternConditional({
+                frameUrlPattern: 'https://iframe.example.com/*',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when in top frame even if URL pattern matches', () => {
+            class MyTestFeature extends ContentFeature {
+                _isFrame() {
+                    return false;
+                }
+                testMatchFrameUrlPatternConditional(conditionBlock) {
+                    return this._matchFrameUrlPatternConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'https://example.com/page',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchFrameUrlPatternConditional({
+                frameUrlPattern: 'https://example.com/*',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should not match when in frame but URL pattern does not match', () => {
+            class MyTestFeature extends ContentFeature {
+                _isFrame() {
+                    return true;
+                }
+                testMatchFrameUrlPatternConditional(conditionBlock) {
+                    return this._matchFrameUrlPatternConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'iframe.example.com',
+                    url: 'https://iframe.example.com/embed/video',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchFrameUrlPatternConditional({
+                frameUrlPattern: 'https://other.com/*',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should support object-based URL pattern', () => {
+            class MyTestFeature extends ContentFeature {
+                _isFrame() {
+                    return true;
+                }
+                testMatchFrameUrlPatternConditional(conditionBlock) {
+                    return this._matchFrameUrlPatternConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'iframe.example.com',
+                    url: 'https://iframe.example.com/embed/video',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchFrameUrlPatternConditional({
+                frameUrlPattern: {
+                    hostname: '*.example.com',
+                    pathname: '/embed/*',
+                },
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should handle missing frameUrlPattern condition', () => {
+            class MyTestFeature extends ContentFeature {
+                _isFrame() {
+                    return true;
+                }
+                testMatchFrameUrlPatternConditional(conditionBlock) {
+                    return this._matchFrameUrlPatternConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'https://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchFrameUrlPatternConditional({});
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('frameHostname condition', () => {
+        it('should match when in frame and hostname matches exactly', () => {
+            class MyTestFeature extends ContentFeature {
+                _isFrame() {
+                    return true;
+                }
+                testMatchFrameHostnameConditional(conditionBlock) {
+                    return this._matchFrameHostnameConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'iframe.example.com',
+                    url: 'https://iframe.example.com/embed',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchFrameHostnameConditional({
+                frameHostname: 'iframe.example.com',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should match when in frame and hostname matches apex domain', () => {
+            class MyTestFeature extends ContentFeature {
+                _isFrame() {
+                    return true;
+                }
+                testMatchFrameHostnameConditional(conditionBlock) {
+                    return this._matchFrameHostnameConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'iframe.example.com',
+                    url: 'https://iframe.example.com/embed',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchFrameHostnameConditional({
+                frameHostname: 'example.com',
+            });
+            expect(result).toBe(true);
+        });
+
+        it('should not match when in top frame even if hostname matches', () => {
+            class MyTestFeature extends ContentFeature {
+                _isFrame() {
+                    return false;
+                }
+                testMatchFrameHostnameConditional(conditionBlock) {
+                    return this._matchFrameHostnameConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'https://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchFrameHostnameConditional({
+                frameHostname: 'example.com',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should not match when in frame but hostname does not match', () => {
+            class MyTestFeature extends ContentFeature {
+                _isFrame() {
+                    return true;
+                }
+                testMatchFrameHostnameConditional(conditionBlock) {
+                    return this._matchFrameHostnameConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'iframe.example.com',
+                    url: 'https://iframe.example.com/embed',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchFrameHostnameConditional({
+                frameHostname: 'other.com',
+            });
+            expect(result).toBe(false);
+        });
+
+        it('should handle missing frameHostname condition', () => {
+            class MyTestFeature extends ContentFeature {
+                _isFrame() {
+                    return true;
+                }
+                testMatchFrameHostnameConditional(conditionBlock) {
+                    return this._matchFrameHostnameConditional(conditionBlock);
+                }
+            }
+
+            const args = {
+                site: {
+                    domain: 'example.com',
+                    url: 'https://example.com',
+                },
+            };
+
+            const feature = new MyTestFeature('test', {}, args);
+            const result = feature.testMatchFrameHostnameConditional({});
+            expect(result).toBe(false);
+        });
+    });
 });

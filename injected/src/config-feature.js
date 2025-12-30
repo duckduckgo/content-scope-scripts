@@ -137,6 +137,8 @@ export default class ConfigFeature {
      * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
      * @property {boolean} [internal] - true if the condition applies to internal builds
      * @property {boolean} [preview] - true if the condition applies to preview builds
+     * @property {string|object} [frameUrlPattern] - URL pattern to match against the frame's URL (only matches in frames)
+     * @property {string} [frameHostname] - hostname to match against the frame's hostname (only matches in frames)
      */
 
     /**
@@ -170,6 +172,8 @@ export default class ConfigFeature {
             injectName: this._matchInjectNameConditional,
             internal: this._matchInternalConditional,
             preview: this._matchPreviewConditional,
+            frameUrlPattern: this._matchFrameUrlPatternConditional,
+            frameHostname: this._matchFrameHostnameConditional,
         };
 
         for (const key in conditionBlock) {
@@ -232,13 +236,22 @@ export default class ConfigFeature {
     }
 
     /**
+     * Returns true if the current context is a frame (not top-level).
+     * This method exists to allow mocking in unit tests.
+     * @returns {boolean}
+     */
+    _isFrame() {
+        return typeof window !== 'undefined' && window.self !== window.top;
+    }
+
+    /**
      * Takes a condition block and returns true if the current context matches the context.
      * @param {ConditionBlock} conditionBlock
      * @returns {boolean}
      */
     _matchContextConditional(conditionBlock) {
         if (!conditionBlock.context) return false;
-        const isFrame = window.self !== window.top;
+        const isFrame = this._isFrame();
         if (conditionBlock.context.frame && isFrame) {
             return true;
         }
@@ -315,6 +328,42 @@ export default class ConfigFeature {
         const isPreview = this.#args?.platform?.preview;
         if (isPreview === undefined) return false;
         return Boolean(conditionBlock.preview) === Boolean(isPreview);
+    }
+
+    /**
+     * Takes a condition block and returns true if we're in a frame AND the frame's URL matches the pattern.
+     * This is a convenience condition that combines context.frame with URL pattern matching.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchFrameUrlPatternConditional(conditionBlock) {
+        if (!conditionBlock.frameUrlPattern) return false;
+        // Must be in a frame
+        if (!this._isFrame()) return false;
+        // Match against the frame's URL
+        const url = this.args?.site.url;
+        if (!url) return false;
+        if (typeof conditionBlock.frameUrlPattern === 'string') {
+            return new URLPattern(conditionBlock.frameUrlPattern, url).test(url);
+        }
+        const pattern = new URLPattern(conditionBlock.frameUrlPattern);
+        return pattern.test(url);
+    }
+
+    /**
+     * Takes a condition block and returns true if we're in a frame AND the frame's hostname matches.
+     * This is a convenience condition that combines context.frame with hostname matching.
+     * @param {ConditionBlock} conditionBlock
+     * @returns {boolean}
+     */
+    _matchFrameHostnameConditional(conditionBlock) {
+        if (!conditionBlock.frameHostname) return false;
+        // Must be in a frame
+        if (!this._isFrame()) return false;
+        // Match against the frame's hostname
+        const domain = this.args?.site.domain;
+        if (!domain) return false;
+        return matchHostname(domain, conditionBlock.frameHostname);
     }
 
     /**
