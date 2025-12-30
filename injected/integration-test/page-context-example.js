@@ -649,13 +649,16 @@ async function main() {
         urlsToProcess = TEST_URLS;
     }
 
-    // Browser configuration
+    // Browser configuration - need absolute path for extension loading
+    const scriptDir = new URL('.', import.meta.url).pathname;
+    const extensionPath = join(scriptDir, 'extension');
     const browserArgs = [
-        '--disable-extensions-except=integration-test/extension',
-        '--load-extension=integration-test/extension',
+        `--disable-extensions-except=${extensionPath}`,
+        `--load-extension=${extensionPath}`,
         '--disable-dev-shm-usage',
         '--no-sandbox'
     ];
+    console.log(`📂 Extension path: ${extensionPath}`);
 
     // Process URLs with concurrency control and periodic browser restarts
     let processedCount = 0;
