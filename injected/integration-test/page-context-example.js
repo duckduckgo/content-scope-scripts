@@ -204,11 +204,92 @@ function readUrlsFromFile(filePath) {
 }
 
 /**
+ * Capture page assets (screenshot, HTML, MHTML)
+ * @param {import('playwright').Page} page - The page to capture
+ * @param {string} url - The URL being processed
+ * @returns {Promise<{screenshotPath: string|null, htmlPath: string|null, mhtmlPath: string|null}>}
+ */
+async function capturePageAssets(page, url) {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.replace(/[^a-z0-9]/gi, '_');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const baseFilename = `${hostname}-${timestamp}`;
+    
+    let screenshotPath = null;
+    let htmlPath = null;
+    let mhtmlPath = null;
+    
+    // Create directories
+    const screenshotsDir = join(crawlState.outputDir, 'screenshots');
+    const htmlDir = join(crawlState.outputDir, 'html');
+    const mhtmlDir = join(crawlState.outputDir, 'mhtml');
+    
+    if (!existsSync(screenshotsDir)) {
+        mkdirSync(screenshotsDir, { recursive: true });
+    }
+    if (!existsSync(htmlDir)) {
+        mkdirSync(htmlDir, { recursive: true });
+    }
+    if (!existsSync(mhtmlDir)) {
+        mkdirSync(mhtmlDir, { recursive: true });
+    }
+    
+    logMessage('Capturing page assets (screenshot, HTML, MHTML)', 'DEBUG');
+    console.log('📸 Capturing page assets...');
+    
+    // Capture screenshot
+    try {
+        screenshotPath = join(screenshotsDir, `${baseFilename}.png`);
+        await page.screenshot({ 
+            path: screenshotPath, 
+            fullPage: true,
+            timeout: 30000
+        });
+        logMessage(`Screenshot saved: ${screenshotPath}`, 'DEBUG');
+        console.log(`📸 Screenshot saved: ${baseFilename}.png`);
+    } catch (error) {
+        logMessage(`Failed to capture screenshot: ${error.message}`, 'WARN');
+        console.warn(`⚠️  Failed to capture screenshot: ${error.message}`);
+        screenshotPath = null;
+    }
+    
+    // Capture raw HTML
+    try {
+        htmlPath = join(htmlDir, `${baseFilename}.html`);
+        const html = await page.content();
+        writeFileSync(htmlPath, html, 'utf8');
+        logMessage(`HTML saved: ${htmlPath}`, 'DEBUG');
+        console.log(`📄 HTML saved: ${baseFilename}.html`);
+    } catch (error) {
+        logMessage(`Failed to capture HTML: ${error.message}`, 'WARN');
+        console.warn(`⚠️  Failed to capture HTML: ${error.message}`);
+        htmlPath = null;
+    }
+    
+    // Capture MHTML using Chrome DevTools Protocol
+    try {
+        mhtmlPath = join(mhtmlDir, `${baseFilename}.mhtml`);
+        const cdp = await page.context().newCDPSession(page);
+        const { data } = await cdp.send('Page.captureSnapshot', { format: 'mhtml' });
+        writeFileSync(mhtmlPath, data, 'utf8');
+        await cdp.detach();
+        logMessage(`MHTML saved: ${mhtmlPath}`, 'DEBUG');
+        console.log(`📦 MHTML saved: ${baseFilename}.mhtml`);
+    } catch (error) {
+        logMessage(`Failed to capture MHTML: ${error.message}`, 'WARN');
+        console.warn(`⚠️  Failed to capture MHTML: ${error.message}`);
+        mhtmlPath = null;
+    }
+    
+    return { screenshotPath, htmlPath, mhtmlPath };
+}
+
+/**
  * Extract and display page content from a URL
  * @param {string} url - The URL to extract content from
- * @param {{headful: boolean, timeout: number, noTruncate: boolean}} options - Browser options
+ * @param {{headful: boolean, timeout: number, noTruncate: boolean, captureAssets: boolean}} options - Browser options
  */
-async function extractPageContent(url, options = { headful: false, timeout: 60, noTruncate: false }) {
+async function extractPageContent(url, options = { headful: false, timeout: 60, noTruncate: false, captureAssets: true }) {
     logMessage(`Starting extraction from: ${url}`, 'INFO');
     console.log(`\n🔍 Extracting content from: ${url}`);
     console.log('=' .repeat(60));
@@ -295,6 +376,11 @@ async function extractPageContent(url, options = { headful: false, timeout: 60, 
         const content = await collector.loadAndCollect(url);
         logMessage("Collected page content", 'DEBUG');
         console.log("Collected page content");
+        
+        // Capture page assets (screenshot, HTML, MHTML) if enabled
+        if (options.captureAssets) {
+            await capturePageAssets(page, url);
+        }
         
         // Display the extracted content
         displayContent(content);
@@ -429,16 +515,17 @@ function isUrl(input) {
 /**
  * Parse command line arguments
  * @param {string[]} args - Command line arguments
- * @returns {{input: string|null, headful: boolean, timeout: number, noTruncate: boolean, outputDir: string|null}}
+ * @returns {{input: string|null, headful: boolean, timeout: number, noTruncate: boolean, outputDir: string|null, captureAssets: boolean}}
  */
 function parseArgs(args) {
-    /** @type {{input: string|null, headful: boolean, timeout: number, noTruncate: boolean, outputDir: string|null}} */
+    /** @type {{input: string|null, headful: boolean, timeout: number, noTruncate: boolean, outputDir: string|null, captureAssets: boolean}} */
     const options = {
         input: null,
         headful: false,
         timeout: 60,
         noTruncate: false,
-        outputDir: null
+        outputDir: null,
+        captureAssets: true  // Enabled by default
     };
 
     for (const arg of args) {
@@ -446,6 +533,8 @@ function parseArgs(args) {
             options.headful = true;
         } else if (arg === '--no-truncate') {
             options.noTruncate = true;
+        } else if (arg === '--no-assets') {
+            options.captureAssets = false;
         } else if (arg.startsWith('--timeout=')) {
             options.timeout = parseInt(arg.split('=')[1]) || 60;
         } else if (arg.startsWith('--output-dir=')) {
@@ -518,12 +607,14 @@ async function main() {
     console.log(`Mode: ${options.headful ? 'Visible browser' : 'Headless'}`);
     console.log(`Timeout: ${options.timeout}s`);
     console.log(`Truncation: ${options.noTruncate ? 'Disabled' : 'Enabled (9500 chars max)'}`);
+    console.log(`Asset capture: ${options.captureAssets ? 'Enabled (screenshots, HTML, MHTML)' : 'Disabled'}`);
     console.log(`Log file: ${logFile}\n`);
     
     logMessage('Starting DuckDuckGo Page Context Content Extractor', 'INFO');
     logMessage(`Mode: ${options.headful ? 'Visible browser' : 'Headless'}`, 'INFO');
     logMessage(`Timeout: ${options.timeout}s`, 'INFO');
     logMessage(`Truncation: ${options.noTruncate ? 'Disabled' : 'Enabled (9500 chars max)'}`, 'INFO');
+    logMessage(`Asset capture: ${options.captureAssets ? 'Enabled' : 'Disabled'}`, 'INFO');
 
     let urlsToProcess = [];
 
