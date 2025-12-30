@@ -209,10 +209,8 @@ function readUrlsFromFile(filePath) {
  * @returns {Promise<string>} HTML string with inlined resources
  */
 async function createSelfContainedHtml(page) {
-    return await page.evaluate(() => {
-        const doc = document.cloneNode(true);
-        
-        // Inline all stylesheets
+    // Step 1: Inline all stylesheets
+    await page.evaluate(() => {
         const stylesheets = document.querySelectorAll('link[rel="stylesheet"]');
         stylesheets.forEach((link) => {
             try {
@@ -242,46 +240,58 @@ async function createSelfContainedHtml(page) {
         
         // Remove original link tags
         document.querySelectorAll('link[rel="stylesheet"]').forEach(link => link.remove());
-        
-        // Convert images to base64 (for small images)
-        const images = document.querySelectorAll('img[src]');
-        const imagePromises = Array.from(images).map(async (img) => {
-            try {
-                const src = img.src;
-                if (src.startsWith('data:')) return; // Already base64
-                if (!src.startsWith('http')) return; // Relative URLs might not work
-                
-                // Fetch and convert to base64
-                const response = await fetch(src);
-                if (!response.ok) return;
-                
-                const blob = await response.blob();
-                // Only inline small images (< 100KB)
-                if (blob.size > 100000) return;
-                
-                const reader = new FileReader();
-                return new Promise((resolve) => {
-                    reader.onloadend = () => {
-                        img.src = reader.result;
-                        resolve();
-                    };
-                    reader.onerror = () => resolve(); // Skip on error
-                    reader.readAsDataURL(blob);
-                });
-            } catch (e) {
-                // Skip problematic images
-            }
-        });
-        
-        // Wait for all images to process (with timeout)
-        await Promise.race([
-            Promise.all(imagePromises),
-            new Promise(resolve => setTimeout(resolve, 5000))
-        ]);
-        
-        // Return the modified HTML
-        return document.documentElement.outerHTML;
     });
+    
+    // Step 2: Get all image URLs to convert
+    const imageData = await page.evaluate(() => {
+        const images = document.querySelectorAll('img[src]');
+        return Array.from(images).map((img, index) => ({
+            index,
+            src: img.src
+        })).filter(data => {
+            return data.src && 
+                   !data.src.startsWith('data:') && 
+                   data.src.startsWith('http');
+        });
+    });
+    
+    // Step 3: Fetch images and convert to base64 (limit to small images)
+    for (const { index, src } of imageData.slice(0, 20)) { // Limit to first 20 images
+        try {
+            const response = await page.evaluate(async (imgSrc) => {
+                try {
+                    const res = await fetch(imgSrc);
+                    if (!res.ok) return null;
+                    const blob = await res.blob();
+                    if (blob.size > 100000) return null; // Skip large images
+                    
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = () => resolve(null);
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (e) {
+                    return null;
+                }
+            }, src);
+            
+            if (response) {
+                // Update the image src
+                await page.evaluate((idx, dataUrl) => {
+                    const images = document.querySelectorAll('img[src]');
+                    if (images[idx]) {
+                        images[idx].src = dataUrl;
+                    }
+                }, index, response);
+            }
+        } catch (e) {
+            // Skip failed images
+        }
+    }
+    
+    // Step 4: Return the modified HTML
+    return await page.content();
 }
 
 /**
