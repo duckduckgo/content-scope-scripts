@@ -7,6 +7,15 @@ interface UnstableWebkit {
     >;
 }
 
+interface Navigator {
+    /**
+     * DuckDuckGo-specific extension used by WebKit transport + tests.
+     *
+     * Subscriptions are exposed as `navigator.duckduckgo[subscriptionName](event)`.
+     */
+    duckduckgo?: Record<string, (...args: unknown[]) => unknown>;
+}
+
 interface UnstableMockCall {
     payload: import('../index.js').RequestMessage | import('../index.js').NotificationMessage | import('../index.js').Subscription;
     response?: Record<string, unknown>;
@@ -14,6 +23,10 @@ interface UnstableMockCall {
 
 interface Window {
     webkit: UnstableWebkit;
+    /** Special-pages test-time subscription handler (WebKit) */
+    onUpdate?: (...args: unknown[]) => unknown;
+    /** DuckPlayer test-time subscription handler (WebKit) */
+    onUserValuesChanged?: (...args: unknown[]) => unknown;
     windowsInteropPostMessage: Window['postMessage'];
     windowsInteropAddEventListener: Window['addEventListener'];
     windowsInteropRemoveEventListener: Window['removeEventListener'];
