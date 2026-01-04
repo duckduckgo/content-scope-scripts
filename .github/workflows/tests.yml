@@ -55,6 +55,8 @@ jobs:
                   key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
                   restore-keys: |
                       ${{ runner.os }}-node-
+            - name: Check lockfile sync
+              run: npm run check-lockfile
             - run: npm ci
             - run: npm run build
             - run: npm run lint
