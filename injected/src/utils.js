@@ -535,12 +535,12 @@ export const DDGReflect = globalObj.Reflect;
 
 /**
  * @param {string | null} topLevelHostname
- * @param {object[]} featureList
+ * @param {object[] | undefined} featureList
  * @returns {boolean}
  */
 export function isUnprotectedDomain(topLevelHostname, featureList) {
     let unprotectedDomain = false;
-    if (!topLevelHostname) {
+    if (!topLevelHostname || !featureList) {
         return false;
     }
     const domainParts = topLevelHostname.split('.');
@@ -693,8 +693,8 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
 
 /**
  * @typedef RemoteConfig
- * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number }>} features
- * @property {string[]} unprotectedTemporary
+ * @property {Record<string, { state: string; settings: any; exceptions?: { domain: string }[], minSupportedVersion?: string|number }>} features
+ * @property {{ domain: string }[]} [unprotectedTemporary]
  */
 
 /**
