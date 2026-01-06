@@ -90,6 +90,10 @@ export type Favicon = null | {
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
 export type Widgets = WidgetListItem[];
+/**
+ * Controls a popover that onboards users to the theme variant feature
+ */
+export type ShowThemeVariantPopover = boolean;
 export type NextStepsCardTypes =
   | "bringStuff"
   | "defaultApp"
@@ -127,6 +131,7 @@ export interface NewTabMessages {
     | ContextMenuNotification
     | CustomizerContextMenuNotification
     | CustomizerDeleteImageNotification
+    | CustomizerDismissThemeVariantPopoverNotification
     | CustomizerSetBackgroundNotification
     | CustomizerSetThemeNotification
     | CustomizerUploadNotification
@@ -296,6 +301,12 @@ export interface CustomizerDeleteImageNotification {
 }
 export interface CustomizerDeleteImageNotify {
   id: string;
+}
+/**
+ * Generated from @see "../messages/customizer_dismissThemeVariantPopover.notify.json"
+ */
+export interface CustomizerDismissThemeVariantPopoverNotification {
+  method: "customizer_dismissThemeVariantPopover";
 }
 /**
  * Generated from @see "../messages/customizer_setBackground.notify.json"
@@ -910,6 +921,7 @@ export interface CustomizerData {
    * @deprecated
    */
   defaultStyles?: null | DefaultStyles;
+  showThemeVariantPopover?: ShowThemeVariantPopover;
 }
 export interface DefaultStyles {
   /**

@@ -22,5 +22,13 @@
   "ntp_popover_close_button": {
     "title": "Close",
     "note": "Button that closes the current popover."
+  },
+  "customizer_themeVariantPopoverTitle": {
+    "title": "Pick a color that suits you",
+    "note": "Title for the popover that introduces the theme variant customization feature."
+  },
+  "customizer_themeVariantPopoverDescription": {
+    "title": "You can choose a color for the look that you want. Give it a try!",
+    "note": "Description message in the theme variant popover."
   }
 }

@@ -5,6 +5,7 @@
  * @typedef {import("../../types/new-tab.js").UserImageContextMenu} UserImageContextMenu
  * @typedef {import("../../types/new-tab.js").ThemeData} ThemeData
  * @typedef {import("../../types/new-tab.js").BackgroundData} BackgroundData
+ * @typedef {{showThemeVariantPopover: boolean}} ShowThemeVariantPopoverData
  */
 import { Service } from '../service.js';
 
@@ -51,6 +52,14 @@ export class CustomizerService {
             },
             { userColor: initial.userColor },
         );
+        /** @type {Service<ShowThemeVariantPopoverData>} */
+        this.showThemeVariantPopoverService = new Service(
+            {
+                // No subscribe - native doesn't push updates for this
+                // No persist - we use a dedicated notify instead
+            },
+            { showThemeVariantPopover: initial.showThemeVariantPopover ?? false },
+        );
     }
 
     /**
@@ -61,6 +70,7 @@ export class CustomizerService {
         this.themeService.destroy();
         this.imagesService.destroy();
         this.colorService.destroy();
+        this.showThemeVariantPopoverService.destroy();
     }
 
     /**
@@ -90,6 +100,13 @@ export class CustomizerService {
      */
     onColor(cb) {
         return this.colorService.onData(cb);
+    }
+    /**
+     * @param {(evt: {data: ShowThemeVariantPopoverData, source: 'manual' | 'subscription'}) => void} cb
+     * @internal
+     */
+    onShowThemeVariantPopover(cb) {
+        return this.showThemeVariantPopoverService.onData(cb);
     }
 
     /**
@@ -142,5 +159,15 @@ export class CustomizerService {
      */
     contextMenu(params) {
         this.ntp.messaging.notify('customizer_contextMenu', params);
+    }
+
+    /**
+     * Dismiss the theme variant onboarding popover
+     */
+    dismissThemeVariantPopover() {
+        this.showThemeVariantPopoverService.update(() => {
+            return { showThemeVariantPopover: false };
+        });
+        this.ntp.messaging.notify('customizer_dismissThemeVariantPopover');
     }
 }

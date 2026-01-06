@@ -3,6 +3,7 @@ import { useCallback } from 'preact/hooks';
 import { signal, useSignal, useSignalEffect } from '@preact/signals';
 import { useThemes } from './themes.js';
 import { applyDefaultStyles } from './utils.js';
+import { useDrawerEventListeners } from '../components/Drawer.js';
 
 /**
  * @typedef {import('../../types/new-tab.js').CustomizerData} CustomizerData
@@ -58,6 +59,8 @@ export const CustomizerContext = createContext({
      * @param {UserImageContextMenu} _params
      */
     customizerContextMenu: (_params) => {},
+    /** @type {() => void} */
+    dismissThemeVariantPopover: () => {},
 });
 
 /**
@@ -75,30 +78,32 @@ export function CustomizerProvider({ service, initialData, children }) {
     const { main, browser, variant } = useThemes(data);
 
     useSignalEffect(() => {
-        const unsub = service.onBackground((evt) => {
-            data.value = { ...data.value, background: evt.data.background };
-        });
-        const unsub1 = service.onTheme((evt) => {
-            // Only update themeVariant if it's explicitly provided in the message
-            // This preserves the existing variant when just the theme changes
-            const updates = { theme: evt.data.theme };
-            if (evt.data.themeVariant !== undefined) {
-                updates.themeVariant = evt.data.themeVariant;
-            }
-            data.value = { ...data.value, ...updates };
-        });
-        const unsub2 = service.onImages((evt) => {
-            data.value = { ...data.value, userImages: evt.data.userImages };
-        });
-        const unsub3 = service.onColor((evt) => {
-            data.value = { ...data.value, userColor: evt.data.userColor };
-        });
+        const unsubs = [
+            service.onBackground((evt) => {
+                data.value = { ...data.value, background: evt.data.background };
+            }),
+            service.onTheme((evt) => {
+                // Only update themeVariant if it's explicitly provided in the message
+                // This preserves the existing variant when just the theme changes
+                const updates = { theme: evt.data.theme };
+                if (evt.data.themeVariant !== undefined) {
+                    updates.themeVariant = evt.data.themeVariant;
+                }
+                data.value = { ...data.value, ...updates };
+            }),
+            service.onImages((evt) => {
+                data.value = { ...data.value, userImages: evt.data.userImages };
+            }),
+            service.onColor((evt) => {
+                data.value = { ...data.value, userColor: evt.data.userColor };
+            }),
+            service.onShowThemeVariantPopover((evt) => {
+                data.value = { ...data.value, showThemeVariantPopover: evt.data.showThemeVariantPopover };
+            }),
+        ];
 
         return () => {
-            unsub();
-            unsub1();
-            unsub2();
-            unsub3();
+            unsubs.forEach((unsub) => unsub());
         };
     });
 
@@ -143,8 +148,30 @@ export function CustomizerProvider({ service, initialData, children }) {
     /** @type {(p: UserImageContextMenu) => void} */
     const customizerContextMenu = useCallback((params) => service.contextMenu(params), [service]);
 
+    const dismissThemeVariantPopover = useCallback(() => {
+        service.dismissThemeVariantPopover();
+    }, [service]);
+
+    useDrawerEventListeners(
+        {
+            onOpen: () => service.dismissThemeVariantPopover(),
+            onToggle: () => service.dismissThemeVariantPopover(),
+        },
+        [service],
+    );
+
     return (
-        <CustomizerContext.Provider value={{ data, select, upload, setTheme, deleteImage, customizerContextMenu }}>
+        <CustomizerContext.Provider
+            value={{
+                data,
+                select,
+                upload,
+                setTheme,
+                deleteImage,
+                customizerContextMenu,
+                dismissThemeVariantPopover,
+            }}
+        >
             <CustomizerThemesContext.Provider value={{ main, browser, variant }}>{children}</CustomizerThemesContext.Provider>
         </CustomizerContext.Provider>
     );

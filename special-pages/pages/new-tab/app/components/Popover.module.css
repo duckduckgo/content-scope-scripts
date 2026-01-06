@@ -80,3 +80,15 @@
     color: var(--ds-color-theme-surface-tertiary);
     margin-right: -1px;
 }
+
+.popover[data-position="right"] {
+    flex-direction: row-reverse;
+    left: auto;
+    right: calc(100% + 7px);
+}
+
+.popover[data-position="right"] .arrow {
+    margin-left: -1px;
+    margin-right: 0;
+    transform: scaleX(-1);
+}
