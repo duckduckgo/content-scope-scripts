@@ -288,7 +288,7 @@ test.describe('newtab customizer', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { themeVariant: 'violet', theme: 'light' } });
-        await ntp.hasBackgroundColor({ hex: '#efeffa' }); // violet light surface-canvas
+        await ntp.hasBackgroundColor({ hex: '#edecf9' }); // violet light surface-canvas
     });
     test('accepts theme variant update via subscription message', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -305,7 +305,7 @@ test.describe('newtab customizer', () => {
         await ntp.darkMode();
         await ntp.openPage();
         await cp.acceptsThemeVariantUpdate('dark', 'slateBlue');
-        await ntp.hasBackgroundColor({ hex: '#243a50' }); // slateBlue dark surface-canvas
+        await ntp.hasBackgroundColor({ hex: '#1e3042' }); // slateBlue dark surface-canvas
     });
     test('custom background color overrides theme variant background', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
