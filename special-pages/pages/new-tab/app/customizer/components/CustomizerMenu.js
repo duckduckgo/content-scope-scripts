@@ -96,7 +96,12 @@ export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonR
                 <span>{t('ntp_customizer_button')}</span>
             </button>
             {data.value.showThemeVariantPopover && (
-                <Popover title={t('customizer_themeVariantPopoverTitle')} position="right" onClose={dismissThemeVariantPopover}>
+                <Popover
+                    className={styles.popover}
+                    title={t('customizer_themeVariantPopoverTitle')}
+                    position="bottomRight"
+                    onClose={dismissThemeVariantPopover}
+                >
                     {t('customizer_themeVariantPopoverDescription')}
                 </Popover>
             )}

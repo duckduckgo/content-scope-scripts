@@ -1,23 +1,37 @@
 import { h } from 'preact';
 import { useEffect, useId, useRef } from 'preact/hooks';
+import cn from 'classnames';
 import { useTypedTranslationWith } from '../types.js';
 import { DismissButton } from './DismissButton.jsx';
 import styles from './Popover.module.css';
 
 /**
  * @typedef {import('../strings.json')} Strings
- * @typedef {'left' | 'right'} PopoverPosition
  */
 
 /**
+ * A popover dialog with an arrow pointing to the trigger element.
+ *
+ * Usage:
+ * - Parent component must place the Popover inside a `position: relative` container.
+ * - Use `className` to pass a custom class that sets CSS custom properties for fine-tuning:
+ *   - `--popover-offset-x`: Horizontal offset to adjust arrow alignment
+ *   - `--popover-offset-y`: Vertical offset to adjust arrow alignment
+ *
+ * Currently supported positions: 'left', 'bottomRight'.
+ * Future positions could include: 'top', 'topLeft', 'topRight', 'right', 'bottomLeft', 'bottom'.
+ *
  * @param {object} props
  * @param {string} props.title
  * @param {string} [props.badge]
  * @param {() => void} props.onClose
- * @param {PopoverPosition} [props.position='left'] - Position of the popover. 'left' shows popover to the right with arrow pointing left. 'right' shows popover to the left with arrow pointing right.
+ * @param {'left' | 'bottomRight'} [props.position='left'] - Position of the popover.
+ *   'left' shows popover to the right with arrow pointing left.
+ *   'bottomRight' shows popover above with arrow on bottom edge near the right.
+ * @param {string} [props.className]
  * @param {import('preact').ComponentChildren} props.children
  */
-export function Popover({ title, badge, onClose, position = 'left', children }) {
+export function Popover({ title, badge, onClose, position = 'left', className, children }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const titleId = useId();
     const descriptionId = useId();
@@ -40,7 +54,7 @@ export function Popover({ title, badge, onClose, position = 'left', children }) 
     return (
         <div
             ref={popoverRef}
-            class={styles.popover}
+            class={cn(styles.popover, className)}
             data-position={position}
             role="dialog"
             aria-labelledby={titleId}
