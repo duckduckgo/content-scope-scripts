@@ -22,6 +22,7 @@ import styles from './Popover.module.css';
  * Future positions could include: 'top', 'topLeft', 'topRight', 'right', 'bottomLeft', 'bottom'.
  *
  * @param {object} props
+ * @param {import('preact').ComponentChild} [props.image]
  * @param {string} props.title
  * @param {string} [props.badge]
  * @param {() => void} props.onClose
@@ -31,7 +32,7 @@ import styles from './Popover.module.css';
  * @param {string} [props.className]
  * @param {import('preact').ComponentChildren} props.children
  */
-export function Popover({ title, badge, onClose, position = 'left', className, children }) {
+export function Popover({ image, title, badge, onClose, position = 'left', className, children }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const titleId = useId();
     const descriptionId = useId();
@@ -73,13 +74,16 @@ export function Popover({ title, badge, onClose, position = 'left', className, c
                     onClick={onClose}
                     buttonProps={{ 'aria-label': t('ntp_popover_close_button') }}
                 />
-                <h3 id={titleId} class={styles.heading}>
-                    {badge && <span class={styles.badge}>{badge}</span>}
-                    <span class={styles.title}>{title}</span>
-                </h3>
-                <p id={descriptionId} class={styles.description}>
-                    {children}
-                </p>
+                {image && <div class={styles.imageContainer}>{image}</div>}
+                <div class={styles.textContainer}>
+                    <h3 id={titleId} class={styles.heading}>
+                        {badge && <span class={styles.badge}>{badge}</span>}
+                        <span class={styles.title}>{title}</span>
+                    </h3>
+                    <p id={descriptionId} class={styles.description}>
+                        {children}
+                    </p>
+                </div>
             </div>
         </div>
     );

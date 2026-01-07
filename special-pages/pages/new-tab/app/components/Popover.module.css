@@ -24,9 +24,12 @@
 }
 
 .content {
+    align-items: center;
     background: var(--ds-color-theme-surface-tertiary);
     border-radius: 16px;
+    display: flex;
     flex: auto;
+    gap: var(--sp-4);
     padding: var(--sp-4) var(--sp-11) var(--sp-4) var(--sp-5);
     position: relative;
 }
@@ -35,6 +38,10 @@
     position: absolute;
     right: var(--sp-4);
     top: var(--sp-4);
+}
+
+.imageContainer {
+    flex: none;
 }
 
 .heading {
