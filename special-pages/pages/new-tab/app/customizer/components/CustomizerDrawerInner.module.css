@@ -253,7 +253,7 @@
     justify-content: space-between;
     align-items: center;
     text-decoration: none;
-    color: var(--ds-color-theme-accent-primary);
+    color: var(--ds-color-theme-accent-text-primary);
     margin-bottom: var(--sp-3);
 
     &:focus-visible {
