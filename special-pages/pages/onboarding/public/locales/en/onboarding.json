@@ -413,6 +413,10 @@
     "title": "No protection",
     "note": "The level of protection offered by a browser on a specific feature in the comparison table."
   },
+  "comparison_aiChat": {
+    "title": "Chat privately with AI chatbots (optional)",
+    "note": "The description of a browser privacy feature in the comparison table."
+  },
   "browser_DuckDuckGo": {
     "title": "DuckDuckGo",
     "note": "Brand name of the DuckDuckGo browser"
