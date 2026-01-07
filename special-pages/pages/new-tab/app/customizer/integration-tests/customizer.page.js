@@ -615,4 +615,18 @@ export class CustomizerPage {
             params: { theme: expectedTheme, themeVariant: variant },
         });
     }
+
+    /**
+     * Gets the theme variant popover dialog
+     */
+    themeVariantPopover() {
+        return this.ntp.page.getByRole('dialog', { name: 'Pick a color that suits you' });
+    }
+
+    /**
+     * Gets the close button inside the theme variant popover
+     */
+    themeVariantPopoverCloseButton() {
+        return this.themeVariantPopover().getByRole('button', { name: 'Close' });
+    }
 }
