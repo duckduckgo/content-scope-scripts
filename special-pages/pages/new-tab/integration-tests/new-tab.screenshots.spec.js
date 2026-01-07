@@ -165,7 +165,7 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
             await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': 'true', themeVariant: 'default' } });
-            await page.getByRole('dialog', { name: 'Pick a color that suits you' }).waitFor();
+            await page.getByRole('dialog', { name: 'Pick a color theme that suits you' }).waitFor();
             await expect(page).toHaveScreenshot('customizer-theme-variant-popover.png', { maxDiffPixels });
         });
     });
