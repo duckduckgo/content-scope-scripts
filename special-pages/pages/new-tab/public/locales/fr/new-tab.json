@@ -60,9 +60,9 @@
     "title" : "Aucune activité de pistage récente",
     "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
   },
-  "protections_newBadge" : {
+  "newBadge" : {
     "title" : "Nouveau",
-    "note" : "Text displayed in a badge to indicate a new feature or statistic."
+    "note" : "Badge text indicating a new feature."
   },
   "stats_menuTitle" : {
     "title" : "Tentatives de pistage bloquées",
@@ -215,10 +215,6 @@
   "omnibar_customizePopoverTitle" : {
     "title" : "Basculer entre la recherche et le chat IA",
     "description" : "Title for the popover that introduces the search/AI toggle feature."
-  },
-  "omnibar_customizePopoverBadge" : {
-    "title" : "Nouveau",
-    "description" : "Badge text for the popover that introduces the search/AI toggle feature."
   },
   "omnibar_customizePopoverDescription" : {
     "title" : "Dans tous les cas, vos informations restent privées.<br />Ce n'est pas ce que vous souhaitez&nbsp;? <button>Personnaliser</button>",

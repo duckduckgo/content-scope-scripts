@@ -60,9 +60,9 @@
     "title" : "Keine aktuellen Tracking-Aktivitäten",
     "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
   },
-  "protections_newBadge" : {
+  "newBadge" : {
     "title" : "Neu",
-    "note" : "Text displayed in a badge to indicate a new feature or statistic."
+    "note" : "Badge text indicating a new feature."
   },
   "stats_menuTitle" : {
     "title" : "Blockierte Tracking-Versuche",
@@ -215,10 +215,6 @@
   "omnibar_customizePopoverTitle" : {
     "title" : "Wechseln zwischen Suche und KI-Chat",
     "description" : "Title for the popover that introduces the search/AI toggle feature."
-  },
-  "omnibar_customizePopoverBadge" : {
-    "title" : "Neu",
-    "description" : "Badge text for the popover that introduces the search/AI toggle feature."
   },
   "omnibar_customizePopoverDescription" : {
     "title" : "Deine Daten bleiben auf jeden Fall privat.<br />Du möchtest das nicht? <button>Anpassen</button>",

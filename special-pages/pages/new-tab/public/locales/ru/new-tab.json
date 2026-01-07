@@ -60,9 +60,9 @@
     "title" : "Нет недавних отслеживаний",
     "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
   },
-  "protections_newBadge" : {
+  "newBadge" : {
     "title" : "Новинка",
-    "note" : "Text displayed in a badge to indicate a new feature or statistic."
+    "note" : "Badge text indicating a new feature."
   },
   "stats_menuTitle" : {
     "title" : "Заблокированные попытки отслеживания",
@@ -215,10 +215,6 @@
   "omnibar_customizePopoverTitle" : {
     "title" : "Переключатель между поиском и чатом с ИИ",
     "description" : "Title for the popover that introduces the search/AI toggle feature."
-  },
-  "omnibar_customizePopoverBadge" : {
-    "title" : "Новый",
-    "description" : "Badge text for the popover that introduces the search/AI toggle feature."
   },
   "omnibar_customizePopoverDescription" : {
     "title" : "Ваши данные в любом случае остаются в тайне.<br />Не устраивает такой вариант? <button>Настройте свой!</button>",

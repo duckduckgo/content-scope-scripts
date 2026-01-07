@@ -1,6 +1,6 @@
 import { createContext, h } from 'preact';
 import { useCallback } from 'preact/hooks';
-import { signal, useSignal, useSignalEffect } from '@preact/signals';
+import { signal, useComputed, useSignal, useSignalEffect } from '@preact/signals';
 import { useThemes } from './themes.js';
 import { applyDefaultStyles } from './utils.js';
 import { useDrawerEventListeners } from '../components/Drawer.js';
@@ -61,6 +61,8 @@ export const CustomizerContext = createContext({
     customizerContextMenu: (_params) => {},
     /** @type {() => void} */
     dismissThemeVariantPopover: () => {},
+    /** @type {import("@preact/signals").Signal<boolean>} */
+    showThemeNewBadge: signal(false),
 });
 
 /**
@@ -152,10 +154,20 @@ export function CustomizerProvider({ service, initialData, children }) {
         service.dismissThemeVariantPopover();
     }, [service]);
 
+    // Show the "NEW" badge on Theme section only during the first drawer open
+    const drawerOpenCount = useSignal(0);
+    const showThemeNewBadge = useComputed(() => !!initialData.showThemeVariantPopover && drawerOpenCount.value === 1);
+
     useDrawerEventListeners(
         {
-            onOpen: () => service.dismissThemeVariantPopover(),
-            onToggle: () => service.dismissThemeVariantPopover(),
+            onOpen: () => {
+                drawerOpenCount.value++;
+                service.dismissThemeVariantPopover();
+            },
+            onToggle: () => {
+                drawerOpenCount.value++;
+                service.dismissThemeVariantPopover();
+            },
         },
         [service],
     );
@@ -170,6 +182,7 @@ export function CustomizerProvider({ service, initialData, children }) {
                 deleteImage,
                 customizerContextMenu,
                 dismissThemeVariantPopover,
+                showThemeNewBadge,
             }}
         >
             <CustomizerThemesContext.Provider value={{ main, browser, variant }}>{children}</CustomizerThemesContext.Provider>

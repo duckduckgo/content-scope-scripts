@@ -9,6 +9,10 @@
       }
     ]
   },
+  "newBadge": {
+    "title": "New",
+    "note": "Badge text indicating a new feature."
+  },
   "ntp_show_less": {
     "title": "Show Less",
     "note": "Button that reduces the number of items or content displayed."
@@ -68,10 +72,6 @@
   "protections_noRecent": {
     "title": "No recent tracking activity",
     "note": "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
-  },
-  "protections_newBadge": {
-    "title": "NEW",
-    "note": "Text displayed in a badge to indicate a new feature or statistic."
   },
   "stats_menuTitle": {
     "title": "Blocked Tracking Attempts",
@@ -224,10 +224,6 @@
   "omnibar_customizePopoverTitle": {
     "title": "Toggle between search and AI chat",
     "description": "Title for the popover that introduces the search/AI toggle feature."
-  },
-  "omnibar_customizePopoverBadge": {
-    "title": "New",
-    "description": "Badge text for the popover that introduces the search/AI toggle feature."
   },
   "omnibar_customizePopoverDescription": {
     "title": "Either way, your info stays private.<br />Don't want this? <button>Customize</button>",

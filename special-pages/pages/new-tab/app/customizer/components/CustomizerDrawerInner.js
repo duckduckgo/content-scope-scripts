@@ -1,4 +1,5 @@
 import { Fragment, h } from 'preact';
+import { useContext } from 'preact/hooks';
 import cn from 'classnames';
 import styles from './CustomizerDrawerInner.module.css';
 import { useDrawerControls } from '../../components/Drawer.js';
@@ -16,6 +17,7 @@ import { DismissButton } from '../../components/DismissButton.jsx';
 import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
 import { useInitialSetupData, useMessaging, useTypedTranslationWith } from '../../types.js';
 import { Open } from '../../components/icons/Open.js';
+import { CustomizerContext } from '../CustomizerProvider.js';
 
 /**
  * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, UserImageContextMenu } from '../../../types/new-tab.js'
@@ -37,6 +39,7 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
     const { t } = useTypedTranslationWith(/** @type {enStrings} */ ({}));
     const messaging = useMessaging();
     const { customizer } = useInitialSetupData();
+    const { showThemeNewBadge } = useContext(CustomizerContext);
     const hasThemeVariants = customizer?.themeVariant !== undefined;
     return (
         <div class={styles.root}>
@@ -62,7 +65,10 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                     left={({ push }) => (
                         <div class={styles.sections}>
                             {hasThemeVariants && (
-                                <CustomizerSection title={t('customizer_section_title_theme_variant')}>
+                                <CustomizerSection
+                                    title={t('customizer_section_title_theme_variant')}
+                                    showNewBadge={showThemeNewBadge.value}
+                                >
                                     <ThemeSection data={data} setTheme={setTheme} />
                                 </CustomizerSection>
                             )}

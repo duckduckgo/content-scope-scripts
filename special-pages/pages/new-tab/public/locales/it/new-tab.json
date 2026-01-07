@@ -60,9 +60,9 @@
     "title" : "Nessuna attività di tracciamento recente",
     "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
   },
-  "protections_newBadge" : {
+  "newBadge" : {
     "title" : "Nuova",
-    "note" : "Text displayed in a badge to indicate a new feature or statistic."
+    "note" : "Badge text indicating a new feature."
   },
   "stats_menuTitle" : {
     "title" : "Tentativi di tracciamento bloccati",
@@ -215,10 +215,6 @@
   "omnibar_customizePopoverTitle" : {
     "title" : "Passa dalla ricerca alla chat AI e viceversa",
     "description" : "Title for the popover that introduces the search/AI toggle feature."
-  },
-  "omnibar_customizePopoverBadge" : {
-    "title" : "Nuova",
-    "description" : "Badge text for the popover that introduces the search/AI toggle feature."
   },
   "omnibar_customizePopoverDescription" : {
     "title" : "In ogni caso, le tue informazioni rimangono private.Non lo vuoi? <button>Personalizza</button>",

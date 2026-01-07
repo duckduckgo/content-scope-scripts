@@ -1,4 +1,8 @@
 {
+  "newBadge": {
+    "title": "New",
+    "note": "Badge text indicating a new feature."
+  },
   "ntp_show_less": {
     "title": "Show Less",
     "note": "Button that reduces the number of items or content displayed."

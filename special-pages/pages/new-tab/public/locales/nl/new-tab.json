@@ -60,9 +60,9 @@
     "title" : "Geen recente trackingactiviteit",
     "note" : "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
   },
-  "protections_newBadge" : {
+  "newBadge" : {
     "title" : "Nieuw",
-    "note" : "Text displayed in a badge to indicate a new feature or statistic."
+    "note" : "Badge text indicating a new feature."
   },
   "stats_menuTitle" : {
     "title" : "Geblokkeerde trackingpogingen",
@@ -215,10 +215,6 @@
   "omnibar_customizePopoverTitle" : {
     "title" : "Schakelen tussen zoeken en AI-chat",
     "description" : "Title for the popover that introduces the search/AI toggle feature."
-  },
-  "omnibar_customizePopoverBadge" : {
-    "title" : "Nieuw",
-    "description" : "Badge text for the popover that introduces the search/AI toggle feature."
   },
   "omnibar_customizePopoverDescription" : {
     "title" : "Hoe dan ook, je gegevens blijven privé.Wil je dit niet? <button>Aanpassen</button>",

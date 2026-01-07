@@ -91,7 +91,7 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                         <Popover
                             className={styles.popover}
                             title={t('omnibar_customizePopoverTitle')}
-                            badge={t('omnibar_customizePopoverBadge')}
+                            showNewBadge
                             onClose={handleCloseCustomizePopover}
                         >
                             <Trans

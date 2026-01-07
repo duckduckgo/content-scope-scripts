@@ -3,6 +3,7 @@ import { useEffect, useId, useRef } from 'preact/hooks';
 import cn from 'classnames';
 import { useTypedTranslationWith } from '../types.js';
 import { DismissButton } from './DismissButton.jsx';
+import { NewBadge } from './NewBadge.js';
 import styles from './Popover.module.css';
 
 /**
@@ -24,7 +25,7 @@ import styles from './Popover.module.css';
  * @param {object} props
  * @param {import('preact').ComponentChild} [props.image]
  * @param {string} props.title
- * @param {string} [props.badge]
+ * @param {boolean} [props.showNewBadge]
  * @param {() => void} props.onClose
  * @param {'left' | 'bottomRight'} [props.position='left'] - Position of the popover.
  *   'left' shows popover to the right with arrow pointing left.
@@ -32,7 +33,7 @@ import styles from './Popover.module.css';
  * @param {string} [props.className]
  * @param {import('preact').ComponentChildren} props.children
  */
-export function Popover({ image, title, badge, onClose, position = 'left', className, children }) {
+export function Popover({ image, title, showNewBadge, onClose, position = 'left', className, children }) {
     const { t } = useTypedTranslationWith(/** @type {Strings} */ ({}));
     const titleId = useId();
     const descriptionId = useId();
@@ -77,7 +78,7 @@ export function Popover({ image, title, badge, onClose, position = 'left', class
                 {image && <div class={styles.imageContainer}>{image}</div>}
                 <div class={styles.textContainer}>
                     <h3 id={titleId} class={styles.heading}>
-                        {badge && <span class={styles.badge}>{badge}</span>}
+                        {showNewBadge && <NewBadge />}
                         <span class={styles.title}>{title}</span>
                     </h3>
                     <p id={descriptionId} class={styles.description}>
