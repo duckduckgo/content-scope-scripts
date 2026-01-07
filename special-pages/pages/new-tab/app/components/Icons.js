@@ -657,3 +657,67 @@ export function FireIcon(props) {
         </svg>
     );
 }
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Light-Theme-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function LightThemeIcon(props) {
+    return (
+        <svg fill="none" width="16" height="16" viewBox="0 0 16 17" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                d="M6.63.463a.625.625 0 1 0-1.207.324l.259.966a.625.625 0 1 0 1.207-.324zm3.688 13.765a.625.625 0 1 0-1.207.323l.259.966a.625.625 0 1 0 1.207-.323zm1.925-11.364a.625.625 0 1 0 .883.884l.708-.707a.625.625 0 1 0-.884-.884zM2.166 12.94a.625.625 0 0 0 .884.884l.707-.707a.625.625 0 0 0-.884-.884z"
+            />
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M2.99 8.116a5.01 5.01 0 1 1 10.02 0 5.01 5.01 0 0 1-10.02 0M8 4.376a3.74 3.74 0 1 0 0 7.479 3.74 3.74 0 0 0 0-7.479"
+                clip-rule="evenodd"
+            />
+            <path
+                fill="currentColor"
+                d="M.797 5.414A.625.625 0 0 0 .473 6.62l.966.259a.625.625 0 0 0 .323-1.208zm13.764 3.688a.625.625 0 0 0-.323 1.207l.965.259a.625.625 0 1 0 .324-1.207zm-.765-2.664a.625.625 0 0 1 .442-.766l.965-.258a.625.625 0 1 1 .324 1.207l-.966.259a.625.625 0 0 1-.765-.442M.031 10.126a.625.625 0 0 1 .442-.765l.966-.26a.625.625 0 0 1 .324 1.208l-.966.259a.625.625 0 0 1-.766-.442m12.212 2.107a.625.625 0 0 1 .884 0l.707.707a.625.625 0 1 1-.884.884l-.707-.707a.625.625 0 0 1 0-.884M2.166 2.157a.625.625 0 0 1 .884 0l.707.707a.625.625 0 1 1-.883.884l-.708-.707a.625.625 0 0 1 0-.884M10.135.022a.624.624 0 0 1 .442.765l-.259.966a.625.625 0 1 1-1.207-.323L9.37.464a.625.625 0 0 1 .765-.442M6.447 13.786c.334.09.531.432.442.766l-.259.966a.625.625 0 1 1-1.207-.324l.259-.966a.625.625 0 0 1 .765-.442"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/Dark-Theme-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function DarkThemeIcon(props) {
+    return (
+        <svg fill="none" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M7.72 1.141C7.965.635 7.575-.014 6.95.068A8.001 8.001 0 1 0 15.6 10.5c.198-.601-.37-1.102-.91-.956A6 6 0 0 1 7.72 1.14M1.25 8a6.75 6.75 0 0 1 4.987-6.518 7.25 7.25 0 0 0 7.842 9.455A6.75 6.75 0 0 1 1.25 8"
+                clip-rule="evenodd"
+            />
+            <path
+                fill="currentColor"
+                d="M12.5.875c.414 0 .5.09.625.446.07.2.178.813.26 1.318.471.079.989.173 1.169.236.357.125.446.21.446.625 0 .414-.179.5-.446.625-.142.066-.71.167-1.212.248-.075.438-.16.89-.217 1.056-.125.357-.21.446-.625.446-.414 0-.5-.179-.625-.446-.06-.128-.148-.602-.224-1.062-.48-.08-1.02-.178-1.205-.242C10.09 4 10 3.915 10 3.5c0-.414.09-.5.446-.625.18-.063.698-.157 1.169-.236.082-.505.19-1.119.26-1.318.125-.357.21-.446.625-.446"
+            />
+        </svg>
+    );
+}
+
+/**
+ * From https://dub.duckduckgo.com/duckduckgo/Icons/blob/Main/Glyphs/16px/System-Theme-16.svg
+ * @param {import('preact').JSX.SVGAttributes<SVGSVGElement>} props
+ */
+export function SystemThemeIcon(props) {
+    return (
+        <svg fill="none" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path fill="currentColor" d="m8 13-.257-.007A5 5 0 0 1 8 3z" />
+            <path
+                fill="currentColor"
+                fill-rule="evenodd"
+                d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0m0 1.25a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5"
+                clip-rule="evenodd"
+            />
+        </svg>
+    );
+}
