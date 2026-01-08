@@ -24,6 +24,12 @@
   margin-bottom: var(--sp-7);
 }
 
+.starIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
 .footerText {
   color: var(--theme-txt-color-progress);
 }

@@ -1,0 +1,78 @@
+/* Wrapper for SVG + overlays positioning */
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.image {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* CSS background overlay - positioned over the address bar area */
+.bgOverlay {
+  position: absolute;
+  z-index: 1;
+  /* Position matches SVG address bar: x=90, y=49, width=252, height=48 in viewBox 432x208 */
+  left: 20.83%;
+  top: 23.56%;
+  width: 58.33%;
+  height: 23.08%;
+  background-color: #fff; /* Default/fallback - overridden by inline style */
+  border-radius: 8px;
+  pointer-events: none;
+  transition: height 400ms cubic-bezier(0.4, 0, 0.2, 1), background-color 300ms ease;
+}
+
+/* Reduced state - 60% of original height */
+.bgReduced {
+  height: 13.85%;
+}
+
+/* CSS border overlay - positioned over the address bar area */
+.borderOverlay {
+  position: absolute;
+  z-index: 2;
+  /* Position matches SVG address bar: x=90, y=49, width=252, height=48 in viewBox 432x208 */
+  left: 20.83%;
+  top: 23.56%;
+  width: 58.33%;
+  height: 23.08%;
+  border: 2px solid;
+  border-radius: 8px;
+  pointer-events: none;
+  box-sizing: border-box;
+  transition: height 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reduced state - 60% of original height */
+.borderReduced {
+  height: 13.85%;
+}
+
+/* Regular search icon - positioned on right side of address bar */
+.regularIcon {
+  position: absolute;
+  z-index: 3;
+  /* Position: x=322/432, y=57/208, size ~12x12 */
+  right: 99px;
+  top: 57px;
+  width: 2.78%; /* 12/432 */
+  height: auto;
+  pointer-events: none;
+}
+
+/* Extended AI icon pill - positioned on right side of address bar */
+.extendedIcon {
+  position: absolute;
+  z-index: 3;
+  /* Position: x=282/432, y=53/208, size 56x20 */
+  right: 95px;
+  top: 54px;
+  width: 12.96%; /* 56/432 */
+  height: auto;
+  pointer-events: none;
+}
+
