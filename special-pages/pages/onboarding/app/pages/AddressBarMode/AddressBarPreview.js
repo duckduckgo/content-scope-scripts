@@ -1,14 +1,14 @@
 import { h } from 'preact';
 import styles from './AddressBarPreview.module.css';
 
+const ICON_TRANSITION = { transition: 'opacity 250ms ease-in-out' };
+
 /**
  * @param {object} props
  * @param {boolean} props.isReduced - Whether the address bar is in reduced (search-only) mode
  * @param {boolean} [props.isDarkMode=false] - Whether to render dark mode colors
  */
 export function AddressBarPreview({ isReduced, isDarkMode = false }) {
-    const iconTransition = { transition: 'opacity 250ms ease-in-out' };
-
     // Theme-dependent colors
     const colors = isDarkMode
         ? {
@@ -100,7 +100,7 @@ export function AddressBarPreview({ isReduced, isDarkMode = false }) {
             {/* Regular search icon - shown when in search-only mode */}
             <svg
                 className={styles.regularIcon}
-                style={{ opacity: isReduced ? 1 : 0, ...iconTransition }}
+                style={{ opacity: isReduced ? 1 : 0, ...ICON_TRANSITION }}
                 viewBox="0 0 12 12"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +114,7 @@ export function AddressBarPreview({ isReduced, isDarkMode = false }) {
             {/* Extended icon (AI chat pill) - shown when in search-and-duckai mode */}
             <svg
                 className={styles.extendedIcon}
-                style={{ opacity: isReduced ? 0 : 1, ...iconTransition }}
+                style={{ opacity: isReduced ? 0 : 1, ...ICON_TRANSITION }}
                 viewBox="0 0 56 20"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"

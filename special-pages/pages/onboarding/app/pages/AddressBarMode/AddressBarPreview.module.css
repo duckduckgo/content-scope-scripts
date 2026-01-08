@@ -11,45 +11,51 @@
   display: block;
 }
 
-/* CSS background overlay - positioned over the address bar area */
+/* Address bar overlay positioning (matches SVG: x=90, y=49, width=252, height=48 in viewBox 432x208) */
+.wrapper {
+  --address-bar-left: 20.83%;
+  --address-bar-top: 23.56%;
+  --address-bar-width: 58.33%;
+  --address-bar-height: 23.08%;
+  --address-bar-height-reduced: 13.85%;
+  --address-bar-transition: height 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* CSS background overlay */
 .bgOverlay {
   position: absolute;
   z-index: 1;
-  /* Position matches SVG address bar: x=90, y=49, width=252, height=48 in viewBox 432x208 */
-  left: 20.83%;
-  top: 23.56%;
-  width: 58.33%;
-  height: 23.08%;
+  left: var(--address-bar-left);
+  top: var(--address-bar-top);
+  width: var(--address-bar-width);
+  height: var(--address-bar-height);
   background-color: #fff; /* Default/fallback - overridden by inline style */
   border-radius: 8px;
   pointer-events: none;
-  transition: height 400ms cubic-bezier(0.4, 0, 0.2, 1), background-color 300ms ease;
+  transition: var(--address-bar-transition), background-color 300ms ease;
 }
 
-/* Reduced state - 60% of original height */
 .bgReduced {
-  height: 13.85%;
+  height: var(--address-bar-height-reduced);
 }
 
-/* CSS border overlay - positioned over the address bar area */
+/* CSS border overlay */
 .borderOverlay {
   position: absolute;
   z-index: 2;
-  /* Position matches SVG address bar: x=90, y=49, width=252, height=48 in viewBox 432x208 */
-  left: 20.83%;
-  top: 23.56%;
-  width: 58.33%;
-  height: 23.08%;
+  left: var(--address-bar-left);
+  top: var(--address-bar-top);
+  width: var(--address-bar-width);
+  height: var(--address-bar-height);
   border: 2px solid;
   border-radius: 8px;
   pointer-events: none;
   box-sizing: border-box;
-  transition: height 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: var(--address-bar-transition);
 }
 
-/* Reduced state - 60% of original height */
 .borderReduced {
-  height: 13.85%;
+  height: var(--address-bar-height-reduced);
 }
 
 /* Regular search icon - positioned on right side of address bar */
