@@ -6,12 +6,18 @@ let state = null;
 let observer = null;
 let pollInterval = null;
 let rerootInterval = null;
+let initTime = null;
+let lastNavigationTime = null;
 
 /**
  * Initialize the YouTube ad detector
  * @param {Object} config - Configuration from privacy-config
  */
 function initDetector(config) {
+    // Record init time for approximate load time calculation when content script loads late
+    initTime = performance.now();
+    lastNavigationTime = initTime;
+
     // Selector configuration
     const PLAYER_SELS = config.playerSelectors || ['#movie_player', '.html5-video-player', '#player'];
     const AD_CLASS_EXACT = config.adClasses || [
@@ -175,8 +181,16 @@ function initDetector(config) {
                 lastLoggedVideoId = vid;
                 currentVideoId = vid;
                 state.videoLoads++;
-                // Can't measure accurate load time since we missed loadstart,
-                // but record that a video loaded
+
+                // Use navigation time or init time as approximation for load start
+                const approximateStartTime = lastNavigationTime || initTime;
+                if (approximateStartTime) {
+                    const approximateLoadTime = performance.now() - approximateStartTime;
+                    state.loadTimes.push(Math.round(approximateLoadTime));
+                    if (state.loadTimes.length > 5) {
+                        state.loadTimes.shift();
+                    }
+                }
             }
         } else if (vid) {
             // Video not ready yet but we have an ID - set up to catch it
@@ -285,9 +299,15 @@ function initDetector(config) {
         const currentUrl = location.href;
         if (currentUrl !== lastUrl) {
             lastUrl = currentUrl;
+            lastNavigationTime = performance.now();
             // Video tracking will be handled by sweep loop
         }
     }).observe(document, { subtree: true, childList: true });
+
+    // Also listen for YouTube-specific navigation events (more reliable timing)
+    window.addEventListener('yt-navigate-start', () => {
+        lastNavigationTime = performance.now();
+    });
 }
 
 /**
