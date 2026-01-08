@@ -111,6 +111,18 @@ export function reducer(state, action) {
                             },
                         };
                     }
+                    // Handle exec-complete for 'info' kind steps (e.g., addressBarMode)
+                    // These steps dispatch system values but don't need row advancement
+                    if (state.step.kind === 'info') {
+                        return {
+                            ...state,
+                            status: { kind: 'idle' },
+                            values: {
+                                ...state.values,
+                                [action.id]: action.payload,
+                            },
+                        };
+                    }
                     throw new Error('unimplemented');
                 }
                 case 'exec-error': {
