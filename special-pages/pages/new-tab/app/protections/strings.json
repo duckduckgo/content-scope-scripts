@@ -14,9 +14,5 @@
   "protections_noRecent": {
     "title": "No recent tracking activity",
     "note": "Placeholder text shown in the Details view when no tracking activity was blocked in the last 7 days. Keep concise if possible."
-  },
-  "protections_newBadge": {
-    "title": "NEW",
-    "note": "Text displayed in a badge to indicate a new feature or statistic."
   }
 }

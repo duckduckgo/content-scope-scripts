@@ -3,22 +3,34 @@
     display: flex;
     filter: drop-shadow(0 0 calc(0.5px) rgba(0, 0, 0, 0.75))
             drop-shadow(0 0 calc(1px) rgba(0, 0, 0, 0.25))
-            drop-shadow(0 calc(8px) calc(16px) rgba(0, 0, 0, 0.20));
+            drop-shadow(0 calc(8px) calc(24px) rgba(0, 0, 0, 0.20));
     flex-direction: row;
-    left: calc(100% + 7px);
+    left: calc(100% + var(--popover-offset-x, 0px));
     outline: none;
     position: absolute;
-    top: 50%;
+    top: calc(50% + var(--popover-offset-y, 0px));
     transform: translateY(-50%);
-    width: 390px;
+    width: 380px;
     z-index: 1000;
+
+    &[data-position="bottomRight"] {
+        bottom: calc(100% - var(--popover-offset-y, 0px));
+        flex-direction: column;
+        left: auto;
+        right: calc(0px - var(--popover-offset-x, 0px));
+        top: auto;
+        transform: none;
+    }
 }
 
 .content {
+    align-items: center;
     background: var(--ds-color-theme-surface-tertiary);
-    border-radius: 16px;
+    border-radius: 10px;
+    display: flex;
     flex: auto;
-    padding: var(--sp-4) var(--sp-11) var(--sp-4) var(--sp-5);
+    gap: var(--sp-4);
+    padding: var(--sp-2) var(--sp-8) var(--sp-2) var(--sp-2);
     position: relative;
 }
 
@@ -28,22 +40,26 @@
     top: var(--sp-4);
 }
 
+.imageContainer {
+    flex: none;
+}
+
+.textContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-1);
+    padding: var(--sp-2) 0 var(--sp-2) var(--sp-2);
+}
+
+/* When image is present, remove extra left padding */
+.imageContainer + .textContainer {
+    padding-left: 0;
+}
+
 .heading {
     display: flex;
     flex-direction: column;
     gap: var(--sp-1);
-}
-
-.badge {
-    background: var(--color-yellow-60);
-    border-radius: var(--border-radius-xs);
-    color: var(--color-black);
-    font-size: 11.5px;
-    font-weight: 600;
-    line-height: var(--sp-4);
-    padding: 0 var(--sp-2);
-    text-transform: uppercase;
-    width: fit-content;
 }
 
 .title {
@@ -79,4 +95,13 @@
 .arrow {
     color: var(--ds-color-theme-surface-tertiary);
     margin-right: -1px;
+
+    .popover[data-position="bottomRight"] & {
+        align-self: flex-end;
+        margin-bottom: -9px;
+        margin-right: var(--sp-10);
+        margin-top: -9px;
+        order: 1;
+        transform: rotate(-90deg);
+    }
 }
