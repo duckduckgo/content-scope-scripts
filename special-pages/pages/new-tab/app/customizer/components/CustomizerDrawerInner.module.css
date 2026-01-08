@@ -79,6 +79,9 @@
     margin-top: 16px;
 }
 .sectionTitle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: var(--title-3-em-font-size);
     font-weight: var(--title-3-em-font-weight);
     line-height: var(--title-3-em-line-height);
@@ -250,7 +253,7 @@
     justify-content: space-between;
     align-items: center;
     text-decoration: none;
-    color: var(--ds-color-theme-accent-primary);
+    color: var(--ds-color-theme-accent-text-primary);
     margin-bottom: var(--sp-3);
 
     &:focus-visible {

@@ -1,3 +1,5 @@
-- NTP: Add new theme / theme variant selector (#2119)
-- Remove 'closed' event from auto-respond workflow (#2141)
-- Support inline source maps (#2148)
+- NTP: Add theme variant onboarding popover (#2152)
+- Dependabot auto-merge status (#2140)
+- Server configuration cleanup (#2130)
+- Browser theming design fixes (#2153)
+- Update @duckduckgo/design-tokens to v0.3.0 (#2151)

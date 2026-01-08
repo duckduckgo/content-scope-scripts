@@ -288,7 +288,7 @@ test.describe('newtab customizer', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ additional: { themeVariant: 'violet', theme: 'light' } });
-        await ntp.hasBackgroundColor({ hex: '#efeffa' }); // violet light surface-canvas
+        await ntp.hasBackgroundColor({ hex: '#edecf9' }); // violet light surface-canvas
     });
     test('accepts theme variant update via subscription message', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -305,7 +305,7 @@ test.describe('newtab customizer', () => {
         await ntp.darkMode();
         await ntp.openPage();
         await cp.acceptsThemeVariantUpdate('dark', 'slateBlue');
-        await ntp.hasBackgroundColor({ hex: '#243a50' }); // slateBlue dark surface-canvas
+        await ntp.hasBackgroundColor({ hex: '#1e3042' }); // slateBlue dark surface-canvas
     });
     test('custom background color overrides theme variant background', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
@@ -377,5 +377,70 @@ test.describe('newtab customizer', () => {
         await ntp.openPage({ additional: { autoOpen: 'true', themeVariant: 'default', theme: 'system' } });
         await cp.themeVariantIsSelected('default');
         await cp.selectsThemeVariant('rose', 'system');
+    });
+
+    test('theme variant popover appears when customizer.showThemeVariantPopover=true', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': true, themeVariant: 'default' } });
+        await expect(cp.themeVariantPopover()).toBeVisible();
+    });
+
+    test('theme variant popover does not appear when showThemeVariantPopover=false', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': false, themeVariant: 'default' } });
+        await expect(cp.themeVariantPopover()).not.toBeVisible();
+    });
+
+    test('clicking close button dismisses theme variant popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': true, themeVariant: 'default' } });
+
+        // Popover should be visible initially
+        await expect(cp.themeVariantPopover()).toBeVisible();
+
+        // Click close button
+        await cp.themeVariantPopoverCloseButton().click();
+
+        // Popover should be dismissed
+        await expect(cp.themeVariantPopover()).not.toBeVisible();
+    });
+
+    test('manually opening customizer dismisses theme variant popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': true, themeVariant: 'default' } });
+
+        // Popover should be visible initially
+        await expect(cp.themeVariantPopover()).toBeVisible();
+
+        // Open customizer manually using the main customize button
+        await cp.opensCustomizer();
+
+        // Customizer should be open and popover should be dismissed
+        await expect(cp.context()).toBeVisible();
+        await expect(cp.themeVariantPopover()).not.toBeVisible();
+    });
+
+    test('pressing escape dismisses theme variant popover', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': true, themeVariant: 'default' } });
+
+        // Popover should be visible initially
+        await expect(cp.themeVariantPopover()).toBeVisible();
+
+        // Press Escape
+        await page.keyboard.press('Escape');
+
+        // Popover should be dismissed
+        await expect(cp.themeVariantPopover()).not.toBeVisible();
     });
 });

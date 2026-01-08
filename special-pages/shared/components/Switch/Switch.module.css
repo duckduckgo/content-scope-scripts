@@ -105,7 +105,6 @@
         /* On state - use theme accent for track, system colors for handle */
         --track-bg-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
         --track-border-color-checked: var(--ds-color-theme-accent-primary, var(--ds-color-theme-default-dark-accent-primary));
-        --switch-handle-color-checked: #CECECE;
 
         /* Pressed states */
         --track-bg-color-checked-active: var(--ds-color-theme-accent-secondary, var(--ds-color-theme-default-dark-accent-secondary));
