@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useState, useContext } from 'preact/hooks';
+import { useState, useContext, useEffect } from 'preact/hooks';
 import { useTypedTranslation } from '../../types';
 import { Trans } from '../../../../../shared/components/TranslationsProvider';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
@@ -16,14 +16,23 @@ export function AddressBarMode() {
     const dispatch = useContext(GlobalDispatch);
     const [selectedOption, setSelectedOption] = useState('search-and-duckai');
 
-    const handleSelection = (option) => {
-        setSelectedOption(option);
+    const dispatchPreference = (option) => {
         dispatch({
             kind: 'update-system-value',
             id: 'address-bar-mode',
             payload: { enabled: option === 'search-and-duckai' },
             current: true,
         });
+    };
+
+    useEffect(() => {
+        dispatchPreference(selectedOption);
+    }, []);
+
+    const handleSelection = (option) => {
+        if (option === selectedOption) return;
+        setSelectedOption(option);
+        dispatchPreference(option);
     };
 
     return (
