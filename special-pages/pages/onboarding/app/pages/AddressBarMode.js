@@ -41,7 +41,7 @@ export function AddressBarMode() {
 
     return (
         <SlideIn>
-            <Stack className={styles.container}>
+            <Stack className={styles.container} gap={Stack.gaps['0']}>
                 <Stack className={styles.body} gap="10px">
                     <img src={getImagePath()} alt="Duck.ai Address Bar Mode Toggle" className={styles.image} />
                     <div className={styles.buttons}>
