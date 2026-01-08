@@ -56,9 +56,8 @@
 .regularIcon {
   position: absolute;
   z-index: 3;
-  /* Position: x=322/432, y=57/208, size ~12x12 */
-  right: 99px;
-  top: 57px;
+  right: 23%;
+  top: 27%;
   width: 2.78%; /* 12/432 */
   height: auto;
   pointer-events: none;
@@ -68,10 +67,9 @@
 .extendedIcon {
   position: absolute;
   z-index: 3;
-  /* Position: x=282/432, y=53/208, size 56x20 */
-  right: 95px;
-  top: 54px;
-  width: 12.96%; /* 56/432 */
+  right: 21.9%;
+  top: 26.5%;
+  width: 12.96%;
   height: auto;
   pointer-events: none;
 }
