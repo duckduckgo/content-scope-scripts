@@ -3,7 +3,7 @@ import { useState, useContext, useEffect } from 'preact/hooks';
 import { useTypedTranslation } from '../../types';
 import { Trans } from '../../../../../shared/components/TranslationsProvider';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
-import { GlobalDispatch } from '../../global';
+import { GlobalDispatch, useGlobalState } from '../../global';
 import { ToggleButton } from '../../components/ToggleButton';
 import { AddressBarPreview } from './AddressBarPreview';
 import { SlideIn } from '../../components/v3/Animation';
@@ -14,7 +14,9 @@ export function AddressBarMode() {
     const { t } = useTypedTranslation();
     const { isDarkMode } = useEnv();
     const dispatch = useContext(GlobalDispatch);
+    const { status } = useGlobalState();
     const [selectedOption, setSelectedOption] = useState('search-and-duckai');
+    const isPending = status.kind === 'executing';
 
     const dispatchPreference = (option) => {
         dispatch({
@@ -30,7 +32,7 @@ export function AddressBarMode() {
     }, []);
 
     const handleSelection = (option) => {
-        if (option === selectedOption) return;
+        if (option === selectedOption || isPending) return;
         setSelectedOption(option);
         dispatchPreference(option);
     };
