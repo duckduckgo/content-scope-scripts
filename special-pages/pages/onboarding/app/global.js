@@ -158,6 +158,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             'placebo-ad-blocking': 'idle',
             'aggressive-ad-blocking': 'idle',
             'youtube-ad-blocking': 'idle',
+            'address-bar-mode': 'idle',
         },
     });
 
@@ -249,6 +250,10 @@ async function handleSystemSettingUpdate(action, messaging, platform) {
         case 'aggressive-ad-blocking':
         case 'youtube-ad-blocking': {
             messaging.setAdBlocking(payload);
+            return payload;
+        }
+        case 'address-bar-mode': {
+            messaging.setDuckAiInAddressBar(payload);
             return payload;
         }
         case 'dock': {
