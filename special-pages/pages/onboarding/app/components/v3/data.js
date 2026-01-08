@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { Launch, Replay } from '../../components/Icons';
 import { MakeDefaultStep } from './MakeDefaultStep';
 import { DuckPlayerStep } from './DuckPlayerStep';
+import { AddressBarMode } from '../../pages/AddressBarMode/AddressBarMode';
 import { ElasticButton } from './ElasticButton';
 import { Timeout } from '../Timeout';
 import { SettingsStep } from './SettingsStep';
@@ -109,9 +110,10 @@ export const stepsConfig = {
             content: <DuckPlayerStep />,
         };
     },
-    customize: ({ t, globalState, dismiss }) => {
-        const { step, activeRow } = globalState;
+    customize: ({ t, globalState, advance, dismiss }) => {
+        const { step, activeRow, order, activeStep } = globalState;
         const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */ (step).rows.length;
+        const isLastStep = order[order.length - 1] === activeStep;
 
         return {
             variant: 'box',
@@ -121,13 +123,33 @@ export const stepsConfig = {
                 speechBubble: true,
             },
             acceptButton: isDone
-                ? {
-                      text: t('startBrowsing'),
-                      endIcon: <Launch />,
-                      handler: dismiss,
-                  }
+                ? isLastStep
+                    ? {
+                          text: t('startBrowsing'),
+                          endIcon: <Launch />,
+                          handler: dismiss,
+                      }
+                    : {
+                          text: t('nextButton'),
+                          handler: advance,
+                      }
                 : null,
             content: <SettingsStep data={settingsRowItems} />,
+        };
+    },
+    addressBarMode: ({ t, dismiss }) => {
+        return {
+            variant: 'box',
+            heading: {
+                title: t('addressBarMode_title'),
+                speechBubble: true,
+            },
+            acceptButton: {
+                text: t('startBrowsing'),
+                endIcon: <Launch />,
+                handler: dismiss,
+            },
+            content: <AddressBarMode />,
         };
     },
 };
@@ -229,6 +251,14 @@ export const settingsRowItems = {
         secondaryText: t('row_youtube-ad-blocking_desc_v3'),
         kind: 'one-time',
         acceptText: t('row_youtube-ad-blocking_accept_v3'),
+        accepButtonVariant: 'primary',
+    }),
+    'address-bar-mode': (t) => ({
+        id: 'address-bar-mode',
+        icon: 'v3/Ai-Chat-Color-24.svg',
+        title: t('addressBarMode_title'),
+        kind: 'toggle',
+        acceptText: t('startBrowsing'),
         accepButtonVariant: 'primary',
     }),
 };
