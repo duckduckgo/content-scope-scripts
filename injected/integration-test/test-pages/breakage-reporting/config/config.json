@@ -30,6 +30,17 @@
               "vendor": "PerimeterX",
               "selectors": ["#px-captcha", "[id^='px-']"]
             }
+          },
+          "adwallDetection": {
+            "generic": {
+              "state": "enabled",
+              "textPatterns": [
+                "ad ?block(er)? detected",
+                "adjust(ing)?( your)? ad blocking settings",
+                "(turn off|disable|disabling|deactivate)( your)? ad ?block(er)?",
+                "you're using an ad blocker"
+              ]
+            }
           }
         }
       }
