@@ -16,7 +16,14 @@ jobs:
               with:
                   github-token: '${{ secrets.GITHUB_TOKEN }}'
 
-            - name: Auto-approve and enable auto-merge for npm patch updates (except ignored packages)
+            - name: Enable auto-merge for npm updates
+              if: steps.metadata.outputs.package-ecosystem == 'npm'
+              run: gh pr merge --auto --merge "$PR_URL"
+              env:
+                  PR_URL: ${{ github.event.pull_request.html_url }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Auto-approve npm patch updates (except ignored packages)
               if: |
                   steps.metadata.outputs.package-ecosystem == 'npm' &&
                   steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
@@ -24,9 +31,7 @@ jobs:
                   !contains(steps.metadata.outputs.dependency-names, 'preact') &&
                   !contains(steps.metadata.outputs.dependency-names, '@preact/signals') &&
                   !contains(steps.metadata.outputs.dependency-names, 'lottie-web')
-              run: |
-                  gh pr review --approve "$PR_URL"
-                  gh pr merge --auto --merge "$PR_URL"
+              run: gh pr review --approve "$PR_URL"
               env:
                   PR_URL: ${{ github.event.pull_request.html_url }}
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
