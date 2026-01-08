@@ -110,9 +110,10 @@ export const stepsConfig = {
             content: <DuckPlayerStep />,
         };
     },
-    customize: ({ t, globalState, advance }) => {
-        const { step, activeRow } = globalState;
+    customize: ({ t, globalState, advance, dismiss }) => {
+        const { step, activeRow, order, activeStep } = globalState;
         const isDone = activeRow >= /** @type {import('../../types').CustomizeStep} */ (step).rows.length;
+        const isLastStep = order[order.length - 1] === activeStep;
 
         return {
             variant: 'box',
@@ -122,10 +123,16 @@ export const stepsConfig = {
                 speechBubble: true,
             },
             acceptButton: isDone
-                ? {
-                      text: t('nextButton'),
-                      handler: advance,
-                  }
+                ? isLastStep
+                    ? {
+                          text: t('startBrowsing'),
+                          endIcon: <Launch />,
+                          handler: dismiss,
+                      }
+                    : {
+                          text: t('nextButton'),
+                          handler: advance,
+                      }
                 : null,
             content: <SettingsStep data={settingsRowItems} />,
         };
