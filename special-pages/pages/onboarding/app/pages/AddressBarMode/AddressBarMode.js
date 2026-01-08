@@ -1,13 +1,13 @@
 import { h } from 'preact';
 import { useState, useContext } from 'preact/hooks';
-import { useTypedTranslation } from '../types';
-import { Trans } from '../../../../shared/components/TranslationsProvider';
-import { useEnv } from '../../../../shared/components/EnvironmentProvider';
-import { GlobalDispatch } from '../global';
-import { ToggleButton } from '../components/ToggleButton';
-import { AddressBarPreview } from '../components/AddressBarPreview';
-import { SlideIn } from '../components/v3/Animation';
-import { Stack } from '../components/Stack';
+import { useTypedTranslation } from '../../types';
+import { Trans } from '../../../../../shared/components/TranslationsProvider';
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
+import { GlobalDispatch } from '../../global';
+import { ToggleButton } from '../../components/ToggleButton';
+import { AddressBarPreview } from './AddressBarPreview';
+import { SlideIn } from '../../components/v3/Animation';
+import { Stack } from '../../components/Stack';
 import styles from './AddressBarMode.module.css';
 
 export function AddressBarMode() {
@@ -26,13 +26,11 @@ export function AddressBarMode() {
         });
     };
 
-    const isReduced = selectedOption === 'search-only';
-
     return (
         <SlideIn>
             <Stack className={styles.container} gap={Stack.gaps['0']}>
                 <Stack className={styles.body} gap="10px">
-                    <AddressBarPreview isReduced={isReduced} isDarkMode={isDarkMode} />
+                    <AddressBarPreview isReduced={selectedOption === 'search-only'} isDarkMode={isDarkMode} />
                     <div className={styles.buttons}>
                         <ToggleButton
                             label={t('addressBarMode_searchAndDuckAi')}

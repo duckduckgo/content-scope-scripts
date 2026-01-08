@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { Launch, Replay } from '../../components/Icons';
 import { MakeDefaultStep } from './MakeDefaultStep';
 import { DuckPlayerStep } from './DuckPlayerStep';
-import { AddressBarMode } from '../../pages/AddressBarMode';
+import { AddressBarMode } from '../../pages/AddressBarMode/AddressBarMode';
 import { ElasticButton } from './ElasticButton';
 import { Timeout } from '../Timeout';
 import { SettingsStep } from './SettingsStep';
