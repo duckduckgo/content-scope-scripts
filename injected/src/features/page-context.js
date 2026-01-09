@@ -231,33 +231,7 @@ export default class PageContext extends ContentFeature {
         if (!this.shouldActivate()) {
             return;
         }
-
-        // If autoCaptureOnFirstMessage is enabled, wait for the first native message
-        // before setting up auto-capture listeners
-        if (this.getFeatureSettingEnabled('autoCaptureOnFirstMessage', 'disabled')) {
-            this.setupFirstMessageGate();
-        } else {
-            this.setupListeners();
-        }
-    }
-
-    /**
-     * Sets up the gate that waits for the first native message before enabling auto-capture.
-     * The first 'collect' message from native will trigger the setup of all listeners.
-     */
-    setupFirstMessageGate() {
-        this.log.info('Auto-capture gated behind first native message');
-        this.messaging.subscribe('collect', () => {
-            this.invalidateCache();
-            this.handleContentCollectionRequest();
-
-            // After first message, activate auto-capture if not already activated
-            if (!this.#autoCaptureActivated) {
-                this.#autoCaptureActivated = true;
-                this.log.info('First native message received, activating auto-capture');
-                this.setupAutoCaptureListeners();
-            }
-        });
+        this.setupListeners();
     }
 
     resetRecheckCount() {
@@ -265,18 +239,33 @@ export default class PageContext extends ContentFeature {
     }
 
     /**
-     * Sets up all listeners immediately (when not gated by first message).
+     * Sets up all listeners. When autoCaptureOnFirstMessage is enabled,
+     * auto-capture listeners are deferred until the first collect message.
      */
     setupListeners() {
-        // Always set up the collect subscription when not gated
-        if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
+        const gateAutoCaptureOnFirstMessage = this.getFeatureSettingEnabled('autoCaptureOnFirstMessage', 'disabled');
+
+        // Set up collect subscription
+        if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled') || gateAutoCaptureOnFirstMessage) {
             this.messaging.subscribe('collect', () => {
                 this.invalidateCache();
                 this.handleContentCollectionRequest();
+
+                // When gated, activate auto-capture on first message
+                if (gateAutoCaptureOnFirstMessage && !this.#autoCaptureActivated) {
+                    this.#autoCaptureActivated = true;
+                    this.log.info('First native message received, activating auto-capture');
+                    this.setupAutoCaptureListeners();
+                }
             });
         }
-        // Set up auto-capture listeners
-        this.setupAutoCaptureListeners();
+
+        // Set up auto-capture listeners immediately if not gated
+        if (!gateAutoCaptureOnFirstMessage) {
+            this.setupAutoCaptureListeners();
+        } else {
+            this.log.info('Auto-capture gated behind first native message');
+        }
     }
 
     /**
