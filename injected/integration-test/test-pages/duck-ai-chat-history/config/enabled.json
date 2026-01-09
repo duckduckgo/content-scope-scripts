@@ -1,0 +1,14 @@
+{
+    "readme": "This config is used to test enabling the Duck.ai chat history feature.",
+    "version": 1,
+    "features": {
+        "duckAiChatHistory": {
+            "state": "enabled",
+            "settings": {
+                "chatsLocalStorageKeys": ["savedAIChats"]
+            },
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

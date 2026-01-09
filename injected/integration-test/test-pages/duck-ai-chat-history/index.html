@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duck AI Chat History Test</title>
+    <link rel="stylesheet" href="../shared/style.css">
+</head>
+<body>
+    <header>
+        <h1>Duck AI Chat History Test</h1>
+        <p>This page tests the Duck AI chat history retrieval functionality.</p>
+    </header>
+    
+    <main>
+        <section>
+            <h2>Setup Data</h2>
+            <button id="setup-data">Setup Test Data</button>
+            <button id="setup-mixed-data">Setup Mixed Age Data</button>
+            <button id="clear-data">Clear All Data</button>
+            <div id="data-status"></div>
+        </section>
+        
+        <section>
+            <h2>Current Data</h2>
+            <button id="show-data">Show Current Data</button>
+            <pre id="current-data"></pre>
+        </section>
+    </main>
+
+    <script src="../shared/utils.js"></script>
+    <script>
+        const dataStatus = document.getElementById('data-status');
+        const currentData = document.getElementById('current-data');
+        
+        // Helper to create a date N days ago
+        function daysAgo(days) {
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            return date.toISOString();
+        }
+        
+        // Setup test data with recent chats only
+        document.getElementById('setup-data').addEventListener('click', () => {
+            try {
+                const chatData = {
+                    version: '0.7',
+                    chats: [
+                        {
+                            chatId: 'chat-1',
+                            title: 'Recent chat 1',
+                            model: 'gpt-4.1-internal',
+                            messages: [
+                                { createdAt: daysAgo(1), content: 'Hello', role: 'user' },
+                                { createdAt: daysAgo(1), content: 'Hi there!', role: 'assistant' }
+                            ],
+                            lastEdit: daysAgo(1),
+                            pinned: false
+                        },
+                        {
+                            chatId: 'chat-2',
+                            title: 'Recent chat 2',
+                            model: 'gpt-4.1-internal',
+                            messages: [
+                                { createdAt: daysAgo(5), content: 'Test', role: 'user' },
+                                { createdAt: daysAgo(5), content: 'Response', role: 'assistant' }
+                            ],
+                            lastEdit: daysAgo(5),
+                            pinned: false
+                        }
+                    ]
+                };
+                
+                localStorage.setItem('savedAIChats', JSON.stringify(chatData));
+                dataStatus.textContent = 'Test data setup complete (2 recent chats)';
+            } catch (error) {
+                dataStatus.textContent = 'Error: ' + error.message;
+            }
+        });
+        
+        // Setup mixed age data (some old, some new)
+        document.getElementById('setup-mixed-data').addEventListener('click', () => {
+            try {
+                const chatData = {
+                    version: '0.7',
+                    chats: [
+                        {
+                            chatId: 'chat-recent-1',
+                            title: 'Chat from 2 days ago',
+                            model: 'gpt-4.1-internal',
+                            messages: [
+                                { createdAt: daysAgo(2), content: 'Recent message', role: 'user' }
+                            ],
+                            lastEdit: daysAgo(2),
+                            pinned: false
+                        },
+                        {
+                            chatId: 'chat-recent-2',
+                            title: 'Chat from 10 days ago',
+                            model: 'gpt-4.1-internal',
+                            messages: [
+                                { createdAt: daysAgo(10), content: 'Somewhat recent', role: 'user' }
+                            ],
+                            lastEdit: daysAgo(10),
+                            pinned: false
+                        },
+                        {
+                            chatId: 'chat-old-1',
+                            title: 'Chat from 20 days ago',
+                            model: 'gpt-4.1-internal',
+                            messages: [
+                                { createdAt: daysAgo(20), content: 'Old message', role: 'user' }
+                            ],
+                            lastEdit: daysAgo(20),
+                            pinned: false
+                        },
+                        {
+                            chatId: 'chat-old-2',
+                            title: 'Chat from 30 days ago',
+                            model: 'gpt-4.1-internal',
+                            messages: [
+                                { createdAt: daysAgo(30), content: 'Very old message', role: 'user' }
+                            ],
+                            lastEdit: daysAgo(30),
+                            pinned: false
+                        }
+                    ]
+                };
+                
+                localStorage.setItem('savedAIChats', JSON.stringify(chatData));
+                dataStatus.textContent = 'Mixed age data setup complete (2 within 14 days, 2 older)';
+            } catch (error) {
+                dataStatus.textContent = 'Error: ' + error.message;
+            }
+        });
+        
+        // Clear all data
+        document.getElementById('clear-data').addEventListener('click', () => {
+            try {
+                localStorage.removeItem('savedAIChats');
+                dataStatus.textContent = 'All data cleared';
+            } catch (error) {
+                dataStatus.textContent = 'Error: ' + error.message;
+            }
+        });
+        
+        // Show current data
+        document.getElementById('show-data').addEventListener('click', () => {
+            try {
+                const data = localStorage.getItem('savedAIChats');
+                if (data) {
+                    currentData.textContent = JSON.stringify(JSON.parse(data), null, 2);
+                } else {
+                    currentData.textContent = 'No data found';
+                }
+            } catch (error) {
+                currentData.textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
