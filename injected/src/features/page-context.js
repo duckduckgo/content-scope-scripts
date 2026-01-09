@@ -218,13 +218,16 @@ export default class PageContext extends ContentFeature {
     /** @type {MutationObserver | null} */
     mutationObserver = null;
     lastSentContent = null;
-    listenForUrlChanges = true;
     /** @type {ReturnType<typeof setTimeout> | null} */
     #delayedRecheckTimer = null;
     recheckCount = 0;
     recheckLimit = 0;
     /** @type {boolean} */
     #activeCapture = true;
+
+    get listenForUrlChanges() {
+        return this.#activeCapture && this.getFeatureSettingEnabled('subscribeToUrlChange', 'enabled');
+    }
 
     init() {
         this.recheckLimit = this.getFeatureSetting('recheckLimit') || 5;
@@ -273,7 +276,6 @@ export default class PageContext extends ContentFeature {
      */
     setupActiveCaptureListeners() {
         this.log.info('Setting up active capture listeners');
-        this.listenForUrlChanges = this.getFeatureSettingEnabled('subscribeToUrlChange', 'enabled');
         this.observeContentChanges();
 
         if (this.getFeatureSettingEnabled('subscribeToLoad', 'enabled')) {
@@ -332,10 +334,7 @@ export default class PageContext extends ContentFeature {
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
-        if (!this.#activeCapture || !this.listenForUrlChanges) {
-            return;
-        }
-        if (!this.shouldActivate()) {
+        if (!this.listenForUrlChanges || !this.shouldActivate()) {
             return;
         }
         this.handleContentCollectionRequest();
