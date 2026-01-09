@@ -23,6 +23,10 @@ const builds = {
         input: 'entry-points/apple.js',
         output: ['../build/apple/duckAiDataClearing.js'],
     },
+    'apple-ai-history': {
+        input: 'entry-points/apple.js',
+        output: ['../build/apple/duckAiChatHistory.js'],
+    },
     'apple-isolated': {
         input: 'entry-points/apple.js',
         output: ['../build/apple/contentScopeIsolated.js'],
