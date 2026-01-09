@@ -16,6 +16,7 @@ interface ImportMeta {
         | 'apple'
         | 'apple-isolated'
         | 'apple-ai-clear'
+        | 'apple-ai-history'
         | 'android'
         | 'windows'
         | 'integration'
