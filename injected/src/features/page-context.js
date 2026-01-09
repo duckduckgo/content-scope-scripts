@@ -223,27 +223,71 @@ export default class PageContext extends ContentFeature {
     #delayedRecheckTimer = null;
     recheckCount = 0;
     recheckLimit = 0;
+    /** @type {boolean} */
+    #autoCaptureActivated = false;
 
     init() {
         this.recheckLimit = this.getFeatureSetting('recheckLimit') || 5;
         if (!this.shouldActivate()) {
             return;
         }
-        this.setupListeners();
+
+        // If autoCaptureOnFirstMessage is enabled, wait for the first native message
+        // before setting up auto-capture listeners
+        if (this.getFeatureSettingEnabled('autoCaptureOnFirstMessage', 'disabled')) {
+            this.setupFirstMessageGate();
+        } else {
+            this.setupListeners();
+        }
+    }
+
+    /**
+     * Sets up the gate that waits for the first native message before enabling auto-capture.
+     * The first 'collect' message from native will trigger the setup of all listeners.
+     */
+    setupFirstMessageGate() {
+        this.log.info('Auto-capture gated behind first native message');
+        this.messaging.subscribe('collect', () => {
+            this.invalidateCache();
+            this.handleContentCollectionRequest();
+
+            // After first message, activate auto-capture if not already activated
+            if (!this.#autoCaptureActivated) {
+                this.#autoCaptureActivated = true;
+                this.log.info('First native message received, activating auto-capture');
+                this.setupAutoCaptureListeners();
+            }
+        });
     }
 
     resetRecheckCount() {
         this.recheckCount = 0;
     }
 
+    /**
+     * Sets up all listeners immediately (when not gated by first message).
+     */
     setupListeners() {
-        this.observeContentChanges();
+        // Always set up the collect subscription when not gated
         if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
             this.messaging.subscribe('collect', () => {
                 this.invalidateCache();
                 this.handleContentCollectionRequest();
             });
         }
+        // Set up auto-capture listeners
+        this.setupAutoCaptureListeners();
+    }
+
+    /**
+     * Sets up listeners that automatically capture page content.
+     * These are the listeners that can be gated behind the first native message.
+     */
+    setupAutoCaptureListeners() {
+        this.log.info('Setting up auto-capture listeners');
+        this.listenForUrlChanges = this.getFeatureSettingEnabled('subscribeToUrlChange', 'enabled');
+        this.observeContentChanges();
+
         if (this.getFeatureSettingEnabled('subscribeToLoad', 'enabled')) {
             window.addEventListener('load', () => {
                 this.handleContentCollectionRequest();
@@ -300,7 +344,11 @@ export default class PageContext extends ContentFeature {
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
-        if (!this.getFeatureSettingEnabled('subscribeToUrlChange', 'enabled')) {
+        // If auto-capture is gated and not yet activated, skip
+        if (this.getFeatureSettingEnabled('autoCaptureOnFirstMessage', 'disabled') && !this.#autoCaptureActivated) {
+            return;
+        }
+        if (!this.listenForUrlChanges) {
             return;
         }
         if (!this.shouldActivate()) {
