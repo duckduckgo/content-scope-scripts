@@ -224,7 +224,7 @@ export default class PageContext extends ContentFeature {
     recheckCount = 0;
     recheckLimit = 0;
     /** @type {boolean} */
-    #activeCaptureDisabled = false;
+    #activeCapture = true;
 
     init() {
         this.recheckLimit = this.getFeatureSetting('recheckLimit') || 5;
@@ -232,7 +232,7 @@ export default class PageContext extends ContentFeature {
             return;
         }
         // If gated, disable active capture until first native message
-        this.#activeCaptureDisabled = this.getFeatureSettingEnabled('activeCaptureOnFirstMessage', 'disabled');
+        this.#activeCapture = !this.getFeatureSettingEnabled('activeCaptureOnFirstMessage', 'disabled');
         this.setupListeners();
     }
 
@@ -250,20 +250,20 @@ export default class PageContext extends ContentFeature {
                 this.invalidateCache();
                 this.handleContentCollectionRequest();
 
-                // Enable active capture on first message if currently disabled
-                if (this.#activeCaptureDisabled) {
-                    this.#activeCaptureDisabled = false;
+                // Enable active capture on first message if not already active
+                if (!this.#activeCapture) {
+                    this.#activeCapture = true;
                     this.log.info('First native message received, activating capture');
                     this.setupActiveCaptureListeners();
                 }
             });
         }
 
-        // Set up active capture listeners immediately unless disabled
-        if (this.#activeCaptureDisabled) {
-            this.log.info('Active capture gated behind first native message');
-        } else {
+        // Set up active capture listeners immediately if active
+        if (this.#activeCapture) {
             this.setupActiveCaptureListeners();
+        } else {
+            this.log.info('Active capture gated behind first native message');
         }
     }
 
@@ -332,7 +332,7 @@ export default class PageContext extends ContentFeature {
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
-        if (this.#activeCaptureDisabled || !this.listenForUrlChanges) {
+        if (!this.#activeCapture || !this.listenForUrlChanges) {
             return;
         }
         if (!this.shouldActivate()) {
