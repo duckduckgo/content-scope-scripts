@@ -224,15 +224,15 @@ export default class PageContext extends ContentFeature {
     recheckCount = 0;
     recheckLimit = 0;
     /** @type {boolean} */
-    #autoCaptureActive = true;
+    #autoCaptureDisabled = false;
 
     init() {
         this.recheckLimit = this.getFeatureSetting('recheckLimit') || 5;
         if (!this.shouldActivate()) {
             return;
         }
-        // If gated, start inactive until first native message
-        this.#autoCaptureActive = !this.getFeatureSettingEnabled('autoCaptureOnFirstMessage', 'disabled');
+        // If gated, disable auto-capture until first native message
+        this.#autoCaptureDisabled = this.getFeatureSettingEnabled('autoCaptureOnFirstMessage', 'disabled');
         this.setupListeners();
     }
 
@@ -246,25 +246,25 @@ export default class PageContext extends ContentFeature {
      */
     setupListeners() {
         // Set up collect subscription (always needed when gated, otherwise based on setting)
-        if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled') || !this.#autoCaptureActive) {
+        if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled') || this.#autoCaptureDisabled) {
             this.messaging.subscribe('collect', () => {
                 this.invalidateCache();
                 this.handleContentCollectionRequest();
 
-                // Activate auto-capture on first message if not already active
-                if (!this.#autoCaptureActive) {
-                    this.#autoCaptureActive = true;
+                // Enable auto-capture on first message if currently disabled
+                if (this.#autoCaptureDisabled) {
+                    this.#autoCaptureDisabled = false;
                     this.log.info('First native message received, activating auto-capture');
                     this.setupAutoCaptureListeners();
                 }
             });
         }
 
-        // Set up auto-capture listeners immediately if active
-        if (this.#autoCaptureActive) {
-            this.setupAutoCaptureListeners();
-        } else {
+        // Set up auto-capture listeners immediately unless disabled
+        if (this.#autoCaptureDisabled) {
             this.log.info('Auto-capture gated behind first native message');
+        } else {
+            this.setupAutoCaptureListeners();
         }
     }
 
@@ -333,7 +333,7 @@ export default class PageContext extends ContentFeature {
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
-        if (!this.#autoCaptureActive || !this.listenForUrlChanges) {
+        if (this.#autoCaptureDisabled || !this.listenForUrlChanges) {
             return;
         }
         if (!this.shouldActivate()) {
