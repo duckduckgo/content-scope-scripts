@@ -225,13 +225,24 @@ export default class PageContext extends ContentFeature {
     /** @type {boolean} */
     #activeCapture = true;
 
-    get listenForUrlChanges() {
+    get shouldListenForUrlChanges() {
         return this.#activeCapture && this.getFeatureSettingEnabled('subscribeToUrlChange', 'enabled');
+    }
+
+    get shouldActivate() {
+        if (isBeingFramed() || isDuckAi()) {
+            return false;
+        }
+        const tabUrl = getTabUrl();
+        if (tabUrl?.protocol === 'duck:') {
+            return false;
+        }
+        return true;
     }
 
     init() {
         this.recheckLimit = this.getFeatureSetting('recheckLimit') || 5;
-        if (!this.shouldActivate()) {
+        if (!this.shouldActivate) {
             return;
         }
         // If gated, disable active capture until first native message
@@ -318,23 +329,11 @@ export default class PageContext extends ContentFeature {
         }
     }
 
-    shouldActivate() {
-        if (isBeingFramed() || isDuckAi()) {
-            return false;
-        }
-        const tabUrl = getTabUrl();
-        // Ignore duck:// urls for now
-        if (tabUrl?.protocol === 'duck:') {
-            return false;
-        }
-        return true;
-    }
-
     /**
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
-        if (!this.listenForUrlChanges || !this.shouldActivate()) {
+        if (!this.shouldListenForUrlChanges || !this.shouldActivate) {
             return;
         }
         this.handleContentCollectionRequest();
