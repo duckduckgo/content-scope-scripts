@@ -310,7 +310,7 @@ export function runYoutubeAdDetection(config = {}) {
 
     // Return accumulated state matching bot/fraud detector structure
     return {
-        detected: state.adsDetected > 0,
+        detected: state.adsDetected > 0 || state.bufferingCount > 0,
         type: 'youtubeAds',
         results: [{
             adsDetected: state.adsDetected,
