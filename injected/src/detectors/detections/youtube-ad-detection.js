@@ -6,18 +6,12 @@ let state = null;
 let observer = null;
 let pollInterval = null;
 let rerootInterval = null;
-let initTime = null;
-let lastNavigationTime = null;
 
 /**
  * Initialize the YouTube ad detector
  * @param {Object} config - Configuration from privacy-config
  */
 function initDetector(config) {
-    // Record init time for approximate load time calculation when content script loads late
-    initTime = performance.now();
-    lastNavigationTime = initTime;
-
     // Selector configuration
     const PLAYER_SELS = config.playerSelectors || ['#movie_player', '.html5-video-player', '#player'];
     const AD_CLASS_EXACT = config.adClasses || [
@@ -32,6 +26,7 @@ function initDetector(config) {
         'ad-interrupting'
     ];
     const SWEEP_INTERVAL = config.sweepIntervalMs || 2000;
+    const SLOW_LOAD_THRESHOLD_MS = config.slowLoadThresholdMs || 2000;
 
     // Text patterns that indicate ads
     const AD_TEXT_PATTERNS = [
@@ -46,8 +41,7 @@ function initDetector(config) {
         adsDetected: 0,
         adCurrentlyShowing: false,
         bufferingCount: 0,
-        videoLoads: 0,
-        loadTimes: []
+        videoLoads: 0
     };
 
     let trackedVideoElement = null;
@@ -151,14 +145,12 @@ function initDetector(config) {
             }
         };
 
-        // Track when video actually starts playing
+        // Track when video actually starts playing - count slow loads as buffering
         const onPlaying = () => {
             if (videoLoadStartTime) {
                 const loadTime = performance.now() - videoLoadStartTime;
-                state.loadTimes.push(Math.round(loadTime));
-                // Keep only last 5
-                if (state.loadTimes.length > 5) {
-                    state.loadTimes.shift();
+                if (loadTime > SLOW_LOAD_THRESHOLD_MS) {
+                    state.bufferingCount++;
                 }
                 videoLoadStartTime = null;
             }
@@ -181,16 +173,8 @@ function initDetector(config) {
                 lastLoggedVideoId = vid;
                 currentVideoId = vid;
                 state.videoLoads++;
-
-                // Use navigation time or init time as approximation for load start
-                const approximateStartTime = lastNavigationTime || initTime;
-                if (approximateStartTime) {
-                    const approximateLoadTime = performance.now() - approximateStartTime;
-                    state.loadTimes.push(Math.round(approximateLoadTime));
-                    if (state.loadTimes.length > 5) {
-                        state.loadTimes.shift();
-                    }
-                }
+                // Can't measure accurate load time since we missed loadstart,
+                // but record that a video loaded
             }
         } else if (vid) {
             // Video not ready yet but we have an ID - set up to catch it
@@ -299,15 +283,9 @@ function initDetector(config) {
         const currentUrl = location.href;
         if (currentUrl !== lastUrl) {
             lastUrl = currentUrl;
-            lastNavigationTime = performance.now();
             // Video tracking will be handled by sweep loop
         }
     }).observe(document, { subtree: true, childList: true });
-
-    // Also listen for YouTube-specific navigation events (more reliable timing)
-    window.addEventListener('yt-navigate-start', () => {
-        lastNavigationTime = performance.now();
-    });
 }
 
 /**
@@ -338,8 +316,7 @@ export function runYoutubeAdDetection(config = {}) {
             adsDetected: state.adsDetected,
             adCurrentlyShowing: state.adCurrentlyShowing,
             bufferingCount: state.bufferingCount,
-            videoLoads: state.videoLoads,
-            loadTimes: state.loadTimes.slice(-5)
+            videoLoads: state.videoLoads
         }]
     };
 }
