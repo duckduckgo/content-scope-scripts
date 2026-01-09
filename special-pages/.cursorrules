@@ -2,8 +2,6 @@
 
 Preact-based HTML/CSS/JS applications embedded in DuckDuckGo browsers. Each page is an isolated app with privileged native API access.
 
-**See also:** `docs/coding-guidelines.md` for code style and best practices.
-
 ## Structure
 
 ```
@@ -14,29 +12,27 @@ pages/<name>/
 ├── types/<name>.ts   # Generated types (DO NOT EDIT)
 ├── public/           # Static assets, index.html, locales/
 └── integration-tests/
+shared/               # Reusable components (Button, Card, Switch, Text) and functions
 ```
 
-**Shared code:** `shared/` contains reusable components (`Button`, `Card`, `Switch`, `Text`), `Environment` class, `TranslationProvider`, and `createSpecialPageMessaging()`.
-
-## Messaging Pattern
+## Code Style
 
 Pages communicate with native via `@duckduckgo/messaging`. Define schemas in `messages/`:
 - `*.request.json` + `*.response.json` → async request/response
 - `*.notify.json` → fire-and-forget notification
 - `*.subscribe.json` → push-based subscription
 
-## TypeScript
+Types in `types/` are auto-generated from `messages/` schemas - never edit these manually.
 
-JSDoc types in JavaScript files. Import types via `@typedef` after imports:
+Use JSDoc types in JavaScript files. Import types via a `@typedef` after imports:
 
 ```javascript
 /** @typedef {import('./types.js').MyType} MyType */
 ```
 
-## Styling
+Use the Page Object pattern (see `integration-tests/<name>.js` for helpers) when writing integration tests.
 
-- Use CSS Modules (`*.module.css`)
-- Global styles: `shared/styles/`
+Localized strings are compiled from multiple `strings.json` files into a single `public/locales/en/<page>.json` file. This is manually uploaded to Smartling to generate each `public/locales/<locale>/<page>.json` file.
 
 ## Testing
 
@@ -45,15 +41,17 @@ Run from `special-pages/` directory:
 | Command | Purpose |
 |---------|---------|
 | `npm run test-unit` | Unit tests |
-| `npm run test-int` | Integration tests (all platforms) |
-| `npm run test-int -- --project ios` | Single platform |
-| `npm run test.screenshots` | Screenshot tests only |
-
-Integration tests use Page Object pattern—see `integration-tests/<name>.js` for helpers.
+| `npm run test-int -- --reporter list` | Integration tests (all platforms) |
+| `npm run test-int -- --project ios --repoter list` | Single platform |
+| `npm run test-int -- --grep "test name" --reporter list` | Run integration tests matching a pattern |
+| `npm run test-int -- pages/new-tab/integration-tests/new-tab.spec.js --reporter list` | Run single integration test suite |
+| `npm run test-int-x -- --reporter list` | Exclude screenshot tests |
+| `npm run test.screenshots -- --reporter list` | Screenshot tests only |
 
 Top-level commands (`npm run build`, `npm run lint`) also work from this directory.
 
 ## Notes
 
-- When running Playwright commands, use `--reporter list` to prevent the Shell tool from hanging
-- Types in `types/` are auto-generated from `messages/` schemas—never edit manually
+- Use `.github/pull_request_template.md` when creating a pull request.
+- Use Netlify links (`https://deploy-preview-<pr-number>--content-scope-scripts.netlify.app/build/pages/<name>/`) in the testing steps of a pull request.
+- Playwright MCP server (if available) or `npx playwright` can be used to validate UI changes if desired. Use `npm run watch -- --page <name>` if user hasn't already done so and then navigate to `http://localhost:8000`.
