@@ -244,9 +244,11 @@ export default class PageContext extends ContentFeature {
                 this.handleContentCollectionRequest();
             });
         }
-        window.addEventListener('load', () => {
-            this.handleContentCollectionRequest();
-        });
+        if (this.getFeatureSettingEnabled('subscribeToLoad', 'enabled')) {
+            window.addEventListener('load', () => {
+                this.handleContentCollectionRequest();
+            });
+        }
         if (this.getFeatureSettingEnabled('subscribeToHashChange', 'enabled')) {
             window.addEventListener('hashchange', () => {
                 this.handleContentCollectionRequest();
@@ -267,16 +269,18 @@ export default class PageContext extends ContentFeature {
         }
 
         // Set up content collection infrastructure
-        if (document.body) {
-            this.setup();
-        } else {
-            window.addEventListener(
-                'DOMContentLoaded',
-                () => {
-                    this.setup();
-                },
-                { once: true },
-            );
+        if (this.getFeatureSettingEnabled('collectOnInit', 'enabled')) {
+            if (document.body) {
+                this.setup();
+            } else {
+                window.addEventListener(
+                    'DOMContentLoaded',
+                    () => {
+                        this.setup();
+                    },
+                    { once: true },
+                );
+            }
         }
     }
 
@@ -296,6 +300,9 @@ export default class PageContext extends ContentFeature {
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
+        if (!this.getFeatureSettingEnabled('subscribeToUrlChange', 'enabled')) {
+            return;
+        }
         if (!this.shouldActivate()) {
             return;
         }
@@ -353,7 +360,7 @@ export default class PageContext extends ContentFeature {
 
     observeContentChanges() {
         // Use MutationObserver to detect content changes
-        if (window.MutationObserver) {
+        if (window.MutationObserver && this.getFeatureSettingEnabled('observeMutations', 'enabled')) {
             this.mutationObserver = new MutationObserver((_mutations) => {
                 this.log.info('MutationObserver', _mutations);
                 // Invalidate cache when content changes
