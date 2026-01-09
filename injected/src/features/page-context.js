@@ -245,8 +245,7 @@ export default class PageContext extends ContentFeature {
      * auto-capture listeners are deferred until the first collect message.
      */
     setupListeners() {
-        // Set up collect subscription (always needed when gated, otherwise based on setting)
-        if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled') || this.#autoCaptureDisabled) {
+        if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
             this.messaging.subscribe('collect', () => {
                 this.invalidateCache();
                 this.handleContentCollectionRequest();
