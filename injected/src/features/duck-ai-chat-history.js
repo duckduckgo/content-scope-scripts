@@ -2,22 +2,29 @@ import ContentFeature from '../content-feature.js';
 
 /**
  * This feature is responsible for retrieving Duck.ai chat history when the `getDuckAiChats`
- * message is received. It retrieves chats from localStorage that are within the last 2 weeks
+ * message is received. It retrieves chats from localStorage that are within the last 2 weeks (default)
  * and sends them to the native app via the `duckAiChatsResult` notification.
  */
 export class DuckAiChatHistory extends ContentFeature {
     /** @type {number} */
-    static TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
+    static DEFAULT_DAYS = 14;
+    /** @type {number} */
+    static MS_PER_DAY = 24 * 60 * 60 * 1000;
 
     init() {
-        this.messaging.subscribe('getDuckAiChats', () => this.getChats());
+        this.messaging.subscribe('getDuckAiChats', (/** @type {{days?: number}} */ params) => this.getChats(params));
 
         this.notify('duckAiChatHistoryReady');
     }
 
-    getChats() {
+    /**
+     * @param {object} [params]
+     * @param {number} [params.days] - Number of days to filter chats (defaults to 14)
+     */
+    getChats(params) {
         try {
-            const chats = this.retrieveRecentChats();
+            const days = params?.days || DuckAiChatHistory.DEFAULT_DAYS;
+            const chats = this.retrieveRecentChats(days);
             this.notify('duckAiChatsResult', {
                 success: true,
                 chats,
@@ -35,12 +42,13 @@ export class DuckAiChatHistory extends ContentFeature {
     }
 
     /**
-     * Retrieves chats from localStorage that are within the last 2 weeks
-     * @returns {Array<object>} Array of chat objects from the last 2 weeks
+     * Retrieves chats from localStorage that are within the specified number of days
+     * @param {number} days - Number of days to filter chats
+     * @returns {Array<object>} Array of chat objects within the specified days
      */
-    retrieveRecentChats() {
+    retrieveRecentChats(days) {
         const localStorageKeys = this.getFeatureSetting('chatsLocalStorageKeys') || ['savedAIChats'];
-        const twoWeeksAgo = Date.now() - DuckAiChatHistory.TWO_WEEKS_MS;
+        const cutoffTime = Date.now() - days * DuckAiChatHistory.MS_PER_DAY;
         const recentChats = [];
 
         for (const localStorageKey of localStorageKeys) {
@@ -73,7 +81,7 @@ export class DuckAiChatHistory extends ContentFeature {
                         return true;
                     }
                     const timestamp = new Date(lastEdit).getTime();
-                    return timestamp >= twoWeeksAgo;
+                    return timestamp >= cutoffTime;
                 });
 
                 recentChats.push(...filteredChats);
