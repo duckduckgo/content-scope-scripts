@@ -224,15 +224,15 @@ export default class PageContext extends ContentFeature {
     recheckCount = 0;
     recheckLimit = 0;
     /** @type {boolean} */
-    #autoCaptureDisabled = false;
+    #activeCaptureDisabled = false;
 
     init() {
         this.recheckLimit = this.getFeatureSetting('recheckLimit') || 5;
         if (!this.shouldActivate()) {
             return;
         }
-        // If gated, disable auto-capture until first native message
-        this.#autoCaptureDisabled = this.getFeatureSettingEnabled('autoCaptureOnFirstMessage', 'disabled');
+        // If gated, disable active capture until first native message
+        this.#activeCaptureDisabled = this.getFeatureSettingEnabled('activeCaptureOnFirstMessage', 'disabled');
         this.setupListeners();
     }
 
@@ -241,8 +241,8 @@ export default class PageContext extends ContentFeature {
     }
 
     /**
-     * Sets up all listeners. When autoCaptureOnFirstMessage is enabled,
-     * auto-capture listeners are deferred until the first collect message.
+     * Sets up all listeners. When activeCaptureOnFirstMessage is enabled,
+     * active capture listeners are deferred until the first collect message.
      */
     setupListeners() {
         if (this.getFeatureSettingEnabled('subscribeToCollect', 'enabled')) {
@@ -250,29 +250,29 @@ export default class PageContext extends ContentFeature {
                 this.invalidateCache();
                 this.handleContentCollectionRequest();
 
-                // Enable auto-capture on first message if currently disabled
-                if (this.#autoCaptureDisabled) {
-                    this.#autoCaptureDisabled = false;
-                    this.log.info('First native message received, activating auto-capture');
-                    this.setupAutoCaptureListeners();
+                // Enable active capture on first message if currently disabled
+                if (this.#activeCaptureDisabled) {
+                    this.#activeCaptureDisabled = false;
+                    this.log.info('First native message received, activating capture');
+                    this.setupActiveCaptureListeners();
                 }
             });
         }
 
-        // Set up auto-capture listeners immediately unless disabled
-        if (this.#autoCaptureDisabled) {
-            this.log.info('Auto-capture gated behind first native message');
+        // Set up active capture listeners immediately unless disabled
+        if (this.#activeCaptureDisabled) {
+            this.log.info('Active capture gated behind first native message');
         } else {
-            this.setupAutoCaptureListeners();
+            this.setupActiveCaptureListeners();
         }
     }
 
     /**
-     * Sets up listeners that automatically capture page content.
+     * Sets up listeners that actively capture page content.
      * These are the listeners that can be gated behind the first native message.
      */
-    setupAutoCaptureListeners() {
-        this.log.info('Setting up auto-capture listeners');
+    setupActiveCaptureListeners() {
+        this.log.info('Setting up active capture listeners');
         this.listenForUrlChanges = this.getFeatureSettingEnabled('subscribeToUrlChange', 'enabled');
         this.observeContentChanges();
 
@@ -332,7 +332,7 @@ export default class PageContext extends ContentFeature {
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
-        if (this.#autoCaptureDisabled || !this.listenForUrlChanges) {
+        if (this.#activeCaptureDisabled || !this.listenForUrlChanges) {
             return;
         }
         if (!this.shouldActivate()) {
