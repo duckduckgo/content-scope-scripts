@@ -1,6 +1,11 @@
 /**
- * @typedef {import("../../types/new-tab.js").NextStepsListData} NextStepsListData
- * @typedef {import("../../types/new-tab.js").NextStepsListConfig} NextStepsListConfig
+ * NextStepsListService reuses the existing nextSteps_* message names
+ * so that native devices can share the same message handlers.
+ * The widget ID is different (nextStepsList vs nextSteps) so native
+ * can decide which UI to show.
+ *
+ * @typedef {import("../../types/new-tab.js").NextStepsData} NextStepsData
+ * @typedef {import("../../types/new-tab.js").NextStepsConfig} NextStepsConfig
  */
 import { Service } from '../service.js';
 
@@ -11,17 +16,19 @@ export class NextStepsListService {
      */
     constructor(ntp) {
         this.ntp = ntp;
-        /** @type {Service<NextStepsListData>} */
+        /** @type {Service<NextStepsData>} */
         this.dataService = new Service({
-            initial: () => ntp.messaging.request('nextStepsList_getData'),
-            subscribe: (cb) => ntp.messaging.subscribe('nextStepsList_onDataUpdate', cb),
+            // Reuse nextSteps_* message names
+            initial: () => ntp.messaging.request('nextSteps_getData'),
+            subscribe: (cb) => ntp.messaging.subscribe('nextSteps_onDataUpdate', cb),
         });
 
-        /** @type {Service<NextStepsListConfig>} */
+        /** @type {Service<NextStepsConfig>} */
         this.configService = new Service({
-            initial: () => ntp.messaging.request('nextStepsList_getConfig'),
-            subscribe: (cb) => ntp.messaging.subscribe('nextStepsList_onConfigUpdate', cb),
-            persist: (data) => ntp.messaging.notify('nextStepsList_setConfig', data),
+            // Reuse nextSteps_* message names
+            initial: () => ntp.messaging.request('nextSteps_getConfig'),
+            subscribe: (cb) => ntp.messaging.subscribe('nextSteps_onConfigUpdate', cb),
+            persist: (data) => ntp.messaging.notify('nextSteps_setConfig', data),
         });
     }
 
@@ -30,7 +37,7 @@ export class NextStepsListService {
     }
 
     /**
-     * @returns {Promise<{data: NextStepsListData; config: NextStepsListConfig}>}
+     * @returns {Promise<{data: NextStepsData; config: NextStepsConfig}>}
      * @internal
      */
     async getInitial() {
@@ -49,7 +56,7 @@ export class NextStepsListService {
     }
 
     /**
-     * @param {(evt: {data: NextStepsListData, source: 'manual' | 'subscription'}) => void} cb
+     * @param {(evt: {data: NextStepsData, source: 'manual' | 'subscription'}) => void} cb
      * @internal
      */
     onData(cb) {
@@ -57,7 +64,7 @@ export class NextStepsListService {
     }
 
     /**
-     * @param {(evt: {data: NextStepsListConfig, source: 'manual' | 'subscription'}) => void} cb
+     * @param {(evt: {data: NextStepsConfig, source: 'manual' | 'subscription'}) => void} cb
      * @internal
      */
     onConfig(cb) {
@@ -80,18 +87,18 @@ export class NextStepsListService {
     }
 
     /**
-     * Dismiss a particular card
+     * Dismiss a particular card - uses nextSteps_dismiss message
      * @param {string} id
      */
     dismiss(id) {
-        this.ntp.messaging.notify('nextStepsList_dismiss', { id });
+        this.ntp.messaging.notify('nextSteps_dismiss', { id });
     }
 
     /**
-     * Perform a primary action on a card
+     * Perform a primary action on a card - uses nextSteps_action message
      * @param {string} id
      */
     action(id) {
-        this.ntp.messaging.notify('nextStepsList_action', { id });
+        this.ntp.messaging.notify('nextSteps_action', { id });
     }
 }
