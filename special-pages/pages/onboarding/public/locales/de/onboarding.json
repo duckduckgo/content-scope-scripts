@@ -289,7 +289,7 @@
     "note" : "Title for the Address Bar Mode feature step in onboarding"
   },
   "addressBarMode_searchAndDuckAi" : {
-    "title" : "Suche &gt; Duck.ai",
+    "title" : "Suche & Duck.ai",
     "note" : "Button label for enabling search with Duck.ai in the address bar"
   },
   "addressBarMode_searchOnly" : {
