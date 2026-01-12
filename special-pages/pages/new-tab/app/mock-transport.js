@@ -4,7 +4,6 @@ import { privacyStatsMocks } from './privacy-stats/mocks/privacy-stats.mocks.js'
 import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js';
 import { favorites, gen } from './favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
-import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 import { subscriptionWinBackBannerDataExamples } from './subscription-winback-banner/mocks/subscriptionWinBackBanner.data.js';
@@ -20,8 +19,6 @@ import { tabsMockTransport } from './tabs/tabs.mock-transport.js';
  * @typedef {import('../types/new-tab').NextStepsConfig} NextStepsConfig
  * @typedef {import('../types/new-tab').NextStepsCards} NextStepsCards
  * @typedef {import('../types/new-tab').NextStepsData} NextStepsData
- * @typedef {import('../types/new-tab').NextStepsListConfig} NextStepsListConfig
- * @typedef {import('../types/new-tab').NextStepsListData} NextStepsListData
  * @typedef {import('../types/new-tab').UpdateNotificationData} UpdateNotificationData
  * @typedef {import('../types/new-tab').NewTabPageSettings} NewTabPageSettings
  * @typedef {import('../types/new-tab').NewTabMessages['subscriptions']['subscriptionEvent']} SubscriptionNames
@@ -98,7 +95,6 @@ export function mockTransport() {
     const rmfSubscriptions = new Map();
     const freemiumPIRBannerSubscriptions = new Map();
     const nextStepsSubscriptions = new Map();
-    const nextStepsListSubscriptions = new Map();
     const subscriptionWinBackBannerSubscriptions = new Map();
 
     function clearRmf() {
@@ -117,16 +113,6 @@ export function mockTransport() {
         for (const listener of listeners) {
             listener(message);
             write('nextSteps_data', message);
-        }
-    }
-
-    function clearNextStepsListItem(itemId, data) {
-        const listeners = nextStepsListSubscriptions.get('nextStepsList_onDataUpdate') || [];
-        const newContent = data.content.filter((item) => item.id !== itemId);
-        const message = { content: newContent };
-        for (const listener of listeners) {
-            listener(message);
-            write('nextStepsList_data', message);
         }
     }
 
@@ -225,15 +211,6 @@ export function mockTransport() {
                     console.log('ignoring nextSteps_dismiss');
                     return;
                 }
-                case 'nextStepsList_dismiss': {
-                    if (msg.params.id) {
-                        const data = read('nextStepsList_data');
-                        clearNextStepsListItem(msg.params.id, data);
-                        return;
-                    }
-                    console.log('ignoring nextStepsList_dismiss');
-                    return;
-                }
                 default: {
                     console.warn('unhandled notification', msg);
                 }
@@ -311,22 +288,11 @@ export function mockTransport() {
                     const next = [...prev];
                     next.push(cb);
                     nextStepsSubscriptions.set('nextSteps_onDataUpdate', next);
-                    const params = url.searchParams.get('next-steps');
-                    if (params && params in nextSteps) {
+                    // Support both next-steps and next-steps-list query params
+                    const hasNextSteps = url.searchParams.has('next-steps');
+                    const hasNextStepsList = url.searchParams.has('next-steps-list');
+                    if (hasNextSteps || hasNextStepsList) {
                         const data = read('nextSteps_data');
-                        cb(data);
-                    }
-
-                    return () => {};
-                }
-                case 'nextStepsList_onDataUpdate': {
-                    const prev = nextStepsListSubscriptions.get('nextStepsList_onDataUpdate') || [];
-                    const next = [...prev];
-                    next.push(cb);
-                    nextStepsListSubscriptions.set('nextStepsList_onDataUpdate', next);
-                    const params = url.searchParams.get('next-steps-list');
-                    if (params) {
-                        const data = read('nextStepsList_data');
                         cb(data);
                     }
 
@@ -487,31 +453,17 @@ export function mockTransport() {
                 case 'nextSteps_getData': {
                     /** @type {NextStepsData} */
                     let data = { content: null };
-                    const ids = url.searchParams.getAll('next-steps');
+                    // Support both next-steps and next-steps-list query params
+                    // Both widgets use the same nextSteps_getData message
+                    const nextStepsIds = url.searchParams.getAll('next-steps');
+                    const nextStepsListIds = url.searchParams.getAll('next-steps-list');
+                    const ids = nextStepsIds.length > 0 ? nextStepsIds : nextStepsListIds;
                     if (ids.length) {
                         /** @type {NextStepsData} */
                         data = {
                             content: ids.map((id) => ({ id: /** @type {any} */ (id) })),
                         };
                         write('nextSteps_data', data);
-                    }
-                    return Promise.resolve(data);
-                }
-                case 'nextStepsList_getConfig': {
-                    /** @type {NextStepsListConfig} */
-                    const config = { expansion: 'collapsed' };
-                    return Promise.resolve(config);
-                }
-                case 'nextStepsList_getData': {
-                    /** @type {NextStepsListData} */
-                    let data = { content: null };
-                    const ids = url.searchParams.getAll('next-steps-list');
-                    if (ids.length) {
-                        /** @type {NextStepsListData} */
-                        data = {
-                            content: ids.map((id) => ({ id: /** @type {any} */ (id) })),
-                        };
-                        write('nextStepsList_data', data);
                     }
                     return Promise.resolve(data);
                 }
@@ -641,6 +593,7 @@ export function initialSetup(url) {
     }
 
     // Insert nextStepsList after omnibar (or at the beginning if omnibar is not present) and before favorites
+    // Note: nextStepsList uses the same nextSteps_* messages, just a different widget ID
     if (url.searchParams.has('next-steps-list')) {
         const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
         widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'nextStepsList' });
