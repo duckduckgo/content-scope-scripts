@@ -443,4 +443,51 @@ test.describe('newtab customizer', () => {
         // Popover should be dismissed
         await expect(cp.themeVariantPopover()).not.toBeVisible();
     });
+
+    test('sends telemetryEvent when drawer opens and closes', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        const cp = new CustomizerPage(ntp);
+        await ntp.reducedMotion();
+        await ntp.openPage();
+
+        await cp.opensCustomizer();
+
+        const openCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+        expect(openCalls[0].payload).toStrictEqual({
+            context: 'specialPages',
+            featureName: 'newTabPage',
+            method: 'telemetryEvent',
+            params: {
+                attributes: { name: 'customizer_drawer', value: 'opened' },
+            },
+        });
+
+        await cp.closesCustomizer();
+
+        const closeCalls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 2 });
+        expect(closeCalls[1].payload).toStrictEqual({
+            context: 'specialPages',
+            featureName: 'newTabPage',
+            method: 'telemetryEvent',
+            params: {
+                attributes: { name: 'customizer_drawer', value: 'closed' },
+            },
+        });
+    });
+
+    test('sends telemetryEvent when drawer auto-opens', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { autoOpen: 'true' } });
+
+        const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+        expect(calls[0].payload).toStrictEqual({
+            context: 'specialPages',
+            featureName: 'newTabPage',
+            method: 'telemetryEvent',
+            params: {
+                attributes: { name: 'customizer_drawer', value: 'opened' },
+            },
+        });
+    });
 });
