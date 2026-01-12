@@ -8,6 +8,7 @@ children:
   - ./activity/activity.md
   - ./favorites/favorites.md
   - ./next-steps/next-steps.md
+  - ./next-steps-list/next-steps-list.md
   - ./customizer/customizer.md
   - ./protections/protections.md
   - ./omnibar/omnibar.md

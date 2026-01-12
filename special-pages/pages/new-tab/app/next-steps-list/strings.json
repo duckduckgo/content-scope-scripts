@@ -1,0 +1,126 @@
+{
+  "nextStepsList_maybeLater": {
+    "title": "Maybe Later",
+    "note": "Secondary button text for dismissing a Next Steps List item"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_title": {
+    "title": "Pin to Taskbar",
+    "note": "Title of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_summary": {
+    "title": "Access DuckDuckGo more easily by pinning it your taskbar.",
+    "note": "Summary of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_pinAppToTaskbarWindows_actionText": {
+    "title": "Pin to Taskbar",
+    "note": "Button text of the Next Steps List card for pinning DDG app to Windows taskbar"
+  },
+  "nextStepsList_addAppToDockMac_title": {
+    "title": "Add to dock",
+    "note": "Title of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_addAppToDockMac_summary": {
+    "title": "Access DuckDuckGo more easily by adding it to your dock.",
+    "note": "Summary of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_addAppToDockMac_actionText": {
+    "title": "Add to Dock",
+    "note": "Button text of the Next Steps List card for adding DDG app to macOS dock"
+  },
+  "nextStepsList_personalize_title": {
+    "title": "Personalize Your Browser",
+    "note": "Title of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_personalize_summary": {
+    "title": "Browse your way by changing background color, updating your theme, and more.",
+    "note": "Summary of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_personalize_actionText": {
+    "title": "Personalize Now",
+    "note": "Button text of the Next Steps List card for personalizing the browser"
+  },
+  "nextStepsList_duckplayer_title": {
+    "title": "YouTube with Fewer Ads",
+    "note": "Title of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_duckplayer_summary": {
+    "title": "Enjoy a clean viewing experience without creepy, personalized ads.",
+    "note": "Summary of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_duckplayer_actionText": {
+    "title": "Open Duck Player",
+    "note": "Button text of the Next Steps List card for Duck Player"
+  },
+  "nextStepsList_emailProtection_title": {
+    "title": "Protect Your Inbox From Spam, Scams, and Trackers",
+    "note": "Title of the Next Steps List card for email protection"
+  },
+  "nextStepsList_emailProtection_summary": {
+    "title": "No switching emails! Our forwarding service zaps the junk before it reaches you.",
+    "note": "Summary of the Next Steps List card for email protection"
+  },
+  "nextStepsList_emailProtection_actionText": {
+    "title": "Get Email Protection",
+    "note": "Button text of the Next Steps List card for email protection"
+  },
+  "nextStepsList_bringStuff_title": {
+    "title": "Import Your Bookmarks",
+    "note": "Title of the Next Steps List card for importing bookmarks"
+  },
+  "nextStepsList_bringStuff_summary": {
+    "title": "Bring your bookmarks over to DuckDuckGo and keep easy access to your top sites.",
+    "note": "Summary of the Next Steps List card for importing bookmarks"
+  },
+  "nextStepsList_bringStuff_actionText": {
+    "title": "Import Now",
+    "note": "Button text of the Next Steps List card for importing bookmarks"
+  },
+  "nextStepsList_bringStuffAll_title": {
+    "title": "Import Your Bookmarks and Passwords to DuckDuckGo",
+    "note": "Title of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_bringStuffAll_summary": {
+    "title": "Securely bring over your bookmarks, passwords, and credit cards details.",
+    "note": "Summary of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_bringStuffAll_actionText": {
+    "title": "Import Now",
+    "note": "Button text of the Next Steps List card for importing bookmarks, passwords, and more"
+  },
+  "nextStepsList_defaultApp_title": {
+    "title": "Take Back Your Privacy!",
+    "note": "Title of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_defaultApp_summary": {
+    "title": "Set DuckDuckGo as your default browser and search privately every time.",
+    "note": "Summary of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_defaultApp_actionText": {
+    "title": "Set as Default",
+    "note": "Button text of the Next Steps List card for setting DDG as default browser"
+  },
+  "nextStepsList_subscription_title": {
+    "title": "Get a Secure VPN + Private, Advanced AI",
+    "note": "Title of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_subscription_summary": {
+    "title": "Subscribe to DuckDuckGo and protect more of what you do online.",
+    "note": "Summary of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_subscription_actionText": {
+    "title": "Try for Free",
+    "note": "Button text of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_sync_title": {
+    "title": "Access Your Online Essentials on All Your Devices",
+    "note": "Title of the Next Steps List card for syncing data across devices"
+  },
+  "nextStepsList_sync_summary": {
+    "title": "Securely sync your bookmarks, passwords, and identity data on mobile and desktop.",
+    "note": "Summary of the Next Steps List card for syncing data across devices"
+  },
+  "nextStepsList_sync_actionText": {
+    "title": "Sync Now",
+    "note": "Button text of the Next Steps List card for syncing data across devices"
+  }
+}
