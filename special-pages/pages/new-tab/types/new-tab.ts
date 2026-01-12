@@ -94,6 +94,10 @@ export type Widgets = WidgetListItem[];
  * Controls a popover that onboards users to the theme variant feature
  */
 export type ShowThemeVariantPopover = boolean;
+export type NextStepsListItemTypes = string;
+export type NextStepsListItems = {
+  id: NextStepsListItemTypes;
+}[];
 export type NextStepsCardTypes =
   | "bringStuff"
   | "defaultApp"
@@ -142,6 +146,9 @@ export interface NewTabMessages {
     | FavoritesSetConfigNotification
     | FreemiumPIRBannerActionNotification
     | FreemiumPIRBannerDismissNotification
+    | NextStepsListActionNotification
+    | NextStepsListDismissNotification
+    | NextStepsListSetConfigNotification
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
@@ -172,6 +179,8 @@ export interface NewTabMessages {
     | FavoritesGetDataRequest
     | FreemiumPIRBannerGetDataRequest
     | InitialSetupRequest
+    | NextStepsListGetConfigRequest
+    | NextStepsListGetDataRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
     | OmnibarGetConfigRequest
@@ -194,6 +203,8 @@ export interface NewTabMessages {
     | FavoritesOnDataUpdateSubscription
     | FavoritesOnRefreshSubscription
     | FreemiumPIRBannerOnDataUpdateSubscription
+    | NextStepsListOnConfigUpdateSubscription
+    | NextStepsListOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
     | OmnibarOnConfigUpdateSubscription
@@ -463,6 +474,37 @@ export interface FreemiumPIRBannerDismissNotification {
 }
 export interface FreemiumPIRBannerDismissAction {
   id: string;
+}
+/**
+ * Generated from @see "../messages/nextStepsList_action.notify.json"
+ */
+export interface NextStepsListActionNotification {
+  method: "nextStepsList_action";
+  params: NextStepsListActionNotify;
+}
+export interface NextStepsListActionNotify {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/nextStepsList_dismiss.notify.json"
+ */
+export interface NextStepsListDismissNotification {
+  method: "nextStepsList_dismiss";
+  params: NextStepsListDismissNotify;
+}
+export interface NextStepsListDismissNotify {
+  id: string;
+}
+/**
+ * Generated from @see "../messages/nextStepsList_setConfig.notify.json"
+ */
+export interface NextStepsListSetConfigNotification {
+  method: "nextStepsList_setConfig";
+  params: NextStepsListConfig;
+}
+export interface NextStepsListConfig {
+  expansion: Expansion;
+  animation?: Animation;
 }
 /**
  * Generated from @see "../messages/nextSteps_action.notify.json"
@@ -955,6 +997,23 @@ export interface Tabs {
   tabIds: string[];
 }
 /**
+ * Generated from @see "../messages/nextStepsList_getConfig.request.json"
+ */
+export interface NextStepsListGetConfigRequest {
+  method: "nextStepsList_getConfig";
+  result: NextStepsListConfig;
+}
+/**
+ * Generated from @see "../messages/nextStepsList_getData.request.json"
+ */
+export interface NextStepsListGetDataRequest {
+  method: "nextStepsList_getData";
+  result: NextStepsListData;
+}
+export interface NextStepsListData {
+  content: null | NextStepsListItems;
+}
+/**
  * Generated from @see "../messages/nextSteps_getConfig.request.json"
  */
 export interface NextStepsGetConfigRequest {
@@ -1203,6 +1262,20 @@ export interface FavoritesRefresh {
 export interface FreemiumPIRBannerOnDataUpdateSubscription {
   subscriptionEvent: "freemiumPIRBanner_onDataUpdate";
   params: FreemiumPIRBannerData;
+}
+/**
+ * Generated from @see "../messages/nextStepsList_onConfigUpdate.subscribe.json"
+ */
+export interface NextStepsListOnConfigUpdateSubscription {
+  subscriptionEvent: "nextStepsList_onConfigUpdate";
+  params: NextStepsListConfig;
+}
+/**
+ * Generated from @see "../messages/nextStepsList_onDataUpdate.subscribe.json"
+ */
+export interface NextStepsListOnDataUpdateSubscription {
+  subscriptionEvent: "nextStepsList_onDataUpdate";
+  params: NextStepsListData;
 }
 /**
  * Generated from @see "../messages/nextSteps_onConfigUpdate.subscribe.json"
