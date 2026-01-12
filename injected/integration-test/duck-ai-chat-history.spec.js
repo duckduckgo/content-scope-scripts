@@ -29,29 +29,54 @@ test.describe('duck-ai-chat-history', () => {
         await collector.load(HTML, CONFIG);
     });
 
-    test('retrieves recent chats with default duration', async ({ page }) => {
+    test('retrieves all chats separated by pinned status', async ({ page }) => {
         await page.click('#setup-data');
 
         const result = await requestChats();
         expect(result.success).toBe(true);
-        expect(result.chats).toHaveLength(2);
-    });
-
-    test('filters chats by custom duration (7 days)', async ({ page }) => {
-        await page.click('#setup-mixed-data');
-
-        const result = await requestChats({ days: 7 });
-        expect(result.success).toBe(true);
+        expect(result.pinnedChats).toHaveLength(1);
         expect(result.chats).toHaveLength(1);
-        expect(result.chats[0].chatId).toBe('chat-recent-1');
+        expect(result.pinnedChats[0].pinned).toBe(true);
+        expect(result.chats[0].pinned).toBe(false);
     });
 
-    test('returns all chats within 14 days by default', async ({ page }) => {
-        await page.click('#setup-mixed-data');
+    test('strips messages from chat objects', async ({ page }) => {
+        await page.click('#setup-data');
 
         const result = await requestChats();
         expect(result.success).toBe(true);
-        expect(result.chats).toHaveLength(2);
+        // Verify messages are not included in the response
+        expect(result.pinnedChats[0].messages).toBeUndefined();
+        expect(result.chats[0].messages).toBeUndefined();
+        // But other properties should still be present
+        expect(result.pinnedChats[0].title).toBeDefined();
+        expect(result.pinnedChats[0].chatId).toBeDefined();
+    });
+
+    test('filters chats by title query', async ({ page }) => {
+        await page.click('#setup-data');
+
+        const result = await requestChats({ query: 'Pinned chat' });
+        expect(result.success).toBe(true);
+        expect(result.pinnedChats).toHaveLength(1);
+        expect(result.chats).toHaveLength(0);
+    });
+
+    test('search is case insensitive', async ({ page }) => {
+        await page.click('#setup-data');
+
+        const result = await requestChats({ query: 'CHAT' });
+        expect(result.success).toBe(true);
+        expect(result.pinnedChats.length + result.chats.length).toBe(2);
+    });
+
+    test('returns empty arrays when no matches found', async ({ page }) => {
+        await page.click('#setup-data');
+
+        const result = await requestChats({ query: 'nonexistent query xyz' });
+        expect(result.success).toBe(true);
+        expect(result.pinnedChats).toHaveLength(0);
+        expect(result.chats).toHaveLength(0);
     });
 
     test('handles empty localStorage gracefully', async ({ page }) => {
@@ -59,6 +84,7 @@ test.describe('duck-ai-chat-history', () => {
 
         const result = await requestChats();
         expect(result.success).toBe(true);
+        expect(result.pinnedChats).toHaveLength(0);
         expect(result.chats).toHaveLength(0);
     });
 
@@ -67,14 +93,7 @@ test.describe('duck-ai-chat-history', () => {
 
         const result = await requestChats();
         expect(result.success).toBe(true);
+        expect(result.pinnedChats).toHaveLength(0);
         expect(result.chats).toHaveLength(0);
-    });
-
-    test('handles large duration parameter (365 days)', async ({ page }) => {
-        await page.click('#setup-mixed-data');
-
-        const result = await requestChats({ days: 365 });
-        expect(result.success).toBe(true);
-        expect(result.chats).toHaveLength(4);
     });
 });
