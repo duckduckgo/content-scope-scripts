@@ -2,6 +2,12 @@
 title: Next Steps List
 ---
 
+## Overview
+
+The Next Steps List widget provides an alternative UI for the Next Steps feature. It displays a single card at a time with a progress indicator, rather than the grid of cards shown by the regular Next Steps widget.
+
+**Important:** This widget reuses the same message names as the [Next Steps](../next-steps/next-steps.md) widget to simplify native integration. Native devices can share the same message handlers for both widgets and simply include a different widget ID to control which UI is displayed.
+
 ## Setup
 
 - Widget ID: `nextStepsList`
@@ -18,75 +24,36 @@ title: Next Steps List
 }
 ```
 
-## Requests:
-### `nextStepsList_getData`
-- {@link "NewTab Messages".NextStepsListGetDataRequest}
-- Used to fetch the initial data (during the first render)
-- returns {@link "NewTab Messages".NextStepsListData} - either `{content: null}` or `{content: Array<{id: string}>}`
-- Note: Please use `null` to represent when there's nothing to show (instead of an empty array.)
-- Example:
+## Messages
 
-```json
-{
-  "content": [
-    { "id": "item1" },
-    { "id": "item2" }
-  ]
-}
-```
+This widget uses the **same message names** as the `nextSteps` widget. See the [Next Steps documentation](../next-steps/next-steps.md) for full details.
 
-or:
+### Requests (reuses nextSteps_*)
+- `nextSteps_getData` - Returns `{content: null}` or `{content: Array<{id: string}>}`
+- `nextSteps_getConfig` - Returns `{expansion: 'expanded' | 'collapsed'}`
 
-```json
-{
-  "content": null
-}
-```
+### Subscriptions (reuses nextSteps_*)
+- `nextSteps_onDataUpdate` - Data updates
+- `nextSteps_onConfigUpdate` - Config updates
 
-### `nextStepsList_getConfig`
-- {@link "NewTab Messages".NextStepsListGetConfigRequest}
-- Used to fetch the initial config (during the first render)
-- returns {@link "NewTab Messages".NextStepsListConfig}
+### Notifications (reuses nextSteps_*)
+- `nextSteps_action` - Sent when user clicks the primary action button
+- `nextSteps_dismiss` - Sent when user clicks "Maybe Later"
+- `nextSteps_setConfig` - Sent when expansion state changes
 
-## Subscriptions:
-### `nextStepsList_onDataUpdate`
-- {@link "NewTab Messages".NextStepsListOnDataUpdateSubscription}.
-- The messages available for the platform
-- returns {@link "NewTab Messages".NextStepsListData}
-- as mentioned in the request, please use `null` to represent when there's nothing to show (instead of an empty array.)
-### `nextStepsList_onConfigUpdate`
-- {@link "NewTab Messages".NextStepsListOnConfigUpdateSubscription}.
-- The widget-specific config, to toggle things like the expansion
-- returns {@link "NewTab Messages".NextStepsListConfig}
+## Supported Item IDs
 
-## Notifications:
-### `nextStepsList_action`
-- {@link "NewTab Messages".NextStepsListActionNotification}
-- Sent when the user clicks the action button
-- sends {@link "NewTab Messages".NextStepsListActionNotify}
-- example payload:
-```json
-{
-  "id": "item1"
-}
-```
-### `nextStepsList_dismiss`
-- {@link "NewTab Messages".NextStepsListDismissNotification}
-- Sent when the user clicks the dismiss button
-- sends {@link "NewTab Messages".NextStepsListDismissNotify}
-- example payload:
-```json
-{
-  "id": "item1"
-}
-```
-### `nextStepsList_setConfig`
-- {@link "NewTab Messages".NextStepsListSetConfigNotification}
-- Sent when the user toggles the expansion of the next steps list
-- sends {@link "NewTab Messages".NextStepsListConfig}
-- example payload:
-```json
-{
-  "expansion": "collapsed"
-}
-```
+The following IDs are supported for the Next Steps List:
+
+| ID | Description |
+|----|-------------|
+| `pinAppToTaskbarWindows` | Pin to Taskbar (Windows) |
+| `addAppToDockMac` | Add to Dock (Mac) |
+| `personalize` | Personalize Your Browser |
+| `duckplayer` | Duck Player |
+| `emailProtection` | Email Protection |
+| `bringStuff` | Import Bookmarks |
+| `bringStuffAll` | Import Bookmarks and Passwords |
+| `defaultApp` | Set as Default Browser |
+| `subscription` | DuckDuckGo Subscription |
+| `sync` | Sync Across Devices |

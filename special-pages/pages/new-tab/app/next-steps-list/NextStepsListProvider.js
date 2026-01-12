@@ -5,10 +5,13 @@ import { NextStepsListService } from './next-steps-list.service.js';
 import { reducer, useConfigSubscription, useDataSubscription, useInitialDataAndConfig } from '../service.hooks.js';
 
 /**
- * @typedef {import('../../types/new-tab.js').NextStepsListData} NextStepsListData
- * @typedef {import('../../types/new-tab.js').NextStepsListConfig} NextStepsListConfig
- * @typedef {import('../service.hooks.js').State<NextStepsListData, NextStepsListConfig>} State
- * @typedef {import('../service.hooks.js').Events<NextStepsListData, NextStepsListConfig>} Events
+ * NextStepsList reuses the NextSteps data/config types since it shares
+ * the same message names with the NextSteps widget.
+ *
+ * @typedef {import('../../types/new-tab.js').NextStepsData} NextStepsData
+ * @typedef {import('../../types/new-tab.js').NextStepsConfig} NextStepsConfig
+ * @typedef {import('../service.hooks.js').State<NextStepsData, NextStepsConfig>} State
+ * @typedef {import('../service.hooks.js').Events<NextStepsData, NextStepsConfig>} Events
  */
 
 /**
