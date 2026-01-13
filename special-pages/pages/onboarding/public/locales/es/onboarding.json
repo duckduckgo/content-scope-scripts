@@ -297,7 +297,7 @@
     "note" : "Button label for search only mode in the address bar"
   },
   "addressBarMode_footer" : {
-    "title" : "Las funciones de IA son privadas y opcionales. Puedes realizar cambios en <b>Ajustes & Funciones de</b> IA.",
+    "title" : "Las funciones de IA son privadas y opcionales. Puedes realizar cambios en <b>Ajustes & Funciones de IA</b>.",
     "note" : "Footer text explaining AI features are optional and can be changed in settings. The <b> tag is used to bold the settings path."
   },
   "customize_title_v3" : {
