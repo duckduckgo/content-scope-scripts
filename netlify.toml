@@ -5,5 +5,5 @@ ignore = "git log -1 --pretty=%B | grep dependabot"
 
 # Prevent Netlify from auto-installing Swift
 [build.environment]
-SWIFT_VERSION = ""
+SWIFT_VERSION = "5.9"
 SKIP_SWIFT_INSTALL = "true"
