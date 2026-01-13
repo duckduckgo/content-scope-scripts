@@ -22,6 +22,7 @@ let package = Package(
             resources: [
                 .process("dist/contentScope.js"),
                 .process("dist/contentScopeIsolated.js"),
+                .process("dist/duckAiDataClearing.js"),
                 .copy("dist/pages"),
             ]
         ),
