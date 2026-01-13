@@ -4,6 +4,7 @@ import { signal, useComputed, useSignal, useSignalEffect } from '@preact/signals
 import { useThemes } from './themes.js';
 import { applyDefaultStyles } from './utils.js';
 import { useDrawerEventListeners } from '../components/Drawer.js';
+import { useMessaging } from '../types.js';
 
 /**
  * @typedef {import('../../types/new-tab.js').CustomizerData} CustomizerData
@@ -77,6 +78,7 @@ export const CustomizerContext = createContext({
 export function CustomizerProvider({ service, initialData, children }) {
     // const [state, dispatch] = useReducer(withLog('RMFProvider', reducer), initial)
     const data = useSignal(initialData);
+    const ntp = useMessaging();
     const { main, browser, variant } = useThemes(data);
 
     useSignalEffect(() => {
@@ -163,13 +165,18 @@ export function CustomizerProvider({ service, initialData, children }) {
             onOpen: () => {
                 drawerOpenCount.value++;
                 service.dismissThemeVariantPopover();
+                ntp.telemetryEvent({ attributes: { name: 'customizer_drawer', value: 'opened' } });
             },
-            onToggle: () => {
+            onClose: () => {
+                ntp.telemetryEvent({ attributes: { name: 'customizer_drawer', value: 'closed' } });
+            },
+            onToggle: (state) => {
                 drawerOpenCount.value++;
                 service.dismissThemeVariantPopover();
+                ntp.telemetryEvent({ attributes: { name: 'customizer_drawer', value: state === 'visible' ? 'opened' : 'closed' } });
             },
         },
-        [service],
+        [service, ntp],
     );
 
     return (
