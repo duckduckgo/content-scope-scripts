@@ -4,6 +4,16 @@ This document provides platform-specific build instructions, troubleshooting ste
 
 ---
 
+## Debugging with Source Maps
+
+Enable inline source maps to see original file names and line numbers in browser DevTools instead of the bundled output (e.g., `web-compat.js:142` instead of `contentScope.js:10484`).
+
+```bash
+C_S_S_SOURCEMAPS=1 npm run build
+```
+
+---
+
 ## iOS/macOS
 
 - **Check Xcode Version:**

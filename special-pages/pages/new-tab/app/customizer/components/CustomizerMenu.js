@@ -1,8 +1,10 @@
-import { h } from 'preact';
-import { useEffect } from 'preact/hooks';
+import { Fragment, h } from 'preact';
+import { useContext, useEffect } from 'preact/hooks';
 import styles from './Customizer.module.css';
-import { CustomizeIcon } from '../../components/Icons.js';
+import { CustomizeIcon, NewTabOptionsIcon } from '../../components/Icons.js';
 import { useMessaging, useTypedTranslation } from '../../types.js';
+import { CustomizerContext } from '../CustomizerProvider.js';
+import { Popover } from '../../components/Popover.js';
 
 /**
  * @import { WidgetVisibility, VisibilityMenuItem } from '../../../types/new-tab.js'
@@ -75,21 +77,36 @@ export function useContextMenu() {
  */
 export function CustomizerButton({ menuId, buttonId, isOpen, toggleMenu, buttonRef, kind }) {
     const { t } = useTypedTranslation();
+    const { data, dismissThemeVariantPopover } = useContext(CustomizerContext);
+
     return (
-        <button
-            ref={buttonRef}
-            class={styles.customizeButton}
-            onClick={toggleMenu}
-            aria-haspopup="true"
-            aria-expanded={isOpen}
-            aria-controls={menuId}
-            data-kind={kind}
-            id={buttonId}
-            data-testid="customizer-button"
-        >
-            <CustomizeIcon />
-            <span>{t('ntp_customizer_button')}</span>
-        </button>
+        <>
+            <button
+                ref={buttonRef}
+                class={styles.customizeButton}
+                onClick={toggleMenu}
+                aria-haspopup="true"
+                aria-expanded={isOpen}
+                aria-controls={menuId}
+                data-kind={kind}
+                id={buttonId}
+                data-testid="customizer-button"
+            >
+                <CustomizeIcon />
+                <span>{t('ntp_customizer_button')}</span>
+            </button>
+            {data.value.showThemeVariantPopover && (
+                <Popover
+                    className={styles.popover}
+                    image={<NewTabOptionsIcon width="72" height="72" />}
+                    title={t('customizer_themeVariantPopoverTitle')}
+                    position="bottomRight"
+                    onClose={dismissThemeVariantPopover}
+                >
+                    {t('customizer_themeVariantPopoverDescription')}
+                </Popover>
+            )}
+        </>
     );
 }
 
