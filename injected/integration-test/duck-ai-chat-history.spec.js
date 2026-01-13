@@ -19,6 +19,42 @@ test.describe('duck-ai-chat-history', () => {
         return messages[0].payload.params;
     }
 
+    /**
+     * Helper to setup many chats in localStorage
+     * @param {import('@playwright/test').Page} page
+     * @param {number} pinnedCount
+     * @param {number} unpinnedCount
+     */
+    async function setupManyChats(page, pinnedCount, unpinnedCount) {
+        await page.evaluate(
+            ({ pinned, unpinned }) => {
+                const chats = [];
+                for (let i = 0; i < pinned; i++) {
+                    chats.push({
+                        chatId: `chat-pinned-${i}`,
+                        title: `Pinned chat ${i}`,
+                        model: 'gpt-4.1-internal',
+                        messages: [{ content: 'test', role: 'user' }],
+                        lastEdit: new Date().toISOString(),
+                        pinned: true,
+                    });
+                }
+                for (let i = 0; i < unpinned; i++) {
+                    chats.push({
+                        chatId: `chat-unpinned-${i}`,
+                        title: `Regular chat ${i}`,
+                        model: 'gpt-4.1-internal',
+                        messages: [{ content: 'test', role: 'user' }],
+                        lastEdit: new Date().toISOString(),
+                        pinned: false,
+                    });
+                }
+                localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+            },
+            { pinned: pinnedCount, unpinned: unpinnedCount },
+        );
+    }
+
     test.beforeEach(async ({ page }, testInfo) => {
         collector = ResultsCollector.create(page, testInfo.project.use);
         collector.withUserPreferences({
@@ -99,7 +135,7 @@ test.describe('duck-ai-chat-history', () => {
 
     test('limits unpinned chats by default max_chats (30)', async ({ page }) => {
         // Setup 5 pinned and 50 unpinned chats
-        await page.evaluate(() => window.setupManyChats(5, 50));
+        await setupManyChats(page, 5, 50);
 
         const result = await requestChats();
         expect(result.success).toBe(true);
@@ -111,7 +147,7 @@ test.describe('duck-ai-chat-history', () => {
 
     test('respects custom max_chats parameter for unpinned chats', async ({ page }) => {
         // Setup 3 pinned and 20 unpinned chats
-        await page.evaluate(() => window.setupManyChats(3, 20));
+        await setupManyChats(page, 3, 20);
 
         const result = await requestChats({ max_chats: 10 });
         expect(result.success).toBe(true);
@@ -123,7 +159,7 @@ test.describe('duck-ai-chat-history', () => {
 
     test('returns all unpinned chats when max_chats exceeds available', async ({ page }) => {
         // Setup 2 pinned and 5 unpinned chats
-        await page.evaluate(() => window.setupManyChats(2, 5));
+        await setupManyChats(page, 2, 5);
 
         const result = await requestChats({ max_chats: 100 });
         expect(result.success).toBe(true);
@@ -133,7 +169,7 @@ test.describe('duck-ai-chat-history', () => {
 
     test('pinned chats have no limit regardless of max_chats', async ({ page }) => {
         // Setup 50 pinned and 10 unpinned chats
-        await page.evaluate(() => window.setupManyChats(50, 10));
+        await setupManyChats(page, 50, 10);
 
         const result = await requestChats({ max_chats: 5 });
         expect(result.success).toBe(true);

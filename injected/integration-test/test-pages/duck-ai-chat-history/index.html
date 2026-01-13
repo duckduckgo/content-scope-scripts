@@ -65,18 +65,6 @@
             }
         });
 
-        // Setup many chats to test max_chats limit
-        window.setupManyChats = function(pinnedCount, unpinnedCount) {
-            const chats = [];
-            for (let i = 0; i < pinnedCount; i++) {
-                chats.push(createChat(`chat-pinned-${i}`, `Pinned chat ${i}`, true));
-            }
-            for (let i = 0; i < unpinnedCount; i++) {
-                chats.push(createChat(`chat-unpinned-${i}`, `Regular chat ${i}`, false));
-            }
-            const chatData = { version: '0.7', chats };
-            localStorage.setItem('savedAIChats', JSON.stringify(chatData));
-        };
         
         // Clear all data
         document.getElementById('clear-data').addEventListener('click', () => {
