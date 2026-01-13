@@ -120,7 +120,7 @@ test.describe('Breakage Reporting Feature', () => {
         expect(result.params?.detectorData?.adwallDetection.results.length).toBeGreaterThan(0);
 
         const adwallResult = result.params?.detectorData?.adwallDetection.results[0];
-        expect(adwallResult.patternId).toBe('generic');
+        expect(adwallResult.detectorId).toBe('generic');
         expect(adwallResult.detected).toBe(true);
     });
 

@@ -3,7 +3,7 @@ import { checkTextPatterns } from '../utils/detection-utils.js';
 /**
  * @typedef {object} AdwallMatch
  * @property {boolean} detected
- * @property {string} patternId
+ * @property {string} detectorId
  */
 
 /**
@@ -24,17 +24,17 @@ export function runAdwallDetection(config = {}) {
     /** @type {AdwallMatch[]} */
     const results = [];
 
-    for (const [patternId, patternConfig] of Object.entries(config)) {
-        if (patternConfig?.state !== 'enabled') {
+    for (const [detectorId, detectorConfig] of Object.entries(config)) {
+        if (detectorConfig?.state !== 'enabled') {
             continue;
         }
 
         // Check for text patterns in the document body or specific selectors
-        const detected = detectAdwall(patternConfig);
+        const detected = detectAdwall(detectorConfig);
         if (detected) {
             results.push({
                 detected: true,
-                patternId,
+                detectorId,
             });
         }
     }
