@@ -458,7 +458,7 @@ test.describe('newtab customizer', () => {
             featureName: 'newTabPage',
             method: 'telemetryEvent',
             params: {
-                attributes: { name: 'customizer_drawer', value: 'opened' },
+                attributes: { name: 'customizer_drawer', value: { state: 'opened', themeVariantPopoverWasOpen: false } },
             },
         });
 
@@ -470,7 +470,7 @@ test.describe('newtab customizer', () => {
             featureName: 'newTabPage',
             method: 'telemetryEvent',
             params: {
-                attributes: { name: 'customizer_drawer', value: 'closed' },
+                attributes: { name: 'customizer_drawer', value: { state: 'closed' } },
             },
         });
     });
@@ -486,7 +486,28 @@ test.describe('newtab customizer', () => {
             featureName: 'newTabPage',
             method: 'telemetryEvent',
             params: {
-                attributes: { name: 'customizer_drawer', value: 'opened' },
+                attributes: { name: 'customizer_drawer', value: { state: 'opened', themeVariantPopoverWasOpen: false } },
+            },
+        });
+    });
+
+    test('sends telemetryEvent with themeVariantPopoverWasOpen when drawer opens while popover is visible', async ({
+        page,
+    }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ additional: { 'customizer.showThemeVariantPopover': true, themeVariant: 'default' } });
+
+        const cp = new CustomizerPage(ntp);
+        await cp.opensCustomizer();
+
+        const calls = await ntp.mocks.waitForCallCount({ method: 'telemetryEvent', count: 1 });
+        expect(calls[0].payload).toStrictEqual({
+            context: 'specialPages',
+            featureName: 'newTabPage',
+            method: 'telemetryEvent',
+            params: {
+                attributes: { name: 'customizer_drawer', value: { state: 'opened', themeVariantPopoverWasOpen: true } },
             },
         });
     });

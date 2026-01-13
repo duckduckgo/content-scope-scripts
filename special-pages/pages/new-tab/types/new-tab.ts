@@ -690,7 +690,13 @@ export interface ExampleTelemetryEvent {
 }
 export interface CustomizerDrawerState {
   name: "customizer_drawer";
-  value: "opened" | "closed";
+  value: {
+    state: "opened" | "closed";
+    /**
+     * True if the theme variant popover was visible when the drawer was opened
+     */
+    themeVariantPopoverWasOpen?: boolean;
+  };
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"
