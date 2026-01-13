@@ -32,44 +32,29 @@
         const dataStatus = document.getElementById('data-status');
         const currentData = document.getElementById('current-data');
         
+        // Helper to create a chat object
+        function createChat(id, title, pinned = false) {
+            return {
+                chatId: id,
+                title: title,
+                model: 'gpt-4.1-internal',
+                messages: [
+                    { createdAt: new Date().toISOString(), content: 'Test message', role: 'user' },
+                    { createdAt: new Date().toISOString(), content: '', role: 'assistant', parts: [{ type: 'text', text: 'Response' }] }
+                ],
+                lastEdit: new Date().toISOString(),
+                pinned: pinned
+            };
+        }
+
         // Setup test data with pinned and unpinned chats
         document.getElementById('setup-data').addEventListener('click', () => {
             try {
                 const chatData = {
                     version: '0.7',
                     chats: [
-                        {
-                            chatId: 'chat-pinned-1',
-                            title: 'Pinned chat',
-                            model: 'gpt-4.1-internal',
-                            messages: [
-                                { createdAt: new Date().toISOString(), content: 'Important question', role: 'user' },
-                                { 
-                                    createdAt: new Date().toISOString(), 
-                                    content: '', 
-                                    role: 'assistant',
-                                    parts: [{ type: 'text', text: 'Important answer' }]
-                                }
-                            ],
-                            lastEdit: new Date().toISOString(),
-                            pinned: true
-                        },
-                        {
-                            chatId: 'chat-unpinned-1',
-                            title: 'Regular chat',
-                            model: 'gpt-4.1-internal',
-                            messages: [
-                                { createdAt: new Date().toISOString(), content: 'Hello', role: 'user' },
-                                { 
-                                    createdAt: new Date().toISOString(), 
-                                    content: '', 
-                                    role: 'assistant',
-                                    parts: [{ type: 'text', text: 'Hi there!' }]
-                                }
-                            ],
-                            lastEdit: new Date().toISOString(),
-                            pinned: false
-                        }
+                        createChat('chat-pinned-1', 'Pinned chat', true),
+                        createChat('chat-unpinned-1', 'Regular chat', false)
                     ]
                 };
                 
@@ -79,6 +64,19 @@
                 dataStatus.textContent = 'Error: ' + error.message;
             }
         });
+
+        // Setup many chats to test max_chats limit
+        window.setupManyChats = function(pinnedCount, unpinnedCount) {
+            const chats = [];
+            for (let i = 0; i < pinnedCount; i++) {
+                chats.push(createChat(`chat-pinned-${i}`, `Pinned chat ${i}`, true));
+            }
+            for (let i = 0; i < unpinnedCount; i++) {
+                chats.push(createChat(`chat-unpinned-${i}`, `Regular chat ${i}`, false));
+            }
+            const chatData = { version: '0.7', chats };
+            localStorage.setItem('savedAIChats', JSON.stringify(chatData));
+        };
         
         // Clear all data
         document.getElementById('clear-data').addEventListener('click', () => {

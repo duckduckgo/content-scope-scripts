@@ -2,28 +2,27 @@ import ContentFeature from '../content-feature.js';
 
 /**
  * This feature is responsible for retrieving Duck.ai chat history when the `getDuckAiChats`
- * message is received. It retrieves chats from localStorage within the last 2 weeks,
- * optionally filters them by a search query, then sends them to the native app via
- * the `duckAiChatsResult` notification.
+ * message is received. It retrieves chats from localStorage, optionally filters them by a
+ * search query, then sends them to the native app via the `duckAiChatsResult` notification.
  */
 export class DuckAiChatHistory extends ContentFeature {
-    /** @type {number} Two weeks in milliseconds */
-    static TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
+    /** @type {number} Default maximum number of chats to return */
+    static DEFAULT_MAX_CHATS = 30;
 
     init() {
-        this.messaging.subscribe('getDuckAiChats', (/** @type {{query?: string}} */ params) => this.getChats(params));
-
-        this.notify('duckAiChatHistoryReady');
+        this.messaging.subscribe('getDuckAiChats', (/** @type {{query?: string, max_chats?: number}} */ params) => this.getChats(params));
     }
 
     /**
      * @param {object} [params]
      * @param {string} [params.query] - Search query to filter chats by title
+     * @param {number} [params.max_chats] - Maximum number of unpinned chats to return (default: 30, pinned chats have no limit)
      */
     getChats(params) {
         try {
             const query = params?.query?.toLowerCase().trim() || '';
-            const { pinnedChats, chats } = this.retrieveChats(query);
+            const maxChats = params?.max_chats ?? DuckAiChatHistory.DEFAULT_MAX_CHATS;
+            const { pinnedChats, chats } = this.retrieveChats(query, maxChats);
             this.notify('duckAiChatsResult', {
                 success: true,
                 pinnedChats,
@@ -45,9 +44,10 @@ export class DuckAiChatHistory extends ContentFeature {
     /**
      * Retrieves chats from localStorage, optionally filtered by search query
      * @param {string} query - Search query (empty string returns all chats)
+     * @param {number} maxChats - Maximum number of unpinned chats to return (pinned chats have no limit)
      * @returns {{pinnedChats: Array<object>, chats: Array<object>}} Pinned and unpinned chat arrays
      */
-    retrieveChats(query) {
+    retrieveChats(query, maxChats) {
         const localStorageKeys = this.getFeatureSetting('chatsLocalStorageKeys') || ['savedAIChats'];
         const pinnedChats = [];
         const chats = [];
@@ -74,18 +74,16 @@ export class DuckAiChatHistory extends ContentFeature {
                     continue;
                 }
 
-                // Filter to chats within the last 2 weeks
-                const recentChats = dataChats.filter((chat) => this.isWithinTwoWeeks(chat));
-
                 // Filter by query if provided
-                const matchingChats = query ? recentChats.filter((chat) => this.chatMatchesQuery(chat, query)) : recentChats;
+                const matchingChats = query ? dataChats.filter((chat) => this.chatMatchesQuery(chat, query)) : dataChats;
 
                 // Separate into pinned and unpinned
+                // Pinned: no limit, Unpinned: respect maxChats limit
                 for (const chat of matchingChats) {
                     const formattedChat = this.formatChat(chat);
                     if (chat.pinned) {
                         pinnedChats.push(formattedChat);
-                    } else {
+                    } else if (chats.length < maxChats) {
                         chats.push(formattedChat);
                     }
                 }
@@ -108,28 +106,15 @@ export class DuckAiChatHistory extends ContentFeature {
     }
 
     /**
-     * Checks if a chat matches the search query by title
+     * Checks if a chat matches the search query by checking if all query words appear in title
      * @param {object} chat - Chat object
      * @param {string} query - Lowercase search query
-     * @returns {boolean} True if chat title matches the query
+     * @returns {boolean} True if chat title contains all query words
      */
     chatMatchesQuery(chat, query) {
-        return chat.title?.toLowerCase().includes(query) ?? false;
-    }
-
-    /**
-     * Checks if a chat was edited within the last 2 weeks
-     * @param {object} chat - Chat object
-     * @returns {boolean} True if chat is within 2 weeks
-     */
-    isWithinTwoWeeks(chat) {
-        const lastEdit = chat.lastEdit;
-        if (!lastEdit) {
-            return true; // Include chats without lastEdit
-        }
-        const timestamp = new Date(lastEdit).getTime();
-        const cutoffTime = Date.now() - DuckAiChatHistory.TWO_WEEKS_MS;
-        return timestamp >= cutoffTime;
+        const title = chat.title?.toLowerCase() ?? '';
+        const words = query.split(/\s+/).filter((w) => w);
+        return words.every((word) => title.includes(word));
     }
 }
 

@@ -96,4 +96,50 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.pinnedChats).toHaveLength(0);
         expect(result.chats).toHaveLength(0);
     });
+
+    test('limits unpinned chats by default max_chats (30)', async ({ page }) => {
+        // Setup 5 pinned and 50 unpinned chats
+        await page.evaluate(() => window.setupManyChats(5, 50));
+
+        const result = await requestChats();
+        expect(result.success).toBe(true);
+        // All pinned chats returned (no limit)
+        expect(result.pinnedChats).toHaveLength(5);
+        // Unpinned limited to default 30
+        expect(result.chats).toHaveLength(30);
+    });
+
+    test('respects custom max_chats parameter for unpinned chats', async ({ page }) => {
+        // Setup 3 pinned and 20 unpinned chats
+        await page.evaluate(() => window.setupManyChats(3, 20));
+
+        const result = await requestChats({ max_chats: 10 });
+        expect(result.success).toBe(true);
+        // All pinned chats returned (no limit)
+        expect(result.pinnedChats).toHaveLength(3);
+        // Unpinned limited to 10
+        expect(result.chats).toHaveLength(10);
+    });
+
+    test('returns all unpinned chats when max_chats exceeds available', async ({ page }) => {
+        // Setup 2 pinned and 5 unpinned chats
+        await page.evaluate(() => window.setupManyChats(2, 5));
+
+        const result = await requestChats({ max_chats: 100 });
+        expect(result.success).toBe(true);
+        expect(result.pinnedChats).toHaveLength(2);
+        expect(result.chats).toHaveLength(5);
+    });
+
+    test('pinned chats have no limit regardless of max_chats', async ({ page }) => {
+        // Setup 50 pinned and 10 unpinned chats
+        await page.evaluate(() => window.setupManyChats(50, 10));
+
+        const result = await requestChats({ max_chats: 5 });
+        expect(result.success).toBe(true);
+        // All 50 pinned chats returned
+        expect(result.pinnedChats).toHaveLength(50);
+        // Unpinned limited to 5
+        expect(result.chats).toHaveLength(5);
+    });
 });
