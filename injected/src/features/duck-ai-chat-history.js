@@ -2,10 +2,14 @@ import ContentFeature from '../content-feature.js';
 
 /**
  * This feature is responsible for retrieving Duck.ai chat history when the `getDuckAiChats`
- * message is received. It retrieves chats from localStorage and optionally filters them
- * by a search query, then sends them to the native app via the `duckAiChatsResult` notification.
+ * message is received. It retrieves chats from localStorage within the last 2 weeks,
+ * optionally filters them by a search query, then sends them to the native app via
+ * the `duckAiChatsResult` notification.
  */
 export class DuckAiChatHistory extends ContentFeature {
+    /** @type {number} Two weeks in milliseconds */
+    static TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
+
     init() {
         this.messaging.subscribe('getDuckAiChats', (/** @type {{query?: string}} */ params) => this.getChats(params));
 
@@ -70,8 +74,11 @@ export class DuckAiChatHistory extends ContentFeature {
                     continue;
                 }
 
-                // Filter by query if provided, otherwise use all chats
-                const matchingChats = query ? dataChats.filter((chat) => this.chatMatchesQuery(chat, query)) : dataChats;
+                // Filter to chats within the last 2 weeks
+                const recentChats = dataChats.filter((chat) => this.isWithinTwoWeeks(chat));
+
+                // Filter by query if provided
+                const matchingChats = query ? recentChats.filter((chat) => this.chatMatchesQuery(chat, query)) : recentChats;
 
                 // Separate into pinned and unpinned
                 for (const chat of matchingChats) {
@@ -108,6 +115,21 @@ export class DuckAiChatHistory extends ContentFeature {
      */
     chatMatchesQuery(chat, query) {
         return chat.title?.toLowerCase().includes(query) ?? false;
+    }
+
+    /**
+     * Checks if a chat was edited within the last 2 weeks
+     * @param {object} chat - Chat object
+     * @returns {boolean} True if chat is within 2 weeks
+     */
+    isWithinTwoWeeks(chat) {
+        const lastEdit = chat.lastEdit;
+        if (!lastEdit) {
+            return true; // Include chats without lastEdit
+        }
+        const timestamp = new Date(lastEdit).getTime();
+        const cutoffTime = Date.now() - DuckAiChatHistory.TWO_WEEKS_MS;
+        return timestamp >= cutoffTime;
     }
 }
 
