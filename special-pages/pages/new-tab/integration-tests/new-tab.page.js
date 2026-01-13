@@ -66,6 +66,7 @@ export class NewtabPage {
      * @param {boolean} [params.willThrow] - Optional flag to simulate an exception
      * @param {string|number} [params.favorites] - Optional flag to preload a list of favorites
      * @param {string|string[]} [params.nextSteps] - Optional flag to load Next Steps cards
+     * @param {string|string[]} [params.nextStepsList] - Optional flag to load Next Steps List widget
      * @param {Record<string, any>} [params.additional] - Optional map of key/values to add
      * @param {string} [params.rmf] - Optional flag to add certain rmf example
      * @param {string} [params.updateNotification] - Optional flag to point to display=components view with certain rmf example visible
@@ -80,6 +81,7 @@ export class NewtabPage {
         willThrow = false,
         favorites,
         nextSteps,
+        nextStepsList,
         rmf,
         pir,
         updateNotification,
@@ -102,6 +104,16 @@ export class NewtabPage {
             } else if (Array.isArray(nextSteps)) {
                 for (const step of nextSteps) {
                     searchParams.append('next-steps', step);
+                }
+            }
+        }
+
+        if (nextStepsList !== undefined) {
+            if (typeof nextStepsList === 'string') {
+                searchParams.set('next-steps-list', nextStepsList);
+            } else if (Array.isArray(nextStepsList)) {
+                for (const step of nextStepsList) {
+                    searchParams.append('next-steps-list', step);
                 }
             }
         }

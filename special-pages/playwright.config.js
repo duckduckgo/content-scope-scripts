@@ -28,6 +28,7 @@ export default defineConfig({
                 'subscription-winback-banner.spec.js',
                 'new-tab.spec.js',
                 'next-steps.spec.js',
+                'next-steps-list.spec.js',
                 'privacy-stats.spec.js',
                 'rmf.spec.js',
                 'update-notification.spec.js',
