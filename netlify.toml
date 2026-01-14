@@ -2,3 +2,8 @@
 command = "npm ci && npm run docs-netlify"
 publish = "docs"
 ignore = "git log -1 --pretty=%B | grep dependabot"
+
+# Prevent Netlify from auto-installing Swift
+[build.environment]
+SWIFT_VERSION = "6.2.3"
+SKIP_SWIFT_INSTALL = "true"
