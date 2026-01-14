@@ -1,4 +1,1 @@
-- Onboarding: Add AddressBarMode step (#2157)
-- Add customizer drawer open/close telemetry (#2167)
-- Remove redundant lint/stylelint/unit-test steps from snapshots workflow (#2166)
-- Update .cursorrules files (#2159)
+- CSS swift package integration (#2171)
