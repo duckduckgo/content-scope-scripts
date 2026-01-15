@@ -398,6 +398,9 @@ export default class PageContext extends ContentFeature {
 
                 this.scheduleDelayedRecheck();
             });
+            // Start observing immediately if we already have cached content
+            // (e.g., when activeCaptureOnFirstMessage is enabled and content was collected before observer creation)
+            this.startObserving();
         }
     }
 
