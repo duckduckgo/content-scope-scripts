@@ -555,12 +555,7 @@ test.describe('onboarding', () => {
                     order: 'v3',
                 });
                 await onboarding.reducedMotion();
-                await onboarding.openPage({ env: 'app', page: 'customize' });
-
-                // skipped all
-                await onboarding.skippedBookmarksBar();
-                await onboarding.skippedSessionRestore();
-                await onboarding.skippedShowHomeButton();
+                await onboarding.openPage({ env: 'app', page: 'addressBarMode' });
 
                 // ▶️ Then I can toggle it afterward
                 await onboarding.startBrowsing();
