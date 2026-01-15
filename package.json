@@ -52,7 +52,7 @@
     "ts-json-schema-generator": "^2.4.0",
     "typedoc": "^0.28.16",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.0"
+    "typescript-eslint": "^8.53.0"
   },
   "dependencies": {
     "immutable-json-patch": "^6.0.2",
