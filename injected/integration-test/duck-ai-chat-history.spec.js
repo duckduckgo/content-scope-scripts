@@ -178,4 +178,124 @@ test.describe('duck-ai-chat-history', () => {
         // Unpinned limited to 5
         expect(result.chats).toHaveLength(5);
     });
+
+    test('filters chats by since timestamp', async ({ page }) => {
+        const now = Date.now();
+        const oneHourAgo = now - 60 * 60 * 1000;
+        const twoDaysAgo = now - 2 * 24 * 60 * 60 * 1000;
+
+        // Setup chats with different timestamps
+        await page.evaluate(
+            ({ recent, old }) => {
+                const chats = [
+                    {
+                        chatId: 'recent-chat',
+                        title: 'Recent chat',
+                        model: 'gpt-4.1-internal',
+                        messages: [],
+                        lastEdit: new Date(recent).toISOString(),
+                        pinned: false,
+                    },
+                    {
+                        chatId: 'old-chat',
+                        title: 'Old chat',
+                        model: 'gpt-4.1-internal',
+                        messages: [],
+                        lastEdit: new Date(old).toISOString(),
+                        pinned: false,
+                    },
+                ];
+                localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+            },
+            { recent: oneHourAgo, old: twoDaysAgo },
+        );
+
+        // Query with since = 1 day ago (should only return recent chat)
+        const oneDayAgo = now - 24 * 60 * 60 * 1000;
+        const result = await requestChats({ since: oneDayAgo });
+
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(1);
+        expect(result.chats[0].chatId).toBe('recent-chat');
+    });
+
+    test('since filter applies to both pinned and unpinned chats', async ({ page }) => {
+        const now = Date.now();
+        const oneHourAgo = now - 60 * 60 * 1000;
+        const twoDaysAgo = now - 2 * 24 * 60 * 60 * 1000;
+
+        await page.evaluate(
+            ({ recent, old }) => {
+                const chats = [
+                    {
+                        chatId: 'recent-pinned',
+                        title: 'Recent pinned',
+                        messages: [],
+                        lastEdit: new Date(recent).toISOString(),
+                        pinned: true,
+                    },
+                    {
+                        chatId: 'old-pinned',
+                        title: 'Old pinned',
+                        messages: [],
+                        lastEdit: new Date(old).toISOString(),
+                        pinned: true,
+                    },
+                    {
+                        chatId: 'recent-unpinned',
+                        title: 'Recent unpinned',
+                        messages: [],
+                        lastEdit: new Date(recent).toISOString(),
+                        pinned: false,
+                    },
+                    {
+                        chatId: 'old-unpinned',
+                        title: 'Old unpinned',
+                        messages: [],
+                        lastEdit: new Date(old).toISOString(),
+                        pinned: false,
+                    },
+                ];
+                localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+            },
+            { recent: oneHourAgo, old: twoDaysAgo },
+        );
+
+        const oneDayAgo = now - 24 * 60 * 60 * 1000;
+        const result = await requestChats({ since: oneDayAgo });
+
+        expect(result.success).toBe(true);
+        expect(result.pinnedChats).toHaveLength(1);
+        expect(result.pinnedChats[0].chatId).toBe('recent-pinned');
+        expect(result.chats).toHaveLength(1);
+        expect(result.chats[0].chatId).toBe('recent-unpinned');
+    });
+
+    test('returns all chats when since is not provided', async ({ page }) => {
+        const now = Date.now();
+        const oneYearAgo = now - 365 * 24 * 60 * 60 * 1000;
+
+        await page.evaluate(
+            ({ old }) => {
+                const chats = [
+                    {
+                        chatId: 'old-chat',
+                        title: 'Very old chat',
+                        messages: [],
+                        lastEdit: new Date(old).toISOString(),
+                        pinned: false,
+                    },
+                ];
+                localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+            },
+            { old: oneYearAgo },
+        );
+
+        // No since parameter - should return all chats regardless of age
+        const result = await requestChats();
+
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(1);
+        expect(result.chats[0].chatId).toBe('old-chat');
+    });
 });

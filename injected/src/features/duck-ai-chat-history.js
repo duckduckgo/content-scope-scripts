@@ -10,19 +10,23 @@ export class DuckAiChatHistory extends ContentFeature {
     static DEFAULT_MAX_CHATS = 30;
 
     init() {
-        this.messaging.subscribe('getDuckAiChats', (/** @type {{query?: string, max_chats?: number}} */ params) => this.getChats(params));
+        this.messaging.subscribe('getDuckAiChats', (/** @type {{query?: string, max_chats?: number, since?: number}} */ params) =>
+            this.getChats(params),
+        );
     }
 
     /**
      * @param {object} [params]
      * @param {string} [params.query] - Search query to filter chats by title
      * @param {number} [params.max_chats] - Maximum number of unpinned chats to return (default: 30, pinned chats have no limit)
+     * @param {number} [params.since] - Unix timestamp (ms) - only return chats with lastEdit >= this value
      */
     getChats(params) {
         try {
             const query = params?.query?.toLowerCase().trim() || '';
             const maxChats = params?.max_chats ?? DuckAiChatHistory.DEFAULT_MAX_CHATS;
-            const { pinnedChats, chats } = this.retrieveChats(query, maxChats);
+            const since = params?.since;
+            const { pinnedChats, chats } = this.retrieveChats(query, maxChats, since);
             this.notify('duckAiChatsResult', {
                 success: true,
                 pinnedChats,
@@ -42,12 +46,13 @@ export class DuckAiChatHistory extends ContentFeature {
     }
 
     /**
-     * Retrieves chats from localStorage, optionally filtered by search query
+     * Retrieves chats from localStorage, optionally filtered by search query and timestamp
      * @param {string} query - Search query (empty string returns all chats)
      * @param {number} maxChats - Maximum number of unpinned chats to return (pinned chats have no limit)
+     * @param {number} [since] - Unix timestamp (ms) - only return chats with lastEdit >= this value
      * @returns {{pinnedChats: Array<object>, chats: Array<object>}} Pinned and unpinned chat arrays
      */
-    retrieveChats(query, maxChats) {
+    retrieveChats(query, maxChats, since) {
         const localStorageKeys = this.getFeatureSetting('chatsLocalStorageKeys') || ['savedAIChats'];
         const pinnedChats = [];
         const chats = [];
@@ -74,8 +79,14 @@ export class DuckAiChatHistory extends ContentFeature {
                     continue;
                 }
 
+                // Filter by timestamp if provided
+                let filteredChats = dataChats;
+                if (since !== undefined) {
+                    filteredChats = filteredChats.filter((chat) => this.isNotOlderThan(chat, since));
+                }
+
                 // Filter by query if provided
-                const matchingChats = query ? dataChats.filter((chat) => this.chatMatchesQuery(chat, query)) : dataChats;
+                const matchingChats = query ? filteredChats.filter((chat) => this.chatMatchesQuery(chat, query)) : filteredChats;
 
                 // Separate into pinned and unpinned
                 // Pinned: no limit, Unpinned: respect maxChats limit
@@ -115,6 +126,22 @@ export class DuckAiChatHistory extends ContentFeature {
         const title = chat.title?.toLowerCase() ?? '';
         const words = query.split(/\s+/).filter((w) => w);
         return words.every((word) => title.includes(word));
+    }
+
+    /**
+     * Checks if a chat's lastEdit is not older than the given timestamp
+     * @param {object} chat - Chat object
+     * @param {number} since - Unix timestamp in milliseconds
+     * @returns {boolean} True if chat is not older than the timestamp
+     */
+    isNotOlderThan(chat, since) {
+        const lastEdit = chat.lastEdit;
+        if (!lastEdit) {
+            // If no lastEdit, include the chat (be permissive)
+            return true;
+        }
+        const timestamp = new Date(lastEdit).getTime();
+        return timestamp >= since;
     }
 }
 
