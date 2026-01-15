@@ -679,7 +679,7 @@ export interface TelemetryEventNotification {
   params: NTPTelemetryEvent;
 }
 export interface NTPTelemetryEvent {
-  attributes: StatsShowMore | ExampleTelemetryEvent;
+  attributes: StatsShowMore | ExampleTelemetryEvent | CustomizerDrawerState;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -687,6 +687,10 @@ export interface StatsShowMore {
 }
 export interface ExampleTelemetryEvent {
   name: "ntp_example";
+}
+export interface CustomizerDrawerState {
+  name: "customizer_drawer";
+  value: "opened" | "closed";
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"

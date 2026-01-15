@@ -23,6 +23,7 @@ const tableIcons = /** @type {const} */ ([
     'v3/Session-Restore-Color-24.svg',
     'v3/Shield-Color-24.svg',
     'v3/Video-Player-Color-24.svg',
+    'v3/Ai-Chat-Color-24.svg',
 ]);
 
 export const tableIconPrefix = 'assets/img/steps/';
@@ -42,6 +43,15 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         title: t('comparison_searchPrivately'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
+            safari: SupportStatus.NOT_SUPPORTED,
+            ddg: SupportStatus.FULL_SUPPORT,
+        },
+    },
+    {
+        icon: 'v3/Ai-Chat-Color-24.svg',
+        title: t('comparison_aiChat'),
+        statuses: {
+            chrome: SupportStatus.PARTIAL_SUPPORT,
             safari: SupportStatus.NOT_SUPPORTED,
             ddg: SupportStatus.FULL_SUPPORT,
         },

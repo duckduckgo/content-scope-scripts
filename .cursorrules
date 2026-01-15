@@ -77,3 +77,4 @@ Run from root. Use `nvm use` to set the correct Node version.
 ## Notes
 
 - When running Playwright commands, use `--reporter list` to prevent the Shell tool from hanging
+- Use `.github/pull_request_template.md` when creating a pull request.

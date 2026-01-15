@@ -37,8 +37,14 @@
     --sp-1:   0.25rem; /* 4px */
 
     --ddg-color-primary: #3969ef;
+    --ddg-color-primary-tint-12: rgba(57, 105, 239, 0.12);
 
     --ddg-color-primary-dark: #7295F6;
+    --ddg-color-primary-dark-tint-15: rgba(114, 149, 246, 0.15);
+
+    --color-blue-60: #2b55ca;
+    --color-blue-20: #8fabf9;
+    --color-blue-0: #ccdaff;
 
     --color-black-at-1: rgba(0, 0, 0, 0.01);
     --color-black-at-3: rgba(0, 0, 0, 0.03);
@@ -60,6 +66,7 @@
     --color-black-at-96: rgba(0, 0, 0, 0.96);
 
     --color-gray85-at-80: rgba(51, 51, 51, 0.8);
+    --color-gray-82: #3d3d3d;
 
     --color-white-at-3: rgba(255, 255, 255, 0.03);
     --color-white-at-6: rgba(255, 255, 255, 0.06);

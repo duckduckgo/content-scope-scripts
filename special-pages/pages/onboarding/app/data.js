@@ -82,6 +82,10 @@ export const stepDefinitions = {
         id: 'duckPlayerSingle',
         kind: 'info',
     },
+    addressBarMode: {
+        id: 'addressBarMode',
+        kind: 'info',
+    },
 };
 
 export const stepMeta = /** @type {const} */ ({
@@ -249,6 +253,16 @@ export const settingsRowItems = {
         kind: 'one-time',
         acceptText: t('row_youtube-ad-blocking_accept_v3'),
         accepButtonVariant: 'primary',
+    }),
+    // Intended only for use with v3
+    'address-bar-mode': (t) => ({
+        id: 'address-bar-mode',
+        icon: 'v3/Ai-Chat-Color-24.svg',
+        title: t('addressBarMode_title'),
+        secondaryText: t('addressBarMode_footer'),
+        summary: t('addressBarMode_title'),
+        kind: 'toggle',
+        acceptText: t('startBrowsing'),
     }),
 };
 
