@@ -19,7 +19,7 @@ export class DuckAiChatHistory extends ContentFeature {
      * @param {object} [params]
      * @param {string} [params.query] - Search query to filter chats by title
      * @param {number} [params.max_chats] - Maximum number of unpinned chats to return (default: 30, pinned chats have no limit)
-     * @param {number} [params.since] - Unix timestamp (ms) - only return chats with lastEdit >= this value
+     * @param {number} [params.since] - Timestamp in milliseconds - only return chats with lastEdit >= this value
      */
     getChats(params) {
         try {
@@ -49,7 +49,7 @@ export class DuckAiChatHistory extends ContentFeature {
      * Retrieves chats from localStorage, optionally filtered by search query and timestamp
      * @param {string} query - Search query (empty string returns all chats)
      * @param {number} maxChats - Maximum number of unpinned chats to return (pinned chats have no limit)
-     * @param {number} [since] - Unix timestamp (ms) - only return chats with lastEdit >= this value
+     * @param {number} [since] - Timestamp in milliseconds - only return chats with lastEdit >= this value
      * @returns {{pinnedChats: Array<object>, chats: Array<object>}} Pinned and unpinned chat arrays
      */
     retrieveChats(query, maxChats, since) {
@@ -107,13 +107,18 @@ export class DuckAiChatHistory extends ContentFeature {
     }
 
     /**
-     * Formats a chat object for sending to native, removing unnecessary data
+     * Formats a chat object for sending to native, extracting only needed keys
      * @param {object} chat - Chat object
      * @returns {object} Formatted chat object
      */
     formatChat(chat) {
-        const { messages, ...formattedChat } = chat;
-        return formattedChat;
+        return {
+            chatId: chat?.chatId,
+            title: chat?.title,
+            model: chat?.model,
+            lastEdit: chat?.lastEdit,
+            pinned: chat?.pinned,
+        };
     }
 
     /**
@@ -123,7 +128,7 @@ export class DuckAiChatHistory extends ContentFeature {
      * @returns {boolean} True if chat title contains all query words
      */
     chatMatchesQuery(chat, query) {
-        const title = chat.title?.toLowerCase() ?? '';
+        const title = typeof chat.title === 'string' ? chat.title.toLowerCase() : '';
         const words = query.split(/\s+/).filter((w) => w);
         return words.every((word) => title.includes(word));
     }
@@ -131,7 +136,7 @@ export class DuckAiChatHistory extends ContentFeature {
     /**
      * Checks if a chat's lastEdit is not older than the given timestamp
      * @param {object} chat - Chat object
-     * @param {number} since - Unix timestamp in milliseconds
+     * @param {number} since - Timestamp in milliseconds
      * @returns {boolean} True if chat is not older than the timestamp
      */
     isNotOlderThan(chat, since) {
@@ -141,6 +146,10 @@ export class DuckAiChatHistory extends ContentFeature {
             return true;
         }
         const timestamp = new Date(lastEdit).getTime();
+        if (Number.isNaN(timestamp)) {
+            // If lastEdit is malformed/unparseable, include the chat (be permissive)
+            return true;
+        }
         return timestamp >= since;
     }
 }

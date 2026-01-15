@@ -115,6 +115,38 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.chats).toHaveLength(0);
     });
 
+    test('handles non-string title values gracefully during search', async ({ page }) => {
+        await page.evaluate(() => {
+            const chats = [
+                {
+                    chatId: 'number-title',
+                    title: 12345,
+                    messages: [],
+                    pinned: false,
+                },
+                {
+                    chatId: 'object-title',
+                    title: { foo: 'bar' },
+                    messages: [],
+                    pinned: false,
+                },
+                {
+                    chatId: 'valid-title',
+                    title: 'Valid chat title',
+                    messages: [],
+                    pinned: false,
+                },
+            ];
+            localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+        });
+
+        // Search should not throw and should still find the valid chat
+        const result = await requestChats({ query: 'Valid' });
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(1);
+        expect(result.chats[0].chatId).toBe('valid-title');
+    });
+
     test('handles empty localStorage gracefully', async ({ page }) => {
         await page.evaluate(() => localStorage.removeItem('savedAIChats'));
 
@@ -297,5 +329,42 @@ test.describe('duck-ai-chat-history', () => {
         expect(result.success).toBe(true);
         expect(result.chats).toHaveLength(1);
         expect(result.chats[0].chatId).toBe('old-chat');
+    });
+
+    test('includes chats with missing or malformed lastEdit when using since filter', async ({ page }) => {
+        const now = Date.now();
+        const oneDayAgo = now - 24 * 60 * 60 * 1000;
+
+        await page.evaluate(() => {
+            const chats = [
+                {
+                    chatId: 'no-lastedit',
+                    title: 'Chat without lastEdit',
+                    messages: [],
+                    pinned: false,
+                },
+                {
+                    chatId: 'malformed-lastedit',
+                    title: 'Chat with malformed lastEdit',
+                    messages: [],
+                    lastEdit: 'not-a-valid-date',
+                    pinned: false,
+                },
+                {
+                    chatId: 'empty-lastedit',
+                    title: 'Chat with empty lastEdit',
+                    messages: [],
+                    lastEdit: '',
+                    pinned: false,
+                },
+            ];
+            localStorage.setItem('savedAIChats', JSON.stringify({ version: '0.7', chats }));
+        });
+
+        // Even with since filter, chats with missing/malformed lastEdit should be included (permissive)
+        const result = await requestChats({ since: oneDayAgo });
+
+        expect(result.success).toBe(true);
+        expect(result.chats).toHaveLength(3);
     });
 });
