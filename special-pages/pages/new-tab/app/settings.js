@@ -51,7 +51,6 @@ export class Settings {
     }
 
     get batchedActivityApi() {
-        if (this.platform.name === 'windows') return { state: 'enabled' };
-        return { state: 'disabled' };
+        return { state: 'enabled' };
     }
 }
