@@ -1,2 +1,1 @@
-- First message auto capture gate (#2162)
-- Add adwall detector (#2158)
+- Apple package fix (#2174)
