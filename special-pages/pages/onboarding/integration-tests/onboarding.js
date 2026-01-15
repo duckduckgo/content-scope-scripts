@@ -139,7 +139,7 @@ export class OnboardingPage {
     get basePath() {
         return this.build.switch({
             windows: () => '../build/windows/pages/onboarding',
-            apple: () => '../build/apple/pages/onboarding',
+            apple: () => '../Sources/ContentScopeScripts/dist/pages/onboarding',
         });
     }
 
@@ -674,6 +674,12 @@ export class OnboardingPage {
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click();
         await page.getByRole('button', { name: 'Enable Session Restore' }).click();
         await page.getByRole('button', { name: 'Show Home Button' }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        /* Address bar mode */
+        await page.getByText('Want easy access to private AI Chat?').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Search & Duck.ai' }).click();
+        await page.getByRole('button', { name: 'Search Only' }).click();
         await this.startBrowsing();
     }
 
@@ -704,6 +710,12 @@ export class OnboardingPage {
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click();
         await page.getByRole('button', { name: 'Enable Session Restore' }).click();
         await page.getByRole('button', { name: 'Show Home Button' }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        /* Address bar mode */
+        await page.getByText('Want easy access to private AI Chat?').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Search & Duck.ai' }).click();
+        await page.getByRole('button', { name: 'Search Only' }).click();
         await this.startBrowsing();
     }
 
@@ -749,6 +761,12 @@ export class OnboardingPage {
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click();
         await page.getByRole('button', { name: 'Enable Session Restore' }).click();
         await page.getByRole('button', { name: 'Show Home Button' }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        /* Address bar mode */
+        await page.getByText('Want easy access to private AI Chat?').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Search & Duck.ai' }).click();
+        await page.getByRole('button', { name: 'Search Only' }).click();
         await this.startBrowsing();
     }
 
@@ -790,6 +808,12 @@ export class OnboardingPage {
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click();
         await page.getByRole('button', { name: 'Enable Session Restore' }).click();
         await page.getByRole('button', { name: 'Show Home Button' }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        /* Address bar mode */
+        await page.getByText('Want easy access to private AI Chat?').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Search & Duck.ai' }).click();
+        await page.getByRole('button', { name: 'Search Only' }).click();
         await this.startBrowsing();
     }
 }
