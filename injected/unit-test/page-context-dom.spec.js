@@ -2,7 +2,7 @@ import { JSDOM } from 'jsdom';
 import { writeFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { domToMarkdown } from '../src/features/page-context.js';
+import { domToMarkdown, checkNodeIsVisible } from '../src/features/page-context.js';
 
 const currentFilename = fileURLToPath(import.meta.url);
 const currentDirname = dirname(currentFilename);
@@ -194,4 +194,84 @@ describe('page-context.js - domToMarkdown', () => {
             }
         });
     }
+});
+
+describe('page-context.js - checkNodeIsVisible', () => {
+    /**
+     * Helper to create a JSDOM environment and test visibility
+     * @param {string} html - HTML content
+     * @param {string} selector - CSS selector for the element to test
+     * @returns {boolean} - Result of checkNodeIsVisible
+     */
+    function testVisibility(html, selector) {
+        const dom = new JSDOM(`<!DOCTYPE html><html><body>${html}</body></html>`);
+        const { window } = dom;
+        const element = window.document.querySelector(selector);
+
+        // Save and set globals
+        const originalWindow = global.window;
+        global.window = window;
+
+        try {
+            return checkNodeIsVisible(element);
+        } finally {
+            global.window = originalWindow;
+        }
+    }
+
+    it('should return true for visible elements', () => {
+        expect(testVisibility('<div id="test">Visible</div>', '#test')).toBe(true);
+    });
+
+    it('should return false for display:none elements', () => {
+        expect(testVisibility('<div id="test" style="display: none;">Hidden</div>', '#test')).toBe(false);
+    });
+
+    it('should return false for visibility:hidden elements', () => {
+        expect(testVisibility('<div id="test" style="visibility: hidden;">Hidden</div>', '#test')).toBe(false);
+    });
+
+    it('should return false for opacity:0 elements', () => {
+        expect(testVisibility('<div id="test" style="opacity: 0;">Hidden</div>', '#test')).toBe(false);
+    });
+
+    it('should return true for opacity:0.5 elements', () => {
+        expect(testVisibility('<div id="test" style="opacity: 0.5;">Visible</div>', '#test')).toBe(true);
+    });
+
+    it('should return true for opacity:1 elements', () => {
+        expect(testVisibility('<div id="test" style="opacity: 1;">Visible</div>', '#test')).toBe(true);
+    });
+
+    it('should return true for elements with other display values', () => {
+        expect(testVisibility('<div id="test" style="display: block;">Visible</div>', '#test')).toBe(true);
+        expect(testVisibility('<span id="test" style="display: inline;">Visible</span>', '#test')).toBe(true);
+    });
+
+    it('should return true for elements with visibility:visible', () => {
+        expect(testVisibility('<div id="test" style="visibility: visible;">Visible</div>', '#test')).toBe(true);
+    });
+
+    it('should return false when getComputedStyle throws', () => {
+        const dom = new JSDOM('<!DOCTYPE html><html><body><div id="test">Test</div></body></html>');
+        const { window } = dom;
+
+        // Save original
+        const originalWindow = global.window;
+
+        // Create a mock window that throws on getComputedStyle
+        // @ts-expect-error - intentionally partial mock for error handling test
+        global.window = {
+            getComputedStyle: () => {
+                throw new Error('Simulated error');
+            },
+        };
+
+        try {
+            const element = window.document.querySelector('#test');
+            expect(checkNodeIsVisible(element)).toBe(false);
+        } finally {
+            global.window = originalWindow;
+        }
+    });
 });
