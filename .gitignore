@@ -11,7 +11,9 @@ playwright-report/
 test-results
 
 # Apple Package
-Sources/ContentScopeScripts/dist/
+Sources/ContentScopeScripts/dist/*.js
+Sources/ContentScopeScripts/dist/pages/*
+!Sources/ContentScopeScripts/dist/pages/
 !Sources/ContentScopeScripts/dist/pages/.gitkeep
 
 # Test output files (generated during tests)
