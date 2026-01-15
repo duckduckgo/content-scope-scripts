@@ -12512,6 +12512,36 @@ ul.messages {
     };
   }
 
+  // src/detectors/detections/adwall-detection.js
+  init_define_import_meta_trackerLookup();
+  function runAdwallDetection(config2 = {}) {
+    const results = [];
+    for (const [detectorId, detectorConfig] of Object.entries(config2)) {
+      if (detectorConfig?.state !== "enabled") {
+        continue;
+      }
+      const detected = detectAdwall(detectorConfig);
+      if (detected) {
+        results.push({
+          detected: true,
+          detectorId
+        });
+      }
+    }
+    return {
+      detected: results.length > 0,
+      type: "adwallDetection",
+      results
+    };
+  }
+  function detectAdwall(patternConfig) {
+    const { textPatterns, textSources } = patternConfig;
+    if (checkTextPatterns(textPatterns, textSources)) {
+      return true;
+    }
+    return false;
+  }
+
   // src/features/breakage-reporting.js
   var BreakageReporting = class extends ContentFeature {
     init() {
@@ -12536,7 +12566,8 @@ ul.messages {
         if (detectorSettings) {
           result.detectorData = {
             botDetection: runBotDetection(detectorSettings.botDetection),
-            fraudDetection: runFraudDetection(detectorSettings.fraudDetection)
+            fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
+            adwallDetection: runAdwallDetection(detectorSettings.adwallDetection)
           };
         }
         if (isExpandedPerformanceMetricsEnabled) {

@@ -8635,6 +8635,36 @@
     };
   }
 
+  // src/detectors/detections/adwall-detection.js
+  init_define_import_meta_trackerLookup();
+  function runAdwallDetection(config = {}) {
+    const results = [];
+    for (const [detectorId, detectorConfig] of Object.entries(config)) {
+      if (detectorConfig?.state !== "enabled") {
+        continue;
+      }
+      const detected = detectAdwall(detectorConfig);
+      if (detected) {
+        results.push({
+          detected: true,
+          detectorId
+        });
+      }
+    }
+    return {
+      detected: results.length > 0,
+      type: "adwallDetection",
+      results
+    };
+  }
+  function detectAdwall(patternConfig) {
+    const { textPatterns, textSources } = patternConfig;
+    if (checkTextPatterns(textPatterns, textSources)) {
+      return true;
+    }
+    return false;
+  }
+
   // src/features/web-interference-detection.js
   var WebInterferenceDetection = class extends ContentFeature {
     init() {
@@ -8650,6 +8680,9 @@
         }
         if (types.includes("fraudDetection")) {
           results.fraudDetection = runFraudDetection(settings?.fraudDetection);
+        }
+        if (types.includes("adwallDetection")) {
+          results.adwallDetection = runAdwallDetection(settings?.adwallDetection);
         }
         return results;
       });
@@ -15089,7 +15122,8 @@
         if (detectorSettings) {
           result.detectorData = {
             botDetection: runBotDetection(detectorSettings.botDetection),
-            fraudDetection: runFraudDetection(detectorSettings.fraudDetection)
+            fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
+            adwallDetection: runAdwallDetection(detectorSettings.adwallDetection)
           };
         }
         if (isExpandedPerformanceMetricsEnabled) {
@@ -16382,7 +16416,7 @@ ${iframeContent}
     }
     return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
   }
-  var _cachedContent, _cachedTimestamp, _delayedRecheckTimer;
+  var _cachedContent, _cachedTimestamp, _delayedRecheckTimer, _activeCapture;
   var PageContext = class extends ContentFeature {
     constructor() {
       super(...arguments);
@@ -16392,33 +16426,71 @@ ${iframeContent}
       /** @type {MutationObserver | null} */
       __publicField(this, "mutationObserver", null);
       __publicField(this, "lastSentContent", null);
-      __publicField(this, "listenForUrlChanges", true);
       /** @type {ReturnType<typeof setTimeout> | null} */
       __privateAdd(this, _delayedRecheckTimer, null);
       __publicField(this, "recheckCount", 0);
       __publicField(this, "recheckLimit", 0);
+      /** @type {boolean} */
+      __privateAdd(this, _activeCapture, true);
+    }
+    get shouldListenForUrlChanges() {
+      return __privateGet(this, _activeCapture) && this.getFeatureSettingEnabled("subscribeToUrlChange", "enabled");
+    }
+    get shouldActivate() {
+      if (isBeingFramed() || isDuckAi()) {
+        return false;
+      }
+      const tabUrl = getTabUrl();
+      if (tabUrl?.protocol === "duck:") {
+        return false;
+      }
+      return true;
     }
     init() {
       this.recheckLimit = this.getFeatureSetting("recheckLimit") || 5;
-      if (!this.shouldActivate()) {
+      if (!this.shouldActivate) {
         return;
       }
+      __privateSet(this, _activeCapture, !this.getFeatureSettingEnabled("activeCaptureOnFirstMessage", "disabled"));
       this.setupListeners();
     }
     resetRecheckCount() {
       this.recheckCount = 0;
     }
+    /**
+     * Sets up all listeners. When activeCaptureOnFirstMessage is enabled,
+     * active capture listeners are deferred until the first collect message.
+     */
     setupListeners() {
-      this.observeContentChanges();
       if (this.getFeatureSettingEnabled("subscribeToCollect", "enabled")) {
         this.messaging.subscribe("collect", () => {
           this.invalidateCache();
           this.handleContentCollectionRequest();
+          if (!__privateGet(this, _activeCapture)) {
+            __privateSet(this, _activeCapture, true);
+            this.log.info("First native message received, activating capture");
+            this.setupActiveCaptureListeners();
+          }
         });
       }
-      window.addEventListener("load", () => {
-        this.handleContentCollectionRequest();
-      });
+      if (__privateGet(this, _activeCapture)) {
+        this.setupActiveCaptureListeners();
+      } else {
+        this.log.info("Active capture gated behind first native message");
+      }
+    }
+    /**
+     * Sets up listeners that actively capture page content.
+     * These are the listeners that can be gated behind the first native message.
+     */
+    setupActiveCaptureListeners() {
+      this.log.info("Setting up active capture listeners");
+      this.observeContentChanges();
+      if (this.getFeatureSettingEnabled("subscribeToLoad", "enabled")) {
+        window.addEventListener("load", () => {
+          this.handleContentCollectionRequest();
+        });
+      }
       if (this.getFeatureSettingEnabled("subscribeToHashChange", "enabled")) {
         window.addEventListener("hashchange", () => {
           this.handleContentCollectionRequest();
@@ -16437,33 +16509,25 @@ ${iframeContent}
           this.handleContentCollectionRequest();
         });
       }
-      if (document.body) {
-        this.setup();
-      } else {
-        window.addEventListener(
-          "DOMContentLoaded",
-          () => {
-            this.setup();
-          },
-          { once: true }
-        );
+      if (this.getFeatureSettingEnabled("collectOnInit", "enabled")) {
+        if (document.body) {
+          this.setup();
+        } else {
+          window.addEventListener(
+            "DOMContentLoaded",
+            () => {
+              this.setup();
+            },
+            { once: true }
+          );
+        }
       }
-    }
-    shouldActivate() {
-      if (isBeingFramed() || isDuckAi()) {
-        return false;
-      }
-      const tabUrl = getTabUrl();
-      if (tabUrl?.protocol === "duck:") {
-        return false;
-      }
-      return true;
     }
     /**
      * @param {NavigationType} _navigationType
      */
     urlChanged(_navigationType) {
-      if (!this.shouldActivate()) {
+      if (!this.shouldListenForUrlChanges || !this.shouldActivate) {
         return;
       }
       this.handleContentCollectionRequest();
@@ -16515,12 +16579,13 @@ ${iframeContent}
       return Date.now() - __privateGet(this, _cachedTimestamp) > cacheExpiration;
     }
     observeContentChanges() {
-      if (window.MutationObserver) {
+      if (window.MutationObserver && this.getFeatureSettingEnabled("observeMutations", "enabled")) {
         this.mutationObserver = new MutationObserver((_mutations) => {
           this.log.info("MutationObserver", _mutations);
           this.cachedContent = void 0;
           this.scheduleDelayedRecheck();
         });
+        this.startObserving();
       }
     }
     /**
@@ -16734,6 +16799,7 @@ ${iframeContent}
   _cachedContent = new WeakMap();
   _cachedTimestamp = new WeakMap();
   _delayedRecheckTimer = new WeakMap();
+  _activeCapture = new WeakMap();
 
   // src/features/duck-ai-data-clearing.js
   init_define_import_meta_trackerLookup();
