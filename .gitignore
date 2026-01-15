@@ -8,12 +8,20 @@ build/
 /screens
 test-results/
 playwright-report/
-Sources/ContentScopeScripts/dist/
 test-results
-!Sources/ContentScopeScripts/dist/pages/.gitignore
 
 # Test output files (generated during tests)
 injected/unit-test/fixtures/page-context/output/
+
+# Apple Swift Package
+Sources/**
+!Sources/ContentScopeScripts/
+!Sources/ContentScopeScripts/ContentScopeScripts.swift
+!Sources/ContentScopeScripts/Resources/
+Sources/ContentScopeScripts/Resources/*.js
+Sources/ContentScopeScripts/Resources/pages/*
+!Sources/ContentScopeScripts/Resources/pages/
+!Sources/ContentScopeScripts/Resources/pages/.gitkeep
 
 # Local Netlify folder
 .netlify

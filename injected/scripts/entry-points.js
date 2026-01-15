@@ -1,5 +1,7 @@
+import { join } from 'node:path';
+import { existsSync, readdirSync, rmSync } from 'node:fs';
 import { bundle } from './utils/build.js';
-import { parseArgs, write } from '../../scripts/script-utils.js';
+import { cwd, parseArgs, write } from '../../scripts/script-utils.js';
 
 /**
  * @typedef Build
@@ -9,6 +11,10 @@ import { parseArgs, write } from '../../scripts/script-utils.js';
  * @typedef {Record<NonNullable<ImportMeta['injectName']>, Build>} BuildManifest
  */
 
+const ROOT = join(cwd(import.meta.url), '../..');
+const APPLE_RESOURCES_DIR = join(ROOT, 'Sources', 'ContentScopeScripts', 'Resources');
+let appleResourcesCleaned = false;
+
 /** @satisfies {BuildManifest} */
 const builds = {
     firefox: {
@@ -17,15 +23,15 @@ const builds = {
     },
     apple: {
         input: 'entry-points/apple.js',
-        output: ['../build/apple/contentScope.js'],
+        output: ['../build/apple/contentScope.js', join(APPLE_RESOURCES_DIR, 'contentScope.js')],
     },
     'apple-ai-clear': {
         input: 'entry-points/apple.js',
-        output: ['../build/apple/duckAiDataClearing.js'],
+        output: ['../build/apple/duckAiDataClearing.js', join(APPLE_RESOURCES_DIR, 'duckAiDataClearing.js')],
     },
     'apple-isolated': {
         input: 'entry-points/apple.js',
-        output: ['../build/apple/contentScopeIsolated.js'],
+        output: ['../build/apple/contentScopeIsolated.js', join(APPLE_RESOURCES_DIR, 'contentScopeIsolated.js')],
     },
     android: {
         input: 'entry-points/android.js',
@@ -81,6 +87,10 @@ async function init() {
         }
         const output = await bundle({ scriptPath: build.input, platform: args.platform, sourcemap });
 
+        if (build.output.some((filepath) => filepath.startsWith(APPLE_RESOURCES_DIR))) {
+            cleanAppleResources();
+        }
+
         // bundle and write the output
         write([build.output], output);
 
@@ -90,9 +100,37 @@ async function init() {
     // otherwise, just build them all
     for (const [injectName, build] of Object.entries(builds)) {
         const output = await bundle({ scriptPath: build.input, platform: injectName, sourcemap });
+
+        if (build.output.some((filepath) => filepath.startsWith(APPLE_RESOURCES_DIR))) {
+            cleanAppleResources();
+        }
         write(build.output, output);
         console.log('✅', injectName, build.output[0]);
     }
 }
 
 init();
+
+function cleanAppleResources() {
+    if (appleResourcesCleaned) return;
+    appleResourcesCleaned = true;
+    if (!existsSync(APPLE_RESOURCES_DIR)) return;
+    for (const entry of readdirSync(APPLE_RESOURCES_DIR, { withFileTypes: true })) {
+        const entryPath = join(APPLE_RESOURCES_DIR, entry.name);
+        if (entry.name === 'pages') {
+            if (!existsSync(entryPath)) continue;
+            for (const pageEntry of readdirSync(entryPath, { withFileTypes: true })) {
+                if (pageEntry.name === '.gitkeep') continue;
+                rmSync(join(entryPath, pageEntry.name), {
+                    force: true,
+                    recursive: true,
+                });
+            }
+            continue;
+        }
+        rmSync(entryPath, {
+            force: true,
+            recursive: true,
+        });
+    }
+}

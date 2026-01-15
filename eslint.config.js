@@ -10,6 +10,7 @@ export default tseslint.config(
         ignores: [
             '**/build/',
             '**/docs/',
+            'Sources/',
             'injected/lib',
             'injected/playwright-report/',
             'injected/integration-test/extension/contentScope.js',

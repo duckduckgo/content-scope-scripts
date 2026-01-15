@@ -1,5 +1,6 @@
 build/**/*
 docs/**/*
+Sources/**/*
 !injected/docs/**/*
 injected/src/types
 special-pages/pages/**/types

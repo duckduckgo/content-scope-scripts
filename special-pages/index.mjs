@@ -14,6 +14,9 @@ import { pages } from './pages.mjs';
 const CWD = cwd(import.meta.url);
 const ROOT = join(CWD, '../');
 const BUILD = join(ROOT, 'build');
+const APPLE_PAGES_DIR = join(BUILD, 'apple', 'pages');
+const APPLE_RESOURCES_DIR = join(ROOT, 'Sources', 'ContentScopeScripts', 'Resources');
+const APPLE_RESOURCES_PAGES_DIR = join(APPLE_RESOURCES_DIR, 'pages');
 const args = parseArgs(process.argv.slice(2), []);
 const NODE_ENV = args.env || 'production';
 const DEBUG = Boolean(args.debug);
@@ -110,22 +113,17 @@ for (const buildJob of buildJobs) {
         buildSync(opts);
     }
 }
-for (const inlineJob of inlineJobs) {
-    if (DEBUG) console.log('INLINE:', relative(ROOT, inlineJob.src));
+await runInlineJobs();
+
+if (existsSync(APPLE_PAGES_DIR)) {
+    if (DEBUG) {
+        console.log('COPY:', relative(ROOT, APPLE_PAGES_DIR), relative(ROOT, APPLE_RESOURCES_PAGES_DIR));
+    }
     if (!DRY_RUN) {
-        inliner.html(
-            {
-                fileContent: readFileSync(inlineJob.src, 'utf8'),
-                relativeTo: join(inlineJob.src, '..'),
-                images: true,
-            },
-            (error, result) => {
-                if (error) {
-                    return exitWithErrors([error]);
-                }
-                writeFileSync(inlineJob.src, result);
-            },
-        );
+        cpSync(APPLE_PAGES_DIR, APPLE_RESOURCES_PAGES_DIR, {
+            force: true,
+            recursive: true,
+        });
     }
 }
 
@@ -137,4 +135,38 @@ function exitWithErrors(errors) {
         console.log(error);
     }
     process.exit(1);
+}
+
+async function runInlineJobs() {
+    const jobs = inlineJobs.map((inlineJob) => {
+        if (DEBUG) console.log('INLINE:', relative(ROOT, inlineJob.src));
+        if (DRY_RUN) return Promise.resolve();
+        return /** @type {Promise<void>} */ (
+            new Promise((resolve, reject) => {
+                inliner.html(
+                    {
+                        fileContent: readFileSync(inlineJob.src, 'utf8'),
+                        relativeTo: join(inlineJob.src, '..'),
+                        images: true,
+                    },
+                    (error, result) => {
+                        if (error) {
+                            reject(error);
+                            return;
+                        }
+                        writeFileSync(inlineJob.src, result);
+                        resolve(undefined);
+                    },
+                );
+            })
+        );
+    });
+
+    if (jobs.length === 0) return;
+
+    try {
+        await Promise.all(jobs);
+    } catch (error) {
+        exitWithErrors([error instanceof Error ? error.message : String(error)]);
+    }
 }
