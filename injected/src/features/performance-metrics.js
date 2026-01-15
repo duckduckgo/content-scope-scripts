@@ -13,7 +13,7 @@ export default class PerformanceMetrics extends ContentFeature {
         if (isBeingFramed()) return;
 
         // Listen for FCP and notify the app
-        if (this.getFeatureSettingEnabled('firstContentfulPaint')) {
+        if (this.getFeatureSettingEnabled('firstContentfulPaint', 'enabled')) {
             this.observeFirstContentfulPaint();
         }
 
