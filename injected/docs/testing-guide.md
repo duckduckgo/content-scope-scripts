@@ -184,4 +184,4 @@ test('feature behavior', async ({ page }) => {
 });
 ```
 
-For conditional changes and config schema details, see the [injected cursor rules](../AGENTS.md).
+For conditional changes and config schema details, see the [injected cursor rules](../AGENTS.md#conditional-changes).
