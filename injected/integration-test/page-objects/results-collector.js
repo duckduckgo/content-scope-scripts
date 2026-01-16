@@ -72,7 +72,7 @@ export class ResultsCollector {
          * allowing all platforms to call '.load(html, config)' and not care
          * about the details.
          */
-        if (this.platform.name === 'extension' || this.platform.name === 'integration') {
+        if (this.platform.name === 'extension' || String(this.platform.name) === 'integration') {
             return await this._loadExtension(htmlPath, configPath, platform);
         }
         await this.setup({ config: configPath, platform });
@@ -128,10 +128,10 @@ export class ResultsCollector {
             /* userList */ [],
             /* preferences */ userPreferences /*, platformSpecificFeatures = [] */,
         );
-        console.log("Processed config");
-        
+        console.log('Processed config');
+
         // For integration platform, load the integration script instead of using gotoAndWait
-        if (this.platform.name === 'integration') {
+        if (String(this.platform.name) === 'integration') {
             await this.page.goto(htmlPath + '?automation=true');
             await this.page.addScriptTag({
                 url: './integration-test/extension/contentScope.js',
@@ -139,15 +139,18 @@ export class ResultsCollector {
             // Wait for the integration script to initialize
             // Hybrid approach: Try waitForFunction, fallback if CSP blocks
             try {
-                await this.page.waitForFunction(() => {
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    return window.__content_scope_status === 'loaded';
-                }, { timeout: 30000 });
+                await this.page.waitForFunction(
+                    () => {
+                        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                        return window.__content_scope_status === 'loaded';
+                    },
+                    { timeout: 30000 },
+                );
             } catch (e) {
                 console.warn(`Could not detect extension load, waiting 2s`);
                 await this.page.waitForTimeout(2000);
             }
-            
+
             // Send the config via custom event
             const evalString = `
                 ;(() => {
@@ -157,28 +160,36 @@ export class ResultsCollector {
                 })();
             `;
             await this.page.evaluate(evalString);
-            
+
             // Wait for initialization to complete
             // Hybrid approach: Try waitForFunction, fallback if CSP blocks
-            
+
             // DEBUG: Check if extension is loading at all
-            const statusCheck = await this.page.evaluate(() => {
-                // @ts-expect-error
-                return {
-                    hasStatus: typeof window.__content_scope_status !== 'undefined',
-                    // @ts-expect-error
-                    status: window.__content_scope_status,
-                    // @ts-expect-error
-                    hasMessaging: typeof window.__duck_messaging !== 'undefined'
-                };
-            }).catch(e => ({ error: e.message }));
+            const statusCheck = await this.page
+                .evaluate(() => {
+                    // @ts-expect-error - window.__content_scope_status is set by integration script
+                    const hasStatus = typeof window.__content_scope_status !== 'undefined';
+                    // @ts-expect-error - window.__content_scope_status is set by integration script
+                    const status = window.__content_scope_status;
+                    // @ts-expect-error - window.__duck_messaging is set by integration script
+                    const hasMessaging = typeof window.__duck_messaging !== 'undefined';
+                    return {
+                        hasStatus,
+                        status,
+                        hasMessaging,
+                    };
+                })
+                .catch((e) => ({ error: e.message }));
             console.log(`[DEBUG] Extension status check:`, JSON.stringify(statusCheck));
-            
+
             try {
-                await this.page.waitForFunction(() => {
-                    // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-                    return window.__content_scope_status === 'initialized';
-                }, { timeout: 30000 });
+                await this.page.waitForFunction(
+                    () => {
+                        // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                        return window.__content_scope_status === 'initialized';
+                    },
+                    { timeout: 30000 },
+                );
                 console.log(`[DEBUG] Extension initialized successfully`);
             } catch (e) {
                 console.warn(`Could not detect extension init (timeout), waiting 1s`);
@@ -370,7 +381,7 @@ export class ResultsCollector {
         page.on('console', (msg) => {
             const messageType = msg.type();
             const messageText = msg.text();
-            
+
             // Handle cases where msg.type() might return undefined
             if (messageType && typeof console[messageType] === 'function') {
                 console[messageType](messageText);

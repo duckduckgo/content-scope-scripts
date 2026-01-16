@@ -41,10 +41,11 @@ export class PageContextCollector {
      * @param {number} [options.maxTitleLength=100] - Maximum title length
      * @param {number} [options.cacheExpiration=30000] - Cache expiration in ms
      * @param {number} [options.recheckLimit=5] - Maximum recheck attempts
-     * @param {string[]} [options.excludeSelectors] - CSS selectors to exclude
+     * @param {object} [_options] - Options object
+     * @param {string[]} [_options.excludeSelectors] - CSS selectors to exclude
      * @returns {PageContextCollector}
      */
-    withPageContextSettings(options = {}) {
+    withPageContextSettings(_options = {}) {
         // For now, we use the JSON config file for settings
         // In the future, this could be enhanced to dynamically modify the config
         console.log('Page context settings configured via JSON config file');
@@ -75,18 +76,18 @@ export class PageContextCollector {
 
         // Wait for and capture the collectionResult response
         const messages = await this.collector.waitForMessage('collectionResult', 1);
-        
+
         if (!messages || messages.length === 0) {
             throw new Error('No collectionResult message received');
         }
 
         const message = messages[0];
-        
+
         // Parse the serialized page data
         if (message.payload && message.payload.params && message.payload.params.serializedPageData) {
             return JSON.parse(message.payload.params.serializedPageData);
         }
-        
+
         throw new Error('Invalid collectionResult message format');
     }
 

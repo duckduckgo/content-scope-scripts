@@ -143,7 +143,7 @@ export function getTabUrl() {
 
     let framingURL;
     try {
-        framingURL = new URL(framingURLString);
+        framingURL = framingURLString ? new URL(framingURLString) : null;
     } catch {
         framingURL = null;
     }
@@ -160,7 +160,7 @@ function getTopLevelOriginFromFrameAncestors() {
     if (!globalThis.location) {
         return null;
     }
-    
+
     if ('ancestorOrigins' in globalThis.location && globalThis.location.ancestorOrigins.length) {
         // ancestorOrigins is reverse order, with the last item being the top frame
         return globalThis.location.ancestorOrigins.item(globalThis.location.ancestorOrigins.length - 1);

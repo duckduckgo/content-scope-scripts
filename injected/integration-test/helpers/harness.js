@@ -119,10 +119,13 @@ export async function gotoAndWait(page, urlString, args = {}, evalBeforeInit = n
     // wait until contentScopeFeatures.load() has completed
     // Hybrid approach: Try waitForFunction first, fallback to timeout if CSP blocks
     try {
-        await page.waitForFunction(() => {
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            return window.__content_scope_status === 'loaded';
-        }, { timeout: 30000 });
+        await page.waitForFunction(
+            () => {
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                return window.__content_scope_status === 'loaded';
+            },
+            { timeout: 30000 },
+        );
     } catch (e) {
         // If waitForFunction times out or is blocked by CSP, just wait a bit
         // The extension still loads and runs, we just can't detect it
@@ -147,11 +150,14 @@ export async function gotoAndWait(page, urlString, args = {}, evalBeforeInit = n
     // wait until contentScopeFeatures.init(args) has completed
     // Hybrid approach: Try waitForFunction first, fallback to timeout if CSP blocks
     try {
-        await page.waitForFunction(() => {
-            window.dispatchEvent(new Event('content-scope-init-complete'));
-            // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
-            return window.__content_scope_status === 'initialized';
-        }, { timeout: 30000 });
+        await page.waitForFunction(
+            () => {
+                window.dispatchEvent(new Event('content-scope-init-complete'));
+                // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
+                return window.__content_scope_status === 'initialized';
+            },
+            { timeout: 30000 },
+        );
     } catch (e) {
         console.warn(`Could not detect extension init (${e.message}), waiting 1s`);
         await page.waitForTimeout(1000);

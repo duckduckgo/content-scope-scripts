@@ -20,7 +20,7 @@ if (!window.__playwright_01) {
                 return;
             }
             matchingCallback(evt.params);
-        }
+        },
     };
 }
 
@@ -29,15 +29,14 @@ if (!window.__playwright_01) {
  * Following the same pattern as special-pages mock transports
  */
 function createExtensionMockTransport() {
-
     return new TestTransportConfig({
         notify(_msg) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
         },
-        request: async (_msg) => {
+        request: (_msg) => {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
             // Return empty response for testing
-            return {};
+            return Promise.resolve({});
         },
         subscribe(_msg, callback) {
             window.__playwright_01?.mocks?.outgoing?.push?.({ payload: structuredClone(_msg) });
