@@ -1,7 +1,5 @@
 name: Dependabot auto-approve and auto-merge
-# Use pull_request_target to access secrets for Dependabot PRs
-# This is safe because this workflow does not checkout or execute PR code
-on: pull_request_target
+on: pull_request
 
 permissions:
     contents: write
