@@ -4,7 +4,7 @@
  * @module Special Pages
  */
 import { join, relative } from 'node:path';
-import { existsSync, cpSync, rmSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from 'node:fs';
 import { buildSync } from 'esbuild';
 import { cwd, parseArgs } from '../scripts/script-utils.js';
 import inliner from 'web-resource-inliner';
@@ -14,9 +14,6 @@ import { pages } from './pages.mjs';
 const CWD = cwd(import.meta.url);
 const ROOT = join(CWD, '../');
 const BUILD = join(ROOT, 'build');
-const APPLE_BUILD = join(ROOT, 'Sources/ContentScopeScripts/dist');
-const APPLE_PAGES_DIR = join(APPLE_BUILD, 'pages');
-const APPLE_PAGES_GITKEEP = join(APPLE_PAGES_DIR, '.gitkeep');
 const args = parseArgs(process.argv.slice(2), []);
 const NODE_ENV = args.env || 'production';
 const DEBUG = Boolean(args.debug);
@@ -38,7 +35,7 @@ for (const [pageName, injectNames] of Object.entries(pages)) {
     }
     for (const [injectNameKey, jobs] of Object.entries(injectNames)) {
         // output main dir
-        const buildDir = injectNameKey === 'apple' ? APPLE_BUILD : join(BUILD, injectNameKey);
+        const buildDir = join(BUILD, injectNameKey);
 
         const pageOutputDirectory = join(buildDir, 'pages', pageName);
 
@@ -100,10 +97,6 @@ for (const copyJob of copyJobs) {
             recursive: true,
         });
     }
-}
-if (!DRY_RUN && !existsSync(APPLE_PAGES_GITKEEP)) {
-    mkdirSync(APPLE_PAGES_DIR, { recursive: true });
-    writeFileSync(APPLE_PAGES_GITKEEP, '');
 }
 for (const buildJob of buildJobs) {
     if (DEBUG) console.log('BUILD:', buildJob);

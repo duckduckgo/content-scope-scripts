@@ -1,1 +1,5 @@
-- Apple package fix (#2174)
+- Revert "Apple package fix (#2174)" (#2184)
+- Change Dependabot workflow trigger to pull_request (#2182)
+- Rename .cursorrules to AGENTS.md (#2168)
+- fix: use pull_request_target for Dependabot workflow secrets access (#2176)
+- build(deps-dev): bump the typescript group with 4 updates (#2169)

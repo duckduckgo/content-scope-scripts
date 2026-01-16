@@ -1,8 +1,3 @@
----
-description: Guidelines for features running in web page DOM environments
-globs: injected/**
----
-
 # Injected Features
 
 JavaScript features injected into web pages or running in DOM environments of DuckDuckGo browsers. Features extend `ContentFeature` and `ConfigFeature` and integrate with remote configuration for per-site enable/disable.
