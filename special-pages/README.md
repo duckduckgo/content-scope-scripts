@@ -74,8 +74,8 @@ Special Pages gives us a single place to implement isolated HTML/CSS/Javascript 
 
 Would translate into the following build output
 
-- `build/apple/pages/example`
-- `build/apple/pages/duckplayer`
+- `Sources/ContentScopeScripts/dist/pages/example`
+- `Sources/ContentScopeScripts/dist/pages/duckplayer`
 - `build/windows/pages/example`
 - `build/windows/pages/duckplayer`
 
