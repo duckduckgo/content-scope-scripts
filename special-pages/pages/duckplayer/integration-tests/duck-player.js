@@ -560,7 +560,7 @@ export class DuckPlayerPage {
         return this.build.switch({
             windows: () => '../build/windows/pages/duckplayer',
             android: () => '../build/android/pages/duckplayer',
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/duckplayer',
+            apple: () => '../build/apple/pages/duckplayer',
         });
     }
 

@@ -139,7 +139,7 @@ export class OnboardingPage {
     get basePath() {
         return this.build.switch({
             windows: () => '../build/windows/pages/onboarding',
-            apple: () => '../Sources/ContentScopeScripts/dist/pages/onboarding',
+            apple: () => '../build/apple/pages/onboarding',
         });
     }
 
