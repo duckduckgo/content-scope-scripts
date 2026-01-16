@@ -31,7 +31,7 @@
     "@duckduckgo/design-tokens": "github:duckduckgo/design-tokens#v0.3.0",
     "@duckduckgo/messaging": "*",
     "chokidar": "^5.0.0",
-    "fast-check": "^4.5.2",
+    "fast-check": "^4.5.3",
     "http-server": "^14.1.1",
     "web-resource-inliner": "^8.0.0"
   },
