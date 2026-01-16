@@ -11,4 +11,3 @@ injected/integration-test/extension/contentScope.js
 !injected/integration-test/test-pages/*
 **/*.har
 **/*.css
-Sources/**/*
