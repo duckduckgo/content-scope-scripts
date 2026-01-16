@@ -45,12 +45,28 @@
 
 import { chromium } from 'playwright';
 import { PageContextCollector } from './helpers/page-context-collector.js';
-import { join } from 'path';
-import { mkdtempSync, rmSync, writeFileSync, readFileSync, mkdirSync, existsSync, appendFileSync } from 'node:fs';
+import { join , dirname } from 'path';
+import { mkdtempSync, rmSync, writeFileSync, readFileSync, mkdirSync, existsSync, appendFileSync , createWriteStream } from 'node:fs';
 import { tmpdir } from 'os';
-import { createWriteStream } from 'node:fs';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+// Use CommonJS require for mhtml2html and jsdom to avoid ESM conflicts
+const mhtml2htmlPkg = require('mhtml2html');
+const { JSDOM } = require('jsdom');
+
+/**
+ * Convert MHTML to HTML using mhtml2html
+ * @param {string} mhtmlData - The MHTML content
+ * @returns {string} HTML content
+ */
+function convertMHTML(mhtmlData) {
+    const doc = mhtml2htmlPkg.convert(mhtmlData, {
+        parseDOM: (html) => new JSDOM(html)
+    });
+    return doc.serialize();
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -204,115 +220,130 @@ function readUrlsFromFile(filePath) {
 }
 
 /**
- * Create self-contained HTML with inlined CSS and base64 images
- * @param {import('playwright').Page} page - The page to process
- * @returns {Promise<string>} HTML string with inlined resources
+ * Cookie banner auto-clicker - dismisses common cookie consent dialogs
+ * @param {import('playwright').Page} page - The page to interact with
  */
-async function createSelfContainedHtml(page) {
-    // Step 1: Inline all stylesheets
-    await page.evaluate(() => {
-        const stylesheets = document.querySelectorAll('link[rel="stylesheet"]');
-        stylesheets.forEach((link) => {
-            try {
-                const href = link.href;
-                // Find corresponding stylesheet in CSSOM
-                for (let i = 0; i < document.styleSheets.length; i++) {
-                    const sheet = document.styleSheets[i];
-                    if (sheet.href === href) {
-                        try {
-                            const rules = Array.from(sheet.cssRules || sheet.rules || []);
-                            const cssText = rules.map(rule => rule.cssText).join('\n');
-                            if (cssText) {
-                                const style = document.createElement('style');
-                                style.textContent = cssText;
-                                link.parentNode.insertBefore(style, link);
-                            }
-                        } catch (e) {
-                            // CORS or other access issues - skip
-                        }
-                        break;
-                    }
-                }
-            } catch (e) {
-                // Skip problematic stylesheets
-            }
-        });
+async function cookieBlocker(page) {
+    logMessage('Running cookie blocker...', 'DEBUG');
+    
+    // Common selectors for cookie consent buttons (based on the images provided)
+    const cookieSelectors = [
+        // "Accept" / "Consent" / "I Accept" buttons
+        'button:has-text("Accept")',
+        'button:has-text("Consent")',
+        'button:has-text("I Accept")',
+        'button:has-text("Accept all")',
+        'button:has-text("Accept All")',
+        'button:has-text("Agree")',
+        'button:has-text("OK")',
         
-        // Remove original link tags
-        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => link.remove());
-    });
+        // Specific cookie consent frameworks
+        '[class*="cookie"] button:has-text("Accept")',
+        '[class*="consent"] button:has-text("Accept")',
+        '[id*="cookie"] button:has-text("Accept")',
+        '[id*="consent"] button:has-text("Accept")',
+        
+        // Common IDs and classes from the screenshots
+        'button[class*="accept"]',
+        'button[id*="accept"]',
+        'a[class*="accept"]',
+        
+        // Essential/Reject alternatives (if Accept not found)
+        'button:has-text("Essential only")',
+        'button:has-text("Reject All")',
+    ];
     
-    // Step 2: Get all image URLs to convert
-    const imageData = await page.evaluate(() => {
-        const images = document.querySelectorAll('img[src]');
-        return Array.from(images).map((img, index) => ({
-            index,
-            src: img.src
-        })).filter(data => {
-            return data.src && 
-                   !data.src.startsWith('data:') && 
-                   data.src.startsWith('http');
-        });
-    });
-    
-    // Step 3: Fetch images and convert to base64 (limit to small images)
-    for (const { index, src } of imageData.slice(0, 20)) { // Limit to first 20 images
+    // Try each selector with a short timeout
+    for (const selector of cookieSelectors) {
         try {
-            const response = await page.evaluate(async (imgSrc) => {
-                try {
-                    const res = await fetch(imgSrc);
-                    if (!res.ok) return null;
-                    const blob = await res.blob();
-                    if (blob.size > 100000) return null; // Skip large images
-                    
-                    return new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.onerror = () => resolve(null);
-                        reader.readAsDataURL(blob);
-                    });
-                } catch (e) {
-                    return null;
-                }
-            }, src);
-            
-            if (response) {
-                // Update the image src
-                await page.evaluate((idx, dataUrl) => {
-                    const images = document.querySelectorAll('img[src]');
-                    if (images[idx]) {
-                        images[idx].src = dataUrl;
-                    }
-                }, index, response);
+            // Wait briefly for the selector (non-blocking)
+            const button = await page.locator(selector).first();
+            if (await button.isVisible({ timeout: 500 })) {
+                await button.click({ timeout: 1000 });
+                logMessage(`Clicked cookie button: ${selector}`, 'INFO');
+                // Wait a moment for the dialog to dismiss
+                await page.waitForTimeout(500);
+                return; // Exit after first successful click
             }
         } catch (e) {
-            // Skip failed images
+            // Selector not found or not visible, continue
+            continue;
         }
     }
     
-    // Step 4: Return the modified HTML
-    return await page.content();
+    logMessage('No cookie banners found or already dismissed', 'DEBUG');
+}
+
+/**
+ * Validate HTML content to filter out error pages and blocked content
+ * @param {import('playwright').Page} page - The page to validate
+ * @param {import('playwright').Response} response - The page response
+ * @returns {Promise<{valid: boolean, reason: string|null}>}
+ */
+async function validatePageContent(page, response) {
+    // Check HTTP status code
+    const status = response?.status();
+    if (!status || status < 200 || status >= 300) {
+        return { valid: false, reason: `Non-2xx status code: ${status}` };
+    }
+    
+    // Get page content for text-based checks using evaluate
+    const pageText = await page.evaluate(() => {
+        return document.body ? document.body.innerText || document.body.textContent : '';
+    }).catch(() => '');
+    
+    const pageTextLower = pageText.toLowerCase();
+    
+    logMessage(`Page text sample: ${pageText.substring(0, 200)}...`, 'DEBUG');
+    
+    // Define validation rules
+    const blockPatterns = [
+        { patterns: ['access denied', "don't have permission"], reason: 'Access denied page' },
+        { patterns: ['sorry, you have been blocked'], reason: 'Blocked by security' },
+        { patterns: ['legal age', 'adult'], reason: 'Age verification required' },
+        { patterns: ['not available in your country'], reason: 'Geo-restricted content' },
+        { patterns: ['verifying your browser'], reason: 'Bot detection page' },
+        { patterns: ['blocked by network security'], reason: 'Network security block' },
+    ];
+    
+    // Check each pattern
+    for (const { patterns, reason } of blockPatterns) {
+        const allMatch = patterns.every(pattern => {
+            const found = pageTextLower.includes(pattern);
+            if (found) {
+                logMessage(`Found blocking pattern: "${pattern}"`, 'DEBUG');
+            }
+            return found;
+        });
+        if (allMatch) {
+            logMessage(`❌ Validation failed - matched pattern: ${patterns.join(' + ')}`, 'WARN');
+            return { valid: false, reason };
+        }
+    }
+    
+    logMessage('✓ No blocking patterns found', 'DEBUG');
+    
+    return { valid: true, reason: null };
 }
 
 /**
  * Capture page assets (screenshot, HTML, MHTML)
  * @param {import('playwright').Page} page - The page to capture
  * @param {string} url - The URL being processed
+ * @param {string} baseFilename - The base filename to use (hostname-timestamp)
  * @returns {Promise<{screenshotPath: string|null, htmlPath: string|null, mhtmlPath: string|null}>}
  */
-async function capturePageAssets(page, url) {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname.replace(/[^a-z0-9]/gi, '_');
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const baseFilename = `${hostname}-${timestamp}`;
+async function capturePageAssets(page, url, baseFilename) {
     
     let screenshotPath = null;
     let htmlPath = null;
+    let rawHtmlPath = null;
     let mhtmlPath = null;
     
     // Create directories
     const screenshotsDir = join(crawlState.outputDir, 'screenshots');
     const htmlDir = join(crawlState.outputDir, 'html');
+    const rawHtmlDir = join(crawlState.outputDir, 'raw-html');
     const mhtmlDir = join(crawlState.outputDir, 'mhtml');
     
     if (!existsSync(screenshotsDir)) {
@@ -321,11 +352,14 @@ async function capturePageAssets(page, url) {
     if (!existsSync(htmlDir)) {
         mkdirSync(htmlDir, { recursive: true });
     }
+    if (!existsSync(rawHtmlDir)) {
+        mkdirSync(rawHtmlDir, { recursive: true });
+    }
     if (!existsSync(mhtmlDir)) {
         mkdirSync(mhtmlDir, { recursive: true });
     }
     
-    logMessage('Capturing page assets (screenshot, HTML, MHTML)', 'DEBUG');
+    logMessage('Capturing page assets (screenshot, raw HTML, MHTML, self-contained HTML)', 'DEBUG');
     console.log('📸 Capturing page assets...');
     
     // Capture screenshot
@@ -344,49 +378,49 @@ async function capturePageAssets(page, url) {
         screenshotPath = null;
     }
     
-    // Capture self-contained HTML (with inlined CSS and base64 images)
+    // Capture raw HTML (original, unmodified)
     try {
-        htmlPath = join(htmlDir, `${baseFilename}.html`);
-        logMessage('Creating self-contained HTML with inlined styles...', 'DEBUG');
-        const html = await createSelfContainedHtml(page);
-        writeFileSync(htmlPath, html, 'utf8');
-        logMessage(`HTML saved: ${htmlPath}`, 'DEBUG');
-        console.log(`📄 HTML saved: ${baseFilename}.html`);
+        rawHtmlPath = join(rawHtmlDir, `${baseFilename}.html`);
+        const rawHtml = await page.content();
+        writeFileSync(rawHtmlPath, rawHtml, 'utf8');
+        logMessage(`Raw HTML saved: ${rawHtmlPath}`, 'DEBUG');
+        console.log(`📄 Raw HTML saved: ${baseFilename}.html`);
     } catch (error) {
-        logMessage(`Failed to capture self-contained HTML, falling back to raw HTML: ${error.message}`, 'WARN');
-        console.warn(`⚠️  Failed to inline resources, using raw HTML: ${error.message}`);
-        try {
-            const html = await page.content();
-            writeFileSync(htmlPath, html, 'utf8');
-            logMessage(`Raw HTML saved: ${htmlPath}`, 'DEBUG');
-            console.log(`📄 Raw HTML saved: ${baseFilename}.html`);
-        } catch (fallbackError) {
-            logMessage(`Failed to capture HTML: ${fallbackError.message}`, 'WARN');
-            console.warn(`⚠️  Failed to capture HTML: ${fallbackError.message}`);
-            htmlPath = null;
-        }
+        logMessage(`Failed to capture raw HTML: ${error.message}`, 'WARN');
+        console.warn(`⚠️  Failed to capture raw HTML: ${error.message}`);
+        rawHtmlPath = null;
     }
     
-    // Note: MHTML capture disabled by default (doesn't render well in Label Studio)
-    // The self-contained HTML with inlined styles works better for display
-    // Uncomment below if you need MHTML for other purposes:
-    /*
+    // Capture MHTML and convert to self-contained HTML
     try {
         mhtmlPath = join(mhtmlDir, `${baseFilename}.mhtml`);
+        htmlPath = join(htmlDir, `${baseFilename}.html`);
+        
+        // Step 1: Capture MHTML using Chrome DevTools Protocol
+        logMessage('Capturing MHTML snapshot...', 'DEBUG');
         const cdp = await page.context().newCDPSession(page);
-        const { data } = await cdp.send('Page.captureSnapshot', { format: 'mhtml' });
-        writeFileSync(mhtmlPath, data, 'utf8');
+        const { data: mhtmlData } = await cdp.send('Page.captureSnapshot', { format: 'mhtml' });
         await cdp.detach();
+        
+        // Step 2: Save MHTML file
+        writeFileSync(mhtmlPath, mhtmlData, 'utf8');
         logMessage(`MHTML saved: ${mhtmlPath}`, 'DEBUG');
         console.log(`📦 MHTML saved: ${baseFilename}.mhtml`);
+        
+        // Step 3: Convert MHTML to self-contained HTML
+        logMessage('Converting MHTML to HTML...', 'DEBUG');
+        const htmlContent = await convertMHTML(mhtmlData);
+        writeFileSync(htmlPath, htmlContent, 'utf8');
+        logMessage(`Self-contained HTML saved: ${htmlPath}`, 'DEBUG');
+        console.log(`✨ Self-contained HTML saved: ${baseFilename}.html`);
     } catch (error) {
-        logMessage(`Failed to capture MHTML: ${error.message}`, 'WARN');
-        console.warn(`⚠️  Failed to capture MHTML: ${error.message}`);
+        logMessage(`Failed to capture/convert MHTML: ${error.message}`, 'WARN');
+        console.warn(`⚠️  Failed to capture/convert MHTML: ${error.message}`);
         mhtmlPath = null;
+        htmlPath = null;
     }
-    */
     
-    return { screenshotPath, htmlPath, mhtmlPath };
+    return { screenshotPath, htmlPath, rawHtmlPath, mhtmlPath };
 }
 
 /**
@@ -463,7 +497,7 @@ async function extractPageContent(url, options = { headful: false, timeout: 60, 
 
         // Create the page context collector using ResultsCollector directly
         const scriptDir = new URL('.', import.meta.url).pathname;
-        //const scriptDir = './integration-test';
+        // const scriptDir = './integration-test';
         const configDir = join(scriptDir, 'test-pages/page-context/config');
         let customConfigPath = join(configDir, 'page-context-enabled.json');
         if (options.noTruncate) {
@@ -477,21 +511,58 @@ async function extractPageContent(url, options = { headful: false, timeout: 60, 
         logMessage('Loading and collecting page content', 'DEBUG');
         console.log('Loading and collecting page content');
         
+        // Capture the response during page load (track last response, not first, to handle redirects)
+        let pageResponse = null;
+        page.on('response', (response) => {
+            // Match the base URL without query params or fragments
+            const responseUrl = response.url().split('?')[0].split('#')[0];
+            const targetUrl = url.split('?')[0].split('#')[0];
+            // Track navigation requests to capture final response after redirects
+            if (responseUrl === targetUrl || response.request().isNavigationRequest()) {
+                pageResponse = response;  // Overwrite to get final response in redirect chain
+                logMessage(`Captured response: ${response.status()} for ${responseUrl}`, 'DEBUG');
+            }
+        });
+        
         // Load and collect page content
         const content = await collector.loadAndCollect(url);
         logMessage("Collected page content", 'DEBUG');
         console.log("Collected page content");
         
+        // Validate page content before proceeding
+        logMessage(`Validating page content (response status: ${pageResponse?.status() || 'unknown'})`, 'DEBUG');
+        const validation = await validatePageContent(page, pageResponse);
+        
+        if (!validation.valid) {
+            logMessage(`❌ Page validation failed: ${validation.reason}`, 'WARN');
+            console.error(`❌ Skipping ${url}: ${validation.reason}`);
+            logFailure(url, `Page validation failed: ${validation.reason}`);
+            await context.close();
+            rmSync(dataDir, { recursive: true, force: true });
+            return;
+        }
+        
+        logMessage('✓ Page validation passed', 'INFO');
+        
+        // Run cookie blocker before capturing assets
+        await cookieBlocker(page);
+        
+        // Create a single timestamp for all files (ensures matching filenames)
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.replace(/[^a-z0-9]/gi, '_');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const baseFilename = `${hostname}-${timestamp}`;
+        
         // Capture page assets (screenshot, HTML, MHTML) if enabled
         if (options.captureAssets) {
-            await capturePageAssets(page, url);
+            await capturePageAssets(page, url, baseFilename);
         }
         
         // Display the extracted content
         displayContent(content);
         
         // Write content to file
-        const contentFile = writeContentToFile(content, url);
+        const contentFile = writeContentToFile(content, url, baseFilename);
         
         // Log success (HAR recording disabled)
         logSuccess(url, contentFile || '');
@@ -522,8 +593,9 @@ async function extractPageContent(url, options = { headful: false, timeout: 60, 
  * Write page content to a JSON file in the output directory
  * @param {Object} content - The extracted page content
  * @param {string} url - The URL that was processed
+ * @param {string} baseFilename - The base filename to use (hostname-timestamp)
  */
-function writeContentToFile(content, url) {
+function writeContentToFile(content, url, baseFilename) {
     // Create pages directory if it doesn't exist
     const pagesDir = join(crawlState.outputDir, 'pages');
     if (!existsSync(pagesDir)) {
@@ -531,18 +603,15 @@ function writeContentToFile(content, url) {
         console.log(`📁 Created directory: ${pagesDir}`);
     }
     
-    // Create a safe filename from the URL
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname.replace(/[^a-z0-9]/gi, '_');
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `${hostname}-${timestamp}.json`;
+    // Use provided baseFilename to match asset timestamps
+    const filename = `${baseFilename}.json`;
     const filepath = join(pagesDir, filename);
     
     // Prepare the output data
     const outputData = {
-        url: url,
+        url,
         extractedAt: new Date().toISOString(),
-        content: content
+        content
     };
     
     try {
