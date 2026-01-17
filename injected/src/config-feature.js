@@ -38,6 +38,7 @@ export default class ConfigFeature {
      *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
      *   messagingContextName: string,
      *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
+     *   surrogates?: Record<string, () => void>,
      * } | null}
      */
     #args;
