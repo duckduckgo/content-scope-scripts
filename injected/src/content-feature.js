@@ -23,6 +23,10 @@ import ConfigFeature from './config-feature.js';
  * @property {string[]} [enabledFeatures]
  */
 
+/**
+ * @typedef {import('./features.js').FeatureMap} FeatureMap
+ */
+
 export default class ContentFeature extends ConfigFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
     /** @type {import('../../messaging').Messaging} */
@@ -51,10 +55,36 @@ export default class ContentFeature extends ConfigFeature {
     /** @type {ImportMeta} */
     #importConfig;
 
-    constructor(featureName, importConfig, args) {
+    /**
+     * @type {Partial<FeatureMap>}
+     */
+    #features;
+
+    /**
+     * @template {string} K
+     * @typedef {K[] & {__brand: 'exposeMethods'}} ExposeMethods
+     */
+
+    /**
+     * Methods that are exposed for inter-feature communication.
+     *
+     * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
+     *
+     * @type {ExposeMethods<any> | undefined}
+     */
+    _exposedMethods;
+
+    /**
+     * @param {string} featureName
+     * @param {*} importConfig
+     * @param {Partial<FeatureMap>} features
+     * @param {*} args
+     */
+    constructor(featureName, importConfig, features, args) {
         super(featureName, args);
         this.setArgs(this.args);
         this.monitor = new PerformanceMonitor();
+        this.#features = features;
         this.#importConfig = importConfig;
     }
 
@@ -142,6 +172,43 @@ export default class ContentFeature extends ConfigFeature {
      */
     get documentOriginIsTracker() {
         return isTrackerOrigin(this.trackerLookup);
+    }
+
+    /**
+     * Declares which methods may be called on the feature instance from other features.
+     *
+     * @template {keyof typeof this} K
+     * @param {K[]} methods
+     * @returns {ExposeMethods<K>}
+     */
+    _declareExposedMethods(methods) {
+        // @ts-expect-error - phantom type for branding
+        return methods;
+    }
+
+    /**
+     * Run an exposed method of another feature.
+     *
+     * `args` are the arguments to pass to the feature method.
+     *
+     * @template {keyof FeatureMap} FeatureName
+     * @template {FeatureMap[FeatureName]} Feature
+     * @template {keyof Feature & (Feature['_exposedMethods'] extends ExposeMethods<infer K> ? K : never)} MethodName
+     * @param {FeatureName} featureName
+     * @param {MethodName} methodName
+     * @param {Feature[MethodName] extends (...args: infer Args) => any ? Args : never} args
+     * @returns {ReturnType<Feature[MethodName]>}
+     */
+    callFeatureMethod(featureName, methodName, ...args) {
+        const feature = this.#features[featureName];
+        if (!feature) throw new Error(`Feature ${featureName} not found`);
+        // correct method usage is guaranteed at the type level, but we include runtime checks for completeness
+        if (!(this._exposedMethods !== undefined && this._exposedMethods.some((mn) => mn === methodName)))
+            throw new Error(`Method ${methodName} is not exposed by feature ${featureName}`);
+        const method = /** @type {Feature} */ (feature)[methodName];
+        if (!method) throw new Error(`Method ${methodName} not found in feature ${featureName}`);
+        if (!(method instanceof Function)) throw new Error(`Method ${methodName} is not a function in feature ${featureName}`);
+        return method(...args);
     }
 
     /**

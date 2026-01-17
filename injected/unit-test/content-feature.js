@@ -1,9 +1,14 @@
 import ContentFeature from '../src/content-feature.js';
 
 describe('ContentFeature class', () => {
+    class BaseTestFeature extends ContentFeature {
+        constructor(featureName, importConfig, args) {
+            super(featureName, importConfig, {}, args);
+        }
+    }
     it('Should trigger getFeatureSettingEnabled for the correct domain', () => {
         let didRun = false;
-        class MyTestFeature extends ContentFeature {
+        class MyTestFeature extends BaseTestFeature {
             init() {
                 expect(this.getFeatureSetting('test')).toBe('enabled3');
                 expect(this.getFeatureSetting('otherTest')).toBe('enabled');
@@ -79,7 +84,7 @@ describe('ContentFeature class', () => {
 
     it('Should trigger getFeatureSettingEnabled for the correct domain', () => {
         let didRun = false;
-        class MyTestFeature2 extends ContentFeature {
+        class MyTestFeature2 extends BaseTestFeature {
             init() {
                 expect(this.getFeatureSetting('test')).toBe('enabled3');
                 expect(this.getFeatureSetting('otherTest')).toBe('enabled');
@@ -197,7 +202,7 @@ describe('ContentFeature class', () => {
 
     it('Should trigger getFeatureSetting for the correct conditions', () => {
         let didRun = false;
-        class MyTestFeature3 extends ContentFeature {
+        class MyTestFeature3 extends BaseTestFeature {
             init() {
                 expect(this.getFeatureSetting('test')).toBe('enabled');
                 expect(this.getFeatureSetting('otherTest')).toBe('disabled');
@@ -304,7 +309,7 @@ describe('ContentFeature class', () => {
     });
     it('Should respect minSupportedVersion as a condition', () => {
         let didRun = false;
-        class MyTestFeature3 extends ContentFeature {
+        class MyTestFeature3 extends BaseTestFeature {
             init() {
                 expect(this.getFeatureSetting('aiChat')).toBe('enabled');
                 expect(this.getFeatureSetting('subscriptions')).toBe('disabled');
@@ -369,7 +374,7 @@ describe('ContentFeature class', () => {
 
     it('Should respect maxSupportedVersion as a condition', () => {
         let didRun = false;
-        class MyTestFeature4 extends ContentFeature {
+        class MyTestFeature4 extends BaseTestFeature {
             init() {
                 expect(this.getFeatureSetting('aiChat')).toBe('enabled');
                 expect(this.getFeatureSetting('subscriptions')).toBe('disabled');
@@ -433,7 +438,7 @@ describe('ContentFeature class', () => {
     });
 
     describe('addDebugFlag', () => {
-        class MyTestFeature extends ContentFeature {
+        class MyTestFeature extends BaseTestFeature {
             // eslint-disable-next-line
             // @ts-ignore partial mock
             messaging = {
@@ -464,7 +469,7 @@ describe('ContentFeature class', () => {
     });
 
     describe('defineProperty', () => {
-        class MyTestFeature extends ContentFeature {
+        class MyTestFeature extends BaseTestFeature {
             addDebugFlag() {
                 this.debugFlagAdded = true;
             }
@@ -564,7 +569,7 @@ describe('ContentFeature class', () => {
 
     describe('injectName condition', () => {
         it('should match when injectName condition is met', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 /** @returns {'apple-isolated'} */
                 get injectName() {
                     return 'apple-isolated';
@@ -590,7 +595,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when injectName condition is not met', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 /** @returns {'apple-isolated'} */
                 get injectName() {
                     return 'apple-isolated';
@@ -616,7 +621,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle undefined injectName gracefully', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 /** @returns {undefined} */
                 get injectName() {
                     return undefined;
@@ -642,7 +647,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle missing injectName condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 /** @returns {'apple-isolated'} */
                 get injectName() {
                     return 'apple-isolated';
@@ -668,7 +673,7 @@ describe('ContentFeature class', () => {
 
     describe('maxSupportedVersion condition', () => {
         it('should match when current version is less than max', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchMaxSupportedVersion(conditionBlock) {
                     return this._matchMaxSupportedVersion(conditionBlock);
                 }
@@ -693,7 +698,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should match when current version equals max', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchMaxSupportedVersion(conditionBlock) {
                     return this._matchMaxSupportedVersion(conditionBlock);
                 }
@@ -718,7 +723,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when current version is greater than max', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchMaxSupportedVersion(conditionBlock) {
                     return this._matchMaxSupportedVersion(conditionBlock);
                 }
@@ -743,7 +748,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle integer versions', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchMaxSupportedVersion(conditionBlock) {
                     return this._matchMaxSupportedVersion(conditionBlock);
                 }
@@ -768,7 +773,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle missing maxSupportedVersion condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchMaxSupportedVersion(conditionBlock) {
                     return this._matchMaxSupportedVersion(conditionBlock);
                 }
@@ -793,7 +798,7 @@ describe('ContentFeature class', () => {
 
     describe('internal condition', () => {
         it('should match when internal is true and condition is true', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -818,7 +823,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should match when internal is false and condition is false', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -843,7 +848,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when internal is true but condition is false', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -868,7 +873,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when internal is false but condition is true', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -893,7 +898,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle undefined internal state gracefully', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -918,7 +923,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle missing internal condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -941,7 +946,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle truthy values for internal condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -966,7 +971,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle falsy values for internal condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchInternalConditional(conditionBlock) {
                     return this._matchInternalConditional(conditionBlock);
                 }
@@ -993,7 +998,7 @@ describe('ContentFeature class', () => {
 
     describe('preview condition', () => {
         it('should match when preview is true and condition is true', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1018,7 +1023,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should match when preview is false and condition is false', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1043,7 +1048,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when preview is true but condition is false', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1068,7 +1073,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should not match when preview is false but condition is true', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1093,7 +1098,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle undefined preview state gracefully', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1118,7 +1123,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle missing preview condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1141,7 +1146,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle truthy values for preview condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
@@ -1166,7 +1171,7 @@ describe('ContentFeature class', () => {
         });
 
         it('should handle falsy values for preview condition', () => {
-            class MyTestFeature extends ContentFeature {
+            class MyTestFeature extends BaseTestFeature {
                 testMatchPreviewConditional(conditionBlock) {
                     return this._matchPreviewConditional(conditionBlock);
                 }
