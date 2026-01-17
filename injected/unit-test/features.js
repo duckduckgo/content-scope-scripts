@@ -111,6 +111,7 @@ describe('ApiManipulation', () => {
         apiManipulation = new ApiManipulation(
             'apiManipulation',
             {},
+            {},
             {
                 bundledConfig: { features: { apiManipulation: { state: 'enabled', exceptions: [] } } },
                 site: { domain: 'test.com' },

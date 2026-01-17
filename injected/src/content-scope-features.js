@@ -7,6 +7,11 @@ import { registerForURLChanges } from './url-change';
 let initArgs = null;
 const updates = [];
 const features = [];
+/**
+ * @type {Partial<import('./features.js').FeatureMap>}
+ */
+const featureMap = {};
+
 const alwaysInitFeatures = new Set(['cookie']);
 const performanceMonitor = new PerformanceMonitor();
 
@@ -57,13 +62,15 @@ export function load(args) {
     for (const featureName of bundledFeatureNames) {
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
-            const featureInstance = new ContentFeature(featureName, importConfig, args);
+            const featureInstance = new ContentFeature(featureName, importConfig, featureMap, args);
             // Short term fix to disable the feature whilst we roll out Android adsjs
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                 continue;
             }
             featureInstance.callLoad();
             features.push({ featureName, featureInstance });
+            // @ts-expect-error - ignore typing for simplicity (avoids introducing runtime proofs for featureName => featureInstance)
+            featureMap[featureName] = featureInstance;
         }
     }
     mark.end();

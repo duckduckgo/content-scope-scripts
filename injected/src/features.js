@@ -1,5 +1,47 @@
+/**
+ * Map of feature names to feature classes.
+ *
+ * New features must be added to this map.
+ *
+ * @typedef {{
+ *   apiManipulation: import('./features/api-manipulation').default,
+ *   autofillImport: import('./features/autofill-import').default,
+ *   breakageReporting: import('./features/breakage-reporting').default,
+ *   brokerProtection: import('./features/broker-protection').default,
+ *   clickToLoad: import('./features/click-to-load').default,
+ *   cookie: import('./features/cookie').default,
+ *   duckAiDataClearing: import('./features/duck-ai-data-clearing').default,
+ *   duckPlayer: import('./features/duck-player').default,
+ *   duckPlayerNative: import('./features/duck-player-native').default,
+ *   elementHiding: import('./features/element-hiding').default,
+ *   exceptionHandler: import('./features/exception-handler').default,
+ *   favicon: import('./features/favicon').default,
+ *   fingerprintingAudio: import('./features/fingerprinting-audio').default,
+ *   fingerprintingBattery: import('./features/fingerprinting-battery').default,
+ *   fingerprintingCanvas: import('./features/fingerprinting-canvas').default,
+ *   fingerprintingHardware: import('./features/fingerprinting-hardware').default,
+ *   fingerprintingScreenSize: import('./features/fingerprinting-screen-size').default,
+ *   fingerprintingTemporaryStorage: import('./features/fingerprinting-temporary-storage').default,
+ *   googleRejected: import('./features/google-rejected').default,
+ *   gpc: import('./features/gpc').default,
+ *   harmfulApis: import('./features/harmful-apis').default,
+ *   messageBridge: import('./features/message-bridge').default,
+ *   navigatorInterface: import('./features/navigator-interface').default,
+ *   pageContext: import('./features/page-context').default,
+ *   performanceMetrics: import('./features/performance-metrics').default,
+ *   referrer: import('./features/referrer').default,
+ *   uaChBrands: import('./features/ua-ch-brands').default,
+ *   webCompat: import('./features/web-compat').default,
+ *   webInterferenceDetection: import('./features/web-interference-detection').default,
+ *   webTelemetry: import('./features/web-telemetry').default,
+ *   windowsPermissionUsage: import('./features/windows-permission-usage').default,
+ * }} FeatureMap
+ */
+
+/** @typedef {keyof FeatureMap} FeatureName */
+
 // Features must exist in either `baseFeatures` or `otherFeatures`
-export const baseFeatures = /** @type {const} */ ([
+export const baseFeatures = /** @type {FeatureName[]} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
     'fingerprintingCanvas',
@@ -15,7 +57,7 @@ export const baseFeatures = /** @type {const} */ ([
     'apiManipulation',
 ]);
 
-const otherFeatures = /** @type {const} */ ([
+const otherFeatures = /** @type {FeatureName[]} */ ([
     'clickToLoad',
     'cookie',
     'messageBridge',
@@ -37,7 +79,6 @@ const otherFeatures = /** @type {const} */ ([
     'pageContext',
 ]);
 
-/** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
     apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webInterferenceDetection', 'pageContext'],
