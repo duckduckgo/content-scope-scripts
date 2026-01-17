@@ -10,8 +10,8 @@ const MSG_URL_CHANGED = 'url-changed';
 export class WebTelemetry extends ContentFeature {
     listenForUrlChanges = true;
 
-    constructor(featureName, importConfig, args) {
-        super(featureName, importConfig, args);
+    constructor(featureName, importConfig, features, args) {
+        super(featureName, importConfig, features, args);
         this.seenVideoElements = new WeakSet();
         this.seenVideoUrls = new Set();
     }
