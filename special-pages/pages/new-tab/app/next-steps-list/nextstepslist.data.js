@@ -20,12 +20,12 @@ export const variants = {
         actionText: t('nextStepsList_addAppToDockMac_actionText'),
     }),
     /** @param {(translationId: keyof enStrings) => string} t */
-    personalize: (t) => ({
-        id: 'personalize',
+    personalizeBrowser: (t) => ({
+        id: 'personalizeBrowser',
         icon: 'customize-ntp',
-        title: t('nextStepsList_personalize_title'),
-        summary: t('nextStepsList_personalize_summary'),
-        actionText: t('nextStepsList_personalize_actionText'),
+        title: t('nextStepsList_personalizeBrowser_title'),
+        summary: t('nextStepsList_personalizeBrowser_summary'),
+        actionText: t('nextStepsList_personalizeBrowser_actionText'),
     }),
     /** @param {(translationId: keyof enStrings) => string} t */
     duckplayer: (t) => ({
@@ -44,20 +44,20 @@ export const variants = {
         actionText: t('nextStepsList_emailProtection_actionText'),
     }),
     /** @param {(translationId: keyof enStrings) => string} t */
-    bringStuff: (t) => ({
-        id: 'bringStuff',
+    importBookmarks: (t) => ({
+        id: 'importBookmarks',
         icon: 'import-bookmarks',
-        title: t('nextStepsList_bringStuff_title'),
-        summary: t('nextStepsList_bringStuff_summary'),
-        actionText: t('nextStepsList_bringStuff_actionText'),
+        title: t('nextStepsList_importBookmarks_title'),
+        summary: t('nextStepsList_importBookmarks_summary'),
+        actionText: t('nextStepsList_importBookmarks_actionText'),
     }),
     /** @param {(translationId: keyof enStrings) => string} t */
-    bringStuffAll: (t) => ({
-        id: 'bringStuffAll',
+    importPasswords: (t) => ({
+        id: 'importPasswords',
         icon: 'import-passwords',
-        title: t('nextStepsList_bringStuffAll_title'),
-        summary: t('nextStepsList_bringStuffAll_summary'),
-        actionText: t('nextStepsList_bringStuffAll_actionText'),
+        title: t('nextStepsList_importPasswords_title'),
+        summary: t('nextStepsList_importPasswords_summary'),
+        actionText: t('nextStepsList_importPasswords_actionText'),
     }),
     /** @param {(translationId: keyof enStrings) => string} t */
     defaultApp: (t) => ({

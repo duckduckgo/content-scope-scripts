@@ -59,6 +59,7 @@ export function NextStepsListConsumer() {
 
         return (
             <NextStepsListCard
+                itemId={firstItem.id}
                 title={variantData.title}
                 description={variantData.summary}
                 primaryButtonText={variantData.actionText}
