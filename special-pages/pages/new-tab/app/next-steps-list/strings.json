@@ -63,27 +63,15 @@
     "title": "Get Email Protection",
     "note": "Button text of the Next Steps List card for email protection"
   },
-  "nextStepsList_importBookmarks_title": {
-    "title": "Import Your Bookmarks",
-    "note": "Title of the Next Steps List card for importing bookmarks"
-  },
-  "nextStepsList_importBookmarks_summary": {
-    "title": "Bring your bookmarks over to DuckDuckGo and keep easy access to your top sites.",
-    "note": "Summary of the Next Steps List card for importing bookmarks"
-  },
-  "nextStepsList_importBookmarks_actionText": {
-    "title": "Import Now",
-    "note": "Button text of the Next Steps List card for importing bookmarks"
-  },
-  "nextStepsList_importPasswords_title": {
+  "nextStepsList_bringStuff_title": {
     "title": "Import Your Bookmarks and Passwords to DuckDuckGo",
     "note": "Title of the Next Steps List card for importing bookmarks, passwords, and more"
   },
-  "nextStepsList_importPasswords_summary": {
+  "nextStepsList_bringStuff_summary": {
     "title": "Securely bring over your bookmarks, passwords, and credit cards details.",
     "note": "Summary of the Next Steps List card for importing bookmarks, passwords, and more"
   },
-  "nextStepsList_importPasswords_actionText": {
+  "nextStepsList_bringStuff_actionText": {
     "title": "Import Now",
     "note": "Button text of the Next Steps List card for importing bookmarks, passwords, and more"
   },

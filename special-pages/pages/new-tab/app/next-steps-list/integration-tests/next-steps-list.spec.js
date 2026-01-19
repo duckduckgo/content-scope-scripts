@@ -50,9 +50,9 @@ test.describe('newtab NextStepsList widget', () => {
         await page.getByText('Take Back Your Privacy!').waitFor();
         await page.getByRole('button', { name: 'Set as Default' }).waitFor();
 
-        // Test importBookmarks variant
-        await ntp.openPage({ nextStepsList: 'importBookmarks' });
-        await page.getByText('Import Your Bookmarks').waitFor();
+        // Test bringStuff variant
+        await ntp.openPage({ nextStepsList: 'bringStuff' });
+        await page.getByText('Import Your Bookmarks and Passwords to DuckDuckGo').waitFor();
         await page.getByRole('button', { name: 'Import Now' }).waitFor();
     });
 
