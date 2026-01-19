@@ -1195,4 +1195,193 @@ describe('ContentFeature class', () => {
             expect(result).toBe(true);
         });
     });
+
+    describe('inter-feature communication', () => {
+        /**
+         * Creates a feature class with specified exposed methods
+         * @param {string} name
+         * @param {Record<string, Function>} methods
+         * @param {string[]} exposedMethodNames
+         */
+        function createFeatureClass(name, methods, exposedMethodNames) {
+            return class extends ContentFeature {
+                /**
+                 *
+                 * @param {Record<string, any>} [features={}]
+                 */
+                constructor(features = {}) {
+                    super(name, {}, features, {});
+                    // Add methods to instance
+                    for (const [methodName, fn] of Object.entries(methods)) {
+                        this[methodName] = fn.bind(this);
+                    }
+                    this._exposedMethods = this._declareExposedMethods(exposedMethodNames);
+                }
+
+                /**
+                 * @param {string[]} methodNames
+                 */
+                // @ts-expect-error - ignore for tests
+                _declareExposedMethods(methodNames) {
+                    // @ts-expect-error - ignore for tests
+                    return super._declareExposedMethods(methodNames);
+                }
+
+                /**
+                 * @param {string} featureName
+                 * @param {string} methodName
+                 * @param  {...any} args
+                 * @returns {any}
+                 */
+                callFeatureMethod(featureName, methodName, ...args) {
+                    // @ts-expect-error - ignore for tests
+                    return super.callFeatureMethod(featureName, methodName, ...args);
+                }
+
+                prop1 = 'test';
+            };
+        }
+
+        describe('_declareExposedMethods', () => {
+            it('should throw an error if method does not exist on the class', () => {
+                const FeatureA = createFeatureClass('featureA', {}, []);
+                const feature = new FeatureA();
+                expect(() => {
+                    feature._declareExposedMethods(['unknownMethod']);
+                }).toThrowError("'unknownMethod' is not a method of feature 'featureA'");
+            });
+
+            it('should throw an error if name is a property on the class', () => {
+                const FeatureA = createFeatureClass('featureA', {}, []);
+                const feature = new FeatureA();
+                expect(() => {
+                    feature._declareExposedMethods(['prop1']);
+                }).toThrowError("'prop1' is not a method of feature 'featureA'");
+            });
+
+            it('should succeed if name is a method on the class', () => {
+                const FeatureA = createFeatureClass('featureA', { method1: () => {} }, []);
+                const feature = new FeatureA();
+                expect(() => {
+                    feature._declareExposedMethods(['method1']);
+                }).not.toThrow();
+            });
+        });
+
+        describe('callFeatureMethod', () => {
+            /**
+             * @param {Record<string, Function>} methods
+             * @param {string[]} exposedMethods
+             */
+            const buildCallerFeature = (methods, exposedMethods) => {
+                const TargetFeature = createFeatureClass(
+                    'targetFeature',
+                    methods,
+                    exposedMethods,
+                );
+                const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                const targetFeature = new TargetFeature();
+                const features = { targetFeature };
+
+                return new CallerFeature(features);
+            }
+
+            it('should throw when the target feature does not exist', () => {
+                const CallerFeature = createFeatureClass('callerFeature', {}, []);
+                const callerFeature = new CallerFeature();
+
+                expect(() => {
+                    callerFeature.callFeatureMethod('nonExistentFeature', 'someMethod');
+                }).toThrowError("Feature 'nonExistentFeature' not found");
+            });
+
+            it('should throw when the method is not in the exposed methods list', () => {
+                const callerFeature = buildCallerFeature({
+                    exposedMethod: () => {},
+                    privateMethod: () => {},
+                }, ['exposedMethod']);
+
+                expect(() => {
+                    callerFeature.callFeatureMethod('targetFeature', 'privateMethod');
+                }).toThrowError("'privateMethod' is not exposed by feature 'targetFeature'");
+            });
+
+            it('should successfully call an exposed method on another feature', () => {
+                const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
+                const callerFeature = buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod']);
+
+                const result = callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
+
+                expect(targetMethod).toHaveBeenCalled();
+                expect(result).toBe('success');
+            });
+
+            it('should handle async methods correctly', async () => {
+                const asyncMethod = jasmine.createSpy('asyncMethod').and.returnValue(Promise.resolve('async result'));
+                const callerFeature = buildCallerFeature({ asyncMethod }, ['asyncMethod']);
+
+                const result = callerFeature.callFeatureMethod('targetFeature', 'asyncMethod');
+
+                expect(result).toBeInstanceOf(Promise);
+                expect(await result).toBe('async result');
+            });
+
+            it('should pass arguments to the target method', () => {
+                const targetMethod = jasmine.createSpy('targetMethod').and.callFake((a, b, c) => a + b + c);
+                const callerFeature = buildCallerFeature({ sum: targetMethod }, ['sum']);
+
+                const result = callerFeature.callFeatureMethod('targetFeature', 'sum', 1, 2, 3);
+
+                expect(targetMethod).toHaveBeenCalledWith(1, 2, 3);
+                expect(result).toBe(6);
+            });
+
+            it('should return the value from the target method', () => {
+                const callerFeature = buildCallerFeature({ getValue: () => ({ data: 'test' }) }, ['getValue']);
+
+                const result = callerFeature.callFeatureMethod('targetFeature', 'getValue');
+
+                expect(result).toEqual({ data: 'test' });
+            });
+
+            it('should allow multiple features to communicate', () => {
+                const FeatureA = createFeatureClass('featureA', { getData: () => 'data from A' }, ['getData']);
+                const FeatureB = createFeatureClass('featureB', { process: (input) => `processed: ${input}` }, ['process']);
+                const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                const featureA = new FeatureA();
+                const featureB = new FeatureB();
+                const features = { featureA, featureB };
+                const callerFeature = new CallerFeature(features);
+
+                const dataFromA = callerFeature.callFeatureMethod('featureA', 'getData');
+                const processedByB = callerFeature.callFeatureMethod('featureB', 'process', dataFromA);
+
+                expect(processedByB).toBe('processed: data from A');
+            });
+
+            it('should maintain correct this context when calling target method', () => {
+                class TargetFeature extends ContentFeature {
+                    constructor() {
+                        super('targetFeature', {}, {}, {});
+                        this._exposedMethods = this._declareExposedMethods(['getFeatureName']);
+                        this.customProperty = 'custom value';
+                    }
+                    getFeatureName() {
+                        return this.name;
+                    }
+                }
+                const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                const targetFeature = new TargetFeature();
+                const features = { targetFeature };
+                const callerFeature = new CallerFeature(features);
+
+                const result = callerFeature.callFeatureMethod('targetFeature', 'getFeatureName');
+
+                expect(result).toBe('targetFeature');
+            });
+        });
+    });
 });

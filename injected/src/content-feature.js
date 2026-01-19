@@ -182,6 +182,11 @@ export default class ContentFeature extends ConfigFeature {
      * @returns {ExposeMethods<K>}
      */
     _declareExposedMethods(methods) {
+        for (const method of methods) {
+            if (typeof this[method] !== 'function') {
+                throw new Error(`'${method.toString()}' is not a method of feature '${this.name}'`);
+            }
+        }
         // @ts-expect-error - phantom type for branding
         return methods;
     }
@@ -201,14 +206,14 @@ export default class ContentFeature extends ConfigFeature {
      */
     callFeatureMethod(featureName, methodName, ...args) {
         const feature = this.#features[featureName];
-        if (!feature) throw new Error(`Feature ${featureName} not found`);
-        // correct method usage is guaranteed at the type level, but we include runtime checks for completeness
-        if (!(this._exposedMethods !== undefined && this._exposedMethods.some((mn) => mn === methodName)))
-            throw new Error(`Method ${methodName} is not exposed by feature ${featureName}`);
+        if (!feature) throw new Error(`Feature '${featureName}' not found`);
+        // correct method usage is guaranteed at the type level, but we include runtime checks for additional safety
+        if (!(feature._exposedMethods !== undefined && feature._exposedMethods.some((mn) => mn === methodName)))
+            throw new Error(`'${methodName}' is not exposed by feature '${featureName}'`);
         const method = /** @type {Feature} */ (feature)[methodName];
-        if (!method) throw new Error(`Method ${methodName} not found in feature ${featureName}`);
-        if (!(method instanceof Function)) throw new Error(`Method ${methodName} is not a function in feature ${featureName}`);
-        return method(...args);
+        if (!method) throw new Error(`'${methodName}' not found in feature '${featureName}'`);
+        if (!(method instanceof Function)) throw new Error(`'${methodName}' is not a function in feature '${featureName}'`);
+        return method.call(feature, ...args);
     }
 
     /**
