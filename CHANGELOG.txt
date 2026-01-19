@@ -1,1 +1,1 @@
-- Implement Duck.ai get chat history feature (#2164)
+- Add themeVariantPopoverWasOpen to drawer telemetry (#2172)

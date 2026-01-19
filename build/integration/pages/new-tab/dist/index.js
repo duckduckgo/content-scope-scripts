@@ -2859,16 +2859,46 @@
       {
         onOpen: () => {
           drawerOpenCount.value++;
+          ntp.telemetryEvent({
+            attributes: {
+              name: "customizer_drawer",
+              value: {
+                state: "opened",
+                themeVariantPopoverWasOpen: data2.value.showThemeVariantPopover ?? false
+              }
+            }
+          });
           service.dismissThemeVariantPopover();
-          ntp.telemetryEvent({ attributes: { name: "customizer_drawer", value: "opened" } });
         },
         onClose: () => {
-          ntp.telemetryEvent({ attributes: { name: "customizer_drawer", value: "closed" } });
+          ntp.telemetryEvent({
+            attributes: {
+              name: "customizer_drawer",
+              value: { state: "closed" }
+            }
+          });
         },
         onToggle: (state) => {
           drawerOpenCount.value++;
+          if (state === "visible") {
+            ntp.telemetryEvent({
+              attributes: {
+                name: "customizer_drawer",
+                value: {
+                  state: "opened",
+                  themeVariantPopoverWasOpen: data2.value.showThemeVariantPopover ?? false
+                }
+              }
+            });
+          } else {
+            ntp.telemetryEvent({
+              attributes: {
+                name: "customizer_drawer",
+                value: { state: "closed" }
+              }
+            });
+          }
           service.dismissThemeVariantPopover();
-          ntp.telemetryEvent({ attributes: { name: "customizer_drawer", value: state === "visible" ? "opened" : "closed" } });
         }
       },
       [service, ntp]
