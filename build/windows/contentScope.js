@@ -2884,6 +2884,7 @@
       "duckPlayer",
       "duckPlayerNative",
       "duckAiDataClearing",
+      "duckAiChatHistory",
       "harmfulApis",
       "webCompat",
       "webInterferenceDetection",
@@ -2911,6 +2912,7 @@
       "favicon"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
+    "apple-ai-history": ["duckAiChatHistory"],
     android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-import": ["autofillImport"],
@@ -2938,7 +2940,8 @@
       "messageBridge",
       "webCompat",
       "pageContext",
-      "duckAiDataClearing"
+      "duckAiDataClearing",
+      "duckAiChatHistory"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
     chrome: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
@@ -16902,6 +16905,139 @@ ${iframeContent}
   };
   var duck_ai_data_clearing_default = DuckAiDataClearing;
 
+  // src/features/duck-ai-chat-history.js
+  init_define_import_meta_trackerLookup();
+  var _DuckAiChatHistory = class _DuckAiChatHistory extends ContentFeature {
+    init() {
+      this.messaging.subscribe(
+        "getDuckAiChats",
+        (params) => this.getChats(params)
+      );
+    }
+    /**
+     * @param {object} [params]
+     * @param {string} [params.query] - Search query to filter chats by title
+     * @param {number} [params.max_chats] - Maximum number of unpinned chats to return (default: 30, pinned chats have no limit)
+     * @param {number} [params.since] - Timestamp in milliseconds - only return chats with lastEdit >= this value
+     */
+    getChats(params) {
+      try {
+        const query = params?.query?.toLowerCase().trim() || "";
+        const maxChats = params?.max_chats ?? _DuckAiChatHistory.DEFAULT_MAX_CHATS;
+        const since = params?.since;
+        const { pinnedChats, chats } = this.retrieveChats(query, maxChats, since);
+        this.notify("duckAiChatsResult", {
+          success: true,
+          pinnedChats,
+          chats,
+          timestamp: Date.now()
+        });
+      } catch (error) {
+        this.log.error("Error retrieving chats:", error);
+        this.notify("duckAiChatsResult", {
+          success: false,
+          error: error?.message || "Unknown error occurred",
+          pinnedChats: [],
+          chats: [],
+          timestamp: Date.now()
+        });
+      }
+    }
+    /**
+     * Retrieves chats from localStorage, optionally filtered by search query and timestamp
+     * @param {string} query - Search query (empty string returns all chats)
+     * @param {number} maxChats - Maximum number of unpinned chats to return (pinned chats have no limit)
+     * @param {number} [since] - Timestamp in milliseconds - only return chats with lastEdit >= this value
+     * @returns {{pinnedChats: Array<object>, chats: Array<object>}} Pinned and unpinned chat arrays
+     */
+    retrieveChats(query, maxChats, since) {
+      const localStorageKeys = this.getFeatureSetting("chatsLocalStorageKeys") || ["savedAIChats"];
+      const pinnedChats = [];
+      const chats = [];
+      for (const localStorageKey of localStorageKeys) {
+        try {
+          const rawData = window.localStorage.getItem(localStorageKey);
+          if (!rawData) {
+            this.log.info(`No data found for key '${localStorageKey}'`);
+            continue;
+          }
+          const data2 = JSON.parse(rawData);
+          if (!data2 || typeof data2 !== "object") {
+            this.log.info(`Data for key '${localStorageKey}' is not an object`);
+            continue;
+          }
+          const dataChats = data2.chats;
+          if (!Array.isArray(dataChats)) {
+            this.log.info(`No chats array found for key '${localStorageKey}'`);
+            continue;
+          }
+          let filteredChats = dataChats;
+          if (since !== void 0) {
+            filteredChats = filteredChats.filter((chat) => this.isNotOlderThan(chat, since));
+          }
+          const matchingChats = query ? filteredChats.filter((chat) => this.chatMatchesQuery(chat, query)) : filteredChats;
+          for (const chat of matchingChats) {
+            const formattedChat = this.formatChat(chat);
+            if (chat.pinned) {
+              pinnedChats.push(formattedChat);
+            } else if (chats.length < maxChats) {
+              chats.push(formattedChat);
+            }
+          }
+        } catch (error) {
+          this.log.error(`Error parsing data for key '${localStorageKey}':`, error);
+        }
+      }
+      return { pinnedChats, chats };
+    }
+    /**
+     * Formats a chat object for sending to native, extracting only needed keys
+     * @param {object} chat - Chat object
+     * @returns {object} Formatted chat object
+     */
+    formatChat(chat) {
+      return {
+        chatId: chat?.chatId,
+        title: chat?.title,
+        model: chat?.model,
+        lastEdit: chat?.lastEdit,
+        pinned: chat?.pinned
+      };
+    }
+    /**
+     * Checks if a chat matches the search query by checking if all query words appear in title
+     * @param {object} chat - Chat object
+     * @param {string} query - Lowercase search query
+     * @returns {boolean} True if chat title contains all query words
+     */
+    chatMatchesQuery(chat, query) {
+      const title = typeof chat.title === "string" ? chat.title.toLowerCase() : "";
+      const words = query.split(/\s+/).filter((w2) => w2);
+      return words.every((word) => title.includes(word));
+    }
+    /**
+     * Checks if a chat's lastEdit is not older than the given timestamp
+     * @param {object} chat - Chat object
+     * @param {number} since - Timestamp in milliseconds
+     * @returns {boolean} True if chat is not older than the timestamp
+     */
+    isNotOlderThan(chat, since) {
+      const lastEdit = chat.lastEdit;
+      if (!lastEdit) {
+        return true;
+      }
+      const timestamp = new Date(lastEdit).getTime();
+      if (Number.isNaN(timestamp)) {
+        return true;
+      }
+      return timestamp >= since;
+    }
+  };
+  /** @type {number} Default maximum number of chats to return */
+  __publicField(_DuckAiChatHistory, "DEFAULT_MAX_CHATS", 30);
+  var DuckAiChatHistory = _DuckAiChatHistory;
+  var duck_ai_chat_history_default = DuckAiChatHistory;
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_cookie: CookieFeature,
@@ -16928,7 +17064,8 @@ ${iframeContent}
     ddg_feature_messageBridge: message_bridge_default,
     ddg_feature_webCompat: web_compat_default,
     ddg_feature_pageContext: PageContext,
-    ddg_feature_duckAiDataClearing: duck_ai_data_clearing_default
+    ddg_feature_duckAiDataClearing: duck_ai_data_clearing_default,
+    ddg_feature_duckAiChatHistory: duck_ai_chat_history_default
   };
 
   // src/url-change.js

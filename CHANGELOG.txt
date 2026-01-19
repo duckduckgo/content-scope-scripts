@@ -1,1 +1,1 @@
-- Reapply "Apple package fix (#2174)" (#2184) (#2185)
+- Implement Duck.ai get chat history feature (#2164)
