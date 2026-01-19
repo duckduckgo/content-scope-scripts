@@ -1,6 +1,7 @@
 import { getElement, generateRandomInt } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js';
+import { states } from '../comparisons/constants.js';
 
 /**
  * @param {Record<string, any>} action
@@ -88,6 +89,28 @@ export function fillMany(root, elements, data) {
                 continue;
             }
             results.push(setValueForInput(inputElem, data.city + ', ' + data.state));
+        } else if (element.type === "fullState") {
+            if (!Object.prototype.hasOwnProperty.call(data, 'state')) {
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but data didn't contain the key 'state'`,
+                });
+                continue;
+            }
+
+            const state = data.state;
+
+            if(!Object.prototype.hasOwnProperty.call(states, state)) {
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but data contained an invalid 'state' abbreviation`,
+                });
+                continue;
+            }
+
+            const stateFull = states[state];
+
+            results.push(setValueForInput(inputElem, stateFull));
         } else {
             if (isElementTypeOptional(element.type)) {
                 continue;

@@ -45,14 +45,21 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * @param {object} [options]
      * @return {Promise<void>}
      */
-    async isFormFilled() {
+    async isFormFilled(options) {
         await expect(this.page.getByLabel('First Name:', { exact: true })).toHaveValue('John');
         await expect(this.page.getByLabel('Last Name:', { exact: true })).toHaveValue('Smith');
         await expect(this.page.getByLabel('Phone Number:', { exact: true })).toHaveValue(/^\d{10}$/);
         await expect(this.page.getByLabel('Street Address:', { exact: true })).toHaveValue(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/);
-        await expect(this.page.locator('#state')).toHaveValue('IL');
+
+        if (options && options.fullState) {
+            await expect(this.page.locator('#full-state')).toHaveValue('Illinois');
+        } else {
+            await expect(this.page.locator('#state')).toHaveValue('IL');
+        }
+
         await expect(this.page.getByLabel('Zip Code:', { exact: true })).toHaveValue(/^\d{5}$/);
 
         const randomValue = await this.page.getByLabel('Random number between 5 and 15:').inputValue();
