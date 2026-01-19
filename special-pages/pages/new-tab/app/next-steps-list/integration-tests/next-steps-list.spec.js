@@ -50,32 +50,20 @@ test.describe('newtab NextStepsList widget', () => {
         await page.getByText('Take Back Your Privacy!').waitFor();
         await page.getByRole('button', { name: 'Set as Default' }).waitFor();
 
-        // Test bringStuff variant
-        await ntp.openPage({ nextStepsList: 'bringStuff' });
+        // Test importBookmarks variant
+        await ntp.openPage({ nextStepsList: 'importBookmarks' });
         await page.getByText('Import Your Bookmarks').waitFor();
         await page.getByRole('button', { name: 'Import Now' }).waitFor();
     });
 
-    test('shows progress indicator with correct count', async ({ page }, workerInfo) => {
+    test('shows progress indicator pills', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ nextStepsList: ['emailProtection', 'duckplayer', 'defaultApp'] });
 
-        // Should show 1/3 progress
-        await page.getByText('1/3').waitFor();
-
-        // Should have 3 pills
+        // Should have 3 pills for 3 items
         const pills = page.locator('[data-entry-point="nextStepsList"]').locator('[class*="pill"]');
         await expect(pills).toHaveCount(3);
-    });
-
-    test('shows single item without progress indicator issues', async ({ page }, workerInfo) => {
-        const ntp = NewtabPage.create(page, workerInfo);
-        await ntp.reducedMotion();
-        await ntp.openPage({ nextStepsList: 'emailProtection' });
-
-        // Should show 1/1 progress
-        await page.getByText('1/1').waitFor();
     });
 
     test('uses correct icon for each variant', async ({ page }, workerInfo) => {

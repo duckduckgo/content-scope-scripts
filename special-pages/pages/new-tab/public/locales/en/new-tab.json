@@ -257,15 +257,15 @@
     "title": "Add to Dock",
     "note": "Button text of the Next Steps List card for adding DDG app to macOS dock"
   },
-  "nextStepsList_personalize_title": {
+  "nextStepsList_personalizeBrowser_title": {
     "title": "Personalize Your Browser",
     "note": "Title of the Next Steps List card for personalizing the browser"
   },
-  "nextStepsList_personalize_summary": {
+  "nextStepsList_personalizeBrowser_summary": {
     "title": "Browse your way by changing background color, updating your theme, and more.",
     "note": "Summary of the Next Steps List card for personalizing the browser"
   },
-  "nextStepsList_personalize_actionText": {
+  "nextStepsList_personalizeBrowser_actionText": {
     "title": "Personalize Now",
     "note": "Button text of the Next Steps List card for personalizing the browser"
   },
@@ -293,27 +293,27 @@
     "title": "Get Email Protection",
     "note": "Button text of the Next Steps List card for email protection"
   },
-  "nextStepsList_bringStuff_title": {
+  "nextStepsList_importBookmarks_title": {
     "title": "Import Your Bookmarks",
     "note": "Title of the Next Steps List card for importing bookmarks"
   },
-  "nextStepsList_bringStuff_summary": {
+  "nextStepsList_importBookmarks_summary": {
     "title": "Bring your bookmarks over to DuckDuckGo and keep easy access to your top sites.",
     "note": "Summary of the Next Steps List card for importing bookmarks"
   },
-  "nextStepsList_bringStuff_actionText": {
+  "nextStepsList_importBookmarks_actionText": {
     "title": "Import Now",
     "note": "Button text of the Next Steps List card for importing bookmarks"
   },
-  "nextStepsList_bringStuffAll_title": {
+  "nextStepsList_importPasswords_title": {
     "title": "Import Your Bookmarks and Passwords to DuckDuckGo",
     "note": "Title of the Next Steps List card for importing bookmarks, passwords, and more"
   },
-  "nextStepsList_bringStuffAll_summary": {
+  "nextStepsList_importPasswords_summary": {
     "title": "Securely bring over your bookmarks, passwords, and credit cards details.",
     "note": "Summary of the Next Steps List card for importing bookmarks, passwords, and more"
   },
-  "nextStepsList_bringStuffAll_actionText": {
+  "nextStepsList_importPasswords_actionText": {
     "title": "Import Now",
     "note": "Button text of the Next Steps List card for importing bookmarks, passwords, and more"
   },

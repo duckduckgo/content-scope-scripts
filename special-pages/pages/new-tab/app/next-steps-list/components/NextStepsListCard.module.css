@@ -3,6 +3,11 @@
     margin-bottom: var(--ntp-gap);
 }
 
+.cardContainer {
+    position: relative;
+    min-height: calc(200 * var(--px-in-rem));
+}
+
 .card {
     background-color: var(--ntp-surface-background-color);
     backdrop-filter: blur(48px);
@@ -16,6 +21,49 @@
 
 [data-theme="dark"] .card {
     box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.24), 0 1px 4px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* Hide card during transition before entering animation starts (prevents flicker) */
+.card.hidden {
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+/* Enter animation - fade in when a new card appears after dismissing */
+.card.entering {
+    animation: cardFadeIn 300ms ease-in;
+}
+
+/* Dismiss animation - card becomes absolutely positioned so new card can fade in */
+.card.dismissing {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    animation: dismissFadeOut 300ms ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes dismissFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(50px);
+    }
 }
 
 .imageContainer {
@@ -64,16 +112,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--sp-3);
     margin-top: var(--sp-4);
-}
-
-.progressText {
-    font-size: var(--small-label-font-size);
-    font-weight: 600;
-    line-height: var(--small-label-line-height);
-    color: var(--ds-color-theme-text-secondary);
-    min-width: calc(28 * var(--px-in-rem));
 }
 
 .progressPills {
@@ -82,12 +121,12 @@
 }
 
 .pill {
-    width: calc(20 * var(--px-in-rem));
-    height: calc(6 * var(--px-in-rem));
-    border-radius: calc(3 * var(--px-in-rem));
-    background-color: var(--ds-color-theme-control-fill-secondary);
+    width: calc(16 * var(--px-in-rem));
+    height: calc(8 * var(--px-in-rem));
+    border-radius: calc(4 * var(--px-in-rem));
+    background-color: var(--ds-color-theme-control-fill-primary);
 }
 
 .pill.active {
-    background-color: var(--ds-color-theme-text-secondary);
+    background-color: var(--ds-color-theme-text-primary);
 }
