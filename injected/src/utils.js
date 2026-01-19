@@ -535,12 +535,16 @@ export const DDGReflect = globalObj.Reflect;
 
 /**
  * @param {string | null} topLevelHostname
- * @param {object[]} featureList
+ * @param {object[]} [featureList]
  * @returns {boolean}
  */
 export function isUnprotectedDomain(topLevelHostname, featureList) {
     let unprotectedDomain = false;
     if (!topLevelHostname) {
+        return false;
+    }
+    // Handle missing or invalid featureList (e.g., feature.exceptions not defined in config)
+    if (!featureList || !Array.isArray(featureList)) {
         return false;
     }
     const domainParts = topLevelHostname.split('.');
