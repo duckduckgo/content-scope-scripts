@@ -41,7 +41,7 @@ async function sendInitialPingAndUpdate(messagingConfig, processedConfig) {
         if (response && typeof response === 'object') {
             const updatedConfig = { ...processedConfig, ...response };
 
-            await updateFeatureArgs(updatedConfig);
+            updateFeatureArgs(updatedConfig);
         }
     } catch (error) {
         if (processedConfig.debug) {

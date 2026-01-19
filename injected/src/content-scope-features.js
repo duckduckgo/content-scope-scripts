@@ -6,11 +6,10 @@ import { registerForURLChanges } from './url-change';
 
 let initArgs = null;
 const updates = [];
-const features = [];
 /**
  * @type {Partial<import('./features.js').FeatureMap>}
  */
-const featureMap = {};
+const features = {};
 
 const alwaysInitFeatures = new Set(['cookie']);
 const performanceMonitor = new PerformanceMonitor();
@@ -62,21 +61,20 @@ export function load(args) {
     for (const featureName of bundledFeatureNames) {
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
-            const featureInstance = new ContentFeature(featureName, importConfig, featureMap, args);
+            const featureInstance = new ContentFeature(featureName, importConfig, features, args);
             // Short term fix to disable the feature whilst we roll out Android adsjs
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                 continue;
             }
             featureInstance.callLoad();
-            features.push({ featureName, featureInstance });
             // @ts-expect-error - ignore typing for simplicity (avoids introducing runtime proofs for featureName => featureInstance)
-            featureMap[featureName] = featureInstance;
+            features[featureName] = featureInstance;
         }
     }
     mark.end();
 }
 
-export async function init(args) {
+export function init(args) {
     const mark = performanceMonitor.mark('init');
     initArgs = args;
     if (!isHTMLDocument) {
@@ -84,8 +82,7 @@ export async function init(args) {
     }
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+    Object.entries(features).forEach(([featureName, featureInstance]) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
             // Short term fix to disable the feature whilst we roll out Android adsjs
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
@@ -93,13 +90,17 @@ export async function init(args) {
             }
             featureInstance.callInit(args);
             // Either listenForUrlChanges or urlChanged ensures the feature listens.
-            if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
+            const hasUrlChangedMethod = 'urlChanged' in featureInstance && typeof featureInstance.urlChanged === 'function';
+            if (featureInstance.listenForUrlChanges || hasUrlChangedMethod) {
                 registerForURLChanges((navigationType) => {
                     // The rationale for the two separate call here is to ensure that
                     // extensions to the class don't need to call super.urlChanged()
                     featureInstance.recomputeSiteObject();
                     // Called if the feature instance has a urlChanged method
-                    featureInstance?.urlChanged(navigationType);
+                    if (hasUrlChangedMethod) {
+                        // @ts-expect-error - urlChanged is optional in a way that is hard to uniformly type
+                        featureInstance.urlChanged(navigationType);
+                    }
                 });
             }
         }
@@ -107,7 +108,7 @@ export async function init(args) {
     // Fire off updates that came in faster than the init
     while (updates.length) {
         const update = updates.pop();
-        await updateFeaturesInner(update);
+        updateFeaturesInner(update);
     }
     mark.end();
     if (args.debug) {
@@ -132,13 +133,12 @@ export function update(args) {
  *
  * @param {object} updatedArgs - The new arguments to apply to opted-in features
  */
-export async function updateFeatureArgs(updatedArgs) {
+export function updateFeatureArgs(updatedArgs) {
     if (!isHTMLDocument) {
         return;
     }
 
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance }) => {
+    Object.values(features).forEach((featureInstance) => {
         // Only update features that have opted in to config updates
         if (featureInstance && featureInstance.listenForConfigUpdates) {
             // Update the feature's args
@@ -158,9 +158,8 @@ function alwaysInitExtensionFeatures(args, featureName) {
     return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
 }
 
-async function updateFeaturesInner(args) {
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+function updateFeaturesInner(args) {
+    Object.entries(features).forEach(([featureName, featureInstance]) => {
         if (!isFeatureBroken(initArgs, featureName) && featureInstance.listenForUpdateChanges) {
             featureInstance.update(args);
         }
