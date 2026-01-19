@@ -23,6 +23,7 @@ export default tseslint.config(
             'test-results',
             'injected/src/types',
             '.idea',
+            'Sources/',
         ],
     },
     {
