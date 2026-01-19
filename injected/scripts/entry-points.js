@@ -17,15 +17,15 @@ const builds = {
     },
     apple: {
         input: 'entry-points/apple.js',
-        output: ['../build/apple/contentScope.js'],
+        output: ['../Sources/ContentScopeScripts/dist/contentScope.js'],
     },
     'apple-ai-clear': {
         input: 'entry-points/apple.js',
-        output: ['../build/apple/duckAiDataClearing.js'],
+        output: ['../Sources/ContentScopeScripts/dist/duckAiDataClearing.js'],
     },
     'apple-isolated': {
         input: 'entry-points/apple.js',
-        output: ['../build/apple/contentScopeIsolated.js'],
+        output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
     },
     android: {
         input: 'entry-points/android.js',
