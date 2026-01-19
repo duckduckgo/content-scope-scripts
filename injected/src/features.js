@@ -1,44 +1,11 @@
 /**
- * Map of feature names to feature classes.
+ * Re-export auto-generated feature map types.
+ * The FeatureMap type is generated from src/features/*.js files.
+ * Run `npm run build-types` to regenerate, or it runs automatically on build.
  *
- * New features must be added to this map.
- *
- * @typedef {{
- *   apiManipulation: import('./features/api-manipulation').default,
- *   autofillImport: import('./features/autofill-import').default,
- *   breakageReporting: import('./features/breakage-reporting').default,
- *   brokerProtection: import('./features/broker-protection').default,
- *   clickToLoad: import('./features/click-to-load').default,
- *   cookie: import('./features/cookie').default,
- *   duckAiDataClearing: import('./features/duck-ai-data-clearing').default,
- *   duckPlayer: import('./features/duck-player').default,
- *   duckPlayerNative: import('./features/duck-player-native').default,
- *   elementHiding: import('./features/element-hiding').default,
- *   exceptionHandler: import('./features/exception-handler').default,
- *   favicon: import('./features/favicon').default,
- *   fingerprintingAudio: import('./features/fingerprinting-audio').default,
- *   fingerprintingBattery: import('./features/fingerprinting-battery').default,
- *   fingerprintingCanvas: import('./features/fingerprinting-canvas').default,
- *   fingerprintingHardware: import('./features/fingerprinting-hardware').default,
- *   fingerprintingScreenSize: import('./features/fingerprinting-screen-size').default,
- *   fingerprintingTemporaryStorage: import('./features/fingerprinting-temporary-storage').default,
- *   googleRejected: import('./features/google-rejected').default,
- *   gpc: import('./features/gpc').default,
- *   harmfulApis: import('./features/harmful-apis').default,
- *   messageBridge: import('./features/message-bridge').default,
- *   navigatorInterface: import('./features/navigator-interface').default,
- *   pageContext: import('./features/page-context').default,
- *   performanceMetrics: import('./features/performance-metrics').default,
- *   referrer: import('./features/referrer').default,
- *   uaChBrands: import('./features/ua-ch-brands').default,
- *   webCompat: import('./features/web-compat').default,
- *   webInterferenceDetection: import('./features/web-interference-detection').default,
- *   webTelemetry: import('./features/web-telemetry').default,
- *   windowsPermissionUsage: import('./features/windows-permission-usage').default,
- * }} FeatureMap
+ * @typedef {import('./types/feature-map').FeatureMap} FeatureMap
+ * @typedef {import('./types/feature-map').FeatureName} FeatureName
  */
-
-/** @typedef {keyof FeatureMap} FeatureName */
 
 // Features must exist in either `baseFeatures` or `otherFeatures`
 export const baseFeatures = /** @type {FeatureName[]} */ ([
