@@ -128,5 +128,5 @@
 }
 
 .pill.active {
-    background-color: var(--ds-color-theme-text-primary);
+    background-color: var(--ds-color-theme-text-secondary);
 }

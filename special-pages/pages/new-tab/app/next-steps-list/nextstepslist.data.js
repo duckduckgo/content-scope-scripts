@@ -44,20 +44,12 @@ export const variants = {
         actionText: t('nextStepsList_emailProtection_actionText'),
     }),
     /** @param {(translationId: keyof enStrings) => string} t */
-    importBookmarks: (t) => ({
-        id: 'importBookmarks',
-        icon: 'import-bookmarks',
-        title: t('nextStepsList_importBookmarks_title'),
-        summary: t('nextStepsList_importBookmarks_summary'),
-        actionText: t('nextStepsList_importBookmarks_actionText'),
-    }),
-    /** @param {(translationId: keyof enStrings) => string} t */
-    importPasswords: (t) => ({
-        id: 'importPasswords',
+    bringStuff: (t) => ({
+        id: 'bringStuff',
         icon: 'import-passwords',
-        title: t('nextStepsList_importPasswords_title'),
-        summary: t('nextStepsList_importPasswords_summary'),
-        actionText: t('nextStepsList_importPasswords_actionText'),
+        title: t('nextStepsList_bringStuff_title'),
+        summary: t('nextStepsList_bringStuff_summary'),
+        actionText: t('nextStepsList_bringStuff_actionText'),
     }),
     /** @param {(translationId: keyof enStrings) => string} t */
     defaultApp: (t) => ({

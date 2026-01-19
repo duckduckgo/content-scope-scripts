@@ -52,8 +52,7 @@ The following IDs are supported for the Next Steps List:
 | `personalizeBrowser` | Personalize Your Browser |
 | `duckplayer` | Duck Player |
 | `emailProtection` | Email Protection |
-| `importBookmarks` | Import Bookmarks |
-| `importPasswords` | Import Bookmarks and Passwords |
+| `bringStuff` | Import Bookmarks and Passwords |
 | `defaultApp` | Set as Default Browser |
 | `subscription` | DuckDuckGo Subscription |
 | `sync` | Sync Across Devices |
