@@ -39,8 +39,18 @@
               "const": "customizer_drawer"
             },
             "value": {
-              "type": "string",
-              "enum": ["opened", "closed"]
+              "type": "object",
+              "required": ["state"],
+              "properties": {
+                "state": {
+                  "type": "string",
+                  "enum": ["opened", "closed"]
+                },
+                "themeVariantPopoverWasOpen": {
+                  "type": "boolean",
+                  "description": "True if the theme variant popover was visible when the drawer was opened"
+                }
+              }
             }
           }
         }
