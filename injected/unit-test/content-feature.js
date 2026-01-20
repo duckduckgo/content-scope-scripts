@@ -1274,18 +1274,14 @@ describe('ContentFeature class', () => {
              * @param {string[]} exposedMethods
              */
             const buildCallerFeature = (methods, exposedMethods) => {
-                const TargetFeature = createFeatureClass(
-                    'targetFeature',
-                    methods,
-                    exposedMethods,
-                );
+                const TargetFeature = createFeatureClass('targetFeature', methods, exposedMethods);
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
 
                 const targetFeature = new TargetFeature();
                 const features = { targetFeature };
 
                 return new CallerFeature(features);
-            }
+            };
 
             it('should return an error when the target feature does not exist', () => {
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
@@ -1297,10 +1293,13 @@ describe('ContentFeature class', () => {
             });
 
             it('should return an error when the method is not in the exposed methods list', () => {
-                const callerFeature = buildCallerFeature({
-                    exposedMethod: () => {},
-                    privateMethod: () => {},
-                }, ['exposedMethod']);
+                const callerFeature = buildCallerFeature(
+                    {
+                        exposedMethod: () => {},
+                        privateMethod: () => {},
+                    },
+                    ['exposedMethod'],
+                );
 
                 const result = callerFeature.callFeatureMethod('targetFeature', 'privateMethod');
                 expect(result).toBeInstanceOf(CallFeatureMethodError);

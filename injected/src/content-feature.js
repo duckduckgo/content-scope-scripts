@@ -227,7 +227,8 @@ export default class ContentFeature extends ConfigFeature {
             return new CallFeatureMethodError(`'${methodName}' is not exposed by feature '${featureName}'`);
         const method = /** @type {Feature} */ (feature)[methodName];
         if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
-        if (!(method instanceof Function)) return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
+        if (!(method instanceof Function))
+            return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
         return method.call(feature, ...args);
     }
 
