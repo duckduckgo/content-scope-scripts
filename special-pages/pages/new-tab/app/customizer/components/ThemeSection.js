@@ -1,8 +1,10 @@
 import { h } from 'preact';
 import { useComputed } from '@preact/signals';
+import cn from 'classnames';
 import { useTypedTranslationWith } from '../../types.js';
 import styles from './ThemeSection.module.css';
 import { LightThemeIcon, DarkThemeIcon, SystemThemeIcon } from '../../components/Icons.js';
+import { useLocale } from '../../../../../shared/components/EnvironmentProvider.js';
 
 /**
  * @import enStrings from '../strings.json';
@@ -35,10 +37,17 @@ export function ThemeSection({ data, setTheme }) {
     const currentTheme = useComputed(() => data.value.theme);
     const currentVariant = useComputed(() => data.value.themeVariant ?? 'default');
     const { t } = useTypedTranslationWith(/** @type {strings} */ ({}));
+    const locale = useLocale();
 
     return (
         <div class={styles.root}>
-            <div class={styles.segmentedControl} role="radiogroup" aria-label={t('customizer_section_title_theme_variant')}>
+            <div
+                class={cn(styles.segmentedControl, {
+                    [styles.vertical]: locale === 'pl',
+                })}
+                role="radiogroup"
+                aria-label={t('customizer_section_title_theme_variant')}
+            >
                 <button
                     class={styles.segment}
                     role="radio"
