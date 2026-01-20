@@ -37,11 +37,11 @@
     "note" : "Button that closes the current popover."
   },
   "customizer_themeVariantPopoverTitle" : {
-    "title" : "Wybierz motyw kolorystyczny, który Ci odpowiada",
+    "title" : "Wybierz motyw kolorystyczny dopasowany do Twoich potrzeb",
     "note" : "Title for the popover that introduces the theme variant customization feature."
   },
   "customizer_themeVariantPopoverDescription" : {
-    "title" : "Teraz możesz wybrać kolor, który Ci odpowiada. Wypróbuj!",
+    "title" : "Możesz teraz wybrać kolor i uzyskać ulubiony wygląd. Spróbuj!",
     "note" : "Description message in the theme variant popover."
   },
   "updateNotification_updated_version" : {
