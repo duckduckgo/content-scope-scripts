@@ -165,7 +165,6 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
             await ntp.openPage({ additional: { themeVariant: 'default', autoOpen: 'true' } });
-            await page.getByRole('heading', { name: 'Customize' }).waitFor();
             await expect(page).toHaveScreenshot('customizer-theme-section.png', { maxDiffPixels });
         });
 
@@ -173,7 +172,6 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
             await ntp.openPage({ additional: { themeVariant: 'default', autoOpen: 'true', locale: 'pl' } });
-            await page.getByRole('heading', { name: 'Dostosuj' }).waitFor();
             await expect(page).toHaveScreenshot('customizer-theme-section-long-strings.png', { maxDiffPixels });
         });
 
