@@ -89,7 +89,7 @@ export function fillMany(root, elements, data) {
                 continue;
             }
             results.push(setValueForInput(inputElem, data.city + ', ' + data.state));
-        } else if (element.type === "fullState") {
+        } else if (element.type === 'fullState') {
             if (!Object.prototype.hasOwnProperty.call(data, 'state')) {
                 results.push({
                     result: false,
