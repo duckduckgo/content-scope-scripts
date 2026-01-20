@@ -110,3 +110,15 @@ Releases are created via GitHub Actions: [Release workflow](https://github.com/d
 4. Click "Run workflow"
 
 The workflow creates a tag and GitHub release automatically. Build artifacts on the `releases` branch are consumed by native app repos.
+
+### Breaking Changes Protocol
+
+**When making breaking changes:**
+
+1. Ensure you land a **major release** version bump.
+2. **Test and complete the native application side first** before merging the C-S-S repo change.
+3. Only merge the C-S-S change after native app support is complete.
+
+**Why This Matters**
+
+This prevents any engineer from having a breaking change and broken workflow. The native application must be tested and complete before the C-S-S repo change is merged.
