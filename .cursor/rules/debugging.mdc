@@ -13,13 +13,15 @@ When developing or debugging Content Scope Scripts, validate script integrity, b
 ### Script Integrity and Build Issues
 
 **`injected/docs/build-and-troubleshooting.md`** - covers:
-- **Three-Location Check** - Validate injected script integrity across build directory, native app, and web inspector
+- **Verification Steps** - Validate injected script integrity across build directory, native app, and web inspector
 - **Build Branch Hash Validation** - For native engineers using build branches
-- **Breaking Changes Protocol** - Versioning and release process
 - **Quick Validation Test** - Test page for verifying C-S-S injection
 - Platform-specific setup and troubleshooting (iOS/macOS, Android, Windows, Extensions)
 - Source maps configuration
 - Local dependency linking
+
+**`CONTRIBUTING.md`** - Release process:
+- **Breaking Changes Protocol** - Versioning and release coordination
 
 ### Messaging and Feature Issues
 

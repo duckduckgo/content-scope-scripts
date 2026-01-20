@@ -122,22 +122,6 @@ Installing before the CI completes or before the hash changes means you're testi
 
 ---
 
-## Breaking Changes Protocol
-
-**When making breaking changes:**
-
-### Steps
-
-1. Ensure you land a **major release** version bump.
-2. **Test and complete the native application side first** before merging the C-S-S repo change.
-3. Only merge the C-S-S change after native app support is complete.
-
-### Why This Matters
-
-This prevents any engineer from having a breaking change and broken workflow. The native application must be tested and complete before the C-S-S repo change is merged.
-
----
-
 ## Quick Validation Test
 
 **Use this test page to validate that ContentScopeScripts has been injected correctly:**
