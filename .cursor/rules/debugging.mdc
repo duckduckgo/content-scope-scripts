@@ -1,0 +1,97 @@
+---
+description: Debugging steps for Content Scope Scripts development and integration
+alwaysApply: false
+---
+
+# Rule: Content Scope Scripts (C-S-S) Development Debugging
+
+## Overview
+When developing or debugging Content Scope Scripts, validate script integrity, build outputs, and injection across all platforms.
+
+## Critical Debugging Step: Validate Injected Script Integrity
+
+**Ensure the injected C-S-S script matches what you expect across all three locations.**
+
+### The Three-Location Check
+
+1. **Check the build directory in the content-scope-scripts repo:**
+   - Location: `build/[platform]/contentScope.js`
+   - Verify the file contains your expected changes
+   - Check file hash/timestamp to ensure it's been rebuilt
+
+2. **Check where it lives in the native application:**
+   - **iOS/macOS**: `apple-browsers/SharedPackages/BrowserServicesKit/Sources/ContentScopeScripts/Resources/contentScope.js`
+   - **Android**: Check the appropriate resource location in the Android project
+   - **Windows**: `windows-browser/WindowsBrowser.DataBrokerProtection.Agent/Resources/dbp-contentScopeScripts`
+   - **Extension**: Check bundled resources in the extension project
+
+3. **Check in the web inspector:**
+   - Open DevTools → Sources → Look for the injected script
+   - Compare file contents/hashes across all three locations
+   - Use source maps if available (set `C_S_S_SOURCEMAPS=1` when building)
+
+**All three locations must have the same file contents.** If they don't match, your changes aren't being properly built or injected.
+
+## Build Branch Hash Validation
+
+**For native engineers using build branches `pr-<version-number>`:**
+
+### Steps
+1. After a change commit happens, verify the hash has changed.
+2. Check that the build CI has finished successfully.
+3. **Only then** reinstall the app to pick up the new hash.
+
+### Why This Matters
+Installing before the CI completes or before the hash changes means you're testing old code. The hash change is a build CI indicator - make sure it has finished before running install again.
+
+## Breaking Changes Protocol
+
+**When making breaking changes:**
+
+### Steps
+1. Ensure you land a **major release** version bump.
+2. **Test and complete the native application side first** before merging the C-S-S repo change.
+3. Only merge the C-S-S change after native app support is complete.
+
+### Why This Matters
+This prevents any engineer from having a breaking change and broken workflow. The native application must be tested and complete before the C-S-S repo change is merged.
+
+## Missing MessageName Debugging
+
+**If you see missing 'messageName' in the browser debug console:**
+
+This means the feature you're expecting to run **isn't running**.
+
+### Troubleshooting Steps
+1. Check that the feature is enabled in the config (see remote config debugging).
+2. Verify platform parameters allow the feature.
+3. Check that the injected script is correct (see three-location check above).
+4. Verify message handlers are properly registered in the native app.
+5. Check that the messaging bridge is correctly initialized.
+
+## Quick Validation Test
+
+**Use this test page to validate that ContentScopeScripts has been injected correctly:**
+
+https://privacy-test-pages.site/features/navigator-interface.html
+
+This page provides a quick way to verify C-S-S injection is working as expected.
+
+## Build and Development Tips
+
+### Source Maps
+Enable inline source maps to see original file names and line numbers in browser DevTools:
+```bash
+C_S_S_SOURCEMAPS=1 npm run build
+```
+
+### Local Development
+- Use `npm link` for local C-S-S development
+- Ensure you rebuild C-S-S after making changes
+- Verify the build output matches your expectations
+
+### Platform-Specific Notes
+- **iOS/macOS**: Run `npm run build-content-scope-scripts` after changes
+- **Android**: May need to clean project and uninstall app
+- **Windows**: See platform-specific build documentation
+- **Extension**: Changes may require extension reload
