@@ -4,6 +4,35 @@ This document provides platform-specific build instructions, troubleshooting ste
 
 ---
 
+## Critical Debugging Step: Validate Injected Script Integrity
+
+**Ensure the injected C-S-S script matches what you expect across all three locations.**
+
+### Verification Steps
+
+1. **Check the build directory in the content-scope-scripts repo:**
+    - Location: `build/[platform]/contentScope.js` (or `build/[platform]/inject.js` for extensions)
+    - **Note:** Apple builds output to `Sources/ContentScopeScripts/dist/contentScope.js` instead of `build/apple/`
+    - Verify the file contains your expected changes
+    - Check file hash/timestamp to ensure it's been rebuilt
+
+2. **Check where it lives in the native application:**
+    - **iOS/macOS**: `apple-browsers/SharedPackages/BrowserServicesKit/Sources/ContentScopeScripts/Resources/contentScope.js`
+    - **Android**: `android/node_modules/@duckduckgo/content-scope-scripts/build/android/contentScope.js` (referenced by build.gradle files)
+    - **Windows**:
+        - Main: `windows-browser/WindowsBrowser/Application/ContentScripts/contentScope.js` (embedded resource from `submodules/content-scope-scripts/build/windows/contentScope.js`)
+        - Data Broker Protection: `windows-browser/WindowsBrowser.DataBrokerProtection.Agent/Resources/dbp-contentScopeScripts`
+    - **Extension**: `extension/node_modules/@duckduckgo/content-scope-scripts/build/[platform]/inject.js` (where `[platform]` is `chrome-mv3` or `firefox`)
+
+3. **Check in the web inspector:**
+    - Open DevTools → Sources → Look for the injected script
+    - Compare file contents/hashes across all three locations
+    - Use source maps if available (set `C_S_S_SOURCEMAPS=1` when building)
+
+**All three locations must have the same file contents.** If they don't match, your changes aren't being properly built or injected.
+
+---
+
 ## Debugging with Source Maps
 
 Enable inline source maps to see original file names and line numbers in browser DevTools instead of the bundled output (e.g., `web-compat.js:142` instead of `contentScope.js:10484`).
@@ -18,10 +47,23 @@ C_S_S_SOURCEMAPS=1 npm run build
 
 - **Check Xcode Version:**
     - [.xcode-version](https://github.com/duckduckgo/apple-browsers/tree/main/.xcode-version)
-- **Set up C-S-S as a Local Dependency:**
-    - Run `npm link` in your C-S-S check out.
-    - Run `npm link @duckduckgo/content-scope-scripts` in your `apple-browsers` project.
-    - Whenever files change run: `npm run build-content-scope-scripts`
+- **Set up C-S-S as a Local Dependency (Swift Package Manager):**
+  Apple browsers now use Swift Package Manager (SPM) for dependencies. To use your local C-S-S checkout for debugging, you have two options:
+  **Option 1: Drag into Xcode**
+    - Drag the `content-scope-scripts` folder from Finder into the Xcode project navigator
+    - Xcode will automatically detect the `Package.swift` file and set it up as a local package
+      **Option 2: Change Swift PM dependency to local path**
+    - In `apple-browsers/SharedPackages/BrowserServicesKit/Package.swift`, change the dependency from:
+        ```swift
+        .package(url: "https://github.com/duckduckgo/content-scope-scripts.git", exact: "12.27.0")
+        ```
+        to:
+        ```swift
+        .package(path: "../../../../content-scope-scripts")
+        ```
+        (Adjust the relative path based on your directory structure)
+    - Xcode will automatically resolve the local package
+      **Note:** You no longer need to run `npm run build-content-scope-scripts` in the apple-browsers repo. The Swift Package Manager will handle the build process automatically.
 - **Set up Autofill as a Local Dependency:**
     - Drag the folder from Finder into the directory panel in Xcode.
 - **Privacy Config Files:**
@@ -61,3 +103,62 @@ C_S_S_SOURCEMAPS=1 npm run build
 
 - Use npm link as per Android.
 - See the [other development steps](https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/main/CONTRIBUTING.md#building-the-extension).
+
+---
+
+## Build Branch Hash Validation
+
+**For native engineers using build branches `pr-<version-number>`:**
+
+### Steps
+
+1. After a change commit happens, verify the hash has changed.
+2. Check that the build CI has finished successfully.
+3. **Only then** reinstall the app to pick up the new hash.
+
+### Why This Matters
+
+Installing before the CI completes or before the hash changes means you're testing old code. The hash change is a build CI indicator - make sure it has finished before running install again.
+
+---
+
+## Config and Platform Parameters Validation
+
+**Always validate that the config loaded from remote config or cache config is in the correct state that is injected into Content Scope Scripts.**
+
+### Using processConfig Breakpoint
+
+1. Open the web inspector (browser DevTools).
+2. Set a breakpoint in the `processConfig` function (located in `injected/src/utils.js`).
+3. Inspect the loaded configuration object to verify:
+    - The config structure matches expectations
+    - Feature states (`enabled`, `disabled`, `internal`, `preview`) are correct
+    - Domain exceptions are properly applied
+    - `unprotectedTemporary` domains are correctly set
+    - Feature settings are correctly parsed
+    - Site-specific settings: `site.isBroken`, `site.allowlisted`, and `site.enabledFeatures` are correct
+
+### Platform Parameters Validation
+
+**Platform parameters control internal and version state, and thus the enabled state of your features.**
+
+1. Use the same `processConfig` method as a breakpoint.
+2. Inspect the `preferences` parameter passed to `processConfig`:
+    - `platform.version` - version number
+    - `platform.internal` - internal build flag
+    - `platform.preview` - preview build flag
+3. Verify these parameters match your expected build configuration.
+
+**Why This Matters:** Platform parameters determine feature enablement states. A feature set to `internal` state will only be enabled if `platform.internal === true`. Incorrect platform parameters can silently disable features.
+
+**Note:** For config version validation, see [privacy-configuration/.cursor/rules/debugging.mdc](https://github.com/duckduckgo/privacy-configuration/blob/main/.cursor/rules/debugging.mdc).
+
+---
+
+## Quick Validation Test
+
+**Use this test page to validate that ContentScopeScripts has been injected correctly:**
+
+https://privacy-test-pages.site/features/navigator-interface.html
+
+This page provides a quick way to verify C-S-S injection is working as expected.
