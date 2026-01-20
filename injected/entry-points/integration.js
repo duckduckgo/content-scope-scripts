@@ -75,7 +75,7 @@ function mergeDeep(target, ...sources) {
     return mergeDeep(target, ...sources);
 }
 
-function initCode() {
+async function initCode() {
     const topLevelUrl = getTabUrl();
     const processedConfig = generateConfig();
 
@@ -100,7 +100,7 @@ function initCode() {
     setStatus('loaded');
 
     if (!topLevelUrl?.searchParams.has('wait-for-init-args')) {
-        init(processedConfig);
+        await init(processedConfig);
         setStatus('initialized');
         return;
     }
@@ -108,14 +108,14 @@ function initCode() {
     // Wait for a message containing additional config
     document.addEventListener(
         'content-scope-init-args',
-        (evt) => {
+        async (evt) => {
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             const merged = mergeDeep(processedConfig, evt.detail);
             // @ts-expect-error https://app.asana.com/0/1201614831475344/1203979574128023/f
             window.__testContentScopeArgs = merged;
             // init features
-            init(merged);
-            updateFeatureArgs(merged);
+            await init(merged);
+            await updateFeatureArgs(merged);
 
             // set status to initialized so that tests can resume
             setStatus('initialized');

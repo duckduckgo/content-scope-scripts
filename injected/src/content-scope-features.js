@@ -9,7 +9,7 @@ const updates = [];
 /**
  * @type {Partial<import('./features.js').FeatureMap>}
  */
-const features = {};
+const _features = {};
 
 const alwaysInitFeatures = new Set(['cookie']);
 const performanceMonitor = new PerformanceMonitor();
@@ -61,20 +61,34 @@ export function load(args) {
     for (const featureName of bundledFeatureNames) {
         if (featuresToLoad.includes(featureName)) {
             const ContentFeature = platformFeatures['ddg_feature_' + featureName];
-            const featureInstance = new ContentFeature(featureName, importConfig, features, args);
+            const featureInstance = new ContentFeature(featureName, importConfig, _features, args);
             // Short term fix to disable the feature whilst we roll out Android adsjs
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                 continue;
             }
             featureInstance.callLoad();
             // @ts-expect-error - ignore typing for simplicity (avoids introducing runtime proofs for featureName => featureInstance)
-            features[featureName] = featureInstance;
+            _features[featureName] = featureInstance;
         }
     }
     mark.end();
 }
 
-export function init(args) {
+/**
+ * Return the features object.
+ *
+ * Adds a micro delay between features loading with the intent of splitting up
+ * the call stack.
+ *
+ * @returns {Promise<Partial<import('./features.js').FeatureMap>>}
+ */
+async function getFeatures() {
+    // eslint-disable-next-line @typescript-eslint/await-thenable
+    await Promise.all(Object.entries(_features));
+    return _features;
+}
+
+export async function init(args) {
     const mark = performanceMonitor.mark('init');
     initArgs = args;
     if (!isHTMLDocument) {
@@ -82,6 +96,7 @@ export function init(args) {
     }
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
+    const features = await getFeatures();
     Object.entries(features).forEach(([featureName, featureInstance]) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
             // Short term fix to disable the feature whilst we roll out Android adsjs
@@ -108,7 +123,7 @@ export function init(args) {
     // Fire off updates that came in faster than the init
     while (updates.length) {
         const update = updates.pop();
-        updateFeaturesInner(update);
+        await updateFeaturesInner(update);
     }
     mark.end();
     if (args.debug) {
@@ -133,11 +148,12 @@ export function update(args) {
  *
  * @param {object} updatedArgs - The new arguments to apply to opted-in features
  */
-export function updateFeatureArgs(updatedArgs) {
+export async function updateFeatureArgs(updatedArgs) {
     if (!isHTMLDocument) {
         return;
     }
 
+    const features = await getFeatures();
     Object.values(features).forEach((featureInstance) => {
         // Only update features that have opted in to config updates
         if (featureInstance && featureInstance.listenForConfigUpdates) {
@@ -158,7 +174,8 @@ function alwaysInitExtensionFeatures(args, featureName) {
     return args.platform.name === 'extension' && alwaysInitFeatures.has(featureName);
 }
 
-function updateFeaturesInner(args) {
+async function updateFeaturesInner(args) {
+    const features = await getFeatures();
     Object.entries(features).forEach(([featureName, featureInstance]) => {
         if (!isFeatureBroken(initArgs, featureName) && featureInstance.listenForUpdateChanges) {
             featureInstance.update(args);
