@@ -3,6 +3,7 @@
  * scripts/types.mjs is responsible for type generation.
  * **DO NOT** edit this file directly as your changes will be lost.
  *
+ * @internal
  * @module FeatureMap
  */
 
