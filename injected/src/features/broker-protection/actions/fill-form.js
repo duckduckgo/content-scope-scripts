@@ -100,7 +100,7 @@ export function fillMany(root, elements, data) {
 
             const state = data.state;
 
-            if(!Object.prototype.hasOwnProperty.call(states, state)) {
+            if (!Object.prototype.hasOwnProperty.call(states, state)) {
                 results.push({
                     result: false,
                     error: `element found with selector '${element.selector}', but data contained an invalid 'state' abbreviation`,
