@@ -2225,6 +2225,10 @@ button {
   --border-radius-sm: 6px;
   --border-radius-xs: 4px;
 }
+[data-has-theme-variants=true] {
+  --ntp-drawer-width: calc(256 * var(--px-in-rem));
+  --ntp-combined-width: calc(var(--ntp-drawer-width) + var(--ntp-drawer-scroll-width));
+}
 [data-theme=light],
 [data-theme=dark] {
   --ntp-surface-background-color: var(--ds-color-theme-tone-tint-primary);
@@ -5448,10 +5452,14 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   display: flex;
   align-items: center;
   height: var(--sp-8);
-  padding: 1px;
+  padding: var(--sp-0_5);
   background: var(--ds-color-theme-container-fill-tertiary);
   border-radius: var(--border-radius-sm);
-  border: 1px solid var(--ds-color-theme-container-border-secondary);
+  outline: 1px solid var(--ds-color-theme-container-border-secondary);
+  outline-offset: -1px;
+}
+.ThemeSection_segmentedControl.ThemeSection_vertical {
+  height: auto;
 }
 .ThemeSection_segment {
   flex: 1;
@@ -5471,6 +5479,14 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   line-height: var(--small-label-line-height);
   cursor: pointer;
   transition: background 0.15s ease;
+  white-space: normal;
+  align-self: stretch;
+}
+.ThemeSection_vertical .ThemeSection_segment {
+  flex-direction: column;
+  height: auto;
+  padding: calc(6 * var(--px-in-rem)) var(--sp-3);
+  gap: var(--sp-1);
 }
 .ThemeSection_segment:hover:not([aria-checked=true]) {
   background: var(--ds-color-theme-container-fill-secondary);
@@ -5481,8 +5497,8 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   z-index: 1;
 }
 .ThemeSection_segment[aria-checked=true] {
-  background: var(--ds-color-theme-surface-tertiary);
-  box-shadow: 0 1px 2px var(--ds-color-theme-shadow-primary), inset 0 0 0 1px var(--color-white-at-24);
+  background: var(--ds-color-theme-control-raised-fill-primary);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 .ThemeSection_segment svg {
   flex-shrink: 0;
@@ -5493,7 +5509,7 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
 .ThemeSection_separator {
   width: 1px;
   height: var(--sp-4);
-  background: var(--ds-color-theme-surface-decoration-tertiary);
+  background: var(--ds-color-theme-surface-decoration-secondary);
   border-radius: 0.5px;
   flex-shrink: 0;
 }
@@ -5505,14 +5521,14 @@ body:not([data-background-kind=default]) .TabSwitcher_tabSwitcher {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-3);
+  justify-content: space-between;
 }
 .ThemeSection_variantButton {
-  --swatch-size: 42px;
   --selection-ring-offset: 2px;
   --selection-ring-width: 2px;
   position: relative;
-  width: var(--swatch-size);
-  height: var(--swatch-size);
+  width: var(--sp-12);
+  height: var(--sp-12);
   padding: 0;
   border: none;
   border-radius: var(--border-radius-md);

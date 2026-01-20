@@ -29528,7 +29528,7 @@
 
   // pages/new-tab/app/components/App.js
   init_preact_module();
-  var import_classnames28 = __toESM(require_classnames(), 1);
+  var import_classnames29 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/components/App.module.css
   var App_default = {
@@ -29891,7 +29891,7 @@
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.js
   init_preact_module();
   init_hooks_module();
-  var import_classnames27 = __toESM(require_classnames(), 1);
+  var import_classnames28 = __toESM(require_classnames(), 1);
 
   // pages/new-tab/app/customizer/components/CustomizerDrawerInner.module.css
   var CustomizerDrawerInner_default = {
@@ -30158,12 +30158,14 @@
   // pages/new-tab/app/customizer/components/ThemeSection.js
   init_preact_module();
   init_signals_module();
+  var import_classnames21 = __toESM(require_classnames(), 1);
   init_types();
 
   // pages/new-tab/app/customizer/components/ThemeSection.module.css
   var ThemeSection_default = {
     root: "ThemeSection_root",
     segmentedControl: "ThemeSection_segmentedControl",
+    vertical: "ThemeSection_vertical",
     segment: "ThemeSection_segment",
     separator: "ThemeSection_separator",
     variantGrid: "ThemeSection_variantGrid",
@@ -30177,6 +30179,7 @@
 
   // pages/new-tab/app/customizer/components/ThemeSection.js
   init_Icons2();
+  init_EnvironmentProvider();
   var THEME_VARIANTS = [
     { value: "default", labelKey: "customizer_theme_variant_default" },
     { value: "coolGray", labelKey: "customizer_theme_variant_coolGray" },
@@ -30194,43 +30197,58 @@
       /** @type {strings} */
       {}
     );
-    return /* @__PURE__ */ _("div", { class: ThemeSection_default.root }, /* @__PURE__ */ _("div", { class: ThemeSection_default.segmentedControl, role: "radiogroup", "aria-label": t4("customizer_section_title_theme_variant") }, /* @__PURE__ */ _(
-      "button",
+    const locale = useLocale();
+    return /* @__PURE__ */ _("div", { class: ThemeSection_default.root }, /* @__PURE__ */ _(
+      "div",
       {
-        class: ThemeSection_default.segment,
-        role: "radio",
-        type: "button",
-        "aria-checked": currentTheme.value === "light",
-        tabIndex: currentTheme.value === "light" ? -1 : 0,
-        onClick: () => setTheme({ theme: "light", themeVariant: currentVariant.value })
+        class: (0, import_classnames21.default)(ThemeSection_default.segmentedControl, {
+          [ThemeSection_default.vertical]: ["pl", "ru"].includes(locale)
+        }),
+        role: "radiogroup",
+        "aria-label": t4("customizer_section_title_theme_variant")
       },
-      /* @__PURE__ */ _(LightThemeIcon, { "aria-hidden": "true" }),
-      /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))
-    ), /* @__PURE__ */ _("span", { class: ThemeSection_default.separator, "aria-hidden": "true" }), /* @__PURE__ */ _(
-      "button",
-      {
-        class: ThemeSection_default.segment,
-        role: "radio",
-        type: "button",
-        "aria-checked": currentTheme.value === "dark",
-        tabIndex: currentTheme.value === "dark" ? -1 : 0,
-        onClick: () => setTheme({ theme: "dark", themeVariant: currentVariant.value })
-      },
-      /* @__PURE__ */ _(DarkThemeIcon, { "aria-hidden": "true" }),
-      /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))
-    ), /* @__PURE__ */ _("span", { class: ThemeSection_default.separator, "aria-hidden": "true" }), /* @__PURE__ */ _(
-      "button",
-      {
-        class: ThemeSection_default.segment,
-        role: "radio",
-        type: "button",
-        "aria-checked": currentTheme.value === "system",
-        tabIndex: currentTheme.value === "system" ? -1 : 0,
-        onClick: () => setTheme({ theme: "system", themeVariant: currentVariant.value })
-      },
-      /* @__PURE__ */ _(SystemThemeIcon, { "aria-hidden": "true" }),
-      /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_system"))
-    )), /* @__PURE__ */ _("div", { class: ThemeSection_default.variantGrid, role: "radiogroup", "aria-label": t4("customizer_theme_variant_grid_label") }, THEME_VARIANTS.map((variant) => /* @__PURE__ */ _(
+      /* @__PURE__ */ _(
+        "button",
+        {
+          class: ThemeSection_default.segment,
+          role: "radio",
+          type: "button",
+          "aria-checked": currentTheme.value === "light",
+          tabIndex: currentTheme.value === "light" ? -1 : 0,
+          onClick: () => setTheme({ theme: "light", themeVariant: currentVariant.value })
+        },
+        /* @__PURE__ */ _(LightThemeIcon, { "aria-hidden": "true" }),
+        /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_light"))
+      ),
+      /* @__PURE__ */ _("span", { class: ThemeSection_default.separator, "aria-hidden": "true" }),
+      /* @__PURE__ */ _(
+        "button",
+        {
+          class: ThemeSection_default.segment,
+          role: "radio",
+          type: "button",
+          "aria-checked": currentTheme.value === "dark",
+          tabIndex: currentTheme.value === "dark" ? -1 : 0,
+          onClick: () => setTheme({ theme: "dark", themeVariant: currentVariant.value })
+        },
+        /* @__PURE__ */ _(DarkThemeIcon, { "aria-hidden": "true" }),
+        /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_dark"))
+      ),
+      /* @__PURE__ */ _("span", { class: ThemeSection_default.separator, "aria-hidden": "true" }),
+      /* @__PURE__ */ _(
+        "button",
+        {
+          class: ThemeSection_default.segment,
+          role: "radio",
+          type: "button",
+          "aria-checked": currentTheme.value === "system",
+          tabIndex: currentTheme.value === "system" ? -1 : 0,
+          onClick: () => setTheme({ theme: "system", themeVariant: currentVariant.value })
+        },
+        /* @__PURE__ */ _(SystemThemeIcon, { "aria-hidden": "true" }),
+        /* @__PURE__ */ _("span", null, t4("customizer_browser_theme_system"))
+      )
+    ), /* @__PURE__ */ _("div", { class: ThemeSection_default.variantGrid, role: "radiogroup", "aria-label": t4("customizer_theme_variant_grid_label") }, THEME_VARIANTS.map((variant) => /* @__PURE__ */ _(
       "button",
       {
         key: variant.value,
@@ -30254,7 +30272,7 @@
   init_CustomizerMenu();
 
   // pages/new-tab/app/customizer/components/VisibilityMenu.js
-  var import_classnames21 = __toESM(require_classnames(), 1);
+  var import_classnames22 = __toESM(require_classnames(), 1);
   init_preact_module();
   init_hooks_module();
 
@@ -30311,8 +30329,8 @@
   function EmbeddedVisibilityMenu({ rows }) {
     const platformName = usePlatformName();
     const { browser } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames21.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
-      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames21.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames22.default)(VisibilityMenu_default.list, VisibilityMenu_default.embedded) }, rows.map((row) => {
+      return /* @__PURE__ */ _("li", { key: row.id }, /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(VisibilityMenu_default.menuItemLabel, VisibilityMenu_default.menuItemLabelEmbedded) }, /* @__PURE__ */ _("span", { class: VisibilityMenu_default.svg }, row.icon), /* @__PURE__ */ _("span", { class: VisibilityMenu_default.title }, row.title ?? row.id), /* @__PURE__ */ _(
         Switch,
         {
           theme: browser.value,
@@ -30355,7 +30373,7 @@
 
   // pages/new-tab/app/customizer/components/ColorSelection.js
   init_preact_module();
-  var import_classnames22 = __toESM(require_classnames(), 1);
+  var import_classnames23 = __toESM(require_classnames(), 1);
   init_values();
   init_Icons2();
   init_signals_module();
@@ -30384,7 +30402,7 @@
       if (!(value2 in values.colors)) return console.warn("could not select color", value2);
       select({ background: { kind: "color", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames22.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames23.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_color")), /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ColorGrid' threw an exception: ` + message }, /* @__PURE__ */ _("div", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.bgList), role: "radiogroup", onClick }, /* @__PURE__ */ _(PickerPanel, { data: data2, select }), /* @__PURE__ */ _(ColorGrid, { data: data2 })))));
   }
   var entries = Object.keys(values.colors);
   function ColorGrid({ data: data2 }) {
@@ -30421,7 +30439,7 @@
     return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.bgListItem }, /* @__PURE__ */ _(
       "button",
       {
-        className: (0, import_classnames22.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
+        className: (0, import_classnames23.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty),
         type: "button",
         tabIndex: 0,
         style: { background: hex.value },
@@ -30446,12 +30464,12 @@
           }
         }
       }
-    ), /* @__PURE__ */ _("span", { class: (0, import_classnames22.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
+    ), /* @__PURE__ */ _("span", { class: (0, import_classnames23.default)(CustomizerDrawerInner_default.colorInputIcon, CustomizerDrawerInner_default.dynamicPickerIconColor), "data-color-mode": modeSelected }, /* @__PURE__ */ _(Picker, null)));
   }
 
   // pages/new-tab/app/customizer/components/GradientSelection.js
   init_preact_module();
-  var import_classnames23 = __toESM(require_classnames(), 1);
+  var import_classnames24 = __toESM(require_classnames(), 1);
   init_values();
   init_signals_module();
   init_Icons2();
@@ -30479,12 +30497,12 @@
       if (!(value2 in values.gradients)) return console.warn("could not select gradient", value2);
       select({ background: { kind: "gradient", value: value2 } });
     }
-    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames23.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
+    return /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames24.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_gradient")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'GradientSelection' threw an exception: ` + message }, /* @__PURE__ */ _(GradientGrid, { data: data2 }))));
   }
   var entries2 = Object.keys(values.gradients);
   function GradientGrid({ data: data2 }) {
     const selected = useComputed(() => data2.value.background.kind === "gradient" && data2.value.background.value);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames23.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames24.default)(CustomizerDrawerInner_default.bgList) }, entries2.map((key2) => {
       const entry = values.gradients[key2];
       return /* @__PURE__ */ _("li", { className: CustomizerDrawerInner_default.bgListItem, key: key2 }, /* @__PURE__ */ _(
         "button",
@@ -30512,7 +30530,7 @@
 
   // pages/new-tab/app/customizer/components/ImageSelection.js
   init_preact_module();
-  var import_classnames24 = __toESM(require_classnames(), 1);
+  var import_classnames25 = __toESM(require_classnames(), 1);
   init_signals_module();
   init_DismissButton2();
   init_Icons2();
@@ -30556,7 +30574,7 @@
         customizerContextMenu({ id, target: "userImage" });
       }
     }
-    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames24.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
+    return /* @__PURE__ */ _("div", { onContextMenu }, /* @__PURE__ */ _("button", { type: "button", onClick: back, class: (0, import_classnames25.default)(CustomizerDrawerInner_default.backBtn, CustomizerDrawerInner_default.sectionTitle) }, /* @__PURE__ */ _(BackChevron, null), t4("customizer_background_selection_image_existing")), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody, onClick }, /* @__PURE__ */ _(InlineErrorBoundary, { format: (message) => `Customizer section 'ImageSelection' threw an exception: ` + message }, /* @__PURE__ */ _(ImageGrid, { data: data2, deleteImage, onUpload }))), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, /* @__PURE__ */ _("p", null, t4("customizer_image_privacy"))));
   }
   function ImageGrid({ data: data2, deleteImage, onUpload }) {
     const { t: t4 } = useTypedTranslationWith(
@@ -30571,7 +30589,7 @@
     const max = 8;
     const diff = max - entries4.value.length;
     const placeholders = new Array(diff).fill(null);
-    return /* @__PURE__ */ _("ul", { className: (0, import_classnames24.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
+    return /* @__PURE__ */ _("ul", { className: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgList) }, entries4.value.map((entry, index2) => {
       $INTEGRATION: (() => {
         if (entry.id === "__will_throw__") throw new Error("Simulated error");
       })();
@@ -30608,7 +30626,7 @@
         {
           type: "button",
           onClick: onUpload,
-          class: (0, import_classnames24.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
+          class: (0, import_classnames25.default)(CustomizerDrawerInner_default.bgPanel, CustomizerDrawerInner_default.bgPanelEmpty, CustomizerDrawerInner_default.dynamicIconColor),
           "data-color-mode": browser
         },
         /* @__PURE__ */ _(PlusIcon, null),
@@ -30619,24 +30637,24 @@
 
   // pages/new-tab/app/customizer/components/CustomizerSection.js
   init_preact_module();
-  var import_classnames25 = __toESM(require_classnames(), 1);
+  var import_classnames26 = __toESM(require_classnames(), 1);
   init_NewBadge2();
   function CustomizerSection({ title, showNewBadge, children }) {
     return /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.section }, title === null && children, title !== null && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("h3", { className: CustomizerDrawerInner_default.sectionTitle }, /* @__PURE__ */ _("span", null, title), showNewBadge && /* @__PURE__ */ _(NewBadge, null)), /* @__PURE__ */ _("div", { className: CustomizerDrawerInner_default.sectionBody }, children)));
   }
   function BorderedSection({ children }) {
-    return /* @__PURE__ */ _("div", { class: (0, import_classnames25.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
+    return /* @__PURE__ */ _("div", { class: (0, import_classnames26.default)(CustomizerDrawerInner_default.section, CustomizerDrawerInner_default.borderedSection) }, children);
   }
 
   // pages/new-tab/app/customizer/components/SettingsLink.js
-  var import_classnames26 = __toESM(require_classnames(), 1);
+  var import_classnames27 = __toESM(require_classnames(), 1);
   init_preact_module();
   function SettingsLink({ title, icon, onClick }) {
     return /* @__PURE__ */ _(
       "a",
       {
         href: "duck://settings",
-        class: (0, import_classnames26.default)(CustomizerDrawerInner_default.settingsLink),
+        class: (0, import_classnames27.default)(CustomizerDrawerInner_default.settingsLink),
         onClick: (event) => {
           event.preventDefault();
           onClick();
@@ -30681,7 +30699,7 @@
     const { customizer } = useInitialSetupData();
     const { showThemeNewBadge } = x2(CustomizerContext);
     const hasThemeVariants = customizer?.themeVariant !== void 0;
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames27.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.root }, /* @__PURE__ */ _("header", { class: (0, import_classnames28.default)(CustomizerDrawerInner_default.header, CustomizerDrawerInner_default.internal) }, /* @__PURE__ */ _("h2", null, t4("customizer_drawer_title")), /* @__PURE__ */ _(
       DismissButton,
       {
         onClick: close,
@@ -30751,7 +30769,7 @@
       }
       renderedScreen.value = visibleScreen.value;
     }
-    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames27.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames27.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
+    return /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.colwrap }, /* @__PURE__ */ _("div", { class: CustomizerDrawerInner_default.cols, "data-sub": visibleScreen, onTransitionEnd: transitionEnded }, /* @__PURE__ */ _("div", { class: (0, import_classnames28.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col1) }, col1.value && left2({ push })), /* @__PURE__ */ _("div", { class: (0, import_classnames28.default)(CustomizerDrawerInner_default.col, CustomizerDrawerInner_default.col2) }, renderedScreen.value !== "home" && right2({ id: renderedScreen.value, pop }))));
   }
 
   // pages/new-tab/app/customizer/components/CustomizerDrawer.js
@@ -30778,6 +30796,7 @@
   init_signals_module();
   init_CustomizerProvider();
   init_hooks_module();
+  init_types();
   function App() {
     const platformName = usePlatformName();
     const customizerDrawer = useCustomizerDrawerSettings();
@@ -30797,35 +30816,48 @@
     const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
     const { main, browser, variant } = x2(CustomizerThemesContext);
-    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser, variant }), /* @__PURE__ */ _("div", { class: App_default.layout, "data-animating": animating, "data-drawer-visibility": visibility }, /* @__PURE__ */ _("main", { class: (0, import_classnames28.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))), /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
-      CustomizerButton,
+    const { customizer } = useInitialSetupData();
+    const hasThemeVariants = customizer?.themeVariant !== void 0;
+    return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(BackgroundConsumer, { browser, variant }), /* @__PURE__ */ _(
+      "div",
       {
-        buttonId,
-        menuId: drawerId,
-        toggleMenu: toggle,
-        buttonRef,
-        isOpen,
-        kind: "drawer"
-      }
-    ))), /* @__PURE__ */ _(
-      "aside",
-      {
-        class: (0, import_classnames28.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
-        tabindex: tabIndex,
-        "aria-hidden": hidden,
-        "data-theme": browser,
-        "data-browser-panel": true,
-        ref: asideRef
+        class: App_default.layout,
+        "data-animating": animating,
+        "data-drawer-visibility": visibility,
+        "data-has-theme-variants": hasThemeVariants
       },
-      /* @__PURE__ */ _("div", { class: App_default.asideContent }, /* @__PURE__ */ _(
-        InlineErrorBoundary,
+      /* @__PURE__ */ _("main", { class: (0, import_classnames29.default)(App_default.main, App_default.mainLayout, App_default.mainScroller), "data-main-scroller": true, "data-theme": main }, /* @__PURE__ */ _("div", { class: App_default.content }, /* @__PURE__ */ _("div", { className: App_default.tube, "data-content-tube": true, "data-platform": platformName }, /* @__PURE__ */ _(WidgetList, null)))),
+      /* @__PURE__ */ _("div", { class: App_default.themeContext, "data-theme": main }, /* @__PURE__ */ _(CustomizerMenuPositionedFixed, null, /* @__PURE__ */ _(
+        CustomizerButton,
         {
-          context: "Customizer Drawer",
-          fallback: (message) => /* @__PURE__ */ _("div", { class: App_default.paddedError }, /* @__PURE__ */ _("p", null, message))
+          buttonId,
+          menuId: drawerId,
+          toggleMenu: toggle,
+          buttonRef,
+          isOpen,
+          kind: "drawer"
+        }
+      ))),
+      /* @__PURE__ */ _(
+        "aside",
+        {
+          class: (0, import_classnames29.default)(App_default.aside, App_default.asideLayout, App_default.asideScroller),
+          tabindex: tabIndex,
+          "aria-hidden": hidden,
+          "data-theme": browser,
+          "data-browser-panel": true,
+          ref: asideRef
         },
-        /* @__PURE__ */ _(CustomizerDrawer, { displayChildren })
-      ))
-    )));
+        /* @__PURE__ */ _("div", { class: App_default.asideContent }, /* @__PURE__ */ _(
+          InlineErrorBoundary,
+          {
+            context: "Customizer Drawer",
+            fallback: (message) => /* @__PURE__ */ _("div", { class: App_default.paddedError }, /* @__PURE__ */ _("p", null, message))
+          },
+          /* @__PURE__ */ _(CustomizerDrawer, { displayChildren })
+        ))
+      )
+    ));
   }
   function AppLevelErrorBoundaryFallback({ children }) {
     return /* @__PURE__ */ _("div", { class: App_default.paddedError }, /* @__PURE__ */ _("p", null, children), /* @__PURE__ */ _("div", { class: App_default.paddedErrorRecovery }, "You can try to ", /* @__PURE__ */ _("button", { onClick: () => location.reload() }, "Reload this page")));

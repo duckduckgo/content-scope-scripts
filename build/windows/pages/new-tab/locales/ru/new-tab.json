@@ -381,7 +381,7 @@
     "note" : "The label for a button that sets the browser theme to 'dark' mode"
   },
   "customizer_browser_theme_system" : {
-    "title" : "Тема системы",
+    "title" : "Системная",
     "note" : "The label for a button that sets the browser theme to 'system', which matches the operating system setting"
   },
   "customizer_browser_theme_label" : {

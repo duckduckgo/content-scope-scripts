@@ -74,6 +74,10 @@ Run from root. Use `nvm use` to set the correct Node version.
 | `npm run serve` | Serve injected test pages (port 3220) |
 | `npm run serve-special-pages` | Serve special pages (port 3221) |
 
+## Debugging
+
+**Debugging guide:** `.cursor/rules/debugging.mdc` - Comprehensive debugging steps for C-S-S development, including config validation, script integrity checks, and troubleshooting tips.
+
 ## Notes
 
 - When running Playwright commands, use `--reporter list` to prevent the Shell tool from hanging

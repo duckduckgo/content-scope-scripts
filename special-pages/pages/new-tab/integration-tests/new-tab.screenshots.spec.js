@@ -161,6 +161,20 @@ test.describe('NTP screenshots', { tag: ['@screenshots'] }, () => {
             await expect(page).toHaveScreenshot('omnibar-sidebar-hide-ai-setting.png', { maxDiffPixels });
         });
 
+        test('theme section', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { themeVariant: 'default', autoOpen: 'true' } });
+            await expect(page).toHaveScreenshot('customizer-theme-section.png', { maxDiffPixels });
+        });
+
+        test('theme section with long strings', async ({ page }, workerInfo) => {
+            const ntp = NewtabPage.create(page, workerInfo);
+            await ntp.reducedMotion();
+            await ntp.openPage({ additional: { themeVariant: 'default', autoOpen: 'true', locale: 'pl' } });
+            await expect(page).toHaveScreenshot('customizer-theme-section-long-strings.png', { maxDiffPixels });
+        });
+
         test('theme variant popover', async ({ page }, workerInfo) => {
             const ntp = NewtabPage.create(page, workerInfo);
             await ntp.reducedMotion();
