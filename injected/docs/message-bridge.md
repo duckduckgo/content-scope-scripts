@@ -99,6 +99,7 @@ Messaging Schema types.
 This means the feature you're expecting to run **isn't running**.
 
 ### Troubleshooting Steps
+
 1. Check that the feature is enabled in the config (see remote config debugging).
 2. Verify platform parameters allow the feature.
 3. Check that the injected script is correct (see [build-and-troubleshooting.md](./build-and-troubleshooting.md#critical-debugging-step-validate-injected-script-integrity) for verification steps).

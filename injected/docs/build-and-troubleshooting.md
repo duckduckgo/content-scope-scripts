@@ -11,20 +11,20 @@ This document provides platform-specific build instructions, troubleshooting ste
 ### Verification Steps
 
 1. **Check the build directory in the content-scope-scripts repo:**
-   - Location: `build/[platform]/contentScope.js`
-   - Verify the file contains your expected changes
-   - Check file hash/timestamp to ensure it's been rebuilt
+    - Location: `build/[platform]/contentScope.js`
+    - Verify the file contains your expected changes
+    - Check file hash/timestamp to ensure it's been rebuilt
 
 2. **Check where it lives in the native application:**
-   - **iOS/macOS**: `apple-browsers/SharedPackages/BrowserServicesKit/Sources/ContentScopeScripts/Resources/contentScope.js`
-   - **Android**: Check the appropriate resource location in the Android project
-   - **Windows**: `windows-browser/WindowsBrowser.DataBrokerProtection.Agent/Resources/dbp-contentScopeScripts`
-   - **Extension**: Check bundled resources in the extension project
+    - **iOS/macOS**: `apple-browsers/SharedPackages/BrowserServicesKit/Sources/ContentScopeScripts/Resources/contentScope.js`
+    - **Android**: Check the appropriate resource location in the Android project
+    - **Windows**: `windows-browser/WindowsBrowser.DataBrokerProtection.Agent/Resources/dbp-contentScopeScripts`
+    - **Extension**: Check bundled resources in the extension project
 
 3. **Check in the web inspector:**
-   - Open DevTools → Sources → Look for the injected script
-   - Compare file contents/hashes across all three locations
-   - Use source maps if available (set `C_S_S_SOURCEMAPS=1` when building)
+    - Open DevTools → Sources → Look for the injected script
+    - Compare file contents/hashes across all three locations
+    - Use source maps if available (set `C_S_S_SOURCEMAPS=1` when building)
 
 **All three locations must have the same file contents.** If they don't match, your changes aren't being properly built or injected.
 
@@ -45,27 +45,22 @@ C_S_S_SOURCEMAPS=1 npm run build
 - **Check Xcode Version:**
     - [.xcode-version](https://github.com/duckduckgo/apple-browsers/tree/main/.xcode-version)
 - **Set up C-S-S as a Local Dependency (Swift Package Manager):**
-    
     Apple browsers now use Swift Package Manager (SPM) for dependencies. To use your local C-S-S checkout for debugging, you have two options:
-    
     **Option 1: Drag into Xcode**
     - Drag the `content-scope-scripts` folder from Finder into the Xcode project navigator
     - Xcode will automatically detect the `Package.swift` file and set it up as a local package
-    
     **Option 2: Change Swift PM dependency to local path**
     - In `apple-browsers/SharedPackages/BrowserServicesKit/Package.swift`, change the dependency from:
-      ```swift
-      .package(url: "https://github.com/duckduckgo/content-scope-scripts.git", exact: "12.27.0")
-      ```
-      to:
-      ```swift
-      .package(path: "../../../../content-scope-scripts")
-      ```
-      (Adjust the relative path based on your directory structure)
+        ```swift
+        .package(url: "https://github.com/duckduckgo/content-scope-scripts.git", exact: "12.27.0")
+        ```
+        to:
+        ```swift
+        .package(path: "../../../../content-scope-scripts")
+        ```
+        (Adjust the relative path based on your directory structure)
     - Xcode will automatically resolve the local package
-    
     **Note:** You no longer need to run `npm run build-content-scope-scripts` in the apple-browsers repo. The Swift Package Manager will handle the build process automatically.
-    
 - **Set up Autofill as a Local Dependency:**
     - Drag the folder from Finder into the directory panel in Xcode.
 - **Privacy Config Files:**
@@ -113,11 +108,13 @@ C_S_S_SOURCEMAPS=1 npm run build
 **For native engineers using build branches `pr-<version-number>`:**
 
 ### Steps
+
 1. After a change commit happens, verify the hash has changed.
 2. Check that the build CI has finished successfully.
 3. **Only then** reinstall the app to pick up the new hash.
 
 ### Why This Matters
+
 Installing before the CI completes or before the hash changes means you're testing old code. The hash change is a build CI indicator - make sure it has finished before running install again.
 
 ---
@@ -127,11 +124,13 @@ Installing before the CI completes or before the hash changes means you're testi
 **When making breaking changes:**
 
 ### Steps
+
 1. Ensure you land a **major release** version bump.
 2. **Test and complete the native application side first** before merging the C-S-S repo change.
 3. Only merge the C-S-S change after native app support is complete.
 
 ### Why This Matters
+
 This prevents any engineer from having a breaking change and broken workflow. The native application must be tested and complete before the C-S-S repo change is merged.
 
 ---
