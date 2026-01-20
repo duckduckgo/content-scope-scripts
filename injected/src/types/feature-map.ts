@@ -12,6 +12,7 @@ import type BreakageReporting from '../features/breakage-reporting.js';
 import type BrokerProtection from '../features/broker-protection.js';
 import type ClickToLoad from '../features/click-to-load.js';
 import type Cookie from '../features/cookie.js';
+import type DuckAiChatHistory from '../features/duck-ai-chat-history.js';
 import type DuckAiDataClearing from '../features/duck-ai-data-clearing.js';
 import type DuckPlayer from '../features/duck-player.js';
 import type DuckPlayerNative from '../features/duck-player-native.js';
@@ -49,6 +50,7 @@ export interface FeatureMap {
     brokerProtection: BrokerProtection;
     clickToLoad: ClickToLoad;
     cookie: Cookie;
+    duckAiChatHistory: DuckAiChatHistory;
     duckAiDataClearing: DuckAiDataClearing;
     duckPlayer: DuckPlayer;
     duckPlayerNative: DuckPlayerNative;
