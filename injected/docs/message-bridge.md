@@ -87,3 +87,21 @@ to the 'native' layer.
 
 Likewise with `Requests` and `Subscriptions` - as far as the 'native' side is concerned, they are handled with the same
 Messaging Schema types.
+
+---
+
+## Troubleshooting
+
+### Missing MessageName Debugging
+
+**If you see missing 'messageName' in the browser debug console:**
+
+This means the feature you're expecting to run **isn't running**.
+
+### Troubleshooting Steps
+1. Check that the feature is enabled in the config (see remote config debugging).
+2. Verify platform parameters allow the feature.
+3. Check that the injected script is correct (see [build-and-troubleshooting.md](./build-and-troubleshooting.md#critical-debugging-step-validate-injected-script-integrity) for verification steps).
+4. Verify message handlers are properly registered in the native app.
+5. Check that the messaging bridge is correctly initialized.
+6. Verify `messageSecret` is properly set in `$USER_PREFERENCES$` (see [Integration guide](#integration-guide) above).

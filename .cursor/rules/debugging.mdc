@@ -8,90 +8,40 @@ alwaysApply: false
 ## Overview
 When developing or debugging Content Scope Scripts, validate script integrity, build outputs, and injection across all platforms.
 
-## Critical Debugging Step: Validate Injected Script Integrity
+## Debugging Resources
 
-**Ensure the injected C-S-S script matches what you expect across all three locations.**
+### Script Integrity and Build Issues
 
-### The Three-Location Check
+**`injected/docs/build-and-troubleshooting.md`** - covers:
+- **Three-Location Check** - Validate injected script integrity across build directory, native app, and web inspector
+- **Build Branch Hash Validation** - For native engineers using build branches
+- **Breaking Changes Protocol** - Versioning and release process
+- **Quick Validation Test** - Test page for verifying C-S-S injection
+- Platform-specific setup and troubleshooting (iOS/macOS, Android, Windows, Extensions)
+- Source maps configuration
+- Local dependency linking
 
-1. **Check the build directory in the content-scope-scripts repo:**
-   - Location: `build/[platform]/contentScope.js`
-   - Verify the file contains your expected changes
-   - Check file hash/timestamp to ensure it's been rebuilt
+### Messaging and Feature Issues
 
-2. **Check where it lives in the native application:**
-   - **iOS/macOS**: `apple-browsers/SharedPackages/BrowserServicesKit/Sources/ContentScopeScripts/Resources/contentScope.js`
-   - **Android**: Check the appropriate resource location in the Android project
-   - **Windows**: `windows-browser/WindowsBrowser.DataBrokerProtection.Agent/Resources/dbp-contentScopeScripts`
-   - **Extension**: Check bundled resources in the extension project
+**`injected/docs/message-bridge.md`** - Messaging troubleshooting:
+- Missing messageName debugging
+- Message handler registration
+- Messaging bridge initialization
 
-3. **Check in the web inspector:**
-   - Open DevTools → Sources → Look for the injected script
-   - Compare file contents/hashes across all three locations
-   - Use source maps if available (set `C_S_S_SOURCEMAPS=1` when building)
+### Additional Resources
 
-**All three locations must have the same file contents.** If they don't match, your changes aren't being properly built or injected.
+- **`injected/docs/features-guide.md`** - Feature development and debugging
+- **`injected/docs/testing-guide.md`** - Testing and validation approaches
 
-## Build Branch Hash Validation
+## Platform-Specific Build and Troubleshooting
 
-**For native engineers using build branches `pr-<version-number>`:**
+For detailed platform-specific build instructions, troubleshooting steps, and local development tips, see:
 
-### Steps
-1. After a change commit happens, verify the hash has changed.
-2. Check that the build CI has finished successfully.
-3. **Only then** reinstall the app to pick up the new hash.
+**`injected/docs/build-and-troubleshooting.md`**
 
-### Why This Matters
-Installing before the CI completes or before the hash changes means you're testing old code. The hash change is a build CI indicator - make sure it has finished before running install again.
-
-## Breaking Changes Protocol
-
-**When making breaking changes:**
-
-### Steps
-1. Ensure you land a **major release** version bump.
-2. **Test and complete the native application side first** before merging the C-S-S repo change.
-3. Only merge the C-S-S change after native app support is complete.
-
-### Why This Matters
-This prevents any engineer from having a breaking change and broken workflow. The native application must be tested and complete before the C-S-S repo change is merged.
-
-## Missing MessageName Debugging
-
-**If you see missing 'messageName' in the browser debug console:**
-
-This means the feature you're expecting to run **isn't running**.
-
-### Troubleshooting Steps
-1. Check that the feature is enabled in the config (see remote config debugging).
-2. Verify platform parameters allow the feature.
-3. Check that the injected script is correct (see three-location check above).
-4. Verify message handlers are properly registered in the native app.
-5. Check that the messaging bridge is correctly initialized.
-
-## Quick Validation Test
-
-**Use this test page to validate that ContentScopeScripts has been injected correctly:**
-
-https://privacy-test-pages.site/features/navigator-interface.html
-
-This page provides a quick way to verify C-S-S injection is working as expected.
-
-## Build and Development Tips
-
-### Source Maps
-Enable inline source maps to see original file names and line numbers in browser DevTools:
-```bash
-C_S_S_SOURCEMAPS=1 npm run build
-```
-
-### Local Development
-- Use `npm link` for local C-S-S development
-- Ensure you rebuild C-S-S after making changes
-- Verify the build output matches your expectations
-
-### Platform-Specific Notes
-- **iOS/macOS**: Run `npm run build-content-scope-scripts` after changes
-- **Android**: May need to clean project and uninstall app
-- **Windows**: See platform-specific build documentation
-- **Extension**: Changes may require extension reload
+This includes:
+- Platform-specific setup instructions (iOS/macOS, Android, Windows, Extensions)
+- Source maps configuration
+- Local dependency linking
+- Privacy config file locations
+- Common troubleshooting steps for each platform
