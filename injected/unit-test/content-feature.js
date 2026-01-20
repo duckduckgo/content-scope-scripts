@@ -1219,6 +1219,12 @@ describe('ContentFeature class', () => {
                 }
 
                 /**
+                 * Redefining to avoid TypeScript errors in the tests.
+                 *
+                 * Because we're adding methods to the instance dynamically in
+                 * the test, the available methods aren't known when
+                 * type-checking.
+                 *
                  * @param {string[]} methodNames
                  */
                 // @ts-expect-error - ignore for tests
@@ -1228,6 +1234,13 @@ describe('ContentFeature class', () => {
                 }
 
                 /**
+                 * Redefining to avoid TypeScript errors in the tests.
+                 *
+                 * The FeatureMap (which dictates the allowed `featureName`
+                 * values) is defined to reflect real features defined in
+                 * `injected/src/features`, so our fake test features aren't
+                 * known to the typechecker.
+                 *
                  * @param {string} featureName
                  * @param {string} methodName
                  * @param  {...any} args
