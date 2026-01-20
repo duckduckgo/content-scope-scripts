@@ -14,6 +14,7 @@ When developing or debugging Content Scope Scripts, validate script integrity, b
 
 **`injected/docs/build-and-troubleshooting.md`** - covers:
 - **Verification Steps** - Validate injected script integrity across build directory, native app, and web inspector
+- **Config and Platform Parameters Validation** - Using `processConfig` breakpoint to validate config state and platform parameters
 - **Build Branch Hash Validation** - For native engineers using build branches
 - **Quick Validation Test** - Test page for verifying C-S-S injection
 - Platform-specific setup and troubleshooting (iOS/macOS, Android, Windows, Extensions)

@@ -122,6 +122,39 @@ Installing before the CI completes or before the hash changes means you're testi
 
 ---
 
+## Config and Platform Parameters Validation
+
+**Always validate that the config loaded from remote config or cache config is in the correct state that is injected into Content Scope Scripts.**
+
+### Using processConfig Breakpoint
+
+1. Open the web inspector (browser DevTools).
+2. Set a breakpoint in the `processConfig` function (located in `injected/src/utils.js`).
+3. Inspect the loaded configuration object to verify:
+    - The config structure matches expectations
+    - Feature states (`enabled`, `disabled`, `internal`, `preview`) are correct
+    - Domain exceptions are properly applied
+    - `unprotectedTemporary` domains are correctly set
+    - Feature settings are correctly parsed
+    - Site-specific settings: `site.isBroken`, `site.allowlisted`, and `site.enabledFeatures` are correct
+
+### Platform Parameters Validation
+
+**Platform parameters control internal and version state, and thus the enabled state of your features.**
+
+1. Use the same `processConfig` method as a breakpoint.
+2. Inspect the `preferences` parameter passed to `processConfig`:
+    - `platform.version` - version number
+    - `platform.internal` - internal build flag
+    - `platform.preview` - preview build flag
+3. Verify these parameters match your expected build configuration.
+
+**Why This Matters:** Platform parameters determine feature enablement states. A feature set to `internal` state will only be enabled if `platform.internal === true`. Incorrect platform parameters can silently disable features.
+
+**Note:** For config version validation, see [privacy-configuration/.cursor/rules/debugging.mdc](https://github.com/duckduckgo/privacy-configuration/blob/main/.cursor/rules/debugging.mdc).
+
+---
+
 ## Quick Validation Test
 
 **Use this test page to validate that ContentScopeScripts has been injected correctly:**
