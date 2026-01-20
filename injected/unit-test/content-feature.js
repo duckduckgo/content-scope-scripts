@@ -1,4 +1,4 @@
-import ContentFeature from '../src/content-feature.js';
+import ContentFeature, { CallFeatureMethodError } from '../src/content-feature.js';
 
 describe('ContentFeature class', () => {
     class BaseTestFeature extends ContentFeature {
@@ -1287,24 +1287,24 @@ describe('ContentFeature class', () => {
                 return new CallerFeature(features);
             }
 
-            it('should throw when the target feature does not exist', () => {
+            it('should return an error when the target feature does not exist', () => {
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
                 const callerFeature = new CallerFeature();
 
-                expect(() => {
-                    callerFeature.callFeatureMethod('nonExistentFeature', 'someMethod');
-                }).toThrowError("Feature 'nonExistentFeature' not found");
+                const result = callerFeature.callFeatureMethod('nonExistentFeature', 'someMethod');
+                expect(result).toBeInstanceOf(CallFeatureMethodError);
+                expect(result.message).toBe("Feature not found: 'nonExistentFeature'");
             });
 
-            it('should throw when the method is not in the exposed methods list', () => {
+            it('should return an error when the method is not in the exposed methods list', () => {
                 const callerFeature = buildCallerFeature({
                     exposedMethod: () => {},
                     privateMethod: () => {},
                 }, ['exposedMethod']);
 
-                expect(() => {
-                    callerFeature.callFeatureMethod('targetFeature', 'privateMethod');
-                }).toThrowError("'privateMethod' is not exposed by feature 'targetFeature'");
+                const result = callerFeature.callFeatureMethod('targetFeature', 'privateMethod');
+                expect(result).toBeInstanceOf(CallFeatureMethodError);
+                expect(result.message).toBe("'privateMethod' is not exposed by feature 'targetFeature'");
             });
 
             it('should successfully call an exposed method on another feature', () => {

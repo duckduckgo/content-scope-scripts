@@ -27,6 +27,21 @@ import ConfigFeature from './config-feature.js';
  * @typedef {import('./features.js').FeatureMap} FeatureMap
  */
 
+/**
+ * Error used to indicate that calling a feature method failed (for example, due
+ * to an unknown feature or unexposed method).
+ */
+export class CallFeatureMethodError extends Error {
+    /**
+     * @param {string} message
+     */
+    constructor(message) {
+        super(message);
+        Object.setPrototypeOf(this, new.target.prototype);
+        this.name = new.target.name;
+    }
+}
+
 export default class ContentFeature extends ConfigFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
     /** @type {import('../../messaging').Messaging} */
@@ -202,17 +217,17 @@ export default class ContentFeature extends ConfigFeature {
      * @param {FeatureName} featureName
      * @param {MethodName} methodName
      * @param {Feature[MethodName] extends (...args: infer Args) => any ? Args : never} args
-     * @returns {ReturnType<Feature[MethodName]>}
+     * @returns {ReturnType<Feature[MethodName]> | CallFeatureMethodError}
      */
     callFeatureMethod(featureName, methodName, ...args) {
         const feature = this.#features[featureName];
-        if (!feature) throw new Error(`Feature '${featureName}' not found`);
+        if (!feature) return new CallFeatureMethodError(`Feature not found: '${featureName}'`);
         // correct method usage is guaranteed at the type level, but we include runtime checks for additional safety
         if (!(feature._exposedMethods !== undefined && feature._exposedMethods.some((mn) => mn === methodName)))
-            throw new Error(`'${methodName}' is not exposed by feature '${featureName}'`);
+            return new CallFeatureMethodError(`'${methodName}' is not exposed by feature '${featureName}'`);
         const method = /** @type {Feature} */ (feature)[methodName];
-        if (!method) throw new Error(`'${methodName}' not found in feature '${featureName}'`);
-        if (!(method instanceof Function)) throw new Error(`'${methodName}' is not a function in feature '${featureName}'`);
+        if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
+        if (!(method instanceof Function)) return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
         return method.call(feature, ...args);
     }
 
