@@ -43,7 +43,7 @@ export function ThemeSection({ data, setTheme }) {
         <div class={styles.root}>
             <div
                 class={cn(styles.segmentedControl, {
-                    [styles.vertical]: locale === 'pl',
+                    [styles.vertical]: ['pl', 'ru'].includes(locale),
                 })}
                 role="radiogroup"
                 aria-label={t('customizer_section_title_theme_variant')}

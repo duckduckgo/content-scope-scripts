@@ -37,6 +37,8 @@
     line-height: var(--small-label-line-height);
     cursor: pointer;
     transition: background 0.15s ease;
+    white-space: normal;
+    align-self: stretch;
 
     .vertical & {
         flex-direction: column;
