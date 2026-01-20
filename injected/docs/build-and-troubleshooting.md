@@ -11,15 +11,18 @@ This document provides platform-specific build instructions, troubleshooting ste
 ### Verification Steps
 
 1. **Check the build directory in the content-scope-scripts repo:**
-    - Location: `build/[platform]/contentScope.js`
+    - Location: `build/[platform]/contentScope.js` (or `build/[platform]/inject.js` for extensions)
+    - **Note:** Apple builds output to `Sources/ContentScopeScripts/dist/contentScope.js` instead of `build/apple/`
     - Verify the file contains your expected changes
     - Check file hash/timestamp to ensure it's been rebuilt
 
 2. **Check where it lives in the native application:**
     - **iOS/macOS**: `apple-browsers/SharedPackages/BrowserServicesKit/Sources/ContentScopeScripts/Resources/contentScope.js`
-    - **Android**: Check the appropriate resource location in the Android project
-    - **Windows**: `windows-browser/WindowsBrowser.DataBrokerProtection.Agent/Resources/dbp-contentScopeScripts`
-    - **Extension**: Check bundled resources in the extension project
+    - **Android**: `android/node_modules/@duckduckgo/content-scope-scripts/build/android/contentScope.js` (referenced by build.gradle files)
+    - **Windows**:
+        - Main: `windows-browser/WindowsBrowser/Application/ContentScripts/contentScope.js` (embedded resource from `submodules/content-scope-scripts/build/windows/contentScope.js`)
+        - Data Broker Protection: `windows-browser/WindowsBrowser.DataBrokerProtection.Agent/Resources/dbp-contentScopeScripts`
+    - **Extension**: `extension/node_modules/@duckduckgo/content-scope-scripts/build/[platform]/inject.js` (where `[platform]` is `chrome-mv3` or `firefox`)
 
 3. **Check in the web inspector:**
     - Open DevTools → Sources → Look for the injected script
@@ -45,11 +48,11 @@ C_S_S_SOURCEMAPS=1 npm run build
 - **Check Xcode Version:**
     - [.xcode-version](https://github.com/duckduckgo/apple-browsers/tree/main/.xcode-version)
 - **Set up C-S-S as a Local Dependency (Swift Package Manager):**
-    Apple browsers now use Swift Package Manager (SPM) for dependencies. To use your local C-S-S checkout for debugging, you have two options:
-    **Option 1: Drag into Xcode**
+  Apple browsers now use Swift Package Manager (SPM) for dependencies. To use your local C-S-S checkout for debugging, you have two options:
+  **Option 1: Drag into Xcode**
     - Drag the `content-scope-scripts` folder from Finder into the Xcode project navigator
     - Xcode will automatically detect the `Package.swift` file and set it up as a local package
-    **Option 2: Change Swift PM dependency to local path**
+      **Option 2: Change Swift PM dependency to local path**
     - In `apple-browsers/SharedPackages/BrowserServicesKit/Package.swift`, change the dependency from:
         ```swift
         .package(url: "https://github.com/duckduckgo/content-scope-scripts.git", exact: "12.27.0")
@@ -60,7 +63,7 @@ C_S_S_SOURCEMAPS=1 npm run build
         ```
         (Adjust the relative path based on your directory structure)
     - Xcode will automatically resolve the local package
-    **Note:** You no longer need to run `npm run build-content-scope-scripts` in the apple-browsers repo. The Swift Package Manager will handle the build process automatically.
+      **Note:** You no longer need to run `npm run build-content-scope-scripts` in the apple-browsers repo. The Swift Package Manager will handle the build process automatically.
 - **Set up Autofill as a Local Dependency:**
     - Drag the folder from Finder into the directory panel in Xcode.
 - **Privacy Config Files:**
