@@ -1,2 +1,1 @@
-- Improve debugging steps (#2191)
-- Add vertical layout for ThemeSection control (#2190)
+- Use the correct output path for duckAiChatHistory.js (#2193)
