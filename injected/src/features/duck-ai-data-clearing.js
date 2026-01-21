@@ -11,10 +11,7 @@ import ContentFeature from '../content-feature.js';
  */
 export class DuckAiDataClearing extends ContentFeature {
     init() {
-        this.messaging.subscribe(
-            'duckAiClearData',
-            (/** @type {{chatId?: string} | undefined} */ params) => this.clearData(params),
-        );
+        this.messaging.subscribe('duckAiClearData', (/** @type {{chatId?: string} | undefined} */ params) => this.clearData(params));
 
         this.notify('duckAiClearDataReady');
     }
@@ -177,50 +174,52 @@ export class DuckAiDataClearing extends ContentFeature {
      * @returns {Promise<void>}
      */
     withIndexedDB(indexDbName, objectStoreName, operation) {
-        return /** @type {Promise<void>} */ (new Promise((resolve, reject) => {
-            const request = window.indexedDB.open(indexDbName);
-            request.onerror = (event) => {
-                this.log.error('Error opening IndexedDB:', event);
-                reject(event);
-            };
-            request.onsuccess = (_) => {
-                const db = request.result;
-                if (!db) {
-                    this.log.error('IndexedDB onsuccess but no db result');
-                    reject(new Error('No DB result'));
-                    return;
-                }
+        return /** @type {Promise<void>} */ (
+            new Promise((resolve, reject) => {
+                const request = window.indexedDB.open(indexDbName);
+                request.onerror = (event) => {
+                    this.log.error('Error opening IndexedDB:', event);
+                    reject(event);
+                };
+                request.onsuccess = (_) => {
+                    const db = request.result;
+                    if (!db) {
+                        this.log.error('IndexedDB onsuccess but no db result');
+                        reject(new Error('No DB result'));
+                        return;
+                    }
 
-                if (!db.objectStoreNames.contains(objectStoreName)) {
-                    this.log.info(`'${objectStoreName}' object store does not exist, nothing to do`);
-                    db.close();
-                    resolve();
-                    return;
-                }
-
-                try {
-                    const transaction = db.transaction([objectStoreName], 'readwrite');
-                    const objectStore = transaction.objectStore(objectStoreName);
-
-                    transaction.addEventListener('complete', () => {
+                    if (!db.objectStoreNames.contains(objectStoreName)) {
+                        this.log.info(`'${objectStoreName}' object store does not exist, nothing to do`);
                         db.close();
                         resolve();
-                    });
+                        return;
+                    }
 
-                    transaction.addEventListener('error', (err) => {
-                        this.log.error('Transaction error:', err);
+                    try {
+                        const transaction = db.transaction([objectStoreName], 'readwrite');
+                        const objectStore = transaction.objectStore(objectStoreName);
+
+                        transaction.addEventListener('complete', () => {
+                            db.close();
+                            resolve();
+                        });
+
+                        transaction.addEventListener('error', (err) => {
+                            this.log.error('Transaction error:', err);
+                            db.close();
+                            reject(err);
+                        });
+
+                        operation(objectStore, transaction);
+                    } catch (err) {
+                        this.log.error('Exception during IndexedDB operation:', err);
                         db.close();
                         reject(err);
-                    });
-
-                    operation(objectStore, transaction);
-                } catch (err) {
-                    this.log.error('Exception during IndexedDB operation:', err);
-                    db.close();
-                    reject(err);
-                }
-            };
-        }));
+                    }
+                };
+            })
+        );
     }
 }
 
