@@ -46,13 +46,23 @@ function initDetector(config) {
     const SLOW_LOAD_THRESHOLD_MS = config.slowLoadThresholdMs || 2000;
     const DEBUG_LOGGING = config.debugLogging || false;
 
-    // Text patterns that indicate ads
-    const AD_TEXT_PATTERNS = [
-        /\badvertisement\b/i,
-        /\bskip ad\b/i,
-        /\bskip ads\b/i,
-        /^ad\s*[•:·]/i
-    ];
+    /**
+     * Convert string patterns to RegExp objects
+     * @param {string[]} patterns - Array of regex pattern strings
+     * @param {string} [flags='i'] - RegExp flags (default: case-insensitive)
+     * @returns {RegExp[]}
+     */
+    const toRegExpArray = (patterns, flags = 'i') => {
+        return patterns.map(p => new RegExp(p, flags));
+    };
+
+    // Text patterns that indicate ads (strings, converted to RegExp at runtime)
+    const AD_TEXT_PATTERNS = toRegExpArray([
+        '\\badvertisement\\b',
+        '\\bskip ad\\b',
+        '\\bskip ads\\b',
+        '^ad\\s*[•:·]'
+    ]);
 
     // Selectors for static overlay ads (image ads that appear over the player)
     const STATIC_AD_SELECTORS = {
@@ -70,15 +80,16 @@ function initDetector(config) {
         '.playability-reason'
     ];
 
-    // Error messages that indicate bot detection or content blocking
-    const PLAYABILITY_ERROR_PATTERNS = [
-        /content isn't available/i,
-        /video (is )?unavailable/i,
-        /playback (is )?disabled/i,
-        /confirm you're not a (ro)?bot/i,
-        /unusual traffic/i,
-        /try again later/i
-    ];
+    // Error messages that indicate bot detection or content blocking (strings, converted to RegExp)
+    const PLAYABILITY_ERROR_PATTERNS = toRegExpArray([
+        "content isn't available",
+        'video (is )?unavailable',
+        'playback (is )?disabled',
+        "confirm you're not a (ro)?bot",
+        'sign in to confirm',
+        'unusual traffic',
+        'try again later'
+    ]);
 
     // Selectors for ad blocker detection modals/dialogs
     const ADBLOCKER_DETECTION_SELECTORS = [
@@ -90,23 +101,23 @@ function initDetector(config) {
         '[role="dialog"]'
     ];
 
-    // Text patterns that indicate ad blocker detection
-    const ADBLOCKER_DETECTION_PATTERNS = [
-        /ad\s*blockers?\s*(are)?\s*not allowed/i,
-        /using an ad\s*blocker/i,
-        /allow youtube ads/i,
-        /disable.*ad\s*blocker/i,
-        /turn off.*ad\s*blocker/i,
-        /ad\s*blocker.*detected/i,
-        /ad\s*blocking/i,
-        /will be blocked after \d+ videos?/i,
-        /playback will be blocked/i,
-        /playback is blocked/i,
-        /youtube is allowlisted/i,
-        /video player will be blocked/i,
-        /ad\s*blockers?\s*violate/i,
-        /violate.*terms of service/i
-    ];
+    // Text patterns that indicate ad blocker detection (strings, converted to RegExp)
+    const ADBLOCKER_DETECTION_PATTERNS = toRegExpArray([
+        'ad\\s*blockers?\\s*(are)?\\s*not allowed',
+        'using an ad\\s*blocker',
+        'allow youtube ads',
+        'disable.*ad\\s*blocker',
+        'turn off.*ad\\s*blocker',
+        'ad\\s*blocker.*detected',
+        'ad\\s*blocking',
+        'will be blocked after \\d+ videos?',
+        'playback will be blocked',
+        'playback is blocked',
+        'youtube is allowlisted',
+        'video player will be blocked',
+        'ad\\s*blockers?\\s*violate',
+        'violate.*terms of service'
+    ]);
 
     // Initialize state with category-based structure
     state = {

@@ -15,8 +15,15 @@ export default class WebInterferenceDetection extends ContentFeature {
         const settings = this.getFeatureSetting('interferenceTypes');
 
         // Initialize YouTube detector early on YouTube pages to capture video load times
-        if (settings?.youtubeAds && window.location.hostname.includes('youtube.com')) {
-            runYoutubeAdDetection(settings.youtubeAds);
+        // HACK: Force-load on YouTube even without privacy-config (for testing)
+        const isYouTube = window.location.hostname.includes('youtube.com');
+        if (isYouTube) {
+            console.log('[WebInterferenceDetection] On YouTube, initializing ad detector', {
+                hasYoutubeAdsConfig: !!settings?.youtubeAds,
+                settings: settings?.youtubeAds
+            });
+            // Use config if available, otherwise use empty object (detector has defaults)
+            runYoutubeAdDetection(settings?.youtubeAds || {});
         }
 
         // Register messaging handler for PIR/native requests

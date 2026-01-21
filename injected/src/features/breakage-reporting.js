@@ -38,7 +38,13 @@ export default class BreakageReporting extends ContentFeature {
                     botDetection: runBotDetection(detectorSettings.botDetection),
                     fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
                     adwallDetection: runAdwallDetection(detectorSettings.adwallDetection),
-                    youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds),
+                    // HACK: Always run YouTube ad detector on YouTube (uses defaults if no config)
+                    youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds || {}),
+                };
+            } else if (window.location.hostname.includes('youtube.com')) {
+                // HACK: Still report YouTube ads even without full detectorSettings
+                result.detectorData = {
+                    youtubeAds: runYoutubeAdDetection({}),
                 };
             }
 
