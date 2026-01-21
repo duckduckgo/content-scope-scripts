@@ -23,6 +23,7 @@ let package = Package(
                 .process("dist/contentScope.js"),
                 .process("dist/contentScopeIsolated.js"),
                 .process("dist/duckAiDataClearing.js"),
+                .process("dist/duckAiChatHistory.js"),
                 .copy("dist/pages"),
             ]
         ),

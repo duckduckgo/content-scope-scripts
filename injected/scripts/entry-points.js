@@ -25,7 +25,7 @@ const builds = {
     },
     'apple-ai-history': {
         input: 'entry-points/apple.js',
-        output: ['../build/apple/duckAiChatHistory.js'],
+        output: ['../Sources/ContentScopeScripts/dist/duckAiChatHistory.js'],
     },
     'apple-isolated': {
         input: 'entry-points/apple.js',
