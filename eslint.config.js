@@ -33,6 +33,7 @@ export default tseslint.config(
                 $USER_UNPROTECTED_DOMAINS$: 'readonly',
                 $CONTENT_SCOPE$: 'readonly',
                 $BUNDLED_CONFIG$: 'readonly',
+                $SURROGATES$: 'readonly',
             },
 
             ecmaVersion: 'latest',

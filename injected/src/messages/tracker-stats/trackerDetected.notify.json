@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tracker-stats.trackerDetected.notify.json",
+  "title": "TrackerDetected",
+  "description": "Notification sent when a tracker is detected (blocked or allowed)",
+  "type": "object",
+  "required": ["url", "blocked", "isSurrogate", "pageUrl"],
+  "properties": {
+    "url": {
+      "type": "string",
+      "description": "The URL of the detected tracker resource"
+    },
+    "blocked": {
+      "type": "boolean",
+      "description": "Whether the request was blocked"
+    },
+    "reason": {
+      "type": ["string", "null"],
+      "description": "The reason for the action"
+    },
+    "isSurrogate": {
+      "type": "boolean",
+      "description": "Whether a surrogate will be/was injected"
+    },
+    "pageUrl": {
+      "type": "string",
+      "description": "The URL of the page where the tracker was detected"
+    },
+    "entityName": {
+      "type": ["string", "null"],
+      "description": "The display name of the tracker entity"
+    },
+    "ownerName": {
+      "type": ["string", "null"],
+      "description": "The owner name of the tracker"
+    },
+    "category": {
+      "type": ["string", "null"],
+      "description": "The category of the tracker"
+    },
+    "prevalence": {
+      "type": ["number", "null"],
+      "description": "The prevalence of the tracker entity"
+    },
+    "isAllowlisted": {
+      "type": ["boolean", "null"],
+      "description": "Whether the tracker is allowlisted"
+    }
+  }
+}
