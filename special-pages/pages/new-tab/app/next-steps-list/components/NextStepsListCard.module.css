@@ -107,15 +107,15 @@
     margin-top: var(--sp-1);
 }
 
-/* Progress indicator */
-.progressContainer {
+/* Step indicator */
+.stepIndicator {
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: var(--sp-4);
 }
 
-.progressPills {
+.stepPills {
     display: flex;
     gap: calc(4 * var(--px-in-rem));
 }
