@@ -124,7 +124,13 @@ export function NextStepsListCard({
                 {/* Dismissing card - shows old content animating out */}
                 {dismissingCard && (
                     <div class={cn(styles.card, styles.dismissing)}>
-                        <CardBody {...dismissingCard} />
+                        <CardBody
+                            title={dismissingCard.title}
+                            description={dismissingCard.description}
+                            primaryButtonText={dismissingCard.primaryButtonText}
+                            secondaryButtonText={dismissingCard.secondaryButtonText}
+                            imageSrc={dismissingCard.imageSrc}
+                        />
                     </div>
                 )}
                 {/* Current card - shows new content fading in */}
