@@ -143,7 +143,7 @@ export function NextStepsListCard({
 function ProgressIndicator({ currentStep, totalSteps }) {
     const pills = [];
     for (let i = 1; i <= totalSteps; i++) {
-        pills.push(<div key={i} class={cn(styles.pill, { [styles.active]: i <= currentStep })} aria-hidden="true" />);
+        pills.push(<div key={i} class={styles.pill} aria-hidden="true" />);
     }
 
     return (

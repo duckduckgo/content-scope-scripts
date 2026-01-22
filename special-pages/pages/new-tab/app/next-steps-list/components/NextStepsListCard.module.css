@@ -124,9 +124,9 @@
     width: calc(16 * var(--px-in-rem));
     height: calc(8 * var(--px-in-rem));
     border-radius: calc(4 * var(--px-in-rem));
-    background-color: var(--ds-color-theme-control-fill-primary);
+    background-color: rgba(0, 0, 0, 0.70);
 }
 
-.pill.active {
-    background-color: var(--ds-color-theme-text-secondary);
+[data-theme="dark"] .pill {
+    background-color: rgba(208, 207, 209, 1);
 }
