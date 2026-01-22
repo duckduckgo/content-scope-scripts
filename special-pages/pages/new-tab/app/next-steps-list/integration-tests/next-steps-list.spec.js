@@ -56,7 +56,7 @@ test.describe('newtab NextStepsList widget', () => {
         await page.getByRole('button', { name: 'Import Now' }).waitFor();
     });
 
-    test('shows progress indicator pills', async ({ page }, workerInfo) => {
+    test('shows step indicator pills', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ nextStepsList: ['emailProtection', 'duckplayer', 'defaultApp'] });

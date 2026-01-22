@@ -4,9 +4,17 @@ title: Next Steps List
 
 ## Overview
 
-The Next Steps List widget provides an alternative UI for the Next Steps feature. It displays a single card at a time with a progress indicator, rather than the grid of cards shown by the regular Next Steps widget.
+The Next Steps List widget provides an alternative UI for the Next Steps feature. It displays a single card at a time with a step indicator showing the total number of items, rather than the grid of cards shown by the regular Next Steps widget.
 
 **Important:** This widget reuses the same message names as the [Next Steps](../next-steps/next-steps.md) widget to simplify native integration. Native devices can share the same message handlers for both widgets and simply include a different widget ID to control which UI is displayed.
+
+## Behavior
+
+- Displays one card at a time with image, title, description, and action buttons
+- Shows a step indicator (pill-shaped dots) below the card representing total items
+- Unknown IDs are filtered out (only known variants are displayed)
+- When a card is dismissed, it animates out while the next card animates in (crossfade with scale effect)
+- If no known items remain, the widget is hidden
 
 ## Setup
 
