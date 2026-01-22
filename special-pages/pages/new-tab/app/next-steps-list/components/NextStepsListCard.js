@@ -123,10 +123,7 @@ export function NextStepsListCard({
             <div class={styles.cardContainer}>
                 {/* Dismissing card - shows old content animating out */}
                 {dismissingCard && (
-                    <div
-                        key={dismissingCard.itemId}
-                        class={cn(styles.card, styles.dismissing)}
-                    >
+                    <div key={dismissingCard.itemId} class={cn(styles.card, styles.dismissing)}>
                         <CardBody
                             title={dismissingCard.title}
                             description={dismissingCard.description}
