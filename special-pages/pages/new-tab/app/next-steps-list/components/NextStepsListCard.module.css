@@ -72,6 +72,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Reserve space for image to prevent layout shift during card transitions */
+    min-height: calc(140 * var(--px-in-rem));
 }
 
 .image {
