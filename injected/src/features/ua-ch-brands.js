@@ -2,8 +2,8 @@ import ContentFeature from '../content-feature';
 import { DDGReflect } from '../utils';
 
 export default class UaChBrands extends ContentFeature {
-    constructor(featureName, importConfig, args) {
-        super(featureName, importConfig, args);
+    constructor(featureName, importConfig, features, args) {
+        super(featureName, importConfig, features, args);
 
         this.originalBrands = null;
     }

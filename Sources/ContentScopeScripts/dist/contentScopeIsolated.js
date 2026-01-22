@@ -69,7 +69,7 @@
        * Steven Levithan (c) 2007-2017 MIT License
        */
       var REGEX_DATA = "xregexp";
-      var features2 = {
+      var features = {
         astral: false,
         natives: false
       };
@@ -305,7 +305,7 @@
         return result;
       }
       function setAstral(on) {
-        features2.astral = on;
+        features.astral = on;
       }
       function setNatives(on) {
         RegExp.prototype.exec = (on ? fixed : nativ).exec;
@@ -313,7 +313,7 @@
         String.prototype.match = (on ? fixed : nativ).match;
         String.prototype.replace = (on ? fixed : nativ).replace;
         String.prototype.split = (on ? fixed : nativ).split;
-        features2.natives = on;
+        features.natives = on;
       }
       function toObject(value) {
         if (value == null) {
@@ -484,15 +484,15 @@
       };
       XRegExp.install = function(options) {
         options = prepareOptions(options);
-        if (!features2.astral && options.astral) {
+        if (!features.astral && options.astral) {
           setAstral(true);
         }
-        if (!features2.natives && options.natives) {
+        if (!features.natives && options.natives) {
           setNatives(true);
         }
       };
       XRegExp.isInstalled = function(feature) {
-        return !!features2[feature];
+        return !!features[feature];
       };
       XRegExp.isRegExp = function(value) {
         return toString2.call(value) === "[object RegExp]";
@@ -576,10 +576,10 @@
       };
       XRegExp.uninstall = function(options) {
         options = prepareOptions(options);
-        if (features2.astral && options.astral) {
+        if (features.astral && options.astral) {
           setAstral(false);
         }
-        if (features2.natives && options.natives) {
+        if (features.natives && options.natives) {
           setNatives(false);
         }
       };
@@ -2062,7 +2062,7 @@
   // src/features.js
   init_define_import_meta_trackerLookup();
   var baseFeatures = (
-    /** @type {const} */
+    /** @type {FeatureName[]} */
     [
       "fingerprintingAudio",
       "fingerprintingBattery",
@@ -2080,7 +2080,7 @@
     ]
   );
   var otherFeatures = (
-    /** @type {const} */
+    /** @type {FeatureName[]} */
     [
       "clickToLoad",
       "cookie",
@@ -5148,9 +5148,25 @@
   _args = new WeakMap();
 
   // src/content-feature.js
-  var _messaging, _isDebugFlagSet, _importConfig;
+  var CallFeatureMethodError = class extends Error {
+    /**
+     * @param {string} message
+     */
+    constructor(message) {
+      super(message);
+      Object.setPrototypeOf(this, new.target.prototype);
+      this.name = new.target.name;
+    }
+  };
+  var _messaging, _isDebugFlagSet, _importConfig, _features;
   var ContentFeature = class extends ConfigFeature {
-    constructor(featureName, importConfig, args) {
+    /**
+     * @param {string} featureName
+     * @param {*} importConfig
+     * @param {Partial<FeatureMap>} features
+     * @param {*} args
+     */
+    constructor(featureName, importConfig, features, args) {
       super(featureName, args);
       /** @type {import('./utils.js').RemoteConfig | undefined} */
       /** @type {import('../../messaging').Messaging} */
@@ -5175,8 +5191,25 @@
       __publicField(this, "listenForConfigUpdates", false);
       /** @type {ImportMeta} */
       __privateAdd(this, _importConfig);
+      /**
+       * @type {Partial<FeatureMap>}
+       */
+      __privateAdd(this, _features);
+      /**
+       * @template {string} K
+       * @typedef {K[] & {__brand: 'exposeMethods'}} ExposeMethods
+       */
+      /**
+       * Methods that are exposed for inter-feature communication.
+       *
+       * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
+       *
+       * @type {ExposeMethods<any> | undefined}
+       */
+      __publicField(this, "_exposedMethods");
       this.setArgs(this.args);
       this.monitor = new PerformanceMonitor();
+      __privateSet(this, _features, features);
       __privateSet(this, _importConfig, importConfig);
     }
     get isDebug() {
@@ -5254,6 +5287,48 @@
      */
     get documentOriginIsTracker() {
       return isTrackerOrigin(this.trackerLookup);
+    }
+    /**
+     * Declares which methods may be called on the feature instance from other features.
+     *
+     * @template {keyof typeof this} K
+     * @param {K[]} methods
+     * @returns {ExposeMethods<K>}
+     */
+    _declareExposedMethods(methods) {
+      for (const method of methods) {
+        if (typeof this[method] !== "function") {
+          throw new Error(`'${method.toString()}' is not a method of feature '${this.name}'`);
+        }
+      }
+      return methods;
+    }
+    /**
+     * Run an exposed method of another feature.
+     *
+     * `args` are the arguments to pass to the feature method.
+     *
+     * @template {keyof FeatureMap} FeatureName
+     * @template {FeatureMap[FeatureName]} Feature
+     * @template {keyof Feature & (Feature['_exposedMethods'] extends ExposeMethods<infer K> ? K : never)} MethodName
+     * @param {FeatureName} featureName
+     * @param {MethodName} methodName
+     * @param {Feature[MethodName] extends (...args: infer Args) => any ? Args : never} args
+     * @returns {ReturnType<Feature[MethodName]> | CallFeatureMethodError}
+     */
+    callFeatureMethod(featureName, methodName, ...args) {
+      const feature = __privateGet(this, _features)[featureName];
+      if (!feature) return new CallFeatureMethodError(`Feature not found: '${featureName}'`);
+      if (!(feature._exposedMethods !== void 0 && feature._exposedMethods.some((mn) => mn === methodName)))
+        return new CallFeatureMethodError(`'${methodName}' is not exposed by feature '${featureName}'`);
+      const method = (
+        /** @type {Feature} */
+        feature[methodName]
+      );
+      if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
+      if (!(method instanceof Function))
+        return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
+      return method.call(feature, ...args);
     }
     /**
      * @deprecated as we should make this internal to the class and not used externally
@@ -5453,6 +5528,7 @@
   _messaging = new WeakMap();
   _isDebugFlagSet = new WeakMap();
   _importConfig = new WeakMap();
+  _features = new WeakMap();
 
   // src/features/duckplayer/overlay-messages.js
   init_define_import_meta_trackerLookup();
@@ -15845,7 +15921,7 @@ ul.messages {
     }
   }
   function listenForURLChanges() {
-    const urlChangedInstance = new ContentFeature("urlChanged", {}, {});
+    const urlChangedInstance = new ContentFeature("urlChanged", {}, {}, {});
     if ("navigation" in globalThis && "addEventListener" in globalThis.navigation) {
       const navigations = /* @__PURE__ */ new WeakMap();
       globalThis.navigation.addEventListener("navigate", (event) => {
@@ -15885,7 +15961,7 @@ ul.messages {
   // src/content-scope-features.js
   var initArgs = null;
   var updates = [];
-  var features = [];
+  var _features2 = {};
   var alwaysInitFeatures = /* @__PURE__ */ new Set(["cookie"]);
   var performanceMonitor = new PerformanceMonitor();
   var isHTMLDocument = document instanceof HTMLDocument || document instanceof XMLDocument && document.createElement("div") instanceof HTMLDivElement;
@@ -15903,15 +15979,19 @@ ul.messages {
     for (const featureName of bundledFeatureNames) {
       if (featuresToLoad.includes(featureName)) {
         const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
-        const featureInstance = new ContentFeature2(featureName, importConfig, args);
+        const featureInstance = new ContentFeature2(featureName, importConfig, _features2, args);
         if (!featureInstance.getFeatureSettingEnabled("additionalCheck", "enabled")) {
           continue;
         }
         featureInstance.callLoad();
-        features.push({ featureName, featureInstance });
+        _features2[featureName] = featureInstance;
       }
     }
     mark.end();
+  }
+  async function getFeatures() {
+    await Promise.all(Object.entries(_features2));
+    return _features2;
   }
   async function init(args) {
     const mark = performanceMonitor.mark("init");
@@ -15921,17 +16001,20 @@ ul.messages {
     }
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+    const features = await getFeatures();
+    Object.entries(features).forEach(([featureName, featureInstance]) => {
       if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
         if (!featureInstance.getFeatureSettingEnabled("additionalCheck", "enabled")) {
           return;
         }
         featureInstance.callInit(args);
-        if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
+        const hasUrlChangedMethod = "urlChanged" in featureInstance && typeof featureInstance.urlChanged === "function";
+        if (featureInstance.listenForUrlChanges || hasUrlChangedMethod) {
           registerForURLChanges((navigationType) => {
             featureInstance.recomputeSiteObject();
-            featureInstance?.urlChanged(navigationType);
+            if (hasUrlChangedMethod) {
+              featureInstance.urlChanged(navigationType);
+            }
           });
         }
       }
@@ -15949,8 +16032,8 @@ ul.messages {
     return args.platform.name === "extension" && alwaysInitFeatures.has(featureName);
   }
   async function updateFeaturesInner(args) {
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+    const features = await getFeatures();
+    Object.entries(features).forEach(([featureName, featureInstance]) => {
       if (!isFeatureBroken(initArgs, featureName) && featureInstance.listenForUpdateChanges) {
         featureInstance.update(args);
       }

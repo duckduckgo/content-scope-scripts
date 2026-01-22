@@ -1,1 +1,2 @@
-- Use the correct output path for duckAiChatHistory.js (#2193)
+- Onboarding: Import design-tokens.css for shared component styling (#2197)
+- Add support for inter-feature communication (#2186)

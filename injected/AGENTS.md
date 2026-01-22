@@ -17,7 +17,7 @@ integration-test/         # Playwright integration tests
 unit-test/                # Jasmine unit tests
 ```
 
-**Adding a new feature:** Add to `baseFeatures` or `otherFeatures` in `src/features.js`, then add to relevant platform arrays in `platformSupport`.
+**Adding a new feature:** Add to `baseFeatures` or `otherFeatures` in `src/features.js`, then add to relevant platform arrays in `platformSupport`. Build the project after adding a new feature in `src/features/` to keep types up-to-date (`npm run build`).
 
 ## TypeScript
 

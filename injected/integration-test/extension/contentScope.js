@@ -817,7 +817,7 @@
        * Steven Levithan (c) 2007-2017 MIT License
        */
       var REGEX_DATA = "xregexp";
-      var features2 = {
+      var features = {
         astral: false,
         natives: false
       };
@@ -1053,7 +1053,7 @@
         return result;
       }
       function setAstral(on) {
-        features2.astral = on;
+        features.astral = on;
       }
       function setNatives(on) {
         RegExp.prototype.exec = (on ? fixed : nativ).exec;
@@ -1061,7 +1061,7 @@
         String.prototype.match = (on ? fixed : nativ).match;
         String.prototype.replace = (on ? fixed : nativ).replace;
         String.prototype.split = (on ? fixed : nativ).split;
-        features2.natives = on;
+        features.natives = on;
       }
       function toObject(value) {
         if (value == null) {
@@ -1232,15 +1232,15 @@
       };
       XRegExp.install = function(options) {
         options = prepareOptions(options);
-        if (!features2.astral && options.astral) {
+        if (!features.astral && options.astral) {
           setAstral(true);
         }
-        if (!features2.natives && options.natives) {
+        if (!features.natives && options.natives) {
           setNatives(true);
         }
       };
       XRegExp.isInstalled = function(feature) {
-        return !!features2[feature];
+        return !!features[feature];
       };
       XRegExp.isRegExp = function(value) {
         return toString2.call(value) === "[object RegExp]";
@@ -1324,10 +1324,10 @@
       };
       XRegExp.uninstall = function(options) {
         options = prepareOptions(options);
-        if (features2.astral && options.astral) {
+        if (features.astral && options.astral) {
           setAstral(false);
         }
-        if (features2.natives && options.natives) {
+        if (features.natives && options.natives) {
           setNatives(false);
         }
       };
@@ -2867,7 +2867,7 @@
   // src/features.js
   init_define_import_meta_trackerLookup();
   var baseFeatures = (
-    /** @type {const} */
+    /** @type {FeatureName[]} */
     [
       "fingerprintingAudio",
       "fingerprintingBattery",
@@ -2885,7 +2885,7 @@
     ]
   );
   var otherFeatures = (
-    /** @type {const} */
+    /** @type {FeatureName[]} */
     [
       "clickToLoad",
       "cookie",
@@ -6482,9 +6482,25 @@
   _args = new WeakMap();
 
   // src/content-feature.js
-  var _messaging, _isDebugFlagSet, _importConfig;
+  var CallFeatureMethodError = class extends Error {
+    /**
+     * @param {string} message
+     */
+    constructor(message) {
+      super(message);
+      Object.setPrototypeOf(this, new.target.prototype);
+      this.name = new.target.name;
+    }
+  };
+  var _messaging, _isDebugFlagSet, _importConfig, _features;
   var ContentFeature = class extends ConfigFeature {
-    constructor(featureName, importConfig, args) {
+    /**
+     * @param {string} featureName
+     * @param {*} importConfig
+     * @param {Partial<FeatureMap>} features
+     * @param {*} args
+     */
+    constructor(featureName, importConfig, features, args) {
       super(featureName, args);
       /** @type {import('./utils.js').RemoteConfig | undefined} */
       /** @type {import('../../messaging').Messaging} */
@@ -6509,8 +6525,25 @@
       __publicField(this, "listenForConfigUpdates", false);
       /** @type {ImportMeta} */
       __privateAdd(this, _importConfig);
+      /**
+       * @type {Partial<FeatureMap>}
+       */
+      __privateAdd(this, _features);
+      /**
+       * @template {string} K
+       * @typedef {K[] & {__brand: 'exposeMethods'}} ExposeMethods
+       */
+      /**
+       * Methods that are exposed for inter-feature communication.
+       *
+       * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
+       *
+       * @type {ExposeMethods<any> | undefined}
+       */
+      __publicField(this, "_exposedMethods");
       this.setArgs(this.args);
       this.monitor = new PerformanceMonitor();
+      __privateSet(this, _features, features);
       __privateSet(this, _importConfig, importConfig);
     }
     get isDebug() {
@@ -6588,6 +6621,48 @@
      */
     get documentOriginIsTracker() {
       return isTrackerOrigin(this.trackerLookup);
+    }
+    /**
+     * Declares which methods may be called on the feature instance from other features.
+     *
+     * @template {keyof typeof this} K
+     * @param {K[]} methods
+     * @returns {ExposeMethods<K>}
+     */
+    _declareExposedMethods(methods) {
+      for (const method of methods) {
+        if (typeof this[method] !== "function") {
+          throw new Error(`'${method.toString()}' is not a method of feature '${this.name}'`);
+        }
+      }
+      return methods;
+    }
+    /**
+     * Run an exposed method of another feature.
+     *
+     * `args` are the arguments to pass to the feature method.
+     *
+     * @template {keyof FeatureMap} FeatureName
+     * @template {FeatureMap[FeatureName]} Feature
+     * @template {keyof Feature & (Feature['_exposedMethods'] extends ExposeMethods<infer K> ? K : never)} MethodName
+     * @param {FeatureName} featureName
+     * @param {MethodName} methodName
+     * @param {Feature[MethodName] extends (...args: infer Args) => any ? Args : never} args
+     * @returns {ReturnType<Feature[MethodName]> | CallFeatureMethodError}
+     */
+    callFeatureMethod(featureName, methodName, ...args) {
+      const feature = __privateGet(this, _features)[featureName];
+      if (!feature) return new CallFeatureMethodError(`Feature not found: '${featureName}'`);
+      if (!(feature._exposedMethods !== void 0 && feature._exposedMethods.some((mn) => mn === methodName)))
+        return new CallFeatureMethodError(`'${methodName}' is not exposed by feature '${featureName}'`);
+      const method = (
+        /** @type {Feature} */
+        feature[methodName]
+      );
+      if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
+      if (!(method instanceof Function))
+        return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
+      return method.call(feature, ...args);
     }
     /**
      * @deprecated as we should make this internal to the class and not used externally
@@ -6787,6 +6862,7 @@
   _messaging = new WeakMap();
   _isDebugFlagSet = new WeakMap();
   _importConfig = new WeakMap();
+  _features = new WeakMap();
 
   // src/features/fingerprinting-audio.js
   var FingerprintingAudio = class extends ContentFeature {
@@ -16677,8 +16753,8 @@ ul.messages {
   // src/features/ua-ch-brands.js
   init_define_import_meta_trackerLookup();
   var UaChBrands = class extends ContentFeature {
-    constructor(featureName, importConfig, args) {
-      super(featureName, importConfig, args);
+    constructor(featureName, importConfig, features, args) {
+      super(featureName, importConfig, features, args);
       this.originalBrands = null;
     }
     init() {
@@ -21278,8 +21354,8 @@ ul.messages {
   var MSG_VIDEO_PLAYBACK = "video-playback";
   var MSG_URL_CHANGED = "url-changed";
   var WebTelemetry = class extends ContentFeature {
-    constructor(featureName, importConfig, args) {
-      super(featureName, importConfig, args);
+    constructor(featureName, importConfig, features, args) {
+      super(featureName, importConfig, features, args);
       __publicField(this, "listenForUrlChanges", true);
       this.seenVideoElements = /* @__PURE__ */ new WeakSet();
       this.seenVideoUrls = /* @__PURE__ */ new Set();
@@ -21987,7 +22063,7 @@ ${iframeContent}
     }
   }
   function listenForURLChanges() {
-    const urlChangedInstance = new ContentFeature("urlChanged", {}, {});
+    const urlChangedInstance = new ContentFeature("urlChanged", {}, {}, {});
     if ("navigation" in globalThis && "addEventListener" in globalThis.navigation) {
       const navigations = /* @__PURE__ */ new WeakMap();
       globalThis.navigation.addEventListener("navigate", (event) => {
@@ -22027,7 +22103,7 @@ ${iframeContent}
   // src/content-scope-features.js
   var initArgs = null;
   var updates = [];
-  var features = [];
+  var _features2 = {};
   var alwaysInitFeatures = /* @__PURE__ */ new Set(["cookie"]);
   var performanceMonitor = new PerformanceMonitor();
   var isHTMLDocument = document instanceof HTMLDocument || document instanceof XMLDocument && document.createElement("div") instanceof HTMLDivElement;
@@ -22045,15 +22121,19 @@ ${iframeContent}
     for (const featureName of bundledFeatureNames) {
       if (featuresToLoad.includes(featureName)) {
         const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
-        const featureInstance2 = new ContentFeature2(featureName, importConfig, args);
+        const featureInstance2 = new ContentFeature2(featureName, importConfig, _features2, args);
         if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
           continue;
         }
         featureInstance2.callLoad();
-        features.push({ featureName, featureInstance: featureInstance2 });
+        _features2[featureName] = featureInstance2;
       }
     }
     mark.end();
+  }
+  async function getFeatures() {
+    await Promise.all(Object.entries(_features2));
+    return _features2;
   }
   async function init(args) {
     const mark = performanceMonitor.mark("init");
@@ -22063,17 +22143,20 @@ ${iframeContent}
     }
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance: featureInstance2, featureName }) => {
+    const features = await getFeatures();
+    Object.entries(features).forEach(([featureName, featureInstance2]) => {
       if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
         if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
           return;
         }
         featureInstance2.callInit(args);
-        if (featureInstance2.listenForUrlChanges || featureInstance2.urlChanged) {
+        const hasUrlChangedMethod = "urlChanged" in featureInstance2 && typeof featureInstance2.urlChanged === "function";
+        if (featureInstance2.listenForUrlChanges || hasUrlChangedMethod) {
           registerForURLChanges((navigationType) => {
             featureInstance2.recomputeSiteObject();
-            featureInstance2?.urlChanged(navigationType);
+            if (hasUrlChangedMethod) {
+              featureInstance2.urlChanged(navigationType);
+            }
           });
         }
       }
@@ -22091,8 +22174,8 @@ ${iframeContent}
     if (!isHTMLDocument) {
       return;
     }
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance: featureInstance2 }) => {
+    const features = await getFeatures();
+    Object.values(features).forEach((featureInstance2) => {
       if (featureInstance2 && featureInstance2.listenForConfigUpdates) {
         if (typeof featureInstance2.setArgs === "function") {
           featureInstance2.setArgs(updatedArgs);
@@ -22107,8 +22190,8 @@ ${iframeContent}
     return args.platform.name === "extension" && alwaysInitFeatures.has(featureName);
   }
   async function updateFeaturesInner(args) {
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance: featureInstance2, featureName }) => {
+    const features = await getFeatures();
+    Object.entries(features).forEach(([featureName, featureInstance2]) => {
       if (!isFeatureBroken(initArgs, featureName) && featureInstance2.listenForUpdateChanges) {
         featureInstance2.update(args);
       }
