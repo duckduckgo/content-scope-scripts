@@ -194,8 +194,19 @@ function setValueForInput(el, val) {
             events.forEach((ev) => el.dispatchEvent(ev));
             el.blur();
         } else if (el.tagName === 'SELECT') {
+            /** @type {HTMLSelectElement} */
+            const selectElement = /** @type {HTMLSelectElement} */ (el);
+
+            // Attempt to find the matching value in the select options, ignoring case
+            const selectValues = [...selectElement.options].map((o) => o.value);
+            const matchingValue = selectValues.find((option) => option.toLowerCase() === val.toLowerCase());
+
+            if (!matchingValue) {
+                return { result: false, error: `could not find matching value for select element: ${val}` };
+            }
+
             // set the select value
-            originalSet.call(el, val);
+            originalSet.call(el, matchingValue);
             const events = [
                 new Event('mousedown', { bubbles: true }),
                 new Event('mouseup', { bubbles: true }),
