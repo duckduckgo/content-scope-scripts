@@ -121,12 +121,8 @@
 }
 
 .pill {
-    width: calc(16 * var(--px-in-rem));
-    height: calc(8 * var(--px-in-rem));
-    border-radius: calc(4 * var(--px-in-rem));
-    background-color: rgba(0, 0, 0, 0.70);
-}
-
-[data-theme="dark"] .pill {
-    background-color: rgba(208, 207, 209, 1);
+    width: calc(10 * var(--px-in-rem));
+    height: calc(6 * var(--px-in-rem));
+    border-radius: calc(3 * var(--px-in-rem));
+    background-color: var(--ds-color-theme-control-fill-tertiary);
 }
