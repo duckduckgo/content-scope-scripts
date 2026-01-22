@@ -23,6 +23,25 @@ import ConfigFeature from './config-feature.js';
  * @property {string[]} [enabledFeatures]
  */
 
+/**
+ * @typedef {import('./features.js').FeatureMap} FeatureMap
+ */
+
+/**
+ * Error used to indicate that calling a feature method failed (for example, due
+ * to an unknown feature or unexposed method).
+ */
+export class CallFeatureMethodError extends Error {
+    /**
+     * @param {string} message
+     */
+    constructor(message) {
+        super(message);
+        Object.setPrototypeOf(this, new.target.prototype);
+        this.name = new.target.name;
+    }
+}
+
 export default class ContentFeature extends ConfigFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
     /** @type {import('../../messaging').Messaging} */
@@ -51,10 +70,36 @@ export default class ContentFeature extends ConfigFeature {
     /** @type {ImportMeta} */
     #importConfig;
 
-    constructor(featureName, importConfig, args) {
+    /**
+     * @type {Partial<FeatureMap>}
+     */
+    #features;
+
+    /**
+     * @template {string} K
+     * @typedef {K[] & {__brand: 'exposeMethods'}} ExposeMethods
+     */
+
+    /**
+     * Methods that are exposed for inter-feature communication.
+     *
+     * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
+     *
+     * @type {ExposeMethods<any> | undefined}
+     */
+    _exposedMethods;
+
+    /**
+     * @param {string} featureName
+     * @param {*} importConfig
+     * @param {Partial<FeatureMap>} features
+     * @param {*} args
+     */
+    constructor(featureName, importConfig, features, args) {
         super(featureName, args);
         this.setArgs(this.args);
         this.monitor = new PerformanceMonitor();
+        this.#features = features;
         this.#importConfig = importConfig;
     }
 
@@ -142,6 +187,49 @@ export default class ContentFeature extends ConfigFeature {
      */
     get documentOriginIsTracker() {
         return isTrackerOrigin(this.trackerLookup);
+    }
+
+    /**
+     * Declares which methods may be called on the feature instance from other features.
+     *
+     * @template {keyof typeof this} K
+     * @param {K[]} methods
+     * @returns {ExposeMethods<K>}
+     */
+    _declareExposedMethods(methods) {
+        for (const method of methods) {
+            if (typeof this[method] !== 'function') {
+                throw new Error(`'${method.toString()}' is not a method of feature '${this.name}'`);
+            }
+        }
+        // @ts-expect-error - phantom type for branding
+        return methods;
+    }
+
+    /**
+     * Run an exposed method of another feature.
+     *
+     * `args` are the arguments to pass to the feature method.
+     *
+     * @template {keyof FeatureMap} FeatureName
+     * @template {FeatureMap[FeatureName]} Feature
+     * @template {keyof Feature & (Feature['_exposedMethods'] extends ExposeMethods<infer K> ? K : never)} MethodName
+     * @param {FeatureName} featureName
+     * @param {MethodName} methodName
+     * @param {Feature[MethodName] extends (...args: infer Args) => any ? Args : never} args
+     * @returns {ReturnType<Feature[MethodName]> | CallFeatureMethodError}
+     */
+    callFeatureMethod(featureName, methodName, ...args) {
+        const feature = this.#features[featureName];
+        if (!feature) return new CallFeatureMethodError(`Feature not found: '${featureName}'`);
+        // correct method usage is guaranteed at the type level, but we include runtime checks for additional safety
+        if (!(feature._exposedMethods !== undefined && feature._exposedMethods.some((mn) => mn === methodName)))
+            return new CallFeatureMethodError(`'${methodName}' is not exposed by feature '${featureName}'`);
+        const method = /** @type {Feature} */ (feature)[methodName];
+        if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
+        if (!(method instanceof Function))
+            return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
+        return method.call(feature, ...args);
     }
 
     /**

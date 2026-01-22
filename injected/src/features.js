@@ -1,5 +1,14 @@
+/**
+ * Re-export auto-generated feature map types.
+ * The FeatureMap type is generated from src/features/*.js files.
+ * Run `npm run build-types` to regenerate, or it runs automatically on build.
+ *
+ * @typedef {import('./types/feature-map').FeatureMap} FeatureMap
+ * @typedef {import('./types/feature-map').FeatureName} FeatureName
+ */
+
 // Features must exist in either `baseFeatures` or `otherFeatures`
-export const baseFeatures = /** @type {const} */ ([
+export const baseFeatures = /** @type {FeatureName[]} */ ([
     'fingerprintingAudio',
     'fingerprintingBattery',
     'fingerprintingCanvas',
@@ -15,13 +24,14 @@ export const baseFeatures = /** @type {const} */ ([
     'apiManipulation',
 ]);
 
-const otherFeatures = /** @type {const} */ ([
+const otherFeatures = /** @type {FeatureName[]} */ ([
     'clickToLoad',
     'cookie',
     'messageBridge',
     'duckPlayer',
     'duckPlayerNative',
     'duckAiDataClearing',
+    'duckAiChatHistory',
     'harmfulApis',
     'webCompat',
     'webInterferenceDetection',
@@ -36,7 +46,6 @@ const otherFeatures = /** @type {const} */ ([
     'pageContext',
 ]);
 
-/** @typedef {baseFeatures[number]|otherFeatures[number]} FeatureName */
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
     apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webInterferenceDetection', 'pageContext'],
@@ -51,6 +60,7 @@ export const platformSupport = {
         'favicon',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
+    'apple-ai-history': ['duckAiChatHistory'],
     android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-import': ['autofillImport'],
@@ -80,6 +90,7 @@ export const platformSupport = {
         'pageContext',
         'duckAiDataClearing',
         'performanceMetrics',
+        'duckAiChatHistory',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
     chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],

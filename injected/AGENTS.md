@@ -1,8 +1,3 @@
----
-description: Guidelines for features running in web page DOM environments
-globs: injected/**
----
-
 # Injected Features
 
 JavaScript features injected into web pages or running in DOM environments of DuckDuckGo browsers. Features extend `ContentFeature` and `ConfigFeature` and integrate with remote configuration for per-site enable/disable.
@@ -22,7 +17,7 @@ integration-test/         # Playwright integration tests
 unit-test/                # Jasmine unit tests
 ```
 
-**Adding a new feature:** Add to `baseFeatures` or `otherFeatures` in `src/features.js`, then add to relevant platform arrays in `platformSupport`.
+**Adding a new feature:** Add to `baseFeatures` or `otherFeatures` in `src/features.js`, then add to relevant platform arrays in `platformSupport`. Build the project after adding a new feature in `src/features/` to keep types up-to-date (`npm run build`).
 
 ## TypeScript
 

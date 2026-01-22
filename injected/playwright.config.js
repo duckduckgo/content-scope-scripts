@@ -17,6 +17,7 @@ export default defineConfig({
                 'integration-test/broker-protection-tests/**/*.spec.js',
                 'integration-test/breakage-reporting.spec.js',
                 'integration-test/duck-ai-data-clearing.spec.js',
+                'integration-test/duck-ai-chat-history.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
