@@ -26,7 +26,7 @@
 /* Hide card during transition before entering animation starts (prevents flicker) */
 .card.hidden {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.85);
 }
 
 /* Enter animation - fade in when a new card appears after dismissing */
@@ -35,19 +35,20 @@
 }
 
 /* Dismiss animation - card becomes absolutely positioned so new card can fade in */
+/* Uses aggressive ease-in curve so card stays visible longer, masking any potential incoming card flicker */
 .card.dismissing {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    animation: dismissFadeOut 300ms ease-out forwards;
+    animation: dismissFadeOut 300ms cubic-bezier(0.8, 0, 1, 1) forwards;
     pointer-events: none;
 }
 
 @keyframes cardFadeIn {
     from {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.85);
     }
     to {
         opacity: 1;
