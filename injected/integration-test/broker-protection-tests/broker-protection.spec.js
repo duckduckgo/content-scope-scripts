@@ -364,6 +364,21 @@ test.describe('Broker Protection communications', () => {
             await dbp.isFormFilled({ fullState: true });
         });
 
+        /**
+         * This one's a bit tricky. On our state list we have District of Columbia (note the lowercase o in 'of')
+         * but the select has an option with value District Of Columbia (uppercase o in 'of'). This test verifies
+         * that even if we're setting the value using different casing, that the correct value is still selected.
+         */
+        test('fillForm with full state and differing case', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-full-state-case-insensitive.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#full-state', 'District Of Columbia');
+        });
+
         test('fillForm with optional information', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();

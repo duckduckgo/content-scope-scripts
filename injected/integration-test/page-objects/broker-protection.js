@@ -73,6 +73,24 @@ export class BrokerProtectionPage {
     }
 
     /**
+     * @param {string} selector - the selector for the input
+     * @return {Promise<string>}
+     */
+    async getFormFieldValue(selector) {
+        return await this.page.locator(selector).inputValue();
+    }
+
+    /**
+     * @param {string} selector - the selector for the input
+     * @param {string} desiredValue - the value we're wanting to match
+     * @return {Promise<void>}
+     */
+    async doesInputValueEqual(selector, desiredValue) {
+        const actualValue = await this.getFormFieldValue(selector);
+        expect(actualValue).toEqual(desiredValue);
+    }
+
+    /**
      * @param {string} responseElementSelector
      * @return {Promise<void>}
      */
