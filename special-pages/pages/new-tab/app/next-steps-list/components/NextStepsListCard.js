@@ -1,8 +1,43 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useState, useCallback, useRef, useEffect } from 'preact/hooks';
 import cn from 'classnames';
 import { Button } from '../../../../../shared/components/Button/Button.js';
 import styles from './NextStepsListCard.module.css';
+
+/**
+ * @typedef {object} CardBodyProps
+ * @property {string} title
+ * @property {string} description
+ * @property {string} primaryButtonText
+ * @property {string} secondaryButtonText
+ * @property {string} [imageSrc]
+ * @property {() => void} [onPrimaryClick]
+ * @property {() => void} [onSecondaryClick]
+ */
+
+/**
+ * The inner content of a card (image, text, buttons)
+ * @param {CardBodyProps} props
+ */
+function CardBody({ title, description, primaryButtonText, secondaryButtonText, imageSrc, onPrimaryClick, onSecondaryClick }) {
+    return (
+        <Fragment>
+            <div class={styles.imageContainer}>{imageSrc && <img src={imageSrc} alt="" class={styles.image} />}</div>
+            <div class={styles.content}>
+                <h3 class={styles.title}>{title}</h3>
+                <p class={styles.description}>{description}</p>
+                <div class={styles.buttonRow}>
+                    <Button variant="accentBrand" size="lg" onClick={onPrimaryClick}>
+                        {primaryButtonText}
+                    </Button>
+                    <Button variant="standard" size="lg" onClick={onSecondaryClick}>
+                        {secondaryButtonText}
+                    </Button>
+                </div>
+            </div>
+        </Fragment>
+    );
+}
 
 /**
  * @typedef {object} CardContent
@@ -22,7 +57,6 @@ import styles from './NextStepsListCard.module.css';
  * @property {string} primaryButtonText - Text for the primary action button
  * @property {string} secondaryButtonText - Text for the secondary button
  * @property {string} [imageSrc] - Optional image source
- * @property {number} currentStep - Current step number (1-based)
  * @property {number} totalSteps - Total number of steps
  * @property {() => void} [onPrimaryAction] - Handler for primary button click
  * @property {() => void} [onSecondaryAction] - Handler for secondary button click
@@ -39,7 +73,6 @@ export function NextStepsListCard({
     primaryButtonText,
     secondaryButtonText,
     imageSrc,
-    currentStep,
     totalSteps,
     onPrimaryAction,
     onSecondaryAction,
@@ -91,21 +124,13 @@ export function NextStepsListCard({
                 {/* Dismissing card - shows old content animating out */}
                 {dismissingCard && (
                     <div class={cn(styles.card, styles.dismissing)}>
-                        <div class={styles.imageContainer}>
-                            {dismissingCard.imageSrc && <img src={dismissingCard.imageSrc} alt="" class={styles.image} />}
-                        </div>
-                        <div class={styles.content}>
-                            <h3 class={styles.title}>{dismissingCard.title}</h3>
-                            <p class={styles.description}>{dismissingCard.description}</p>
-                            <div class={styles.buttonRow}>
-                                <Button variant="accentBrand" size="lg">
-                                    {dismissingCard.primaryButtonText}
-                                </Button>
-                                <Button variant="standard" size="lg">
-                                    {dismissingCard.secondaryButtonText}
-                                </Button>
-                            </div>
-                        </div>
+                        <CardBody
+                            title={dismissingCard.title}
+                            description={dismissingCard.description}
+                            primaryButtonText={dismissingCard.primaryButtonText}
+                            secondaryButtonText={dismissingCard.secondaryButtonText}
+                            imageSrc={dismissingCard.imageSrc}
+                        />
                     </div>
                 )}
                 {/* Current card - shows new content fading in */}
@@ -115,40 +140,36 @@ export function NextStepsListCard({
                         [styles.hidden]: dismissingCard && !isEntering,
                     })}
                 >
-                    <div class={styles.imageContainer}>{imageSrc && <img src={imageSrc} alt="" class={styles.image} />}</div>
-                    <div class={styles.content}>
-                        <h3 class={styles.title}>{title}</h3>
-                        <p class={styles.description}>{description}</p>
-                        <div class={styles.buttonRow}>
-                            <Button variant="accentBrand" size="lg" onClick={onPrimaryAction}>
-                                {primaryButtonText}
-                            </Button>
-                            <Button variant="standard" size="lg" onClick={handleSecondaryAction}>
-                                {secondaryButtonText}
-                            </Button>
-                        </div>
-                    </div>
+                    <CardBody
+                        title={title}
+                        description={description}
+                        primaryButtonText={primaryButtonText}
+                        secondaryButtonText={secondaryButtonText}
+                        imageSrc={imageSrc}
+                        onPrimaryClick={onPrimaryAction}
+                        onSecondaryClick={handleSecondaryAction}
+                    />
                 </div>
             </div>
-            <ProgressIndicator currentStep={currentStep} totalSteps={totalSteps} />
+            <StepIndicator totalSteps={totalSteps} />
         </div>
     );
 }
 
 /**
+ * Displays the total number of steps as a row of pill indicators
  * @param {object} props
- * @param {number} props.currentStep - Current step (1-based)
  * @param {number} props.totalSteps - Total number of steps
  */
-function ProgressIndicator({ currentStep, totalSteps }) {
+function StepIndicator({ totalSteps }) {
     const pills = [];
     for (let i = 1; i <= totalSteps; i++) {
         pills.push(<div key={i} class={styles.pill} aria-hidden="true" />);
     }
 
     return (
-        <div class={styles.progressContainer} aria-label={`Step ${currentStep} of ${totalSteps}`}>
-            <div class={styles.progressPills}>{pills}</div>
+        <div class={styles.stepIndicator} aria-label={`${totalSteps} steps`}>
+            <div class={styles.stepPills}>{pills}</div>
         </div>
     );
 }

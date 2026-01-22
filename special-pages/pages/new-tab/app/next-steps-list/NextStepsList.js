@@ -61,7 +61,6 @@ export function NextStepsListConsumer() {
                 primaryButtonText={actionText}
                 secondaryButtonText={getMaybeLaterText(t)}
                 imageSrc={iconPath}
-                currentStep={1}
                 totalSteps={items.length}
                 onPrimaryAction={() => action(displayedItemId)}
                 onSecondaryAction={() => dismiss(displayedItemId)}
