@@ -1,4 +1,4 @@
-@import url("../../../../shared/styles/design-tokens.css");
+@import url("../../../../../shared/styles/design-tokens.css");
 
 :root {
     --base: 16px;
