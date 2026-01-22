@@ -43,32 +43,28 @@ export function NextStepsListConsumer() {
     const theme = themeSignal.value;
 
     if (state.status === 'ready' && state.data.content && state.data.content.length > 0) {
-        // Get the first item's ID and find its variant
-        const firstItem = state.data.content[0];
-        const variantFn = variants[firstItem.id];
+        // Filter to only known IDs (skip unknown ones)
+        const items = state.data.content.filter((x) => x.id in variants);
 
-        // If we don't have a variant for this ID, don't render
-        if (!variantFn) {
-            console.warn(`No variant found for Next Steps List item: ${firstItem.id}`);
-            return null;
-        }
+        // If no known items, don't render
+        if (items.length === 0) return null;
 
-        const variantData = variantFn(t);
-        const totalSteps = state.data.content.length;
-        const iconPath = getIconPath(variantData.icon, theme);
+        const displayedItemId = items[0].id;
+        const { title, summary, actionText, icon } = variants[displayedItemId](t);
+        const iconPath = getIconPath(icon, theme);
 
         return (
             <NextStepsListCard
-                itemId={firstItem.id}
-                title={variantData.title}
-                description={variantData.summary}
-                primaryButtonText={variantData.actionText}
+                itemId={displayedItemId}
+                title={title}
+                description={summary}
+                primaryButtonText={actionText}
                 secondaryButtonText={getMaybeLaterText(t)}
                 imageSrc={iconPath}
                 currentStep={1}
-                totalSteps={totalSteps}
-                onPrimaryAction={() => action(firstItem.id)}
-                onSecondaryAction={() => dismiss(firstItem.id)}
+                totalSteps={items.length}
+                onPrimaryAction={() => action(displayedItemId)}
+                onSecondaryAction={() => dismiss(displayedItemId)}
             />
         );
     }
