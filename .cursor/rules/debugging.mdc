@@ -31,6 +31,16 @@ When developing or debugging Content Scope Scripts, validate script integrity, b
 - Message handler registration
 - Messaging bridge initialization
 
+### Feature Not Working Checklist
+
+When a feature is not working, use the triage checklist in:
+
+**`injected/docs/build-and-troubleshooting.md#feature-not-working-triage-checklist`**:
+- Feature enabled in config and site object
+- Feature bundled on the platform
+- Sub-feature or setting enabled
+- Messaging wired and listened to
+
 ### Additional Resources
 
 - **`injected/docs/features-guide.md`** - Feature development and debugging
