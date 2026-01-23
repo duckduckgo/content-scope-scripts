@@ -1241,7 +1241,7 @@
 
 /* shared/styles/design-tokens.css */
 
-/* pages/onboarding/app/styles/variables.css */
+/* pages/onboarding/app/shared/styles/variables.css */
 :root {
   --base: 16px;
   font-size: calc(16px / var(--base));
@@ -1338,7 +1338,7 @@
   }
 }
 
-/* pages/onboarding/app/styles/base.css */
+/* pages/onboarding/app/shared/styles/base.css */
 *,
 *:after,
 *:before {
@@ -1407,9 +1407,9 @@ h2 {
   }
 }
 
-/* pages/onboarding/app/styles/global.css */
+/* pages/onboarding/app/shared/styles/global.css */
 
-/* pages/onboarding/app/components/App.module.css */
+/* pages/onboarding/app/v1/App.module.css */
 .App_main {
   position: relative;
 }
@@ -1458,7 +1458,7 @@ h2 {
   }
 }
 
-/* pages/onboarding/app/components/Stack.module.css */
+/* pages/onboarding/app/shared/components/Stack.module.css */
 .Stack_stack {
   display: flex;
   flex-direction: column;
@@ -1469,7 +1469,7 @@ h2 {
   outline: 1px dotted black;
 }
 
-/* pages/onboarding/app/components/Icons.module.css */
+/* pages/onboarding/app/shared/components/Icons.module.css */
 .Icons_bounceIn {
   animation-name: Icons_bouncein;
   animation-duration: 500ms;
@@ -1555,7 +1555,7 @@ h2 {
   }
 }
 
-/* pages/onboarding/app/components/Buttons.module.css */
+/* pages/onboarding/app/v1/components/Buttons.module.css */
 .Buttons_buttons {
   display: flex;
   gap: 8px;
@@ -1664,7 +1664,7 @@ h2 {
     #1e42a4;
 }
 
-/* pages/onboarding/app/components/ListItem.module.css */
+/* pages/onboarding/app/shared/components/ListItem.module.css */
 .ListItem_step {
   display: flex;
   flex-direction: column;
@@ -1778,7 +1778,7 @@ h2 {
   }
 }
 
-/* pages/onboarding/app/components/List.module.css */
+/* pages/onboarding/app/shared/components/List.module.css */
 .List_list {
   padding: 28px;
   display: flex;
@@ -1853,7 +1853,7 @@ h2 {
   gap: var(--sp-3);
 }
 
-/* pages/onboarding/app/components/Background.module.css */
+/* pages/onboarding/app/v1/components/Background.module.css */
 .Background_background {
   position: fixed;
   z-index: 0;
@@ -1948,7 +1948,7 @@ h2 {
   }
 }
 
-/* pages/onboarding/app/components/BeforeAfter.module.css */
+/* pages/onboarding/app/v1/components/BeforeAfter.module.css */
 .BeforeAfter_imgWrap {
   padding-bottom: 48%;
   height: 0;
@@ -2160,7 +2160,7 @@ h2 {
   box-shadow: 0px 0px 1px 1px rgba(255, 255, 255, 0.10) inset, 0px 0px 0px 0.5px rgba(255, 255, 255, 0.06) inset;
 }
 
-/* pages/onboarding/app/components/Header.module.css */
+/* pages/onboarding/app/v1/components/Header.module.css */
 .Header_header {
   display: flex;
   gap: var(--sp-6);
@@ -2235,7 +2235,7 @@ h2 {
   color: var(--theme-txt-color-title);
 }
 
-/* pages/onboarding/app/components/Content.module.css */
+/* pages/onboarding/app/shared/components/Content.module.css */
 .Content_wrapper {
   display: flex;
   align-items: stretch;
@@ -2260,7 +2260,7 @@ h2 {
   }
 }
 
-/* pages/onboarding/app/components/Progress.module.css */
+/* pages/onboarding/app/shared/components/Progress.module.css */
 .Progress_progressContainer {
   white-space: nowrap;
   text-align: right;
@@ -2326,7 +2326,7 @@ h2 {
   opacity: 1;
 }
 
-/* pages/onboarding/app/components/v3/Background.module.css */
+/* pages/onboarding/app/v3/components/Background.module.css */
 .Background_background2 {
   position: fixed;
   z-index: 0;
@@ -2427,7 +2427,7 @@ h2 {
   }
 }
 
-/* pages/onboarding/app/components/v3/ComparisonTable.module.css */
+/* pages/onboarding/app/v3/components/ComparisonTable.module.css */
 .ComparisonTable_table {
   border-spacing: 0;
   padding: 0 var(--sp-14);
@@ -2498,7 +2498,7 @@ h2 {
   background-image: url("./ddg-VAGQ4AK4.svg");
 }
 
-/* pages/onboarding/app/components/v3/Animation.module.css */
+/* pages/onboarding/app/v3/components/Animation.module.css */
 .Animation_container {
   position: relative;
   clip-path: polygon(-100% -100%, calc(100% + var(--sp-6)) -100%, calc(100% + var(--sp-6)) 200%, -100% 200%);
@@ -2535,7 +2535,7 @@ h2 {
   }
 }
 
-/* pages/onboarding/app/components/v3/DuckPlayerStep.module.css */
+/* pages/onboarding/app/v3/components/DuckPlayerStep.module.css */
 .DuckPlayerStep_animationContainer {
   display: flex;
   height: 208px;
@@ -2546,7 +2546,7 @@ h2 {
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* pages/onboarding/app/components/ToggleButton.module.css */
+/* pages/onboarding/app/shared/components/ToggleButton.module.css */
 .ToggleButton_button {
   --btn-bg: #ffffff;
   --btn-border: var(--color-black-at-6);
@@ -2621,7 +2621,7 @@ h2 {
   }
 }
 
-/* pages/onboarding/app/pages/AddressBarMode/AddressBarPreview.module.css */
+/* pages/onboarding/app/v3/pages/AddressBarMode/AddressBarPreview.module.css */
 .AddressBarPreview_wrapper {
   position: relative;
   width: 100%;
@@ -2690,7 +2690,7 @@ h2 {
   pointer-events: none;
 }
 
-/* pages/onboarding/app/pages/AddressBarMode/AddressBarMode.module.css */
+/* pages/onboarding/app/v3/pages/AddressBarMode/AddressBarMode.module.css */
 .AddressBarMode_container {
   align-items: center;
   font-size: calc(13 * var(--px-in-rem));
@@ -2725,7 +2725,7 @@ h2 {
   font-weight: 600;
 }
 
-/* pages/onboarding/app/components/v3/ElasticButton.module.css */
+/* pages/onboarding/app/v3/components/ElasticButton.module.css */
 .ElasticButton_button {
   --btn-line-height: 1;
   --btn-font-size: calc(14 * var(--px-in-rem));
@@ -2862,7 +2862,7 @@ h2 {
   text-align: center;
 }
 
-/* pages/onboarding/app/components/v3/Buttons.module.css */
+/* pages/onboarding/app/v3/components/Buttons.module.css */
 .Buttons_buttons2 {
   display: flex;
   gap: 8px;
@@ -2974,7 +2974,7 @@ h2 {
     #1e42a4;
 }
 
-/* pages/onboarding/app/components/v3/Heading.module.css */
+/* pages/onboarding/app/v3/components/Heading.module.css */
 .Heading_heading {
   display: inline-grid;
   grid-template-columns: var(--sp-16) auto;
@@ -3143,7 +3143,7 @@ h2 {
   opacity: 0;
 }
 
-/* pages/onboarding/app/components/v3/SingleStep.module.css */
+/* pages/onboarding/app/v3/components/SingleStep.module.css */
 .SingleStep_panel {
   display: grid;
   padding: var(--sp-6);
@@ -3203,7 +3203,7 @@ h2 {
   grid-area: accept;
 }
 
-/* pages/onboarding/app/components/v3/Hiker.module.css */
+/* pages/onboarding/app/v3/components/Hiker.module.css */
 .Hiker_hiker {
   bottom: 0;
   position: fixed;
@@ -3221,11 +3221,11 @@ h2 {
   }
 }
 
-/* pages/onboarding/app/components/App2.module.css */
+/* pages/onboarding/app/v3/App.module.css */
 #app {
   height: 100%;
 }
-[data-app-version="2"] .App2_main {
+[data-app-version="2"] .App_main2 {
   font-family:
     system,
     -apple-system,
@@ -3242,7 +3242,7 @@ h2 {
   height: 100%;
   position: relative;
 }
-[data-app-version="2"] .App2_container {
+[data-app-version="2"] .App_container2 {
   margin-left: auto;
   margin-right: auto;
   max-width: 640px;
@@ -3254,8 +3254,8 @@ h2 {
   transition: transform 0.3s ease-in-out;
   transform: translateY(0);
 }
-[data-app-version="2"] .App2_container[data-current=welcome],
-[data-app-version="2"] .App2_container[data-current=getStarted] {
+[data-app-version="2"] .App_container2[data-current=welcome],
+[data-app-version="2"] .App_container2[data-current=getStarted] {
   transform: translateY(max(50vh - 288px, 0px));
 }
 [data-app-version="2"] [data-exiting=true] {

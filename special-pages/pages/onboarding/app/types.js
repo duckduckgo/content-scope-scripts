@@ -95,7 +95,7 @@ export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSe
 
 /**
  * @typedef {Object} GlobalState
- * @property {import("./data").StepDefinitions} stepDefinitions
+ * @property {import("./v1/data/data").StepDefinitions} stepDefinitions
  * @property {Step} step
  * @property {Step['id'][]} order
  * @property {Step['id']} activeStep

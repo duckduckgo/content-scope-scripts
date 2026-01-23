@@ -8978,14 +8978,14 @@
     return "function" == typeof t3 ? t3(n2) : t3;
   }
 
-  // pages/onboarding/app/components/App.module.css
+  // pages/onboarding/app/v1/App.module.css
   var App_default = {
     main: "App_main",
     container: "App_container",
     slideout: "App_slideout"
   };
 
-  // pages/onboarding/app/components/Stack.module.css
+  // pages/onboarding/app/shared/components/Stack.module.css
   var Stack_default = {
     stack: "Stack_stack"
   };
@@ -9645,7 +9645,7 @@
     return x2(EnvironmentContext);
   }
 
-  // pages/onboarding/app/components/Stack.js
+  // pages/onboarding/app/shared/components/Stack.js
   function Stack({ children, gap = "var(--sp-6)", className = "", animate: animate2 = false, debug = false }) {
     const { isReducedMotion } = useEnv();
     const [parent] = useAutoAnimate({ duration: isReducedMotion ? 0 : 300 });
@@ -9659,7 +9659,7 @@
     0: "0"
   };
 
-  // pages/onboarding/app/components/Icons.module.css
+  // pages/onboarding/app/shared/components/Icons.module.css
   var Icons_default = {
     bounceIn: "Icons_bounceIn",
     bouncein: "Icons_bouncein",
@@ -9670,7 +9670,7 @@
     fadeIn: "Icons_fadeIn"
   };
 
-  // pages/onboarding/app/components/Icons.js
+  // pages/onboarding/app/shared/components/Icons.js
   function BounceIn({ children, delay = "none" }) {
     return /* @__PURE__ */ _("div", { className: Icons_default.bounceIn, "data-delay": delay }, children);
   }
@@ -9762,7 +9762,7 @@
     )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_3098_23365" }, /* @__PURE__ */ _("rect", { width: "16", height: "16", fill: "white", transform: "translate(0.5)" }))));
   }
 
-  // pages/onboarding/app/components/Buttons.module.css
+  // pages/onboarding/app/v1/components/Buttons.module.css
   var Buttons_default = {
     buttons: "Buttons_buttons",
     button: "Buttons_button",
@@ -9772,7 +9772,7 @@
     primary: "Buttons_primary"
   };
 
-  // pages/onboarding/app/components/Buttons.js
+  // pages/onboarding/app/v1/components/Buttons.js
   var import_classnames = __toESM(require_classnames(), 1);
   function ButtonBar(props) {
     const { children, ...rest } = props;
@@ -9789,10 +9789,10 @@
     return /* @__PURE__ */ _("button", { className: classes, ...rest }, children);
   }
 
-  // pages/onboarding/app/components/ListItem.js
+  // pages/onboarding/app/shared/components/ListItem.js
   var import_classnames2 = __toESM(require_classnames(), 1);
 
-  // pages/onboarding/app/components/ListItem.module.css
+  // pages/onboarding/app/shared/components/ListItem.module.css
   var ListItem_default = {
     step: "ListItem_step",
     plain: "ListItem_plain",
@@ -9811,7 +9811,7 @@
     slidein: "ListItem_slidein"
   };
 
-  // pages/onboarding/app/components/ListItem.js
+  // pages/onboarding/app/shared/components/ListItem.js
   var prefix = "assets/img/steps/";
   function ListItem({ animate: animate2 = false, ...props }) {
     const path = prefix + props.icon;
@@ -9825,16 +9825,16 @@
     return /* @__PURE__ */ _("li", { className: ListItem_default.plain, "data-testid": "ListItem" }, /* @__PURE__ */ _(Check, null), /* @__PURE__ */ _("div", { className: ListItem_default.plainContent }, /* @__PURE__ */ _("div", { className: ListItem_default.iconSmall, style: `background-image: url(${path});` }), /* @__PURE__ */ _("p", { className: ListItem_default.title }, props.title)));
   }
 
-  // pages/onboarding/app/animations/taskbar_pinning.riv
+  // pages/onboarding/app/shared/animations/taskbar_pinning.riv
   var taskbar_pinning_default = "./taskbar_pinning-6NHIEEJL.riv";
 
-  // pages/onboarding/app/animations/import.riv
+  // pages/onboarding/app/shared/animations/import.riv
   var import_default = "./import-HLF6I3ZA.riv";
 
-  // pages/onboarding/app/animations/set_default.riv
+  // pages/onboarding/app/shared/animations/set_default.riv
   var set_default_default = "./set_default-6KY7WB33.riv";
 
-  // pages/onboarding/app/data.js
+  // pages/onboarding/app/v1/data/data.js
   var stepDefinitions = {
     welcome: {
       id: "welcome",
@@ -10066,7 +10066,7 @@
   };
   var beforeAfterMeta = {
     /**
-     * @param {import('./types').TranslationFn} t
+     * @param {import('../../types').TranslationFn} t
      */
     fewerAds: (t3) => ({
       btnBeforeText: t3("beforeAfter_fewerAds_show"),
@@ -10076,7 +10076,7 @@
       stateMachine: "State Machine 2"
     }),
     /**
-     * @param {import('./types').TranslationFn} t
+     * @param {import('../../types').TranslationFn} t
      */
     duckPlayer: (t3) => ({
       btnBeforeText: t3("beforeAfter_duckPlayer_show"),
@@ -10087,10 +10087,10 @@
     })
   };
 
-  // pages/onboarding/app/components/List.js
+  // pages/onboarding/app/shared/components/List.js
   var import_classnames3 = __toESM(require_classnames(), 1);
 
-  // pages/onboarding/app/components/List.module.css
+  // pages/onboarding/app/shared/components/List.module.css
   var List_default = {
     list: "List_list",
     plainListContainer: "List_plainListContainer",
@@ -10099,7 +10099,7 @@
     summaryList: "List_summaryList"
   };
 
-  // pages/onboarding/app/components/List.js
+  // pages/onboarding/app/shared/components/List.js
   function List({ animate: animate2 = false, children }) {
     const { isReducedMotion } = useEnv();
     const [parent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : void 0);
@@ -10674,7 +10674,7 @@
     };
   }
 
-  // pages/onboarding/app/pages/Summary.js
+  // pages/onboarding/app/v1/pages/Summary.js
   function Summary({ values, onDismiss, onSettings }) {
     const { t: t3 } = useTypedTranslation();
     const items = Object.values(noneSettingsRowItems).map((fn) => {
@@ -10717,7 +10717,7 @@
     )));
   }
 
-  // pages/onboarding/app/components/SettingsProvider.js
+  // pages/onboarding/app/shared/components/SettingsProvider.js
   var SettingsContext = Q(
     /** @type {{platform: {name: ImportMeta['platform']}|undefined}} */
     {}
@@ -10961,7 +10961,7 @@
     return x2(GlobalDispatch);
   }
 
-  // pages/onboarding/app/components/Background.module.css
+  // pages/onboarding/app/v1/components/Background.module.css
   var Background_default = {
     background: "Background_background",
     foreground: "Background_foreground",
@@ -10973,19 +10973,19 @@
     slidein3: "Background_slidein3"
   };
 
-  // pages/onboarding/app/components/Background.js
+  // pages/onboarding/app/v1/components/Background.js
   var import_classnames4 = __toESM(require_classnames(), 1);
   function Background() {
     return /* @__PURE__ */ _("div", { className: Background_default.background }, /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(Background_default.foreground, Background_default.layer1) }), /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(Background_default.foreground, Background_default.layer2) }), /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(Background_default.foreground, Background_default.layer3) }));
   }
 
-  // pages/onboarding/app/pages/Welcome.js
+  // pages/onboarding/app/v1/pages/Welcome.js
   function GetStarted({ onNextPage }) {
     const { t: t3 } = useTypedTranslation();
     return /* @__PURE__ */ _(SlideUp, null, /* @__PURE__ */ _(Button, { onClick: onNextPage, size: "xl" }, t3("getStartedButton")));
   }
 
-  // pages/onboarding/app/hooks/useRollin.js
+  // pages/onboarding/app/v1/hooks/useRollin.js
   function useRollin(frames) {
     const { isReducedMotion } = useEnv();
     const [state, dispatch] = h2(
@@ -11023,7 +11023,7 @@
     };
   }
 
-  // pages/onboarding/app/pages/PrivacyDefault.js
+  // pages/onboarding/app/v1/pages/PrivacyDefault.js
   function PrivacyDefault({ onNextPage }) {
     const { t: t3 } = useTypedTranslation();
     const rows = [noneSettingsRowItems.search(t3), noneSettingsRowItems.trackingProtection(t3), noneSettingsRowItems.cookieManagement(t3)];
@@ -11045,7 +11045,7 @@
     }))), state.isLast && /* @__PURE__ */ _(SlideUp, null, /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { onClick: onNextPage, size: "large" }, t3("gotIt")))));
   }
 
-  // pages/onboarding/app/components/Timeout.js
+  // pages/onboarding/app/shared/components/Timeout.js
   function Timeout({ onComplete, ignore, timeout = 1e3 }) {
     const { isReducedMotion } = useEnv();
     y2(() => {
@@ -11071,14 +11071,14 @@
     return null;
   }
 
-  // pages/onboarding/app/components/Animate.js
+  // pages/onboarding/app/v1/components/Animate.js
   function Animate(props) {
     const { isReducedMotion } = useEnv();
     const [parent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : void 0);
     return /* @__PURE__ */ _("div", { ref: parent }, props.children);
   }
 
-  // pages/onboarding/app/components/RiveAnimation.js
+  // pages/onboarding/app/shared/components/RiveAnimation.js
   var import_canvas_single = __toESM(require_rive(), 1);
   function RiveAnimation({ animation, state, stateMachine, artboard, inputName, autoplay = true, isDarkMode }) {
     const ref = A2(
@@ -11139,13 +11139,13 @@
     return /* @__PURE__ */ _("canvas", { width: "432", height: "208", ref, style: "border-radius: 12px; overflow: hidden" });
   }
 
-  // pages/onboarding/app/components/BeforeAfter.module.css
+  // pages/onboarding/app/v1/components/BeforeAfter.module.css
   var BeforeAfter_default = {
     imgWrap: "BeforeAfter_imgWrap",
     media: "BeforeAfter_media"
   };
 
-  // pages/onboarding/app/components/BeforeAfter.js
+  // pages/onboarding/app/v1/components/BeforeAfter.js
   function BeforeAfter({ media, onDone, btnBefore, btnAfter }) {
     const { t: t3 } = useTypedTranslation();
     const { isReducedMotion } = useEnv();
@@ -11159,10 +11159,10 @@
     return /* @__PURE__ */ _(Stack, { gap: "var(--sp-3)" }, /* @__PURE__ */ _("div", { className: BeforeAfter_default.imgWrap, ref: imageParent }, media({ state, className: BeforeAfter_default.media })), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { variant: "secondary", onClick: () => dispatch("toggle"), style: { minWidth: "210px" } }, state === "after" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(Replay, null), btnAfter), (state === "before" || state === "initial") && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(Play, null), btnBefore)), state !== "initial" && /* @__PURE__ */ _(SlideIn, { delay: "double" }, /* @__PURE__ */ _(Button, { onClick: onDone }, t3("gotIt")))));
   }
 
-  // pages/onboarding/app/animations/Onboarding.riv
+  // pages/onboarding/app/shared/animations/Onboarding.riv
   var Onboarding_default = "./Onboarding-QFOHFYKL.riv";
 
-  // pages/onboarding/app/pages/CleanBrowsing.js
+  // pages/onboarding/app/v1/pages/CleanBrowsing.js
   function CleanBrowsing({ onNextPage }) {
     const { t: t3 } = useTypedTranslation();
     const rows = [noneSettingsRowItems.fewerAds(t3), noneSettingsRowItems.duckPlayer(t3)];
@@ -11245,7 +11245,7 @@
     ), /* @__PURE__ */ _("span", { class: Switch_default.switch, style: "transition-duration: 130ms;transition-delay: 0ms;" }));
   }
 
-  // pages/onboarding/app/pages/SettingsStep.js
+  // pages/onboarding/app/v1/pages/SettingsStep.js
   function SettingsStep({ onNextPage, data, metaData, subtitle }) {
     const { injectName } = useEnv();
     const { state } = useRollin([300]);
@@ -11344,7 +11344,7 @@
     );
   }
 
-  // pages/onboarding/app/components/Header.module.css
+  // pages/onboarding/app/v1/components/Header.module.css
   var Header_default = {
     header: "Header_header",
     logo: "Header_logo",
@@ -11355,12 +11355,12 @@
     title: "Header_title"
   };
 
-  // pages/onboarding/app/components/Header.js
+  // pages/onboarding/app/v1/components/Header.js
   function Header({ children, aside = null }) {
     return /* @__PURE__ */ _("header", { className: Header_default.header }, /* @__PURE__ */ _("div", { className: Header_default.logo }, /* @__PURE__ */ _("img", { className: Header_default.svg, src: "assets/img/dax.svg", alt: "DuckDuckGo Logo" })), /* @__PURE__ */ _("div", { className: Header_default.titleContainer }, /* @__PURE__ */ _("h1", { className: Header_default.title }, /* @__PURE__ */ _(Delay, { ms: 300 }, children))), aside && /* @__PURE__ */ _("div", { className: Header_default.aside }, aside));
   }
 
-  // pages/onboarding/app/components/Typed.js
+  // pages/onboarding/app/shared/components/Typed.js
   function Typed({ text, children = null, onComplete = null, paused = false, delay = 20, ...rest }) {
     const globalState = x2(GlobalContext);
     const { activeStep } = globalState;
@@ -11502,13 +11502,13 @@
     ));
   }
 
-  // pages/onboarding/app/components/Content.module.css
+  // pages/onboarding/app/shared/components/Content.module.css
   var Content_default = {
     wrapper: "Content_wrapper",
     indent: "Content_indent"
   };
 
-  // pages/onboarding/app/components/Content.js
+  // pages/onboarding/app/shared/components/Content.js
   function Content({ children }) {
     return /* @__PURE__ */ _("div", { className: Content_default.indent }, /* @__PURE__ */ _("div", { className: Content_default.wrapper }, children));
   }
@@ -11538,13 +11538,13 @@
     }
   };
 
-  // pages/onboarding/app/pages/Fallback.js
+  // pages/onboarding/app/shared/components/Fallback.js
   function Fallback() {
     const { t: t3 } = useTypedTranslation();
     return /* @__PURE__ */ _(Content, null, /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _("h1", null, t3("somethingWentWrong"))));
   }
 
-  // pages/onboarding/app/components/Progress.module.css
+  // pages/onboarding/app/shared/components/Progress.module.css
   var Progress_default = {
     progressContainer: "Progress_progressContainer",
     "fade-in": "Progress_fade-in",
@@ -11553,7 +11553,7 @@
     singleLineContainer: "Progress_singleLineContainer"
   };
 
-  // pages/onboarding/app/components/Progress.js
+  // pages/onboarding/app/shared/components/Progress.js
   var import_classnames5 = __toESM(require_classnames(), 1);
   function Progress({ total, current }) {
     return /* @__PURE__ */ _("div", { className: Progress_default.progressContainer }, /* @__PURE__ */ _("div", { className: Progress_default.count }, current, " / ", total), /* @__PURE__ */ _("progress", { className: Progress_default.progress, max: total, value: current }, "(Page ", current, " of circa ", total, ")"));
@@ -11562,7 +11562,7 @@
     return /* @__PURE__ */ _("div", { className: (0, import_classnames5.default)([Progress_default.progressContainer, Progress_default.singleLineContainer]) }, /* @__PURE__ */ _("div", { className: Progress_default.count }, current, " / ", total), /* @__PURE__ */ _("progress", { className: Progress_default.progress, max: total, value: current }, "(Page ", current, " of circa ", total, ")"));
   }
 
-  // pages/onboarding/app/components/App.js
+  // pages/onboarding/app/v1/App.js
   function App({ children }) {
     const { debugState, isReducedMotion } = useEnv();
     const globalState = x2(GlobalContext);
@@ -11681,19 +11681,8 @@
     }
     return null;
   }
-  function SkipLink() {
-    const dispatch = x2(GlobalDispatch);
-    const count = A2(0);
-    const handler = () => {
-      count.current = count.current + 1;
-      if (count.current >= 5) {
-        dispatch({ kind: "dismiss" });
-      }
-    };
-    return /* @__PURE__ */ _("div", { style: "position: fixed; bottom: 0; left: 0; width: 50px; height: 50px", onClick: handler, "data-testid": "skip" });
-  }
 
-  // pages/onboarding/app/components/v3/Background.module.css
+  // pages/onboarding/app/v3/components/Background.module.css
   var Background_default2 = {
     background: "Background_background2",
     foreground: "Background_foreground2",
@@ -11705,13 +11694,13 @@
     offscreen: "Background_offscreen"
   };
 
-  // pages/onboarding/app/components/v3/Background.js
+  // pages/onboarding/app/v3/components/Background.js
   var import_classnames6 = __toESM(require_classnames(), 1);
   function Background2() {
     return /* @__PURE__ */ _("div", { class: Background_default2.background }, /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.animated, Background_default2.clouds) }), /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.animated, Background_default2.mountains) }), /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.stars) }));
   }
 
-  // pages/onboarding/app/components/v3/BeforeAfterProvider.js
+  // pages/onboarding/app/v3/context/BeforeAfterProvider.js
   var beforeAfterValues = ["before", "after"];
   var BeforeAfterContext = Q({
     /**
@@ -11764,13 +11753,13 @@
     return x2(BeforeAfterContext);
   }
 
-  // pages/onboarding/app/components/v3/SingleStep.js
+  // pages/onboarding/app/v3/components/SingleStep.js
   var import_classnames11 = __toESM(require_classnames(), 1);
 
-  // pages/onboarding/app/components/v3/ComparisonTable.js
+  // pages/onboarding/app/v3/components/ComparisonTable.js
   var import_classnames7 = __toESM(require_classnames(), 1);
 
-  // pages/onboarding/app/components/v3/data-comparison-table.js
+  // pages/onboarding/app/v3/data/data-comparison-table.js
   var SupportStatus = {
     NOT_SUPPORTED: "notSupported",
     PARTIAL_SUPPORT: "partialSupport",
@@ -11843,7 +11832,7 @@
     }
   ];
 
-  // pages/onboarding/app/components/v3/ComparisonTable.module.css
+  // pages/onboarding/app/v3/components/ComparisonTable.module.css
   var ComparisonTable_default = {
     table: "ComparisonTable_table",
     rowHeading: "ComparisonTable_rowHeading",
@@ -11861,7 +11850,7 @@
     browserIconDuckDuckGo: "ComparisonTable_browserIconDuckDuckGo"
   };
 
-  // pages/onboarding/app/components/v3/ComparisonTable.js
+  // pages/onboarding/app/v3/components/ComparisonTable.js
   function ComparisonTableColumnHeading({ title }) {
     const className = `browserIcon${title}`;
     return /* @__PURE__ */ _("th", null, /* @__PURE__ */ _("span", { className: (0, import_classnames7.default)(ComparisonTable_default.browserIcon, ComparisonTable_default[className]), "aria-label": title }));
@@ -11891,14 +11880,14 @@
     return /* @__PURE__ */ _("table", { className: ComparisonTable_default.table }, /* @__PURE__ */ _("caption", null), /* @__PURE__ */ _("thead", null, /* @__PURE__ */ _("tr", null, /* @__PURE__ */ _("th", null), /* @__PURE__ */ _(ComparisonTableColumnHeading, { title: "Chrome" }), /* @__PURE__ */ _(ComparisonTableColumnHeading, { title: "DuckDuckGo" }))), /* @__PURE__ */ _("tbody", null, tableData.map((data) => /* @__PURE__ */ _(ComparisonTableRow, { ...data }))));
   }
 
-  // pages/onboarding/app/components/v3/Animation.module.css
+  // pages/onboarding/app/v3/components/Animation.module.css
   var Animation_default = {
     container: "Animation_container",
     slideIn: "Animation_slideIn",
     slide: "Animation_slide"
   };
 
-  // pages/onboarding/app/components/v3/Animation.js
+  // pages/onboarding/app/v3/components/Animation.js
   function SlideIn2({ children, onAnimationEnd }) {
     const [animationState, setAnimationState] = d2(
       /** @type {AnimationState} */
@@ -11920,17 +11909,17 @@
     return /* @__PURE__ */ _("div", { class: Animation_default.container, onAnimationEnd: animationDidEnd, key: activeStep, "data-animation-state": animationState }, /* @__PURE__ */ _("div", { className: Animation_default.slideIn }, children));
   }
 
-  // pages/onboarding/app/components/v3/MakeDefaultStep.js
+  // pages/onboarding/app/v3/components/MakeDefaultStep.js
   function MakeDefaultStep() {
     return /* @__PURE__ */ _(SlideIn2, null, /* @__PURE__ */ _(ComparisonTable, null));
   }
 
-  // pages/onboarding/app/components/v3/DuckPlayerStep.module.css
+  // pages/onboarding/app/v3/components/DuckPlayerStep.module.css
   var DuckPlayerStep_default = {
     animationContainer: "DuckPlayerStep_animationContainer"
   };
 
-  // pages/onboarding/app/components/v3/DuckPlayerStep.js
+  // pages/onboarding/app/v3/components/DuckPlayerStep.js
   function DuckPlayerStep() {
     const { isDarkMode, isReducedMotion } = useEnv();
     const [canPlay, setCanPlay] = d2(false);
@@ -11965,7 +11954,7 @@
     )));
   }
 
-  // pages/onboarding/app/components/ToggleButton.module.css
+  // pages/onboarding/app/shared/components/ToggleButton.module.css
   var ToggleButton_default = {
     button: "ToggleButton_button",
     selected: "ToggleButton_selected",
@@ -11976,7 +11965,7 @@
     radioCircleUnselected: "ToggleButton_radioCircleUnselected"
   };
 
-  // pages/onboarding/app/components/ToggleButton.js
+  // pages/onboarding/app/shared/components/ToggleButton.js
   var RadioButton = {
     Selected: () => /* @__PURE__ */ _("svg", { xmlns: "http://www.w3.org/2000/svg", width: "20", height: "20", viewBox: "0 0 24 24", fill: "none" }, /* @__PURE__ */ _("circle", { cx: "12", cy: "11", r: "10", className: ToggleButton_default.radioCircle }), /* @__PURE__ */ _(
       "path",
@@ -11991,7 +11980,7 @@
     return /* @__PURE__ */ _("button", { className: `${ToggleButton_default.button} ${selected ? ToggleButton_default.selected : ""}`, onClick }, /* @__PURE__ */ _("span", { className: ToggleButton_default.buttonText }, label), /* @__PURE__ */ _("span", { className: ToggleButton_default.radioButton }, selected ? /* @__PURE__ */ _(RadioButton.Selected, null) : /* @__PURE__ */ _(RadioButton.Unselected, null)));
   }
 
-  // pages/onboarding/app/pages/AddressBarMode/AddressBarPreview.module.css
+  // pages/onboarding/app/v3/pages/AddressBarMode/AddressBarPreview.module.css
   var AddressBarPreview_default = {
     wrapper: "AddressBarPreview_wrapper",
     image: "AddressBarPreview_image",
@@ -12003,7 +11992,7 @@
     extendedIcon: "AddressBarPreview_extendedIcon"
   };
 
-  // pages/onboarding/app/pages/AddressBarMode/AddressBarPreview.js
+  // pages/onboarding/app/v3/pages/AddressBarMode/AddressBarPreview.js
   var ICON_TRANSITION = { transition: "opacity 250ms ease-in-out" };
   function AddressBarPreview({ isReduced, isDarkMode = false }) {
     const colors = isDarkMode ? {
@@ -12113,7 +12102,7 @@
     ));
   }
 
-  // pages/onboarding/app/pages/AddressBarMode/AddressBarMode.module.css
+  // pages/onboarding/app/v3/pages/AddressBarMode/AddressBarMode.module.css
   var AddressBarMode_default = {
     container: "AddressBarMode_container",
     body: "AddressBarMode_body",
@@ -12123,7 +12112,7 @@
     footerText: "AddressBarMode_footerText"
   };
 
-  // pages/onboarding/app/pages/AddressBarMode/AddressBarMode.js
+  // pages/onboarding/app/v3/pages/AddressBarMode/AddressBarMode.js
   function AddressBarMode() {
     const { t: t3 } = useTypedTranslation();
     const { isDarkMode } = useEnv();
@@ -12164,10 +12153,10 @@
     ))), /* @__PURE__ */ _("div", { className: AddressBarMode_default.footer }, /* @__PURE__ */ _("img", { src: "assets/img/steps/v3/Star-Color-24.svg", alt: "", className: AddressBarMode_default.starIcon }), /* @__PURE__ */ _("span", { className: AddressBarMode_default.footerText }, /* @__PURE__ */ _(Trans, { str: t3("addressBarMode_footer"), values: {} })))));
   }
 
-  // pages/onboarding/app/components/v3/ElasticButton.js
+  // pages/onboarding/app/v3/components/ElasticButton.js
   var import_classnames8 = __toESM(require_classnames(), 1);
 
-  // pages/onboarding/app/components/v3/ElasticButton.module.css
+  // pages/onboarding/app/v3/components/ElasticButton.module.css
   var ElasticButton_default = {
     button: "ElasticButton_button",
     background: "ElasticButton_background",
@@ -12180,7 +12169,7 @@
     visibleContent: "ElasticButton_visibleContent"
   };
 
-  // pages/onboarding/app/components/v3/ElasticButton.js
+  // pages/onboarding/app/v3/components/ElasticButton.js
   function ElasticButton({ text, variant = "primary", startIcon, endIcon, longestText, elastic = true, ...rest }) {
     const classes = (0, import_classnames8.default)({
       [ElasticButton_default.button]: true,
@@ -12194,7 +12183,7 @@
     return /* @__PURE__ */ _("span", { className: ElasticButton_default.fixedWidthContainer }, /* @__PURE__ */ _("span", { "aria-hidden": true, className: ElasticButton_default.hiddenContent }, longestText), /* @__PURE__ */ _("span", { className: ElasticButton_default.visibleContent }, text));
   }
 
-  // pages/onboarding/app/components/v3/Buttons.module.css
+  // pages/onboarding/app/v3/components/Buttons.module.css
   var Buttons_default2 = {
     buttons: "Buttons_buttons2",
     button: "Buttons_button2",
@@ -12204,7 +12193,7 @@
     primary: "Buttons_primary2"
   };
 
-  // pages/onboarding/app/components/v3/Buttons.js
+  // pages/onboarding/app/v3/components/Buttons.js
   var import_classnames9 = __toESM(require_classnames(), 1);
   function ButtonBar2(props) {
     const { children, ...rest } = props;
@@ -12221,7 +12210,7 @@
     return /* @__PURE__ */ _("button", { className: classes, ...rest }, children);
   }
 
-  // pages/onboarding/app/components/v3/SettingsStep.js
+  // pages/onboarding/app/v3/components/SettingsStep.js
   function SettingsStep2({ data }) {
     const platform = usePlatformName();
     const { t: t3 } = useTypedTranslation();
@@ -12310,7 +12299,7 @@
     );
   }
 
-  // pages/onboarding/app/components/v3/data.js
+  // pages/onboarding/app/v3/data/data.js
   var stepsConfig = {
     welcome: ({ t: t3, advance }) => {
       return {
@@ -12543,7 +12532,7 @@
     }
   };
 
-  // pages/onboarding/app/components/v3/useStepConfig.js
+  // pages/onboarding/app/v3/hooks/useStepConfig.js
   function calculateProgress(order, activeStep) {
     const progressSteps = order.slice(2, order.length);
     return {
@@ -12593,10 +12582,10 @@
     };
   }
 
-  // pages/onboarding/app/components/v3/Heading.js
+  // pages/onboarding/app/v3/components/Heading.js
   var import_classnames10 = __toESM(require_classnames(), 1);
 
-  // pages/onboarding/app/components/v3/Heading.module.css
+  // pages/onboarding/app/v3/components/Heading.module.css
   var Heading_default = {
     heading: "Heading_heading",
     headingContents: "Heading_headingContents",
@@ -12614,7 +12603,7 @@
     hidden: "Heading_hidden"
   };
 
-  // pages/onboarding/app/components/v3/Heading.js
+  // pages/onboarding/app/v3/components/Heading.js
   function Heading({ title, subtitle, speechBubble = false, onTitleComplete, children }) {
     const onComplete = () => {
       onTitleComplete && onTitleComplete();
@@ -12731,7 +12720,7 @@
     return /* @__PURE__ */ _("div", { className: Heading_default.titleContainer }, title.map((text, index) => /* @__PURE__ */ _(Typed, { key: index, onComplete: onTypingComplete, text, paused: paused || textIndex < index })));
   }
 
-  // pages/onboarding/app/components/v3/SingleStep.module.css
+  // pages/onboarding/app/v3/components/SingleStep.module.css
   var SingleStep_default = {
     panel: "SingleStep_panel",
     heading: "SingleStep_heading",
@@ -12745,7 +12734,7 @@
     accept: "SingleStep_accept"
   };
 
-  // pages/onboarding/app/components/v3/SingleStep.js
+  // pages/onboarding/app/v3/components/SingleStep.js
   function StepGrid({ progress, dismissButton, acceptButton, children }) {
     return /* @__PURE__ */ _("div", { className: SingleStep_default.container }, /* @__PURE__ */ _("div", { className: SingleStep_default.content }, /* @__PURE__ */ _(Stack, { animate: true }, children)), /* @__PURE__ */ _("div", { className: SingleStep_default.progress }, /* @__PURE__ */ _(SingleLineProgress, { current: progress.current, total: progress.total })), /* @__PURE__ */ _("div", { className: SingleStep_default.buttonBar }, (dismissButton || acceptButton) && /* @__PURE__ */ _(SlideIn2, null, /* @__PURE__ */ _("div", { class: SingleStep_default.buttonBarContents }, /* @__PURE__ */ _("div", { className: SingleStep_default.dismiss }, dismissButton), /* @__PURE__ */ _("div", { className: SingleStep_default.accept }, acceptButton)))));
   }
@@ -12768,24 +12757,24 @@
     )));
   }
 
-  // pages/onboarding/app/components/v3/Hiker.module.css
+  // pages/onboarding/app/v3/components/Hiker.module.css
   var Hiker_default = {
     hiker: "Hiker_hiker",
     "hiker-appear": "Hiker_hiker-appear"
   };
 
-  // pages/onboarding/app/components/v3/Hiker.js
+  // pages/onboarding/app/v3/components/Hiker.js
   function Hiker() {
     return /* @__PURE__ */ _("img", { className: Hiker_default.hiker, src: "assets/img/hiker.svg", alt: "Image of hiker" });
   }
 
-  // pages/onboarding/app/components/App2.module.css
-  var App2_default = {
-    main: "App2_main",
-    container: "App2_container"
+  // pages/onboarding/app/v3/App.module.css
+  var App_default2 = {
+    main: "App_main2",
+    container: "App_container2"
   };
 
-  // pages/onboarding/app/components/App2.js
+  // pages/onboarding/app/v3/App.js
   function App2({ children }) {
     const { debugState } = useEnv();
     const platformName = usePlatformName();
@@ -12809,10 +12798,10 @@
         advance();
       }
     };
-    return /* @__PURE__ */ _("main", { className: App2_default.main, "data-platform-name": platformName || "macos", "data-app-version": "2" }, /* @__PURE__ */ _(Background2, null), debugState && /* @__PURE__ */ _(Debug2, { state: globalState }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("main", { className: App_default2.main, "data-platform-name": platformName || "macos", "data-app-version": "2" }, /* @__PURE__ */ _(Background2, null), debugState && /* @__PURE__ */ _(Debug2, { state: globalState }), /* @__PURE__ */ _(
       "div",
       {
-        className: App2_default.container,
+        className: App_default2.container,
         "data-current": activeStep,
         "data-exiting": String(exiting),
         "data-step-visible": activeStepVisible,
@@ -12826,6 +12815,19 @@
     const { order, step, exiting, activeStep, nextStep } = props.state;
     const debugData = { order, step, exiting, activeStep, nextStep };
     return /* @__PURE__ */ _("div", { style: { position: "absolute", top: 0, right: 0, overflowY: "scroll", height: "100vh", zIndex: 1e4 } }, /* @__PURE__ */ _("pre", null, /* @__PURE__ */ _("code", null, JSON.stringify(debugData, null, 2))));
+  }
+
+  // pages/onboarding/app/shared/components/SkipLink.js
+  function SkipLink() {
+    const dispatch = x2(GlobalDispatch);
+    const count = A2(0);
+    const handler = () => {
+      count.current = count.current + 1;
+      if (count.current >= 5) {
+        dispatch({ kind: "dismiss" });
+      }
+    };
+    return /* @__PURE__ */ _("div", { style: "position: fixed; bottom: 0; left: 0; width: 50px; height: 50px", onClick: handler, "data-testid": "skip" });
   }
 
   // pages/onboarding/app/Components.js
@@ -14373,7 +14375,7 @@
      * @param {'v1'|'v2'|'v3'} [params.orderName] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
-     * @param {import('./data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
+     * @param {import('./v1/data/data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      */
     constructor({
       platform = { name: "macos" },
@@ -14496,7 +14498,7 @@
       return this;
     }
     /**
-     * @param {import('./data.js').StepDefinitions | Record<string, any> | null | undefined} stepDefinitions
+     * @param {import('./v1/data/data.js').StepDefinitions | Record<string, any> | null | undefined} stepDefinitions
      * @return {Settings}
      */
     withStepDefinitions(stepDefinitions3) {

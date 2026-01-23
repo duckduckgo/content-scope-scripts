@@ -2913,7 +2913,7 @@
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
-    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
+    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge", "pageContext"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
@@ -2941,6 +2941,7 @@
       "webCompat",
       "pageContext",
       "duckAiDataClearing",
+      "performanceMetrics",
       "duckAiChatHistory"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
@@ -17085,6 +17086,67 @@ ${iframeContent}
   };
   var duck_ai_data_clearing_default = DuckAiDataClearing;
 
+  // src/features/performance-metrics.js
+  init_define_import_meta_trackerLookup();
+  var PerformanceMetrics = class extends ContentFeature {
+    init() {
+      this.messaging.subscribe("getVitals", () => {
+        const vitals = getJsPerformanceMetrics();
+        this.messaging.notify("vitalsResult", { vitals });
+      });
+      if (isBeingFramed()) return;
+      if (this.getFeatureSettingEnabled("firstContentfulPaint", "enabled")) {
+        this.observeFirstContentfulPaint();
+      }
+      if (this.getFeatureSettingEnabled("expandedPerformanceMetricsOnLoad", "enabled")) {
+        this.waitForAfterPageLoad(() => {
+          this.triggerExpandedPerformanceMetrics();
+        });
+      }
+    }
+    /**
+     * Observes First Contentful Paint and notifies the native app when it occurs.
+     * Uses buffered option to catch FCP if it already happened before observation started.
+     */
+    observeFirstContentfulPaint() {
+      try {
+        const observer = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          const fcpEntry = entries.find((entry) => entry.name === "first-contentful-paint");
+          if (fcpEntry) {
+            this.messaging.notify("firstContentfulPaint", {
+              value: fcpEntry.startTime
+            });
+            observer.disconnect();
+          }
+        });
+        observer.observe({ type: "paint", buffered: true });
+      } catch (e) {
+      }
+    }
+    waitForNextTask(callback) {
+      setTimeout(callback, 0);
+    }
+    waitForAfterPageLoad(callback) {
+      if (document.readyState === "complete") {
+        this.waitForNextTask(callback);
+      } else {
+        window.addEventListener(
+          "load",
+          () => {
+            this.waitForNextTask(callback);
+          },
+          { once: true }
+        );
+      }
+    }
+    async triggerExpandedPerformanceMetrics() {
+      const permissableDelayMs = this.getFeatureSetting("expandedTimeoutMs") ?? 5e3;
+      const expandedPerformanceMetrics = await getExpandedPerformanceMetrics(permissableDelayMs);
+      this.messaging.notify("expandedPerformanceMetricsResult", expandedPerformanceMetrics);
+    }
+  };
+
   // src/features/duck-ai-chat-history.js
   init_define_import_meta_trackerLookup();
   var _DuckAiChatHistory = class _DuckAiChatHistory extends ContentFeature {
@@ -17245,6 +17307,7 @@ ${iframeContent}
     ddg_feature_webCompat: web_compat_default,
     ddg_feature_pageContext: PageContext,
     ddg_feature_duckAiDataClearing: duck_ai_data_clearing_default,
+    ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_duckAiChatHistory: duck_ai_chat_history_default
   };
 

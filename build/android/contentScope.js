@@ -1353,6 +1353,15 @@
       createCustomEvent("sendMessageProxy" + messageSecret, { detail: JSON.stringify({ messageType, options }) })
     );
   }
+  function isDuckAi() {
+    const tabUrl = getTabUrl();
+    const domains = ["duckduckgo.com", "duck.ai", "duck.co"];
+    if (tabUrl?.hostname && domains.some((domain) => matchHostname(tabUrl?.hostname, domain))) {
+      const url = new URL(tabUrl?.href);
+      return url.searchParams.has("duckai") || url.searchParams.get("ia") === "chat";
+    }
+    return false;
+  }
 
   // src/features.js
   init_define_import_meta_trackerLookup();
@@ -1412,7 +1421,7 @@
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
-    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
+    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge", "pageContext"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
@@ -1440,6 +1449,7 @@
       "webCompat",
       "pageContext",
       "duckAiDataClearing",
+      "performanceMetrics",
       "duckAiChatHistory"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
@@ -10358,6 +10368,567 @@
   };
   var message_bridge_default = MessageBridge;
 
+  // src/features/page-context.js
+  init_define_import_meta_trackerLookup();
+
+  // src/features/favicon.js
+  init_define_import_meta_trackerLookup();
+  function getFaviconList() {
+    const selectors = [
+      "link[href][rel='favicon']",
+      "link[href][rel*='icon']",
+      "link[href][rel='apple-touch-icon']",
+      "link[href][rel='apple-touch-icon-precomposed']"
+    ];
+    const elements = document.head.querySelectorAll(selectors.join(","));
+    return Array.from(elements).map((link) => {
+      const href = link.href || "";
+      const rel = link.getAttribute("rel") || "";
+      return { href, rel };
+    });
+  }
+
+  // src/features/page-context.js
+  var MSG_PAGE_CONTEXT_RESPONSE = "collectionResult";
+  function checkNodeIsVisible(node) {
+    try {
+      const style = window.getComputedStyle(node);
+      if (style.display === "none" || style.visibility === "hidden" || parseFloat(style.opacity) === 0) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  function collapseWhitespace(str) {
+    return typeof str === "string" ? str.replace(/\s+/g, " ") : "";
+  }
+  function isHtmlElement(node) {
+    return node.nodeType === Node.ELEMENT_NODE;
+  }
+  function getSameOriginIframeDocument(iframe) {
+    const src = iframe.src;
+    if (iframe.hasAttribute("sandbox") && !iframe.sandbox.contains("allow-scripts")) {
+      return null;
+    }
+    if (src && src !== "about:blank" && src !== "") {
+      try {
+        const iframeUrl = new URL(src, window.location.href);
+        if (iframeUrl.origin !== window.location.origin) {
+          return null;
+        }
+      } catch (e) {
+        return null;
+      }
+    }
+    try {
+      const doc = iframe.contentDocument;
+      if (doc && doc.documentElement) {
+        return doc;
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+  function domToMarkdownChildren(childNodes, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+      return "";
+    }
+    let children = "";
+    for (const childNode of childNodes) {
+      const childContent = domToMarkdown(childNode, settings, depth + 1);
+      children += childContent;
+      if (children.length > settings.maxLength) {
+        children = children.substring(0, settings.maxLength) + "...";
+        break;
+      }
+    }
+    return children;
+  }
+  function domToMarkdown(node, settings, depth = 0) {
+    if (depth > settings.maxDepth) {
+      return "";
+    }
+    if (node.nodeType === Node.TEXT_NODE) {
+      return collapseWhitespace(node.textContent);
+    }
+    if (!isHtmlElement(node)) {
+      return "";
+    }
+    if (!checkNodeIsVisible(node) || settings.excludeSelectors && node.matches(settings.excludeSelectors)) {
+      return "";
+    }
+    const tag = node.tagName.toLowerCase();
+    let children = domToMarkdownChildren(node.childNodes, settings, depth + 1);
+    if (node.shadowRoot) {
+      children += domToMarkdownChildren(node.shadowRoot.childNodes, settings, depth + 1);
+    }
+    switch (tag) {
+      case "strong":
+      case "b":
+        return `**${children}**`;
+      case "em":
+      case "i":
+        return `*${children}*`;
+      case "h1":
+        return `
+# ${children}
+`;
+      case "h2":
+        return `
+## ${children}
+`;
+      case "h3":
+        return `
+### ${children}
+`;
+      case "p":
+        return `${children}
+`;
+      case "br":
+        return `
+`;
+      case "img":
+        return `
+![${getAttributeOrBlank(node, "alt")}](${getAttributeOrBlank(node, "src")})
+`;
+      case "ul":
+      case "ol":
+        return `
+${children}
+`;
+      case "li":
+        return `
+- ${collapseAndTrim(children)}
+`;
+      case "a":
+        return getLinkText(node, children, settings);
+      case "iframe": {
+        if (!settings.includeIframes) {
+          return children;
+        }
+        const iframeDoc = getSameOriginIframeDocument(
+          /** @type {HTMLIFrameElement} */
+          node
+        );
+        if (iframeDoc && iframeDoc.body) {
+          const iframeContent = domToMarkdown(iframeDoc.body, settings, depth + 1);
+          return iframeContent ? `
+
+--- Iframe Content ---
+${iframeContent}
+--- End Iframe ---
+
+` : children;
+        }
+        return children;
+      }
+      default:
+        return children;
+    }
+  }
+  function getAttributeOrBlank(node, attr) {
+    const attrValue = node.getAttribute(attr) ?? "";
+    return attrValue.trim();
+  }
+  function collapseAndTrim(str) {
+    return collapseWhitespace(str).trim();
+  }
+  function getLinkText(node, children, settings) {
+    const href = node.getAttribute("href");
+    const trimmedContent = collapseAndTrim(children);
+    if (settings.trimBlankLinks && trimmedContent.length === 0) {
+      return "";
+    }
+    return href ? `[${trimmedContent}](${href})` : collapseWhitespace(children);
+  }
+  var _cachedContent, _cachedTimestamp, _delayedRecheckTimer, _activeCapture;
+  var PageContext = class extends ContentFeature {
+    constructor() {
+      super(...arguments);
+      /** @type {any} */
+      __privateAdd(this, _cachedContent);
+      __privateAdd(this, _cachedTimestamp, 0);
+      /** @type {MutationObserver | null} */
+      __publicField(this, "mutationObserver", null);
+      __publicField(this, "lastSentContent", null);
+      /** @type {ReturnType<typeof setTimeout> | null} */
+      __privateAdd(this, _delayedRecheckTimer, null);
+      __publicField(this, "recheckCount", 0);
+      __publicField(this, "recheckLimit", 0);
+      /** @type {boolean} */
+      __privateAdd(this, _activeCapture, true);
+    }
+    get shouldListenForUrlChanges() {
+      return __privateGet(this, _activeCapture) && this.getFeatureSettingEnabled("subscribeToUrlChange", "enabled");
+    }
+    get shouldActivate() {
+      if (isBeingFramed() || isDuckAi()) {
+        return false;
+      }
+      const tabUrl = getTabUrl();
+      if (tabUrl?.protocol === "duck:") {
+        return false;
+      }
+      return true;
+    }
+    init() {
+      this.recheckLimit = this.getFeatureSetting("recheckLimit") || 5;
+      if (!this.shouldActivate) {
+        return;
+      }
+      __privateSet(this, _activeCapture, !this.getFeatureSettingEnabled("activeCaptureOnFirstMessage", "disabled"));
+      this.setupListeners();
+    }
+    resetRecheckCount() {
+      this.recheckCount = 0;
+    }
+    /**
+     * Sets up all listeners. When activeCaptureOnFirstMessage is enabled,
+     * active capture listeners are deferred until the first collect message.
+     */
+    setupListeners() {
+      if (this.getFeatureSettingEnabled("subscribeToCollect", "enabled")) {
+        this.messaging.subscribe("collect", () => {
+          this.invalidateCache();
+          this.handleContentCollectionRequest();
+          if (!__privateGet(this, _activeCapture)) {
+            __privateSet(this, _activeCapture, true);
+            this.log.info("First native message received, activating capture");
+            this.setupActiveCaptureListeners();
+          }
+        });
+      }
+      if (__privateGet(this, _activeCapture)) {
+        this.setupActiveCaptureListeners();
+      } else {
+        this.log.info("Active capture gated behind first native message");
+      }
+    }
+    /**
+     * Sets up listeners that actively capture page content.
+     * These are the listeners that can be gated behind the first native message.
+     */
+    setupActiveCaptureListeners() {
+      this.log.info("Setting up active capture listeners");
+      this.observeContentChanges();
+      if (this.getFeatureSettingEnabled("subscribeToLoad", "enabled")) {
+        window.addEventListener("load", () => {
+          this.handleContentCollectionRequest();
+        });
+      }
+      if (this.getFeatureSettingEnabled("subscribeToHashChange", "enabled")) {
+        window.addEventListener("hashchange", () => {
+          this.handleContentCollectionRequest();
+        });
+      }
+      if (this.getFeatureSettingEnabled("subscribeToPageShow", "enabled")) {
+        window.addEventListener("pageshow", () => {
+          this.handleContentCollectionRequest();
+        });
+      }
+      if (this.getFeatureSettingEnabled("subscribeToVisibilityChange", "enabled")) {
+        window.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") {
+            return;
+          }
+          this.handleContentCollectionRequest();
+        });
+      }
+      if (this.getFeatureSettingEnabled("collectOnInit", "enabled")) {
+        if (document.body) {
+          this.setup();
+        } else {
+          window.addEventListener(
+            "DOMContentLoaded",
+            () => {
+              this.setup();
+            },
+            { once: true }
+          );
+        }
+      }
+    }
+    /**
+     * @param {NavigationType} _navigationType
+     */
+    urlChanged(_navigationType) {
+      if (!this.shouldListenForUrlChanges || !this.shouldActivate) {
+        return;
+      }
+      this.handleContentCollectionRequest();
+    }
+    setup() {
+      this.handleContentCollectionRequest();
+      this.startObserving();
+    }
+    get cachedContent() {
+      if (!__privateGet(this, _cachedContent) || this.isCacheExpired()) {
+        if (__privateGet(this, _cachedContent)) {
+          this.invalidateCache();
+        }
+        return void 0;
+      }
+      return __privateGet(this, _cachedContent);
+    }
+    invalidateCache() {
+      this.log.info("Invalidating cache");
+      __privateSet(this, _cachedContent, void 0);
+      __privateSet(this, _cachedTimestamp, 0);
+      this.stopObserving();
+    }
+    /**
+     * Clear all pending timers
+     */
+    clearTimers() {
+      if (__privateGet(this, _delayedRecheckTimer)) {
+        clearTimeout(__privateGet(this, _delayedRecheckTimer));
+        __privateSet(this, _delayedRecheckTimer, null);
+      }
+    }
+    set cachedContent(content) {
+      if (content === void 0) {
+        this.invalidateCache();
+        return;
+      }
+      __privateSet(
+        this,
+        _cachedContent,
+        /** @type {any} */
+        content
+      );
+      __privateSet(this, _cachedTimestamp, Date.now());
+      this.startObserving();
+    }
+    isCacheExpired() {
+      const cacheExpiration = this.getFeatureSetting("cacheExpiration") || 3e4;
+      return Date.now() - __privateGet(this, _cachedTimestamp) > cacheExpiration;
+    }
+    observeContentChanges() {
+      if (window.MutationObserver && this.getFeatureSettingEnabled("observeMutations", "enabled")) {
+        this.mutationObserver = new MutationObserver((_mutations) => {
+          this.log.info("MutationObserver", _mutations);
+          this.cachedContent = void 0;
+          this.scheduleDelayedRecheck();
+        });
+        this.startObserving();
+      }
+    }
+    /**
+     * Schedule a delayed recheck after navigation events
+     */
+    scheduleDelayedRecheck() {
+      this.clearTimers();
+      if (this.recheckLimit > 0 && this.recheckCount >= this.recheckLimit) {
+        return;
+      }
+      const delayMs = this.getFeatureSetting("navigationRecheckDelayMs") || 1500;
+      this.log.info("Scheduling delayed recheck", { delayMs });
+      __privateSet(this, _delayedRecheckTimer, setTimeout(() => {
+        this.log.info("Performing delayed recheck after navigation");
+        this.recheckCount++;
+        this.invalidateCache();
+        this.handleContentCollectionRequest(false);
+      }, delayMs));
+    }
+    startObserving() {
+      this.log.info("Starting observing", this.mutationObserver, __privateGet(this, _cachedContent));
+      if (this.mutationObserver && __privateGet(this, _cachedContent) && !this.isObserving && document.body) {
+        this.isObserving = true;
+        this.mutationObserver.observe(document.body, {
+          childList: true,
+          subtree: true,
+          characterData: true
+        });
+      }
+    }
+    stopObserving() {
+      if (this.mutationObserver) {
+        this.mutationObserver.disconnect();
+        this.isObserving = false;
+      }
+    }
+    handleContentCollectionRequest(resetRecheckCount = true) {
+      this.log.info("Handling content collection request");
+      if (resetRecheckCount) {
+        this.resetRecheckCount();
+      }
+      try {
+        const content = this.collectPageContent();
+        this.sendContentResponse(content);
+      } catch (error) {
+        this.sendErrorResponse(error);
+      }
+    }
+    collectPageContent() {
+      if (this.cachedContent) {
+        this.log.info("Returning cached content", this.cachedContent);
+        return this.cachedContent;
+      }
+      const mainContent = this.getMainContent();
+      const truncated = mainContent.endsWith("...");
+      const content = {
+        favicon: getFaviconList(),
+        title: this.getPageTitle(),
+        content: mainContent,
+        truncated,
+        fullContentLength: this.fullContentLength,
+        // Include full content length before truncation
+        timestamp: Date.now(),
+        url: window.location.href
+      };
+      if (this.getFeatureSettingEnabled("includeMetaDescription", "disabled")) {
+        content.metaDescription = this.getMetaDescription();
+      }
+      if (this.getFeatureSettingEnabled("includeHeadings", "disabled")) {
+        content.headings = this.getHeadings();
+      }
+      if (this.getFeatureSettingEnabled("includeLinks", "disabled")) {
+        content.links = this.getLinks();
+      }
+      if (this.getFeatureSettingEnabled("includeImages", "disabled")) {
+        content.images = this.getImages();
+      }
+      if (content.content.length > 0) {
+        this.cachedContent = content;
+      }
+      return content;
+    }
+    getPageTitle() {
+      const title = document.title || "";
+      const maxTitleLength = this.getFeatureSetting("maxTitleLength") || 100;
+      if (title.length > maxTitleLength) {
+        return title.substring(0, maxTitleLength).trim() + "...";
+      }
+      return title;
+    }
+    getMetaDescription() {
+      const metaDesc = document.querySelector('meta[name="description"]');
+      return metaDesc ? metaDesc.getAttribute("content") || "" : "";
+    }
+    getMainContent() {
+      const maxLength = this.getFeatureSetting("maxContentLength") || 9500;
+      const upperLimit = this.getFeatureSetting("upperLimit") || 5e5;
+      const maxDepth = this.getFeatureSetting("maxDepth") || 5e3;
+      let excludeSelectors = this.getFeatureSetting("excludeSelectors") || [".ad", ".sidebar", ".footer", ".nav", ".header"];
+      const excludedInertElements = this.getFeatureSetting("excludedInertElements") || [
+        "img",
+        // Note we're currently disabling images which we're handling in domToMarkdown (this can be per-site enabled in the config if needed).
+        "script",
+        "style",
+        "link",
+        "meta",
+        "noscript",
+        "svg",
+        "canvas"
+      ];
+      excludeSelectors = excludeSelectors.concat(excludedInertElements);
+      const excludeSelectorsString = excludeSelectors.join(",");
+      let content = "";
+      const mainContentSelector = this.getFeatureSetting("mainContentSelector") || "main, article, .content, .main, #content, #main";
+      let mainContent = document.querySelector(mainContentSelector);
+      const mainContentLength = this.getFeatureSetting("mainContentLength") || 100;
+      if (mainContent && mainContent.innerHTML.trim().length <= mainContentLength) {
+        mainContent = null;
+      }
+      let contentRoot = mainContent || document.body;
+      const extractContent = (root) => {
+        this.log.info("Getting content", root);
+        const result = domToMarkdown(root, {
+          maxLength: upperLimit,
+          maxDepth,
+          includeIframes: this.getFeatureSettingEnabled("includeIframes", "enabled"),
+          excludeSelectors: excludeSelectorsString,
+          trimBlankLinks: this.getFeatureSettingEnabled("trimBlankLinks", "enabled")
+        }).trim();
+        this.log.info("Content markdown", result, root);
+        return result;
+      };
+      if (contentRoot) {
+        content += extractContent(contentRoot);
+      }
+      if (content.length === 0 && contentRoot !== document.body && this.getFeatureSettingEnabled("bodyFallback", "enabled")) {
+        contentRoot = document.body;
+        content += extractContent(contentRoot);
+      }
+      this.fullContentLength = content.length;
+      if (content.length > maxLength) {
+        this.log.info("Truncating content", {
+          content,
+          contentLength: content.length,
+          maxLength
+        });
+        content = content.substring(0, maxLength) + "...";
+      }
+      return content;
+    }
+    getHeadings() {
+      const headings = [];
+      const headingSelector = this.getFeatureSetting("headingSelector") || "h1, h2, h3, h4, h5, h6";
+      const headingElements = document.querySelectorAll(headingSelector);
+      headingElements.forEach((heading) => {
+        const level = parseInt(heading.tagName.charAt(1));
+        const text2 = heading.textContent?.trim();
+        if (text2) {
+          headings.push({ level, text: text2 });
+        }
+      });
+      return headings;
+    }
+    getLinks() {
+      const links = [];
+      const linkSelector = this.getFeatureSetting("linkSelector") || "a[href]";
+      const linkElements = document.querySelectorAll(linkSelector);
+      linkElements.forEach((link) => {
+        const text2 = link.textContent?.trim();
+        const href = link.getAttribute("href");
+        if (text2 && href && text2.length > 0) {
+          links.push({ text: text2, href });
+        }
+      });
+      return links;
+    }
+    getImages() {
+      const images = [];
+      const imgSelector = this.getFeatureSetting("imgSelector") || "img";
+      const imgElements = document.querySelectorAll(imgSelector);
+      imgElements.forEach((img) => {
+        const alt = img.getAttribute("alt") || "";
+        const src = img.getAttribute("src") || "";
+        if (src) {
+          images.push({ alt, src });
+        }
+      });
+      return images;
+    }
+    sendContentResponse(content) {
+      if (this.lastSentContent && this.lastSentContent === content) {
+        this.log.info("Content already sent");
+        return;
+      }
+      this.lastSentContent = content;
+      this.log.info("Sending content response", content);
+      this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
+        // TODO: This is a hack to get the data to the browser. We should probably not be paying this cost.
+        serializedPageData: JSON.stringify(content)
+      });
+    }
+    sendErrorResponse(error) {
+      this.log.error("Error sending content response", error);
+      this.messaging.notify(MSG_PAGE_CONTEXT_RESPONSE, {
+        success: false,
+        error: error.message || "Unknown error occurred",
+        timestamp: Date.now()
+      });
+    }
+  };
+  _cachedContent = new WeakMap();
+  _cachedTimestamp = new WeakMap();
+  _delayedRecheckTimer = new WeakMap();
+  _activeCapture = new WeakMap();
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_fingerprintingAudio: FingerprintingAudio,
@@ -10377,7 +10948,8 @@
     ddg_feature_webInterferenceDetection: WebInterferenceDetection,
     ddg_feature_breakageReporting: BreakageReporting,
     ddg_feature_duckPlayer: DuckPlayerFeature,
-    ddg_feature_messageBridge: message_bridge_default
+    ddg_feature_messageBridge: message_bridge_default,
+    ddg_feature_pageContext: PageContext
   };
 
   // src/url-change.js

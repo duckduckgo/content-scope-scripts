@@ -2117,7 +2117,7 @@
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
-    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
+    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge", "pageContext"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
@@ -2145,6 +2145,7 @@
       "webCompat",
       "pageContext",
       "duckAiDataClearing",
+      "performanceMetrics",
       "duckAiChatHistory"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
@@ -12686,10 +12687,33 @@ ul.messages {
         this.messaging.notify("vitalsResult", { vitals });
       });
       if (isBeingFramed()) return;
+      if (this.getFeatureSettingEnabled("firstContentfulPaint", "enabled")) {
+        this.observeFirstContentfulPaint();
+      }
       if (this.getFeatureSettingEnabled("expandedPerformanceMetricsOnLoad", "enabled")) {
         this.waitForAfterPageLoad(() => {
           this.triggerExpandedPerformanceMetrics();
         });
+      }
+    }
+    /**
+     * Observes First Contentful Paint and notifies the native app when it occurs.
+     * Uses buffered option to catch FCP if it already happened before observation started.
+     */
+    observeFirstContentfulPaint() {
+      try {
+        const observer = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          const fcpEntry = entries.find((entry) => entry.name === "first-contentful-paint");
+          if (fcpEntry) {
+            this.messaging.notify("firstContentfulPaint", {
+              value: fcpEntry.startTime
+            });
+            observer.disconnect();
+          }
+        });
+        observer.observe({ type: "paint", buffered: true });
+      } catch (e) {
       }
     }
     waitForNextTask(callback) {
