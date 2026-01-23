@@ -89,6 +89,7 @@ export const platformSupport = {
         'webCompat',
         'pageContext',
         'duckAiDataClearing',
+        'performanceMetrics',
         'duckAiChatHistory',
     ],
     firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
