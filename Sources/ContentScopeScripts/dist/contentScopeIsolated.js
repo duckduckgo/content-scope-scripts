@@ -2113,7 +2113,8 @@
       "performanceMetrics",
       "clickToLoad",
       "messageBridge",
-      "favicon"
+      "favicon",
+      "webInterferenceDetection"
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
@@ -16448,6 +16449,39 @@ ul.messages {
     });
   }
 
+  // src/features/web-interference-detection.js
+  init_define_import_meta_trackerLookup();
+  var WebInterferenceDetection = class extends ContentFeature {
+    init() {
+      const settings = this.getFeatureSetting("interferenceTypes");
+      const isYouTube = window.location.hostname.includes("youtube.com");
+      if (isYouTube) {
+        console.log("[WebInterferenceDetection] On YouTube, initializing ad detector", {
+          hasYoutubeAdsConfig: !!settings?.youtubeAds,
+          settings: settings?.youtubeAds
+        });
+        runYoutubeAdDetection(settings?.youtubeAds || {});
+      }
+      this.messaging.subscribe("detectInterference", (params) => {
+        const { types = [] } = (
+          /** @type {DetectInterferenceParams} */
+          params ?? {}
+        );
+        const results = {};
+        if (types.includes("botDetection")) {
+          results.botDetection = runBotDetection(settings?.botDetection);
+        }
+        if (types.includes("fraudDetection")) {
+          results.fraudDetection = runFraudDetection(settings?.fraudDetection);
+        }
+        if (types.includes("adwallDetection")) {
+          results.adwallDetection = runAdwallDetection(settings?.adwallDetection);
+        }
+        return results;
+      });
+    }
+  };
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_duckPlayer: DuckPlayerFeature,
@@ -16457,7 +16491,8 @@ ul.messages {
     ddg_feature_performanceMetrics: PerformanceMetrics,
     ddg_feature_clickToLoad: ClickToLoad,
     ddg_feature_messageBridge: message_bridge_default,
-    ddg_feature_favicon: favicon_default
+    ddg_feature_favicon: favicon_default,
+    ddg_feature_webInterferenceDetection: WebInterferenceDetection
   };
 
   // src/url-change.js
