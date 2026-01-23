@@ -159,24 +159,29 @@ Installing before the CI completes or before the hash changes means you're testi
 
 Use this when a feature "is not working" to confirm it is enabled and wired end-to-end.
 
-### 1) Feature enabled in config and site object
+### 1) Platform sends and parses the feature config
+- Confirm the platform injects the feature config into `$CONTENT_SCOPE$`.
+- Apple: check any feature denylist filtering in the platform layer.
+- Android: ensure the feature config has a parser implemented.
+
+### 2) Feature enabled in config and site object
 - Set a breakpoint in `processConfig` (see above) and inspect:
   - `features.<featureName>.state` and `features.<featureName>.settings`
   - `site.enabledFeatures` includes the feature name
   - `site.allowlisted` and `site.isBroken` are false
 - If you use `injectName`-based overrides, confirm the correct `injectName` is being applied.
 
-### 2) Feature bundled on the platform
+### 3) Feature bundled on the platform
 - Check `injected/src/features.js` to confirm the platform bundle includes the feature.
 - Confirm the correct entry point is used for the platform (`injected/entry-points/`).
 - Verify the built output (`build/<platform>/contentScope.js` or `inject.js`) contains the feature code.
 
-### 3) Sub-feature or setting enabled
+### 4) Sub-feature or setting enabled
 - Validate per-setting flags in config (`settings` + `conditionalChanges`).
 - In DevTools, inspect the feature instance (`this.settings`) or use
   `getFeatureSettingEnabled()` to confirm the specific behavior is enabled.
 
-### 4) Messaging is wired and listened to
+### 5) Messaging is wired and listened to
 - Confirm the message bridge feature is enabled and `messageSecret` is present.
 - Verify `messagingContextName` and `featureName` match what the native layer expects.
 - Ensure the native app registers handlers/subscriptions for notify/request/subscribe.
