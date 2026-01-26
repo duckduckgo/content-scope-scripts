@@ -9500,6 +9500,67 @@ ul.messages {
       "ad\\s*blockers?\\s*violate",
       "violate.*terms of service"
     ]);
+    const detectLoginState = () => {
+      const indicators = {
+        ytInitialData: false,
+        ytcfg: false,
+        logoType: null,
+        hasAvatar: false,
+        hasAccountMenu: false,
+        isPremium: false,
+        signInButton: false
+      };
+      try {
+        const ytData = window.ytInitialData;
+        indicators.ytInitialData = !!ytData;
+        if (ytData) {
+          const logoType = ytData?.topbar?.desktopTopbarRenderer?.logo?.topbarLogoRenderer?.iconImage?.iconType;
+          indicators.logoType = logoType || null;
+          indicators.isPremium = logoType === "YOUTUBE_PREMIUM_LOGO";
+          const topbarButtons = ytData?.topbar?.desktopTopbarRenderer?.topbarButtons || [];
+          indicators.hasAvatar = topbarButtons.some(
+            (btn) => btn?.topbarMenuButtonRenderer?.avatar?.thumbnails?.length > 0
+          );
+          indicators.hasAccountMenu = topbarButtons.some(
+            (btn) => btn?.topbarMenuButtonRenderer?.menuRenderer?.multiPageMenuRenderer
+          );
+          indicators.signInButton = topbarButtons.some(
+            (btn) => btn?.buttonRenderer?.navigationEndpoint?.signInEndpoint
+          );
+        }
+        const ytConfig = window.ytcfg;
+        indicators.ytcfg = !!ytConfig;
+        if (ytConfig && typeof ytConfig.get === "function") {
+          const loggedIn = ytConfig.get("LOGGED_IN");
+          if (loggedIn !== void 0) {
+            indicators.ytcfgLoggedIn = loggedIn;
+          }
+          const innertubeContext = ytConfig.get("INNERTUBE_CONTEXT");
+          if (innertubeContext?.user) {
+            indicators.hasInnertubeUser = true;
+          }
+        }
+      } catch (e) {
+        log.warn("Error detecting login state:", e);
+      }
+      let loginState = "unknown";
+      if (indicators.isPremium) {
+        loginState = "premium";
+      } else if (indicators.ytcfgLoggedIn === true) {
+        loginState = "logged-in";
+      } else if (indicators.ytcfgLoggedIn === false) {
+        loginState = "logged-out";
+      } else if (indicators.hasAvatar || indicators.hasAccountMenu) {
+        loginState = "logged-in";
+      } else if (indicators.signInButton) {
+        loginState = "logged-out";
+      }
+      return {
+        state: loginState,
+        isPremium: indicators.isPremium,
+        rawIndicators: indicators
+      };
+    };
     state = {
       detections: {
         videoAd: { count: 0, showing: false },
@@ -9512,8 +9573,26 @@ ul.messages {
         durations: []
         // Array of buffering durations in ms
       },
-      videoLoads: 0
+      videoLoads: 0,
+      /** @type {{state: string, isPremium: boolean, rawIndicators: Object}|null} */
+      loginState: null
+      // Will be populated on init and periodically
     };
+    const detectAndLogLoginState = (attempt = 1) => {
+      const loginState = detectLoginState();
+      state.loginState = loginState;
+      if (loginState.state === "unknown" && attempt < 5) {
+        const delay = attempt * 500;
+        log.debug(`Login state unknown, retrying in ${delay}ms (attempt ${attempt}/5)`);
+        setTimeout(() => detectAndLogLoginState(attempt + 1), delay);
+      } else {
+        log.info("Login state detected:", loginState.state, loginState.isPremium ? "(Premium)" : "", {
+          attempt,
+          indicators: loginState.rawIndicators
+        });
+      }
+    };
+    detectAndLogLoginState();
     let trackedVideoElement = null;
     let lastLoggedVideoId = null;
     let currentVideoId = null;
@@ -9957,6 +10036,7 @@ ul.messages {
           p95: Math.round(sorted[Math.floor(sorted.length * 0.95)] * 100) / 100
         };
       };
+      const currentLoginState = detectLoginState();
       console.log("[YT-AdDetect] Current State:", {
         ...state,
         adStats: {
@@ -9978,6 +10058,13 @@ ul.messages {
           averageMs: avgMs,
           maxMs,
           durations: state.buffering.durations
+        },
+        // Login state detection
+        loginState: {
+          initial: state.loginState?.state,
+          current: currentLoginState.state,
+          isPremium: currentLoginState.isPremium,
+          indicators: currentLoginState.rawIndicators
         },
         currentVideoId,
         lastLoggedVideoId,
@@ -10028,6 +10115,7 @@ ul.messages {
     const avgBufferingMs = state.buffering.durations.length > 0 ? totalBufferingMs / state.buffering.durations.length : 0;
     const bufferAvgSec = Math.round(avgBufferingMs / 1e3);
     const d = state.detections;
+    const loginState = state.loginState;
     return {
       detected: d.videoAd.count > 0 || d.staticAd.count > 0 || d.playabilityError.count > 0 || d.adBlocker.count > 0 || state.buffering.count > 0,
       type: "youtubeAds",
@@ -10037,7 +10125,9 @@ ul.messages {
         playabilityErrorsDetected: d.playabilityError.count,
         adBlockerDetectionCount: d.adBlocker.count,
         bufferingCount: state.buffering.count,
-        bufferAvgSec
+        bufferAvgSec,
+        // Login state: 'logged-in' | 'logged-out' | 'premium' | 'unknown'
+        userState: loginState?.state || "unknown"
       }]
     };
   }

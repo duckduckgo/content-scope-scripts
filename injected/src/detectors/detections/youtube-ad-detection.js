@@ -119,6 +119,99 @@ function initDetector(config) {
         'violate.*terms of service'
     ]);
 
+    /**
+     * Detect YouTube user login state
+     * Checks ytInitialData and ytcfg for user/premium indicators
+     * @returns {{state: string, isPremium: boolean, rawIndicators: Object}}
+     */
+    const detectLoginState = () => {
+        /** @type {{ytInitialData: boolean, ytcfg: boolean, logoType: string|null, hasAvatar: boolean, hasAccountMenu: boolean, isPremium: boolean, signInButton: boolean, ytcfgLoggedIn?: boolean, hasInnertubeUser?: boolean}} */
+        const indicators = {
+            ytInitialData: false,
+            ytcfg: false,
+            logoType: null,
+            hasAvatar: false,
+            hasAccountMenu: false,
+            isPremium: false,
+            signInButton: false
+        };
+
+        try {
+            // @ts-ignore - YouTube global
+            const ytData = window.ytInitialData;
+            indicators.ytInitialData = !!ytData;
+
+            if (ytData) {
+                // Check logo type for Premium indicator (uBlock approach)
+                const logoType = ytData?.topbar?.desktopTopbarRenderer?.logo?.topbarLogoRenderer?.iconImage?.iconType;
+                indicators.logoType = logoType || null;
+                indicators.isPremium = logoType === 'YOUTUBE_PREMIUM_LOGO';
+
+                // Check for user avatar in topbar buttons (indicates logged in)
+                const topbarButtons = ytData?.topbar?.desktopTopbarRenderer?.topbarButtons || [];
+                
+                // Only check for actual avatar image, not absence of signInEndpoint
+                indicators.hasAvatar = topbarButtons.some(btn =>
+                    btn?.topbarMenuButtonRenderer?.avatar?.thumbnails?.length > 0
+                );
+
+                // Check for account menu (another logged-in indicator)
+                indicators.hasAccountMenu = topbarButtons.some(btn =>
+                    btn?.topbarMenuButtonRenderer?.menuRenderer?.multiPageMenuRenderer
+                );
+
+                // Check for sign-in button (indicates logged out)
+                indicators.signInButton = topbarButtons.some(btn =>
+                    btn?.buttonRenderer?.navigationEndpoint?.signInEndpoint
+                );
+            }
+
+            // Also check ytcfg for LOGGED_IN flag
+            // @ts-ignore - YouTube global
+            const ytConfig = window.ytcfg;
+            indicators.ytcfg = !!ytConfig;
+
+            if (ytConfig && typeof ytConfig.get === 'function') {
+                const loggedIn = ytConfig.get('LOGGED_IN');
+                if (loggedIn !== undefined) {
+                    indicators.ytcfgLoggedIn = loggedIn;
+                }
+                // Check for other useful config values
+                const innertubeContext = ytConfig.get('INNERTUBE_CONTEXT');
+                if (innertubeContext?.user) {
+                    indicators.hasInnertubeUser = true;
+                }
+            }
+        } catch (e) {
+            log.warn('Error detecting login state:', e);
+        }
+
+        // Determine overall state
+        // Priority: 1) Premium logo, 2) ytcfg.LOGGED_IN (most reliable), 3) DOM indicators
+        let loginState = 'unknown';
+        if (indicators.isPremium) {
+            loginState = 'premium';
+        } else if (indicators.ytcfgLoggedIn === true) {
+            // ytcfg is authoritative when available
+            loginState = 'logged-in';
+        } else if (indicators.ytcfgLoggedIn === false) {
+            // ytcfg is authoritative when available
+            loginState = 'logged-out';
+        } else if (indicators.hasAvatar || indicators.hasAccountMenu) {
+            // Fallback to DOM indicators if ytcfg not available
+            loginState = 'logged-in';
+        } else if (indicators.signInButton) {
+            // Fallback to DOM indicators if ytcfg not available
+            loginState = 'logged-out';
+        }
+
+        return {
+            state: loginState,
+            isPremium: indicators.isPremium,
+            rawIndicators: indicators
+        };
+    };
+
     // Initialize state with category-based structure
     state = {
         detections: {
@@ -131,8 +224,30 @@ function initDetector(config) {
             count: 0,
             durations: [] // Array of buffering durations in ms
         },
-        videoLoads: 0
+        videoLoads: 0,
+        /** @type {{state: string, isPremium: boolean, rawIndicators: Object}|null} */
+        loginState: null // Will be populated on init and periodically
     };
+
+    // Detect and log initial login state (with retry for timing issues)
+    const detectAndLogLoginState = (attempt = 1) => {
+        const loginState = detectLoginState();
+        state.loginState = loginState;
+
+        if (loginState.state === 'unknown' && attempt < 5) {
+            // YouTube globals not ready yet, retry after delay
+            const delay = attempt * 500; // 500ms, 1000ms, 1500ms, 2000ms
+            log.debug(`Login state unknown, retrying in ${delay}ms (attempt ${attempt}/5)`);
+            setTimeout(() => detectAndLogLoginState(attempt + 1), delay);
+        } else {
+            log.info('Login state detected:', loginState.state, loginState.isPremium ? '(Premium)' : '', {
+                attempt,
+                indicators: loginState.rawIndicators
+            });
+        }
+    };
+
+    detectAndLogLoginState();
 
     let trackedVideoElement = null;
     let lastLoggedVideoId = null;
@@ -747,6 +862,9 @@ function initDetector(config) {
             };
         };
 
+        // Get fresh login state for debug output
+        const currentLoginState = detectLoginState();
+
         console.log('[YT-AdDetect] Current State:', {
             ...state,
             adStats: {
@@ -768,6 +886,13 @@ function initDetector(config) {
                 averageMs: avgMs,
                 maxMs,
                 durations: state.buffering.durations
+            },
+            // Login state detection
+            loginState: {
+                initial: state.loginState?.state,
+                current: currentLoginState.state,
+                isPremium: currentLoginState.isPremium,
+                indicators: currentLoginState.rawIndicators
             },
             currentVideoId,
             lastLoggedVideoId,
@@ -833,6 +958,8 @@ export function runYoutubeAdDetection(config = {}) {
 
     // Return minimal data for privacy - no session fingerprinting
     const d = state.detections;
+    const loginState = state.loginState;
+
     return {
         detected: d.videoAd.count > 0 || d.staticAd.count > 0 || d.playabilityError.count > 0 || d.adBlocker.count > 0 || state.buffering.count > 0,
         type: 'youtubeAds',
@@ -842,7 +969,9 @@ export function runYoutubeAdDetection(config = {}) {
             playabilityErrorsDetected: d.playabilityError.count,
             adBlockerDetectionCount: d.adBlocker.count,
             bufferingCount: state.buffering.count,
-            bufferAvgSec: bufferAvgSec
+            bufferAvgSec: bufferAvgSec,
+            // Login state: 'logged-in' | 'logged-out' | 'premium' | 'unknown'
+            userState: loginState?.state || 'unknown'
         }]
     };
 }
