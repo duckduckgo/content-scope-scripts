@@ -10,7 +10,26 @@ let rerootInterval = null;
  * Logging utility for YouTube ad detection
  * All logs prefixed with [YT-AdDetect] for easy filtering
  */
-const LOG_PREFIX = '[YT-AdDetect]';
+/**
+ * Detect which world we're running in
+ * Isolated world has chrome.runtime, page context does not
+ */
+const detectWorld = () => {
+    try {
+        // chrome.runtime.id exists in content scripts (isolated world) but not page context
+        // @ts-ignore
+        if (window.chrome?.runtime?.id) {
+            return 'isolated';
+        }
+        // If no chrome.runtime, we're in page context (content-scope-scripts is injected there)
+        return 'page';
+    } catch {
+        return 'page'; // Assume page context if detection fails
+    }
+};
+
+const WORLD = detectWorld();
+const LOG_PREFIX = `[YT-AdDetect:${WORLD}]`;
 const log = {
     info: (...args) => console.log(LOG_PREFIX, ...args),
     warn: (...args) => console.warn(LOG_PREFIX, ...args),

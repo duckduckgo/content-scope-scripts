@@ -9423,7 +9423,18 @@ ul.messages {
   var state = null;
   var pollInterval = null;
   var rerootInterval = null;
-  var LOG_PREFIX = "[YT-AdDetect]";
+  var detectWorld = () => {
+    try {
+      if (window.chrome?.runtime?.id) {
+        return "isolated";
+      }
+      return "page";
+    } catch {
+      return "page";
+    }
+  };
+  var WORLD = detectWorld();
+  var LOG_PREFIX = `[YT-AdDetect:${WORLD}]`;
   var log = {
     info: (...args) => console.log(LOG_PREFIX, ...args),
     warn: (...args) => console.warn(LOG_PREFIX, ...args),
