@@ -12725,6 +12725,7 @@ ul.messages {
     let videoLoadStartTime = null;
     let bufferingStartTime = null;
     let lastSweepTime = null;
+    let lastSeekTime = null;
     const perfMetrics = {
       sweepDurations: (
         /** @type {number[]} */
@@ -12948,7 +12949,15 @@ ul.messages {
           }
           bufferingStartTime = null;
         }
-        const loadTime = videoLoadStartTime ? performance.now() - videoLoadStartTime : performance.now();
+        if (!videoLoadStartTime) {
+          if (DEBUG_LOGGING) {
+            log.debug("Playing event without loadstart (user interaction, not counted)", {
+              videoId: currentVideoId
+            });
+          }
+          return;
+        }
+        const loadTime = performance.now() - videoLoadStartTime;
         const isSlow = loadTime > SLOW_LOAD_THRESHOLD_MS;
         const duringAd = state.detections.videoAd.showing;
         const tabWasHidden = document.hidden;
@@ -12958,7 +12967,6 @@ ul.messages {
             videoId: currentVideoId,
             loadTimeMs: Math.round(loadTime),
             threshold: SLOW_LOAD_THRESHOLD_MS,
-            freshNav: !videoLoadStartTime,
             willCountAsBuffering: isSlow && !duringAd && !tabWasHidden && !tooLong,
             readyState: videoElement.readyState,
             paused: videoElement.paused,
@@ -12974,7 +12982,6 @@ ul.messages {
             videoId: currentVideoId,
             loadTimeMs: Math.round(loadTime),
             totalBufferingCount: state.buffering.count,
-            freshNav: !videoLoadStartTime,
             readyState: videoElement.readyState
           });
         }
@@ -13001,12 +13008,14 @@ ul.messages {
           }
           return;
         }
-        if (videoElement.seeking) {
+        const recentlySeekd = lastSeekTime && performance.now() - lastSeekTime < 3e3;
+        if (videoElement.seeking || recentlySeekd) {
           if (DEBUG_LOGGING) {
-            log.debug("Buffering during seek (ignored - user scrubbing)", {
+            log.debug("Buffering during/after seek (ignored - user scrubbing)", {
               videoId: currentVideoId,
               currentTime: videoElement.currentTime,
-              seeking: videoElement.seeking
+              seeking: videoElement.seeking,
+              msSinceSeek: lastSeekTime ? Math.round(performance.now() - lastSeekTime) : null
             });
           }
           return;
@@ -13027,9 +13036,16 @@ ul.messages {
           adCurrentlyShowing: state.detections.videoAd.showing
         });
       };
+      const onSeeking = () => {
+        lastSeekTime = performance.now();
+        if (DEBUG_LOGGING) {
+          log.debug("User seeking", { videoId: currentVideoId, currentTime: videoElement.currentTime });
+        }
+      };
       videoElement.addEventListener("loadstart", onLoadStart);
       videoElement.addEventListener("playing", onPlaying);
       videoElement.addEventListener("waiting", onWaiting);
+      videoElement.addEventListener("seeking", onSeeking);
       const vid = getVideoId();
       if (vid && vid !== lastLoggedVideoId) {
         lastLoggedVideoId = vid;

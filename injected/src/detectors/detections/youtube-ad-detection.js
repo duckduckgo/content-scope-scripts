@@ -233,6 +233,7 @@ function initDetector(config) {
     let videoLoadStartTime = null;
     let bufferingStartTime = null;
     let lastSweepTime = null;
+    let lastSeekTime = null; // Track when user last seeked to ignore post-seek buffering
 
     // Performance tracking (minimal overhead, only computed on debug call)
     const perfMetrics = {
@@ -531,7 +532,7 @@ function initDetector(config) {
         const MAX_REASONABLE_LOAD_MS = 30000; // 30 seconds - beyond this is user behavior, not buffering
 
         const onPlaying = () => {
-            // Track end of buffering period
+            // Track end of buffering period (only if we were tracking mid-playback buffering)
             if (bufferingStartTime) {
                 const bufferingDuration = performance.now() - bufferingStartTime;
                 state.buffering.durations.push(Math.round(bufferingDuration));
@@ -544,12 +545,18 @@ function initDetector(config) {
                 bufferingStartTime = null;
             }
 
-            // Calculate load time - either from loadstart event or from page load (fresh nav)
-            // performance.now() is milliseconds since page load, so it works for fresh nav
-            const loadTime = videoLoadStartTime
-                ? performance.now() - videoLoadStartTime
-                : performance.now(); // Fresh nav: measure from page load
+            // Only count slow initial load if we have a valid loadstart timestamp
+            // This prevents counting manual play clicks as buffering
+            if (!videoLoadStartTime) {
+                if (DEBUG_LOGGING) {
+                    log.debug('Playing event without loadstart (user interaction, not counted)', {
+                        videoId: currentVideoId
+                    });
+                }
+                return;
+            }
 
+            const loadTime = performance.now() - videoLoadStartTime;
             const isSlow = loadTime > SLOW_LOAD_THRESHOLD_MS;
             const duringAd = state.detections.videoAd.showing;
             const tabWasHidden = document.hidden;
@@ -560,7 +567,6 @@ function initDetector(config) {
                     videoId: currentVideoId,
                     loadTimeMs: Math.round(loadTime),
                     threshold: SLOW_LOAD_THRESHOLD_MS,
-                    freshNav: !videoLoadStartTime,
                     willCountAsBuffering: isSlow && !duringAd && !tabWasHidden && !tooLong,
                     readyState: videoElement.readyState,
                     paused: videoElement.paused,
@@ -578,7 +584,6 @@ function initDetector(config) {
                     videoId: currentVideoId,
                     loadTimeMs: Math.round(loadTime),
                     totalBufferingCount: state.buffering.count,
-                    freshNav: !videoLoadStartTime,
                     readyState: videoElement.readyState
                 });
             }
@@ -612,13 +617,15 @@ function initDetector(config) {
                 return;
             }
 
-            // Ignore buffering when user is seeking/scrubbing
-            if (videoElement.seeking) {
+            // Ignore buffering when user is seeking/scrubbing or shortly after a seek
+            const recentlySeekd = lastSeekTime && (performance.now() - lastSeekTime < 3000);
+            if (videoElement.seeking || recentlySeekd) {
                 if (DEBUG_LOGGING) {
-                    log.debug('Buffering during seek (ignored - user scrubbing)', {
+                    log.debug('Buffering during/after seek (ignored - user scrubbing)', {
                         videoId: currentVideoId,
                         currentTime: videoElement.currentTime,
-                        seeking: videoElement.seeking
+                        seeking: videoElement.seeking,
+                        msSinceSeek: lastSeekTime ? Math.round(performance.now() - lastSeekTime) : null
                     });
                 }
                 return;
@@ -643,9 +650,18 @@ function initDetector(config) {
             });
         };
 
+        // Track seek events to ignore post-seek buffering
+        const onSeeking = () => {
+            lastSeekTime = performance.now();
+            if (DEBUG_LOGGING) {
+                log.debug('User seeking', { videoId: currentVideoId, currentTime: videoElement.currentTime });
+            }
+        };
+
         videoElement.addEventListener('loadstart', onLoadStart);
         videoElement.addEventListener('playing', onPlaying);
         videoElement.addEventListener('waiting', onWaiting);
+        videoElement.addEventListener('seeking', onSeeking);
 
         // Track video ID for fresh navigation (we may have missed loadstart)
         const vid = getVideoId();
