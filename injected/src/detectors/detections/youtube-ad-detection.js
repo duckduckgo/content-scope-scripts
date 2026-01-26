@@ -38,94 +38,45 @@ const log = {
 };
 
 /**
- * Detect YouTube user login state
- * Checks ytInitialData and ytcfg for user/premium indicators
+ * Detect YouTube user login state using DOM elements
+ * Works in sandboxed contexts that can't access page JS globals
  * @returns {{state: string, isPremium: boolean, rawIndicators: Object}}
  */
 const detectLoginState = () => {
-    /** @type {{ytInitialData: boolean, ytcfg: boolean, logoType: string|null, hasAvatar: boolean, hasAccountMenu: boolean, isPremium: boolean, signInButton: boolean, ytcfgLoggedIn?: boolean, hasInnertubeUser?: boolean}} */
+    /** @type {{hasSignInButton: boolean, hasAvatarButton: boolean, hasPremiumLogo: boolean}} */
     const indicators = {
-        ytInitialData: false,
-        ytcfg: false,
-        logoType: null,
-        hasAvatar: false,
-        hasAccountMenu: false,
-        isPremium: false,
-        signInButton: false
+        hasSignInButton: false,
+        hasAvatarButton: false,
+        hasPremiumLogo: false
     };
 
     try {
-        // @ts-ignore - YouTube global
-        const ytData = window.ytInitialData;
-        indicators.ytInitialData = !!ytData;
+        // Check for sign-in button (indicates logged out)
+        indicators.hasSignInButton = !!document.querySelector('a[href*="accounts.google.com/ServiceLogin"]');
 
-        if (ytData) {
-            // Check logo type for Premium indicator (uBlock approach)
-            const logoType = ytData?.topbar?.desktopTopbarRenderer?.logo?.topbarLogoRenderer?.iconImage?.iconType;
-            indicators.logoType = logoType || null;
-            indicators.isPremium = logoType === 'YOUTUBE_PREMIUM_LOGO';
+        // Check for avatar button (indicates logged in)
+        indicators.hasAvatarButton = !!document.querySelector('#avatar-btn');
 
-            // Check for user avatar in topbar buttons (indicates logged in)
-            const topbarButtons = ytData?.topbar?.desktopTopbarRenderer?.topbarButtons || [];
-            
-            // Only check for actual avatar image, not absence of signInEndpoint
-            indicators.hasAvatar = topbarButtons.some(btn =>
-                btn?.topbarMenuButtonRenderer?.avatar?.thumbnails?.length > 0
-            );
-
-            // Check for account menu (another logged-in indicator)
-            indicators.hasAccountMenu = topbarButtons.some(btn =>
-                btn?.topbarMenuButtonRenderer?.menuRenderer?.multiPageMenuRenderer
-            );
-
-            // Check for sign-in button (indicates logged out)
-            indicators.signInButton = topbarButtons.some(btn =>
-                btn?.buttonRenderer?.navigationEndpoint?.signInEndpoint
-            );
-        }
-
-        // Also check ytcfg for LOGGED_IN flag
-        // @ts-ignore - YouTube global
-        const ytConfig = window.ytcfg;
-        indicators.ytcfg = !!ytConfig;
-
-        if (ytConfig && typeof ytConfig.get === 'function') {
-            const loggedIn = ytConfig.get('LOGGED_IN');
-            if (loggedIn !== undefined) {
-                indicators.ytcfgLoggedIn = loggedIn;
-            }
-            // Check for other useful config values
-            const innertubeContext = ytConfig.get('INNERTUBE_CONTEXT');
-            if (innertubeContext?.user) {
-                indicators.hasInnertubeUser = true;
-            }
-        }
+        // Check for Premium logo (indicates premium subscriber)
+        indicators.hasPremiumLogo = !!document.querySelector('ytd-topbar-logo-renderer a[title*="Premium"]');
     } catch (e) {
         log.warn('Error detecting login state:', e);
     }
 
     // Determine overall state
-    // Priority: 1) Premium logo, 2) ytcfg.LOGGED_IN (most reliable), 3) DOM indicators
+    // Priority: 1) Premium logo, 2) Avatar (logged in), 3) Sign-in button (logged out)
     let loginState = 'unknown';
-    if (indicators.isPremium) {
+    if (indicators.hasPremiumLogo) {
         loginState = 'premium';
-    } else if (indicators.ytcfgLoggedIn === true) {
-        // ytcfg is authoritative when available
+    } else if (indicators.hasAvatarButton) {
         loginState = 'logged-in';
-    } else if (indicators.ytcfgLoggedIn === false) {
-        // ytcfg is authoritative when available
-        loginState = 'logged-out';
-    } else if (indicators.hasAvatar || indicators.hasAccountMenu) {
-        // Fallback to DOM indicators if ytcfg not available
-        loginState = 'logged-in';
-    } else if (indicators.signInButton) {
-        // Fallback to DOM indicators if ytcfg not available
+    } else if (indicators.hasSignInButton) {
         loginState = 'logged-out';
     }
 
     return {
         state: loginState,
-        isPremium: indicators.isPremium,
+        isPremium: indicators.hasPremiumLogo,
         rawIndicators: indicators
     };
 };

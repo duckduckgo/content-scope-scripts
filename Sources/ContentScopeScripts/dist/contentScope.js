@@ -9443,62 +9443,28 @@ ul.messages {
   };
   var detectLoginState = () => {
     const indicators = {
-      ytInitialData: false,
-      ytcfg: false,
-      logoType: null,
-      hasAvatar: false,
-      hasAccountMenu: false,
-      isPremium: false,
-      signInButton: false
+      hasSignInButton: false,
+      hasAvatarButton: false,
+      hasPremiumLogo: false
     };
     try {
-      const ytData = window.ytInitialData;
-      indicators.ytInitialData = !!ytData;
-      if (ytData) {
-        const logoType = ytData?.topbar?.desktopTopbarRenderer?.logo?.topbarLogoRenderer?.iconImage?.iconType;
-        indicators.logoType = logoType || null;
-        indicators.isPremium = logoType === "YOUTUBE_PREMIUM_LOGO";
-        const topbarButtons = ytData?.topbar?.desktopTopbarRenderer?.topbarButtons || [];
-        indicators.hasAvatar = topbarButtons.some(
-          (btn) => btn?.topbarMenuButtonRenderer?.avatar?.thumbnails?.length > 0
-        );
-        indicators.hasAccountMenu = topbarButtons.some(
-          (btn) => btn?.topbarMenuButtonRenderer?.menuRenderer?.multiPageMenuRenderer
-        );
-        indicators.signInButton = topbarButtons.some(
-          (btn) => btn?.buttonRenderer?.navigationEndpoint?.signInEndpoint
-        );
-      }
-      const ytConfig = window.ytcfg;
-      indicators.ytcfg = !!ytConfig;
-      if (ytConfig && typeof ytConfig.get === "function") {
-        const loggedIn = ytConfig.get("LOGGED_IN");
-        if (loggedIn !== void 0) {
-          indicators.ytcfgLoggedIn = loggedIn;
-        }
-        const innertubeContext = ytConfig.get("INNERTUBE_CONTEXT");
-        if (innertubeContext?.user) {
-          indicators.hasInnertubeUser = true;
-        }
-      }
+      indicators.hasSignInButton = !!document.querySelector('a[href*="accounts.google.com/ServiceLogin"]');
+      indicators.hasAvatarButton = !!document.querySelector("#avatar-btn");
+      indicators.hasPremiumLogo = !!document.querySelector('ytd-topbar-logo-renderer a[title*="Premium"]');
     } catch (e) {
       log.warn("Error detecting login state:", e);
     }
     let loginState = "unknown";
-    if (indicators.isPremium) {
+    if (indicators.hasPremiumLogo) {
       loginState = "premium";
-    } else if (indicators.ytcfgLoggedIn === true) {
+    } else if (indicators.hasAvatarButton) {
       loginState = "logged-in";
-    } else if (indicators.ytcfgLoggedIn === false) {
-      loginState = "logged-out";
-    } else if (indicators.hasAvatar || indicators.hasAccountMenu) {
-      loginState = "logged-in";
-    } else if (indicators.signInButton) {
+    } else if (indicators.hasSignInButton) {
       loginState = "logged-out";
     }
     return {
       state: loginState,
-      isPremium: indicators.isPremium,
+      isPremium: indicators.hasPremiumLogo,
       rawIndicators: indicators
     };
   };
