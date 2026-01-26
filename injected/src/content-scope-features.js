@@ -97,13 +97,13 @@ export async function init(args) {
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
     const features = await getFeatures();
-    Object.entries(features).forEach(([featureName, featureInstance]) => {
+    Object.entries(features).forEach(async ([featureName, featureInstance]) => {
         if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
             // Short term fix to disable the feature whilst we roll out Android adsjs
             if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                 return;
             }
-            featureInstance.callInit(args);
+            await featureInstance.callInit(args);
             // Either listenForUrlChanges or urlChanged ensures the feature listens.
             const hasUrlChangedMethod = 'urlChanged' in featureInstance && typeof featureInstance.urlChanged === 'function';
             if (featureInstance.listenForUrlChanges || hasUrlChangedMethod) {

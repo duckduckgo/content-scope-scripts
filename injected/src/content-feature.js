@@ -306,12 +306,17 @@ export default class ContentFeature extends ConfigFeature {
 
     init(_args) {}
 
-    callInit(args) {
+    /**
+     * @param {object} args
+     */
+    async callInit(args) {
         const mark = this.monitor.mark(this.name + 'CallInit');
         this.setArgs(args);
         try {
             // Passing this.args is legacy here and features should use this.args or other properties directly
-            this.init(this.args);
+            // disable lint error as `init` is not forced to be async
+            // eslint-disable-next-line @typescript-eslint/await-thenable
+            await this.init(this.args);
             this.#ready.resolve?.();
         } catch (error) {
             this.#ready.reject?.(error);

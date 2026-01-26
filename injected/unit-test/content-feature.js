@@ -1287,14 +1287,14 @@ describe('ContentFeature class', () => {
              * @param {string[]} exposedMethods
              * @param {{ initFeature?: boolean }} [options]
              */
-            const buildCallerFeature = (methods, exposedMethods, options = {}) => {
+            const buildCallerFeature = async (methods, exposedMethods, options = {}) => {
                 const { initFeature = true } = options;
                 const TargetFeature = createFeatureClass('targetFeature', methods, exposedMethods);
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
 
                 const targetFeature = new TargetFeature();
                 if (initFeature) {
-                    targetFeature.callInit({});
+                    await targetFeature.callInit({});
                 }
                 const features = { targetFeature };
 
@@ -1311,7 +1311,7 @@ describe('ContentFeature class', () => {
             });
 
             it('should return an error when the method is not in the exposed methods list', async () => {
-                const { callerFeature } = buildCallerFeature(
+                const { callerFeature } = await buildCallerFeature(
                     {
                         exposedMethod: () => {},
                         privateMethod: () => {},
@@ -1326,7 +1326,7 @@ describe('ContentFeature class', () => {
 
             it('should successfully call an exposed method on another feature', async () => {
                 const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
-                const { callerFeature } = buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod']);
+                const { callerFeature } = await buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod']);
 
                 const result = await callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
 
@@ -1336,7 +1336,7 @@ describe('ContentFeature class', () => {
 
             it('should handle async methods correctly', async () => {
                 const asyncMethod = jasmine.createSpy('asyncMethod').and.returnValue(Promise.resolve('async result'));
-                const { callerFeature } = buildCallerFeature({ asyncMethod }, ['asyncMethod']);
+                const { callerFeature } = await buildCallerFeature({ asyncMethod }, ['asyncMethod']);
 
                 const result = await callerFeature.callFeatureMethod('targetFeature', 'asyncMethod');
 
@@ -1345,7 +1345,7 @@ describe('ContentFeature class', () => {
 
             it('should pass arguments to the target method', async () => {
                 const targetMethod = jasmine.createSpy('targetMethod').and.callFake((a, b, c) => a + b + c);
-                const { callerFeature } = buildCallerFeature({ sum: targetMethod }, ['sum']);
+                const { callerFeature } = await buildCallerFeature({ sum: targetMethod }, ['sum']);
 
                 const result = await callerFeature.callFeatureMethod('targetFeature', 'sum', 1, 2, 3);
 
@@ -1354,7 +1354,7 @@ describe('ContentFeature class', () => {
             });
 
             it('should return the value from the target method', async () => {
-                const { callerFeature } = buildCallerFeature({ getValue: () => ({ data: 'test' }) }, ['getValue']);
+                const { callerFeature } = await buildCallerFeature({ getValue: () => ({ data: 'test' }) }, ['getValue']);
 
                 const result = await callerFeature.callFeatureMethod('targetFeature', 'getValue');
 
@@ -1405,11 +1405,9 @@ describe('ContentFeature class', () => {
             describe('waiting for feature ready', () => {
                 it('should wait for target feature to be initialized before calling method', async () => {
                     const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
-                    const { callerFeature, targetFeature } = buildCallerFeature(
-                        { exposedMethod: targetMethod },
-                        ['exposedMethod'],
-                        { initFeature: false },
-                    );
+                    const { callerFeature, targetFeature } = await buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod'], {
+                        initFeature: false,
+                    });
 
                     // Start the call before the feature is initialized
                     const resultPromise = callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
@@ -1429,11 +1427,9 @@ describe('ContentFeature class', () => {
 
                 it('should resolve immediately if target feature is already initialized', async () => {
                     const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
-                    const { callerFeature } = buildCallerFeature(
-                        { exposedMethod: targetMethod },
-                        ['exposedMethod'],
-                        { initFeature: true },
-                    );
+                    const { callerFeature } = await buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod'], {
+                        initFeature: true,
+                    });
 
                     const result = await callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
 
@@ -1464,7 +1460,7 @@ describe('ContentFeature class', () => {
                     const resultPromise = callerFeature.callFeatureMethod('failingFeature', 'someMethod');
 
                     // Try to initialize (this will throw)
-                    expect(() => failingFeature.callInit({})).toThrowError('init failed');
+                    await expectAsync(failingFeature.callInit({})).toBeRejectedWithError('init failed');
 
                     // The callFeatureMethod should reject with the same error
                     await expectAsync(resultPromise).toBeRejectedWithError('init failed');
