@@ -28,6 +28,18 @@ import ConfigFeature from './config-feature.js';
  */
 
 /**
+ * @returns {{promise: Promise<void>, resolve?: () => void, reject?: (e?: unknown) => void}}
+ */
+function createDeferred() {
+    const deferred = {};
+    deferred.promise = new Promise((resolve, reject) => {
+        deferred.resolve = resolve;
+        deferred.reject = reject;
+    });
+    return deferred;
+}
+
+/**
  * Error used to indicate that calling a feature method failed (for example, due
  * to an unknown feature or unexposed method).
  */
@@ -75,6 +87,9 @@ export default class ContentFeature extends ConfigFeature {
      */
     #features;
 
+    /** @type {ReturnType<typeof createDeferred>} */
+    #ready;
+
     /**
      * @template {string} K
      * @typedef {K[] & {__brand: 'exposeMethods'}} ExposeMethods
@@ -101,6 +116,7 @@ export default class ContentFeature extends ConfigFeature {
         this.monitor = new PerformanceMonitor();
         this.#features = features;
         this.#importConfig = importConfig;
+        this.#ready = createDeferred();
     }
 
     get isDebug() {
@@ -109,6 +125,15 @@ export default class ContentFeature extends ConfigFeature {
 
     get shouldLog() {
         return this.isDebug;
+    }
+
+    /**
+     * Returns a promise that resolves when the feature has been initialised with `init`.
+     *
+     * @returns {Promise<void>}
+     */
+    get _ready() {
+        return this.#ready.promise;
     }
 
     /**
@@ -209,6 +234,8 @@ export default class ContentFeature extends ConfigFeature {
     /**
      * Run an exposed method of another feature.
      *
+     * Waits for the feature to be initialized before calling the method.
+     *
      * `args` are the arguments to pass to the feature method.
      *
      * @template {keyof FeatureMap} FeatureName
@@ -217,9 +244,9 @@ export default class ContentFeature extends ConfigFeature {
      * @param {FeatureName} featureName
      * @param {MethodName} methodName
      * @param {Feature[MethodName] extends (...args: infer Args) => any ? Args : never} args
-     * @returns {ReturnType<Feature[MethodName]> | CallFeatureMethodError}
+     * @returns {Promise<ReturnType<Feature[MethodName]> | CallFeatureMethodError>}
      */
-    callFeatureMethod(featureName, methodName, ...args) {
+    async callFeatureMethod(featureName, methodName, ...args) {
         const feature = this.#features[featureName];
         if (!feature) return new CallFeatureMethodError(`Feature not found: '${featureName}'`);
         // correct method usage is guaranteed at the type level, but we include runtime checks for additional safety
@@ -229,6 +256,7 @@ export default class ContentFeature extends ConfigFeature {
         if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
         if (!(method instanceof Function))
             return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
+        await feature._ready;
         return method.call(feature, ...args);
     }
 
@@ -281,10 +309,17 @@ export default class ContentFeature extends ConfigFeature {
     callInit(args) {
         const mark = this.monitor.mark(this.name + 'CallInit');
         this.setArgs(args);
-        // Passing this.args is legacy here and features should use this.args or other properties directly
-        this.init(this.args);
-        mark.end();
-        this.measure();
+        try {
+            // Passing this.args is legacy here and features should use this.args or other properties directly
+            this.init(this.args);
+            this.#ready.resolve?.();
+        } catch (error) {
+            this.#ready.reject?.(error);
+            throw error;
+        } finally {
+            mark.end();
+            this.measure();
+        }
     }
 
     setArgs(args) {
