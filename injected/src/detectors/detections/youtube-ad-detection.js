@@ -19,6 +19,99 @@ const log = {
 };
 
 /**
+ * Detect YouTube user login state
+ * Checks ytInitialData and ytcfg for user/premium indicators
+ * @returns {{state: string, isPremium: boolean, rawIndicators: Object}}
+ */
+const detectLoginState = () => {
+    /** @type {{ytInitialData: boolean, ytcfg: boolean, logoType: string|null, hasAvatar: boolean, hasAccountMenu: boolean, isPremium: boolean, signInButton: boolean, ytcfgLoggedIn?: boolean, hasInnertubeUser?: boolean}} */
+    const indicators = {
+        ytInitialData: false,
+        ytcfg: false,
+        logoType: null,
+        hasAvatar: false,
+        hasAccountMenu: false,
+        isPremium: false,
+        signInButton: false
+    };
+
+    try {
+        // @ts-ignore - YouTube global
+        const ytData = window.ytInitialData;
+        indicators.ytInitialData = !!ytData;
+
+        if (ytData) {
+            // Check logo type for Premium indicator (uBlock approach)
+            const logoType = ytData?.topbar?.desktopTopbarRenderer?.logo?.topbarLogoRenderer?.iconImage?.iconType;
+            indicators.logoType = logoType || null;
+            indicators.isPremium = logoType === 'YOUTUBE_PREMIUM_LOGO';
+
+            // Check for user avatar in topbar buttons (indicates logged in)
+            const topbarButtons = ytData?.topbar?.desktopTopbarRenderer?.topbarButtons || [];
+            
+            // Only check for actual avatar image, not absence of signInEndpoint
+            indicators.hasAvatar = topbarButtons.some(btn =>
+                btn?.topbarMenuButtonRenderer?.avatar?.thumbnails?.length > 0
+            );
+
+            // Check for account menu (another logged-in indicator)
+            indicators.hasAccountMenu = topbarButtons.some(btn =>
+                btn?.topbarMenuButtonRenderer?.menuRenderer?.multiPageMenuRenderer
+            );
+
+            // Check for sign-in button (indicates logged out)
+            indicators.signInButton = topbarButtons.some(btn =>
+                btn?.buttonRenderer?.navigationEndpoint?.signInEndpoint
+            );
+        }
+
+        // Also check ytcfg for LOGGED_IN flag
+        // @ts-ignore - YouTube global
+        const ytConfig = window.ytcfg;
+        indicators.ytcfg = !!ytConfig;
+
+        if (ytConfig && typeof ytConfig.get === 'function') {
+            const loggedIn = ytConfig.get('LOGGED_IN');
+            if (loggedIn !== undefined) {
+                indicators.ytcfgLoggedIn = loggedIn;
+            }
+            // Check for other useful config values
+            const innertubeContext = ytConfig.get('INNERTUBE_CONTEXT');
+            if (innertubeContext?.user) {
+                indicators.hasInnertubeUser = true;
+            }
+        }
+    } catch (e) {
+        log.warn('Error detecting login state:', e);
+    }
+
+    // Determine overall state
+    // Priority: 1) Premium logo, 2) ytcfg.LOGGED_IN (most reliable), 3) DOM indicators
+    let loginState = 'unknown';
+    if (indicators.isPremium) {
+        loginState = 'premium';
+    } else if (indicators.ytcfgLoggedIn === true) {
+        // ytcfg is authoritative when available
+        loginState = 'logged-in';
+    } else if (indicators.ytcfgLoggedIn === false) {
+        // ytcfg is authoritative when available
+        loginState = 'logged-out';
+    } else if (indicators.hasAvatar || indicators.hasAccountMenu) {
+        // Fallback to DOM indicators if ytcfg not available
+        loginState = 'logged-in';
+    } else if (indicators.signInButton) {
+        // Fallback to DOM indicators if ytcfg not available
+        loginState = 'logged-out';
+    }
+
+    return {
+        state: loginState,
+        isPremium: indicators.isPremium,
+        rawIndicators: indicators
+    };
+};
+
+/**
  * Initialize the YouTube ad detector
  * @param {Object} config - Configuration from privacy-config
  * @param {string[]} [config.playerSelectors] - Selectors for the player root element
@@ -119,99 +212,6 @@ function initDetector(config) {
         'violate.*terms of service'
     ]);
 
-    /**
-     * Detect YouTube user login state
-     * Checks ytInitialData and ytcfg for user/premium indicators
-     * @returns {{state: string, isPremium: boolean, rawIndicators: Object}}
-     */
-    const detectLoginState = () => {
-        /** @type {{ytInitialData: boolean, ytcfg: boolean, logoType: string|null, hasAvatar: boolean, hasAccountMenu: boolean, isPremium: boolean, signInButton: boolean, ytcfgLoggedIn?: boolean, hasInnertubeUser?: boolean}} */
-        const indicators = {
-            ytInitialData: false,
-            ytcfg: false,
-            logoType: null,
-            hasAvatar: false,
-            hasAccountMenu: false,
-            isPremium: false,
-            signInButton: false
-        };
-
-        try {
-            // @ts-ignore - YouTube global
-            const ytData = window.ytInitialData;
-            indicators.ytInitialData = !!ytData;
-
-            if (ytData) {
-                // Check logo type for Premium indicator (uBlock approach)
-                const logoType = ytData?.topbar?.desktopTopbarRenderer?.logo?.topbarLogoRenderer?.iconImage?.iconType;
-                indicators.logoType = logoType || null;
-                indicators.isPremium = logoType === 'YOUTUBE_PREMIUM_LOGO';
-
-                // Check for user avatar in topbar buttons (indicates logged in)
-                const topbarButtons = ytData?.topbar?.desktopTopbarRenderer?.topbarButtons || [];
-                
-                // Only check for actual avatar image, not absence of signInEndpoint
-                indicators.hasAvatar = topbarButtons.some(btn =>
-                    btn?.topbarMenuButtonRenderer?.avatar?.thumbnails?.length > 0
-                );
-
-                // Check for account menu (another logged-in indicator)
-                indicators.hasAccountMenu = topbarButtons.some(btn =>
-                    btn?.topbarMenuButtonRenderer?.menuRenderer?.multiPageMenuRenderer
-                );
-
-                // Check for sign-in button (indicates logged out)
-                indicators.signInButton = topbarButtons.some(btn =>
-                    btn?.buttonRenderer?.navigationEndpoint?.signInEndpoint
-                );
-            }
-
-            // Also check ytcfg for LOGGED_IN flag
-            // @ts-ignore - YouTube global
-            const ytConfig = window.ytcfg;
-            indicators.ytcfg = !!ytConfig;
-
-            if (ytConfig && typeof ytConfig.get === 'function') {
-                const loggedIn = ytConfig.get('LOGGED_IN');
-                if (loggedIn !== undefined) {
-                    indicators.ytcfgLoggedIn = loggedIn;
-                }
-                // Check for other useful config values
-                const innertubeContext = ytConfig.get('INNERTUBE_CONTEXT');
-                if (innertubeContext?.user) {
-                    indicators.hasInnertubeUser = true;
-                }
-            }
-        } catch (e) {
-            log.warn('Error detecting login state:', e);
-        }
-
-        // Determine overall state
-        // Priority: 1) Premium logo, 2) ytcfg.LOGGED_IN (most reliable), 3) DOM indicators
-        let loginState = 'unknown';
-        if (indicators.isPremium) {
-            loginState = 'premium';
-        } else if (indicators.ytcfgLoggedIn === true) {
-            // ytcfg is authoritative when available
-            loginState = 'logged-in';
-        } else if (indicators.ytcfgLoggedIn === false) {
-            // ytcfg is authoritative when available
-            loginState = 'logged-out';
-        } else if (indicators.hasAvatar || indicators.hasAccountMenu) {
-            // Fallback to DOM indicators if ytcfg not available
-            loginState = 'logged-in';
-        } else if (indicators.signInButton) {
-            // Fallback to DOM indicators if ytcfg not available
-            loginState = 'logged-out';
-        }
-
-        return {
-            state: loginState,
-            isPremium: indicators.isPremium,
-            rawIndicators: indicators
-        };
-    };
-
     // Initialize state with category-based structure
     state = {
         detections: {
@@ -230,20 +230,28 @@ function initDetector(config) {
     };
 
     // Detect and log initial login state (with retry for timing issues)
+    // Only run if we don't already have a valid login state (prevents race conditions on SPA nav)
     const detectAndLogLoginState = (attempt = 1) => {
-        const loginState = detectLoginState();
-        state.loginState = loginState;
+        // Skip if we already have a valid (non-unknown) login state
+        if (state.loginState?.state && state.loginState.state !== 'unknown') {
+            log.debug('Login state already detected, skipping retry', state.loginState.state);
+            return;
+        }
 
-        if (loginState.state === 'unknown' && attempt < 5) {
-            // YouTube globals not ready yet, retry after delay
-            const delay = attempt * 500; // 500ms, 1000ms, 1500ms, 2000ms
-            log.debug(`Login state unknown, retrying in ${delay}ms (attempt ${attempt}/5)`);
-            setTimeout(() => detectAndLogLoginState(attempt + 1), delay);
-        } else {
+        const loginState = detectLoginState();
+
+        // Only update state if we got a valid result OR this is our last attempt
+        if (loginState.state !== 'unknown' || attempt >= 5) {
+            state.loginState = loginState;
             log.info('Login state detected:', loginState.state, loginState.isPremium ? '(Premium)' : '', {
                 attempt,
                 indicators: loginState.rawIndicators
             });
+        } else {
+            // YouTube globals not ready yet, retry after delay
+            const delay = attempt * 500; // 500ms, 1000ms, 1500ms, 2000ms
+            log.debug(`Login state unknown, retrying in ${delay}ms (attempt ${attempt}/5)`);
+            setTimeout(() => detectAndLogLoginState(attempt + 1), delay);
         }
     };
 
@@ -958,7 +966,18 @@ export function runYoutubeAdDetection(config = {}) {
 
     // Return minimal data for privacy - no session fingerprinting
     const d = state.detections;
-    const loginState = state.loginState;
+    
+    // If stored login state is unknown, try a fresh check (YouTube globals may be ready now)
+    let loginState = state.loginState;
+    if (!loginState || loginState.state === 'unknown') {
+        // Try fresh detection - globals should be ready by now
+        const freshCheck = detectLoginState();
+        if (freshCheck.state !== 'unknown') {
+            state.loginState = freshCheck;
+            loginState = freshCheck;
+            log.debug('Fresh login state check at report time:', freshCheck.state);
+        }
+    }
 
     return {
         detected: d.videoAd.count > 0 || d.staticAd.count > 0 || d.playabilityError.count > 0 || d.adBlocker.count > 0 || state.buffering.count > 0,
