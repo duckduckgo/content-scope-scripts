@@ -182,6 +182,9 @@ export function customizerData() {
             customizer.themeVariant = /** @type {import('../../types/new-tab').ThemeVariant} */ (value);
         }
     }
+    if (url.searchParams.get('customizer.showThemeVariantPopover') === 'true') {
+        customizer.showThemeVariantPopover = true;
+    }
 
     return customizer;
 }

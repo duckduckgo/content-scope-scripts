@@ -7,6 +7,7 @@ import {
     computeLimitedSiteObject,
     isSupportedVersion,
     isMaxSupportedVersion,
+    isStateEnabled,
 } from './utils.js';
 import { URLPattern } from 'urlpattern-polyfill';
 
@@ -35,7 +36,8 @@ export default class ConfigFeature {
      *   assets?: import('./content-feature.js').AssetConfig | undefined,
      *   site: import('./content-feature.js').Site,
      *   messagingConfig?: import('@duckduckgo/messaging').MessagingConfig,
-     *   currentCohorts?: [{feature: string, cohort: string, subfeature: string}],
+     *   messagingContextName: string,
+     *   currentCohorts?: Array<{feature: string, cohort: string, subfeature: string}>,
      * } | null}
      */
     #args;
@@ -53,7 +55,7 @@ export default class ConfigFeature {
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform.version);
+            const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform);
             this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
         }
     }
@@ -365,18 +367,21 @@ export default class ConfigFeature {
      *   }
      * }
      * ```
+     * State values can be: 'enabled', 'disabled', 'internal', or 'preview'.
+     * 'internal' and 'preview' are enabled based on platform flags.
      * This also supports domain overrides as per `getFeatureSetting`.
      * @param {string} featureKeyName
-     * @param {'enabled' | 'disabled'} [defaultState]
+     * @param {import('./utils.js').FeatureState} [defaultState]
      * @param {string} [featureName]
      * @returns {boolean}
      */
     getFeatureSettingEnabled(featureKeyName, defaultState, featureName) {
         const result = this.getFeatureSetting(featureKeyName, featureName) || defaultState;
+        const platform = this.#args?.platform;
         if (typeof result === 'object') {
-            return result.state === 'enabled';
+            return isStateEnabled(result.state, platform);
         }
-        return result === 'enabled';
+        return isStateEnabled(result, platform);
     }
 
     /**

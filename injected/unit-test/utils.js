@@ -7,6 +7,7 @@ import {
     isMaxSupportedVersion,
     getTabHostname,
     processAttr,
+    isStateEnabled,
 } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
@@ -104,6 +105,7 @@ describe('Helpers checks', () => {
             versionNumber: 99,
             sessionKey: 'testSessionKey',
             bundledConfig: configIn,
+            messagingContextName: 'contentScopeScripts',
         });
     });
 
@@ -183,10 +185,11 @@ describe('Helpers checks', () => {
             versionString: '0.9.9',
             sessionKey: 'testSessionKey',
             bundledConfig: configIn,
+            messagingContextName: 'contentScopeScripts',
         });
     });
 
-    it('does not enable features with state "preview"', () => {
+    it('does not enable features with state "preview" when preview flag is not set', () => {
         const configIn = {
             features: {
                 testFeature: {
@@ -216,6 +219,140 @@ describe('Helpers checks', () => {
         );
         expect(processedConfig.site.enabledFeatures).toEqual(['testFeature']);
         expect(processedConfig.featureSettings).toEqual({ testFeature: {} });
+    });
+
+    it('enables features with state "preview" when platform.preview is true', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                previewFeature: {
+                    state: 'preview',
+                    settings: { foo: 'bar' },
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'android',
+                    preview: true,
+                },
+                versionNumber: 99,
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature', 'previewFeature']);
+        expect(processedConfig.featureSettings).toEqual({ testFeature: {}, previewFeature: { foo: 'bar' } });
+    });
+
+    it('does not enable features with state "internal" when internal flag is not set', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                internalFeature: {
+                    state: 'internal',
+                    settings: {},
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'android',
+                },
+                versionNumber: 99,
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature']);
+        expect(processedConfig.featureSettings).toEqual({ testFeature: {} });
+    });
+
+    it('enables features with state "internal" when platform.internal is true', () => {
+        const configIn = {
+            features: {
+                testFeature: {
+                    state: 'enabled',
+                    settings: {},
+                    exceptions: [],
+                },
+                internalFeature: {
+                    state: 'internal',
+                    settings: { baz: 'qux' },
+                    exceptions: [],
+                },
+            },
+            unprotectedTemporary: [],
+        };
+        const processedConfig = processConfig(
+            configIn,
+            [],
+            {
+                platform: {
+                    name: 'android',
+                    internal: true,
+                },
+                versionNumber: 99,
+                sessionKey: 'testSessionKey',
+            },
+            [],
+        );
+        expect(processedConfig.site.enabledFeatures).toEqual(['testFeature', 'internalFeature']);
+        expect(processedConfig.featureSettings).toEqual({ testFeature: {}, internalFeature: { baz: 'qux' } });
+    });
+
+    describe('utils.isStateEnabled', () => {
+        it('returns true for "enabled" state regardless of platform flags', () => {
+            expect(isStateEnabled('enabled', undefined)).toBeTrue();
+            expect(isStateEnabled('enabled', { name: 'android' })).toBeTrue();
+            expect(isStateEnabled('enabled', { name: 'android', internal: true })).toBeTrue();
+            expect(isStateEnabled('enabled', { name: 'android', preview: true })).toBeTrue();
+        });
+
+        it('returns false for "disabled" state regardless of platform flags', () => {
+            expect(isStateEnabled('disabled', undefined)).toBeFalse();
+            expect(isStateEnabled('disabled', { name: 'android' })).toBeFalse();
+            expect(isStateEnabled('disabled', { name: 'android', internal: true })).toBeFalse();
+            expect(isStateEnabled('disabled', { name: 'android', preview: true })).toBeFalse();
+        });
+
+        it('returns true for "internal" state only when platform.internal is true', () => {
+            expect(isStateEnabled('internal', undefined)).toBeFalse();
+            expect(isStateEnabled('internal', { name: 'android' })).toBeFalse();
+            expect(isStateEnabled('internal', { name: 'android', internal: false })).toBeFalse();
+            expect(isStateEnabled('internal', { name: 'android', internal: true })).toBeTrue();
+        });
+
+        it('returns true for "preview" state only when platform.preview is true', () => {
+            expect(isStateEnabled('preview', undefined)).toBeFalse();
+            expect(isStateEnabled('preview', { name: 'android' })).toBeFalse();
+            expect(isStateEnabled('preview', { name: 'android', preview: false })).toBeFalse();
+            expect(isStateEnabled('preview', { name: 'android', preview: true })).toBeTrue();
+        });
+
+        it('returns false for unknown state values', () => {
+            expect(isStateEnabled('unknown', { name: 'android' })).toBeFalse();
+            expect(isStateEnabled(undefined, { name: 'android' })).toBeFalse();
+            expect(isStateEnabled('', { name: 'android' })).toBeFalse();
+        });
     });
 
     describe('utils.satisfiesMinVersion', () => {

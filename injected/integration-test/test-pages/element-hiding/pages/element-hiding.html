@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Element Hiding Tests</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style type="text/css">
+        .container {
+            width: 400px;
+            height: 200px;
+            display: block;
+            background-color: rgb(249, 251, 251);
+            color: rgb(88, 104, 113);
+            font-size: 16px;
+            line-height: 28px;
+            padding: 20px;
+            margin: 25px;
+        }
+    </style>
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Element Hiding]</a></p>
+
+    <p>This page verifies that element hiding works correctly</p>
+
+    <!-- Results will be inserted here -->
+    <div id="results-container"></div>
+
+    <!-- Hide rule test elements -->
+    <div id="hide">
+        <div class="container hide-test" id="hide-basic">
+            This element should be hidden.
+        </div>
+        <div class="container hide-test frame-container" id="hide-frame-contents">
+        </div>
+        <div class="container hide-test frame-container-delayed" id="hide-delayed-frame">
+        </div>
+    </div>
+
+    <!-- Hide-empty rule test elements -->
+    <div id="hide-empty">
+        <div class="container hide-empty-test" id="hide-empty-no-content">
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-ad-label">
+            <span>Advertisement</span>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-text-content">
+            This element should not be hidden.
+        </div>
+        <div class="container hide-empty-test frame-container" id="hide-empty-frame-content">
+        </div>
+        <div class="container hide-empty-test frame-container-delayed" id="hide-empty-delayed-frame">
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-frame-changed">
+            <iframe scrolling="no" width="400" height="200" src="about:blank" id="hide-empty-about-blank-frame" style="border: none; overflow: hidden; display: block;">
+            </iframe>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-img-element">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width='25' height='25'/>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-svg-element">
+            <svg>
+                <circle cx="50" cy="50" r="40" stroke="orange" stroke-width="5" fill="blue"></circle>
+            </svg>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-pixel-element">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width='1' height='1'/>
+        </div>
+        <input class="hide-empty-test" id="hide-empty-input">
+        <div class="container hide-empty-test" id="hide-empty-form-element">
+            <form>
+                <input>
+            </form>
+        </div>
+        <div class="container hide-empty-test" id="hide-empty-media-element">
+            <canvas id="demo-canvas">
+            </canvas>
+        </div>
+    </div>
+
+    <!-- Closest-empty rule test elements -->
+    <div id="closest-empty">
+        <div class="container closest-empty-test" id="closest-empty-single-div">
+        </div>
+        <div id="closest-empty-single-nested-div">
+            <div class="container closest-empty-test">
+            </div>
+        </div>
+        <div id="closest-empty-siblings-nested-div">
+            <div class="container closest-empty-test">
+            </div>
+            <div>
+                <span>Advertisement</span>
+            </div>
+        </div>
+        <div id="closest-empty-siblings-content-nested-div">
+            <div class="container closest-empty-test">
+            </div>
+            <div class="container">
+                <span>Lorem Ipsum</span>
+            </div>
+        </div>
+        <div id="closest-empty-frame-content">
+            <div class="container closest-empty-test frame-container">
+            </div>
+        </div>
+        <div id="closest-empty-delayed-frame">
+            <div class="container closest-empty-test frame-container-delayed">
+            </div>
+        </div>
+        <div id="closest-empty-img-element">
+            <div class="container closest-empty-test">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==" width='25' height='25'/>
+            </div>
+        </div>
+        <div id="closest-empty-delayed-parent">
+        </div>
+    </div>
+
+    <!-- Override rule test elements -->
+    <div id="override">
+        <div class="container ad-container" id="override-basic">
+            This element should not be hidden.
+        </div>
+    </div>
+
+    <script>
+        // Helper function to check if an element is hidden
+        function isElementHidden(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return null;
+            const boundingRect = element.getBoundingClientRect();
+            return boundingRect.height === 0 && boundingRect.width === 0;
+        }
+
+        // Create an iframe element
+        function createFrame() {
+            const iframe = document.createElement('iframe');
+            iframe.frameBorder = 0;
+            iframe.scrolling = 'no';
+            iframe.width = '400';
+            iframe.height = '200';
+            iframe.style.setProperty('border', 'none');
+            iframe.style.setProperty('overflow', 'hidden');
+            iframe.style.setProperty('display', 'block');
+            // Use a local frame instead of third-party domain
+            iframe.src = './frame.html';
+            return iframe;
+        }
+
+        // Load iframes into frame containers immediately
+        function loadFrames() {
+            const iframeContainers = [...document.querySelectorAll('.frame-container')];
+            iframeContainers.forEach((container) => {
+                const iframe = createFrame();
+                container.appendChild(iframe);
+            });
+        }
+
+        // Inject delayed content (iframes and elements) after 600ms
+        function injectDelayedContent() {
+            setTimeout(() => {
+                // inject iframes into delayed containers
+                const delayedFrameContainers = [...document.querySelectorAll('.frame-container-delayed')];
+                delayedFrameContainers.forEach((container) => {
+                    const iframe = createFrame();
+                    container.appendChild(iframe);
+                });
+
+                // inject delayed elements
+                const delayedSelectors = [
+                    { id: 'hide-delayed', class: 'hide-test', parent: 'hide' },
+                    { id: 'hide-empty-delayed', class: 'hide-empty-test', parent: 'hide-empty' },
+                    { id: 'closest-empty-delayed', class: 'closest-empty-test', parent: 'closest-empty-delayed-parent' }
+                ];
+                delayedSelectors.forEach((element) => {
+                    const parentElement = document.getElementById(element.parent);
+                    const div = document.createElement('div');
+                    div.setAttribute('class', element.class + ' container');
+                    div.setAttribute('id', element.id);
+                    parentElement.appendChild(div);
+                });
+
+                // change src of about:blank iframe
+                const frame = document.getElementById('hide-empty-about-blank-frame');
+                if (frame) {
+                    frame.src = './frame.html';
+                }
+            }, 600);
+        }
+
+        // Initialize canvas for media element test
+        const canvas = document.getElementById('demo-canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(0, 0, 80, 80);
+        }
+
+        // Load frames immediately
+        loadFrames();
+        
+        // Inject delayed content
+        injectDelayedContent();
+
+        // Wait for element hiding to complete before running tests
+        test('Hide rule tests', async () => {
+            // Wait for the element hiding feature to process all timeouts (max 3000ms) plus delayed content (600ms)
+            await new Promise(resolve => setTimeout(resolve, 4000));
+            
+            return [
+                {
+                    name: "Element containing text is hidden",
+                    result: isElementHidden('hide-basic'),
+                    expected: true
+                },
+                {
+                    name: "Element containing iframe is hidden",
+                    result: isElementHidden('hide-frame-contents'),
+                    expected: true
+                },
+                {
+                    name: "Element that loads 3p frame after delay is hidden",
+                    result: isElementHidden('hide-delayed-frame'),
+                    expected: true
+                },
+                {
+                    name: "Element added to page after delay is hidden",
+                    result: isElementHidden('hide-delayed'),
+                    expected: true
+                }
+            ];
+        });
+
+        test('Hide-empty rule tests - should be hidden', async () => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            return [
+                {
+                    name: "Element containing no content is hidden",
+                    result: isElementHidden('hide-empty-no-content'),
+                    expected: true
+                },
+                {
+                    name: "Element containing ad label is hidden",
+                    result: isElementHidden('hide-empty-ad-label'),
+                    expected: true
+                },
+                {
+                    name: "Element with tracking pixel is hidden",
+                    result: isElementHidden('hide-empty-pixel-element'),
+                    expected: true
+                },
+                {
+                    name: "Empty element added to page after delay is hidden",
+                    result: isElementHidden('hide-empty-delayed'),
+                    expected: true
+                }
+            ];
+        });
+
+        test('Hide-empty rule tests - should NOT be hidden', async () => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            return [
+                {
+                    name: "Element with text content is NOT hidden",
+                    result: isElementHidden('hide-empty-text-content'),
+                    expected: false
+                },
+                {
+                    name: "Element with image content is NOT hidden",
+                    result: isElementHidden('hide-empty-img-element'),
+                    expected: false
+                },
+                {
+                    name: "Element with SVG content is NOT hidden",
+                    result: isElementHidden('hide-empty-svg-element'),
+                    expected: false
+                },
+                {
+                    name: "Input element is NOT hidden",
+                    result: isElementHidden('hide-empty-input'),
+                    expected: false
+                },
+                {
+                    name: "Element with form is NOT hidden",
+                    result: isElementHidden('hide-empty-form-element'),
+                    expected: false
+                },
+                {
+                    name: "Element with canvas is NOT hidden",
+                    result: isElementHidden('hide-empty-media-element'),
+                    expected: false
+                },
+                {
+                    name: "Element containing iframe is NOT hidden",
+                    result: isElementHidden('hide-empty-frame-content'),
+                    expected: false
+                },
+                {
+                    name: "Element that loads 3p frame after delay is NOT hidden",
+                    result: isElementHidden('hide-empty-delayed-frame'),
+                    expected: false
+                },
+                {
+                    name: "about:blank iframe that changes src to load content is NOT hidden",
+                    result: isElementHidden('hide-empty-frame-changed'),
+                    expected: false
+                }
+            ];
+        });
+
+        test('Closest-empty rule tests - should be hidden', async () => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            return [
+                {
+                    name: "Single empty div is hidden",
+                    result: isElementHidden('closest-empty-single-div'),
+                    expected: true
+                },
+                {
+                    name: "Parent of empty nested div is hidden",
+                    result: isElementHidden('closest-empty-single-nested-div'),
+                    expected: true
+                },
+                {
+                    name: "Parent with empty siblings is hidden",
+                    result: isElementHidden('closest-empty-siblings-nested-div'),
+                    expected: true
+                },
+                {
+                    name: "Parent of empty element added after delay is hidden",
+                    result: isElementHidden('closest-empty-delayed-parent'),
+                    expected: true
+                }
+            ];
+        });
+
+        test('Closest-empty rule tests - should NOT be hidden', async () => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            return [
+                {
+                    name: "Parent with non-empty siblings is NOT hidden",
+                    result: isElementHidden('closest-empty-siblings-content-nested-div'),
+                    expected: false
+                },
+                {
+                    name: "Parent with image content is NOT hidden",
+                    result: isElementHidden('closest-empty-img-element'),
+                    expected: false
+                },
+                {
+                    name: "Parent of element containing iframe is NOT hidden",
+                    result: isElementHidden('closest-empty-frame-content'),
+                    expected: false
+                },
+                {
+                    name: "Parent of element that loads 3p frame after delay is NOT hidden",
+                    result: isElementHidden('closest-empty-delayed-frame'),
+                    expected: false
+                }
+            ];
+        });
+
+        test('Override rule tests', async () => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            return [
+                {
+                    name: "Element with override rule is NOT hidden",
+                    result: isElementHidden('override-basic'),
+                    expected: false
+                }
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

@@ -8,7 +8,9 @@ export default defineConfig({
             testMatch: [
                 'duckplayer.spec.js',
                 'duckplayer-screenshots.spec.js',
-                'onboarding.spec.js',
+                'onboarding.v1.spec.js',
+                'onboarding.v2.spec.js',
+                'onboarding.v3.spec.js',
                 'special-error.spec.js',
                 'special-error-screenshots.spec.js',
                 'special-error-theme.spec.js',
@@ -75,7 +77,9 @@ export default defineConfig({
             testMatch: [
                 'duckplayer.spec.js',
                 'duckplayer-screenshots.spec.js',
-                'onboarding.spec.js',
+                'onboarding.v1.spec.js',
+                'onboarding.v2.spec.js',
+                'onboarding.v3.spec.js',
                 'release-notes.spec.js',
                 'special-error.spec.js',
                 'special-error-screenshots.spec.js',

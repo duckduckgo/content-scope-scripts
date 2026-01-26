@@ -573,6 +573,7 @@ export function isUnprotectedDomain(topLevelHostname, featureList) {
  * @property {number} [versionNumber] - Android version number only
  * @property {string} [versionString] - Non Android version string
  * @property {string} sessionKey
+ * @property {string} [messagingContextName] - The context name for messaging (e.g. 'contentScopeScripts')
  */
 
 /**
@@ -714,7 +715,7 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
             output.platform.version = version;
         }
     }
-    const enabledFeatures = computeEnabledFeatures(data, topLevelHostname, preferences.platform?.version, platformSpecificFeatures);
+    const enabledFeatures = computeEnabledFeatures(data, topLevelHostname, preferences.platform, platformSpecificFeatures);
     const isBroken = isUnprotectedDomain(topLevelHostname, data.unprotectedTemporary);
     output.site = Object.assign(site, {
         isBroken,
@@ -726,18 +727,61 @@ export function processConfig(data, userList, preferences, platformSpecificFeatu
     output.featureSettings = parseFeatureSettings(data, enabledFeatures);
     output.bundledConfig = data;
 
+    // Set messaging context name, using messagingContextName from native if provided
+    output.messagingContextName = output.messagingContextName || 'contentScopeScripts';
+
     return output;
 }
 
 /**
- * Retutns a list of enabled features
+ * Extract the properties needed for the load() function from processedConfig.
+ * @param {Record<string, any>} processedConfig
+ * @returns {import('./content-scope-features.js').LoadArgs}
+ */
+export function getLoadArgs(processedConfig) {
+    const { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts } = processedConfig;
+    return { platform, site, bundledConfig, messagingConfig, messageSecret, messagingContextName, currentCohorts };
+}
+
+/**
+ * Valid feature state values
+ * @typedef {'enabled' | 'disabled' | 'internal' | 'preview'} FeatureState
+ */
+
+/**
+ * Checks if a feature state should be considered enabled based on the platform flags.
+ * - 'enabled' is always enabled
+ * - 'disabled' is always disabled
+ * - 'internal' is enabled only when platform.internal is true
+ * - 'preview' is enabled only when platform.preview is true
+ * @param {FeatureState | string | undefined} state
+ * @param {Platform | undefined} platform
+ * @returns {boolean}
+ */
+export function isStateEnabled(state, platform) {
+    switch (state) {
+        case 'enabled':
+            return true;
+        case 'disabled':
+            return false;
+        case 'internal':
+            return platform?.internal === true;
+        case 'preview':
+            return platform?.preview === true;
+        default:
+            return false;
+    }
+}
+
+/**
+ * Returns a list of enabled features
  * @param {RemoteConfig} data
  * @param {string | null} topLevelHostname
- * @param {Platform['version']} platformVersion
+ * @param {Platform | undefined} platform
  * @param {string[]} platformSpecificFeatures
  * @returns {string[]}
  */
-export function computeEnabledFeatures(data, topLevelHostname, platformVersion, platformSpecificFeatures = []) {
+export function computeEnabledFeatures(data, topLevelHostname, platform, platformSpecificFeatures = []) {
     const remoteFeatureNames = Object.keys(data.features);
     const platformSpecificFeaturesNotInRemoteConfig = platformSpecificFeatures.filter(
         (featureName) => !remoteFeatureNames.includes(featureName),
@@ -746,12 +790,12 @@ export function computeEnabledFeatures(data, topLevelHostname, platformVersion, 
         .filter((featureName) => {
             const feature = data.features[featureName];
             // Check that the platform supports minSupportedVersion checks and that the feature has a minSupportedVersion
-            if (feature.minSupportedVersion && platformVersion) {
-                if (!isSupportedVersion(feature.minSupportedVersion, platformVersion)) {
+            if (feature.minSupportedVersion && platform?.version) {
+                if (!isSupportedVersion(feature.minSupportedVersion, platform.version)) {
                     return false;
                 }
             }
-            return feature.state === 'enabled' && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
+            return isStateEnabled(feature.state, platform) && !isUnprotectedDomain(topLevelHostname, feature.exceptions);
         })
         .concat(platformSpecificFeaturesNotInRemoteConfig); // only disable platform specific features if it's explicitly disabled in remote config
     return enabledFeatures;

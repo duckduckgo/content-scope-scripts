@@ -1,6 +1,6 @@
 import { createContext, h } from 'preact';
 import { useCallback, useContext, useEffect, useReducer } from 'preact/hooks';
-import { usePlatformName } from './components/SettingsProvider.js';
+import { usePlatformName } from './shared/components/SettingsProvider.js';
 
 /**
  * @typedef {import("./types.js").GlobalState} GlobalState
@@ -111,6 +111,18 @@ export function reducer(state, action) {
                             },
                         };
                     }
+                    // Handle exec-complete for 'info' kind steps (e.g., addressBarMode)
+                    // These steps dispatch system values but don't need row advancement
+                    if (state.step.kind === 'info') {
+                        return {
+                            ...state,
+                            status: { kind: 'idle' },
+                            values: {
+                                ...state.values,
+                                [action.id]: action.payload,
+                            },
+                        };
+                    }
                     throw new Error('unimplemented');
                 }
                 case 'exec-error': {
@@ -132,7 +144,7 @@ export function reducer(state, action) {
  * @param {Object} props - The properties for the NavigationProvider component.
  * @param {import('./types').Step['id'][]} props.order - The order of screens to display
  * @param {import("preact").ComponentChild} props.children - The children components.
- * @param {import('./data').StepDefinitions} props.stepDefinitions -
+ * @param {import('./v1/data/data').StepDefinitions} props.stepDefinitions -
  * @param {import("./messages.js").OnboardingMessages} props.messaging - The messaging object used for communication.
  * @param {import('./types').Step['id']} [props.firstPage]
  */
@@ -158,6 +170,7 @@ export function GlobalProvider({ order, children, stepDefinitions, messaging, fi
             'placebo-ad-blocking': 'idle',
             'aggressive-ad-blocking': 'idle',
             'youtube-ad-blocking': 'idle',
+            'address-bar-mode': 'idle',
         },
     });
 
@@ -249,6 +262,10 @@ async function handleSystemSettingUpdate(action, messaging, platform) {
         case 'aggressive-ad-blocking':
         case 'youtube-ad-blocking': {
             messaging.setAdBlocking(payload);
+            return payload;
+        }
+        case 'address-bar-mode': {
+            messaging.setDuckAiInAddressBar(payload);
             return payload;
         }
         case 'dock': {

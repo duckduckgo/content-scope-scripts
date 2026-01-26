@@ -201,6 +201,7 @@ export class ResultsCollector {
                 messageCallback: 'messageCallback',
                 messageSecret: 'duckduckgo-android-messaging-secret',
                 javascriptInterface: this.messagingContextName,
+                messagingContextName: this.messagingContextName,
                 locale,
                 ...this.#userPreferences,
             },

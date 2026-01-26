@@ -42,7 +42,7 @@ function handleURLChange(navigationType = 'unknown') {
 }
 
 function listenForURLChanges() {
-    const urlChangedInstance = new ContentFeature('urlChanged', {}, {});
+    const urlChangedInstance = new ContentFeature('urlChanged', {}, {}, {});
     // if the browser supports the navigation API, use that to listen for URL changes
     if ('navigation' in globalThis && 'addEventListener' in globalThis.navigation) {
         // We listen to `navigatesuccess` instead of `navigate` to ensure the navigation is committed.

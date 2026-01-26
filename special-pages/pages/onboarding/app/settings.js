@@ -1,5 +1,5 @@
 import { ALT_ORDER, DEFAULT_ORDER, EVERY_PAGE_ID, ORDER_V3 } from './types';
-import { stepDefinitions as defaultStepDefinitions } from './data';
+import { stepDefinitions as defaultStepDefinitions } from './v1/data/data';
 
 /**
  * Settings that affect the Application, such as running order
@@ -12,7 +12,7 @@ export class Settings {
      * @param {'v1'|'v2'|'v3'} [params.orderName] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
-     * @param {import('./data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
+     * @param {import('./v1/data/data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      */
     constructor({
         platform = { name: 'macos' },
@@ -126,7 +126,7 @@ export class Settings {
     }
 
     /**
-     * @param {import('./data.js').StepDefinitions | Record<string, any> | null | undefined} stepDefinitions
+     * @param {import('./v1/data/data.js').StepDefinitions | Record<string, any> | null | undefined} stepDefinitions
      * @return {Settings}
      */
     withStepDefinitions(stepDefinitions) {

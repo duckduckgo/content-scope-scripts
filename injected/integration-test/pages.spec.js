@@ -177,4 +177,13 @@ test.describe('Test integration pages', () => {
             { version: 99 },
         );
     });
+
+    test('Element Hiding', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/element-hiding/pages/element-hiding.html',
+            './integration-test/test-pages/element-hiding/config/element-hiding.json',
+        );
+    });
 });
