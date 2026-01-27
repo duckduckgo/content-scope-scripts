@@ -103,6 +103,7 @@ export async function init(args) {
             if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
                 // Short term fix to disable the feature whilst we roll out Android adsjs
                 if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
+                    featureInstance.markFeatureAsSkipped('additionalCheck disabled');
                     return;
                 }
                 await featureInstance.callInit(args);
@@ -120,6 +121,8 @@ export async function init(args) {
                         }
                     });
                 }
+            } else {
+                featureInstance.markFeatureAsSkipped('feature is broken or disabled on this site');
             }
         }),
     );

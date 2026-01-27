@@ -1493,6 +1493,27 @@ describe('ContentFeature class', () => {
                     expect(result2).toBe('shared result');
                     expect(targetMethod).toHaveBeenCalledTimes(2);
                 });
+
+                it('should return error when target feature was skipped', async () => {
+                    const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
+                    const TargetFeature = createFeatureClass('targetFeature', { exposedMethod: targetMethod }, ['exposedMethod']);
+                    const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                    const targetFeature = new TargetFeature();
+                    const features = { targetFeature };
+                    const callerFeature = new CallerFeature(features);
+
+                    // Mark the feature as skipped (simulating isFeatureBroken returning true)
+                    targetFeature.markFeatureAsSkipped('feature is broken on this site');
+
+                    // callFeatureMethod should return an error, not hang
+                    const result = await callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
+
+                    expect(result).toBeInstanceOf(CallFeatureMethodError);
+                    expect(result.message).toContain("Initialisation of feature 'targetFeature' was skipped");
+                    expect(result.message).toContain('feature is broken on this site');
+                    expect(targetMethod).not.toHaveBeenCalled();
+                });
             });
         });
     });

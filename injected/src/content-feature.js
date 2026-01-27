@@ -54,6 +54,12 @@ export class CallFeatureMethodError extends Error {
     }
 }
 
+/**
+ * Error used to indicate that a feature was skipped during initialization
+ * (e.g., due to being broken or disabled on the current site).
+ */
+class FeatureSkippedError extends Error {}
+
 export default class ContentFeature extends ConfigFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
     /** @type {import('../../messaging').Messaging} */
@@ -259,7 +265,14 @@ export default class ContentFeature extends ConfigFeature {
         if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
         if (!(method instanceof Function))
             return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
-        await feature._ready;
+        try {
+            await feature._ready;
+        } catch (e) {
+            if (e instanceof FeatureSkippedError) {
+                return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${e.message}`);
+            }
+            throw e;
+        }
         return method.call(feature, ...args);
     }
 
@@ -328,6 +341,17 @@ export default class ContentFeature extends ConfigFeature {
             mark.end();
             this.measure();
         }
+    }
+
+    /**
+     * Mark this feature as skipped (not initialized).
+     *
+     * This allows inter-feature communication to fail fast instead of hanging indefinitely.
+     *
+     * @param {string} reason - The reason the feature was skipped
+     */
+    markFeatureAsSkipped(reason) {
+        this.#ready.reject?.(new FeatureSkippedError(reason));
     }
 
     setArgs(args) {
