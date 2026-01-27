@@ -1,24 +1,24 @@
-import styles from './components/App.module.css';
-import { Stack } from './components/Stack';
-import { Header } from './components/Header';
-import { Progress, SingleLineProgress } from './components/Progress';
-import { ListItem } from './components/ListItem';
-import { BounceIn, Check, Launch, Replay } from './components/Icons';
-import { List } from './components/List';
-import { Button, ButtonBar } from './components/Buttons';
-import { ElasticButton } from './components/v3/ElasticButton';
+import styles from './v1/App.module.css';
+import { Stack } from './shared/components/Stack';
+import { Header } from './v1/components/Header';
+import { Progress, SingleLineProgress } from './shared/components/Progress';
+import { ListItem } from './shared/components/ListItem';
+import { BounceIn, Check, Launch, Replay } from './shared/components/Icons';
+import { List } from './shared/components/List';
+import { Button, ButtonBar } from './v1/components/Buttons';
+import { ElasticButton } from './v3/components/ElasticButton';
 import classNames from 'classnames';
 import { h } from 'preact';
-import { Background } from './components/Background';
-import { settingsRowItems } from './data';
-import { Summary } from './pages/Summary';
+import { Background } from './v1/components/Background';
+import { settingsRowItems } from './v1/data/data';
+import { Summary } from './v1/pages/Summary';
 import { Switch } from '../../../shared/components/Switch/Switch.js';
-import { Typed } from './components/Typed';
-import { CleanBrowsing } from './pages/CleanBrowsing';
+import { Typed } from './shared/components/Typed';
+import { CleanBrowsing } from './v1/pages/CleanBrowsing';
 import { useTypedTranslation } from './types';
-import { ComparisonTable } from './components/v3/ComparisonTable';
-import { Heading } from './components/v3/Heading';
-import { Hiker } from './components/v3/Hiker';
+import { ComparisonTable } from './v3/components/ComparisonTable';
+import { Heading } from './v3/components/Heading';
+import { Hiker } from './v3/components/Hiker';
 
 function noop(name) {
     return () => {
