@@ -238,6 +238,9 @@ export default class ContentFeature extends ConfigFeature {
      *
      * `args` are the arguments to pass to the feature method.
      *
+     * NOTE: be aware of potential circular dependencies. Check that the feature
+     * you are calling is not calling you back.
+     *
      * @template {keyof FeatureMap} FeatureName
      * @template {FeatureMap[FeatureName]} Feature
      * @template {keyof Feature & (Feature['_exposedMethods'] extends ExposeMethods<infer K> ? K : never)} MethodName
