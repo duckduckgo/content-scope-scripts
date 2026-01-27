@@ -20,7 +20,7 @@ const checks = {
     },
     'chrome-mv3': {
         file: join(BUILD, 'chrome-mv3/inject.js'),
-        tests: [
+           tests: [
             { kind: 'maxFileSize', value: CSS_OUTPUT_SIZE },
             { kind: 'containsString', text: '$TRACKER_LOOKUP$', includes: true },
             { kind: 'containsString', text: 'Copyright (C) 2010 by Johannes Baagøe <baagoe@baagoe.org>', includes: true },
@@ -65,7 +65,7 @@ describe('checks', () => {
             if (check.kind === 'maxFileSize') {
                 it(`${platformName} bundle size: '${localPath}' is smaller than ${check.value}`, () => {
                     const stats = statSync(platformChecks.file);
-                    expect(stats.size).withContext('Contact a code owner to discuss a bundle size failure').toBeLessThan(check.value);
+                    expect(stats.size).withContext('Contact a code owner to discuss a bundle size test failure').toBeLessThan(check.value);
                 });
             }
             if (check.kind === 'containsString') {
