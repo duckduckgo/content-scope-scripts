@@ -97,29 +97,32 @@ export async function init(args) {
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
     const features = await getFeatures();
-    Object.entries(features).forEach(async ([featureName, featureInstance]) => {
-        if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
-            // Short term fix to disable the feature whilst we roll out Android adsjs
-            if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
-                return;
+    // use allSettled to ensure the main thread isn't blocked if one of the features fails to init
+    await Promise.allSettled(
+        Object.entries(features).map(async ([featureName, featureInstance]) => {
+            if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+                // Short term fix to disable the feature whilst we roll out Android adsjs
+                if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
+                    return;
+                }
+                await featureInstance.callInit(args);
+                // Either listenForUrlChanges or urlChanged ensures the feature listens.
+                const hasUrlChangedMethod = 'urlChanged' in featureInstance && typeof featureInstance.urlChanged === 'function';
+                if (featureInstance.listenForUrlChanges || hasUrlChangedMethod) {
+                    registerForURLChanges((navigationType) => {
+                        // The rationale for the two separate call here is to ensure that
+                        // extensions to the class don't need to call super.urlChanged()
+                        featureInstance.recomputeSiteObject();
+                        // Called if the feature instance has a urlChanged method
+                        if (hasUrlChangedMethod) {
+                            // @ts-expect-error - urlChanged is optional in a way that is hard to uniformly type
+                            featureInstance.urlChanged(navigationType);
+                        }
+                    });
+                }
             }
-            await featureInstance.callInit(args);
-            // Either listenForUrlChanges or urlChanged ensures the feature listens.
-            const hasUrlChangedMethod = 'urlChanged' in featureInstance && typeof featureInstance.urlChanged === 'function';
-            if (featureInstance.listenForUrlChanges || hasUrlChangedMethod) {
-                registerForURLChanges((navigationType) => {
-                    // The rationale for the two separate call here is to ensure that
-                    // extensions to the class don't need to call super.urlChanged()
-                    featureInstance.recomputeSiteObject();
-                    // Called if the feature instance has a urlChanged method
-                    if (hasUrlChangedMethod) {
-                        // @ts-expect-error - urlChanged is optional in a way that is hard to uniformly type
-                        featureInstance.urlChanged(navigationType);
-                    }
-                });
-            }
-        }
-    });
+        }),
+    );
     // Fire off updates that came in faster than the init
     while (updates.length) {
         const update = updates.pop();
