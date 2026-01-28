@@ -26,6 +26,10 @@ export interface FaviconFound {
 export interface FaviconAttrs {
   href: string;
   rel: string;
+  /**
+   * The MIME type from the link element's type attribute (e.g., image/svg+xml)
+   */
+  type?: string;
 }
 
 declare module "../features/favicon.js" {

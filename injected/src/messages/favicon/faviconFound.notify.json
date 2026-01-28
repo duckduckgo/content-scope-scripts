@@ -16,6 +16,10 @@
           },
           "rel": {
             "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "description": "The MIME type from the link element's type attribute (e.g., image/svg+xml)"
           }
         }
       }

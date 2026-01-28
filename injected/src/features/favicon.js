@@ -3,8 +3,6 @@ import { isBeingFramed } from '../utils.js';
 
 export class Favicon extends ContentFeature {
     init() {
-        if (this.platform.name === 'ios') return;
-
         /**
          * This feature never operates in a frame
          */
@@ -98,6 +96,7 @@ export function getFaviconList() {
     return Array.from(elements).map((/** @type {HTMLLinkElement} */ link) => {
         const href = link.href || '';
         const rel = link.getAttribute('rel') || '';
-        return { href, rel };
+        const type = link.getAttribute('type') || '';
+        return { href, rel, type };
     });
 }
