@@ -283,7 +283,8 @@ test.describe('onboarding v3 screenshots', { tag: ['@screenshots'] }, () => {
         });
         await onboarding.reducedMotion();
         await onboarding.openPage({ debugState: false, page: 'duckPlayerSingle' });
-        await expect(page).toHaveScreenshot('v3-5-duckPlayerSingle.png', { maxDiffPixels: maxDiffPixelsAnimated });
+        // Mask the Rive animation canvas to avoid flaky comparisons due to animation frames
+        await expect(page).toHaveScreenshot('v3-5-duckPlayerSingle.png', { maxDiffPixels, mask: [page.locator('canvas')] });
     });
 
     test('v3-6-customize', async ({ page }, workerInfo) => {
