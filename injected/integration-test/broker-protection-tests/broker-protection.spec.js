@@ -379,6 +379,18 @@ test.describe('Broker Protection communications', () => {
             await dbp.doesInputValueEqual('#full-state', 'District Of Columbia');
         });
 
+        test('fillForm with select containing numbers', async ({ page }, workerInfo) => {
+            const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
+            await dbp.enabled();
+            await dbp.navigatesTo('form.html');
+            await dbp.receivesAction('fill-form-numbers.json');
+            const response = await dbp.collector.waitForMessage('actionCompleted');
+            dbp.isSuccessMessage(response);
+            await dbp.doesInputValueEqual('#age', '38');
+            await dbp.doesInputValueEqual('#birthYear', '1992');
+            await dbp.doesInputValueEqual('#birthYearNoValue', '1992');
+        });
+
         test('fillForm with optional information', async ({ page }, workerInfo) => {
             const dbp = BrokerProtectionPage.create(page, workerInfo.project.use);
             await dbp.enabled();

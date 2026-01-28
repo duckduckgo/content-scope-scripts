@@ -199,7 +199,8 @@ function setValueForInput(el, val) {
 
             // Attempt to find the matching value in the select options, ignoring case
             const selectValues = [...selectElement.options].map((o) => o.value);
-            const matchingValue = selectValues.find((option) => option.toLowerCase() === val.toLowerCase());
+            const valStr = String(val);
+            const matchingValue = selectValues.find((option) => option.toLowerCase() === valStr.toLowerCase());
 
             if (matchingValue === undefined) {
                 return { result: false, error: `could not find matching value for select element: ${val}` };
