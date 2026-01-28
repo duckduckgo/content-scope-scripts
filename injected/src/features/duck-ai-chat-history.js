@@ -138,9 +138,10 @@ export class DuckAiChatHistory extends ContentFeature {
                             const results = getAllRequest.result || [];
                             // Chat data is stored directly in the record
                             const allChats = results.map((record) => record.Value || record);
-                            
+                            const chatsWithTitle = allChats.filter((chat) => 'title' in chat);
+
                             db.close();
-                            resolve(allChats);
+                            resolve(chatsWithTitle);
                         };
 
                         getAllRequest.onerror = (err) => {
