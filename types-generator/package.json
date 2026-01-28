@@ -8,7 +8,7 @@
     "json-schema-to-typescript": "^15.0.4"
   },
   "devDependencies": {
-    "jasmine": "^5.13.0",
+    "jasmine": "^6.0.0",
     "@types/jasmine": "^5.1.14"
   }
 }
