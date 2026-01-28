@@ -58,6 +58,7 @@ export const platformSupport = {
         'clickToLoad',
         'messageBridge',
         'favicon',
+        'webInterferenceDetection',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
