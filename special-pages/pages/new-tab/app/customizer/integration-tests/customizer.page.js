@@ -248,6 +248,20 @@ export class CustomizerPage {
     }
 
     /**
+     * @param {boolean} showThemeVariantPopover
+     */
+    async acceptsShowThemeVariantPopoverUpdate(showThemeVariantPopover) {
+        await test.step('subscription event: customizer_onShowThemeVariantPopoverUpdate', async () => {
+            /** @type {{showThemeVariantPopover: boolean}} */
+            const payload = { showThemeVariantPopover };
+            await this.ntp.mocks.simulateSubscriptionMessage(
+                named.subscription('customizer_onShowThemeVariantPopoverUpdate'),
+                payload,
+            );
+        });
+    }
+
+    /**
      * @param {'light' | 'dark'} theme
      */
     async hasContentTheme(theme) {
