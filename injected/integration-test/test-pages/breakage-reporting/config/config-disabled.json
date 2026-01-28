@@ -1,0 +1,15 @@
+{
+  "readme": "Config with feautures disabled to test breakageData is absent when no features add data",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "breakageReporting": {
+      "state": "enabled",
+      "exceptions": []
+    },
+    "webInterferenceDetection": {
+      "state": "disabled",
+      "exceptions": []
+    }
+  }
+}

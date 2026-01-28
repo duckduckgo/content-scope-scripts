@@ -46,6 +46,16 @@ export default class BreakageReporting extends ContentFeature {
                     result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
                 }
             }
+
+            // Build breakageData as URL-encoded JSON for native platforms to pass directly to breakage reports
+            const breakageDataPayload = {};
+            if (result.detectorData) {
+                breakageDataPayload.detectorData = result.detectorData;
+            }
+            if (Object.keys(breakageDataPayload).length > 0) {
+                result.breakageData = encodeURIComponent(JSON.stringify(breakageDataPayload));
+            }
+
             this.messaging.notify('breakageReportResult', result);
         });
     }
