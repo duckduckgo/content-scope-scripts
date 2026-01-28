@@ -89,6 +89,13 @@ export class NewTabPage {
     statsShowLess() {
         this.messaging.notify('stats_showLess');
     }
+
+    /**
+     * Notify native that NTP has completed initial render
+     */
+    ntpDidRender() {
+        this.messaging.notify('ntpDidRender');
+    }
 }
 
 const baseEnvironment = new Environment().withInjectName(import.meta.injectName).withEnv(import.meta.env);
