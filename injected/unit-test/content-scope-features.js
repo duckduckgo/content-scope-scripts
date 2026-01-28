@@ -257,7 +257,7 @@ describe('content-scope-features additionalCheck conditional', () => {
     });
 
     describe('simulated load/init behavior', () => {
-        it('should demonstrate how additionalCheck gates feature loading', () => {
+        it('should demonstrate how additionalCheck gates feature loading', async () => {
             // This test demonstrates the pattern used in content-scope-features.js
             // Lines 60-62: if (!featureInstance.getFeatureSettingEnabled('additionalCheck', 'enabled')) { return; }
 
@@ -276,7 +276,7 @@ describe('content-scope-features additionalCheck conditional', () => {
                     this.loadCalled = true;
                 }
 
-                callInit() {
+                init() {
                     // Simulate the additionalCheck gate in content-scope-features.js init function
                     if (!this.getFeatureSettingEnabled('additionalCheck', 'enabled')) {
                         return; // Early return when disabled
@@ -313,7 +313,7 @@ describe('content-scope-features additionalCheck conditional', () => {
 
             const disabledFeature = new MockFeature('testFeature', {}, disabledArgs);
             disabledFeature.callLoad();
-            disabledFeature.callInit();
+            await disabledFeature.callInit(disabledArgs);
 
             expect(disabledFeature.loadCalled).toBe(false); // Should not load
             expect(disabledFeature.initCalled).toBe(false); // Should not init
@@ -346,7 +346,7 @@ describe('content-scope-features additionalCheck conditional', () => {
 
             const enabledFeature = new MockFeature('testFeature', {}, enabledArgs);
             enabledFeature.callLoad();
-            enabledFeature.callInit();
+            await enabledFeature.callInit(enabledArgs);
 
             expect(enabledFeature.loadCalled).toBe(true); // Should load
             expect(enabledFeature.initCalled).toBe(true); // Should init
