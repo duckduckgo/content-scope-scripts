@@ -180,6 +180,7 @@ export interface NewTabMessages {
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
     | StatsGetDataRequest
+    | WeatherGetDataRequest
     | WinBackOfferGetDataRequest;
   subscriptions:
     | ActivityOnBurnCompleteSubscription
@@ -204,6 +205,7 @@ export interface NewTabMessages {
     | StatsOnDataUpdateSubscription
     | TabsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
+    | WeatherOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription
     | WinBackOfferOnDataUpdateSubscription;
 }
@@ -1081,6 +1083,42 @@ export interface TrackerCompany {
   count: number;
 }
 /**
+ * Generated from @see "../messages/weather_getData.request.json"
+ */
+export interface WeatherGetDataRequest {
+  method: "weather_getData";
+  result: WeatherData;
+}
+/**
+ * Weather data for the weather widget
+ */
+export interface WeatherData {
+  /**
+   * Current temperature in user's preferred unit
+   */
+  temperature: number;
+  /**
+   * Feels-like temperature
+   */
+  apparentTemperature?: number;
+  /**
+   * Weather condition code (e.g., sunny, cloudy, rainy)
+   */
+  conditionCode: string;
+  /**
+   * Location name
+   */
+  location: string;
+  /**
+   * Humidity percentage
+   */
+  humidity?: number;
+  /**
+   * Wind speed
+   */
+  windSpeed?: number;
+}
+/**
  * Generated from @see "../messages/winBackOffer_getData.request.json"
  */
 export interface WinBackOfferGetDataRequest {
@@ -1272,6 +1310,13 @@ export interface TabsOnDataUpdateSubscription {
 export interface UpdateNotificationOnDataUpdateSubscription {
   subscriptionEvent: "updateNotification_onDataUpdate";
   params: UpdateNotificationData;
+}
+/**
+ * Generated from @see "../messages/weather_onDataUpdate.subscribe.json"
+ */
+export interface WeatherOnDataUpdateSubscription {
+  subscriptionEvent: "weather_onDataUpdate";
+  params: WeatherData;
 }
 /**
  * Generated from @see "../messages/widgets_onConfigUpdated.subscribe.json"

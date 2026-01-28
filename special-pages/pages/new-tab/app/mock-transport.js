@@ -12,6 +12,7 @@ import { activityMockTransport } from './activity/mocks/activity.mock-transport.
 import { protectionsMockTransport } from './protections/mocks/protections.mock-transport.js';
 import { omnibarMockTransport } from './omnibar/mocks/omnibar.mock-transport.js';
 import { tabsMockTransport } from './tabs/tabs.mock-transport.js';
+import { weatherMockTransport } from './weather/mocks/weather.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -123,6 +124,7 @@ export function mockTransport() {
         protections: protectionsMockTransport(),
         omnibar: omnibarMockTransport(),
         tabs: tabsMockTransport(),
+        weather: weatherMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -595,6 +597,12 @@ export function initialSetup(url) {
     if (url.searchParams.has('next-steps')) {
         const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
         widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'nextSteps' });
+    }
+
+    // Add weather widget if not explicitly disabled
+    if (url.searchParams.has('weather') || url.searchParams.get('weather') !== 'false') {
+        widgetsFromStorage.push({ id: 'weather' });
+        widgetConfigFromStorage.push({ id: 'weather', visibility: 'visible' });
     }
 
     initial.customizer = customizerData();
