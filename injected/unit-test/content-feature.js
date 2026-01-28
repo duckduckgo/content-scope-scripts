@@ -1285,28 +1285,33 @@ describe('ContentFeature class', () => {
             /**
              * @param {Record<string, Function>} methods
              * @param {string[]} exposedMethods
+             * @param {{ initFeature?: boolean }} [options]
              */
-            const buildCallerFeature = (methods, exposedMethods) => {
+            const buildCallerFeature = async (methods, exposedMethods, options = {}) => {
+                const { initFeature = true } = options;
                 const TargetFeature = createFeatureClass('targetFeature', methods, exposedMethods);
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
 
                 const targetFeature = new TargetFeature();
+                if (initFeature) {
+                    await targetFeature.callInit({});
+                }
                 const features = { targetFeature };
 
-                return new CallerFeature(features);
+                return { callerFeature: new CallerFeature(features), targetFeature };
             };
 
-            it('should return an error when the target feature does not exist', () => {
+            it('should return an error when the target feature does not exist', async () => {
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
                 const callerFeature = new CallerFeature();
 
-                const result = callerFeature.callFeatureMethod('nonExistentFeature', 'someMethod');
+                const result = await callerFeature.callFeatureMethod('nonExistentFeature', 'someMethod');
                 expect(result).toBeInstanceOf(CallFeatureMethodError);
                 expect(result.message).toBe("Feature not found: 'nonExistentFeature'");
             });
 
-            it('should return an error when the method is not in the exposed methods list', () => {
-                const callerFeature = buildCallerFeature(
+            it('should return an error when the method is not in the exposed methods list', async () => {
+                const { callerFeature } = await buildCallerFeature(
                     {
                         exposedMethod: () => {},
                         privateMethod: () => {},
@@ -1314,16 +1319,16 @@ describe('ContentFeature class', () => {
                     ['exposedMethod'],
                 );
 
-                const result = callerFeature.callFeatureMethod('targetFeature', 'privateMethod');
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'privateMethod');
                 expect(result).toBeInstanceOf(CallFeatureMethodError);
                 expect(result.message).toBe("'privateMethod' is not exposed by feature 'targetFeature'");
             });
 
-            it('should successfully call an exposed method on another feature', () => {
+            it('should successfully call an exposed method on another feature', async () => {
                 const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
-                const callerFeature = buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod']);
+                const { callerFeature } = await buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod']);
 
-                const result = callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
 
                 expect(targetMethod).toHaveBeenCalled();
                 expect(result).toBe('success');
@@ -1331,49 +1336,50 @@ describe('ContentFeature class', () => {
 
             it('should handle async methods correctly', async () => {
                 const asyncMethod = jasmine.createSpy('asyncMethod').and.returnValue(Promise.resolve('async result'));
-                const callerFeature = buildCallerFeature({ asyncMethod }, ['asyncMethod']);
+                const { callerFeature } = await buildCallerFeature({ asyncMethod }, ['asyncMethod']);
 
-                const result = callerFeature.callFeatureMethod('targetFeature', 'asyncMethod');
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'asyncMethod');
 
-                expect(result).toBeInstanceOf(Promise);
-                expect(await result).toBe('async result');
+                expect(result).toBe('async result');
             });
 
-            it('should pass arguments to the target method', () => {
+            it('should pass arguments to the target method', async () => {
                 const targetMethod = jasmine.createSpy('targetMethod').and.callFake((a, b, c) => a + b + c);
-                const callerFeature = buildCallerFeature({ sum: targetMethod }, ['sum']);
+                const { callerFeature } = await buildCallerFeature({ sum: targetMethod }, ['sum']);
 
-                const result = callerFeature.callFeatureMethod('targetFeature', 'sum', 1, 2, 3);
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'sum', 1, 2, 3);
 
                 expect(targetMethod).toHaveBeenCalledWith(1, 2, 3);
                 expect(result).toBe(6);
             });
 
-            it('should return the value from the target method', () => {
-                const callerFeature = buildCallerFeature({ getValue: () => ({ data: 'test' }) }, ['getValue']);
+            it('should return the value from the target method', async () => {
+                const { callerFeature } = await buildCallerFeature({ getValue: () => ({ data: 'test' }) }, ['getValue']);
 
-                const result = callerFeature.callFeatureMethod('targetFeature', 'getValue');
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'getValue');
 
                 expect(result).toEqual({ data: 'test' });
             });
 
-            it('should allow multiple features to communicate', () => {
+            it('should allow multiple features to communicate', async () => {
                 const FeatureA = createFeatureClass('featureA', { getData: () => 'data from A' }, ['getData']);
                 const FeatureB = createFeatureClass('featureB', { process: (input) => `processed: ${input}` }, ['process']);
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
 
                 const featureA = new FeatureA();
+                featureA.callInit({});
                 const featureB = new FeatureB();
+                featureB.callInit({});
                 const features = { featureA, featureB };
                 const callerFeature = new CallerFeature(features);
 
-                const dataFromA = callerFeature.callFeatureMethod('featureA', 'getData');
-                const processedByB = callerFeature.callFeatureMethod('featureB', 'process', dataFromA);
+                const dataFromA = await callerFeature.callFeatureMethod('featureA', 'getData');
+                const processedByB = await callerFeature.callFeatureMethod('featureB', 'process', dataFromA);
 
                 expect(processedByB).toBe('processed: data from A');
             });
 
-            it('should maintain correct this context when calling target method', () => {
+            it('should maintain correct this context when calling target method', async () => {
                 class TargetFeature extends ContentFeature {
                     constructor() {
                         super('targetFeature', {}, {}, {});
@@ -1387,12 +1393,127 @@ describe('ContentFeature class', () => {
                 const CallerFeature = createFeatureClass('callerFeature', {}, []);
 
                 const targetFeature = new TargetFeature();
+                targetFeature.callInit({});
                 const features = { targetFeature };
                 const callerFeature = new CallerFeature(features);
 
-                const result = callerFeature.callFeatureMethod('targetFeature', 'getFeatureName');
+                const result = await callerFeature.callFeatureMethod('targetFeature', 'getFeatureName');
 
                 expect(result).toBe('targetFeature');
+            });
+
+            describe('waiting for feature ready', () => {
+                it('should wait for target feature to be initialized before calling method', async () => {
+                    const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
+                    const { callerFeature, targetFeature } = await buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod'], {
+                        initFeature: false,
+                    });
+
+                    // Start the call before the feature is initialized
+                    const resultPromise = callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
+
+                    // Method should not be called yet
+                    expect(targetMethod).not.toHaveBeenCalled();
+
+                    // Initialize the feature
+                    targetFeature.callInit({});
+
+                    // Now await the result
+                    const result = await resultPromise;
+
+                    expect(targetMethod).toHaveBeenCalled();
+                    expect(result).toBe('success');
+                });
+
+                it('should resolve immediately if target feature is already initialized', async () => {
+                    const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
+                    const { callerFeature } = await buildCallerFeature({ exposedMethod: targetMethod }, ['exposedMethod'], {
+                        initFeature: true,
+                    });
+
+                    const result = await callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
+
+                    expect(targetMethod).toHaveBeenCalled();
+                    expect(result).toBe('success');
+                });
+
+                it('should reject if target feature init throws an error', async () => {
+                    class FailingFeature extends ContentFeature {
+                        constructor() {
+                            super('failingFeature', {}, {}, {});
+                            this._exposedMethods = this._declareExposedMethods(['someMethod']);
+                        }
+                        init() {
+                            throw new Error('init failed');
+                        }
+                        someMethod() {
+                            return 'should not reach';
+                        }
+                    }
+                    const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                    const failingFeature = new FailingFeature();
+                    const features = { failingFeature };
+                    const callerFeature = new CallerFeature(features);
+
+                    // Start the call before init
+                    const resultPromise = callerFeature.callFeatureMethod('failingFeature', 'someMethod');
+
+                    // Try to initialize (this will throw)
+                    await expectAsync(failingFeature.callInit({})).toBeRejectedWithError('init failed');
+
+                    // The callFeatureMethod should reject with the same error
+                    await expectAsync(resultPromise).toBeRejectedWithError('init failed');
+                });
+
+                it('should handle multiple callers waiting for the same feature', async () => {
+                    const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('shared result');
+                    const TargetFeature = createFeatureClass('targetFeature', { getData: targetMethod }, ['getData']);
+                    const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                    const targetFeature = new TargetFeature();
+                    const features = { targetFeature };
+                    const caller1 = new CallerFeature(features);
+                    const caller2 = new CallerFeature(features);
+
+                    // Both callers start waiting
+                    const promise1 = caller1.callFeatureMethod('targetFeature', 'getData');
+                    const promise2 = caller2.callFeatureMethod('targetFeature', 'getData');
+
+                    // Method shouldn't be called yet
+                    expect(targetMethod).not.toHaveBeenCalled();
+
+                    // Initialize the feature
+                    targetFeature.callInit({});
+
+                    // Both should resolve
+                    const [result1, result2] = await Promise.all([promise1, promise2]);
+
+                    expect(result1).toBe('shared result');
+                    expect(result2).toBe('shared result');
+                    expect(targetMethod).toHaveBeenCalledTimes(2);
+                });
+
+                it('should return error when target feature was skipped', async () => {
+                    const targetMethod = jasmine.createSpy('targetMethod').and.returnValue('success');
+                    const TargetFeature = createFeatureClass('targetFeature', { exposedMethod: targetMethod }, ['exposedMethod']);
+                    const CallerFeature = createFeatureClass('callerFeature', {}, []);
+
+                    const targetFeature = new TargetFeature();
+                    const features = { targetFeature };
+                    const callerFeature = new CallerFeature(features);
+
+                    // Mark the feature as skipped (simulating isFeatureBroken returning true)
+                    targetFeature.markFeatureAsSkipped('feature is broken on this site');
+
+                    // callFeatureMethod should return an error, not hang
+                    const result = await callerFeature.callFeatureMethod('targetFeature', 'exposedMethod');
+
+                    expect(result).toBeInstanceOf(CallFeatureMethodError);
+                    expect(result.message).toContain("Initialisation of feature 'targetFeature' was skipped");
+                    expect(result.message).toContain('feature is broken on this site');
+                    expect(targetMethod).not.toHaveBeenCalled();
+                });
             });
         });
     });
