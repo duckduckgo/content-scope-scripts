@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "News Data",
+  "description": "News data for the news widget",
+  "type": "object",
+  "required": [
+    "results"
+  ],
+  "properties": {
+    "results": {
+      "description": "Array of news items",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/NewsItem"
+      }
+    }
+  },
+  "$defs": {
+    "NewsItem": {
+      "type": "object",
+      "required": [
+        "title",
+        "url",
+        "source"
+      ],
+      "properties": {
+        "title": {
+          "description": "Article headline",
+          "type": "string"
+        },
+        "url": {
+          "description": "Article URL",
+          "type": "string"
+        },
+        "source": {
+          "description": "News source name",
+          "type": "string"
+        },
+        "relative_time": {
+          "description": "Human-readable relative time (e.g., '2 hours ago')",
+          "type": "string"
+        },
+        "excerpt": {
+          "description": "Article excerpt or summary",
+          "type": "string"
+        },
+        "image": {
+          "description": "Image URL for the article",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

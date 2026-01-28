@@ -13,6 +13,7 @@ import { protectionsMockTransport } from './protections/mocks/protections.mock-t
 import { omnibarMockTransport } from './omnibar/mocks/omnibar.mock-transport.js';
 import { tabsMockTransport } from './tabs/tabs.mock-transport.js';
 import { weatherMockTransport } from './weather/mocks/weather.mock-transport.js';
+import { newsMockTransport } from './news/mocks/news.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -125,6 +126,7 @@ export function mockTransport() {
         omnibar: omnibarMockTransport(),
         tabs: tabsMockTransport(),
         weather: weatherMockTransport(),
+        news: newsMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -603,6 +605,12 @@ export function initialSetup(url) {
     if (url.searchParams.has('weather') || url.searchParams.get('weather') !== 'false') {
         widgetsFromStorage.push({ id: 'weather' });
         widgetConfigFromStorage.push({ id: 'weather', visibility: 'visible' });
+    }
+
+    // Add news widget if present in URL params
+    if (url.searchParams.has('news')) {
+        widgetsFromStorage.push({ id: 'news' });
+        widgetConfigFromStorage.push({ id: 'news', visibility: 'visible' });
     }
 
     initial.customizer = customizerData();

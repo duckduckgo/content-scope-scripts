@@ -172,6 +172,7 @@ export interface NewTabMessages {
     | FavoritesGetDataRequest
     | FreemiumPIRBannerGetDataRequest
     | InitialSetupRequest
+    | NewsGetDataRequest
     | NextStepsGetConfigRequest
     | NextStepsGetDataRequest
     | OmnibarGetConfigRequest
@@ -195,6 +196,7 @@ export interface NewTabMessages {
     | FavoritesOnDataUpdateSubscription
     | FavoritesOnRefreshSubscription
     | FreemiumPIRBannerOnDataUpdateSubscription
+    | NewsOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
     | OmnibarOnConfigUpdateSubscription
@@ -957,6 +959,48 @@ export interface Tabs {
   tabIds: string[];
 }
 /**
+ * Generated from @see "../messages/news_getData.request.json"
+ */
+export interface NewsGetDataRequest {
+  method: "news_getData";
+  result: NewsData;
+}
+/**
+ * News data for the news widget
+ */
+export interface NewsData {
+  /**
+   * Array of news items
+   */
+  results: NewsItem[];
+}
+export interface NewsItem {
+  /**
+   * Article headline
+   */
+  title: string;
+  /**
+   * Article URL
+   */
+  url: string;
+  /**
+   * News source name
+   */
+  source: string;
+  /**
+   * Human-readable relative time (e.g., '2 hours ago')
+   */
+  relative_time?: string;
+  /**
+   * Article excerpt or summary
+   */
+  excerpt?: string;
+  /**
+   * Image URL for the article
+   */
+  image?: string;
+}
+/**
  * Generated from @see "../messages/nextSteps_getConfig.request.json"
  */
 export interface NextStepsGetConfigRequest {
@@ -1241,6 +1285,13 @@ export interface FavoritesRefresh {
 export interface FreemiumPIRBannerOnDataUpdateSubscription {
   subscriptionEvent: "freemiumPIRBanner_onDataUpdate";
   params: FreemiumPIRBannerData;
+}
+/**
+ * Generated from @see "../messages/news_onDataUpdate.subscribe.json"
+ */
+export interface NewsOnDataUpdateSubscription {
+  subscriptionEvent: "news_onDataUpdate";
+  params: NewsData;
 }
 /**
  * Generated from @see "../messages/nextSteps_onConfigUpdate.subscribe.json"
