@@ -1,4 +1,4 @@
-import { useContext } from 'preact/hooks';
+import { useContext, useEffect, useRef } from 'preact/hooks';
 import { ProtectionsContext, useBlockedCount, useCookiePopUpsBlockedCount } from './ProtectionsProvider.js';
 import { h } from 'preact';
 import { Protections } from './Protections.js';
@@ -7,6 +7,7 @@ import { ActivityConsumer } from '../../activity/components/Activity.js';
 import { PrivacyStatsProvider } from '../../privacy-stats/components/PrivacyStatsProvider.js';
 import { BodyExpanderProvider } from '../../privacy-stats/components/BodyExpansionProvider.js';
 import { PrivacyStatsConsumer } from '../../privacy-stats/components/PrivacyStatsConsumer.js';
+import { useMessaging } from '../../types.js';
 
 /**
  * @import {ProtectionsData, ProtectionsConfig} from '../../../types/new-tab.js';
@@ -26,6 +27,19 @@ import { PrivacyStatsConsumer } from '../../privacy-stats/components/PrivacyStat
  */
 export function ProtectionsConsumer() {
     const { state } = useContext(ProtectionsContext);
+    const messaging = useMessaging();
+    const didNotifyRef = useRef(false);
+
+    // Notify native when protections widget is ready
+    useEffect(() => {
+        if (state.status === 'ready' && !didNotifyRef.current) {
+            didNotifyRef.current = true;
+            requestAnimationFrame(() => {
+                messaging.widgetDidRender({ id: 'protections' });
+            });
+        }
+    }, [state.status, messaging]);
+
     if (state.status === 'ready') {
         return <ProtectionsReadyState data={state.data} config={state.config} />;
     }

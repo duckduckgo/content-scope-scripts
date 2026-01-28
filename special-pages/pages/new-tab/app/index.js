@@ -148,9 +148,6 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
         </EnvironmentProvider>,
         root,
     );
-
-    // Notify native that NTP has completed initial render
-    messaging.ntpDidRender();
 }
 
 /**

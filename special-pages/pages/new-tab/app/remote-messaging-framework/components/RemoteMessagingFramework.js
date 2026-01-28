@@ -1,11 +1,12 @@
 import { h, Fragment } from 'preact';
 import cn from 'classnames';
 import styles from './RemoteMessagingFramework.module.css';
-import { useContext } from 'preact/hooks';
+import { useContext, useEffect, useRef } from 'preact/hooks';
 import { RMFContext } from '../RMFProvider.js';
 import { DismissButton } from '../../components/DismissButton';
 import { Button } from '../../../../../shared/components/Button/Button';
 import { usePlatformName } from '../../settings.provider';
+import { useMessaging } from '../../types.js';
 
 /**
  * @import { RMFMessage } from "../../../types/new-tab"
@@ -76,6 +77,18 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
 
 export function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = useContext(RMFContext);
+    const messaging = useMessaging();
+    const didNotifyRef = useRef(false);
+
+    // Notify native when rmf widget is ready
+    useEffect(() => {
+        if (state.status === 'ready' && !didNotifyRef.current) {
+            didNotifyRef.current = true;
+            requestAnimationFrame(() => {
+                messaging.widgetDidRender({ id: 'rmf' });
+            });
+        }
+    }, [state.status, messaging]);
 
     // `state.data.content` can be empty - meaning there's no message to display!
     if (state.status === 'ready' && state.data.content) {

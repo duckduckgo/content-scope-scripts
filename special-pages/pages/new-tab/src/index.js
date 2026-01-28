@@ -91,10 +91,11 @@ export class NewTabPage {
     }
 
     /**
-     * Notify native that NTP has completed initial render
+     * Notify native that a widget has completed initial render
+     * @param {{id: string}} params
      */
-    ntpDidRender() {
-        this.messaging.notify('ntpDidRender');
+    widgetDidRender(params) {
+        this.messaging.notify('widgetDidRender', params);
     }
 }
 
