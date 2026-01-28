@@ -14,6 +14,7 @@ import { omnibarMockTransport } from './omnibar/mocks/omnibar.mock-transport.js'
 import { tabsMockTransport } from './tabs/tabs.mock-transport.js';
 import { weatherMockTransport } from './weather/mocks/weather.mock-transport.js';
 import { newsMockTransport } from './news/mocks/news.mock-transport.js';
+import { stockMockTransport } from './stock/mocks/stock.mock-transport.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -127,6 +128,7 @@ export function mockTransport() {
         tabs: tabsMockTransport(),
         weather: weatherMockTransport(),
         news: newsMockTransport(),
+        stock: stockMockTransport(),
     };
 
     return new TestTransportConfig({
@@ -611,6 +613,12 @@ export function initialSetup(url) {
     if (url.searchParams.has('news')) {
         widgetsFromStorage.push({ id: 'news' });
         widgetConfigFromStorage.push({ id: 'news', visibility: 'visible' });
+    }
+
+    // Add stock widget if present in URL params
+    if (url.searchParams.has('stock')) {
+        widgetsFromStorage.push({ id: 'stock' });
+        widgetConfigFromStorage.push({ id: 'stock', visibility: 'visible' });
     }
 
     initial.customizer = customizerData();

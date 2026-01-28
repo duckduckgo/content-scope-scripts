@@ -181,6 +181,7 @@ export interface NewTabMessages {
     | ProtectionsGetDataRequest
     | RmfGetDataRequest
     | StatsGetDataRequest
+    | StockGetDataRequest
     | WeatherGetDataRequest
     | WinBackOfferGetDataRequest;
   subscriptions:
@@ -205,6 +206,7 @@ export interface NewTabMessages {
     | ProtectionsScrollSubscription
     | RmfOnDataUpdateSubscription
     | StatsOnDataUpdateSubscription
+    | StockOnDataUpdateSubscription
     | TabsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
     | WeatherOnDataUpdateSubscription
@@ -1127,6 +1129,90 @@ export interface TrackerCompany {
   count: number;
 }
 /**
+ * Generated from @see "../messages/stock_getData.request.json"
+ */
+export interface StockGetDataRequest {
+  method: "stock_getData";
+  result: StockData;
+}
+/**
+ * Stock data for the stock widget
+ */
+export interface StockData {
+  /**
+   * Stock ticker symbol
+   */
+  symbol: string;
+  /**
+   * Company name
+   */
+  companyName: string;
+  /**
+   * Current stock price
+   */
+  latestPrice: number;
+  /**
+   * Price change
+   */
+  change: number;
+  /**
+   * Percent change as decimal
+   */
+  changePercent: number;
+  /**
+   * Currency code
+   */
+  currency: string;
+  /**
+   * Previous closing price
+   */
+  previousClose?: number;
+  /**
+   * Opening price
+   */
+  open?: number;
+  /**
+   * Day high
+   */
+  high?: number;
+  /**
+   * Day low
+   */
+  low?: number;
+  /**
+   * 52-week high
+   */
+  week52High?: number;
+  /**
+   * 52-week low
+   */
+  week52Low?: number;
+  /**
+   * Timestamp of latest update in milliseconds
+   */
+  latestUpdate?: number;
+  /**
+   * Primary exchange code
+   */
+  primaryExchange?: string;
+  /**
+   * Price-to-earnings ratio
+   */
+  peRatio?: number | null;
+  /**
+   * Market capitalization
+   */
+  marketCap?: number | null;
+  /**
+   * Average total volume
+   */
+  avgTotalVolume?: number | null;
+  /**
+   * Asset type (e.g., stock)
+   */
+  assetType?: string;
+}
+/**
  * Generated from @see "../messages/weather_getData.request.json"
  */
 export interface WeatherGetDataRequest {
@@ -1347,6 +1433,13 @@ export interface RmfOnDataUpdateSubscription {
 export interface StatsOnDataUpdateSubscription {
   subscriptionEvent: "stats_onDataUpdate";
   params: PrivacyStatsData;
+}
+/**
+ * Generated from @see "../messages/stock_onDataUpdate.subscribe.json"
+ */
+export interface StockOnDataUpdateSubscription {
+  subscriptionEvent: "stock_onDataUpdate";
+  params: StockData;
 }
 /**
  * Generated from @see "../messages/tabs_onDataUpdate.subscribe.json"

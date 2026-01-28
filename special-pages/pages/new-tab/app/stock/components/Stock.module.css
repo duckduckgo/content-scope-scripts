@@ -1,0 +1,43 @@
+.stock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    background: var(--ntp-surface-background-color, rgba(255, 255, 255, 0.9));
+    border-radius: 12px;
+    min-width: 200px;
+}
+
+.symbol {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ntp-text-normal, #333);
+    margin-bottom: 4px;
+}
+
+.companyName {
+    font-size: 12px;
+    color: var(--ntp-text-muted, #666);
+    margin-bottom: 12px;
+}
+
+.price {
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--ntp-text-normal, #333);
+    line-height: 1;
+}
+
+.change {
+    font-size: 14px;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.positive {
+    color: var(--ntp-color-positive, #22863a);
+}
+
+.negative {
+    color: var(--ntp-color-negative, #cb2431);
+}

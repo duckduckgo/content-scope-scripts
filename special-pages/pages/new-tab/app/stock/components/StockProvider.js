@@ -1,0 +1,173 @@
+import { createContext, h } from 'preact';
+import { useEffect, useReducer, useRef } from 'preact/hooks';
+import { useMessaging } from '../../types.js';
+import { StockService } from '../stock.service.js';
+
+/**
+ * @typedef {import('../../../types/new-tab.js').StockData} StockData
+ */
+
+/**
+ * @typedef {{ kind: 'initial-data'; data: StockData }
+ *         | { kind: 'data'; data: StockData }
+ *         | { kind: 'load-initial'; }
+ *         | { kind: 'error'; error: string }
+ * } StockEvents
+ */
+
+/**
+ * @typedef {{status: 'idle'; data: null}
+ *         | {status: 'pending-initial'; data: null}
+ *         | {status: 'ready'; data: StockData}
+ * } StockState
+ */
+
+/**
+ * @param {StockState} state
+ * @param {StockEvents} event
+ * @returns {StockState}
+ */
+function stockReducer(state, event) {
+    switch (state.status) {
+        case 'idle': {
+            switch (event.kind) {
+                case 'load-initial': {
+                    return { ...state, status: /** @type {const} */ ('pending-initial') };
+                }
+                default:
+                    return state;
+            }
+        }
+        case 'pending-initial': {
+            switch (event.kind) {
+                case 'initial-data': {
+                    return {
+                        ...state,
+                        status: /** @type {const} */ ('ready'),
+                        data: event.data,
+                    };
+                }
+                case 'error': {
+                    console.error('error with initial stock data', event.error);
+                    return state;
+                }
+                default:
+                    return state;
+            }
+        }
+        case 'ready': {
+            switch (event.kind) {
+                case 'data': {
+                    return { ...state, data: event.data };
+                }
+                default:
+                    return state;
+            }
+        }
+        default:
+            return state;
+    }
+}
+
+/**
+ * These are the values exposed to consumers.
+ */
+export const StockContext = createContext({
+    /** @type {StockState} */
+    state: { status: 'idle', data: null },
+});
+
+/**
+ * A data provider that will use `StockService` to fetch initial data
+ *
+ * @param {Object} props
+ * @param {import("preact").ComponentChild} props.children
+ */
+export function StockProvider(props) {
+    const initial = /** @type {StockState} */ ({
+        status: /** @type {const} */ ('idle'),
+        data: null,
+    });
+
+    const [state, dispatch] = useReducer(stockReducer, initial);
+
+    // create an instance of `StockService` for the lifespan of this component.
+    const service = useService();
+
+    // get initial data
+    useInitialStockData({ dispatch, service });
+
+    // subscribe to data updates
+    useStockDataSubscription({ dispatch, service });
+
+    return <StockContext.Provider value={{ state }}>{props.children}</StockContext.Provider>;
+}
+
+/**
+ * @return {import("preact").RefObject<StockService>}
+ */
+export function useService() {
+    const service = useRef(/** @type {StockService|null} */ (null));
+    const ntp = useMessaging();
+    useEffect(() => {
+        const stockService = new StockService(ntp);
+        service.current = stockService;
+        return () => {
+            stockService.destroy();
+        };
+    }, [ntp]);
+    return service;
+}
+
+/**
+ * @param {object} params
+ * @param {import("preact/hooks").Dispatch<StockEvents>} params.dispatch
+ * @param {import("preact").RefObject<StockService>} params.service
+ */
+function useInitialStockData({ dispatch, service }) {
+    const messaging = useMessaging();
+    useEffect(() => {
+        if (!service.current) return console.warn('missing stock service');
+        const currentService = service.current;
+        async function init() {
+            const { data } = await currentService.getInitial();
+            if (data) {
+                dispatch({ kind: 'initial-data', data });
+            } else {
+                dispatch({ kind: 'error', error: 'missing data from getInitial' });
+            }
+        }
+
+        dispatch({ kind: 'load-initial' });
+
+        // eslint-disable-next-line promise/prefer-await-to-then
+        init().catch((e) => {
+            console.error('uncaught error', e);
+            dispatch({ kind: 'error', error: e });
+            messaging.reportPageException({ message: `${currentService.name()}: failed to fetch initial data: ` + e.message });
+        });
+
+        return () => {
+            currentService.destroy();
+        };
+    }, [messaging]);
+}
+
+/**
+ * Subscribe to stock data updates
+ * @param {object} params
+ * @param {import("preact/hooks").Dispatch<StockEvents>} params.dispatch
+ * @param {import("preact").RefObject<StockService>} params.service
+ */
+function useStockDataSubscription({ dispatch, service }) {
+    useEffect(() => {
+        if (!service.current) return console.warn('could not access stock service');
+
+        const unsub = service.current.onData((evt) => {
+            dispatch({ kind: 'data', data: evt.data });
+        });
+        return () => {
+            unsub();
+        };
+    }, [service, dispatch]);
+}

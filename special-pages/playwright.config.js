@@ -45,6 +45,7 @@ export default defineConfig({
                 'omnibar.persistence.spec.js',
                 'weather.spec.js',
                 'news.spec.js',
+                'stock.spec.js',
             ],
             use: {
                 ...devices['Desktop Chrome'],

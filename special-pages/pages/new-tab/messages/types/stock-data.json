@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stock Data",
+  "description": "Stock data for the stock widget",
+  "type": "object",
+  "required": [
+    "symbol",
+    "companyName",
+    "latestPrice",
+    "change",
+    "changePercent",
+    "currency"
+  ],
+  "properties": {
+    "symbol": {
+      "description": "Stock ticker symbol",
+      "type": "string"
+    },
+    "companyName": {
+      "description": "Company name",
+      "type": "string"
+    },
+    "latestPrice": {
+      "description": "Current stock price",
+      "type": "number"
+    },
+    "change": {
+      "description": "Price change",
+      "type": "number"
+    },
+    "changePercent": {
+      "description": "Percent change as decimal",
+      "type": "number"
+    },
+    "currency": {
+      "description": "Currency code",
+      "type": "string"
+    },
+    "previousClose": {
+      "description": "Previous closing price",
+      "type": "number"
+    },
+    "open": {
+      "description": "Opening price",
+      "type": "number"
+    },
+    "high": {
+      "description": "Day high",
+      "type": "number"
+    },
+    "low": {
+      "description": "Day low",
+      "type": "number"
+    },
+    "week52High": {
+      "description": "52-week high",
+      "type": "number"
+    },
+    "week52Low": {
+      "description": "52-week low",
+      "type": "number"
+    },
+    "latestUpdate": {
+      "description": "Timestamp of latest update in milliseconds",
+      "type": "number"
+    },
+    "primaryExchange": {
+      "description": "Primary exchange code",
+      "type": "string"
+    },
+    "peRatio": {
+      "description": "Price-to-earnings ratio",
+      "type": ["number", "null"]
+    },
+    "marketCap": {
+      "description": "Market capitalization",
+      "type": ["number", "null"]
+    },
+    "avgTotalVolume": {
+      "description": "Average total volume",
+      "type": ["number", "null"]
+    },
+    "assetType": {
+      "description": "Asset type (e.g., stock)",
+      "type": "string"
+    }
+  }
+}
