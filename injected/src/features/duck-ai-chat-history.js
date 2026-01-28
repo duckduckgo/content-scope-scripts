@@ -17,7 +17,8 @@ export class DuckAiChatHistory extends ContentFeature {
     static DEFAULT_SAVED_CHATS_STORE = 'saved-chats';
 
     /** @type {number} Expected IndexedDB version for migrated data */
-    static INDEXED_DB_VERSION = 2;
+    /** @type {number} Minimum IndexedDB version required for migrated data */
+    static MIN_INDEXED_DB_VERSION = 2;
 
     init() {
         this.messaging.subscribe('getDuckAiChats', (/** @type {{query?: string, max_chats?: number, since?: number}} */ params) =>
@@ -116,8 +117,8 @@ export class DuckAiChatHistory extends ContentFeature {
                         return;
                     }
 
-                    // Only read from IndexedDB if the version matches the expected migration version
-                    if (db.version !== DuckAiChatHistory.INDEXED_DB_VERSION) {
+                    // Only read from IndexedDB if the version is at least the minimum required version
+                    if (db.version < DuckAiChatHistory.MIN_INDEXED_DB_VERSION) {
                         db.close();
                         resolve([]);
                         return;
