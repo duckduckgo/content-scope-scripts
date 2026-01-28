@@ -1,7 +1,6 @@
 import { getElement, generateRandomInt } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js';
-import { states } from '../comparisons/constants.js';
 
 /**
  * @param {Record<string, any>} action
@@ -89,28 +88,6 @@ export function fillMany(root, elements, data) {
                 continue;
             }
             results.push(setValueForInput(inputElem, data.city + ', ' + data.state));
-        } else if (element.type === 'fullState') {
-            if (!Object.prototype.hasOwnProperty.call(data, 'state')) {
-                results.push({
-                    result: false,
-                    error: `element found with selector '${element.selector}', but data didn't contain the key 'state'`,
-                });
-                continue;
-            }
-
-            const state = data.state;
-
-            if (!Object.prototype.hasOwnProperty.call(states, state)) {
-                results.push({
-                    result: false,
-                    error: `element found with selector '${element.selector}', but data contained an invalid 'state' abbreviation`,
-                });
-                continue;
-            }
-
-            const stateFull = states[state];
-
-            results.push(setValueForInput(inputElem, stateFull));
         } else {
             if (isElementTypeOptional(element.type)) {
                 continue;
@@ -194,19 +171,8 @@ function setValueForInput(el, val) {
             events.forEach((ev) => el.dispatchEvent(ev));
             el.blur();
         } else if (el.tagName === 'SELECT') {
-            /** @type {HTMLSelectElement} */
-            const selectElement = /** @type {HTMLSelectElement} */ (el);
-
-            // Attempt to find the matching value in the select options, ignoring case
-            const selectValues = [...selectElement.options].map((o) => o.value);
-            const matchingValue = selectValues.find((option) => option.toLowerCase() === val.toLowerCase());
-
-            if (matchingValue === undefined) {
-                return { result: false, error: `could not find matching value for select element: ${val}` };
-            }
-
             // set the select value
-            originalSet.call(el, matchingValue);
+            originalSet.call(el, val);
             const events = [
                 new Event('mousedown', { bubbles: true }),
                 new Event('mouseup', { bubbles: true }),

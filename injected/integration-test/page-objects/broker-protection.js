@@ -45,21 +45,14 @@ export class BrokerProtectionPage {
     }
 
     /**
-     * @param {object} [options]
      * @return {Promise<void>}
      */
-    async isFormFilled(options) {
+    async isFormFilled() {
         await expect(this.page.getByLabel('First Name:', { exact: true })).toHaveValue('John');
         await expect(this.page.getByLabel('Last Name:', { exact: true })).toHaveValue('Smith');
         await expect(this.page.getByLabel('Phone Number:', { exact: true })).toHaveValue(/^\d{10}$/);
         await expect(this.page.getByLabel('Street Address:', { exact: true })).toHaveValue(/^\d+ [A-Za-z]+(?: [A-Za-z]+)?$/);
-
-        if (options && options.fullState) {
-            await expect(this.page.locator('#full-state')).toHaveValue('Illinois');
-        } else {
-            await expect(this.page.locator('#state')).toHaveValue('IL');
-        }
-
+        await expect(this.page.locator('#state')).toHaveValue('IL');
         await expect(this.page.getByLabel('Zip Code:', { exact: true })).toHaveValue(/^\d{5}$/);
 
         const randomValue = await this.page.getByLabel('Random number between 5 and 15:').inputValue();
@@ -70,24 +63,6 @@ export class BrokerProtectionPage {
         expect(randomValueInt).toBeLessThanOrEqual(15);
 
         await expect(this.page.getByLabel('City & State:', { exact: true })).toHaveValue('Chicago, IL');
-    }
-
-    /**
-     * @param {string} selector - the selector for the input
-     * @return {Promise<string>}
-     */
-    async getFormFieldValue(selector) {
-        return await this.page.locator(selector).inputValue();
-    }
-
-    /**
-     * @param {string} selector - the selector for the input
-     * @param {string} desiredValue - the value we're wanting to match
-     * @return {Promise<void>}
-     */
-    async doesInputValueEqual(selector, desiredValue) {
-        const actualValue = await this.getFormFieldValue(selector);
-        expect(actualValue).toEqual(desiredValue);
     }
 
     /**
