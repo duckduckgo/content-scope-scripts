@@ -1,14 +1,17 @@
 import { test, expect } from '@playwright/test';
 import { ResultsCollector } from './page-objects/results-collector.js';
+import { readFileSync } from 'node:fs';
 
 const HTML = '/breakage-reporting/index.html';
 const CONFIG = './integration-test/test-pages/breakage-reporting/config/config.json';
-const CONFIG_DISABLED = './integration-test/test-pages/breakage-reporting/config/config-disabled.json';
 
 test.describe('Breakage Reporting Feature', () => {
     test('breakageData is undefined when no features add data', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo.project.use);
-        await collector.load(HTML, CONFIG_DISABLED);
+        const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+        // disable webInterferenceDetection feature so it doesn't add data to the breakage report
+        config.features.webInterferenceDetection.state = 'disabled';
+        await collector.load(HTML, config);
 
         const breakageFeature = new BreakageReportingSpec(page);
         await breakageFeature.navigate();
