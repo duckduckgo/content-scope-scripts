@@ -53,7 +53,12 @@ export default class BreakageReporting extends ContentFeature {
                 breakageDataPayload.detectorData = result.detectorData;
             }
             if (Object.keys(breakageDataPayload).length > 0) {
-                result.breakageData = encodeURIComponent(JSON.stringify(breakageDataPayload));
+                try {
+                    result.breakageData = encodeURIComponent(JSON.stringify(breakageDataPayload));
+                } catch (e) {
+                    // Send error indicator so we know encoding failed
+                    result.breakageData = encodeURIComponent(JSON.stringify({ error: 'encoding_failed' }));
+                }
             }
 
             this.messaging.notify('breakageReportResult', result);
