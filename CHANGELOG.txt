@@ -1,0 +1,3 @@
+- Add customizer_onShowThemeVariantPopoverUpdate subscription (#2209)
+- Handle uninitialised features in inter-feature communication (#2207)
+- ContentScopeScripts debugging tips (#2201)

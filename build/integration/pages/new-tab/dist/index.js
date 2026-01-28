@@ -34756,7 +34756,8 @@
           case "customizer_onColorUpdate":
           case "customizer_onThemeUpdate":
           case "customizer_onBackgroundUpdate":
-          case "customizer_onImagesUpdate": {
+          case "customizer_onImagesUpdate":
+          case "customizer_onShowThemeVariantPopoverUpdate": {
             subscriptions.set(sub2, cb);
             return () => {
               console.log("-- did remove sub", sub2);
@@ -35055,8 +35056,7 @@
       );
       this.showThemeVariantPopoverService = new Service(
         {
-          // No subscribe - native doesn't push updates for this
-          // No persist - we use a dedicated notify instead
+          subscribe: (cb) => ntp.messaging.subscribe("customizer_onShowThemeVariantPopoverUpdate", cb)
         },
         { showThemeVariantPopover: initial.showThemeVariantPopover ?? false }
       );
