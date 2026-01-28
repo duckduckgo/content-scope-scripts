@@ -1,7 +1,7 @@
 import { Fragment, h } from 'preact';
-import { useContext } from 'preact/hooks';
+import { useContext, useEffect, useRef } from 'preact/hooks';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
-import { useTypedTranslationWith } from '../../types.js';
+import { useMessaging, useTypedTranslationWith } from '../../types.js';
 import { useVisibility } from '../../widget-list/widget-config.provider.js';
 import { Omnibar } from './Omnibar.js';
 import { OmnibarContext } from './OmnibarProvider.js';
@@ -31,6 +31,19 @@ export function OmnibarConsumer() {
     const { state, setEnableAi } = useContext(OmnibarContext);
     const { current } = useTabState();
     const { visibility } = useVisibility();
+    const messaging = useMessaging();
+    const didNotifyRef = useRef(false);
+
+    // Notify native when omnibar widget is ready
+    useEffect(() => {
+        if (state.status === 'ready' && !didNotifyRef.current) {
+            didNotifyRef.current = true;
+            requestAnimationFrame(() => {
+                messaging.widgetDidRender({ id: 'omnibar' });
+            });
+        }
+    }, [state.status, messaging]);
+
     if (state.status !== 'ready') return null;
 
     const visible = visibility.value === 'visible';
