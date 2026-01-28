@@ -254,10 +254,7 @@ export class CustomizerPage {
         await test.step('subscription event: customizer_onShowThemeVariantPopoverUpdate', async () => {
             /** @type {{showThemeVariantPopover: boolean}} */
             const payload = { showThemeVariantPopover };
-            await this.ntp.mocks.simulateSubscriptionMessage(
-                named.subscription('customizer_onShowThemeVariantPopoverUpdate'),
-                payload,
-            );
+            await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onShowThemeVariantPopoverUpdate'), payload);
         });
     }
 
