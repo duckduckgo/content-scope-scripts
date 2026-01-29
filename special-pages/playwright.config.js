@@ -92,6 +92,50 @@ export default defineConfig({
             },
         },
         {
+            name: 'onboarding-screenshots-windows-light',
+            testMatch: ['onboarding.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Edge'],
+                injectName: 'windows',
+                platform: 'windows',
+                colorScheme: 'light',
+                viewport: { width: 1024, height: 768 },
+            },
+        },
+        {
+            name: 'onboarding-screenshots-windows-dark',
+            testMatch: ['onboarding.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Edge'],
+                injectName: 'windows',
+                platform: 'windows',
+                colorScheme: 'dark',
+                viewport: { width: 1024, height: 768 },
+            },
+        },
+        {
+            name: 'onboarding-screenshots-macos-light',
+            testMatch: ['onboarding.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Safari'],
+                injectName: 'apple',
+                platform: 'macos',
+                colorScheme: 'light',
+                viewport: { width: 1024, height: 768 },
+            },
+        },
+        {
+            name: 'onboarding-screenshots-macos-dark',
+            testMatch: ['onboarding.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Safari'],
+                injectName: 'apple',
+                platform: 'macos',
+                colorScheme: 'dark',
+                viewport: { width: 1024, height: 768 },
+            },
+        },
+        {
             name: 'android',
             testMatch: ['duckplayer.spec.js', 'duckplayer-screenshots.spec.js'],
             use: {
