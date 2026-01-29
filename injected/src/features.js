@@ -25,6 +25,7 @@ export const baseFeatures = /** @type {FeatureName[]} */ ([
 ]);
 
 const otherFeatures = /** @type {FeatureName[]} */ ([
+    'browserUiLock',
     'clickToLoad',
     'cookie',
     'messageBridge',
@@ -61,7 +62,16 @@ export const platformSupport = {
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
-    android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge', 'pageContext'],
+    android: [
+        ...baseFeatures,
+        'webCompat',
+        'webInterferenceDetection',
+        'browserUiLock',
+        'breakageReporting',
+        'duckPlayer',
+        'messageBridge',
+        'pageContext',
+    ],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
