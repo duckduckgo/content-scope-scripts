@@ -5,7 +5,8 @@
 import ContentFeature from '../content-feature.js';
 // eslint-disable-next-line no-redeclare
 import { URL } from '../captured-globals.js';
-import { DDGProxy, DDGReflect } from '../utils';
+import { DDGProxy, DDGReflect, isStateEnabled } from '../utils';
+import { BrowserUiLockController } from './web-compat/ui-lock.js';
 import { wrapToString, wrapFunction } from '../wrapper-utils.js';
 /**
  * Fixes incorrect sizing value for outerHeight and outerWidth.
@@ -96,6 +97,9 @@ export class WebCompat extends ContentFeature {
     /** @type {Map<string, object>} */
     #webNotifications = new Map();
 
+    /** @type {BrowserUiLockController | null} */
+    #uiLockController = null;
+
     // Opt in to receive configuration updates from initial ping responses
     listenForConfigUpdates = true;
 
@@ -157,6 +161,11 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('viewportWidthLegacy', 'disabled')) {
             this.viewportWidthFix();
         }
+        this.initBrowserUiLock();
+    }
+
+    urlChanged() {
+        this.#uiLockController?.urlChanged();
     }
 
     /**
@@ -170,6 +179,23 @@ export class WebCompat extends ContentFeature {
         if (this.getFeatureSettingEnabled('viewportWidth')) {
             this.viewportWidthFix();
         }
+    }
+
+    initBrowserUiLock() {
+        const uiLockSettings = this.getFeatureSetting('browserUiLock');
+        if (!uiLockSettings || typeof uiLockSettings !== 'object') {
+            return;
+        }
+        if (!isStateEnabled(uiLockSettings.state ?? 'disabled', this.args?.platform)) {
+            return;
+        }
+        this.#uiLockController = new BrowserUiLockController({
+            settings: uiLockSettings,
+            platform: this.args?.platform,
+            notify: (payload) => this.messaging.notify('uiLockChanged', payload),
+            addDebugFlag: () => this.addDebugFlag(),
+        });
+        this.#uiLockController.init();
     }
 
     /**

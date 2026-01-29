@@ -1,5 +1,5 @@
 import { JSDOM } from 'jsdom';
-import BrowserUiLock, { computeUiLockState } from '../src/features/browser-ui-lock.js';
+import { BrowserUiLockController, computeUiLockState } from '../src/features/web-compat/ui-lock.js';
 
 function setupDom() {
     const dom = new JSDOM('<!doctype html><html><head></head><body></body></html>', { pretendToBeVisual: true });
@@ -28,22 +28,13 @@ function setupDom() {
     };
 }
 
-function buildFeatureArgs() {
-    return {
-        site: { domain: 'example.com', url: 'https://example.com' },
+function buildUiLockController(settings, notify = () => {}) {
+    return new BrowserUiLockController({
+        settings,
         platform: { name: 'android', version: '1.0.0' },
-        bundledConfig: {
-            features: {
-                browserUiLock: {
-                    state: 'enabled',
-                    exceptions: [],
-                    settings: {},
-                },
-            },
-            unprotectedTemporary: [],
-        },
-        messagingContextName: 'contentScopeScripts',
-    };
+        notify,
+        addDebugFlag: () => {},
+    });
 }
 
 describe('browser-ui-lock', () => {
@@ -100,12 +91,6 @@ describe('browser-ui-lock', () => {
         const { restore } = setupDom();
         try {
             const notifySpy = jasmine.createSpy('notify');
-            class TestBrowserUiLock extends BrowserUiLock {
-                // @ts-expect-error - test stub for messaging
-                get messaging() {
-                    return { notify: notifySpy };
-                }
-            }
 
             global.requestAnimationFrame = (callback) => {
                 const timestamp = 0;
@@ -113,8 +98,15 @@ describe('browser-ui-lock', () => {
                 return 1;
             };
 
-            const feature = new TestBrowserUiLock('browserUiLock', {}, {}, buildFeatureArgs());
-            await feature.callInit(buildFeatureArgs());
+            const controller = buildUiLockController(
+                {
+                    state: 'enabled',
+                    observeMutations: 'enabled',
+                    overscrollBehavior: 'enabled',
+                },
+                notifySpy,
+            );
+            controller.init();
 
             document.documentElement.style.overscrollBehavior = 'none';
             await new Promise((resolve) => setTimeout(resolve, 0));
@@ -139,23 +131,28 @@ describe('browser-ui-lock', () => {
                 return callbacks.length;
             };
 
-            class CountingBrowserUiLock extends BrowserUiLock {
+            class CountingBrowserUiLockController extends BrowserUiLockController {
                 evaluationCount = 0;
                 evaluateLockState() {
                     this.evaluationCount += 1;
                 }
             }
 
-            const feature = new CountingBrowserUiLock('browserUiLock', {}, {}, buildFeatureArgs());
-            feature.scheduleEvaluation();
-            feature.scheduleEvaluation();
+            const controller = new CountingBrowserUiLockController({
+                settings: { state: 'enabled' },
+                platform: { name: 'android', version: '1.0.0' },
+                notify: () => {},
+                addDebugFlag: () => {},
+            });
+            controller.scheduleEvaluation();
+            controller.scheduleEvaluation();
 
             expect(callbacks.length).toBe(1);
             callbacks.forEach((callback) => {
                 const timestamp = 0;
                 callback(timestamp);
             });
-            expect(feature.evaluationCount).toBe(1);
+            expect(controller.evaluationCount).toBe(1);
         } finally {
             restore();
         }

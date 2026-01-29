@@ -1,5 +1,4 @@
-import ContentFeature from '../content-feature.js';
-import { isBeingFramed } from '../utils.js';
+import { isBeingFramed, isStateEnabled } from '../../utils.js';
 
 /**
  * @typedef {Object} StyleValues
@@ -94,9 +93,61 @@ export function computeUiLockState({ htmlStyle, bodyStyle, useOverscroll, useOve
     };
 }
 
-export default class BrowserUiLock extends ContentFeature {
-    listenForUrlChanges = true;
+/**
+ * @param {object | undefined} settings
+ * @param {string} key
+ * @param {import('../../utils.js').FeatureState} defaultState
+ * @param {import('../../utils.js').Platform | undefined} platform
+ * @returns {boolean}
+ */
+function getSettingEnabled(settings, key, defaultState, platform) {
+    if (!settings) {
+        return isStateEnabled(defaultState, platform);
+    }
+    const value = settings[key] ?? defaultState;
+    if (typeof value === 'object') {
+        return isStateEnabled(value.state, platform);
+    }
+    return isStateEnabled(value, platform);
+}
 
+/**
+ * @param {object | undefined} settings
+ * @param {string} key
+ * @param {number} defaultValue
+ * @returns {number}
+ */
+function getSettingNumber(settings, key, defaultValue) {
+    if (!settings) {
+        return defaultValue;
+    }
+    const value = settings[key];
+    return typeof value === 'number' ? value : defaultValue;
+}
+
+export class BrowserUiLockController {
+    /**
+     * @param {object} params
+     * @param {object | undefined} params.settings
+     * @param {import('../../utils.js').Platform | undefined} params.platform
+     * @param {(payload: { locked: boolean, signals: UiLockSignals | null }) => void} params.notify
+     * @param {() => void} params.addDebugFlag
+     */
+    constructor({ settings, platform, notify, addDebugFlag }) {
+        this.settings = settings;
+        this.platform = platform;
+        this.notify = notify;
+        this.addDebugFlag = addDebugFlag;
+    }
+
+    /** @type {object | undefined} */
+    settings;
+    /** @type {import('../../utils.js').Platform | undefined} */
+    platform;
+    /** @type {(payload: { locked: boolean, signals: UiLockSignals | null }) => void} */
+    notify;
+    /** @type {() => void} */
+    addDebugFlag;
     /** @type {boolean} */
     pendingEvaluation = false;
     /** @type {number | null} */
@@ -141,7 +192,7 @@ export default class BrowserUiLock extends ContentFeature {
     }
 
     setupObservers() {
-        if (!this.getFeatureSettingEnabled('observeMutations', 'enabled')) {
+        if (!getSettingEnabled(this.settings, 'observeMutations', 'enabled', this.platform)) {
             return;
         }
 
@@ -237,7 +288,7 @@ export default class BrowserUiLock extends ContentFeature {
         if (this.delayedEvaluationTimer) {
             clearTimeout(this.delayedEvaluationTimer);
         }
-        const delayMs = this.getFeatureSetting('postLoadDelayMs') || 300;
+        const delayMs = getSettingNumber(this.settings, 'postLoadDelayMs', 300);
         this.delayedEvaluationTimer = setTimeout(() => {
             this.scheduleEvaluation();
         }, delayMs);
@@ -251,9 +302,9 @@ export default class BrowserUiLock extends ContentFeature {
         try {
             const htmlStyle = window.getComputedStyle(document.documentElement);
             const bodyStyle = document.body ? window.getComputedStyle(document.body) : null;
-            const useOverscroll = this.getFeatureSettingEnabled('overscrollBehavior', 'enabled');
-            const useOverflow = this.getFeatureSettingEnabled('overflow', 'enabled');
-            const includeOverflowClip = this.getFeatureSettingEnabled('overflowClip', 'disabled');
+            const useOverscroll = getSettingEnabled(this.settings, 'overscrollBehavior', 'enabled', this.platform);
+            const useOverflow = getSettingEnabled(this.settings, 'overflow', 'enabled', this.platform);
+            const includeOverflowClip = getSettingEnabled(this.settings, 'overflowClip', 'disabled', this.platform);
             const { locked, signals } = computeUiLockState({
                 htmlStyle,
                 bodyStyle,
@@ -284,10 +335,7 @@ export default class BrowserUiLock extends ContentFeature {
             this.addDebugFlag();
         }
         try {
-            this.messaging.notify('uiLockChanged', {
-                locked,
-                signals,
-            });
+            this.notify({ locked, signals });
         } catch (_e) {
             // Fail open: avoid throwing and leave native in default (unlocked) state.
         }
