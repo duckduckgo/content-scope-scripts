@@ -201,7 +201,6 @@ export interface NewTabMessages {
     | FavoritesOnDataUpdateSubscription
     | FavoritesOnRefreshSubscription
     | FreemiumPIRBannerOnDataUpdateSubscription
-    | NewsOnDataUpdateSubscription
     | NextStepsOnConfigUpdateSubscription
     | NextStepsOnDataUpdateSubscription
     | OmnibarOnConfigUpdateSubscription
@@ -210,10 +209,8 @@ export interface NewTabMessages {
     | ProtectionsScrollSubscription
     | RmfOnDataUpdateSubscription
     | StatsOnDataUpdateSubscription
-    | StockOnDataUpdateSubscription
     | TabsOnDataUpdateSubscription
     | UpdateNotificationOnDataUpdateSubscription
-    | WeatherOnDataUpdateSubscription
     | WidgetsOnConfigUpdatedSubscription
     | WinBackOfferOnDataUpdateSubscription;
 }
@@ -1020,9 +1017,9 @@ export interface NewsGetDataRequest {
 }
 export interface NewsGetDataRequest1 {
   /**
-   * Optional instance ID for multi-instance widgets
+   * Search query/topic for news data
    */
-  instanceId?: string;
+  query: string;
 }
 /**
  * News data for the news widget
@@ -1199,9 +1196,9 @@ export interface StockGetDataRequest {
 }
 export interface StockGetDataRequest1 {
   /**
-   * Optional instance ID for multi-instance widgets
+   * Stock ticker symbol
    */
-  instanceId?: string;
+  symbol: string;
 }
 /**
  * Stock data for the stock widget
@@ -1294,9 +1291,9 @@ export interface WeatherGetDataRequest {
 }
 export interface WeatherGetDataRequest1 {
   /**
-   * Optional instance ID for multi-instance widgets
+   * Location/city name for weather data
    */
-  instanceId?: string;
+  location: string;
 }
 /**
  * Weather data for the weather widget
@@ -1456,13 +1453,6 @@ export interface FreemiumPIRBannerOnDataUpdateSubscription {
   params: FreemiumPIRBannerData;
 }
 /**
- * Generated from @see "../messages/news_onDataUpdate.subscribe.json"
- */
-export interface NewsOnDataUpdateSubscription {
-  subscriptionEvent: "news_onDataUpdate";
-  params: NewsData;
-}
-/**
  * Generated from @see "../messages/nextSteps_onConfigUpdate.subscribe.json"
  */
 export interface NextStepsOnConfigUpdateSubscription {
@@ -1518,13 +1508,6 @@ export interface StatsOnDataUpdateSubscription {
   params: PrivacyStatsData;
 }
 /**
- * Generated from @see "../messages/stock_onDataUpdate.subscribe.json"
- */
-export interface StockOnDataUpdateSubscription {
-  subscriptionEvent: "stock_onDataUpdate";
-  params: StockData;
-}
-/**
  * Generated from @see "../messages/tabs_onDataUpdate.subscribe.json"
  */
 export interface TabsOnDataUpdateSubscription {
@@ -1537,13 +1520,6 @@ export interface TabsOnDataUpdateSubscription {
 export interface UpdateNotificationOnDataUpdateSubscription {
   subscriptionEvent: "updateNotification_onDataUpdate";
   params: UpdateNotificationData;
-}
-/**
- * Generated from @see "../messages/weather_onDataUpdate.subscribe.json"
- */
-export interface WeatherOnDataUpdateSubscription {
-  subscriptionEvent: "weather_onDataUpdate";
-  params: WeatherData;
 }
 /**
  * Generated from @see "../messages/widgets_onConfigUpdated.subscribe.json"

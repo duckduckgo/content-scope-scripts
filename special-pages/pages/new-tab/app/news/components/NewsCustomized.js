@@ -12,7 +12,7 @@ import { NewsEmptyState } from './NewsEmptyState.js';
  */
 export function NewsCustomized({ instanceId }) {
     const { visibility } = useVisibility();
-    const { getConfigForInstance } = useContext(WidgetConfigContext);
+    const { getConfigForInstance, updateInstanceConfig } = useContext(WidgetConfigContext);
 
     if (visibility.value === 'hidden') {
         return null;
@@ -22,17 +22,18 @@ export function NewsCustomized({ instanceId }) {
     const config = instanceId ? getConfigForInstance(instanceId) : null;
     const hasQuery = config && 'query' in config && config.query !== null && config.query !== '';
 
+    // Don't wrap empty state in provider - no fetch needed when unconfigured
     if (!hasQuery) {
-        return (
-            <NewsProvider instanceId={instanceId}>
-                <NewsEmptyState />
-            </NewsProvider>
-        );
+        return <NewsEmptyState instanceId={instanceId} />;
     }
 
     return (
-        <NewsProvider instanceId={instanceId}>
-            <NewsConsumer />
+        <NewsProvider query={/** @type {string} */ (config.query)}>
+            <NewsConsumer
+                instanceId={instanceId}
+                config={config}
+                onUpdateConfig={(updates) => instanceId && updateInstanceConfig(instanceId, updates)}
+            />
         </NewsProvider>
     );
 }

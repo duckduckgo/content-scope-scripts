@@ -75,10 +75,6 @@ function weatherReducer(state, event) {
 export const WeatherContext = createContext({
     /** @type {WeatherState} */
     state: { status: 'idle', data: null },
-    /** @type {string | undefined} */
-    instanceId: undefined,
-    /** @type {() => Promise<void>} */
-    refetch: async () => {},
 });
 
 /**
@@ -86,7 +82,7 @@ export const WeatherContext = createContext({
  *
  * @param {Object} props
  * @param {import("preact").ComponentChild} props.children
- * @param {string} [props.instanceId]
+ * @param {string} props.location
  */
 export function WeatherProvider(props) {
     const initial = /** @type {WeatherState} */ ({
@@ -97,39 +93,28 @@ export function WeatherProvider(props) {
     const [state, dispatch] = useReducer(weatherReducer, initial);
 
     // create an instance of `WeatherService` for the lifespan of this component.
-    const service = useService(props.instanceId);
+    const service = useService(props.location);
 
     // get initial data
-    useInitialWeatherData({ dispatch, service, instanceId: props.instanceId });
+    useInitialWeatherData({ dispatch, service, location: props.location });
 
-    // subscribe to data updates
-    useWeatherDataSubscription({ dispatch, service, instanceId: props.instanceId });
-
-    const refetch = async () => {
-        if (!service.current) return;
-        const { data } = await service.current.getInitial();
-        if (data) {
-            dispatch({ kind: 'data', data });
-        }
-    };
-
-    return <WeatherContext.Provider value={{ state, instanceId: props.instanceId, refetch }}>{props.children}</WeatherContext.Provider>;
+    return <WeatherContext.Provider value={{ state }}>{props.children}</WeatherContext.Provider>;
 }
 
 /**
- * @param {string} [instanceId]
+ * @param {string} location
  * @return {import("preact").RefObject<WeatherService>}
  */
-export function useService(instanceId) {
+export function useService(location) {
     const service = useRef(/** @type {WeatherService|null} */ (null));
     const ntp = useMessaging();
     useEffect(() => {
-        const weatherService = new WeatherService(ntp, instanceId);
+        const weatherService = new WeatherService(ntp, location);
         service.current = weatherService;
         return () => {
             weatherService.destroy();
         };
-    }, [ntp, instanceId]);
+    }, [ntp, location]);
     return service;
 }
 
@@ -137,9 +122,9 @@ export function useService(instanceId) {
  * @param {object} params
  * @param {import("preact/hooks").Dispatch<WeatherEvents>} params.dispatch
  * @param {import("preact").RefObject<WeatherService>} params.service
- * @param {string} [params.instanceId]
+ * @param {string} params.location
  */
-function useInitialWeatherData({ dispatch, service, instanceId }) {
+function useInitialWeatherData({ dispatch, service, location }) {
     const messaging = useMessaging();
     useEffect(() => {
         if (!service.current) return console.warn('missing weather service');
@@ -165,29 +150,5 @@ function useInitialWeatherData({ dispatch, service, instanceId }) {
         return () => {
             currentService.destroy();
         };
-    }, [messaging, instanceId]);
-}
-
-/**
- * Subscribe to weather data updates
- * @param {object} params
- * @param {import("preact/hooks").Dispatch<WeatherEvents>} params.dispatch
- * @param {import("preact").RefObject<WeatherService>} params.service
- * @param {string} [params.instanceId]
- */
-function useWeatherDataSubscription({ dispatch, service, instanceId }) {
-    useEffect(() => {
-        if (!service.current) return console.warn('could not access weather service');
-
-        const unsub = service.current.onData((evt) => {
-            // Filter by instanceId if present
-            if (instanceId && evt.data.instanceId && evt.data.instanceId !== instanceId) {
-                return;
-            }
-            dispatch({ kind: 'data', data: evt.data });
-        });
-        return () => {
-            unsub();
-        };
-    }, [service, dispatch, instanceId]);
+    }, [messaging, location]);
 }

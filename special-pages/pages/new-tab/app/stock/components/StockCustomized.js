@@ -12,7 +12,7 @@ import { StockEmptyState } from './StockEmptyState.js';
  */
 export function StockCustomized({ instanceId }) {
     const { visibility } = useVisibility();
-    const { getConfigForInstance } = useContext(WidgetConfigContext);
+    const { getConfigForInstance, updateInstanceConfig } = useContext(WidgetConfigContext);
 
     if (visibility.value === 'hidden') {
         return null;
@@ -22,17 +22,18 @@ export function StockCustomized({ instanceId }) {
     const config = instanceId ? getConfigForInstance(instanceId) : null;
     const hasSymbol = config && 'symbol' in config && config.symbol !== null && config.symbol !== '';
 
+    // Don't wrap empty state in provider - no fetch needed when unconfigured
     if (!hasSymbol) {
-        return (
-            <StockProvider instanceId={instanceId}>
-                <StockEmptyState />
-            </StockProvider>
-        );
+        return <StockEmptyState instanceId={instanceId} />;
     }
 
     return (
-        <StockProvider instanceId={instanceId}>
-            <StockConsumer />
+        <StockProvider symbol={/** @type {string} */ (config.symbol)}>
+            <StockConsumer
+                instanceId={instanceId}
+                config={config}
+                onUpdateConfig={(updates) => instanceId && updateInstanceConfig(instanceId, updates)}
+            />
         </StockProvider>
     );
 }

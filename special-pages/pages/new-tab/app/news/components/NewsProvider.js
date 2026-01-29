@@ -75,10 +75,6 @@ function newsReducer(state, event) {
 export const NewsContext = createContext({
     /** @type {NewsState} */
     state: { status: 'idle', data: null },
-    /** @type {string | undefined} */
-    instanceId: undefined,
-    /** @type {() => Promise<void>} */
-    refetch: async () => {},
 });
 
 /**
@@ -86,7 +82,7 @@ export const NewsContext = createContext({
  *
  * @param {Object} props
  * @param {import("preact").ComponentChild} props.children
- * @param {string} [props.instanceId]
+ * @param {string} props.query
  */
 export function NewsProvider(props) {
     const initial = /** @type {NewsState} */ ({
@@ -97,39 +93,28 @@ export function NewsProvider(props) {
     const [state, dispatch] = useReducer(newsReducer, initial);
 
     // create an instance of `NewsService` for the lifespan of this component.
-    const service = useService(props.instanceId);
+    const service = useService(props.query);
 
     // get initial data
-    useInitialNewsData({ dispatch, service, instanceId: props.instanceId });
+    useInitialNewsData({ dispatch, service, query: props.query });
 
-    // subscribe to data updates
-    useNewsDataSubscription({ dispatch, service, instanceId: props.instanceId });
-
-    const refetch = async () => {
-        if (!service.current) return;
-        const { data } = await service.current.getInitial();
-        if (data) {
-            dispatch({ kind: 'data', data });
-        }
-    };
-
-    return <NewsContext.Provider value={{ state, instanceId: props.instanceId, refetch }}>{props.children}</NewsContext.Provider>;
+    return <NewsContext.Provider value={{ state }}>{props.children}</NewsContext.Provider>;
 }
 
 /**
- * @param {string} [instanceId]
+ * @param {string} query
  * @return {import("preact").RefObject<NewsService>}
  */
-export function useService(instanceId) {
+export function useService(query) {
     const service = useRef(/** @type {NewsService|null} */ (null));
     const ntp = useMessaging();
     useEffect(() => {
-        const newsService = new NewsService(ntp, instanceId);
+        const newsService = new NewsService(ntp, query);
         service.current = newsService;
         return () => {
             newsService.destroy();
         };
-    }, [ntp, instanceId]);
+    }, [ntp, query]);
     return service;
 }
 
@@ -137,9 +122,9 @@ export function useService(instanceId) {
  * @param {object} params
  * @param {import("preact/hooks").Dispatch<NewsEvents>} params.dispatch
  * @param {import("preact").RefObject<NewsService>} params.service
- * @param {string} [params.instanceId]
+ * @param {string} params.query
  */
-function useInitialNewsData({ dispatch, service, instanceId }) {
+function useInitialNewsData({ dispatch, service, query }) {
     const messaging = useMessaging();
     useEffect(() => {
         if (!service.current) return console.warn('missing news service');
@@ -165,29 +150,5 @@ function useInitialNewsData({ dispatch, service, instanceId }) {
         return () => {
             currentService.destroy();
         };
-    }, [messaging, instanceId]);
-}
-
-/**
- * Subscribe to news data updates
- * @param {object} params
- * @param {import("preact/hooks").Dispatch<NewsEvents>} params.dispatch
- * @param {import("preact").RefObject<NewsService>} params.service
- * @param {string} [params.instanceId]
- */
-function useNewsDataSubscription({ dispatch, service, instanceId }) {
-    useEffect(() => {
-        if (!service.current) return console.warn('could not access news service');
-
-        const unsub = service.current.onData((evt) => {
-            // Filter by instanceId if present
-            if (instanceId && evt.data.instanceId && evt.data.instanceId !== instanceId) {
-                return;
-            }
-            dispatch({ kind: 'data', data: evt.data });
-        });
-        return () => {
-            unsub();
-        };
-    }, [service, dispatch, instanceId]);
+    }, [messaging, query]);
 }

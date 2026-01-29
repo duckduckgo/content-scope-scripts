@@ -75,10 +75,6 @@ function stockReducer(state, event) {
 export const StockContext = createContext({
     /** @type {StockState} */
     state: { status: 'idle', data: null },
-    /** @type {string | undefined} */
-    instanceId: undefined,
-    /** @type {() => Promise<void>} */
-    refetch: async () => {},
 });
 
 /**
@@ -86,7 +82,7 @@ export const StockContext = createContext({
  *
  * @param {Object} props
  * @param {import("preact").ComponentChild} props.children
- * @param {string} [props.instanceId]
+ * @param {string} props.symbol
  */
 export function StockProvider(props) {
     const initial = /** @type {StockState} */ ({
@@ -97,39 +93,28 @@ export function StockProvider(props) {
     const [state, dispatch] = useReducer(stockReducer, initial);
 
     // create an instance of `StockService` for the lifespan of this component.
-    const service = useService(props.instanceId);
+    const service = useService(props.symbol);
 
     // get initial data
-    useInitialStockData({ dispatch, service, instanceId: props.instanceId });
+    useInitialStockData({ dispatch, service, symbol: props.symbol });
 
-    // subscribe to data updates
-    useStockDataSubscription({ dispatch, service, instanceId: props.instanceId });
-
-    const refetch = async () => {
-        if (!service.current) return;
-        const { data } = await service.current.getInitial();
-        if (data) {
-            dispatch({ kind: 'data', data });
-        }
-    };
-
-    return <StockContext.Provider value={{ state, instanceId: props.instanceId, refetch }}>{props.children}</StockContext.Provider>;
+    return <StockContext.Provider value={{ state }}>{props.children}</StockContext.Provider>;
 }
 
 /**
- * @param {string} [instanceId]
+ * @param {string} symbol
  * @return {import("preact").RefObject<StockService>}
  */
-export function useService(instanceId) {
+export function useService(symbol) {
     const service = useRef(/** @type {StockService|null} */ (null));
     const ntp = useMessaging();
     useEffect(() => {
-        const stockService = new StockService(ntp, instanceId);
+        const stockService = new StockService(ntp, symbol);
         service.current = stockService;
         return () => {
             stockService.destroy();
         };
-    }, [ntp, instanceId]);
+    }, [ntp, symbol]);
     return service;
 }
 
@@ -137,9 +122,9 @@ export function useService(instanceId) {
  * @param {object} params
  * @param {import("preact/hooks").Dispatch<StockEvents>} params.dispatch
  * @param {import("preact").RefObject<StockService>} params.service
- * @param {string} [params.instanceId]
+ * @param {string} params.symbol
  */
-function useInitialStockData({ dispatch, service, instanceId }) {
+function useInitialStockData({ dispatch, service, symbol }) {
     const messaging = useMessaging();
     useEffect(() => {
         if (!service.current) return console.warn('missing stock service');
@@ -165,29 +150,5 @@ function useInitialStockData({ dispatch, service, instanceId }) {
         return () => {
             currentService.destroy();
         };
-    }, [messaging, instanceId]);
-}
-
-/**
- * Subscribe to stock data updates
- * @param {object} params
- * @param {import("preact/hooks").Dispatch<StockEvents>} params.dispatch
- * @param {import("preact").RefObject<StockService>} params.service
- * @param {string} [params.instanceId]
- */
-function useStockDataSubscription({ dispatch, service, instanceId }) {
-    useEffect(() => {
-        if (!service.current) return console.warn('could not access stock service');
-
-        const unsub = service.current.onData((evt) => {
-            // Filter by instanceId if present
-            if (instanceId && evt.data.instanceId && evt.data.instanceId !== instanceId) {
-                return;
-            }
-            dispatch({ kind: 'data', data: evt.data });
-        });
-        return () => {
-            unsub();
-        };
-    }, [service, dispatch, instanceId]);
+    }, [messaging, symbol]);
 }

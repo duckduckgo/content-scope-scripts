@@ -12,7 +12,7 @@ import { WeatherEmptyState } from './WeatherEmptyState.js';
  */
 export function WeatherCustomized({ instanceId }) {
     const { visibility } = useVisibility();
-    const { getConfigForInstance } = useContext(WidgetConfigContext);
+    const { getConfigForInstance, updateInstanceConfig } = useContext(WidgetConfigContext);
 
     if (visibility.value === 'hidden') {
         return null;
@@ -22,17 +22,18 @@ export function WeatherCustomized({ instanceId }) {
     const config = instanceId ? getConfigForInstance(instanceId) : null;
     const hasLocation = config && 'location' in config && config.location !== null && config.location !== '';
 
+    // Don't wrap empty state in provider - no fetch needed when unconfigured
     if (!hasLocation) {
-        return (
-            <WeatherProvider instanceId={instanceId}>
-                <WeatherEmptyState />
-            </WeatherProvider>
-        );
+        return <WeatherEmptyState instanceId={instanceId} />;
     }
 
     return (
-        <WeatherProvider instanceId={instanceId}>
-            <WeatherConsumer />
+        <WeatherProvider location={/** @type {string} */ (config.location)}>
+            <WeatherConsumer
+                instanceId={instanceId}
+                config={config}
+                onUpdateConfig={(updates) => instanceId && updateInstanceConfig(instanceId, updates)}
+            />
         </WeatherProvider>
     );
 }

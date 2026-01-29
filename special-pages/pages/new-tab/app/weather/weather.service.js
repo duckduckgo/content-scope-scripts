@@ -6,16 +6,15 @@ import { Service } from '../service.js';
 export class WeatherService {
     /**
      * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
-     * @param {string} [instanceId] - Optional instance ID for multi-instance support
+     * @param {string} location - Location for weather data
      * @internal
      */
-    constructor(ntp, instanceId) {
+    constructor(ntp, location) {
         this.ntp = ntp;
-        this.instanceId = instanceId;
+        this.location = location;
         /** @type {Service<WeatherData>} */
         this.dataService = new Service({
-            initial: () => ntp.messaging.request('weather_getData', instanceId ? { instanceId } : {}),
-            subscribe: (cb) => ntp.messaging.subscribe('weather_onDataUpdate', cb),
+            initial: () => ntp.messaging.request('weather_getData', { location }),
         });
     }
 
@@ -37,13 +36,5 @@ export class WeatherService {
      */
     destroy() {
         this.dataService.destroy();
-    }
-
-    /**
-     * @param {(evt: {data: WeatherData, source: 'manual' | 'subscription'}) => void} cb
-     * @internal
-     */
-    onData(cb) {
-        return this.dataService.onData(cb);
     }
 }

@@ -1,10 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
+  "required": ["symbol"],
   "properties": {
-    "instanceId": {
+    "symbol": {
       "type": "string",
-      "description": "Optional instance ID for multi-instance widgets"
+      "description": "Stock ticker symbol"
     }
   }
 }

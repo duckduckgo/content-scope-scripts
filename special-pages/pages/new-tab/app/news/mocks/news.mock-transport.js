@@ -26,26 +26,12 @@ export function newsMockTransport() {
         }
     }
 
-    // Add default instanceId if not present
-    if (!dataset.instanceId) {
-        dataset.instanceId = 'news-1';
-    }
-
-    /** @type {Map<string, (d: any) => void>} */
-    const subs = new Map();
-
     return new TestTransportConfig({
         notify(_msg) {
             console.warn('unhandled news notification', _msg);
         },
-        subscribe(_msg, cb) {
-            /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */
-            const sub = /** @type {any} */ (_msg.subscriptionName);
-            if (sub === 'news_onDataUpdate') {
-                subs.set(sub, cb);
-                return () => {};
-            }
-            console.warn('unhandled news sub', sub);
+        subscribe(_msg, _cb) {
+            console.warn('unhandled news subscription', _msg);
             return () => {};
         },
         request(_msg) {
@@ -53,9 +39,10 @@ export function newsMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'news_getData': {
-                    // If instanceId provided, include it in response
-                    const instanceId = msg.params?.instanceId || 'news-1';
-                    return Promise.resolve({ ...dataset, instanceId });
+                    // Use query from request params for filtering (mock just returns dataset)
+                    const query = msg.params?.query;
+                    console.log('news_getData called with query:', query);
+                    return Promise.resolve(dataset);
                 }
                 default: {
                     return Promise.reject(new Error('unhandled news request: ' + msg.method));

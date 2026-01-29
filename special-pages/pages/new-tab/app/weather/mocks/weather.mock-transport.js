@@ -26,11 +26,6 @@ export function weatherMockTransport() {
         }
     }
 
-    // Add default instanceId if not present
-    if (!dataset.instanceId) {
-        dataset.instanceId = 'weather-1';
-    }
-
     // Allow URL param overrides for individual fields
     if (url.searchParams.has('weather.temp')) {
         const temp = parseFloat(url.searchParams.get('weather.temp') || '0');
@@ -53,31 +48,12 @@ export function weatherMockTransport() {
         }
     }
 
-    /** @type {Map<string, (d: any) => void>} */
-    const subs = new Map();
-
     return new TestTransportConfig({
         notify(_msg) {
             console.warn('unhandled weather notification', _msg);
         },
-        subscribe(_msg, cb) {
-            /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */
-            const sub = /** @type {any} */ (_msg.subscriptionName);
-            if (sub === 'weather_onDataUpdate') {
-                subs.set(sub, cb);
-                // Support continuous updates for testing
-                if (url.searchParams.get('weather.continuous')) {
-                    const int = setInterval(() => {
-                        dataset.temperature += 1;
-                        subs.get(sub)?.(dataset);
-                    }, 1000);
-                    return () => {
-                        clearInterval(int);
-                    };
-                }
-                return () => {};
-            }
-            console.warn('unhandled weather sub', sub);
+        subscribe(_msg, _cb) {
+            console.warn('unhandled weather subscription', _msg);
             return () => {};
         },
         request(_msg) {
@@ -85,9 +61,9 @@ export function weatherMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'weather_getData': {
-                    // If instanceId provided, include it in response
-                    const instanceId = msg.params?.instanceId || 'weather-1';
-                    return Promise.resolve({ ...dataset, instanceId });
+                    // Use location from request params, or override from dataset
+                    const location = msg.params?.location || dataset.location;
+                    return Promise.resolve({ ...dataset, location });
                 }
                 default: {
                     return Promise.reject(new Error('unhandled weather request: ' + msg.method));

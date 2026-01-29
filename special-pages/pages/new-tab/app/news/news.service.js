@@ -6,16 +6,15 @@ import { Service } from '../service.js';
 export class NewsService {
     /**
      * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
-     * @param {string} [instanceId] - Optional instance ID for multi-instance support
+     * @param {string} query - Query/topic for news data
      * @internal
      */
-    constructor(ntp, instanceId) {
+    constructor(ntp, query) {
         this.ntp = ntp;
-        this.instanceId = instanceId;
+        this.query = query;
         /** @type {Service<NewsData>} */
         this.dataService = new Service({
-            initial: () => ntp.messaging.request('news_getData', instanceId ? { instanceId } : {}),
-            subscribe: (cb) => ntp.messaging.subscribe('news_onDataUpdate', cb),
+            initial: () => ntp.messaging.request('news_getData', { query }),
         });
     }
 
@@ -37,13 +36,5 @@ export class NewsService {
      */
     destroy() {
         this.dataService.destroy();
-    }
-
-    /**
-     * @param {(evt: {data: NewsData, source: 'manual' | 'subscription'}) => void} cb
-     * @internal
-     */
-    onData(cb) {
-        return this.dataService.onData(cb);
     }
 }

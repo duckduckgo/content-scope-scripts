@@ -2,26 +2,23 @@ import { h } from 'preact';
 import { useContext } from 'preact/hooks';
 import { NewsContext } from './NewsProvider.js';
 import { News } from './News.js';
-import { WidgetConfigContext } from '../../widget-list/widget-config.provider.js';
+
+/**
+ * @typedef {import('../../../types/new-tab.js').WidgetConfigs[number]} WidgetConfigItem
+ */
 
 /**
  * Component that consumes NewsContext for displaying news data.
+ * @param {object} props
+ * @param {string} [props.instanceId]
+ * @param {WidgetConfigItem | null} [props.config]
+ * @param {(updates: Partial<WidgetConfigItem>) => void} [props.onUpdateConfig]
  */
-export function NewsConsumer() {
-    const { state, instanceId } = useContext(NewsContext);
-    const { getConfigForInstance, updateInstanceConfig } = useContext(WidgetConfigContext);
+export function NewsConsumer({ instanceId, config, onUpdateConfig }) {
+    const { state } = useContext(NewsContext);
 
     if (state.status === 'ready') {
-        const config = instanceId ? getConfigForInstance(instanceId) : null;
-
-        return (
-            <News
-                data={state.data}
-                instanceId={instanceId}
-                config={config}
-                onUpdateConfig={(updates) => instanceId && updateInstanceConfig(instanceId, updates)}
-            />
-        );
+        return <News data={state.data} instanceId={instanceId} config={config} onUpdateConfig={onUpdateConfig} />;
     }
 
     return null;

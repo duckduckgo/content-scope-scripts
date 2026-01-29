@@ -6,16 +6,15 @@ import { Service } from '../service.js';
 export class StockService {
     /**
      * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
-     * @param {string} [instanceId] - Optional instance ID for multi-instance support
+     * @param {string} symbol - Stock ticker symbol
      * @internal
      */
-    constructor(ntp, instanceId) {
+    constructor(ntp, symbol) {
         this.ntp = ntp;
-        this.instanceId = instanceId;
+        this.symbol = symbol;
         /** @type {Service<StockData>} */
         this.dataService = new Service({
-            initial: () => ntp.messaging.request('stock_getData', instanceId ? { instanceId } : {}),
-            subscribe: (cb) => ntp.messaging.subscribe('stock_onDataUpdate', cb),
+            initial: () => ntp.messaging.request('stock_getData', { symbol }),
         });
     }
 
@@ -37,13 +36,5 @@ export class StockService {
      */
     destroy() {
         this.dataService.destroy();
-    }
-
-    /**
-     * @param {(evt: {data: StockData, source: 'manual' | 'subscription'}) => void} cb
-     * @internal
-     */
-    onData(cb) {
-        return this.dataService.onData(cb);
     }
 }

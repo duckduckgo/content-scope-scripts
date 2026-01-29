@@ -1,22 +1,21 @@
 import { h } from 'preact';
 import { useContext, useState } from 'preact/hooks';
 import styles from './Stock.module.css';
-import { StockContext } from './StockProvider.js';
 import { WidgetConfigContext } from '../../widget-list/widget-config.provider.js';
 
 /**
  * Empty state component for stock widget when no symbol is configured
+ * @param {object} props
+ * @param {string} [props.instanceId]
  */
-export function StockEmptyState() {
+export function StockEmptyState({ instanceId }) {
     const [value, setValue] = useState('');
-    const { instanceId, refetch } = useContext(StockContext);
     const { updateInstanceConfig } = useContext(WidgetConfigContext);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (value.trim() && instanceId) {
             updateInstanceConfig(instanceId, { symbol: value.trim() });
-            refetch();
         }
     };
 

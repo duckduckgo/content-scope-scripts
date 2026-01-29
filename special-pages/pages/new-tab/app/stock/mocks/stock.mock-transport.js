@@ -26,11 +26,6 @@ export function stockMockTransport() {
         }
     }
 
-    // Add default instanceId if not present
-    if (!dataset.instanceId) {
-        dataset.instanceId = 'stock-1';
-    }
-
     // Allow URL param overrides for individual fields
     if (url.searchParams.has('stock.symbol')) {
         const symbol = url.searchParams.get('stock.symbol');
@@ -60,33 +55,12 @@ export function stockMockTransport() {
         }
     }
 
-    /** @type {Map<string, (d: any) => void>} */
-    const subs = new Map();
-
     return new TestTransportConfig({
         notify(_msg) {
             console.warn('unhandled stock notification', _msg);
         },
-        subscribe(_msg, cb) {
-            /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */
-            const sub = /** @type {any} */ (_msg.subscriptionName);
-            if (sub === 'stock_onDataUpdate') {
-                subs.set(sub, cb);
-                // Support continuous updates for testing
-                if (url.searchParams.get('stock.continuous')) {
-                    const int = setInterval(() => {
-                        dataset.latestPrice += Math.random() * 2 - 1;
-                        dataset.change = dataset.latestPrice - (dataset.previousClose || dataset.latestPrice);
-                        dataset.changePercent = dataset.change / (dataset.previousClose || dataset.latestPrice);
-                        subs.get(sub)?.(dataset);
-                    }, 1000);
-                    return () => {
-                        clearInterval(int);
-                    };
-                }
-                return () => {};
-            }
-            console.warn('unhandled stock sub', sub);
+        subscribe(_msg, _cb) {
+            console.warn('unhandled stock subscription', _msg);
             return () => {};
         },
         request(_msg) {
@@ -94,9 +68,9 @@ export function stockMockTransport() {
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
                 case 'stock_getData': {
-                    // If instanceId provided, include it in response
-                    const instanceId = msg.params?.instanceId || 'stock-1';
-                    return Promise.resolve({ ...dataset, instanceId });
+                    // Use symbol from request params to select data (mock uses preset)
+                    const symbol = msg.params?.symbol || dataset.symbol;
+                    return Promise.resolve({ ...dataset, symbol });
                 }
                 default: {
                     return Promise.reject(new Error('unhandled stock request: ' + msg.method));

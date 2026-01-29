@@ -13,8 +13,10 @@ import { protectionsMockTransport } from './protections/mocks/protections.mock-t
 import { omnibarMockTransport } from './omnibar/mocks/omnibar.mock-transport.js';
 import { tabsMockTransport } from './tabs/tabs.mock-transport.js';
 import { weatherMockTransport } from './weather/mocks/weather.mock-transport.js';
+import { weatherMocks } from './weather/mocks/weather.mocks.js';
 import { newsMockTransport } from './news/mocks/news.mock-transport.js';
 import { stockMockTransport } from './stock/mocks/stock.mock-transport.js';
+import { stockMocks } from './stock/mocks/stock.mocks.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -606,12 +608,16 @@ export function initialSetup(url) {
     // Add weather widget if explicitly requested (now with instanceId for multi-instance support)
     if (url.searchParams.has('weather')) {
         widgetsFromStorage.push({ id: 'weather' });
-        const weatherLocation = url.searchParams.get('weather') || 'New York';
+        const weatherPreset = url.searchParams.get('weather') || 'sydney';
+        // URL param override takes precedence, then mock data location, then preset as fallback
+        const weatherLocation =
+            url.searchParams.get('weather.location') ||
+            (weatherPreset in weatherMocks ? weatherMocks[weatherPreset].location : weatherPreset);
         widgetConfigFromStorage.push({
             id: 'weather',
             instanceId: 'weather-1',
             visibility: 'visible',
-            location: weatherLocation === 'true' ? 'New York' : weatherLocation,
+            location: weatherLocation,
             temperatureUnit: 'fahrenheit',
             expansion: 'expanded',
         });
@@ -633,12 +639,16 @@ export function initialSetup(url) {
     // Add stock widget if present in URL params (now with instanceId for multi-instance support)
     if (url.searchParams.has('stock')) {
         widgetsFromStorage.push({ id: 'stock' });
-        const stockSymbol = url.searchParams.get('stock') || 'AAPL';
+        const stockPreset = url.searchParams.get('stock') || 'aapl';
+        // URL param override takes precedence, then mock data symbol, then preset as fallback
+        const stockSymbol =
+            url.searchParams.get('stock.symbol') ||
+            (stockPreset in stockMocks ? stockMocks[stockPreset].symbol : stockPreset.toUpperCase());
         widgetConfigFromStorage.push({
             id: 'stock',
             instanceId: 'stock-1',
             visibility: 'visible',
-            symbol: stockSymbol === 'true' ? 'AAPL' : stockSymbol,
+            symbol: stockSymbol,
             expansion: 'expanded',
         });
     }
