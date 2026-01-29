@@ -3,23 +3,24 @@
 import PackageDescription
 
 let package = Package(
-    name: "ContentScopeScriptsResources",
+    name: "content-scope-scripts",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v15),
         .macOS(.v11),
     ],
     products: [
         .library(
-            name: "ContentScopeScriptsResources",
-            targets: ["ContentScopeScriptsResources"]
+            name: "ContentScopeScripts",
+            targets: ["ContentScopeScripts"]
         ),
     ],
     targets: [
         .target(
-            name: "ContentScopeScriptsResources",
+            name: "ContentScopeScripts",
             path: ".",
             sources: [
-                "Sources/ContentScopeScriptsResources",
+                "Sources/ContentScopeScripts",
             ],
             resources: [
                 // Apple content scope scripts
