@@ -11,28 +11,16 @@ let storedLoginSelectors = null;
 
 /**
  * Detect YouTube user login state using DOM elements
- * Works in sandboxed contexts that can't access page JS globals
- * @param {Object} [selectors] - Optional selectors for login state detection
- * @param {string} [selectors.signInButton] - Selector for sign-in button
- * @param {string} [selectors.avatarButton] - Selector for avatar button
- * @param {string} [selectors.premiumLogo] - Selector for premium logo
+ * Uses selectors stored during initDetector from privacy-config
  * @returns {{state: string, isPremium: boolean, rawIndicators: Object}}
  */
-const detectLoginState = (selectors) => {
-    // Default login state selectors
-    const defaultSelectors = {
-        signInButton: 'a[href*="accounts.google.com/ServiceLogin"]',
-        avatarButton: '#avatar-btn',
-        premiumLogo: 'ytd-topbar-logo-renderer a[title*="Premium"]'
-    };
+const detectLoginState = () => {
+    // Use stored selectors from config (set during initDetector)
+    if (!storedLoginSelectors) {
+        return { state: 'unknown', isPremium: false, rawIndicators: {} };
+    }
 
-    // Use provided selectors, stored selectors, or defaults
-    /** @type {{signInButton: string, avatarButton: string, premiumLogo: string}} */
-    const sels = {
-        signInButton: selectors?.signInButton || storedLoginSelectors?.signInButton || defaultSelectors.signInButton,
-        avatarButton: selectors?.avatarButton || storedLoginSelectors?.avatarButton || defaultSelectors.avatarButton,
-        premiumLogo: selectors?.premiumLogo || storedLoginSelectors?.premiumLogo || defaultSelectors.premiumLogo
-    };
+    const sels = storedLoginSelectors;
 
     /** @type {{hasSignInButton: boolean, hasAvatarButton: boolean, hasPremiumLogo: boolean}} */
     const indicators = {
@@ -75,17 +63,17 @@ const detectLoginState = (selectors) => {
 /**
  * @typedef {Object} YouTubeDetectorConfig
  * @property {string} [state] - Feature state: 'enabled', 'disabled', or 'internal'
- * @property {string[]} [playerSelectors] - Selectors for the player root element
- * @property {string[]} [adClasses] - CSS classes that indicate ads
- * @property {string[]} [adTextPatterns] - Text patterns (regex) that indicate ads
- * @property {number} [sweepIntervalMs] - How often to check for ads/buffering (ms)
- * @property {number} [slowLoadThresholdMs] - Threshold for counting slow loads as buffering (ms)
- * @property {{background: string, thumbnail: string, image: string}} [staticAdSelectors] - Selectors for static overlay ads
- * @property {string[]} [playabilityErrorSelectors] - Selectors for playability error containers
- * @property {string[]} [playabilityErrorPatterns] - Text patterns (regex) for playability errors
- * @property {string[]} [adBlockerDetectionSelectors] - Selectors for ad blocker detection modals
- * @property {string[]} [adBlockerDetectionPatterns] - Text patterns (regex) for ad blocker detection
- * @property {{signInButton: string, avatarButton: string, premiumLogo: string}} [loginStateSelectors] - Selectors for login state detection
+ * @property {string[]} playerSelectors - Selectors for the player root element
+ * @property {string[]} adClasses - CSS classes that indicate ads
+ * @property {string[]} adTextPatterns - Text patterns (regex) that indicate ads
+ * @property {number} sweepIntervalMs - How often to check for ads/buffering (ms)
+ * @property {number} slowLoadThresholdMs - Threshold for counting slow loads as buffering (ms)
+ * @property {{background: string, thumbnail: string, image: string}} staticAdSelectors - Selectors for static overlay ads
+ * @property {string[]} playabilityErrorSelectors - Selectors for playability error containers
+ * @property {string[]} playabilityErrorPatterns - Text patterns (regex) for playability errors
+ * @property {string[]} adBlockerDetectionSelectors - Selectors for ad blocker detection modals
+ * @property {string[]} adBlockerDetectionPatterns - Text patterns (regex) for ad blocker detection
+ * @property {{signInButton: string, avatarButton: string, premiumLogo: string}} loginStateSelectors - Selectors for login state detection
  */
 
 /**
@@ -94,21 +82,11 @@ const detectLoginState = (selectors) => {
  */
 function initDetector(config) {
 
-    // Selector configuration
-    const PLAYER_SELS = config.playerSelectors || ['#movie_player', '.html5-video-player', '#player'];
-    const AD_CLASS_EXACT = config.adClasses || [
-        'ytp-ad-text',
-        'ytp-ad-skip-button',
-        'ytp-ad-skip-button-container',
-        'ytp-ad-message-container',
-        'ytp-ad-player-overlay',
-        'ytp-ad-image-overlay',
-        'video-ads',
-        'ad-showing',
-        'ad-interrupting'
-    ];
-    const SWEEP_INTERVAL = config.sweepIntervalMs || 2000;
-    const SLOW_LOAD_THRESHOLD_MS = config.slowLoadThresholdMs || 2000;
+    // All configuration comes from privacy-config (required)
+    const PLAYER_SELS = config.playerSelectors;
+    const AD_CLASS_EXACT = config.adClasses;
+    const SWEEP_INTERVAL = config.sweepIntervalMs;
+    const SLOW_LOAD_THRESHOLD_MS = config.slowLoadThresholdMs;
 
     /**
      * Convert string patterns to RegExp objects
@@ -120,76 +98,26 @@ function initDetector(config) {
         return patterns.map(p => new RegExp(p, flags));
     };
 
-    // Text patterns that indicate ads (configurable, converted to RegExp at runtime)
-    const AD_TEXT_PATTERNS = toRegExpArray(config.adTextPatterns || [
-        '\\badvertisement\\b',
-        '\\bskip ad\\b',
-        '\\bskip ads\\b',
-        '^ad\\s*[•:·]'
-    ]);
+    // Text patterns that indicate ads (from config, converted to RegExp at runtime)
+    const AD_TEXT_PATTERNS = toRegExpArray(config.adTextPatterns);
 
-    // Selectors for static overlay ads (configurable)
-    const defaultStaticAdSelectors = {
-        background: '.player-container-background',
-        thumbnail: '.player-container-background-image, .player-container-background ytd-thumbnail',
-        image: '.player-container-background yt-image'
-    };
-    const STATIC_AD_SELECTORS = config.staticAdSelectors || defaultStaticAdSelectors;
+    // Selectors for static overlay ads (from config)
+    const STATIC_AD_SELECTORS = config.staticAdSelectors;
 
-    // Selectors for playability errors (configurable)
-    const PLAYABILITY_ERROR_SELECTORS = config.playabilityErrorSelectors || [
-        'ytm-player-error-message-renderer',
-        'yt-player-error-message-renderer',
-        '.ytp-error',
-        '.playability-status-message',
-        '.playability-reason'
-    ];
+    // Selectors for playability errors (from config)
+    const PLAYABILITY_ERROR_SELECTORS = config.playabilityErrorSelectors;
 
-    // Error messages that indicate bot detection or content blocking (configurable)
-    const PLAYABILITY_ERROR_PATTERNS = toRegExpArray(config.playabilityErrorPatterns || [
-        "content isn't available",
-        'video (is )?unavailable',
-        'playback (is )?disabled',
-        "confirm you're not a (ro)?bot",
-        'sign in to confirm',
-        'unusual traffic',
-        'try again later'
-    ]);
+    // Error messages that indicate bot detection or content blocking (from config)
+    const PLAYABILITY_ERROR_PATTERNS = toRegExpArray(config.playabilityErrorPatterns);
 
-    // Selectors for ad blocker detection modals/dialogs (configurable)
-    const ADBLOCKER_DETECTION_SELECTORS = config.adBlockerDetectionSelectors || [
-        'ytd-enforcement-message-view-model',
-        'ytd-popup-container tp-yt-paper-dialog',
-        'tp-yt-paper-dialog',
-        '.ytd-enforcement-message-view-model',
-        '#dialog',
-        '[role="dialog"]'
-    ];
+    // Selectors for ad blocker detection modals/dialogs (from config)
+    const ADBLOCKER_DETECTION_SELECTORS = config.adBlockerDetectionSelectors;
 
-    // Text patterns that indicate ad blocker detection (configurable)
-    const ADBLOCKER_DETECTION_PATTERNS = toRegExpArray(config.adBlockerDetectionPatterns || [
-        'ad\\s*blockers?\\s*(are)?\\s*not allowed',
-        'using an ad\\s*blocker',
-        'allow youtube ads',
-        'disable.*ad\\s*blocker',
-        'turn off.*ad\\s*blocker',
-        'ad\\s*blocker.*detected',
-        'ad\\s*blocking',
-        'will be blocked after \\d+ videos?',
-        'playback will be blocked',
-        'playback is blocked',
-        'youtube is allowlisted',
-        'video player will be blocked',
-        'ad\\s*blockers?\\s*violate',
-        'violate.*terms of service'
-    ]);
+    // Text patterns that indicate ad blocker detection (from config)
+    const ADBLOCKER_DETECTION_PATTERNS = toRegExpArray(config.adBlockerDetectionPatterns);
 
-    // Login state selectors (configurable)
-    const LOGIN_STATE_SELECTORS = config.loginStateSelectors || {
-        signInButton: 'a[href*="accounts.google.com/ServiceLogin"]',
-        avatarButton: '#avatar-btn',
-        premiumLogo: 'ytd-topbar-logo-renderer a[title*="Premium"]'
-    };
+    // Login state selectors (from config)
+    const LOGIN_STATE_SELECTORS = config.loginStateSelectors;
 
     // Store login selectors for use in detectLoginState
     storedLoginSelectors = LOGIN_STATE_SELECTORS;
