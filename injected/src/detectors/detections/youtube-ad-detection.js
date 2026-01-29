@@ -1,24 +1,6 @@
 import { isVisible, toRegExpArray } from '../utils/detection-utils.js';
 
-/**
- * Detect which world we're running in
- * Isolated world has chrome.runtime, page context does not
- * @returns {'isolated' | 'page'}
- */
-const detectWorld = () => {
-    try {
-        // @ts-ignore
-        if (window.chrome?.runtime?.id) {
-            return 'isolated';
-        }
-        return 'page';
-    } catch {
-        return 'page';
-    }
-};
-
-const WORLD = detectWorld();
-const LOG_PREFIX = `[YT-AdDetect:${WORLD}]`;
+const LOG_PREFIX = '[YT-AdDetect]';
 
 /**
  * Logging utility with prefixed output
