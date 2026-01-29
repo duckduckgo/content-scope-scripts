@@ -1366,7 +1366,7 @@
   // src/features.js
   init_define_import_meta_trackerLookup();
   var baseFeatures = (
-    /** @type {const} */
+    /** @type {FeatureName[]} */
     [
       "fingerprintingAudio",
       "fingerprintingBattery",
@@ -1384,7 +1384,7 @@
     ]
   );
   var otherFeatures = (
-    /** @type {const} */
+    /** @type {FeatureName[]} */
     [
       "clickToLoad",
       "cookie",
@@ -1422,7 +1422,7 @@
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
-    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
+    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge", "pageContext"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
@@ -1450,6 +1450,7 @@
       "webCompat",
       "pageContext",
       "duckAiDataClearing",
+      "performanceMetrics",
       "duckAiChatHistory"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
@@ -4471,9 +4472,35 @@
   _args = new WeakMap();
 
   // src/content-feature.js
-  var _messaging, _isDebugFlagSet, _importConfig;
+  function createDeferred() {
+    const deferred = {};
+    deferred.promise = new Promise((resolve, reject) => {
+      deferred.resolve = resolve;
+      deferred.reject = reject;
+    });
+    return deferred;
+  }
+  var CallFeatureMethodError = class extends Error {
+    /**
+     * @param {string} message
+     */
+    constructor(message) {
+      super(message);
+      Object.setPrototypeOf(this, new.target.prototype);
+      this.name = new.target.name;
+    }
+  };
+  var FeatureSkippedError = class extends Error {
+  };
+  var _messaging, _isDebugFlagSet, _importConfig, _features, _ready;
   var ContentFeature = class extends ConfigFeature {
-    constructor(featureName, importConfig, args) {
+    /**
+     * @param {string} featureName
+     * @param {*} importConfig
+     * @param {Partial<FeatureMap>} features
+     * @param {*} args
+     */
+    constructor(featureName, importConfig, features, args) {
       super(featureName, args);
       /** @type {import('./utils.js').RemoteConfig | undefined} */
       /** @type {import('../../messaging').Messaging} */
@@ -4498,15 +4525,43 @@
       __publicField(this, "listenForConfigUpdates", false);
       /** @type {ImportMeta} */
       __privateAdd(this, _importConfig);
+      /**
+       * @type {Partial<FeatureMap>}
+       */
+      __privateAdd(this, _features);
+      /** @type {ReturnType<typeof createDeferred>} */
+      __privateAdd(this, _ready);
+      /**
+       * @template {string} K
+       * @typedef {K[] & {__brand: 'exposeMethods'}} ExposeMethods
+       */
+      /**
+       * Methods that are exposed for inter-feature communication.
+       *
+       * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
+       *
+       * @type {ExposeMethods<any> | undefined}
+       */
+      __publicField(this, "_exposedMethods");
       this.setArgs(this.args);
       this.monitor = new PerformanceMonitor();
+      __privateSet(this, _features, features);
       __privateSet(this, _importConfig, importConfig);
+      __privateSet(this, _ready, createDeferred());
     }
     get isDebug() {
       return this.args?.debug || false;
     }
     get shouldLog() {
       return this.isDebug;
+    }
+    /**
+     * Returns a promise that resolves when the feature has been initialised with `init`.
+     *
+     * @returns {Promise<void>}
+     */
+    get _ready() {
+      return __privateGet(this, _ready).promise;
     }
     /**
      * Logging utility for this feature (Stolen some inspo from DuckPlayer logger, will unify in the future)
@@ -4579,6 +4634,61 @@
       return isTrackerOrigin(this.trackerLookup);
     }
     /**
+     * Declares which methods may be called on the feature instance from other features.
+     *
+     * @template {keyof typeof this} K
+     * @param {K[]} methods
+     * @returns {ExposeMethods<K>}
+     */
+    _declareExposedMethods(methods) {
+      for (const method of methods) {
+        if (typeof this[method] !== "function") {
+          throw new Error(`'${method.toString()}' is not a method of feature '${this.name}'`);
+        }
+      }
+      return methods;
+    }
+    /**
+     * Run an exposed method of another feature.
+     *
+     * Waits for the feature to be initialized before calling the method.
+     *
+     * `args` are the arguments to pass to the feature method.
+     *
+     * NOTE: be aware of potential circular dependencies. Check that the feature
+     * you are calling is not calling you back.
+     *
+     * @template {keyof FeatureMap} FeatureName
+     * @template {FeatureMap[FeatureName]} Feature
+     * @template {keyof Feature & (Feature['_exposedMethods'] extends ExposeMethods<infer K> ? K : never)} MethodName
+     * @param {FeatureName} featureName
+     * @param {MethodName} methodName
+     * @param {Feature[MethodName] extends (...args: infer Args) => any ? Args : never} args
+     * @returns {Promise<ReturnType<Feature[MethodName]> | CallFeatureMethodError>}
+     */
+    async callFeatureMethod(featureName, methodName, ...args) {
+      const feature = __privateGet(this, _features)[featureName];
+      if (!feature) return new CallFeatureMethodError(`Feature not found: '${featureName}'`);
+      if (!(feature._exposedMethods !== void 0 && feature._exposedMethods.some((mn) => mn === methodName)))
+        return new CallFeatureMethodError(`'${methodName}' is not exposed by feature '${featureName}'`);
+      const method = (
+        /** @type {Feature} */
+        feature[methodName]
+      );
+      if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
+      if (!(method instanceof Function))
+        return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
+      try {
+        await feature._ready;
+      } catch (e) {
+        if (e instanceof FeatureSkippedError) {
+          return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${e.message}`);
+        }
+        throw e;
+      }
+      return method.call(feature, ...args);
+    }
+    /**
      * @deprecated as we should make this internal to the class and not used externally
      * @return {MessagingContext}
      */
@@ -4621,12 +4731,32 @@
     }
     init(_args2) {
     }
-    callInit(args) {
+    /**
+     * @param {object} args
+     */
+    async callInit(args) {
       const mark = this.monitor.mark(this.name + "CallInit");
-      this.setArgs(args);
-      this.init(this.args);
-      mark.end();
-      this.measure();
+      try {
+        this.setArgs(args);
+        await this.init(this.args);
+        __privateGet(this, _ready).resolve?.();
+      } catch (error) {
+        __privateGet(this, _ready).reject?.(error);
+        throw error;
+      } finally {
+        mark.end();
+        this.measure();
+      }
+    }
+    /**
+     * Mark this feature as skipped (not initialized).
+     *
+     * This allows inter-feature communication to fail fast instead of hanging indefinitely.
+     *
+     * @param {string} reason - The reason the feature was skipped
+     */
+    markFeatureAsSkipped(reason) {
+      __privateGet(this, _ready).reject?.(new FeatureSkippedError(reason));
     }
     setArgs(args) {
       this.args = args;
@@ -4776,6 +4906,8 @@
   _messaging = new WeakMap();
   _isDebugFlagSet = new WeakMap();
   _importConfig = new WeakMap();
+  _features = new WeakMap();
+  _ready = new WeakMap();
 
   // src/features/web-compat.js
   function windowSizingFix() {
@@ -10797,7 +10929,7 @@ ${iframeContent}
     }
   }
   function listenForURLChanges() {
-    const urlChangedInstance = new ContentFeature("urlChanged", {}, {});
+    const urlChangedInstance = new ContentFeature("urlChanged", {}, {}, {});
     if ("navigation" in globalThis && "addEventListener" in globalThis.navigation) {
       const navigations = /* @__PURE__ */ new WeakMap();
       globalThis.navigation.addEventListener("navigate", (event) => {
@@ -10837,7 +10969,7 @@ ${iframeContent}
   // src/content-scope-features.js
   var initArgs = null;
   var updates = [];
-  var features = [];
+  var _features2 = {};
   var alwaysInitFeatures = /* @__PURE__ */ new Set(["cookie"]);
   var performanceMonitor = new PerformanceMonitor();
   var isHTMLDocument = document instanceof HTMLDocument || document instanceof XMLDocument && document.createElement("div") instanceof HTMLDivElement;
@@ -10855,15 +10987,19 @@ ${iframeContent}
     for (const featureName of bundledFeatureNames) {
       if (featuresToLoad.includes(featureName)) {
         const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
-        const featureInstance2 = new ContentFeature2(featureName, importConfig, args);
+        const featureInstance2 = new ContentFeature2(featureName, importConfig, _features2, args);
         if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
           continue;
         }
         featureInstance2.callLoad();
-        features.push({ featureName, featureInstance: featureInstance2 });
+        _features2[featureName] = featureInstance2;
       }
     }
     mark.end();
+  }
+  async function getFeatures() {
+    await Promise.all(Object.entries(_features2));
+    return _features2;
   }
   async function init(args) {
     const mark = performanceMonitor.mark("init");
@@ -10873,21 +11009,29 @@ ${iframeContent}
     }
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance: featureInstance2, featureName }) => {
-      if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
-        if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
-          return;
+    const features = await getFeatures();
+    await Promise.allSettled(
+      Object.entries(features).map(async ([featureName, featureInstance2]) => {
+        if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+          if (!featureInstance2.getFeatureSettingEnabled("additionalCheck", "enabled")) {
+            featureInstance2.markFeatureAsSkipped("additionalCheck disabled");
+            return;
+          }
+          await featureInstance2.callInit(args);
+          const hasUrlChangedMethod = "urlChanged" in featureInstance2 && typeof featureInstance2.urlChanged === "function";
+          if (featureInstance2.listenForUrlChanges || hasUrlChangedMethod) {
+            registerForURLChanges((navigationType) => {
+              featureInstance2.recomputeSiteObject();
+              if (hasUrlChangedMethod) {
+                featureInstance2.urlChanged(navigationType);
+              }
+            });
+          }
+        } else {
+          featureInstance2.markFeatureAsSkipped("feature is broken or disabled on this site");
         }
-        featureInstance2.callInit(args);
-        if (featureInstance2.listenForUrlChanges || featureInstance2.urlChanged) {
-          registerForURLChanges((navigationType) => {
-            featureInstance2.recomputeSiteObject();
-            featureInstance2?.urlChanged(navigationType);
-          });
-        }
-      }
-    });
+      })
+    );
     while (updates.length) {
       const update = updates.pop();
       await updateFeaturesInner(update);
@@ -10901,8 +11045,8 @@ ${iframeContent}
     return args.platform.name === "extension" && alwaysInitFeatures.has(featureName);
   }
   async function updateFeaturesInner(args) {
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance: featureInstance2, featureName }) => {
+    const features = await getFeatures();
+    Object.entries(features).forEach(([featureName, featureInstance2]) => {
       if (!isFeatureBroken(initArgs, featureName) && featureInstance2.listenForUpdateChanges) {
         featureInstance2.update(args);
       }

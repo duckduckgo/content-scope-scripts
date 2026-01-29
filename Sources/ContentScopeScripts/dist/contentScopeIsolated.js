@@ -69,7 +69,7 @@
        * Steven Levithan (c) 2007-2017 MIT License
        */
       var REGEX_DATA = "xregexp";
-      var features2 = {
+      var features = {
         astral: false,
         natives: false
       };
@@ -305,7 +305,7 @@
         return result;
       }
       function setAstral(on) {
-        features2.astral = on;
+        features.astral = on;
       }
       function setNatives(on) {
         RegExp.prototype.exec = (on ? fixed : nativ).exec;
@@ -313,7 +313,7 @@
         String.prototype.match = (on ? fixed : nativ).match;
         String.prototype.replace = (on ? fixed : nativ).replace;
         String.prototype.split = (on ? fixed : nativ).split;
-        features2.natives = on;
+        features.natives = on;
       }
       function toObject(value) {
         if (value == null) {
@@ -484,15 +484,15 @@
       };
       XRegExp.install = function(options) {
         options = prepareOptions(options);
-        if (!features2.astral && options.astral) {
+        if (!features.astral && options.astral) {
           setAstral(true);
         }
-        if (!features2.natives && options.natives) {
+        if (!features.natives && options.natives) {
           setNatives(true);
         }
       };
       XRegExp.isInstalled = function(feature) {
-        return !!features2[feature];
+        return !!features[feature];
       };
       XRegExp.isRegExp = function(value) {
         return toString2.call(value) === "[object RegExp]";
@@ -576,10 +576,10 @@
       };
       XRegExp.uninstall = function(options) {
         options = prepareOptions(options);
-        if (features2.astral && options.astral) {
+        if (features.astral && options.astral) {
           setAstral(false);
         }
-        if (features2.natives && options.natives) {
+        if (features.natives && options.natives) {
           setNatives(false);
         }
       };
@@ -2062,7 +2062,7 @@
   // src/features.js
   init_define_import_meta_trackerLookup();
   var baseFeatures = (
-    /** @type {const} */
+    /** @type {FeatureName[]} */
     [
       "fingerprintingAudio",
       "fingerprintingBattery",
@@ -2080,7 +2080,7 @@
     ]
   );
   var otherFeatures = (
-    /** @type {const} */
+    /** @type {FeatureName[]} */
     [
       "clickToLoad",
       "cookie",
@@ -2118,7 +2118,7 @@
     ],
     "apple-ai-clear": ["duckAiDataClearing"],
     "apple-ai-history": ["duckAiChatHistory"],
-    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge"],
+    android: [...baseFeatures, "webCompat", "webInterferenceDetection", "breakageReporting", "duckPlayer", "messageBridge", "pageContext"],
     "android-broker-protection": ["brokerProtection"],
     "android-autofill-import": ["autofillImport"],
     "android-adsjs": [
@@ -2146,6 +2146,7 @@
       "webCompat",
       "pageContext",
       "duckAiDataClearing",
+      "performanceMetrics",
       "duckAiChatHistory"
     ],
     firefox: ["cookie", ...baseFeatures, "clickToLoad", "webInterferenceDetection", "breakageReporting"],
@@ -5149,9 +5150,35 @@
   _args = new WeakMap();
 
   // src/content-feature.js
-  var _messaging, _isDebugFlagSet, _importConfig;
+  function createDeferred() {
+    const deferred = {};
+    deferred.promise = new Promise((resolve, reject) => {
+      deferred.resolve = resolve;
+      deferred.reject = reject;
+    });
+    return deferred;
+  }
+  var CallFeatureMethodError = class extends Error {
+    /**
+     * @param {string} message
+     */
+    constructor(message) {
+      super(message);
+      Object.setPrototypeOf(this, new.target.prototype);
+      this.name = new.target.name;
+    }
+  };
+  var FeatureSkippedError = class extends Error {
+  };
+  var _messaging, _isDebugFlagSet, _importConfig, _features, _ready;
   var ContentFeature = class extends ConfigFeature {
-    constructor(featureName, importConfig, args) {
+    /**
+     * @param {string} featureName
+     * @param {*} importConfig
+     * @param {Partial<FeatureMap>} features
+     * @param {*} args
+     */
+    constructor(featureName, importConfig, features, args) {
       super(featureName, args);
       /** @type {import('./utils.js').RemoteConfig | undefined} */
       /** @type {import('../../messaging').Messaging} */
@@ -5176,15 +5203,43 @@
       __publicField(this, "listenForConfigUpdates", false);
       /** @type {ImportMeta} */
       __privateAdd(this, _importConfig);
+      /**
+       * @type {Partial<FeatureMap>}
+       */
+      __privateAdd(this, _features);
+      /** @type {ReturnType<typeof createDeferred>} */
+      __privateAdd(this, _ready);
+      /**
+       * @template {string} K
+       * @typedef {K[] & {__brand: 'exposeMethods'}} ExposeMethods
+       */
+      /**
+       * Methods that are exposed for inter-feature communication.
+       *
+       * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
+       *
+       * @type {ExposeMethods<any> | undefined}
+       */
+      __publicField(this, "_exposedMethods");
       this.setArgs(this.args);
       this.monitor = new PerformanceMonitor();
+      __privateSet(this, _features, features);
       __privateSet(this, _importConfig, importConfig);
+      __privateSet(this, _ready, createDeferred());
     }
     get isDebug() {
       return this.args?.debug || false;
     }
     get shouldLog() {
       return this.isDebug;
+    }
+    /**
+     * Returns a promise that resolves when the feature has been initialised with `init`.
+     *
+     * @returns {Promise<void>}
+     */
+    get _ready() {
+      return __privateGet(this, _ready).promise;
     }
     /**
      * Logging utility for this feature (Stolen some inspo from DuckPlayer logger, will unify in the future)
@@ -5257,6 +5312,61 @@
       return isTrackerOrigin(this.trackerLookup);
     }
     /**
+     * Declares which methods may be called on the feature instance from other features.
+     *
+     * @template {keyof typeof this} K
+     * @param {K[]} methods
+     * @returns {ExposeMethods<K>}
+     */
+    _declareExposedMethods(methods) {
+      for (const method of methods) {
+        if (typeof this[method] !== "function") {
+          throw new Error(`'${method.toString()}' is not a method of feature '${this.name}'`);
+        }
+      }
+      return methods;
+    }
+    /**
+     * Run an exposed method of another feature.
+     *
+     * Waits for the feature to be initialized before calling the method.
+     *
+     * `args` are the arguments to pass to the feature method.
+     *
+     * NOTE: be aware of potential circular dependencies. Check that the feature
+     * you are calling is not calling you back.
+     *
+     * @template {keyof FeatureMap} FeatureName
+     * @template {FeatureMap[FeatureName]} Feature
+     * @template {keyof Feature & (Feature['_exposedMethods'] extends ExposeMethods<infer K> ? K : never)} MethodName
+     * @param {FeatureName} featureName
+     * @param {MethodName} methodName
+     * @param {Feature[MethodName] extends (...args: infer Args) => any ? Args : never} args
+     * @returns {Promise<ReturnType<Feature[MethodName]> | CallFeatureMethodError>}
+     */
+    async callFeatureMethod(featureName, methodName, ...args) {
+      const feature = __privateGet(this, _features)[featureName];
+      if (!feature) return new CallFeatureMethodError(`Feature not found: '${featureName}'`);
+      if (!(feature._exposedMethods !== void 0 && feature._exposedMethods.some((mn) => mn === methodName)))
+        return new CallFeatureMethodError(`'${methodName}' is not exposed by feature '${featureName}'`);
+      const method = (
+        /** @type {Feature} */
+        feature[methodName]
+      );
+      if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
+      if (!(method instanceof Function))
+        return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
+      try {
+        await feature._ready;
+      } catch (e) {
+        if (e instanceof FeatureSkippedError) {
+          return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${e.message}`);
+        }
+        throw e;
+      }
+      return method.call(feature, ...args);
+    }
+    /**
      * @deprecated as we should make this internal to the class and not used externally
      * @return {MessagingContext}
      */
@@ -5299,12 +5409,32 @@
     }
     init(_args2) {
     }
-    callInit(args) {
+    /**
+     * @param {object} args
+     */
+    async callInit(args) {
       const mark = this.monitor.mark(this.name + "CallInit");
-      this.setArgs(args);
-      this.init(this.args);
-      mark.end();
-      this.measure();
+      try {
+        this.setArgs(args);
+        await this.init(this.args);
+        __privateGet(this, _ready).resolve?.();
+      } catch (error) {
+        __privateGet(this, _ready).reject?.(error);
+        throw error;
+      } finally {
+        mark.end();
+        this.measure();
+      }
+    }
+    /**
+     * Mark this feature as skipped (not initialized).
+     *
+     * This allows inter-feature communication to fail fast instead of hanging indefinitely.
+     *
+     * @param {string} reason - The reason the feature was skipped
+     */
+    markFeatureAsSkipped(reason) {
+      __privateGet(this, _ready).reject?.(new FeatureSkippedError(reason));
     }
     setArgs(args) {
       this.args = args;
@@ -5454,6 +5584,8 @@
   _messaging = new WeakMap();
   _isDebugFlagSet = new WeakMap();
   _importConfig = new WeakMap();
+  _features = new WeakMap();
+  _ready = new WeakMap();
 
   // src/features/duckplayer/overlay-messages.js
   init_define_import_meta_trackerLookup();
@@ -10920,6 +11052,24 @@ ul.messages {
           continue;
         }
         results.push(setValueForInput(inputElem, data2.city + ", " + data2.state));
+      } else if (element.type === "fullState") {
+        if (!Object.prototype.hasOwnProperty.call(data2, "state")) {
+          results.push({
+            result: false,
+            error: `element found with selector '${element.selector}', but data didn't contain the key 'state'`
+          });
+          continue;
+        }
+        const state2 = data2.state;
+        if (!Object.prototype.hasOwnProperty.call(states, state2)) {
+          results.push({
+            result: false,
+            error: `element found with selector '${element.selector}', but data contained an invalid 'state' abbreviation`
+          });
+          continue;
+        }
+        const stateFull = states[state2];
+        results.push(setValueForInput(inputElem, stateFull));
       } else {
         if (isElementTypeOptional(element.type)) {
           continue;
@@ -10974,7 +11124,17 @@ ul.messages {
         events.forEach((ev) => el.dispatchEvent(ev));
         el.blur();
       } else if (el.tagName === "SELECT") {
-        originalSet.call(el, val);
+        const selectElement = (
+          /** @type {HTMLSelectElement} */
+          el
+        );
+        const selectValues = [...selectElement.options].map((o) => o.value);
+        const valStr = String(val);
+        const matchingValue = selectValues.find((option) => option.toLowerCase() === valStr.toLowerCase());
+        if (matchingValue === void 0) {
+          return { result: false, error: `could not find matching value for select element: ${val}` };
+        }
+        originalSet.call(el, matchingValue);
         const events = [
           new Event("mousedown", { bubbles: true }),
           new Event("mouseup", { bubbles: true }),
@@ -13353,6 +13513,17 @@ ul.messages {
             result.expandedPerformanceMetrics = expandedPerformanceMetrics.metrics;
           }
         }
+        const breakageDataPayload = {};
+        if (result.detectorData) {
+          breakageDataPayload.detectorData = result.detectorData;
+        }
+        if (Object.keys(breakageDataPayload).length > 0) {
+          try {
+            result.breakageData = encodeURIComponent(JSON.stringify(breakageDataPayload));
+          } catch (e) {
+            result.breakageData = encodeURIComponent(JSON.stringify({ error: "encoding_failed" }));
+          }
+        }
         this.messaging.notify("breakageReportResult", result);
       });
     }
@@ -13367,10 +13538,33 @@ ul.messages {
         this.messaging.notify("vitalsResult", { vitals });
       });
       if (isBeingFramed()) return;
+      if (this.getFeatureSettingEnabled("firstContentfulPaint", "enabled")) {
+        this.observeFirstContentfulPaint();
+      }
       if (this.getFeatureSettingEnabled("expandedPerformanceMetricsOnLoad", "enabled")) {
         this.waitForAfterPageLoad(() => {
           this.triggerExpandedPerformanceMetrics();
         });
+      }
+    }
+    /**
+     * Observes First Contentful Paint and notifies the native app when it occurs.
+     * Uses buffered option to catch FCP if it already happened before observation started.
+     */
+    observeFirstContentfulPaint() {
+      try {
+        const observer = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          const fcpEntry = entries.find((entry) => entry.name === "first-contentful-paint");
+          if (fcpEntry) {
+            this.messaging.notify("firstContentfulPaint", {
+              value: fcpEntry.startTime
+            });
+            observer.disconnect();
+          }
+        });
+        observer.observe({ type: "paint", buffered: true });
+      } catch (e) {
       }
     }
     waitForNextTask(callback) {
@@ -16636,7 +16830,7 @@ ul.messages {
     }
   }
   function listenForURLChanges() {
-    const urlChangedInstance = new ContentFeature("urlChanged", {}, {});
+    const urlChangedInstance = new ContentFeature("urlChanged", {}, {}, {});
     if ("navigation" in globalThis && "addEventListener" in globalThis.navigation) {
       const navigations = /* @__PURE__ */ new WeakMap();
       globalThis.navigation.addEventListener("navigate", (event) => {
@@ -16676,7 +16870,7 @@ ul.messages {
   // src/content-scope-features.js
   var initArgs = null;
   var updates = [];
-  var features = [];
+  var _features2 = {};
   var alwaysInitFeatures = /* @__PURE__ */ new Set(["cookie"]);
   var performanceMonitor = new PerformanceMonitor();
   var isHTMLDocument = document instanceof HTMLDocument || document instanceof XMLDocument && document.createElement("div") instanceof HTMLDivElement;
@@ -16694,15 +16888,19 @@ ul.messages {
     for (const featureName of bundledFeatureNames) {
       if (featuresToLoad.includes(featureName)) {
         const ContentFeature2 = ddg_platformFeatures_default["ddg_feature_" + featureName];
-        const featureInstance = new ContentFeature2(featureName, importConfig, args);
+        const featureInstance = new ContentFeature2(featureName, importConfig, _features2, args);
         if (!featureInstance.getFeatureSettingEnabled("additionalCheck", "enabled")) {
           continue;
         }
         featureInstance.callLoad();
-        features.push({ featureName, featureInstance });
+        _features2[featureName] = featureInstance;
       }
     }
     mark.end();
+  }
+  async function getFeatures() {
+    await Promise.all(Object.entries(_features2));
+    return _features2;
   }
   async function init(args) {
     const mark = performanceMonitor.mark("init");
@@ -16712,21 +16910,29 @@ ul.messages {
     }
     registerMessageSecret(args.messageSecret);
     initStringExemptionLists(args);
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
-      if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
-        if (!featureInstance.getFeatureSettingEnabled("additionalCheck", "enabled")) {
-          return;
+    const features = await getFeatures();
+    await Promise.allSettled(
+      Object.entries(features).map(async ([featureName, featureInstance]) => {
+        if (!isFeatureBroken(args, featureName) || alwaysInitExtensionFeatures(args, featureName)) {
+          if (!featureInstance.getFeatureSettingEnabled("additionalCheck", "enabled")) {
+            featureInstance.markFeatureAsSkipped("additionalCheck disabled");
+            return;
+          }
+          await featureInstance.callInit(args);
+          const hasUrlChangedMethod = "urlChanged" in featureInstance && typeof featureInstance.urlChanged === "function";
+          if (featureInstance.listenForUrlChanges || hasUrlChangedMethod) {
+            registerForURLChanges((navigationType) => {
+              featureInstance.recomputeSiteObject();
+              if (hasUrlChangedMethod) {
+                featureInstance.urlChanged(navigationType);
+              }
+            });
+          }
+        } else {
+          featureInstance.markFeatureAsSkipped("feature is broken or disabled on this site");
         }
-        featureInstance.callInit(args);
-        if (featureInstance.listenForUrlChanges || featureInstance.urlChanged) {
-          registerForURLChanges((navigationType) => {
-            featureInstance.recomputeSiteObject();
-            featureInstance?.urlChanged(navigationType);
-          });
-        }
-      }
-    });
+      })
+    );
     while (updates.length) {
       const update = updates.pop();
       await updateFeaturesInner(update);
@@ -16740,8 +16946,8 @@ ul.messages {
     return args.platform.name === "extension" && alwaysInitFeatures.has(featureName);
   }
   async function updateFeaturesInner(args) {
-    const resolvedFeatures = await Promise.all(features);
-    resolvedFeatures.forEach(({ featureInstance, featureName }) => {
+    const features = await getFeatures();
+    Object.entries(features).forEach(([featureName, featureInstance]) => {
       if (!isFeatureBroken(initArgs, featureName) && featureInstance.listenForUpdateChanges) {
         featureInstance.update(args);
       }
