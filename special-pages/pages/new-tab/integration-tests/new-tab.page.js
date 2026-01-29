@@ -190,4 +190,59 @@ export class NewtabPage {
         const rgb = `rgb(${[r, g, b].join(', ')})`;
         await expect(this.page.locator('body')).toHaveCSS('background-color', rgb, { timeout: 1000 });
     }
+
+    /**
+     * Opens the add widget menu in the customizer
+     */
+    async openAddWidgetMenu() {
+        await this.page.getByRole('button', { name: 'Customize' }).click();
+        // The add button is in the widgets section header
+        const addButton = this.page.locator('[class*="addButton"]');
+        await addButton.click();
+    }
+
+    /**
+     * Adds a widget instance of the specified type
+     * @param {'Weather' | 'News' | 'Stock'} type
+     */
+    async addWidgetInstance(type) {
+        await this.openAddWidgetMenu();
+        await this.page.getByRole('button', { name: type }).click();
+    }
+
+    /**
+     * Removes a widget instance by clicking its remove button
+     * @param {string} title - The widget row title (e.g., "Weather", "Weather - NYC")
+     */
+    async removeWidgetInstance(title) {
+        const row = this.page.locator('[class*="row"]').filter({ hasText: title });
+        await row.locator('[class*="removeButton"]').click();
+    }
+
+    /**
+     * Gets the count of widget rows in the customizer
+     * @returns {Promise<number>}
+     */
+    getWidgetRowCount() {
+        return this.page.locator('[class*="widgetsSection"] [class*="row"]').count();
+    }
+
+    /**
+     * Checks if a widget row exists with the given title
+     * @param {string} title
+     * @returns {Promise<boolean>}
+     */
+    async hasWidgetRow(title) {
+        const count = await this.page.locator('[class*="widgetsSection"] [class*="row"]').filter({ hasText: title }).count();
+        return count > 0;
+    }
+
+    /**
+     * Gets the widget entry points visible on the page
+     * @param {string} type - e.g., 'weather', 'news', 'stock'
+     * @returns {Promise<number>}
+     */
+    getWidgetEntryPointCount(type) {
+        return this.page.locator(`[data-entry-point="${type}"]`).count();
+    }
 }

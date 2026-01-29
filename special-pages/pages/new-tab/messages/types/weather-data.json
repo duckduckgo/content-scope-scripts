@@ -9,6 +9,10 @@
     "location"
   ],
   "properties": {
+    "instanceId": {
+      "description": "Unique identifier for this widget instance",
+      "type": "string"
+    },
     "temperature": {
       "description": "Current temperature in user's preferred unit",
       "type": "number"

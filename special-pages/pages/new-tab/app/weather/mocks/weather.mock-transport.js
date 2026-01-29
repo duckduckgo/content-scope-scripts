@@ -26,6 +26,11 @@ export function weatherMockTransport() {
         }
     }
 
+    // Add default instanceId if not present
+    if (!dataset.instanceId) {
+        dataset.instanceId = 'weather-1';
+    }
+
     // Allow URL param overrides for individual fields
     if (url.searchParams.has('weather.temp')) {
         const temp = parseFloat(url.searchParams.get('weather.temp') || '0');
@@ -56,6 +61,10 @@ export function weatherMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
+                case 'weather_openSetLocationDialog': {
+                    console.log('mock: weather_openSetLocationDialog', msg.params);
+                    return;
+                }
                 default: {
                     console.warn('unhandled weather notification', msg);
                 }
@@ -85,8 +94,11 @@ export function weatherMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
-                case 'weather_getData':
-                    return Promise.resolve(dataset);
+                case 'weather_getData': {
+                    // If instanceId provided, include it in response
+                    const instanceId = msg.params?.instanceId || 'weather-1';
+                    return Promise.resolve({ ...dataset, instanceId });
+                }
                 default: {
                     return Promise.reject(new Error('unhandled weather request: ' + msg.method));
                 }

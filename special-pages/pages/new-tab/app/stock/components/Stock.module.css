@@ -41,3 +41,38 @@
 .negative {
     color: var(--ntp-color-negative, #cb2431);
 }
+
+.emptyStateTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ntp-text-normal, #333);
+    margin-bottom: 8px;
+}
+
+.emptyStateDescription {
+    font-size: 14px;
+    color: var(--ntp-text-muted, #666);
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.emptyStateButton {
+    padding: 8px 16px;
+    background-color: var(--ds-color-theme-accent-fill-primary, #3969EF);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background-color: var(--ds-color-theme-accent-fill-secondary, #2850C8);
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+}

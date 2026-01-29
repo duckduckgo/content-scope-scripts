@@ -2,10 +2,13 @@ import { h } from 'preact';
 import { Centered } from '../components/Layout.js';
 import { WeatherCustomized } from '../weather/components/WeatherCustomized.js';
 
-export function factory() {
+/**
+ * @param {string} [instanceId]
+ */
+export function factory(instanceId) {
     return (
-        <Centered data-entry-point="weather">
-            <WeatherCustomized />
+        <Centered data-entry-point="weather" data-instance-id={instanceId}>
+            <WeatherCustomized instanceId={instanceId} />
         </Centered>
     );
 }

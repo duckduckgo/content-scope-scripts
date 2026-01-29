@@ -7,6 +7,10 @@
     "results"
   ],
   "properties": {
+    "instanceId": {
+      "description": "Unique identifier for this widget instance",
+      "type": "string"
+    },
     "results": {
       "description": "Array of news items",
       "type": "array",

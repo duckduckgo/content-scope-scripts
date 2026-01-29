@@ -4,7 +4,7 @@ import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/componen
 import { SettingsProvider } from './settings.provider.js';
 import { InitialSetupContext, MessagingContext, TelemetryContext } from './types';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider.js';
-import { WidgetConfigService } from './widget-list/widget-config.service.js';
+import { WidgetConfigService, MULTI_INSTANCE_WIDGETS } from './widget-list/widget-config.service.js';
 import enStrings from '../public/locales/en/new-tab.json';
 import { WidgetConfigProvider } from './widget-list/widget-config.provider.js';
 import { Settings } from './settings.js';
@@ -90,7 +90,14 @@ export async function init(root, messaging, telemetry, baseEnvironment) {
     }
 
     // Resolve the entry points for each selected widget
-    const entryPoints = await resolveEntryPoints(init.widgets, didCatch);
+    // Also pre-load entry points for multi-instance widgets so they can be added dynamically
+    const widgetsToLoad = [...init.widgets];
+    for (const multiInstanceType of MULTI_INSTANCE_WIDGETS) {
+        if (!widgetsToLoad.some((w) => w.id === multiInstanceType)) {
+            widgetsToLoad.push({ id: multiInstanceType });
+        }
+    }
+    const entryPoints = await resolveEntryPoints(widgetsToLoad, didCatch);
     const tabs = new TabsService(messaging, init.tabs || TabsService.DEFAULT);
 
     // Create an instance of the global widget api

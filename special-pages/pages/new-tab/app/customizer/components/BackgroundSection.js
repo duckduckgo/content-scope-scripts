@@ -11,7 +11,7 @@ import { detectThemeFromHex } from '../utils.js';
 import { useTypedTranslationWith } from '../../types.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData } from '../../../types/new-tab.js'
+ * @import { Widgets, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData } from '../../../types/new-tab.js'
  * @import enStrings from '../strings.json';
  */
 

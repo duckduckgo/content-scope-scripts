@@ -12,7 +12,7 @@ import { useTypedTranslationWith } from '../../types.js';
 
 /**
  * @import enStrings from '../strings.json';
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, PredefinedGradient, UserImageContextMenu } from '../../../types/new-tab.js'
+ * @import { Widgets, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, PredefinedGradient, UserImageContextMenu } from '../../../types/new-tab.js'
  */
 
 /**

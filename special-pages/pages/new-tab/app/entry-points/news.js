@@ -2,10 +2,13 @@ import { h } from 'preact';
 import { Centered } from '../components/Layout.js';
 import { NewsCustomized } from '../news/components/NewsCustomized.js';
 
-export function factory() {
+/**
+ * @param {string} [instanceId]
+ */
+export function factory(instanceId) {
     return (
-        <Centered data-entry-point="news">
-            <NewsCustomized />
+        <Centered data-entry-point="news" data-instance-id={instanceId}>
+            <NewsCustomized instanceId={instanceId} />
         </Centered>
     );
 }

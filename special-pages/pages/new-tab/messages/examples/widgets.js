@@ -17,7 +17,7 @@ const widgetConfigs = [
 ];
 
 /**
- * @type {import("../../types/new-tab.js").WidgetConfigItem}
+ * @type {import("../../types/new-tab.js").WidgetConfigs[number]}
  */
 const widgetConfig = {
     id: 'weatherWidget',

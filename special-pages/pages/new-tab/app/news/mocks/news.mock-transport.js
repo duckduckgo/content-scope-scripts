@@ -26,6 +26,11 @@ export function newsMockTransport() {
         }
     }
 
+    // Add default instanceId if not present
+    if (!dataset.instanceId) {
+        dataset.instanceId = 'news-1';
+    }
+
     /** @type {Map<string, (d: any) => void>} */
     const subs = new Map();
 
@@ -34,6 +39,10 @@ export function newsMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
+                case 'news_openSetQueryDialog': {
+                    console.log('mock: news_openSetQueryDialog', msg.params);
+                    return;
+                }
                 default: {
                     console.warn('unhandled news notification', msg);
                 }
@@ -53,8 +62,11 @@ export function newsMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
-                case 'news_getData':
-                    return Promise.resolve(dataset);
+                case 'news_getData': {
+                    // If instanceId provided, include it in response
+                    const instanceId = msg.params?.instanceId || 'news-1';
+                    return Promise.resolve({ ...dataset, instanceId });
+                }
                 default: {
                     return Promise.reject(new Error('unhandled news request: ' + msg.method));
                 }

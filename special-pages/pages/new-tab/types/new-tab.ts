@@ -79,9 +79,13 @@ export type FeedType = "privacy-stats" | "activity";
  */
 export type WidgetVisibility = "visible" | "hidden";
 /**
+ * The expansion state of the widget
+ */
+export type WidgetExpansion = "expanded" | "collapsed";
+/**
  * Configuration settings for widgets
  */
-export type WidgetConfigs = WidgetConfigItem[];
+export type WidgetConfigs = (WeatherWidgetConfig | NewsWidgetConfig | StockWidgetConfig | BaseWidgetConfig)[];
 export type Favicon = null | {
   src: string;
   maxAvailableSize?: number;
@@ -142,6 +146,7 @@ export interface NewTabMessages {
     | FavoritesSetConfigNotification
     | FreemiumPIRBannerActionNotification
     | FreemiumPIRBannerDismissNotification
+    | NewsOpenSetQueryDialogNotification
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
@@ -158,8 +163,10 @@ export interface NewTabMessages {
     | RmfSecondaryActionNotification
     | StatsShowLessNotification
     | StatsShowMoreNotification
+    | StockOpenSetSymbolDialogNotification
     | TelemetryEventNotification
     | UpdateNotificationDismissNotification
+    | WeatherOpenSetLocationDialogNotification
     | WidgetsSetConfigNotification
     | WinBackOfferActionNotification
     | WinBackOfferDismissNotification;
@@ -471,6 +478,22 @@ export interface FreemiumPIRBannerDismissAction {
   id: string;
 }
 /**
+ * Generated from @see "../messages/news_openSetQueryDialog.notify.json"
+ */
+export interface NewsOpenSetQueryDialogNotification {
+  method: "news_openSetQueryDialog";
+  params: NewsOpenSetQueryDialog;
+}
+/**
+ * Opens the native dialog to set the query for a news widget instance
+ */
+export interface NewsOpenSetQueryDialog {
+  /**
+   * Unique identifier for this widget instance
+   */
+  instanceId: string;
+}
+/**
  * Generated from @see "../messages/nextSteps_action.notify.json"
  */
 export interface NextStepsActionNotification {
@@ -678,6 +701,22 @@ export interface StatsShowMoreNotification {
   method: "stats_showMore";
 }
 /**
+ * Generated from @see "../messages/stock_openSetSymbolDialog.notify.json"
+ */
+export interface StockOpenSetSymbolDialogNotification {
+  method: "stock_openSetSymbolDialog";
+  params: StockOpenSetSymbolDialog;
+}
+/**
+ * Opens the native dialog to set the symbol for a stock widget instance
+ */
+export interface StockOpenSetSymbolDialog {
+  /**
+   * Unique identifier for this widget instance
+   */
+  instanceId: string;
+}
+/**
  * Generated from @see "../messages/telemetryEvent.notify.json"
  */
 export interface TelemetryEventNotification {
@@ -711,13 +750,75 @@ export interface UpdateNotificationDismissNotification {
   method: "updateNotification_dismiss";
 }
 /**
+ * Generated from @see "../messages/weather_openSetLocationDialog.notify.json"
+ */
+export interface WeatherOpenSetLocationDialogNotification {
+  method: "weather_openSetLocationDialog";
+  params: WeatherOpenSetLocationDialog;
+}
+/**
+ * Opens the native dialog to set the location for a weather widget instance
+ */
+export interface WeatherOpenSetLocationDialog {
+  /**
+   * Unique identifier for this widget instance
+   */
+  instanceId: string;
+}
+/**
  * Generated from @see "../messages/widgets_setConfig.notify.json"
  */
 export interface WidgetsSetConfigNotification {
   method: "widgets_setConfig";
   params: WidgetConfigs;
 }
-export interface WidgetConfigItem {
+export interface WeatherWidgetConfig {
+  id: "weather";
+  /**
+   * Unique identifier for this widget instance
+   */
+  instanceId: string;
+  visibility: WidgetVisibility;
+  /**
+   * Location for weather data. Null indicates unconfigured state.
+   */
+  location?: string | null;
+  /**
+   * Temperature unit preference
+   */
+  temperatureUnit?: "celsius" | "fahrenheit";
+  expansion?: WidgetExpansion;
+}
+export interface NewsWidgetConfig {
+  id: "news";
+  /**
+   * Unique identifier for this widget instance
+   */
+  instanceId: string;
+  visibility: WidgetVisibility;
+  /**
+   * Search query for news. Null indicates unconfigured state.
+   */
+  query?: string | null;
+  expansion?: WidgetExpansion;
+}
+export interface StockWidgetConfig {
+  id: "stock";
+  /**
+   * Unique identifier for this widget instance
+   */
+  instanceId: string;
+  visibility: WidgetVisibility;
+  /**
+   * Stock ticker symbol. Null indicates unconfigured state.
+   */
+  symbol?: string | null;
+  expansion?: WidgetExpansion;
+}
+/**
+ * Configuration for non-multi-instance widgets
+ */
+export interface BaseWidgetConfig {
   /**
    * A unique identifier for the widget.
    */
@@ -965,12 +1066,23 @@ export interface Tabs {
  */
 export interface NewsGetDataRequest {
   method: "news_getData";
+  params: NewsGetDataRequest1;
   result: NewsData;
+}
+export interface NewsGetDataRequest1 {
+  /**
+   * Optional instance ID for multi-instance widgets
+   */
+  instanceId?: string;
 }
 /**
  * News data for the news widget
  */
 export interface NewsData {
+  /**
+   * Unique identifier for this widget instance
+   */
+  instanceId?: string;
   /**
    * Array of news items
    */
@@ -1133,12 +1245,23 @@ export interface TrackerCompany {
  */
 export interface StockGetDataRequest {
   method: "stock_getData";
+  params: StockGetDataRequest1;
   result: StockData;
+}
+export interface StockGetDataRequest1 {
+  /**
+   * Optional instance ID for multi-instance widgets
+   */
+  instanceId?: string;
 }
 /**
  * Stock data for the stock widget
  */
 export interface StockData {
+  /**
+   * Unique identifier for this widget instance
+   */
+  instanceId?: string;
   /**
    * Stock ticker symbol
    */
@@ -1217,12 +1340,23 @@ export interface StockData {
  */
 export interface WeatherGetDataRequest {
   method: "weather_getData";
+  params: WeatherGetDataRequest1;
   result: WeatherData;
+}
+export interface WeatherGetDataRequest1 {
+  /**
+   * Optional instance ID for multi-instance widgets
+   */
+  instanceId?: string;
 }
 /**
  * Weather data for the weather widget
  */
 export interface WeatherData {
+  /**
+   * Unique identifier for this widget instance
+   */
+  instanceId?: string;
   /**
    * Current temperature in user's preferred unit
    */

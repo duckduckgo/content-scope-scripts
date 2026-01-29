@@ -26,6 +26,11 @@ export function stockMockTransport() {
         }
     }
 
+    // Add default instanceId if not present
+    if (!dataset.instanceId) {
+        dataset.instanceId = 'stock-1';
+    }
+
     // Allow URL param overrides for individual fields
     if (url.searchParams.has('stock.symbol')) {
         const symbol = url.searchParams.get('stock.symbol');
@@ -63,6 +68,10 @@ export function stockMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
+                case 'stock_openSetSymbolDialog': {
+                    console.log('mock: stock_openSetSymbolDialog', msg.params);
+                    return;
+                }
                 default: {
                     console.warn('unhandled stock notification', msg);
                 }
@@ -94,8 +103,11 @@ export function stockMockTransport() {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['requests']} */
             const msg = /** @type {any} */ (_msg);
             switch (msg.method) {
-                case 'stock_getData':
-                    return Promise.resolve(dataset);
+                case 'stock_getData': {
+                    // If instanceId provided, include it in response
+                    const instanceId = msg.params?.instanceId || 'stock-1';
+                    return Promise.resolve({ ...dataset, instanceId });
+                }
                 default: {
                     return Promise.reject(new Error('unhandled stock request: ' + msg.method));
                 }

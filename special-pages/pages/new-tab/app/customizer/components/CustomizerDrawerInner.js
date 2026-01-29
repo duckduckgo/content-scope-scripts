@@ -6,7 +6,7 @@ import { useDrawerControls } from '../../components/Drawer.js';
 import { BackgroundSection } from './BackgroundSection.js';
 import { BrowserThemeSection } from './BrowserThemeSection.js';
 import { ThemeSection } from './ThemeSection.js';
-import { VisibilityMenuSection } from './VisibilityMenuSection.js';
+import { WidgetsSection } from './WidgetsSection.js';
 import { ColorSelection } from './ColorSelection.js';
 import { GradientSelection } from './GradientSelection.js';
 import { batch, useSignal } from '@preact/signals';
@@ -20,9 +20,12 @@ import { Open } from '../../components/icons/Open.js';
 import { CustomizerContext } from '../CustomizerProvider.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, UserImageContextMenu } from '../../../types/new-tab.js'
+ * @import { Widgets, WidgetConfigs, WidgetVisibility, VisibilityMenuItem, CustomizerData, BackgroundData, UserImageContextMenu } from '../../../types/new-tab.js'
  * @import { SettingsLinkData } from '../CustomizerProvider';
  * @import enStrings from '../strings.json';
+ */
+/**
+ * @typedef {WidgetConfigs[number]} WidgetConfigItem
  */
 
 /**
@@ -80,8 +83,8 @@ export function CustomizerDrawerInner({ data, select, onUpload, setTheme, delete
                                     <BrowserThemeSection data={data} setTheme={setTheme} />
                                 </CustomizerSection>
                             )}
-                            <CustomizerSection title={t('customizer_section_title_sections')}>
-                                <VisibilityMenuSection />
+                            <CustomizerSection title={null}>
+                                <WidgetsSection />
                             </CustomizerSection>
                             <BorderedSection>
                                 <SettingsLink

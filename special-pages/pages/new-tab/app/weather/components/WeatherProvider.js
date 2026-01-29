@@ -75,6 +75,10 @@ function weatherReducer(state, event) {
 export const WeatherContext = createContext({
     /** @type {WeatherState} */
     state: { status: 'idle', data: null },
+    /** @type {string | undefined} */
+    instanceId: undefined,
+    /** @type {() => void} */
+    openSetLocationDialog: () => {},
 });
 
 /**
@@ -82,6 +86,7 @@ export const WeatherContext = createContext({
  *
  * @param {Object} props
  * @param {import("preact").ComponentChild} props.children
+ * @param {string} [props.instanceId]
  */
 export function WeatherProvider(props) {
     const initial = /** @type {WeatherState} */ ({
@@ -92,30 +97,39 @@ export function WeatherProvider(props) {
     const [state, dispatch] = useReducer(weatherReducer, initial);
 
     // create an instance of `WeatherService` for the lifespan of this component.
-    const service = useService();
+    const service = useService(props.instanceId);
 
     // get initial data
-    useInitialWeatherData({ dispatch, service });
+    useInitialWeatherData({ dispatch, service, instanceId: props.instanceId });
 
     // subscribe to data updates
-    useWeatherDataSubscription({ dispatch, service });
+    useWeatherDataSubscription({ dispatch, service, instanceId: props.instanceId });
 
-    return <WeatherContext.Provider value={{ state }}>{props.children}</WeatherContext.Provider>;
+    const openSetLocationDialog = () => {
+        service.current?.openSetLocationDialog();
+    };
+
+    return (
+        <WeatherContext.Provider value={{ state, instanceId: props.instanceId, openSetLocationDialog }}>
+            {props.children}
+        </WeatherContext.Provider>
+    );
 }
 
 /**
+ * @param {string} [instanceId]
  * @return {import("preact").RefObject<WeatherService>}
  */
-export function useService() {
+export function useService(instanceId) {
     const service = useRef(/** @type {WeatherService|null} */ (null));
     const ntp = useMessaging();
     useEffect(() => {
-        const weatherService = new WeatherService(ntp);
+        const weatherService = new WeatherService(ntp, instanceId);
         service.current = weatherService;
         return () => {
             weatherService.destroy();
         };
-    }, [ntp]);
+    }, [ntp, instanceId]);
     return service;
 }
 
@@ -123,8 +137,9 @@ export function useService() {
  * @param {object} params
  * @param {import("preact/hooks").Dispatch<WeatherEvents>} params.dispatch
  * @param {import("preact").RefObject<WeatherService>} params.service
+ * @param {string} [params.instanceId]
  */
-function useInitialWeatherData({ dispatch, service }) {
+function useInitialWeatherData({ dispatch, service, instanceId }) {
     const messaging = useMessaging();
     useEffect(() => {
         if (!service.current) return console.warn('missing weather service');
@@ -150,7 +165,7 @@ function useInitialWeatherData({ dispatch, service }) {
         return () => {
             currentService.destroy();
         };
-    }, [messaging]);
+    }, [messaging, instanceId]);
 }
 
 /**
@@ -158,16 +173,21 @@ function useInitialWeatherData({ dispatch, service }) {
  * @param {object} params
  * @param {import("preact/hooks").Dispatch<WeatherEvents>} params.dispatch
  * @param {import("preact").RefObject<WeatherService>} params.service
+ * @param {string} [params.instanceId]
  */
-function useWeatherDataSubscription({ dispatch, service }) {
+function useWeatherDataSubscription({ dispatch, service, instanceId }) {
     useEffect(() => {
         if (!service.current) return console.warn('could not access weather service');
 
         const unsub = service.current.onData((evt) => {
+            // Filter by instanceId if present
+            if (instanceId && evt.data.instanceId && evt.data.instanceId !== instanceId) {
+                return;
+            }
             dispatch({ kind: 'data', data: evt.data });
         });
         return () => {
             unsub();
         };
-    }, [service, dispatch]);
+    }, [service, dispatch, instanceId]);
 }

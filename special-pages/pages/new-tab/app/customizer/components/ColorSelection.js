@@ -10,7 +10,7 @@ import { InlineErrorBoundary } from '../../InlineErrorBoundary.js';
 import { useTypedTranslationWith } from '../../types.js';
 
 /**
- * @import { Widgets, WidgetConfigItem, WidgetVisibility, VisibilityMenuItem, CustomizerData, PredefinedColor, BackgroundData } from '../../../types/new-tab.js'
+ * @import { Widgets, WidgetVisibility, VisibilityMenuItem, CustomizerData, PredefinedColor, BackgroundData } from '../../../types/new-tab.js'
  * @import enStrings from '../strings.json';
  */
 

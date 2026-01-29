@@ -4,26 +4,76 @@
   "title": "Widget Configs",
   "description": "Configuration settings for widgets",
   "items": {
-    "type": "object",
-    "required": [
-      "id",
-      "visibility"
-    ],
-    "title": "Widget Config Item",
-    "properties": {
-      "id": {
-        "type": "string",
-        "description": "A unique identifier for the widget."
-      },
-      "visibility": {
-        "title": "Widget Visibility",
-        "description": "The visibility state of the widget, as configured by the user",
-        "type": "string",
-        "enum": [
-          "visible",
-          "hidden"
-        ]
+    "oneOf": [
+      { "$ref": "#/definitions/WeatherWidgetConfig" },
+      { "$ref": "#/definitions/NewsWidgetConfig" },
+      { "$ref": "#/definitions/StockWidgetConfig" },
+      { "$ref": "#/definitions/BaseWidgetConfig" }
+    ]
+  },
+  "definitions": {
+    "WeatherWidgetConfig": {
+      "type": "object",
+      "title": "Weather Widget Config",
+      "required": ["id", "instanceId", "visibility"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "const": "weather" },
+        "instanceId": { "type": "string", "description": "Unique identifier for this widget instance" },
+        "visibility": { "$ref": "#/definitions/WidgetVisibility" },
+        "location": { "type": ["string", "null"], "description": "Location for weather data. Null indicates unconfigured state." },
+        "temperatureUnit": { "enum": ["celsius", "fahrenheit"], "description": "Temperature unit preference" },
+        "expansion": { "$ref": "#/definitions/WidgetExpansion" }
       }
+    },
+    "NewsWidgetConfig": {
+      "type": "object",
+      "title": "News Widget Config",
+      "required": ["id", "instanceId", "visibility"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "const": "news" },
+        "instanceId": { "type": "string", "description": "Unique identifier for this widget instance" },
+        "visibility": { "$ref": "#/definitions/WidgetVisibility" },
+        "query": { "type": ["string", "null"], "description": "Search query for news. Null indicates unconfigured state." },
+        "expansion": { "$ref": "#/definitions/WidgetExpansion" }
+      }
+    },
+    "StockWidgetConfig": {
+      "type": "object",
+      "title": "Stock Widget Config",
+      "required": ["id", "instanceId", "visibility"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "const": "stock" },
+        "instanceId": { "type": "string", "description": "Unique identifier for this widget instance" },
+        "visibility": { "$ref": "#/definitions/WidgetVisibility" },
+        "symbol": { "type": ["string", "null"], "description": "Stock ticker symbol. Null indicates unconfigured state." },
+        "expansion": { "$ref": "#/definitions/WidgetExpansion" }
+      }
+    },
+    "BaseWidgetConfig": {
+      "type": "object",
+      "title": "Base Widget Config",
+      "description": "Configuration for non-multi-instance widgets",
+      "required": ["id", "visibility"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "description": "A unique identifier for the widget." },
+        "visibility": { "$ref": "#/definitions/WidgetVisibility" }
+      }
+    },
+    "WidgetVisibility": {
+      "title": "Widget Visibility",
+      "description": "The visibility state of the widget, as configured by the user",
+      "type": "string",
+      "enum": ["visible", "hidden"]
+    },
+    "WidgetExpansion": {
+      "title": "Widget Expansion",
+      "description": "The expansion state of the widget",
+      "type": "string",
+      "enum": ["expanded", "collapsed"]
     }
   }
 }

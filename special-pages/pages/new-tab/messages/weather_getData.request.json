@@ -1,3 +1,10 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#"
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "instanceId": {
+      "type": "string",
+      "description": "Optional instance ID for multi-instance widgets"
+    }
+  }
 }

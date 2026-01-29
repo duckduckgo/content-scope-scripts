@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Weather Open Set Location Dialog",
+  "description": "Opens the native dialog to set the location for a weather widget instance",
+  "type": "object",
+  "required": ["instanceId"],
+  "properties": {
+    "instanceId": {
+      "description": "Unique identifier for this widget instance",
+      "type": "string"
+    }
+  }
+}

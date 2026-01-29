@@ -603,22 +603,44 @@ export function initialSetup(url) {
         widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'nextSteps' });
     }
 
-    // Add weather widget if not explicitly disabled
-    if (url.searchParams.has('weather') || url.searchParams.get('weather') !== 'false') {
+    // Add weather widget if explicitly requested (now with instanceId for multi-instance support)
+    if (url.searchParams.has('weather')) {
         widgetsFromStorage.push({ id: 'weather' });
-        widgetConfigFromStorage.push({ id: 'weather', visibility: 'visible' });
+        const weatherLocation = url.searchParams.get('weather') || 'New York';
+        widgetConfigFromStorage.push({
+            id: 'weather',
+            instanceId: 'weather-1',
+            visibility: 'visible',
+            location: weatherLocation === 'true' ? 'New York' : weatherLocation,
+            temperatureUnit: 'fahrenheit',
+            expansion: 'expanded',
+        });
     }
 
-    // Add news widget if present in URL params
+    // Add news widget if present in URL params (now with instanceId for multi-instance support)
     if (url.searchParams.has('news')) {
         widgetsFromStorage.push({ id: 'news' });
-        widgetConfigFromStorage.push({ id: 'news', visibility: 'visible' });
+        const newsQuery = url.searchParams.get('news') || 'technology';
+        widgetConfigFromStorage.push({
+            id: 'news',
+            instanceId: 'news-1',
+            visibility: 'visible',
+            query: newsQuery === 'true' ? 'technology' : newsQuery,
+            expansion: 'expanded',
+        });
     }
 
-    // Add stock widget if present in URL params
+    // Add stock widget if present in URL params (now with instanceId for multi-instance support)
     if (url.searchParams.has('stock')) {
         widgetsFromStorage.push({ id: 'stock' });
-        widgetConfigFromStorage.push({ id: 'stock', visibility: 'visible' });
+        const stockSymbol = url.searchParams.get('stock') || 'AAPL';
+        widgetConfigFromStorage.push({
+            id: 'stock',
+            instanceId: 'stock-1',
+            visibility: 'visible',
+            symbol: stockSymbol === 'true' ? 'AAPL' : stockSymbol,
+            expansion: 'expanded',
+        });
     }
 
     initial.customizer = customizerData();

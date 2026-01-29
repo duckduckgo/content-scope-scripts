@@ -12,6 +12,10 @@
     "currency"
   ],
   "properties": {
+    "instanceId": {
+      "description": "Unique identifier for this widget instance",
+      "type": "string"
+    },
     "symbol": {
       "description": "Stock ticker symbol",
       "type": "string"
