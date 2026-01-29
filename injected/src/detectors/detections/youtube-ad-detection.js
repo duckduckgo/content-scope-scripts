@@ -1,3 +1,5 @@
+import { isVisible, toRegExpArray } from '../utils/detection-utils.js';
+
 /**
  * Module-level state for YouTube ad detection
  * Persists across multiple calls to runYoutubeAdDetection
@@ -88,16 +90,6 @@ function initDetector(config) {
     const SWEEP_INTERVAL = config.sweepIntervalMs;
     const SLOW_LOAD_THRESHOLD_MS = config.slowLoadThresholdMs;
 
-    /**
-     * Convert string patterns to RegExp objects
-     * @param {string[]} patterns - Array of regex pattern strings
-     * @param {string} [flags='i'] - RegExp flags (default: case-insensitive)
-     * @returns {RegExp[]}
-     */
-    const toRegExpArray = (patterns, flags = 'i') => {
-        return patterns.map(p => new RegExp(p, flags));
-    };
-
     // Text patterns that indicate ads (from config, converted to RegExp at runtime)
     const AD_TEXT_PATTERNS = toRegExpArray(config.adTextPatterns);
 
@@ -179,15 +171,6 @@ function initDetector(config) {
     };
 
     /**
-     * Check if element is visible
-     */
-    const visible = (el) => {
-        const cs = getComputedStyle(el);
-        const r = el.getBoundingClientRect();
-        return r.width > 0.5 && r.height > 0.5 && cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0.05;
-    };
-
-    /**
      * Check for visible elements matching selectors and text patterns
      * @param {string[]} selectors - CSS selectors to check
      * @param {RegExp[]} patterns - Text patterns to match
@@ -205,7 +188,7 @@ function initDetector(config) {
         // Check known container selectors
         for (const selector of selectors) {
             const el = /** @type {HTMLElement | null} */ (document.querySelector(selector));
-            if (el && visible(el)) {
+            if (el && isVisible(el)) {
                 const text = el.innerText || el.textContent || '';
                 for (const pattern of patterns) {
                     if (pattern.test(text)) {
@@ -234,7 +217,7 @@ function initDetector(config) {
                 if (pattern.test(bodyText)) {
                     const dialogs = document.querySelectorAll('[role="dialog"], [aria-modal="true"], .ytd-popup-container');
                     for (const dialog of dialogs) {
-                        if (dialog instanceof HTMLElement && visible(dialog)) {
+                        if (dialog instanceof HTMLElement && isVisible(dialog)) {
                             const dialogText = dialog.innerText || '';
                             if (pattern.test(dialogText)) {
                                 return dialogText.trim().substring(0, maxLen);
@@ -314,7 +297,7 @@ function initDetector(config) {
             return false;
         }
 
-        const backgroundVisible = visible(background);
+        const backgroundVisible = isVisible(background);
         if (!backgroundVisible) {
             return false;
         }
@@ -332,12 +315,12 @@ function initDetector(config) {
 
         if (image) {
             const img = image.querySelector('img');
-            if (img && img.src && visible(image)) {
+            if (img && img.src && isVisible(image)) {
                 return true;
             }
         }
 
-        if (thumbnail && visible(thumbnail) && videoNotPlaying) {
+        if (thumbnail && isVisible(thumbnail) && videoNotPlaying) {
             return true;
         }
 
@@ -482,7 +465,7 @@ function initDetector(config) {
             // Check if ad is currently visible
             const adSelectors = AD_CLASS_EXACT.map(cls => '.' + cls).join(',');
             const adElements = currentRoot.querySelectorAll(adSelectors);
-            const hasVisibleAd = Array.from(adElements).some(el => visible(el) && looksLikeAdNode(el));
+            const hasVisibleAd = Array.from(adElements).some(el => isVisible(el) && looksLikeAdNode(el));
 
             if (hasVisibleAd && !state.detections.videoAd.showing) {
                 reportDetection('videoAd');
