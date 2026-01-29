@@ -65,17 +65,7 @@ export function stockMockTransport() {
 
     return new TestTransportConfig({
         notify(_msg) {
-            /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
-            const msg = /** @type {any} */ (_msg);
-            switch (msg.method) {
-                case 'stock_openSetSymbolDialog': {
-                    console.log('mock: stock_openSetSymbolDialog', msg.params);
-                    return;
-                }
-                default: {
-                    console.warn('unhandled stock notification', msg);
-                }
-            }
+            console.warn('unhandled stock notification', _msg);
         },
         subscribe(_msg, cb) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */

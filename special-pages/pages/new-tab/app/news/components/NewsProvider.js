@@ -77,8 +77,8 @@ export const NewsContext = createContext({
     state: { status: 'idle', data: null },
     /** @type {string | undefined} */
     instanceId: undefined,
-    /** @type {() => void} */
-    openSetQueryDialog: () => {},
+    /** @type {() => Promise<void>} */
+    refetch: async () => {},
 });
 
 /**
@@ -105,13 +105,15 @@ export function NewsProvider(props) {
     // subscribe to data updates
     useNewsDataSubscription({ dispatch, service, instanceId: props.instanceId });
 
-    const openSetQueryDialog = () => {
-        service.current?.openSetQueryDialog();
+    const refetch = async () => {
+        if (!service.current) return;
+        const { data } = await service.current.getInitial();
+        if (data) {
+            dispatch({ kind: 'data', data });
+        }
     };
 
-    return (
-        <NewsContext.Provider value={{ state, instanceId: props.instanceId, openSetQueryDialog }}>{props.children}</NewsContext.Provider>
-    );
+    return <NewsContext.Provider value={{ state, instanceId: props.instanceId, refetch }}>{props.children}</NewsContext.Provider>;
 }
 
 /**

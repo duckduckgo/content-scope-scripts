@@ -16,10 +16,19 @@ import styles from './WidgetSettingsMenu.module.css';
  * @param {Object} props
  * @param {WidgetType} props.widgetType
  * @param {WidgetConfigItem | null} props.config
- * @param {() => void} props.onSetConfig - Opens native dialog for setting location/query/symbol
  * @param {(updates: Partial<WidgetConfigItem>) => void} props.onUpdateConfig
  */
-export function WidgetSettingsMenu({ widgetType, config, onSetConfig, onUpdateConfig }) {
+export function WidgetSettingsMenu({ widgetType, config, onUpdateConfig }) {
+    const handleSetConfig = () => {
+        // Clear the config value to trigger empty state
+        const clearValue = {
+            weather: { location: null },
+            news: { query: null },
+            stock: { symbol: null },
+        }[widgetType];
+        onUpdateConfig(clearValue);
+    };
+
     const handleToggleExpanded = () => {
         const currentExpansion = config && 'expansion' in config ? config.expansion : 'expanded';
         const newExpansion = currentExpansion === 'expanded' ? 'collapsed' : 'expanded';
@@ -52,7 +61,7 @@ export function WidgetSettingsMenu({ widgetType, config, onSetConfig, onUpdateCo
 
     return (
         <Dropdown trigger={trigger} className={styles.container}>
-            <DropdownItem onClick={onSetConfig}>{setConfigLabel}</DropdownItem>
+            <DropdownItem onClick={handleSetConfig}>{setConfigLabel}</DropdownItem>
 
             <DropdownSeparator />
 

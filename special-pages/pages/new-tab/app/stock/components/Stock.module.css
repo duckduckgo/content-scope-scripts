@@ -57,6 +57,34 @@
     text-align: center;
 }
 
+.emptyStateForm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 200px;
+}
+
+.emptyStateInput {
+    padding: 8px 12px;
+    border: 1px solid var(--ntp-border-color, #ccc);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--ntp-input-background, white);
+    color: var(--ntp-text-normal, #333);
+    text-align: center;
+
+    &:focus {
+        outline: none;
+        border-color: var(--ds-color-theme-accent-fill-primary, #3969EF);
+        box-shadow: var(--focus-ring);
+    }
+
+    &::placeholder {
+        color: var(--ntp-text-muted, #999);
+    }
+}
+
 .emptyStateButton {
     padding: 8px 16px;
     background-color: var(--ds-color-theme-accent-fill-primary, #3969EF);
@@ -75,5 +103,10 @@
     &:focus-visible {
         box-shadow: var(--focus-ring);
         outline: none;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 }

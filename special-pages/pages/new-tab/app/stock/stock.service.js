@@ -46,14 +46,4 @@ export class StockService {
     onData(cb) {
         return this.dataService.onData(cb);
     }
-
-    /**
-     * Open the set symbol dialog for this widget instance
-     * @internal
-     */
-    openSetSymbolDialog() {
-        if (this.instanceId) {
-            this.ntp.messaging.notify('stock_openSetSymbolDialog', { instanceId: this.instanceId });
-        }
-    }
 }

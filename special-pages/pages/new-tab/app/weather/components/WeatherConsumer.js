@@ -8,7 +8,7 @@ import { WidgetConfigContext } from '../../widget-list/widget-config.provider.js
  * Component that consumes WeatherContext for displaying weather data.
  */
 export function WeatherConsumer() {
-    const { state, instanceId, openSetLocationDialog } = useContext(WeatherContext);
+    const { state, instanceId } = useContext(WeatherContext);
     const { getConfigForInstance, updateInstanceConfig } = useContext(WidgetConfigContext);
 
     if (state.status === 'ready') {
@@ -19,7 +19,6 @@ export function WeatherConsumer() {
                 data={state.data}
                 instanceId={instanceId}
                 config={config}
-                onSetLocation={openSetLocationDialog}
                 onUpdateConfig={(updates) => instanceId && updateInstanceConfig(instanceId, updates)}
             />
         );

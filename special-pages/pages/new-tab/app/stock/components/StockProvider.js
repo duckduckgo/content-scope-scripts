@@ -77,8 +77,8 @@ export const StockContext = createContext({
     state: { status: 'idle', data: null },
     /** @type {string | undefined} */
     instanceId: undefined,
-    /** @type {() => void} */
-    openSetSymbolDialog: () => {},
+    /** @type {() => Promise<void>} */
+    refetch: async () => {},
 });
 
 /**
@@ -105,13 +105,15 @@ export function StockProvider(props) {
     // subscribe to data updates
     useStockDataSubscription({ dispatch, service, instanceId: props.instanceId });
 
-    const openSetSymbolDialog = () => {
-        service.current?.openSetSymbolDialog();
+    const refetch = async () => {
+        if (!service.current) return;
+        const { data } = await service.current.getInitial();
+        if (data) {
+            dispatch({ kind: 'data', data });
+        }
     };
 
-    return (
-        <StockContext.Provider value={{ state, instanceId: props.instanceId, openSetSymbolDialog }}>{props.children}</StockContext.Provider>
-    );
+    return <StockContext.Provider value={{ state, instanceId: props.instanceId, refetch }}>{props.children}</StockContext.Provider>;
 }
 
 /**

@@ -46,14 +46,4 @@ export class NewsService {
     onData(cb) {
         return this.dataService.onData(cb);
     }
-
-    /**
-     * Open the set query dialog for this widget instance
-     * @internal
-     */
-    openSetQueryDialog() {
-        if (this.instanceId) {
-            this.ntp.messaging.notify('news_openSetQueryDialog', { instanceId: this.instanceId });
-        }
-    }
 }

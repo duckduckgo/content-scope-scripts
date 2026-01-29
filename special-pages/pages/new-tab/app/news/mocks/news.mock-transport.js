@@ -36,17 +36,7 @@ export function newsMockTransport() {
 
     return new TestTransportConfig({
         notify(_msg) {
-            /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
-            const msg = /** @type {any} */ (_msg);
-            switch (msg.method) {
-                case 'news_openSetQueryDialog': {
-                    console.log('mock: news_openSetQueryDialog', msg.params);
-                    return;
-                }
-                default: {
-                    console.warn('unhandled news notification', msg);
-                }
-            }
+            console.warn('unhandled news notification', _msg);
         },
         subscribe(_msg, cb) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */

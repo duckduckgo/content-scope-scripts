@@ -46,14 +46,4 @@ export class WeatherService {
     onData(cb) {
         return this.dataService.onData(cb);
     }
-
-    /**
-     * Open the set location dialog for this widget instance
-     * @internal
-     */
-    openSetLocationDialog() {
-        if (this.instanceId) {
-            this.ntp.messaging.notify('weather_openSetLocationDialog', { instanceId: this.instanceId });
-        }
-    }
 }

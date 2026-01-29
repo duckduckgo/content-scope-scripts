@@ -14,10 +14,9 @@ import { WidgetSettingsMenu } from '../../components/WidgetSettingsMenu.js';
  * @param {StockData} props.data
  * @param {string} [props.instanceId]
  * @param {WidgetConfigItem | null} [props.config]
- * @param {() => void} [props.onSetSymbol]
  * @param {(updates: Partial<WidgetConfigItem>) => void} [props.onUpdateConfig]
  */
-export function Stock({ data, instanceId, config, onSetSymbol, onUpdateConfig }) {
+export function Stock({ data, instanceId, config, onUpdateConfig }) {
     const isPositive = data.change >= 0;
     const changeClass = isPositive ? styles.positive : styles.negative;
     const changeSign = isPositive ? '+' : '';
@@ -25,8 +24,8 @@ export function Stock({ data, instanceId, config, onSetSymbol, onUpdateConfig })
 
     return (
         <div className={styles.stock} data-testid="stock-widget">
-            {instanceId && onSetSymbol && onUpdateConfig && (
-                <WidgetSettingsMenu widgetType="stock" config={config || null} onSetConfig={onSetSymbol} onUpdateConfig={onUpdateConfig} />
+            {instanceId && onUpdateConfig && (
+                <WidgetSettingsMenu widgetType="stock" config={config || null} onUpdateConfig={onUpdateConfig} />
             )}
             <div className={styles.symbol}>{data.symbol}</div>
             <div className={styles.companyName}>{data.companyName}</div>

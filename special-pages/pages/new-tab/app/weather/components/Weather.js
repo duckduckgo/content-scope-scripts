@@ -14,19 +14,13 @@ import { WidgetSettingsMenu } from '../../components/WidgetSettingsMenu.js';
  * @param {WeatherData} props.data
  * @param {string} [props.instanceId]
  * @param {WidgetConfigItem | null} [props.config]
- * @param {() => void} [props.onSetLocation]
  * @param {(updates: Partial<WidgetConfigItem>) => void} [props.onUpdateConfig]
  */
-export function Weather({ data, instanceId, config, onSetLocation, onUpdateConfig }) {
+export function Weather({ data, instanceId, config, onUpdateConfig }) {
     return (
         <div className={styles.weather} data-testid="weather-widget">
-            {instanceId && onSetLocation && onUpdateConfig && (
-                <WidgetSettingsMenu
-                    widgetType="weather"
-                    config={config || null}
-                    onSetConfig={onSetLocation}
-                    onUpdateConfig={onUpdateConfig}
-                />
+            {instanceId && onUpdateConfig && (
+                <WidgetSettingsMenu widgetType="weather" config={config || null} onUpdateConfig={onUpdateConfig} />
             )}
             <div className={styles.location}>{data.location}</div>
             <div className={styles.temperature}>{data.temperature}°</div>

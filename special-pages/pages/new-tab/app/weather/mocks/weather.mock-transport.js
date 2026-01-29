@@ -58,17 +58,7 @@ export function weatherMockTransport() {
 
     return new TestTransportConfig({
         notify(_msg) {
-            /** @type {import('../../../types/new-tab.ts').NewTabMessages['notifications']} */
-            const msg = /** @type {any} */ (_msg);
-            switch (msg.method) {
-                case 'weather_openSetLocationDialog': {
-                    console.log('mock: weather_openSetLocationDialog', msg.params);
-                    return;
-                }
-                default: {
-                    console.warn('unhandled weather notification', msg);
-                }
-            }
+            console.warn('unhandled weather notification', _msg);
         },
         subscribe(_msg, cb) {
             /** @type {import('../../../types/new-tab.ts').NewTabMessages['subscriptions']['subscriptionEvent']} */

@@ -8,7 +8,7 @@ import { WidgetConfigContext } from '../../widget-list/widget-config.provider.js
  * Component that consumes NewsContext for displaying news data.
  */
 export function NewsConsumer() {
-    const { state, instanceId, openSetQueryDialog } = useContext(NewsContext);
+    const { state, instanceId } = useContext(NewsContext);
     const { getConfigForInstance, updateInstanceConfig } = useContext(WidgetConfigContext);
 
     if (state.status === 'ready') {
@@ -19,7 +19,6 @@ export function NewsConsumer() {
                 data={state.data}
                 instanceId={instanceId}
                 config={config}
-                onSetQuery={openSetQueryDialog}
                 onUpdateConfig={(updates) => instanceId && updateInstanceConfig(instanceId, updates)}
             />
         );

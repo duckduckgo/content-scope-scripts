@@ -146,7 +146,6 @@ export interface NewTabMessages {
     | FavoritesSetConfigNotification
     | FreemiumPIRBannerActionNotification
     | FreemiumPIRBannerDismissNotification
-    | NewsOpenSetQueryDialogNotification
     | NextStepsActionNotification
     | NextStepsDismissNotification
     | NextStepsSetConfigNotification
@@ -163,10 +162,8 @@ export interface NewTabMessages {
     | RmfSecondaryActionNotification
     | StatsShowLessNotification
     | StatsShowMoreNotification
-    | StockOpenSetSymbolDialogNotification
     | TelemetryEventNotification
     | UpdateNotificationDismissNotification
-    | WeatherOpenSetLocationDialogNotification
     | WidgetsSetConfigNotification
     | WinBackOfferActionNotification
     | WinBackOfferDismissNotification;
@@ -478,22 +475,6 @@ export interface FreemiumPIRBannerDismissAction {
   id: string;
 }
 /**
- * Generated from @see "../messages/news_openSetQueryDialog.notify.json"
- */
-export interface NewsOpenSetQueryDialogNotification {
-  method: "news_openSetQueryDialog";
-  params: NewsOpenSetQueryDialog;
-}
-/**
- * Opens the native dialog to set the query for a news widget instance
- */
-export interface NewsOpenSetQueryDialog {
-  /**
-   * Unique identifier for this widget instance
-   */
-  instanceId: string;
-}
-/**
  * Generated from @see "../messages/nextSteps_action.notify.json"
  */
 export interface NextStepsActionNotification {
@@ -701,22 +682,6 @@ export interface StatsShowMoreNotification {
   method: "stats_showMore";
 }
 /**
- * Generated from @see "../messages/stock_openSetSymbolDialog.notify.json"
- */
-export interface StockOpenSetSymbolDialogNotification {
-  method: "stock_openSetSymbolDialog";
-  params: StockOpenSetSymbolDialog;
-}
-/**
- * Opens the native dialog to set the symbol for a stock widget instance
- */
-export interface StockOpenSetSymbolDialog {
-  /**
-   * Unique identifier for this widget instance
-   */
-  instanceId: string;
-}
-/**
  * Generated from @see "../messages/telemetryEvent.notify.json"
  */
 export interface TelemetryEventNotification {
@@ -748,22 +713,6 @@ export interface CustomizerDrawerState {
  */
 export interface UpdateNotificationDismissNotification {
   method: "updateNotification_dismiss";
-}
-/**
- * Generated from @see "../messages/weather_openSetLocationDialog.notify.json"
- */
-export interface WeatherOpenSetLocationDialogNotification {
-  method: "weather_openSetLocationDialog";
-  params: WeatherOpenSetLocationDialog;
-}
-/**
- * Opens the native dialog to set the location for a weather widget instance
- */
-export interface WeatherOpenSetLocationDialog {
-  /**
-   * Unique identifier for this widget instance
-   */
-  instanceId: string;
 }
 /**
  * Generated from @see "../messages/widgets_setConfig.notify.json"

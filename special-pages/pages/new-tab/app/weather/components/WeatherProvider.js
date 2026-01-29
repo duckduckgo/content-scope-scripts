@@ -77,8 +77,8 @@ export const WeatherContext = createContext({
     state: { status: 'idle', data: null },
     /** @type {string | undefined} */
     instanceId: undefined,
-    /** @type {() => void} */
-    openSetLocationDialog: () => {},
+    /** @type {() => Promise<void>} */
+    refetch: async () => {},
 });
 
 /**
@@ -105,15 +105,15 @@ export function WeatherProvider(props) {
     // subscribe to data updates
     useWeatherDataSubscription({ dispatch, service, instanceId: props.instanceId });
 
-    const openSetLocationDialog = () => {
-        service.current?.openSetLocationDialog();
+    const refetch = async () => {
+        if (!service.current) return;
+        const { data } = await service.current.getInitial();
+        if (data) {
+            dispatch({ kind: 'data', data });
+        }
     };
 
-    return (
-        <WeatherContext.Provider value={{ state, instanceId: props.instanceId, openSetLocationDialog }}>
-            {props.children}
-        </WeatherContext.Provider>
-    );
+    return <WeatherContext.Provider value={{ state, instanceId: props.instanceId, refetch }}>{props.children}</WeatherContext.Provider>;
 }
 
 /**
