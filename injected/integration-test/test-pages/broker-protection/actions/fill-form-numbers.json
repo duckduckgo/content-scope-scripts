@@ -1,0 +1,34 @@
+{
+    "state": {
+        "action": {
+            "actionType": "fillForm",
+            "id": "3",
+            "selector": ".ahm",
+            "dataSource": "userProfile",
+            "elements": [
+                {
+                    "type": "birthYear",
+                    "selector": "#birthYear"
+                },
+                {
+                    "type": "birthYear",
+                    "selector": "#birthYearNoValue"
+                },
+                {
+                    "type": "age",
+                    "selector": "#age"
+                }
+            ]
+        },
+        "data": {
+            "userProfile": {
+                "firstName": "John",
+                "lastName": "Smith",
+                "city": "Chicago",
+                "state": "IL",
+                "age": 38,
+                "birthYear": 1992
+            }
+        }
+    }
+}

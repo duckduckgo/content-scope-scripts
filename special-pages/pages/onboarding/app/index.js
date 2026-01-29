@@ -1,8 +1,9 @@
 import { OnboardingMessages } from './messages';
 import { render, h } from 'preact';
-import './styles/global.css'; // global styles
-import { App, SkipLink } from './components/App.js';
-import { App2 } from './components/App2';
+import './shared/styles/global.css'; // global styles
+import { App as AppV1 } from './v1/App.js';
+import { App as AppV3 } from './v3/App.js';
+import { SkipLink } from './shared/components/SkipLink.js';
 import { GlobalProvider } from './global';
 import { Components } from './Components';
 import { EnvironmentProvider, UpdateEnvironment } from '../../../shared/components/EnvironmentProvider';
@@ -11,9 +12,9 @@ import { createSpecialPageMessaging } from '../../../shared/create-special-page-
 import { Settings } from './settings';
 import { callWithRetry } from '../../../shared/call-with-retry';
 import { TranslationProvider } from '../../../shared/components/TranslationsProvider';
-import { SettingsProvider } from './components/SettingsProvider';
+import { SettingsProvider } from './shared/components/SettingsProvider';
 import enStrings from '../public/locales/en/onboarding.json';
-import { stepDefinitions as stepDefinitionsV3 } from './components/v3/data';
+import { stepDefinitions as stepDefinitionsV3 } from './v3/data/data';
 import { mockTransport } from '../src/mock-transport.js';
 
 const baseEnvironment = new Environment().withInjectName(document.documentElement.dataset.platform).withEnv(import.meta.env);
@@ -73,7 +74,7 @@ async function init() {
         .withExcludedScreens(environment.urlParams.getAll('exclude'))
         .withFirst(environment.urlParams.get('page'));
 
-    const AppComponent = settings.orderName === 'v3' ? App2 : App;
+    const AppComponent = settings.orderName === 'v3' ? AppV3 : AppV1;
 
     const root = document.querySelector('#app');
     if (!root) throw new Error('could not render, root element missing');
