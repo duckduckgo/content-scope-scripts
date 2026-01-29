@@ -1,37 +1,28 @@
 import { isVisible, toRegExpArray } from '../utils/detection-utils.js';
 
 /**
- * Module-level state for YouTube ad detection
- * Persists across multiple calls to runYoutubeAdDetection
- */
-let state = null;
-let pollInterval = null;
-let rerootInterval = null;
-
-/**
- * Logging utility for YouTube ad detection
- * All logs prefixed with [YT-AdDetect] for easy filtering
- */
-/**
  * Detect which world we're running in
  * Isolated world has chrome.runtime, page context does not
+ * @returns {'isolated' | 'page'}
  */
 const detectWorld = () => {
     try {
-        // chrome.runtime.id exists in content scripts (isolated world) but not page context
         // @ts-ignore
         if (window.chrome?.runtime?.id) {
             return 'isolated';
         }
-        // If no chrome.runtime, we're in page context (content-scope-scripts is injected there)
         return 'page';
     } catch {
-        return 'page'; // Assume page context if detection fails
+        return 'page';
     }
 };
 
 const WORLD = detectWorld();
 const LOG_PREFIX = `[YT-AdDetect:${WORLD}]`;
+
+/**
+ * Logging utility with prefixed output
+ */
 const log = {
     info: (...args) => console.log(LOG_PREFIX, ...args),
     warn: (...args) => console.warn(LOG_PREFIX, ...args),
@@ -40,238 +31,379 @@ const log = {
 };
 
 /**
- * Detect YouTube user login state using DOM elements
- * Works in sandboxed contexts that can't access page JS globals
- * @returns {{state: string, isPremium: boolean, rawIndicators: Object}}
+ * @typedef {Object} YouTubeDetectorConfig
+ * @property {string[]} [playerSelectors] - Selectors for the player root element
+ * @property {string[]} [adClasses] - CSS classes that indicate ads
+ * @property {string[]} [adTextPatterns] - Text patterns (regex) that indicate ads
+ * @property {number} [sweepIntervalMs] - How often to check for ads/buffering (ms)
+ * @property {number} [slowLoadThresholdMs] - Threshold for counting slow loads as buffering (ms)
+ * @property {boolean} [debugLogging] - Enable verbose debug logging
+ * @property {{background: string, thumbnail: string, image: string}} [staticAdSelectors]
+ * @property {string[]} [playabilityErrorSelectors]
+ * @property {string[]} [playabilityErrorPatterns]
+ * @property {string[]} [adBlockerDetectionSelectors]
+ * @property {string[]} [adBlockerDetectionPatterns]
+ * @property {{signInButton: string, avatarButton: string, premiumLogo: string}} [loginStateSelectors]
  */
-const detectLoginState = () => {
-    /** @type {{hasSignInButton: boolean, hasAvatarButton: boolean, hasPremiumLogo: boolean}} */
-    const indicators = {
-        hasSignInButton: false,
-        hasAvatarButton: false,
-        hasPremiumLogo: false
-    };
-
-    try {
-        // Check for sign-in button (indicates logged out)
-        indicators.hasSignInButton = !!document.querySelector('a[href*="accounts.google.com/ServiceLogin"]');
-
-        // Check for avatar button (indicates logged in)
-        indicators.hasAvatarButton = !!document.querySelector('#avatar-btn');
-
-        // Check for Premium logo (indicates premium subscriber)
-        indicators.hasPremiumLogo = !!document.querySelector('ytd-topbar-logo-renderer a[title*="Premium"]');
-    } catch (e) {
-        log.warn('Error detecting login state:', e);
-    }
-
-    // Determine overall state
-    // Priority: 1) Premium logo, 2) Avatar (logged in), 3) Sign-in button (logged out)
-    let loginState = 'unknown';
-    if (indicators.hasPremiumLogo) {
-        loginState = 'premium';
-    } else if (indicators.hasAvatarButton) {
-        loginState = 'logged-in';
-    } else if (indicators.hasSignInButton) {
-        loginState = 'logged-out';
-    }
-
-    return {
-        state: loginState,
-        isPremium: indicators.hasPremiumLogo,
-        rawIndicators: indicators
-    };
-};
 
 /**
- * Initialize the YouTube ad detector
- * @param {Object} config - Configuration from privacy-config
- * @param {string[]} [config.playerSelectors] - Selectors for the player root element
- * @param {string[]} [config.adClasses] - CSS classes that indicate ads
- * @param {number} [config.sweepIntervalMs=2000] - How often to check for ads/buffering (ms)
- * @param {number} [config.slowLoadThresholdMs=2000] - Threshold for counting slow loads as buffering (ms)
- * @param {boolean} [config.debugLogging=false] - Enable verbose debug logging
+ * YouTube Ad Detector
+ * Detects ads, buffering, playability errors, and ad blocker detection on YouTube
  */
-function initDetector(config) {
+class YouTubeAdDetector {
+    /**
+     * @param {YouTubeDetectorConfig} config - Configuration from privacy-config
+     */
+    constructor(config) {
+        // Parse config with defaults for development
+        this.config = this.parseConfig(config);
 
-    // Selector configuration
-    const PLAYER_SELS = config.playerSelectors || ['#movie_player', '.html5-video-player', '#player'];
-    const AD_CLASS_EXACT = config.adClasses || [
-        'ytp-ad-text',
-        'ytp-ad-skip-button',
-        'ytp-ad-skip-button-container',
-        'ytp-ad-message-container',
-        'ytp-ad-player-overlay',
-        'ytp-ad-image-overlay',
-        'video-ads',
-        'ad-showing',
-        'ad-interrupting'
-    ];
-    const SWEEP_INTERVAL = config.sweepIntervalMs || 2000;
-    const SLOW_LOAD_THRESHOLD_MS = config.slowLoadThresholdMs || 2000;
-    const DEBUG_LOGGING = config.debugLogging || false;
+        // Initialize state
+        this.state = this.createInitialState();
 
-    // Text patterns that indicate ads (strings, converted to RegExp at runtime)
-    const AD_TEXT_PATTERNS = toRegExpArray([
-        '\\badvertisement\\b',
-        '\\bskip ad\\b',
-        '\\bskip ads\\b',
-        '^ad\\s*[•:·]'
-    ]);
+        // Intervals and tracking
+        this.pollInterval = null;
+        this.rerootInterval = null;
+        this.trackedVideoElement = null;
+        this.lastLoggedVideoId = null;
+        this.currentVideoId = null;
+        this.videoLoadStartTime = null;
+        this.bufferingStartTime = null;
+        this.lastSweepTime = null;
+        this.lastSeekTime = null;
+        this.lastUrl = location.href;
+        this.playerRoot = null;
 
-    // Selectors for static overlay ads (image ads that appear over the player)
-    const STATIC_AD_SELECTORS = {
-        background: '.player-container-background',
-        thumbnail: '.player-container-background-image, .player-container-background ytd-thumbnail',
-        image: '.player-container-background yt-image'
-    };
+        // Store original history methods for cleanup
+        this.originalPushState = null;
+        this.originalReplaceState = null;
 
-    // Selectors for playability errors (bot detection, content blocking)
-    const PLAYABILITY_ERROR_SELECTORS = [
-        'ytm-player-error-message-renderer',
-        'yt-player-error-message-renderer',
-        '.ytp-error',
-        '.playability-status-message',
-        '.playability-reason'
-    ];
+        // Compiled regex patterns
+        this.adTextPatterns = toRegExpArray(this.config.adTextPatterns);
+        this.playabilityErrorPatterns = toRegExpArray(this.config.playabilityErrorPatterns);
+        this.adBlockerDetectionPatterns = toRegExpArray(this.config.adBlockerDetectionPatterns);
+    }
 
-    // Error messages that indicate bot detection or content blocking (strings, converted to RegExp)
-    const PLAYABILITY_ERROR_PATTERNS = toRegExpArray([
-        "content isn't available",
-        'video (is )?unavailable',
-        'playback (is )?disabled',
-        "confirm you're not a (ro)?bot",
-        'sign in to confirm',
-        'unusual traffic',
-        'try again later'
-    ]);
-
-    // Selectors for ad blocker detection modals/dialogs
-    const ADBLOCKER_DETECTION_SELECTORS = [
-        'ytd-enforcement-message-view-model',
-        'ytd-popup-container tp-yt-paper-dialog',
-        'tp-yt-paper-dialog',
-        '.ytd-enforcement-message-view-model',
-        '#dialog',
-        '[role="dialog"]'
-    ];
-
-    // Text patterns that indicate ad blocker detection (strings, converted to RegExp)
-    const ADBLOCKER_DETECTION_PATTERNS = toRegExpArray([
-        'ad\\s*blockers?\\s*(are)?\\s*not allowed',
-        'using an ad\\s*blocker',
-        'allow youtube ads',
-        'disable.*ad\\s*blocker',
-        'turn off.*ad\\s*blocker',
-        'ad\\s*blocker.*detected',
-        'ad\\s*blocking',
-        'will be blocked after \\d+ videos?',
-        'playback will be blocked',
-        'playback is blocked',
-        'youtube is allowlisted',
-        'video player will be blocked',
-        'ad\\s*blockers?\\s*violate',
-        'violate.*terms of service'
-    ]);
-
-    // Initialize state with category-based structure
-    state = {
-        detections: {
-            videoAd: { count: 0, showing: false },
-            staticAd: { count: 0, showing: false },
-            playabilityError: { count: 0, showing: false, lastMessage: null },
-            adBlocker: { count: 0, showing: false }
-        },
-        buffering: {
-            count: 0,
-            durations: [] // Array of buffering durations in ms
-        },
-        videoLoads: 0,
-        /** @type {{state: string, isPremium: boolean, rawIndicators: Object}|null} */
-        loginState: null, // Will be populated on init and periodically
-        /** @type {{sweepDurations: number[], adCheckDurations: number[], sweepCount: number, top5SweepDurations: number[], top5AdCheckDurations: number[], sweepsOver10ms: number, sweepsOver50ms: number}|null} */
-        perfMetrics: null // Will be set after perfMetrics object is created
-    };
-
-    // Detect and log initial login state (with retry for timing issues)
-    // Only run if we don't already have a valid login state (prevents race conditions on SPA nav)
-    const detectAndLogLoginState = (attempt = 1) => {
-        // Skip if we already have a valid (non-unknown) login state
-        if (state.loginState?.state && state.loginState.state !== 'unknown') {
-            log.debug('Login state already detected, skipping retry', state.loginState.state);
-            return;
-        }
-
-        const loginState = detectLoginState();
-
-        // Only update state if we got a valid result OR this is our last attempt
-        if (loginState.state !== 'unknown' || attempt >= 5) {
-            state.loginState = loginState;
-            log.info('Login state detected:', loginState.state, loginState.isPremium ? '(Premium)' : '', {
-                attempt,
-                indicators: loginState.rawIndicators
-            });
-        } else {
-            // YouTube globals not ready yet, retry after delay
-            const delay = attempt * 500; // 500ms, 1000ms, 1500ms, 2000ms
-            log.debug(`Login state unknown, retrying in ${delay}ms (attempt ${attempt}/5)`);
-            setTimeout(() => detectAndLogLoginState(attempt + 1), delay);
-        }
-    };
-
-    detectAndLogLoginState();
-
-    let trackedVideoElement = null;
-    let lastLoggedVideoId = null;
-    let currentVideoId = null;
-    let videoLoadStartTime = null;
-    let bufferingStartTime = null;
-    let lastSweepTime = null;
-    let lastSeekTime = null; // Track when user last seeked to ignore post-seek buffering
-
-    // Performance tracking (minimal overhead, stats computed on-demand)
-    // Exposed at module level so runYoutubeAdDetection can access it
-    const perfMetrics = {
-        sweepDurations: /** @type {number[]} */ ([]), // Last 50 sweep times
-        adCheckDurations: /** @type {number[]} */ ([]),
-        sweepCount: 0,
-        // All-time worst-case tracking (never cleared)
-        top5SweepDurations: /** @type {number[]} */ ([]),
-        top5AdCheckDurations: /** @type {number[]} */ ([]),
-        sweepsOver10ms: 0,  // Count of slow sweeps
-        sweepsOver50ms: 0   // Count of very slow sweeps
-    };
-
-    // Store perfMetrics on state so runYoutubeAdDetection can access it
-    state.perfMetrics = perfMetrics;
+    // =========================================================================
+    // Configuration
+    // =========================================================================
 
     /**
-     * Get the player root element
+     * Parse config with development defaults
+     * @param {YouTubeDetectorConfig} config
      */
-    const getRoot = () => {
-        for (const s of PLAYER_SELS) {
-            const n = document.querySelector(s);
-            if (n) return n;
+    parseConfig(config) {
+        return {
+            playerSelectors: config.playerSelectors || ['#movie_player', '.html5-video-player', '#player'],
+            adClasses: config.adClasses || [
+                'ytp-ad-text', 'ytp-ad-skip-button', 'ytp-ad-skip-button-container',
+                'ytp-ad-message-container', 'ytp-ad-player-overlay', 'ytp-ad-image-overlay',
+                'video-ads', 'ad-showing', 'ad-interrupting'
+            ],
+            adTextPatterns: config.adTextPatterns || [
+                '\\badvertisement\\b', '\\bskip ad\\b', '\\bskip ads\\b', '^ad\\s*[•:·]'
+            ],
+            sweepIntervalMs: config.sweepIntervalMs || 2000,
+            slowLoadThresholdMs: config.slowLoadThresholdMs || 2000,
+            debugLogging: config.debugLogging || false,
+            staticAdSelectors: config.staticAdSelectors || {
+                background: '.player-container-background',
+                thumbnail: '.player-container-background-image, .player-container-background ytd-thumbnail',
+                image: '.player-container-background yt-image'
+            },
+            playabilityErrorSelectors: config.playabilityErrorSelectors || [
+                'ytm-player-error-message-renderer', 'yt-player-error-message-renderer',
+                '.ytp-error', '.playability-status-message', '.playability-reason'
+            ],
+            playabilityErrorPatterns: config.playabilityErrorPatterns || [
+                "content isn't available", 'video (is )?unavailable', 'playback (is )?disabled',
+                "confirm you're not a (ro)?bot", 'sign in to confirm', 'unusual traffic', 'try again later'
+            ],
+            adBlockerDetectionSelectors: config.adBlockerDetectionSelectors || [
+                'ytd-enforcement-message-view-model', 'ytd-popup-container tp-yt-paper-dialog',
+                'tp-yt-paper-dialog', '.ytd-enforcement-message-view-model', '#dialog', '[role="dialog"]'
+            ],
+            adBlockerDetectionPatterns: config.adBlockerDetectionPatterns || [
+                'ad\\s*blockers?\\s*(are)?\\s*not allowed', 'using an ad\\s*blocker', 'allow youtube ads',
+                'disable.*ad\\s*blocker', 'turn off.*ad\\s*blocker', 'ad\\s*blocker.*detected',
+                'ad\\s*blocking', 'will be blocked after \\d+ videos?', 'playback will be blocked',
+                'playback is blocked', 'youtube is allowlisted', 'video player will be blocked',
+                'ad\\s*blockers?\\s*violate', 'violate.*terms of service'
+            ],
+            loginStateSelectors: config.loginStateSelectors || {
+                signInButton: 'a[href*="accounts.google.com/ServiceLogin"]',
+                avatarButton: '#avatar-btn',
+                premiumLogo: 'ytd-topbar-logo-renderer a[title*="Premium"]'
+            }
+        };
+    }
+
+    // =========================================================================
+    // State Management
+    // =========================================================================
+
+    createInitialState() {
+        return {
+            detections: {
+                videoAd: { count: 0, showing: false },
+                staticAd: { count: 0, showing: false },
+                playabilityError: { count: 0, showing: false, /** @type {string|null} */ lastMessage: null },
+                adBlocker: { count: 0, showing: false }
+            },
+            buffering: {
+                count: 0,
+                /** @type {number[]} */ durations: []
+            },
+            videoLoads: 0,
+            /** @type {{state: string, isPremium: boolean, rawIndicators: Object}|null} */ loginState: null,
+            perfMetrics: {
+                /** @type {number[]} */ sweepDurations: [],
+                /** @type {number[]} */ adCheckDurations: [],
+                sweepCount: 0,
+                /** @type {number[]} */ top5SweepDurations: [],
+                /** @type {number[]} */ top5AdCheckDurations: [],
+                sweepsOver10ms: 0,
+                sweepsOver50ms: 0
+            }
+        };
+    }
+
+    /**
+     * Report a detection event
+     * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'} type
+     * @param {string} logMessage
+     * @param {Object} [details]
+     * @returns {boolean} Whether detection was new
+     */
+    reportDetection(type, logMessage, details = {}) {
+        const typeState = this.state.detections[type];
+
+        if (typeState.showing) {
+            if (!details.message || typeState.lastMessage === details.message) {
+                return false;
+            }
         }
-        return null;
-    };
+
+        typeState.showing = true;
+        typeState.count++;
+        if (details.message && 'lastMessage' in typeState) {
+            typeState.lastMessage = details.message;
+        }
+
+        log.info(logMessage, {
+            total: typeState.count,
+            videoId: this.currentVideoId,
+            url: window.location.href,
+            ...details
+        });
+
+        return true;
+    }
+
+    /**
+     * Clear a detection state
+     * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'} type
+     * @param {string} logMessage
+     */
+    clearDetection(type, logMessage) {
+        const typeState = this.state.detections[type];
+        if (!typeState.showing) return;
+
+        typeState.showing = false;
+        if ('lastMessage' in typeState) {
+            typeState.lastMessage = null;
+        }
+
+        log.info(logMessage, {
+            total: typeState.count,
+            videoId: this.currentVideoId
+        });
+    }
+
+    // =========================================================================
+    // Main Detection Loop
+    // =========================================================================
+
+    /**
+     * Run one sweep of all detection checks
+     * Called periodically by the poll interval
+     */
+    sweep() {
+        const sweepStart = performance.now();
+
+        // Detect JS hangs (gap > 3x expected interval)
+        if (this.lastSweepTime) {
+            const gap = sweepStart - this.lastSweepTime;
+            if (gap > this.config.sweepIntervalMs * 3) {
+                log.warn('JS hang detected', { expectedMs: this.config.sweepIntervalMs, actualMs: Math.round(gap) });
+            }
+        }
+        this.lastSweepTime = sweepStart;
+
+        const root = this.findPlayerRoot();
+        if (!root) return;
+
+        // Re-attach video listeners if needed
+        this.attachVideoListeners(root);
+
+        // Check for video ads
+        const adCheckStart = performance.now();
+        const hasVideoAd = this.checkForVideoAds(root);
+        const adCheckDuration = performance.now() - adCheckStart;
+
+        if (hasVideoAd && !this.state.detections.videoAd.showing) {
+            this.reportDetection('videoAd', 'Ad detected!');
+        } else if (!hasVideoAd && this.state.detections.videoAd.showing) {
+            this.clearDetection('videoAd', 'Ad ended');
+        }
+
+        // Check for static ads
+        const hasStaticAd = this.checkForStaticAds();
+        if (hasStaticAd && !this.state.detections.staticAd.showing) {
+            this.reportDetection('staticAd', 'Static overlay ad detected!');
+        } else if (!hasStaticAd && this.state.detections.staticAd.showing) {
+            this.clearDetection('staticAd', 'Static overlay ad ended');
+        }
+
+        // Check for playability errors
+        const playabilityError = this.checkForPlayabilityErrors();
+        if (playabilityError && !this.state.detections.playabilityError.showing) {
+            this.reportDetection('playabilityError', 'Playability error detected', { message: playabilityError });
+        } else if (!playabilityError && this.state.detections.playabilityError.showing) {
+            this.clearDetection('playabilityError', 'Playability error cleared');
+        }
+
+        // Check for ad blocker detection modals
+        const adBlockerDetected = this.checkForAdBlockerModals();
+        if (adBlockerDetected && !this.state.detections.adBlocker.showing) {
+            this.reportDetection('adBlocker', 'Ad blocker detection modal detected');
+        } else if (!adBlockerDetected && this.state.detections.adBlocker.showing) {
+            this.clearDetection('adBlocker', 'Ad blocker detection modal cleared');
+        }
+
+        // Track performance
+        this.trackSweepPerformance(sweepStart, adCheckDuration);
+    }
+
+    /**
+     * Track sweep performance metrics
+     * @param {number} sweepStart
+     * @param {number} adCheckDuration
+     */
+    trackSweepPerformance(sweepStart, adCheckDuration) {
+        const sweepDuration = performance.now() - sweepStart;
+        const perf = this.state.perfMetrics;
+
+        perf.sweepDurations.push(sweepDuration);
+        perf.adCheckDurations.push(adCheckDuration);
+        perf.sweepCount++;
+
+        // Track top 5 worst
+        perf.top5SweepDurations.push(sweepDuration);
+        perf.top5SweepDurations.sort((a, b) => b - a);
+        if (perf.top5SweepDurations.length > 5) perf.top5SweepDurations.pop();
+
+        perf.top5AdCheckDurations.push(adCheckDuration);
+        perf.top5AdCheckDurations.sort((a, b) => b - a);
+        if (perf.top5AdCheckDurations.length > 5) perf.top5AdCheckDurations.pop();
+
+        if (sweepDuration > 10) perf.sweepsOver10ms++;
+        if (sweepDuration > 50) perf.sweepsOver50ms++;
+
+        // Keep last 50
+        if (perf.sweepDurations.length > 50) {
+            perf.sweepDurations.shift();
+            perf.adCheckDurations.shift();
+        }
+    }
+
+    // =========================================================================
+    // Detection Helpers
+    // =========================================================================
+
+    /**
+     * Check if a node looks like an ad
+     * @param {Node} node
+     * @returns {boolean}
+     */
+    looksLikeAdNode(node) {
+        if (!(node instanceof HTMLElement)) return false;
+
+        const classList = node.classList;
+        if (classList && this.config.adClasses.some(adClass => classList.contains(adClass))) {
+            return true;
+        }
+
+        const txt = ((node.innerText || '') + ' ' + (node.getAttribute('aria-label') || ''));
+        return this.adTextPatterns.some(pattern => pattern.test(txt));
+    }
+
+    /**
+     * Check for visible video ads in the player
+     * @param {Element} root - Player root element
+     * @returns {boolean}
+     */
+    checkForVideoAds(root) {
+        const adSelectors = this.config.adClasses.map(cls => '.' + cls).join(',');
+        const adElements = root.querySelectorAll(adSelectors);
+        return Array.from(adElements).some(el => isVisible(el) && this.looksLikeAdNode(el));
+    }
+
+    /**
+     * Check for static overlay ads (image ads over the player)
+     * @returns {boolean}
+     */
+    checkForStaticAds() {
+        const selectors = this.config.staticAdSelectors;
+        const background = document.querySelector(selectors.background);
+
+        if (!background || !isVisible(background)) {
+            return false;
+        }
+
+        const thumbnail = document.querySelector(selectors.thumbnail);
+        const image = document.querySelector(selectors.image);
+
+        if (!thumbnail && !image) {
+            return false;
+        }
+
+        /** @type {HTMLVideoElement | null} */
+        const video = document.querySelector('#movie_player video, .html5-video-player video');
+        const videoNotPlaying = !video || (video.paused && video.currentTime < 1);
+
+        if (image) {
+            const img = image.querySelector('img');
+            if (img && img.src && isVisible(image)) {
+                if (this.config.debugLogging) {
+                    log.debug('Static ad detected via yt-image', { src: img.src });
+                }
+                return true;
+            }
+        }
+
+        if (thumbnail && isVisible(thumbnail) && videoNotPlaying) {
+            if (this.config.debugLogging) {
+                log.debug('Static ad detected: thumbnail visible, video not playing');
+            }
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * Check for visible elements matching selectors and text patterns
-     * @param {string[]} selectors - CSS selectors to check
-     * @param {RegExp[]} patterns - Text patterns to match
-     * @param {Object} [options] - Options
-     * @param {number} [options.maxLength=100] - Max length of returned text
-     * @param {boolean} [options.checkAttributedStrings=false] - Also check yt-core-attributed-string inside
-     * @param {boolean} [options.checkDialogFallback=false] - Fallback to checking dialogs if body matches
+     * @param {string[]} selectors
+     * @param {RegExp[]} patterns
+     * @param {Object} [options]
      * @returns {string|null} Matched text or null
      */
-    const checkVisiblePatternMatch = (selectors, patterns, options = {}) => {
+    checkVisiblePatternMatch(selectors, patterns, options = {}) {
         const maxLen = options.maxLength || 100;
         const checkAttributedStrings = options.checkAttributedStrings || false;
         const checkDialogFallback = options.checkDialogFallback || false;
 
-        // Check known container selectors
         for (const selector of selectors) {
             const el = /** @type {HTMLElement | null} */ (document.querySelector(selector));
             if (el && isVisible(el)) {
@@ -281,7 +413,6 @@ function initDetector(config) {
                         return text.trim().substring(0, maxLen);
                     }
                 }
-                // Optionally check yt-core-attributed-string inside
                 if (checkAttributedStrings) {
                     const attributedStrings = el.querySelectorAll('.yt-core-attributed-string[role="text"]');
                     for (const attrEl of attributedStrings) {
@@ -296,7 +427,6 @@ function initDetector(config) {
             }
         }
 
-        // Fallback: check if pattern matches body, then verify in dialog context
         if (checkDialogFallback) {
             const bodyText = document.body?.innerText || '';
             for (const pattern of patterns) {
@@ -315,336 +445,202 @@ function initDetector(config) {
         }
 
         return null;
-    };
-
-    /**
-     * Report a detection event
-     * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'} type - Detection type
-     * @param {string} logMessage - Message to log
-     * @param {Object} [details] - Additional details
-     * @param {string} [details.message] - Error message (for playabilityError)
-     * @returns {boolean} Whether the detection was new (not already showing)
-     */
-    const reportDetection = (type, logMessage, details = {}) => {
-        const typeState = state.detections[type];
-
-        // Check if already showing (with same message for types that track it)
-        if (typeState.showing) {
-            if (!details.message || typeState.lastMessage === details.message) {
-                return false; // Already detected
-            }
-        }
-
-        typeState.showing = true;
-        typeState.count++;
-        if (details.message && 'lastMessage' in typeState) {
-            typeState.lastMessage = details.message;
-        }
-
-        log.info(logMessage, {
-            total: typeState.count,
-            videoId: currentVideoId,
-            url: window.location.href,
-            ...details
-        });
-
-        return true;
-    };
-
-    /**
-     * Clear a detection state
-     * @param {'videoAd'|'staticAd'|'playabilityError'|'adBlocker'} type - Detection type
-     * @param {string} logMessage - Message to log
-     */
-    const clearDetection = (type, logMessage) => {
-        const typeState = state.detections[type];
-        if (!typeState.showing) return;
-
-        typeState.showing = false;
-        if ('lastMessage' in typeState) {
-            typeState.lastMessage = null;
-        }
-
-        log.info(logMessage, {
-            total: typeState.count,
-            videoId: currentVideoId
-        });
-    };
-
-    /**
-     * Check if node looks like an ad
-     */
-    const looksLikeAdNode = (node) => {
-        if (!(node instanceof HTMLElement)) return false;
-
-        // Check for exact class matches
-        const classList = node.classList;
-        if (classList && AD_CLASS_EXACT.some(adClass => classList.contains(adClass))) {
-            return true;
-        }
-
-        // Check text content with precise patterns
-        const txt = ((node.innerText || '') + ' ' + (node.getAttribute('aria-label') || ''));
-        return AD_TEXT_PATTERNS.some(pattern => pattern.test(txt));
-    };
-
-    /**
-     * Check for static overlay ads (image ads that appear over the player)
-     * These are different from video ads - they show static images over the player
-     * while the video doesn't autoplay
-     */
-    const checkStaticOverlayAd = () => {
-        const background = document.querySelector(STATIC_AD_SELECTORS.background);
-        if (!background) {
-            return false;
-        }
-
-        // Check if the background container is visible
-        const backgroundVisible = isVisible(background);
-        if (!backgroundVisible) {
-            return false;
-        }
-
-        // Check for thumbnail/image inside the background
-        const thumbnail = document.querySelector(STATIC_AD_SELECTORS.thumbnail);
-        const image = document.querySelector(STATIC_AD_SELECTORS.image);
-
-        if (!thumbnail && !image) {
-            if (DEBUG_LOGGING) {
-                log.debug('Static ad check: background visible but no thumbnail/image found');
-            }
-            return false;
-        }
-
-        /** @type {HTMLVideoElement | null} */
-        const video = document.querySelector('#movie_player video, .html5-video-player video');
-
-        // Helper: check if video is in a "not playing" state (paused at/near start, or not loaded)
-        const videoNotPlaying = !video || (video.paused && video.currentTime < 1);
-
-        // Check if the image element has actual content (src or loaded image)
-        if (image) {
-            const img = image.querySelector('img');
-            if (img && img.src && isVisible(image)) {
-                if (DEBUG_LOGGING) {
-                    log.debug('Static ad detected via yt-image', { src: img.src });
-                }
-                return true;
-            }
-        }
-
-        // Check thumbnail element visibility - if visible with video not playing, it's a static ad
-        if (thumbnail && isVisible(thumbnail)) {
-            // Thumbnail visible + video not playing = static ad overlay
-            if (videoNotPlaying) {
-                if (DEBUG_LOGGING) {
-                    const thumbRect = thumbnail.getBoundingClientRect();
-                    log.debug('Static ad detected: thumbnail visible, video not playing', {
-                        thumbSize: `${Math.round(thumbRect.width)}x${Math.round(thumbRect.height)}`,
-                        videoState: video ? { paused: video.paused, currentTime: video.currentTime } : 'no video element'
-                    });
-                }
-                return true;
-            }
-        }
-
-        return false;
-    };
+    }
 
     /**
      * Check for playability errors (bot detection, content blocking)
-     * Returns the error message if found, null otherwise
+     * @returns {string|null}
      */
-    const checkPlayabilityError = () => {
-        return checkVisiblePatternMatch(
-            PLAYABILITY_ERROR_SELECTORS,
-            PLAYABILITY_ERROR_PATTERNS,
+    checkForPlayabilityErrors() {
+        return this.checkVisiblePatternMatch(
+            this.config.playabilityErrorSelectors,
+            this.playabilityErrorPatterns,
             { maxLength: 100, checkAttributedStrings: true }
         );
-    };
+    }
 
     /**
-     * Check for ad blocker detection modals/dialogs
-     * These are YouTube's "Ad blockers are not allowed" messages
-     * Uses broad text matching since we can't reproduce reliably
+     * Check for ad blocker detection modals
+     * @returns {string|null}
      */
-    const checkAdBlockerDetection = () => {
-        return checkVisiblePatternMatch(
-            ADBLOCKER_DETECTION_SELECTORS,
-            ADBLOCKER_DETECTION_PATTERNS,
+    checkForAdBlockerModals() {
+        return this.checkVisiblePatternMatch(
+            this.config.adBlockerDetectionSelectors,
+            this.adBlockerDetectionPatterns,
             { maxLength: 150, checkDialogFallback: true }
         );
-    };
+    }
+
+    // =========================================================================
+    // DOM Queries
+    // =========================================================================
+
+    /**
+     * Find the YouTube player root element
+     * @returns {Element|null}
+     */
+    findPlayerRoot() {
+        for (const selector of this.config.playerSelectors) {
+            const el = document.querySelector(selector);
+            if (el) return el;
+        }
+        return null;
+    }
 
     /**
      * Get current video ID from URL
+     * @returns {string|null}
      */
-    const getVideoId = () => {
+    getVideoId() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('v');
-    };
+    }
+
+    // =========================================================================
+    // Login State Detection
+    // =========================================================================
 
     /**
-     * Track video element events
+     * Detect YouTube user login state using DOM elements
+     * @returns {{state: string, isPremium: boolean, rawIndicators: Object}}
      */
-    const trackVideoLoad = (root) => {
-        const videoElement = root?.querySelector('video');
-        if (!videoElement) {
-            setTimeout(() => trackVideoLoad(root), 500);
+    detectLoginState() {
+        const selectors = this.config.loginStateSelectors;
+        const indicators = {
+            hasSignInButton: false,
+            hasAvatarButton: false,
+            hasPremiumLogo: false
+        };
+
+        try {
+            indicators.hasSignInButton = !!document.querySelector(selectors.signInButton);
+            indicators.hasAvatarButton = !!document.querySelector(selectors.avatarButton);
+            indicators.hasPremiumLogo = !!document.querySelector(selectors.premiumLogo);
+        } catch (e) {
+            log.warn('Error detecting login state:', e);
+        }
+
+        let loginState = 'unknown';
+        if (indicators.hasPremiumLogo) {
+            loginState = 'premium';
+        } else if (indicators.hasAvatarButton) {
+            loginState = 'logged-in';
+        } else if (indicators.hasSignInButton) {
+            loginState = 'logged-out';
+        }
+
+        return {
+            state: loginState,
+            isPremium: indicators.hasPremiumLogo,
+            rawIndicators: indicators
+        };
+    }
+
+    /**
+     * Detect login state with retries for timing issues
+     * @param {number} [attempt=1]
+     */
+    detectAndLogLoginState(attempt = 1) {
+        if (this.state.loginState?.state && this.state.loginState.state !== 'unknown') {
+            log.debug('Login state already detected, skipping retry', this.state.loginState.state);
             return;
         }
 
-        // Only set up listeners if this is a new video element
-        if (trackedVideoElement === videoElement) return;
-        trackedVideoElement = videoElement;
+        const loginState = this.detectLoginState();
 
-        // Track when video starts loading
+        if (loginState.state !== 'unknown' || attempt >= 5) {
+            this.state.loginState = loginState;
+            log.info('Login state detected:', loginState.state, loginState.isPremium ? '(Premium)' : '', {
+                attempt,
+                indicators: loginState.rawIndicators
+            });
+        } else {
+            const delay = attempt * 500;
+            log.debug(`Login state unknown, retrying in ${delay}ms (attempt ${attempt}/5)`);
+            setTimeout(() => this.detectAndLogLoginState(attempt + 1), delay);
+        }
+    }
+
+    // =========================================================================
+    // Video Tracking
+    // =========================================================================
+
+    /**
+     * Attach event listeners to video element for tracking
+     * @param {Element} root - Player root element
+     */
+    attachVideoListeners(root) {
+        const videoElement = /** @type {HTMLVideoElement | null} */ (root?.querySelector('video'));
+        if (!videoElement) {
+            setTimeout(() => this.attachVideoListeners(root), 500);
+            return;
+        }
+
+        if (this.trackedVideoElement === videoElement) return;
+        this.trackedVideoElement = videoElement;
+
         const onLoadStart = () => {
-            const vid = getVideoId();
-            if (vid && vid !== lastLoggedVideoId) {
-                lastLoggedVideoId = vid;
-                currentVideoId = vid;
-                videoLoadStartTime = performance.now();
-                state.videoLoads++;
-                if (DEBUG_LOGGING) {
-                    log.debug('Video load started', {
-                        videoId: vid,
-                        totalVideoLoads: state.videoLoads,
-                        readyState: videoElement.readyState,
-                        tabHidden: document.hidden
-                    });
+            const vid = this.getVideoId();
+            if (vid && vid !== this.lastLoggedVideoId) {
+                this.lastLoggedVideoId = vid;
+                this.currentVideoId = vid;
+                this.videoLoadStartTime = performance.now();
+                this.state.videoLoads++;
+                if (this.config.debugLogging) {
+                    log.debug('Video load started', { videoId: vid, totalVideoLoads: this.state.videoLoads });
                 }
             }
         };
-
-        // Track when video actually starts playing - count slow loads as buffering
-        const MAX_REASONABLE_LOAD_MS = 30000; // 30 seconds - beyond this is user behavior, not buffering
 
         const onPlaying = () => {
-            // Track end of buffering period (only if we were tracking mid-playback buffering)
-            if (bufferingStartTime) {
-                const bufferingDuration = performance.now() - bufferingStartTime;
-                state.buffering.durations.push(Math.round(bufferingDuration));
-                if (DEBUG_LOGGING) {
-                    log.debug('Buffering ended', {
-                        videoId: currentVideoId,
-                        durationMs: Math.round(bufferingDuration)
-                    });
+            if (this.bufferingStartTime) {
+                const bufferingDuration = performance.now() - this.bufferingStartTime;
+                this.state.buffering.durations.push(Math.round(bufferingDuration));
+                if (this.config.debugLogging) {
+                    log.debug('Buffering ended', { durationMs: Math.round(bufferingDuration) });
                 }
-                bufferingStartTime = null;
+                this.bufferingStartTime = null;
             }
 
-            // Only count slow initial load if we have a valid loadstart timestamp
-            // This prevents counting manual play clicks as buffering
-            if (!videoLoadStartTime) {
-                if (DEBUG_LOGGING) {
-                    log.debug('Playing event without loadstart (user interaction, not counted)', {
-                        videoId: currentVideoId
-                    });
-                }
-                return;
-            }
+            if (!this.videoLoadStartTime) return;
 
-            const loadTime = performance.now() - videoLoadStartTime;
-            const isSlow = loadTime > SLOW_LOAD_THRESHOLD_MS;
-            const duringAd = state.detections.videoAd.showing;
+            const loadTime = performance.now() - this.videoLoadStartTime;
+            const isSlow = loadTime > this.config.slowLoadThresholdMs;
+            const duringAd = this.state.detections.videoAd.showing;
             const tabWasHidden = document.hidden;
-            const tooLong = loadTime > MAX_REASONABLE_LOAD_MS;
+            const tooLong = loadTime > 30000;
 
-            if (DEBUG_LOGGING) {
-                log.debug('Video playing event', {
-                    videoId: currentVideoId,
-                    loadTimeMs: Math.round(loadTime),
-                    threshold: SLOW_LOAD_THRESHOLD_MS,
-                    willCountAsBuffering: isSlow && !duringAd && !tabWasHidden && !tooLong,
-                    readyState: videoElement.readyState,
-                    paused: videoElement.paused,
-                    seeking: videoElement.seeking,
-                    tabHidden: tabWasHidden,
-                    adCurrentlyShowing: duringAd
-                });
-            }
-
-            // Count as buffering if: slow, not during ad, tab was visible, reasonable duration
             if (isSlow && !duringAd && !tabWasHidden && !tooLong) {
-                state.buffering.count++;
-                state.buffering.durations.push(Math.round(loadTime));
+                this.state.buffering.count++;
+                this.state.buffering.durations.push(Math.round(loadTime));
                 log.info('Slow video load (buffering)', {
-                    videoId: currentVideoId,
-                    loadTimeMs: Math.round(loadTime),
-                    totalBufferingCount: state.buffering.count,
-                    readyState: videoElement.readyState
+                    videoId: this.currentVideoId,
+                    loadTimeMs: Math.round(loadTime)
                 });
             }
-            videoLoadStartTime = null;
+            this.videoLoadStartTime = null;
         };
 
-        // Track if video stalls/buffers
         const onWaiting = () => {
-            // Only count buffering on actual content, not during ad playback/transitions
-            if (state.detections.videoAd.showing) {
-                if (DEBUG_LOGGING) {
-                    log.debug('Buffering during ad (ignored)', {
-                        videoId: currentVideoId,
-                        readyState: videoElement.readyState,
-                        adCurrentlyShowing: state.detections.videoAd.showing
-                    });
-                }
-                return;
+            if (this.state.detections.videoAd.showing) return;
+            if (videoElement.currentTime < 0.5) return;
+
+            const recentlySeekd = this.lastSeekTime && (performance.now() - this.lastSeekTime < 3000);
+            if (videoElement.seeking || recentlySeekd) return;
+
+            if (!this.bufferingStartTime) {
+                this.bufferingStartTime = performance.now();
             }
 
-            // Ignore buffering at start of video (navigation transitions, not real buffering)
-            // Real "adblocker punishment" buffering happens during playback (currentTime > 0)
-            if (videoElement.currentTime < 0.5) {
-                if (DEBUG_LOGGING) {
-                    log.debug('Buffering at video start (ignored - likely navigation)', {
-                        videoId: currentVideoId,
-                        currentTime: videoElement.currentTime,
-                        readyState: videoElement.readyState
-                    });
-                }
-                return;
-            }
-
-            // Ignore buffering when user is seeking/scrubbing or shortly after a seek
-            const recentlySeekd = lastSeekTime && (performance.now() - lastSeekTime < 3000);
-            if (videoElement.seeking || recentlySeekd) {
-                if (DEBUG_LOGGING) {
-                    log.debug('Buffering during/after seek (ignored - user scrubbing)', {
-                        videoId: currentVideoId,
-                        currentTime: videoElement.currentTime,
-                        seeking: videoElement.seeking,
-                        msSinceSeek: lastSeekTime ? Math.round(performance.now() - lastSeekTime) : null
-                    });
-                }
-                return;
-            }
-
-            // Start tracking buffering duration
-            if (!bufferingStartTime) {
-                bufferingStartTime = performance.now();
-            }
-
-            state.buffering.count++;
+            this.state.buffering.count++;
             log.info('Video buffering/waiting', {
-                videoId: currentVideoId,
-                totalBufferingCount: state.buffering.count,
-                readyState: videoElement.readyState,
-                paused: videoElement.paused,
-                seeking: videoElement.seeking,
-                currentTime: Math.round(videoElement.currentTime),
-                tabHidden: document.hidden,
-                networkState: videoElement.networkState,
-                adCurrentlyShowing: state.detections.videoAd.showing
+                videoId: this.currentVideoId,
+                totalBufferingCount: this.state.buffering.count
             });
         };
 
-        // Track seek events to ignore post-seek buffering
         const onSeeking = () => {
-            lastSeekTime = performance.now();
-            if (DEBUG_LOGGING) {
-                log.debug('User seeking', { videoId: currentVideoId, currentTime: videoElement.currentTime });
-            }
+            this.lastSeekTime = performance.now();
         };
 
         videoElement.addEventListener('loadstart', onLoadStart);
@@ -652,279 +648,257 @@ function initDetector(config) {
         videoElement.addEventListener('waiting', onWaiting);
         videoElement.addEventListener('seeking', onSeeking);
 
-        // Track video ID for fresh navigation (we may have missed loadstart)
-        const vid = getVideoId();
-        if (vid && vid !== lastLoggedVideoId) {
-            lastLoggedVideoId = vid;
-            currentVideoId = vid;
-            state.videoLoads++;
-            // Note: For fresh nav, onPlaying will use performance.now() (time since page load)
-            // as the load time since videoLoadStartTime won't be set
+        // Track video ID for fresh navigation
+        const vid = this.getVideoId();
+        if (vid && vid !== this.lastLoggedVideoId) {
+            this.lastLoggedVideoId = vid;
+            this.currentVideoId = vid;
+            this.state.videoLoads++;
         }
-    };
+    }
+
+    // =========================================================================
+    // SPA Navigation
+    // =========================================================================
 
     /**
-     * Start detection on player root
+     * Check for URL changes (SPA navigation)
      */
-    const start = () => {
-        const root = getRoot();
+    checkUrlChange() {
+        const currentUrl = location.href;
+        if (currentUrl !== this.lastUrl) {
+            log.info('SPA navigation detected', { from: this.lastUrl, to: currentUrl });
+            this.lastUrl = currentUrl;
+        }
+    }
+
+    /**
+     * Set up history API interception for SPA navigation
+     */
+    setupNavigationTracking() {
+        this.originalPushState = history.pushState;
+        this.originalReplaceState = history.replaceState;
+
+        const self = this;
+        const origPush = this.originalPushState;
+        const origReplace = this.originalReplaceState;
+
+        history.pushState = function(...args) {
+            origPush.apply(this, args);
+            self.checkUrlChange();
+        };
+
+        history.replaceState = function(...args) {
+            origReplace.apply(this, args);
+            self.checkUrlChange();
+        };
+
+        window.addEventListener('popstate', () => this.checkUrlChange());
+    }
+
+    // =========================================================================
+    // Lifecycle
+    // =========================================================================
+
+    /**
+     * Start the detector
+     */
+    start() {
+        const root = this.findPlayerRoot();
         if (!root) {
-            setTimeout(start, 500);
+            setTimeout(() => this.start(), 500);
             return;
         }
 
-        // Start tracking video load times
-        trackVideoLoad(root);
+        this.playerRoot = root;
 
-        // Periodic sweep for all detection
-        const sweep = () => {
-            const sweepStart = performance.now();
-            const now = sweepStart;
+        // Initial login state detection
+        this.detectAndLogLoginState();
 
-            // Detect if JS was hung (gap > 3x the interval)
-            if (lastSweepTime) {
-                const gap = now - lastSweepTime;
-                const expectedGap = SWEEP_INTERVAL;
+        // Start video tracking
+        this.attachVideoListeners(root);
 
-                if (gap > expectedGap * 3) {
-                    log.warn('JS hang detected', {
-                        expectedMs: expectedGap,
-                        actualMs: Math.round(gap),
-                        gapMs: Math.round(gap - expectedGap)
-                    });
-                }
-            }
-
-            lastSweepTime = now;
-
-            const currentRoot = getRoot();
-            if (!currentRoot) return;
-
-            // Check for video element changes
-            trackVideoLoad(currentRoot);
-
-            // Check if ad is currently visible
-            const adCheckStart = performance.now();
-            const adSelectors = AD_CLASS_EXACT.map(cls => '.' + cls).join(',');
-            const adElements = currentRoot.querySelectorAll(adSelectors);
-            const hasVisibleAd = Array.from(adElements).some(el => isVisible(el) && looksLikeAdNode(el));
-            const adCheckDuration = performance.now() - adCheckStart;
-
-            // Update ad state
-            if (hasVisibleAd && !state.detections.videoAd.showing) {
-                reportDetection('videoAd', 'Ad detected!');
-            } else if (!hasVisibleAd && state.detections.videoAd.showing) {
-                clearDetection('videoAd', 'Ad ended');
-            }
-
-            // Check for static overlay ads
-            const hasStaticAd = checkStaticOverlayAd();
-            if (hasStaticAd && !state.detections.staticAd.showing) {
-                reportDetection('staticAd', 'Static overlay ad detected!');
-            } else if (!hasStaticAd && state.detections.staticAd.showing) {
-                clearDetection('staticAd', 'Static overlay ad ended');
-            }
-
-            // Check for playability errors (bot detection, content blocking)
-            const playabilityError = checkPlayabilityError();
-            if (playabilityError && !state.detections.playabilityError.showing) {
-                reportDetection('playabilityError', 'Playability error detected (possible bot detection)', { message: playabilityError });
-            } else if (!playabilityError && state.detections.playabilityError.showing) {
-                clearDetection('playabilityError', 'Playability error cleared');
-            }
-
-            // Check for ad blocker detection modals
-            const adBlockerDetected = checkAdBlockerDetection();
-            if (adBlockerDetected && !state.detections.adBlocker.showing) {
-                reportDetection('adBlocker', 'Ad blocker detection modal detected');
-            } else if (!adBlockerDetected && state.detections.adBlocker.showing) {
-                clearDetection('adBlocker', 'Ad blocker detection modal cleared');
-            }
-
-            // Track performance (keep last 50 + top 5 worst)
-            const sweepDuration = performance.now() - sweepStart;
-            perfMetrics.sweepDurations.push(sweepDuration);
-            perfMetrics.adCheckDurations.push(adCheckDuration);
-            perfMetrics.sweepCount++;
-
-            // Track top 5 worst sweep times
-            perfMetrics.top5SweepDurations.push(sweepDuration);
-            perfMetrics.top5SweepDurations.sort((a, b) => b - a); // Descending
-            if (perfMetrics.top5SweepDurations.length > 5) {
-                perfMetrics.top5SweepDurations.pop(); // Remove 6th worst
-            }
-
-            // Track top 5 worst ad check times
-            perfMetrics.top5AdCheckDurations.push(adCheckDuration);
-            perfMetrics.top5AdCheckDurations.sort((a, b) => b - a);
-            if (perfMetrics.top5AdCheckDurations.length > 5) {
-                perfMetrics.top5AdCheckDurations.pop();
-            }
-
-            if (sweepDuration > 10) perfMetrics.sweepsOver10ms++;
-            if (sweepDuration > 50) perfMetrics.sweepsOver50ms++;
-
-            if (perfMetrics.sweepDurations.length > 50) {
-                perfMetrics.sweepDurations.shift();
-                perfMetrics.adCheckDurations.shift();
-            }
-        };
-
-        sweep();
-        pollInterval = setInterval(sweep, SWEEP_INTERVAL);
+        // Start sweep loop
+        this.sweep();
+        this.pollInterval = setInterval(() => this.sweep(), this.config.sweepIntervalMs);
 
         // Check for player root changes
-        rerootInterval = setInterval(() => {
-            const r = getRoot();
-            if (r && r !== root) {
+        this.rerootInterval = setInterval(() => {
+            const r = this.findPlayerRoot();
+            if (r && r !== this.playerRoot) {
                 log.info('Player root changed, reinitializing');
-                if (pollInterval) clearInterval(pollInterval);
-                if (rerootInterval) clearInterval(rerootInterval);
-                start();
+                this.playerRoot = r;
+                if (this.pollInterval) clearInterval(this.pollInterval);
+                this.pollInterval = setInterval(() => this.sweep(), this.config.sweepIntervalMs);
             }
         }, 1000);
-    };
 
-    start();
+        // Set up SPA navigation tracking
+        this.setupNavigationTracking();
 
-    // Listen for YouTube SPA navigation by intercepting history changes
-    let lastUrl = location.href;
+        // Attach debug helper
+        this.attachDebugHelper();
 
-    const checkUrlChange = () => {
-        const currentUrl = location.href;
-        if (currentUrl !== lastUrl) {
-            log.info('SPA navigation detected', {
-                from: lastUrl,
-                to: currentUrl
-            });
-            lastUrl = currentUrl;
-            // Video tracking will be handled by sweep loop
+        log.info('YouTube ad detector initialized successfully');
+    }
+
+    /**
+     * Stop the detector
+     */
+    stop() {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
         }
-    };
+        if (this.rerootInterval) {
+            clearInterval(this.rerootInterval);
+            this.rerootInterval = null;
+        }
 
-    // Intercept pushState and replaceState for instant detection
-    const originalPushState = history.pushState;
-    const originalReplaceState = history.replaceState;
+        // Restore history methods
+        if (this.originalPushState) {
+            history.pushState = this.originalPushState;
+        }
+        if (this.originalReplaceState) {
+            history.replaceState = this.originalReplaceState;
+        }
 
-    history.pushState = function(...args) {
-        originalPushState.apply(this, args);
-        checkUrlChange();
-    };
+        log.info('YouTube ad detector stopped');
+    }
 
-    history.replaceState = function(...args) {
-        originalReplaceState.apply(this, args);
-        checkUrlChange();
-    };
+    /**
+     * Attach debug helper to window
+     */
+    attachDebugHelper() {
+        const self = this;
+        // @ts-ignore
+        window.ytAdDetectorDebug = () => {
+            const totalMs = self.state.buffering.durations.reduce((sum, dur) => sum + dur, 0);
+            const avgMs = self.state.buffering.durations.length > 0
+                ? Math.round(totalMs / self.state.buffering.durations.length)
+                : 0;
 
-    // Also listen for popstate (back/forward buttons)
-    window.addEventListener('popstate', checkUrlChange);
-
-    log.info('YouTube ad detector initialized successfully');
-
-    // Expose debug function to window for manual inspection
-    // @ts-ignore - Debug helper
-    window.ytAdDetectorDebug = () => {
-        const totalMs = state.buffering.durations.reduce((sum, dur) => sum + dur, 0);
-        const avgMs = state.buffering.durations.length > 0
-            ? Math.round(totalMs / state.buffering.durations.length)
-            : 0;
-        const maxMs = state.buffering.durations.length > 0
-            ? Math.max(...state.buffering.durations)
-            : 0;
-
-        // Calculate performance stats (only when debug is called)
-        const calcStats = (arr) => {
-            if (arr.length === 0) return { avg: 0, min: 0, max: 0, p95: 0 };
-            const sorted = [...arr].sort((a, b) => a - b);
-            const sum = sorted.reduce((a, b) => a + b, 0);
-            return {
-                avg: Math.round((sum / sorted.length) * 100) / 100,
-                min: Math.round(sorted[0] * 100) / 100,
-                max: Math.round(sorted[sorted.length - 1] * 100) / 100,
-                p95: Math.round(sorted[Math.floor(sorted.length * 0.95)] * 100) / 100
+            const calcStats = (arr) => {
+                if (arr.length === 0) return { avg: 0, min: 0, max: 0, p95: 0 };
+                const sorted = [...arr].sort((a, b) => a - b);
+                const sum = sorted.reduce((a, b) => a + b, 0);
+                return {
+                    avg: Math.round((sum / sorted.length) * 100) / 100,
+                    min: Math.round(sorted[0] * 100) / 100,
+                    max: Math.round(sorted[sorted.length - 1] * 100) / 100,
+                    p95: Math.round(sorted[Math.floor(sorted.length * 0.95)] * 100) / 100
+                };
             };
-        };
 
-        // Get fresh login state for debug output
-        const currentLoginState = detectLoginState();
+            const currentLoginState = self.detectLoginState();
+            const d = self.state.detections;
+            const perf = self.state.perfMetrics;
 
-        console.log('[YT-AdDetect] Current State:', {
-            ...state,
-            adStats: {
-                videoAds: state.detections.videoAd.count,
-                staticAds: state.detections.staticAd.count,
-                totalAds: state.detections.videoAd.count + state.detections.staticAd.count
-            },
-            playabilityErrors: {
-                count: state.detections.playabilityError.count,
-                currentlyShowing: state.detections.playabilityError.showing,
-                lastMessage: state.detections.playabilityError.lastMessage
-            },
-            adBlockerDetection: {
-                count: state.detections.adBlocker.count,
-                currentlyShowing: state.detections.adBlocker.showing
-            },
-            bufferingStats: {
-                totalMs,
-                averageMs: avgMs,
-                maxMs,
-                durations: state.buffering.durations
-            },
-            // Login state detection
-            loginState: {
-                initial: state.loginState?.state,
-                current: currentLoginState.state,
-                isPremium: currentLoginState.isPremium,
-                indicators: currentLoginState.rawIndicators
-            },
-            currentVideoId,
-            lastLoggedVideoId,
-            hasVideoElement: !!trackedVideoElement,
-            videoElementState: trackedVideoElement ? {
-                readyState: trackedVideoElement.readyState,
-                paused: trackedVideoElement.paused,
-                seeking: trackedVideoElement.seeking,
-                currentTime: trackedVideoElement.currentTime,
-                duration: trackedVideoElement.duration,
-                networkState: trackedVideoElement.networkState
-            } : null,
-            playerRoot: getRoot()?.id || getRoot()?.className,
-            config: {
-                SWEEP_INTERVAL,
-                SLOW_LOAD_THRESHOLD_MS,
-                DEBUG_LOGGING
-            },
-            performance: {
-                sweepCount: perfMetrics.sweepCount,
-                sweepStats: calcStats(perfMetrics.sweepDurations),
-                adCheckStats: calcStats(perfMetrics.adCheckDurations),
-                sampleSize: perfMetrics.sweepDurations.length,
-                // All-time worst case
-                allTime: {
-                    top5WorstSweeps: perfMetrics.top5SweepDurations.map(d => Math.round(d * 100) / 100),
-                    top5WorstAdChecks: perfMetrics.top5AdCheckDurations.map(d => Math.round(d * 100) / 100),
-                    sweepsOver10ms: perfMetrics.sweepsOver10ms,
-                    sweepsOver50ms: perfMetrics.sweepsOver50ms,
-                    percentageSlow: Math.round((perfMetrics.sweepsOver10ms / perfMetrics.sweepCount) * 100 * 100) / 100
+            console.log('[YT-AdDetect] Current State:', {
+                detections: d,
+                adStats: { videoAds: d.videoAd.count, staticAds: d.staticAd.count },
+                bufferingStats: { totalMs, averageMs: avgMs, durations: self.state.buffering.durations },
+                loginState: { initial: self.state.loginState?.state, current: currentLoginState.state },
+                currentVideoId: self.currentVideoId,
+                hasVideoElement: !!self.trackedVideoElement,
+                performance: {
+                    sweepCount: perf.sweepCount,
+                    sweepStats: calcStats(perf.sweepDurations),
+                    top5WorstSweeps: perf.top5SweepDurations.map(d => Math.round(d * 100) / 100),
+                    sweepsOver10ms: perf.sweepsOver10ms,
+                    sweepsOver50ms: perf.sweepsOver50ms
                 }
+            });
+        };
+    }
+
+    // =========================================================================
+    // Results
+    // =========================================================================
+
+    /**
+     * Get detection results in standard format
+     * @returns {Object}
+     */
+    getResults() {
+        const d = this.state.detections;
+
+        // Calculate buffering stats
+        const totalBufferingMs = this.state.buffering.durations.reduce((sum, dur) => sum + dur, 0);
+        const avgBufferingMs = this.state.buffering.durations.length > 0
+            ? totalBufferingMs / this.state.buffering.durations.length
+            : 0;
+        const bufferAvgSec = Math.round(avgBufferingMs / 1000);
+
+        // Refresh login state if unknown
+        let loginState = this.state.loginState;
+        if (!loginState || loginState.state === 'unknown') {
+            const freshCheck = this.detectLoginState();
+            if (freshCheck.state !== 'unknown') {
+                this.state.loginState = freshCheck;
+                loginState = freshCheck;
             }
-        });
-    };
+        }
+
+        // Calculate performance stats
+        const perf = this.state.perfMetrics;
+        let perfData = null;
+
+        if (perf && perf.sweepCount > 0) {
+            const calcAvg = (arr) => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+            const calcMax = (arr) => arr.length > 0 ? Math.max(...arr) : 0;
+
+            perfData = {
+                sweepCount: perf.sweepCount,
+                sweepAvgMs: Math.round(calcAvg(perf.sweepDurations) * 100) / 100,
+                sweepMaxMs: Math.round(calcMax(perf.sweepDurations) * 100) / 100,
+                adCheckAvgMs: Math.round(calcAvg(perf.adCheckDurations) * 100) / 100,
+                adCheckMaxMs: Math.round(calcMax(perf.adCheckDurations) * 100) / 100,
+                sweepsOver10ms: perf.sweepsOver10ms,
+                sweepsOver50ms: perf.sweepsOver50ms,
+                top5WorstMs: perf.top5SweepDurations.map(d => Math.round(d * 100) / 100),
+                pctSlow: Math.round((perf.sweepsOver10ms / perf.sweepCount) * 100 * 100) / 100
+            };
+        }
+
+        return {
+            detected: d.videoAd.count > 0 || d.staticAd.count > 0 || d.playabilityError.count > 0 || d.adBlocker.count > 0 || this.state.buffering.count > 0,
+            type: 'youtubeAds',
+            results: [{
+                adsDetected: d.videoAd.count,
+                staticAdsDetected: d.staticAd.count,
+                playabilityErrorsDetected: d.playabilityError.count,
+                adBlockerDetectionCount: d.adBlocker.count,
+                bufferingCount: this.state.buffering.count,
+                bufferAvgSec: bufferAvgSec,
+                userState: loginState?.state || 'unknown',
+                perf: perfData
+            }]
+        };
+    }
 }
+
+// =========================================================================
+// Module-level singleton
+// =========================================================================
+
+/** @type {YouTubeAdDetector | null} */
+let detectorInstance = null;
 
 /**
  * Run YouTube ad detection
- * @param {Object} config - Configuration from privacy-config
+ * @param {YouTubeDetectorConfig} [config] - Configuration from privacy-config
  * @returns {Object} Detection results in standard format
  */
 export function runYoutubeAdDetection(config = {}) {
     // Auto-initialize on first call if on YouTube
-    if (!state && window.location.hostname.includes('youtube.com')) {
-        initDetector(config);
+    if (!detectorInstance && window.location.hostname.includes('youtube.com')) {
+        detectorInstance = new YouTubeAdDetector(config);
+        detectorInstance.start();
     }
 
     // Return empty result if not initialized
-    if (!state) {
+    if (!detectorInstance) {
         return {
             detected: false,
             type: 'youtubeAds',
@@ -932,73 +906,5 @@ export function runYoutubeAdDetection(config = {}) {
         };
     }
 
-    // Calculate average buffering time, rounded to nearest second for privacy
-    const totalBufferingMs = state.buffering.durations.reduce((sum, dur) => sum + dur, 0);
-    const avgBufferingMs = state.buffering.durations.length > 0
-        ? totalBufferingMs / state.buffering.durations.length
-        : 0;
-    const bufferAvgSec = Math.round(avgBufferingMs / 1000);
-
-    // Return minimal data for privacy - no session fingerprinting
-    const d = state.detections;
-
-    // If stored login state is unknown, try a fresh check (YouTube globals may be ready now)
-    let loginState = state.loginState;
-    if (!loginState || loginState.state === 'unknown') {
-        // Try fresh detection - globals should be ready by now
-        const freshCheck = detectLoginState();
-        if (freshCheck.state !== 'unknown') {
-            state.loginState = freshCheck;
-            loginState = freshCheck;
-            log.debug('Fresh login state check at report time:', freshCheck.state);
-        }
-    }
-
-    // Calculate performance stats for return data
-    const perf = state.perfMetrics;
-    let perfData = null;
-
-    if (perf && perf.sweepCount > 0) {
-        // Calculate stats from recent sweeps
-        const sweeps = perf.sweepDurations;
-        const adChecks = perf.adCheckDurations;
-
-        const calcAvg = (arr) => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
-        const calcMax = (arr) => arr.length > 0 ? Math.max(...arr) : 0;
-
-        perfData = {
-            // Total sweeps executed
-            sweepCount: perf.sweepCount,
-            // Recent sweep stats (last 50)
-            sweepAvgMs: Math.round(calcAvg(sweeps) * 100) / 100,
-            sweepMaxMs: Math.round(calcMax(sweeps) * 100) / 100,
-            // Ad check subset timing
-            adCheckAvgMs: Math.round(calcAvg(adChecks) * 100) / 100,
-            adCheckMaxMs: Math.round(calcMax(adChecks) * 100) / 100,
-            // All-time slow sweep counts
-            sweepsOver10ms: perf.sweepsOver10ms,
-            sweepsOver50ms: perf.sweepsOver50ms,
-            // Top 5 worst sweep times (all-time)
-            top5WorstMs: perf.top5SweepDurations.map(d => Math.round(d * 100) / 100),
-            // Percentage of slow sweeps
-            pctSlow: Math.round((perf.sweepsOver10ms / perf.sweepCount) * 100 * 100) / 100
-        };
-    }
-
-    return {
-        detected: d.videoAd.count > 0 || d.staticAd.count > 0 || d.playabilityError.count > 0 || d.adBlocker.count > 0 || state.buffering.count > 0,
-        type: 'youtubeAds',
-        results: [{
-            adsDetected: d.videoAd.count,
-            staticAdsDetected: d.staticAd.count,
-            playabilityErrorsDetected: d.playabilityError.count,
-            adBlockerDetectionCount: d.adBlocker.count,
-            bufferingCount: state.buffering.count,
-            bufferAvgSec: bufferAvgSec,
-            // Login state: 'logged-in' | 'logged-out' | 'premium' | 'unknown'
-            userState: loginState?.state || 'unknown',
-            // Performance metrics for internal testing
-            perf: perfData
-        }]
-    };
+    return detectorInstance.getResults();
 }
