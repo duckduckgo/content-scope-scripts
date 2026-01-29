@@ -3,12 +3,12 @@ import { isBeingFramed } from '../utils.js';
 
 export class Favicon extends ContentFeature {
     init() {
-        if (this.platform.name === 'ios') return;
-
         /**
          * This feature never operates in a frame
          */
         if (isBeingFramed()) return;
+
+        this.excludeSvg = this.platform.name === 'ios';
 
         window.addEventListener('DOMContentLoaded', () => {
             // send once, immediately
@@ -44,7 +44,7 @@ export class Favicon extends ContentFeature {
     }
 
     send() {
-        const favicons = getFaviconList();
+        const favicons = getFaviconList({ excludeSvg: this.excludeSvg });
         this.notify('faviconFound', { favicons, documentUrl: document.URL });
     }
 }
@@ -87,7 +87,7 @@ function monitor(changeObservedCallback) {
 /**
  * @returns {import('../types/favicon.js').FaviconAttrs[]}
  */
-export function getFaviconList() {
+export function getFaviconList({ excludeSvg = false } = {}) {
     const selectors = [
         "link[href][rel='favicon']",
         "link[href][rel*='icon']",
@@ -95,9 +95,24 @@ export function getFaviconList() {
         "link[href][rel='apple-touch-icon-precomposed']",
     ];
     const elements = document.head.querySelectorAll(selectors.join(','));
-    return Array.from(elements).map((/** @type {HTMLLinkElement} */ link) => {
-        const href = link.href || '';
-        const rel = link.getAttribute('rel') || '';
-        return { href, rel };
-    });
+    return Array.from(elements)
+        .filter((/** @type {HTMLLinkElement} */ link) => {
+            if (!excludeSvg) return true;
+            return !isSvgLink(link);
+        })
+        .map((/** @type {HTMLLinkElement} */ link) => {
+            const href = link.href || '';
+            const rel = link.getAttribute('rel') || '';
+            return { href, rel };
+        });
+}
+
+/**
+ * @param {HTMLLinkElement} link
+ */
+function isSvgLink(link) {
+    const type = (link.type || '').toLowerCase();
+    if (type.includes('svg')) return true;
+    const href = (link.href || '').toLowerCase();
+    return href.includes('.svg') || href.startsWith('data:image/svg');
 }
