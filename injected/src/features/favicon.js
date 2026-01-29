@@ -3,8 +3,6 @@ import { isBeingFramed } from '../utils.js';
 
 export class Favicon extends ContentFeature {
     init() {
-        if (this.platform.name === 'ios') return;
-
         /**
          * This feature never operates in a frame
          */
@@ -44,12 +42,73 @@ export class Favicon extends ContentFeature {
     }
 
     send() {
-        const favicons = getFaviconList();
+        const favicons = this.getFaviconList();
         this.notify('faviconFound', { favicons, documentUrl: document.URL });
+    }
+
+    /**
+     * Checks if a favicon link is an SVG based on href or type attribute
+     * @param {string} href - The favicon URL
+     * @param {string} type - The type attribute value
+     * @returns {boolean}
+     */
+    isSvgFavicon(href, type) {
+        return href.includes('.svg') || type.includes('svg');
+    }
+
+    /**
+     * Gets the list of favicons from the page, optionally filtering SVGs for iOS
+     * @returns {import('../types/favicon.js').FaviconAttrs[]}
+     */
+    getFaviconList() {
+        const selectors = [
+            "link[href][rel='favicon']",
+            "link[href][rel*='icon']",
+            "link[href][rel='apple-touch-icon']",
+            "link[href][rel='apple-touch-icon-precomposed']",
+        ];
+        const elements = document.head.querySelectorAll(selectors.join(','));
+        const excludeSvg = this.platform.name === 'ios';
+
+        return Array.from(elements)
+            .map((/** @type {HTMLLinkElement} */ link) => {
+                const href = link.href || '';
+                const rel = link.getAttribute('rel') || '';
+                const type = link.type || '';
+                return { href, rel, type };
+            })
+            .filter((favicon) => {
+                // Filter out SVGs for iOS since native side can't handle them
+                if (excludeSvg && this.isSvgFavicon(favicon.href, favicon.type)) {
+                    return false;
+                }
+                return true;
+            });
     }
 }
 
 export default Favicon;
+
+/**
+ * Standalone function to get favicon list (without SVG filtering).
+ * Used by page-context feature for AI chat context gathering.
+ * @returns {import('../types/favicon.js').FaviconAttrs[]}
+ */
+export function getFaviconList() {
+    const selectors = [
+        "link[href][rel='favicon']",
+        "link[href][rel*='icon']",
+        "link[href][rel='apple-touch-icon']",
+        "link[href][rel='apple-touch-icon-precomposed']",
+    ];
+    const elements = document.head.querySelectorAll(selectors.join(','));
+    return Array.from(elements).map((/** @type {HTMLLinkElement} */ link) => {
+        const href = link.href || '';
+        const rel = link.getAttribute('rel') || '';
+        const type = link.type || '';
+        return { href, rel, type };
+    });
+}
 
 /**
  * @param {()=>void} changeObservedCallback
@@ -82,22 +141,4 @@ function monitor(changeObservedCallback) {
     });
 
     observer.observe(target, { attributeFilter: ['rel', 'href'], attributes: true, subtree: true, childList: true });
-}
-
-/**
- * @returns {import('../types/favicon.js').FaviconAttrs[]}
- */
-export function getFaviconList() {
-    const selectors = [
-        "link[href][rel='favicon']",
-        "link[href][rel*='icon']",
-        "link[href][rel='apple-touch-icon']",
-        "link[href][rel='apple-touch-icon-precomposed']",
-    ];
-    const elements = document.head.querySelectorAll(selectors.join(','));
-    return Array.from(elements).map((/** @type {HTMLLinkElement} */ link) => {
-        const href = link.href || '';
-        const rel = link.getAttribute('rel') || '';
-        return { href, rel };
-    });
 }
