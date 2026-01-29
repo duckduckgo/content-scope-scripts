@@ -1,8 +1,10 @@
 import { h } from 'preact';
 import styles from './News.module.css';
+import { WidgetSettingsMenu } from '../../components/WidgetSettingsMenu.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').NewsData} NewsData
+ * @typedef {import('../../../types/new-tab.js').WidgetConfigs[number]} WidgetConfigItem
  */
 
 /**
@@ -10,11 +12,23 @@ import styles from './News.module.css';
  *
  * @param {Object} props
  * @param {NewsData} props.data
+ * @param {string} [props.instanceId]
+ * @param {WidgetConfigItem | null} [props.config]
+ * @param {() => void} [props.onSetQuery]
+ * @param {(updates: Partial<WidgetConfigItem>) => void} [props.onUpdateConfig]
  */
-export function News({ data }) {
+export function News({ data, instanceId, config, onSetQuery, onUpdateConfig }) {
     if (!data.results || data.results.length === 0) {
         return (
             <div className={styles.news} data-testid="news-widget">
+                {instanceId && onSetQuery && onUpdateConfig && (
+                    <WidgetSettingsMenu
+                        widgetType="news"
+                        config={config || null}
+                        onSetConfig={onSetQuery}
+                        onUpdateConfig={onUpdateConfig}
+                    />
+                )}
                 <div className={styles.empty}>No news available</div>
             </div>
         );
@@ -22,6 +36,9 @@ export function News({ data }) {
 
     return (
         <div className={styles.news} data-testid="news-widget">
+            {instanceId && onSetQuery && onUpdateConfig && (
+                <WidgetSettingsMenu widgetType="news" config={config || null} onSetConfig={onSetQuery} onUpdateConfig={onUpdateConfig} />
+            )}
             <h2 className={styles.title}>News</h2>
             <ul className={styles.list}>
                 {data.results.map((item, index) => (

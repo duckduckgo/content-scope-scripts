@@ -44,6 +44,9 @@ export const WidgetConfigContext = createContext({
 
     /** @type {(instanceId: string) => WidgetConfigItem | undefined} */
     getConfigForInstance: (_instanceId) => undefined,
+
+    /** @type {(instanceId: string, updates: Partial<WidgetConfigItem>) => void} */
+    updateInstanceConfig: (_instanceId, _updates) => {},
 });
 
 /**
@@ -102,6 +105,14 @@ export function WidgetConfigProvider(props) {
         return props.api.getConfigForInstance(instanceId);
     }
 
+    /**
+     * @param {string} instanceId
+     * @param {Partial<WidgetConfigItem>} updates
+     */
+    function updateInstanceConfig(instanceId, updates) {
+        props.api.updateInstanceConfig(instanceId, updates);
+    }
+
     return (
         <WidgetConfigContext.Provider
             value={{
@@ -115,6 +126,7 @@ export function WidgetConfigProvider(props) {
                 removeInstance,
                 reorderWidgets,
                 getConfigForInstance,
+                updateInstanceConfig,
             }}
         >
             {props.children}

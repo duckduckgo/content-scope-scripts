@@ -1,8 +1,10 @@
 import { h } from 'preact';
 import styles from './Stock.module.css';
+import { WidgetSettingsMenu } from '../../components/WidgetSettingsMenu.js';
 
 /**
  * @typedef {import('../../../types/new-tab.js').StockData} StockData
+ * @typedef {import('../../../types/new-tab.js').WidgetConfigs[number]} WidgetConfigItem
  */
 
 /**
@@ -10,8 +12,12 @@ import styles from './Stock.module.css';
  *
  * @param {Object} props
  * @param {StockData} props.data
+ * @param {string} [props.instanceId]
+ * @param {WidgetConfigItem | null} [props.config]
+ * @param {() => void} [props.onSetSymbol]
+ * @param {(updates: Partial<WidgetConfigItem>) => void} [props.onUpdateConfig]
  */
-export function Stock({ data }) {
+export function Stock({ data, instanceId, config, onSetSymbol, onUpdateConfig }) {
     const isPositive = data.change >= 0;
     const changeClass = isPositive ? styles.positive : styles.negative;
     const changeSign = isPositive ? '+' : '';
@@ -19,6 +25,9 @@ export function Stock({ data }) {
 
     return (
         <div className={styles.stock} data-testid="stock-widget">
+            {instanceId && onSetSymbol && onUpdateConfig && (
+                <WidgetSettingsMenu widgetType="stock" config={config || null} onSetConfig={onSetSymbol} onUpdateConfig={onUpdateConfig} />
+            )}
             <div className={styles.symbol}>{data.symbol}</div>
             <div className={styles.companyName}>{data.companyName}</div>
             <div className={styles.price}>

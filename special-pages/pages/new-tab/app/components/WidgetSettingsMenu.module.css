@@ -1,0 +1,33 @@
+.container {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+}
+
+.menuButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: var(--ntp-text-muted, #666);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    font-size: 18px;
+    line-height: 1;
+
+    &:hover {
+        background-color: var(--ds-color-theme-control-fill-secondary, rgba(0, 0, 0, 0.05));
+        color: var(--ntp-text-normal, #333);
+    }
+
+    &:focus-visible {
+        box-shadow: var(--focus-ring);
+        outline: none;
+    }
+}
