@@ -55,6 +55,17 @@ function canShare(data) {
     return true;
 }
 
+// Shadowned class for PermissionStatus for use in shimming
+// eslint-disable-next-line no-redeclare
+class PermissionStatus extends EventTarget {
+    constructor(name, state) {
+        super();
+        this.name = name;
+        this.state = state;
+        this.onchange = null; // noop
+    }
+}
+
 /**
  * Clean data before sending to the Android side
  * @returns {ShareRequestData}
@@ -517,24 +528,69 @@ export class WebCompat extends ContentFeature {
     }
 
     /**
+     * Handles permission query with native messaging support.
+     * @param {Object} query - The permission query object
+     * @param {Object} settings - The permission settings
+     * @returns {Promise<PermissionStatus|null>} - Returns PermissionStatus if handled, null to fall through
+     */
+    async handlePermissionQuery(query, settings) {
+        if (!query?.name || !settings?.supportedPermissions?.[query.name]?.native) {
+            return null;
+        }
+
+        try {
+            const permSetting = settings.supportedPermissions[query.name];
+            const returnName = permSetting.name || query.name;
+            const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
+            const returnStatus = response.state || 'prompt';
+            return new PermissionStatus(returnName, returnStatus);
+        } catch (err) {
+            return null; // Fall through to original method
+        }
+    }
+
+    permissionsPresentFix(settings) {
+        const originalQuery = window.navigator.permissions.query;
+        if (typeof originalQuery !== 'function') {
+            return;
+        }
+        window.navigator.permissions.query = new Proxy(originalQuery, {
+            apply: async (target, thisArg, args) => {
+                this.addDebugFlag();
+
+                const query = args[0];
+
+                // Only attempt to handle if query is valid and permission is marked as native
+                if (query?.name && settings?.supportedPermissions?.[query.name]?.native) {
+                    // Try to handle with native messaging
+                    const result = await this.handlePermissionQuery(query, settings);
+                    if (result) {
+                        return result;
+                    }
+                }
+
+                // Fall through to original method for all other cases
+                return Reflect.apply(target, thisArg, args);
+            },
+        });
+    }
+
+    /**
      * Adds missing permissions API for Android WebView.
      */
     permissionsFix(settings) {
         if (window.navigator.permissions) {
+            if (this.getFeatureSettingEnabled('permissionsPresent')) {
+                this.permissionsPresentFix(settings);
+            }
             return;
         }
         const permissions = {};
-        class PermissionStatus extends EventTarget {
-            constructor(name, state) {
-                super();
-                this.name = name;
-                this.state = state;
-                this.onchange = null; // noop
-            }
-        }
         permissions.query = new Proxy(
             async (query) => {
                 this.addDebugFlag();
+
+                // Validate required arguments
                 if (!query) {
                     throw new TypeError("Failed to execute 'query' on 'Permissions': 1 argument required, but only 0 present.");
                 }
@@ -549,19 +605,18 @@ export class WebCompat extends ContentFeature {
                         `Failed to execute 'query' on 'Permissions': Failed to read the 'name' property from 'PermissionDescriptor': The provided value '${query.name}' is not a valid enum value of type PermissionName.`,
                     );
                 }
+
+                // Try to handle with native messaging
+                const result = await this.handlePermissionQuery(query, settings);
+                if (result) {
+                    return result;
+                }
+
+                // Fall back to default behavior
                 const permSetting = settings.supportedPermissions[query.name];
                 // Use custom permission name if configured, else original query name
                 const returnName = permSetting.name || query.name;
-                let returnStatus = settings.permissionResponse || 'prompt';
-                // Only query native for permissions marked native:true
-                if (permSetting.native) {
-                    try {
-                        const response = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
-                        returnStatus = response.state || 'prompt';
-                    } catch (err) {
-                        // do nothing - keep returnStatus as-is
-                    }
-                }
+                const returnStatus = settings.permissionResponse || 'prompt';
                 return Promise.resolve(new PermissionStatus(returnName, returnStatus));
             },
             {
