@@ -1,0 +1,60 @@
+---
+description: Debugging steps for Content Scope Scripts development and integration
+alwaysApply: false
+---
+
+# Rule: Content Scope Scripts (C-S-S) Development Debugging
+
+## Overview
+When developing or debugging Content Scope Scripts, validate script integrity, build outputs, and injection across all platforms.
+
+## Debugging Resources
+
+### Script Integrity and Build Issues
+
+**`injected/docs/build-and-troubleshooting.md`** - covers:
+- **Verification Steps** - Validate injected script integrity across build directory, native app, and web inspector
+- **Config and Platform Parameters Validation** - Using `processConfig` breakpoint to validate config state and platform parameters
+- **Build Branch Hash Validation** - For native engineers using build branches
+- **Quick Validation Test** - Test page for verifying C-S-S injection
+- Platform-specific setup and troubleshooting (iOS/macOS, Android, Windows, Extensions)
+- Source maps configuration
+- Local dependency linking
+
+**`CONTRIBUTING.md`** - Release process:
+- **Breaking Changes Protocol** - Versioning and release coordination
+
+### Messaging and Feature Issues
+
+**`injected/docs/message-bridge.md`** - Messaging troubleshooting:
+- Missing messageName debugging
+- Message handler registration
+- Messaging bridge initialization
+
+### Feature Not Working Checklist
+
+When a feature is not working, use the triage checklist in:
+
+**`injected/docs/build-and-troubleshooting.md#feature-not-working-triage-checklist`**:
+- Feature enabled in config and site object
+- Feature bundled on the platform
+- Sub-feature or setting enabled
+- Messaging wired and listened to
+
+### Additional Resources
+
+- **`injected/docs/features-guide.md`** - Feature development and debugging
+- **`injected/docs/testing-guide.md`** - Testing and validation approaches
+
+## Platform-Specific Build and Troubleshooting
+
+For detailed platform-specific build instructions, troubleshooting steps, and local development tips, see:
+
+**`injected/docs/build-and-troubleshooting.md`**
+
+This includes:
+- Platform-specific setup instructions (iOS/macOS, Android, Windows, Extensions)
+- Source maps configuration
+- Local dependency linking
+- Privacy config file locations
+- Common troubleshooting steps for each platform

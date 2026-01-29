@@ -1,5 +1,5 @@
 import Foundation
 
-public enum ContentScopeScripts {
-    public static let Bundle: Bundle = .module
+public struct ContentScopeScripts {
+    public static var Bundle: Bundle = .module
 }

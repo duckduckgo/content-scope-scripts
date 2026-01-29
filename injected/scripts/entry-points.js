@@ -17,15 +17,19 @@ const builds = {
     },
     apple: {
         input: 'entry-points/apple.js',
-        output: ['../build/apple/contentScope.js'],
+        output: ['../Sources/ContentScopeScripts/dist/contentScope.js'],
     },
     'apple-ai-clear': {
         input: 'entry-points/apple.js',
-        output: ['../build/apple/duckAiDataClearing.js'],
+        output: ['../Sources/ContentScopeScripts/dist/duckAiDataClearing.js'],
+    },
+    'apple-ai-history': {
+        input: 'entry-points/apple.js',
+        output: ['../Sources/ContentScopeScripts/dist/duckAiChatHistory.js'],
     },
     'apple-isolated': {
         input: 'entry-points/apple.js',
-        output: ['../build/apple/contentScopeIsolated.js'],
+        output: ['../Sources/ContentScopeScripts/dist/contentScopeIsolated.js'],
     },
     android: {
         input: 'entry-points/android.js',
@@ -66,13 +70,20 @@ async function init() {
     const requiredFields = [];
     const args = parseArgs(process.argv.slice(2), requiredFields);
 
+    // Enable inline source maps via C_S_S_SOURCEMAPS=1 env var
+    const sourcemap = process.env.C_S_S_SOURCEMAPS === '1';
+
+    if (sourcemap) {
+        console.log('🗺️  Inline source maps enabled');
+    }
+
     // if a platform was given as an argument, just build that platform
     if (args.platform) {
         const build = builds[args.platform];
         if (!build) {
             throw new Error('unsupported platform: ' + args.platform);
         }
-        const output = await bundle({ scriptPath: build.input, platform: args.platform });
+        const output = await bundle({ scriptPath: build.input, platform: args.platform, sourcemap });
 
         // bundle and write the output
         write([build.output], output);
@@ -82,7 +93,7 @@ async function init() {
 
     // otherwise, just build them all
     for (const [injectName, build] of Object.entries(builds)) {
-        const output = await bundle({ scriptPath: build.input, platform: injectName });
+        const output = await bundle({ scriptPath: build.input, platform: injectName, sourcemap });
         write(build.output, output);
         console.log('✅', injectName, build.output[0]);
     }

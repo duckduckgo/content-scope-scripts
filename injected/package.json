@@ -27,7 +27,7 @@
   "type": "module",
   "dependencies": {
     "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1752154773643",
-    "esbuild": "^0.27.1",
+    "esbuild": "^0.27.2",
     "minimist": "^1.2.8",
     "parse-address": "^1.1.2",
     "seedrandom": "^3.0.5",
@@ -37,11 +37,10 @@
   "devDependencies": {
     "@canvas/image-data": "^1.1.0",
     "@fingerprintjs/fingerprintjs": "^5.0.1",
-    "@types/chrome": "^0.1.32",
-    "@types/jasmine": "^5.1.13",
-    "@types/node": "^25.0.2",
-    "@typescript-eslint/eslint-plugin": "^8.49.0",
-    "fast-check": "^4.4.0",
+    "@types/chrome": "^0.1.33",
+    "@types/jasmine": "^5.1.14",
+    "@types/node": "^25.0.6",
+    "fast-check": "^4.5.2",
     "jasmine": "^5.13.0",
     "jsdom": "^27.2.0",
     "web-ext": "^9.2.0"

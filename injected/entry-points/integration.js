@@ -37,6 +37,7 @@ function generateConfig() {
                 'apiManipulation',
                 'duckPlayer',
                 'duckPlayerNative',
+                'elementHiding',
             ],
         },
     };

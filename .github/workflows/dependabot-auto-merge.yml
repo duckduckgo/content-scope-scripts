@@ -12,11 +12,18 @@ jobs:
         steps:
             - name: Dependabot metadata
               id: metadata
-              uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b
+              uses: dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a # v2.5.0
               with:
                   github-token: '${{ secrets.GITHUB_TOKEN }}'
 
-            - name: Auto-approve and enable auto-merge for npm patch updates (except ignored packages)
+            - name: Enable auto-merge for npm updates
+              if: steps.metadata.outputs.package-ecosystem == 'npm'
+              run: gh pr merge --auto --merge "$PR_URL"
+              env:
+                  PR_URL: ${{ github.event.pull_request.html_url }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Auto-approve npm patch updates (except ignored packages)
               if: |
                   steps.metadata.outputs.package-ecosystem == 'npm' &&
                   steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
@@ -24,9 +31,7 @@ jobs:
                   !contains(steps.metadata.outputs.dependency-names, 'preact') &&
                   !contains(steps.metadata.outputs.dependency-names, '@preact/signals') &&
                   !contains(steps.metadata.outputs.dependency-names, 'lottie-web')
-              run: |
-                  gh pr review --approve "$PR_URL"
-                  gh pr merge --auto --merge "$PR_URL"
+              run: gh pr review --approve "$PR_URL"
               env:
                   PR_URL: ${{ github.event.pull_request.html_url }}
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -42,4 +47,4 @@ jobs:
                   Can you draft a separate PR with any fixes that might be needed?"
               env:
                   PR_URL: ${{ github.event.pull_request.html_url }}
-                  GH_TOKEN: ${{ secrets.DAX_PAT }}
+                  GH_TOKEN: ${{ secrets.CURSOR_PAT }}

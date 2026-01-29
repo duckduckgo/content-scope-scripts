@@ -1,0 +1,327 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+}
+
+.segmentedControl {
+    display: flex;
+    align-items: center;
+    height: var(--sp-8);
+    padding: var(--sp-0_5);
+    background: var(--ds-color-theme-container-fill-tertiary);
+    border-radius: var(--border-radius-sm);
+    outline: 1px solid var(--ds-color-theme-container-border-secondary);
+    outline-offset: -1px;
+
+    &.vertical {
+        height: auto;
+    }
+}
+
+.segment {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-1);
+    height: 100%;
+    padding: var(--sp-0_5) var(--sp-2);
+    border: none;
+    border-radius: var(--border-radius-xs);
+    background: transparent;
+    color: var(--ds-color-theme-text-primary);
+    font-size: var(--small-label-font-size);
+    font-weight: var(--small-label-font-weight);
+    line-height: var(--small-label-line-height);
+    cursor: pointer;
+    transition: background 0.15s ease;
+    white-space: normal;
+    align-self: stretch;
+
+    .vertical & {
+        flex-direction: column;
+        height: auto;
+        padding: calc(6 * var(--px-in-rem)) var(--sp-3);
+        gap: var(--sp-1);
+    }
+
+    &:hover:not([aria-checked="true"]) {
+        background: var(--ds-color-theme-container-fill-secondary);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: var(--focus-ring-primary);
+        z-index: 1;
+    }
+
+    &[aria-checked="true"] {
+        background: var(--ds-color-theme-control-raised-fill-primary);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+
+    svg {
+        flex-shrink: 0;
+        width: 12px;
+        height: 12px;
+        color: var(--ds-color-theme-icons-primary);
+    }
+}
+
+.separator {
+    width: 1px;
+    height: var(--sp-4);
+    background: var(--ds-color-theme-surface-decoration-secondary);
+    border-radius: 0.5px;
+    flex-shrink: 0;
+}
+
+/* Hide separator when adjacent segment is checked */
+.segment[aria-checked="true"] + .separator,
+.separator:has(+ .segment[aria-checked="true"]) {
+    visibility: hidden;
+}
+
+.variantGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    justify-content: space-between;
+}
+
+.variantButton {
+    --selection-ring-offset: 2px;
+    --selection-ring-width: 2px;
+
+    position: relative;
+    width: var(--sp-12);
+    height: var(--sp-12);
+    padding: 0;
+    border: none;
+    border-radius: var(--border-radius-md);
+    background: transparent;
+    cursor: pointer;
+
+    &:focus-visible {
+        outline: none;
+
+        .swatch {
+            box-shadow: var(--focus-ring-primary);
+        }
+    }
+
+    &[aria-checked="true"]::after {
+        content: "";
+        position: absolute;
+        inset: calc(-1 * var(--selection-ring-offset));
+        border-radius: calc(var(--border-radius-md) + var(--selection-ring-offset));
+        border: var(--selection-ring-width) solid var(--ds-color-theme-accent-primary);
+        pointer-events: none;
+    }
+}
+
+.swatch {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+}
+
+.swatchBackdrop {
+    width: 100%;
+    height: 100%;
+    padding: 10px 1px 1px 1px;
+    border-radius: var(--border-radius-md);
+    display: flex;
+    align-items: stretch;
+}
+
+.swatchPrimary {
+    flex: 1;
+    padding-top: 10px;
+    border-radius: 7px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.swatchSecondary {
+    flex: 1;
+    padding: 0 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.swatchAccent {
+    width: 100%;
+    height: 8px;
+    border-radius: 7px;
+}
+
+[data-theme="light"] {
+    .swatch[data-variant="default"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-default-light-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-default-light-container-border-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-default-light-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-default-light-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-default-light-accent-primary); }
+    }
+
+    .swatch[data-variant="coolGray"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-cool-gray-light-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-cool-gray-light-container-border-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-cool-gray-light-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-cool-gray-light-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-cool-gray-light-accent-primary); }
+    }
+
+    .swatch[data-variant="slateBlue"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-slate-blue-light-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-slate-blue-light-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-slate-blue-light-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-slate-blue-light-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-slate-blue-light-accent-primary); }
+    }
+
+    .swatch[data-variant="green"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-green-light-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-green-light-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-green-light-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-green-light-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-green-light-accent-primary); }
+    }
+
+    .swatch[data-variant="violet"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-violet-light-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-violet-light-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-violet-light-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-violet-light-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-violet-light-accent-primary); }
+    }
+
+    .swatch[data-variant="rose"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-rose-light-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-rose-light-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-rose-light-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-rose-light-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-rose-light-accent-primary); }
+    }
+
+    .swatch[data-variant="orange"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-orange-light-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-orange-light-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-orange-light-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-orange-light-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-orange-light-accent-primary); }
+    }
+
+    .swatch[data-variant="desert"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-desert-light-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-desert-light-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-desert-light-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-desert-light-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-desert-light-accent-primary); }
+    }
+}
+
+[data-theme="dark"] {
+    .swatch[data-variant="default"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-default-dark-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-default-dark-container-border-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-default-dark-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-default-dark-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-default-dark-accent-primary); }
+    }
+
+    .swatch[data-variant="coolGray"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-cool-gray-dark-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-cool-gray-dark-container-border-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-cool-gray-dark-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-cool-gray-dark-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-cool-gray-dark-accent-primary); }
+    }
+
+    .swatch[data-variant="slateBlue"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-slate-blue-dark-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-slate-blue-dark-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-slate-blue-dark-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-slate-blue-dark-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-slate-blue-dark-accent-primary); }
+    }
+
+    .swatch[data-variant="green"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-green-dark-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-green-dark-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-green-dark-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-green-dark-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-green-dark-accent-primary); }
+    }
+
+    .swatch[data-variant="violet"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-violet-dark-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-violet-dark-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-violet-dark-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-violet-dark-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-violet-dark-accent-primary); }
+    }
+
+    .swatch[data-variant="rose"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-rose-dark-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-rose-dark-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-rose-dark-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-rose-dark-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-rose-dark-accent-primary); }
+    }
+
+    .swatch[data-variant="orange"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-orange-dark-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-orange-dark-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-orange-dark-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-orange-dark-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-orange-dark-accent-primary); }
+    }
+
+    .swatch[data-variant="desert"] {
+        .swatchBackdrop {
+            background: var(--ds-color-theme-desert-dark-surface-backdrop);
+            border: 1px solid var(--ds-color-theme-desert-dark-surface-decoration-primary);
+        }
+        .swatchPrimary { background: var(--ds-color-theme-desert-dark-surface-primary); }
+        .swatchSecondary { background: var(--ds-color-theme-desert-dark-surface-secondary); }
+        .swatchAccent { background: var(--ds-color-theme-desert-dark-accent-primary); }
+    }
+}
