@@ -12697,8 +12697,11 @@ ul.messages {
       },
       videoLoads: 0,
       /** @type {{state: string, isPremium: boolean, rawIndicators: Object}|null} */
-      loginState: null
+      loginState: null,
       // Will be populated on init and periodically
+      /** @type {{sweepDurations: number[], adCheckDurations: number[], sweepCount: number, top5SweepDurations: number[], top5AdCheckDurations: number[], sweepsOver10ms: number, sweepsOver50ms: number}|null} */
+      perfMetrics: null
+      // Will be set after perfMetrics object is created
     };
     const detectAndLogLoginState = (attempt = 1) => {
       if (state.loginState?.state && state.loginState.state !== "unknown") {
@@ -12751,6 +12754,7 @@ ul.messages {
       sweepsOver50ms: 0
       // Count of very slow sweeps
     };
+    state.perfMetrics = perfMetrics;
     const getRoot = () => {
       for (const s of PLAYER_SELS) {
         const n = document.querySelector(s);
@@ -13266,6 +13270,31 @@ ul.messages {
         log.debug("Fresh login state check at report time:", freshCheck.state);
       }
     }
+    const perf = state.perfMetrics;
+    let perfData = null;
+    if (perf && perf.sweepCount > 0) {
+      const sweeps = perf.sweepDurations;
+      const adChecks = perf.adCheckDurations;
+      const calcAvg = (arr) => arr.length > 0 ? arr.reduce((a2, b2) => a2 + b2, 0) / arr.length : 0;
+      const calcMax = (arr) => arr.length > 0 ? Math.max(...arr) : 0;
+      perfData = {
+        // Total sweeps executed
+        sweepCount: perf.sweepCount,
+        // Recent sweep stats (last 50)
+        sweepAvgMs: Math.round(calcAvg(sweeps) * 100) / 100,
+        sweepMaxMs: Math.round(calcMax(sweeps) * 100) / 100,
+        // Ad check subset timing
+        adCheckAvgMs: Math.round(calcAvg(adChecks) * 100) / 100,
+        adCheckMaxMs: Math.round(calcMax(adChecks) * 100) / 100,
+        // All-time slow sweep counts
+        sweepsOver10ms: perf.sweepsOver10ms,
+        sweepsOver50ms: perf.sweepsOver50ms,
+        // Top 5 worst sweep times (all-time)
+        top5WorstMs: perf.top5SweepDurations.map((d2) => Math.round(d2 * 100) / 100),
+        // Percentage of slow sweeps
+        pctSlow: Math.round(perf.sweepsOver10ms / perf.sweepCount * 100 * 100) / 100
+      };
+    }
     return {
       detected: d.videoAd.count > 0 || d.staticAd.count > 0 || d.playabilityError.count > 0 || d.adBlocker.count > 0 || state.buffering.count > 0,
       type: "youtubeAds",
@@ -13277,7 +13306,9 @@ ul.messages {
         bufferingCount: state.buffering.count,
         bufferAvgSec,
         // Login state: 'logged-in' | 'logged-out' | 'premium' | 'unknown'
-        userState: loginState?.state || "unknown"
+        userState: loginState?.state || "unknown",
+        // Performance metrics for internal testing
+        perf: perfData
       }]
     };
   }

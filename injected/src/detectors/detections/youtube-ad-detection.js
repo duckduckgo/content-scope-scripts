@@ -196,7 +196,9 @@ function initDetector(config) {
         },
         videoLoads: 0,
         /** @type {{state: string, isPremium: boolean, rawIndicators: Object}|null} */
-        loginState: null // Will be populated on init and periodically
+        loginState: null, // Will be populated on init and periodically
+        /** @type {{sweepDurations: number[], adCheckDurations: number[], sweepCount: number, top5SweepDurations: number[], top5AdCheckDurations: number[], sweepsOver10ms: number, sweepsOver50ms: number}|null} */
+        perfMetrics: null // Will be set after perfMetrics object is created
     };
 
     // Detect and log initial login state (with retry for timing issues)
@@ -235,7 +237,8 @@ function initDetector(config) {
     let lastSweepTime = null;
     let lastSeekTime = null; // Track when user last seeked to ignore post-seek buffering
 
-    // Performance tracking (minimal overhead, only computed on debug call)
+    // Performance tracking (minimal overhead, stats computed on-demand)
+    // Exposed at module level so runYoutubeAdDetection can access it
     const perfMetrics = {
         sweepDurations: /** @type {number[]} */ ([]), // Last 50 sweep times
         adCheckDurations: /** @type {number[]} */ ([]),
@@ -246,6 +249,9 @@ function initDetector(config) {
         sweepsOver10ms: 0,  // Count of slow sweeps
         sweepsOver50ms: 0   // Count of very slow sweeps
     };
+
+    // Store perfMetrics on state so runYoutubeAdDetection can access it
+    state.perfMetrics = perfMetrics;
 
     /**
      * Get the player root element
@@ -952,7 +958,7 @@ export function runYoutubeAdDetection(config = {}) {
 
     // Return minimal data for privacy - no session fingerprinting
     const d = state.detections;
-    
+
     // If stored login state is unknown, try a fresh check (YouTube globals may be ready now)
     let loginState = state.loginState;
     if (!loginState || loginState.state === 'unknown') {
@@ -963,6 +969,37 @@ export function runYoutubeAdDetection(config = {}) {
             loginState = freshCheck;
             log.debug('Fresh login state check at report time:', freshCheck.state);
         }
+    }
+
+    // Calculate performance stats for return data
+    const perf = state.perfMetrics;
+    let perfData = null;
+
+    if (perf && perf.sweepCount > 0) {
+        // Calculate stats from recent sweeps
+        const sweeps = perf.sweepDurations;
+        const adChecks = perf.adCheckDurations;
+
+        const calcAvg = (arr) => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+        const calcMax = (arr) => arr.length > 0 ? Math.max(...arr) : 0;
+
+        perfData = {
+            // Total sweeps executed
+            sweepCount: perf.sweepCount,
+            // Recent sweep stats (last 50)
+            sweepAvgMs: Math.round(calcAvg(sweeps) * 100) / 100,
+            sweepMaxMs: Math.round(calcMax(sweeps) * 100) / 100,
+            // Ad check subset timing
+            adCheckAvgMs: Math.round(calcAvg(adChecks) * 100) / 100,
+            adCheckMaxMs: Math.round(calcMax(adChecks) * 100) / 100,
+            // All-time slow sweep counts
+            sweepsOver10ms: perf.sweepsOver10ms,
+            sweepsOver50ms: perf.sweepsOver50ms,
+            // Top 5 worst sweep times (all-time)
+            top5WorstMs: perf.top5SweepDurations.map(d => Math.round(d * 100) / 100),
+            // Percentage of slow sweeps
+            pctSlow: Math.round((perf.sweepsOver10ms / perf.sweepCount) * 100 * 100) / 100
+        };
     }
 
     return {
@@ -976,7 +1013,9 @@ export function runYoutubeAdDetection(config = {}) {
             bufferingCount: state.buffering.count,
             bufferAvgSec: bufferAvgSec,
             // Login state: 'logged-in' | 'logged-out' | 'premium' | 'unknown'
-            userState: loginState?.state || 'unknown'
+            userState: loginState?.state || 'unknown',
+            // Performance metrics for internal testing
+            perf: perfData
         }]
     };
 }
