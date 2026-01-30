@@ -93,15 +93,17 @@ function evaluateSingleTextCondition(condition) {
  * @returns {boolean}
  */
 function evaluateSingleElementCondition(config) {
+    const visibility = config.visibility ?? 'any';
     return asArray(config.selector).every((selector) => {
+        if (visibility === 'any') {
+            // if we don't care about visibility, we can just do a quick existence check
+            return document.querySelector(selector) !== null;
+        }
         for (const element of document.querySelectorAll(selector)) {
-            if (config.visibility === 'any') {
+            if (visibility === 'visible' && isVisible(element)) {
                 return true;
             }
-            if (config.visibility === 'visible' && isVisible(element)) {
-                return true;
-            }
-            if (config.visibility === 'hidden' && !isVisible(element)) {
+            if (visibility === 'hidden' && !isVisible(element)) {
                 return true;
             }
         }
