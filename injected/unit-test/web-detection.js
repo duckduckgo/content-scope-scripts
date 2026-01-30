@@ -332,6 +332,30 @@ describe('WebDetection', () => {
                 'group.enabled2',
             ]);
         });
+
+        it('should return error for detector with invalid regex', () => {
+            const results = runDetector({ match: { text: { pattern: '[invalid(regex' } } });
+            expect(results.length).toBe(1);
+            expect(results[0].matched).toBe('error');
+        });
+
+        it('should return error for detector with invalid selector', () => {
+            const results = runDetector({ match: { element: { selector: '!!!invalid' } } });
+            expect(results.length).toBe(1);
+            expect(results[0].matched).toBe('error');
+        });
+
+        it('should continue processing other detectors after error', () => {
+            const results = runDetectorsInEnv({
+                group: {
+                    broken: { match: { text: { pattern: '[invalid' } } },
+                    working: { match: {} },
+                },
+            });
+            expect(results.length).toBe(2);
+            expect(results.find((r) => r.detectorId === 'group.broken')?.matched).toBe('error');
+            expect(results.find((r) => r.detectorId === 'group.working')?.matched).toBe(true);
+        });
     });
 
     describe('evaluateMatch', () => {

@@ -94,8 +94,8 @@
  * Result from running a detector.
  *
  * @typedef {object} DetectorResult
- * @property {string} detectorId - ID of the detector that matched
- * @property {boolean} matched - Whether the detector matched
+ * @property {string} detectorId - ID of the detector
+ * @property {true | false | 'error'} matched - Whether the detector matched (true), didn't match (false), or errored
  */
 
 export {};
