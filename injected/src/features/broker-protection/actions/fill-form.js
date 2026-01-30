@@ -111,6 +111,8 @@ export function fillMany(root, elements, data) {
             const stateFull = states[state];
 
             results.push(setValueForInput(inputElem, stateFull));
+        } else if (element.type === '$generated_fake_email$') {
+            // generate fake email address
         } else {
             if (isElementTypeOptional(element.type)) {
                 continue;
