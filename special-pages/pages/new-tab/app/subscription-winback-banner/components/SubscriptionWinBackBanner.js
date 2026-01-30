@@ -4,10 +4,9 @@ import { Button } from '../../../../../shared/components/Button/Button';
 import { DismissButton } from '../../components/DismissButton';
 import styles from './SubscriptionWinBackBanner.module.css';
 import { SubscriptionWinBackBannerContext } from '../SubscriptionWinBackBannerProvider';
-import { useContext, useEffect, useRef } from 'preact/hooks';
+import { useContext } from 'preact/hooks';
 import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils';
-import { useMessaging } from '../../types.js';
-import { useWidgetId } from '../../widget-list/widget-config.provider.js';
+import { useWidgetDidRender } from '../../widget-list/widget-config.provider.js';
 
 /**
  * @typedef { import("../../../types/new-tab").SubscriptionWinBackBannerMessage} SubscriptionWinBackBannerMessage
@@ -41,19 +40,7 @@ export function SubscriptionWinBackBanner({ message, action, dismiss }) {
 
 export function SubscriptionWinBackBannerConsumer() {
     const { state, action, dismiss } = useContext(SubscriptionWinBackBannerContext);
-    const messaging = useMessaging();
-    const { widgetId } = useWidgetId();
-    const didNotifyRef = useRef(false);
-
-    // Notify native when subscriptionWinBackBanner widget is ready
-    useEffect(() => {
-        if (state.status === 'ready' && !didNotifyRef.current) {
-            didNotifyRef.current = true;
-            requestAnimationFrame(() => {
-                messaging.widgetDidRender({ id: widgetId });
-            });
-        }
-    }, [state.status, messaging, widgetId]);
+    useWidgetDidRender(state.status);
 
     if (state.status === 'ready' && state.data.content) {
         return <SubscriptionWinBackBanner message={state.data.content} action={action} dismiss={dismiss} />;

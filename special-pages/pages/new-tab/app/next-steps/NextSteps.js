@@ -1,9 +1,8 @@
 import { h } from 'preact';
 import { NextStepsContext, NextStepsProvider } from './NextStepsProvider.js';
-import { useContext, useEffect, useRef } from 'preact/hooks';
+import { useContext } from 'preact/hooks';
 import { NextStepsCardGroup } from './components/NextStepsGroup.js';
-import { useMessaging } from '../types.js';
-import { useWidgetId } from '../widget-list/widget-config.provider.js';
+import { useWidgetDidRender } from '../widget-list/widget-config.provider.js';
 
 /**
  * Use this when rendered within a widget list.
@@ -33,19 +32,7 @@ export function NextStepsCustomized() {
  */
 export function NextStepsConsumer() {
     const { state, toggle } = useContext(NextStepsContext);
-    const messaging = useMessaging();
-    const { widgetId } = useWidgetId();
-    const didNotifyRef = useRef(false);
-
-    // Notify native when nextSteps widget is ready
-    useEffect(() => {
-        if (state.status === 'ready' && !didNotifyRef.current) {
-            didNotifyRef.current = true;
-            requestAnimationFrame(() => {
-                messaging.widgetDidRender({ id: widgetId });
-            });
-        }
-    }, [state.status, messaging, widgetId]);
+    useWidgetDidRender(state.status);
 
     if (state.status === 'ready' && state.data.content) {
         const ids = state.data.content.map((x) => x.id);

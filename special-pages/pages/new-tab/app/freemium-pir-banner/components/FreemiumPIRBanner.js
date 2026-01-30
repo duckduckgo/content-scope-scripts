@@ -4,10 +4,9 @@ import { Button } from '../../../../../shared/components/Button/Button';
 import { DismissButton } from '../../components/DismissButton';
 import styles from './FreemiumPIRBanner.module.css';
 import { FreemiumPIRBannerContext } from '../FreemiumPIRBannerProvider';
-import { useContext, useEffect, useRef } from 'preact/hooks';
+import { useContext } from 'preact/hooks';
 import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils';
-import { useMessaging } from '../../types.js';
-import { useWidgetId } from '../../widget-list/widget-config.provider.js';
+import { useWidgetDidRender } from '../../widget-list/widget-config.provider.js';
 
 /**
  * @typedef { import("../../../types/new-tab").FreemiumPIRBannerMessage} FreemiumPIRBannerMessage
@@ -42,19 +41,7 @@ export function FreemiumPIRBanner({ message, action, dismiss }) {
 
 export function FreemiumPIRBannerConsumer() {
     const { state, action, dismiss } = useContext(FreemiumPIRBannerContext);
-    const messaging = useMessaging();
-    const { widgetId } = useWidgetId();
-    const didNotifyRef = useRef(false);
-
-    // Notify native when freemiumPIRBanner widget is ready
-    useEffect(() => {
-        if (state.status === 'ready' && !didNotifyRef.current) {
-            didNotifyRef.current = true;
-            requestAnimationFrame(() => {
-                messaging.widgetDidRender({ id: widgetId });
-            });
-        }
-    }, [state.status, messaging, widgetId]);
+    useWidgetDidRender(state.status);
 
     if (state.status === 'ready' && state.data.content) {
         return <FreemiumPIRBanner message={state.data.content} action={action} dismiss={dismiss} />;
