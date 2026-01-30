@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { NextStepsContext, NextStepsProvider } from './NextStepsProvider.js';
 import { useContext } from 'preact/hooks';
 import { NextStepsCardGroup } from './components/NextStepsGroup.js';
+import { useWidgetDidRender } from '../widget-list/widget-config.provider.js';
 
 /**
  * Use this when rendered within a widget list.
@@ -31,6 +32,8 @@ export function NextStepsCustomized() {
  */
 export function NextStepsConsumer() {
     const { state, toggle } = useContext(NextStepsContext);
+    useWidgetDidRender(state.status);
+
     if (state.status === 'ready' && state.data.content) {
         const ids = state.data.content.map((x) => x.id);
         const { action, dismiss } = useContext(NextStepsContext);
