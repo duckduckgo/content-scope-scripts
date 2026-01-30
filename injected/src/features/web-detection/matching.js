@@ -9,6 +9,7 @@ function asArray(value, defaultValue = []) {
     return Array.isArray(value) ? value : [value];
 }
 
+
 /**
  * Check if an element is visible
  * @param {Element} element
@@ -70,7 +71,6 @@ function evaluateSingleTextCondition(condition) {
         });
     };
 
-    /** @type {string[]} */
     return selectors.every((selector) => {
         const elements = document.querySelectorAll(selector);
         for (const element of elements) {
