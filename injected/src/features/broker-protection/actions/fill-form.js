@@ -1,4 +1,4 @@
-import { getElement, generateRandomInt } from '../utils/utils.js';
+import { getElement, generateRandomInt, generateEmail } from '../utils/utils.js';
 import { ErrorResponse, SuccessResponse } from '../types.js';
 import { generatePhoneNumber, generateZipCode, generateStreetAddress } from './generators.js';
 import { states } from '../comparisons/constants.js';
@@ -112,7 +112,17 @@ export function fillMany(root, elements, data) {
 
             results.push(setValueForInput(inputElem, stateFull));
         } else if (element.type === '$generated_fake_email$') {
-            // generate fake email address
+            if (!Object.prototype.hasOwnProperty.call(data, 'firstName') || !Object.prototype.hasOwnProperty.call(data, 'lastName')) {
+                results.push({
+                    result: false,
+                    error: `element found with selector '${element.selector}', but data didn't contain the keys 'firstName' and 'lastName' - do you need to change the action's dataSource to userProfile?`,
+                });
+                continue;
+            }
+
+            const fakeEmail = generateEmail(data.firstName, data.lastName);
+
+            results.push(setValueForInput(inputElem, fakeEmail));
         } else {
             if (isElementTypeOptional(element.type)) {
                 continue;
