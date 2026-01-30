@@ -54,8 +54,10 @@ export function WidgetsSection() {
     const { currentValues, toggle, addInstance, removeInstance, reorderWidgets } = useContext(WidgetConfigContext);
     const { t } = useTypedTranslationWith(/** @type {Record<string, string>} */ ({}));
 
-    // Drag state
-    const [dragState, setDragState] = useState(/** @type {{ index: number, startY: number, currentY: number } | null} */ (null));
+    // Drag state - use ref for mutable values that need synchronous access during drag
+    // and state only for values that trigger re-renders (isDragging, transform)
+    const dragRef = useRef(/** @type {{ index: number, startY: number, currentY: number } | null} */ (null));
+    const [dragRenderState, setDragRenderState] = useState(/** @type {{ index: number, deltaY: number } | null} */ (null));
     const listRef = useRef(/** @type {HTMLUListElement | null} */ (null));
     const rowRefs = useRef(/** @type {Map<number, HTMLLIElement>} */ (new Map()));
 
@@ -64,7 +66,8 @@ export function WidgetsSection() {
      * @param {number} clientY
      */
     const handleDragStart = useCallback((index, clientY) => {
-        setDragState({ index, startY: clientY, currentY: clientY });
+        dragRef.current = { index, startY: clientY, currentY: clientY };
+        setDragRenderState({ index, deltaY: 0 });
     }, []);
 
     /**
@@ -72,15 +75,16 @@ export function WidgetsSection() {
      */
     const handleDragMove = useCallback(
         (clientY) => {
-            if (dragState === null) return;
+            const drag = dragRef.current;
+            if (drag === null) return;
 
-            setDragState((prev) => (prev ? { ...prev, currentY: clientY } : null));
+            drag.currentY = clientY;
+            const deltaY = clientY - drag.startY;
 
             // Check if we need to reorder
             const items = currentValues.value;
-            const draggedIndex = dragState.index;
+            const draggedIndex = drag.index;
             const rowHeight = rowRefs.current.get(draggedIndex)?.offsetHeight || 40;
-            const deltaY = clientY - dragState.startY;
             const indexDelta = Math.round(deltaY / rowHeight);
             const newIndex = Math.max(0, Math.min(items.length - 1, draggedIndex + indexDelta));
 
@@ -95,19 +99,25 @@ export function WidgetsSection() {
                 // Moving up: natural position decreases, so decrease startY
                 const direction = newIndex > draggedIndex ? 1 : -1;
                 const adjustment = direction * rowHeight;
-                setDragState((prev) => (prev ? { ...prev, index: newIndex, startY: prev.startY + adjustment } : null));
+                drag.index = newIndex;
+                drag.startY = drag.startY + adjustment;
             }
+
+            // Update render state with new deltaY
+            const newDeltaY = drag.currentY - drag.startY;
+            setDragRenderState({ index: drag.index, deltaY: newDeltaY });
         },
-        [dragState, currentValues.value, reorderWidgets],
+        [currentValues.value, reorderWidgets],
     );
 
     const handleDragEnd = useCallback(() => {
-        setDragState(null);
+        dragRef.current = null;
+        setDragRenderState(null);
     }, []);
 
     // Global pointer move/up handlers
     useEffect(() => {
-        if (dragState === null) return;
+        if (dragRenderState === null) return;
 
         const handlePointerMove = (/** @type {PointerEvent} */ e) => {
             e.preventDefault();
@@ -127,7 +137,7 @@ export function WidgetsSection() {
             document.removeEventListener('pointerup', handlePointerUp);
             document.removeEventListener('pointercancel', handlePointerUp);
         };
-    }, [dragState, handleDragMove, handleDragEnd]);
+    }, [dragRenderState, handleDragMove, handleDragEnd]);
 
     /**
      * @param {WidgetConfigItem} config
@@ -155,9 +165,8 @@ export function WidgetsSection() {
 
     // Calculate transform for dragged item
     const getDragTransform = (/** @type {number} */ index) => {
-        if (dragState === null || dragState.index !== index) return undefined;
-        const deltaY = dragState.currentY - dragState.startY;
-        return `translateY(${deltaY}px)`;
+        if (dragRenderState === null || dragRenderState.index !== index) return undefined;
+        return `translateY(${dragRenderState.deltaY}px)`;
     };
 
     return (
@@ -169,7 +178,7 @@ export function WidgetsSection() {
             <ul className={styles.list} ref={listRef}>
                 {currentValues.value.map((config, index) => {
                     const key = 'instanceId' in config && config.instanceId ? config.instanceId : config.id;
-                    const isDragging = dragState !== null && dragState.index === index;
+                    const isDragging = dragRenderState !== null && dragRenderState.index === index;
                     return (
                         <WidgetRow
                             key={key}
