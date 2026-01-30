@@ -10,12 +10,7 @@
     backdrop-filter: blur(48px);
     height: var(--sp-48); /* 192px */
     box-sizing: border-box;
-
-    /* Collapsed mode - half width for side-by-side layout */
-    &[data-expansion="collapsed"] {
-        max-width: calc(244 * var(--px-in-rem));
-        flex: 0 0 calc(50% - var(--sp-2)); /* Half width minus gap */
-    }
+    margin-bottom: var(--ntp-gap);
 
     /* Expanded mode - full width */
     &[data-expansion="expanded"] {

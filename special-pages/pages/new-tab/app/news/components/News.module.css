@@ -1,149 +1,164 @@
-.news {
-    position: relative;
+/* Widget container */
+.widget {
     display: flex;
     flex-direction: column;
-    padding: 16px;
-    background: var(--ntp-surface-background-color, rgba(255, 255, 255, 0.9));
-    border-radius: 12px;
-    min-width: 300px;
-    max-width: 400px;
+    padding: var(--sp-4); /* 16px */
+    gap: var(--sp-3); /* 12px */
+    background: var(--ntp-surface-background-color);
+    border-radius: var(--border-radius-lg); /* 12px */
+    outline: 1px solid var(--ds-color-theme-surface-decoration-primary);
+    backdrop-filter: blur(48px);
+    min-width: calc(504 * var(--px-in-rem));
+    box-sizing: border-box;
+    margin-bottom: var(--ntp-gap);
+}
+
+/* Header */
+.header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2);
 }
 
 .title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ntp-text-normal, #333);
-    margin: 0 0 12px 0;
-}
-
-.list {
-    list-style: none;
+    flex: 1;
     margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font-size: var(--title-3-em-font-size); /* 15px */
+    font-weight: 590;
+    line-height: var(--title-3-em-line-height); /* 20px */
+    color: var(--ds-color-theme-text-primary);
 }
 
+/* Body - news items container */
+.body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3); /* 12px */
+}
+
+/* News item */
 .item {
-    border-bottom: 1px solid var(--ntp-border-color, #eee);
-    padding-bottom: 12px;
-}
-
-.item:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.link {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-2); /* 8px */
+    height: calc(56 * var(--px-in-rem));
     text-decoration: none;
-    gap: 4px;
 }
 
-.link:hover .headline {
+.item:hover .headline {
     text-decoration: underline;
 }
 
-.headline {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--ntp-text-normal, #333);
-    line-height: 1.4;
+/* Thumbnail */
+.thumbnail {
+    width: calc(80 * var(--px-in-rem));
+    height: 100%;
+    flex-shrink: 0;
+    background: white;
+    border-radius: var(--border-radius-md); /* 8px */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+.thumbnailImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.thumbnailPlaceholder {
+    width: 100%;
+    height: 100%;
+    background: var(--ds-color-theme-surface-secondary);
+}
+
+/* Content area */
+.content {
+    flex: 1;
+    height: 100%;
+    padding-top: var(--sp-1);
+    padding-bottom: var(--sp-1);
+    padding-right: var(--sp-6); /* 24px */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+}
+
+.headline {
+    margin: 0;
+    font-size: var(--callout-font-size); /* 12px */
+    font-weight: 590;
+    line-height: 1.4;
+    color: var(--ds-color-theme-text-primary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Meta info - source and time */
 .meta {
     display: flex;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--ntp-text-muted, #666);
+    align-items: center;
+    gap: var(--sp-2); /* 8px */
 }
 
 .source {
-    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1); /* 4px */
+}
+
+.sourceIcon {
+    width: calc(12 * var(--px-in-rem));
+    height: calc(12 * var(--px-in-rem));
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.sourceFavicon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.sourceName {
+    font-size: calc(10 * var(--px-in-rem));
+    font-weight: 510;
+    letter-spacing: 0.06px;
+    color: var(--ds-color-theme-text-secondary);
+}
+
+/* Separator dot */
+.separator {
+    width: var(--sp-1); /* 4px */
+    height: var(--sp-1);
+    border-radius: 9999px;
+    background: var(--ds-color-theme-surface-decoration-tertiary);
 }
 
 .time {
-    color: var(--ntp-text-muted, #888);
+    font-size: calc(10 * var(--px-in-rem));
+    font-weight: 510;
+    letter-spacing: 0.06px;
+    color: var(--ds-color-theme-text-secondary);
 }
 
-.time::before {
-    content: '\00b7';
-    margin-right: 8px;
-}
-
+/* Empty state */
 .empty {
-    font-size: 14px;
-    color: var(--ntp-text-muted, #666);
-    text-align: center;
-    padding: 20px;
-}
-
-.emptyStateTitle {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ntp-text-normal, #333);
-    margin-bottom: 8px;
-}
-
-.emptyStateDescription {
-    font-size: 14px;
-    color: var(--ntp-text-muted, #666);
-    margin-bottom: 16px;
-    text-align: center;
-}
-
-.emptyStateForm {
+    flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-    max-width: 200px;
-}
-
-.emptyStateInput {
-    padding: 8px 12px;
-    border: 1px solid var(--ntp-border-color, #ccc);
-    border-radius: 8px;
-    font-size: 14px;
-    background: var(--ntp-input-background, white);
-    color: var(--ntp-text-normal, #333);
-    text-align: center;
-
-    &:focus {
-        outline: none;
-        border-color: var(--ds-color-theme-accent-fill-primary, #3969EF);
-        box-shadow: var(--focus-ring);
-    }
-
-    &::placeholder {
-        color: var(--ntp-text-muted, #999);
-    }
-}
-
-.emptyStateButton {
-    padding: 8px 16px;
-    background-color: var(--ds-color-theme-accent-fill-primary, #3969EF);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-
-    &:hover {
-        background-color: var(--ds-color-theme-accent-fill-secondary, #2850C8);
-    }
-
-    &:focus-visible {
-        box-shadow: var(--focus-ring);
-        outline: none;
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+    align-items: center;
+    justify-content: center;
+    font-size: calc(14 * var(--px-in-rem));
+    color: var(--ds-color-theme-text-secondary);
 }

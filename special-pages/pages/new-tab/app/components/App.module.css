@@ -18,6 +18,12 @@ body {
     margin-right: auto;
     /* prevent the scrollbar affecting the width */
     padding-left: calc(100vw - 100%);
+    /* Enable flex wrap for collapsed widgets to sit side-by-side */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--sp-2);
+    max-width: calc(504 * var(--px-in-rem));
 }
 
 body:has([data-reset-layout="true"]) .tube {
@@ -28,9 +34,14 @@ body[data-animate-background="true"] {
 }
 
 :global(.layout-centered) {
-    margin-inline: auto;
     width: 100%;
     max-width: calc(504 * var(--px-in-rem));
+}
+
+/* Collapsed widgets take half width to allow side-by-side layout */
+:global(.layout-centered:has([data-expansion="collapsed"])) {
+    width: calc(50% - var(--sp-1));
+    max-width: calc(244 * var(--px-in-rem));
 }
 
 :global([data-entry-point="omnibar"]) {
