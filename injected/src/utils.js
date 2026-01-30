@@ -905,3 +905,42 @@ export function isDuckAiSidebar() {
     }
     return tabUrl.searchParams.get('placement') === 'sidebar';
 }
+
+/**
+ * Deep merge config with defaults. Config values take precedence over defaults.
+ *
+ * Merge behavior:
+ * - If config is undefined, use defaults
+ * - Primitives: config replaces default
+ * - Arrays: config replaces default (no element-wise merge)
+ * - Objects: recursively merge
+ *
+ * @template {object} D
+ * @template {object} C
+ * @param {D} defaults - The default values
+ * @param {C} config - The config to merge (may be partial or undefined)
+ * @returns {any}
+ */
+export function withDefaults(defaults, config) {
+    // If config is undefined/null, use defaults
+    if (config === undefined) {
+        return defaults;
+    }
+    if (
+        // if defaults are undefined
+        (defaults === undefined) ||
+        // or either config or defaults are a non-object value that we can't merge
+        (Array.isArray(defaults) || defaults === null ||typeof defaults !== 'object') ||
+        (Array.isArray(config) || config === null || typeof config !== 'object')
+    ) {
+        // then we always favour the config value
+        return config;
+    }
+
+    // at this point, we know that both defaults and config are objects, so we merge keys:
+    const result = {};
+    for (const key of new Set([...Object.keys(defaults), ...Object.keys(config)])) {
+        result[key] = withDefaults(defaults[key], config[key]);
+    }
+    return result;
+}
