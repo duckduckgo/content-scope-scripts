@@ -59,15 +59,22 @@ export function WidgetSettingsMenu({ widgetType, config, onUpdateConfig }) {
         </button>
     );
 
+    // News widget doesn't support expand/collapse
+    const showExpansionToggle = widgetType !== 'news';
+
     return (
         <Dropdown trigger={trigger} className={styles.container}>
             <DropdownItem onClick={handleSetConfig}>{setConfigLabel}</DropdownItem>
 
-            <DropdownSeparator />
+            {showExpansionToggle && (
+                <>
+                    <DropdownSeparator />
 
-            <DropdownItem onClick={handleToggleExpanded} checked={isExpanded} role="menuitemcheckbox">
-                Expanded
-            </DropdownItem>
+                    <DropdownItem onClick={handleToggleExpanded} checked={isExpanded} role="menuitemcheckbox">
+                        Expanded
+                    </DropdownItem>
+                </>
+            )}
 
             {widgetType === 'weather' && (
                 <>

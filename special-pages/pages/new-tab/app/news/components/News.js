@@ -8,7 +8,7 @@ import { WidgetSettingsMenu } from '../../components/WidgetSettingsMenu.js';
  */
 
 /**
- * Minimal throwaway UI for news widget - displays a list of headlines
+ * News widget - displays breaking news headlines with thumbnails
  *
  * @param {Object} props
  * @param {NewsData} props.data
@@ -17,36 +17,113 @@ import { WidgetSettingsMenu } from '../../components/WidgetSettingsMenu.js';
  * @param {(updates: Partial<WidgetConfigItem>) => void} [props.onUpdateConfig]
  */
 export function News({ data, instanceId, config, onUpdateConfig }) {
+    const query = config && 'query' in config ? config.query : null;
+    const title = query || 'News';
+
     if (!data.results || data.results.length === 0) {
         return (
-            <div className={styles.news} data-testid="news-widget">
-                {instanceId && onUpdateConfig && (
-                    <WidgetSettingsMenu widgetType="news" config={config || null} onUpdateConfig={onUpdateConfig} />
-                )}
+            <article className={styles.widget} data-testid="news-widget">
+                <header className={styles.header}>
+                    <h2 className={styles.title}>{title}</h2>
+                    {instanceId && onUpdateConfig ? (
+                        <WidgetSettingsMenu widgetType="news" config={config || null} onUpdateConfig={onUpdateConfig} />
+                    ) : null}
+                </header>
                 <div className={styles.empty}>No news available</div>
-            </div>
+            </article>
         );
     }
 
+    const newsItems = data.results;
+
     return (
-        <div className={styles.news} data-testid="news-widget">
-            {instanceId && onUpdateConfig && (
-                <WidgetSettingsMenu widgetType="news" config={config || null} onUpdateConfig={onUpdateConfig} />
-            )}
-            <h2 className={styles.title}>News</h2>
-            <ul className={styles.list}>
-                {data.results.map((item, index) => (
-                    <li key={index} className={styles.item}>
-                        <a href={item.url} className={styles.link} target="_blank" rel="noopener noreferrer">
-                            <span className={styles.headline}>{item.title}</span>
-                            <span className={styles.meta}>
-                                <span className={styles.source}>{item.source}</span>
-                                {item.relative_time && <span className={styles.time}>{item.relative_time}</span>}
-                            </span>
-                        </a>
-                    </li>
+        <article className={styles.widget} data-testid="news-widget">
+            <header className={styles.header}>
+                <h2 className={styles.title}>{title}</h2>
+                {instanceId && onUpdateConfig ? (
+                    <WidgetSettingsMenu widgetType="news" config={config || null} onUpdateConfig={onUpdateConfig} />
+                ) : null}
+            </header>
+
+            <div className={styles.body}>
+                {newsItems.map((item, index) => (
+                    <NewsItem key={item.url || index} item={item} />
                 ))}
-            </ul>
+            </div>
+        </article>
+    );
+}
+
+/**
+ * Single news item with thumbnail, title, source, and time
+ * @param {Object} props
+ * @param {NewsData['results'][number]} props.item
+ */
+function NewsItem({ item }) {
+    return (
+        <a href={item.url} className={styles.item} target="_blank" rel="noopener noreferrer">
+            <div className={styles.thumbnail}>
+                {item.image ? (
+                    <img src={item.image} alt="" className={styles.thumbnailImage} loading="lazy" />
+                ) : (
+                    <ThumbnailPlaceholder url={item.url} />
+                )}
+            </div>
+            <div className={styles.content}>
+                <h3 className={styles.headline}>{item.title}</h3>
+                <div className={styles.meta}>
+                    {item.source ? (
+                        <div className={styles.source}>
+                            <SourceFavicon url={item.url} />
+                            <span className={styles.sourceName}>{item.source}</span>
+                        </div>
+                    ) : null}
+                    {item.source && item.relative_time ? <span className={styles.separator} aria-hidden="true" /> : null}
+                    {item.relative_time ? <span className={styles.time}>{item.relative_time}</span> : null}
+                </div>
+            </div>
+        </a>
+    );
+}
+
+/**
+ * Thumbnail placeholder showing favicon when no image available
+ * @param {Object} props
+ * @param {string} props.url
+ */
+function ThumbnailPlaceholder({ url }) {
+    let faviconUrl = '';
+    try {
+        const hostname = new URL(url).hostname;
+        faviconUrl = `https://icons.duckduckgo.com/ip3/${hostname}.ico`;
+    } catch {
+        // Invalid URL
+    }
+
+    return (
+        <div className={styles.thumbnailPlaceholder}>
+            {faviconUrl ? <img src={faviconUrl} alt="" className={styles.placeholderFavicon} /> : null}
+        </div>
+    );
+}
+
+/**
+ * Source favicon from the article URL
+ * @param {Object} props
+ * @param {string} props.url
+ */
+function SourceFavicon({ url }) {
+    let faviconUrl = '';
+    try {
+        const hostname = new URL(url).hostname;
+        faviconUrl = `https://icons.duckduckgo.com/ip3/${hostname}.ico`;
+    } catch {
+        // Invalid URL, show nothing
+    }
+
+    return (
+        <div className={styles.sourceIcon} aria-hidden="true">
+            {faviconUrl ? <img src={faviconUrl} alt="" className={styles.sourceFavicon} /> : null}
         </div>
     );
 }
