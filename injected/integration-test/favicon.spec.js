@@ -184,8 +184,8 @@ test('favicon filters SVGs on iOS platform', async ({ page, baseURL }, testInfo)
 
 test('favicon includes SVGs on non-iOS platforms', async ({ page, baseURL }, testInfo) => {
     const favicon = ResultsCollector.create(page, testInfo.project.use);
-    // Load the SVG test page with macOS platform (default for apple-isolated)
-    await favicon.load(SVG_HTML, CONFIG);
+    // Load the SVG test page with explicit macOS platform override
+    await favicon.load(SVG_HTML, CONFIG, { name: 'macos' });
 
     const messages = await favicon.waitForMessage('faviconFound', 1);
 
