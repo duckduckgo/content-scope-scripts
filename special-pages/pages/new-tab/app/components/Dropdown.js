@@ -1,6 +1,12 @@
-import { h } from 'preact';
-import { useState, useRef, useEffect } from 'preact/hooks';
+import { h, createContext } from 'preact';
+import { useState, useRef, useEffect, useContext } from 'preact/hooks';
 import styles from './Dropdown.module.css';
+
+/**
+ * Context for dropdown state management
+ * @type {import('preact').Context<{close: () => void} | null>}
+ */
+const DropdownContext = createContext(/** @type {{close: () => void} | null} */ (null));
 
 /**
  * @typedef {Object} DropdownProps
@@ -18,6 +24,8 @@ export function Dropdown({ trigger, children, className }) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(/** @type {HTMLDivElement|null} */ (null));
 
+    const close = () => setIsOpen(false);
+
     useEffect(() => {
         if (!isOpen) return;
 
@@ -32,14 +40,16 @@ export function Dropdown({ trigger, children, className }) {
     }, [isOpen]);
 
     return (
-        <div className={`${styles.container} ${isOpen ? styles.open : ''} ${className || ''}`} ref={menuRef}>
-            <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
-            {isOpen && (
-                <div className={styles.dropdown} role="menu">
-                    {children}
-                </div>
-            )}
-        </div>
+        <DropdownContext.Provider value={{ close }}>
+            <div className={`${styles.container} ${isOpen ? styles.open : ''} ${className || ''}`} ref={menuRef}>
+                <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
+                {isOpen && (
+                    <div className={styles.dropdown} role="menu">
+                        {children}
+                    </div>
+                )}
+            </div>
+        </DropdownContext.Provider>
     );
 }
 
@@ -58,8 +68,15 @@ export function Dropdown({ trigger, children, className }) {
  * @param {DropdownItemProps} props
  */
 export function DropdownItem({ children, onClick, checked, role, icon }) {
+    const dropdown = useContext(DropdownContext);
+
+    const handleClick = () => {
+        onClick();
+        dropdown?.close();
+    };
+
     return (
-        <button className={styles.item} onClick={onClick} role={role} aria-checked={role ? checked : undefined} type="button">
+        <button className={styles.item} onClick={handleClick} role={role} aria-checked={role ? checked : undefined} type="button">
             <span className={styles.checkmark}>{checked ? <CheckIcon /> : null}</span>
             <span className={styles.icon}>{icon}</span>
             <span className={styles.itemLabel}>{children}</span>
