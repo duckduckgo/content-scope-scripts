@@ -149,79 +149,118 @@
 
 /* === EMPTY STATE STYLES === */
 
-.stock {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: var(--sp-4);
-    background: var(--ntp-surface-background-color);
-    border-radius: var(--border-radius-lg);
-    outline: 1px solid var(--ds-color-theme-surface-decoration-primary);
-    backdrop-filter: blur(48px);
-    min-width: calc(244 * var(--px-in-rem));
-    box-sizing: border-box;
+.emptyStateAnchor {
+    /* Placeholder that reserves space in the layout */
+    height: var(--sp-48); /* 192px - same as widget height */
     margin-bottom: var(--ntp-gap);
 }
 
-.emptyStateTitle {
-    font-size: var(--title-3-em-font-size);
-    font-weight: 590;
-    line-height: var(--title-3-em-line-height);
-    color: var(--ds-color-theme-text-primary);
-    margin-bottom: var(--sp-3);
+.emptyStateOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
 }
 
-.emptyStateForm {
+.emptyStateBackdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(51, 51, 51, 0.16);
+    pointer-events: none;
+}
+
+.emptyStatePanel {
+    position: absolute;
+    padding: var(--sp-4); /* 16px */
+    /* Height matches widget (192px) + 22px for top/bottom extension */
+    height: calc(var(--sp-48) + 22 * var(--px-in-rem));
+    background: #fff;
+    box-shadow:
+        0px 8px 32px rgba(0, 0, 0, 0.16),
+        0px 8px 24px rgba(0, 0, 0, 0.05),
+        0px 0px 0px 1px rgba(0, 0, 0, 0.06);
+    border-radius: var(--border-radius-lg); /* 12px */
+    backdrop-filter: blur(48px);
     display: flex;
     flex-direction: column;
-    gap: var(--sp-2);
-    width: 100%;
-    max-width: calc(200 * var(--px-in-rem));
+    gap: var(--sp-3); /* 12px */
+    box-sizing: border-box;
+    pointer-events: auto;
 }
 
-.emptyStateInput {
-    padding: var(--sp-2) var(--sp-3);
-    border: 1px solid var(--ds-color-theme-control-border-secondary);
-    border-radius: var(--border-radius-md);
-    font-size: calc(14 * var(--px-in-rem));
-    background: var(--ds-color-theme-surface-primary);
-    color: var(--ds-color-theme-text-primary);
-    text-align: center;
-
-    &:focus {
-        outline: none;
-        border-color: var(--ds-color-theme-accent-primary);
-        box-shadow: var(--focus-ring-primary);
-    }
-
-    &::placeholder {
-        color: var(--ds-color-theme-text-tertiary);
-    }
+.emptyStateHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2); /* 8px */
 }
 
-.emptyStateButton {
-    padding: var(--sp-2) var(--sp-4);
-    background-color: var(--ds-color-theme-accent-primary);
-    color: var(--ds-color-theme-accent-content-primary);
+.emptyStateTitle {
+    flex: 1;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font-size: var(--title-3-em-font-size); /* 15px */
+    font-weight: 590;
+    line-height: var(--title-3-em-line-height); /* 20px */
+    color: rgba(0, 0, 0, 0.96);
+}
+
+.emptyStateCloseButton {
+    width: calc(24 * var(--px-in-rem));
+    height: calc(24 * var(--px-in-rem));
+    background: rgba(0, 0, 0, 0.06);
     border: none;
-    border-radius: var(--border-radius-md);
-    font-size: calc(14 * var(--px-in-rem));
-    font-weight: 500;
+    border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(0, 0, 0, 0.6);
+    flex-shrink: 0;
+    padding: 0;
     transition: background-color 0.15s ease;
 
     &:hover {
-        background-color: var(--ds-color-theme-accent-secondary);
+        background: rgba(0, 0, 0, 0.1);
     }
 
     &:focus-visible {
-        box-shadow: var(--focus-ring-primary);
-        outline: none;
+        outline: 2px solid var(--ds-color-theme-accent-primary);
+        outline-offset: 1px;
     }
 
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+    & svg {
+        width: calc(10 * var(--px-in-rem));
+        height: calc(10 * var(--px-in-rem));
+    }
+}
+
+.emptyStateInputs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.emptyStateInput {
+    height: calc(40 * var(--px-in-rem));
+    padding: calc(10 * var(--px-in-rem));
+    background: #fff;
+    border: none;
+    border-radius: calc(8 * var(--px-in-rem));
+    outline: 1px solid rgba(0, 0, 0, 0.09);
+    outline-offset: -1px;
+    font-size: calc(13 * var(--px-in-rem));
+    font-weight: 590;
+    color: rgba(0, 0, 0, 0.96);
+    box-sizing: border-box;
+
+    &:focus {
+        outline: 2px solid var(--ds-color-theme-accent-primary);
+        outline-offset: -2px;
+    }
+
+    &::placeholder {
+        color: rgba(0, 0, 0, 0.36);
+        font-weight: 400;
     }
 }

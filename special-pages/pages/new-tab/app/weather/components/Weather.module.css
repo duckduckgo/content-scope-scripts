@@ -339,84 +339,191 @@
 
 /* === EMPTY STATE STYLES === */
 
-.emptyStateTitle {
-    font-size: calc(16 * var(--px-in-rem));
-    font-weight: 600;
-    color: var(--ds-color-theme-text-primary);
-    margin-bottom: var(--sp-2);
+.emptyStateAnchor {
+    /* Placeholder that reserves space in the layout */
+    height: var(--sp-48); /* 192px - same as widget height */
+    margin-bottom: var(--ntp-gap);
 }
 
-.emptyStateDescription {
-    font-size: calc(14 * var(--px-in-rem));
-    color: var(--ds-color-theme-text-secondary);
-    margin-bottom: var(--sp-4);
-    text-align: center;
+.emptyStateOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
 }
 
-.emptyStateForm {
+.emptyStateBackdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(51, 51, 51, 0.16);
+    pointer-events: none;
+}
+
+.emptyStatePanel {
+    position: absolute;
+    padding: var(--sp-4); /* 16px */
+    /* Height matches widget (192px) + 22px for top/bottom extension */
+    height: calc(var(--sp-48) + 22 * var(--px-in-rem));
+    background: #fff;
+    box-shadow:
+        0px 8px 32px rgba(0, 0, 0, 0.16),
+        0px 8px 24px rgba(0, 0, 0, 0.05),
+        0px 0px 0px 1px rgba(0, 0, 0, 0.06);
+    border-radius: var(--border-radius-lg); /* 12px */
+    backdrop-filter: blur(48px);
     display: flex;
     flex-direction: column;
-    gap: var(--sp-3);
-    width: 100%;
-    max-width: calc(200 * var(--px-in-rem));
+    gap: var(--sp-3); /* 12px */
+    box-sizing: border-box;
+    pointer-events: auto;
 }
 
-.emptyStateInput {
-    padding: var(--sp-2) var(--sp-3);
-    border: 1px solid var(--ds-color-theme-control-border-secondary);
-    border-radius: var(--border-radius-md);
-    font-size: calc(14 * var(--px-in-rem));
-    background: var(--ds-color-theme-surface-primary);
-    color: var(--ds-color-theme-text-primary);
-    text-align: center;
+.emptyStateHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2); /* 8px */
+}
 
-    &:focus {
-        outline: none;
-        border-color: var(--ds-color-theme-accent-primary);
-        box-shadow: var(--focus-ring-primary);
+.emptyStateSearchContainer {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: calc(6 * var(--px-in-rem));
+    padding: 0 calc(9 * var(--px-in-rem));
+    height: calc(28 * var(--px-in-rem));
+    background: #fff;
+    box-shadow:
+        0px 4px 8px rgba(0, 0, 0, 0.05),
+        0px 1px 4px rgba(0, 0, 0, 0.05),
+        0px 0px 0px 1px rgba(0, 0, 0, 0.09);
+    border-radius: calc(24 * var(--px-in-rem));
+    overflow: hidden;
+}
+
+.emptyStateSearchIcon {
+    width: calc(12 * var(--px-in-rem));
+    height: calc(12 * var(--px-in-rem));
+    color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    & svg {
+        width: 100%;
+        height: 100%;
     }
+}
+
+.emptyStateSearchInput {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: calc(13 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(13 * var(--px-in-rem));
+    color: rgba(0, 0, 0, 0.96);
+    padding: 0;
+    outline: none;
 
     &::placeholder {
-        color: var(--ds-color-theme-text-tertiary);
+        color: rgba(0, 0, 0, 0.6);
     }
 }
 
-.emptyStateButton {
-    padding: var(--sp-2) var(--sp-4);
-    background-color: var(--ds-color-theme-accent-primary);
-    color: var(--ds-color-theme-accent-content-primary);
+.emptyStateCloseButton {
+    width: calc(24 * var(--px-in-rem));
+    height: calc(24 * var(--px-in-rem));
+    background: rgba(0, 0, 0, 0.06);
     border: none;
-    border-radius: var(--border-radius-md);
-    font-size: calc(14 * var(--px-in-rem));
-    font-weight: 500;
+    border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(0, 0, 0, 0.6);
+    flex-shrink: 0;
+    padding: 0;
     transition: background-color 0.15s ease;
 
     &:hover {
-        background-color: var(--ds-color-theme-accent-secondary);
+        background: rgba(0, 0, 0, 0.1);
     }
 
     &:focus-visible {
-        box-shadow: var(--focus-ring-primary);
-        outline: none;
+        outline: 2px solid var(--ds-color-theme-accent-primary);
+        outline-offset: 1px;
     }
 
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+    & svg {
+        width: calc(10 * var(--px-in-rem));
+        height: calc(10 * var(--px-in-rem));
     }
 }
 
-/* Legacy .weather class for empty state compatibility */
-.weather {
-    position: relative;
+.emptyStateList {
     display: flex;
     flex-direction: column;
+    gap: calc(4 * var(--px-in-rem));
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.emptyStateSectionLabel {
+    padding: 0 var(--sp-2) calc(4 * var(--px-in-rem)) var(--sp-2);
+    font-size: calc(11 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(11 * var(--px-in-rem));
+    letter-spacing: 0.06px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.emptyStateLocationItem {
+    display: flex;
     align-items: center;
-    padding: var(--sp-4);
-    background: var(--ntp-surface-background-color);
-    border-radius: var(--border-radius-lg);
-    min-width: calc(200 * var(--px-in-rem));
-    outline: 1px solid var(--ds-color-theme-surface-decoration-primary);
-    backdrop-filter: blur(48px);
+    gap: var(--sp-2);
+    padding: calc(6 * var(--px-in-rem)) var(--sp-2);
+    border-radius: calc(6 * var(--px-in-rem));
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.06);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ds-color-theme-accent-primary);
+        outline-offset: -2px;
+    }
+}
+
+.emptyStateLocationInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: calc(6 * var(--px-in-rem));
+}
+
+.emptyStateLocationCity {
+    font-size: calc(13 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(13 * var(--px-in-rem));
+    color: rgba(0, 0, 0, 0.96);
+}
+
+.emptyStateLocationCountry {
+    font-size: calc(11 * var(--px-in-rem));
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.emptyStateNoResults {
+    padding: var(--sp-2);
+    font-size: calc(13 * var(--px-in-rem));
+    color: rgba(0, 0, 0, 0.6);
+    text-align: center;
 }

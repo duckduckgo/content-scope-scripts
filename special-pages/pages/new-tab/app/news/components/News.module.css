@@ -171,3 +171,177 @@
     font-size: calc(14 * var(--px-in-rem));
     color: var(--ds-color-theme-text-secondary);
 }
+
+/* === NEW EMPTY STATE STYLES === */
+
+.emptyStateAnchor {
+    /* Placeholder that reserves space in the layout - news widget is always wide */
+    min-width: calc(504 * var(--px-in-rem));
+    height: calc(232 * var(--px-in-rem)); /* News widget height */
+    margin-bottom: var(--ntp-gap);
+}
+
+.emptyStateOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.emptyStateBackdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(51, 51, 51, 0.16);
+    pointer-events: none;
+}
+
+.emptyStatePanel {
+    position: absolute;
+    padding: var(--sp-4); /* 16px */
+    background: #fff;
+    box-shadow:
+        0px 8px 32px rgba(0, 0, 0, 0.16),
+        0px 8px 24px rgba(0, 0, 0, 0.05),
+        0px 0px 0px 1px rgba(0, 0, 0, 0.06);
+    border-radius: var(--border-radius-lg); /* 12px */
+    backdrop-filter: blur(48px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3); /* 12px */
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+
+.emptyStateHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2); /* 8px */
+}
+
+.emptyStateSearchContainer {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: calc(6 * var(--px-in-rem));
+    padding: 0 calc(9 * var(--px-in-rem));
+    height: calc(28 * var(--px-in-rem));
+    background: #fff;
+    box-shadow:
+        0px 4px 8px rgba(0, 0, 0, 0.05),
+        0px 1px 4px rgba(0, 0, 0, 0.05),
+        0px 0px 0px 1px rgba(0, 0, 0, 0.09);
+    border-radius: calc(24 * var(--px-in-rem));
+    overflow: hidden;
+}
+
+.emptyStateSearchIcon {
+    width: calc(12 * var(--px-in-rem));
+    height: calc(12 * var(--px-in-rem));
+    color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    & svg {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.emptyStateSearchInput {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: calc(13 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(13 * var(--px-in-rem));
+    color: rgba(0, 0, 0, 0.96);
+    padding: 0;
+    outline: none;
+
+    &::placeholder {
+        color: rgba(0, 0, 0, 0.6);
+    }
+}
+
+.emptyStateCloseButton {
+    width: calc(24 * var(--px-in-rem));
+    height: calc(24 * var(--px-in-rem));
+    background: rgba(0, 0, 0, 0.06);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(0, 0, 0, 0.6);
+    flex-shrink: 0;
+    padding: 0;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ds-color-theme-accent-primary);
+        outline-offset: 1px;
+    }
+
+    & svg {
+        width: calc(10 * var(--px-in-rem));
+        height: calc(10 * var(--px-in-rem));
+    }
+}
+
+.emptyStateList {
+    display: flex;
+    flex-direction: column;
+    gap: calc(4 * var(--px-in-rem));
+}
+
+.emptyStateSectionLabel {
+    padding: 0 var(--sp-2) calc(4 * var(--px-in-rem)) var(--sp-2);
+    font-size: calc(11 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(11 * var(--px-in-rem));
+    letter-spacing: 0.06px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.emptyStateTopicItem {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    padding: calc(6 * var(--px-in-rem)) var(--sp-2);
+    border-radius: calc(6 * var(--px-in-rem));
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.06);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ds-color-theme-accent-primary);
+        outline-offset: -2px;
+    }
+}
+
+.emptyStateTopicName {
+    font-size: calc(13 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(13 * var(--px-in-rem));
+    color: rgba(0, 0, 0, 0.96);
+}
+
+.emptyStateNoResults {
+    padding: var(--sp-2);
+    font-size: calc(13 * var(--px-in-rem));
+    color: rgba(0, 0, 0, 0.6);
+    text-align: center;
+}
