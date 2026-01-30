@@ -48,7 +48,11 @@
         "id": { "const": "stock" },
         "instanceId": { "type": "string", "description": "Unique identifier for this widget instance" },
         "visibility": { "$ref": "#/definitions/WidgetVisibility" },
-        "symbol": { "type": ["string", "null"], "description": "Stock ticker symbol. Null indicates unconfigured state." },
+        "symbols": {
+          "type": ["array", "null"],
+          "items": { "type": "string" },
+          "description": "Stock ticker symbols. Null indicates unconfigured state."
+        },
         "expansion": { "$ref": "#/definitions/WidgetExpansion" }
       }
     },

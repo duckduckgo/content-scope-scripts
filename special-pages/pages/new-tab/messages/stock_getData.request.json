@@ -1,11 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["symbol"],
+  "required": ["symbols"],
   "properties": {
-    "symbol": {
-      "type": "string",
-      "description": "Stock ticker symbol"
+    "symbols": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Stock ticker symbols"
     }
   }
 }

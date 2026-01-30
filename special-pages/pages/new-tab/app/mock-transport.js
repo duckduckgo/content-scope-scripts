@@ -657,7 +657,7 @@ export function initialSetup(url) {
             instanceId: 'stock-1',
             visibility: 'visible',
             symbols,
-            expansion: url.searchParams.get('stock.expansion') || 'expanded',
+            expansion: /** @type {'expanded' | 'collapsed'} */ (url.searchParams.get('stock.expansion') || 'expanded'),
         });
     }
 

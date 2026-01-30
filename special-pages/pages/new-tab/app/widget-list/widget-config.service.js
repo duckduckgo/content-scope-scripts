@@ -30,7 +30,7 @@ function getDefaultConfigForWidget(widgetType) {
         case 'news':
             return { query: null, expansion: 'expanded' };
         case 'stock':
-            return { symbol: null, expansion: 'expanded' };
+            return { symbols: null, expansion: 'expanded' };
         default:
             return {};
     }

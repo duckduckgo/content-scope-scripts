@@ -122,6 +122,10 @@ export type RMFIcon =
   | "RadarCheckGreen"
   | "RadarCheckPurple"
   | "Subscription";
+/**
+ * Array of stock data for each requested symbol
+ */
+export type StockGetDataResponse = StockData[];
 
 /**
  * Requests, Notifications and Subscriptions from the NewTab feature
@@ -756,9 +760,9 @@ export interface StockWidgetConfig {
   instanceId: string;
   visibility: WidgetVisibility;
   /**
-   * Stock ticker symbol. Null indicates unconfigured state.
+   * Stock ticker symbols. Null indicates unconfigured state.
    */
-  symbol?: string | null;
+  symbols?: string[] | null;
   expansion?: WidgetExpansion;
 }
 /**
@@ -1192,13 +1196,13 @@ export interface TrackerCompany {
 export interface StockGetDataRequest {
   method: "stock_getData";
   params: StockGetDataRequest1;
-  result: StockData;
+  result: StockGetDataResponse;
 }
 export interface StockGetDataRequest1 {
   /**
-   * Stock ticker symbol
+   * Stock ticker symbols
    */
-  symbol: string;
+  symbols: string[];
 }
 /**
  * Stock data for the stock widget
