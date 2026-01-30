@@ -1,5 +1,5 @@
 import { JSDOM } from 'jsdom';
-import { BrowserUiLockController, computeUiLockState } from '../src/features/web-compat/ui-lock.js';
+import { BrowserUiLockController, computeUiLockState } from '../src/features/web-compat.js';
 
 function setupDom() {
     const dom = new JSDOM('<!doctype html><html><head></head><body></body></html>', { pretendToBeVisual: true });
@@ -28,10 +28,16 @@ function setupDom() {
     };
 }
 
-function buildUiLockController(settings, notify = () => {}) {
+function buildUiLockController(options, notify = () => {}) {
     return new BrowserUiLockController({
-        settings,
-        platform: { name: 'android', version: '1.0.0' },
+        options: {
+            useOverscroll: true,
+            useOverflow: true,
+            includeOverflowClip: false,
+            observeMutations: true,
+            postLoadDelayMs: 300,
+            ...options,
+        },
         notify,
         addDebugFlag: () => {},
     });
@@ -100,9 +106,7 @@ describe('browser-ui-lock', () => {
 
             const controller = buildUiLockController(
                 {
-                    state: 'enabled',
-                    observeMutations: 'enabled',
-                    overscrollBehavior: 'enabled',
+                    observeMutations: true,
                 },
                 notifySpy,
             );
@@ -139,8 +143,13 @@ describe('browser-ui-lock', () => {
             }
 
             const controller = new CountingBrowserUiLockController({
-                settings: { state: 'enabled' },
-                platform: { name: 'android', version: '1.0.0' },
+                options: {
+                    useOverscroll: true,
+                    useOverflow: true,
+                    includeOverflowClip: false,
+                    observeMutations: true,
+                    postLoadDelayMs: 300,
+                },
                 notify: () => {},
                 addDebugFlag: () => {},
             });
