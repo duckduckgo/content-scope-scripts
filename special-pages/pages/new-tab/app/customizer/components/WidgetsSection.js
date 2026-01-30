@@ -35,7 +35,12 @@ function getWidgetTitle(config, t) {
     }
 
     // For multi-instance widgets, use capitalized name with optional config detail
-    const baseTitle = config.id.charAt(0).toUpperCase() + config.id.slice(1);
+    const baseTitles = {
+        weather: 'Weather',
+        news: 'News',
+        stock: 'Stocks',
+    };
+    const baseTitle = baseTitles[config.id] || config.id.charAt(0).toUpperCase() + config.id.slice(1);
 
     if (config.id === 'weather' && 'location' in config && config.location) {
         return `${baseTitle} - ${config.location}`;

@@ -65,7 +65,7 @@ export function AddWidgetMenu({ onAdd }) {
     const widgetLabels = {
         weather: 'Weather',
         news: 'News',
-        stock: 'Stock',
+        stock: 'Stocks',
     };
 
     const trigger = (
