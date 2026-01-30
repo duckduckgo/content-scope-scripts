@@ -7,6 +7,7 @@ import { Centered, VerticalSpace } from '../components/Layout.js';
 import { INLINE_ERROR } from '../InlineErrorBoundary.js';
 import { DebugCustomized } from '../telemetry/Debug.js';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider.js';
+import { isMultiInstanceWidget } from './widget-config.service.js';
 
 /**
  * @return {{factory: (instanceId?: string) => import("preact").ComponentChild}}
@@ -54,7 +55,10 @@ export function WidgetList() {
     };
 
     // Filter non-configurable widgets (like rmf, updateNotification) from the widgets array
+    // Multi-instance widgets (weather, news, stock) are configurable and should only render
+    // when explicitly added by the user (which creates an entry in currentValues)
     const nonConfigurableWidgets = widgets.filter((widget) => {
+        if (isMultiInstanceWidget(widget.id)) return false;
         const hasConfig = currentValues.value.some((config) => config.id === widget.id);
         return !hasConfig;
     });
