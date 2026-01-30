@@ -273,8 +273,8 @@ export function generateEmail(firstName, lastName) {
     const domains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'aol.com', 'msn.com', 'live.com', 'ymail.com', 'outlook.com', 'cox.net'];
     const validJoinCharacters = ['', '.', '+', '_', '-'];
 
-    const first = firstName.substring(0, generateRandomInt(1, firstName.length));
-    const last = lastName.substring(0, 1);
+    const first = firstName.toLowerCase().substring(0, generateRandomInt(1, firstName.length));
+    const last = lastName.toLowerCase().substring(0, 1);
     const joinCharacter = validJoinCharacters[generateRandomInt(0, validJoinCharacters.length - 1)];
     const name = `${first}${generateRandomInt(0, 1) > 0 ? joinCharacter : ''}${generateRandomInt(0, 1) > 0 ? last : ''}`;
     const domain = domains[generateRandomInt(0, domains.length - 1)];
