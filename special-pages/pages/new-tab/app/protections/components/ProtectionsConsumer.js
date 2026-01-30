@@ -8,6 +8,7 @@ import { PrivacyStatsProvider } from '../../privacy-stats/components/PrivacyStat
 import { BodyExpanderProvider } from '../../privacy-stats/components/BodyExpansionProvider.js';
 import { PrivacyStatsConsumer } from '../../privacy-stats/components/PrivacyStatsConsumer.js';
 import { useMessaging } from '../../types.js';
+import { useWidgetId } from '../../widget-list/widget-config.provider.js';
 
 /**
  * @import {ProtectionsData, ProtectionsConfig} from '../../../types/new-tab.js';
@@ -28,6 +29,7 @@ import { useMessaging } from '../../types.js';
 export function ProtectionsConsumer() {
     const { state } = useContext(ProtectionsContext);
     const messaging = useMessaging();
+    const { widgetId } = useWidgetId();
     const didNotifyRef = useRef(false);
 
     // Notify native when protections widget is ready
@@ -35,10 +37,10 @@ export function ProtectionsConsumer() {
         if (state.status === 'ready' && !didNotifyRef.current) {
             didNotifyRef.current = true;
             requestAnimationFrame(() => {
-                messaging.widgetDidRender({ id: 'protections' });
+                messaging.widgetDidRender({ id: widgetId });
             });
         }
-    }, [state.status, messaging]);
+    }, [state.status, messaging, widgetId]);
 
     if (state.status === 'ready') {
         return <ProtectionsReadyState data={state.data} config={state.config} />;

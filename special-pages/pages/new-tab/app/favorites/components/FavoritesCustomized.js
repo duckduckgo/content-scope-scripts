@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 
 import { useMessaging, useTelemetry, useTypedTranslationWith } from '../../types.js';
-import { useVisibility } from '../../widget-list/widget-config.provider.js';
+import { useVisibility, useWidgetId } from '../../widget-list/widget-config.provider.js';
 import { useCustomizer } from '../../customizer/components/CustomizerMenu.js';
 
 import { FavoritesContext, FavoritesProvider } from './FavoritesProvider.js';
@@ -21,6 +21,7 @@ export function FavoritesConsumer() {
     const telemetry = useTelemetry();
     const { data: backgroundData } = useContext(CustomizerContext);
     const messaging = useMessaging();
+    const { widgetId } = useWidgetId();
     const didNotifyRef = useRef(false);
 
     // Notify native when favorites widget is ready
@@ -28,10 +29,10 @@ export function FavoritesConsumer() {
         if (state.status === 'ready' && !didNotifyRef.current) {
             didNotifyRef.current = true;
             requestAnimationFrame(() => {
-                messaging.widgetDidRender({ id: 'favorites' });
+                messaging.widgetDidRender({ id: widgetId });
             });
         }
-    }, [state.status, messaging]);
+    }, [state.status, messaging, widgetId]);
 
     /**
      * Checks if view transitions are supported and initiates reordering of favorites accordingly.

@@ -4,6 +4,7 @@ import styles from './UpdateNotification.module.css';
 import { useContext, useEffect, useId, useRef } from 'preact/hooks';
 import { UpdateNotificationContext } from '../UpdateNotificationProvider.js';
 import { useMessaging, useTypedTranslationWith } from '../../types.js';
+import { useWidgetId } from '../../widget-list/widget-config.provider.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { DismissButton } from '../../components/DismissButton';
 
@@ -103,6 +104,7 @@ export function WithoutNotes({ version }) {
 export function UpdateNotificationConsumer() {
     const { state, dismiss } = useContext(UpdateNotificationContext);
     const messaging = useMessaging();
+    const { widgetId } = useWidgetId();
     const didNotifyRef = useRef(false);
 
     // Notify native when updateNotification widget is ready
@@ -110,10 +112,10 @@ export function UpdateNotificationConsumer() {
         if (state.status === 'ready' && !didNotifyRef.current) {
             didNotifyRef.current = true;
             requestAnimationFrame(() => {
-                messaging.widgetDidRender({ id: 'updateNotification' });
+                messaging.widgetDidRender({ id: widgetId });
             });
         }
-    }, [state.status, messaging]);
+    }, [state.status, messaging, widgetId]);
 
     // `state.data.content` can be empty - meaning there's no message to display!
     if (state.status === 'ready' && state.data.content) {

@@ -117,3 +117,25 @@ export function WidgetVisibilityProvider(props) {
         </WidgetVisibilityContext.Provider>
     );
 }
+
+const WidgetIdContext = createContext({
+    /** @type {string} */
+    widgetId: '',
+});
+
+/**
+ * @return {{ widgetId: string }}
+ */
+export function useWidgetId() {
+    return useContext(WidgetIdContext);
+}
+
+/**
+ * Provides the widget ID to all descendants
+ * @param {object} props
+ * @param {string} props.id - the widget id
+ * @param {import("preact").ComponentChild} props.children
+ */
+export function WidgetIdProvider(props) {
+    return <WidgetIdContext.Provider value={{ widgetId: props.id }}>{props.children}</WidgetIdContext.Provider>;
+}

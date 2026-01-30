@@ -7,6 +7,7 @@ import { DismissButton } from '../../components/DismissButton';
 import { Button } from '../../../../../shared/components/Button/Button';
 import { usePlatformName } from '../../settings.provider';
 import { useMessaging } from '../../types.js';
+import { useWidgetId } from '../../widget-list/widget-config.provider.js';
 
 /**
  * @import { RMFMessage } from "../../../types/new-tab"
@@ -78,6 +79,7 @@ export function RemoteMessagingFramework({ message, primaryAction, secondaryActi
 export function RMFConsumer() {
     const { state, primaryAction, secondaryAction, dismiss } = useContext(RMFContext);
     const messaging = useMessaging();
+    const { widgetId } = useWidgetId();
     const didNotifyRef = useRef(false);
 
     // Notify native when rmf widget is ready
@@ -85,10 +87,10 @@ export function RMFConsumer() {
         if (state.status === 'ready' && !didNotifyRef.current) {
             didNotifyRef.current = true;
             requestAnimationFrame(() => {
-                messaging.widgetDidRender({ id: 'rmf' });
+                messaging.widgetDidRender({ id: widgetId });
             });
         }
-    }, [state.status, messaging]);
+    }, [state.status, messaging, widgetId]);
 
     // `state.data.content` can be empty - meaning there's no message to display!
     if (state.status === 'ready' && state.data.content) {

@@ -7,6 +7,7 @@ import { FreemiumPIRBannerContext } from '../FreemiumPIRBannerProvider';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils';
 import { useMessaging } from '../../types.js';
+import { useWidgetId } from '../../widget-list/widget-config.provider.js';
 
 /**
  * @typedef { import("../../../types/new-tab").FreemiumPIRBannerMessage} FreemiumPIRBannerMessage
@@ -42,6 +43,7 @@ export function FreemiumPIRBanner({ message, action, dismiss }) {
 export function FreemiumPIRBannerConsumer() {
     const { state, action, dismiss } = useContext(FreemiumPIRBannerContext);
     const messaging = useMessaging();
+    const { widgetId } = useWidgetId();
     const didNotifyRef = useRef(false);
 
     // Notify native when freemiumPIRBanner widget is ready
@@ -49,10 +51,10 @@ export function FreemiumPIRBannerConsumer() {
         if (state.status === 'ready' && !didNotifyRef.current) {
             didNotifyRef.current = true;
             requestAnimationFrame(() => {
-                messaging.widgetDidRender({ id: 'freemiumPIRBanner' });
+                messaging.widgetDidRender({ id: widgetId });
             });
         }
-    }, [state.status, messaging]);
+    }, [state.status, messaging, widgetId]);
 
     if (state.status === 'ready' && state.data.content) {
         return <FreemiumPIRBanner message={state.data.content} action={action} dismiss={dismiss} />;
