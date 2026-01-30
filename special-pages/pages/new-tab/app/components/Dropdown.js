@@ -53,14 +53,15 @@ export function Dropdown({ trigger, children, className }) {
  */
 
 /**
- * Dropdown menu item
+ * Dropdown menu item with checkmark and icon support
  *
  * @param {DropdownItemProps} props
  */
 export function DropdownItem({ children, onClick, checked, role, icon }) {
     return (
         <button className={styles.item} onClick={onClick} role={role} aria-checked={role ? checked : undefined} type="button">
-            <span className={styles.checkmark}>{icon || (checked ? '\u2713' : '')}</span>
+            <span className={styles.checkmark}>{checked ? <CheckIcon /> : null}</span>
+            <span className={styles.icon}>{icon}</span>
             <span className={styles.itemLabel}>{children}</span>
         </button>
     );
@@ -71,4 +72,20 @@ export function DropdownItem({ children, onClick, checked, role, icon }) {
  */
 export function DropdownSeparator() {
     return <div className={styles.separator} role="separator" />;
+}
+
+/**
+ * Checkmark icon for selected menu items
+ */
+function CheckIcon() {
+    return (
+        <svg viewBox="0 0 11 11" fill="none" className={styles.checkIcon}>
+            <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M10.0615 1.17262C10.5185 1.48273 10.6376 2.1046 10.3275 2.5616L5.57748 9.5616C5.40579 9.81462 5.12778 9.97518 4.82282 9.99745C4.51786 10.0197 4.21947 9.90122 4.01285 9.67582L1.26285 6.67582C0.889659 6.2687 0.917162 5.63614 1.32428 5.26294C1.7314 4.88975 2.36397 4.91726 2.73716 5.32437L4.63262 7.39215L8.67253 1.4386C8.98264 0.981595 9.60451 0.862514 10.0615 1.17262Z"
+                fill="currentColor"
+            />
+        </svg>
+    );
 }
