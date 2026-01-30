@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Weather Data",
-  "description": "Weather data for the weather widget",
+  "description": "Weather data for the weather widget, transformed from WeatherKit",
   "type": "object",
   "required": [
     "temperature",
@@ -21,21 +21,51 @@
       "description": "Feels-like temperature",
       "type": "number"
     },
+    "high": {
+      "description": "Today's high temperature (from forecastDaily.days[0].temperatureMax)",
+      "type": "number"
+    },
+    "low": {
+      "description": "Today's low temperature (from forecastDaily.days[0].temperatureMin)",
+      "type": "number"
+    },
     "conditionCode": {
-      "description": "Weather condition code (e.g., sunny, cloudy, rainy)",
+      "description": "Weather condition code from WeatherKit (Clear, MostlyClear, PartlyCloudy, MostlyCloudy, Cloudy, Rain, Drizzle, Thunderstorms, Windy, etc.)",
       "type": "string"
     },
     "location": {
-      "description": "Location name",
+      "description": "Location name (city, country)",
       "type": "string"
     },
     "humidity": {
-      "description": "Humidity percentage",
+      "description": "Humidity as decimal (0-1)",
       "type": "number"
     },
     "windSpeed": {
-      "description": "Wind speed",
+      "description": "Wind speed in km/h",
       "type": "number"
+    },
+    "forecast": {
+      "description": "Daily forecast (up to 7 days from forecastDaily.days)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["day", "high", "conditionCode"],
+        "properties": {
+          "day": {
+            "description": "Short day name derived from forecastStart (e.g., Sat, Sun)",
+            "type": "string"
+          },
+          "high": {
+            "description": "High temperature for the day (temperatureMax)",
+            "type": "number"
+          },
+          "conditionCode": {
+            "description": "Weather condition code for the day",
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }

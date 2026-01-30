@@ -1296,7 +1296,7 @@ export interface WeatherGetDataRequest1 {
   location: string;
 }
 /**
- * Weather data for the weather widget
+ * Weather data for the weather widget, transformed from WeatherKit
  */
 export interface WeatherData {
   /**
@@ -1312,21 +1312,46 @@ export interface WeatherData {
    */
   apparentTemperature?: number;
   /**
-   * Weather condition code (e.g., sunny, cloudy, rainy)
+   * Today's high temperature (from forecastDaily.days[0].temperatureMax)
+   */
+  high?: number;
+  /**
+   * Today's low temperature (from forecastDaily.days[0].temperatureMin)
+   */
+  low?: number;
+  /**
+   * Weather condition code from WeatherKit (Clear, MostlyClear, PartlyCloudy, MostlyCloudy, Cloudy, Rain, Drizzle, Thunderstorms, Windy, etc.)
    */
   conditionCode: string;
   /**
-   * Location name
+   * Location name (city, country)
    */
   location: string;
   /**
-   * Humidity percentage
+   * Humidity as decimal (0-1)
    */
   humidity?: number;
   /**
-   * Wind speed
+   * Wind speed in km/h
    */
   windSpeed?: number;
+  /**
+   * Daily forecast (up to 7 days from forecastDaily.days)
+   */
+  forecast?: {
+    /**
+     * Short day name derived from forecastStart (e.g., Sat, Sun)
+     */
+    day: string;
+    /**
+     * High temperature for the day (temperatureMax)
+     */
+    high: number;
+    /**
+     * Weather condition code for the day
+     */
+    conditionCode: string;
+  }[];
 }
 /**
  * Generated from @see "../messages/winBackOffer_getData.request.json"
