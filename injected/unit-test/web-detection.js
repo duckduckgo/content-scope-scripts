@@ -505,6 +505,29 @@ describe('WebDetection', () => {
                 });
             });
 
+            describe('visibility: any (implict when not specified)', () => {
+                it('should match when element exists', () => {
+                    expect(matchInDOM(
+                        '<div class="overlay">content</div>',
+                        { element: { selector: '.overlay' } },
+                    )).toBe(true);
+                });
+
+                it('should not match when element does not exist', () => {
+                    expect(matchInDOM(
+                        '<div class="other">content</div>',
+                        { element: { selector: '.overlay' } },
+                    )).toBe(false);
+                });
+
+                it('should match even if element is hidden', () => {
+                    expect(matchInDOM(
+                        '<div class="overlay" style="display: none">content</div>',
+                        { element: { selector: '.overlay' } },
+                    )).toBe(true);
+                });
+            });
+
             describe('visibility: hidden', () => {
                 it('should match element with display: none', () => {
                     expect(matchInDOM(
