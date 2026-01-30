@@ -16,7 +16,6 @@ import { weatherMockTransport } from './weather/mocks/weather.mock-transport.js'
 import { weatherMocks } from './weather/mocks/weather.mocks.js';
 import { newsMockTransport } from './news/mocks/news.mock-transport.js';
 import { stockMockTransport } from './stock/mocks/stock.mock-transport.js';
-import { stockMocks } from './stock/mocks/stock.mocks.js';
 
 /**
  * @typedef {import('../types/new-tab').Favorite} Favorite
@@ -639,17 +638,26 @@ export function initialSetup(url) {
     // Add stock widget if present in URL params (now with instanceId for multi-instance support)
     if (url.searchParams.has('stock')) {
         widgetsFromStorage.push({ id: 'stock' });
-        const stockPreset = url.searchParams.get('stock') || 'aapl';
-        // URL param override takes precedence, then mock data symbol, then preset as fallback
-        const stockSymbol =
-            url.searchParams.get('stock.symbol') ||
-            (stockPreset in stockMocks ? stockMocks[stockPreset].symbol : stockPreset.toUpperCase());
+        const stockParam = url.searchParams.get('stock') || 'aapl';
+        // Parse symbols - can be comma-separated list or single value
+        const symbolsParam = url.searchParams.get('stock.symbols');
+        let symbols;
+        if (symbolsParam) {
+            // Use explicit symbols param if provided
+            symbols = symbolsParam.split(',').map((s) => s.trim().toUpperCase());
+        } else if (stockParam === 'true') {
+            // Default to 3 sample stocks
+            symbols = ['BAC', 'AAPL', 'SBUX'];
+        } else {
+            // Use the stock param as a single symbol or comma-separated list
+            symbols = stockParam.split(',').map((s) => s.trim().toUpperCase());
+        }
         widgetConfigFromStorage.push({
             id: 'stock',
             instanceId: 'stock-1',
             visibility: 'visible',
-            symbol: stockSymbol,
-            expansion: 'expanded',
+            symbols,
+            expansion: url.searchParams.get('stock.expansion') || 'expanded',
         });
     }
 

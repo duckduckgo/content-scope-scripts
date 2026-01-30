@@ -24,7 +24,7 @@ export function WidgetSettingsMenu({ widgetType, config, onUpdateConfig }) {
         const clearValue = {
             weather: { location: null },
             news: { query: null },
-            stock: { symbol: null },
+            stock: { symbols: null },
         }[widgetType];
         onUpdateConfig(clearValue);
     };
@@ -50,7 +50,7 @@ export function WidgetSettingsMenu({ widgetType, config, onUpdateConfig }) {
     const setConfigLabel = {
         weather: 'Set location',
         news: 'Set query',
-        stock: 'Set symbol',
+        stock: 'Set symbols',
     }[widgetType];
 
     const trigger = (
