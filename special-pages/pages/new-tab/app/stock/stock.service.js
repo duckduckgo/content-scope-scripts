@@ -6,15 +6,15 @@ import { Service } from '../service.js';
 export class StockService {
     /**
      * @param {import("../../src/index.js").NewTabPage} ntp - The internal data feed, expected to have a `subscribe` method.
-     * @param {string} symbol - Stock ticker symbol
+     * @param {string[]} symbols - Stock ticker symbols
      * @internal
      */
-    constructor(ntp, symbol) {
+    constructor(ntp, symbols) {
         this.ntp = ntp;
-        this.symbol = symbol;
-        /** @type {Service<StockData>} */
+        this.symbols = symbols;
+        /** @type {Service<StockData[]>} */
         this.dataService = new Service({
-            initial: () => ntp.messaging.request('stock_getData', { symbol }),
+            initial: () => ntp.messaging.request('stock_getData', { symbols }),
         });
     }
 
@@ -23,7 +23,7 @@ export class StockService {
     }
 
     /**
-     * @returns {Promise<{data: StockData}>}
+     * @returns {Promise<{data: StockData[]}>}
      * @internal
      */
     async getInitial() {

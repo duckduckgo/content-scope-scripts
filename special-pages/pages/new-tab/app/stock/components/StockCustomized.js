@@ -18,17 +18,18 @@ export function StockCustomized({ instanceId }) {
         return null;
     }
 
-    // Check if this instance has a configured symbol
+    // Check if this instance has configured symbols
     const config = instanceId ? getConfigForInstance(instanceId) : null;
-    const hasSymbol = config && 'symbol' in config && config.symbol !== null && config.symbol !== '';
+    const symbols = config && 'symbols' in config && Array.isArray(config.symbols) ? config.symbols.filter(Boolean) : [];
+    const hasSymbols = symbols.length > 0;
 
     // Don't wrap empty state in provider - no fetch needed when unconfigured
-    if (!hasSymbol) {
+    if (!hasSymbols) {
         return <StockEmptyState instanceId={instanceId} />;
     }
 
     return (
-        <StockProvider symbol={/** @type {string} */ (config.symbol)}>
+        <StockProvider symbols={symbols}>
             <StockConsumer
                 instanceId={instanceId}
                 config={config}

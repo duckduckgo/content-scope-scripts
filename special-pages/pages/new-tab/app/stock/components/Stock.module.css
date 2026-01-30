@@ -2,38 +2,65 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 16px;
-    background: var(--ntp-surface-background-color, rgba(255, 255, 255, 0.9));
-    border-radius: 12px;
-    min-width: 200px;
+    padding: var(--sp-4);
+    gap: var(--sp-3);
+    background: var(--ntp-surface-background-color);
+    border-radius: var(--border-radius-lg);
+    outline: 1px solid var(--ds-color-theme-surface-decoration-primary);
+    backdrop-filter: blur(48px);
+    min-width: calc(504 * var(--px-in-rem));
+    box-sizing: border-box;
     margin-bottom: var(--ntp-gap);
 }
 
+.stockList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+}
+
+.stockRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sp-2) 0;
+}
+
+.stockInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stockPricing {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
 .symbol {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--ntp-text-normal, #333);
-    margin-bottom: 4px;
+    font-size: var(--title-3-em-font-size);
+    font-weight: 590;
+    line-height: var(--title-3-em-line-height);
+    color: var(--ds-color-theme-text-primary);
 }
 
 .companyName {
-    font-size: 12px;
-    color: var(--ntp-text-muted, #666);
-    margin-bottom: 12px;
+    font-size: var(--callout-font-size);
+    color: var(--ds-color-theme-text-secondary);
 }
 
 .price {
-    font-size: 36px;
-    font-weight: 300;
-    color: var(--ntp-text-normal, #333);
-    line-height: 1;
+    font-size: var(--title-3-em-font-size);
+    font-weight: 590;
+    line-height: var(--title-3-em-line-height);
+    color: var(--ds-color-theme-text-primary);
 }
 
 .change {
-    font-size: 14px;
-    margin-top: 8px;
-    font-weight: 500;
+    font-size: var(--callout-font-size);
+    font-weight: 510;
 }
 
 .positive {

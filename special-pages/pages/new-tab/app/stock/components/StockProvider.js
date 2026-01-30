@@ -8,8 +8,8 @@ import { StockService } from '../stock.service.js';
  */
 
 /**
- * @typedef {{ kind: 'initial-data'; data: StockData }
- *         | { kind: 'data'; data: StockData }
+ * @typedef {{ kind: 'initial-data'; data: StockData[] }
+ *         | { kind: 'data'; data: StockData[] }
  *         | { kind: 'load-initial'; }
  *         | { kind: 'error'; error: string }
  * } StockEvents
@@ -18,7 +18,7 @@ import { StockService } from '../stock.service.js';
 /**
  * @typedef {{status: 'idle'; data: null}
  *         | {status: 'pending-initial'; data: null}
- *         | {status: 'ready'; data: StockData}
+ *         | {status: 'ready'; data: StockData[]}
  * } StockState
  */
 
@@ -82,7 +82,7 @@ export const StockContext = createContext({
  *
  * @param {Object} props
  * @param {import("preact").ComponentChild} props.children
- * @param {string} props.symbol
+ * @param {string[]} props.symbols
  */
 export function StockProvider(props) {
     const initial = /** @type {StockState} */ ({
@@ -93,28 +93,29 @@ export function StockProvider(props) {
     const [state, dispatch] = useReducer(stockReducer, initial);
 
     // create an instance of `StockService` for the lifespan of this component.
-    const service = useService(props.symbol);
+    const service = useService(props.symbols);
 
     // get initial data
-    useInitialStockData({ dispatch, service, symbol: props.symbol });
+    useInitialStockData({ dispatch, service, symbols: props.symbols });
 
     return <StockContext.Provider value={{ state }}>{props.children}</StockContext.Provider>;
 }
 
 /**
- * @param {string} symbol
+ * @param {string[]} symbols
  * @return {import("preact").RefObject<StockService>}
  */
-export function useService(symbol) {
+export function useService(symbols) {
     const service = useRef(/** @type {StockService|null} */ (null));
     const ntp = useMessaging();
+    const symbolsKey = symbols.join(',');
     useEffect(() => {
-        const stockService = new StockService(ntp, symbol);
+        const stockService = new StockService(ntp, symbols);
         service.current = stockService;
         return () => {
             stockService.destroy();
         };
-    }, [ntp, symbol]);
+    }, [ntp, symbolsKey]);
     return service;
 }
 
@@ -122,10 +123,11 @@ export function useService(symbol) {
  * @param {object} params
  * @param {import("preact/hooks").Dispatch<StockEvents>} params.dispatch
  * @param {import("preact").RefObject<StockService>} params.service
- * @param {string} params.symbol
+ * @param {string[]} params.symbols
  */
-function useInitialStockData({ dispatch, service, symbol }) {
+function useInitialStockData({ dispatch, service, symbols }) {
     const messaging = useMessaging();
+    const symbolsKey = symbols.join(',');
     useEffect(() => {
         if (!service.current) return console.warn('missing stock service');
         const currentService = service.current;
@@ -150,5 +152,5 @@ function useInitialStockData({ dispatch, service, symbol }) {
         return () => {
             currentService.destroy();
         };
-    }, [messaging, symbol]);
+    }, [messaging, symbolsKey]);
 }
