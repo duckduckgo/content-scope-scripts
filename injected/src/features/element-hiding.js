@@ -60,7 +60,7 @@ let modifiedElements = new WeakMap();
 let appliedRules = new Set();
 let shouldInjectStyleTag = false;
 let styleTagInjected = false;
-/** @type {boolean} Cached per-pass to avoid checking custom elements on every isDomNodeEmpty call */
+/** @type {boolean} Cached per-pass; falls back to per-node checks when false. */
 let useDOMParser = false;
 let mediaAndFormSelectors = 'video,canvas,embed,object,audio,map,form,input,textarea,select,option,button';
 let hideTimeouts = [0, 100, 300, 500, 1000, 2000, 3000];
@@ -219,10 +219,15 @@ function isDomNodeEmpty(node) {
     // Use cloneNode for performance, but fall back to DOMParser when custom elements
     // are present to avoid triggering custom element constructors (page-observable).
     // useDOMParser is cached per-pass via hasCustomElements check in hideAdNodes/unhideLoadedAds.
+    // If the page-level cache is false, still check the node before cloning.
+    const shouldUseDOMParser = useDOMParser || hasCustomElements(node);
     /** @type {HTMLElement} */
     let parsedNode;
-    if (useDOMParser) {
+    if (shouldUseDOMParser) {
         // DOMParser wraps content in <html><head>...</head><body>...</body></html>
+        if (!parser) {
+            parser = new DOMParser();
+        }
         parsedNode = parser.parseFromString(node.outerHTML, 'text/html').documentElement;
     } else {
         parsedNode = /** @type {HTMLElement} */ (node.cloneNode(true));
@@ -346,9 +351,6 @@ function hideAdNodes(rules) {
 
     // Cache custom elements check once per pass to avoid repeated DOM traversal
     useDOMParser = hasCustomElements(document.body);
-    if (useDOMParser && !parser) {
-        parser = new DOMParser();
-    }
 
     rules.forEach((rule) => {
         const selector = forgivingSelector(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
@@ -368,9 +370,6 @@ function unhideLoadedAds() {
 
     // Cache custom elements check once per pass to avoid repeated DOM traversal
     useDOMParser = hasCustomElements(document.body);
-    if (useDOMParser && !parser) {
-        parser = new DOMParser();
-    }
 
     appliedRules.forEach((rule) => {
         const selector = forgivingSelector(rule.selector);
