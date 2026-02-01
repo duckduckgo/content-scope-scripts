@@ -54,6 +54,7 @@ import { isBeingFramed, injectGlobalStyles } from '../utils';
  */
 
 let adLabelStrings = [];
+let parser;
 let hiddenElements = new WeakMap();
 let modifiedElements = new WeakMap();
 let appliedRules = new Set();
@@ -345,6 +346,9 @@ function hideAdNodes(rules) {
 
     // Cache custom elements check once per pass to avoid repeated DOM traversal
     useDOMParser = hasCustomElements(document.body);
+    if (useDOMParser && !parser) {
+        parser = new DOMParser();
+    }
 
     rules.forEach((rule) => {
         const selector = forgivingSelector(/** @type {ElementHidingRuleHide | ElementHidingRuleModify} */ (rule).selector);
@@ -364,6 +368,9 @@ function unhideLoadedAds() {
 
     // Cache custom elements check once per pass to avoid repeated DOM traversal
     useDOMParser = hasCustomElements(document.body);
+    if (useDOMParser && !parser) {
+        parser = new DOMParser();
+    }
 
     appliedRules.forEach((rule) => {
         const selector = forgivingSelector(rule.selector);
