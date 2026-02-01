@@ -23,6 +23,43 @@ import ConfigFeature from './config-feature.js';
  * @property {string[]} [enabledFeatures]
  */
 
+/**
+ * @typedef {import('./features.js').FeatureMap} FeatureMap
+ */
+
+/**
+ * @returns {{promise: Promise<void>, resolve?: () => void, reject?: (e?: unknown) => void}}
+ */
+function createDeferred() {
+    const deferred = {};
+    deferred.promise = new Promise((resolve, reject) => {
+        deferred.resolve = resolve;
+        deferred.reject = reject;
+    });
+    return deferred;
+}
+
+/**
+ * Error used to indicate that calling a feature method failed (for example, due
+ * to an unknown feature or unexposed method).
+ */
+export class CallFeatureMethodError extends Error {
+    /**
+     * @param {string} message
+     */
+    constructor(message) {
+        super(message);
+        Object.setPrototypeOf(this, new.target.prototype);
+        this.name = new.target.name;
+    }
+}
+
+/**
+ * Error used to indicate that a feature was skipped during initialization
+ * (e.g., due to being broken or disabled on the current site).
+ */
+class FeatureSkippedError extends Error {}
+
 export default class ContentFeature extends ConfigFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
     /** @type {import('../../messaging').Messaging} */
@@ -51,11 +88,41 @@ export default class ContentFeature extends ConfigFeature {
     /** @type {ImportMeta} */
     #importConfig;
 
-    constructor(featureName, importConfig, args) {
+    /**
+     * @type {Partial<FeatureMap>}
+     */
+    #features;
+
+    /** @type {ReturnType<typeof createDeferred>} */
+    #ready;
+
+    /**
+     * @template {string} K
+     * @typedef {K[] & {__brand: 'exposeMethods'}} ExposeMethods
+     */
+
+    /**
+     * Methods that are exposed for inter-feature communication.
+     *
+     * Use `this._declareExposeMethods([...names])` to declare which methods are exposed.
+     *
+     * @type {ExposeMethods<any> | undefined}
+     */
+    _exposedMethods;
+
+    /**
+     * @param {string} featureName
+     * @param {*} importConfig
+     * @param {Partial<FeatureMap>} features
+     * @param {*} args
+     */
+    constructor(featureName, importConfig, features, args) {
         super(featureName, args);
         this.setArgs(this.args);
         this.monitor = new PerformanceMonitor();
+        this.#features = features;
         this.#importConfig = importConfig;
+        this.#ready = createDeferred();
     }
 
     get isDebug() {
@@ -64,6 +131,15 @@ export default class ContentFeature extends ConfigFeature {
 
     get shouldLog() {
         return this.isDebug;
+    }
+
+    /**
+     * Returns a promise that resolves when the feature has been initialised with `init`.
+     *
+     * @returns {Promise<void>}
+     */
+    get _ready() {
+        return this.#ready.promise;
     }
 
     /**
@@ -145,6 +221,62 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
+     * Declares which methods may be called on the feature instance from other features.
+     *
+     * @template {keyof typeof this} K
+     * @param {K[]} methods
+     * @returns {ExposeMethods<K>}
+     */
+    _declareExposedMethods(methods) {
+        for (const method of methods) {
+            if (typeof this[method] !== 'function') {
+                throw new Error(`'${method.toString()}' is not a method of feature '${this.name}'`);
+            }
+        }
+        // @ts-expect-error - phantom type for branding
+        return methods;
+    }
+
+    /**
+     * Run an exposed method of another feature.
+     *
+     * Waits for the feature to be initialized before calling the method.
+     *
+     * `args` are the arguments to pass to the feature method.
+     *
+     * NOTE: be aware of potential circular dependencies. Check that the feature
+     * you are calling is not calling you back.
+     *
+     * @template {keyof FeatureMap} FeatureName
+     * @template {FeatureMap[FeatureName]} Feature
+     * @template {keyof Feature & (Feature['_exposedMethods'] extends ExposeMethods<infer K> ? K : never)} MethodName
+     * @param {FeatureName} featureName
+     * @param {MethodName} methodName
+     * @param {Feature[MethodName] extends (...args: infer Args) => any ? Args : never} args
+     * @returns {Promise<ReturnType<Feature[MethodName]> | CallFeatureMethodError>}
+     */
+    async callFeatureMethod(featureName, methodName, ...args) {
+        const feature = this.#features[featureName];
+        if (!feature) return new CallFeatureMethodError(`Feature not found: '${featureName}'`);
+        // correct method usage is guaranteed at the type level, but we include runtime checks for additional safety
+        if (!(feature._exposedMethods !== undefined && feature._exposedMethods.some((mn) => mn === methodName)))
+            return new CallFeatureMethodError(`'${methodName}' is not exposed by feature '${featureName}'`);
+        const method = /** @type {Feature} */ (feature)[methodName];
+        if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
+        if (!(method instanceof Function))
+            return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
+        try {
+            await feature._ready;
+        } catch (e) {
+            if (e instanceof FeatureSkippedError) {
+                return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${e.message}`);
+            }
+            throw e;
+        }
+        return method.call(feature, ...args);
+    }
+
+    /**
      * @deprecated as we should make this internal to the class and not used externally
      * @return {MessagingContext}
      */
@@ -190,13 +322,36 @@ export default class ContentFeature extends ConfigFeature {
 
     init(_args) {}
 
-    callInit(args) {
+    /**
+     * @param {object} args
+     */
+    async callInit(args) {
         const mark = this.monitor.mark(this.name + 'CallInit');
-        this.setArgs(args);
-        // Passing this.args is legacy here and features should use this.args or other properties directly
-        this.init(this.args);
-        mark.end();
-        this.measure();
+        try {
+            this.setArgs(args);
+            // Passing this.args is legacy here and features should use this.args or other properties directly
+            // disable lint error as `init` is not forced to be async
+            // eslint-disable-next-line @typescript-eslint/await-thenable
+            await this.init(this.args);
+            this.#ready.resolve?.();
+        } catch (error) {
+            this.#ready.reject?.(error);
+            throw error;
+        } finally {
+            mark.end();
+            this.measure();
+        }
+    }
+
+    /**
+     * Mark this feature as skipped (not initialized).
+     *
+     * This allows inter-feature communication to fail fast instead of hanging indefinitely.
+     *
+     * @param {string} reason - The reason the feature was skipped
+     */
+    markFeatureAsSkipped(reason) {
+        this.#ready.reject?.(new FeatureSkippedError(reason));
     }
 
     setArgs(args) {

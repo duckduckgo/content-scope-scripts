@@ -90,6 +90,10 @@ export type Favicon = null | {
  * An ordered list of supported Widgets. Use this to communicate what's supported
  */
 export type Widgets = WidgetListItem[];
+/**
+ * Controls a popover that onboards users to the theme variant feature
+ */
+export type ShowThemeVariantPopover = boolean;
 export type NextStepsCardTypes =
   | "bringStuff"
   | "defaultApp"
@@ -127,6 +131,7 @@ export interface NewTabMessages {
     | ContextMenuNotification
     | CustomizerContextMenuNotification
     | CustomizerDeleteImageNotification
+    | CustomizerDismissThemeVariantPopoverNotification
     | CustomizerSetBackgroundNotification
     | CustomizerSetThemeNotification
     | CustomizerUploadNotification
@@ -184,6 +189,7 @@ export interface NewTabMessages {
     | CustomizerOnBackgroundUpdateSubscription
     | CustomizerOnColorUpdateSubscription
     | CustomizerOnImagesUpdateSubscription
+    | CustomizerOnShowThemeVariantPopoverUpdateSubscription
     | CustomizerOnThemeUpdateSubscription
     | FavoritesOnConfigUpdateSubscription
     | FavoritesOnDataUpdateSubscription
@@ -296,6 +302,12 @@ export interface CustomizerDeleteImageNotification {
 }
 export interface CustomizerDeleteImageNotify {
   id: string;
+}
+/**
+ * Generated from @see "../messages/customizer_dismissThemeVariantPopover.notify.json"
+ */
+export interface CustomizerDismissThemeVariantPopoverNotification {
+  method: "customizer_dismissThemeVariantPopover";
 }
 /**
  * Generated from @see "../messages/customizer_setBackground.notify.json"
@@ -668,7 +680,7 @@ export interface TelemetryEventNotification {
   params: NTPTelemetryEvent;
 }
 export interface NTPTelemetryEvent {
-  attributes: StatsShowMore | ExampleTelemetryEvent;
+  attributes: StatsShowMore | ExampleTelemetryEvent | CustomizerDrawerState;
 }
 export interface StatsShowMore {
   name: "stats_toggle";
@@ -676,6 +688,16 @@ export interface StatsShowMore {
 }
 export interface ExampleTelemetryEvent {
   name: "ntp_example";
+}
+export interface CustomizerDrawerState {
+  name: "customizer_drawer";
+  value: {
+    state: "opened" | "closed";
+    /**
+     * True if the theme variant popover was visible when the drawer was opened
+     */
+    themeVariantPopoverWasOpen?: boolean;
+  };
 }
 /**
  * Generated from @see "../messages/updateNotification_dismiss.notify.json"
@@ -910,6 +932,7 @@ export interface CustomizerData {
    * @deprecated
    */
   defaultStyles?: null | DefaultStyles;
+  showThemeVariantPopover?: ShowThemeVariantPopover;
 }
 export interface DefaultStyles {
   /**
@@ -1133,6 +1156,19 @@ export interface CustomizerOnImagesUpdateSubscription {
 }
 export interface UserImageData {
   userImages: UserImage[];
+}
+/**
+ * Generated from @see "../messages/customizer_onShowThemeVariantPopoverUpdate.subscribe.json"
+ */
+export interface CustomizerOnShowThemeVariantPopoverUpdateSubscription {
+  subscriptionEvent: "customizer_onShowThemeVariantPopoverUpdate";
+  params: ShowThemeVariantPopoverData;
+}
+export interface ShowThemeVariantPopoverData {
+  /**
+   * Controls a popover that onboards users to the theme variant feature
+   */
+  showThemeVariantPopover: boolean;
 }
 /**
  * Generated from @see "../messages/customizer_onThemeUpdate.subscribe.json"

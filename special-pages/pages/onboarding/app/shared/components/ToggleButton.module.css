@@ -1,0 +1,76 @@
+.button {
+  /* Base tokens (light) */
+  --btn-bg: #ffffff;
+  --btn-border: var(--color-black-at-6);
+  --btn-color: var(--color-black-at-84);
+
+  /* Selected tokens (light) */
+  --btn-selected-bg: var(--ddg-color-primary-tint-12);
+  --btn-selected-border: var(--ddg-color-primary);
+  --btn-selected-color: var(--ddg-color-primary);
+
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  background-color: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--sp-3);
+  color: var(--btn-color);
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 400;
+
+  @media (prefers-color-scheme: dark) {
+    --btn-bg: var(--color-gray-82);
+    --btn-border: var(--color-white-at-15);
+    --btn-color: var(--color-white-at-84);
+    --btn-selected-bg: var(--color-blue-60);
+    --btn-selected-border: var(--color-blue-0);
+    --btn-selected-color: var(--color-blue-0);
+  }
+
+  &.selected {
+    background-color: var(--btn-selected-bg);
+    border-color: var(--btn-selected-border);
+    color: var(--btn-selected-color);
+  }
+}
+
+.buttonText {
+  flex: 1;
+  text-align: left;
+}
+
+.radioButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.radioCircle {
+  --radio-circle: #3969ef;
+  fill: var(--radio-circle);
+  @media (prefers-color-scheme: dark) {
+    --radio-circle: #8fabf9;
+  }
+}
+
+.radioCheckmark {
+  --radio-checkmark: #ffffff;
+  fill: var(--radio-checkmark);
+  @media (prefers-color-scheme: dark) {
+    --radio-checkmark: #051133;
+  }
+}
+
+.radioCircleUnselected {
+  --radio-unselected: rgba(0, 0, 0, 0.36);
+  stroke: var(--radio-unselected);
+  fill: none;
+  @media (prefers-color-scheme: dark) {
+    --radio-unselected: rgba(255, 255, 255, 0.24);
+  }
+}

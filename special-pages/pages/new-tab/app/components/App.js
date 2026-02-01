@@ -12,6 +12,7 @@ import { useComputed } from '@preact/signals';
 import { CustomizerThemesContext } from '../customizer/CustomizerProvider.js';
 import { useContext } from 'preact/hooks';
 import { InlineErrorBoundary } from '../InlineErrorBoundary.js';
+import { useInitialSetupData } from '../types.js';
 
 /**
  * Renders the App component.
@@ -42,11 +43,19 @@ export function App() {
     const isOpen = useComputed(() => hidden.value === false);
     const { toggle } = useDrawerControls();
     const { main, browser, variant } = useContext(CustomizerThemesContext);
+    const { customizer } = useInitialSetupData();
+    const hasThemeVariants = customizer?.themeVariant !== undefined;
 
     return (
         <Fragment>
             <BackgroundConsumer browser={browser} variant={variant} />
-            <div class={styles.layout} data-animating={animating} data-drawer-visibility={visibility}>
+            <div
+                class={styles.layout}
+                data-animating={animating}
+                data-drawer-visibility={visibility}
+                // Widen drawer when it has the new Theme section. Can remove this when theme variants are rolled out to all users
+                data-has-theme-variants={hasThemeVariants}
+            >
                 <main class={cn(styles.main, styles.mainLayout, styles.mainScroller)} data-main-scroller data-theme={main}>
                     <div class={styles.content}>
                         <div className={styles.tube} data-content-tube data-platform={platformName}>

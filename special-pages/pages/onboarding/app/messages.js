@@ -167,4 +167,13 @@ export class OnboardingMessages {
     setAdBlocking(params) {
         this.messaging.notify('setAdBlocking', params);
     }
+
+    /**
+     * Sent when the user selects their Address Bar Mode preference -- Search only or Search & Duck.ai
+     *
+     * @param {import('./types').BooleanSystemValue} params
+     */
+    setDuckAiInAddressBar(params) {
+        this.messaging.notify('setDuckAiInAddressBar', params);
+    }
 }

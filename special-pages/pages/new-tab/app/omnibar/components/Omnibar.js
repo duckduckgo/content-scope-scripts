@@ -89,8 +89,9 @@ export function Omnibar({ mode, setMode, enableAi, showCustomizePopover, tabId }
                     <TabSwitcher mode={mode} onChange={handleChangeMode} />
                     {showCustomizePopover && (
                         <Popover
+                            className={styles.popover}
                             title={t('omnibar_customizePopoverTitle')}
-                            badge={t('omnibar_customizePopoverBadge')}
+                            showNewBadge
                             onClose={handleCloseCustomizePopover}
                         >
                             <Trans

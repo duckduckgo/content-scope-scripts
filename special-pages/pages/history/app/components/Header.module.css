@@ -104,4 +104,8 @@
     [data-theme="dark"] &::-webkit-search-cancel-button {
         background-image: url("../../public/icons/clear-dark.svg");
     }
+
+    &::placeholder {
+        color: var(--ds-color-theme-text-secondary);
+    }
 }

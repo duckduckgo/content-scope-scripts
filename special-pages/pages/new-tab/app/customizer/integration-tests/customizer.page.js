@@ -248,6 +248,17 @@ export class CustomizerPage {
     }
 
     /**
+     * @param {boolean} showThemeVariantPopover
+     */
+    async acceptsShowThemeVariantPopoverUpdate(showThemeVariantPopover) {
+        await test.step('subscription event: customizer_onShowThemeVariantPopoverUpdate', async () => {
+            /** @type {{showThemeVariantPopover: boolean}} */
+            const payload = { showThemeVariantPopover };
+            await this.ntp.mocks.simulateSubscriptionMessage(named.subscription('customizer_onShowThemeVariantPopoverUpdate'), payload);
+        });
+    }
+
+    /**
      * @param {'light' | 'dark'} theme
      */
     async hasContentTheme(theme) {
@@ -516,5 +527,117 @@ export class CustomizerPage {
      */
     async doesntHaveSwitch(name) {
         await expect(this.context().getByRole('switch', { name })).not.toBeVisible();
+    }
+
+    /**
+     * Gets the ThemeSection segmented control (Light/Dark/System)
+     */
+    themeSegmentedControl() {
+        return this.ntp.page.locator('aside').getByRole('radiogroup', { name: 'Theme', exact: true });
+    }
+
+    /**
+     * Gets the ThemeSection variant grid locator
+     */
+    variantGrid() {
+        return this.ntp.page.locator('aside').getByRole('radiogroup', { name: 'Theme variant' });
+    }
+
+    /**
+     * Verifies the new ThemeSection UI is visible (appears when themeVariant is truthy)
+     */
+    async themeSectionIsVisible() {
+        await expect(this.themeSegmentedControl()).toBeVisible();
+        await expect(this.variantGrid().getByRole('radio')).toHaveCount(8);
+    }
+
+    /**
+     * Verifies the old BrowserThemeSection UI is visible (appears when themeVariant is falsy)
+     */
+    async browserThemeSectionIsVisible() {
+        await expect(this.ntp.page.getByRole('radio', { name: 'Select light theme' })).toBeVisible();
+        await expect(this.variantGrid()).not.toBeVisible();
+    }
+
+    /**
+     * Verifies the specified color scheme is selected in ThemeSection
+     * @param {'light' | 'dark' | 'system'} theme
+     */
+    async themeIsSelected(theme) {
+        const labelMap = { light: 'Light', dark: 'Dark', system: 'System' };
+        const button = this.themeSegmentedControl().getByRole('radio', { name: labelMap[theme] });
+        await expect(button).toHaveAttribute('aria-checked', 'true');
+    }
+
+    /**
+     * Verifies the specified theme variant is selected in ThemeSection
+     * @param {import('../../../types/new-tab.js').ThemeVariant} variant
+     */
+    async themeVariantIsSelected(variant) {
+        const labelMap = {
+            default: 'Default',
+            coolGray: 'Cool Grey',
+            slateBlue: 'Slate',
+            green: 'Green',
+            violet: 'Violet',
+            rose: 'Rose',
+            orange: 'Orange',
+            desert: 'Desert',
+        };
+        const button = this.variantGrid().getByRole('radio', { name: labelMap[variant] });
+        await expect(button).toHaveAttribute('aria-checked', 'true');
+    }
+
+    /**
+     * Selects a color scheme in ThemeSection and verifies customizer_setTheme is called
+     * @param {'light' | 'dark' | 'system'} theme
+     * @param {import('../../../types/new-tab.js').ThemeVariant} expectedVariant - the expected variant to be included in the call
+     */
+    async selectsTheme(theme, expectedVariant) {
+        const labelMap = { light: 'Light', dark: 'Dark', system: 'System' };
+        await this.themeSegmentedControl().getByRole('radio', { name: labelMap[theme] }).click();
+        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('customizer_setTheme') });
+        expect(calls[0].payload).toMatchObject({
+            method: 'customizer_setTheme',
+            params: { theme, themeVariant: expectedVariant },
+        });
+    }
+
+    /**
+     * Selects a theme variant in ThemeSection and verifies customizer_setTheme is called
+     * @param {import('../../../types/new-tab.js').ThemeVariant} variant
+     * @param {'light' | 'dark' | 'system'} expectedTheme - the expected theme to be included in the call
+     */
+    async selectsThemeVariant(variant, expectedTheme) {
+        const labelMap = {
+            default: 'Default',
+            coolGray: 'Cool Grey',
+            slateBlue: 'Slate',
+            green: 'Green',
+            violet: 'Violet',
+            rose: 'Rose',
+            orange: 'Orange',
+            desert: 'Desert',
+        };
+        await this.variantGrid().getByRole('radio', { name: labelMap[variant] }).click();
+        const calls = await this.ntp.mocks.waitForCallCount({ count: 1, method: named.notification('customizer_setTheme') });
+        expect(calls[0].payload).toMatchObject({
+            method: 'customizer_setTheme',
+            params: { theme: expectedTheme, themeVariant: variant },
+        });
+    }
+
+    /**
+     * Gets the theme variant popover dialog
+     */
+    themeVariantPopover() {
+        return this.ntp.page.getByRole('dialog', { name: 'Pick a color theme that suits you' });
+    }
+
+    /**
+     * Gets the close button inside the theme variant popover
+     */
+    themeVariantPopoverCloseButton() {
+        return this.themeVariantPopover().getByRole('button', { name: 'Close' });
     }
 }
