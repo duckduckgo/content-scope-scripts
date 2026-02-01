@@ -149,7 +149,8 @@ test.describe('onboarding v2 screenshots', { tag: ['@screenshots'] }, () => {
         });
         await onboarding.reducedMotion();
         await onboarding.openPage({ debugState: false, page: 'dockSingle' });
-        await expect(page).toHaveScreenshot('v2-5-dockSingle.png', { maxDiffPixels: maxDiffPixelsAnimated });
+        // Mask the Rive animation canvas to avoid flaky comparisons due to animation frames
+        await expect(page).toHaveScreenshot('v2-5-dockSingle.png', { maxDiffPixels, mask: [page.locator('canvas')] });
     });
 
     test('v2-6-importSingle', async ({ page }, workerInfo) => {
