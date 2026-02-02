@@ -17,6 +17,10 @@ This directory contains detailed documentation for the Content Scope Scripts pro
 - **[Testing Guide](./testing-guide.md)** - Local testing and development workflow
 - **[Coding Guidelines](./coding-guidelines.md)** - Code style, architecture, security, and performance guidelines
 
+### Feature Documentation
+
+- **[YouTube Ad Detection](./youtube-ad-detection.md)** - YouTube ad and issue detection (ads, buffering, playability errors, ad blocker modals)
+
 ### Existing Documentation
 
 - **[Favicon](./favicon.md)** - Favicon-related documentation

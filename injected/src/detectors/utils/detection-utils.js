@@ -115,3 +115,17 @@ export function queryAllSelectors(selectors, root = document) {
     const elements = root.querySelectorAll(selectors.join(','));
     return Array.from(elements);
 }
+
+/**
+ * Convert string patterns to RegExp objects
+ * Useful for config-driven detectors where patterns come from privacy-config as strings
+ * @param {string[]} patterns - Array of regex pattern strings
+ * @param {string} [flags='i'] - RegExp flags (default: case-insensitive)
+ * @returns {RegExp[]}
+ */
+export function toRegExpArray(patterns, flags = 'i') {
+    if (!patterns || !Array.isArray(patterns)) {
+        return [];
+    }
+    return patterns.map((p) => new RegExp(p, flags));
+}

@@ -3,6 +3,7 @@ import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breaka
 import { runBotDetection } from '../detectors/detections/bot-detection.js';
 import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
 import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
+import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
 
 export default class BreakageReporting extends ContentFeature {
     init() {
@@ -37,6 +38,13 @@ export default class BreakageReporting extends ContentFeature {
                     botDetection: runBotDetection(detectorSettings.botDetection),
                     fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
                     adwallDetection: runAdwallDetection(detectorSettings.adwallDetection),
+                    // HACK: Always run YouTube ad detector on YouTube (uses defaults if no config)
+                    youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds || {}),
+                };
+            } else if (window.location.hostname.includes('youtube.com')) {
+                // HACK: Still report YouTube ads even without full detectorSettings
+                result.detectorData = {
+                    youtubeAds: runYoutubeAdDetection({}),
                 };
             }
 
