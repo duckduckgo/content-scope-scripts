@@ -2,8 +2,6 @@ import { withDefaults } from '../../utils.js';
 
 /**
  * @typedef {import('./types.js').DetectorConfig} DetectorConfig
- * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection').WebDetectionSettings} WebDetectionSettings
- * @typedef {NonNullable<WebDetectionSettings['detectors']>[string][string]} SourceDetectorConfig
  * @typedef {import('../../utils.js').FeatureState} FeatureState
  */
 
@@ -53,7 +51,7 @@ function isValidName(name) {
 /**
  * Normalize a raw detector configuration by applying defaults.
  *
- * @param {SourceDetectorConfig} config
+ * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} config
  * @returns {DetectorConfig}
  */
 function normalizeDetector(config) {
@@ -63,7 +61,7 @@ function normalizeDetector(config) {
 /**
  * Parse detector configurations from raw config.
  *
- * @param {WebDetectionSettings['detectors']} detectorsConfig
+ * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').WebDetectionSettings['detectors']} detectorsConfig
  * @returns {Record<string, Record<string, DetectorConfig>>}
  */
 export function parseDetectors(detectorsConfig) {
