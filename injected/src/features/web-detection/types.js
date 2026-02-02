@@ -95,7 +95,7 @@
  *
  * @typedef {object} DetectorResult
  * @property {string} detectorId - ID of the detector
- * @property {true | false | 'error'} matched - Whether the detector matched (true), didn't match (false), or errored
+ * @property {true | false | 'error'} detected - Whether the detector matched (true), didn't match (false), or errored
  */
 
 export {};

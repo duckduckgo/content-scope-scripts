@@ -72,22 +72,22 @@ export default class WebDetection extends ContentFeature {
 
                 // Evaluate match conditions
                 /** @type {true | false | 'error'} */
-                let matched;
+                let detected;
                 try {
-                    matched = evaluateMatch(detectorConfig.match);
+                    detected = evaluateMatch(detectorConfig.match);
                 } catch {
-                    matched = 'error';
+                    detected = 'error';
                 }
 
                 // Execute detector actions.
 
                 // If we're in the breakage report trigger and the breakage report data action is enabled, add the result to the results.
                 if (options.trigger === 'breakageReport' && this._isStateEnabled(detectorConfig.actions.breakageReportData.state)) {
-                    // Only include if matched or errored (not false)
-                    if (matched !== false) {
+                    // Only include if detected or errored (not false)
+                    if (detected !== false) {
                         results.push({
                             detectorId: `${groupName}.${detectorId}`,
-                            matched,
+                            detected,
                         });
                     }
                 }
