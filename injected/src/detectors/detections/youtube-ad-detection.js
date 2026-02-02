@@ -781,25 +781,12 @@ class YouTubeAdDetector {
             }
         }
 
-        // Calculate performance stats
+        // Calculate average sweep time (rounded to nearest ms for privacy)
         const perf = this.state.perfMetrics;
-        let perfData = null;
-
-        if (perf && perf.sweepCount > 0) {
-            const calcAvg = (arr) => (arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
-            const calcMax = (arr) => (arr.length > 0 ? Math.max(...arr) : 0);
-
-            perfData = {
-                sweepCount: perf.sweepCount,
-                sweepAvgMs: Math.round(calcAvg(perf.sweepDurations) * 100) / 100,
-                sweepMaxMs: Math.round(calcMax(perf.sweepDurations) * 100) / 100,
-                adCheckAvgMs: Math.round(calcAvg(perf.adCheckDurations) * 100) / 100,
-                adCheckMaxMs: Math.round(calcMax(perf.adCheckDurations) * 100) / 100,
-                sweepsOver10ms: perf.sweepsOver10ms,
-                sweepsOver50ms: perf.sweepsOver50ms,
-                top5WorstMs: perf.top5SweepDurations.map((d) => Math.round(d * 100) / 100),
-                pctSlow: Math.round((perf.sweepsOver10ms / perf.sweepCount) * 100 * 100) / 100,
-            };
+        let sweepAvgMs = null;
+        if (perf && perf.sweepCount > 0 && perf.sweepDurations.length > 0) {
+            const avg = perf.sweepDurations.reduce((a, b) => a + b, 0) / perf.sweepDurations.length;
+            sweepAvgMs = Math.round(avg);
         }
 
         return {
@@ -819,7 +806,7 @@ class YouTubeAdDetector {
                     bufferingCount: this.state.buffering.count,
                     bufferAvgSec,
                     userState: loginState?.state || 'unknown',
-                    perf: perfData,
+                    sweepAvgMs,
                 },
             ],
         };
