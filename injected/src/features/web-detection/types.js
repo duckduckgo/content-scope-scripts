@@ -1,8 +1,8 @@
 /**
- * Either a single value or an array of values representing a disjunction (OR).
+ * Either a single value or an array of values.
  *
  * @template T
- * @typedef {T | T[]} OrArray
+ * @typedef {T | T[]} MaybeArray
  */
 
 /**
@@ -11,8 +11,8 @@
  * Condition is true if ANY pattern matches text in ANY selected element.
  *
  * @typedef {object} TextMatchCondition
- * @property {OrArray<string>} pattern - Regex pattern(s) to search for.
- * @property {OrArray<string>} [selector] - CSS selector(s) to get text from.
+ * @property {MaybeArray<string>} pattern - Regex pattern(s) to search for.
+ * @property {MaybeArray<string>} [selector] - CSS selector(s) to get text from.
  */
 
 /**
@@ -21,7 +21,7 @@
  * Condition is true if ANY selector has a matching element with the required visibility.
  *
  * @typedef {object} ElementMatchCondition
- * @property {OrArray<string>} selector - CSS selector(s) for the element.
+ * @property {MaybeArray<string>} selector - CSS selector(s) for the element.
  * @property {'visible' | 'hidden' | 'any'} [visibility] - Whether the element must be visible, hidden, or either (default: 'any').
  */
 
@@ -29,14 +29,14 @@
  * Match conditions that determine when a detector has matched.
  *
  * @typedef {object} MatchConditionSingle
- * @property {OrArray<TextMatchCondition>} [text] - Text pattern conditions
- * @property {OrArray<ElementMatchCondition>} [element] - Element presence conditions
+ * @property {MaybeArray<TextMatchCondition>} [text] - Text pattern conditions
+ * @property {MaybeArray<ElementMatchCondition>} [element] - Element presence conditions
  */
 
 /**
  * One or more alternative match conditions.
  *
- * @typedef {OrArray<MatchConditionSingle>} MatchCondition
+ * @typedef {MaybeArray<MatchConditionSingle>} MatchCondition
  */
 
 /**
