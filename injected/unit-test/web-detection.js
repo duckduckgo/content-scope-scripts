@@ -726,5 +726,120 @@ describe('WebDetection', () => {
                 ).toBe(true);
             });
         });
+
+        describe('*ALL variants (AND semantics)', () => {
+            describe('textALL', () => {
+                it('should require ALL text conditions to match', () => {
+                    // Both match
+                    expect(matchInDOM(
+                        '<p>adblocker detected</p><p>paywall active</p>',
+                        {
+                            textALL: [
+                                { pattern: 'adblocker' },
+                                { pattern: 'paywall' },
+                            ],
+                        },
+                    )).toBe(true);
+
+                    // Only first matches
+                    expect(matchInDOM(
+                        '<p>adblocker detected</p>',
+                        {
+                            textALL: [
+                                { pattern: 'adblocker' },
+                                { pattern: 'paywall' },
+                            ],
+                        },
+                    )).toBe(false);
+
+                    // Only second matches
+                    expect(matchInDOM(
+                        '<p>paywall active</p>',
+                        {
+                            textALL: [
+                                { pattern: 'adblocker' },
+                                { pattern: 'paywall' },
+                            ],
+                        },
+                    )).toBe(false);
+                });
+
+                it('should work with single condition (no array)', () => {
+                    expect(matchInDOM(
+                        '<p>adblocker</p>',
+                        { textALL: { pattern: 'adblocker' } },
+                    )).toBe(true);
+                });
+            });
+
+            describe('elementALL', () => {
+                it('should require ALL element conditions to match', () => {
+                    // Both match
+                    expect(matchInDOM(
+                        '<div class="a"></div><div class="b"></div>',
+                        {
+                            elementALL: [
+                                { selector: '.a' },
+                                { selector: '.b' },
+                            ],
+                        },
+                    )).toBe(true);
+
+                    // Only first matches
+                    expect(matchInDOM(
+                        '<div class="a"></div>',
+                        {
+                            elementALL: [
+                                { selector: '.a' },
+                                { selector: '.b' },
+                            ],
+                        },
+                    )).toBe(false);
+
+                    // Neither matches
+                    expect(matchInDOM(
+                        '<div class="c"></div>',
+                        {
+                            elementALL: [
+                                { selector: '.a' },
+                                { selector: '.b' },
+                            ],
+                        },
+                    )).toBe(false);
+                });
+            });
+
+            describe('combining text and textALL', () => {
+                it('should AND together text (OR) and textALL (AND) conditions', () => {
+                    // text: any of [foo, bar], textALL: all of [baz, qux]
+                    expect(matchInDOM(
+                        '<p>foo baz qux</p>',
+                        {
+                            text: [{ pattern: 'foo' }, { pattern: 'bar' }],
+                            textALL: [{ pattern: 'baz' }, { pattern: 'qux' }],
+                        },
+                    )).toBe(true);
+
+                    // text matches (foo), but textALL fails (missing qux)
+                    expect(matchInDOM(
+                        '<p>foo baz</p>',
+                        {
+                            text: [{ pattern: 'foo' }, { pattern: 'bar' }],
+                            textALL: [{ pattern: 'baz' }, { pattern: 'qux' }],
+                        },
+                    )).toBe(false);
+
+                    // textALL matches, but text fails
+                    expect(matchInDOM(
+                        '<p>baz qux</p>',
+                        {
+                            text: [{ pattern: 'foo' }, { pattern: 'bar' }],
+                            textALL: [{ pattern: 'baz' }, { pattern: 'qux' }],
+                        },
+                    )).toBe(false);
+                });
+            });
+
+        });
     });
 });

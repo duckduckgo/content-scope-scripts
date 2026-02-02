@@ -96,22 +96,46 @@ function evaluateSingleElementCondition(config) {
 }
 
 /**
- * Evaluate an OR condition
+ * Registry of condition evaluators.
+ * Each key is a condition name (e.g., 'text', 'element').
+ * The `*ALL` variant (e.g., 'textALL') is automatically derived.
+ *
+ * To add a new condition type, just add it here and define how to match with a
+ * single condition. The ALL variant comes for free.
+ *
+ * @type {{[K in keyof ConditionTypes]: (condition: ConditionTypes[K]) => boolean}}
+ */
+const CONDITION_EVALUATORS = {
+    text: evaluateSingleTextCondition,
+    element: evaluateSingleElementCondition,
+};
+
+/**
+ * Evaluate an array condition with configurable combinator.
  * @template T
  * @param {T | T[] | undefined} condition
  * @param {(value: T) => boolean} singleConditionEvaluator
+ * @param {'OR' | 'AND'} combinator - How to combine array elements
  * @returns {boolean}
  */
-function evaluateORCondition(condition, singleConditionEvaluator) {
+function evaluateArrayCondition(condition, singleConditionEvaluator, combinator) {
     if (condition === undefined) return true;
     if (Array.isArray(condition)) {
-        return condition.some((v) => singleConditionEvaluator(v));
+        return combinator === 'OR'
+            ? condition.some((v) => singleConditionEvaluator(v))
+            : condition.every((v) => singleConditionEvaluator(v));
     }
     return singleConditionEvaluator(condition);
 }
 
 /**
  * Evaluate match conditions for a detector.
+ *
+ * For each registered condition type (e.g., 'text'), two keys are supported:
+ * - `text` (OR): array means any must match
+ * - `textALL` (AND): array means all must match
+ *
+ * Multiple condition keys are ANDed together (all must pass).
  *
  * This may be either a single condition or an array of conditions.
  *
@@ -122,25 +146,28 @@ function evaluateORCondition(condition, singleConditionEvaluator) {
  * @returns {boolean}
  */
 function evaluateSingleMatchCondition(condition) {
-    // conjunction on keys
-    if (!evaluateORCondition(condition.text, evaluateSingleTextCondition)) {
-        return false;
+    // Each registered condition type gets both `name` (OR) and `nameALL` (AND) variants
+    for (const [name, evaluator] of Object.entries(CONDITION_EVALUATORS)) {
+        // Check the OR variant (e.g., 'text')
+        if (!evaluateArrayCondition(condition[name], evaluator, 'OR')) return false;
+        // Check the ALL variant (e.g., 'textALL')
+        if (!evaluateArrayCondition(condition[`${name}ALL`], evaluator, 'AND')) return false;
     }
-    if (!evaluateORCondition(condition.element, evaluateSingleElementCondition)) {
-        return false;
-    }
+
     return true;
 }
 
 /**
  * Evaluate match conditions for a detector.
  *
- * This determines whether the detector is considered to have successfully matched when run.
+ * Supported formats:
+ * - Single condition object: `{ text: {...} }` - evaluated directly
+ * - Array of alternatives: `[{...}, {...}]` - OR (any must match)
  *
  * Objects represent conjunction (AND), arrays represent disjunction (OR)
  * @param {import('./parse.js').MatchCondition} conditions
  * @returns {boolean}
  */
 export function evaluateMatch(conditions) {
-    return evaluateORCondition(conditions, evaluateSingleMatchCondition);
+    return evaluateArrayCondition(conditions, evaluateSingleMatchCondition, 'OR');
 }
