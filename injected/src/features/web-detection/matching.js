@@ -95,7 +95,7 @@ function evaluateSingleElementCondition(config) {
 /**
  * Evaluate an OR condition
  * @template T
- * @param {import('./types.js').OrArray<T> | undefined} condition
+ * @param {import('./types.js').MaybeArray<T> | undefined} condition
  * @param {(value: T) => boolean} singleConditionEvaluator
  * @returns {boolean}
  */
