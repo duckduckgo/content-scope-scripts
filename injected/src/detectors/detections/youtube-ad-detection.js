@@ -9,7 +9,7 @@ const log = {
     info: (...args) => console.log(LOG_PREFIX, ...args),
     warn: (...args) => console.warn(LOG_PREFIX, ...args),
     error: (...args) => console.error(LOG_PREFIX, ...args),
-    debug: (...args) => console.debug(LOG_PREFIX, ...args)
+    debug: (...args) => console.debug(LOG_PREFIX, ...args),
 };
 
 /**
@@ -52,7 +52,7 @@ class YouTubeAdDetector {
             playabilityErrorPatterns: config.playabilityErrorPatterns,
             adBlockerDetectionSelectors: config.adBlockerDetectionSelectors,
             adBlockerDetectionPatterns: config.adBlockerDetectionPatterns,
-            loginStateSelectors: config.loginStateSelectors
+            loginStateSelectors: config.loginStateSelectors,
         };
 
         // Initialize state
@@ -91,11 +91,11 @@ class YouTubeAdDetector {
                 videoAd: { count: 0, showing: false },
                 staticAd: { count: 0, showing: false },
                 playabilityError: { count: 0, showing: false, /** @type {string|null} */ lastMessage: null },
-                adBlocker: { count: 0, showing: false }
+                adBlocker: { count: 0, showing: false },
             },
             buffering: {
                 count: 0,
-                /** @type {number[]} */ durations: []
+                /** @type {number[]} */ durations: [],
             },
             videoLoads: 0,
             /** @type {{state: string, isPremium: boolean, rawIndicators: Object}|null} */ loginState: null,
@@ -106,8 +106,8 @@ class YouTubeAdDetector {
                 /** @type {number[]} */ top5SweepDurations: [],
                 /** @type {number[]} */ top5AdCheckDurations: [],
                 sweepsOver10ms: 0,
-                sweepsOver50ms: 0
-            }
+                sweepsOver50ms: 0,
+            },
         };
     }
 
@@ -137,7 +137,7 @@ class YouTubeAdDetector {
             total: typeState.count,
             videoId: this.currentVideoId,
             url: window.location.href,
-            ...details
+            ...details,
         });
 
         return true;
@@ -159,7 +159,7 @@ class YouTubeAdDetector {
 
         log.info(logMessage, {
             total: typeState.count,
-            videoId: this.currentVideoId
+            videoId: this.currentVideoId,
         });
     }
 
@@ -273,12 +273,12 @@ class YouTubeAdDetector {
         if (!(node instanceof HTMLElement)) return false;
 
         const classList = node.classList;
-        if (classList && this.config.adClasses.some(adClass => classList.contains(adClass))) {
+        if (classList && this.config.adClasses.some((adClass) => classList.contains(adClass))) {
             return true;
         }
 
-        const txt = ((node.innerText || '') + ' ' + (node.getAttribute('aria-label') || ''));
-        return this.adTextPatterns.some(pattern => pattern.test(txt));
+        const txt = (node.innerText || '') + ' ' + (node.getAttribute('aria-label') || '');
+        return this.adTextPatterns.some((pattern) => pattern.test(txt));
     }
 
     /**
@@ -287,9 +287,9 @@ class YouTubeAdDetector {
      * @returns {boolean}
      */
     checkForVideoAds(root) {
-        const adSelectors = this.config.adClasses.map(cls => '.' + cls).join(',');
+        const adSelectors = this.config.adClasses.map((cls) => '.' + cls).join(',');
         const adElements = root.querySelectorAll(adSelectors);
-        return Array.from(adElements).some(el => isVisible(el) && this.looksLikeAdNode(el));
+        return Array.from(adElements).some((el) => isVisible(el) && this.looksLikeAdNode(el));
     }
 
     /**
@@ -395,11 +395,10 @@ class YouTubeAdDetector {
      * @returns {string|null}
      */
     checkForPlayabilityErrors() {
-        return this.checkVisiblePatternMatch(
-            this.config.playabilityErrorSelectors,
-            this.playabilityErrorPatterns,
-            { maxLength: 100, checkAttributedStrings: true }
-        );
+        return this.checkVisiblePatternMatch(this.config.playabilityErrorSelectors, this.playabilityErrorPatterns, {
+            maxLength: 100,
+            checkAttributedStrings: true,
+        });
     }
 
     /**
@@ -407,11 +406,10 @@ class YouTubeAdDetector {
      * @returns {string|null}
      */
     checkForAdBlockerModals() {
-        return this.checkVisiblePatternMatch(
-            this.config.adBlockerDetectionSelectors,
-            this.adBlockerDetectionPatterns,
-            { maxLength: 150, checkDialogFallback: true }
-        );
+        return this.checkVisiblePatternMatch(this.config.adBlockerDetectionSelectors, this.adBlockerDetectionPatterns, {
+            maxLength: 150,
+            checkDialogFallback: true,
+        });
     }
 
     // =========================================================================
@@ -458,7 +456,7 @@ class YouTubeAdDetector {
         const indicators = {
             hasSignInButton: false,
             hasAvatarButton: false,
-            hasPremiumLogo: false
+            hasPremiumLogo: false,
         };
 
         try {
@@ -481,7 +479,7 @@ class YouTubeAdDetector {
         return {
             state: loginState,
             isPremium: indicators.hasPremiumLogo,
-            rawIndicators: indicators
+            rawIndicators: indicators,
         };
     }
 
@@ -501,7 +499,7 @@ class YouTubeAdDetector {
             this.state.loginState = loginState;
             log.info('Login state detected:', loginState.state, loginState.isPremium ? '(Premium)' : '', {
                 attempt,
-                indicators: loginState.rawIndicators
+                indicators: loginState.rawIndicators,
             });
         } else {
             const delay = attempt * 500;
@@ -564,7 +562,7 @@ class YouTubeAdDetector {
                 this.state.buffering.durations.push(Math.round(loadTime));
                 log.info('Slow video load (buffering)', {
                     videoId: this.currentVideoId,
-                    loadTimeMs: Math.round(loadTime)
+                    loadTimeMs: Math.round(loadTime),
                 });
             }
             this.videoLoadStartTime = null;
@@ -574,7 +572,7 @@ class YouTubeAdDetector {
             if (this.state.detections.videoAd.showing) return;
             if (videoElement.currentTime < 0.5) return;
 
-            const recentlySeekd = this.lastSeekTime && (performance.now() - this.lastSeekTime < 3000);
+            const recentlySeekd = this.lastSeekTime && performance.now() - this.lastSeekTime < 3000;
             if (videoElement.seeking || recentlySeekd) return;
 
             if (!this.bufferingStartTime) {
@@ -584,7 +582,7 @@ class YouTubeAdDetector {
             this.state.buffering.count++;
             log.info('Video buffering/waiting', {
                 videoId: this.currentVideoId,
-                totalBufferingCount: this.state.buffering.count
+                totalBufferingCount: this.state.buffering.count,
             });
         };
 
@@ -721,9 +719,7 @@ class YouTubeAdDetector {
         // @ts-expect-error - adding debug helper to window
         window.ytAdDetectorDebug = () => {
             const totalMs = this.state.buffering.durations.reduce((sum, dur) => sum + dur, 0);
-            const avgMs = this.state.buffering.durations.length > 0
-                ? Math.round(totalMs / this.state.buffering.durations.length)
-                : 0;
+            const avgMs = this.state.buffering.durations.length > 0 ? Math.round(totalMs / this.state.buffering.durations.length) : 0;
 
             const calcStats = (arr) => {
                 if (arr.length === 0) return { avg: 0, min: 0, max: 0, p95: 0 };
@@ -733,7 +729,7 @@ class YouTubeAdDetector {
                     avg: Math.round((sum / sorted.length) * 100) / 100,
                     min: Math.round(sorted[0] * 100) / 100,
                     max: Math.round(sorted[sorted.length - 1] * 100) / 100,
-                    p95: Math.round(sorted[Math.floor(sorted.length * 0.95)] * 100) / 100
+                    p95: Math.round(sorted[Math.floor(sorted.length * 0.95)] * 100) / 100,
                 };
             };
 
@@ -751,10 +747,10 @@ class YouTubeAdDetector {
                 performance: {
                     sweepCount: perf.sweepCount,
                     sweepStats: calcStats(perf.sweepDurations),
-                    top5WorstSweeps: perf.top5SweepDurations.map(d => Math.round(d * 100) / 100),
+                    top5WorstSweeps: perf.top5SweepDurations.map((d) => Math.round(d * 100) / 100),
                     sweepsOver10ms: perf.sweepsOver10ms,
-                    sweepsOver50ms: perf.sweepsOver50ms
-                }
+                    sweepsOver50ms: perf.sweepsOver50ms,
+                },
             });
         };
     }
@@ -772,9 +768,7 @@ class YouTubeAdDetector {
 
         // Calculate buffering stats
         const totalBufferingMs = this.state.buffering.durations.reduce((sum, dur) => sum + dur, 0);
-        const avgBufferingMs = this.state.buffering.durations.length > 0
-            ? totalBufferingMs / this.state.buffering.durations.length
-            : 0;
+        const avgBufferingMs = this.state.buffering.durations.length > 0 ? totalBufferingMs / this.state.buffering.durations.length : 0;
         const bufferAvgSec = Math.round(avgBufferingMs / 1000);
 
         // Refresh login state if unknown
@@ -792,8 +786,8 @@ class YouTubeAdDetector {
         let perfData = null;
 
         if (perf && perf.sweepCount > 0) {
-            const calcAvg = (arr) => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
-            const calcMax = (arr) => arr.length > 0 ? Math.max(...arr) : 0;
+            const calcAvg = (arr) => (arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+            const calcMax = (arr) => (arr.length > 0 ? Math.max(...arr) : 0);
 
             perfData = {
                 sweepCount: perf.sweepCount,
@@ -803,24 +797,31 @@ class YouTubeAdDetector {
                 adCheckMaxMs: Math.round(calcMax(perf.adCheckDurations) * 100) / 100,
                 sweepsOver10ms: perf.sweepsOver10ms,
                 sweepsOver50ms: perf.sweepsOver50ms,
-                top5WorstMs: perf.top5SweepDurations.map(d => Math.round(d * 100) / 100),
-                pctSlow: Math.round((perf.sweepsOver10ms / perf.sweepCount) * 100 * 100) / 100
+                top5WorstMs: perf.top5SweepDurations.map((d) => Math.round(d * 100) / 100),
+                pctSlow: Math.round((perf.sweepsOver10ms / perf.sweepCount) * 100 * 100) / 100,
             };
         }
 
         return {
-            detected: d.videoAd.count > 0 || d.staticAd.count > 0 || d.playabilityError.count > 0 || d.adBlocker.count > 0 || this.state.buffering.count > 0,
+            detected:
+                d.videoAd.count > 0 ||
+                d.staticAd.count > 0 ||
+                d.playabilityError.count > 0 ||
+                d.adBlocker.count > 0 ||
+                this.state.buffering.count > 0,
             type: 'youtubeAds',
-            results: [{
-                adsDetected: d.videoAd.count,
-                staticAdsDetected: d.staticAd.count,
-                playabilityErrorsDetected: d.playabilityError.count,
-                adBlockerDetectionCount: d.adBlocker.count,
-                bufferingCount: this.state.buffering.count,
-                bufferAvgSec,
-                userState: loginState?.state || 'unknown',
-                perf: perfData
-            }]
+            results: [
+                {
+                    adsDetected: d.videoAd.count,
+                    staticAdsDetected: d.staticAd.count,
+                    playabilityErrorsDetected: d.playabilityError.count,
+                    adBlockerDetectionCount: d.adBlocker.count,
+                    bufferingCount: this.state.buffering.count,
+                    bufferAvgSec,
+                    userState: loginState?.state || 'unknown',
+                    perf: perfData,
+                },
+            ],
         };
     }
 }
@@ -854,7 +855,7 @@ export function runYoutubeAdDetection(config) {
         return {
             detected: false,
             type: 'youtubeAds',
-            results: []
+            results: [],
         };
     }
 
