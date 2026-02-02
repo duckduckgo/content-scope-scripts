@@ -47,7 +47,7 @@ function runDetectorsInEnv(detectorsConfig, env = {}) {
  * Run a single detector and return results.
  * Wraps detector in standard group/detector structure.
  *
- * @param {import('../src/features/web-detection/parse.js').SourceDetectorConfig} detectorConfig
+ * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} detectorConfig
  * @param {TestEnv} [env]
  * @returns {import('../src/features/web-detection/types.js').DetectorResult[]}
  */
@@ -142,7 +142,7 @@ describe('WebDetection', () => {
         });
 
         /**
-         * @param {import('../src/features/web-detection/parse.js').SourceDetectorConfig} detectorConfig
+         * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} detectorConfig
          * @returns {import('../src/features/web-detection/types.js').DetectorConfig}
          */
         const oneDetectorConfigParsed = (detectorConfig) => {
