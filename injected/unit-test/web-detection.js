@@ -244,7 +244,7 @@ describe('WebDetection', () => {
             const results = runDetector({ match: {} });
             expect(results.length).toBe(1);
             expect(results[0].detectorId).toBe('group.detector');
-            expect(results[0].matched).toBe(true);
+            expect(results[0].detected).toBe(true);
         });
 
         it('should exclude non-matching detector (match: [] never matches)', () => {
@@ -336,13 +336,13 @@ describe('WebDetection', () => {
         it('should return error for detector with invalid regex', () => {
             const results = runDetector({ match: { text: { pattern: '[invalid(regex' } } });
             expect(results.length).toBe(1);
-            expect(results[0].matched).toBe('error');
+            expect(results[0].detected).toBe('error');
         });
 
         it('should return error for detector with invalid selector', () => {
             const results = runDetector({ match: { element: { selector: '!!!invalid' } } });
             expect(results.length).toBe(1);
-            expect(results[0].matched).toBe('error');
+            expect(results[0].detected).toBe('error');
         });
 
         it('should continue processing other detectors after error', () => {
@@ -353,8 +353,8 @@ describe('WebDetection', () => {
                 },
             });
             expect(results.length).toBe(2);
-            expect(results.find((r) => r.detectorId === 'group.broken')?.matched).toBe('error');
-            expect(results.find((r) => r.detectorId === 'group.working')?.matched).toBe(true);
+            expect(results.find((r) => r.detectorId === 'group.broken')?.detected).toBe('error');
+            expect(results.find((r) => r.detectorId === 'group.working')?.detected).toBe(true);
         });
     });
 
