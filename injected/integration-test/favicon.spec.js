@@ -78,6 +78,8 @@ test('favicon + monitor + newly added links', async ({ page, baseURL }, testInfo
 });
 
 test('favicon + monitor (many updates)', async ({ page, baseURL }, testInfo) => {
+    // Skip on iOS - this timing test uses fake clocks which behave differently with device emulation
+    test.skip(testInfo.project.name === 'ios', 'Timing test not compatible with iOS device emulation');
     const favicon = ResultsCollector.create(page, testInfo.project.use);
     await page.clock.install();
     await favicon.load(HTML, CONFIG);
@@ -124,6 +126,9 @@ test('favicon + monitor (many updates)', async ({ page, baseURL }, testInfo) => 
 });
 
 test('favicon + monitor disabled', async ({ page }, testInfo) => {
+    // Skip on iOS - this timing test uses fake clocks which behave differently with device emulation
+    test.skip(testInfo.project.name === 'ios', 'Timing test not compatible with iOS device emulation');
+
     const CONFIG = './integration-test/test-pages/favicon/config/favicon-monitor-disabled.json';
     const favicon = ResultsCollector.create(page, testInfo.project.use);
 
