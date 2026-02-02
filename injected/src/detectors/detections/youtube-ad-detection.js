@@ -449,6 +449,12 @@ class YouTubeAdDetector {
      */
     detectLoginState() {
         const selectors = this.config.loginStateSelectors;
+
+        // Return unknown if selectors not configured
+        if (!selectors) {
+            return { state: 'unknown', isPremium: false, rawIndicators: {} };
+        }
+
         const indicators = {
             hasSignInButton: false,
             hasAvatarButton: false,
@@ -834,6 +840,11 @@ let detectorInstance = null;
  * @returns {Object} Detection results in standard format
  */
 export function runYoutubeAdDetection(config) {
+    // Don't initialize if no config or explicitly disabled
+    if (!config || config.state === 'disabled') {
+        return { detected: false, type: 'youtubeAds', results: [] };
+    }
+
     // Auto-initialize on first call if on YouTube
     if (!detectorInstance && window.location.hostname.includes('youtube.com')) {
         detectorInstance = new YouTubeAdDetector(config);
