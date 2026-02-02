@@ -628,18 +628,17 @@ class YouTubeAdDetector {
         this.originalPushState = history.pushState;
         this.originalReplaceState = history.replaceState;
 
-        const self = this;
         const origPush = this.originalPushState;
         const origReplace = this.originalReplaceState;
 
-        history.pushState = function(...args) {
-            origPush.apply(this, args);
-            self.checkUrlChange();
+        history.pushState = (...args) => {
+            origPush.apply(history, args);
+            this.checkUrlChange();
         };
 
-        history.replaceState = function(...args) {
-            origReplace.apply(this, args);
-            self.checkUrlChange();
+        history.replaceState = (...args) => {
+            origReplace.apply(history, args);
+            this.checkUrlChange();
         };
 
         window.addEventListener('popstate', () => this.checkUrlChange());
@@ -719,12 +718,11 @@ class YouTubeAdDetector {
      * Attach debug helper to window
      */
     attachDebugHelper() {
-        const self = this;
-        // @ts-ignore
+        // @ts-expect-error - adding debug helper to window
         window.ytAdDetectorDebug = () => {
-            const totalMs = self.state.buffering.durations.reduce((sum, dur) => sum + dur, 0);
-            const avgMs = self.state.buffering.durations.length > 0
-                ? Math.round(totalMs / self.state.buffering.durations.length)
+            const totalMs = this.state.buffering.durations.reduce((sum, dur) => sum + dur, 0);
+            const avgMs = this.state.buffering.durations.length > 0
+                ? Math.round(totalMs / this.state.buffering.durations.length)
                 : 0;
 
             const calcStats = (arr) => {
@@ -739,17 +737,17 @@ class YouTubeAdDetector {
                 };
             };
 
-            const currentLoginState = self.detectLoginState();
-            const d = self.state.detections;
-            const perf = self.state.perfMetrics;
+            const currentLoginState = this.detectLoginState();
+            const d = this.state.detections;
+            const perf = this.state.perfMetrics;
 
             console.log('[YT-AdDetect] Current State:', {
                 detections: d,
                 adStats: { videoAds: d.videoAd.count, staticAds: d.staticAd.count },
-                bufferingStats: { totalMs, averageMs: avgMs, durations: self.state.buffering.durations },
-                loginState: { initial: self.state.loginState?.state, current: currentLoginState.state },
-                currentVideoId: self.currentVideoId,
-                hasVideoElement: !!self.trackedVideoElement,
+                bufferingStats: { totalMs, averageMs: avgMs, durations: this.state.buffering.durations },
+                loginState: { initial: this.state.loginState?.state, current: currentLoginState.state },
+                currentVideoId: this.currentVideoId,
+                hasVideoElement: !!this.trackedVideoElement,
                 performance: {
                     sweepCount: perf.sweepCount,
                     sweepStats: calcStats(perf.sweepDurations),
@@ -819,7 +817,7 @@ class YouTubeAdDetector {
                 playabilityErrorsDetected: d.playabilityError.count,
                 adBlockerDetectionCount: d.adBlocker.count,
                 bufferingCount: this.state.buffering.count,
-                bufferAvgSec: bufferAvgSec,
+                bufferAvgSec,
                 userState: loginState?.state || 'unknown',
                 perf: perfData
             }]
@@ -836,7 +834,7 @@ let detectorInstance = null;
 
 /**
  * Run YouTube ad detection
- * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
+ * @param {YouTubeDetectorConfig} [config] - Configuration from privacy-config
  * @returns {Object} Detection results in standard format
  */
 export function runYoutubeAdDetection(config) {
