@@ -1,29 +1,28 @@
 /**
- * Either a single value or an array of values representing a disjunction.
+ * Either a single value or an array of values representing a disjunction (OR).
  *
  * @template T
  * @typedef {T | T[]} OrArray
  */
 
 /**
- * Either a single value or an array of values representing a conjunction.
+ * Text pattern match configuration.
  *
- * @template T
- * @typedef {T | T[]} AndArray
- */
-
-/**
- * Text pattern match configuration
+ * Condition is true if ANY pattern matches text in ANY selected element.
+ *
  * @typedef {object} TextMatchCondition
- * @property {AndArray<string>} pattern - Pattern(s) to search for in text. All patterns must match (this differs from the usual convention of using arrays to represent disjunction, as the disjunction is already handled by the underlying regular expression)
- * @property {AndArray<string>} [selector] - CSS selectors to get text from; if empty, uses document.body
+ * @property {OrArray<string>} pattern - Regex pattern(s) to search for.
+ * @property {OrArray<string>} [selector] - CSS selector(s) to get text from.
  */
 
 /**
- * Element presence match configuration
+ * Element presence match configuration.
+ *
+ * Condition is true if ANY selector has a matching element with the required visibility.
+ *
  * @typedef {object} ElementMatchCondition
- * @property {AndArray<string>} selector - CSS selector(s) for the element
- * @property {'visible' | 'hidden' | 'any'} [visibility] - Whether the element must be visible, hidden, or either
+ * @property {OrArray<string>} selector - CSS selector(s) for the element.
+ * @property {'visible' | 'hidden' | 'any'} [visibility] - Whether the element must be visible, hidden, or either (default: 'any').
  */
 
 /**

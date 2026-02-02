@@ -31,27 +31,14 @@ function isVisible(element) {
 /**
  * Evaluate text pattern match condition.
  *
- * The condition consists of the following keys:
+ * `pattern` (disj): Array of regex patterns - ANY pattern matching = success.
+ *   Equivalent to `pattern: "foo|bar"` for `pattern: ["foo", "bar"]`.
  *
- * `pattern` (conj): An array of strings representing regular expressions to match against text context of the selected elements. All patterns must match.
+ * `selector` (disj): Array of CSS selectors - ANY selector matching = success.
+ *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
+ *   Defaults to `body` if not provided.
  *
- * `selector` [optional] (conj): An array of strings representing element
- * selectors to match against. If not provided, the text will be taken from the
- * document body. If provided, the text pattern must match at least one element
- * selected by EACH of the selectors in the array.
- *
- * For example:
- *
- * {
- *   pattern: ['ads', 'analytics'],
- *   selector: ['#ads, #ads2', '#analytics'],
- * }
- *
- * This condition will match if any of the following is true:
- * - There is an element with ID '#ads' or '#ads2' on the page which contains both the strings 'ads' and 'analytics'
- * - AND there is an element with ID '#analytics' on the page which contains both the strings 'ads' and 'analytics'
- *
- * {
+ * The overall condition matches if ANY pattern matches text in ANY selected element.
  *
  * @param {import('./types.js').TextMatchCondition} condition
  * @returns {boolean}
@@ -60,21 +47,13 @@ function evaluateSingleTextCondition(condition) {
     const patterns = asArray(condition.pattern);
     const selectors = asArray(condition.selector, ['body']);
 
-    /**
-     * @param {string} content
-     * @returns {boolean}
-     */
-    const testContent = (content) => {
-        return patterns.every((pattern) => {
-            const regex = new RegExp(pattern, 'i');
-            return regex.test(content);
-        });
-    };
+    const patternComb = new RegExp(patterns.join('|'), 'i');
 
-    return selectors.every((selector) => {
+    // Disjunction: any selector having a matching element is success
+    return selectors.some((selector) => {
         const elements = document.querySelectorAll(selector);
         for (const element of elements) {
-            if (testContent(element.textContent || '')) {
+            if (patternComb.test(element.textContent || '')) {
                 return true;
             }
         }
@@ -85,16 +64,18 @@ function evaluateSingleTextCondition(condition) {
 /**
  * Evaluate element presence condition.
  *
- * The condition consists of the following keys:
- * - selector: (conj) An array of strings representing the selectors to get
- * - visibility [optional]: Whether the element must be visible, hidden, or either
+ * `selector` (disj): Array of CSS selectors - ANY selector matching = success.
+ *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
+ *
+ * `visibility` [optional]: Whether the element must be 'visible', 'hidden', or 'any' (default).
  *
  * @param {import('./types.js').ElementMatchCondition} config
  * @returns {boolean}
  */
 function evaluateSingleElementCondition(config) {
     const visibility = config.visibility ?? 'any';
-    return asArray(config.selector).every((selector) => {
+    // Disjunction: any selector having a matching element is success
+    return asArray(config.selector).some((selector) => {
         if (visibility === 'any') {
             // if we don't care about visibility, we can just do a quick existence check
             return document.querySelector(selector) !== null;

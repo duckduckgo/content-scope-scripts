@@ -450,15 +450,23 @@ describe('WebDetection', () => {
                 )).toBe(true);
             });
 
-            it('should require all patterns to match (AND)', () => {
-                expect(matchInDOM(
-                    '<p>Please disable your adblocker to continue</p>',
-                    { text: { pattern: ['adblocker', 'disable', 'continue'] } },
-                )).toBe(true);
-
+            it('should match if ANY pattern matches (OR)', () => {
+                // First pattern matches
                 expect(matchInDOM(
                     '<p>Please disable your adblocker</p>',
-                    { text: { pattern: ['adblocker', 'missing'] } },
+                    { text: { pattern: ['adblocker', 'paywall'] } },
+                )).toBe(true);
+
+                // Second pattern matches
+                expect(matchInDOM(
+                    '<p>This is behind a paywall</p>',
+                    { text: { pattern: ['adblocker', 'paywall'] } },
+                )).toBe(true);
+
+                // Neither matches
+                expect(matchInDOM(
+                    '<p>Welcome to our site</p>',
+                    { text: { pattern: ['adblocker', 'paywall'] } },
                 )).toBe(false);
             });
 
@@ -481,26 +489,39 @@ describe('WebDetection', () => {
                 )).toBe(false);
             });
 
-            it('should require all selectors to have matching text (AND)', () => {
-                expect(matchInDOM(
-                    '<div class="a">adblocker</div><div class="b">adblocker</div>',
-                    { text: { pattern: 'adblocker', selector: ['.a', '.b'] } },
-                )).toBe(true);
-
+            it('should match if ANY selector has matching text (OR)', () => {
+                // First selector matches
                 expect(matchInDOM(
                     '<div class="a">adblocker</div><div class="b">other</div>',
                     { text: { pattern: 'adblocker', selector: ['.a', '.b'] } },
+                )).toBe(true);
+
+                // Second selector matches
+                expect(matchInDOM(
+                    '<div class="a">other</div><div class="b">adblocker</div>',
+                    { text: { pattern: 'adblocker', selector: ['.a', '.b'] } },
+                )).toBe(true);
+
+                // Neither selector has matching text
+                expect(matchInDOM(
+                    '<div class="a">other</div><div class="b">content</div>',
+                    { text: { pattern: 'adblocker', selector: ['.a', '.b'] } },
                 )).toBe(false);
             });
-            it('should require all patterns to match in all selectors', () => {
+            it('should match if ANY pattern in ANY selector (both OR)', () => {
                 expect(matchInDOM(
-                    '<div class="a">adblocker value</div><div class="b">adblocker value</div>',
-                    { text: { pattern: ['adblocker', 'value'], selector: ['.a', '.b'] } },
+                    '<div class="a">foo</div><div class="b">other</div>',
+                    { text: { pattern: ['foo', 'bar'], selector: ['.a', '.b'] } },
                 )).toBe(true);
 
                 expect(matchInDOM(
-                    '<div class="a">adblocker value</div><div class="b">adblocker</div>',
-                    { text: { pattern: ['adblocker', 'value'], selector: ['.a', '.b'] } },
+                    '<div class="a">other</div><div class="b">bar</div>',
+                    { text: { pattern: ['foo', 'bar'], selector: ['.a', '.b'] } },
+                )).toBe(true);
+
+                expect(matchInDOM(
+                    '<div class="a">none</div><div class="b">nope</div>',
+                    { text: { pattern: ['foo', 'bar'], selector: ['.a', '.b'] } },
                 )).toBe(false);
             });
         });
@@ -642,17 +663,42 @@ describe('WebDetection', () => {
                 });
             });
 
-            describe('multiple selectors (AND)', () => {
-                it('should require all selectors to match', () => {
+            describe('multiple selectors (OR)', () => {
+                it('should match if ANY selector matches', () => {
+                    // First selector matches
+                    expect(matchInDOM(
+                        '<div class="a"></div>',
+                        { element: { selector: ['.a', '.b'], visibility: 'any' } },
+                    )).toBe(true);
+
+                    // Second selector matches
+                    expect(matchInDOM(
+                        '<div class="b"></div>',
+                        { element: { selector: ['.a', '.b'], visibility: 'any' } },
+                    )).toBe(true);
+
+                    // Both match
                     expect(matchInDOM(
                         '<div class="a"></div><div class="b"></div>',
                         { element: { selector: ['.a', '.b'], visibility: 'any' } },
                     )).toBe(true);
 
+                    // Neither matches
                     expect(matchInDOM(
-                        '<div class="a"></div>',
+                        '<div class="c"></div>',
                         { element: { selector: ['.a', '.b'], visibility: 'any' } },
                     )).toBe(false);
+                });
+
+                it('should support CSS selector lists', () => {
+                    expect(matchInDOM(
+                        '<div class="a"></div>',
+                        { element: { selector: '.a, .b' } },
+                    )).toBe(true);
+                    expect(matchInDOM(
+                        '<div class="a"></div>',
+                        { element: { selector: '.b, .a' } },
+                    )).toBe(true);
                 });
             });
         });
