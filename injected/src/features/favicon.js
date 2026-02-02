@@ -71,7 +71,18 @@ export default Favicon;
  * @returns {boolean}
  */
 function isSvgFavicon(href, type) {
-    return href.includes('.svg') || type.includes('svg');
+    // Check MIME type (case-insensitive per RFC 2045)
+    if (type.toLowerCase().includes('svg')) {
+        return true;
+    }
+    // Check if URL path ends with .svg extension
+    try {
+        const url = new URL(href);
+        return url.pathname.toLowerCase().endsWith('.svg');
+    } catch {
+        // If URL parsing fails, fall back to simple extension check
+        return href.toLowerCase().endsWith('.svg');
+    }
 }
 
 /**
