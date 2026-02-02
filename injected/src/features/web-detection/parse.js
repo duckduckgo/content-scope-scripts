@@ -82,7 +82,7 @@ export function parseDetectors(detectorsConfig) {
         /** @type {Record<string, DetectorConfig>} */
         const groupDetectors = {};
 
-        for (const [detectorId, detectorConfig] of Object.entries(/** @type {object} */ (groupConfig))) {
+        for (const [detectorId, detectorConfig] of Object.entries(groupConfig)) {
             if (!isValidName(detectorId)) {
                 continue;
             }
