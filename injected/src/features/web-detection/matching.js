@@ -31,10 +31,10 @@ function isVisible(element) {
 /**
  * Evaluate text pattern match condition.
  *
- * `pattern` (disj): Array of regex patterns - ANY pattern matching = success.
+ * `pattern` (disj): Array of regex patterns (or string representing a single pattern) - ANY pattern matching = success.
  *   Equivalent to `pattern: "foo|bar"` for `pattern: ["foo", "bar"]`.
  *
- * `selector` (disj): Array of CSS selectors - ANY selector matching = success.
+ * `selector` (disj): Array of CSS selectors (or string representing a single selector) - ANY selector matching = success.
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
  *   Defaults to `body` if not provided.
  *
@@ -64,7 +64,7 @@ function evaluateSingleTextCondition(condition) {
 /**
  * Evaluate element presence condition.
  *
- * `selector` (disj): Array of CSS selectors - ANY selector matching = success.
+ * `selector` (disj): Array of CSS selectors (or string representing a single selector) - ANY selector matching = success.
  *   Equivalent to `selector: ".a, .b"` for `selector: [".a", ".b"]`.
  *
  * `visibility` [optional]: Whether the element must be 'visible', 'hidden', or 'any' (default).
