@@ -32,6 +32,7 @@ const log = {
 
 /**
  * @typedef {Object} YouTubeDetectorConfig
+ * @property {string} [state] - Feature state: 'enabled', 'disabled', or 'internal'
  * @property {string[]} [playerSelectors] - Selectors for the player root element
  * @property {string[]} [adClasses] - CSS classes that indicate ads
  * @property {string[]} [adTextPatterns] - Text patterns (regex) that indicate ads
@@ -93,44 +94,45 @@ class YouTubeAdDetector {
      * @param {YouTubeDetectorConfig} config
      */
     parseConfig(config) {
+        const c = config || {};
         return {
-            playerSelectors: config.playerSelectors || ['#movie_player', '.html5-video-player', '#player'],
-            adClasses: config.adClasses || [
+            playerSelectors: c.playerSelectors || ['#movie_player', '.html5-video-player', '#player'],
+            adClasses: c.adClasses || [
                 'ytp-ad-text', 'ytp-ad-skip-button', 'ytp-ad-skip-button-container',
                 'ytp-ad-message-container', 'ytp-ad-player-overlay', 'ytp-ad-image-overlay',
                 'video-ads', 'ad-showing', 'ad-interrupting'
             ],
-            adTextPatterns: config.adTextPatterns || [
+            adTextPatterns: c.adTextPatterns || [
                 '\\badvertisement\\b', '\\bskip ad\\b', '\\bskip ads\\b', '^ad\\s*[•:·]'
             ],
-            sweepIntervalMs: config.sweepIntervalMs || 2000,
-            slowLoadThresholdMs: config.slowLoadThresholdMs || 2000,
-            debugLogging: config.debugLogging || false,
-            staticAdSelectors: config.staticAdSelectors || {
+            sweepIntervalMs: c.sweepIntervalMs || 2000,
+            slowLoadThresholdMs: c.slowLoadThresholdMs || 2000,
+            debugLogging: c.debugLogging || false,
+            staticAdSelectors: c.staticAdSelectors || {
                 background: '.player-container-background',
                 thumbnail: '.player-container-background-image, .player-container-background ytd-thumbnail',
                 image: '.player-container-background yt-image'
             },
-            playabilityErrorSelectors: config.playabilityErrorSelectors || [
+            playabilityErrorSelectors: c.playabilityErrorSelectors || [
                 'ytm-player-error-message-renderer', 'yt-player-error-message-renderer',
                 '.ytp-error', '.playability-status-message', '.playability-reason'
             ],
-            playabilityErrorPatterns: config.playabilityErrorPatterns || [
+            playabilityErrorPatterns: c.playabilityErrorPatterns || [
                 "content isn't available", 'video (is )?unavailable', 'playback (is )?disabled',
                 "confirm you're not a (ro)?bot", 'sign in to confirm', 'unusual traffic', 'try again later'
             ],
-            adBlockerDetectionSelectors: config.adBlockerDetectionSelectors || [
+            adBlockerDetectionSelectors: c.adBlockerDetectionSelectors || [
                 'ytd-enforcement-message-view-model', 'ytd-popup-container tp-yt-paper-dialog',
                 'tp-yt-paper-dialog', '.ytd-enforcement-message-view-model', '#dialog', '[role="dialog"]'
             ],
-            adBlockerDetectionPatterns: config.adBlockerDetectionPatterns || [
+            adBlockerDetectionPatterns: c.adBlockerDetectionPatterns || [
                 'ad\\s*blockers?\\s*(are)?\\s*not allowed', 'using an ad\\s*blocker', 'allow youtube ads',
                 'disable.*ad\\s*blocker', 'turn off.*ad\\s*blocker', 'ad\\s*blocker.*detected',
                 'ad\\s*blocking', 'will be blocked after \\d+ videos?', 'playback will be blocked',
                 'playback is blocked', 'youtube is allowlisted', 'video player will be blocked',
                 'ad\\s*blockers?\\s*violate', 'violate.*terms of service'
             ],
-            loginStateSelectors: config.loginStateSelectors || {
+            loginStateSelectors: c.loginStateSelectors || {
                 signInButton: 'a[href*="accounts.google.com/ServiceLogin"]',
                 avatarButton: '#avatar-btn',
                 premiumLogo: 'ytd-topbar-logo-renderer a[title*="Premium"]'
@@ -506,6 +508,12 @@ class YouTubeAdDetector {
      */
     detectLoginState() {
         const selectors = this.config.loginStateSelectors;
+
+        // Return unknown if selectors not configured
+        if (!selectors) {
+            return { state: 'unknown', isPremium: false, rawIndicators: {} };
+        }
+
         const indicators = {
             hasSignInButton: false,
             hasAvatarButton: false,
@@ -891,6 +899,11 @@ let detectorInstance = null;
  * @returns {Object} Detection results in standard format
  */
 export function runYoutubeAdDetection(config = {}) {
+    // Don't initialize if explicitly disabled or no valid config
+    if (!config || config.state === 'disabled') {
+        return { detected: false, type: 'youtubeAds', results: [] };
+    }
+
     // Auto-initialize on first call if on YouTube
     if (!detectorInstance && window.location.hostname.includes('youtube.com')) {
         detectorInstance = new YouTubeAdDetector(config);
