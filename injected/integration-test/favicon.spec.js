@@ -126,13 +126,8 @@ test('favicon + monitor (many updates)', async ({ page, baseURL }, testInfo) => 
 });
 
 test('favicon + monitor disabled', async ({ page }, testInfo) => {
-    // Skip on iOS - this timing test uses fake clocks which behave differently with device emulation
-    test.skip(testInfo.project.name === 'ios', 'Timing test not compatible with iOS device emulation');
-
     const CONFIG = './integration-test/test-pages/favicon/config/favicon-monitor-disabled.json';
     const favicon = ResultsCollector.create(page, testInfo.project.use);
-
-    await page.clock.install();
 
     await favicon.load(HTML, CONFIG);
 
@@ -142,10 +137,11 @@ test('favicon + monitor disabled', async ({ page }, testInfo) => {
     // now update it
     await page.getByRole('button', { name: 'Set override' }).click();
 
+    // wait for DOM to update
     await expect(page.locator('link')).toHaveAttribute('href', './new_favicon.png');
 
-    // account for the debounce
-    await page.clock.fastForward(200);
+    // wait a bit to ensure no debounced message arrives
+    await page.waitForTimeout(200);
 
     // ensure only 1 message was still sent (ie: the monitor is disabled)
     const messages = await favicon.outgoingMessages();
