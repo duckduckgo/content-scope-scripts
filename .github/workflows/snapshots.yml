@@ -35,6 +35,13 @@ jobs:
                       ${{ runner.os }}-node-playwright-
                       ${{ runner.os }}-node-
 
+            - name: Install SF Pro Fonts
+              run: |
+                  curl -L -o SF-Pro.dmg 'https://devimages-cdn.apple.com/design/resources/download/SF-Pro.dmg'
+                  hdiutil attach SF-Pro.dmg
+                  sudo installer -pkg '/Volumes/SFProFonts/SF Pro Fonts.pkg' -target /
+                  hdiutil detach '/Volumes/SFProFonts'
+
             - run: npm ci
             - run: npm run build
 
