@@ -12,9 +12,11 @@ import { withDefaults } from '../../utils.js';
  *
  * By default, detectors will only trigger in the top frame.
  */
-const DEFAULT_RUN_CONDITIONS = /** @type {import('../../config-feature.js').ConditionBlock[]} */ ([{
-    context: { top: true },
-}]);
+const DEFAULT_RUN_CONDITIONS = /** @type {import('../../config-feature.js').ConditionBlock[]} */ ([
+    {
+        context: { top: true },
+    },
+]);
 
 /**
  * Default configuration values for detectors.
