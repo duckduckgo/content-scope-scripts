@@ -915,6 +915,21 @@ export function isDuckAiSidebar() {
  * - Arrays: config replaces default (no element-wise merge)
  * - Objects: recursively merge
  *
+ * Example:
+ *
+ * ```
+ *   DEFAULTS                   CONFIG                      RESULT
+ *   +----------------+         +----------------+          +----------------+
+ *   | a: 1           |         | a: 2           |    ==>   | a: 2           |  (config wins)
+ *   | b: {           |         | b: {           |          | b: {           |  (gets merged recursively)
+ *   |   x: 10,       |         |   y: 20        |          |   x: 10,       |  (from defaults)
+ *   |   z: 30        |         | }              |          |   y: 20,       |  (from config)
+ *   | }              |         +----------------+          |   z: 30        |  (from defaults)
+ *   | c: [1, 2]      |                                     | }              |
+ *   +----------------+                                     | c: [1, 2]      |  (from defaults)
+ *                                                          +----------------+
+ * ```
+ *
  * @template {object} D
  * @template {object} C
  * @param {D} defaults - The default values
