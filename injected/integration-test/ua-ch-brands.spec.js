@@ -18,13 +18,11 @@ test('UA CH Brands override', async ({ page }, testInfo) => {
     }
 });
 
-test('UA CH Brands domain-specific brand override', async ({ page }, testInfo) => {
-    const collector = ResultsCollector.create(page, testInfo.project.use);
-    await collector.load(
-        '/ua-ch-brands/pages/domain-brand-override.html',
-        './integration-test/test-pages/ua-ch-brands/config/domain-brand-override.json',
-    );
-
+/**
+ * Verifies domain-specific brand override results
+ * @param {import('@playwright/test').Page} page
+ */
+async function verifyDomainBrandOverrideResults(page) {
     await page.waitForFunction(() => {
         // @ts-expect-error - results is set by the test framework
         return window.results && window.results.length > 0;
@@ -62,6 +60,24 @@ test('UA CH Brands domain-specific brand override', async ({ page }, testInfo) =
         const fvlDdgTest = results.find((r) => r.test === 'fullVersionList-no-duckduckgo');
         expect(fvlDdgTest.result).toBe('PASS');
     });
+}
+
+test('UA CH Brands domain-specific brand override (legacy format)', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(
+        '/ua-ch-brands/pages/domain-brand-override.html',
+        './integration-test/test-pages/ua-ch-brands/config/domain-brand-override-legacy.json',
+    );
+    await verifyDomainBrandOverrideResults(page);
+});
+
+test('UA CH Brands domain-specific brand override', async ({ page }, testInfo) => {
+    const collector = ResultsCollector.create(page, testInfo.project.use);
+    await collector.load(
+        '/ua-ch-brands/pages/domain-brand-override.html',
+        './integration-test/test-pages/ua-ch-brands/config/domain-brand-override.json',
+    );
+    await verifyDomainBrandOverrideResults(page);
 });
 
 test('UA CH Brands with overrideEdge disabled', async ({ page }, testInfo) => {
