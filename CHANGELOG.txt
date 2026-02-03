@@ -1,4 +1,1 @@
-- Add breakageData key (#2211)
-- Fix the filling of select inputs with numbers (#2214)
-- Include Apple Sources dist in PR build (#2199)
-- Add Full State Support (#2192)
+- Add breakageReporting to platform-specific features (#2228)
