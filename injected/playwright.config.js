@@ -18,6 +18,7 @@ export default defineConfig({
                 'integration-test/breakage-reporting.spec.js',
                 'integration-test/duck-ai-data-clearing.spec.js',
                 'integration-test/duck-ai-chat-history.spec.js',
+                'integration-test/web-detection.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
