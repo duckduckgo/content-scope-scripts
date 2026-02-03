@@ -3,8 +3,15 @@ import { parseDetectors } from './web-detection/parse.js';
 import { evaluateMatch } from './web-detection/matching.js';
 
 /**
- * @typedef {import('./web-detection/types.js').DetectorConfig} DetectorConfig
- * @typedef {import('./web-detection/types.js').DetectorResult} DetectorResult
+ * @typedef {import('./web-detection/parse.js').DetectorConfig} DetectorConfig
+ */
+
+/**
+ * Result from running a detector.
+ *
+ * @typedef {object} DetectorResult
+ * @property {string} detectorId - ID of the detector
+ * @property {true | false | 'error'} detected - Whether the detector matched (true), didn't match (false), or errored
  */
 
 /**

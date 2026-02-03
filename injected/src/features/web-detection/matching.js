@@ -98,7 +98,7 @@ function evaluateSingleElementCondition(config) {
 /**
  * Evaluate an OR condition
  * @template T
- * @param {import('./types.js').MaybeArray<T> | undefined} condition
+ * @param {T | T[] | undefined} condition
  * @param {(value: T) => boolean} singleConditionEvaluator
  * @returns {boolean}
  */
@@ -118,7 +118,7 @@ function evaluateORCondition(condition, singleConditionEvaluator) {
  * Each key references a condition which must match. If an array is specified,
  * any condition in the array must match.
  *
- * @param {import('./types.js').MatchConditionSingle} condition
+ * @param {import('./parse.js').MatchConditionSingle} condition
  * @returns {boolean}
  */
 function evaluateSingleMatchCondition(condition) {
@@ -138,7 +138,7 @@ function evaluateSingleMatchCondition(condition) {
  * This determines whether the detector is considered to have successfully matched when run.
  *
  * Objects represent conjunction (AND), arrays represent disjunction (OR)
- * @param {import('./types.js').MatchCondition} conditions
+ * @param {import('./parse.js').MatchCondition} conditions
  * @returns {boolean}
  */
 export function evaluateMatch(conditions) {
