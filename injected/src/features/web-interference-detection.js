@@ -15,7 +15,8 @@ export default class WebInterferenceDetection extends ContentFeature {
         const settings = this.getFeatureSetting('interferenceTypes');
 
         // Initialize YouTube detector early on YouTube pages to capture video load times
-        if (window.location.hostname.includes('youtube.com')) {
+        const hostname = window.location.hostname;
+        if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
             runYoutubeAdDetection(settings?.youtubeAds || {});
         }
 
