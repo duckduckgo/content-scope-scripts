@@ -1,8 +1,65 @@
 import { withDefaults } from '../../utils.js';
 
 /**
- * @typedef {import('./types.js').DetectorConfig} DetectorConfig
  * @typedef {import('../../utils.js').FeatureState} FeatureState
+ */
+
+/**
+ * Condition used to determine if a detector has matched.
+ *
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').DetectorConfig['match']} MatchCondition
+ */
+
+/**
+ * Extract the member type of an array-like type. (T | T[]) -> T.
+ *
+ * @template T
+ * @typedef {T extends (infer U)[] ? U : T} UnArray
+ */
+
+/**
+ * @typedef {UnArray<MatchCondition>} MatchConditionSingle
+ */
+
+/**
+ * Base properties supported by all triggers.
+ *
+ * @typedef {object} TriggerBase
+ * @property {FeatureState} state - Whether this trigger is enabled
+ * @property {import('../../config-feature.js').ConditionBlockOrArray} [runConditions] - Conditions that must be met to run
+ */
+
+/**
+ * @typedef {object} Triggers
+ * @property {TriggerBase} breakageReport - Whether to run in the breakage report flow
+ */
+
+/**
+ * Base properties supported by all actions.
+ *
+ * @typedef {object} ActionBase
+ * @property {FeatureState} state - whether the action is enabled
+ */
+
+/**
+ * Actions to take when a detector matches.
+ *
+ * @typedef {object} DetectorActions
+ * @property {ActionBase} breakageReportData - Whether to include in breakage report data
+ */
+
+/**
+ * Normalized detector configuration.
+ *
+ * The user-facing configuration has optional attributes that are required
+ * under-the-hood. This type represents the normalized configuration once
+ * default values have been applied.
+ *
+ * @typedef {object} DetectorConfig
+ * @property {FeatureState} state - Whether the detector is enabled
+ * @property {MatchCondition} match - Conditions for the detector to match
+ * @property {Triggers} triggers - Trigger configurations
+ * @property {DetectorActions} actions - Actions to take on match
  */
 
 /**

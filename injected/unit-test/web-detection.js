@@ -16,7 +16,7 @@ import WebDetection from '../src/features/web-detection.js';
  *
  * @param {object} detectorsConfig - The detectors config (group -> detector -> config)
  * @param {TestEnv} [env] - Environment options
- * @returns {import('../src/features/web-detection/types.js').DetectorResult[]}
+ * @returns {import('../src/features/web-detection.js').DetectorResult[]}
  */
 function runDetectorsInEnv(detectorsConfig, env = {}) {
     const { platform = {}, domain = 'example.com', isTopFrame = true } = env;
@@ -49,7 +49,7 @@ function runDetectorsInEnv(detectorsConfig, env = {}) {
  *
  * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} detectorConfig
  * @param {TestEnv} [env]
- * @returns {import('../src/features/web-detection/types.js').DetectorResult[]}
+ * @returns {import('../src/features/web-detection.js').DetectorResult[]}
  */
 function runDetector(detectorConfig, env = {}) {
     return runDetectorsInEnv({ group: { detector: detectorConfig } }, env);
@@ -149,7 +149,7 @@ describe('WebDetection', () => {
 
         /**
          * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} detectorConfig
-         * @returns {import('../src/features/web-detection/types.js').DetectorConfig}
+         * @returns {import('../src/features/web-detection/parse.js').DetectorConfig}
          */
         const oneDetectorConfigParsed = (detectorConfig) => {
             const result = parseDetectors({
@@ -359,7 +359,7 @@ describe('WebDetection', () => {
          * Use `zeroSizeSelectors` to specify elements that should have 0x0 dimensions.
          *
          * @param {string} html
-         * @param {import('../src/features/web-detection/types.js').MatchCondition} match
+         * @param {import('../src/features/web-detection/parse.js').MatchCondition} match
          * @param {object} [options]
          * @param {string[]} [options.zeroSizeSelectors] - Selectors for elements with 0x0 dimensions
          * @returns {boolean}
