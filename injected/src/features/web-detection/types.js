@@ -6,35 +6,28 @@
  */
 
 /**
- * Text pattern match configuration.
- *
- * Condition is true if ANY pattern matches text in ANY selected element.
+ * Condition for matching text.
  *
  * @typedef {object} TextMatchCondition
- * @property {MaybeArray<string>} pattern - Regex pattern(s) to search for.
- * @property {MaybeArray<string>} [selector] - CSS selector(s) to get text from.
+ * @property {MaybeArray<string>} pattern
+ * @property {MaybeArray<string>} [selector]
  */
 
 /**
- * Element presence match configuration.
- *
- * Condition is true if ANY selector has a matching element with the required visibility.
- *
+ * Condition for matching element presence.
  * @typedef {object} ElementMatchCondition
- * @property {MaybeArray<string>} selector - CSS selector(s) for the element.
- * @property {'visible' | 'hidden' | 'any'} [visibility] - Whether the element must be visible, hidden, or either (default: 'any').
+ * @property {MaybeArray<string>} selector
+ * @property {'visible' | 'hidden' | 'any'} [visibility]
  */
 
 /**
- * Match conditions that determine when a detector has matched.
- *
  * @typedef {object} MatchConditionSingle
- * @property {MaybeArray<TextMatchCondition>} [text] - Text pattern conditions
- * @property {MaybeArray<ElementMatchCondition>} [element] - Element presence conditions
+ * @property {MaybeArray<TextMatchCondition>} [text]
+ * @property {MaybeArray<ElementMatchCondition>} [element]
  */
 
 /**
- * One or more alternative match conditions.
+ * Condition used to determine if a detector has matched.
  *
  * @typedef {MaybeArray<MatchConditionSingle>} MatchCondition
  */
