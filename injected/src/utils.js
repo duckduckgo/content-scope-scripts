@@ -922,7 +922,7 @@ export function isDuckAiSidebar() {
  * @returns {any}
  */
 export function withDefaults(defaults, config) {
-    // If config is undefined/null, use defaults
+    // If config is undefined, use defaults
     if (config === undefined) {
         return defaults;
     }
