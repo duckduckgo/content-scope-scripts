@@ -78,7 +78,7 @@ test('favicon + monitor + newly added links', async ({ page, baseURL }, testInfo
 });
 
 test('favicon + monitor (many updates)', async ({ page, baseURL }, testInfo) => {
-    // Skip on iOS - this timing test uses fake clocks which behave differently with device emulation
+    // Skip on iOS - timing test uses fake clocks that don't play nice w/ emulators
     test.skip(testInfo.project.name === 'ios', 'Timing test not compatible with iOS device emulation');
     const favicon = ResultsCollector.create(page, testInfo.project.use);
     await page.clock.install();
