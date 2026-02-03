@@ -928,10 +928,14 @@ export function withDefaults(defaults, config) {
     }
     if (
         // if defaults are undefined
-        (defaults === undefined) ||
+        defaults === undefined ||
         // or either config or defaults are a non-object value that we can't merge
-        (Array.isArray(defaults) || defaults === null ||typeof defaults !== 'object') ||
-        (Array.isArray(config) || config === null || typeof config !== 'object')
+        Array.isArray(defaults) ||
+        defaults === null ||
+        typeof defaults !== 'object' ||
+        Array.isArray(config) ||
+        config === null ||
+        typeof config !== 'object'
     ) {
         // then we always favour the config value
         return config;
