@@ -44,6 +44,7 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'favicon',
     'webTelemetry',
     'pageContext',
+    'browserUiLock',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
@@ -61,7 +62,7 @@ export const platformSupport = {
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
-    android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge', 'pageContext'],
+    android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge', 'pageContext', 'browserUiLock'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
