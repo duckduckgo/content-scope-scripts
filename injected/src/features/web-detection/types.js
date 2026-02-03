@@ -6,30 +6,20 @@
  */
 
 /**
- * Condition for matching text.
+ * Extract the member type of an array-like type. (T | T[]) -> T.
  *
- * @typedef {object} TextMatchCondition
- * @property {MaybeArray<string>} pattern
- * @property {MaybeArray<string>} [selector]
- */
-
-/**
- * Condition for matching element presence.
- * @typedef {object} ElementMatchCondition
- * @property {MaybeArray<string>} selector
- * @property {'visible' | 'hidden' | 'any'} [visibility]
- */
-
-/**
- * @typedef {object} MatchConditionSingle
- * @property {MaybeArray<TextMatchCondition>} [text]
- * @property {MaybeArray<ElementMatchCondition>} [element]
+ * @template T
+ * @typedef {T extends (infer U)[] ? U : T} UnArray
  */
 
 /**
  * Condition used to determine if a detector has matched.
  *
- * @typedef {MaybeArray<MatchConditionSingle>} MatchCondition
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').DetectorConfig['match']} MatchCondition
+ */
+
+/**
+ * @typedef {UnArray<MatchCondition>} MatchConditionSingle
  */
 
 /**

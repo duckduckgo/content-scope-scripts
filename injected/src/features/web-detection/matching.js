@@ -1,4 +1,8 @@
 /**
+ * @typedef {import('@duckduckgo/privacy-configuration/schema/features/web-detection.ts').ConditionTypes} ConditionTypes
+ */
+
+/**
  * @template T
  * @param {T | T[] | undefined} value
  * @param {T[]} [defaultValue]
@@ -8,7 +12,6 @@ function asArray(value, defaultValue = []) {
     if (value === undefined) return defaultValue;
     return Array.isArray(value) ? value : [value];
 }
-
 
 /**
  * Check if an element is visible
@@ -40,7 +43,7 @@ function isVisible(element) {
  *
  * The overall condition matches if ANY pattern matches text in ANY selected element.
  *
- * @param {import('./types.js').TextMatchCondition} condition
+ * @param {ConditionTypes['text']} condition
  * @returns {boolean}
  */
 function evaluateSingleTextCondition(condition) {
@@ -69,7 +72,7 @@ function evaluateSingleTextCondition(condition) {
  *
  * `visibility` [optional]: Whether the element must be 'visible', 'hidden', or 'any' (default).
  *
- * @param {import('./types.js').ElementMatchCondition} config
+ * @param {ConditionTypes['element']} config
  * @returns {boolean}
  */
 function evaluateSingleElementCondition(config) {
@@ -108,8 +111,12 @@ function evaluateORCondition(condition, singleConditionEvaluator) {
 }
 
 /**
- * Evaluate match conditions for a detector Objects (usually) represent
- * conjunction (AND), arrays (usually) represent disjunction (OR).
+ * Evaluate match conditions for a detector.
+ *
+ * This may be either a single condition or an array of conditions.
+ *
+ * Each key references a condition which must match. If an array is specified,
+ * any condition in the array must match.
  *
  * @param {import('./types.js').MatchConditionSingle} condition
  * @returns {boolean}
