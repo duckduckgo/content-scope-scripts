@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Element Match - Paywall Overlay</title>
+    <style>
+        .paywall-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .paywall-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Premium Article</h1>
+    <p>This is a preview of our premium content...</p>
+
+    <div class="paywall-overlay">
+        <div class="paywall-content">
+            <h2>Premium Content</h2>
+            <p>Sign up to read the full article</p>
+            <button>Subscribe Now</button>
+        </div>
+    </div>
+</body>
+</html>
