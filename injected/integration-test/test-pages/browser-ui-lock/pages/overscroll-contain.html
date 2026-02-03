@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Overscroll Behavior: contain - Browser UI Lock</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        body {
+            overscroll-behavior-y: contain;
+            min-height: 200vh;
+            background: linear-gradient(to bottom, #fff3e0, #ff9800);
+        }
+    </style>
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Browser UI Lock]</a></p>
+    
+    <h1>Overscroll Behavior: contain</h1>
+    <p>This page has <code>overscroll-behavior-y: contain</code> on the body element.</p>
+    <p>The browser UI should be LOCKED.</p>
+
+    <div id="results"></div>
+    <div id="test-status"></div>
+
+    <script>
+        test('Page should trigger UI lock', async () => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            const bodyStyle = getComputedStyle(document.body);
+            const overscrollBehaviorY = bodyStyle.getPropertyValue('overscroll-behavior-y');
+            
+            return [
+                {
+                    name: 'Body has overscroll-behavior-y: contain',
+                    result: overscrollBehaviorY,
+                    expected: 'contain'
+                },
+                {
+                    name: 'Should detect as lock condition',
+                    result: overscrollBehaviorY === 'contain',
+                    expected: true
+                }
+            ];
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>
