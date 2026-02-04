@@ -115,6 +115,38 @@ export class DuckplayerPage {
     reportInitException(params) {
         this.messaging.notify('reportInitException', params);
     }
+
+    /**
+     * Sent when video playback starts (initial play or resume after user pause).
+     * @param {import('../types/duckplayer.ts').PlaybackStarted} params
+     */
+    notifyPlaybackStarted(params) {
+        this.messaging.notify('onPlaybackStarted', params);
+    }
+
+    /**
+     * Sent when playback stalls due to buffering.
+     * @param {import('../types/duckplayer.ts').PlaybackStalled} params
+     */
+    notifyPlaybackStalled(params) {
+        this.messaging.notify('onPlaybackStalled', params);
+    }
+
+    /**
+     * Sent when playback resumes after a stall.
+     * @param {import('../types/duckplayer.ts').PlaybackResumed} params
+     */
+    notifyPlaybackResumed(params) {
+        this.messaging.notify('onPlaybackResumed', params);
+    }
+
+    /**
+     * Sent when a playback error occurs.
+     * @param {import('../types/duckplayer.ts').PlaybackError} params
+     */
+    notifyPlaybackError(params) {
+        this.messaging.notify('onPlaybackError', params);
+    }
 }
 
 /**

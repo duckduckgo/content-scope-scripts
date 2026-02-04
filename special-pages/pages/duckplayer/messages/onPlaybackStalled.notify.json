@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PlaybackStalled",
+  "type": "object",
+  "required": ["timestamp", "bufferAhead"],
+  "properties": {
+    "timestamp": {
+      "type": "number",
+      "description": "video.currentTime when stall occurred"
+    },
+    "bufferAhead": {
+      "type": "number",
+      "description": "seconds of buffer remaining (0 = empty)"
+    }
+  }
+}

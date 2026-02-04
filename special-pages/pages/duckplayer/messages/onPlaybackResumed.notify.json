@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PlaybackResumed",
+  "type": "object",
+  "required": ["timestamp", "stallDurationMs"],
+  "properties": {
+    "timestamp": {
+      "type": "number",
+      "description": "video.currentTime when playback resumed"
+    },
+    "stallDurationMs": {
+      "type": "number",
+      "description": "how long the stall lasted in milliseconds"
+    }
+  }
+}

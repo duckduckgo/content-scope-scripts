@@ -23,6 +23,10 @@ export type PrivatePlayerMode =
  */
 export interface DuckplayerMessages {
   notifications:
+    | OnPlaybackErrorNotification
+    | OnPlaybackResumedNotification
+    | OnPlaybackStalledNotification
+    | OnPlaybackStartedNotification
     | OpenInfoNotification
     | OpenSettingsNotification
     | ReportInitExceptionNotification
@@ -31,6 +35,70 @@ export interface DuckplayerMessages {
     | TelemetryEventNotification;
   requests: GetUserValuesRequest | InitialSetupRequest | SetUserValuesRequest;
   subscriptions: OnUserValuesChangedSubscription;
+}
+/**
+ * Generated from @see "../messages/onPlaybackError.notify.json"
+ */
+export interface OnPlaybackErrorNotification {
+  method: "onPlaybackError";
+  params: PlaybackError;
+}
+export interface PlaybackError {
+  /**
+   * MediaError.code (1=MEDIA_ERR_ABORTED, 2=MEDIA_ERR_NETWORK, 3=MEDIA_ERR_DECODE, 4=MEDIA_ERR_SRC_NOT_SUPPORTED)
+   */
+  errorCode: number;
+  /**
+   * video.currentTime when error occurred
+   */
+  timestamp: number;
+}
+/**
+ * Generated from @see "../messages/onPlaybackResumed.notify.json"
+ */
+export interface OnPlaybackResumedNotification {
+  method: "onPlaybackResumed";
+  params: PlaybackResumed;
+}
+export interface PlaybackResumed {
+  /**
+   * video.currentTime when playback resumed
+   */
+  timestamp: number;
+  /**
+   * how long the stall lasted in milliseconds
+   */
+  stallDurationMs: number;
+}
+/**
+ * Generated from @see "../messages/onPlaybackStalled.notify.json"
+ */
+export interface OnPlaybackStalledNotification {
+  method: "onPlaybackStalled";
+  params: PlaybackStalled;
+}
+export interface PlaybackStalled {
+  /**
+   * video.currentTime when stall occurred
+   */
+  timestamp: number;
+  /**
+   * seconds of buffer remaining (0 = empty)
+   */
+  bufferAhead: number;
+}
+/**
+ * Generated from @see "../messages/onPlaybackStarted.notify.json"
+ */
+export interface OnPlaybackStartedNotification {
+  method: "onPlaybackStarted";
+  params: PlaybackStarted;
+}
+export interface PlaybackStarted {
+  /**
+   * video.currentTime when playback started
+   */
+  timestamp: number;
 }
 /**
  * Generated from @see "../messages/openInfo.notify.json"

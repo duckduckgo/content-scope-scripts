@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'preact/hooks';
 import { useSettings, useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
 import { createIframeFeatures } from '../features/iframe.js';
 import { Settings } from '../settings';
-import { useTypedTranslation } from '../types.js';
+import { useTypedTranslation, useMessaging } from '../types.js';
 
 /**
  * @import {EmbedSettings} from '../embed-settings.js';
@@ -20,7 +20,8 @@ import { useTypedTranslation } from '../types.js';
  * @param {EmbedSettings} props.embed
  */
 export function Player({ src, layout, embed }) {
-    const { ref, didLoad } = useIframeEffects(src, embed);
+    const messaging = useMessaging();
+    const { ref, didLoad } = useIframeEffects(src, embed, messaging);
     const wrapperClasses = cn({
         [styles.root]: true,
         [styles.player]: true,
@@ -86,12 +87,13 @@ export function PlayerError({ kind, layout }) {
  *
  * @param {string} src - the iframe `src` attribute
  * @param {EmbedSettings} embed
+ * @param {import("../../src/index.js").DuckplayerPage} messaging
  * @return {{
  *   ref: import("preact/hooks").MutableRef<HTMLIFrameElement|null>,
  *   didLoad: () => void
  * }}
  */
-function useIframeEffects(src, embed) {
+function useIframeEffects(src, embed, messaging) {
     const ref = useRef(/** @type {HTMLIFrameElement|null} */ (null));
     const didLoad = useRef(/** @type {boolean} */ (false));
     const settings = useSettings();
@@ -100,7 +102,7 @@ function useIframeEffects(src, embed) {
     useEffect(() => {
         if (!ref.current) return;
         const iframe = ref.current;
-        const features = createIframeFeatures(settings, embed);
+        const features = createIframeFeatures(settings, embed, messaging);
 
         /** @type {import("../features/iframe.js").IframeFeature[]} */
         const iframeFeatures = [
@@ -111,6 +113,7 @@ function useIframeEffects(src, embed) {
             features.mouseCapture(),
             features.errorDetection(),
             features.replaceWatchLinks(() => openOnYoutube(embed)),
+            features.bufferingMetrics(),
         ];
 
         /**
@@ -139,7 +142,7 @@ function useIframeEffects(src, embed) {
             }
             iframe.removeEventListener('load', loadHandler);
         };
-    }, [src, settings, embed]);
+    }, [src, settings, embed, messaging]);
 
     return { ref, didLoad: () => (didLoad.current = true) };
 }

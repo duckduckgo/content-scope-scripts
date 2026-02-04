@@ -5,9 +5,11 @@ import { TitleCapture } from './title-capture.js';
 import { MouseCapture } from './mouse-capture.js';
 import { ErrorDetection } from './error-detection.js';
 import { ReplaceWatchLinks } from './replace-watch-links.js';
+import { BufferingMetrics } from './buffering-metrics.js';
 
 /**
  * @import {EmbedSettings} from '../embed-settings.js';
+ * @import {DuckplayerPage} from '../../src/index.js';
  */
 
 /**
@@ -42,8 +44,9 @@ export class IframeFeature {
  *
  * @param {import("../settings").Settings} settings
  * @param {EmbedSettings} embed
+ * @param {DuckplayerPage} [messaging]
  */
-export function createIframeFeatures(settings, embed) {
+export function createIframeFeatures(settings, embed, messaging) {
     return {
         /**
          * @return {IframeFeature}
@@ -92,6 +95,15 @@ export function createIframeFeatures(settings, embed) {
          */
         replaceWatchLinks: (handler) => {
             return new ReplaceWatchLinks(embed.videoId.id, handler);
+        },
+        /**
+         * @return {IframeFeature}
+         */
+        bufferingMetrics: () => {
+            if (messaging) {
+                return new BufferingMetrics(messaging);
+            }
+            return IframeFeature.noop();
         },
     };
 }
