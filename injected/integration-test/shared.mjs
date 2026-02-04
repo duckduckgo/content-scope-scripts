@@ -16,6 +16,28 @@ export function isExpectedTestError(text) {
     return false;
 }
 
+/**
+ * Sets up a console handler on a Playwright page that filters out expected errors.
+ *
+ * @param {import('@playwright/test').Page} page - The Playwright page
+ * @param {object} [options]
+ * @param {string} [options.prefix] - Optional prefix for log output (e.g., '->')
+ */
+export function forwardConsole(page, options = {}) {
+    const { prefix } = options;
+    page.on('console', (msg) => {
+        const text = msg.text();
+        if (isExpectedTestError(text)) {
+            return;
+        }
+        if (prefix) {
+            console.log(prefix, msg.type(), text);
+        } else {
+            console.log(msg.type(), text);
+        }
+    });
+}
+
 export function windowsGlobalPolyfills() {
     // @ts-expect-error - testing
     if (typeof Bluetooth === 'undefined') {

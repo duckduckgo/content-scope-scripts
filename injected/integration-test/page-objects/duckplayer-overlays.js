@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { expect } from '@playwright/test';
 import { perPlatform } from '../type-helpers.mjs';
 import { ResultsCollector } from './results-collector.js';
-import { isExpectedTestError } from '../shared.mjs';
+import { forwardConsole } from '../shared.mjs';
 
 // Every possible combination of UserValues
 const userValues = {
@@ -87,14 +87,7 @@ export class DuckplayerOverlays {
             javascriptInterface: 'javascriptInterface',
             messageCallback: 'messageCallback',
         });
-        page.on('console', (msg) => {
-            const text = msg.text();
-            // Filter out expected errors (e.g., duck:// protocol navigation failures)
-            if (isExpectedTestError(text)) {
-                return;
-            }
-            console.log(msg.type(), text);
-        });
+        forwardConsole(page);
     }
 
     async reducedMotion() {
