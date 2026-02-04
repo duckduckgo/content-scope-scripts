@@ -252,6 +252,9 @@ class YouTubeAdDetector {
      * @returns {boolean}
      */
     checkForVideoAds(root) {
+        if (!this.config.adClasses || this.config.adClasses.length === 0) {
+            return false;
+        }
         const adSelectors = this.config.adClasses.map((cls) => '.' + cls).join(',');
         const adElements = root.querySelectorAll(adSelectors);
         return Array.from(adElements).some((el) => isVisible(el) && this.looksLikeAdNode(el));
@@ -712,26 +715,28 @@ let detectorInstance = null;
  * @returns {Object} Detection results in standard format
  */
 export function runYoutubeAdDetection(config) {
-    // Don't initialize if no config or explicitly disabled
-    if (!config || config.state === 'disabled') {
+    // If explicitly disabled, return empty
+    if (config?.state === 'disabled') {
+        return { detected: false, type: 'youtubeAds', results: [] };
+    }
+
+    // If detector already exists, return its results (even if config is undefined)
+    if (detectorInstance) {
+        return detectorInstance.getResults();
+    }
+
+    // Can't initialize without config
+    if (!config) {
         return { detected: false, type: 'youtubeAds', results: [] };
     }
 
     // Auto-initialize on first call if on YouTube
     const hostname = window.location.hostname;
-    if (!detectorInstance && (hostname === 'youtube.com' || hostname.endsWith('.youtube.com'))) {
+    if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
         detectorInstance = new YouTubeAdDetector(config);
         detectorInstance.start();
+        return detectorInstance.getResults();
     }
 
-    // Return empty result if not initialized
-    if (!detectorInstance) {
-        return {
-            detected: false,
-            type: 'youtubeAds',
-            results: [],
-        };
-    }
-
-    return detectorInstance.getResults();
+    return { detected: false, type: 'youtubeAds', results: [] };
 }
