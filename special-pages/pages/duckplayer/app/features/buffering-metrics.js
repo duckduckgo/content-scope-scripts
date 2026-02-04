@@ -34,6 +34,8 @@ export class BufferingMetrics {
         let stallStartTime = null;
         let isSeeking = false;
         let listenersAttached = false;
+        let hasStartedPlaying = false;
+        let wasPaused = false;
 
         const getBufferAhead = () => {
             if (!video || video.buffered.length === 0) return 0;
@@ -55,6 +57,10 @@ export class BufferingMetrics {
             stallStartTime = null;
         };
 
+        const onPause = () => {
+            wasPaused = true;
+        };
+
         const onPlaying = () => {
             if (!video) return;
             if (stallStartTime !== null && !isSeeking) {
@@ -62,10 +68,12 @@ export class BufferingMetrics {
                     timestamp: video.currentTime,
                     stallDurationMs: Date.now() - stallStartTime,
                 });
-            } else if (stallStartTime === null) {
+            } else if (!hasStartedPlaying || wasPaused) {
                 this.messaging.notifyPlaybackStarted({ timestamp: video.currentTime });
             }
             stallStartTime = null;
+            hasStartedPlaying = true;
+            wasPaused = false;
         };
 
         const onWaiting = () => {
@@ -91,6 +99,7 @@ export class BufferingMetrics {
             if (!video || listenersAttached) return;
             video.addEventListener('seeking', onSeeking);
             video.addEventListener('seeked', onSeeked);
+            video.addEventListener('pause', onPause);
             video.addEventListener('playing', onPlaying);
             video.addEventListener('waiting', onWaiting);
             video.addEventListener('error', onError);
@@ -101,6 +110,7 @@ export class BufferingMetrics {
             if (!video || !listenersAttached) return;
             video.removeEventListener('seeking', onSeeking);
             video.removeEventListener('seeked', onSeeked);
+            video.removeEventListener('pause', onPause);
             video.removeEventListener('playing', onPlaying);
             video.removeEventListener('waiting', onWaiting);
             video.removeEventListener('error', onError);
