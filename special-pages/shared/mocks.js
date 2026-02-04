@@ -7,39 +7,7 @@ import {
     simulateSubscriptionMessage,
     waitForCallCount,
 } from '@duckduckgo/messaging/lib/test-utils.mjs';
-
-/**
- * Checks if a console message is an expected error that should be filtered out.
- * These are typically errors for custom protocols like duck:// that browsers
- * don't understand in the test environment, but native apps handle correctly.
- *
- * @param {string} text - The console message text
- * @returns {boolean} - True if the message should be filtered out
- */
-export function isExpectedTestError(text) {
-    // Filter out expected errors for duck:// protocol URLs
-    // These occur when tests navigate to custom protocol URLs that
-    // browsers can't handle, but native apps process correctly
-    if (text.includes('duck://')) {
-        return true;
-    }
-    return false;
-}
-
-/**
- * Sets up a console handler on a Playwright page that filters out expected errors.
- *
- * @param {import('@playwright/test').Page} page - The Playwright page
- */
-export function forwardConsole(page) {
-    page.on('console', (msg) => {
-        const text = msg.text();
-        if (isExpectedTestError(text)) {
-            return;
-        }
-        console.log(msg.type(), text);
-    });
-}
+import { forwardConsole } from 'injected/integration-test/shared.mjs';
 
 export class Mocks {
     /**
