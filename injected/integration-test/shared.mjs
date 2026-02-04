@@ -1,20 +1,5 @@
-/**
- * Checks if a console message is an expected error that should be filtered out.
- * These are typically errors for custom protocols like duck:// that browsers
- * don't understand in the test environment, but native apps handle correctly.
- *
- * @param {string} text - The console message text
- * @returns {boolean} - True if the message should be filtered out
- */
-export function isExpectedTestError(text) {
-    // Filter out expected errors for duck:// protocol URLs
-    // These occur when tests navigate to custom protocol URLs that
-    // browsers can't handle, but native apps process correctly
-    if (text.includes('duck://')) {
-        return true;
-    }
-    return false;
-}
+/** @type {boolean} */
+let suppressingExpectedFailures = false;
 
 /**
  * Sets up a console handler on a Playwright page that filters out expected errors.
@@ -23,12 +8,49 @@ export function isExpectedTestError(text) {
  */
 export function forwardConsole(page) {
     page.on('console', (msg) => {
-        const text = msg.text();
-        if (isExpectedTestError(text)) {
+        if (suppressingExpectedFailures) {
             return;
         }
-        console.log(msg.type(), text);
+        console.log(msg.type(), msg.text());
     });
+}
+
+/**
+ * Executes an action that will trigger an expected request failure (e.g., navigation
+ * to a custom protocol like duck://). Captures the failed request URL while suppressing
+ * console noise from the expected 404 error.
+ *
+ * @param {import('@playwright/test').Page} page - The Playwright page
+ * @param {() => Promise<void>} action - The action that triggers the navigation
+ * @param {string} [urlPrefix='duck'] - URL prefix to match for the expected failure
+ * @returns {Promise<string>} - The URL of the failed request
+ */
+export async function captureExpectedRequestFailure(page, action, urlPrefix = 'duck') {
+    /** @type {(url: string) => void} */
+    let resolveFailure;
+    const failure = new Promise((resolve) => {
+        resolveFailure = resolve;
+    });
+
+    const handler = (/** @type {{ url: () => string }} */ f) => {
+        if (f.url().startsWith(urlPrefix)) {
+            resolveFailure(f.url());
+        }
+    };
+
+    page.context().on('requestfailed', handler);
+    suppressingExpectedFailures = true;
+
+    try {
+        await action();
+        const url = await failure;
+        // Brief delay to allow console messages to be suppressed
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        return url;
+    } finally {
+        suppressingExpectedFailures = false;
+        page.context().off('requestfailed', handler);
+    }
 }
 
 export function windowsGlobalPolyfills() {

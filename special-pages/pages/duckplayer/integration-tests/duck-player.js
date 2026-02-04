@@ -2,6 +2,7 @@ import { Mocks } from '../../../shared/mocks.js';
 import { expect } from '@playwright/test';
 import { join } from 'node:path';
 import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
+import { captureExpectedRequestFailure } from 'injected/integration-test/shared.mjs';
 
 const MOCK_VIDEO_ID = 'VIDEO_ID';
 const MOCK_VIDEO_TITLE = 'Embedded Video - YouTube';
@@ -386,13 +387,9 @@ export class DuckPlayerPage {
     async opensInYoutube() {
         await this.build.switch({
             windows: async () => {
-                const failure = new Promise((resolve) => {
-                    this.page.context().on('requestfailed', (f) => {
-                        resolve(f.url());
-                    });
-                });
-                await this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
-                expect(await failure).toEqual('duck://player/openInYoutube?v=VIDEO_ID');
+                const action = () => this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
+                const failure = await captureExpectedRequestFailure(this.page, action);
+                expect(failure).toEqual('duck://player/openInYoutube?v=VIDEO_ID');
             },
             apple: async () => {
                 const nextNavigation = new Promise((resolve) => {
@@ -410,13 +407,8 @@ export class DuckPlayerPage {
         const action = () => this.page.frameLocator('#player').getByRole('link', { name: 'Watch on YouTube' }).click();
         await this.build.switch({
             windows: async () => {
-                const failure = new Promise((resolve) => {
-                    this.page.context().on('requestfailed', (f) => {
-                        resolve(f.url());
-                    });
-                });
-                await action();
-                expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
+                const failure = await captureExpectedRequestFailure(this.page, action);
+                expect(failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
             },
             apple: async () => {
                 if (this.platform.name === 'ios') {
@@ -428,14 +420,8 @@ export class DuckPlayerPage {
                 await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
             },
             android: async () => {
-                // const failure = new Promise(resolve => {
-                //     this.page.context().on('requestfailed', f => {
-                //         resolve(f.url())
-                //     })
-                // })
                 // todo: why does this not work on android?
                 await action();
-                // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
             },
         });
     }
@@ -444,13 +430,8 @@ export class DuckPlayerPage {
         const action = () => this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
         await this.build.switch({
             windows: async () => {
-                const failure = new Promise((resolve) => {
-                    this.page.context().on('requestfailed', (f) => {
-                        resolve(f.url());
-                    });
-                });
-                await action();
-                expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
+                const failure = await captureExpectedRequestFailure(this.page, action);
+                expect(failure).toEqual(`duck://player/openInYoutube?v=${videoID}`);
             },
             apple: async () => {
                 if (this.platform.name === 'ios') {
@@ -462,14 +443,8 @@ export class DuckPlayerPage {
                 await this.page.waitForURL(`https://www.youtube.com/watch?v=${videoID}`);
             },
             android: async () => {
-                // const failure = new Promise(resolve => {
-                //     this.page.context().on('requestfailed', f => {
-                //         resolve(f.url())
-                //     })
-                // })
                 // todo: why does this not work on android?
                 await action();
-                // expect(await failure).toEqual(`duck://player/openInYoutube?v=${videoID}`)
             },
         });
     }
