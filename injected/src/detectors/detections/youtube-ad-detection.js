@@ -261,6 +261,11 @@ class YouTubeAdDetector {
         if (!this.cachedAdSelector) {
             return false;
         }
+        // Check if root itself has an ad class (e.g., ad-showing on #movie_player)
+        if (root.matches && root.matches(this.cachedAdSelector)) {
+            return true;
+        }
+        // Check for child elements with ad classes
         const adElements = root.querySelectorAll(this.cachedAdSelector);
         return Array.from(adElements).some((el) => isVisible(el) && this.looksLikeAdNode(el));
     }
