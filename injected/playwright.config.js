@@ -89,18 +89,9 @@ export default defineConfig({
         /**
          * Maximum time expect() should wait for the condition to be met.
          * For example in `await expect(locator).toHaveText();`
+         * Reduced from default 5000ms to fail faster on screenshot mismatches.
          */
-        timeout: 5000,
-        /**
-         * Snapshot tests should fail fast - no need to wait for stabilization
-         * since the page state should already be deterministic before the assertion.
-         */
-        toHaveScreenshot: {
-            timeout: 1000,
-        },
-        toMatchSnapshot: {
-            timeout: 1000,
-        },
+        timeout: 2500,
     },
     /* Run tests in files in parallel */
     fullyParallel: !process.env.CI,
