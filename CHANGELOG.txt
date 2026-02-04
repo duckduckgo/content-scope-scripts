@@ -1,1 +1,2 @@
-- Add breakageReporting to platform-specific features (#2228)
+- Add hypothesis detector (#2221)
+- Update config version (#2231)
