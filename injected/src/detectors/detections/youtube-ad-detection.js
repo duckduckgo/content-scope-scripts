@@ -65,6 +65,12 @@ class YouTubeAdDetector {
         this.adTextPatterns = toRegExpArray(this.config.adTextPatterns);
         this.playabilityErrorPatterns = toRegExpArray(this.config.playabilityErrorPatterns);
         this.adBlockerDetectionPatterns = toRegExpArray(this.config.adBlockerDetectionPatterns);
+
+        // Cache selector string for hot path
+        this.cachedAdSelector =
+            this.config.adClasses && this.config.adClasses.length > 0
+                ? this.config.adClasses.map((cls) => '.' + cls).join(',')
+                : null;
     }
 
     // =========================================================================
@@ -238,12 +244,14 @@ class YouTubeAdDetector {
         if (!(node instanceof HTMLElement)) return false;
 
         const classList = node.classList;
-        if (classList && this.config.adClasses.some((adClass) => classList.contains(adClass))) {
+        const adClasses = this.config.adClasses;
+        if (classList && adClasses && adClasses.some((adClass) => classList.contains(adClass))) {
             return true;
         }
 
         const txt = (node.innerText || '') + ' ' + (node.getAttribute('aria-label') || '');
-        return this.adTextPatterns.some((pattern) => pattern.test(txt));
+        const patterns = this.adTextPatterns;
+        return patterns && patterns.some((pattern) => pattern.test(txt));
     }
 
     /**
@@ -252,11 +260,10 @@ class YouTubeAdDetector {
      * @returns {boolean}
      */
     checkForVideoAds(root) {
-        if (!this.config.adClasses || this.config.adClasses.length === 0) {
+        if (!this.cachedAdSelector) {
             return false;
         }
-        const adSelectors = this.config.adClasses.map((cls) => '.' + cls).join(',');
-        const adElements = root.querySelectorAll(adSelectors);
+        const adElements = root.querySelectorAll(this.cachedAdSelector);
         return Array.from(adElements).some((el) => isVisible(el) && this.looksLikeAdNode(el));
     }
 
@@ -266,6 +273,9 @@ class YouTubeAdDetector {
      */
     checkForStaticAds() {
         const selectors = this.config.staticAdSelectors;
+        if (!selectors || !selectors.background) {
+            return false;
+        }
         const background = document.querySelector(selectors.background);
 
         if (!background || !isVisible(background)) {
@@ -305,6 +315,9 @@ class YouTubeAdDetector {
      * @returns {string|null} Matched text or null
      */
     checkVisiblePatternMatch(selectors, patterns, options = {}) {
+        if (!selectors || !selectors.length || !patterns || !patterns.length) {
+            return null;
+        }
         const maxLen = options.maxLength || 100;
         const checkAttributedStrings = options.checkAttributedStrings || false;
         const checkDialogFallback = options.checkDialogFallback || false;
@@ -383,6 +396,9 @@ class YouTubeAdDetector {
      * @returns {Element|null}
      */
     findPlayerRoot() {
+        if (!this.config.playerSelectors || !this.config.playerSelectors.length) {
+            return null;
+        }
         for (const selector of this.config.playerSelectors) {
             const el = document.querySelector(selector);
             if (el) return el;
@@ -496,6 +512,10 @@ class YouTubeAdDetector {
             if (this.bufferingStartTime) {
                 const bufferingDuration = performance.now() - this.bufferingStartTime;
                 this.state.buffering.durations.push(Math.round(bufferingDuration));
+                // Cap durations array to prevent memory growth
+                if (this.state.buffering.durations.length > 50) {
+                    this.state.buffering.durations.shift();
+                }
                 this.bufferingStartTime = null;
             }
 
@@ -510,6 +530,10 @@ class YouTubeAdDetector {
             if (isSlow && !duringAd && !tabWasHidden && !tooLong) {
                 this.state.buffering.count++;
                 this.state.buffering.durations.push(Math.round(loadTime));
+                // Cap durations array to prevent memory growth
+                if (this.state.buffering.durations.length > 50) {
+                    this.state.buffering.durations.shift();
+                }
             }
             this.videoLoadStartTime = null;
         };
