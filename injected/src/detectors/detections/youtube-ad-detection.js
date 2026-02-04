@@ -520,9 +520,8 @@ class YouTubeAdDetector {
 
             if (!this.bufferingStartTime) {
                 this.bufferingStartTime = performance.now();
+                this.state.buffering.count++;
             }
-
-            this.state.buffering.count++;
         };
 
         const onSeeking = () => {
