@@ -21,11 +21,18 @@ import { isVisible, toRegExpArray } from '../utils/detection-utils.js';
  * Detects ads, buffering, playability errors, and ad blocker detection on YouTube
  * All configuration comes from privacy-config - no hardcoded defaults
  */
+/** @type {{info: Function, warn: Function, error: Function}} */
+const noopLogger = { info: () => {}, warn: () => {}, error: () => {} };
+
 class YouTubeAdDetector {
     /**
      * @param {YouTubeDetectorConfig} config - Configuration from privacy-config (required)
+     * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
      */
-    constructor(config) {
+    constructor(config, logger) {
+        // Logger for debug output (only logs when debug mode is enabled)
+        this.log = logger || noopLogger;
+
         // All config comes from privacy-config
         this.config = {
             playerSelectors: config.playerSelectors,
@@ -115,6 +122,8 @@ class YouTubeAdDetector {
                 return false;
             }
         }
+
+        this.log.info(`Detection: ${type}`, details.message || '');
 
         typeState.showing = true;
         typeState.count++;
@@ -263,11 +272,16 @@ class YouTubeAdDetector {
         }
         // Check if root itself has an ad class (e.g., ad-showing on #movie_player)
         if (root.matches && root.matches(this.cachedAdSelector)) {
+            this.log.info('Ad detected: root element matches ad selector');
             return true;
         }
         // Check for child elements with ad classes
         const adElements = root.querySelectorAll(this.cachedAdSelector);
-        return Array.from(adElements).some((el) => isVisible(el) && this.looksLikeAdNode(el));
+        const hasAd = Array.from(adElements).some((el) => isVisible(el) && this.looksLikeAdNode(el));
+        if (hasAd) {
+            this.log.info('Ad detected: child element matches ad selector');
+        }
+        return hasAd;
     }
 
     /**
@@ -617,13 +631,16 @@ class YouTubeAdDetector {
      * Start the detector
      */
     start() {
+        this.log.info('YouTubeAdDetector starting...');
         const root = this.findPlayerRoot();
         if (!root) {
+            this.log.info('Player root not found, retrying in 500ms');
             setTimeout(() => this.start(), 500);
             return;
         }
 
         this.playerRoot = root;
+        this.log.info('Player root found:', root.id || root.className);
 
         // Initial login state detection
         this.detectAndLogLoginState();
@@ -634,6 +651,7 @@ class YouTubeAdDetector {
         // Start sweep loop
         this.sweep();
         this.pollInterval = setInterval(() => this.sweep(), this.config.sweepIntervalMs);
+        this.log.info(`Detector started, sweep interval: ${this.config.sweepIntervalMs}ms`);
 
         // Check for player root changes
         this.rerootInterval = setInterval(() => {
@@ -741,7 +759,11 @@ let detectorInstance = null;
  * @param {YouTubeDetectorConfig} [config] - Configuration from privacy-config
  * @returns {Object} Detection results in standard format
  */
-export function runYoutubeAdDetection(config) {
+/**
+ * @param {YouTubeDetectorConfig} [config] - Configuration from privacy-config
+ * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
+ */
+export function runYoutubeAdDetection(config, logger) {
     // If explicitly disabled, return empty
     if (config?.state === 'disabled') {
         return { detected: false, type: 'youtubeAds', results: [] };
@@ -760,7 +782,7 @@ export function runYoutubeAdDetection(config) {
     // Auto-initialize on first call if on YouTube
     const hostname = window.location.hostname;
     if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
-        detectorInstance = new YouTubeAdDetector(config);
+        detectorInstance = new YouTubeAdDetector(config, logger);
         detectorInstance.start();
         return detectorInstance.getResults();
     }
