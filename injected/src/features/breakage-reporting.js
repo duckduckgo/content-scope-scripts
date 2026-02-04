@@ -1,8 +1,6 @@
 import ContentFeature from '../content-feature';
 import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
-import { runBotDetection } from '../detectors/detections/bot-detection.js';
-import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
-import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
+import { getCachedInterferenceResults, mergeInterferenceResults, runInterferenceDetectors } from '../detectors/interference-utils.js';
 
 export default class BreakageReporting extends ContentFeature {
     init() {
@@ -33,11 +31,9 @@ export default class BreakageReporting extends ContentFeature {
             // Fetch interferenceTypes from webInterferenceDetection feature settings
             const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
             if (detectorSettings) {
-                result.detectorData = {
-                    botDetection: runBotDetection(detectorSettings.botDetection),
-                    fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
-                    adwallDetection: runAdwallDetection(detectorSettings.adwallDetection),
-                };
+                const cachedResults = getCachedInterferenceResults();
+                const freshResults = runInterferenceDetectors(detectorSettings);
+                result.detectorData = mergeInterferenceResults(cachedResults, freshResults);
             }
 
             if (isExpandedPerformanceMetricsEnabled) {

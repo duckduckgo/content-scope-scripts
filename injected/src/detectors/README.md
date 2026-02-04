@@ -7,8 +7,9 @@ This directory contains web interference detection functionality for content-sco
 The system provides simple detection utilities that can be called on-demand:
 
 - **Detection utilities** - Pure functions (`runBotDetection`, `runFraudDetection`, `runAdwallDetection`) that scan DOM when called
-- **Direct imports** - Features (breakage reporting, PIR) import detection functions directly
-- **`WebInterferenceDetection`** - Optional ContentFeature wrapper for messaging (PIR use, not currently bundled)
+- **Shared runner + cache** - `interference-utils.js` for merging results and auto-run caching
+- **Direct imports** - Features (breakage reporting, PIR) call the shared helpers directly
+- **`WebInterferenceDetection`** - ContentFeature wrapper for auto-run + messaging (PIR use)
 
 
 ## Directory Layout
@@ -19,6 +20,7 @@ detectors/
 │   ├── adwall-detection.js        # adwall/ad-blocker wall detection utility
 │   ├── bot-detection.js           # CAPTCHA/bot detection utility
 │   └── fraud-detection.js         # fraud/phishing warning utility
+├── interference-utils.js          # shared runner + cache helpers
 ├── utils/
 │   └── detection-utils.js         # DOM helpers (selectors, text matching, visibility)
 ```
@@ -32,9 +34,13 @@ Detectors are simple functions that scan the DOM when called:
 1. Feature imports detector function (e.g., `runBotDetection`)
 2. Feature calls detector with config when needed (e.g., user submits breakage report)
 3. Detector scans DOM and returns results immediately (~few ms)
-4. No caching - each call is fresh
+4. Optional caching is available via auto-run (see below)
 
-### 2. Configuration
+### 2. Auto-run + caching (optional)
+
+If `autoRunDelayMs` is configured, `WebInterferenceDetection` schedules a background run after DOM is ready and stores results in a shared cache. Consumers (breakage reporting, messaging) merge cached results with a fresh run to avoid missing short-lived interference.
+
+### 3. Configuration
 
 Detectors are configured via `privacy-configuration/features/web-interference-detection.json`:
 
@@ -95,24 +101,20 @@ Detectors are configured via `privacy-configuration/features/web-interference-de
 
 The framework automatically applies conditional changes based on the current URL before passing settings to the feature.
 
-### 3. Using Detection Results
+### 4. Using Detection Results
 
 **Breakage reporting** (internal feature):
 
 ```javascript
-import { runBotDetection } from '../detectors/detections/bot-detection.js';
-import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
-import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
+import { getCachedInterferenceResults, mergeInterferenceResults, runInterferenceDetectors } from '../detectors/interference-utils.js';
 
 // Get detector config from privacy-configuration
-const detectorSettings = this.getFeatureSetting('webInterferenceDetection', 'interferenceTypes');
+const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
 
 if (detectorSettings) {
-    const result = {
-        botDetection: runBotDetection(detectorSettings.botDetection),
-        fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
-        adwallDetection: runAdwallDetection(detectorSettings.adwallDetection),
-    };
+    const cachedResults = getCachedInterferenceResults();
+    const freshResults = runInterferenceDetectors(detectorSettings);
+    const result = mergeInterferenceResults(cachedResults, freshResults);
 }
 ```
 

@@ -1,42 +1,93 @@
 import ContentFeature from '../content-feature.js';
-import { runBotDetection } from '../detectors/detections/bot-detection.js';
-import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
-import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
+import {
+    clearCachedInterferenceResults,
+    getCachedInterferenceResults,
+    hasEnabledInterferenceDetectors,
+    mergeInterferenceResults,
+    runInterferenceDetectors,
+    updateCachedInterferenceResults,
+} from '../detectors/interference-utils.js';
+
+/**
+ * @typedef {import('../detectors/interference-utils.js').InterferenceTypes} InterferenceTypes
+ * @typedef {import('../detectors/interference-utils.js').InterferenceType} InterferenceType
+ */
 
 /**
  * @typedef {object} DetectInterferenceParams
- * @property {string[]} [types]
+ * @property {InterferenceType[]} [types]
  */
 
 export default class WebInterferenceDetection extends ContentFeature {
-    init() {
-        // Get settings with conditionalChanges already applied by framework
-        const settings = this.getFeatureSetting('interferenceTypes');
+    /** @type {ReturnType<typeof setTimeout> | null} */
+    #autoRunTimer = null;
+    /** @type {number | undefined} */
+    #autoRunDelayMs;
+    /** @type {InterferenceTypes | undefined} */
+    #interferenceTypes;
 
-        // Auto-run placeholder. Enable this when adding detectors that need early caching (e.g., ad detection, buffering)
-        /*
-        setTimeout(() => {
-            if (settings?.botDetection) {
-                runBotDetection(settings.botDetection);
-            }
-        }, autoRunDelayMs);
-        */
+    init() {
+        this.refreshSettings();
+        this.scheduleAutoRun();
 
         // Register messaging handler for PIR/native requests
         this.messaging.subscribe('detectInterference', (params) => {
             const { types = [] } = /** @type {DetectInterferenceParams} */ (params ?? {});
-            const results = {};
-
-            if (types.includes('botDetection')) {
-                results.botDetection = runBotDetection(settings?.botDetection);
+            const freshResults = runInterferenceDetectors(this.#interferenceTypes, types);
+            if (Object.keys(freshResults).length > 0) {
+                updateCachedInterferenceResults(freshResults);
             }
-            if (types.includes('fraudDetection')) {
-                results.fraudDetection = runFraudDetection(settings?.fraudDetection);
-            }
-            if (types.includes('adwallDetection')) {
-                results.adwallDetection = runAdwallDetection(settings?.adwallDetection);
-            }
-            return results;
+            const cachedResults = getCachedInterferenceResults();
+            return mergeInterferenceResults(cachedResults, freshResults, types);
         });
+    }
+
+    urlChanged() {
+        this.refreshSettings();
+        this.clearAutoRunTimer();
+        clearCachedInterferenceResults();
+        this.scheduleAutoRun();
+    }
+
+    refreshSettings() {
+        this.#autoRunDelayMs = this.getFeatureSetting('autoRunDelayMs');
+        this.#interferenceTypes = this.getFeatureSetting('interferenceTypes');
+    }
+
+    scheduleAutoRun() {
+        const delayMs = this.#autoRunDelayMs;
+        if (typeof delayMs !== 'number' || !Number.isFinite(delayMs) || delayMs < 0) {
+            return;
+        }
+        if (!hasEnabledInterferenceDetectors(this.#interferenceTypes)) {
+            return;
+        }
+
+        const runDetectors = () => {
+            this.#autoRunTimer = null;
+            const results = runInterferenceDetectors(this.#interferenceTypes);
+            if (Object.keys(results).length > 0) {
+                updateCachedInterferenceResults(results);
+            }
+        };
+
+        const schedule = () => {
+            this.clearAutoRunTimer();
+            this.#autoRunTimer = setTimeout(runDetectors, delayMs);
+        };
+
+        if (document.body) {
+            schedule();
+            return;
+        }
+
+        window.addEventListener('DOMContentLoaded', schedule, { once: true });
+    }
+
+    clearAutoRunTimer() {
+        if (this.#autoRunTimer) {
+            clearTimeout(this.#autoRunTimer);
+            this.#autoRunTimer = null;
+        }
     }
 }
