@@ -134,6 +134,18 @@ export default defineConfig({
     workers: process.env.CI ? 2 : undefined,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: 'html',
+    expect: {
+        /**
+         * Snapshot tests should fail fast - no need to wait for stabilization
+         * since the page state should already be deterministic before the assertion.
+         */
+        toHaveScreenshot: {
+            timeout: 1000,
+        },
+        toMatchSnapshot: {
+            timeout: 1000,
+        },
+    },
     // @ts-expect-error - Type 'undefined' is not assignable to type 'string'. process.env
     webServer: {
         command: process.env.PAGE ? `npm run watch -- --page ${process.env.PAGE}` : 'npm run serve',
