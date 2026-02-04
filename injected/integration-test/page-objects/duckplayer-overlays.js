@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { expect } from '@playwright/test';
 import { perPlatform } from '../type-helpers.mjs';
 import { ResultsCollector } from './results-collector.js';
+import { isExpectedTestError } from '../shared.mjs';
 
 // Every possible combination of UserValues
 const userValues = {
@@ -87,7 +88,12 @@ export class DuckplayerOverlays {
             messageCallback: 'messageCallback',
         });
         page.on('console', (msg) => {
-            console.log(msg.type(), msg.text());
+            const text = msg.text();
+            // Filter out expected errors (e.g., duck:// protocol navigation failures)
+            if (isExpectedTestError(text)) {
+                return;
+            }
+            console.log(msg.type(), text);
         });
     }
 
