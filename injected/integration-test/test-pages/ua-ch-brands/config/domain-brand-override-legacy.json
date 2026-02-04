@@ -1,5 +1,5 @@
 {
-  "readme": "This config tests domain-specific brand overrides using conditionalChanges with condition block",
+  "readme": "LEGACY format: This config tests backwards compatibility with old conditionalChanges format (domain at root level instead of condition.domain)",
   "version": 1,
   "unprotectedTemporary": [],
   "features": {
@@ -9,9 +9,7 @@
       "settings": {
         "conditionalChanges": [
           {
-            "condition": {
-              "domain": "localhost"
-            },
+            "domain": "localhost",
             "patchSettings": [
               {
                 "op": "add",
