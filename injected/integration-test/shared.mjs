@@ -1,20 +1,16 @@
 /**
  * Checks if a console message is an expected error that should be filtered out.
- * These are typically 404 errors for custom protocols like duck:// that browsers
+ * These are typically errors for custom protocols like duck:// that browsers
  * don't understand in the test environment, but native apps handle correctly.
  *
  * @param {string} text - The console message text
  * @returns {boolean} - True if the message should be filtered out
  */
 export function isExpectedTestError(text) {
-    // Filter out expected 404 errors for duck:// protocol URLs
+    // Filter out expected errors for duck:// protocol URLs
     // These occur when tests navigate to custom protocol URLs that
     // browsers can't handle, but native apps process correctly
     if (text.includes('duck://')) {
-        return true;
-    }
-    // Filter out "Failed to load resource" errors for duck:// navigations
-    if (text.includes('Failed to load resource') && text.includes('404')) {
         return true;
     }
     return false;
