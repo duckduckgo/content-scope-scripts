@@ -1,5 +1,5 @@
 {
-  "readme": "This config tests domain-specific brand overrides using conditionalChanges",
+  "readme": "This config tests domain-specific brand overrides using conditionalChanges with condition block",
   "version": 1,
   "unprotectedTemporary": [],
   "features": {
@@ -9,7 +9,9 @@
       "settings": {
         "conditionalChanges": [
           {
-            "domain": "localhost",
+            "condition": {
+              "domain": "localhost"
+            },
             "patchSettings": [
               {
                 "op": "add",

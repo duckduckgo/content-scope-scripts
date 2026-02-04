@@ -12,6 +12,29 @@ import {
 import { URLPattern } from 'urlpattern-polyfill';
 
 /**
+ * Used to match conditional changes for a settings feature.
+ *
+ * @typedef {object} ConditionBlock
+ * @property {string[] | string} [domain]
+ * @property {object} [urlPattern]
+ * @property {object} [minSupportedVersion]
+ * @property {object} [maxSupportedVersion]
+ * @property {object} [experiment]
+ * @property {string} [experiment.experimentName]
+ * @property {string} [experiment.cohort]
+ * @property {object} [context]
+ * @property {boolean} [context.frame] - true if the condition applies to frames
+ * @property {boolean} [context.top] - true if the condition applies to the top frame
+ * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
+ * @property {boolean} [internal] - true if the condition applies to internal builds
+ * @property {boolean} [preview] - true if the condition applies to preview builds
+ */
+
+/**
+ * @typedef {ConditionBlock|ConditionBlock[]} ConditionBlockOrArray
+ */
+
+/**
  * This class is extended by each feature to implement remote config handling:
  * - Parsing the remote config, with conditional logic applied,
  * - Providing API for features to check if they are enabled,
@@ -123,26 +146,8 @@ export default class ConfigFeature {
     }
 
     /**
-     * Used to match conditional changes for a settings feature.
-     * @typedef {object} ConditionBlock
-     * @property {string[] | string} [domain]
-     * @property {object} [urlPattern]
-     * @property {object} [minSupportedVersion]
-     * @property {object} [maxSupportedVersion]
-     * @property {object} [experiment]
-     * @property {string} [experiment.experimentName]
-     * @property {string} [experiment.cohort]
-     * @property {object} [context]
-     * @property {boolean} [context.frame] - true if the condition applies to frames
-     * @property {boolean} [context.top] - true if the condition applies to the top frame
-     * @property {string} [injectName] - the inject name to match against (e.g., "apple-isolated")
-     * @property {boolean} [internal] - true if the condition applies to internal builds
-     * @property {boolean} [preview] - true if the condition applies to preview builds
-     */
-
-    /**
      * Takes multiple conditional blocks and returns true if any apply.
-     * @param {ConditionBlock|ConditionBlock[]} conditionBlock
+     * @param {ConditionBlockOrArray} conditionBlock
      * @returns {boolean}
      */
     _matchConditionalBlockOrArray(conditionBlock) {
@@ -339,6 +344,15 @@ export default class ConfigFeature {
     }
 
     /**
+     * Check if a state value is enabled for the current platform.
+     * @param {import('./utils.js').FeatureState | undefined} state
+     * @returns {boolean}
+     */
+    _isStateEnabled(state) {
+        return isStateEnabled(state, this.#args?.platform);
+    }
+
+    /**
      * Return the settings object for a feature
      * @param {string} [featureName] - The name of the feature to get the settings for; defaults to the name of the feature
      * @returns {any}
@@ -377,11 +391,10 @@ export default class ConfigFeature {
      */
     getFeatureSettingEnabled(featureKeyName, defaultState, featureName) {
         const result = this.getFeatureSetting(featureKeyName, featureName) || defaultState;
-        const platform = this.#args?.platform;
         if (typeof result === 'object') {
-            return isStateEnabled(result.state, platform);
+            return this._isStateEnabled(result.state);
         }
-        return isStateEnabled(result, platform);
+        return this._isStateEnabled(result);
     }
 
     /**
