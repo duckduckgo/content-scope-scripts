@@ -5,6 +5,15 @@ describe('Print feature', () => {
 
     beforeEach(() => {
         mockNotify = jasmine.createSpy('notify');
+        // Set up a mock window object for Node.js environment
+        // @ts-expect-error - window doesn't exist in Node
+        globalThis.window = { print: () => {} };
+    });
+
+    afterEach(() => {
+        // Clean up the mock window
+        // @ts-expect-error - window doesn't exist in Node
+        delete globalThis.window;
     });
 
     /**
