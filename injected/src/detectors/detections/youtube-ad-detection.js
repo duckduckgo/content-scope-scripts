@@ -68,9 +68,7 @@ class YouTubeAdDetector {
 
         // Cache selector string for hot path
         this.cachedAdSelector =
-            this.config.adClasses && this.config.adClasses.length > 0
-                ? this.config.adClasses.map((cls) => '.' + cls).join(',')
-                : null;
+            this.config.adClasses && this.config.adClasses.length > 0 ? this.config.adClasses.map((cls) => '.' + cls).join(',') : null;
     }
 
     // =========================================================================
