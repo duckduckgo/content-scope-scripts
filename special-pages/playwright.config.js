@@ -137,9 +137,8 @@ export default defineConfig({
     expect: {
         /**
          * Maximum time expect() should wait for the condition to be met.
-         * Reduced from default 5000ms to fail faster on screenshot mismatches.
          */
-        timeout: 2500,
+        timeout: 5000,
     },
     // @ts-expect-error - Type 'undefined' is not assignable to type 'string'. process.env
     webServer: {

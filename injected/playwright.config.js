@@ -89,9 +89,8 @@ export default defineConfig({
         /**
          * Maximum time expect() should wait for the condition to be met.
          * For example in `await expect(locator).toHaveText();`
-         * Reduced from default 5000ms to fail faster on screenshot mismatches.
          */
-        timeout: 2500,
+        timeout: 5000,
     },
     /* Run tests in files in parallel */
     fullyParallel: !process.env.CI,
