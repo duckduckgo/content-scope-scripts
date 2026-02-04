@@ -17,6 +17,8 @@ permissions:
 
 jobs:
     snapshots:
+        # TODO: Re-enable when macOS runners are available
+        if: false
         timeout-minutes: 5
         runs-on: macos-14
         steps:

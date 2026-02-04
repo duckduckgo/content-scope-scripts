@@ -18,6 +18,8 @@ permissions:
 
 jobs:
     update-pr-with-snapshots:
+        # TODO: Re-enable when macOS runners are available
+        if: false
         name: Update PR With Snapshots
         runs-on: macos-14
         steps:
