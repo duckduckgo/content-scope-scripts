@@ -102,6 +102,11 @@ export class BufferingMetrics {
             });
         };
 
+        const onEnded = () => {
+            if (!video) return;
+            this.messaging.notifyPlaybackEnded({ timestamp: video.currentTime });
+        };
+
         const attachListeners = () => {
             if (!video || listenersAttached) return;
             video.addEventListener('seeking', onSeeking);
@@ -110,6 +115,7 @@ export class BufferingMetrics {
             video.addEventListener('playing', onPlaying);
             video.addEventListener('waiting', onWaiting);
             video.addEventListener('error', onError);
+            video.addEventListener('ended', onEnded);
             listenersAttached = true;
 
             if (!video.paused && !hasStartedPlaying) {
@@ -126,6 +132,7 @@ export class BufferingMetrics {
             video.removeEventListener('playing', onPlaying);
             video.removeEventListener('waiting', onWaiting);
             video.removeEventListener('error', onError);
+            video.removeEventListener('ended', onEnded);
             listenersAttached = false;
         };
 

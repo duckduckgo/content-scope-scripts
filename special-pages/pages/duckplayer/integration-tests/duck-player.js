@@ -715,10 +715,15 @@ export class DuckPlayerPage {
         expect(calls.length).toBe(0);
     }
 
+    async didSendPlaybackEnded() {
+        const calls = await this.mocks.waitForCallCount({ method: 'onPlaybackEnded', count: 1 });
+        expect(calls[0].payload.params).toHaveProperty('timestamp');
+    }
+
     async didNotSendAnyPlaybackMetrics() {
         await this.page.waitForTimeout(100);
         const calls = await this.mocks.outgoing({
-            names: ['onPlaybackStarted', 'onPlaybackStalled', 'onPlaybackResumed', 'onPlaybackError'],
+            names: ['onPlaybackStarted', 'onPlaybackStalled', 'onPlaybackResumed', 'onPlaybackError', 'onPlaybackEnded'],
         });
         expect(calls.length).toBe(0);
     }

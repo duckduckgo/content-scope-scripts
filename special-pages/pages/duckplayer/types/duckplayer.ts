@@ -23,6 +23,7 @@ export type PrivatePlayerMode =
  */
 export interface DuckplayerMessages {
   notifications:
+    | OnPlaybackEndedNotification
     | OnPlaybackErrorNotification
     | OnPlaybackResumedNotification
     | OnPlaybackStalledNotification
@@ -35,6 +36,19 @@ export interface DuckplayerMessages {
     | TelemetryEventNotification;
   requests: GetUserValuesRequest | InitialSetupRequest | SetUserValuesRequest;
   subscriptions: OnUserValuesChangedSubscription;
+}
+/**
+ * Generated from @see "../messages/onPlaybackEnded.notify.json"
+ */
+export interface OnPlaybackEndedNotification {
+  method: "onPlaybackEnded";
+  params: PlaybackEnded;
+}
+export interface PlaybackEnded {
+  /**
+   * video.currentTime when playback ended (should equal duration)
+   */
+  timestamp: number;
 }
 /**
  * Generated from @see "../messages/onPlaybackError.notify.json"

@@ -147,6 +147,14 @@ export class DuckplayerPage {
     notifyPlaybackError(params) {
         this.messaging.notify('onPlaybackError', params);
     }
+
+    /**
+     * Sent when video playback reaches the end.
+     * @param {import('../types/duckplayer.ts').PlaybackEnded} params
+     */
+    notifyPlaybackEnded(params) {
+        this.messaging.notify('onPlaybackEnded', params);
+    }
 }
 
 /**

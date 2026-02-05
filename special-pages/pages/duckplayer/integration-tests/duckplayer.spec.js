@@ -416,6 +416,17 @@ test.describe('buffering metrics', () => {
         await duckplayer.didNotSendPlaybackResumed();
     });
 
+    test('sends playbackEnded when video ends', async ({ page }, workerInfo) => {
+        test.skip(!isWindows(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithVideoID();
+        await duckplayer.hasLoadedIframe();
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.dispatchVideoEvent('ended');
+        await duckplayer.didSendPlaybackStarted();
+        await duckplayer.didSendPlaybackEnded();
+    });
+
     test('does not send metrics on non-Windows platforms', async ({ page }, workerInfo) => {
         test.skip(isWindows(workerInfo));
         const duckplayer = DuckPlayerPage.create(page, workerInfo);
