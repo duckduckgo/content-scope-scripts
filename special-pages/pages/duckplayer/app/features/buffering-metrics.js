@@ -22,6 +22,7 @@ export class BufferingMetrics {
 
     /**
      * @param {HTMLIFrameElement} iframe
+     * @returns {() => void}
      */
     iframeDidLoad(iframe) {
         const maxAttempts = 1000;
@@ -35,8 +36,8 @@ export class BufferingMetrics {
         let isSeeking = false;
         let listenersAttached = false;
         let hasStartedPlaying = false;
-        let wasPaused = false;
 
+        /** @returns {number} */
         const getBufferAhead = () => {
             if (!video || video.buffered.length === 0) return 0;
             const currentTime = video.currentTime;
@@ -57,10 +58,6 @@ export class BufferingMetrics {
             stallStartTime = null;
         };
 
-        const onPause = () => {
-            wasPaused = true;
-        };
-
         const onPlaying = () => {
             if (!video) return;
             if (stallStartTime !== null && !isSeeking) {
@@ -68,17 +65,16 @@ export class BufferingMetrics {
                     timestamp: video.currentTime,
                     stallDurationMs: Date.now() - stallStartTime,
                 });
-            } else if (!hasStartedPlaying || wasPaused) {
+            } else if (!hasStartedPlaying) {
                 this.messaging.notifyPlaybackStarted({ timestamp: video.currentTime });
+                hasStartedPlaying = true;
             }
             stallStartTime = null;
-            hasStartedPlaying = true;
-            wasPaused = false;
         };
 
         const onWaiting = () => {
             if (!video) return;
-            if (!isSeeking) {
+            if (!isSeeking && stallStartTime === null) {
                 stallStartTime = Date.now();
                 this.messaging.notifyPlaybackStalled({
                     timestamp: video.currentTime,
@@ -99,18 +95,21 @@ export class BufferingMetrics {
             if (!video || listenersAttached) return;
             video.addEventListener('seeking', onSeeking);
             video.addEventListener('seeked', onSeeked);
-            video.addEventListener('pause', onPause);
             video.addEventListener('playing', onPlaying);
             video.addEventListener('waiting', onWaiting);
             video.addEventListener('error', onError);
             listenersAttached = true;
+
+            if (!video.paused && !hasStartedPlaying) {
+                this.messaging.notifyPlaybackStarted({ timestamp: video.currentTime });
+                hasStartedPlaying = true;
+            }
         };
 
         const removeListeners = () => {
             if (!video || !listenersAttached) return;
             video.removeEventListener('seeking', onSeeking);
             video.removeEventListener('seeked', onSeeked);
-            video.removeEventListener('pause', onPause);
             video.removeEventListener('playing', onPlaying);
             video.removeEventListener('waiting', onWaiting);
             video.removeEventListener('error', onError);
