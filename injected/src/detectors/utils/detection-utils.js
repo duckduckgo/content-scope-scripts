@@ -86,8 +86,12 @@ export function matchesTextPatterns(element, patterns, sources) {
     }
     const text = getTextContent(element, sources);
     return patterns.some((pattern) => {
-        const regex = new RegExp(pattern, 'i');
-        return regex.test(text);
+        try {
+            const regex = new RegExp(pattern, 'i');
+            return regex.test(text);
+        } catch {
+            return false;
+        }
     });
 }
 
@@ -127,5 +131,13 @@ export function toRegExpArray(patterns, flags = 'i') {
     if (!patterns || !Array.isArray(patterns)) {
         return [];
     }
-    return patterns.map((p) => new RegExp(p, flags));
+    return patterns
+        .map((p) => {
+            try {
+                return new RegExp(p, flags);
+            } catch {
+                return null;
+            }
+        })
+        .filter(/** @type {(r: RegExp | null) => r is RegExp} */ (r) => r !== null);
 }
