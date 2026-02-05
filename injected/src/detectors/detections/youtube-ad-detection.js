@@ -504,11 +504,14 @@ class YouTubeAdDetector {
     /**
      * Attach event listeners to video element for tracking
      * @param {Element} root - Player root element
+     * @param {number} [attempt=1] - Current retry attempt
      */
-    attachVideoListeners(root) {
+    attachVideoListeners(root, attempt = 1) {
         const videoElement = /** @type {HTMLVideoElement | null} */ (root?.querySelector('video'));
         if (!videoElement) {
-            setTimeout(() => this.attachVideoListeners(root), 500);
+            if (attempt < 25) {
+                setTimeout(() => this.attachVideoListeners(root, attempt + 1), 500);
+            }
             return;
         }
 
@@ -629,13 +632,18 @@ class YouTubeAdDetector {
 
     /**
      * Start the detector
+     * @param {number} [attempt=1] - Current retry attempt
      */
-    start() {
+    start(attempt = 1) {
         this.log.info('YouTubeAdDetector starting...');
         const root = this.findPlayerRoot();
         if (!root) {
-            this.log.info('Player root not found, retrying in 500ms');
-            setTimeout(() => this.start(), 500);
+            if (attempt < 25) {
+                this.log.info(`Player root not found, retrying in 500ms (attempt ${attempt}/25)`);
+                setTimeout(() => this.start(attempt + 1), 500);
+            } else {
+                this.log.info('Player root not found after 25 attempts, giving up');
+            }
             return;
         }
 
@@ -650,7 +658,7 @@ class YouTubeAdDetector {
 
         // Start sweep loop
         this.sweep();
-        this.pollInterval = setInterval(() => this.sweep(), this.config.sweepIntervalMs);
+        this.pollInterval = setInterval(() => this.sweep(), this.config.sweepIntervalMs || 2000);
         this.log.info(`Detector started, sweep interval: ${this.config.sweepIntervalMs}ms`);
 
         // Check for player root changes
@@ -659,7 +667,7 @@ class YouTubeAdDetector {
             if (r && r !== this.playerRoot) {
                 this.playerRoot = r;
                 if (this.pollInterval) clearInterval(this.pollInterval);
-                this.pollInterval = setInterval(() => this.sweep(), this.config.sweepIntervalMs);
+                this.pollInterval = setInterval(() => this.sweep(), this.config.sweepIntervalMs || 2000);
             }
         }, 1000);
 
@@ -764,8 +772,8 @@ let detectorInstance = null;
  * @param {{info: Function, warn: Function, error: Function}} [logger] - Optional logger from ContentFeature
  */
 export function runYoutubeAdDetection(config, logger) {
-    // If explicitly disabled, return empty
-    if (config?.state === 'disabled') {
+    // Only run if explicitly enabled or internal
+    if (config?.state !== 'enabled' && config?.state !== 'internal') {
         return { detected: false, type: 'youtubeAds', results: [] };
     }
 
