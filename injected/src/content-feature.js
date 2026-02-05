@@ -28,15 +28,20 @@ import ConfigFeature from './config-feature.js';
  */
 
 /**
- * @returns {{promise: Promise<void>, resolve?: () => void, reject?: (e?: unknown) => void}}
+ * @typedef {{status: 'ready'} | {status: 'skipped', reason: string} | {status: 'error', error: string}} ReadyStatus
+ */
+
+/**
+ * @returns {{promise: Promise<ReadyStatus>, resolve: (resolve: ReadyStatus) => void}}
  */
 function createDeferred() {
-    const deferred = {};
-    deferred.promise = new Promise((resolve, reject) => {
-        deferred.resolve = resolve;
-        deferred.reject = reject;
+    /** @type {(value: ReadyStatus) => void} */
+    let res;
+    const promise = new Promise((resolve) => {
+        res = resolve;
     });
-    return deferred;
+    // @ts-expect-error - resolve is assigned in the Promise constructor
+    return { promise, resolve: res };
 }
 
 /**
@@ -53,12 +58,6 @@ export class CallFeatureMethodError extends Error {
         this.name = new.target.name;
     }
 }
-
-/**
- * Error used to indicate that a feature was skipped during initialization
- * (e.g., due to being broken or disabled on the current site).
- */
-class FeatureSkippedError extends Error {}
 
 export default class ContentFeature extends ConfigFeature {
     /** @type {import('./utils.js').RemoteConfig | undefined} */
@@ -136,7 +135,7 @@ export default class ContentFeature extends ConfigFeature {
     /**
      * Returns a promise that resolves when the feature has been initialised with `init`.
      *
-     * @returns {Promise<void>}
+     * @returns {Promise<ReadyStatus>}
      */
     get _ready() {
         return this.#ready.promise;
@@ -265,13 +264,12 @@ export default class ContentFeature extends ConfigFeature {
         if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
         if (!(method instanceof Function))
             return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
-        try {
-            await feature._ready;
-        } catch (e) {
-            if (e instanceof FeatureSkippedError) {
-                return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${e.message}`);
-            }
-            throw e;
+        const isReady = await feature._ready;
+        if (isReady.status === 'skipped') {
+            return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${isReady.reason}`);
+        }
+        if (isReady.status === 'error') {
+            return new CallFeatureMethodError(`Initialisation of feature '${featureName}' failed: ${isReady.error}`);
         }
         return method.call(feature, ...args);
     }
@@ -333,9 +331,9 @@ export default class ContentFeature extends ConfigFeature {
             // disable lint error as `init` is not forced to be async
             // eslint-disable-next-line @typescript-eslint/await-thenable
             await this.init(this.args);
-            this.#ready.resolve?.();
+            this.#ready.resolve({ status: 'ready' });
         } catch (error) {
-            this.#ready.reject?.(error);
+            this.#ready.resolve({ status: 'error', error: String(error) });
             throw error;
         } finally {
             mark.end();
@@ -351,7 +349,7 @@ export default class ContentFeature extends ConfigFeature {
      * @param {string} reason - The reason the feature was skipped
      */
     markFeatureAsSkipped(reason) {
-        this.#ready.reject?.(new FeatureSkippedError(reason));
+        this.#ready.resolve({ status: 'skipped', reason });
     }
 
     setArgs(args) {
