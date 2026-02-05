@@ -9,7 +9,6 @@ import { BufferingMetrics } from './buffering-metrics.js';
 
 /**
  * @import {EmbedSettings} from '../embed-settings.js';
- * @import {DuckplayerPage} from '../../src/index.js';
  */
 
 /**
@@ -44,9 +43,8 @@ export class IframeFeature {
  *
  * @param {import("../settings").Settings} settings
  * @param {EmbedSettings} embed
- * @param {DuckplayerPage} [messaging]
  */
-export function createIframeFeatures(settings, embed, messaging) {
+export function createIframeFeatures(settings, embed) {
     return {
         /**
          * @return {IframeFeature}
@@ -100,8 +98,8 @@ export function createIframeFeatures(settings, embed, messaging) {
          * @return {IframeFeature}
          */
         bufferingMetrics: () => {
-            if (messaging && settings.platform.name === 'windows') {
-                return new BufferingMetrics(messaging);
+            if (settings.platform.name === 'windows') {
+                return new BufferingMetrics();
             }
             return IframeFeature.noop();
         },

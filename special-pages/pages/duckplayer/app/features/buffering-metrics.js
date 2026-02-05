@@ -1,7 +1,9 @@
 /**
  * @typedef {import("./iframe").IframeFeature} IframeFeature
- * @typedef {import("../../src/index.js").DuckplayerPage} DuckplayerPage
+ * @typedef {import("../../types/duckplayer").PlaybackEvent} PlaybackEvent
  */
+
+export const PLAYBACK_EVENT = 'duckplayer:playbackEvent';
 
 /**
  * Monitors video playback for buffering metrics (stalls, resumes, errors).
@@ -10,16 +12,6 @@
  * @implements IframeFeature
  */
 export class BufferingMetrics {
-    /** @type {DuckplayerPage} */
-    messaging;
-
-    /**
-     * @param {DuckplayerPage} messaging
-     */
-    constructor(messaging) {
-        this.messaging = messaging;
-    }
-
     /**
      * @param {HTMLIFrameElement} iframe
      * @returns {() => void}
@@ -36,6 +28,13 @@ export class BufferingMetrics {
         let isSeeking = false;
         let listenersAttached = false;
         let hasStartedPlaying = false;
+
+        /**
+         * @param {PlaybackEvent} detail
+         */
+        const dispatchPlaybackEvent = (detail) => {
+            window.dispatchEvent(new CustomEvent(PLAYBACK_EVENT, { detail }));
+        };
 
         /** @returns {number} */
         const getBufferAhead = () => {
@@ -69,11 +68,11 @@ export class BufferingMetrics {
             // Initial play - stallStartTime is always null here since onWaiting
             // requires hasStartedPlaying before setting it.
             if (!hasStartedPlaying) {
-                this.messaging.notifyPlaybackEvent({ eventType: 'start', timestamp: video.currentTime });
+                dispatchPlaybackEvent({ eventType: 'start', timestamp: video.currentTime });
                 hasStartedPlaying = true;
             } else if (stallStartTime !== null && !isSeeking) {
                 // Mid-playback stall resumed (not from a seek operation).
-                this.messaging.notifyPlaybackEvent({
+                dispatchPlaybackEvent({
                     eventType: 'resume',
                     timestamp: video.currentTime,
                     stallDurationMs: Date.now() - stallStartTime,
@@ -88,7 +87,7 @@ export class BufferingMetrics {
             // when not seeking (seek has its own waiting period), and when not already stalled.
             if (hasStartedPlaying && !isSeeking && stallStartTime === null) {
                 stallStartTime = Date.now();
-                this.messaging.notifyPlaybackEvent({
+                dispatchPlaybackEvent({
                     eventType: 'stalled',
                     timestamp: video.currentTime,
                     bufferAhead: getBufferAhead(),
@@ -98,7 +97,7 @@ export class BufferingMetrics {
 
         const onError = () => {
             if (!video) return;
-            this.messaging.notifyPlaybackEvent({
+            dispatchPlaybackEvent({
                 eventType: 'error',
                 timestamp: video.currentTime,
                 errorCode: video.error?.code || 0,
@@ -107,7 +106,7 @@ export class BufferingMetrics {
 
         const onEnded = () => {
             if (!video) return;
-            this.messaging.notifyPlaybackEvent({ eventType: 'end', timestamp: video.currentTime });
+            dispatchPlaybackEvent({ eventType: 'end', timestamp: video.currentTime });
         };
 
         const attachListeners = () => {
@@ -122,7 +121,7 @@ export class BufferingMetrics {
             listenersAttached = true;
 
             if (!video.paused && !hasStartedPlaying) {
-                this.messaging.notifyPlaybackEvent({ eventType: 'start', timestamp: video.currentTime });
+                dispatchPlaybackEvent({ eventType: 'start', timestamp: video.currentTime });
                 hasStartedPlaying = true;
             }
         };

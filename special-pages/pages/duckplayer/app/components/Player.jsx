@@ -4,7 +4,8 @@ import styles from './Player.module.css';
 import { useEffect, useRef } from 'preact/hooks';
 import { useSettings, useOpenOnYoutubeHandler } from '../providers/SettingsProvider.jsx';
 import { createIframeFeatures } from '../features/iframe.js';
-import { Settings } from '../settings';
+import { Settings } from '../settings.js';
+import { PLAYBACK_EVENT } from '../features/buffering-metrics.js';
 import { useTypedTranslation, useMessaging } from '../types.js';
 
 /**
@@ -21,7 +22,20 @@ import { useTypedTranslation, useMessaging } from '../types.js';
  */
 export function Player({ src, layout, embed }) {
     const messaging = useMessaging();
-    const { ref, didLoad } = useIframeEffects(src, embed, messaging);
+    const settings = useSettings();
+    const { ref, didLoad } = useIframeEffects(src, embed);
+
+    useEffect(() => {
+        if (settings.platform.name !== 'windows') return;
+
+        /** @type {(event: CustomEvent<import('../../types/duckplayer').PlaybackEvent>) => void} */
+        const handler = (event) => {
+            messaging.notifyPlaybackEvent(event.detail);
+        };
+        window.addEventListener(PLAYBACK_EVENT, handler);
+        return () => window.removeEventListener(PLAYBACK_EVENT, handler);
+    }, [messaging, settings.platform.name]);
+
     const wrapperClasses = cn({
         [styles.root]: true,
         [styles.player]: true,
@@ -87,13 +101,12 @@ export function PlayerError({ kind, layout }) {
  *
  * @param {string} src - the iframe `src` attribute
  * @param {EmbedSettings} embed
- * @param {import("../../src/index.js").DuckplayerPage} messaging
  * @return {{
  *   ref: import("preact/hooks").MutableRef<HTMLIFrameElement|null>,
  *   didLoad: () => void
  * }}
  */
-function useIframeEffects(src, embed, messaging) {
+function useIframeEffects(src, embed) {
     const ref = useRef(/** @type {HTMLIFrameElement|null} */ (null));
     const didLoad = useRef(/** @type {boolean} */ (false));
     const settings = useSettings();
@@ -102,7 +115,7 @@ function useIframeEffects(src, embed, messaging) {
     useEffect(() => {
         if (!ref.current) return;
         const iframe = ref.current;
-        const features = createIframeFeatures(settings, embed, messaging);
+        const features = createIframeFeatures(settings, embed);
 
         /** @type {import("../features/iframe.js").IframeFeature[]} */
         const iframeFeatures = [
@@ -142,7 +155,7 @@ function useIframeEffects(src, embed, messaging) {
             }
             iframe.removeEventListener('load', loadHandler);
         };
-    }, [src, settings, embed, messaging]);
+    }, [src, settings, embed]);
 
     return { ref, didLoad: () => (didLoad.current = true) };
 }
