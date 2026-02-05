@@ -30,8 +30,18 @@ import { withDefaults } from '../../utils.js';
  */
 
 /**
+ * Auto trigger configuration for automatic detection after page load.
+ *
+ * @typedef {object} AutoTrigger
+ * @property {FeatureState} state - Whether this trigger is enabled
+ * @property {import('../../config-feature.js').ConditionBlockOrArray} [runConditions] - Conditions that must be met to run
+ * @property {number[]} intervalMs - Intervals (ms) after initialisation to run detection
+ */
+
+/**
  * @typedef {object} Triggers
  * @property {TriggerBase} breakageReport - Whether to run in the breakage report flow
+ * @property {AutoTrigger} [auto] - Whether to run automatically after page load
  */
 
 /**
@@ -42,10 +52,27 @@ import { withDefaults } from '../../utils.js';
  */
 
 /**
+ * Fire telemetry action configuration.
+ *
+ * @typedef {object} FireTelemetryAction
+ * @property {FeatureState} state - Whether this action is enabled
+ * @property {string} type - The type of telemetry event to fire (e.g., "adwall")
+ */
+
+/**
+ * Breakage report data action configuration.
+ *
+ * @typedef {object} BreakageReportDataAction
+ * @property {FeatureState} state - Whether this action is enabled
+ * @property {boolean} [debug] - When true, include debug info regardless of detection result
+ */
+
+/**
  * Actions to take when a detector matches.
  *
  * @typedef {object} DetectorActions
- * @property {ActionBase} breakageReportData - Whether to include in breakage report data
+ * @property {BreakageReportDataAction} breakageReportData - Whether to include in breakage report data
+ * @property {FireTelemetryAction} [fireTelemetry] - Fire telemetry via web-telemetry feature
  */
 
 /**
@@ -60,6 +87,8 @@ import { withDefaults } from '../../utils.js';
  * @property {MatchCondition} match - Conditions for the detector to match
  * @property {Triggers} triggers - Trigger configurations
  * @property {DetectorActions} actions - Actions to take on match
+ * @property {string} [id] - Detector ID (set during parsing)
+ * @property {string} [groupName] - Group name (set during parsing)
  */
 
 /**
@@ -88,10 +117,20 @@ const DEFAULTS = {
             state: /** @type {FeatureState} */ ('enabled'),
             runConditions: DEFAULT_RUN_CONDITIONS,
         },
+        auto: {
+            state: /** @type {FeatureState} */ ('disabled'),
+            runConditions: DEFAULT_RUN_CONDITIONS,
+            intervalMs: /** @type {number[]} */ ([]),
+        },
     },
     actions: {
         breakageReportData: {
             state: /** @type {FeatureState} */ ('enabled'),
+            debug: false,
+        },
+        fireTelemetry: {
+            state: /** @type {FeatureState} */ ('disabled'),
+            type: '',
         },
     },
 };

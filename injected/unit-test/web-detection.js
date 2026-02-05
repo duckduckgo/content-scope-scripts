@@ -727,4 +727,131 @@ describe('WebDetection', () => {
             });
         });
     });
+
+    // Note: The following tests use the new schema fields (auto trigger, fireTelemetry action, debug option)
+    // that are defined in the updated remote-config schema. Type casts to `any` are used until
+    // the remote-config changes are merged and the package is updated.
+    describe('auto trigger', () => {
+        it('should apply disabled default state for auto trigger', () => {
+            const config = {
+                adwalls: {
+                    generic: { match: { text: { pattern: 'adblocker' } } },
+                },
+            };
+            const result = parseDetectors(config);
+            const detector = /** @type {any} */ (result.adwalls.generic);
+
+            expect(detector.triggers.auto.state).toBe('disabled');
+            expect(detector.triggers.auto.intervalMs).toEqual([]);
+        });
+
+        it('should preserve auto trigger config when specified', () => {
+            const config = /** @type {any} */ ({
+                adwalls: {
+                    generic: {
+                        match: { text: { pattern: 'adblocker' } },
+                        triggers: {
+                            auto: {
+                                state: 'enabled',
+                                intervalMs: [100, 500, 1000],
+                            },
+                        },
+                    },
+                },
+            });
+            const result = parseDetectors(config);
+            const detector = /** @type {any} */ (result.adwalls.generic);
+
+            expect(detector.triggers.auto.state).toBe('enabled');
+            expect(detector.triggers.auto.intervalMs).toEqual([100, 500, 1000]);
+        });
+
+        it('should allow custom runConditions for auto trigger', () => {
+            const config = /** @type {any} */ ({
+                adwalls: {
+                    french: {
+                        match: { text: { pattern: 'bloc publicitaire' } },
+                        triggers: {
+                            auto: {
+                                state: 'enabled',
+                                intervalMs: [100],
+                                runConditions: [{ urlPattern: 'https://*.fr/*' }],
+                            },
+                        },
+                    },
+                },
+            });
+            const result = /** @type {any} */ (parseDetectors(config));
+            expect(result.adwalls.french.triggers.auto.runConditions).toEqual([{ urlPattern: 'https://*.fr/*' }]);
+        });
+    });
+
+    describe('fireTelemetry action', () => {
+        it('should apply disabled default state for fireTelemetry action', () => {
+            const config = {
+                adwalls: {
+                    generic: { match: { text: { pattern: 'adblocker' } } },
+                },
+            };
+            const result = parseDetectors(config);
+            const detector = /** @type {any} */ (result.adwalls.generic);
+
+            expect(detector.actions.fireTelemetry.state).toBe('disabled');
+            expect(detector.actions.fireTelemetry.type).toBe('');
+        });
+
+        it('should preserve fireTelemetry action config when specified', () => {
+            const config = /** @type {any} */ ({
+                adwalls: {
+                    generic: {
+                        match: { text: { pattern: 'adblocker' } },
+                        actions: {
+                            fireTelemetry: {
+                                state: 'enabled',
+                                type: 'adwall',
+                            },
+                        },
+                    },
+                },
+            });
+            const result = parseDetectors(config);
+            const detector = /** @type {any} */ (result.adwalls.generic);
+
+            expect(detector.actions.fireTelemetry.state).toBe('enabled');
+            expect(detector.actions.fireTelemetry.type).toBe('adwall');
+        });
+    });
+
+    describe('breakageReportData debug option', () => {
+        it('should apply false default for debug option', () => {
+            const config = {
+                adwalls: {
+                    generic: { match: { text: { pattern: 'adblocker' } } },
+                },
+            };
+            const result = parseDetectors(config);
+            const detector = /** @type {any} */ (result.adwalls.generic);
+
+            expect(detector.actions.breakageReportData.debug).toBe(false);
+        });
+
+        it('should preserve debug option when specified', () => {
+            const config = /** @type {any} */ ({
+                adwalls: {
+                    generic: {
+                        match: { text: { pattern: 'adblocker' } },
+                        actions: {
+                            breakageReportData: {
+                                debug: true,
+                            },
+                        },
+                    },
+                },
+            });
+            const result = parseDetectors(config);
+            const detector = /** @type {any} */ (result.adwalls.generic);
+
+            expect(detector.actions.breakageReportData.debug).toBe(true);
+        });
+    });
 });

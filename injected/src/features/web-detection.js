@@ -15,10 +15,24 @@ import { evaluateMatch } from './web-detection/matching.js';
  */
 
 /**
+ * @typedef {'breakageReport' | 'auto'} TriggerType
+ */
+
+/**
  * @typedef {{
- *  trigger: 'breakageReport';
+ *  trigger: TriggerType;
  * }} RunDetectionOptions
  */
+
+/**
+ * Message type for firing telemetry.
+ */
+const MSG_FIRE_TELEMETRY = 'fireTelemetry';
+
+/**
+ * Message type for detection breakage data.
+ */
+const MSG_DETECTION_BREAKAGE_DATA = 'detectionBreakageData';
 
 /**
  * WebDetection feature provides a configurable detector framework for identifying
@@ -29,16 +43,59 @@ import { evaluateMatch } from './web-detection/matching.js';
  */
 export default class WebDetection extends ContentFeature {
     /** @type {Record<string, Record<string, DetectorConfig>>} */
-    #detectors = {};
+    _detectors = {};
+
+    /**
+     * Track which detectors have fired telemetry on this page to deduplicate.
+     * @type {Set<string>}
+     */
+    _firedTelemetryDetectors = new Set();
 
     _exposedMethods = this._declareExposedMethods(['runDetectors']);
 
     /**
-     * Initialize the feature by loading detector configurations
+     * Initialize the feature by loading detector configurations and scheduling auto detectors.
      */
     init() {
         const detectorsConfig = this.getFeatureSetting('detectors');
-        this.#detectors = parseDetectors(detectorsConfig);
+        this._detectors = parseDetectors(detectorsConfig);
+
+        // Schedule auto detection runs
+        this._scheduleAutoDetectors();
+    }
+
+    /**
+     * Schedule automatic detection runs based on detector configurations.
+     */
+    _scheduleAutoDetectors() {
+        // Collect all unique intervals needed
+        /** @type {Set<number>} */
+        const intervals = new Set();
+
+        for (const groupDetectors of Object.values(this._detectors)) {
+            for (const detectorConfig of Object.values(groupDetectors)) {
+                if (this._shouldRunDetector(detectorConfig, { trigger: 'auto' })) {
+                    const autoTrigger = detectorConfig.triggers.auto;
+                    if (autoTrigger?.intervalMs) {
+                        for (const ms of autoTrigger.intervalMs) {
+                            intervals.add(ms);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Schedule detection runs at each interval
+        for (const ms of intervals) {
+            setTimeout(() => this._runAutoDetectors(), ms);
+        }
+    }
+
+    /**
+     * Run all auto-triggered detectors.
+     */
+    _runAutoDetectors() {
+        this.runDetectors({ trigger: 'auto' });
     }
 
     /**
@@ -59,6 +116,12 @@ export default class WebDetection extends ContentFeature {
         // Don't run if the run conditions are not met.
         if (triggerSettings.runConditions && !this._matchConditionalBlockOrArray(triggerSettings.runConditions)) return false;
 
+        // For auto trigger, also check that intervalMs is specified
+        if (options.trigger === 'auto') {
+            const autoTrigger = /** @type {import('./web-detection/parse.js').AutoTrigger} */ (triggerSettings);
+            if (!autoTrigger.intervalMs || autoTrigger.intervalMs.length === 0) return false;
+        }
+
         return true;
     }
 
@@ -72,10 +135,12 @@ export default class WebDetection extends ContentFeature {
         /** @type {DetectorResult[]} */
         const results = [];
 
-        for (const [groupName, groupDetectors] of Object.entries(this.#detectors)) {
+        for (const [groupName, groupDetectors] of Object.entries(this._detectors)) {
             for (const [detectorId, detectorConfig] of Object.entries(groupDetectors)) {
                 // Check whether the detector should be run for the given trigger.
                 if (!this._shouldRunDetector(detectorConfig, options)) continue;
+
+                const fullDetectorId = `${groupName}.${detectorId}`;
 
                 // Evaluate match conditions
                 /** @type {true | false | 'error'} */
@@ -86,14 +151,16 @@ export default class WebDetection extends ContentFeature {
                     detected = 'error';
                 }
 
-                // Execute detector actions.
+                // Execute detector actions based on detection result.
+                this._executeActions(fullDetectorId, detectorConfig, detected, options);
 
                 // If we're in the breakage report trigger and the breakage report data action is enabled, add the result to the results.
                 if (options.trigger === 'breakageReport' && this._isStateEnabled(detectorConfig.actions.breakageReportData.state)) {
-                    // Only include if detected or errored (not false)
-                    if (detected !== false) {
+                    const debugEnabled = detectorConfig.actions.breakageReportData.debug === true;
+                    // Include if detected, errored, or debug mode is enabled
+                    if (detected !== false || debugEnabled) {
                         results.push({
-                            detectorId: `${groupName}.${detectorId}`,
+                            detectorId: fullDetectorId,
                             detected,
                         });
                     }
@@ -101,5 +168,58 @@ export default class WebDetection extends ContentFeature {
             }
         }
         return results;
+    }
+
+    /**
+     * Execute actions for a detector based on its match result.
+     *
+     * @param {string} detectorId - Full detector ID (group.detector)
+     * @param {DetectorConfig} config - Detector configuration
+     * @param {true | false | 'error'} detected - Detection result
+     * @param {RunDetectionOptions} options - Run options
+     */
+    _executeActions(detectorId, config, detected, options) {
+        // Only fire actions if detection was successful (not false or error)
+        if (detected !== true) return;
+
+        // Fire telemetry action
+        if (config.actions.fireTelemetry && this._isStateEnabled(config.actions.fireTelemetry.state)) {
+            this._fireTelemetry(detectorId, config.actions.fireTelemetry);
+        }
+
+        // Notify native about detection for breakage reports (auto trigger only)
+        if (options.trigger === 'auto' && this._isStateEnabled(config.actions.breakageReportData?.state)) {
+            this._notifyDetectionBreakageData(detectorId);
+        }
+    }
+
+    /**
+     * Fire telemetry for a detected condition.
+     * Deduplicates by detector ID per page.
+     *
+     * @param {string} detectorId - Full detector ID (group.detector)
+     * @param {import('./web-detection/parse.js').FireTelemetryAction} action - Fire telemetry action config
+     */
+    _fireTelemetry(detectorId, action) {
+        // Deduplicate: only fire once per detector per page
+        if (this._firedTelemetryDetectors.has(detectorId)) return;
+        this._firedTelemetryDetectors.add(detectorId);
+
+        // Fire telemetry via messaging
+        this.messaging.notify(MSG_FIRE_TELEMETRY, {
+            detectorId,
+            type: action.type,
+        });
+    }
+
+    /**
+     * Notify native about a detection for inclusion in breakage reports.
+     *
+     * @param {string} detectorId - Full detector ID (group.detector)
+     */
+    _notifyDetectionBreakageData(detectorId) {
+        this.messaging.notify(MSG_DETECTION_BREAKAGE_DATA, {
+            detectorId,
+        });
     }
 }
