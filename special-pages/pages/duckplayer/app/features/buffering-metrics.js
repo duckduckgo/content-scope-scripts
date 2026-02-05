@@ -60,21 +60,26 @@ export class BufferingMetrics {
 
         const onPlaying = () => {
             if (!video) return;
-            if (stallStartTime !== null && !isSeeking) {
+            // Initial play - stallStartTime is always null here since onWaiting
+            // requires hasStartedPlaying before setting it.
+            if (!hasStartedPlaying) {
+                this.messaging.notifyPlaybackStarted({ timestamp: video.currentTime });
+                hasStartedPlaying = true;
+            } else if (stallStartTime !== null && !isSeeking) {
+                // Mid-playback stall resumed (not from a seek operation).
                 this.messaging.notifyPlaybackResumed({
                     timestamp: video.currentTime,
                     stallDurationMs: Date.now() - stallStartTime,
                 });
-            } else if (!hasStartedPlaying) {
-                this.messaging.notifyPlaybackStarted({ timestamp: video.currentTime });
-                hasStartedPlaying = true;
             }
             stallStartTime = null;
         };
 
         const onWaiting = () => {
             if (!video) return;
-            if (!isSeeking && stallStartTime === null) {
+            // Only report stalls after playback has started (ignore initial buffering),
+            // when not seeking (seek has its own waiting period), and when not already stalled.
+            if (hasStartedPlaying && !isSeeking && stallStartTime === null) {
                 stallStartTime = Date.now();
                 this.messaging.notifyPlaybackStalled({
                     timestamp: video.currentTime,
