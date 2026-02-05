@@ -1,0 +1,25 @@
+{
+  "readme": "LEGACY format: This config tests backwards compatibility with old conditionalChanges format (domain at root level instead of condition.domain)",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "uaChBrands": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "conditionalChanges": [
+          {
+            "domain": "localhost",
+            "patchSettings": [
+              {
+                "op": "add",
+                "path": "/brandName",
+                "value": "Netscape Navigator"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
