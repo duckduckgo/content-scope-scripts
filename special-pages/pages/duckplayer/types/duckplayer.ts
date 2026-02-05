@@ -23,11 +23,7 @@ export type PrivatePlayerMode =
  */
 export interface DuckplayerMessages {
   notifications:
-    | OnPlaybackEndedNotification
-    | OnPlaybackErrorNotification
-    | OnPlaybackResumedNotification
-    | OnPlaybackStalledNotification
-    | OnPlaybackStartedNotification
+    | OnPlaybackEventNotification
     | OpenInfoNotification
     | OpenSettingsNotification
     | ReportInitExceptionNotification
@@ -38,81 +34,30 @@ export interface DuckplayerMessages {
   subscriptions: OnUserValuesChangedSubscription;
 }
 /**
- * Generated from @see "../messages/onPlaybackEnded.notify.json"
+ * Generated from @see "../messages/onPlaybackEvent.notify.json"
  */
-export interface OnPlaybackEndedNotification {
-  method: "onPlaybackEnded";
-  params: PlaybackEnded;
+export interface OnPlaybackEventNotification {
+  method: "onPlaybackEvent";
+  params: PlaybackEvent;
 }
-export interface PlaybackEnded {
+export interface PlaybackEvent {
+  eventType: "start" | "stalled" | "resume" | "error" | "end";
   /**
-   * video.currentTime when playback ended (should equal duration)
-   */
-  timestamp: number;
-}
-/**
- * Generated from @see "../messages/onPlaybackError.notify.json"
- */
-export interface OnPlaybackErrorNotification {
-  method: "onPlaybackError";
-  params: PlaybackError;
-}
-export interface PlaybackError {
-  /**
-   * MediaError.code (1=MEDIA_ERR_ABORTED, 2=MEDIA_ERR_NETWORK, 3=MEDIA_ERR_DECODE, 4=MEDIA_ERR_SRC_NOT_SUPPORTED)
-   */
-  errorCode: number;
-  /**
-   * video.currentTime when error occurred
-   */
-  timestamp: number;
-}
-/**
- * Generated from @see "../messages/onPlaybackResumed.notify.json"
- */
-export interface OnPlaybackResumedNotification {
-  method: "onPlaybackResumed";
-  params: PlaybackResumed;
-}
-export interface PlaybackResumed {
-  /**
-   * video.currentTime when playback resumed
+   * video.currentTime when event occurred
    */
   timestamp: number;
   /**
-   * how long the stall lasted in milliseconds
+   * Seconds of buffer remaining (only for stalled)
    */
-  stallDurationMs: number;
-}
-/**
- * Generated from @see "../messages/onPlaybackStalled.notify.json"
- */
-export interface OnPlaybackStalledNotification {
-  method: "onPlaybackStalled";
-  params: PlaybackStalled;
-}
-export interface PlaybackStalled {
+  bufferAhead?: number;
   /**
-   * video.currentTime when stall occurred
+   * How long the stall lasted in milliseconds (only for resume)
    */
-  timestamp: number;
+  stallDurationMs?: number;
   /**
-   * seconds of buffer remaining (0 = empty)
+   * MediaError.code (only for error)
    */
-  bufferAhead: number;
-}
-/**
- * Generated from @see "../messages/onPlaybackStarted.notify.json"
- */
-export interface OnPlaybackStartedNotification {
-  method: "onPlaybackStarted";
-  params: PlaybackStarted;
-}
-export interface PlaybackStarted {
-  /**
-   * video.currentTime when playback started
-   */
-  timestamp: number;
+  errorCode?: number;
 }
 /**
  * Generated from @see "../messages/openInfo.notify.json"

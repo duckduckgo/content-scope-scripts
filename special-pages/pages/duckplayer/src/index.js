@@ -117,43 +117,10 @@ export class DuckplayerPage {
     }
 
     /**
-     * Sent when video playback starts (initial play or resume after user pause).
-     * @param {import('../types/duckplayer.ts').PlaybackStarted} params
+     * @param {import('../types/duckplayer.ts').PlaybackEvent} params
      */
-    notifyPlaybackStarted(params) {
-        this.messaging.notify('onPlaybackStarted', params);
-    }
-
-    /**
-     * Sent when playback stalls due to buffering.
-     * @param {import('../types/duckplayer.ts').PlaybackStalled} params
-     */
-    notifyPlaybackStalled(params) {
-        this.messaging.notify('onPlaybackStalled', params);
-    }
-
-    /**
-     * Sent when playback resumes after a stall.
-     * @param {import('../types/duckplayer.ts').PlaybackResumed} params
-     */
-    notifyPlaybackResumed(params) {
-        this.messaging.notify('onPlaybackResumed', params);
-    }
-
-    /**
-     * Sent when a playback error occurs.
-     * @param {import('../types/duckplayer.ts').PlaybackError} params
-     */
-    notifyPlaybackError(params) {
-        this.messaging.notify('onPlaybackError', params);
-    }
-
-    /**
-     * Sent when video playback reaches the end.
-     * @param {import('../types/duckplayer.ts').PlaybackEnded} params
-     */
-    notifyPlaybackEnded(params) {
-        this.messaging.notify('onPlaybackEnded', params);
+    notifyPlaybackEvent(params) {
+        this.messaging.notify('onPlaybackEvent', params);
     }
 }
 

@@ -69,11 +69,12 @@ export class BufferingMetrics {
             // Initial play - stallStartTime is always null here since onWaiting
             // requires hasStartedPlaying before setting it.
             if (!hasStartedPlaying) {
-                this.messaging.notifyPlaybackStarted({ timestamp: video.currentTime });
+                this.messaging.notifyPlaybackEvent({ eventType: 'start', timestamp: video.currentTime });
                 hasStartedPlaying = true;
             } else if (stallStartTime !== null && !isSeeking) {
                 // Mid-playback stall resumed (not from a seek operation).
-                this.messaging.notifyPlaybackResumed({
+                this.messaging.notifyPlaybackEvent({
+                    eventType: 'resume',
                     timestamp: video.currentTime,
                     stallDurationMs: Date.now() - stallStartTime,
                 });
@@ -87,7 +88,8 @@ export class BufferingMetrics {
             // when not seeking (seek has its own waiting period), and when not already stalled.
             if (hasStartedPlaying && !isSeeking && stallStartTime === null) {
                 stallStartTime = Date.now();
-                this.messaging.notifyPlaybackStalled({
+                this.messaging.notifyPlaybackEvent({
+                    eventType: 'stalled',
                     timestamp: video.currentTime,
                     bufferAhead: getBufferAhead(),
                 });
@@ -96,15 +98,16 @@ export class BufferingMetrics {
 
         const onError = () => {
             if (!video) return;
-            this.messaging.notifyPlaybackError({
-                errorCode: video.error?.code || 0,
+            this.messaging.notifyPlaybackEvent({
+                eventType: 'error',
                 timestamp: video.currentTime,
+                errorCode: video.error?.code || 0,
             });
         };
 
         const onEnded = () => {
             if (!video) return;
-            this.messaging.notifyPlaybackEnded({ timestamp: video.currentTime });
+            this.messaging.notifyPlaybackEvent({ eventType: 'end', timestamp: video.currentTime });
         };
 
         const attachListeners = () => {
@@ -119,7 +122,7 @@ export class BufferingMetrics {
             listenersAttached = true;
 
             if (!video.paused && !hasStartedPlaying) {
-                this.messaging.notifyPlaybackStarted({ timestamp: video.currentTime });
+                this.messaging.notifyPlaybackEvent({ eventType: 'start', timestamp: video.currentTime });
                 hasStartedPlaying = true;
             }
         };
