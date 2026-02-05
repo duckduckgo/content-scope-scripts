@@ -679,4 +679,47 @@ export class DuckPlayerPage {
             - paragraph: Si eso no funciona, tendrás que iniciar sesión y ver el vídeo en YouTube sin la privacidad adicional que ofrece Duck Player.
           `);
     }
+
+    async dispatchVideoEvent(eventName) {
+        const video = this.page.frameLocator('iframe').locator('video');
+        await video.waitFor({ state: 'attached' });
+        await video.dispatchEvent(eventName);
+    }
+
+    async didSendPlaybackStarted() {
+        const calls = await this.mocks.waitForCallCount({ method: 'onPlaybackStarted', count: 1 });
+        expect(calls[0].payload.params).toHaveProperty('timestamp');
+    }
+
+    async didSendPlaybackStalled() {
+        const calls = await this.mocks.waitForCallCount({ method: 'onPlaybackStalled', count: 1 });
+        expect(calls[0].payload.params).toHaveProperty('timestamp');
+        expect(calls[0].payload.params).toHaveProperty('bufferAhead');
+    }
+
+    async didSendPlaybackResumed() {
+        const calls = await this.mocks.waitForCallCount({ method: 'onPlaybackResumed', count: 1 });
+        expect(calls[0].payload.params).toHaveProperty('timestamp');
+        expect(calls[0].payload.params).toHaveProperty('stallDurationMs');
+    }
+
+    async didNotSendPlaybackStalled() {
+        await this.page.waitForTimeout(100);
+        const calls = await this.mocks.outgoing({ names: ['onPlaybackStalled'] });
+        expect(calls.length).toBe(0);
+    }
+
+    async didNotSendPlaybackResumed() {
+        await this.page.waitForTimeout(100);
+        const calls = await this.mocks.outgoing({ names: ['onPlaybackResumed'] });
+        expect(calls.length).toBe(0);
+    }
+
+    async didNotSendAnyPlaybackMetrics() {
+        await this.page.waitForTimeout(100);
+        const calls = await this.mocks.outgoing({
+            names: ['onPlaybackStarted', 'onPlaybackStalled', 'onPlaybackResumed', 'onPlaybackError'],
+        });
+        expect(calls.length).toBe(0);
+    }
 }

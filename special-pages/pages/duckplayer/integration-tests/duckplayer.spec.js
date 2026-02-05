@@ -349,3 +349,81 @@ function isMobile(testInfo) {
 function isDesktop(testInfo) {
     return !isMobile(testInfo);
 }
+/**
+ * @param {import("@playwright/test").TestInfo} testInfo
+ */
+function isWindows(testInfo) {
+    return testInfo.project.name === 'windows';
+}
+
+test.describe('buffering metrics', () => {
+    test('sends playbackStarted on first play', async ({ page }, workerInfo) => {
+        test.skip(!isWindows(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithVideoID();
+        await duckplayer.hasLoadedIframe();
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.didSendPlaybackStarted();
+    });
+
+    test('does not send stall before playback starts', async ({ page }, workerInfo) => {
+        test.skip(!isWindows(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithVideoID();
+        await duckplayer.hasLoadedIframe();
+        await duckplayer.dispatchVideoEvent('waiting');
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.didSendPlaybackStarted();
+        await duckplayer.didNotSendPlaybackStalled();
+    });
+
+    test('sends stall and resume for mid-playback buffering', async ({ page }, workerInfo) => {
+        test.skip(!isWindows(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithVideoID();
+        await duckplayer.hasLoadedIframe();
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.dispatchVideoEvent('waiting');
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.didSendPlaybackStalled();
+        await duckplayer.didSendPlaybackResumed();
+    });
+
+    test('does not send stall during seek', async ({ page }, workerInfo) => {
+        test.skip(!isWindows(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithVideoID();
+        await duckplayer.hasLoadedIframe();
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.dispatchVideoEvent('seeking');
+        await duckplayer.dispatchVideoEvent('waiting');
+        await duckplayer.dispatchVideoEvent('seeked');
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.didSendPlaybackStarted();
+        await duckplayer.didNotSendPlaybackStalled();
+    });
+
+    test('discards stall when user pauses during buffering', async ({ page }, workerInfo) => {
+        test.skip(!isWindows(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithVideoID();
+        await duckplayer.hasLoadedIframe();
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.dispatchVideoEvent('waiting');
+        await duckplayer.dispatchVideoEvent('pause');
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.didSendPlaybackStalled();
+        await duckplayer.didNotSendPlaybackResumed();
+    });
+
+    test('does not send metrics on non-Windows platforms', async ({ page }, workerInfo) => {
+        test.skip(isWindows(workerInfo));
+        const duckplayer = DuckPlayerPage.create(page, workerInfo);
+        await duckplayer.openWithVideoID();
+        await duckplayer.hasLoadedIframe();
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.dispatchVideoEvent('waiting');
+        await duckplayer.dispatchVideoEvent('playing');
+        await duckplayer.didNotSendAnyPlaybackMetrics();
+    });
+});

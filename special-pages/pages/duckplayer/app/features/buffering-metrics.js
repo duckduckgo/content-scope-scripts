@@ -58,6 +58,12 @@ export class BufferingMetrics {
             stallStartTime = null;
         };
 
+        const onPause = () => {
+            // User manually paused during a stall - discard stall measurement
+            // since it would include intentional pause time.
+            stallStartTime = null;
+        };
+
         const onPlaying = () => {
             if (!video) return;
             // Initial play - stallStartTime is always null here since onWaiting
@@ -100,6 +106,7 @@ export class BufferingMetrics {
             if (!video || listenersAttached) return;
             video.addEventListener('seeking', onSeeking);
             video.addEventListener('seeked', onSeeked);
+            video.addEventListener('pause', onPause);
             video.addEventListener('playing', onPlaying);
             video.addEventListener('waiting', onWaiting);
             video.addEventListener('error', onError);
@@ -115,6 +122,7 @@ export class BufferingMetrics {
             if (!video || !listenersAttached) return;
             video.removeEventListener('seeking', onSeeking);
             video.removeEventListener('seeked', onSeeked);
+            video.removeEventListener('pause', onPause);
             video.removeEventListener('playing', onPlaying);
             video.removeEventListener('waiting', onWaiting);
             video.removeEventListener('error', onError);
