@@ -51,6 +51,18 @@ export default class WebDetection extends ContentFeature {
      */
     _firedTelemetryDetectors = new Set();
 
+    /**
+     * Track pending auto-detection timers for cleanup.
+     * @type {number[]}
+     */
+    _pendingTimers = [];
+
+    /**
+     * Track if auto detection has already fired telemetry (early exit optimization).
+     * @type {boolean}
+     */
+    _autoDetectionComplete = false;
+
     _exposedMethods = this._declareExposedMethods(['runDetectors']);
 
     /**
@@ -85,16 +97,33 @@ export default class WebDetection extends ContentFeature {
             }
         }
 
-        // Schedule detection runs at each interval
+        // Schedule detection runs at each interval, tracking timer IDs for cleanup
         for (const ms of intervals) {
-            setTimeout(() => this._runAutoDetectors(), ms);
+            const timerId = setTimeout(() => this._runAutoDetectors(), ms);
+            this._pendingTimers.push(timerId);
         }
     }
 
     /**
+     * Cancel any pending auto-detection timers.
+     * Called during cleanup/destroy.
+     */
+    _cancelPendingTimers() {
+        for (const timerId of this._pendingTimers) {
+            clearTimeout(timerId);
+        }
+        this._pendingTimers = [];
+    }
+
+    /**
      * Run all auto-triggered detectors.
+     * Skips execution if detection already completed (early exit optimization).
      */
     _runAutoDetectors() {
+        // Early exit if we've already successfully detected and fired telemetry
+        if (this._autoDetectionComplete) {
+            return;
+        }
         this.runDetectors({ trigger: 'auto' });
     }
 
@@ -204,6 +233,9 @@ export default class WebDetection extends ContentFeature {
         // Deduplicate: only fire once per detector per page
         if (this._firedTelemetryDetectors.has(detectorId)) return;
         this._firedTelemetryDetectors.add(detectorId);
+
+        // Mark auto-detection as complete to enable early exit optimization
+        this._autoDetectionComplete = true;
 
         // Fire telemetry via messaging
         this.messaging.notify(MSG_FIRE_TELEMETRY, {
