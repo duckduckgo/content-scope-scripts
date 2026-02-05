@@ -100,7 +100,7 @@ export function createIframeFeatures(settings, embed, messaging) {
          * @return {IframeFeature}
          */
         bufferingMetrics: () => {
-            if (messaging) {
+            if (messaging && settings.platform.name === 'windows') {
                 return new BufferingMetrics(messaging);
             }
             return IframeFeature.noop();
