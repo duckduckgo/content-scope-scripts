@@ -36,6 +36,11 @@ function createDeferred() {
         deferred.resolve = resolve;
         deferred.reject = reject;
     });
+    // Prevent unhandled rejection warnings - all rejections on this deferred are intentional
+    // (e.g., markFeatureAsSkipped). Actual error handling happens when code awaits the promise.
+    // Errors from callInit are still properly propagated because they're re-thrown after rejection.
+    // eslint-disable-next-line promise/prefer-await-to-then
+    deferred.promise.catch(() => {});
     return deferred;
 }
 
