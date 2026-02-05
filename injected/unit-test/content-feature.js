@@ -1514,6 +1514,32 @@ describe('ContentFeature class', () => {
                     expect(result.message).toContain('feature is broken on this site');
                     expect(targetMethod).not.toHaveBeenCalled();
                 });
+
+                it('should not trigger unhandled promise rejection when feature is skipped without being awaited', async () => {
+                    const TargetFeature = createFeatureClass('targetFeature', { exposedMethod: () => {} }, ['exposedMethod']);
+                    const targetFeature = new TargetFeature();
+
+                    // Track unhandled rejections - use Node.js process event
+                    let unhandledRejection = null;
+                    const handler = (reason) => {
+                        unhandledRejection = reason;
+                    };
+                    process.on('unhandledRejection', handler);
+
+                    try {
+                        // Mark the feature as skipped without awaiting or catching
+                        // This simulates what happens in content-scope-features.js when isFeatureBroken returns true
+                        targetFeature.markFeatureAsSkipped('feature is broken on this site');
+
+                        // Wait for microtasks to complete - unhandled rejections are detected after microtasks
+                        await new Promise((resolve) => setTimeout(resolve, 0));
+
+                        // Verify no unhandled rejection occurred
+                        expect(unhandledRejection).toBeNull();
+                    } finally {
+                        process.off('unhandledRejection', handler);
+                    }
+                });
             });
         });
     });
