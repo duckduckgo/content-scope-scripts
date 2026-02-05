@@ -1,2 +1,2 @@
-- Add hypothesis detector (#2221)
-- Update config version (#2231)
+- Ensure feature readiness never rejects (#2240)
+- fix: disable retries in snapshot update workflow to prevent timeout (#2233)

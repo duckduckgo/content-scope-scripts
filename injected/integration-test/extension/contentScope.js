@@ -6504,12 +6504,11 @@
 
   // src/content-feature.js
   function createDeferred() {
-    const deferred = {};
-    deferred.promise = new Promise((resolve, reject) => {
-      deferred.resolve = resolve;
-      deferred.reject = reject;
+    let res;
+    const promise = new Promise((resolve) => {
+      res = resolve;
     });
-    return deferred;
+    return { promise, resolve: res };
   }
   var CallFeatureMethodError = class extends Error {
     /**
@@ -6520,8 +6519,6 @@
       Object.setPrototypeOf(this, new.target.prototype);
       this.name = new.target.name;
     }
-  };
-  var FeatureSkippedError = class extends Error {
   };
   var _messaging, _isDebugFlagSet, _importConfig, _features, _ready;
   var ContentFeature = class extends ConfigFeature {
@@ -6589,7 +6586,7 @@
     /**
      * Returns a promise that resolves when the feature has been initialised with `init`.
      *
-     * @returns {Promise<void>}
+     * @returns {Promise<ReadyStatus>}
      */
     get _ready() {
       return __privateGet(this, _ready).promise;
@@ -6709,13 +6706,12 @@
       if (!method) return new CallFeatureMethodError(`'${methodName}' not found in feature '${featureName}'`);
       if (!(method instanceof Function))
         return new CallFeatureMethodError(`'${methodName}' is not a function in feature '${featureName}'`);
-      try {
-        await feature._ready;
-      } catch (e) {
-        if (e instanceof FeatureSkippedError) {
-          return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${e.message}`);
-        }
-        throw e;
+      const isReady = await feature._ready;
+      if (isReady.status === "skipped") {
+        return new CallFeatureMethodError(`Initialisation of feature '${featureName}' was skipped: ${isReady.reason}`);
+      }
+      if (isReady.status === "error") {
+        return new CallFeatureMethodError(`Initialisation of feature '${featureName}' failed: ${isReady.error}`);
       }
       return method.call(feature, ...args);
     }
@@ -6770,9 +6766,9 @@
       try {
         this.setArgs(args);
         await this.init(this.args);
-        __privateGet(this, _ready).resolve?.();
+        __privateGet(this, _ready).resolve({ status: "ready" });
       } catch (error) {
-        __privateGet(this, _ready).reject?.(error);
+        __privateGet(this, _ready).resolve({ status: "error", error: String(error) });
         throw error;
       } finally {
         mark.end();
@@ -6787,7 +6783,7 @@
      * @param {string} reason - The reason the feature was skipped
      */
     markFeatureAsSkipped(reason) {
-      __privateGet(this, _ready).reject?.(new FeatureSkippedError(reason));
+      __privateGet(this, _ready).resolve({ status: "skipped", reason });
     }
     setArgs(args) {
       this.args = args;
