@@ -41,6 +41,9 @@ export interface OnPlaybackEventNotification {
   params: PlaybackEvent;
 }
 export interface PlaybackEvent {
+  /**
+   * Type of playback event
+   */
   eventType: "start" | "stalled" | "resume" | "error" | "end";
   /**
    * video.currentTime when event occurred
