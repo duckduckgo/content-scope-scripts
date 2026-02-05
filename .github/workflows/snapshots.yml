@@ -44,7 +44,9 @@ jobs:
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
 
-            - run: npm run test-int-snapshots
+            - name: Run Snapshot Tests
+              id: snapshot_tests
+              run: npm run test-int-snapshots
 
             - uses: actions/upload-artifact@v6
               if: always()
@@ -56,3 +58,24 @@ jobs:
                       injected/playwright-report/**
                       injected/test-results/**
                   retention-days: 5
+
+            - name: Snapshot test failure instructions
+              if: failure() && steps.snapshot_tests.outcome == 'failure'
+              run: |
+                  echo "::error::Snapshot tests failed! Screenshots have changed from the baseline."
+                  echo ""
+                  echo "============================================================"
+                  echo "HOW TO FIX:"
+                  echo "============================================================"
+                  echo ""
+                  echo "1. Review the differences in the uploaded 'snapshots-playwright-report' artifact"
+                  echo ""
+                  echo "2. If the changes are intentional, run the 'Update Snapshots on a PR' workflow:"
+                  echo "   - Go to: Actions > 'Update Snapshots on a PR' > Run workflow"
+                  echo "   - Enter your PR number and click 'Run workflow'"
+                  echo "   - The workflow will commit updated snapshots to your PR"
+                  echo ""
+                  echo "3. Review the committed snapshot changes before merging"
+                  echo ""
+                  echo "============================================================"
+                  exit 1

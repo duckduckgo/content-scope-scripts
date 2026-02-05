@@ -134,6 +134,12 @@ export default defineConfig({
     workers: process.env.CI ? 2 : undefined,
     /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: 'html',
+    expect: {
+        /**
+         * Maximum time expect() should wait for the condition to be met.
+         */
+        timeout: 5000,
+    },
     // @ts-expect-error - Type 'undefined' is not assignable to type 'string'. process.env
     webServer: {
         command: process.env.PAGE ? `npm run watch -- --page ${process.env.PAGE}` : 'npm run serve',
