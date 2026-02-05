@@ -32,16 +32,16 @@ import ConfigFeature from './config-feature.js';
  */
 
 /**
- * @returns {{promise: Promise<ReadyStatus>, resolve: (value: ReadyStatus) => void}}
+ * @returns {{promise: Promise<ReadyStatus>, resolve: (resolve: ReadyStatus) => void}}
  */
 function createDeferred() {
     /** @type {(value: ReadyStatus) => void} */
-    let resolve;
-    const promise = new Promise((res) => {
-        resolve = res;
+    let res;
+    const promise = new Promise((resolve) => {
+        res = resolve;
     });
     // @ts-expect-error - resolve is assigned in the Promise constructor
-    return { promise, resolve };
+    return { promise, resolve: res };
 }
 
 /**
