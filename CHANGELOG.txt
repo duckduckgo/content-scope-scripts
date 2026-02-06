@@ -1,2 +1,2 @@
-- Ensure feature readiness never rejects (#2240)
-- fix: disable retries in snapshot update workflow to prevent timeout (#2233)
+- youtube ad/issue detection (#2218)
+- Symlink CLAUDE.md → AGENTS.md (#2229)
