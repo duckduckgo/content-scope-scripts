@@ -28,9 +28,7 @@ export default class FingerprintingBattery extends ContentFeature {
                             return val;
                         },
                     });
-                } catch (e) {
-                    // Expected: defineProperty may fail on frozen prototypes or conflicting extensions
-                }
+                } catch (e) {}
             }
             for (const eventProp of eventProperties) {
                 try {
@@ -42,9 +40,7 @@ export default class FingerprintingBattery extends ContentFeature {
                             return null;
                         },
                     });
-                } catch (e) {
-                    // Expected: defineProperty may fail on frozen prototypes or conflicting extensions
-                }
+                } catch (e) {}
             }
         }
     }

@@ -70,9 +70,7 @@ export default class FingerprintingScreenSize extends ContentFeature {
                 configurable: true,
                 enumerable: true,
             });
-        } catch (e) {
-            // Expected: defineProperty may fail on frozen prototypes or conflicting extensions
-        }
+        } catch (e) {}
     }
 
     /**

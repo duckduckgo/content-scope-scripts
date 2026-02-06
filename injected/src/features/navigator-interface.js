@@ -56,7 +56,7 @@ export default class NavigatorInterface extends ContentFeature {
                 writable: false,
             });
         } catch {
-            // Expected: defineProperty may fail if navigator.duckduckgo is already defined by another script
+            // todo: Just ignore this exception?
         }
     }
 }

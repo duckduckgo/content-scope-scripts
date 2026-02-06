@@ -31,9 +31,7 @@ export default class FingerprintingTemporaryStorage extends ContentFeature {
                     enumerable: true,
                     configurable: true,
                 });
-            } catch (e) {
-                // Expected: defineProperty may fail on frozen prototypes or conflicting extensions
-            }
+            } catch (e) {}
         }
     }
 }

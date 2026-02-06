@@ -100,9 +100,7 @@ export default class ApiManipulation extends ContentFeature {
             if (hasOwnProperty.call(api, key)) {
                 delete api[key];
             }
-        } catch (e) {
-            // Expected: property may be non-configurable or frozen by the page/other extensions
-        }
+        } catch (e) {}
     }
 
     /**
