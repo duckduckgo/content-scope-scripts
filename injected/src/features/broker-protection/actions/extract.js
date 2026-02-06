@@ -353,7 +353,7 @@ async function applyPostTransforms(profile, params) {
  * @param {string} [separator]
  * @return {string|RegExp|undefined}
  */
-function toSplitSeparator(separator) {
+function parseRegexSeparator(separator) {
     if (typeof separator === 'string' && separator.length >= 2 && separator.startsWith('/') && separator.endsWith('/')) {
         return new RegExp(separator.slice(1, -1));
     }
@@ -367,7 +367,7 @@ function toSplitSeparator(separator) {
  */
 export function stringToList(inputList, separator) {
     const defaultSeparator = /[|\n•·]/;
-    const splitOn = toSplitSeparator(separator) || defaultSeparator;
+    const splitOn = parseRegexSeparator(separator) || defaultSeparator;
     return cleanArray(inputList.split(splitOn));
 }
 
