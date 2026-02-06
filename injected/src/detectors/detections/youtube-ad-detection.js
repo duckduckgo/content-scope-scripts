@@ -61,12 +61,7 @@ class YouTubeAdDetector {
         this.bufferingStartTime = null;
         this.lastSweepTime = null;
         this.lastSeekTime = null;
-        this.lastUrl = location.href;
         this.playerRoot = null;
-
-        // Store original history methods for cleanup
-        this.originalPushState = null;
-        this.originalReplaceState = null;
 
         // Compiled regex patterns
         this.adTextPatterns = toRegExpArray(this.config.adTextPatterns);
@@ -593,39 +588,6 @@ class YouTubeAdDetector {
     // SPA Navigation
     // =========================================================================
 
-    /**
-     * Check for URL changes (SPA navigation)
-     */
-    checkUrlChange() {
-        const currentUrl = location.href;
-        if (currentUrl !== this.lastUrl) {
-            this.lastUrl = currentUrl;
-        }
-    }
-
-    /**
-     * Set up history API interception for SPA navigation
-     */
-    setupNavigationTracking() {
-        this.originalPushState = history.pushState;
-        this.originalReplaceState = history.replaceState;
-
-        const origPush = this.originalPushState;
-        const origReplace = this.originalReplaceState;
-
-        history.pushState = (...args) => {
-            origPush.apply(history, args);
-            this.checkUrlChange();
-        };
-
-        history.replaceState = (...args) => {
-            origReplace.apply(history, args);
-            this.checkUrlChange();
-        };
-
-        window.addEventListener('popstate', () => this.checkUrlChange());
-    }
-
     // =========================================================================
     // Lifecycle
     // =========================================================================
@@ -670,9 +632,6 @@ class YouTubeAdDetector {
                 this.pollInterval = setInterval(() => this.sweep(), this.config.sweepIntervalMs || 2000);
             }
         }, 1000);
-
-        // Set up SPA navigation tracking
-        this.setupNavigationTracking();
     }
 
     /**
@@ -686,14 +645,6 @@ class YouTubeAdDetector {
         if (this.rerootInterval) {
             clearInterval(this.rerootInterval);
             this.rerootInterval = null;
-        }
-
-        // Restore history methods
-        if (this.originalPushState) {
-            history.pushState = this.originalPushState;
-        }
-        if (this.originalReplaceState) {
-            history.replaceState = this.originalReplaceState;
         }
     }
 
