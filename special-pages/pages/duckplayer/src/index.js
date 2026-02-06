@@ -115,6 +115,13 @@ export class DuckplayerPage {
     reportInitException(params) {
         this.messaging.notify('reportInitException', params);
     }
+
+    /**
+     * @param {import('../types/duckplayer.ts').PlaybackEvent} params
+     */
+    notifyPlaybackEvent(params) {
+        this.messaging.notify('onPlaybackEvent', params);
+    }
 }
 
 /**

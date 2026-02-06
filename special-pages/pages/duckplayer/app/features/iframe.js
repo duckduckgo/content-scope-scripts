@@ -5,6 +5,7 @@ import { TitleCapture } from './title-capture.js';
 import { MouseCapture } from './mouse-capture.js';
 import { ErrorDetection } from './error-detection.js';
 import { ReplaceWatchLinks } from './replace-watch-links.js';
+import { BufferingMetrics } from './buffering-metrics.js';
 
 /**
  * @import {EmbedSettings} from '../embed-settings.js';
@@ -92,6 +93,15 @@ export function createIframeFeatures(settings, embed) {
          */
         replaceWatchLinks: (handler) => {
             return new ReplaceWatchLinks(embed.videoId.id, handler);
+        },
+        /**
+         * @return {IframeFeature}
+         */
+        bufferingMetrics: () => {
+            if (settings.platform.name === 'windows') {
+                return new BufferingMetrics();
+            }
+            return IframeFeature.noop();
         },
     };
 }
