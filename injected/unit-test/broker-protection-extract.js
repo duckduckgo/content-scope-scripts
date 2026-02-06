@@ -164,65 +164,63 @@ describe('create profiles from extracted data', () => {
     });
 
     it('should handle addressCityStateList (with string or regex separator)', () => {
-        const elementExamples = [{
-            selectors: {
-                addressCityStateList: {
-                    selector: 'example',
+        const elementExamples = [
+            {
+                selectors: {
+                    addressCityStateList: {
+                        selector: 'example',
+                    },
+                },
+                elements: [{ innerText: 'Dallas, TX • The Colony, TX • Carrollton, TX • +1 more' }],
+                expected: {
+                    addresses: [
+                        { city: 'Carrollton', state: 'TX' },
+                        { city: 'Dallas', state: 'TX' },
+                        { city: 'The Colony', state: 'TX' },
+                    ],
                 },
             },
-            elements: [{ innerText: 'Dallas, TX • The Colony, TX • Carrollton, TX • +1 more' }],
-            expected: {
-                addresses: [
-                    { city: 'Carrollton', state: 'TX' },
-                    { city: 'Dallas', state: 'TX' },
-                    { city: 'The Colony', state: 'TX' },
-                ],
-            },
-        },
-        {
-            selectors: {
-                addressCityStateList: {
-                    selector: 'example',
-                    separator: '/(?<=, [A-Z]{2}), /',
+            {
+                selectors: {
+                    addressCityStateList: {
+                        selector: 'example',
+                        separator: '/(?<=, [A-Z]{2}), /',
+                    },
+                },
+                elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
+                expected: {
+                    addresses: [
+                        { city: 'Carrollton', state: 'TX' },
+                        { city: 'Dallas', state: 'TX' },
+                        { city: 'The Colony', state: 'TX' },
+                    ],
                 },
             },
-            elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
-            expected: {
-                addresses: [
-                    { city: 'Carrollton', state: 'TX' },
-                    { city: 'Dallas', state: 'TX' },
-                    { city: 'The Colony', state: 'TX' },
-                ],
-            },
-        },
-        {
-            selectors: {
-                addressCityStateList: {
-                    selector: 'example',
-                    separator: '(?<=, [A-Z]{2}), ',
+            {
+                selectors: {
+                    addressCityStateList: {
+                        selector: 'example',
+                        separator: '(?<=, [A-Z]{2}), ',
+                    },
+                },
+                elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
+                expected: {
+                    addresses: [{ city: 'Dallas TX The Colony TX Carrollton', state: 'TX' }],
                 },
             },
-            elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
-            expected: {
-                addresses: [
-                    { city: 'Dallas TX The Colony TX Carrollton', state: 'TX' },
-                ],
-            },
-        },
-        {
-            selectors: {
-                addressCityStateList: {
-                    selector: 'example',
-                    separator: '/(?<=, [A-Z]{2}), /',
+            {
+                selectors: {
+                    addressCityStateList: {
+                        selector: 'example',
+                        separator: '/(?<=, [A-Z]{2}), /',
+                    },
+                },
+                elements: [{ innerText: 'Dallas, TX' }],
+                expected: {
+                    addresses: [{ city: 'Dallas', state: 'TX' }],
                 },
             },
-            elements: [{ innerText: 'Dallas, TX' }],
-            expected: {
-                addresses: [
-                    { city: 'Dallas', state: 'TX' },
-                ],
-            },
-        }];
+        ];
 
         for (const elementExample of elementExamples) {
             const elementFactory = () => elementExample.elements;
