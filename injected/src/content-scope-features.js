@@ -145,7 +145,9 @@ export function update(args) {
         updates.push(args);
         return;
     }
-    updateFeaturesInner(args);
+    updateFeaturesInner(args).catch(() => {
+        // Silently handle update failures to prevent unhandled rejections leaking to the page
+    });
 }
 
 /**
