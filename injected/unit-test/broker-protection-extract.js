@@ -199,6 +199,20 @@ describe('create profiles from extracted data', () => {
             selectors: {
                 addressCityStateList: {
                     selector: 'example',
+                    separator: '(?<=, [A-Z]{2}), ',
+                },
+            },
+            elements: [{ innerText: 'Dallas, TX, The Colony, TX, Carrollton, TX' }],
+            expected: {
+                addresses: [
+                    { city: 'Dallas TX The Colony TX Carrollton', state: 'TX' },
+                ],
+            },
+        },
+        {
+            selectors: {
+                addressCityStateList: {
+                    selector: 'example',
                     separator: '/(?<=, [A-Z]{2}), /',
                 },
             },
