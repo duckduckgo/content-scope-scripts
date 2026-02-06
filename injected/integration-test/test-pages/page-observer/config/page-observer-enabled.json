@@ -1,0 +1,9 @@
+{
+  "features": {
+    "pageObserver": {
+      "state": "enabled",
+      "exceptions": []
+    }
+  },
+  "unprotectedTemporary": []
+}
