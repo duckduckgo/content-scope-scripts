@@ -49,11 +49,6 @@ export default class BreakageReporting extends ContentFeature {
                     adwallDetection: runAdwallDetection(detectorSettings.adwallDetection),
                     youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds),
                 };
-            } else if (window.location.hostname === 'youtube.com' || window.location.hostname.endsWith('.youtube.com')) {
-                // Run YouTube detector on YouTube even without full detectorSettings config
-                result.detectorData = {
-                    youtubeAds: runYoutubeAdDetection(undefined),
-                };
             }
 
             if (isExpandedPerformanceMetricsEnabled) {
