@@ -25,7 +25,7 @@ import { ProfileHashTransformer, ProfileUrlExtractor } from '../extractors/profi
  * @property {boolean} [findElements] - whether to get all occurrences of the selector
  * @property {string} [afterText] - get all text after this string
  * @property {string} [beforeText] - get all text before this string
- * @property {string} [separator] - split the text on this string
+ * @property {string} [separator] - split the text on this string, or use a regex by passing "/pattern/" (e.g. "/(?<=, [A-Z]{2}), /")
  * @property {IdentifierType} [identifierType] - the type (path/param) of the identifier
  * @property {string} [identifier] - the identifier itself (either a param name, or a templated URI)
  *
@@ -347,13 +347,28 @@ async function applyPostTransforms(profile, params) {
 }
 
 /**
- * @param {string} inputList
+ * Coerce separator from JSON to a string or RegExp for use with String#split.
+ * If separator is a string in the form "/pattern/", the middle is used as a regex pattern.
+ *
  * @param {string} [separator]
+ * @return {string|RegExp|undefined}
+ */
+function toSplitSeparator(separator) {
+    if (typeof separator === 'string' && separator.length >= 2 && separator.startsWith('/') && separator.endsWith('/')) {
+        return new RegExp(separator.slice(1, -1));
+    }
+    return separator;
+}
+
+/**
+ * @param {string} inputList
+ * @param {string} [separator] - literal string, or "/pattern/" for regex (JSON-safe)
  * @return {string[]}
  */
 export function stringToList(inputList, separator) {
     const defaultSeparator = /[|\n•·]/;
-    return cleanArray(inputList.split(separator || defaultSeparator));
+    const splitOn = toSplitSeparator(separator) || defaultSeparator;
+    return cleanArray(inputList.split(splitOn));
 }
 
 // For extraction
