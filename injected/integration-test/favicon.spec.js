@@ -88,14 +88,14 @@ test('favicon + monitor (many updates)', async ({ page, baseURL }, testInfo) => 
     await page.getByRole('button', { name: 'Set many overrides' }).click();
     await page.clock.fastForward(20);
 
-    const messages = await favicon.outgoingMessages();
+    const messages = (await favicon.outgoingMessages()).filter((m) => m.payload.featureName === 'favicon');
     expect(messages).toHaveLength(1);
 
     await page.clock.fastForward(60);
     await page.clock.fastForward(100);
 
     {
-        const messages = await favicon.outgoingMessages();
+        const messages = (await favicon.outgoingMessages()).filter((m) => m.payload.featureName === 'favicon');
         expect(messages).toHaveLength(3);
     }
 
@@ -104,7 +104,7 @@ test('favicon + monitor (many updates)', async ({ page, baseURL }, testInfo) => 
         const url2 = new URL('/favicon/new_favicon.png?count=0', baseURL);
         const url3 = new URL('/favicon/new_favicon.png?count=1', baseURL);
 
-        const messages = await favicon.outgoingMessages();
+        const messages = (await favicon.outgoingMessages()).filter((m) => m.payload.featureName === 'favicon');
         expect(messages.map((x) => /** @type {{params: any}} */ (x.payload).params)).toStrictEqual([
             {
                 favicons: [{ href: url1.href, rel: 'shortcut icon' }],
@@ -142,7 +142,7 @@ test('favicon + monitor disabled', async ({ page }, testInfo) => {
     await page.clock.fastForward(200);
 
     // ensure only 1 message was still sent (ie: the monitor is disabled)
-    const messages = await favicon.outgoingMessages();
+    const messages = (await favicon.outgoingMessages()).filter((m) => m.payload.featureName === 'favicon');
     expect(messages).toHaveLength(1);
 });
 
@@ -157,6 +157,6 @@ test('favicon feature disabled completely', async ({ page }, testInfo) => {
     // pass, but just because it was too quick (eg: the first message wasn't sent yet)
     await page.waitForTimeout(100);
 
-    const messages = await favicon.outgoingMessages();
+    const messages = (await favicon.outgoingMessages()).filter((m) => m.payload.featureName === 'favicon');
     expect(messages).toHaveLength(0);
 });
