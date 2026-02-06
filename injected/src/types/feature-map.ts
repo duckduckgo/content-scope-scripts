@@ -32,6 +32,7 @@ import type HarmfulApis from '../features/harmful-apis.js';
 import type MessageBridge from '../features/message-bridge.js';
 import type NavigatorInterface from '../features/navigator-interface.js';
 import type PageContext from '../features/page-context.js';
+import type PageObserver from '../features/page-observer.js';
 import type PerformanceMetrics from '../features/performance-metrics.js';
 import type Referrer from '../features/referrer.js';
 import type UaChBrands from '../features/ua-ch-brands.js';
@@ -71,6 +72,7 @@ export interface FeatureMap {
     messageBridge: MessageBridge;
     navigatorInterface: NavigatorInterface;
     pageContext: PageContext;
+    pageObserver: PageObserver;
     performanceMetrics: PerformanceMetrics;
     referrer: Referrer;
     uaChBrands: UaChBrands;
