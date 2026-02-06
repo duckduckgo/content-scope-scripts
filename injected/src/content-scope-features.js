@@ -145,6 +145,7 @@ export function update(args) {
         updates.push(args);
         return;
     }
+    // eslint-disable-next-line promise/prefer-await-to-then -- update() is intentionally sync; fire-and-forget async
     updateFeaturesInner(args).catch(() => {
         // Silently handle update failures to prevent unhandled rejections leaking to the page
     });
