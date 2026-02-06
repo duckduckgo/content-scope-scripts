@@ -652,7 +652,7 @@ export class WebCompat extends ContentFeature {
             }
             const value = {
                 get() {
-                    return Promise.reject(new Error('navigator.credentials.get is not supported'));
+                    return Promise.reject(new Error());
                 },
             };
             // TODO: original property is an accessor descriptor
