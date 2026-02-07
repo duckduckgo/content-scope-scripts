@@ -151,7 +151,14 @@ export class WebkitMessagingTransport {
      * @param {import('../index.js').NotificationMessage} msg
      */
     notify(msg) {
-        this.wkSend(msg.context, msg);
+        const result = this.wkSend(msg.context, msg);
+        // Notifications are fire-and-forget. On modern WebKit, `wkSend` returns a
+        // Promise (from `postMessage`) that may reject if the native side doesn't
+        // have a handler registered for this feature. Catch any rejection to prevent
+        // unhandled promise rejections from leaking into the page context, which can
+        // interfere with bot-check scripts (e.g. Cloudflare Turnstile).
+        // eslint-disable-next-line promise/prefer-await-to-then
+        if (result && typeof result.catch === 'function') result.catch(() => {});
     }
 
     /**
