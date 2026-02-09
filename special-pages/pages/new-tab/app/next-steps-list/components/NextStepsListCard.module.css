@@ -6,32 +6,67 @@
 .cardContainer {
     position: relative;
     min-height: calc(200 * var(--px-in-rem));
+    /* Add padding at bottom to accommodate the back card peek */
+    padding-bottom: calc(12 * var(--px-in-rem));
 }
 
 .card {
-    background-color: var(--ntp-surface-background-color);
-    backdrop-filter: blur(48px);
+    background-color: var(--ds-color-theme-surface-secondary);
     border-radius: var(--border-radius-lg);
     box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08), 0 1px 4px 0 rgba(0, 0, 0, 0.06);
     padding: calc(28 * var(--px-in-rem)) calc(28 * var(--px-in-rem)) calc(32 * var(--px-in-rem)) calc(20 * var(--px-in-rem));
     display: flex;
     align-items: center;
     gap: calc(12 * var(--px-in-rem));
+    position: relative;
+    z-index: 2;
 }
 
 [data-theme="dark"] .card {
     box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.24), 0 1px 4px 0 rgba(0, 0, 0, 0.18);
 }
 
+/* Back card (peek card) - positioned behind the main card */
+.card.backCard {
+    position: absolute;
+    top: calc(12 * var(--px-in-rem));
+    left: 0;
+    right: 0;
+    z-index: 1;
+    pointer-events: none;
+    /* Slightly scaled and dimmed to emphasize it's in the background */
+    transform: scale(0.97);
+    opacity: 0.85;
+}
+
+[data-theme="dark"] .card.backCard {
+    opacity: 0.7;
+}
+
 /* Hide card during transition before entering animation starts (prevents flicker) */
 .card.hidden {
     opacity: 0;
-    transform: scale(0.85);
+    transform: scale(0.97) translateY(12px);
 }
 
 /* Enter animation - fade in when a new card appears after dismissing */
 .card.entering {
-    animation: cardFadeIn 300ms ease-in;
+    animation: cardFadeIn 300ms ease-out;
+}
+
+/* Promoting animation - back card moving to front position */
+.card.promoting {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    animation: promoteToFront 300ms ease-out forwards;
+    pointer-events: none;
+}
+
+[data-theme="dark"] .card.promoting {
+    animation: promoteToFrontDark 300ms ease-out forwards;
 }
 
 /* Dismiss animation - card becomes absolutely positioned so new card can fade in */
@@ -41,18 +76,43 @@
     top: 0;
     left: 0;
     right: 0;
-    animation: dismissFadeOut 300ms cubic-bezier(0.8, 0, 1, 1) forwards;
+    z-index: 3;
+    animation: dismissFadeOut 300ms cubic-bezier(0.4, 0, 1, 1) forwards;
     pointer-events: none;
 }
 
 @keyframes cardFadeIn {
     from {
         opacity: 0;
-        transform: scale(0.85);
+        transform: scale(0.97) translateY(12px);
     }
     to {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Animation for back card promoting to front position */
+/* Starts from back card position (offset down, slightly scaled in) and animates to front */
+@keyframes promoteToFront {
+    from {
+        opacity: 0.85;
+        transform: translateY(calc(12 * var(--px-in-rem))) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes promoteToFrontDark {
+    from {
+        opacity: 0.7;
+        transform: translateY(calc(12 * var(--px-in-rem))) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
@@ -110,22 +170,3 @@
     margin-top: var(--sp-1);
 }
 
-/* Step indicator */
-.stepIndicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: var(--sp-4);
-}
-
-.stepPills {
-    display: flex;
-    gap: calc(4 * var(--px-in-rem));
-}
-
-.pill {
-    width: calc(10 * var(--px-in-rem));
-    height: calc(6 * var(--px-in-rem));
-    border-radius: calc(3 * var(--px-in-rem));
-    background-color: var(--ds-color-theme-control-fill-tertiary);
-}

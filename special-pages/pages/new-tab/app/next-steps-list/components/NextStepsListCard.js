@@ -57,7 +57,7 @@ function CardBody({ title, description, primaryButtonText, secondaryButtonText, 
  * @property {string} primaryButtonText - Text for the primary action button
  * @property {string} secondaryButtonText - Text for the secondary button
  * @property {string} [imageSrc] - Optional image source
- * @property {number} totalSteps - Total number of steps
+ * @property {CardContent | null} [nextCard] - The next card to show behind (stacked)
  * @property {() => void} [onPrimaryAction] - Handler for primary button click
  * @property {() => void} [onSecondaryAction] - Handler for secondary button click
  */
@@ -73,12 +73,14 @@ export function NextStepsListCard({
     primaryButtonText,
     secondaryButtonText,
     imageSrc,
-    totalSteps,
+    nextCard,
     onPrimaryAction,
     onSecondaryAction,
 }) {
     const [isEntering, setIsEntering] = useState(false);
     const [dismissingCard, setDismissingCard] = useState(/** @type {CardContent | null} */ (null));
+    // Track the previous next card for the "third card" animation
+    const [promotingCard, setPromotingCard] = useState(/** @type {CardContent | null} */ (null));
     const prevItemIdRef = useRef(itemId);
 
     // When itemId changes, trigger enter animation
@@ -100,6 +102,7 @@ export function NextStepsListCard({
         if (!dismissingCard) return;
         const timer = setTimeout(() => {
             setDismissingCard(null);
+            setPromotingCard(null);
         }, 300);
         return () => clearTimeout(timer);
     }, [dismissingCard]);
@@ -114,13 +117,46 @@ export function NextStepsListCard({
             secondaryButtonText,
             imageSrc,
         });
-        // Trigger data update immediately - new card will fade in
+        // Store next card for the "promoting to front" animation
+        if (nextCard) {
+            setPromotingCard(nextCard);
+        }
+        // Trigger data update immediately - new card will animate in
         onSecondaryAction?.();
-    }, [itemId, title, description, primaryButtonText, secondaryButtonText, imageSrc, onSecondaryAction]);
+    }, [itemId, title, description, primaryButtonText, secondaryButtonText, imageSrc, nextCard, onSecondaryAction]);
+
+    // During transition, we use the promoting card as the visible "front" card
+    // and hide the actual current card until the animation completes
+    const isTransitioning = !!dismissingCard;
 
     return (
         <div class={styles.wrapper}>
             <div class={styles.cardContainer}>
+                {/* Back card (peek card) - shows next step behind current card */}
+                {/* During transition, this is the "third" card being revealed */}
+                {nextCard && (
+                    <div class={cn(styles.card, styles.backCard)} aria-hidden="true">
+                        <CardBody
+                            title={nextCard.title}
+                            description={nextCard.description}
+                            primaryButtonText={nextCard.primaryButtonText}
+                            secondaryButtonText={nextCard.secondaryButtonText}
+                            imageSrc={nextCard.imageSrc}
+                        />
+                    </div>
+                )}
+                {/* Promoting card - the back card animating to front position */}
+                {promotingCard && (
+                    <div key={`promoting-${promotingCard.itemId}`} class={cn(styles.card, styles.promoting)}>
+                        <CardBody
+                            title={promotingCard.title}
+                            description={promotingCard.description}
+                            primaryButtonText={promotingCard.primaryButtonText}
+                            secondaryButtonText={promotingCard.secondaryButtonText}
+                            imageSrc={promotingCard.imageSrc}
+                        />
+                    </div>
+                )}
                 {/* Dismissing card - shows old content animating out */}
                 {dismissingCard && (
                     <div key={dismissingCard.itemId} class={cn(styles.card, styles.dismissing)}>
@@ -133,44 +169,26 @@ export function NextStepsListCard({
                         />
                     </div>
                 )}
-                {/* Current card - shows new content fading in */}
-                <div
-                    key={itemId}
-                    class={cn(styles.card, {
-                        [styles.entering]: isEntering,
-                        [styles.hidden]: dismissingCard && !isEntering,
-                    })}
-                >
-                    <CardBody
-                        title={title}
-                        description={description}
-                        primaryButtonText={primaryButtonText}
-                        secondaryButtonText={secondaryButtonText}
-                        imageSrc={imageSrc}
-                        onPrimaryClick={onPrimaryAction}
-                        onSecondaryClick={handleSecondaryAction}
-                    />
-                </div>
+                {/* Current card - hidden during transition, shown after animation completes */}
+                {!isTransitioning && (
+                    <div
+                        key={itemId}
+                        class={cn(styles.card, {
+                            [styles.entering]: isEntering,
+                        })}
+                    >
+                        <CardBody
+                            title={title}
+                            description={description}
+                            primaryButtonText={primaryButtonText}
+                            secondaryButtonText={secondaryButtonText}
+                            imageSrc={imageSrc}
+                            onPrimaryClick={onPrimaryAction}
+                            onSecondaryClick={handleSecondaryAction}
+                        />
+                    </div>
+                )}
             </div>
-            <StepIndicator totalSteps={totalSteps} />
-        </div>
-    );
-}
-
-/**
- * Displays the total number of steps as a row of pill indicators
- * @param {object} props
- * @param {number} props.totalSteps - Total number of steps
- */
-function StepIndicator({ totalSteps }) {
-    const pills = [];
-    for (let i = 1; i <= totalSteps; i++) {
-        pills.push(<div key={i} class={styles.pill} aria-hidden="true" />);
-    }
-
-    return (
-        <div class={styles.stepIndicator} aria-label={`${totalSteps} steps`}>
-            <div class={styles.stepPills}>{pills}</div>
         </div>
     );
 }

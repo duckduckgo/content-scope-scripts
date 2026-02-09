@@ -56,14 +56,28 @@ test.describe('newtab NextStepsList widget', () => {
         await page.getByRole('button', { name: 'Import Now' }).waitFor();
     });
 
-    test('shows step indicator pills', async ({ page }, workerInfo) => {
+    test('shows stacked cards when multiple steps exist', async ({ page }, workerInfo) => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ nextStepsList: ['emailProtection', 'duckplayer', 'defaultApp'] });
 
-        // Should have 3 pills for 3 items
-        const pills = page.locator('[data-entry-point="nextStepsList"]').locator('[class*="pill"]');
-        await expect(pills).toHaveCount(3);
+        // Should show the front card (emailProtection)
+        await page.getByText('Protect Your Inbox From Spam, Scams, and Trackers').waitFor();
+
+        // Should also show the back card content (duckplayer)
+        await page.getByText('YouTube with Fewer Ads').waitFor();
+    });
+
+    test('hides back card when only one step remains', async ({ page }, workerInfo) => {
+        const ntp = NewtabPage.create(page, workerInfo);
+        await ntp.reducedMotion();
+        await ntp.openPage({ nextStepsList: 'emailProtection' });
+
+        // Should show the front card
+        await page.getByText('Protect Your Inbox From Spam, Scams, and Trackers').waitFor();
+
+        // The duckplayer content should not be visible (no back card)
+        await expect(page.getByText('YouTube with Fewer Ads')).not.toBeVisible();
     });
 
     test('uses correct icon for each variant', async ({ page }, workerInfo) => {

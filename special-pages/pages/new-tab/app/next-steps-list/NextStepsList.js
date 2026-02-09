@@ -53,6 +53,21 @@ export function NextStepsListConsumer() {
         const { title, summary, actionText, icon } = variants[displayedItemId](t);
         const iconPath = getIconPath(icon, theme);
 
+        // Get the next card data if there is one (for the stacked card behind)
+        let nextCard = null;
+        if (items.length > 1) {
+            const nextItemId = items[1].id;
+            const nextVariant = variants[nextItemId](t);
+            nextCard = {
+                itemId: nextItemId,
+                title: nextVariant.title,
+                description: nextVariant.summary,
+                primaryButtonText: nextVariant.actionText,
+                secondaryButtonText: getMaybeLaterText(t),
+                imageSrc: getIconPath(nextVariant.icon, theme),
+            };
+        }
+
         return (
             <NextStepsListCard
                 itemId={displayedItemId}
@@ -61,7 +76,7 @@ export function NextStepsListConsumer() {
                 primaryButtonText={actionText}
                 secondaryButtonText={getMaybeLaterText(t)}
                 imageSrc={iconPath}
-                totalSteps={items.length}
+                nextCard={nextCard}
                 onPrimaryAction={() => action(displayedItemId)}
                 onSecondaryAction={() => dismiss(displayedItemId)}
             />
