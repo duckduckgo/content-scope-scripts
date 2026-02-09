@@ -250,7 +250,7 @@
     "note": "Button text of the Next Steps List card for pinning DDG app to Windows taskbar"
   },
   "nextStepsList_addAppToDockMac_title": {
-    "title": "Add to dock",
+    "title": "Add to Dock",
     "note": "Title of the Next Steps List card for adding DDG app to macOS dock"
   },
   "nextStepsList_addAppToDockMac_summary": {
@@ -282,15 +282,15 @@
     "note": "Summary of the Next Steps List card for Duck Player"
   },
   "nextStepsList_duckplayer_actionText": {
-    "title": "Open Duck Player",
+    "title": "Try Duck Player",
     "note": "Button text of the Next Steps List card for Duck Player"
   },
   "nextStepsList_emailProtection_title": {
-    "title": "Protect Your Inbox From Spam, Scams, and Trackers",
+    "title": "Protect Your Email Address and Block Trackers",
     "note": "Title of the Next Steps List card for email protection"
   },
   "nextStepsList_emailProtection_summary": {
-    "title": "No switching emails! Our forwarding service zaps the junk before it reaches you.",
+    "title": "Hide your email with our forwarding service that stops junk and blocks hidden trackers.",
     "note": "Summary of the Next Steps List card for email protection"
   },
   "nextStepsList_emailProtection_actionText": {
@@ -302,7 +302,7 @@
     "note": "Title of the Next Steps List card for importing bookmarks, passwords, and more"
   },
   "nextStepsList_bringStuff_summary": {
-    "title": "Securely bring over your bookmarks, passwords, and credit cards details.",
+    "title": "Securely sync your bookmarks, passwords, and credit card details.",
     "note": "Summary of the Next Steps List card for importing bookmarks, passwords, and more"
   },
   "nextStepsList_bringStuff_actionText": {
@@ -310,7 +310,7 @@
     "note": "Button text of the Next Steps List card for importing bookmarks, passwords, and more"
   },
   "nextStepsList_defaultApp_title": {
-    "title": "Take Back Your Privacy!",
+    "title": "Open Links in DuckDuckGo",
     "note": "Title of the Next Steps List card for setting DDG as default browser"
   },
   "nextStepsList_defaultApp_summary": {
@@ -318,7 +318,7 @@
     "note": "Summary of the Next Steps List card for setting DDG as default browser"
   },
   "nextStepsList_defaultApp_actionText": {
-    "title": "Set as Default",
+    "title": "Open Links in DuckDuckGo",
     "note": "Button text of the Next Steps List card for setting DDG as default browser"
   },
   "nextStepsList_subscription_title": {
@@ -332,18 +332,6 @@
   "nextStepsList_subscription_actionText": {
     "title": "Try for Free",
     "note": "Button text of the Next Steps List card for DuckDuckGo subscription"
-  },
-  "nextStepsList_sync_title": {
-    "title": "Access Your Online Essentials on All Your Devices",
-    "note": "Title of the Next Steps List card for syncing data across devices"
-  },
-  "nextStepsList_sync_summary": {
-    "title": "Securely sync your bookmarks, passwords, and identity data on mobile and desktop.",
-    "note": "Summary of the Next Steps List card for syncing data across devices"
-  },
-  "nextStepsList_sync_actionText": {
-    "title": "Sync Now",
-    "note": "Button text of the Next Steps List card for syncing data across devices"
   },
   "nextSteps_sectionTitle": {
     "title": "Next Steps",
@@ -386,11 +374,11 @@
     "note": "Button text of the Next Steps card for blocking cookie pop-ups"
   },
   "nextSteps_emailProtection_title": {
-    "title": "Protect Your Inbox",
+    "title": "Protect Your Email Address and Block Trackers",
     "note": "Title of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_summary": {
-    "title": "Generate @duck.com addresses that remove trackers from email and forwards to your inbox.",
+    "title": "Hide your email with our forwarding service that stops junk and blocks hidden trackers.",
     "note": "Summary of the Next Steps card for email protection"
   },
   "nextSteps_emailProtection_actionText": {
@@ -406,7 +394,7 @@
     "note": "Summary of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_duckPlayer_actionText": {
-    "title": "Try DuckPlayer",
+    "title": "Try Duck Player",
     "note": "Button text of the Next Steps card for adopting DuckPlayer"
   },
   "nextSteps_addAppDockMac_title": {
