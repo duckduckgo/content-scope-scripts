@@ -11,14 +11,19 @@ import WebDetection from '../src/features/web-detection.js';
  */
 
 /**
+ * @typedef {'breakageReport' | 'autoRun'} WebDetectionTrigger
+ */
+
+/**
  * Test harness for running detectors in controlled environment.
  * Handles setup/teardown of window mocks automatically.
  *
  * @param {object} detectorsConfig - The detectors config (group -> detector -> config)
  * @param {TestEnv} [env] - Environment options
+ * @param {WebDetectionTrigger} [trigger]
  * @returns {import('../src/features/web-detection.js').DetectorResult[]}
  */
-function runDetectorsInEnv(detectorsConfig, env = {}) {
+function runDetectorsInEnv(detectorsConfig, env = {}, trigger = 'breakageReport') {
     const { platform = {}, domain = 'example.com', isTopFrame = true } = env;
 
     // Mock window.self/top for frame detection
@@ -37,7 +42,7 @@ function runDetectorsInEnv(detectorsConfig, env = {}) {
         };
         const instance = new WebDetection('webDetection', undefined, {}, args);
         instance.init();
-        return instance.runDetectors({ trigger: 'breakageReport' });
+        return instance.runDetectors({ trigger });
     } finally {
         globalThis.window = originalWindow;
     }
@@ -49,10 +54,11 @@ function runDetectorsInEnv(detectorsConfig, env = {}) {
  *
  * @param {import('@duckduckgo/privacy-configuration/schema/features/web-detection').DetectorConfig} detectorConfig
  * @param {TestEnv} [env]
+ * @param {WebDetectionTrigger} [trigger]
  * @returns {import('../src/features/web-detection.js').DetectorResult[]}
  */
-function runDetector(detectorConfig, env = {}) {
-    return runDetectorsInEnv({ group: { detector: detectorConfig } }, env);
+function runDetector(detectorConfig, env = {}, trigger = 'breakageReport') {
+    return runDetectorsInEnv({ group: { detector: detectorConfig } }, env, trigger);
 }
 
 describe('WebDetection', () => {
@@ -110,7 +116,10 @@ describe('WebDetection', () => {
             expect(detector.state).toBe('enabled');
             expect(detector.triggers.breakageReport.state).toBe('enabled');
             expect(detector.triggers.breakageReport.runConditions).toEqual([{ context: { top: true } }]);
+            expect(detector.triggers.autoRun.state).toBe('disabled');
+            expect(detector.triggers.autoRun.runConditions).toEqual([{ context: { top: true } }]);
             expect(detector.actions.breakageReportData.state).toBe('enabled');
+            expect(detector.actions.autoRunData.state).toBe('enabled');
         });
 
         it('should allow custom runConditions to override defaults', () => {
@@ -263,6 +272,33 @@ describe('WebDetection', () => {
                     match: {},
                     actions: { breakageReportData: { state: 'disabled' } },
                 }),
+            ).toEqual([]);
+        });
+
+        it('should run when autoRun trigger is enabled', () => {
+            expect(
+                runDetector(
+                    {
+                        match: {},
+                        triggers: { autoRun: { state: 'enabled' } },
+                    },
+                    {},
+                    'autoRun',
+                ).length,
+            ).toBe(1);
+        });
+
+        it('should not run when autoRunData action is disabled', () => {
+            expect(
+                runDetector(
+                    {
+                        match: {},
+                        triggers: { autoRun: { state: 'enabled' } },
+                        actions: { autoRunData: { state: 'disabled' } },
+                    },
+                    {},
+                    'autoRun',
+                ),
             ).toEqual([]);
         });
 

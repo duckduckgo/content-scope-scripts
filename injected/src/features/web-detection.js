@@ -16,7 +16,7 @@ import { evaluateMatch } from './web-detection/matching.js';
 
 /**
  * @typedef {{
- *  trigger: 'breakageReport';
+ *  trigger: 'breakageReport' | 'autoRun';
  * }} RunDetectionOptions
  */
 
@@ -31,7 +31,10 @@ export default class WebDetection extends ContentFeature {
     /** @type {Record<string, Record<string, DetectorConfig>>} */
     #detectors = {};
 
-    _exposedMethods = this._declareExposedMethods(['runDetectors']);
+    /** @type {DetectorResult[]} */
+    #autoRunResults = [];
+
+    _exposedMethods = this._declareExposedMethods(['runDetectors', 'getAutoRunResults']);
 
     /**
      * Initialize the feature by loading detector configurations
@@ -39,6 +42,61 @@ export default class WebDetection extends ContentFeature {
     init() {
         const detectorsConfig = this.getFeatureSetting('detectors');
         this.#detectors = parseDetectors(detectorsConfig);
+        this._scheduleAutoRun();
+    }
+
+    /**
+     * Return results from the latest auto-run, if any.
+     *
+     * @returns {DetectorResult[]}
+     */
+    getAutoRunResults() {
+        return [...this.#autoRunResults];
+    }
+
+    /**
+     * Schedule auto-run detectors based on config.
+     */
+    _scheduleAutoRun() {
+        if (typeof document === 'undefined' || typeof document.addEventListener !== 'function') {
+            return;
+        }
+        if (!this._hasEnabledAutoRunDetectors()) return;
+
+        const autoRunDelayMs = this.getFeatureSetting('autoRunDelayMs');
+        const delayMs = typeof autoRunDelayMs === 'number' && Number.isFinite(autoRunDelayMs) && autoRunDelayMs >= 0 ? autoRunDelayMs : 0;
+
+        const runAutoDetectors = () => {
+            this.#autoRunResults = this.runDetectors({ trigger: 'autoRun' });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener(
+                'DOMContentLoaded',
+                () => {
+                    setTimeout(runAutoDetectors, delayMs);
+                },
+                { once: true },
+            );
+        } else {
+            setTimeout(runAutoDetectors, delayMs);
+        }
+    }
+
+    /**
+     * Check if any detectors have autoRun enabled.
+     *
+     * @returns {boolean}
+     */
+    _hasEnabledAutoRunDetectors() {
+        for (const groupDetectors of Object.values(this.#detectors)) {
+            for (const detectorConfig of Object.values(groupDetectors)) {
+                if (this._isStateEnabled(detectorConfig.triggers.autoRun.state)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -71,6 +129,7 @@ export default class WebDetection extends ContentFeature {
     runDetectors(options) {
         /** @type {DetectorResult[]} */
         const results = [];
+        const actionKey = options.trigger === 'breakageReport' ? 'breakageReportData' : 'autoRunData';
 
         for (const [groupName, groupDetectors] of Object.entries(this.#detectors)) {
             for (const [detectorId, detectorConfig] of Object.entries(groupDetectors)) {
@@ -88,15 +147,15 @@ export default class WebDetection extends ContentFeature {
 
                 // Execute detector actions.
 
-                // If we're in the breakage report trigger and the breakage report data action is enabled, add the result to the results.
-                if (options.trigger === 'breakageReport' && this._isStateEnabled(detectorConfig.actions.breakageReportData.state)) {
-                    // Only include if detected or errored (not false)
-                    if (detected !== false) {
-                        results.push({
-                            detectorId: `${groupName}.${detectorId}`,
-                            detected,
-                        });
-                    }
+                const actionConfig = detectorConfig.actions[actionKey];
+                if (!actionConfig || !this._isStateEnabled(actionConfig.state)) continue;
+
+                // Only include if detected or errored (not false)
+                if (detected !== false) {
+                    results.push({
+                        detectorId: `${groupName}.${detectorId}`,
+                        detected,
+                    });
                 }
             }
         }

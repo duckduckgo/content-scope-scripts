@@ -32,6 +32,7 @@ import { withDefaults } from '../../utils.js';
 /**
  * @typedef {object} Triggers
  * @property {TriggerBase} breakageReport - Whether to run in the breakage report flow
+ * @property {TriggerBase} autoRun - Whether to run automatically after page load
  */
 
 /**
@@ -46,6 +47,7 @@ import { withDefaults } from '../../utils.js';
  *
  * @typedef {object} DetectorActions
  * @property {ActionBase} breakageReportData - Whether to include in breakage report data
+ * @property {ActionBase} autoRunData - Whether to include in auto-run results
  */
 
 /**
@@ -88,9 +90,16 @@ const DEFAULTS = {
             state: /** @type {FeatureState} */ ('enabled'),
             runConditions: DEFAULT_RUN_CONDITIONS,
         },
+        autoRun: {
+            state: /** @type {FeatureState} */ ('disabled'),
+            runConditions: DEFAULT_RUN_CONDITIONS,
+        },
     },
     actions: {
         breakageReportData: {
+            state: /** @type {FeatureState} */ ('enabled'),
+        },
+        autoRunData: {
             state: /** @type {FeatureState} */ ('enabled'),
         },
     },
