@@ -1,6 +1,10 @@
 {
+  "nextStepsList_sectionTitle": {
+    "title": "Next Steps",
+    "note": "Text that goes in the Next Steps bubble label above the card"
+  },
   "nextStepsList_maybeLater": {
-    "title": "Maybe Later",
+    "title": "No Thanks",
     "note": "Secondary button text for dismissing a Next Steps List item"
   },
   "nextStepsList_pinAppToTaskbarWindows_title": {

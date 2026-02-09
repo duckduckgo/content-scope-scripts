@@ -1,6 +1,38 @@
 .wrapper {
     width: 100%;
     margin-bottom: var(--ntp-gap);
+    position: relative;
+}
+
+.bubble {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    position: absolute;
+    top: calc(-22 * var(--px-in-rem));
+    left: 0;
+
+    svg path {
+        fill: var(--ds-color-theme-accent-primary);
+    }
+
+    div {
+        background-color: var(--ds-color-theme-accent-primary);
+        height: calc(20 * var(--px-in-rem));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 1px;
+        margin: 0 -1px;
+
+        h2 {
+            color: var(--ds-color-theme-accent-content-primary);
+            letter-spacing: 0.06px;
+            font-weight: 600;
+            line-height: normal;
+            font-size: calc(11 * var(--px-in-rem));
+        }
+    }
 }
 
 .cardContainer {
@@ -24,6 +56,15 @@
 
 [data-theme="dark"] .card {
     box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.24), 0 1px 4px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* Increase shadow on the front card when a back card is visible */
+.cardContainer:has(.backCard) > .card:not(.backCard):not(.dismissing):not(.promoting) {
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.12), 0 2px 6px 0 rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .cardContainer:has(.backCard) > .card:not(.backCard):not(.dismissing):not(.promoting) {
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.32), 0 2px 6px 0 rgba(0, 0, 0, 0.24);
 }
 
 /* Back card (peek card) - positioned behind the main card */
@@ -125,6 +166,12 @@
         opacity: 0;
         transform: translateY(50px);
     }
+}
+
+.dismissBtn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
 }
 
 .imageContainer {
