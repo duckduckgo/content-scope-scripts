@@ -32,19 +32,35 @@ jobs:
             - name: Run build
               run: npm run build
 
-            - name: Create and push release branch
+            - name: Create and push build branch
               id: create_branch
               env:
                   PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
-                  git checkout -b pr-releases/pr-${PR_NUMBER}
+
+                  # Build branch: <feature-branch>/build
+                  BUILD_BRANCH="${PR_HEAD_REF}/build"
+
+                  # Legacy branch for backward compatibility (will be removed)
+                  LEGACY_BRANCH="pr-releases/pr-${PR_NUMBER}"
+
+                  git checkout -b "${BUILD_BRANCH}"
                   git add -f build Sources/ContentScopeScripts/dist
-                  git commit -m "Add build folder for PR ${PR_NUMBER}"
-                  git push -u origin pr-releases/pr-${PR_NUMBER} --force
-                  echo "BRANCH_NAME=pr-releases/pr-${PR_NUMBER}" >> $GITHUB_ENV
+                  git commit -m "Build artifacts for ${PR_HEAD_REF} (PR #${PR_NUMBER})"
+
+                  # Push the new-convention build branch
+                  git push -u origin "${BUILD_BRANCH}" --force
+
+                  # Also push the legacy pr-releases branch for backward compat
+                  git branch "${LEGACY_BRANCH}"
+                  git push -u origin "${LEGACY_BRANCH}" --force
+
+                  echo "BRANCH_NAME=${BUILD_BRANCH}" >> $GITHUB_ENV
+                  echo "LEGACY_BRANCH_NAME=${LEGACY_BRANCH}" >> $GITHUB_ENV
                   echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
             - name: Find Previous Comment
@@ -53,7 +69,7 @@ jobs:
               with:
                   issue-number: ${{ github.event.pull_request.number }}
                   comment-author: 'github-actions[bot]'
-                  body-includes: 'Temporary Branch Update'
+                  body-includes: 'Build Branch Update'
                   direction: last
 
             - name: Create Comment Body
@@ -63,29 +79,50 @@ jobs:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const branchName = process.env.BRANCH_NAME;
+                      const legacyBranchName = process.env.LEGACY_BRANCH_NAME;
                       const commitHash = process.env.COMMIT_HASH;
                       const prNumber = context.issue.number;
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
-                      const branchUrl = `${repoUrl}/tree/${branchName}`;
+                      const branchUrl = `${repoUrl}/tree/${encodeURIComponent(branchName)}`;
                       const commitUrl = `${repoUrl}/commit/${commitHash}`;
 
-                      // Get the current date
                       const lastUpdatedDate = (new Date()).toLocaleString('en-US', {
                           dateStyle: 'long',
                           timeStyle: 'long'
                         });
 
                       const commentBody = `
-                      ### Temporary Branch Update
+                      ### Build Branch Update
 
-                      The temporary branch has been updated with the latest changes. Below are the details:
+                      The build branch has been updated with the latest compiled artifacts.
 
-                        - **Branch Name**: [${branchName}](${branchUrl})
-                        - **Commit Hash**: [${commitHash}](${commitUrl})
+                        - **Build Branch**: [\`${branchName}\`](${branchUrl})
+                        - **Commit Hash**: [\`${commitHash.slice(0, 10)}\`](${commitUrl})
                         - **Last Updated**: ${lastUpdatedDate}
-                        - **Install Command**: \`npm i github:duckduckgo/content-scope-scripts#${commitHash}\`
 
-                        Please use the above install command to update to the latest version.
+                      #### Integration commands
+
+                      **npm** (Android / Extension):
+                      \`\`\`
+                      npm i github:duckduckgo/content-scope-scripts#${branchName}
+                      \`\`\`
+
+                      **Swift Package Manager** (Apple):
+                      \`\`\`swift
+                      .package(url: "https://github.com/duckduckgo/content-scope-scripts.git", branch: "${branchName}")
+                      \`\`\`
+
+                      **git submodule** (Windows):
+                      \`\`\`sh
+                      git -C submodules/content-scope-scripts fetch origin ${branchName}
+                      git -C submodules/content-scope-scripts checkout origin/${branchName}
+                      \`\`\`
+
+                      <details><summary>Legacy reference</summary>
+
+                      \`npm i github:duckduckgo/content-scope-scripts#${commitHash}\`
+
+                      </details>
                       `;
                       core.setOutput('comment_body', commentBody);
                       core.setOutput('pr_number', prNumber);
@@ -105,9 +142,14 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v6
 
-            - name: Delete release branch
+            - name: Delete build branches
               env:
                   PR_NUMBER: ${{ github.event.pull_request.number }}
+                  PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  git push origin --delete pr-releases/pr-${PR_NUMBER}
+                  # Delete new-convention build branch
+                  git push origin --delete "${PR_HEAD_REF}/build" || true
+
+                  # Delete legacy pr-releases branch
+                  git push origin --delete "pr-releases/pr-${PR_NUMBER}" || true
