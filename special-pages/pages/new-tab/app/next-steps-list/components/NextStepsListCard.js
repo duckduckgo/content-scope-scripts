@@ -204,26 +204,26 @@ export function NextStepsListCard({
                         />
                     </div>
                 )}
-                {/* Current card - hidden during transition, shown after animation completes */}
-                {!isTransitioning && (
-                    <div
-                        key={itemId}
-                        class={cn(styles.card, {
-                            [styles.entering]: isEntering,
-                        })}
-                    >
-                        <CardBody
-                            title={title}
-                            description={description}
-                            primaryButtonText={primaryButtonText}
-                            secondaryButtonText={secondaryButtonText}
-                            imageSrc={imageSrc}
-                            onPrimaryClick={onPrimaryAction}
-                            onSecondaryClick={handleSecondaryAction}
-                        />
-                        <DismissButton className={styles.dismissBtn} onClick={handleSecondaryAction} />
-                    </div>
-                )}
+                {/* Current card - kept in DOM during transition to preserve container height */}
+                <div
+                    key={itemId}
+                    class={cn(styles.card, {
+                        [styles.entering]: isEntering,
+                        [styles.offscreen]: isTransitioning,
+                    })}
+                    aria-hidden={isTransitioning ? 'true' : undefined}
+                >
+                    <CardBody
+                        title={title}
+                        description={description}
+                        primaryButtonText={primaryButtonText}
+                        secondaryButtonText={secondaryButtonText}
+                        imageSrc={imageSrc}
+                        onPrimaryClick={isTransitioning ? undefined : onPrimaryAction}
+                        onSecondaryClick={isTransitioning ? undefined : handleSecondaryAction}
+                    />
+                    {!isTransitioning && <DismissButton className={styles.dismissBtn} onClick={handleSecondaryAction} />}
+                </div>
             </div>
         </div>
     );

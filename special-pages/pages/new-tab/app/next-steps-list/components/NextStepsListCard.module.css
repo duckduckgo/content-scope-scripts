@@ -90,6 +90,11 @@
     transform: scale(0.97) translateY(12px);
 }
 
+/* Keep the card in the layout flow during transition to prevent container height changes */
+.card.offscreen {
+    visibility: hidden;
+}
+
 /* Enter animation - fade in when a new card appears after dismissing */
 .card.entering {
     animation: cardFadeIn 300ms ease-out;
