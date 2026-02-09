@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useState, useCallback, useRef, useEffect } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import cn from 'classnames';
 import { Button } from '../../../../../shared/components/Button/Button.js';
 import { DismissButton } from '../../components/DismissButton';
@@ -111,25 +111,9 @@ export function NextStepsListCard({
     onPrimaryAction,
     onSecondaryAction,
 }) {
-    const [isEntering, setIsEntering] = useState(false);
     const [dismissingCard, setDismissingCard] = useState(/** @type {CardContent | null} */ (null));
     // Track the previous next card for the "third card" animation
     const [promotingCard, setPromotingCard] = useState(/** @type {CardContent | null} */ (null));
-    const prevItemIdRef = useRef(itemId);
-
-    // When itemId changes, trigger enter animation
-    useEffect(() => {
-        if (prevItemIdRef.current === itemId) {
-            return;
-        }
-        setIsEntering(true);
-        // Remove entering class after animation completes (300ms to match CSS)
-        const timer = setTimeout(() => {
-            setIsEntering(false);
-        }, 300);
-        prevItemIdRef.current = itemId;
-        return () => clearTimeout(timer);
-    }, [itemId]);
 
     // Clear dismissing card after animation completes
     useEffect(() => {
@@ -141,7 +125,7 @@ export function NextStepsListCard({
         return () => clearTimeout(timer);
     }, [dismissingCard]);
 
-    const handleSecondaryAction = useCallback(() => {
+    const handleSecondaryAction = () => {
         // Store current card content for dismiss animation
         setDismissingCard({
             itemId,
@@ -157,7 +141,7 @@ export function NextStepsListCard({
         }
         // Trigger data update immediately - new card will animate in
         onSecondaryAction?.();
-    }, [itemId, title, description, primaryButtonText, secondaryButtonText, imageSrc, nextCard, onSecondaryAction]);
+    };
 
     // During transition, we use the promoting card as the visible "front" card
     // and hide the actual current card until the animation completes
@@ -208,7 +192,6 @@ export function NextStepsListCard({
                 <div
                     key={itemId}
                     class={cn(styles.card, {
-                        [styles.entering]: isEntering,
                         [styles.offscreen]: isTransitioning,
                     })}
                     aria-hidden={isTransitioning ? 'true' : undefined}

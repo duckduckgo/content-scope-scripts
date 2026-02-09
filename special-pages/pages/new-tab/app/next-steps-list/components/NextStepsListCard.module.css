@@ -52,6 +52,7 @@
     gap: calc(12 * var(--px-in-rem));
     position: relative;
     z-index: 2;
+    animation: cardFadeIn 300ms ease-out;
 }
 
 [data-theme="dark"] .card {
@@ -93,11 +94,6 @@
 /* Keep the card in the layout flow during transition to prevent container height changes */
 .card.offscreen {
     visibility: hidden;
-}
-
-/* Enter animation - fade in when a new card appears after dismissing */
-.card.entering {
-    animation: cardFadeIn 300ms ease-out;
 }
 
 /* Promoting animation - back card moving to front position */
