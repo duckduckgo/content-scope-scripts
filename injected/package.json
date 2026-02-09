@@ -26,7 +26,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#1770125988028",
+    "@duckduckgo/privacy-configuration": "github:duckduckgo/privacy-configuration#55370a5dd38544a572a7e662f05168c039c0a3e8",
     "esbuild": "^0.27.2",
     "minimist": "^1.2.8",
     "parse-address": "^1.1.2",
