@@ -32,7 +32,7 @@ test.describe('newtab NextStepsList widget', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ nextStepsList: 'emailProtection' });
-        await page.getByRole('button', { name: 'Maybe Later' }).click();
+        await page.getByRole('button', { name: 'No Thanks' }).click();
         await ntp.mocks.waitForCallCount({ method: 'nextSteps_dismiss', count: 1 });
     });
 
