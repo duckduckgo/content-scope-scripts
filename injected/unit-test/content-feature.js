@@ -1437,7 +1437,7 @@ describe('ContentFeature class', () => {
                     expect(result).toBe('success');
                 });
 
-                it('should reject if target feature init throws an error', async () => {
+                it('should return error if target feature init throws an error', async () => {
                     class FailingFeature extends ContentFeature {
                         constructor() {
                             super('failingFeature', {}, {}, {});
@@ -1462,8 +1462,11 @@ describe('ContentFeature class', () => {
                     // Try to initialize (this will throw)
                     await expectAsync(failingFeature.callInit({})).toBeRejectedWithError('init failed');
 
-                    // The callFeatureMethod should reject with the same error
-                    await expectAsync(resultPromise).toBeRejectedWithError('init failed');
+                    // The callFeatureMethod should return an error (not reject)
+                    const result = await resultPromise;
+                    expect(result).toBeInstanceOf(CallFeatureMethodError);
+                    expect(result.message).toContain("Initialisation of feature 'failingFeature' failed");
+                    expect(result.message).toContain('init failed');
                 });
 
                 it('should handle multiple callers waiting for the same feature', async () => {
