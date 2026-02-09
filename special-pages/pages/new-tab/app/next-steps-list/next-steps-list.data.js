@@ -78,12 +78,6 @@ export const variants = {
 };
 
 /**
- * Get the "Maybe Later" text
- * @param {(translationId: keyof enStrings) => string} t
- */
-export const getMaybeLaterText = (t) => t('nextStepsList_maybeLater');
-
-/**
  * Get the icon path for a given icon name and theme
  * @param {string} iconName - The base icon name (e.g., 'email-protection')
  * @param {'light' | 'dark'} theme - The current theme

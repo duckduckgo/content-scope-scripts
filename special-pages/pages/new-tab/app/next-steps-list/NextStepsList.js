@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { NextStepsListContext, NextStepsListProvider } from './NextStepsListProvider.js';
 import { useContext } from 'preact/hooks';
 import { NextStepsListCard } from './components/NextStepsListCard.js';
-import { variants, getMaybeLaterText, getIconPath } from './nextstepslist.data.js';
+import { variants, getIconPath } from './next-steps-list.data.js';
 import { useTypedTranslationWith } from '../types.js';
 import { CustomizerThemesContext } from '../customizer/CustomizerProvider.js';
 
@@ -63,7 +63,7 @@ export function NextStepsListConsumer() {
                 title: nextVariant.title,
                 description: nextVariant.summary,
                 primaryButtonText: nextVariant.actionText,
-                secondaryButtonText: getMaybeLaterText(t),
+                secondaryButtonText: t('nextStepsList_maybeLater'),
                 imageSrc: getIconPath(nextVariant.icon, theme),
             };
         }
@@ -74,7 +74,7 @@ export function NextStepsListConsumer() {
                 title={title}
                 description={summary}
                 primaryButtonText={actionText}
-                secondaryButtonText={getMaybeLaterText(t)}
+                secondaryButtonText={t('nextStepsList_maybeLater')}
                 imageSrc={iconPath}
                 nextCard={nextCard}
                 onPrimaryAction={() => action(displayedItemId)}
