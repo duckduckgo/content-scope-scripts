@@ -72,7 +72,7 @@
     "note": "Title of the Next Steps List card for importing bookmarks, passwords, and more"
   },
   "nextStepsList_bringStuff_summary": {
-    "title": "Securely sync your bookmarks, passwords, and credit card details.",
+    "title": "Securely bring over your bookmarks, passwords, and credit card details.",
     "note": "Summary of the Next Steps List card for importing bookmarks, passwords, and more"
   },
   "nextStepsList_bringStuff_actionText": {
@@ -102,5 +102,17 @@
   "nextStepsList_subscription_actionText": {
     "title": "Try for Free",
     "note": "Button text of the Next Steps List card for DuckDuckGo subscription"
+  },
+  "nextStepsList_sync_title": {
+    "title": "Access Your Online Essentials on All Your Devices",
+    "note": "Title of the Next Steps List card for syncing data across devices"
+  },
+  "nextStepsList_sync_summary": {
+    "title": "Securely sync your bookmarks, passwords, and credit card details.",
+    "note": "Summary of the Next Steps List card for syncing data across devices"
+  },
+  "nextStepsList_sync_actionText": {
+    "title": "Sync Now",
+    "note": "Button text of the Next Steps List card for syncing data across devices"
   }
 }

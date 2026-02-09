@@ -67,6 +67,14 @@ export const variants = {
         summary: t('nextStepsList_subscription_summary'),
         actionText: t('nextStepsList_subscription_actionText'),
     }),
+    /** @param {(translationId: keyof enStrings) => string} t */
+    sync: (t) => ({
+        id: 'sync',
+        icon: 'sync',
+        title: t('nextStepsList_sync_title'),
+        summary: t('nextStepsList_sync_summary'),
+        actionText: t('nextStepsList_sync_actionText'),
+    }),
 };
 
 /**
