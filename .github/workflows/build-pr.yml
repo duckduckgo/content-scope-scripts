@@ -42,25 +42,18 @@ jobs:
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-                  # Build branch: <feature-branch>/build
-                  BUILD_BRANCH="${PR_HEAD_REF}/build"
-
-                  # Legacy branch for backward compatibility (will be removed)
-                  LEGACY_BRANCH="pr-releases/pr-${PR_NUMBER}"
+                  # Build branch uses the pr-releases/ prefix to avoid ref conflicts.
+                  # A branch named "foo" prevents creating "foo/bar" (and vice-versa)
+                  # because git refs are a filesystem hierarchy.  pr-releases/ is a
+                  # separate namespace that can never collide with the source branch.
+                  BUILD_BRANCH="pr-releases/${PR_HEAD_REF}"
 
                   git checkout -b "${BUILD_BRANCH}"
                   git add -f build Sources/ContentScopeScripts/dist
                   git commit -m "Build artifacts for ${PR_HEAD_REF} (PR #${PR_NUMBER})"
-
-                  # Push the new-convention build branch
                   git push -u origin "${BUILD_BRANCH}" --force
 
-                  # Also push the legacy pr-releases branch for backward compat
-                  git branch "${LEGACY_BRANCH}"
-                  git push -u origin "${LEGACY_BRANCH}" --force
-
                   echo "BRANCH_NAME=${BUILD_BRANCH}" >> $GITHUB_ENV
-                  echo "LEGACY_BRANCH_NAME=${LEGACY_BRANCH}" >> $GITHUB_ENV
                   echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
             - name: Find Previous Comment
@@ -79,7 +72,6 @@ jobs:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const branchName = process.env.BRANCH_NAME;
-                      const legacyBranchName = process.env.LEGACY_BRANCH_NAME;
                       const commitHash = process.env.COMMIT_HASH;
                       const prNumber = context.issue.number;
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
@@ -117,12 +109,6 @@ jobs:
                       git -C submodules/content-scope-scripts fetch origin ${branchName}
                       git -C submodules/content-scope-scripts checkout origin/${branchName}
                       \`\`\`
-
-                      <details><summary>Legacy reference</summary>
-
-                      \`npm i github:duckduckgo/content-scope-scripts#${commitHash}\`
-
-                      </details>
                       `;
                       core.setOutput('comment_body', commentBody);
                       core.setOutput('pr_number', prNumber);
@@ -142,14 +128,9 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v6
 
-            - name: Delete build branches
+            - name: Delete build branch
               env:
-                  PR_NUMBER: ${{ github.event.pull_request.number }}
                   PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  # Delete new-convention build branch
-                  git push origin --delete "${PR_HEAD_REF}/build" || true
-
-                  # Delete legacy pr-releases branch
-                  git push origin --delete "pr-releases/pr-${PR_NUMBER}" || true
+                  git push origin --delete "pr-releases/${PR_HEAD_REF}" || true
