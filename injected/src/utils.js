@@ -836,6 +836,7 @@ export const platformSpecificFeatures = [
     'favicon',
     'breakageReporting',
     'print',
+    'webInterferenceDetection',
 ];
 
 export function isPlatformSpecificFeature(featureName) {

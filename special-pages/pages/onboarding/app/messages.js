@@ -40,7 +40,7 @@ export class OnboardingMessages {
      *       "rows": ["dock", "import", "default-browser"]
      *     }
      *   },
-     *   "order": "v2",
+     *   "order": "v3",
      *   "exclude": ["dockSingle"],
      *   "locale": "en"
      * }
