@@ -263,15 +263,37 @@ export const settingsRowItems = {
     }),
 };
 
+/** @type {import('../../types').StepDefinitions} */
 export const stepDefinitions = {
+    welcome: {
+        id: 'welcome',
+        kind: 'info',
+    },
+    getStarted: {
+        id: 'getStarted',
+        kind: 'info',
+    },
+    makeDefaultSingle: {
+        id: 'makeDefaultSingle',
+        kind: 'settings',
+        rows: ['default-browser'],
+    },
     systemSettings: {
         id: 'systemSettings',
         kind: 'settings',
         rows: ['dock', 'import'],
     },
+    duckPlayerSingle: {
+        id: 'duckPlayerSingle',
+        kind: 'info',
+    },
     customize: {
         id: 'customize',
         kind: 'settings',
         rows: ['bookmarks', 'session-restore', 'home-shortcut'],
+    },
+    addressBarMode: {
+        id: 'addressBarMode',
+        kind: 'info',
     },
 };
