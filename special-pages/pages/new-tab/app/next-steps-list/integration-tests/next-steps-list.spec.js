@@ -16,8 +16,8 @@ test.describe('newtab NextStepsList widget', () => {
         const ntp = NewtabPage.create(page, workerInfo);
         await ntp.reducedMotion();
         await ntp.openPage({ nextStepsList: 'emailProtection' });
-        await page.getByText('Protect Your Inbox From Spam, Scams, and Trackers').waitFor();
-        await page.getByText('No switching emails!').waitFor();
+        await page.getByText('Protect Your Email Address and Block Trackers').waitFor();
+        await page.getByText('Hide your email with our forwarding service').waitFor();
     });
 
     test('renders primary action button and triggers nextSteps_action', async ({ page }, workerInfo) => {
@@ -43,12 +43,12 @@ test.describe('newtab NextStepsList widget', () => {
         // Test duckplayer variant
         await ntp.openPage({ nextStepsList: 'duckplayer' });
         await page.getByText('YouTube with Fewer Ads').waitFor();
-        await page.getByRole('button', { name: 'Open Duck Player' }).waitFor();
+        await page.getByRole('button', { name: 'Try Duck Player' }).waitFor();
 
         // Test defaultApp variant
         await ntp.openPage({ nextStepsList: 'defaultApp' });
-        await page.getByText('Take Back Your Privacy!').waitFor();
-        await page.getByRole('button', { name: 'Set as Default' }).waitFor();
+        await page.getByText('Open Links in DuckDuckGo').first().waitFor();
+        await page.getByRole('button', { name: 'Open Links in DuckDuckGo' }).waitFor();
 
         // Test bringStuff variant
         await ntp.openPage({ nextStepsList: 'bringStuff' });
@@ -62,7 +62,7 @@ test.describe('newtab NextStepsList widget', () => {
         await ntp.openPage({ nextStepsList: ['emailProtection', 'duckplayer', 'defaultApp'] });
 
         // Should show the front card (emailProtection)
-        await page.getByText('Protect Your Inbox From Spam, Scams, and Trackers').waitFor();
+        await page.getByText('Protect Your Email Address and Block Trackers').waitFor();
 
         // Should also show the back card content (duckplayer)
         await page.getByText('YouTube with Fewer Ads').waitFor();
@@ -74,7 +74,7 @@ test.describe('newtab NextStepsList widget', () => {
         await ntp.openPage({ nextStepsList: 'emailProtection' });
 
         // Should show the front card
-        await page.getByText('Protect Your Inbox From Spam, Scams, and Trackers').waitFor();
+        await page.getByText('Protect Your Email Address and Block Trackers').waitFor();
 
         // The duckplayer content should not be visible (no back card)
         await expect(page.getByText('YouTube with Fewer Ads')).not.toBeVisible();
