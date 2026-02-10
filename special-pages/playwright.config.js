@@ -8,8 +8,6 @@ export default defineConfig({
             testMatch: [
                 'duckplayer.spec.js',
                 'duckplayer-screenshots.spec.js',
-                'onboarding.v1.spec.js',
-                'onboarding.v2.spec.js',
                 'onboarding.v3.spec.js',
                 'onboarding.v4.spec.js',
                 'special-error.spec.js',
@@ -78,8 +76,6 @@ export default defineConfig({
             testMatch: [
                 'duckplayer.spec.js',
                 'duckplayer-screenshots.spec.js',
-                'onboarding.v1.spec.js',
-                'onboarding.v2.spec.js',
                 'onboarding.v3.spec.js',
                 'onboarding.v4.spec.js',
                 'release-notes.spec.js',
@@ -91,6 +87,50 @@ export default defineConfig({
                 ...devices['Desktop Safari'],
                 injectName: 'apple',
                 platform: 'macos',
+            },
+        },
+        {
+            name: 'onboarding-screenshots-windows-light',
+            testMatch: ['onboarding.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Edge'],
+                injectName: 'windows',
+                platform: 'windows',
+                colorScheme: 'light',
+                viewport: { width: 1024, height: 768 },
+            },
+        },
+        {
+            name: 'onboarding-screenshots-windows-dark',
+            testMatch: ['onboarding.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Edge'],
+                injectName: 'windows',
+                platform: 'windows',
+                colorScheme: 'dark',
+                viewport: { width: 1024, height: 768 },
+            },
+        },
+        {
+            name: 'onboarding-screenshots-macos-light',
+            testMatch: ['onboarding.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Safari'],
+                injectName: 'apple',
+                platform: 'macos',
+                colorScheme: 'light',
+                viewport: { width: 1024, height: 768 },
+            },
+        },
+        {
+            name: 'onboarding-screenshots-macos-dark',
+            testMatch: ['onboarding.screenshots.spec.js'],
+            use: {
+                ...devices['Desktop Safari'],
+                injectName: 'apple',
+                platform: 'macos',
+                colorScheme: 'dark',
+                viewport: { width: 1024, height: 768 },
             },
         },
         {
