@@ -136,13 +136,13 @@ The workflow creates a tag and GitHub release automatically. Build artifacts on 
 
 ### PR build branches
 
-When you open or update a PR, the `build-pr.yml` workflow automatically:
+When you push to any branch (except `main`, `releases`, or `pr-releases/*`), the `build-pr.yml` workflow automatically:
 
 1. Builds all workspaces (`npm run build`)
 2. Pushes the source + build artifacts to `pr-releases/<your-branch-name>`
-3. Posts a comment with integration commands for each platform (npm, SPM, git submodule)
+3. If an open PR exists for the branch, updates the PR description and posts a comment with integration commands for each platform
 
-The build branch is deleted automatically when the PR is closed.
+The build branch is created on the first push and updated on every subsequent push. It's deleted automatically when the source branch is deleted.
 
 **Using a PR build branch in a native client:**
 
