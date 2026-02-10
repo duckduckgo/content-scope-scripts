@@ -334,11 +334,11 @@
     "note": "Button text of the Next Steps List card for DuckDuckGo subscription"
   },
   "nextStepsList_sync_title": {
-    "title": "Access Your Online Essentials on All Your Devices",
+    "title": "Sync and Back Up Your Bookmarks and Passwords",
     "note": "Title of the Next Steps List card for syncing data across devices"
   },
   "nextStepsList_sync_summary": {
-    "title": "Securely sync your bookmarks, passwords, and credit card details.",
+    "title": "Securely sync your bookmarks, passwords, and identity data on mobile and desktop.",
     "note": "Summary of the Next Steps List card for syncing data across devices"
   },
   "nextStepsList_sync_actionText": {
