@@ -33,10 +33,12 @@ export function mockTransport() {
                         };
                     }
 
+                    const order = url.searchParams.get('order') || 'v3';
+
                     return Promise.resolve({
                         stepDefinitions,
                         exclude: [],
-                        order: 'v3',
+                        order,
                         locale: 'en',
                         env: 'development',
                     });
