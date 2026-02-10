@@ -1,14 +1,18 @@
-import ContentFeature from '../content-feature';
+import ContentFeature, { CallFeatureMethodError } from '../content-feature';
 import { getExpandedPerformanceMetrics, getJsPerformanceMetrics } from './breakage-reporting/utils.js';
 import { runBotDetection } from '../detectors/detections/bot-detection.js';
 import { runFraudDetection } from '../detectors/detections/fraud-detection.js';
 import { runAdwallDetection } from '../detectors/detections/adwall-detection.js';
+import { runYoutubeAdDetection } from '../detectors/detections/youtube-ad-detection.js';
 
 export default class BreakageReporting extends ContentFeature {
     init() {
         const isExpandedPerformanceMetricsEnabled = this.getFeatureSettingEnabled('expandedPerformanceMetrics', 'enabled');
 
         this.messaging.subscribe('getBreakageReportValues', async () => {
+            // Payload that will be URL-encoded and passed directly through to breakage reports.
+            const breakageDataPayload = {};
+
             const jsPerformance = getJsPerformanceMetrics();
             const referrer = document.referrer;
 
@@ -29,6 +33,12 @@ export default class BreakageReporting extends ContentFeature {
                     (window.performance.getEntriesByType('navigation')).map((nav) => nav.type).includes('reload');
             }
 
+            // Run webDetection detectors for the breakageReport trigger
+            const webDetectionResults = await this.callFeatureMethod('webDetection', 'runDetectors', { trigger: 'breakageReport' });
+            if (!(webDetectionResults instanceof CallFeatureMethodError) && webDetectionResults.length > 0) {
+                breakageDataPayload.webDetection = webDetectionResults;
+            }
+
             // Only run detectors if explicitly configured
             // Fetch interferenceTypes from webInterferenceDetection feature settings
             const detectorSettings = this.getFeatureSetting('interferenceTypes', 'webInterferenceDetection');
@@ -37,6 +47,7 @@ export default class BreakageReporting extends ContentFeature {
                     botDetection: runBotDetection(detectorSettings.botDetection),
                     fraudDetection: runFraudDetection(detectorSettings.fraudDetection),
                     adwallDetection: runAdwallDetection(detectorSettings.adwallDetection),
+                    youtubeAds: runYoutubeAdDetection(detectorSettings.youtubeAds),
                 };
             }
 
@@ -47,8 +58,6 @@ export default class BreakageReporting extends ContentFeature {
                 }
             }
 
-            // Build breakageData as URL-encoded JSON for native platforms to pass directly to breakage reports
-            const breakageDataPayload = {};
             if (result.detectorData) {
                 breakageDataPayload.detectorData = result.detectorData;
             }

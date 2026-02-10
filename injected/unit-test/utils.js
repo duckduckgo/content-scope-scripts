@@ -8,6 +8,7 @@ import {
     getTabHostname,
     processAttr,
     isStateEnabled,
+    withDefaults,
 } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
@@ -847,6 +848,93 @@ describe('Helpers checks', () => {
                 expect(typeof nestedFunction).toBe('function');
                 expect(nestedFunction()).toBe(42);
             });
+        });
+    });
+
+    describe('withDefaults', () => {
+        it('should return defaults when config is undefined', () => {
+            const defaults = { a: 1, b: 2 };
+            expect(withDefaults(defaults, undefined)).toEqual({ a: 1, b: 2 });
+        });
+
+        it('should return config when defaults is undefined', () => {
+            expect(withDefaults(undefined, { a: 10 })).toEqual({ a: 10 });
+        });
+
+        it('should override primitive values with config', () => {
+            const defaults = { a: 1, b: 2 };
+            const config = { a: 10 };
+            expect(withDefaults(defaults, config)).toEqual({ a: 10, b: 2 });
+        });
+
+        it('should deeply merge nested objects', () => {
+            const defaults = {
+                level1: {
+                    a: 1,
+                    level2: {
+                        b: 2,
+                        c: 3,
+                    },
+                },
+            };
+            const config = {
+                level1: {
+                    level2: {
+                        b: 20,
+                    },
+                },
+            };
+            expect(withDefaults(defaults, config)).toEqual({
+                level1: {
+                    a: 1,
+                    level2: {
+                        b: 20,
+                        c: 3,
+                    },
+                },
+            });
+        });
+
+        it('should replace arrays entirely (not merge them)', () => {
+            const defaults = { items: [1, 2, 3] };
+            const config = { items: [4, 5] };
+            expect(withDefaults(defaults, config)).toEqual({ items: [4, 5] });
+        });
+
+        it('should use default array when config value is undefined', () => {
+            const defaults = { items: [1, 2, 3] };
+            const config = {};
+            expect(withDefaults(defaults, config)).toEqual({ items: [1, 2, 3] });
+        });
+
+        it('should handle config replacing object with primitive', () => {
+            const defaults = { nested: { a: 1 } };
+            const config = { nested: 'replaced' };
+            expect(withDefaults(defaults, config)).toEqual({ nested: 'replaced' });
+        });
+
+        it('should handle config replacing primitive with object', () => {
+            const defaults = { value: 'string' };
+            const config = { value: { nested: true } };
+            expect(withDefaults(defaults, config)).toEqual({ value: { nested: true } });
+        });
+
+        it('should allow additional keys from config', () => {
+            const defaults = { a: 1, b: 2 };
+            const config = { a: 10, c: 30 };
+            expect(withDefaults(defaults, config)).toEqual({ a: 10, b: 2, c: 30 });
+        });
+
+        it('should allow additional keys from defaults', () => {
+            const defaults = { a: 1, b: 2 };
+            const config = { c: 30 };
+            expect(withDefaults(defaults, config)).toEqual({ a: 1, b: 2, c: 30 });
+        });
+
+        it('should merge nested objects keeping additional keys from config', () => {
+            const defaults = { outer: { inner: { a: 1 } } };
+            const config = { outer: { inner: { a: 2, b: 3 } } };
+            expect(withDefaults(defaults, config)).toEqual({ outer: { inner: { a: 2, b: 3 } } });
         });
     });
 });

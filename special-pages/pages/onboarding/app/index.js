@@ -1,7 +1,6 @@
 import { OnboardingMessages } from './messages';
 import { render, h } from 'preact';
 import './shared/styles/global.css'; // global styles
-import { App as AppV1 } from './v1/App.js';
 import { App as AppV3 } from './v3/App.js';
 import { SkipLink } from './shared/components/SkipLink.js';
 import { GlobalProvider } from './global';
@@ -66,15 +65,13 @@ async function init() {
         .withPlatformName(baseEnvironment.injectName)
         .withPlatformName(init.platform?.name)
         .withPlatformName(baseEnvironment.urlParams.get('platform'))
-        .withStepDefinitions(init.order === 'v3' ? stepDefinitionsV3 : null)
+        .withStepDefinitions(stepDefinitionsV3)
         .withStepDefinitions(init.stepDefinitions)
         .withNamedOrder(init.order)
         .withNamedOrder(environment.urlParams.get('order'))
         .withExcludedScreens(init.exclude)
         .withExcludedScreens(environment.urlParams.getAll('exclude'))
         .withFirst(environment.urlParams.get('page'));
-
-    const AppComponent = settings.orderName === 'v3' ? AppV3 : AppV1;
 
     const root = document.querySelector('#app');
     if (!root) throw new Error('could not render, root element missing');
@@ -91,7 +88,7 @@ async function init() {
                             stepDefinitions={settings.stepDefinitions}
                             firstPage={settings.first}
                         >
-                            <AppComponent>{environment.env === 'development' && <SkipLink />}</AppComponent>
+                            <AppV3>{environment.env === 'development' && <SkipLink />}</AppV3>
                         </GlobalProvider>
                     </SettingsProvider>
                 </TranslationProvider>
