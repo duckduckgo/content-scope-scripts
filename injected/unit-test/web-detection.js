@@ -226,6 +226,137 @@ describe('WebDetection', () => {
             });
             expect(asArray(result.match).length).toBe(2);
         });
+
+        describe('auto trigger defaults', () => {
+            it('should apply default state (disabled) to auto trigger', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    triggers: {
+                        auto: {
+                            when: {
+                                intervalMs: [100],
+                            },
+                        },
+                    },
+                });
+                expect(result.triggers.auto.state).toBe('disabled');
+            });
+
+            it('should apply default runConditions to auto trigger', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    triggers: {
+                        auto: {
+                            when: {
+                                intervalMs: [100],
+                            },
+                        },
+                    },
+                });
+                expect(result.triggers.auto.runConditions).toEqual([{ context: { top: true } }]);
+            });
+
+            it('should apply default mode (first-success) to auto trigger when', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    triggers: {
+                        auto: {
+                            when: {
+                                intervalMs: [100],
+                            },
+                        },
+                    },
+                });
+                expect(result.triggers.auto.when.mode).toBe('first-success');
+            });
+
+            it('should allow overriding state to enabled', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    triggers: {
+                        auto: {
+                            state: 'enabled',
+                            when: {
+                                intervalMs: [100, 500],
+                            },
+                        },
+                    },
+                });
+                expect(result.triggers.auto.state).toBe('enabled');
+                expect(result.triggers.auto.when.intervalMs).toEqual([100, 500]);
+            });
+
+            it('should allow overriding mode to always', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    triggers: {
+                        auto: {
+                            when: {
+                                mode: 'always',
+                                intervalMs: [100, 200],
+                            },
+                        },
+                    },
+                });
+                expect(result.triggers.auto.when.mode).toBe('always');
+            });
+
+            it('should allow overriding runConditions', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    triggers: {
+                        auto: {
+                            runConditions: [{ domain: 'example.com' }],
+                            when: {
+                                intervalMs: [100],
+                            },
+                        },
+                    },
+                });
+                expect(result.triggers.auto.runConditions).toEqual([{ domain: 'example.com' }]);
+            });
+
+            it('should handle multiple intervals', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    triggers: {
+                        auto: {
+                            when: {
+                                intervalMs: [100, 500, 1000, 5000],
+                            },
+                        },
+                    },
+                });
+                expect(result.triggers.auto.when.intervalMs).toEqual([100, 500, 1000, 5000]);
+            });
+
+            it('should apply default auto trigger when not specified in config', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                });
+                // Defaults should be applied for auto trigger
+                expect(result.triggers.auto).toBeDefined();
+                expect(result.triggers.auto.state).toBe('disabled');
+                expect(result.triggers.auto.when.mode).toBe('first-success');
+                expect(result.triggers.auto.runConditions).toEqual([{ context: { top: true } }]);
+            });
+
+            it('should not interfere with breakageReport trigger defaults', () => {
+                const result = oneDetectorConfigParsed({
+                    match: { text: { pattern: 'test' } },
+                    triggers: {
+                        auto: {
+                            when: {
+                                intervalMs: [100],
+                            },
+                        },
+                    },
+                });
+                // breakageReport defaults should still be applied
+                expect(result.triggers.breakageReport.state).toBe('enabled');
+                expect(result.triggers.breakageReport.runConditions).toEqual([{ context: { top: true } }]);
+            });
+        });
     });
 
     describe('runDetectors', () => {
