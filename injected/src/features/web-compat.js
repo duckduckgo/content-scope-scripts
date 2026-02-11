@@ -773,13 +773,41 @@ export class WebCompat extends ContentFeature {
     presentationFix() {
         try {
             // @ts-expect-error due to: Property 'presentation' does not exist on type 'Navigator'
-            if (window.navigator.presentation && this.injectName !== 'integration') {
+            if (window.navigator.presentation && window.PresentationRequest && this.injectName !== 'integration') {
                 return;
             }
 
+            /**
+             * @param {string} message
+             * @returns {DOMException|Error}
+             */
+            function createNotSupportedError(message) {
+                try {
+                    return new DOMException(message, 'NotSupportedError');
+                } catch {
+                    const err = new Error(message);
+                    err.name = 'NotSupportedError';
+                    return err;
+                }
+            }
+
             const MyPresentation = class {
+                constructor() {
+                    /** @type {any} */
+                    this._defaultRequest = null;
+                }
+
                 get defaultRequest() {
-                    return null;
+                    return this._defaultRequest;
+                }
+
+                set defaultRequest(value) {
+                    // Spec says PresentationRequest?; be permissive for web-compat and accept null/undefined.
+                    if (value == null) {
+                        this._defaultRequest = null;
+                        return;
+                    }
+                    this._defaultRequest = value;
                 }
 
                 get receiver() {
@@ -810,11 +838,71 @@ export class WebCompat extends ContentFeature {
             this.shimInterface(
                 // @ts-expect-error Presentation API is still experimental, TS types are missing
                 'PresentationRequest',
-                class {
-                    // class definition is empty because there's no way to get an instance of it anyways
+                class extends (globalThis.EventTarget || class {}) {
+                    /**
+                     * @param {string|string[]|Iterable<string>} urls
+                     */
+                    constructor(urls) {
+                        super();
+
+                        // https://developer.mozilla.org/en-US/docs/Web/API/PresentationRequest/PresentationRequest
+                        // Accept a string, an array/sequence of strings, or any iterable of strings.
+                        /** @type {string[]} */
+                        const normalized = [];
+                        if (typeof urls === 'string' || urls instanceof String) {
+                            normalized.push(String(urls));
+                        } else if (Array.isArray(urls)) {
+                            for (const u of urls) normalized.push(String(u));
+                        } else if (urls && typeof urls[Symbol.iterator] === 'function') {
+                            for (const u of urls) normalized.push(String(u));
+                        } else {
+                            throw new TypeError(
+                                "Failed to construct 'PresentationRequest': The provided value is not of type '(DOMString or sequence<DOMString>)'.",
+                            );
+                        }
+
+                        if (normalized.length === 0) {
+                            throw new TypeError("Failed to construct 'PresentationRequest': At least one URL must be provided.");
+                        }
+
+                        /** @type {string[]} */
+                        this._urls = normalized;
+
+                        /** @type {((ev: any) => any)|null} */
+                        this.onconnectionavailable = null;
+                    }
+
+                    get urls() {
+                        // In spec this is a (frozen) sequence; return a copy to discourage mutation.
+                        return this._urls.slice();
+                    }
+
+                    start() {
+                        return Promise.reject(
+                            createNotSupportedError(
+                                "Failed to execute 'start' on 'PresentationRequest': The Presentation API is not supported.",
+                            ),
+                        );
+                    }
+
+                    reconnect() {
+                        return Promise.reject(
+                            createNotSupportedError(
+                                "Failed to execute 'reconnect' on 'PresentationRequest': The Presentation API is not supported.",
+                            ),
+                        );
+                    }
+
+                    getAvailability() {
+                        return Promise.reject(
+                            createNotSupportedError(
+                                "Failed to execute 'getAvailability' on 'PresentationRequest': The Presentation API is not supported.",
+                            ),
+                        );
+                    }
                 },
                 {
-                    disallowConstructor: true,
+                    disallowConstructor: false,
                     allowConstructorCall: false,
                     wrapToString: true,
                 },
