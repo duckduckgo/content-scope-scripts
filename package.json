@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "check-lockfile": "node scripts/check-lockfile.mjs",
     "test-unit": "npm run test-unit --workspaces --if-present",
     "test-int": "npm run test-int --workspaces --if-present",
     "test-int-x": "npm run test-int-x --workspaces --if-present",
