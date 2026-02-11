@@ -46,6 +46,48 @@ class WebDetectionTestHelper {
         const breakageData = JSON.parse(decodeURIComponent(result.params.breakageData));
         return breakageData.webDetection || [];
     }
+
+    /**
+     * Get auto-run notifications from outgoing messages
+     * @returns {Promise<Array<{detectorId: string, detected: boolean | 'error', timestamp: number}>>}
+     */
+    async getAutoRunNotifications() {
+        const calls = await this.collector.outgoingMessages();
+        const autoRunNotifications = calls.filter((c) => {
+            const payload = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (c.payload);
+            return payload.method === 'webDetectionAutoRun';
+        });
+
+        return autoRunNotifications.map((m) => {
+            const payload = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (m.payload);
+            return {
+                detectorId: payload.params?.detectorId || '',
+                detected: payload.params?.detected || false,
+                timestamp: payload.params?.timestamp || 0,
+            };
+        });
+    }
+
+    /**
+     * Set up collector for auto-run tests with fake timers
+     * @param {import('@playwright/test').Page} page
+     * @param {Record<string, any>} projectUse
+     * @returns {Promise<{collector: ResultsCollector, helper: WebDetectionTestHelper}>}
+     */
+    static async setupAutoRunTest(page, projectUse) {
+        const collector = ResultsCollector.create(page, projectUse);
+
+        // Register mock response for debug notification
+        collector.withMockResponse({
+            webDetectionAutoRun: null,
+        });
+
+        await page.clock.install();
+        await collector.load('/web-detection/index.html', CONFIG);
+        const helper = new WebDetectionTestHelper(page, collector);
+
+        return { collector, helper };
+    }
 }
 
 test.describe('WebDetection Feature', () => {
@@ -229,6 +271,122 @@ test.describe('WebDetection Feature', () => {
             const result = results.find((r) => r.detectorId === 'custom.domain_restricted');
             expect(result).toBeDefined();
             expect(result?.detected).toBe(true);
+        });
+    });
+
+    test.describe('auto-run detectors', () => {
+        test('detector runs automatically at configured intervals', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupAutoRunTest(page, testInfo.project.use);
+            await helper.navigateTo('/web-detection/pages/auto-run-basic.html');
+
+            // Fast-forward timers (intervals are 100ms and 300ms)
+            await page.clock.fastForward(100);
+            await page.clock.fastForward(200); // Now at 300ms total
+
+            const notifications = await helper.getAutoRunNotifications();
+
+            // autorun.basic_auto should have run at the configured intervals
+            const basicAutoRuns = notifications.filter((n) => n.detectorId === 'autorun.basic_auto');
+            expect(basicAutoRuns.length).toBeGreaterThanOrEqual(1);
+            // All runs should detect the matching content
+            for (const run of basicAutoRuns) {
+                expect(run.detected).toBe(true);
+            }
+        });
+
+        test('first-success strategy stops running after first match', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupAutoRunTest(page, testInfo.project.use);
+            await helper.navigateTo('/web-detection/pages/auto-run-delayed.html');
+
+            // Fast-forward timers (content is added at 150ms)
+            await page.clock.fastForward(100); // First run - no match yet
+            await page.clock.fastForward(100); // Now at 200ms - content added, second run matches
+            await page.clock.fastForward(100); // Now at 300ms - should be skipped
+
+            const notifications = await helper.getAutoRunNotifications();
+
+            // autorun.first_success should detect after content loads
+            const firstSuccessRuns = notifications.filter((n) => n.detectorId === 'autorun.first_success');
+            expect(firstSuccessRuns.length).toBeGreaterThanOrEqual(1);
+
+            // Should have at least one successful detection (after content loads at 150ms)
+            const successfulRuns = firstSuccessRuns.filter((n) => n.detected === true);
+            expect(successfulRuns.length).toBeGreaterThanOrEqual(1);
+        });
+
+        test('always strategy continues running after match', async ({ page }, testInfo) => {
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+
+            collector.withMockResponse({
+                webDetectionAutoRun: null,
+            });
+
+            await page.clock.install();
+            await collector.load('/web-detection/index.html', CONFIG);
+            const helper = new WebDetectionTestHelper(page, collector);
+
+            // Navigate to a page with matching content
+            await helper.navigateTo('/web-detection/pages/auto-run-always.html');
+
+            // Fast-forward timers (intervals are 100ms and 200ms)
+            await page.clock.fastForward(100);
+            await page.clock.fastForward(100); // Now at 200ms
+
+            const calls = await collector.outgoingMessages();
+            const autoRunNotifications = calls.filter((c) => {
+                const payload = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (c.payload);
+                return payload.method === 'webDetectionAutoRun';
+            });
+
+            // autorun.always_repeat should run multiple times and detect each time
+            const alwaysRuns = autoRunNotifications.filter((m) => {
+                const payload = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (m.payload);
+                return payload.params?.detectorId === 'autorun.always_repeat';
+            });
+            expect(alwaysRuns.length).toBeGreaterThanOrEqual(1);
+            // All runs should detect the matching content
+            for (const msg of alwaysRuns) {
+                const payload = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (msg.payload);
+                expect(payload.params?.detected).toBe(true);
+            }
+        });
+
+        test('disabled auto trigger does not run', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupAutoRunTest(page, testInfo.project.use);
+            await helper.navigateTo('/web-detection/pages/auto-run-disabled.html');
+
+            // Fast-forward past when detector would run
+            await page.clock.fastForward(200);
+
+            const notifications = await helper.getAutoRunNotifications();
+
+            // autorun.auto_disabled should not run because state is disabled
+            const autoDisabledRuns = notifications.filter((n) => n.detectorId === 'autorun.auto_disabled');
+            expect(autoDisabledRuns.length).toBe(0);
+        });
+
+        test('configuration with auto trigger validates correctly', async ({ page }, testInfo) => {
+            const collector = ResultsCollector.create(page, testInfo.project.use);
+
+            // Verify config with auto trigger structure
+            const config = JSON.parse(readFileSync(CONFIG, 'utf8'));
+            const autorunDetectors = config.features.webDetection.settings.detectors.autorun;
+            expect(autorunDetectors).toBeDefined();
+            expect(autorunDetectors.basic_auto.triggers.auto).toBeDefined();
+            expect(autorunDetectors.basic_auto.triggers.auto.state).toBe('enabled');
+            expect(autorunDetectors.basic_auto.triggers.auto.when).toBeDefined();
+            expect(autorunDetectors.basic_auto.triggers.auto.when.intervalMs).toEqual([100, 300]);
+
+            // Load and verify no errors
+            await collector.load('/web-detection/index.html', config);
+
+            const errors = [];
+            page.on('pageerror', (error) => errors.push(error.message));
+
+            await page.goto(collector.page.url());
+            await page.waitForTimeout(100);
+
+            expect(errors.length).toBe(0);
         });
     });
 });

@@ -100,6 +100,70 @@
                                 }
                             }
                         }
+                    },
+                    "autorun": {
+                        "basic_auto": {
+                            "match": {
+                                "text": {
+                                    "pattern": "auto run test"
+                                }
+                            },
+                            "triggers": {
+                                "auto": {
+                                    "state": "enabled",
+                                    "when": {
+                                        "intervalMs": [100, 300]
+                                    }
+                                }
+                            }
+                        },
+                        "first_success": {
+                            "match": {
+                                "text": {
+                                    "pattern": "first success test"
+                                }
+                            },
+                            "triggers": {
+                                "auto": {
+                                    "state": "enabled",
+                                    "when": {
+                                        "mode": "first-success",
+                                        "intervalMs": [100, 200, 300]
+                                    }
+                                }
+                            }
+                        },
+                        "always_repeat": {
+                            "match": {
+                                "text": {
+                                    "pattern": "always repeat test"
+                                }
+                            },
+                            "triggers": {
+                                "auto": {
+                                    "state": "enabled",
+                                    "when": {
+                                        "mode": "always",
+                                        "intervalMs": [100, 200]
+                                    }
+                                }
+                            }
+                        },
+                        "auto_disabled": {
+                            "match": {
+                                "text": {
+                                    "pattern": "auto disabled test"
+                                }
+                            },
+                            "triggers": {
+                                "auto": {
+                                    "state": "disabled",
+                                    "when": {
+                                        "intervalMs": [100]
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

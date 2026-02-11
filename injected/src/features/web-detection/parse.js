@@ -30,8 +30,22 @@ import { withDefaults } from '../../utils.js';
  */
 
 /**
+ * @typedef {'first-success' | 'always'} AutoMode
+ */
+
+/**
+ * @typedef {TriggerBase & {
+ *  when: {
+ *    mode: AutoMode;
+ *    intervalMs: number[];
+ *  };
+ * }} AutoTrigger
+ */
+
+/**
  * @typedef {object} Triggers
  * @property {TriggerBase} breakageReport - Whether to run in the breakage report flow
+ * @property {AutoTrigger} auto - Whether to run automatically at specified intervals
  */
 
 /**
@@ -87,6 +101,13 @@ const DEFAULTS = {
         breakageReport: {
             state: /** @type {FeatureState} */ ('enabled'),
             runConditions: DEFAULT_RUN_CONDITIONS,
+        },
+        auto: {
+            state: /** @type {FeatureState} */ ('disabled'),
+            runConditions: DEFAULT_RUN_CONDITIONS,
+            when: {
+                mode: /** @type {AutoMode} */ ('first-success'),
+            },
         },
     },
     actions: {
