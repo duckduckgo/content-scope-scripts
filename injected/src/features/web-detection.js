@@ -39,6 +39,9 @@ export default class WebDetection extends ContentFeature {
 
     _exposedMethods = this._declareExposedMethods(['runDetectors']);
 
+    // Listen for URL changes to cancel and reschedule timers on SPA navigation
+    listenForUrlChanges = true;
+
     /**
      * Initialize the feature by loading detector configurations
      */
@@ -128,9 +131,24 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Clean up timers when feature is destroyed
+     * Called when URL changes during SPA navigation.
+     * Clears existing timers and matched state, then reschedules detectors for the new page.
      */
-    unload() {
+    urlChanged() {
+        // Clear existing timers
+        this._clearTimers();
+
+        // Clear matched detector state (new page = fresh detections)
+        this.#matchedDetectors.clear();
+
+        // Reschedule auto-run detectors for the new page
+        this._scheduleAutoRunDetectors();
+    }
+
+    /**
+     * Clear all scheduled timers
+     */
+    _clearTimers() {
         for (const timerId of this.#timers) {
             clearTimeout(timerId);
         }
