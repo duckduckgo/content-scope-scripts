@@ -333,6 +333,65 @@ describe('create profiles from extracted data', () => {
         expect(actual.addresses).toEqual(expected);
     });
 
+    it('should handle relativesList (with string or regex separator)', () => {
+        const elementExamples = [
+            {
+                selectors: {
+                    relativesList: {
+                        selector: 'example',
+                    },
+                },
+                elements: [{ innerText: 'Alice Smith • Bob Jones • Carol Lee' }],
+                expected: {
+                    relatives: ['Alice Smith', 'Bob Jones', 'Carol Lee'],
+                },
+            },
+            {
+                selectors: {
+                    relativesList: {
+                        selector: 'example',
+                        separator: ',',
+                    },
+                },
+                elements: [{ innerText: 'Alice Smith, Bob Jones, Carol Lee' }],
+                expected: {
+                    relatives: ['Alice Smith', 'Bob Jones', 'Carol Lee'],
+                },
+            },
+            {
+                selectors: {
+                    relativesList: {
+                        selector: 'example',
+                        separator: '(?<=, [A-Z]{2}), ',
+                    },
+                },
+                elements: [{ innerText: 'Alice Smith, Bob Jones, Carol Lee' }],
+                expected: {
+                    relatives: ['Alice Smith'],
+                },
+            },
+            {
+                selectors: {
+                    relativesList: {
+                        selector: 'example',
+                        separator: '/(?<=\\d+), /',
+                    },
+                },
+                elements: [{ innerText: 'John Smith, 39, Jane Doe, 45, Bob Jones, 28' }],
+                expected: {
+                    relatives: ['Bob Jones', 'Jane Doe', 'John Smith'],
+                },
+            },
+        ];
+
+        for (const elementExample of elementExamples) {
+            const elementFactory = () => elementExample.elements;
+            const profile = createProfile(elementFactory, elementExample.selectors);
+            const aggregated = aggregateFields(profile);
+            expect(aggregated.relatives).toEqual(elementExample.expected.relatives);
+        }
+    });
+
     it('should sort relatives by name alphabetically', () => {
         const selectors = {
             relativesList: {
