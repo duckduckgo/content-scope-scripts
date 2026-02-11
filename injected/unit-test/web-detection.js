@@ -256,20 +256,6 @@ describe('WebDetection', () => {
                 expect(result.triggers.auto.runConditions).toEqual([{ context: { top: true } }]);
             });
 
-            it('should apply default mode (first-success) to auto trigger when', () => {
-                const result = oneDetectorConfigParsed({
-                    match: { text: { pattern: 'test' } },
-                    triggers: {
-                        auto: {
-                            when: {
-                                intervalMs: [100],
-                            },
-                        },
-                    },
-                });
-                expect(result.triggers.auto.when.mode).toBe('first-success');
-            });
-
             it('should allow overriding state to enabled', () => {
                 const result = oneDetectorConfigParsed({
                     match: { text: { pattern: 'test' } },
@@ -284,21 +270,6 @@ describe('WebDetection', () => {
                 });
                 expect(result.triggers.auto.state).toBe('enabled');
                 expect(result.triggers.auto.when.intervalMs).toEqual([100, 500]);
-            });
-
-            it('should allow overriding mode to always', () => {
-                const result = oneDetectorConfigParsed({
-                    match: { text: { pattern: 'test' } },
-                    triggers: {
-                        auto: {
-                            when: {
-                                mode: 'always',
-                                intervalMs: [100, 200],
-                            },
-                        },
-                    },
-                });
-                expect(result.triggers.auto.when.mode).toBe('always');
             });
 
             it('should allow overriding runConditions', () => {
@@ -337,7 +308,6 @@ describe('WebDetection', () => {
                 // Defaults should be applied for auto trigger
                 expect(result.triggers.auto).toBeDefined();
                 expect(result.triggers.auto.state).toBe('disabled');
-                expect(result.triggers.auto.when.mode).toBe('first-success');
                 expect(result.triggers.auto.runConditions).toEqual([{ context: { top: true } }]);
             });
 

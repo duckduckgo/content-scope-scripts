@@ -91,19 +91,15 @@ export default class WebDetection extends ContentFeature {
      */
     _runAutoDetector(fullDetectorId, detectorConfig) {
         try {
-            const autoTrigger = detectorConfig.triggers.auto;
-
-            const repeatMode = autoTrigger.when.mode ?? 'first-success';
-
-            // Skip if repeat strategy is first-success and detector has already matched
-            if (repeatMode === 'first-success' && this.#matchedDetectors.get(fullDetectorId)) {
+            // Auto detectors use first-success behavior (skip if already matched)
+            if (this.#matchedDetectors.get(fullDetectorId)) {
                 return;
             }
 
             // Evaluate match conditions
             const detected = this._evaluateMatch(detectorConfig);
 
-            // Track successful matches for first-success strategy
+            // Track successful matches (allows us to skip subsequent runs if already successful (first-success))
             if (detected === true) {
                 this.#matchedDetectors.set(fullDetectorId, true);
             }
