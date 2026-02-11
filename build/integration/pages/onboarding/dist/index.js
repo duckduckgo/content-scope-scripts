@@ -32,7 +32,7 @@
       (function() {
         "use strict";
         var hasOwn = {}.hasOwnProperty;
-        function classNames2() {
+        function classNames() {
           var classes = "";
           for (var i3 = 0; i3 < arguments.length; i3++) {
             var arg = arguments[i3];
@@ -50,7 +50,7 @@
             return "";
           }
           if (Array.isArray(arg)) {
-            return classNames2.apply(null, arg);
+            return classNames.apply(null, arg);
           }
           if (arg.toString !== Object.prototype.toString && !arg.toString.toString().includes("[native code]")) {
             return arg.toString();
@@ -73,14 +73,14 @@
           return value + newClass;
         }
         if (typeof module !== "undefined" && module.exports) {
-          classNames2.default = classNames2;
-          module.exports = classNames2;
+          classNames.default = classNames;
+          module.exports = classNames;
         } else if (typeof define === "function" && typeof define.amd === "object" && define.amd) {
           define("classnames", [], function() {
-            return classNames2;
+            return classNames;
           });
         } else {
-          window.classNames = classNames2;
+          window.classNames = classNames;
         }
       })();
     }
@@ -8524,7 +8524,7 @@
      *       "rows": ["dock", "import", "default-browser"]
      *     }
      *   },
-     *   "order": "v2",
+     *   "order": "v3",
      *   "exclude": ["dockSingle"],
      *   "locale": "en"
      * }
@@ -9082,11 +9082,351 @@
     return "function" == typeof t3 ? t3(n2) : t3;
   }
 
-  // pages/onboarding/app/v1/App.module.css
-  var App_default = {
-    main: "App_main",
-    container: "App_container",
-    slideout: "App_slideout"
+  // pages/onboarding/app/shared/components/SettingsProvider.js
+  var SettingsContext = Q(
+    /** @type {{platform: {name: ImportMeta['platform']}|undefined}} */
+    {}
+  );
+  function SettingsProvider({ platform, children }) {
+    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { platform } }, children);
+  }
+  function usePlatformName() {
+    return x2(SettingsContext).platform?.name;
+  }
+
+  // pages/onboarding/app/global.js
+  var GlobalContext = Q(
+    /** @type {GlobalState} */
+    {}
+  );
+  var GlobalDispatch = Q(
+    /** @type {import("preact/hooks").Dispatch<GlobalEvents>} */
+    {}
+  );
+  function reducer(state, action) {
+    switch (state.status.kind) {
+      case "idle": {
+        switch (action.kind) {
+          case "update-system-value": {
+            return { ...state, status: { kind: "executing", action } };
+          }
+          case "error-boundary": {
+            return { ...state, status: { kind: "fatal", action } };
+          }
+          case "title-complete": {
+            return {
+              ...state,
+              activeStepVisible: true
+            };
+          }
+          case "advance": {
+            const currentPageIndex = state.order.indexOf(state.activeStep);
+            const nextPageIndex = currentPageIndex + 1;
+            if (nextPageIndex < state.order.length) {
+              return {
+                ...state,
+                activeStep: state.order[nextPageIndex],
+                nextStep: state.order[nextPageIndex + 1],
+                activeRow: 0,
+                activeStepVisible: false,
+                exiting: false,
+                step: state.stepDefinitions[state.order[nextPageIndex]]
+              };
+            }
+            return state;
+          }
+          case "enqueue-next": {
+            return {
+              ...state,
+              exiting: true
+            };
+          }
+          default:
+            return state;
+        }
+      }
+      case "executing": {
+        switch (action.kind) {
+          case "exec-complete": {
+            if (state.step.kind === "settings") {
+              const currentRow = state.step.rows[state.activeRow];
+              const isCurrent = currentRow === action.id;
+              const systemValueId = action.id;
+              const isAdBlockingSetting = systemValueId === "placebo-ad-blocking" || systemValueId === "aggressive-ad-blocking" || systemValueId === "youtube-ad-blocking";
+              const nextOrder = isAdBlockingSetting && action.payload.enabled ? state.order.filter((step) => step !== "duckPlayerSingle") : state.order;
+              const nextUIState = isCurrent && action.payload.enabled ? "accepted" : "skipped";
+              return {
+                ...state,
+                status: { kind: "idle" },
+                step: {
+                  // bump the step (show the next row)
+                  ...state.step
+                },
+                order: nextOrder,
+                activeRow: isCurrent ? state.activeRow + 1 : state.activeRow,
+                values: {
+                  ...state.values,
+                  // store the updated value in global state
+                  [systemValueId]: action.payload
+                },
+                UIValues: {
+                  ...state.UIValues,
+                  // store the UI state, so we know if it was skipped or not
+                  [systemValueId]: nextUIState
+                }
+              };
+            }
+            if (state.step.kind === "info") {
+              return {
+                ...state,
+                status: { kind: "idle" },
+                values: {
+                  ...state.values,
+                  [action.id]: action.payload
+                }
+              };
+            }
+            throw new Error("unimplemented");
+          }
+          case "exec-error": {
+            return {
+              ...state,
+              status: { kind: "idle", error: action.message }
+            };
+          }
+          default:
+            throw new Error("unhandled " + action.kind);
+        }
+      }
+    }
+    return state;
+  }
+  function GlobalProvider({ order, children, stepDefinitions: stepDefinitions2, messaging: messaging2, firstPage = "welcome" }) {
+    const [state, dispatch] = h2(reducer, {
+      status: { kind: "idle" },
+      order,
+      stepDefinitions: stepDefinitions2,
+      step: stepDefinitions2[firstPage],
+      activeStep: firstPage,
+      nextStep: order[1],
+      activeRow: 0,
+      activeStepVisible: false,
+      exiting: false,
+      values: {},
+      UIValues: {
+        dock: "idle",
+        import: "idle",
+        "default-browser": "idle",
+        bookmarks: "idle",
+        "session-restore": "idle",
+        "home-shortcut": "idle",
+        "placebo-ad-blocking": "idle",
+        "aggressive-ad-blocking": "idle",
+        "youtube-ad-blocking": "idle",
+        "address-bar-mode": "idle"
+      }
+    });
+    const platform = usePlatformName();
+    const proxy = q2(
+      (msg) => {
+        dispatch(msg);
+        if (msg.kind === "advance") {
+          messaging2.stepCompleted({ id: state.activeStep });
+        }
+        if (msg.kind === "dismiss-to-settings") {
+          messaging2.dismissToSettings();
+        }
+        if (msg.kind === "dismiss") {
+          messaging2.dismissToAddressBar();
+        }
+      },
+      [state, messaging2]
+    );
+    y2(() => {
+      if (state.status.kind !== "fatal") return;
+      const { error } = state.status.action;
+      messaging2.reportPageException(error);
+    }, [state.status.kind, messaging2]);
+    y2(() => {
+      if (state.status.kind !== "executing") return;
+      if (state.status.action.kind !== "update-system-value") throw new Error("only update-system-value is currently supported");
+      const action = state.status.action;
+      handleSystemSettingUpdate(action, messaging2, platform).then((payload) => {
+        dispatch({
+          kind: "exec-complete",
+          id: action.id,
+          payload
+        });
+      }).catch((e3) => {
+        const message = e3?.message || "unknown error";
+        dispatch({ kind: "exec-error", id: action.id, message });
+      });
+    }, [state.status.kind, messaging2]);
+    return /* @__PURE__ */ _(GlobalContext.Provider, { value: state }, /* @__PURE__ */ _(GlobalDispatch.Provider, { value: proxy }, children));
+  }
+  async function handleSystemSettingUpdate(action, messaging2, platform) {
+    const { id, payload } = action;
+    switch (id) {
+      case "bookmarks": {
+        messaging2.setBookmarksBar(payload);
+        return payload;
+      }
+      case "session-restore": {
+        messaging2.setSessionRestore(payload);
+        return payload;
+      }
+      case "home-shortcut": {
+        messaging2.setShowHomeButton(payload);
+        return payload;
+      }
+      case "placebo-ad-blocking":
+      case "aggressive-ad-blocking":
+      case "youtube-ad-blocking": {
+        messaging2.setAdBlocking(payload);
+        return payload;
+      }
+      case "address-bar-mode": {
+        messaging2.setDuckAiInAddressBar(payload);
+        return payload;
+      }
+      case "dock": {
+        if (payload.enabled) {
+          await messaging2.requestDockOptIn();
+          return { enabled: true };
+        }
+        break;
+      }
+      case "import": {
+        if (payload.enabled) {
+          if (platform === "macos") {
+            return await messaging2.requestImport();
+          }
+          await messaging2.requestImport();
+          return { enabled: true };
+        }
+        break;
+      }
+      case "default-browser": {
+        if (payload.enabled) {
+          await messaging2.requestSetAsDefault();
+          return { enabled: true };
+        }
+        break;
+      }
+    }
+    if ("value" in payload) {
+      return { enabled: payload.enabled, value: payload.value };
+    }
+    return { enabled: payload.enabled };
+  }
+  function useGlobalState() {
+    return x2(GlobalContext);
+  }
+  function useGlobalDispatch() {
+    return x2(GlobalDispatch);
+  }
+
+  // shared/components/EnvironmentProvider.js
+  var EnvironmentContext = Q({
+    isReducedMotion: false,
+    isDarkMode: false,
+    debugState: false,
+    injectName: (
+      /** @type {import('../environment').Environment['injectName']} */
+      "windows"
+    ),
+    willThrow: false,
+    /** @type {keyof typeof import('../utils').translationsLocales} */
+    locale: "en",
+    /** @type {import('../environment').Environment['env']} */
+    env: "production"
+  });
+  var THEME_QUERY = "(prefers-color-scheme: dark)";
+  var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+  function EnvironmentProvider({
+    children,
+    debugState,
+    env = "production",
+    willThrow = false,
+    injectName = "windows",
+    locale = "en"
+  }) {
+    const [theme, setTheme] = d2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
+    const [isReducedMotion, setReducedMotion] = d2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
+    y2(() => {
+      const mediaQueryList = window.matchMedia(THEME_QUERY);
+      const listener = (e3) => setTheme(e3.matches ? "dark" : "light");
+      mediaQueryList.addEventListener("change", listener);
+      return () => mediaQueryList.removeEventListener("change", listener);
+    }, []);
+    y2(() => {
+      const mediaQueryList = window.matchMedia(REDUCED_MOTION_QUERY);
+      const listener = (e3) => setter(e3.matches);
+      mediaQueryList.addEventListener("change", listener);
+      setter(mediaQueryList.matches);
+      function setter(value) {
+        document.documentElement.dataset.reducedMotion = String(value);
+        setReducedMotion(value);
+      }
+      window.addEventListener("toggle-reduced-motion", () => {
+        setter(true);
+      });
+      return () => mediaQueryList.removeEventListener("change", listener);
+    }, []);
+    return /* @__PURE__ */ _(
+      EnvironmentContext.Provider,
+      {
+        value: {
+          isReducedMotion,
+          debugState,
+          isDarkMode: theme === "dark",
+          injectName,
+          willThrow,
+          env,
+          locale
+        }
+      },
+      children
+    );
+  }
+  function UpdateEnvironment({ search }) {
+    y2(() => {
+      const params = new URLSearchParams(search);
+      if (params.has("reduced-motion")) {
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("toggle-reduced-motion"));
+        }, 0);
+      }
+    }, [search]);
+    return null;
+  }
+  function useEnv() {
+    return x2(EnvironmentContext);
+  }
+
+  // shared/components/ErrorBoundary.js
+  var ErrorBoundary = class extends x {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false };
+    }
+    static getDerivedStateFromError() {
+      return { hasError: true };
+    }
+    componentDidCatch(error, info) {
+      console.error(error);
+      console.log(info);
+      let message = error.message;
+      if (typeof message !== "string") message = "unknown";
+      const composed = this.props.context ? [this.props.context, message].join(" ") : message;
+      this.props.didCatch({ error, message: composed, info });
+    }
+    render() {
+      if (this.state.hasError) {
+        return this.props.fallback;
+      }
+      return this.props.children;
+    }
   };
 
   // pages/onboarding/app/shared/components/Stack.module.css
@@ -9671,90 +10011,12 @@
     return [element, setEnabled];
   }
 
-  // shared/components/EnvironmentProvider.js
-  var EnvironmentContext = Q({
-    isReducedMotion: false,
-    isDarkMode: false,
-    debugState: false,
-    injectName: (
-      /** @type {import('../environment').Environment['injectName']} */
-      "windows"
-    ),
-    willThrow: false,
-    /** @type {keyof typeof import('../utils').translationsLocales} */
-    locale: "en",
-    /** @type {import('../environment').Environment['env']} */
-    env: "production"
-  });
-  var THEME_QUERY = "(prefers-color-scheme: dark)";
-  var REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-  function EnvironmentProvider({
-    children,
-    debugState,
-    env = "production",
-    willThrow = false,
-    injectName = "windows",
-    locale = "en"
-  }) {
-    const [theme, setTheme] = d2(window.matchMedia(THEME_QUERY).matches ? "dark" : "light");
-    const [isReducedMotion, setReducedMotion] = d2(window.matchMedia(REDUCED_MOTION_QUERY).matches);
-    y2(() => {
-      const mediaQueryList = window.matchMedia(THEME_QUERY);
-      const listener = (e3) => setTheme(e3.matches ? "dark" : "light");
-      mediaQueryList.addEventListener("change", listener);
-      return () => mediaQueryList.removeEventListener("change", listener);
-    }, []);
-    y2(() => {
-      const mediaQueryList = window.matchMedia(REDUCED_MOTION_QUERY);
-      const listener = (e3) => setter(e3.matches);
-      mediaQueryList.addEventListener("change", listener);
-      setter(mediaQueryList.matches);
-      function setter(value) {
-        document.documentElement.dataset.reducedMotion = String(value);
-        setReducedMotion(value);
-      }
-      window.addEventListener("toggle-reduced-motion", () => {
-        setter(true);
-      });
-      return () => mediaQueryList.removeEventListener("change", listener);
-    }, []);
-    return /* @__PURE__ */ _(
-      EnvironmentContext.Provider,
-      {
-        value: {
-          isReducedMotion,
-          debugState,
-          isDarkMode: theme === "dark",
-          injectName,
-          willThrow,
-          env,
-          locale
-        }
-      },
-      children
-    );
-  }
-  function UpdateEnvironment({ search }) {
-    y2(() => {
-      const params = new URLSearchParams(search);
-      if (params.has("reduced-motion")) {
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent("toggle-reduced-motion"));
-        }, 0);
-      }
-    }, [search]);
-    return null;
-  }
-  function useEnv() {
-    return x2(EnvironmentContext);
-  }
-
   // pages/onboarding/app/shared/components/Stack.js
   function Stack({ children, gap = "var(--sp-6)", className = "", animate: animate2 = false, debug = false }) {
     const { isReducedMotion } = useEnv();
     const [parent] = useAutoAnimate({ duration: isReducedMotion ? 0 : 300 });
-    const classNames2 = [Stack_default.stack, className].filter(Boolean).join(" ");
-    return /* @__PURE__ */ _("div", { class: classNames2, ref: animate2 ? parent : null, "data-debug": String(debug), style: { gap } }, children);
+    const classNames = [Stack_default.stack, className].filter(Boolean).join(" ");
+    return /* @__PURE__ */ _("div", { class: classNames, ref: animate2 ? parent : null, "data-debug": String(debug), style: { gap } }, children);
   }
   Stack.gaps = {
     6: "var(--sp-6)",
@@ -9763,535 +10025,15 @@
     0: "0"
   };
 
-  // pages/onboarding/app/shared/components/Icons.module.css
-  var Icons_default = {
-    bounceIn: "Icons_bounceIn",
-    bouncein: "Icons_bouncein",
-    slideIn: "Icons_slideIn",
-    slidein: "Icons_slidein",
-    slideUp: "Icons_slideUp",
-    slideup: "Icons_slideup",
-    fadeIn: "Icons_fadeIn"
+  // pages/onboarding/app/shared/components/Content.module.css
+  var Content_default = {
+    wrapper: "Content_wrapper",
+    indent: "Content_indent"
   };
 
-  // pages/onboarding/app/shared/components/Icons.js
-  function BounceIn({ children, delay = "none" }) {
-    return /* @__PURE__ */ _("div", { className: Icons_default.bounceIn, "data-delay": delay }, children);
-  }
-  function FadeIn({ children, delay = "none" }) {
-    return /* @__PURE__ */ _("div", { className: Icons_default.fadeIn, "data-delay": delay }, children);
-  }
-  function SlideIn({ children, delay = "none" }) {
-    return /* @__PURE__ */ _("div", { className: Icons_default.slideIn, "data-delay": delay }, children);
-  }
-  function SlideUp({ children, delay = "none" }) {
-    return /* @__PURE__ */ _("div", { className: Icons_default.slideUp, "data-delay": delay }, children);
-  }
-  function Check() {
-    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-labelledby": "svgTitle svgDesc", role: "img" }, /* @__PURE__ */ _("title", { id: "svgCheckTitle" }, "Completed Action"), /* @__PURE__ */ _("desc", { id: "svgCheckDesc" }, "Green check mark indicating action completed successfully."), /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_3030_17975)" }, /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16Z",
-        fill: "#21C000"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M11.6668 5.28423C11.924 5.51439 11.946 5.90951 11.7158 6.16675L7.46579 10.9168C7.34402 11.0529 7.1688 11.1289 6.98622 11.1249C6.80363 11.1208 6.63194 11.0371 6.5163 10.8958L4.2663 8.14578C4.04772 7.87863 4.08709 7.48486 4.35425 7.26628C4.6214 7.0477 5.01516 7.08708 5.23374 7.35423L7.02125 9.53896L10.7842 5.33326C11.0144 5.07602 11.4095 5.05407 11.6668 5.28423Z",
-        fill: "white"
-      }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_3030_17975" }, /* @__PURE__ */ _("rect", { width: "16", height: "16", fill: "white" }))));
-  }
-  function Play() {
-    return /* @__PURE__ */ _("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M1 10.2768V1.72318C1 0.955357 1.82948 0.47399 2.49614 0.854937L9.98057 5.13176C10.6524 5.51565 10.6524 6.48435 9.98057 6.86824L2.49614 11.1451C1.82948 11.526 1 11.0446 1 10.2768Z",
-        fill: "currentColor"
-      }
-    ));
-  }
-  function Replay({ direction = "backward" }) {
-    return /* @__PURE__ */ _(
-      "svg",
-      {
-        width: "12",
-        height: "12",
-        viewBox: "0 0 12 12",
-        fill: "none",
-        xmlns: "http://www.w3.org/2000/svg",
-        style: direction === "forward" ? { transform: "scale(-1,1)" } : {}
-      },
-      /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_10021_2837)" }, /* @__PURE__ */ _(
-        "path",
-        {
-          d: "M7.11485 1.37611C6.05231 1.12541 4.93573 1.25089 3.95534 1.73116C3.06198 2.1688 2.33208 2.87636 1.86665 3.75003H3.9837C4.32888 3.75003 4.6087 4.02985 4.6087 4.37503C4.6087 4.7202 4.32888 5.00003 3.9837 5.00003H0.625013C0.279836 5.00003 1.33514e-05 4.7202 1.33514e-05 4.37503V0.651184C1.33514e-05 0.306006 0.279836 0.0261841 0.625013 0.0261841C0.970191 0.0261841 1.25001 0.306006 1.25001 0.651184V2.39582C1.81304 1.64241 2.54999 1.02768 3.40543 0.608623C4.64552 0.00112504 6.05789 -0.157593 7.40189 0.159513C8.74589 0.476619 9.93836 1.24993 10.7761 2.34768C11.6139 3.44543 12.0451 4.7997 11.9963 6.17974C11.9475 7.55977 11.4216 8.88019 10.5084 9.91601C9.59521 10.9518 8.35109 11.639 6.98804 11.8603C5.625 12.0817 4.22737 11.8236 3.03329 11.13C1.83922 10.4364 0.922573 9.35022 0.43955 8.05655C0.318811 7.73318 0.483079 7.37316 0.806451 7.25242C1.12982 7.13168 1.48985 7.29595 1.61059 7.61932C1.99245 8.64206 2.71713 9.50076 3.66114 10.0491C4.60514 10.5974 5.71008 10.8015 6.78767 10.6265C7.86526 10.4515 8.84883 9.90826 9.5708 9.08936C10.2928 8.27047 10.7085 7.22658 10.747 6.13555C10.7856 5.04453 10.4447 3.97387 9.78243 3.10602C9.12012 2.23816 8.17738 1.6268 7.11485 1.37611Z",
-          fill: "currentColor",
-          "fill-opacity": "0.84"
-        }
-      )),
-      /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_10021_2837" }, /* @__PURE__ */ _("rect", { width: "12", height: "12", fill: "white" })))
-    );
-  }
-  function Launch() {
-    return /* @__PURE__ */ _("svg", { width: "17", height: "16", viewBox: "0 0 17 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_3098_23365)" }, /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M12.0465 7.31875C11.269 8.09623 10.0085 8.09623 9.23102 7.31875C8.45354 6.54128 8.45354 5.28074 9.23102 4.50327C10.0085 3.7258 11.269 3.7258 12.0465 4.50327C12.824 5.28074 12.824 6.54128 12.0465 7.31875ZM11.1626 6.43487C10.8733 6.72419 10.4042 6.72419 10.1149 6.43487C9.82558 6.14555 9.82558 5.67647 10.1149 5.38715C10.4042 5.09783 10.8733 5.09783 11.1626 5.38715C11.4519 5.67647 11.4519 6.14555 11.1626 6.43487Z",
-        fill: "white",
-        "fill-opacity": "0.84"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        "fill-rule": "evenodd",
-        "clip-rule": "evenodd",
-        d: "M15.0163 0.357982C10.4268 0.792444 7.29295 2.76331 5.19328 5.43188C5.03761 5.41854 4.88167 5.40999 4.72564 5.40608C3.54981 5.37661 2.36922 5.61098 1.26629 6.0488C0.653083 6.29222 0.543501 7.07682 1.01002 7.54334L2.92009 9.45341C2.86071 9.6032 2.80326 9.75371 2.74768 9.90485C2.61756 10.2587 2.71271 10.6538 2.97932 10.9204L5.62864 13.5698C5.89525 13.8364 6.29037 13.9315 6.64424 13.8014C6.79555 13.7458 6.94624 13.6882 7.0962 13.6288L9.0054 15.538C9.47191 16.0045 10.2565 15.8949 10.4999 15.2817C10.9378 14.1788 11.1721 12.9982 11.1427 11.8224C11.1388 11.6668 11.1302 11.5112 11.117 11.356C13.7857 9.25633 15.7566 6.1224 16.1911 1.53282C16.2296 1.12649 16.256 0.708745 16.2698 0.279297C15.8403 0.293094 15.4226 0.319516 15.0163 0.357982ZM3.9867 10.1601L6.38903 12.5624C8.6807 11.6928 10.7461 10.3775 12.2764 8.46444C13.2183 7.28687 13.9808 5.85389 14.4628 4.10497L12.4441 2.08628C10.6952 2.56825 9.26222 3.33082 8.08465 4.27272C6.17156 5.80296 4.85624 7.86839 3.9867 10.1601ZM2.25561 7.02117C2.84462 6.83216 3.44604 6.71284 4.04467 6.67074L3.29585 8.06141L2.25561 7.02117ZM9.52757 14.2924C9.71658 13.7034 9.8359 13.102 9.878 12.5033L8.48733 13.2522L9.52757 14.2924ZM14.7828 2.65724L13.8919 1.76626C14.2259 1.7093 14.5703 1.6616 14.9253 1.62375C14.8875 1.97878 14.8398 2.32317 14.7828 2.65724Z",
-        fill: "white",
-        "fill-opacity": "0.84"
-      }
-    ), /* @__PURE__ */ _(
-      "path",
-      {
-        d: "M4.98318 13.664C5.19417 13.9372 5.14374 14.3297 4.87055 14.5407C3.96675 15.2387 2.81266 15.6173 1.50788 15.7098L0.78927 15.7608L0.840231 15.0422C0.932761 13.7374 1.31133 12.5833 2.00934 11.6795C2.22032 11.4063 2.61283 11.3559 2.88602 11.5669C3.15921 11.7779 3.20963 12.1704 2.99865 12.4436C2.60779 12.9497 2.32977 13.5927 2.18426 14.3658C2.95736 14.2203 3.60041 13.9423 4.1065 13.5514C4.37969 13.3404 4.77219 13.3909 4.98318 13.664Z",
-        fill: "white",
-        "fill-opacity": "0.84"
-      }
-    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_3098_23365" }, /* @__PURE__ */ _("rect", { width: "16", height: "16", fill: "white", transform: "translate(0.5)" }))));
-  }
-
-  // pages/onboarding/app/v1/components/Buttons.module.css
-  var Buttons_default = {
-    buttons: "Buttons_buttons",
-    button: "Buttons_button",
-    large: "Buttons_large",
-    xl: "Buttons_xl",
-    secondary: "Buttons_secondary",
-    primary: "Buttons_primary"
-  };
-
-  // pages/onboarding/app/v1/components/Buttons.js
-  var import_classnames = __toESM(require_classnames(), 1);
-  function ButtonBar(props) {
-    const { children, ...rest } = props;
-    return /* @__PURE__ */ _("div", { className: Buttons_default.buttons, ...rest }, children);
-  }
-  function Button({ variant = "primary", size = "normal", children, ...rest }) {
-    const classes = (0, import_classnames.default)({
-      [Buttons_default.button]: true,
-      [Buttons_default.primary]: variant === "primary",
-      [Buttons_default.secondary]: variant === "secondary",
-      [Buttons_default.large]: size === "large",
-      [Buttons_default.xl]: size === "xl"
-    });
-    return /* @__PURE__ */ _("button", { className: classes, ...rest }, children);
-  }
-
-  // pages/onboarding/app/shared/components/ListItem.js
-  var import_classnames2 = __toESM(require_classnames(), 1);
-
-  // pages/onboarding/app/shared/components/ListItem.module.css
-  var ListItem_default = {
-    step: "ListItem_step",
-    plain: "ListItem_plain",
-    plainContent: "ListItem_plainContent",
-    inner: "ListItem_inner",
-    icon: "ListItem_icon",
-    iconSmall: "ListItem_iconSmall",
-    contentWrapper: "ListItem_contentWrapper",
-    content: "ListItem_content",
-    title: "ListItem_title",
-    secondaryText: "ListItem_secondaryText",
-    inlineAction: "ListItem_inlineAction",
-    children: "ListItem_children",
-    indentChild: "ListItem_indentChild",
-    slideIn: "ListItem_slideIn",
-    slidein: "ListItem_slidein"
-  };
-
-  // pages/onboarding/app/shared/components/ListItem.js
-  var prefix = "assets/img/steps/";
-  function ListItem({ animate: animate2 = false, ...props }) {
-    const path = prefix + props.icon;
-    return /* @__PURE__ */ _("li", { className: (0, import_classnames2.default)(ListItem_default.step, animate2 ? ListItem_default.slideIn : void 0), "data-testid": "ListItem", "data-index": String(props.index) }, /* @__PURE__ */ _("div", { className: (0, import_classnames2.default)(ListItem_default.inner) }, /* @__PURE__ */ _("div", { className: ListItem_default.icon, style: `background-image: url(${path});` }), /* @__PURE__ */ _("div", { className: ListItem_default.contentWrapper }, /* @__PURE__ */ _("div", { className: ListItem_default.content }, /* @__PURE__ */ _("p", { className: ListItem_default.title }, props.title), props.secondaryText && /* @__PURE__ */ _("p", { className: ListItem_default.secondaryText }, props.secondaryText)), /* @__PURE__ */ _("div", { className: ListItem_default.inlineAction }, props.inline))), /* @__PURE__ */ _("div", { className: ListItem_default.children }, props.children));
-  }
-  ListItem.Indent = function({ children }) {
-    return /* @__PURE__ */ _("div", { className: ListItem_default.indentChild }, children);
-  };
-  function ListItemPlain(props) {
-    const path = prefix + props.icon;
-    return /* @__PURE__ */ _("li", { className: ListItem_default.plain, "data-testid": "ListItem" }, /* @__PURE__ */ _(Check, null), /* @__PURE__ */ _("div", { className: ListItem_default.plainContent }, /* @__PURE__ */ _("div", { className: ListItem_default.iconSmall, style: `background-image: url(${path});` }), /* @__PURE__ */ _("p", { className: ListItem_default.title }, props.title)));
-  }
-
-  // pages/onboarding/app/shared/animations/taskbar_pinning.riv
-  var taskbar_pinning_default = "./taskbar_pinning-6NHIEEJL.riv";
-
-  // pages/onboarding/app/shared/animations/import.riv
-  var import_default = "./import-HLF6I3ZA.riv";
-
-  // pages/onboarding/app/shared/animations/set_default.riv
-  var set_default_default = "./set_default-6KY7WB33.riv";
-
-  // pages/onboarding/app/v1/data/data.js
-  var stepDefinitions = {
-    welcome: {
-      id: "welcome",
-      kind: "info"
-    },
-    getStarted: {
-      id: "getStarted",
-      kind: "info"
-    },
-    privateByDefault: {
-      id: "privateByDefault",
-      kind: "info"
-    },
-    cleanerBrowsing: {
-      id: "cleanerBrowsing",
-      kind: "info"
-    },
-    systemSettings: {
-      id: "systemSettings",
-      kind: "settings",
-      rows: ["import", "default-browser"]
-    },
-    dockSingle: {
-      id: "dockSingle",
-      kind: "settings",
-      rows: ["dock"]
-    },
-    importSingle: {
-      id: "importSingle",
-      kind: "settings",
-      rows: ["import"]
-    },
-    makeDefaultSingle: {
-      id: "makeDefaultSingle",
-      kind: "settings",
-      rows: ["default-browser"]
-    },
-    customize: {
-      id: "customize",
-      kind: "settings",
-      rows: ["bookmarks", "session-restore", "home-shortcut"]
-    },
-    summary: {
-      id: "summary",
-      kind: "info"
-    },
-    duckPlayerSingle: {
-      id: "duckPlayerSingle",
-      kind: "info"
-    },
-    addressBarMode: {
-      id: "addressBarMode",
-      kind: "info"
-    }
-  };
-  var stepMeta = (
-    /** @type {const} */
-    {
-      dockSingle: {
-        rows: {
-          dock: {
-            kind: "animation",
-            path: taskbar_pinning_default
-          }
-        }
-      },
-      importSingle: {
-        rows: {
-          import: {
-            kind: "animation",
-            path: import_default
-          }
-        }
-      },
-      makeDefaultSingle: {
-        rows: {
-          "default-browser": {
-            kind: "animation",
-            path: set_default_default
-          }
-        }
-      }
-    }
-  );
-  var noneSettingsRowItems = {
-    search: (t3) => ({
-      id: "search",
-      summary: t3("row_search_summary"),
-      icon: "search.png",
-      title: t3("row_search_title"),
-      secondaryText: t3("row_search_desc"),
-      kind: "one-time"
-    }),
-    trackingProtection: (t3) => ({
-      id: "trackingProtection",
-      summary: t3("row_trackingProtection_summary"),
-      icon: "shield.png",
-      title: t3("row_trackingProtection_title"),
-      secondaryText: t3("row_trackingProtection_desc"),
-      kind: "one-time"
-    }),
-    cookieManagement: (t3) => ({
-      id: "cookieManagement",
-      summary: t3("row_cookieManagement_summary"),
-      icon: "cookie.png",
-      title: t3("row_cookieManagement_title"),
-      secondaryText: t3("row_cookieManagement_desc"),
-      kind: "one-time"
-    }),
-    fewerAds: (t3) => ({
-      id: "fewerAds",
-      summary: t3("row_fewerAds_summary"),
-      icon: "browsing.png",
-      title: t3("row_fewerAds_title"),
-      secondaryText: t3("row_fewerAds_desc"),
-      kind: "one-time"
-    }),
-    duckPlayer: (t3) => ({
-      id: "duckPlayer",
-      summary: t3("row_duckPlayer_summary"),
-      icon: "duckplayer.png",
-      title: t3("row_duckPlayer_title"),
-      secondaryText: t3("row_duckPlayer_desc"),
-      kind: "one-time"
-    })
-  };
-  var settingsRowItems = {
-    dock: (t3, platform) => {
-      const title = platform === "apple" ? t3("row_dock_macos_title") : t3("row_dock_title");
-      const acceptText = platform === "apple" ? t3("row_dock_macos_accept") : t3("row_dock_accept");
-      return {
-        id: "dock",
-        icon: "dock.png",
-        title,
-        secondaryText: t3("row_dock_desc"),
-        summary: t3("row_dock_summary"),
-        kind: "one-time",
-        acceptText
-      };
-    },
-    import: (t3) => ({
-      id: "import",
-      icon: "import.png",
-      title: t3("row_import_title"),
-      secondaryText: t3("row_import_desc"),
-      summary: t3("row_import_summary"),
-      kind: "one-time",
-      acceptText: t3("row_import_accept")
-    }),
-    "default-browser": (t3) => ({
-      id: "default-browser",
-      icon: "switch.png",
-      title: t3("row_default-browser_title"),
-      secondaryText: t3("row_default-browser_desc"),
-      summary: t3("row_default-browser_summary"),
-      kind: "one-time",
-      acceptText: t3("row_default-browser_accept")
-    }),
-    bookmarks: (t3) => ({
-      id: "bookmarks",
-      icon: "bookmarks.png",
-      title: t3("row_bookmarks_title"),
-      secondaryText: t3("row_bookmarks_desc"),
-      summary: t3("row_bookmarks_summary"),
-      kind: "toggle",
-      acceptText: t3("row_bookmarks_accept")
-    }),
-    "session-restore": (t3) => ({
-      id: "session-restore",
-      icon: "session-restore.png",
-      title: t3("row_session-restore_title"),
-      secondaryText: t3("row_session-restore_desc"),
-      summary: t3("row_session-restore_summary"),
-      kind: "toggle",
-      acceptText: t3("row_session-restore_accept")
-    }),
-    "home-shortcut": (t3) => ({
-      id: "home-shortcut",
-      icon: "home.png",
-      title: t3("row_home-shortcut_title"),
-      secondaryText: t3("row_home-shortcut_desc"),
-      summary: t3("row_home-shortcut_summary"),
-      kind: "toggle",
-      acceptText: t3("row_home-shortcut_accept")
-    }),
-    // Intended only for use with v3
-    "placebo-ad-blocking": (t3) => ({
-      id: "placebo-ad-blocking",
-      icon: "v3/Ads-Blocked-Color-24.svg",
-      title: t3("row_placebo-ad-blocking_title_v3"),
-      secondaryText: t3("row_ad-blocking_desc_v3"),
-      summary: t3("row_placebo-ad-blocking_title_v3"),
-      kind: "one-time",
-      acceptText: t3("row_ad-blocking_accept_v3"),
-      accepButtonVariant: "primary"
-    }),
-    // Intended only for use with v3
-    "aggressive-ad-blocking": (t3) => ({
-      id: "aggressive-ad-blocking",
-      icon: "v3/Ads-Blocked-Color-24.svg",
-      title: t3("row_aggressive-ad-blocking_title_v3"),
-      secondaryText: t3("row_ad-blocking_desc_v3"),
-      summary: t3("row_aggressive-ad-blocking_title_v3"),
-      kind: "one-time",
-      acceptText: t3("row_ad-blocking_accept_v3"),
-      accepButtonVariant: "primary"
-    }),
-    // Intended only for use with v3
-    "youtube-ad-blocking": (t3) => ({
-      id: "youtube-ad-blocking",
-      icon: "v3/Video-Player-Color-24.svg",
-      title: t3("row_youtube-ad-blocking_title_v3"),
-      secondaryText: t3("row_youtube-ad-blocking_desc_v3"),
-      summary: t3("row_youtube-ad-blocking_title_v3"),
-      kind: "one-time",
-      acceptText: t3("row_youtube-ad-blocking_accept_v3"),
-      accepButtonVariant: "primary"
-    }),
-    // Intended only for use with v3
-    "address-bar-mode": (t3) => ({
-      id: "address-bar-mode",
-      icon: "v3/Ai-Chat-Color-24.svg",
-      title: t3("addressBarMode_title"),
-      secondaryText: t3("addressBarMode_footer"),
-      summary: t3("addressBarMode_title"),
-      kind: "toggle",
-      acceptText: t3("startBrowsing")
-    })
-  };
-  var beforeAfterMeta = {
-    /**
-     * @param {import('../../types').TranslationFn} t
-     */
-    fewerAds: (t3) => ({
-      btnBeforeText: t3("beforeAfter_fewerAds_show"),
-      btnAfterText: t3("beforeAfter_fewerAds_hide"),
-      artboard: "Ad Blocking",
-      inputName: "DDG?",
-      stateMachine: "State Machine 2"
-    }),
-    /**
-     * @param {import('../../types').TranslationFn} t
-     */
-    duckPlayer: (t3) => ({
-      btnBeforeText: t3("beforeAfter_duckPlayer_show"),
-      btnAfterText: t3("beforeAfter_duckPlayer_hide"),
-      artboard: "Duck Player",
-      inputName: "Duck Player?",
-      stateMachine: "State Machine 2"
-    })
-  };
-
-  // pages/onboarding/app/shared/components/List.js
-  var import_classnames3 = __toESM(require_classnames(), 1);
-
-  // pages/onboarding/app/shared/components/List.module.css
-  var List_default = {
-    list: "List_list",
-    plainListContainer: "List_plainListContainer",
-    plainList: "List_plainList",
-    borderedList: "List_borderedList",
-    summaryList: "List_summaryList"
-  };
-
-  // pages/onboarding/app/shared/components/List.js
-  function List({ animate: animate2 = false, children }) {
-    const { isReducedMotion } = useEnv();
-    const [parent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : void 0);
-    return /* @__PURE__ */ _("ul", { className: List_default.list, ref: animate2 ? parent : null }, children);
-  }
-  function PlainList({ variant, animate: animate2 = false, children }) {
-    const listRef = A2(null);
-    const containerRef = A2(null);
-    const classes = (0, import_classnames3.default)({
-      [List_default.plainList]: true,
-      [List_default.borderedList]: variant === "bordered"
-    });
-    y2(() => {
-      if (containerRef.current && listRef.current) {
-        const container = (
-          /** @type {HTMLElement} */
-          containerRef.current
-        );
-        const list = (
-          /** @type {HTMLElement} */
-          listRef.current
-        );
-        container.style.height = `${list.clientHeight}px`;
-      }
-    }, [containerRef, listRef, children]);
-    return /* @__PURE__ */ _("div", { className: List_default.plainListContainer, ref: animate2 ? containerRef : null }, /* @__PURE__ */ _("ul", { className: classes, ref: animate2 ? listRef : null }, children));
-  }
-  function SummaryList(props) {
-    return /* @__PURE__ */ _("ul", { className: List_default.summaryList }, props.children);
-  }
-
-  // shared/translations.js
-  function apply(subject, replacements, textLength = 1) {
-    if (typeof subject !== "string" || subject.length === 0) return "";
-    let out = subject;
-    if (replacements) {
-      for (let [name, value] of Object.entries(replacements)) {
-        if (typeof value !== "string") value = "";
-        out = out.replaceAll(`{${name}}`, value);
-      }
-    }
-    if (textLength !== 1 && textLength > 0 && textLength <= 2) {
-      const targetLen = Math.ceil(out.length * textLength);
-      const target2 = Math.ceil(textLength);
-      const combined = out.repeat(target2);
-      return combined.slice(0, targetLen);
-    }
-    return out;
-  }
-
-  // shared/components/TranslationsProvider.js
-  var TranslationContext = Q({
-    /** @type {LocalTranslationFn} */
-    t: () => {
-      throw new Error("must implement");
-    }
-  });
-  function TranslationProvider({ children, translationObject, fallback, textLength = 1 }) {
-    function t3(inputKey, replacements) {
-      const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title;
-      return apply(subject, replacements, textLength);
-    }
-    return /* @__PURE__ */ _(TranslationContext.Provider, { value: { t: t3 } }, children);
-  }
-  function Trans({ str, values }) {
-    const ref = A2(null);
-    const cleanups = A2([]);
-    y2(() => {
-      if (!ref.current) return;
-      const curr = ref.current;
-      const cleanupsCurr = cleanups.current;
-      Object.entries(values).forEach(([tag, attributes]) => {
-        curr.querySelectorAll(tag).forEach((el) => {
-          Object.entries(attributes).forEach(([key, value]) => {
-            if (typeof value === "function") {
-              el.addEventListener(key, value);
-              cleanupsCurr.push(() => el.removeEventListener(key, value));
-            } else {
-              el.setAttribute(key, value);
-            }
-          });
-        });
-      });
-      return () => {
-        cleanupsCurr.forEach((fn) => fn());
-      };
-    }, [values, str]);
-    return /* @__PURE__ */ _("span", { ref, dangerouslySetInnerHTML: { __html: str } });
+  // pages/onboarding/app/shared/components/Content.js
+  function Content({ children }) {
+    return /* @__PURE__ */ _("div", { className: Content_default.indent }, /* @__PURE__ */ _("div", { className: Content_default.wrapper }, children));
   }
 
   // pages/onboarding/public/locales/en/onboarding.json
@@ -10744,32 +10486,74 @@
     }
   };
 
+  // shared/translations.js
+  function apply(subject, replacements, textLength = 1) {
+    if (typeof subject !== "string" || subject.length === 0) return "";
+    let out = subject;
+    if (replacements) {
+      for (let [name, value] of Object.entries(replacements)) {
+        if (typeof value !== "string") value = "";
+        out = out.replaceAll(`{${name}}`, value);
+      }
+    }
+    if (textLength !== 1 && textLength > 0 && textLength <= 2) {
+      const targetLen = Math.ceil(out.length * textLength);
+      const target2 = Math.ceil(textLength);
+      const combined = out.repeat(target2);
+      return combined.slice(0, targetLen);
+    }
+    return out;
+  }
+
+  // shared/components/TranslationsProvider.js
+  var TranslationContext = Q({
+    /** @type {LocalTranslationFn} */
+    t: () => {
+      throw new Error("must implement");
+    }
+  });
+  function TranslationProvider({ children, translationObject, fallback, textLength = 1 }) {
+    function t3(inputKey, replacements) {
+      const subject = translationObject?.[inputKey]?.title || fallback?.[inputKey]?.title;
+      return apply(subject, replacements, textLength);
+    }
+    return /* @__PURE__ */ _(TranslationContext.Provider, { value: { t: t3 } }, children);
+  }
+  function Trans({ str, values }) {
+    const ref = A2(null);
+    const cleanups = A2([]);
+    y2(() => {
+      if (!ref.current) return;
+      const curr = ref.current;
+      const cleanupsCurr = cleanups.current;
+      Object.entries(values).forEach(([tag, attributes]) => {
+        curr.querySelectorAll(tag).forEach((el) => {
+          Object.entries(attributes).forEach(([key, value]) => {
+            if (typeof value === "function") {
+              el.addEventListener(key, value);
+              cleanupsCurr.push(() => el.removeEventListener(key, value));
+            } else {
+              el.setAttribute(key, value);
+            }
+          });
+        });
+      });
+      return () => {
+        cleanupsCurr.forEach((fn) => fn());
+      };
+    }, [values, str]);
+    return /* @__PURE__ */ _("span", { ref, dangerouslySetInnerHTML: { __html: str } });
+  }
+
   // pages/onboarding/app/types.js
   var EVERY_PAGE_ID = [
     "welcome",
     "getStarted",
-    "privateByDefault",
-    "cleanerBrowsing",
     "systemSettings",
-    "customize",
-    "summary",
-    "dockSingle",
-    "importSingle",
     "makeDefaultSingle",
     "duckPlayerSingle",
-    "addressBarMode"
-  ];
-  var DEFAULT_ORDER = ["welcome", "getStarted", "privateByDefault", "cleanerBrowsing", "systemSettings", "customize", "summary"];
-  var ALT_ORDER = [
-    "welcome",
-    "getStarted",
-    "privateByDefault",
-    "cleanerBrowsing",
-    "dockSingle",
-    "importSingle",
-    "makeDefaultSingle",
     "customize",
-    "summary"
+    "addressBarMode"
   ];
   var ORDER_V3 = ["welcome", "getStarted", "makeDefaultSingle", "systemSettings", "duckPlayerSingle", "customize", "addressBarMode"];
   function useTypedTranslation() {
@@ -10778,1018 +10562,16 @@
     };
   }
 
-  // pages/onboarding/app/v1/pages/Summary.js
-  function Summary({ values, onDismiss, onSettings }) {
-    const { t: t3 } = useTypedTranslation();
-    const items = Object.values(noneSettingsRowItems).map((fn) => {
-      const subject = fn(t3);
-      return {
-        icon: subject.icon,
-        summary: subject.summary
-      };
-    });
-    const enabledSettingsItems = Object.keys(values).filter((key) => values[key].enabled === true && Object.hasOwnProperty.call(settingsRowItems, key)).map((key) => {
-      const subject = settingsRowItems[key](t3);
-      return {
-        icon: subject.icon,
-        summary: subject.summary
-      };
-    });
-    function onSettingsHandler(e3) {
-      e3.preventDefault();
-      onSettings();
-    }
-    return /* @__PURE__ */ _(Stack, { gap: Stack.gaps["3"] }, /* @__PURE__ */ _(SummaryList, null, items.concat(enabledSettingsItems).map((item) => {
-      return /* @__PURE__ */ _(ListItemPlain, { key: item.summary, icon: item.icon, title: item.summary });
-    })), /* @__PURE__ */ _(SlideUp, null, /* @__PURE__ */ _(ButtonBar, { style: {
-      marginTop: "19px"
-      /* this matches the designs perfectly */
-    } }, /* @__PURE__ */ _(Button, { onClick: onDismiss, size: "xl" }, t3("startBrowsing"), /* @__PURE__ */ _(Launch, null)))), /* @__PURE__ */ _("div", { style: {
-      marginTop: "50px"
-      /* this matches the designs perfectly */
-    } }, /* @__PURE__ */ _(
-      Trans,
-      {
-        str: t3("youCanChangeYourChoicesAnyTimeInSettings"),
-        values: {
-          a: {
-            href: "about:preferences",
-            click: onSettingsHandler
-          }
-        }
-      }
-    )));
-  }
-
-  // pages/onboarding/app/shared/components/SettingsProvider.js
-  var SettingsContext = Q(
-    /** @type {{platform: {name: ImportMeta['platform']}|undefined}} */
-    {}
-  );
-  function SettingsProvider({ platform, children }) {
-    return /* @__PURE__ */ _(SettingsContext.Provider, { value: { platform } }, children);
-  }
-  function usePlatformName() {
-    return x2(SettingsContext).platform?.name;
-  }
-
-  // pages/onboarding/app/global.js
-  var GlobalContext = Q(
-    /** @type {GlobalState} */
-    {}
-  );
-  var GlobalDispatch = Q(
-    /** @type {import("preact/hooks").Dispatch<GlobalEvents>} */
-    {}
-  );
-  function reducer(state, action) {
-    switch (state.status.kind) {
-      case "idle": {
-        switch (action.kind) {
-          case "update-system-value": {
-            return { ...state, status: { kind: "executing", action } };
-          }
-          case "error-boundary": {
-            return { ...state, status: { kind: "fatal", action } };
-          }
-          case "title-complete": {
-            return {
-              ...state,
-              activeStepVisible: true
-            };
-          }
-          case "advance": {
-            const currentPageIndex = state.order.indexOf(state.activeStep);
-            const nextPageIndex = currentPageIndex + 1;
-            if (nextPageIndex < state.order.length) {
-              return {
-                ...state,
-                activeStep: state.order[nextPageIndex],
-                nextStep: state.order[nextPageIndex + 1],
-                activeRow: 0,
-                activeStepVisible: false,
-                exiting: false,
-                step: state.stepDefinitions[state.order[nextPageIndex]]
-              };
-            }
-            return state;
-          }
-          case "enqueue-next": {
-            return {
-              ...state,
-              exiting: true
-            };
-          }
-          default:
-            return state;
-        }
-      }
-      case "executing": {
-        switch (action.kind) {
-          case "exec-complete": {
-            if (state.step.kind === "settings") {
-              const currentRow = state.step.rows[state.activeRow];
-              const isCurrent = currentRow === action.id;
-              const systemValueId = action.id;
-              const isAdBlockingSetting = systemValueId === "placebo-ad-blocking" || systemValueId === "aggressive-ad-blocking" || systemValueId === "youtube-ad-blocking";
-              const nextOrder = isAdBlockingSetting && action.payload.enabled ? state.order.filter((step) => step !== "duckPlayerSingle") : state.order;
-              const nextUIState = isCurrent && action.payload.enabled ? "accepted" : "skipped";
-              return {
-                ...state,
-                status: { kind: "idle" },
-                step: {
-                  // bump the step (show the next row)
-                  ...state.step
-                },
-                order: nextOrder,
-                activeRow: isCurrent ? state.activeRow + 1 : state.activeRow,
-                values: {
-                  ...state.values,
-                  // store the updated value in global state
-                  [systemValueId]: action.payload
-                },
-                UIValues: {
-                  ...state.UIValues,
-                  // store the UI state, so we know if it was skipped or not
-                  [systemValueId]: nextUIState
-                }
-              };
-            }
-            if (state.step.kind === "info") {
-              return {
-                ...state,
-                status: { kind: "idle" },
-                values: {
-                  ...state.values,
-                  [action.id]: action.payload
-                }
-              };
-            }
-            throw new Error("unimplemented");
-          }
-          case "exec-error": {
-            return {
-              ...state,
-              status: { kind: "idle", error: action.message }
-            };
-          }
-          default:
-            throw new Error("unhandled " + action.kind);
-        }
-      }
-    }
-    return state;
-  }
-  function GlobalProvider({ order, children, stepDefinitions: stepDefinitions3, messaging: messaging2, firstPage = "welcome" }) {
-    const [state, dispatch] = h2(reducer, {
-      status: { kind: "idle" },
-      order,
-      stepDefinitions: stepDefinitions3,
-      step: stepDefinitions3[firstPage],
-      activeStep: firstPage,
-      nextStep: order[1],
-      activeRow: 0,
-      activeStepVisible: false,
-      exiting: false,
-      values: {},
-      UIValues: {
-        dock: "idle",
-        import: "idle",
-        "default-browser": "idle",
-        bookmarks: "idle",
-        "session-restore": "idle",
-        "home-shortcut": "idle",
-        "placebo-ad-blocking": "idle",
-        "aggressive-ad-blocking": "idle",
-        "youtube-ad-blocking": "idle",
-        "address-bar-mode": "idle"
-      }
-    });
-    const platform = usePlatformName();
-    const proxy = q2(
-      (msg) => {
-        dispatch(msg);
-        if (msg.kind === "advance") {
-          messaging2.stepCompleted({ id: state.activeStep });
-        }
-        if (msg.kind === "dismiss-to-settings") {
-          messaging2.dismissToSettings();
-        }
-        if (msg.kind === "dismiss") {
-          messaging2.dismissToAddressBar();
-        }
-      },
-      [state, messaging2]
-    );
-    y2(() => {
-      if (state.status.kind !== "fatal") return;
-      const { error } = state.status.action;
-      messaging2.reportPageException(error);
-    }, [state.status.kind, messaging2]);
-    y2(() => {
-      if (state.status.kind !== "executing") return;
-      if (state.status.action.kind !== "update-system-value") throw new Error("only update-system-value is currently supported");
-      const action = state.status.action;
-      handleSystemSettingUpdate(action, messaging2, platform).then((payload) => {
-        dispatch({
-          kind: "exec-complete",
-          id: action.id,
-          payload
-        });
-      }).catch((e3) => {
-        const message = e3?.message || "unknown error";
-        dispatch({ kind: "exec-error", id: action.id, message });
-      });
-    }, [state.status.kind, messaging2]);
-    return /* @__PURE__ */ _(GlobalContext.Provider, { value: state }, /* @__PURE__ */ _(GlobalDispatch.Provider, { value: proxy }, children));
-  }
-  async function handleSystemSettingUpdate(action, messaging2, platform) {
-    const { id, payload } = action;
-    switch (id) {
-      case "bookmarks": {
-        messaging2.setBookmarksBar(payload);
-        return payload;
-      }
-      case "session-restore": {
-        messaging2.setSessionRestore(payload);
-        return payload;
-      }
-      case "home-shortcut": {
-        messaging2.setShowHomeButton(payload);
-        return payload;
-      }
-      case "placebo-ad-blocking":
-      case "aggressive-ad-blocking":
-      case "youtube-ad-blocking": {
-        messaging2.setAdBlocking(payload);
-        return payload;
-      }
-      case "address-bar-mode": {
-        messaging2.setDuckAiInAddressBar(payload);
-        return payload;
-      }
-      case "dock": {
-        if (payload.enabled) {
-          await messaging2.requestDockOptIn();
-          return { enabled: true };
-        }
-        break;
-      }
-      case "import": {
-        if (payload.enabled) {
-          if (platform === "macos") {
-            return await messaging2.requestImport();
-          }
-          await messaging2.requestImport();
-          return { enabled: true };
-        }
-        break;
-      }
-      case "default-browser": {
-        if (payload.enabled) {
-          await messaging2.requestSetAsDefault();
-          return { enabled: true };
-        }
-        break;
-      }
-    }
-    if ("value" in payload) {
-      return { enabled: payload.enabled, value: payload.value };
-    }
-    return { enabled: payload.enabled };
-  }
-  function useGlobalState() {
-    return x2(GlobalContext);
-  }
-  function useGlobalDispatch() {
-    return x2(GlobalDispatch);
-  }
-
-  // pages/onboarding/app/v1/components/Background.module.css
-  var Background_default = {
-    background: "Background_background",
-    foreground: "Background_foreground",
-    layer1: "Background_layer1",
-    slidein1: "Background_slidein1",
-    layer2: "Background_layer2",
-    slidein2: "Background_slidein2",
-    layer3: "Background_layer3",
-    slidein3: "Background_slidein3"
-  };
-
-  // pages/onboarding/app/v1/components/Background.js
-  var import_classnames4 = __toESM(require_classnames(), 1);
-  function Background() {
-    return /* @__PURE__ */ _("div", { className: Background_default.background }, /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(Background_default.foreground, Background_default.layer1) }), /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(Background_default.foreground, Background_default.layer2) }), /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(Background_default.foreground, Background_default.layer3) }));
-  }
-
-  // pages/onboarding/app/v1/pages/Welcome.js
-  function GetStarted({ onNextPage }) {
-    const { t: t3 } = useTypedTranslation();
-    return /* @__PURE__ */ _(SlideUp, null, /* @__PURE__ */ _(Button, { onClick: onNextPage, size: "xl" }, t3("getStartedButton")));
-  }
-
-  // pages/onboarding/app/v1/hooks/useRollin.js
-  function useRollin(frames) {
-    const { isReducedMotion } = useEnv();
-    const [state, dispatch] = h2(
-      (prev) => {
-        if (prev.current === prev.frames.length) {
-          return prev;
-        }
-        const next = prev.current + 1;
-        return {
-          ...prev,
-          current: next,
-          frame: prev.frames[next],
-          isLast: next === prev.frames.length
-        };
-      },
-      /** @type {RollInState} */
-      { current: 0, frames, frame: frames[0], isLast: false }
-    );
-    const current = state.current;
-    const frame = state.frame;
-    y2(() => {
-      if (frame === "start-trigger") return;
-      if (typeof frame === "number") {
-        const i3 = setTimeout(() => dispatch("advance"), isReducedMotion ? 0 : frame);
-        return () => clearTimeout(i3);
-      }
-      return () => {
-      };
-    }, [current, frame]);
-    return {
-      state,
-      advance: () => {
-        dispatch("advance");
-      }
-    };
-  }
-
-  // pages/onboarding/app/v1/pages/PrivacyDefault.js
-  function PrivacyDefault({ onNextPage }) {
-    const { t: t3 } = useTypedTranslation();
-    const rows = [noneSettingsRowItems.search(t3), noneSettingsRowItems.trackingProtection(t3), noneSettingsRowItems.cookieManagement(t3)];
-    const { state } = useRollin([0, 1e3, 1e3, 800]);
-    const check = /* @__PURE__ */ _(BounceIn, { delay: "double" }, /* @__PURE__ */ _(Check, null));
-    return /* @__PURE__ */ _(Stack, null, state.current > 0 && /* @__PURE__ */ _(SlideUp, null, /* @__PURE__ */ _(List, null, rows.slice(0, state.current).map((row, index) => {
-      return /* @__PURE__ */ _(
-        ListItem,
-        {
-          key: row.icon,
-          icon: row.icon,
-          title: row.title,
-          secondaryText: row.secondaryText,
-          inline: check,
-          index,
-          animate: true
-        }
-      );
-    }))), state.isLast && /* @__PURE__ */ _(SlideUp, null, /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { onClick: onNextPage, size: "large" }, t3("gotIt")))));
-  }
-
-  // pages/onboarding/app/shared/components/Timeout.js
-  function Timeout({ onComplete, ignore, timeout = 1e3 }) {
-    const { isReducedMotion } = useEnv();
-    y2(() => {
-      let int;
-      if (ignore) {
-        int = setTimeout(onComplete, timeout);
-      } else {
-        int = setTimeout(onComplete, isReducedMotion ? 0 : timeout);
-      }
-      return () => clearTimeout(int);
-    }, [onComplete, timeout, isReducedMotion, ignore]);
-    return /* @__PURE__ */ _("div", null);
-  }
-  function Delay({ children, ms = 1e3 }) {
-    const [shown, setShown] = d2(false);
-    const { isReducedMotion } = useEnv();
-    y2(() => {
-      const int = setTimeout(() => setShown(true), isReducedMotion ? 0 : ms);
-      return () => clearTimeout(int);
-    }, [ms, isReducedMotion]);
-    if (shown) return children;
-    if (!children) throw new Error("unreachable.");
-    return null;
-  }
-
-  // pages/onboarding/app/v1/components/Animate.js
-  function Animate(props) {
-    const { isReducedMotion } = useEnv();
-    const [parent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : void 0);
-    return /* @__PURE__ */ _("div", { ref: parent }, props.children);
-  }
-
-  // pages/onboarding/app/shared/components/RiveAnimation.js
-  var import_canvas_single = __toESM(require_rive(), 1);
-  function RiveAnimation({ animation, state, stateMachine, artboard, inputName, autoplay = true, isDarkMode }) {
-    const ref = A2(
-      /** @type {null | HTMLCanvasElement} */
-      null
-    );
-    const rive = A2(
-      /** @type {null | Rive} */
-      null
-    );
-    y2(() => {
-      if (!ref.current) return;
-      rive.current = new import_canvas_single.Rive({
-        src: ["dist", animation].join("/"),
-        canvas: ref.current,
-        enableRiveAssetCDN: false,
-        autoplay,
-        artboard,
-        stateMachines: stateMachine
-      });
-      return () => {
-        rive.current?.cleanup();
-      };
-    }, [stateMachine, inputName, artboard, autoplay]);
-    y2(() => {
-      if (!stateMachine) return;
-      const inputs = rive.current?.stateMachineInputs(stateMachine);
-      if (!inputs) return;
-      if (!inputName) return;
-      const toggle = inputs.find((i3) => i3.name === inputName);
-      if (!toggle) return console.warn("could not find input");
-      if (state === "after") toggle.value = true;
-      if (state === "before") toggle.value = false;
-    }, [state]);
-    y2(() => {
-      function handle() {
-        if (!stateMachine) return;
-        const inputs = rive.current?.stateMachineInputs(stateMachine);
-        const themeInput = inputs?.find((i3) => i3.name.startsWith("Light"));
-        if (themeInput) {
-          themeInput.value = !isDarkMode;
-        }
-      }
-      handle();
-      rive.current?.on(
-        /** @type {any} */
-        "load",
-        handle
-      );
-      return () => {
-        rive.current?.off(
-          /** @type {any} */
-          "load",
-          handle
-        );
-      };
-    }, [isDarkMode]);
-    return /* @__PURE__ */ _("canvas", { width: "432", height: "208", ref, style: "border-radius: 12px; overflow: hidden" });
-  }
-
-  // pages/onboarding/app/v1/components/BeforeAfter.module.css
-  var BeforeAfter_default = {
-    imgWrap: "BeforeAfter_imgWrap",
-    media: "BeforeAfter_media"
-  };
-
-  // pages/onboarding/app/v1/components/BeforeAfter.js
-  function BeforeAfter({ media, onDone, btnBefore, btnAfter }) {
-    const { t: t3 } = useTypedTranslation();
-    const { isReducedMotion } = useEnv();
-    const [imageParent] = useAutoAnimate(isReducedMotion ? { duration: 0 } : void 0);
-    const [state, dispatch] = h2((prev) => {
-      if (prev === "initial") return "after";
-      if (prev === "before") return "after";
-      if (prev === "after") return "before";
-      throw new Error("unreachable");
-    }, "initial");
-    return /* @__PURE__ */ _(Stack, { gap: "var(--sp-3)" }, /* @__PURE__ */ _("div", { className: BeforeAfter_default.imgWrap, ref: imageParent }, media({ state, className: BeforeAfter_default.media })), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { variant: "secondary", onClick: () => dispatch("toggle"), style: { minWidth: "210px" } }, state === "after" && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(Replay, null), btnAfter), (state === "before" || state === "initial") && /* @__PURE__ */ _(k, null, /* @__PURE__ */ _(Play, null), btnBefore)), state !== "initial" && /* @__PURE__ */ _(SlideIn, { delay: "double" }, /* @__PURE__ */ _(Button, { onClick: onDone }, t3("gotIt")))));
-  }
-
-  // pages/onboarding/app/shared/animations/Onboarding.riv
-  var Onboarding_default = "./Onboarding-QFOHFYKL.riv";
-
-  // pages/onboarding/app/v1/pages/CleanBrowsing.js
-  function CleanBrowsing({ onNextPage }) {
-    const { t: t3 } = useTypedTranslation();
-    const rows = [noneSettingsRowItems.fewerAds(t3), noneSettingsRowItems.duckPlayer(t3)];
-    const frames = new Array(rows.length).fill("start-trigger");
-    const { state, advance } = useRollin([300, ...frames]);
-    return /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _(Stack, { animate: true }, state.current > 0 && /* @__PURE__ */ _(List, { animate: true }, rows.slice(0, state.current).map((row, index) => {
-      const isCurrent = state.current === index + 1;
-      return /* @__PURE__ */ _(RowItem, { isCurrent, row, index, advance });
-    }))), state.isLast && /* @__PURE__ */ _(SlideUp, { delay: "double" }, /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { onClick: onNextPage, size: "large" }, t3("nextButton")))));
-  }
-  function RowItem({ isCurrent, row, index, advance }) {
-    const { isDarkMode } = useEnv();
-    const { t: t3 } = useTypedTranslation();
-    const meta = beforeAfterMeta[row.id](t3);
-    return /* @__PURE__ */ _(
-      ListItem,
-      {
-        key: row.icon,
-        icon: row.icon,
-        title: row.title,
-        secondaryText: isCurrent && row.secondaryText,
-        inline: !isCurrent && /* @__PURE__ */ _(BounceIn, { delay: "double" }, /* @__PURE__ */ _(Check, null)),
-        index,
-        animate: true
-      },
-      isCurrent && /* @__PURE__ */ _(Animate, null, /* @__PURE__ */ _(Delay, { ms: 600 }, /* @__PURE__ */ _(
-        BeforeAfter,
-        {
-          onDone: advance,
-          btnAfter: meta.btnAfterText,
-          btnBefore: meta.btnBeforeText,
-          media: ({ state }) => {
-            const animationState = state === "initial" || state === "before" ? "before" : "after";
-            return /* @__PURE__ */ _(
-              RiveAnimation,
-              {
-                animation: Onboarding_default,
-                state: animationState,
-                isDarkMode,
-                artboard: meta.artboard,
-                inputName: meta.inputName,
-                stateMachine: meta.stateMachine
-              }
-            );
-          }
-        }
-      )))
-    );
-  }
-
-  // shared/components/Switch/Switch.module.css
-  var Switch_default = {
-    label: "Switch_label",
-    input: "Switch_input",
-    switch: "Switch_switch"
-  };
-
-  // shared/components/Switch/Switch.js
-  function Switch({ checked = false, platformName, size, theme, inputProps, ...props }) {
-    const { onChecked, onUnchecked, ariaLabel, pending } = props;
-    function change(e3) {
-      if (e3.target.checked === true) {
-        onChecked();
-      } else {
-        onUnchecked();
-      }
-    }
-    return /* @__PURE__ */ _("label", { class: Switch_default.label, "data-platform-name": platformName, "data-theme": theme, "data-size": size }, /* @__PURE__ */ _(
-      "input",
-      {
-        disabled: pending,
-        type: "checkbox",
-        role: "switch",
-        "aria-label": ariaLabel,
-        class: Switch_default.input,
-        checked,
-        onChange: change,
-        ...inputProps
-      }
-    ), /* @__PURE__ */ _("span", { class: Switch_default.switch, style: "transition-duration: 130ms;transition-delay: 0ms;" }));
-  }
-
-  // pages/onboarding/app/v1/pages/SettingsStep.js
-  function SettingsStep({ onNextPage, data, metaData, subtitle }) {
-    const { injectName } = useEnv();
-    const { state } = useRollin([300]);
-    const { t: t3 } = useTypedTranslation();
-    const dispatch = useGlobalDispatch();
-    const appState = useGlobalState();
-    if (appState.step.kind !== "settings") throw new Error("unreachable, for TS benefit");
-    const { step, status } = appState;
-    const pendingId = status.kind === "executing" && status.action.kind === "update-system-value" && status.action.id;
-    const complete = appState.activeRow >= step.rows.length;
-    const rows = step.rows.map((rowId, index) => {
-      return {
-        visible: appState.activeRow >= index,
-        current: appState.activeRow === index,
-        systemValue: appState.values[rowId] || null,
-        uiValue: appState.UIValues[rowId],
-        pending: pendingId === rowId,
-        id: rowId,
-        data: data[rowId](t3, injectName),
-        meta: metaData[step.id]?.rows?.[rowId]
-      };
-    });
-    return /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _(Stack, { animate: true }, appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ _("p", null, appState.status.error), state.current > 0 && /* @__PURE__ */ _(Stack, { gap: Stack.gaps["4"] }, subtitle && /* @__PURE__ */ _("h2", null, subtitle), /* @__PURE__ */ _(List, null, rows.filter((item) => item.visible).map((item, index) => {
-      return /* @__PURE__ */ _(SettingListItem, { key: item.id, dispatch, item, index });
-    })))), complete && /* @__PURE__ */ _(SlideUp, { delay: "double" }, /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { onClick: onNextPage, size: "large" }, t3("nextButton")))));
-  }
-  function SettingListItem({ index, item, dispatch }) {
-    const data = item.data;
-    const { t: t3 } = useTypedTranslation();
-    const platformName = (
-      /** @type {'macos'|'windows'} */
-      usePlatformName()
-    );
-    const { isDarkMode } = useEnv();
-    const accept = () => {
-      dispatch({
-        kind: "update-system-value",
-        id: data.id,
-        payload: { enabled: true },
-        current: item.current
-      });
-    };
-    const deny = () => {
-      dispatch({
-        kind: "update-system-value",
-        id: data.id,
-        payload: { enabled: false },
-        current: item.current
-      });
-    };
-    const inline = (() => {
-      if (item.uiValue === "idle") return null;
-      if (!item.systemValue) return null;
-      const enabled2 = item.systemValue.enabled;
-      if (item.uiValue === "skipped") {
-        if (enabled2 && item.data.kind === "one-time") {
-          return /* @__PURE__ */ _(BounceIn, { delay: "normal" }, /* @__PURE__ */ _(Check, null));
-        }
-        return /* @__PURE__ */ _(FadeIn, null, item.data.kind === "one-time" && /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText), item.data.kind === "toggle" && /* @__PURE__ */ _(
-          Switch,
-          {
-            ariaLabel: item.data.acceptText,
-            pending: item.pending,
-            checked: enabled2,
-            onChecked: accept,
-            onUnchecked: deny,
-            platformName,
-            theme: isDarkMode ? "dark" : "light"
-          }
-        ));
-      }
-      if (item.uiValue === "accepted") {
-        return /* @__PURE__ */ _(BounceIn, { delay: "normal" }, /* @__PURE__ */ _(Check, null));
-      }
-      throw new Error("unreachable");
-    })();
-    const display = (() => {
-      if (item.meta) {
-        return item.meta;
-      }
-      return { kind: "button-bar" };
-    })();
-    return /* @__PURE__ */ _(
-      ListItem,
-      {
-        key: data.id,
-        icon: data.icon,
-        title: data.title,
-        secondaryText: item.current && data.secondaryText,
-        inline,
-        animate: true,
-        index
-      },
-      item.current && display.kind === "button-bar" && /* @__PURE__ */ _(ListItem.Indent, null, /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, t3("skipButton")), /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText))),
-      item.current && display.kind === "animation" && /* @__PURE__ */ _(Stack, { gap: "var(--sp-3)" }, /* @__PURE__ */ _(RiveAnimation, { animation: display.path, state: "before", isDarkMode, stateMachine: "State Machine 1" }), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, t3("skipButton")), /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptText)))
-    );
-  }
-
-  // pages/onboarding/app/v1/components/Header.module.css
-  var Header_default = {
-    header: "Header_header",
-    logo: "Header_logo",
-    aside: "Header_aside",
-    svg: "Header_svg",
-    bouncein2: "Header_bouncein2",
-    titleContainer: "Header_titleContainer",
-    title: "Header_title"
-  };
-
-  // pages/onboarding/app/v1/components/Header.js
-  function Header({ children, aside = null }) {
-    return /* @__PURE__ */ _("header", { className: Header_default.header }, /* @__PURE__ */ _("div", { className: Header_default.logo }, /* @__PURE__ */ _("img", { className: Header_default.svg, src: "assets/img/dax.svg", alt: "DuckDuckGo Logo" })), /* @__PURE__ */ _("div", { className: Header_default.titleContainer }, /* @__PURE__ */ _("h1", { className: Header_default.title }, /* @__PURE__ */ _(Delay, { ms: 300 }, children))), aside && /* @__PURE__ */ _("div", { className: Header_default.aside }, aside));
-  }
-
-  // pages/onboarding/app/shared/components/Typed.js
-  function Typed({ text, children = null, onComplete = null, paused = false, delay = 20, ...rest }) {
-    const globalState = x2(GlobalContext);
-    const { activeStep } = globalState;
-    const pre = A2(
-      /** @type {string|undefined} */
-      void 0
-    );
-    y2(() => {
-      if (activeStep && pre.current) {
-        if (text === pre.current) {
-          onComplete?.();
-          return;
-        }
-      }
-      pre.current = text;
-    }, [activeStep, text]);
-    return /* @__PURE__ */ _(TypedInner, { key: text, text, onComplete, paused, delay, ...rest }, children);
-  }
-  function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
-    const { isReducedMotion } = useEnv();
-    const [screenWidth, setScreenWidth] = d2(0);
-    const [coords2, setCoords] = d2({ left: 0, width: 0 });
-    const [complete, setLocalComplete] = d2(false);
-    const [currentText, setCurrentText] = d2("");
-    const [currentIndex, setCurrentIndex] = d2(0);
-    const actual = A2(
-      /** @type {null | HTMLSpanElement } */
-      null
-    );
-    const overlay = A2(
-      /** @type {null | HTMLSpanElement} */
-      null
-    );
-    function localOnComplete() {
-      onComplete?.();
-      setLocalComplete(true);
-    }
-    y2(() => {
-      if (isReducedMotion) {
-        setCurrentText(text);
-        setCurrentIndex(text.length);
-      }
-    }, [isReducedMotion, localOnComplete]);
-    y2(() => {
-      const handler = () => {
-        setScreenWidth(window.innerWidth);
-      };
-      window.addEventListener("resize", handler);
-      return () => {
-        window.removeEventListener("resize", handler);
-      };
-    }, []);
-    y2(() => {
-      if (paused) return () => {
-      };
-      const controller = new AbortController();
-      let enabled2 = true;
-      document.body.addEventListener(
-        "pointerdown",
-        (e3) => {
-          let clickedElement = (
-            /** @type {HTMLElement|null} */
-            e3.target
-          );
-          let level = 0;
-          const maxLevels = 3;
-          while (clickedElement && level < maxLevels) {
-            if (clickedElement.matches("button")) {
-              return;
-            }
-            clickedElement = clickedElement.parentElement;
-            level += 1;
-          }
-          setCurrentText(text);
-          setCurrentIndex(text.length);
-          enabled2 = false;
-        },
-        { signal: controller.signal }
-      );
-      if (currentIndex < text.length) {
-        const timeout = setTimeout(
-          () => {
-            if (!enabled2) return;
-            setCurrentText((prevText) => prevText + text[currentIndex]);
-            setCurrentIndex((prevIndex) => prevIndex + 1);
-          },
-          text[currentIndex] === "\n" ? delay * 10 : delay
-        );
-        return () => {
-          clearTimeout(timeout);
-          controller.abort();
-        };
-      } else {
-        localOnComplete();
-        return () => controller.abort();
-      }
-    }, [currentIndex, delay, text, paused]);
-    function updatePlacement() {
-      const actualCurrent = (
-        /** @type {HTMLSpanElement} */
-        actual.current
-      );
-      const overlayCurrent = (
-        /** @type {HTMLSpanElement} */
-        overlay.current
-      );
-      if (!actualCurrent || !actualCurrent || !overlayCurrent.parentElement) {
-        return;
-      }
-      const actualBox = actualCurrent.getBoundingClientRect();
-      const overlayParentBox = overlayCurrent?.parentElement?.getBoundingClientRect();
-      setCoords({
-        left: actualBox.left - overlayParentBox.left,
-        width: actualBox.width
-      });
-    }
-    y2(() => {
-      updatePlacement();
-    }, [screenWidth]);
-    y2(() => {
-      const update = setInterval(() => updatePlacement(), 50);
-      return () => clearInterval(update);
-    }, []);
-    return /* @__PURE__ */ _("div", { style: { position: "relative", width: "100%", whiteSpace: "pre-line" }, "aria-label": text, ...rest }, /* @__PURE__ */ _("span", { style: { visibility: "hidden", paddingRight: "10px" }, ref: actual }, text), /* @__PURE__ */ _(
-      "span",
-      {
-        ref: overlay,
-        "aria-hidden": false,
-        style: {
-          position: "absolute",
-          top: 0,
-          left: coords2.left,
-          width: coords2.width,
-          whiteSpace: "pre-line"
-        }
-      },
-      currentText,
-      children && /* @__PURE__ */ _("span", { hidden: !complete }, children)
-    ));
-  }
-
-  // pages/onboarding/app/shared/components/Content.module.css
-  var Content_default = {
-    wrapper: "Content_wrapper",
-    indent: "Content_indent"
-  };
-
-  // pages/onboarding/app/shared/components/Content.js
-  function Content({ children }) {
-    return /* @__PURE__ */ _("div", { className: Content_default.indent }, /* @__PURE__ */ _("div", { className: Content_default.wrapper }, children));
-  }
-
-  // shared/components/ErrorBoundary.js
-  var ErrorBoundary = class extends x {
-    constructor(props) {
-      super(props);
-      this.state = { hasError: false };
-    }
-    static getDerivedStateFromError() {
-      return { hasError: true };
-    }
-    componentDidCatch(error, info) {
-      console.error(error);
-      console.log(info);
-      let message = error.message;
-      if (typeof message !== "string") message = "unknown";
-      const composed = this.props.context ? [this.props.context, message].join(" ") : message;
-      this.props.didCatch({ error, message: composed, info });
-    }
-    render() {
-      if (this.state.hasError) {
-        return this.props.fallback;
-      }
-      return this.props.children;
-    }
-  };
-
   // pages/onboarding/app/shared/components/Fallback.js
   function Fallback() {
     const { t: t3 } = useTypedTranslation();
     return /* @__PURE__ */ _(Content, null, /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _("h1", null, t3("somethingWentWrong"))));
   }
 
-  // pages/onboarding/app/shared/components/Progress.module.css
-  var Progress_default = {
-    progressContainer: "Progress_progressContainer",
-    "fade-in": "Progress_fade-in",
-    count: "Progress_count",
-    progress: "Progress_progress",
-    singleLineContainer: "Progress_singleLineContainer"
-  };
-
-  // pages/onboarding/app/shared/components/Progress.js
-  var import_classnames5 = __toESM(require_classnames(), 1);
-  function Progress({ total, current }) {
-    return /* @__PURE__ */ _("div", { className: Progress_default.progressContainer }, /* @__PURE__ */ _("div", { className: Progress_default.count }, current, " / ", total), /* @__PURE__ */ _("progress", { className: Progress_default.progress, max: total, value: current }, "(Page ", current, " of circa ", total, ")"));
-  }
-  function SingleLineProgress({ total, current }) {
-    return /* @__PURE__ */ _("div", { className: (0, import_classnames5.default)([Progress_default.progressContainer, Progress_default.singleLineContainer]) }, /* @__PURE__ */ _("div", { className: Progress_default.count }, current, " / ", total), /* @__PURE__ */ _("progress", { className: Progress_default.progress, max: total, value: current }, "(Page ", current, " of circa ", total, ")"));
-  }
-
-  // pages/onboarding/app/v1/App.js
-  function App({ children }) {
-    const { debugState, isReducedMotion } = useEnv();
-    const globalState = x2(GlobalContext);
-    const dispatch = x2(GlobalDispatch);
-    const { t: t3 } = useTypedTranslation();
-    const { nextStep, activeStep, activeStepVisible, exiting, order, step } = globalState;
-    const enqueueNext = () => {
-      if (isReducedMotion) {
-        dispatch({ kind: "advance" });
-      } else {
-        dispatch({ kind: "enqueue-next" });
-      }
-    };
-    const advance = () => dispatch({ kind: "advance" });
-    const titleDone = () => dispatch({ kind: "title-complete" });
-    const dismiss = () => dispatch({ kind: "dismiss" });
-    const dismissToSettings = () => dispatch({ kind: "dismiss-to-settings" });
-    const didCatch = ({ error }) => {
-      const message = error?.message || "unknown";
-      dispatch({ kind: "error-boundary", error: { message, id: activeStep } });
-    };
-    const titles = {
-      welcome: t3("welcome_title"),
-      getStarted: t3("getStarted_title", { newline: "\n" }),
-      privateByDefault: t3("privateByDefault_title", { newline: "\n" }),
-      cleanerBrowsing: t3("cleanerBrowsing_title", { newline: "\n" }),
-      systemSettings: t3("systemSettings_title"),
-      customize: t3("customize_title"),
-      summary: t3("summary_title"),
-      dockSingle: t3("systemSettings_title"),
-      importSingle: t3("systemSettings_title"),
-      makeDefaultSingle: t3("systemSettings_title")
-    };
-    const pageTitle = titles[activeStep];
-    const nextPageTitle = titles[
-      /** @type {any} */
-      nextStep
-    ];
-    const pageSubTitle = t3(
-      /** @type {any} */
-      activeStep + "_subtitle"
-    );
-    if (!pageTitle || pageTitle.length === 0) {
-      console.warn("missing page title for ", activeStep);
-    }
-    const infoPages = {
-      welcome: () => /* @__PURE__ */ _(Timeout, { onComplete: enqueueNext, ignore: true }),
-      getStarted: () => /* @__PURE__ */ _(GetStarted, { onNextPage: enqueueNext }),
-      privateByDefault: () => /* @__PURE__ */ _(PrivacyDefault, { onNextPage: enqueueNext }),
-      cleanerBrowsing: () => /* @__PURE__ */ _(CleanBrowsing, { onNextPage: enqueueNext }),
-      summary: () => /* @__PURE__ */ _(Summary, { values: globalState.values, onDismiss: dismiss, onSettings: dismissToSettings })
-    };
-    const progress = order.slice(2, -1);
-    const showProgress = progress.includes(activeStep);
-    function animationDidFinish(e3) {
-      if (e3.target?.dataset?.exiting === "true") {
-        advance();
-      }
-    }
-    const didRender = (e3) => {
-      const ignoredSteps = ["welcome", "getStarted"];
-      const shouldSkipAnimation = ignoredSteps.includes(e3?.dataset?.current);
-      if (shouldSkipAnimation && exiting === true) {
-        advance();
-      }
-    };
-    return /* @__PURE__ */ _("main", { className: App_default.main }, /* @__PURE__ */ _("link", { rel: "preload", href: ["dist", Onboarding_default].join("/"), as: "image" }), /* @__PURE__ */ _("link", { rel: "preload", href: ["dist", stepMeta.dockSingle.rows.dock.path].join("/"), as: "image" }), /* @__PURE__ */ _("link", { rel: "preload", href: ["dist", stepMeta.importSingle.rows.import.path].join("/"), as: "image" }), /* @__PURE__ */ _("link", { rel: "preload", href: ["dist", stepMeta.makeDefaultSingle.rows["default-browser"].path].join("/"), as: "image" }), /* @__PURE__ */ _(Background, null), debugState && /* @__PURE__ */ _(Debug, { state: globalState }), /* @__PURE__ */ _("div", { className: App_default.container, "data-current": activeStep }, /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _(Header, { aside: showProgress && /* @__PURE__ */ _(Progress, { current: progress.indexOf(activeStep) + 1, total: progress.length }) }, pageTitle && /* @__PURE__ */ _(
-      Typed,
-      {
-        onComplete: titleDone,
-        text: pageTitle,
-        "data-current": activeStep,
-        "data-exiting": pageTitle !== nextPageTitle && String(exiting)
-      }
-    )), /* @__PURE__ */ _("div", { "data-current": activeStep, "data-exiting": String(exiting), ref: didRender, onAnimationEnd: animationDidFinish }, activeStepVisible && /* @__PURE__ */ _(Content, null, step.kind === "settings" && /* @__PURE__ */ _(
-      SettingsStep,
-      {
-        key: activeStep,
-        subtitle: pageSubTitle,
-        data: settingsRowItems,
-        metaData: stepMeta,
-        onNextPage: enqueueNext
-      }
-    ), step.kind === "info" && infoPages[activeStep]()))), /* @__PURE__ */ _(WillThrow, null))), debugState && /* @__PURE__ */ _(DebugLinks, { current: activeStep }), children);
-  }
-  function Debug(props) {
-    return /* @__PURE__ */ _("div", { style: { position: "absolute", top: 0, right: 0, overflowY: "scroll", height: "100vh" } }, /* @__PURE__ */ _("pre", null, /* @__PURE__ */ _("code", null, JSON.stringify(props, null, 2))));
-  }
-  function DebugLinks({ current }) {
-    const globalState = x2(GlobalContext);
-    const exceptionUrl = new URL(window.location.href);
-    exceptionUrl.searchParams.set("page", "welcome");
-    exceptionUrl.searchParams.set("willThrow", "true");
-    if (window.__playwright_01) return null;
-    return /* @__PURE__ */ _("div", { style: { display: "flex", gap: "10px", position: "fixed", bottom: "1rem", justifyContent: "center", width: "100%" } }, Object.keys(globalState.stepDefinitions).slice(1).map((pageId) => {
-      const next = new URL(window.location.href);
-      next.searchParams.set("page", pageId);
-      return /* @__PURE__ */ _(
-        "a",
-        {
-          href: next.toString(),
-          key: pageId,
-          style: {
-            textDecoration: current === pageId ? "none" : "underline",
-            color: current === pageId ? "black" : void 0
-          }
-        },
-        pageId
-      );
-    }), /* @__PURE__ */ _("a", { href: exceptionUrl.toString() }, "Exception"));
-  }
-  function WillThrow() {
-    const { willThrow } = useEnv();
-    if (willThrow) {
-      throw new Error("Simulated Exception");
-    }
-    return null;
-  }
-
   // pages/onboarding/app/v3/components/Background.module.css
-  var Background_default2 = {
-    background: "Background_background2",
-    foreground: "Background_foreground2",
+  var Background_default = {
+    background: "Background_background",
+    foreground: "Background_foreground",
     animated: "Background_animated",
     clouds: "Background_clouds",
     "offscreen-clouds": "Background_offscreen-clouds",
@@ -11799,9 +10581,9 @@
   };
 
   // pages/onboarding/app/v3/components/Background.js
-  var import_classnames6 = __toESM(require_classnames(), 1);
-  function Background2() {
-    return /* @__PURE__ */ _("div", { class: Background_default2.background }, /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.animated, Background_default2.clouds) }), /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.animated, Background_default2.mountains) }), /* @__PURE__ */ _("div", { class: (0, import_classnames6.default)(Background_default2.foreground, Background_default2.stars) }));
+  var import_classnames = __toESM(require_classnames(), 1);
+  function Background() {
+    return /* @__PURE__ */ _("div", { class: Background_default.background }, /* @__PURE__ */ _("div", { class: (0, import_classnames.default)(Background_default.foreground, Background_default.animated, Background_default.clouds) }), /* @__PURE__ */ _("div", { class: (0, import_classnames.default)(Background_default.foreground, Background_default.animated, Background_default.mountains) }), /* @__PURE__ */ _("div", { class: (0, import_classnames.default)(Background_default.foreground, Background_default.stars) }));
   }
 
   // pages/onboarding/app/v3/context/BeforeAfterProvider.js
@@ -11858,10 +10640,98 @@
   }
 
   // pages/onboarding/app/v3/components/SingleStep.js
-  var import_classnames11 = __toESM(require_classnames(), 1);
+  var import_classnames9 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/shared/components/Icons.module.css
+  var Icons_default = {
+    bounceIn: "Icons_bounceIn",
+    bouncein: "Icons_bouncein",
+    slideIn: "Icons_slideIn",
+    slidein: "Icons_slidein",
+    slideUp: "Icons_slideUp",
+    slideup: "Icons_slideup",
+    fadeIn: "Icons_fadeIn"
+  };
+
+  // pages/onboarding/app/shared/components/Icons.js
+  function BounceIn({ children, delay = "none" }) {
+    return /* @__PURE__ */ _("div", { className: Icons_default.bounceIn, "data-delay": delay }, children);
+  }
+  function FadeIn({ children, delay = "none" }) {
+    return /* @__PURE__ */ _("div", { className: Icons_default.fadeIn, "data-delay": delay }, children);
+  }
+  function Check() {
+    return /* @__PURE__ */ _("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", "aria-labelledby": "svgTitle svgDesc", role: "img" }, /* @__PURE__ */ _("title", { id: "svgCheckTitle" }, "Completed Action"), /* @__PURE__ */ _("desc", { id: "svgCheckDesc" }, "Green check mark indicating action completed successfully."), /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_3030_17975)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16Z",
+        fill: "#21C000"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M11.6668 5.28423C11.924 5.51439 11.946 5.90951 11.7158 6.16675L7.46579 10.9168C7.34402 11.0529 7.1688 11.1289 6.98622 11.1249C6.80363 11.1208 6.63194 11.0371 6.5163 10.8958L4.2663 8.14578C4.04772 7.87863 4.08709 7.48486 4.35425 7.26628C4.6214 7.0477 5.01516 7.08708 5.23374 7.35423L7.02125 9.53896L10.7842 5.33326C11.0144 5.07602 11.4095 5.05407 11.6668 5.28423Z",
+        fill: "white"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_3030_17975" }, /* @__PURE__ */ _("rect", { width: "16", height: "16", fill: "white" }))));
+  }
+  function Replay({ direction = "backward" }) {
+    return /* @__PURE__ */ _(
+      "svg",
+      {
+        width: "12",
+        height: "12",
+        viewBox: "0 0 12 12",
+        fill: "none",
+        xmlns: "http://www.w3.org/2000/svg",
+        style: direction === "forward" ? { transform: "scale(-1,1)" } : {}
+      },
+      /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_10021_2837)" }, /* @__PURE__ */ _(
+        "path",
+        {
+          d: "M7.11485 1.37611C6.05231 1.12541 4.93573 1.25089 3.95534 1.73116C3.06198 2.1688 2.33208 2.87636 1.86665 3.75003H3.9837C4.32888 3.75003 4.6087 4.02985 4.6087 4.37503C4.6087 4.7202 4.32888 5.00003 3.9837 5.00003H0.625013C0.279836 5.00003 1.33514e-05 4.7202 1.33514e-05 4.37503V0.651184C1.33514e-05 0.306006 0.279836 0.0261841 0.625013 0.0261841C0.970191 0.0261841 1.25001 0.306006 1.25001 0.651184V2.39582C1.81304 1.64241 2.54999 1.02768 3.40543 0.608623C4.64552 0.00112504 6.05789 -0.157593 7.40189 0.159513C8.74589 0.476619 9.93836 1.24993 10.7761 2.34768C11.6139 3.44543 12.0451 4.7997 11.9963 6.17974C11.9475 7.55977 11.4216 8.88019 10.5084 9.91601C9.59521 10.9518 8.35109 11.639 6.98804 11.8603C5.625 12.0817 4.22737 11.8236 3.03329 11.13C1.83922 10.4364 0.922573 9.35022 0.43955 8.05655C0.318811 7.73318 0.483079 7.37316 0.806451 7.25242C1.12982 7.13168 1.48985 7.29595 1.61059 7.61932C1.99245 8.64206 2.71713 9.50076 3.66114 10.0491C4.60514 10.5974 5.71008 10.8015 6.78767 10.6265C7.86526 10.4515 8.84883 9.90826 9.5708 9.08936C10.2928 8.27047 10.7085 7.22658 10.747 6.13555C10.7856 5.04453 10.4447 3.97387 9.78243 3.10602C9.12012 2.23816 8.17738 1.6268 7.11485 1.37611Z",
+          fill: "currentColor",
+          "fill-opacity": "0.84"
+        }
+      )),
+      /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_10021_2837" }, /* @__PURE__ */ _("rect", { width: "12", height: "12", fill: "white" })))
+    );
+  }
+  function Launch() {
+    return /* @__PURE__ */ _("svg", { width: "17", height: "16", viewBox: "0 0 17 16", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ _("g", { "clip-path": "url(#clip0_3098_23365)" }, /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M12.0465 7.31875C11.269 8.09623 10.0085 8.09623 9.23102 7.31875C8.45354 6.54128 8.45354 5.28074 9.23102 4.50327C10.0085 3.7258 11.269 3.7258 12.0465 4.50327C12.824 5.28074 12.824 6.54128 12.0465 7.31875ZM11.1626 6.43487C10.8733 6.72419 10.4042 6.72419 10.1149 6.43487C9.82558 6.14555 9.82558 5.67647 10.1149 5.38715C10.4042 5.09783 10.8733 5.09783 11.1626 5.38715C11.4519 5.67647 11.4519 6.14555 11.1626 6.43487Z",
+        fill: "white",
+        "fill-opacity": "0.84"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        "fill-rule": "evenodd",
+        "clip-rule": "evenodd",
+        d: "M15.0163 0.357982C10.4268 0.792444 7.29295 2.76331 5.19328 5.43188C5.03761 5.41854 4.88167 5.40999 4.72564 5.40608C3.54981 5.37661 2.36922 5.61098 1.26629 6.0488C0.653083 6.29222 0.543501 7.07682 1.01002 7.54334L2.92009 9.45341C2.86071 9.6032 2.80326 9.75371 2.74768 9.90485C2.61756 10.2587 2.71271 10.6538 2.97932 10.9204L5.62864 13.5698C5.89525 13.8364 6.29037 13.9315 6.64424 13.8014C6.79555 13.7458 6.94624 13.6882 7.0962 13.6288L9.0054 15.538C9.47191 16.0045 10.2565 15.8949 10.4999 15.2817C10.9378 14.1788 11.1721 12.9982 11.1427 11.8224C11.1388 11.6668 11.1302 11.5112 11.117 11.356C13.7857 9.25633 15.7566 6.1224 16.1911 1.53282C16.2296 1.12649 16.256 0.708745 16.2698 0.279297C15.8403 0.293094 15.4226 0.319516 15.0163 0.357982ZM3.9867 10.1601L6.38903 12.5624C8.6807 11.6928 10.7461 10.3775 12.2764 8.46444C13.2183 7.28687 13.9808 5.85389 14.4628 4.10497L12.4441 2.08628C10.6952 2.56825 9.26222 3.33082 8.08465 4.27272C6.17156 5.80296 4.85624 7.86839 3.9867 10.1601ZM2.25561 7.02117C2.84462 6.83216 3.44604 6.71284 4.04467 6.67074L3.29585 8.06141L2.25561 7.02117ZM9.52757 14.2924C9.71658 13.7034 9.8359 13.102 9.878 12.5033L8.48733 13.2522L9.52757 14.2924ZM14.7828 2.65724L13.8919 1.76626C14.2259 1.7093 14.5703 1.6616 14.9253 1.62375C14.8875 1.97878 14.8398 2.32317 14.7828 2.65724Z",
+        fill: "white",
+        "fill-opacity": "0.84"
+      }
+    ), /* @__PURE__ */ _(
+      "path",
+      {
+        d: "M4.98318 13.664C5.19417 13.9372 5.14374 14.3297 4.87055 14.5407C3.96675 15.2387 2.81266 15.6173 1.50788 15.7098L0.78927 15.7608L0.840231 15.0422C0.932761 13.7374 1.31133 12.5833 2.00934 11.6795C2.22032 11.4063 2.61283 11.3559 2.88602 11.5669C3.15921 11.7779 3.20963 12.1704 2.99865 12.4436C2.60779 12.9497 2.32977 13.5927 2.18426 14.3658C2.95736 14.2203 3.60041 13.9423 4.1065 13.5514C4.37969 13.3404 4.77219 13.3909 4.98318 13.664Z",
+        fill: "white",
+        "fill-opacity": "0.84"
+      }
+    )), /* @__PURE__ */ _("defs", null, /* @__PURE__ */ _("clipPath", { id: "clip0_3098_23365" }, /* @__PURE__ */ _("rect", { width: "16", height: "16", fill: "white", transform: "translate(0.5)" }))));
+  }
 
   // pages/onboarding/app/v3/components/ComparisonTable.js
-  var import_classnames7 = __toESM(require_classnames(), 1);
+  var import_classnames2 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v3/data/data-comparison-table.js
   var SupportStatus = {
@@ -11957,7 +10827,7 @@
   // pages/onboarding/app/v3/components/ComparisonTable.js
   function ComparisonTableColumnHeading({ title }) {
     const className = `browserIcon${title}`;
-    return /* @__PURE__ */ _("th", null, /* @__PURE__ */ _("span", { className: (0, import_classnames7.default)(ComparisonTable_default.browserIcon, ComparisonTable_default[className]), "aria-label": title }));
+    return /* @__PURE__ */ _("th", null, /* @__PURE__ */ _("span", { className: (0, import_classnames2.default)(ComparisonTable_default.browserIcon, ComparisonTable_default[className]), "aria-label": title }));
   }
   function ComparisonTableRowHeading({ icon, title }) {
     const path = tableIconPrefix + icon;
@@ -11966,7 +10836,7 @@
   function ComparisonTableCell({ status }) {
     const { t: t3 } = useTypedTranslation();
     const arialLabel = t3(`comparison_${status}`);
-    return /* @__PURE__ */ _("td", { className: ComparisonTable_default.rowCell }, /* @__PURE__ */ _("span", { className: (0, import_classnames7.default)(ComparisonTable_default.status, ComparisonTable_default[status]), "aria-label": arialLabel }));
+    return /* @__PURE__ */ _("td", { className: ComparisonTable_default.rowCell }, /* @__PURE__ */ _("span", { className: (0, import_classnames2.default)(ComparisonTable_default.status, ComparisonTable_default[status]), "aria-label": arialLabel }));
   }
   function ComparisonTableRow({ icon, title, statuses }) {
     const { chrome, ddg } = statuses;
@@ -11992,7 +10862,7 @@
   };
 
   // pages/onboarding/app/v3/components/Animation.js
-  function SlideIn2({ children, onAnimationEnd }) {
+  function SlideIn({ children, onAnimationEnd }) {
     const [animationState, setAnimationState] = d2(
       /** @type {AnimationState} */
       "idle"
@@ -12015,8 +10885,72 @@
 
   // pages/onboarding/app/v3/components/MakeDefaultStep.js
   function MakeDefaultStep() {
-    return /* @__PURE__ */ _(SlideIn2, null, /* @__PURE__ */ _(ComparisonTable, null));
+    return /* @__PURE__ */ _(SlideIn, null, /* @__PURE__ */ _(ComparisonTable, null));
   }
+
+  // pages/onboarding/app/shared/components/RiveAnimation.js
+  var import_canvas_single = __toESM(require_rive(), 1);
+  function RiveAnimation({ animation, state, stateMachine, artboard, inputName, autoplay = true, isDarkMode }) {
+    const ref = A2(
+      /** @type {null | HTMLCanvasElement} */
+      null
+    );
+    const rive = A2(
+      /** @type {null | Rive} */
+      null
+    );
+    y2(() => {
+      if (!ref.current) return;
+      rive.current = new import_canvas_single.Rive({
+        src: ["dist", animation].join("/"),
+        canvas: ref.current,
+        enableRiveAssetCDN: false,
+        autoplay,
+        artboard,
+        stateMachines: stateMachine
+      });
+      return () => {
+        rive.current?.cleanup();
+      };
+    }, [stateMachine, inputName, artboard, autoplay]);
+    y2(() => {
+      if (!stateMachine) return;
+      const inputs = rive.current?.stateMachineInputs(stateMachine);
+      if (!inputs) return;
+      if (!inputName) return;
+      const toggle = inputs.find((i3) => i3.name === inputName);
+      if (!toggle) return console.warn("could not find input");
+      if (state === "after") toggle.value = true;
+      if (state === "before") toggle.value = false;
+    }, [state]);
+    y2(() => {
+      function handle() {
+        if (!stateMachine) return;
+        const inputs = rive.current?.stateMachineInputs(stateMachine);
+        const themeInput = inputs?.find((i3) => i3.name.startsWith("Light"));
+        if (themeInput) {
+          themeInput.value = !isDarkMode;
+        }
+      }
+      handle();
+      rive.current?.on(
+        /** @type {any} */
+        "load",
+        handle
+      );
+      return () => {
+        rive.current?.off(
+          /** @type {any} */
+          "load",
+          handle
+        );
+      };
+    }, [isDarkMode]);
+    return /* @__PURE__ */ _("canvas", { width: "432", height: "208", ref, style: "border-radius: 12px; overflow: hidden" });
+  }
+
+  // pages/onboarding/app/shared/animations/Onboarding.riv
+  var Onboarding_default = "./Onboarding-QFOHFYKL.riv";
 
   // pages/onboarding/app/v3/components/DuckPlayerStep.module.css
   var DuckPlayerStep_default = {
@@ -12045,7 +10979,7 @@
     const animationDidEnd = () => {
       if (!timer.current) setCanPlay(true);
     };
-    return /* @__PURE__ */ _(SlideIn2, { onAnimationEnd: animationDidEnd }, /* @__PURE__ */ _("div", { className: DuckPlayerStep_default.animationContainer }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(SlideIn, { onAnimationEnd: animationDidEnd }, /* @__PURE__ */ _("div", { className: DuckPlayerStep_default.animationContainer }, /* @__PURE__ */ _(
       RiveAnimation,
       {
         animation: Onboarding_default,
@@ -12240,7 +11174,7 @@
       setSelectedOption(option);
       dispatchPreference(option);
     };
-    return /* @__PURE__ */ _(SlideIn2, null, /* @__PURE__ */ _(Stack, { className: AddressBarMode_default.container, gap: Stack.gaps["0"] }, /* @__PURE__ */ _(Stack, { className: AddressBarMode_default.body, gap: "10px" }, /* @__PURE__ */ _(AddressBarPreview, { isReduced: selectedOption === "search-only", isDarkMode }), /* @__PURE__ */ _("div", { className: AddressBarMode_default.buttons }, /* @__PURE__ */ _(
+    return /* @__PURE__ */ _(SlideIn, null, /* @__PURE__ */ _(Stack, { className: AddressBarMode_default.container, gap: Stack.gaps["0"] }, /* @__PURE__ */ _(Stack, { className: AddressBarMode_default.body, gap: "10px" }, /* @__PURE__ */ _(AddressBarPreview, { isReduced: selectedOption === "search-only", isDarkMode }), /* @__PURE__ */ _("div", { className: AddressBarMode_default.buttons }, /* @__PURE__ */ _(
       ToggleButton,
       {
         label: t3("addressBarMode_searchAndDuckAi"),
@@ -12258,7 +11192,7 @@
   }
 
   // pages/onboarding/app/v3/components/ElasticButton.js
-  var import_classnames8 = __toESM(require_classnames(), 1);
+  var import_classnames3 = __toESM(require_classnames(), 1);
 
   // pages/onboarding/app/v3/components/ElasticButton.module.css
   var ElasticButton_default = {
@@ -12275,7 +11209,7 @@
 
   // pages/onboarding/app/v3/components/ElasticButton.js
   function ElasticButton({ text, variant = "primary", startIcon, endIcon, longestText, elastic = true, ...rest }) {
-    const classes = (0, import_classnames8.default)({
+    const classes = (0, import_classnames3.default)({
       [ElasticButton_default.button]: true,
       [ElasticButton_default.primary]: variant === "primary",
       [ElasticButton_default.secondary]: variant === "secondary",
@@ -12287,35 +11221,150 @@
     return /* @__PURE__ */ _("span", { className: ElasticButton_default.fixedWidthContainer }, /* @__PURE__ */ _("span", { "aria-hidden": true, className: ElasticButton_default.hiddenContent }, longestText), /* @__PURE__ */ _("span", { className: ElasticButton_default.visibleContent }, text));
   }
 
+  // pages/onboarding/app/shared/components/Timeout.js
+  function Timeout({ onComplete, ignore, timeout = 1e3 }) {
+    const { isReducedMotion } = useEnv();
+    y2(() => {
+      let int;
+      if (ignore) {
+        int = setTimeout(onComplete, timeout);
+      } else {
+        int = setTimeout(onComplete, isReducedMotion ? 0 : timeout);
+      }
+      return () => clearTimeout(int);
+    }, [onComplete, timeout, isReducedMotion, ignore]);
+    return /* @__PURE__ */ _("div", null);
+  }
+
+  // pages/onboarding/app/shared/components/ListItem.js
+  var import_classnames4 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/shared/components/ListItem.module.css
+  var ListItem_default = {
+    step: "ListItem_step",
+    plain: "ListItem_plain",
+    plainContent: "ListItem_plainContent",
+    inner: "ListItem_inner",
+    icon: "ListItem_icon",
+    iconSmall: "ListItem_iconSmall",
+    contentWrapper: "ListItem_contentWrapper",
+    content: "ListItem_content",
+    title: "ListItem_title",
+    secondaryText: "ListItem_secondaryText",
+    inlineAction: "ListItem_inlineAction",
+    children: "ListItem_children",
+    indentChild: "ListItem_indentChild",
+    slideIn: "ListItem_slideIn",
+    slidein: "ListItem_slidein"
+  };
+
+  // pages/onboarding/app/shared/components/ListItem.js
+  var prefix = "assets/img/steps/";
+  function ListItem({ animate: animate2 = false, ...props }) {
+    const path = prefix + props.icon;
+    return /* @__PURE__ */ _("li", { className: (0, import_classnames4.default)(ListItem_default.step, animate2 ? ListItem_default.slideIn : void 0), "data-testid": "ListItem", "data-index": String(props.index) }, /* @__PURE__ */ _("div", { className: (0, import_classnames4.default)(ListItem_default.inner) }, /* @__PURE__ */ _("div", { className: ListItem_default.icon, style: `background-image: url(${path});` }), /* @__PURE__ */ _("div", { className: ListItem_default.contentWrapper }, /* @__PURE__ */ _("div", { className: ListItem_default.content }, /* @__PURE__ */ _("p", { className: ListItem_default.title }, props.title), props.secondaryText && /* @__PURE__ */ _("p", { className: ListItem_default.secondaryText }, props.secondaryText)), /* @__PURE__ */ _("div", { className: ListItem_default.inlineAction }, props.inline))), /* @__PURE__ */ _("div", { className: ListItem_default.children }, props.children));
+  }
+  ListItem.Indent = function({ children }) {
+    return /* @__PURE__ */ _("div", { className: ListItem_default.indentChild }, children);
+  };
+
   // pages/onboarding/app/v3/components/Buttons.module.css
-  var Buttons_default2 = {
-    buttons: "Buttons_buttons2",
-    button: "Buttons_button2",
-    large: "Buttons_large2",
-    xl: "Buttons_xl2",
-    secondary: "Buttons_secondary2",
-    primary: "Buttons_primary2"
+  var Buttons_default = {
+    buttons: "Buttons_buttons",
+    button: "Buttons_button",
+    large: "Buttons_large",
+    xl: "Buttons_xl",
+    secondary: "Buttons_secondary",
+    primary: "Buttons_primary"
   };
 
   // pages/onboarding/app/v3/components/Buttons.js
-  var import_classnames9 = __toESM(require_classnames(), 1);
-  function ButtonBar2(props) {
+  var import_classnames5 = __toESM(require_classnames(), 1);
+  function ButtonBar(props) {
     const { children, ...rest } = props;
-    return /* @__PURE__ */ _("div", { className: Buttons_default2.buttons, ...rest }, children);
+    return /* @__PURE__ */ _("div", { className: Buttons_default.buttons, ...rest }, children);
   }
-  function Button2({ variant = "primary", size = "normal", children, ...rest }) {
-    const classes = (0, import_classnames9.default)({
-      [Buttons_default2.button]: true,
-      [Buttons_default2.primary]: variant === "primary",
-      [Buttons_default2.secondary]: variant === "secondary",
-      [Buttons_default2.large]: size === "large",
-      [Buttons_default2.xl]: size === "xl"
+  function Button({ variant = "primary", size = "normal", children, ...rest }) {
+    const classes = (0, import_classnames5.default)({
+      [Buttons_default.button]: true,
+      [Buttons_default.primary]: variant === "primary",
+      [Buttons_default.secondary]: variant === "secondary",
+      [Buttons_default.large]: size === "large",
+      [Buttons_default.xl]: size === "xl"
     });
     return /* @__PURE__ */ _("button", { className: classes, ...rest }, children);
   }
 
+  // shared/components/Switch/Switch.module.css
+  var Switch_default = {
+    label: "Switch_label",
+    input: "Switch_input",
+    switch: "Switch_switch"
+  };
+
+  // shared/components/Switch/Switch.js
+  function Switch({ checked = false, platformName, size, theme, inputProps, ...props }) {
+    const { onChecked, onUnchecked, ariaLabel, pending } = props;
+    function change(e3) {
+      if (e3.target.checked === true) {
+        onChecked();
+      } else {
+        onUnchecked();
+      }
+    }
+    return /* @__PURE__ */ _("label", { class: Switch_default.label, "data-platform-name": platformName, "data-theme": theme, "data-size": size }, /* @__PURE__ */ _(
+      "input",
+      {
+        disabled: pending,
+        type: "checkbox",
+        role: "switch",
+        "aria-label": ariaLabel,
+        class: Switch_default.input,
+        checked,
+        onChange: change,
+        ...inputProps
+      }
+    ), /* @__PURE__ */ _("span", { class: Switch_default.switch, style: "transition-duration: 130ms;transition-delay: 0ms;" }));
+  }
+
+  // pages/onboarding/app/shared/components/List.js
+  var import_classnames6 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/shared/components/List.module.css
+  var List_default = {
+    list: "List_list",
+    plainListContainer: "List_plainListContainer",
+    plainList: "List_plainList",
+    borderedList: "List_borderedList",
+    summaryList: "List_summaryList"
+  };
+
+  // pages/onboarding/app/shared/components/List.js
+  function PlainList({ variant, animate: animate2 = false, children }) {
+    const listRef = A2(null);
+    const containerRef = A2(null);
+    const classes = (0, import_classnames6.default)({
+      [List_default.plainList]: true,
+      [List_default.borderedList]: variant === "bordered"
+    });
+    y2(() => {
+      if (containerRef.current && listRef.current) {
+        const container = (
+          /** @type {HTMLElement} */
+          containerRef.current
+        );
+        const list = (
+          /** @type {HTMLElement} */
+          listRef.current
+        );
+        container.style.height = `${list.clientHeight}px`;
+      }
+    }, [containerRef, listRef, children]);
+    return /* @__PURE__ */ _("div", { className: List_default.plainListContainer, ref: animate2 ? containerRef : null }, /* @__PURE__ */ _("ul", { className: classes, ref: animate2 ? listRef : null }, children));
+  }
+
   // pages/onboarding/app/v3/components/SettingsStep.js
-  function SettingsStep2({ data }) {
+  function SettingsStep({ data }) {
     const platform = usePlatformName();
     const { t: t3 } = useTypedTranslation();
     const dispatch = useGlobalDispatch();
@@ -12334,11 +11383,11 @@
         data: data[rowId](t3, platform)
       };
     });
-    return /* @__PURE__ */ _(SlideIn2, null, /* @__PURE__ */ _(Stack, null, appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ _("p", null, appState.status.error), /* @__PURE__ */ _(PlainList, { variant: "bordered", animate: true }, rows.filter((item) => item.visible).map((item, index) => {
-      return /* @__PURE__ */ _(SettingListItem2, { key: item.id, dispatch, item, index });
+    return /* @__PURE__ */ _(SlideIn, null, /* @__PURE__ */ _(Stack, null, appState.status.kind === "idle" && appState.status.error && /* @__PURE__ */ _("p", null, appState.status.error), /* @__PURE__ */ _(PlainList, { variant: "bordered", animate: true }, rows.filter((item) => item.visible).map((item, index) => {
+      return /* @__PURE__ */ _(SettingListItem, { key: item.id, dispatch, item, index });
     }))));
   }
-  function SettingListItem2({ index, item, dispatch }) {
+  function SettingListItem({ index, item, dispatch }) {
     const data = item.data;
     const { t: t3 } = useTypedTranslation();
     const { isDarkMode } = useEnv();
@@ -12370,7 +11419,7 @@
         if (enabled2 && item.data.kind === "one-time") {
           return /* @__PURE__ */ _(BounceIn, { delay: "normal" }, /* @__PURE__ */ _(Check, null));
         }
-        return /* @__PURE__ */ _(FadeIn, null, item.data.kind === "one-time" && /* @__PURE__ */ _(Button2, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptTextRecall || item.data.acceptText), item.data.kind === "toggle" && /* @__PURE__ */ _(
+        return /* @__PURE__ */ _(FadeIn, null, item.data.kind === "one-time" && /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: accept }, item.data.acceptTextRecall || item.data.acceptText), item.data.kind === "toggle" && /* @__PURE__ */ _(
           Switch,
           {
             ariaLabel: item.data.acceptText,
@@ -12399,7 +11448,7 @@
         animate: true,
         index
       },
-      item.current && /* @__PURE__ */ _(ListItem.Indent, null, /* @__PURE__ */ _(ButtonBar2, null, /* @__PURE__ */ _(Button2, { disabled: item.pending, variant: "secondary", onClick: deny }, t3("skipButton")), /* @__PURE__ */ _(Button2, { disabled: item.pending, variant: item.data.accepButtonVariant, onClick: accept }, item.data.acceptText)))
+      item.current && /* @__PURE__ */ _(ListItem.Indent, null, /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { disabled: item.pending, variant: "secondary", onClick: deny }, t3("skipButton")), /* @__PURE__ */ _(Button, { disabled: item.pending, variant: item.data.accepButtonVariant, onClick: accept }, item.data.acceptText)))
     );
   }
 
@@ -12463,7 +11512,7 @@
           text: t3("nextButton"),
           handler: advance
         } : null,
-        content: /* @__PURE__ */ _(SettingsStep2, { data: settingsRowItems2 })
+        content: /* @__PURE__ */ _(SettingsStep, { data: settingsRowItems })
       };
     },
     duckPlayerSingle: ({ t: t3, advance, beforeAfter }) => {
@@ -12511,7 +11560,7 @@
           text: t3("nextButton"),
           handler: advance
         } : null,
-        content: /* @__PURE__ */ _(SettingsStep2, { data: settingsRowItems2 })
+        content: /* @__PURE__ */ _(SettingsStep, { data: settingsRowItems })
       };
     },
     addressBarMode: ({ t: t3, dismiss }) => {
@@ -12530,7 +11579,7 @@
       };
     }
   };
-  var settingsRowItems2 = {
+  var settingsRowItems = {
     "default-browser": (t3) => ({
       id: "default-browser",
       icon: "v3/Browser-Default-Color-24.svg",
@@ -12623,16 +11672,37 @@
       accepButtonVariant: "primary"
     })
   };
-  var stepDefinitions2 = {
+  var stepDefinitions = {
+    welcome: {
+      id: "welcome",
+      kind: "info"
+    },
+    getStarted: {
+      id: "getStarted",
+      kind: "info"
+    },
+    makeDefaultSingle: {
+      id: "makeDefaultSingle",
+      kind: "settings",
+      rows: ["default-browser"]
+    },
     systemSettings: {
       id: "systemSettings",
       kind: "settings",
       rows: ["dock", "import"]
     },
+    duckPlayerSingle: {
+      id: "duckPlayerSingle",
+      kind: "info"
+    },
     customize: {
       id: "customize",
       kind: "settings",
       rows: ["bookmarks", "session-restore", "home-shortcut"]
+    },
+    addressBarMode: {
+      id: "addressBarMode",
+      kind: "info"
     }
   };
 
@@ -12687,7 +11757,149 @@
   }
 
   // pages/onboarding/app/v3/components/Heading.js
-  var import_classnames10 = __toESM(require_classnames(), 1);
+  var import_classnames7 = __toESM(require_classnames(), 1);
+
+  // pages/onboarding/app/shared/components/Typed.js
+  function Typed({ text, children = null, onComplete = null, paused = false, delay = 20, ...rest }) {
+    const globalState = x2(GlobalContext);
+    const { activeStep } = globalState;
+    const pre = A2(
+      /** @type {string|undefined} */
+      void 0
+    );
+    y2(() => {
+      if (activeStep && pre.current) {
+        if (text === pre.current) {
+          onComplete?.();
+          return;
+        }
+      }
+      pre.current = text;
+    }, [activeStep, text]);
+    return /* @__PURE__ */ _(TypedInner, { key: text, text, onComplete, paused, delay, ...rest }, children);
+  }
+  function TypedInner({ text, onComplete, paused, delay, children, ...rest }) {
+    const { isReducedMotion } = useEnv();
+    const [screenWidth, setScreenWidth] = d2(0);
+    const [coords2, setCoords] = d2({ left: 0, width: 0 });
+    const [complete, setLocalComplete] = d2(false);
+    const [currentText, setCurrentText] = d2("");
+    const [currentIndex, setCurrentIndex] = d2(0);
+    const actual = A2(
+      /** @type {null | HTMLSpanElement } */
+      null
+    );
+    const overlay = A2(
+      /** @type {null | HTMLSpanElement} */
+      null
+    );
+    function localOnComplete() {
+      onComplete?.();
+      setLocalComplete(true);
+    }
+    y2(() => {
+      if (isReducedMotion) {
+        setCurrentText(text);
+        setCurrentIndex(text.length);
+      }
+    }, [isReducedMotion, localOnComplete]);
+    y2(() => {
+      const handler = () => {
+        setScreenWidth(window.innerWidth);
+      };
+      window.addEventListener("resize", handler);
+      return () => {
+        window.removeEventListener("resize", handler);
+      };
+    }, []);
+    y2(() => {
+      if (paused) return () => {
+      };
+      const controller = new AbortController();
+      let enabled2 = true;
+      document.body.addEventListener(
+        "pointerdown",
+        (e3) => {
+          let clickedElement = (
+            /** @type {HTMLElement|null} */
+            e3.target
+          );
+          let level = 0;
+          const maxLevels = 3;
+          while (clickedElement && level < maxLevels) {
+            if (clickedElement.matches("button")) {
+              return;
+            }
+            clickedElement = clickedElement.parentElement;
+            level += 1;
+          }
+          setCurrentText(text);
+          setCurrentIndex(text.length);
+          enabled2 = false;
+        },
+        { signal: controller.signal }
+      );
+      if (currentIndex < text.length) {
+        const timeout = setTimeout(
+          () => {
+            if (!enabled2) return;
+            setCurrentText((prevText) => prevText + text[currentIndex]);
+            setCurrentIndex((prevIndex) => prevIndex + 1);
+          },
+          text[currentIndex] === "\n" ? delay * 10 : delay
+        );
+        return () => {
+          clearTimeout(timeout);
+          controller.abort();
+        };
+      } else {
+        localOnComplete();
+        return () => controller.abort();
+      }
+    }, [currentIndex, delay, text, paused]);
+    function updatePlacement() {
+      const actualCurrent = (
+        /** @type {HTMLSpanElement} */
+        actual.current
+      );
+      const overlayCurrent = (
+        /** @type {HTMLSpanElement} */
+        overlay.current
+      );
+      if (!actualCurrent || !actualCurrent || !overlayCurrent.parentElement) {
+        return;
+      }
+      const actualBox = actualCurrent.getBoundingClientRect();
+      const overlayParentBox = overlayCurrent?.parentElement?.getBoundingClientRect();
+      setCoords({
+        left: actualBox.left - overlayParentBox.left,
+        width: actualBox.width
+      });
+    }
+    y2(() => {
+      updatePlacement();
+    }, [screenWidth]);
+    y2(() => {
+      const update = setInterval(() => updatePlacement(), 50);
+      return () => clearInterval(update);
+    }, []);
+    return /* @__PURE__ */ _("div", { style: { position: "relative", width: "100%", whiteSpace: "pre-line" }, "aria-label": text, ...rest }, /* @__PURE__ */ _("span", { style: { visibility: "hidden", paddingRight: "10px" }, ref: actual }, text), /* @__PURE__ */ _(
+      "span",
+      {
+        ref: overlay,
+        "aria-hidden": false,
+        style: {
+          position: "absolute",
+          top: 0,
+          left: coords2.left,
+          width: coords2.width,
+          whiteSpace: "pre-line"
+        }
+      },
+      currentText,
+      children && /* @__PURE__ */ _("span", { hidden: !complete }, children)
+    ));
+  }
 
   // pages/onboarding/app/v3/components/Heading.module.css
   var Heading_default = {
@@ -12726,7 +11938,7 @@
       setTypingDone(true);
       onComplete && onComplete();
     };
-    const subtitleClass = (0, import_classnames10.default)({
+    const subtitleClass = (0, import_classnames7.default)({
       [Heading_default.subTitle]: true,
       [Heading_default.hidden]: !typingDone
     });
@@ -12793,13 +12005,13 @@
       setAnimationState("typing-done");
       onComplete && onComplete();
     };
-    const titleClass = (0, import_classnames10.default)(["bubbleTitle", Heading_default.title]);
-    const subtitleClass = (0, import_classnames10.default)({
+    const titleClass = (0, import_classnames7.default)(["bubbleTitle", Heading_default.title]);
+    const subtitleClass = (0, import_classnames7.default)({
       bubbleSubtitle: true,
       [Heading_default.subTitle]: true,
       [Heading_default.hidden]: animationState !== "typing-done"
     });
-    const childrenClass = (0, import_classnames10.default)({
+    const childrenClass = (0, import_classnames7.default)({
       bubbleChildren: true,
       [Heading_default.additionalContent]: true,
       [Heading_default.hidden]: animationState !== "typing-done"
@@ -12824,6 +12036,21 @@
     return /* @__PURE__ */ _("div", { className: Heading_default.titleContainer }, title.map((text, index) => /* @__PURE__ */ _(Typed, { key: index, onComplete: onTypingComplete, text, paused: paused || textIndex < index })));
   }
 
+  // pages/onboarding/app/shared/components/Progress.module.css
+  var Progress_default = {
+    progressContainer: "Progress_progressContainer",
+    "fade-in": "Progress_fade-in",
+    count: "Progress_count",
+    progress: "Progress_progress",
+    singleLineContainer: "Progress_singleLineContainer"
+  };
+
+  // pages/onboarding/app/shared/components/Progress.js
+  var import_classnames8 = __toESM(require_classnames(), 1);
+  function SingleLineProgress({ total, current }) {
+    return /* @__PURE__ */ _("div", { className: (0, import_classnames8.default)([Progress_default.progressContainer, Progress_default.singleLineContainer]) }, /* @__PURE__ */ _("div", { className: Progress_default.count }, current, " / ", total), /* @__PURE__ */ _("progress", { className: Progress_default.progress, max: total, value: current }, "(Page ", current, " of circa ", total, ")"));
+  }
+
   // pages/onboarding/app/v3/components/SingleStep.module.css
   var SingleStep_default = {
     panel: "SingleStep_panel",
@@ -12840,12 +12067,12 @@
 
   // pages/onboarding/app/v3/components/SingleStep.js
   function StepGrid({ progress, dismissButton, acceptButton, children }) {
-    return /* @__PURE__ */ _("div", { className: SingleStep_default.container }, /* @__PURE__ */ _("div", { className: SingleStep_default.content }, /* @__PURE__ */ _(Stack, { animate: true }, children)), /* @__PURE__ */ _("div", { className: SingleStep_default.progress }, /* @__PURE__ */ _(SingleLineProgress, { current: progress.current, total: progress.total })), /* @__PURE__ */ _("div", { className: SingleStep_default.buttonBar }, (dismissButton || acceptButton) && /* @__PURE__ */ _(SlideIn2, null, /* @__PURE__ */ _("div", { class: SingleStep_default.buttonBarContents }, /* @__PURE__ */ _("div", { className: SingleStep_default.dismiss }, dismissButton), /* @__PURE__ */ _("div", { className: SingleStep_default.accept }, acceptButton)))));
+    return /* @__PURE__ */ _("div", { className: SingleStep_default.container }, /* @__PURE__ */ _("div", { className: SingleStep_default.content }, /* @__PURE__ */ _(Stack, { animate: true }, children)), /* @__PURE__ */ _("div", { className: SingleStep_default.progress }, /* @__PURE__ */ _(SingleLineProgress, { current: progress.current, total: progress.total })), /* @__PURE__ */ _("div", { className: SingleStep_default.buttonBar }, (dismissButton || acceptButton) && /* @__PURE__ */ _(SlideIn, null, /* @__PURE__ */ _("div", { class: SingleStep_default.buttonBarContents }, /* @__PURE__ */ _("div", { className: SingleStep_default.dismiss }, dismissButton), /* @__PURE__ */ _("div", { className: SingleStep_default.accept }, acceptButton)))));
   }
   function SingleStep() {
     const dispatch = useGlobalDispatch();
     const { variant, heading, dismissButton, acceptButton, content, progress } = useStepConfig();
-    const classes = (0, import_classnames11.default)({
+    const classes = (0, import_classnames9.default)({
       [SingleStep_default.panel]: true,
       [SingleStep_default.boxed]: variant === "box"
     });
@@ -12873,13 +12100,13 @@
   }
 
   // pages/onboarding/app/v3/App.module.css
-  var App_default2 = {
-    main: "App_main2",
-    container: "App_container2"
+  var App_default = {
+    main: "App_main",
+    container: "App_container"
   };
 
   // pages/onboarding/app/v3/App.js
-  function App2({ children }) {
+  function App({ children }) {
     const { debugState } = useEnv();
     const platformName = usePlatformName();
     const globalState = x2(GlobalContext);
@@ -12902,10 +12129,10 @@
         advance();
       }
     };
-    return /* @__PURE__ */ _("main", { className: App_default2.main, "data-platform-name": platformName || "macos", "data-app-version": "2" }, /* @__PURE__ */ _(Background2, null), debugState && /* @__PURE__ */ _(Debug2, { state: globalState }), /* @__PURE__ */ _(
+    return /* @__PURE__ */ _("main", { className: App_default.main, "data-platform-name": platformName || "macos", "data-app-version": "2" }, /* @__PURE__ */ _(Background, null), debugState && /* @__PURE__ */ _(Debug, { state: globalState }), /* @__PURE__ */ _(
       "div",
       {
-        className: App_default2.container,
+        className: App_default.container,
         "data-current": activeStep,
         "data-exiting": String(exiting),
         "data-step-visible": activeStepVisible,
@@ -12915,7 +12142,7 @@
       /* @__PURE__ */ _(ErrorBoundary, { didCatch, fallback: /* @__PURE__ */ _(Fallback, null) }, /* @__PURE__ */ _(BeforeAfterProvider, null, /* @__PURE__ */ _(SingleStep, null)))
     ), (step.id === "welcome" || step.id === "getStarted") && /* @__PURE__ */ _(Hiker, null), children);
   }
-  function Debug2(props) {
+  function Debug(props) {
     const { order, step, exiting, activeStep, nextStep } = props.state;
     const debugData = { order, step, exiting, activeStep, nextStep };
     return /* @__PURE__ */ _("div", { style: { position: "absolute", top: 0, right: 0, overflowY: "scroll", height: "100vh", zIndex: 1e4 } }, /* @__PURE__ */ _("pre", null, /* @__PURE__ */ _("code", null, JSON.stringify(debugData, null, 2))));
@@ -12935,138 +12162,13 @@
   }
 
   // pages/onboarding/app/Components.js
-  var import_classnames12 = __toESM(require_classnames(), 1);
   function noop(name) {
     return () => {
       console.log("clicked " + name);
     };
   }
   function Components() {
-    const { t: t3 } = useTypedTranslation();
-    return /* @__PURE__ */ _("main", { className: App_default.main }, /* @__PURE__ */ _(Background, null), /* @__PURE__ */ _("div", { class: App_default.container }, /* @__PURE__ */ _(Stack, { gap: "var(--sp-8)" }, /* @__PURE__ */ _("p", null, /* @__PURE__ */ _("a", { href: "?env=app" }, "Onboarding Flow")), /* @__PURE__ */ _(Header, null, /* @__PURE__ */ _(Typed, { text: t3("welcome_title") })), /* @__PURE__ */ _(Header, null, /* @__PURE__ */ _(Typed, { text: t3("getStarted_title", { newline: "\n" }) })), /* @__PURE__ */ _(Header, null, /* @__PURE__ */ _(Typed, { text: t3("privateByDefault_title", { newline: "\n" }) })), /* @__PURE__ */ _(Header, null, /* @__PURE__ */ _(Typed, { text: t3("cleanerBrowsing_title", { newline: "\n" }) })), /* @__PURE__ */ _(Header, null, /* @__PURE__ */ _(Typed, { text: t3("systemSettings_title") })), /* @__PURE__ */ _(Header, null, /* @__PURE__ */ _(Typed, { text: t3("customize_title") })), /* @__PURE__ */ _(Header, null, /* @__PURE__ */ _(Typed, { text: t3("summary_title") })), /* @__PURE__ */ _(Progress, { current: 1, total: 4 }), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _(CleanBrowsing, { onNextPage: console.log })), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("p", null, "On Light"), /* @__PURE__ */ _(AllSwitches, { theme: "light" })), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("p", null, "On Dark"), /* @__PURE__ */ _("div", { style: "background: #333; padding: 1rem;" }, /* @__PURE__ */ _(AllSwitches, { theme: "dark" }))), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { size: "large" }, "L Button"), /* @__PURE__ */ _(Button, { size: "large", variant: "secondary" }, "L Button")), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { size: "xl" }, "XL Button"), /* @__PURE__ */ _(Button, { size: "xl" }, "XL Button + ", /* @__PURE__ */ _(Launch, null))), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "search.png",
-        title: "Private Search",
-        secondaryText: "We don't track you. Ever.",
-        inline: /* @__PURE__ */ _(BounceIn, null, /* @__PURE__ */ _(Check, null))
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "shield.png",
-        title: "Advanced Tracking Protection",
-        secondaryText: "We block most trackers before they even load."
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "cookie.png",
-        title: "Automatic Cookie Pop-Up Blocking",
-        secondaryText: "We deny optional cookies for you & hide pop-ups."
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "switch.png",
-        title: "Switch your default browser",
-        secondaryText: "Always browse privately by default."
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "bookmarks.png",
-        title: "Put your bookmarks in easy reach",
-        secondaryText: "Show a bookmarks bar with your favorite bookmarks."
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "session-restore.png",
-        title: "Pick up where you left off",
-        secondaryText: "Always restart with all windows from your last session."
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "home.png",
-        title: "Add a shortcut to your homepage",
-        secondaryText: "Show a home button in your toolbar"
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "shield.png",
-        title: "Advanced Tracking Protection",
-        secondaryText: "We block most trackers before they even load."
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "import.png",
-        title: "Bring your stuff",
-        secondaryText: "Import bookmarks, favorites, and passwords."
-      }
-    ), /* @__PURE__ */ _("div", { style: { width: "480px" } }, /* @__PURE__ */ _(List, null, /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "search.png",
-        title: "Private Search",
-        secondaryText: "We don't track you. Ever.",
-        inline: /* @__PURE__ */ _(Check, null)
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "shield.png",
-        title: "Advanced Tracking Protection",
-        secondaryText: "We block most trackers before they even load.",
-        inline: /* @__PURE__ */ _(Check, null)
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "cookie.png",
-        title: "Automatic Cookie Pop-Up Blocking",
-        secondaryText: "We deny optional cookies for you & hide pop-ups.",
-        inline: /* @__PURE__ */ _(Check, null)
-      }
-    ))), /* @__PURE__ */ _("div", { style: { width: "480px" } }, /* @__PURE__ */ _(List, null, /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "dock.png",
-        title: "Keep DuckDuckGo in your Dock",
-        secondaryText: "Get to DuckDuckGo faster",
-        inline: /* @__PURE__ */ _(Check, null)
-      }
-    ), /* @__PURE__ */ _(
-      ListItem,
-      {
-        icon: "import.png",
-        title: "Bring your stuff",
-        secondaryText: "Import bookmarks, favorites, and passwords."
-      },
-      /* @__PURE__ */ _(ListItem.Indent, null, /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { variant: "secondary" }, "Skip"), /* @__PURE__ */ _(Button, { variant: "secondary" }, "Import")))
-    ))), /* @__PURE__ */ _("div", { style: { width: "480px" } }, /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _(List, null, Object.keys(settingsRowItems).map((key) => {
-      return /* @__PURE__ */ _(
-        ListItem,
-        {
-          icon: settingsRowItems[key](t3).icon,
-          title: settingsRowItems[key](t3).title,
-          secondaryText: settingsRowItems[key](t3).secondaryText
-        }
-      );
-    })))), /* @__PURE__ */ _("div", { style: { width: "480px" } }, /* @__PURE__ */ _(Stack, null, /* @__PURE__ */ _(List, null, /* @__PURE__ */ _(ListItem, { icon: "browsing.png", title: "While browsing the web", inline: /* @__PURE__ */ _(Check, null) }), /* @__PURE__ */ _(ListItem, { icon: "duckplayer.png", title: "While watching YouTube", inline: /* @__PURE__ */ _(Check, null) })), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(Button, { onClick: noop("next page"), size: "large" }, "Next")))), /* @__PURE__ */ _(
-      Summary,
-      {
-        onDismiss: noop("onDismiss"),
-        onSettings: noop("onSettings"),
-        values: {
-          dock: { enabled: true },
-          "session-restore": { enabled: true }
-        }
-      }
-    ), /* @__PURE__ */ _("h2", { style: { fontSize: "24px", fontWeight: "bold" } }, "V3 - Highlights"), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!" }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", subtitle: "Let's get you set up..." }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", subtitle: "Let's get you set up..." }, /* @__PURE__ */ _(ElasticButton, { text: "Next", elastic: true })), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", speechBubble: true }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", subtitle: "Let's get you set up...", speechBubble: true }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", speechBubble: true }, /* @__PURE__ */ _(ElasticButton, { text: "Next", elastic: true })), /* @__PURE__ */ _(SingleLineProgress, { current: 2, total: 5 }), /* @__PURE__ */ _(ComparisonTable, null), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(ElasticButton, { variant: "secondary", text: "Skip", elastic: false }), /* @__PURE__ */ _(ElasticButton, { variant: "secondary", text: "Replay", startIcon: /* @__PURE__ */ _(Replay, null), elastic: false }), /* @__PURE__ */ _(ElasticButton, { variant: "secondary", text: "Replay", endIcon: /* @__PURE__ */ _(Replay, { direction: "forward" }), elastic: false })), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(ElasticButton, { text: "Next", elastic: true }), /* @__PURE__ */ _(ElasticButton, { text: "Start Browsing", startIcon: /* @__PURE__ */ _(Launch, null), elastic: true }), /* @__PURE__ */ _(ElasticButton, { text: "Start Browsing", endIcon: /* @__PURE__ */ _(Launch, null), elastic: true })), /* @__PURE__ */ _("div", { style: { position: "relative", overflow: "hidden", width: "400px", height: "400px" } }, /* @__PURE__ */ _(Hiker, null))), /* @__PURE__ */ _("div", { style: { height: "100px" } })), /* @__PURE__ */ _("div", { className: (0, import_classnames12.default)(App_default.foreground, App_default.layer1) }), /* @__PURE__ */ _("div", { className: (0, import_classnames12.default)(App_default.foreground, App_default.layer2) }), /* @__PURE__ */ _("div", { className: (0, import_classnames12.default)(App_default.foreground, App_default.layer3) }));
+    return /* @__PURE__ */ _("main", { className: App_default.main, "data-app-version": "2" }, /* @__PURE__ */ _(Background, null), /* @__PURE__ */ _("div", { class: App_default.container }, /* @__PURE__ */ _(Stack, { gap: "var(--sp-8)" }, /* @__PURE__ */ _("p", null, /* @__PURE__ */ _("a", { href: "?env=app" }, "Onboarding Flow")), /* @__PURE__ */ _("h2", { style: { fontSize: "24px", fontWeight: "bold" } }, "V3 Components"), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!" }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", subtitle: "Let's get you set up..." }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", subtitle: "Let's get you set up..." }, /* @__PURE__ */ _(ElasticButton, { text: "Next", elastic: true })), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", speechBubble: true }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", subtitle: "Let's get you set up...", speechBubble: true }), /* @__PURE__ */ _(Heading, { title: "Welcome to DuckDuckGo!", speechBubble: true }, /* @__PURE__ */ _(ElasticButton, { text: "Next", elastic: true })), /* @__PURE__ */ _(SingleLineProgress, { current: 2, total: 5 }), /* @__PURE__ */ _(ComparisonTable, null), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(ElasticButton, { variant: "secondary", text: "Skip", elastic: false }), /* @__PURE__ */ _(ElasticButton, { variant: "secondary", text: "Replay", startIcon: /* @__PURE__ */ _(Replay, null), elastic: false }), /* @__PURE__ */ _(ElasticButton, { variant: "secondary", text: "Replay", endIcon: /* @__PURE__ */ _(Replay, { direction: "forward" }), elastic: false })), /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(ElasticButton, { text: "Next", elastic: true }), /* @__PURE__ */ _(ElasticButton, { text: "Start Browsing", startIcon: /* @__PURE__ */ _(Launch, null), elastic: true }), /* @__PURE__ */ _(ElasticButton, { text: "Start Browsing", endIcon: /* @__PURE__ */ _(Launch, null), elastic: true })), /* @__PURE__ */ _("div", { style: { position: "relative", overflow: "hidden", width: "400px", height: "400px" } }, /* @__PURE__ */ _(Hiker, null)), /* @__PURE__ */ _("h2", { style: { fontSize: "24px", fontWeight: "bold" } }, "Switches"), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("p", null, "On Light"), /* @__PURE__ */ _(AllSwitches, { theme: "light" })), /* @__PURE__ */ _("div", null, /* @__PURE__ */ _("p", null, "On Dark"), /* @__PURE__ */ _("div", { style: "background: #333; padding: 1rem;" }, /* @__PURE__ */ _(AllSwitches, { theme: "dark" })))), /* @__PURE__ */ _("div", { style: { height: "100px" } })));
   }
   function AllSwitches({ theme = "light" }) {
     return /* @__PURE__ */ _(ButtonBar, null, /* @__PURE__ */ _(
@@ -14476,23 +13578,23 @@
      * @param {object} params
      * @param {{name: 'macos' | 'windows'}} [params.platform]
      * @param {import('./types.js').Step['id'][]} [params.order] - determine the order of screens
-     * @param {'v1'|'v2'|'v3'} [params.orderName] - determine the order of screens
+     * @param {'v3'} [params.orderName] - determine the order of screens
      * @param {import('./types.js').Step['id'][]} [params.exclude] - a list of screens to exclude
      * @param {import('./types.js').Step['id']} [params.first] - choose which screen to start on
-     * @param {import('./v1/data/data.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
+     * @param {import('./types.js').StepDefinitions} [params.stepDefinitions] - individual data for each step, eg: which rows to show
      */
     constructor({
       platform = { name: "macos" },
-      order = DEFAULT_ORDER,
-      orderName = "v1",
-      stepDefinitions: stepDefinitions3 = stepDefinitions,
+      order = ORDER_V3,
+      orderName = "v3",
+      stepDefinitions: stepDefinitions2 = stepDefinitions,
       first = "welcome",
       exclude = []
     } = {}) {
       this.platform = platform;
       this.order = order;
       this.orderName = orderName;
-      this.stepDefinitions = stepDefinitions3;
+      this.stepDefinitions = stepDefinitions2;
       this.first = first;
       this.exclude = exclude;
     }
@@ -14543,29 +13645,14 @@
      */
     withNamedOrder(named) {
       if (!named) return this;
-      if (named === "v1") {
-        return new _Settings({
-          ...this,
-          orderName: named,
-          order: DEFAULT_ORDER
-        });
-      }
-      if (named === "v2") {
-        return new _Settings({
-          ...this,
-          orderName: named,
-          order: ALT_ORDER
-        });
-      }
       if (named === "v3") {
         return new _Settings({
           ...this,
           orderName: named,
           order: ORDER_V3
         });
-      } else {
-        console.warn("ignoring named order:", named);
       }
+      console.warn("ignoring named order:", named);
       return this;
     }
     /**
@@ -14602,14 +13689,14 @@
       return this;
     }
     /**
-     * @param {import('./v1/data/data.js').StepDefinitions | Record<string, any> | null | undefined} stepDefinitions
+     * @param {import('./types.js').StepDefinitions | Record<string, any> | null | undefined} stepDefinitions
      * @return {Settings}
      */
-    withStepDefinitions(stepDefinitions3) {
-      if (!stepDefinitions3) return this;
-      if (!Object.keys(stepDefinitions3)?.length) return this;
+    withStepDefinitions(stepDefinitions2) {
+      if (!stepDefinitions2) return this;
+      if (!Object.keys(stepDefinitions2)?.length) return this;
       const nextSteps = { ...this.stepDefinitions };
-      for (const [key, value] of Object.entries(stepDefinitions3 || {})) {
+      for (const [key, value] of Object.entries(stepDefinitions2 || {})) {
         if (!this.order.includes(
           /** @type {any} */
           key
@@ -14668,17 +13755,17 @@
         );
         switch (msg.method) {
           case "init": {
-            const stepDefinitions3 = {};
+            const stepDefinitions2 = {};
             const adBlocking = url.searchParams.get("adBlocking");
             if (adBlocking === "placebo" || adBlocking === "aggressive" || adBlocking === "youtube") {
-              stepDefinitions3.systemSettings = {
+              stepDefinitions2.systemSettings = {
                 id: "systemSettings",
                 kind: "settings",
                 rows: ["dock", "import", `${adBlocking}-ad-blocking`]
               };
             }
             return Promise.resolve({
-              stepDefinitions: stepDefinitions3,
+              stepDefinitions: stepDefinitions2,
               exclude: [],
               order: "v3",
               locale: "en",
@@ -14730,8 +13817,7 @@
       console.error("Could not load locale", environment.locale, e3);
       return onboarding_default;
     });
-    const settings = new Settings().withPlatformName(baseEnvironment.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment.urlParams.get("platform")).withStepDefinitions(init2.order === "v3" ? stepDefinitions2 : null).withStepDefinitions(init2.stepDefinitions).withNamedOrder(init2.order).withNamedOrder(environment.urlParams.get("order")).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page"));
-    const AppComponent = settings.orderName === "v3" ? App2 : App;
+    const settings = new Settings().withPlatformName(baseEnvironment.injectName).withPlatformName(init2.platform?.name).withPlatformName(baseEnvironment.urlParams.get("platform")).withStepDefinitions(stepDefinitions).withStepDefinitions(init2.stepDefinitions).withNamedOrder(init2.order).withNamedOrder(environment.urlParams.get("order")).withExcludedScreens(init2.exclude).withExcludedScreens(environment.urlParams.getAll("exclude")).withFirst(environment.urlParams.get("page"));
     const root2 = document.querySelector("#app");
     if (!root2) throw new Error("could not render, root element missing");
     if (environment.display === "app") {
@@ -14744,7 +13830,7 @@
             stepDefinitions: settings.stepDefinitions,
             firstPage: settings.first
           },
-          /* @__PURE__ */ _(AppComponent, null, environment.env === "development" && /* @__PURE__ */ _(SkipLink, null))
+          /* @__PURE__ */ _(App, null, environment.env === "development" && /* @__PURE__ */ _(SkipLink, null))
         )))),
         root2
       );

@@ -1288,6 +1288,7 @@
     "messageBridge",
     "favicon",
     "breakageReporting",
+    "print",
     "webInterferenceDetection"
   ];
   function isPlatformSpecificFeature(featureName) {
@@ -1360,11 +1361,12 @@
       "autofillImport",
       "favicon",
       "webTelemetry",
-      "pageContext"
+      "pageContext",
+      "print"
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webDetection", "webInterferenceDetection", "pageContext"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webDetection", "webInterferenceDetection", "pageContext", "print"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",

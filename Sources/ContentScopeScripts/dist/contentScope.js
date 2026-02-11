@@ -1347,6 +1347,7 @@
     "messageBridge",
     "favicon",
     "breakageReporting",
+    "print",
     "webInterferenceDetection"
   ];
   function isPlatformSpecificFeature(featureName) {
@@ -1429,11 +1430,12 @@
       "autofillImport",
       "favicon",
       "webTelemetry",
-      "pageContext"
+      "pageContext",
+      "print"
     ]
   );
   var platformSupport = {
-    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webDetection", "webInterferenceDetection", "pageContext"],
+    apple: ["webCompat", "duckPlayerNative", ...baseFeatures, "webDetection", "webInterferenceDetection", "pageContext", "print"],
     "apple-isolated": [
       "duckPlayer",
       "duckPlayerNative",
@@ -10964,6 +10966,26 @@ ${iframeContent}
   _delayedRecheckTimer = new WeakMap();
   _activeCapture = new WeakMap();
 
+  // src/features/print.js
+  init_define_import_meta_trackerLookup();
+  var Print = class extends ContentFeature {
+    init() {
+      if (this.platform?.name === "macos") {
+        return;
+      }
+      const notify = this.notify.bind(this);
+      this.defineProperty(window, "print", {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: function print() {
+          notify("print");
+        }
+      });
+    }
+  };
+  var print_default = Print;
+
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
     ddg_feature_webCompat: web_compat_default,
@@ -10983,7 +11005,8 @@ ${iframeContent}
     ddg_feature_apiManipulation: ApiManipulation,
     ddg_feature_webDetection: WebDetection,
     ddg_feature_webInterferenceDetection: WebInterferenceDetection,
-    ddg_feature_pageContext: PageContext
+    ddg_feature_pageContext: PageContext,
+    ddg_feature_print: print_default
   };
 
   // src/url-change.js

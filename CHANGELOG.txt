@@ -1,2 +1,4 @@
-- youtube ad/issue detection (#2218)
-- Symlink CLAUDE.md → AGENTS.md (#2229)
+- Migrate iOS print handler from native (#2237)
+- Onboarding: Add screenshot tests for v3 flow (#2198)
+- Add error-handling.mdc rule for intentional error management (#2241)
+- Remove onboarding v1 and v2 flows (#2238)
