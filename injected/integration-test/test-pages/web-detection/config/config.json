@@ -117,7 +117,7 @@
                                 }
                             }
                         },
-                        "first_success": {
+                        "delayed_content": {
                             "match": {
                                 "text": {
                                     "pattern": "first success test"
@@ -127,24 +127,7 @@
                                 "auto": {
                                     "state": "enabled",
                                     "when": {
-                                        "mode": "first-success",
                                         "intervalMs": [100, 200, 300]
-                                    }
-                                }
-                            }
-                        },
-                        "always_repeat": {
-                            "match": {
-                                "text": {
-                                    "pattern": "always repeat test"
-                                }
-                            },
-                            "triggers": {
-                                "auto": {
-                                    "state": "enabled",
-                                    "when": {
-                                        "mode": "always",
-                                        "intervalMs": [100, 200]
                                     }
                                 }
                             }

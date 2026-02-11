@@ -294,61 +294,24 @@ test.describe('WebDetection Feature', () => {
             }
         });
 
-        test('first-success strategy stops running after first match', async ({ page }, testInfo) => {
+        test('stops running after first successful match', async ({ page }, testInfo) => {
             const { helper } = await WebDetectionTestHelper.setupAutoRunTest(page, testInfo.project.use);
             await helper.navigateTo('/web-detection/pages/auto-run-delayed.html');
 
             // Fast-forward timers (content is added at 150ms)
             await page.clock.fastForward(100); // First run - no match yet
             await page.clock.fastForward(100); // Now at 200ms - content added, second run matches
-            await page.clock.fastForward(100); // Now at 300ms - should be skipped
+            await page.clock.fastForward(100); // Now at 300ms - should be skipped due to first-success
 
             const notifications = await helper.getAutoRunNotifications();
 
-            // autorun.first_success should detect after content loads
-            const firstSuccessRuns = notifications.filter((n) => n.detectorId === 'autorun.first_success');
-            expect(firstSuccessRuns.length).toBeGreaterThanOrEqual(1);
+            // autorun.delayed_content should detect after content loads
+            const delayedRuns = notifications.filter((n) => n.detectorId === 'autorun.delayed_content');
+            expect(delayedRuns.length).toBeGreaterThanOrEqual(1);
 
             // Should have at least one successful detection (after content loads at 150ms)
-            const successfulRuns = firstSuccessRuns.filter((n) => n.detected === true);
+            const successfulRuns = delayedRuns.filter((n) => n.detected === true);
             expect(successfulRuns.length).toBeGreaterThanOrEqual(1);
-        });
-
-        test('always strategy continues running after match', async ({ page }, testInfo) => {
-            const collector = ResultsCollector.create(page, testInfo.project.use);
-
-            collector.withMockResponse({
-                webDetectionAutoRun: null,
-            });
-
-            await page.clock.install();
-            await collector.load('/web-detection/index.html', CONFIG);
-            const helper = new WebDetectionTestHelper(page, collector);
-
-            // Navigate to a page with matching content
-            await helper.navigateTo('/web-detection/pages/auto-run-always.html');
-
-            // Fast-forward timers (intervals are 100ms and 200ms)
-            await page.clock.fastForward(100);
-            await page.clock.fastForward(100); // Now at 200ms
-
-            const calls = await collector.outgoingMessages();
-            const autoRunNotifications = calls.filter((c) => {
-                const payload = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (c.payload);
-                return payload.method === 'webDetectionAutoRun';
-            });
-
-            // autorun.always_repeat should run multiple times and detect each time
-            const alwaysRuns = autoRunNotifications.filter((m) => {
-                const payload = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (m.payload);
-                return payload.params?.detectorId === 'autorun.always_repeat';
-            });
-            expect(alwaysRuns.length).toBeGreaterThanOrEqual(1);
-            // All runs should detect the matching content
-            for (const msg of alwaysRuns) {
-                const payload = /** @type {import("@duckduckgo/messaging").NotificationMessage} */ (msg.payload);
-                expect(payload.params?.detected).toBe(true);
-            }
         });
 
         test('disabled auto trigger does not run', async ({ page }, testInfo) => {
@@ -376,6 +339,10 @@ test.describe('WebDetection Feature', () => {
             expect(autorunDetectors.basic_auto.triggers.auto.state).toBe('enabled');
             expect(autorunDetectors.basic_auto.triggers.auto.when).toBeDefined();
             expect(autorunDetectors.basic_auto.triggers.auto.when.intervalMs).toEqual([100, 300]);
+            
+            // Verify delayed_content detector exists
+            expect(autorunDetectors.delayed_content).toBeDefined();
+            expect(autorunDetectors.delayed_content.triggers.auto.when.intervalMs).toEqual([100, 200, 300]);
 
             // Load and verify no errors
             await collector.load('/web-detection/index.html', config);

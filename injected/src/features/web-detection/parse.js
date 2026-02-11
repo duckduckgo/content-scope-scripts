@@ -36,7 +36,6 @@ import { withDefaults } from '../../utils.js';
 /**
  * @typedef {TriggerBase & {
  *  when: {
- *    mode: AutoMode;
  *    intervalMs: number[];
  *  };
  * }} AutoTrigger
@@ -105,9 +104,6 @@ const DEFAULTS = {
         auto: {
             state: /** @type {FeatureState} */ ('disabled'),
             runConditions: DEFAULT_RUN_CONDITIONS,
-            when: {
-                mode: /** @type {AutoMode} */ ('first-success'),
-            },
         },
     },
     actions: {
