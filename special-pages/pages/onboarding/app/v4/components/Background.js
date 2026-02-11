@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { useContext } from 'preact/hooks';
+import cn from 'classnames';
 import { GlobalContext } from '../../global';
 import { ORDER_V4 } from '../../types';
 import styles from './Background.module.css';
@@ -17,7 +18,7 @@ export function Background() {
     return (
         <div class={styles.background}>
             <div
-                class={styles.illustration}
+                class={cn(styles.illustration, activeStep === 'welcome' && styles.welcomeAnimation)}
                 style={{
                     '--bg-light': `url("../assets/img/v4/background-${stepNumber}-light.svg")`,
                     '--bg-dark': `url("../assets/img/v4/background-${stepNumber}-dark.svg")`,

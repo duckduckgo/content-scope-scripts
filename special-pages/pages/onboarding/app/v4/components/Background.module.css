@@ -29,3 +29,31 @@
         background-image: var(--bg-dark);
     }
 }
+
+.welcomeAnimation {
+    animation: welcome-bg-slide 3.733s both, welcome-bg-opacity 3.733s both;
+}
+
+@keyframes welcome-bg-slide {
+    0%, 3.57% {
+        translate: 325px 204px;
+        animation-timing-function: cubic-bezier(0.10, 0.85, 0.64, 0.99);
+    }
+    22.32%, 81.25% {
+        translate: 0 0;
+        animation-timing-function: cubic-bezier(0.10, 0.85, 0.64, 0.99);
+    }
+    100% {
+        translate: 325px 204px;
+    }
+}
+
+@keyframes welcome-bg-opacity {
+    0%, 81.25% {
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
+    }
+    91.96%, 100% {
+        opacity: 0;
+    }
+}

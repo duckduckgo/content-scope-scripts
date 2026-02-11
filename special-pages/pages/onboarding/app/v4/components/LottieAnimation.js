@@ -13,8 +13,9 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
  * @param {boolean} [props.loop] - Whether to loop the animation
  * @param {() => void} [props.onComplete] - Called when the animation finishes (if not looping)
  * @param {string} [props.label] - Accessible label for the animation
+ * @param {string} [props.class] - CSS class name for the container
  */
-export function LottieAnimation({ src, width, height, loop = false, onComplete, label }) {
+export function LottieAnimation({ src, width, height, loop = false, onComplete, label, class: className }) {
     const ref = useRef(/** @type {HTMLDivElement | null} */ (null));
     const { isReducedMotion } = useEnv();
 
@@ -47,6 +48,7 @@ export function LottieAnimation({ src, width, height, loop = false, onComplete, 
     return (
         <div
             ref={ref}
+            class={className}
             role={label ? 'img' : 'presentation'}
             aria-label={label}
             aria-hidden={label ? undefined : 'true'}
