@@ -4,6 +4,8 @@ import { SettingsContent } from '../components/SettingsContent';
 import { DuckPlayerContent } from '../components/DuckPlayerContent';
 import { AddressBarContent } from '../components/AddressBarContent';
 import { WelcomeContent } from '../components/WelcomeContent';
+import { GetStartedContent } from '../components/GetStartedContent';
+import { DaxIllustration } from '../components/DaxIllustration';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -19,15 +21,11 @@ export const stepsConfig = {
             content: <WelcomeContent onComplete={advance} />,
         };
     },
-    getStarted: ({ t, advance }) => {
+    getStarted: ({ advance }) => {
         return {
-            topBubble: (
-                <Fragment>
-                    <h2>{t('getStarted_title_v3', { newline: '\n' }).split('{paragraph}')[0]}</h2>
-                    <p>{t('getStarted_title_v3', { newline: '\n' }).split('{paragraph}').slice(1).join('')}</p>
-                    <button onClick={advance}>{t('getStartedButton_v3')}</button>
-                </Fragment>
-            ),
+            content: <DaxIllustration />,
+            topBubble: <GetStartedContent onAdvance={advance} />,
+            topBubbleTail: 'bottom-left',
         };
     },
     makeDefaultSingle: () => {

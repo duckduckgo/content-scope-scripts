@@ -1,3 +1,23 @@
 .layout {
-    /* styling TBD */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    padding-top: var(--sp-14); /* 56px */
+    padding-bottom: var(--sp-16); /* 64px */
+    gap: var(--sp-2); /* 8px */
+    box-sizing: border-box;
+}
+
+.bubbleColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 493px;
+    padding-left: 72px;
+    padding-right: 72px;
+    box-sizing: border-box;
+    gap: var(--sp-2); /* 8px */
 }

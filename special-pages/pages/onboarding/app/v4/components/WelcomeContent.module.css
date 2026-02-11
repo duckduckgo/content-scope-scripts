@@ -13,7 +13,7 @@
 /* --- Title --- */
 
 .title {
-    font-family: 'DuckSansDisplay', system-ui, sans-serif;
+    font-family: var(--font-display);
     font-size: var(--sp-11);
     font-weight: 500;
     line-height: var(--sp-11);
