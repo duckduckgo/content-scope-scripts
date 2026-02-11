@@ -12,7 +12,7 @@ import { Replay } from '../../shared/components/Icons';
 export function DuckPlayerContent() {
     const { t } = useTypedTranslation();
     const dispatch = useContext(GlobalDispatch);
-    const { getStep, toggleStep } = useBeforeAfter();
+    const { getStep, setStep } = useBeforeAfter();
 
     const beforeAfterState = getStep('duckPlayerSingle');
 
@@ -30,11 +30,13 @@ export function DuckPlayerContent() {
             </div>
 
             <div>
-                <button type="button" aria-label={longestText} onClick={() => toggleStep('duckPlayerSingle')}>
-                    <Replay direction={beforeAfterState === 'before' || !beforeAfterState ? 'forward' : 'backward'} />
-                    {beforeAfterState === 'before' || !beforeAfterState
-                        ? t('beforeAfter_duckPlayer_show')
-                        : t('beforeAfter_duckPlayer_hide')}
+                <button
+                    type="button"
+                    aria-label={longestText}
+                    onClick={() => setStep('duckPlayerSingle', beforeAfterState === 'after' ? 'before' : 'after')}
+                >
+                    <Replay direction={beforeAfterState === 'after' ? 'backward' : 'forward'} />
+                    {beforeAfterState === 'after' ? t('beforeAfter_duckPlayer_hide') : t('beforeAfter_duckPlayer_show')}
                 </button>
                 <button type="button" onClick={advance}>
                     {t('nextButton')}
