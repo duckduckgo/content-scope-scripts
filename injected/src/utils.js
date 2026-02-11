@@ -829,7 +829,15 @@ export function isGloballyDisabled(args) {
  * @import {FeatureName} from "./features";
  * @type {FeatureName[]}
  */
-export const platformSpecificFeatures = ['navigatorInterface', 'windowsPermissionUsage', 'messageBridge', 'favicon', 'breakageReporting'];
+export const platformSpecificFeatures = [
+    'navigatorInterface',
+    'windowsPermissionUsage',
+    'messageBridge',
+    'favicon',
+    'breakageReporting',
+    'print',
+    'webInterferenceDetection',
+];
 
 export function isPlatformSpecificFeature(featureName) {
     return platformSpecificFeatures.includes(featureName);
