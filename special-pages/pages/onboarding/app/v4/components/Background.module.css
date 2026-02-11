@@ -30,16 +30,30 @@
     }
 }
 
-.welcomeAnimation {
-    animation: welcome-bg-slide 3.733s both, welcome-bg-opacity 3.733s both;
+/* --- Intro: slide in from bottom-right offset --- */
+
+.intro {
+    animation: bg-intro-slide 0.7s both;
 }
 
-@keyframes welcome-bg-slide {
-    0%, 3.57% {
+@keyframes bg-intro-slide {
+    0% {
         translate: 325px 204px;
         animation-timing-function: cubic-bezier(0.10, 0.85, 0.64, 0.99);
     }
-    22.32%, 81.25% {
+    100% {
+        translate: 0 0;
+    }
+}
+
+/* --- Outro: slide out to bottom-right + fade --- */
+
+.outro {
+    animation: bg-outro-slide 0.7s both, bg-outro-opacity 0.7s both;
+}
+
+@keyframes bg-outro-slide {
+    0% {
         translate: 0 0;
         animation-timing-function: cubic-bezier(0.10, 0.85, 0.64, 0.99);
     }
@@ -48,12 +62,12 @@
     }
 }
 
-@keyframes welcome-bg-opacity {
-    0%, 81.25% {
+@keyframes bg-outro-opacity {
+    0% {
         opacity: 1;
         animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
     }
-    91.96%, 100% {
+    57.14%, 100% {
         opacity: 0;
     }
 }

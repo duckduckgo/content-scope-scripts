@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import cn from 'classnames';
 import styles from './Bubble.module.css';
 
 /**
@@ -7,10 +8,11 @@ import styles from './Bubble.module.css';
  * @param {object} props
  * @param {import("preact").ComponentChild} props.children
  * @param {'bottom-left'} [props.tail] - Direction of the speech bubble tail
+ * @param {string} [props.class] - Optional additional CSS class
  */
-export function Bubble({ children, tail }) {
+export function Bubble({ children, tail, class: className }) {
     return (
-        <div class={styles.bubble} data-tail={tail || undefined}>
+        <div class={cn(styles.bubble, className)} data-tail={tail || undefined}>
             {children}
             {tail === 'bottom-left' && <BottomLeftTail />}
         </div>

@@ -10,7 +10,8 @@ import styles from './SingleStep.module.css';
  * Steps without bubbles (e.g. welcome) render content directly.
  */
 export function SingleStep() {
-    const { content, topBubble, bottomBubble, showProgress, progress, topBubbleTail } = useStepConfig();
+    const { content, topBubble, bottomBubble, showProgress, progress, topBubbleTail, globalState } = useStepConfig();
+    const isGetStarted = globalState.activeStep === 'getStarted';
 
     // No bubbles — render content directly (e.g., welcome step has its own full-page layout)
     if (!topBubble && !bottomBubble) {
@@ -21,7 +22,7 @@ export function SingleStep() {
         <div class={styles.layout}>
             <div class={styles.bubbleColumn}>
                 {topBubble && (
-                    <Bubble tail={topBubbleTail}>
+                    <Bubble tail={topBubbleTail} class={isGetStarted ? styles.bubbleGetStartedIntro : undefined}>
                         {showProgress && <ProgressIndicator current={progress.current} total={progress.total} />}
                         {topBubble}
                     </Bubble>

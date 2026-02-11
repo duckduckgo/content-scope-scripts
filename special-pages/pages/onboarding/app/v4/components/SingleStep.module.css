@@ -21,3 +21,29 @@
     box-sizing: border-box;
     gap: var(--sp-2); /* 8px */
 }
+
+/* --- getStarted bubble intro --- */
+
+.bubbleGetStartedIntro {
+    animation: getstarted-bubble-scale 0.9s both, getstarted-bubble-slide 0.9s both;
+}
+
+@keyframes getstarted-bubble-scale {
+    0%, 33.33% {
+        scale: 0.714;
+        animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
+    }
+    59.26%, 100% {
+        scale: 1;
+    }
+}
+
+@keyframes getstarted-bubble-slide {
+    0%, 40.74% {
+        translate: 0 38px;
+        animation-timing-function: cubic-bezier(0.66, 0.00, 0.34, 1.00);
+    }
+    77.78%, 100% {
+        translate: 0 0;
+    }
+}

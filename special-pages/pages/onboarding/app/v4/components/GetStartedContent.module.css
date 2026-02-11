@@ -4,6 +4,27 @@
     align-items: flex-start;
     align-self: stretch;
     gap: var(--sp-8); /* 32px */
+    animation: getstarted-content-slide 0.9s both, getstarted-content-opacity 0.9s both;
+}
+
+@keyframes getstarted-content-slide {
+    0%, 40.74% {
+        translate: 0 41px;
+        animation-timing-function: cubic-bezier(0.66, 0.00, 0.34, 1.00);
+    }
+    77.78%, 100% {
+        translate: 0 0;
+    }
+}
+
+@keyframes getstarted-content-opacity {
+    0%, 51.85% {
+        opacity: 0;
+        animation-timing-function: cubic-bezier(0.66, 0.00, 0.34, 1.00);
+    }
+    81.48%, 100% {
+        opacity: 1;
+    }
 }
 
 .text {

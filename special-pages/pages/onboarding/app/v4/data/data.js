@@ -21,10 +21,10 @@ export const stepsConfig = {
             content: <WelcomeContent onComplete={advance} />,
         };
     },
-    getStarted: ({ advance }) => {
+    getStarted: () => {
         return {
             content: <DaxIllustration />,
-            topBubble: <GetStartedContent onAdvance={advance} />,
+            topBubble: <GetStartedContent />,
             topBubbleTail: 'bottom-left',
         };
     },
