@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { useContext } from 'preact/hooks';
+import './App.module.css';
 import { GlobalContext, GlobalDispatch } from '../global';
 import { useEnv } from '../../../../shared/components/EnvironmentProvider';
 import { usePlatformName } from '../shared/components/SettingsProvider';

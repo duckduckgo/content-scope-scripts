@@ -37,6 +37,7 @@ export function baseEsbuildOptions(page, injectName, nodeEnv, config) {
             '.data.svg': 'dataurl',
             '.jpg': 'file',
             '.png': 'file',
+            '.otf': 'file',
             '.riv': 'file',
             '.txt': 'file',
         },

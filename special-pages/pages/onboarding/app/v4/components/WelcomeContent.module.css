@@ -8,13 +8,18 @@
     gap: var(--sp-5);
     width: 100%;
     min-height: 100vh;
-
 }
 
 .title {
+    font-family: 'DuckSansDisplay', system-ui, sans-serif;
     font-size: var(--sp-11);
     font-weight: 500;
     line-height: var(--sp-11);
     text-align: center;
-    color: var(--theme-txt-color-title);
+    color: var(--color-black-at-96);
+    word-wrap: break-word;
+
+    @media (prefers-color-scheme: dark) {
+        color: var(--color-white-at-96);
+    }
 }
