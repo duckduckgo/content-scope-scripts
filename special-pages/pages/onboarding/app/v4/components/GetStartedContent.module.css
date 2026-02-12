@@ -81,43 +81,5 @@
 }
 
 .button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: var(--sp-2); /* 8px */
-    height: var(--sp-9); /* 36px */
     width: 100%;
-    padding: var(--sp-4) var(--sp-6); /* 16px 24px */
-    background: #F05F2B;
-    border: none;
-    border-radius: var(--sp-16); /* 64px */
-    cursor: pointer;
-
-    font-family: var(--font-product);
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 15px;
-    text-align: center;
-    color: white;
-
-    @media (prefers-color-scheme: dark) {
-        background: #FFD885;
-        color: #240F04;
-    }
-}
-
-.button:hover {
-    background: #d9531f;
-
-    @media (prefers-color-scheme: dark) {
-        background: #f0c96e;
-    }
-}
-
-.button:active {
-    background: #c24a1b;
-
-    @media (prefers-color-scheme: dark) {
-        background: #e0ba5a;
-    }
 }

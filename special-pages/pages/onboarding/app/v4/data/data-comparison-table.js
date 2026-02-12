@@ -11,22 +11,22 @@ export const SupportStatus = {
 // prettier-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const tableIcons = /** @type {const} */ ([
-    'v3/Add-To-Dock-Color-24.svg',
-    'v3/Ads-Blocked-Color-24.svg',
-    'v3/Bookmark-Favorite-Color-24.svg',
-    'v3/Browser-Default-Color-24.svg',
-    'v3/Cookie-Blocked-Color-24.svg',
-    'v3/Find-Search-Color-24.svg',
-    'v3/Fire-Color-24.svg',
-    'v3/Home-Color-24.svg',
-    'v3/Import-Color-24.svg',
-    'v3/Session-Restore-Color-24.svg',
-    'v3/Shield-Color-24.svg',
-    'v3/Video-Player-Color-24.svg',
-    'v3/Ai-Chat-Color-24.svg',
+    'ai-chat.svg',
+    'bookmark.svg',
+    'cookies.svg',
+    'dock.svg',
+    'duck-ai.svg',
+    'duck-player.svg',
+    'fire.svg',
+    'home.svg',
+    'import.svg',
+    'profile-blocker.svg',
+    'session-restore.svg',
+    'shield.svg',
+    'vpn.svg',
 ]);
 
-export const tableIconPrefix = 'assets/img/steps/';
+export const tableIconPrefix = 'assets/img/v4/steps/';
 
 /** @typedef {{ icon: tableIcons[number], title: string, statuses: Record<'chrome'|'safari'|'ddg', SupportStatus> }} FeatureSupportData */
 
@@ -39,7 +39,7 @@ export const tableIconPrefix = 'assets/img/steps/';
  */
 export const comparisonTableData = (t, adBlockingEnabled = false) => [
     {
-        icon: 'v3/Find-Search-Color-24.svg',
+        icon: 'vpn.svg',
         title: t('comparison_searchPrivately'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
@@ -48,7 +48,7 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         },
     },
     {
-        icon: 'v3/Ai-Chat-Color-24.svg',
+        icon: 'duck-ai.svg',
         title: t('comparison_aiChat'),
         statuses: {
             chrome: SupportStatus.PARTIAL_SUPPORT,
@@ -57,7 +57,7 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         },
     },
     {
-        icon: 'v3/Shield-Color-24.svg',
+        icon: 'shield.svg',
         title: t('comparison_blockTrackers'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
@@ -66,7 +66,7 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         },
     },
     {
-        icon: 'v3/Cookie-Blocked-Color-24.svg',
+        icon: 'cookies.svg',
         title: t('comparison_blockCookies'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
@@ -75,7 +75,7 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         },
     },
     {
-        icon: 'v3/Ads-Blocked-Color-24.svg',
+        icon: 'profile-blocker.svg',
         title: t('comparison_blockAds'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
@@ -84,7 +84,7 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         },
     },
     {
-        icon: 'v3/Fire-Color-24.svg',
+        icon: 'fire.svg',
         title: t('comparison_eraseData'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
@@ -93,7 +93,7 @@ export const comparisonTableData = (t, adBlockingEnabled = false) => [
         },
     },
     {
-        icon: 'v3/Video-Player-Color-24.svg',
+        icon: 'duck-player.svg',
         title: adBlockingEnabled ? t('comparison_youtubeAdFree') : t('comparison_privateYoutube'),
         statuses: {
             chrome: SupportStatus.NOT_SUPPORTED,
