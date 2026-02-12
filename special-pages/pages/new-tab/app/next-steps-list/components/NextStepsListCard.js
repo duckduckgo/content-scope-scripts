@@ -3,6 +3,7 @@ import { useState, useEffect } from 'preact/hooks';
 import cn from 'classnames';
 import { Button } from '../../../../../shared/components/Button/Button.js';
 import { DismissButton } from '../../components/DismissButton';
+import { usePlatformName } from '../../settings.provider.js';
 import { useTypedTranslationWith } from '../../types.js';
 import styles from './NextStepsListCard.module.css';
 
@@ -26,6 +27,17 @@ import styles from './NextStepsListCard.module.css';
  * @param {CardBodyProps} props
  */
 function CardBody({ title, description, primaryButtonText, secondaryButtonText, imageSrc, onPrimaryClick, onSecondaryClick }) {
+    const platformName = usePlatformName();
+    const primaryButton = (
+        <Button variant="accentBrand" size="lg" onClick={onPrimaryClick}>
+            {primaryButtonText}
+        </Button>
+    );
+    const secondaryButton = (
+        <Button variant="standard" size="lg" onClick={onSecondaryClick}>
+            {secondaryButtonText}
+        </Button>
+    );
     return (
         <Fragment>
             <div class={styles.imageContainer}>{imageSrc && <img src={imageSrc} alt="" class={styles.image} />}</div>
@@ -33,12 +45,17 @@ function CardBody({ title, description, primaryButtonText, secondaryButtonText, 
                 <h3 class={styles.title}>{title}</h3>
                 <p class={styles.description}>{description}</p>
                 <div class={styles.buttonRow}>
-                    <Button variant="standard" size="lg" onClick={onSecondaryClick}>
-                        {secondaryButtonText}
-                    </Button>
-                    <Button variant="accentBrand" size="lg" onClick={onPrimaryClick}>
-                        {primaryButtonText}
-                    </Button>
+                    {platformName === 'windows' ? (
+                        <Fragment>
+                            {primaryButton}
+                            {secondaryButton}
+                        </Fragment>
+                    ) : (
+                        <Fragment>
+                            {secondaryButton}
+                            {primaryButton}
+                        </Fragment>
+                    )}
                 </div>
             </div>
         </Fragment>
