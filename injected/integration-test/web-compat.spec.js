@@ -384,7 +384,7 @@ async function setupPermissionsTest(page, options = {}) {
                 supportedPermissions: {
                     // Non-native permissions (should fall through to original API)
                     geolocation: {},
-                    notification: {},
+                    notification: { name: 'name-override' },
                     // Native permissions (handled by our implementation)
                     push: {
                         name: 'notifications',
@@ -478,8 +478,8 @@ const permissionsTestCases = {
      * @param {import("@playwright/test").Page} page
      */
     async testNameOverride(page) {
-        const { result } = await checkPermission(page, 'push');
-        expect(result).toMatchObject({ name: 'notifications', state: 'prompt' });
+        const { result } = await checkPermission(page, 'notification');
+        expect(result).toMatchObject({ name: 'name-override', state: 'prompt' });
     },
 
     /**
