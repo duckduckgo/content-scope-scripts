@@ -87,24 +87,10 @@ ContentFeature.addDebugFlag();
 
 ### Remote Configuration and Feature Flags
 
-All features that modify web pages should use Privacy Remote Configuration where feasible. This allows:
+All features that modify web pages should use Privacy Remote Configuration. This lets you mitigate breakage remotely, adjust behaviour without browser updates, and control rollout.
 
-- Mitigating breakage remotely
-- Adjusting and disabling feature behavior without browser updates
-- Monitoring and controlling feature rollout
+C-S-S does not have its own feature flag layer. The host platform passes the remote config at injection time via `$CONTENT_SCOPE$` (see [Platform Integration Guide](./platform-integration.md)). The [`ContentScopeFeatures`](../src/content-scope-features.js) runtime resolves feature state and per-site exceptions **before** calling `init` -- a disabled or excepted feature is never initialised, so you don't need to check enablement yourself.
 
-C-S-S does not maintain its own feature flag layer. The host platform (iOS, macOS, Android, Windows, or the extension) passes the remote config to C-S-S at injection time via the `$CONTENT_SCOPE$` placeholder (see [Platform Integration Guide](./platform-integration.md)).
+Within a feature, use the [`ConfigFeature`](../src/config-feature.js) methods (`getFeatureSetting`, `getFeatureSettingEnabled`) to read settings from the config.
 
-Feature state (`enabled`, `disabled`, `internal`) and per-site exceptions are resolved by the `ContentScopeFeatures` runtime before a feature's `init` is called. A feature that is disabled or excepted for the current site will not be initialised -- you don't need to check enablement yourself.
-
-Within a feature, use the `ConfigFeature` methods to read settings from the remote config:
-
-```javascript
-// Read a specific setting from the feature's settings object
-this.getFeatureSetting('settingKeyName')
-
-// Check if a boolean setting is enabled (returns true if value is 'enabled')
-this.getFeatureSettingEnabled('settingKeyName')
-```
-
-For a cross-platform overview of how the remote config system works (feature state, sub-features, rollouts, targets, cohorts), see the [Feature Flagging Guide](https://github.com/duckduckgo/privacy-configuration/blob/main/docs/feature-flagging-guide.md) in the privacy-configuration repo.
+For a cross-platform overview of features, sub-features, rollouts, targets, and cohorts, see the [Feature Flagging Guide](https://github.com/duckduckgo/privacy-configuration/blob/main/docs/feature-flagging-guide.md).
