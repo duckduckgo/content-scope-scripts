@@ -23,7 +23,7 @@ export function LottieAnimation({ src, width, height, loop = false, onComplete, 
         if (!ref.current) return;
 
         /** @type {import('lottie-web').AnimationItem | null} */
-        let animation = lottie.loadAnimation({
+        const animation = lottie.loadAnimation({
             container: ref.current,
             renderer: 'svg',
             loop,
@@ -32,7 +32,10 @@ export function LottieAnimation({ src, width, height, loop = false, onComplete, 
         });
 
         if (isReducedMotion) {
-            animation.goToAndStop(animation.totalFrames - 1, true);
+            const showLastFrame = () => {
+                animation.goToAndStop(animation.totalFrames - 1, true);
+            };
+            animation.addEventListener('DOMLoaded', showLastFrame);
         }
 
         if (onComplete && !loop) {
@@ -40,8 +43,7 @@ export function LottieAnimation({ src, width, height, loop = false, onComplete, 
         }
 
         return () => {
-            animation?.destroy();
-            animation = null;
+            animation.destroy();
         };
     }, [src, loop, onComplete, isReducedMotion]);
 
