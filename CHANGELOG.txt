@@ -1,1 +1,1 @@
-- Allow Regex in Separator (#2242)
+- Add new steps list (#2170)

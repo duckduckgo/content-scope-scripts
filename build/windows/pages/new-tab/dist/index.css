@@ -3445,6 +3445,192 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   letter-spacing: normal;
 }
 
+/* pages/new-tab/app/next-steps-list/components/NextStepsListCard.module.css */
+.NextStepsListCard_wrapper {
+  width: 100%;
+  margin-bottom: var(--ntp-gap);
+  position: relative;
+}
+.NextStepsListCard_bubble {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  position: absolute;
+  top: calc(-22 * var(--px-in-rem));
+  left: 0;
+}
+.NextStepsListCard_bubble svg {
+  display: block;
+  flex-shrink: 0;
+}
+.NextStepsListCard_bubble svg path {
+  fill: var(--ds-color-theme-accent-primary);
+}
+.NextStepsListCard_bubble div {
+  background-color: var(--ds-color-theme-accent-primary);
+  height: calc(20 * var(--px-in-rem));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1px;
+  margin: -0.25px -1px 0;
+}
+.NextStepsListCard_bubble div h2 {
+  color: var(--ds-color-theme-accent-content-primary);
+  letter-spacing: 0.06px;
+  font-weight: 600;
+  line-height: normal;
+  font-size: calc(11 * var(--px-in-rem));
+}
+.NextStepsListCard_cardContainer {
+  position: relative;
+  min-height: calc(200 * var(--px-in-rem));
+  padding-bottom: calc(12 * var(--px-in-rem));
+}
+.NextStepsListCard_card {
+  background-color: var(--ds-color-theme-surface-secondary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08), 0 1px 4px 0 rgba(0, 0, 0, 0.06);
+  padding: calc(28 * var(--px-in-rem)) calc(28 * var(--px-in-rem)) calc(32 * var(--px-in-rem)) calc(20 * var(--px-in-rem));
+  display: flex;
+  align-items: center;
+  gap: calc(12 * var(--px-in-rem));
+  position: relative;
+  z-index: 2;
+  animation: NextStepsListCard_cardFadeIn 300ms ease-out;
+}
+[data-theme=dark] .NextStepsListCard_card {
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.24), 0 1px 4px 0 rgba(0, 0, 0, 0.18);
+}
+.NextStepsListCard_cardContainer:has(.NextStepsListCard_backCard) > .NextStepsListCard_card:not(.NextStepsListCard_backCard, .NextStepsListCard_dismissing, .NextStepsListCard_promoting) {
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.12), 0 2px 6px 0 rgba(0, 0, 0, 0.08);
+}
+[data-theme=dark] .NextStepsListCard_cardContainer:has(.NextStepsListCard_backCard) > .NextStepsListCard_card:not(.NextStepsListCard_backCard, .NextStepsListCard_dismissing, .NextStepsListCard_promoting) {
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.32), 0 2px 6px 0 rgba(0, 0, 0, 0.24);
+}
+.NextStepsListCard_card.NextStepsListCard_backCard {
+  position: absolute;
+  top: calc(12 * var(--px-in-rem));
+  left: 0;
+  right: 0;
+  z-index: 1;
+  pointer-events: none;
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+[data-theme=dark] .NextStepsListCard_card.NextStepsListCard_backCard {
+  opacity: 0.7;
+}
+.NextStepsListCard_card.NextStepsListCard_hidden {
+  opacity: 0;
+  transform: scale(0.97) translateY(12px);
+}
+.NextStepsListCard_card.NextStepsListCard_offscreen {
+  visibility: hidden;
+}
+.NextStepsListCard_card.NextStepsListCard_promoting {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  animation: NextStepsListCard_promoteToFront 300ms ease-out forwards;
+  pointer-events: none;
+}
+[data-theme=dark] .NextStepsListCard_card.NextStepsListCard_promoting {
+  animation: NextStepsListCard_promoteToFrontDark 300ms ease-out forwards;
+}
+.NextStepsListCard_card.NextStepsListCard_dismissing {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  animation: NextStepsListCard_dismissFadeOut 300ms cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+@keyframes NextStepsListCard_cardFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes NextStepsListCard_promoteToFront {
+  from {
+    opacity: 0.85;
+    transform: translateY(calc(12 * var(--px-in-rem))) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes NextStepsListCard_promoteToFrontDark {
+  from {
+    opacity: 0.7;
+    transform: translateY(calc(12 * var(--px-in-rem))) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes NextStepsListCard_dismissFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+}
+.NextStepsListCard_dismissBtn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+.NextStepsListCard_imageContainer {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(140 * var(--px-in-rem));
+}
+.NextStepsListCard_image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.NextStepsListCard_content {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.NextStepsListCard_title {
+  font-size: calc(18 * var(--px-in-rem));
+  font-weight: var(--title-3-em-font-weight);
+  line-height: 1.3;
+  color: var(--ds-color-theme-text-primary);
+  margin: 0;
+}
+.NextStepsListCard_description {
+  font-size: calc(13 * var(--px-in-rem));
+  line-height: 1.3;
+  color: var(--ds-color-theme-text-secondary);
+  margin: 0;
+}
+.NextStepsListCard_buttonRow {
+  display: flex;
+  gap: var(--sp-2);
+  margin-top: var(--sp-1);
+}
+
 /* pages/new-tab/app/omnibar/components/AiChatForm.module.css */
 .AiChatForm_form {
   align-items: center;
