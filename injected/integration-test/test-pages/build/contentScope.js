@@ -19946,9 +19946,16 @@ ul.messages {
     }
     return output;
   }
+  function parseRegexSeparator(separator) {
+    if (typeof separator === "string" && separator.length >= 2 && separator.startsWith("/") && separator.endsWith("/")) {
+      return new RegExp(separator.slice(1, -1));
+    }
+    return separator;
+  }
   function stringToList(inputList, separator) {
     const defaultSeparator = /[|\n•·]/;
-    return cleanArray(inputList.split(separator || defaultSeparator));
+    const splitOn = parseRegexSeparator(separator) || defaultSeparator;
+    return cleanArray(inputList.split(splitOn));
   }
   var rules = {
     profileUrl: function(link) {
