@@ -549,6 +549,38 @@ export class WebCompat extends ContentFeature {
         }
     }
 
+    /**
+     * Polls native messaging once per second (up to 30s) to detect when a
+     * permission was granted/denied by the user, so the PermissionStatus change
+     * event can be dispatched.
+     * @param {PermissionStatus} status
+     * @param {Object} query
+     */
+    pollForPermissionChange(status, query) {
+        if (this._permissionPollingInterval) {
+            return;
+        }
+
+        let remaining = 30;
+        this._permissionPollingInterval = setInterval(async () => {
+            try {
+                const { state } = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
+                if (state && state !== 'prompt') {
+                    status.state = state;
+                    status.dispatchEvent(new Event('change'));
+                    remaining = 0;
+                }
+            } catch { /* Ignore */ }
+
+            if (remaining > 0) {
+                remaining -= 1;
+            } else {
+                clearInterval(this._permissionPollingInterval);
+                delete this._permissionPollingInterval;
+            }
+        }, 1000);
+    }
+
     permissionsPresentFix(settings) {
         const originalQuery = window.navigator.permissions.query;
         if (typeof originalQuery !== 'function') {
@@ -565,6 +597,11 @@ export class WebCompat extends ContentFeature {
                     // Try to handle with native messaging
                     const result = await this.handlePermissionQuery(query, settings);
                     if (result) {
+                        if (result.state === 'prompt') {
+                            // Ensure the PermissionStatus change event fires
+                            // after the user grants/denies the permission.
+                            this.pollForPermissionChange(result, query);
+                        }
                         return result;
                     }
                 }
