@@ -5,7 +5,7 @@ import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 import { useTypedTranslation } from '../../types';
 import styles from './WelcomeContent.module.css';
 
-const WELCOME_ANIMATION_MS = 3733;
+const WELCOME_ANIMATION_MS = 3033;
 
 /**
  * @param {object} props

@@ -25,7 +25,7 @@
 /* --- getStarted bubble intro --- */
 
 .bubbleGetStartedIntro {
-    animation: getstarted-bubble-scale 0.9s both, getstarted-bubble-slide 0.9s both;
+    animation: getstarted-bubble-scale 0.9s both, getstarted-bubble-slide 0.9s both, getstarted-bubble-opacity 0.9s both;
 }
 
 @keyframes getstarted-bubble-scale {
@@ -35,6 +35,15 @@
     }
     59.26%, 100% {
         scale: 1;
+    }
+}
+
+@keyframes getstarted-bubble-opacity {
+    0%, 33.33% {
+        opacity: 0;
+    }
+    33.34%, 100% {
+        opacity: 1;
     }
 }
 

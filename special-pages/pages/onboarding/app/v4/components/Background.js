@@ -6,15 +6,36 @@ import { ORDER_V4 } from '../../types';
 import styles from './Background.module.css';
 
 /**
- * Returns CSS custom property values for a step's background SVGs.
+ * @typedef {object} BgMotion
+ * @property {string} dx - Horizontal translate offset the background slides in from / out to
+ * @property {string} dy - Vertical translate offset the background slides in from / out to
+ * @property {string} introDelay - Delay before the intro slide begins
+ * @property {string} fadeDuration - Duration of the outro opacity fade
+ */
+
+/**
+ * Per-step motion parameters for background transitions.
+ */
+const BG_MOTION = /** @type {Partial<Record<import('../../types').Step['id'], BgMotion>>} */ ({
+    welcome: { dx: '325px', dy: '204px', introDelay: '0.133s', fadeDuration: '0.4s' },
+    getStarted: { dx: '-74px', dy: '132px', introDelay: '0.2s', fadeDuration: '0.333s' },
+});
+
+/**
+ * Returns CSS custom property values for a step's background.
  * @param {import('../../types').Step['id']} step
  */
 function bgVars(step) {
     const idx = ORDER_V4.indexOf(step);
     const num = String(idx + 1).padStart(2, '0');
+    const motion = BG_MOTION[step] ?? /** @type {BgMotion} */ (BG_MOTION.welcome);
     return {
         '--bg-light': `url("../assets/img/v4/background-${num}-light.svg")`,
         '--bg-dark': `url("../assets/img/v4/background-${num}-dark.svg")`,
+        '--bg-dx': motion.dx,
+        '--bg-dy': motion.dy,
+        '--bg-intro-delay': motion.introDelay,
+        '--bg-fade-duration': motion.fadeDuration,
     };
 }
 

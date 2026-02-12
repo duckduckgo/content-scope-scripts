@@ -20,7 +20,7 @@
     text-align: center;
     color: var(--color-black-at-96);
     word-wrap: break-word;
-    animation: welcome-title-slide 3.733s both, welcome-title-opacity 3.733s both;
+    animation: welcome-title-slide 3.033s both, welcome-title-opacity 3.033s both;
 
     @media (prefers-color-scheme: dark) {
         color: var(--color-white-at-96);
@@ -28,25 +28,25 @@
 }
 
 @keyframes welcome-title-slide {
-    0%, 10.71% {
+    0%, 13.19% {
         transform: translateY(49px);
-        animation-timing-function: cubic-bezier(0.40, 2.70, 0.74, 1.00);
+        animation-timing-function: cubic-bezier(0.40, 0.00, 0.74, 1.00);
     }
-    24.11%, 100% {
+    29.67%, 100% {
         transform: translateY(0);
     }
 }
 
 @keyframes welcome-title-opacity {
-    0%, 10.71% {
+    0%, 13.19% {
         opacity: 0;
         animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
     }
-    16.07%, 73.21% {
+    19.78%, 90.11% {
         opacity: 1;
         animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
     }
-    81.25%, 100% {
+    100% {
         opacity: 0;
     }
 }
@@ -54,25 +54,25 @@
 /* --- Logo --- */
 
 .logo {
-    animation: welcome-logo-scale 3.733s both, welcome-logo-opacity 3.733s both;
+    animation: welcome-logo-scale 3.033s both, welcome-logo-opacity 3.033s both;
 }
 
 @keyframes welcome-logo-scale {
-    0%, 10.71% {
+    0%, 13.19% {
         transform: scale(1.786);
         animation-timing-function: cubic-bezier(0.26, 0.64, 0.48, 1.00);
     }
-    28.57%, 100% {
+    35.16%, 100% {
         transform: scale(1);
     }
 }
 
 @keyframes welcome-logo-opacity {
-    0%, 73.21% {
+    0%, 90.11% {
         opacity: 1;
         animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
     }
-    81.25%, 100% {
+    100% {
         opacity: 0;
     }
 }

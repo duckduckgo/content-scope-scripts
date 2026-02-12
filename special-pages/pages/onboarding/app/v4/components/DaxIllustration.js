@@ -5,8 +5,8 @@ import { GlobalContext } from '../../global';
 import styles from './DaxIllustration.module.css';
 
 /**
+ * TODO: Replace static SVG with Lottie animation.
  * Inline SVG of Dax the Duck illustration for the getStarted step.
- * This will be replaced with a Lottie animation later.
  *
  * @param {object} props
  * @param {string} [props.class] - Optional CSS class
