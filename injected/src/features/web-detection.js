@@ -16,7 +16,7 @@ import { evaluateMatch } from './web-detection/matching.js';
 
 /**
  * @typedef {{
- *  trigger: 'breakageReport';
+ *  trigger: 'breakageReport' | 'auto';
  * }} RunDetectionOptions
  */
 
@@ -31,7 +31,16 @@ export default class WebDetection extends ContentFeature {
     /** @type {Record<string, Record<string, DetectorConfig>>} */
     #detectors = {};
 
+    /** @type {Map<string, boolean>} */
+    #matchedDetectors = new Map();
+
+    /** @type {ReturnType<typeof setTimeout>[]} */
+    #timers = [];
+
     _exposedMethods = this._declareExposedMethods(['runDetectors']);
+
+    // Listen for URL changes to cancel and reschedule timers on SPA navigation
+    listenForUrlChanges = true;
 
     /**
      * Initialize the feature by loading detector configurations
@@ -39,6 +48,128 @@ export default class WebDetection extends ContentFeature {
     init() {
         const detectorsConfig = this.getFeatureSetting('detectors');
         this.#detectors = parseDetectors(detectorsConfig);
+        this._scheduleAutoRunDetectors();
+    }
+
+    /**
+     *
+     * @param {DetectorConfig} detectorConfig
+     * @returns {true | false | 'error'}
+     */
+    _evaluateMatch(detectorConfig) {
+        try {
+            return evaluateMatch(detectorConfig.match);
+        } catch {
+            return 'error';
+        }
+    }
+
+    /**
+     * Schedule automatic detector execution based on configured intervals.
+     */
+    _scheduleAutoRunDetectors() {
+        // Group detectors by interval: interval → [{detectorId, config}, ...]
+        /** @type {Map<number, Array<{detectorId: string, config: DetectorConfig}>>} */
+        const detectorsByInterval = new Map();
+
+        for (const [groupName, groupDetectors] of Object.entries(this.#detectors)) {
+            for (const [detectorId, detectorConfig] of Object.entries(groupDetectors)) {
+                // Check if auto trigger is enabled for this detector
+                if (!this._shouldRunDetector(detectorConfig, { trigger: 'auto' })) continue;
+
+                const autoTrigger = detectorConfig.triggers.auto;
+                const fullDetectorId = `${groupName}.${detectorId}`;
+
+                // Group by interval
+                for (const interval of autoTrigger.when.intervalMs) {
+                    const atInterval = detectorsByInterval.get(interval) ?? [];
+                    atInterval.push({
+                        detectorId: fullDetectorId,
+                        config: detectorConfig,
+                    });
+                    detectorsByInterval.set(interval, atInterval);
+                }
+            }
+        }
+
+        // Create one timer per unique interval
+        for (const [interval, detectors] of detectorsByInterval.entries()) {
+            const timerId = setTimeout(() => {
+                // Run all detectors scheduled for this interval
+                for (const { detectorId, config } of detectors) {
+                    this._runAutoDetector(detectorId, config);
+                }
+            }, interval);
+            this.#timers.push(timerId);
+        }
+    }
+
+    /**
+     * Run a single detector with the auto trigger
+     * @param {string} fullDetectorId - The full detector ID (groupName.detectorId)
+     * @param {DetectorConfig} detectorConfig - The detector configuration
+     */
+    _runAutoDetector(fullDetectorId, detectorConfig) {
+        try {
+            // Auto detectors use first-success behavior (skip if already matched)
+            if (this.#matchedDetectors.get(fullDetectorId)) {
+                return;
+            }
+
+            // Evaluate match conditions
+            const detected = this._evaluateMatch(detectorConfig);
+
+            // Track successful matches (allows us to skip subsequent runs if already successful (first-success))
+            if (detected === true) {
+                this.#matchedDetectors.set(fullDetectorId, true);
+            }
+
+            // Debug notification for integration tests (only sends when detection succeeds or errors)
+            if (this.isDebug && detected !== false) {
+                try {
+                    this.messaging?.notify('webDetectionAutoRun', {
+                        detectorId: fullDetectorId,
+                        detected,
+                        timestamp: Date.now(),
+                    });
+                } catch {
+                    // Messaging may not be ready - silently fail
+                }
+            }
+
+            // TODO: Execute detector actions (e.g., runTelemetry)
+            // This will be implemented as part of follow-up work
+        } catch (e) {
+            // Silently fail - don't break the page
+            if (this.isDebug) {
+                this.log.error(`Error running auto-detector ${fullDetectorId}:`, e);
+            }
+        }
+    }
+
+    /**
+     * Called when URL changes during SPA navigation.
+     * Clears existing timers and matched state, then reschedules detectors for the new page.
+     */
+    urlChanged() {
+        // Clear existing timers
+        this._clearTimers();
+
+        // Clear matched detector state (new page = fresh detections)
+        this.#matchedDetectors.clear();
+
+        // Reschedule auto-run detectors for the new page
+        this._scheduleAutoRunDetectors();
+    }
+
+    /**
+     * Clear all scheduled timers
+     */
+    _clearTimers() {
+        for (const timerId of this.#timers) {
+            clearTimeout(timerId);
+        }
+        this.#timers = [];
     }
 
     /**
@@ -78,13 +209,7 @@ export default class WebDetection extends ContentFeature {
                 if (!this._shouldRunDetector(detectorConfig, options)) continue;
 
                 // Evaluate match conditions
-                /** @type {true | false | 'error'} */
-                let detected;
-                try {
-                    detected = evaluateMatch(detectorConfig.match);
-                } catch {
-                    detected = 'error';
-                }
+                const detected = this._evaluateMatch(detectorConfig);
 
                 // Execute detector actions.
 
