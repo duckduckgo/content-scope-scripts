@@ -58,11 +58,22 @@ function canShare(data) {
 // Shadowned class for PermissionStatus for use in shimming
 // eslint-disable-next-line no-redeclare
 class PermissionStatus extends EventTarget {
+    #hasChangeListener = false;
+
     constructor(name, state) {
         super();
         this.name = name;
         this.state = state;
         this.onchange = null; // noop
+    }
+
+    get hasChangeListener() {
+        return this.#hasChangeListener;
+    }
+
+    addEventListener(type, callback, options) {
+        if (type === 'change') this.#hasChangeListener = true;
+        super.addEventListener(type, callback, options);
     }
 }
 
@@ -106,6 +117,9 @@ export class WebCompat extends ContentFeature {
 
     /** @type {Map<string, object>} */
     #webNotifications = new Map();
+
+    /** @type {ReturnType<typeof setTimeout> | undefined} */
+    #permissionPollingTimer;
 
     // Opt in to receive configuration updates from initial ping responses
     listenForConfigUpdates = true;
@@ -549,6 +563,62 @@ export class WebCompat extends ContentFeature {
         }
     }
 
+    /**
+     * Polls native messaging once per second (up to 30s) to detect when a
+     * permission was granted/denied by the user, so the PermissionStatus change
+     * event can be dispatched.
+     *
+     * Since there is a performance impact with polling:
+     * - Only one polling timer runs at a time.
+     * - Ticks are skipped until a change listener is registered.
+     * - Chained setTimeout used instead of setInterval, in case the permission
+     *   query message response takes longer than one second, since otherwise a
+     *   change event could be dispatched twice accidentally.
+     *
+     * @param {PermissionStatus} status
+     * @param {Object} query
+     */
+    pollForPermissionChange(status, query) {
+        if (this.#permissionPollingTimer) {
+            return;
+        }
+
+        let remaining = 30;
+        const tick = async () => {
+            // Check for a change in status, pass it on to the listener(s)
+            // if found.
+            let statusChanged = false;
+            if (status.hasChangeListener || typeof status.onchange === 'function') {
+                try {
+                    const { state } = await this.messaging.request(MSG_PERMISSIONS_QUERY, query);
+                    if (state && state !== 'prompt') {
+                        status.state = state;
+                        status.dispatchEvent(new Event('change'));
+                        if (typeof status.onchange === 'function') {
+                            try {
+                                status.onchange(new Event('change'));
+                            } catch (e) {
+                                /* Ignore errors in handler */
+                            }
+                        }
+                        statusChanged = true;
+                    }
+                } catch {
+                    /* Ignore */
+                }
+            }
+
+            // Try again in a second unless the 30 seconds are up, or the
+            // permission status has already changed.
+            if (!statusChanged && remaining-- > 0) {
+                this.#permissionPollingTimer = setTimeout(tick, 1000);
+            } else {
+                this.#permissionPollingTimer = undefined;
+            }
+        };
+        this.#permissionPollingTimer = setTimeout(tick, 1000);
+    }
+
     permissionsPresentFix(settings) {
         const originalQuery = window.navigator.permissions.query;
         if (typeof originalQuery !== 'function') {
@@ -565,6 +635,11 @@ export class WebCompat extends ContentFeature {
                     // Try to handle with native messaging
                     const result = await this.handlePermissionQuery(query, settings);
                     if (result) {
+                        if (result.state === 'prompt') {
+                            // Ensure the PermissionStatus change event fires
+                            // after the user grants/denies the permission.
+                            this.pollForPermissionChange(result, query);
+                        }
                         return result;
                     }
                 }

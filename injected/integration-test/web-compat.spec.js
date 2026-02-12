@@ -703,6 +703,44 @@ test.describe('Permissions API - when present', () => {
             const { result } = await checkPermission(page, 'push');
             expect(result).toMatchObject({ name: 'notifications', state: 'denied' });
         });
+
+        test('should fire change event (addEventListener) after permission prompt was granted', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            const result = await page.evaluate(async () => {
+                // Start with prompt
+                globalThis.cssMessaging.impl.request = () => Promise.resolve({ state: 'prompt' });
+                const status = await window.navigator.permissions.query({ name: 'camera' });
+                const initialState = status.state;
+                // Switch to granted (simulating user granting permission)
+                globalThis.cssMessaging.impl.request = () => Promise.resolve({ state: 'granted' });
+                // Wait for change event
+                const newState = await new Promise((resolve) => {
+                    status.addEventListener('change', () => resolve(status.state), { once: true });
+                });
+                return { initialState, newState };
+            });
+            expect(result.initialState).toBe('prompt');
+            expect(result.newState).toBe('granted');
+        });
+
+        test('should fire change event (onchange) after permission prompt was denied', async ({ page }) => {
+            await setupPermissionsTest(page, { enablePermissionsPresent: true });
+            const result = await page.evaluate(async () => {
+                // Start with prompt
+                globalThis.cssMessaging.impl.request = () => Promise.resolve({ state: 'prompt' });
+                const status = await window.navigator.permissions.query({ name: 'camera' });
+                const initialState = status.state;
+                // Switch to denied (simulating user rejecting permission)
+                globalThis.cssMessaging.impl.request = () => Promise.resolve({ state: 'denied' });
+                // Wait for change event
+                const newState = await new Promise((resolve) => {
+                    status.onchange = () => resolve(status.state);
+                });
+                return { initialState, newState };
+            });
+            expect(result.initialState).toBe('prompt');
+            expect(result.newState).toBe('denied');
+        });
     });
 });
 
