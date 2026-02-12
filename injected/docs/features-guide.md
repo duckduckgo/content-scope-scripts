@@ -85,7 +85,7 @@ ContentFeature.addDebugFlag();
 - Any web page modification impacts performance or security
 - Modifications to `window` or other globals should be avoided (pages could define same names)
 
-### Remote Configuration
+### Remote Configuration and Feature Flags
 
 All features that modify web pages should use Privacy Remote Configuration where feasible. This allows:
 
@@ -93,4 +93,19 @@ All features that modify web pages should use Privacy Remote Configuration where
 - Adjusting and disabling feature behavior without browser updates
 - Monitoring and controlling feature rollout
 
-The `ConfigFeature` class provides the infrastructure for this through `getFeatureSettingEnabled()` and `getFeatureSetting()` methods.
+C-S-S does not maintain its own feature flag layer. The host platform (iOS, macOS, Android, Windows, or the extension) passes the remote config to C-S-S at injection time via the `$CONTENT_SCOPE$` placeholder (see [Platform Integration Guide](./platform-integration.md)). Features then use the `ConfigFeature` class to check their state:
+
+```javascript
+// Check if this feature is enabled (based on config state + exceptions)
+this.isFeatureEnabled
+
+// Read a specific setting from the feature's settings object
+this.getFeatureSetting('settingKeyName')
+
+// Check if a boolean setting is enabled (returns true if value is 'enabled')
+this.getFeatureSettingEnabled('settingKeyName')
+```
+
+Feature state (`enabled`, `disabled`, `internal`) and per-site exceptions are resolved by the `ContentScopeFeatures` runtime before a feature's `init` is called. A feature that is disabled or excepted for the current site will not be initialised.
+
+For a cross-platform overview of how the remote config system works (feature state, sub-features, rollouts, targets, cohorts), see the [Feature Flagging Guide](https://github.com/duckduckgo/privacy-configuration/blob/main/docs/feature-flagging-guide.md) in the privacy-configuration repo.
