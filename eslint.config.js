@@ -66,7 +66,13 @@ export default tseslint.config(
         languageOptions: {
             parserOptions: {
                 projectService: {
-                    allowDefaultProject: ['eslint.config.js', 'build-output.eslint.config.js'],
+                    allowDefaultProject: [
+                        'eslint.config.js',
+                        'build-output.eslint.config.js',
+                        'scripts/terminal-colors.js',
+                        'scripts/check-node-version.js',
+                        'scripts/preinstall.js',
+                    ],
                 },
             },
         },
