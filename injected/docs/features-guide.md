@@ -89,7 +89,7 @@ ContentFeature.addDebugFlag();
 
 All features that modify web pages should use Privacy Remote Configuration. This lets you mitigate breakage remotely, adjust behaviour without browser updates, and control rollout.
 
-C-S-S does not have its own feature flag layer. The host platform passes the remote config at injection time via `$CONTENT_SCOPE$` (see [Platform Integration Guide](./platform-integration.md)). The [`ContentScopeFeatures`](../src/content-scope-features.js) runtime resolves feature state and per-site exceptions **before** calling `init` -- a disabled or excepted feature is never initialised, so you don't need to check enablement yourself.
+C-S-S handles feature flagging differently from native clients. Rather than declaring a separate flag enum, features receive the remote config from the host platform at injection time via `$CONTENT_SCOPE$` (see [Platform Integration Guide](./platform-integration.md)). The [`ContentScopeFeatures`](../src/content-scope-features.js) runtime resolves feature state and per-site exceptions **before** calling `init` -- a disabled or excepted feature is never initialised, so you don't need to check enablement yourself. Features can also define default settings within the [`ConfigFeature`](../src/config-feature.js) class.
 
 Within a feature, use the [`ConfigFeature`](../src/config-feature.js) methods (`getFeatureSetting`, `getFeatureSettingEnabled`) to read settings from the config.
 
