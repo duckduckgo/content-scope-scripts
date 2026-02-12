@@ -44,7 +44,9 @@
     text-align: center;
     color: var(--color-black-at-96);
     word-wrap: break-word;
+    /* stylelint-disable-next-line csstree/validator */
     text-box-trim: trim-both;
+    /* stylelint-disable-next-line csstree/validator */
     text-box-edge: cap alphabetic;
     margin: 0;
     align-self: stretch;
@@ -62,7 +64,9 @@
     text-align: center;
     color: var(--color-black-at-96);
     word-wrap: break-word;
+    /* stylelint-disable-next-line csstree/validator */
     text-box-trim: trim-both;
+    /* stylelint-disable-next-line csstree/validator */
     text-box-edge: cap alphabetic;
     white-space: pre-line;
     margin: 0;
