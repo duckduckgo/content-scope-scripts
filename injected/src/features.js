@@ -88,6 +88,7 @@ export const platformSupport = {
         'webDetection',
         'breakageReporting',
     ],
+    'android-ai-history': ['duckAiChatHistory'],
     windows: [
         'cookie',
         ...baseFeatures,
