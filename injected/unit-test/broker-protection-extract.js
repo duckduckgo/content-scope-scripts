@@ -366,6 +366,11 @@ describe('create profiles from extracted data', () => {
                     },
                 },
                 elements: [{ innerText: 'Alice Smith, Bob Jones, Carol Lee' }],
+                /*
+                    This result is a bit unintuitive. First, the regex is invalid, so we treat it as a string (and return no matches).
+                    Then, relativesMatcher splits the string by , and returns the first result. This is primarily to work around a few
+                    brokers that listed relatives in the following format: "Relative Name, Age"
+                */
                 expected: {
                     relatives: ['Alice Smith'],
                 },
