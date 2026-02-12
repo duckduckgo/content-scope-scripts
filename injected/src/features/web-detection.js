@@ -62,25 +62,42 @@ export default class WebDetection extends ContentFeature {
     }
 
     /**
-     * Schedule automatic detector execution based on configured intervals
+     * Schedule automatic detector execution based on configured intervals.
      */
     _scheduleAutoRunDetectors() {
+        // Group detectors by interval: interval → [{detectorId, config}, ...]
+        /** @type {Map<number, Array<{detectorId: string, config: DetectorConfig}>>} */
+        const detectorsByInterval = new Map();
+
         for (const [groupName, groupDetectors] of Object.entries(this.#detectors)) {
             for (const [detectorId, detectorConfig] of Object.entries(groupDetectors)) {
                 // Check if auto trigger is enabled for this detector
                 if (!this._shouldRunDetector(detectorConfig, { trigger: 'auto' })) continue;
 
+                const autoTrigger = detectorConfig.triggers.auto;
                 const fullDetectorId = `${groupName}.${detectorId}`;
 
-                // Schedule detector to run at each configured interval
-                for (const interval of detectorConfig.triggers.auto.when.intervalMs) {
-                    this.#timers.push(
-                        setTimeout(() => {
-                            this._runAutoDetector(fullDetectorId, detectorConfig);
-                        }, interval),
-                    );
+                // Group by interval
+                for (const interval of autoTrigger.when.intervalMs) {
+                    const atInterval = detectorsByInterval.get(interval) ?? [];
+                    atInterval.push({
+                        detectorId: fullDetectorId,
+                        config: detectorConfig,
+                    });
+                    detectorsByInterval.set(interval, atInterval);
                 }
             }
+        }
+
+        // Create one timer per unique interval
+        for (const [interval, detectors] of detectorsByInterval.entries()) {
+            const timerId = setTimeout(() => {
+                // Run all detectors scheduled for this interval
+                for (const { detectorId, config } of detectors) {
+                    this._runAutoDetector(detectorId, config);
+                }
+            }, interval);
+            this.#timers.push(timerId);
         }
     }
 

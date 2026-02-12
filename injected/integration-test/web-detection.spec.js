@@ -328,6 +328,38 @@ test.describe('WebDetection Feature', () => {
             expect(autoDisabledRuns.length).toBe(0);
         });
 
+        test('multiple detectors with same interval are run at interval', async ({ page }, testInfo) => {
+            const { helper } = await WebDetectionTestHelper.setupAutoRunTest(page, testInfo.project.use);
+
+            // Navigate to page with content matching multiple detectors
+            await page.setContent(`
+                <!DOCTYPE html>
+                <html>
+                <body>
+                    <div>auto run test</div>
+                    <div>first success test</div>
+                </body>
+                </html>
+            `);
+
+            // Both basic_auto and delayed_content have 100ms interval
+            // They should be batched into a single timer at 100ms
+            await page.clock.fastForward(100);
+
+            const notifications = await helper.getAutoRunNotifications();
+
+            // Both detectors should have run at the 100ms mark (batched together)
+            const basicAutoRuns = notifications.filter((n) => n.detectorId === 'autorun.basic_auto');
+            const delayedContentRuns = notifications.filter((n) => n.detectorId === 'autorun.delayed_content');
+
+            expect(basicAutoRuns.length).toEqual(1);
+            expect(delayedContentRuns.length).toEqual(1);
+
+            // Both should have detected
+            expect(basicAutoRuns[0].detected).toBe(true);
+            expect(delayedContentRuns[0].detected).toBe(true);
+        });
+
         test('configuration with auto trigger validates correctly', async ({ page }, testInfo) => {
             const collector = ResultsCollector.create(page, testInfo.project.use);
 
@@ -339,7 +371,7 @@ test.describe('WebDetection Feature', () => {
             expect(autorunDetectors.basic_auto.triggers.auto.state).toBe('enabled');
             expect(autorunDetectors.basic_auto.triggers.auto.when).toBeDefined();
             expect(autorunDetectors.basic_auto.triggers.auto.when.intervalMs).toEqual([100, 300]);
-            
+
             // Verify delayed_content detector exists
             expect(autorunDetectors.delayed_content).toBeDefined();
             expect(autorunDetectors.delayed_content.triggers.auto.when.intervalMs).toEqual([100, 200, 300]);
