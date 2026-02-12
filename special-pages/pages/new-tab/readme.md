@@ -142,6 +142,21 @@
    - `pinAppToTaskbarWindows`
    - `subscription`
 
+ ### Next Steps List Cards
+ - **Purpose**: Displays the Next Steps List widget (single card at a time with step indicator)
+ - **Parameter**: `next-steps-list`
+ - **Example**: `?next-steps-list=bringStuff`
+ - **Options**:
+   - `bringStuff`
+   - `defaultApp`
+   - `personalizeBrowser`
+   - `emailProtection`
+   - `duckplayer`
+   - `addAppToDockMac`
+   - `pinAppToTaskbarWindows`
+   - `subscription`
+   - `sync`
+
  ### Freemium PIR Banner
  - **Purpose**: Tests different PIR banner states
  - **Parameter**: `pir`

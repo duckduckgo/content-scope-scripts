@@ -4,7 +4,6 @@ import { privacyStatsMocks } from './privacy-stats/mocks/privacy-stats.mocks.js'
 import { rmfDataExamples } from './remote-messaging-framework/mocks/rmf.data.js';
 import { favorites, gen } from './favorites/mocks/favorites.data.js';
 import { updateNotificationExamples } from './update-notification/mocks/update-notification.data.js';
-import { variants as nextSteps } from './next-steps/nextsteps.data.js';
 import { customizerData, customizerMockTransport } from './customizer/mocks.js';
 import { freemiumPIRDataExamples } from './freemium-pir-banner/mocks/freemiumPIRBanner.data.js';
 import { subscriptionWinBackBannerDataExamples } from './subscription-winback-banner/mocks/subscriptionWinBackBanner.data.js';
@@ -289,8 +288,10 @@ export function mockTransport() {
                     const next = [...prev];
                     next.push(cb);
                     nextStepsSubscriptions.set('nextSteps_onDataUpdate', next);
-                    const params = url.searchParams.get('next-steps');
-                    if (params && params in nextSteps) {
+                    // Support both next-steps and next-steps-list query params
+                    const hasNextSteps = url.searchParams.has('next-steps');
+                    const hasNextStepsList = url.searchParams.has('next-steps-list');
+                    if (hasNextSteps || hasNextStepsList) {
                         const data = read('nextSteps_data');
                         cb(data);
                     }
@@ -452,21 +453,15 @@ export function mockTransport() {
                 case 'nextSteps_getData': {
                     /** @type {NextStepsData} */
                     let data = { content: null };
-                    const ids = url.searchParams.getAll('next-steps');
+                    // Support both next-steps and next-steps-list query params
+                    // Both widgets use the same nextSteps_getData message
+                    const nextStepsIds = url.searchParams.getAll('next-steps');
+                    const nextStepsListIds = url.searchParams.getAll('next-steps-list');
+                    const ids = nextStepsIds.length > 0 ? nextStepsIds : nextStepsListIds;
                     if (ids.length) {
                         /** @type {NextStepsData} */
                         data = {
-                            content: ids
-                                .filter((id) => {
-                                    if (!(id in nextSteps)) {
-                                        console.warn(`${id} missing in nextSteps data`);
-                                        return false;
-                                    }
-                                    return true;
-                                })
-                                .map((id) => {
-                                    return { id: /** @type {any} */ (id) };
-                                }),
+                            content: ids.map((id) => ({ id: /** @type {any} */ (id) })),
                         };
                         write('nextSteps_data', data);
                     }
@@ -595,6 +590,13 @@ export function initialSetup(url) {
     if (url.searchParams.has('next-steps')) {
         const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
         widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'nextSteps' });
+    }
+
+    // Insert nextStepsList after omnibar (or at the beginning if omnibar is not present) and before favorites
+    // Note: nextStepsList uses the same nextSteps_* messages, just a different widget ID
+    if (url.searchParams.has('next-steps-list')) {
+        const favoritesWidgetIndex = widgetsFromStorage.findIndex((widget) => widget.id === 'favorites') ?? 0;
+        widgetsFromStorage.splice(favoritesWidgetIndex, 0, { id: 'nextStepsList' });
     }
 
     initial.customizer = customizerData();
