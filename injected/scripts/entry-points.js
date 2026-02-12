@@ -48,7 +48,7 @@ const builds = {
         output: ['../build/android/adsjsContentScope.js'],
     },
     'android-ai-history': {
-        input: 'entry-points/android-ai-history.js',
+        input: 'entry-points/android.js',
         output: ['../build/android/duckAiChatHistory.js'],
     },
     windows: {
