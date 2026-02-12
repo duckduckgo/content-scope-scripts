@@ -2169,6 +2169,7 @@
       "webDetection",
       "breakageReporting"
     ],
+    "android-ai-history": ["duckAiChatHistory"],
     windows: [
       "cookie",
       ...baseFeatures,

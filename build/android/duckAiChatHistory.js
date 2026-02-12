@@ -1,4 +1,4 @@
-/*! © DuckDuckGo ContentScopeScripts apple-ai-clear https://github.com/duckduckgo/content-scope-scripts/ */
+/*! © DuckDuckGo ContentScopeScripts android-ai-history https://github.com/duckduckgo/content-scope-scripts/ */
 "use strict";
 (() => {
   var __defProp = Object.defineProperty;
@@ -3987,196 +3987,141 @@
   _features = new WeakMap();
   _ready = new WeakMap();
 
-  // src/features/duck-ai-data-clearing.js
-  var DuckAiDataClearing = class extends ContentFeature {
+  // src/features/duck-ai-chat-history.js
+  var _DuckAiChatHistory = class _DuckAiChatHistory extends ContentFeature {
     init() {
-      this.messaging.subscribe("duckAiClearData", (params) => this.clearData(params));
-      this.notify("duckAiClearDataReady");
+      this.messaging.subscribe(
+        "getDuckAiChats",
+        (params) => this.getChats(params)
+      );
     }
     /**
      * @param {object} [params]
-     * @param {string} [params.chatId] - If provided, only delete this specific chat; otherwise clear all data
+     * @param {string} [params.query] - Search query to filter chats by title
+     * @param {number} [params.max_chats] - Maximum number of unpinned chats to return (default: 30, pinned chats have no limit)
+     * @param {number} [params.since] - Timestamp in milliseconds - only return chats with lastEdit >= this value
      */
-    clearData(params) {
-      const chatId = params?.chatId;
-      if (chatId) {
-        return this.deleteSingleChat(chatId);
-      } else {
-        return this.clearAllData();
+    getChats(params) {
+      try {
+        const query = params?.query?.toLowerCase().trim() || "";
+        const maxChats = params?.max_chats ?? _DuckAiChatHistory.DEFAULT_MAX_CHATS;
+        const since = params?.since;
+        const { pinnedChats, chats } = this.retrieveChats(query, maxChats, since);
+        this.notify("duckAiChatsResult", {
+          success: true,
+          pinnedChats,
+          chats,
+          timestamp: Date.now()
+        });
+      } catch (error) {
+        this.log.error("Error retrieving chats:", error);
+        this.notify("duckAiChatsResult", {
+          success: false,
+          error: error?.message || "Unknown error occurred",
+          pinnedChats: [],
+          chats: [],
+          timestamp: Date.now()
+        });
       }
     }
-    async clearAllData() {
-      const errors = [];
-      this.withLocalStorages((key) => this.clearSavedAIChats(key), errors);
-      await this.withAllIndexedDBs((objectStore, _transaction, dbName, storeName) => {
-        this.log.info(`Clearing '${dbName}/${storeName}'`);
-        objectStore.clear();
-      }, errors);
-      this.notifyCompletionResult(errors);
-    }
     /**
-     * Deletes a single chat from localStorage and its associated images from IndexedDB.
-     * @param {string} chatId - The ID of the chat to delete
+     * Retrieves chats from localStorage, optionally filtered by search query and timestamp
+     * @param {string} query - Search query (empty string returns all chats)
+     * @param {number} maxChats - Maximum number of unpinned chats to return (pinned chats have no limit)
+     * @param {number} [since] - Timestamp in milliseconds - only return chats with lastEdit >= this value
+     * @returns {{pinnedChats: Array<object>, chats: Array<object>}} Pinned and unpinned chat arrays
      */
-    async deleteSingleChat(chatId) {
-      const errors = [];
-      this.withLocalStorages((key) => this.removeChatFromLocalStorage(key, chatId), errors);
-      await this.withAllIndexedDBs((objectStore, transaction, dbName, storeName) => {
-        this.log.info(`Deleting images for chat '${chatId}' from '${dbName}/${storeName}'`);
-        const cursorRequest = objectStore.openCursor();
-        let deletedCount = 0;
-        cursorRequest.onsuccess = () => {
-          const cursor = cursorRequest.result;
-          if (cursor) {
-            if (cursor.value.chatId === chatId) {
-              cursor.delete();
-              deletedCount++;
-            }
-            cursor.continue();
+    retrieveChats(query, maxChats, since) {
+      const localStorageKeys = this.getFeatureSetting("chatsLocalStorageKeys") || ["savedAIChats"];
+      const pinnedChats = [];
+      const chats = [];
+      for (const localStorageKey of localStorageKeys) {
+        try {
+          const rawData = window.localStorage.getItem(localStorageKey);
+          if (!rawData) {
+            this.log.info(`No data found for key '${localStorageKey}'`);
+            continue;
           }
-        };
-        transaction.addEventListener("complete", () => {
-          this.log.info(`Deleted ${deletedCount} images for chat '${chatId}'`);
-        });
-      }, errors);
-      this.notifyCompletionResult(errors);
-    }
-    /**
-     * Iterates over all configured localStorage keys and performs an operation on each.
-     * @param {(key: string) => void} operation - Operation to perform on each localStorage key
-     * @param {Error[]} errors - Array to collect any errors
-     */
-    withLocalStorages(operation, errors) {
-      const keys = this.getFeatureSetting("chatsLocalStorageKeys");
-      for (const key of keys) {
-        try {
-          operation(key);
+          const data = JSON.parse(rawData);
+          if (!data || typeof data !== "object") {
+            this.log.info(`Data for key '${localStorageKey}' is not an object`);
+            continue;
+          }
+          const dataChats = data.chats;
+          if (!Array.isArray(dataChats)) {
+            this.log.info(`No chats array found for key '${localStorageKey}'`);
+            continue;
+          }
+          let filteredChats = dataChats;
+          if (since !== void 0) {
+            filteredChats = filteredChats.filter((chat) => this.isNotOlderThan(chat, since));
+          }
+          const matchingChats = query ? filteredChats.filter((chat) => this.chatMatchesQuery(chat, query)) : filteredChats;
+          for (const chat of matchingChats) {
+            const formattedChat = this.formatChat(chat);
+            if (chat.pinned) {
+              pinnedChats.push(formattedChat);
+            } else if (chats.length < maxChats) {
+              chats.push(formattedChat);
+            }
+          }
         } catch (error) {
-          errors.push(error);
-          this.log.error("Error in localStorage operation:", error);
+          this.log.error(`Error parsing data for key '${localStorageKey}':`, error);
         }
       }
+      return { pinnedChats, chats };
     }
     /**
-     * Iterates over all configured IndexedDB stores and performs an operation on each.
-     * @param {(objectStore: IDBObjectStore, transaction: IDBTransaction, dbName: string, storeName: string) => void} operation
-     * @param {Error[]} errors - Array to collect any errors
+     * Formats a chat object for sending to native, extracting only needed keys
+     * @param {object} chat - Chat object
+     * @returns {object} Formatted chat object
      */
-    async withAllIndexedDBs(operation, errors) {
-      const pairs = this.getFeatureSetting("chatImagesIndexDbNameObjectStoreNamePairs");
-      for (const [dbName, storeName] of pairs) {
-        try {
-          await this.withIndexedDB(dbName, storeName, (objectStore, transaction) => {
-            operation(objectStore, transaction, dbName, storeName);
-          });
-        } catch (error) {
-          errors.push(error);
-          this.log.error("Error in IndexedDB operation:", error);
-        }
-      }
+    formatChat(chat) {
+      return {
+        chatId: chat?.chatId,
+        title: chat?.title,
+        model: chat?.model,
+        lastEdit: chat?.lastEdit,
+        pinned: chat?.pinned
+      };
     }
     /**
-     * Sends the appropriate completion or failure notification based on errors.
-     * @param {Error[]} errors - Array of errors that occurred during operations
+     * Checks if a chat matches the search query by checking if all query words appear in title
+     * @param {object} chat - Chat object
+     * @param {string} query - Lowercase search query
+     * @returns {boolean} True if chat title contains all query words
      */
-    notifyCompletionResult(errors) {
-      if (errors.length === 0) {
-        this.notify("duckAiClearDataCompleted");
-      } else {
-        const lastError = errors[errors.length - 1];
-        this.notify("duckAiClearDataFailed", {
-          error: lastError?.message
-        });
-      }
+    chatMatchesQuery(chat, query) {
+      const title = typeof chat.title === "string" ? chat.title.toLowerCase() : "";
+      const words = query.split(/\s+/).filter((w2) => w2);
+      return words.every((word) => title.includes(word));
     }
     /**
-     * Removes a single chat from localStorage by chatId.
-     * @param {string} localStorageKey - The localStorage key containing chats
-     * @param {string} chatId - The ID of the chat to remove
+     * Checks if a chat's lastEdit is not older than the given timestamp
+     * @param {object} chat - Chat object
+     * @param {number} since - Timestamp in milliseconds
+     * @returns {boolean} True if chat is not older than the timestamp
      */
-    removeChatFromLocalStorage(localStorageKey, chatId) {
-      this.log.info(`Removing chat '${chatId}' from '${localStorageKey}'`);
-      const rawData = window.localStorage.getItem(localStorageKey);
-      if (!rawData) {
-        this.log.info(`No data found for key '${localStorageKey}'`);
-        return;
+    isNotOlderThan(chat, since) {
+      const lastEdit = chat.lastEdit;
+      if (!lastEdit) {
+        return true;
       }
-      const data = JSON.parse(rawData);
-      if (!data || typeof data !== "object" || !Array.isArray(data.chats)) {
-        this.log.info(`Invalid data format for key '${localStorageKey}'`);
-        return;
+      const timestamp = new Date(lastEdit).getTime();
+      if (Number.isNaN(timestamp)) {
+        return true;
       }
-      const originalLength = data.chats.length;
-      data.chats = data.chats.filter((chat) => chat.chatId !== chatId);
-      if (data.chats.length < originalLength) {
-        window.localStorage.setItem(localStorageKey, JSON.stringify(data));
-        this.log.info(`Removed chat '${chatId}' from '${localStorageKey}'`);
-      } else {
-        this.log.info(`Chat '${chatId}' not found in '${localStorageKey}'`);
-      }
-    }
-    clearSavedAIChats(localStorageKey) {
-      this.log.info(`Clearing '${localStorageKey}'`);
-      window.localStorage.removeItem(localStorageKey);
-    }
-    /**
-     * Helper method that opens an IndexedDB database, gets an object store, and executes an operation.
-     * Handles all the boilerplate of opening, error handling, and closing the database.
-     * @param {string} indexDbName - The IndexedDB database name
-     * @param {string} objectStoreName - The object store name
-     * @param {(objectStore: IDBObjectStore, transaction: IDBTransaction) => void} operation - The operation to perform on the object store
-     * @returns {Promise<void>}
-     */
-    withIndexedDB(indexDbName, objectStoreName, operation) {
-      return (
-        /** @type {Promise<void>} */
-        new Promise((resolve, reject) => {
-          const request = window.indexedDB.open(indexDbName);
-          request.onerror = (event) => {
-            this.log.error("Error opening IndexedDB:", event);
-            reject(event);
-          };
-          request.onsuccess = (_2) => {
-            const db = request.result;
-            if (!db) {
-              this.log.error("IndexedDB onsuccess but no db result");
-              reject(new Error("No DB result"));
-              return;
-            }
-            if (!db.objectStoreNames.contains(objectStoreName)) {
-              this.log.info(`'${objectStoreName}' object store does not exist, nothing to do`);
-              db.close();
-              resolve();
-              return;
-            }
-            try {
-              const transaction = db.transaction([objectStoreName], "readwrite");
-              const objectStore = transaction.objectStore(objectStoreName);
-              transaction.addEventListener("complete", () => {
-                db.close();
-                resolve();
-              });
-              transaction.addEventListener("error", (err) => {
-                this.log.error("Transaction error:", err);
-                db.close();
-                reject(err);
-              });
-              operation(objectStore, transaction);
-            } catch (err) {
-              this.log.error("Exception during IndexedDB operation:", err);
-              db.close();
-              reject(err);
-            }
-          };
-        })
-      );
+      return timestamp >= since;
     }
   };
-  var duck_ai_data_clearing_default = DuckAiDataClearing;
+  /** @type {number} Default maximum number of chats to return */
+  __publicField(_DuckAiChatHistory, "DEFAULT_MAX_CHATS", 30);
+  var DuckAiChatHistory = _DuckAiChatHistory;
+  var duck_ai_chat_history_default = DuckAiChatHistory;
 
   // ddg:platformFeatures:ddg:platformFeatures
   var ddg_platformFeatures_default = {
-    ddg_feature_duckAiDataClearing: duck_ai_data_clearing_default
+    ddg_feature_duckAiChatHistory: duck_ai_chat_history_default
   };
 
   // src/url-change.js
@@ -4244,7 +4189,7 @@
     }
     const importConfig = {
       trackerLookup: define_import_meta_trackerLookup_default,
-      injectName: "apple-ai-clear"
+      injectName: "android-ai-history"
     };
     const bundledFeatureNames = typeof importConfig.injectName === "string" ? platformSupport[importConfig.injectName] : [];
     const featuresToLoad = isGloballyDisabled(args) ? platformSpecificFeatures : args.site.enabledFeatures || bundledFeatureNames;
@@ -4317,16 +4262,22 @@
     });
   }
 
-  // entry-points/apple.js
+  // entry-points/android.js
   function initCode() {
     const config = $CONTENT_SCOPE$;
     const userUnprotectedDomains = $USER_UNPROTECTED_DOMAINS$;
     const userPreferences = $USER_PREFERENCES$;
-    const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences, platformSpecificFeatures);
-    processedConfig.messagingConfig = new WebkitMessagingConfig({
-      webkitMessageHandlerNames: [processedConfig.messagingContextName],
-      secret: "",
-      hasModernWebkitAPI: true
+    const processedConfig = processConfig(config, userUnprotectedDomains, userPreferences);
+    const configConstruct = processedConfig;
+    const messageCallback = configConstruct.messageCallback;
+    const messageSecret2 = configConstruct.messageSecret;
+    const javascriptInterface = configConstruct.javascriptInterface;
+    processedConfig.messagingConfig = new AndroidMessagingConfig({
+      messageSecret: messageSecret2,
+      messageCallback,
+      javascriptInterface,
+      target: globalThis,
+      debug: processedConfig.debug
     });
     load(getLoadArgs(processedConfig));
     init(processedConfig);
