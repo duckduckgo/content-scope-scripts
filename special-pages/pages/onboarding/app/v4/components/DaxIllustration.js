@@ -14,7 +14,12 @@ import styles from './DaxIllustration.module.css';
 export function DaxIllustration({ class: className }) {
     const { exiting } = useContext(GlobalContext);
     return (
-        <div class={cn(styles.root, exiting && styles.outro, className)} data-exiting={exiting ? 'true' : undefined} role="presentation" aria-hidden="true">
+        <div
+            class={cn(styles.root, exiting && styles.outro, className)}
+            data-exiting={exiting ? 'true' : undefined}
+            role="presentation"
+            aria-hidden="true"
+        >
             <svg width="194" height="194" viewBox="0 0 194 194" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <mask id="mask0_dax" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="194" height="194">
                     <circle cx="96.7023" cy="96.7023" r="96.7023" fill="#D9D9D9" />
