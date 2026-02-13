@@ -3,44 +3,49 @@ import { useContext } from 'preact/hooks';
 import { GlobalDispatch } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { useBeforeAfter } from '../context/BeforeAfterProvider';
-import { Replay } from '../../shared/components/Icons';
+import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
+import { RiveAnimation } from '../../shared/components/RiveAnimation';
+import { Button } from './Button';
+import onboardingAnimation from '../../shared/animations/Onboarding.riv';
+import styles from './DuckPlayerContent.module.css';
 
 /**
  * Bottom bubble content for the duckPlayerSingle step.
- * Shows a placeholder for the gif/animation, a before/after toggle, and a Next button.
+ * Shows the Duck Player before/after animation, a toggle button, and a Next button.
  */
 export function DuckPlayerContent() {
     const { t } = useTypedTranslation();
     const dispatch = useContext(GlobalDispatch);
     const { getStep, setStep } = useBeforeAfter();
+    const { isDarkMode } = useEnv();
 
     const beforeAfterState = getStep('duckPlayerSingle');
 
     const advance = () => dispatch({ kind: 'advance' });
-
-    const longestText = [t('beforeAfter_duckPlayer_show'), t('beforeAfter_duckPlayer_hide')].reduce((acc, cur) => {
-        return cur.length > acc.length ? cur : acc;
-    });
+    const toggleBeforeAfter = () => {
+        setStep('duckPlayerSingle', beforeAfterState === 'after' ? 'before' : 'after');
+    };
 
     return (
-        <div>
-            {/* Placeholder for Duck Player animation/gif */}
-            <div data-placeholder="duck-player-animation" style={{ minHeight: '200px', background: '#eee' }}>
-                Duck Player Preview ({beforeAfterState || 'before'})
+        <div class={styles.root}>
+            {/* TODO: Replace v3 Rive animation with v4 Lottie animation */}
+            <div class={styles.animationContainer}>
+                <RiveAnimation
+                    animation={onboardingAnimation}
+                    state={beforeAfterState || 'before'}
+                    isDarkMode={isDarkMode}
+                    artboard="Duck Player"
+                    inputName="Duck Player?"
+                    stateMachine="State Machine 2"
+                />
             </div>
-
-            <div>
-                <button
-                    type="button"
-                    aria-label={longestText}
-                    onClick={() => setStep('duckPlayerSingle', beforeAfterState === 'after' ? 'before' : 'after')}
-                >
-                    <Replay direction={beforeAfterState === 'after' ? 'backward' : 'forward'} />
+            <div class={styles.buttons}>
+                <Button variant="secondary" onClick={toggleBeforeAfter} class={styles.flexButton}>
                     {beforeAfterState === 'after' ? t('beforeAfter_duckPlayer_hide') : t('beforeAfter_duckPlayer_show')}
-                </button>
-                <button type="button" onClick={advance}>
+                </Button>
+                <Button variant="primary" onClick={advance} class={styles.flexButton}>
                     {t('nextButton')}
-                </button>
+                </Button>
             </div>
         </div>
     );
