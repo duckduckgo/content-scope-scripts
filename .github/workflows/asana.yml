@@ -6,6 +6,7 @@ on:
         types:
             - opened
             - closed
+            - reopened
 
 jobs:
     create-pr-task:
@@ -70,3 +71,16 @@ jobs:
                   asana-pat: ${{ secrets.ASANA_ACCESS_TOKEN }}
                   action: 'notify-pr-merged'
                   is-complete: true
+
+    notify-reopened:
+        if: >
+            github.event_name == 'pull_request_target'
+            && github.event.action == 'reopened'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Mark Asana task incomplete on reopen
+              uses: duckduckgo/native-github-asana-sync@v2.3
+              with:
+                  asana-pat: ${{ secrets.ASANA_ACCESS_TOKEN }}
+                  action: 'notify-pr-merged'
+                  is-complete: false
