@@ -84,7 +84,6 @@ export const stepsConfig = {
  * @property {string} title
  * @property {string} [secondaryText]
  * @property {string} acceptText
- * @property {'primary'|'secondary'} [accepButtonVariant]
  * @property {string} [acceptTextRecall] - Shown if a user chooses to skip that step. If undefined,
  * @property acceptText is shown.
  */
@@ -97,7 +96,6 @@ export const settingsRowItems = {
         title: t('row_default-browser_title_v3'),
         kind: 'one-time',
         acceptText: t('row_default-browser_accept'),
-        accepButtonVariant: 'primary',
     }),
     import: (t) => ({
         id: 'import',
@@ -107,7 +105,6 @@ export const settingsRowItems = {
         kind: 'one-time',
         acceptText: t('row_import_accept_v3'),
         acceptTextRecall: t('row_import_accept'),
-        accepButtonVariant: 'primary',
     }),
     dock: (t, platform) => {
         const title = platform === 'macos' ? t('row_dock_title_v3') : t('row_taskbar_title_v3');
@@ -121,7 +118,6 @@ export const settingsRowItems = {
             secondaryText,
             kind: 'one-time',
             acceptText,
-            accepButtonVariant: 'primary',
         };
     },
     bookmarks: (t) => ({
@@ -130,7 +126,6 @@ export const settingsRowItems = {
         title: t('row_bookmarks_title_v3'),
         kind: 'toggle',
         acceptText: t('row_bookmarks_accept'),
-        accepButtonVariant: 'secondary',
     }),
     'session-restore': (t) => ({
         id: 'session-restore',
@@ -138,7 +133,6 @@ export const settingsRowItems = {
         title: t('row_session-restore_title_v3'),
         kind: 'toggle',
         acceptText: t('row_session-restore_accept'),
-        accepButtonVariant: 'secondary',
     }),
     'home-shortcut': (t) => ({
         id: 'home-shortcut',
@@ -146,7 +140,6 @@ export const settingsRowItems = {
         title: t('row_home-shortcut_title_v3'),
         kind: 'toggle',
         acceptText: t('row_home-shortcut_accept'),
-        accepButtonVariant: 'secondary',
     }),
     'placebo-ad-blocking': (t) => ({
         id: 'placebo-ad-blocking',
@@ -155,7 +148,6 @@ export const settingsRowItems = {
         secondaryText: t('row_ad-blocking_desc_v3'),
         kind: 'one-time',
         acceptText: t('row_ad-blocking_accept_v3'),
-        accepButtonVariant: 'primary',
     }),
     'aggressive-ad-blocking': (t) => ({
         id: 'aggressive-ad-blocking',
@@ -164,7 +156,6 @@ export const settingsRowItems = {
         secondaryText: t('row_ad-blocking_desc_v3'),
         kind: 'one-time',
         acceptText: t('row_ad-blocking_accept_v3'),
-        accepButtonVariant: 'primary',
     }),
     'youtube-ad-blocking': (t) => ({
         id: 'youtube-ad-blocking',
@@ -173,7 +164,6 @@ export const settingsRowItems = {
         secondaryText: t('row_youtube-ad-blocking_desc_v3'),
         kind: 'one-time',
         acceptText: t('row_youtube-ad-blocking_accept_v3'),
-        accepButtonVariant: 'primary',
     }),
     'address-bar-mode': (t) => ({
         id: 'address-bar-mode',
@@ -181,7 +171,6 @@ export const settingsRowItems = {
         title: t('addressBarMode_title'),
         kind: 'toggle',
         acceptText: t('startBrowsing'),
-        accepButtonVariant: 'primary',
     }),
 };
 
