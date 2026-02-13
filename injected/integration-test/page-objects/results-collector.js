@@ -95,9 +95,18 @@ export class ResultsCollector {
     }
 
     /**
-     * Flush collected V8 coverage data to disk.
-     * Call this after all assertions are done to capture coverage from the test.
-     * Only active when COLLECT_COVERAGE=1.
+     * Flush collected V8 coverage data to disk and stop coverage collection.
+     * Must be called explicitly after all page interactions are complete.
+     * Only active when COLLECT_COVERAGE=1 and coverage was started via load().
+     *
+     * Typical usage in a spec:
+     * ```js
+     * const collector = ResultsCollector.create(page, testInfo.project.use);
+     * await collector.load(HTML, CONFIG);
+     * const results = await collector.results();
+     * // ... assertions ...
+     * await collector.flushCoverage(); // call once at the end
+     * ```
      */
     async flushCoverage() {
         if (!this.#coverageStarted || typeof this.page.coverage?.stopJSCoverage !== 'function') {
@@ -264,12 +273,7 @@ export class ResultsCollector {
         if (beforeAwait) {
             await beforeAwait();
         }
-        const results = await resultsPromise;
-
-        // Auto-flush V8 coverage after collecting results
-        await this.flushCoverage();
-
-        return results;
+        return await resultsPromise;
     }
 
     /**
@@ -333,8 +337,6 @@ export class ResultsCollector {
             { timeout: 5000, polling: 100 },
         );
         const calls = await this.page.evaluate(readOutgoingMessages);
-        // Flush coverage if this is the last interaction in the test
-        await this.flushCoverage();
         return calls.filter((v) => v.payload.method === method);
     }
 
@@ -342,10 +344,7 @@ export class ResultsCollector {
      * @return {Promise<UnstableMockCall[]>}
      */
     async outgoingMessages() {
-        const messages = await this.page.evaluate(readOutgoingMessages);
-        // Flush coverage if this is the last interaction in the test
-        await this.flushCoverage();
-        return messages;
+        return await this.page.evaluate(readOutgoingMessages);
     }
 
     /**

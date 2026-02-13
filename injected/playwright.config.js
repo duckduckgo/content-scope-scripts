@@ -84,8 +84,9 @@ export default defineConfig({
             testMatch: 'integration-test/remote-pages.spec.js',
             use: { injectName: 'firefox', platform: 'extension', ...devices['Desktop Firefox'] },
         },
-        // Coverage collection project: re-runs windows specs with V8 coverage enabled.
+        // Coverage collection project: runs windows specs with V8 coverage enabled.
         // Activate with: COLLECT_COVERAGE=1 npx playwright test --project coverage --reporter list
+        // Mirrors the 'windows' project which has the broadest feature coverage.
         {
             name: 'coverage',
             testMatch: [
@@ -100,7 +101,7 @@ export default defineConfig({
                 'integration-test/duck-ai-chat-history.spec.js',
                 'integration-test/web-detection.spec.js',
             ],
-            use: { injectName: 'windows', platform: 'windows', collectCoverage: true },
+            use: { injectName: 'windows', platform: 'windows' },
         },
     ],
     timeout: 30 * 1000,

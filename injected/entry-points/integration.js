@@ -1,6 +1,7 @@
 import { load, init, updateFeatureArgs } from '../src/content-scope-features.js';
 import { TestTransportConfig } from '../../messaging/index.js';
 import { getTabUrl, getLoadArgs } from '../src/utils.js';
+import { platformSupport } from '../src/features.js';
 
 function generateConfig() {
     const topLevelUrl = getTabUrl();
@@ -28,31 +29,11 @@ function generateConfig() {
             url: topLevelUrl?.href || '',
             isBroken: false,
             allowlisted: false,
-            enabledFeatures: [
-                'fingerprintingAudio',
-                'fingerprintingBattery',
-                'fingerprintingCanvas',
-                'fingerprintingHardware',
-                'fingerprintingScreenSize',
-                'fingerprintingTemporaryStorage',
-                'navigatorInterface',
-                'cookie',
-                'webCompat',
-                'apiManipulation',
-                'duckPlayer',
-                'duckPlayerNative',
-                'elementHiding',
-                'gpc',
-                'googleRejected',
-                'referrer',
-                'exceptionHandler',
-                'print',
-                'performanceMetrics',
-                'webTelemetry',
-                'webInterferenceDetection',
-                'harmfulApis',
-                'pageContext',
-            ],
+            // Derive enabled features from platformSupport to avoid drift.
+            // Exclude features requiring a messaging backend (clickToLoad) or
+            // platform-specific globals (brokerProtection, autofillImport) that
+            // would fail or slow down initialization in the integration test context.
+            enabledFeatures: platformSupport.integration.filter((f) => !['clickToLoad', 'brokerProtection', 'autofillImport'].includes(f)),
         },
     };
 }
