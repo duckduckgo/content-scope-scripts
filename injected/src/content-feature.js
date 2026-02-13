@@ -459,21 +459,32 @@ export default class ContentFeature extends ConfigFeature {
     defineProperty(object, propertyName, descriptor) {
         // make sure to send a debug flag when the property is used
         // NOTE: properties passing data in `value` would not be caught by this
-        /** @type {Record<string, any>} */
-        const desc = descriptor;
-        ['value', 'get', 'set'].forEach((k) => {
-            const descriptorProp = desc[k];
-            if (typeof descriptorProp === 'function') {
-                const addDebugFlag = this.addDebugFlag.bind(this);
-                const wrapper = new Proxy(descriptorProp, {
-                    apply(_, thisArg, argumentsList) {
-                        addDebugFlag();
-                        return Reflect.apply(descriptorProp, thisArg, argumentsList);
-                    },
-                });
-                desc[k] = wrapToString(wrapper, descriptorProp);
-            }
-        });
+        const addDebugFlag = this.addDebugFlag.bind(this);
+
+        /**
+         * @template {(...args: any[]) => any} F
+         * @param {F} fn
+         * @returns {F}
+         */
+        const wrapWithDebugFlag = (fn) => {
+            const wrapper = new Proxy(fn, {
+                apply(_, thisArg, argumentsList) {
+                    addDebugFlag();
+                    return Reflect.apply(fn, thisArg, argumentsList);
+                },
+            });
+            return /** @type {F} */ (wrapToString(wrapper, fn));
+        };
+
+        if ('value' in descriptor && typeof descriptor.value === 'function') {
+            descriptor.value = wrapWithDebugFlag(descriptor.value);
+        }
+        if ('get' in descriptor && typeof descriptor.get === 'function') {
+            descriptor.get = wrapWithDebugFlag(descriptor.get);
+        }
+        if ('set' in descriptor && typeof descriptor.set === 'function') {
+            descriptor.set = wrapWithDebugFlag(descriptor.set);
+        }
 
         return defineProperty(object, propertyName, descriptor);
     }
