@@ -14,6 +14,7 @@
     font-weight: 400;
     line-height: calc(15 * var(--px-in-rem));
     text-align: center;
+    white-space: nowrap;
 }
 
 .button:disabled {
