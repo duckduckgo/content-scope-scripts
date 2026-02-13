@@ -14,7 +14,7 @@ export const ddgShimMark = Symbol('ddgShimMark');
  * FIXME: this function is not needed anymore after FF xray removal
  * Like Object.defineProperty, but with support for Firefox's mozProxies.
  * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
- * @param {string} propertyName
+ * @param {string | symbol} propertyName
  * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
  */
 export function defineProperty(object, propertyName, descriptor) {
@@ -116,7 +116,7 @@ export function wrapFunction(functionValue, realTarget) {
  * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Screen.prototype)
  * @param {string} propertyName
  * @param {Partial<PropertyDescriptor>} descriptor
- * @param {typeof Object.defineProperty} definePropertyFn - function to use for defining the property
+ * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
 export function wrapProperty(object, propertyName, descriptor, definePropertyFn) {
@@ -363,10 +363,10 @@ export function shimProperty(baseObject, propertyName, implInstance, readOnly, d
 
 /**
  * @callback DefinePropertyFn
- * @param {object} baseObj
- * @param {PropertyKey} propertyName
+ * @param {any} baseObj
+ * @param {string | symbol} propertyName
  * @param {StrictPropertyDescriptor} descriptor
- * @returns {object}
+ * @returns {void}
  */
 
 /**

@@ -103,7 +103,9 @@ export async function init(args) {
     if (!isHTMLDocument) {
         return;
     }
-    registerMessageSecret(args.messageSecret);
+    if (args.messageSecret) {
+        registerMessageSecret(args.messageSecret);
+    }
     initStringExemptionLists(args);
     const features = await getFeatures();
     // use allSettled to ensure the main thread isn't blocked if one of the features fails to init

@@ -60,10 +60,9 @@ export class CallFeatureMethodError extends Error {
 }
 
 export default class ContentFeature extends ConfigFeature {
-    /** @type {import('./utils.js').RemoteConfig | undefined} */
-    /** @type {import('../../messaging').Messaging} */
+    /** @type {import('../../messaging').Messaging | undefined} */
     // eslint-disable-next-line no-unused-private-class-members
-    #messaging;
+    #messaging = undefined;
     /** @type {boolean} */
     #isDebugFlagSet = false;
     /**
@@ -216,7 +215,7 @@ export default class ContentFeature extends ConfigFeature {
      * @returns {boolean}
      */
     get documentOriginIsTracker() {
-        return isTrackerOrigin(this.trackerLookup);
+        return isTrackerOrigin(/** @type {Record<string, any>} */ (this.trackerLookup || {}));
     }
 
     /**
@@ -318,6 +317,9 @@ export default class ContentFeature extends ConfigFeature {
         return processAttr(configSetting, defaultValue);
     }
 
+    /**
+     * @param {any} [_args]
+     */
     init(_args) {}
 
     /**
@@ -352,11 +354,17 @@ export default class ContentFeature extends ConfigFeature {
         this.#ready.resolve({ status: 'skipped', reason });
     }
 
+    /**
+     * @param {any} args
+     */
     setArgs(args) {
         this.args = args;
         this.platform = args.platform;
     }
 
+    /**
+     * @param {any} [_args]
+     */
     load(_args) {}
 
     /**
@@ -445,14 +453,16 @@ export default class ContentFeature extends ConfigFeature {
      * Define a property descriptor with debug flags.
      * Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
-     * @param {string} propertyName
+     * @param {string | symbol} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
     defineProperty(object, propertyName, descriptor) {
         // make sure to send a debug flag when the property is used
         // NOTE: properties passing data in `value` would not be caught by this
+        /** @type {Record<string, any>} */
+        const desc = descriptor;
         ['value', 'get', 'set'].forEach((k) => {
-            const descriptorProp = descriptor[k];
+            const descriptorProp = desc[k];
             if (typeof descriptorProp === 'function') {
                 const addDebugFlag = this.addDebugFlag.bind(this);
                 const wrapper = new Proxy(descriptorProp, {
@@ -461,7 +471,7 @@ export default class ContentFeature extends ConfigFeature {
                         return Reflect.apply(descriptorProp, thisArg, argumentsList);
                     },
                 });
-                descriptor[k] = wrapToString(wrapper, descriptorProp);
+                desc[k] = wrapToString(wrapper, descriptorProp);
             }
         });
 
@@ -483,7 +493,7 @@ export default class ContentFeature extends ConfigFeature {
      * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
      * @param {string} propertyName
-     * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+     * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
     wrapMethod(object, propertyName, wrapperFn) {
@@ -504,7 +514,7 @@ export default class ContentFeature extends ConfigFeature {
      * Define a missing standard property on a global (prototype) object. Only for data properties.
      * For constructors, use shimInterface().
      * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
-     * @template Base
+     * @template {object} Base
      * @template {keyof Base & string} K
      * @param {Base} instanceHost - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
      * @param {K} instanceProp - name of the property to shim (e.g. 'mediaSession')
