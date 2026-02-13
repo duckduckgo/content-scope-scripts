@@ -8,7 +8,7 @@ import { sjcl } from '../lib/sjcl.js';
  */
 export function getDataKeySync(sessionKey, domainKey, inputData) {
     // eslint-disable-next-line new-cap
-    const hmac = new (/** @type {any} */ (sjcl)).misc.hmac(
+    const hmac = new /** @type {any} */ (sjcl).misc.hmac(
         /** @type {any} */ (sjcl).codec.utf8String.toBits(sessionKey + domainKey),
         /** @type {any} */ (sjcl).hash.sha256,
     );

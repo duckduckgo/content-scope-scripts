@@ -211,11 +211,12 @@ export function matchHostname(hostname, exceptionDomain) {
 
 const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
 /**
- * @param {string} stack
+ * @param {string | undefined} stack
  * @returns {Set<URL>}
  */
 export function getStackTraceUrls(stack) {
     const urls = new Set();
+    if (!stack) return urls;
     try {
         const errorLines = stack.split('\n');
         // Should cater for Chrome and Firefox stacks, we only care about https? resources.
@@ -232,7 +233,7 @@ export function getStackTraceUrls(stack) {
 }
 
 /**
- * @param {string} stack
+ * @param {string | undefined} stack
  * @returns {Set<string>}
  */
 export function getStackTraceOrigins(stack) {
@@ -918,7 +919,7 @@ export function isPlatformSpecificFeature(featureName) {
 
 /**
  * @param {string} eventName
- * @param {CustomEventInit} eventDetail
+ * @param {CustomEventInit} [eventDetail]
  * @returns {CustomEvent}
  */
 export function createCustomEvent(eventName, eventDetail) {

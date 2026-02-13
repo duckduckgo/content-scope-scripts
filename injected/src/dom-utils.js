@@ -3,7 +3,7 @@
  */
 class Template {
     /**
-     * @param {string[]} strings
+     * @param {readonly string[]} strings
      * @param {unknown[]} values
      */
     constructor(strings, values) {
@@ -65,7 +65,7 @@ class Template {
 }
 
 /**
- * @param {string[]} strings
+ * @param {readonly string[]} strings
  * @param {...unknown} values
  * @returns {Template}
  */

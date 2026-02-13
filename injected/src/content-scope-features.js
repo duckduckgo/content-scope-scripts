@@ -29,7 +29,7 @@ const isHTMLDocument =
  * @typedef {object} LoadArgs
  * @property {import('./content-feature').Site} site
  * @property {import('./utils.js').Platform} platform
- * @property {import('./utils.js').RemoteConfig} bundledConfig
+ * @property {import('./utils.js').RemoteConfig} [bundledConfig]
  * @property {import('@duckduckgo/messaging').MessagingConfig} [messagingConfig]
  * @property {string} [messageSecret] - optional, used in the messageBridge creation
  * @property {string} messagingContextName - the context name for messaging (e.g. 'contentScopeScripts')
@@ -95,10 +95,11 @@ async function getFeatures() {
 }
 
 /**
- * @param {LoadArgs} args
+ * @param {any} args
  */
 export async function init(args) {
     const mark = performanceMonitor.mark('init');
+    /** @type {LoadArgs} */
     initArgs = args;
     if (!isHTMLDocument) {
         return;
@@ -149,7 +150,7 @@ export async function init(args) {
 }
 
 /**
- * @param {LoadArgs} args
+ * @param {any} args
  */
 export function update(args) {
     if (!isHTMLDocument) {

@@ -176,9 +176,12 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
         throw new Error(`Property ${propertyName} does not look like a method`);
     }
 
-    const newFn = wrapToString(/** @this {any} */ function () {
-        return wrapperFn.call(this, origFn, ...arguments);
-    }, origFn);
+    const newFn = wrapToString(
+        /** @this {any} */ function () {
+            return wrapperFn.call(this, origFn, ...arguments);
+        },
+        origFn,
+    );
 
     definePropertyFn(object, propertyName, {
         ...origDescriptor,

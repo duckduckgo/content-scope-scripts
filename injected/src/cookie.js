@@ -9,12 +9,10 @@ export class Cookie {
         this.name = undefined;
         /** @type {string | undefined} */
         this.value = undefined;
-        /** @type {string | undefined} */
+        /** @type {string | number | undefined} */
         this['max-age'] = undefined;
         /** @type {string | undefined} */
         this.expires = undefined;
-        /** @type {string | undefined} */
-        this.domain = undefined;
         /** @type {Record<string, number>} */
         this.attrIdx = {};
         this.parse();
@@ -42,7 +40,7 @@ export class Cookie {
             return NaN;
         }
         const expiry = this.maxAge
-            ? parseInt(this.maxAge)
+            ? parseInt(String(this.maxAge))
             : (new Date(/** @type {string} */ (this.expires)).getTime() - new Date().getTime()) / 1000;
         return expiry;
     }

@@ -78,8 +78,8 @@ export default class ConfigFeature {
         // If we have a bundled config, treat it as a regular config
         // This will be overriden by the remote config if it is available
         if (this.#bundledConfig && this.#args) {
-            const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform);
-            this.#args.featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
+            const enabledFeatures = computeEnabledFeatures(this.#bundledConfig, site.domain, platform);
+            this.#args.featureSettings = parseFeatureSettings(this.#bundledConfig, enabledFeatures);
         }
     }
 
