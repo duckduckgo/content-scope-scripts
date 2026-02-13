@@ -84,25 +84,6 @@ export default defineConfig({
             testMatch: 'integration-test/remote-pages.spec.js',
             use: { injectName: 'firefox', platform: 'extension', ...devices['Desktop Firefox'] },
         },
-        // Coverage collection project: runs windows specs with V8 coverage enabled.
-        // Activate with: COLLECT_COVERAGE=1 npx playwright test --project coverage --reporter list
-        // Mirrors the 'windows' project which has the broadest feature coverage.
-        {
-            name: 'coverage',
-            testMatch: [
-                'integration-test/duckplayer.spec.js',
-                'integration-test/duckplayer-remote-config.spec.js',
-                'integration-test/harmful-apis.spec.js',
-                'integration-test/windows-permissions.spec.js',
-                'integration-test/ua-ch-brands.spec.js',
-                'integration-test/broker-protection-tests/**/*.spec.js',
-                'integration-test/breakage-reporting.spec.js',
-                'integration-test/duck-ai-data-clearing.spec.js',
-                'integration-test/duck-ai-chat-history.spec.js',
-                'integration-test/web-detection.spec.js',
-            ],
-            use: { injectName: 'windows', platform: 'windows' },
-        },
     ],
     timeout: 30 * 1000,
     expect: {
