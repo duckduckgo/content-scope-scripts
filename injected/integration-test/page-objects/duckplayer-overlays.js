@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { expect } from '@playwright/test';
 import { perPlatform } from '../type-helpers.mjs';
 import { ResultsCollector } from './results-collector.js';
-import { forwardConsole, expectRequestFailure } from '../shared.mjs';
+import { forwardConsole, withExpectedFailure } from '../shared.mjs';
 
 // Every possible combination of UserValues
 const userValues = {
@@ -402,9 +402,8 @@ export class DuckplayerOverlays {
                 await this.duckPlayerLoadsFor('123');
             },
             windows: async () => {
-                const { waitForFailure } = expectRequestFailure(this.page);
-                await action();
-                expect(await waitForFailure()).toEqual('duck://player/123');
+                const url = await withExpectedFailure(this.page, action);
+                expect(url).toEqual('duck://player/123');
             },
         });
     }

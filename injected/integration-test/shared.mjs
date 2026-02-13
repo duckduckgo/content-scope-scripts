@@ -22,23 +22,20 @@ export function forwardConsole(page) {
 }
 
 /**
- * Sets up a listener to capture an expected request failure (e.g., navigation to a
- * custom protocol like duck://). Returns an object to await the failure after
- * performing the action that triggers it.
+ * Executes an action that triggers an expected request failure (e.g., navigation to a
+ * custom protocol like duck://). Sets up the listener and suppression BEFORE executing
+ * the action, and guarantees cleanup in a finally block.
  *
  * @param {import('@playwright/test').Page} page - The Playwright page
+ * @param {() => Promise<void>} action - The action that triggers the failure
  * @param {string} [urlPrefix='duck'] - URL prefix to match for the expected failure
- * @returns {{ waitForFailure: () => Promise<string> }} - Object with waitForFailure method
+ * @returns {Promise<string>} - The URL of the failed request
  *
  * @example
- * const { waitForFailure } = expectRequestFailure(page);
- * await page.click('a[href^="duck://"]');
- * const url = await waitForFailure();
+ * const url = await withExpectedFailure(page, () => page.click('a[href^="duck://"]'));
  * expect(url).toEqual('duck://player/123');
  */
-export function expectRequestFailure(page, urlPrefix = 'duck') {
-    suppressingExpectedFailures = true;
-
+export async function withExpectedFailure(page, action, urlPrefix = 'duck') {
     /** @type {(url: string) => void} */
     let resolveFailure;
     const failure = new Promise((resolve) => {
@@ -51,18 +48,18 @@ export function expectRequestFailure(page, urlPrefix = 'duck') {
         }
     };
 
+    // Setup listener and suppression BEFORE action
     page.context().on('requestfailed', handler);
+    suppressingExpectedFailures = true;
 
-    return {
-        waitForFailure: async () => {
-            try {
-                return await failure;
-            } finally {
-                suppressingExpectedFailures = false;
-                page.context().off('requestfailed', handler);
-            }
-        },
-    };
+    try {
+        await action();
+        return await failure;
+    } finally {
+        // Cleanup ALWAYS happens, even if action throws
+        suppressingExpectedFailures = false;
+        page.context().off('requestfailed', handler);
+    }
 }
 
 export function windowsGlobalPolyfills() {

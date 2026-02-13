@@ -2,7 +2,7 @@ import { Mocks } from '../../../shared/mocks.js';
 import { expect } from '@playwright/test';
 import { join } from 'node:path';
 import { perPlatform } from 'injected/integration-test/type-helpers.mjs';
-import { expectRequestFailure } from 'injected/integration-test/shared.mjs';
+import { withExpectedFailure } from 'injected/integration-test/shared.mjs';
 
 const MOCK_VIDEO_ID = 'VIDEO_ID';
 const MOCK_VIDEO_TITLE = 'Embedded Video - YouTube';
@@ -387,9 +387,10 @@ export class DuckPlayerPage {
     async opensInYoutube() {
         await this.build.switch({
             windows: async () => {
-                const { waitForFailure } = expectRequestFailure(this.page);
-                await this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
-                expect(await waitForFailure()).toEqual('duck://player/openInYoutube?v=VIDEO_ID');
+                const url = await withExpectedFailure(this.page, () =>
+                    this.page.getByRole('button', { name: 'Watch on YouTube' }).click(),
+                );
+                expect(url).toEqual('duck://player/openInYoutube?v=VIDEO_ID');
             },
             apple: async () => {
                 const nextNavigation = new Promise((resolve) => {
@@ -407,9 +408,8 @@ export class DuckPlayerPage {
         const action = () => this.page.frameLocator('#player').getByRole('link', { name: 'Watch on YouTube' }).click();
         await this.build.switch({
             windows: async () => {
-                const { waitForFailure } = expectRequestFailure(this.page);
-                await action();
-                expect(await waitForFailure()).toEqual(`duck://player/openInYoutube?v=${videoID}`);
+                const url = await withExpectedFailure(this.page, action);
+                expect(url).toEqual(`duck://player/openInYoutube?v=${videoID}`);
             },
             apple: async () => {
                 if (this.platform.name === 'ios') {
@@ -431,9 +431,8 @@ export class DuckPlayerPage {
         const action = () => this.page.getByRole('button', { name: 'Watch on YouTube' }).click();
         await this.build.switch({
             windows: async () => {
-                const { waitForFailure } = expectRequestFailure(this.page);
-                await action();
-                expect(await waitForFailure()).toEqual(`duck://player/openInYoutube?v=${videoID}`);
+                const url = await withExpectedFailure(this.page, action);
+                expect(url).toEqual(`duck://player/openInYoutube?v=${videoID}`);
             },
             apple: async () => {
                 if (this.platform.name === 'ios') {
