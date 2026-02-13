@@ -221,6 +221,47 @@ describe('ConfigFeature internal/preview matching properties', () => {
     });
 });
 
+// --- urlPattern matching ---
+
+describe('ConfigFeature URL pattern matching', () => {
+    it('matches a string urlPattern against the current URL', () => {
+        const feature = createFeature({ url: 'http://example.com/page/test' });
+        expect(feature._matchUrlPatternConditional({ urlPattern: '/page/*' })).toBeTrue();
+    });
+
+    it('does not match when URL does not match string pattern', () => {
+        const feature = createFeature({ url: 'http://example.com/other' });
+        expect(feature._matchUrlPatternConditional({ urlPattern: '/page/*' })).toBeFalse();
+    });
+
+    it('matches an object urlPattern', () => {
+        const feature = createFeature({ url: 'http://example.com/page/test' });
+        expect(feature._matchUrlPatternConditional({ urlPattern: { pathname: '/page/*' } })).toBeTrue();
+    });
+
+    it('returns false when no URL in args', () => {
+        const feature = createFeature({ url: undefined });
+        // @ts-expect-error - force undefined url for testing
+        feature.args.site.url = undefined;
+        expect(feature._matchUrlPatternConditional({ urlPattern: '/page/*' })).toBeFalse();
+    });
+});
+
+// --- injectName matching ---
+
+describe('ConfigFeature injectName matching', () => {
+    it('returns false when no injectName in condition', () => {
+        const feature = createFeature();
+        expect(feature._matchInjectNameConditional({})).toBeFalse();
+    });
+
+    it('returns false when feature has no injectName', () => {
+        // ConfigFeature.injectName returns undefined by default
+        const feature = createFeature();
+        expect(feature._matchInjectNameConditional({ injectName: 'apple' })).toBeFalse();
+    });
+});
+
 // --- getFeatureSettingEnabled ---
 
 describe('ConfigFeature.getFeatureSettingEnabled properties', () => {
