@@ -21,9 +21,9 @@ const cookieWithMaxAge = () =>
 
 /** Generate a cookie string with expires */
 const cookieWithExpires = () =>
-    fc.tuple(cookieName(), cookieValue(), fc.date({ min: new Date(), max: new Date(Date.now() + 86400 * 365 * 10 * 1000) })).map(
-        ([name, value, date]) => `${name}=${value}; expires=${date.toUTCString()}`,
-    );
+    fc
+        .tuple(cookieName(), cookieValue(), fc.date({ min: new Date(), max: new Date(Date.now() + 86400 * 365 * 10 * 1000) }))
+        .map(([name, value, date]) => `${name}=${value}; expires=${date.toUTCString()}`);
 
 // --- Cookie class properties ---
 
@@ -122,6 +122,7 @@ describe('Cookie class properties', () => {
         fc.assert(
             fc.property(cookieName(), cookieValue(), (name, value) => {
                 const cookie = new Cookie(`${name}=${value}; domain=example.com`);
+                // @ts-expect-error - domain is dynamically set during parse
                 expect(cookie.domain).toBe('example.com');
             }),
             { numRuns: 50 },

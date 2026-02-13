@@ -26,16 +26,15 @@ const domainName = () =>
 
 /** Generate a semantic version string (e.g. '1.2.3') */
 const versionString = () =>
-    fc.tuple(fc.integer({ min: 0, max: 100 }), fc.integer({ min: 0, max: 100 }), fc.integer({ min: 0, max: 100 })).map(
-        ([a, b, c]) => `${a}.${b}.${c}`,
-    );
+    fc
+        .tuple(fc.integer({ min: 0, max: 100 }), fc.integer({ min: 0, max: 100 }), fc.integer({ min: 0, max: 100 }))
+        .map(([a, b, c]) => `${a}.${b}.${c}`);
 
 /** Generate a positive integer version */
 const versionInt = () => fc.integer({ min: 0, max: 10000 });
 
 /** Generate a dash-separated lowercase string for camelcase testing */
-const dashCaseString = () =>
-    fc.array(fc.stringMatching(/^[a-z]{1,8}$/), { minLength: 1, maxLength: 5 }).map((parts) => parts.join('-'));
+const dashCaseString = () => fc.array(fc.stringMatching(/^[a-z]{1,8}$/), { minLength: 1, maxLength: 5 }).map((parts) => parts.join('-'));
 
 // --- matchHostname ---
 
@@ -262,6 +261,7 @@ describe('processAttr properties', () => {
     it('returns defaultValue when configSetting is undefined', () => {
         fc.assert(
             fc.property(fc.anything(), (defaultVal) => {
+                // @ts-expect-error - testing undefined configSetting
                 expect(processAttr(undefined, defaultVal)).toBe(defaultVal);
             }),
             { numRuns: 50 },
@@ -306,7 +306,7 @@ describe('processAttr properties', () => {
     it('returns defaultValue for non-object types', () => {
         fc.assert(
             fc.property(fc.integer(), fc.string(), (val, defaultVal) => {
-                // primitive numbers/strings as configSetting should return default
+                // @ts-expect-error - testing with primitive as configSetting
                 expect(processAttr(val, defaultVal)).toBe(defaultVal);
             }),
             { numRuns: 50 },
@@ -314,6 +314,7 @@ describe('processAttr properties', () => {
     });
 
     it('returns defaultValue for object without type', () => {
+        // @ts-expect-error - testing with object missing required 'type' property
         expect(processAttr({ value: 'test' }, 'default')).toBe('default');
     });
 });
@@ -324,6 +325,7 @@ describe('isStateEnabled properties', () => {
     it('enabled always returns true regardless of platform', () => {
         fc.assert(
             fc.property(fc.anything(), (platform) => {
+                // @ts-expect-error - testing with arbitrary platform values
                 expect(isStateEnabled('enabled', platform)).toBeTrue();
             }),
             { numRuns: 20 },
@@ -333,6 +335,7 @@ describe('isStateEnabled properties', () => {
     it('disabled always returns false regardless of platform', () => {
         fc.assert(
             fc.property(fc.anything(), (platform) => {
+                // @ts-expect-error - testing with arbitrary platform values
                 expect(isStateEnabled('disabled', platform)).toBeFalse();
             }),
             { numRuns: 20 },
@@ -340,16 +343,16 @@ describe('isStateEnabled properties', () => {
     });
 
     it('internal returns true only when platform.internal is true', () => {
-        expect(isStateEnabled('internal', { name: 'test', internal: true })).toBeTrue();
-        expect(isStateEnabled('internal', { name: 'test', internal: false })).toBeFalse();
-        expect(isStateEnabled('internal', { name: 'test' })).toBeFalse();
+        expect(isStateEnabled('internal', { name: 'extension', internal: true })).toBeTrue();
+        expect(isStateEnabled('internal', { name: 'extension', internal: false })).toBeFalse();
+        expect(isStateEnabled('internal', { name: 'extension' })).toBeFalse();
         expect(isStateEnabled('internal', undefined)).toBeFalse();
     });
 
     it('preview returns true only when platform.preview is true', () => {
-        expect(isStateEnabled('preview', { name: 'test', preview: true })).toBeTrue();
-        expect(isStateEnabled('preview', { name: 'test', preview: false })).toBeFalse();
-        expect(isStateEnabled('preview', { name: 'test' })).toBeFalse();
+        expect(isStateEnabled('preview', { name: 'extension', preview: true })).toBeTrue();
+        expect(isStateEnabled('preview', { name: 'extension', preview: false })).toBeFalse();
+        expect(isStateEnabled('preview', { name: 'extension' })).toBeFalse();
         expect(isStateEnabled('preview', undefined)).toBeFalse();
     });
 
@@ -358,7 +361,7 @@ describe('isStateEnabled properties', () => {
             fc.property(
                 fc.string().filter((s) => !['enabled', 'disabled', 'internal', 'preview'].includes(s)),
                 (state) => {
-                    expect(isStateEnabled(state, { name: 'test' })).toBeFalse();
+                    expect(isStateEnabled(state, { name: 'extension' })).toBeFalse();
                 },
             ),
             { numRuns: 50 },

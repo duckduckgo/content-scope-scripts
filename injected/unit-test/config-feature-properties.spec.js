@@ -44,7 +44,17 @@ describe('ConfigFeature._matchConditionalBlock properties', () => {
     });
 
     it('unknown condition keys always fail (backwards compatibility)', () => {
-        const knownKeys = ['domain', 'context', 'urlPattern', 'experiment', 'minSupportedVersion', 'maxSupportedVersion', 'injectName', 'internal', 'preview'];
+        const knownKeys = [
+            'domain',
+            'context',
+            'urlPattern',
+            'experiment',
+            'minSupportedVersion',
+            'maxSupportedVersion',
+            'injectName',
+            'internal',
+            'preview',
+        ];
         fc.assert(
             fc.property(
                 fc.stringMatching(/^[a-z]{3,20}$/).filter((s) => !knownKeys.includes(s)),
@@ -79,6 +89,7 @@ describe('ConfigFeature._matchConditionalBlock properties', () => {
         // Empty block matches
         expect(feature._matchConditionalBlockOrArray({})).toBeTrue();
         // Unknown key fails
+        // @ts-expect-error - testing with unknown condition key
         expect(feature._matchConditionalBlockOrArray({ unknownKey: true })).toBeFalse();
     });
 
