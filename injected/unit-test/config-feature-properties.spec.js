@@ -55,16 +55,19 @@ describe('ConfigFeature._matchConditionalBlock properties', () => {
             'internal',
             'preview',
         ];
+        // Also exclude Object.prototype keys that resolve via prototype chain lookup
+        const prototypeKeys = Object.getOwnPropertyNames(Object.prototype);
+        const excludeKeys = [...knownKeys, ...prototypeKeys];
         fc.assert(
             fc.property(
-                fc.stringMatching(/^[a-z]{3,20}$/).filter((s) => !knownKeys.includes(s)),
+                fc.stringMatching(/^[a-z]{3,20}$/).filter((s) => !excludeKeys.includes(s)),
                 (key) => {
                     const feature = createFeature();
                     const block = { [key]: 'anyvalue' };
                     expect(feature._matchConditionalBlock(block)).toBeFalse();
                 },
             ),
-            { numRuns: 100 },
+            { numRuns: 200 },
         );
     });
 
