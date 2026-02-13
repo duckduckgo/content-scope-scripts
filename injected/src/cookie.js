@@ -41,7 +41,8 @@ export class Cookie {
         }
         const expiry = this.maxAge
             ? parseInt(String(this.maxAge))
-            : (new Date(/** @type {string} */ (this.expires)).getTime() - new Date().getTime()) / 1000;
+            : // this.expires is guaranteed to be a string here: the !this.expires guard above returns NaN for undefined/empty
+              (new Date(/** @type {string} */ (this.expires)).getTime() - new Date().getTime()) / 1000;
         return expiry;
     }
 
