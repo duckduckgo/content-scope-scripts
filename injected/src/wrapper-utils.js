@@ -366,7 +366,7 @@ export function shimProperty(baseObject, propertyName, implInstance, readOnly, d
 
 /**
  * @callback DefinePropertyFn
- * @param {any} baseObj
+ * @param {object} baseObj
  * @param {string | symbol} propertyName
  * @param {StrictPropertyDescriptor} descriptor
  * @returns {void}
