@@ -2,6 +2,10 @@
  * The following code is originally from https://github.com/mozilla-extensions/secure-proxy/blob/db4d1b0e2bfe0abae416bf04241916f9e4768fd2/src/commons/template.js
  */
 class Template {
+    /**
+     * @param {string[]} strings
+     * @param {unknown[]} values
+     */
     constructor(strings, values) {
         this.values = values;
         this.strings = strings;
@@ -15,6 +19,7 @@ class Template {
      * @return {string} The escaped string.
      */
     escapeXML(str) {
+        /** @type {Record<string, string>} */
         const replacements = {
             '&': '&amp;',
             '"': '&quot;',
@@ -26,6 +31,10 @@ class Template {
         return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
     }
 
+    /**
+     * @param {unknown} value
+     * @returns {string | Template}
+     */
     potentiallyEscape(value) {
         if (typeof value === 'object') {
             if (value instanceof Array) {
@@ -39,7 +48,7 @@ class Template {
 
             throw new Error('Unknown object to escape');
         }
-        return this.escapeXML(value);
+        return this.escapeXML(/** @type {string} */ (value));
     }
 
     toString() {
@@ -55,6 +64,11 @@ class Template {
     }
 }
 
+/**
+ * @param {string[]} strings
+ * @param {...unknown} values
+ * @returns {Template}
+ */
 export function html(strings, ...values) {
     return new Template(strings, values);
 }
@@ -72,8 +86,8 @@ export function trustedUnsafe(string) {
  * @return {{createHTML: (s: string) => any}}
  */
 export function createPolicy() {
-    if (globalThis.trustedTypes) {
-        return globalThis.trustedTypes?.createPolicy?.('ddg-default', { createHTML: (s) => s });
+    if (/** @type {any} */ (globalThis).trustedTypes) {
+        return /** @type {any} */ (globalThis).trustedTypes?.createPolicy?.('ddg-default', { createHTML: (/** @type {string} */ s) => s });
     }
     return {
         createHTML: (s) => s,

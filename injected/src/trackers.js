@@ -2,7 +2,7 @@ import { getGlobal } from './utils.js';
 
 /**
  * Check if the current document origin is on the tracker list, using the provided lookup trie.
- * @param {object} trackerLookup Trie lookup of tracker domains
+ * @param {Record<string, any>} trackerLookup Trie lookup of tracker domains
  * @returns {boolean} True iff the origin is a tracker.
  *
  * Note: getGlobal() is used in testing to get the global object,
@@ -10,6 +10,7 @@ import { getGlobal } from './utils.js';
  */
 export function isTrackerOrigin(trackerLookup, originHostname = getGlobal().document.location.hostname) {
     const parts = originHostname.split('.').reverse();
+    /** @type {Record<string, any>} */
     let node = trackerLookup;
     for (const sub of parts) {
         if (node[sub] === 1) {

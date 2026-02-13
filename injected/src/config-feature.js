@@ -17,8 +17,8 @@ import { URLPattern } from 'urlpattern-polyfill';
  * @typedef {object} ConditionBlock
  * @property {string[] | string} [domain]
  * @property {object} [urlPattern]
- * @property {object} [minSupportedVersion]
- * @property {object} [maxSupportedVersion]
+ * @property {string | number} [minSupportedVersion]
+ * @property {string | number} [maxSupportedVersion]
  * @property {object} [experiment]
  * @property {string} [experiment.experimentName]
  * @property {string} [experiment.cohort]
@@ -122,7 +122,7 @@ export default class ConfigFeature {
      */
     matchConditionalFeatureSetting(featureKeyName) {
         const conditionalChanges = this._getFeatureSettings()?.[featureKeyName] || [];
-        return conditionalChanges.filter((rule) => {
+        return conditionalChanges.filter((/** @type {any} */ rule) => {
             let condition = rule.condition;
             // Support shorthand for domain matching for backwards compatibility
             if (condition === undefined && 'domain' in rule) {
