@@ -273,7 +273,13 @@ export class ResultsCollector {
         if (beforeAwait) {
             await beforeAwait();
         }
-        return await resultsPromise;
+        const results = await resultsPromise;
+
+        // Flush V8 coverage data to disk after collecting results.
+        // Only active when COLLECT_COVERAGE=1 (nightly coverage workflow).
+        await this.flushCoverage();
+
+        return results;
     }
 
     /**
