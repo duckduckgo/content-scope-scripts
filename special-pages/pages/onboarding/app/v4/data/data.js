@@ -64,7 +64,7 @@ export const stepsConfig = {
     },
     addressBarMode: ({ t }) => {
         return {
-            topBubble: <h2>{t('addressBarMode_title')}</h2>,
+            topBubble: <StepHeader title={t('addressBarMode_title')} />,
             bottomBubble: <AddressBarContent />,
             showProgress: true,
         };
