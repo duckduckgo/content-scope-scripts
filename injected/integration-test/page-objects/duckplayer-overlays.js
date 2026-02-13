@@ -87,7 +87,7 @@ export class DuckplayerOverlays {
             javascriptInterface: 'javascriptInterface',
             messageCallback: 'messageCallback',
         });
-        forwardConsole(page);
+        forwardConsole(page, { filterResourceErrors: true });
     }
 
     async reducedMotion() {

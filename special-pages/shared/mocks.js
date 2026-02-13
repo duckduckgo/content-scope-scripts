@@ -33,7 +33,7 @@ export class Mocks {
      * @returns {Promise<void|*|string>}
      */
     async install() {
-        forwardConsole(this.page);
+        forwardConsole(this.page, { filterResourceErrors: true });
         await this.installMessagingMocks();
     }
 

@@ -1,18 +1,22 @@
 /**
  * Sets up a console handler on a Playwright page.
  * Preserves log levels by routing to the appropriate console method (error, warn, log, etc.)
- * Filters "Failed to load resource" errors (already shown by browser's native stderr).
  *
  * @param {import('@playwright/test').Page} page - The Playwright page
+ * @param {object} [options]
+ * @param {boolean} [options.filterResourceErrors=false] - Filter "Failed to load resource" errors
+ *   (useful when these are expected and already shown by browser's native stderr)
  */
-export function forwardConsole(page) {
+export function forwardConsole(page, options = {}) {
+    const { filterResourceErrors = false } = options;
+
     page.on('console', (msg) => {
         const type = msg.type();
         const text = msg.text();
 
-        // Skip "Failed to load resource" errors - these are already shown by browser's
-        // native stderr output, so logging them here just creates duplicates
-        if (text.includes('Failed to load resource')) {
+        // Optionally skip "Failed to load resource" errors - these are already shown by
+        // browser's native stderr output, so logging them here creates duplicates
+        if (filterResourceErrors && text.includes('Failed to load resource')) {
             return;
         }
 
