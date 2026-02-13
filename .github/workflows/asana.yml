@@ -40,17 +40,23 @@ jobs:
                   action: 'add-asana-comment'
                   is-pinned: true
 
-    notify-approved:
-        if: >
-            github.event_name == 'pull_request_review'
-            && github.event.review.state == 'approved'
+    notify-review:
+        if: github.event_name == 'pull_request_review'
         runs-on: ubuntu-latest
         steps:
-            - name: Add approval comment to Asana task
-              uses: duckduckgo/native-github-asana-sync@v2.3
+            - name: Checkout native-github-asana-sync
+              uses: actions/checkout@v6
               with:
-                  asana-pat: ${{ secrets.ASANA_ACCESS_TOKEN }}
-                  action: 'notify-pr-approved'
+                  repository: duckduckgo/native-github-asana-sync
+                  path: native-github-asana-sync
+                  ref: v2.3
+
+            - name: Notify Asana of PR review
+              continue-on-error: true
+              uses: ./native-github-asana-sync/.github/actions/pr-review-notifications
+              with:
+                  trigger-phrase: ''
+                  asana_pat: ${{ secrets.ASANA_ACCESS_TOKEN }}
 
     notify-closed:
         if: >
