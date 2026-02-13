@@ -168,8 +168,8 @@ test.describe('onboarding v4', () => {
         // Welcome
         await page.getByText('Welcome to DuckDuckGo').waitFor({ timeout: 1000 });
 
-        // Get started
-        await page.getByText('Hi there').waitFor({ timeout: 1500 });
+        // Get started (welcome auto-advances after ~3.7s animation)
+        await page.getByText('Hi there').waitFor({ timeout: 5000 });
         await page.getByRole('button', { name: 'Let\u2019s Do It' }).click();
 
         // Make default

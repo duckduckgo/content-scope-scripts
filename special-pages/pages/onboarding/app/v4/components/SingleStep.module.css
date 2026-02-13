@@ -1,3 +1,80 @@
 .layout {
-    /* styling TBD */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    padding-top: var(--sp-14); /* 56px */
+    padding-bottom: var(--sp-16); /* 64px */
+    gap: var(--sp-2); /* 8px */
+    box-sizing: border-box;
+}
+
+.bubbleColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 493px;
+    padding-left: 72px;
+    padding-right: 72px;
+    box-sizing: border-box;
+    gap: var(--sp-2); /* 8px */
+}
+
+.bubbleColumnWide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 493px;
+    box-sizing: border-box;
+    gap: var(--sp-2); /* 8px */
+}
+
+.progressBadge {
+    position: absolute;
+    top: 0;
+    right: var(--sp-9); /* 36px — aligned with bubble border-radius */
+    transform: translateY(-50%);
+    background: var(--bubble-bg, white);
+    padding: 6px 10px 6px var(--sp-2);
+    border: 1.5px solid var(--bubble-border, #CBEAFF);
+    border-radius: var(--sp-16); /* 64px — full pill */
+    z-index: 1;
+}
+
+/* --- getStarted bubble intro --- */
+
+.bubbleGetStartedIntro {
+    animation: getstarted-bubble-scale 0.9s both, getstarted-bubble-slide 0.9s both, getstarted-bubble-opacity 0.9s both;
+}
+
+@keyframes getstarted-bubble-scale {
+    0%, 33.33% {
+        scale: 0.714;
+        animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
+    }
+    59.26%, 100% {
+        scale: 1;
+    }
+}
+
+@keyframes getstarted-bubble-opacity {
+    0%, 33.33% {
+        opacity: 0;
+    }
+    33.34%, 100% {
+        opacity: 1;
+    }
+}
+
+@keyframes getstarted-bubble-slide {
+    0%, 40.74% {
+        translate: 0 38px;
+        animation-timing-function: cubic-bezier(0.66, 0.00, 0.34, 1.00);
+    }
+    77.78%, 100% {
+        translate: 0 0;
+    }
 }

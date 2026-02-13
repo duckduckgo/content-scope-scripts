@@ -1,9 +1,11 @@
 import { h, Fragment } from 'preact';
-import { Timeout } from '../../shared/components/Timeout';
 import { MakeDefaultContent } from '../components/MakeDefaultContent';
 import { SettingsContent } from '../components/SettingsContent';
 import { DuckPlayerContent } from '../components/DuckPlayerContent';
 import { AddressBarContent } from '../components/AddressBarContent';
+import { WelcomeContent } from '../components/WelcomeContent';
+import { GetStartedContent } from '../components/GetStartedContent';
+import { DaxIllustration } from '../components/DaxIllustration';
 
 /**
  * This sets up individual steps in the v4 (bubbles) version of onboarding
@@ -14,26 +16,16 @@ import { AddressBarContent } from '../components/AddressBarContent';
 
 /** @type {Record<import('./data-types').StepsV4, (params: import('./data-types').StepConfigParams) => import('./data-types').V4StepConfig>} */
 export const stepsConfig = {
-    welcome: ({ t, advance }) => {
+    welcome: ({ advance }) => {
         return {
-            content: (
-                <Fragment>
-                    <img src="assets/img/dax.svg" alt="DuckDuckGo Logo" />
-                    <h1>{t('welcome_title')}</h1>
-                    <Timeout onComplete={advance} ignore={true} />
-                </Fragment>
-            ),
+            content: <WelcomeContent onComplete={advance} />,
         };
     },
-    getStarted: ({ t, advance }) => {
+    getStarted: () => {
         return {
-            topBubble: (
-                <Fragment>
-                    <h2>{t('getStarted_title_v3', { newline: '\n' }).split('{paragraph}')[0]}</h2>
-                    <p>{t('getStarted_title_v3', { newline: '\n' }).split('{paragraph}').slice(1).join('')}</p>
-                    <button onClick={advance}>{t('getStartedButton_v3')}</button>
-                </Fragment>
-            ),
+            content: <DaxIllustration />,
+            topBubble: <GetStartedContent />,
+            topBubbleTail: 'bottom-left',
         };
     },
     makeDefaultSingle: () => {
