@@ -1,4 +1,6 @@
-import { readFileSync } from 'fs';
+/* global process */
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join } from 'path';
 import {
     mockAndroidMessaging,
     mockResponses,
@@ -14,6 +16,10 @@ import { perPlatform } from '../type-helpers.mjs';
 import { windowsGlobalPolyfills } from '../shared.mjs';
 import { processConfig } from '../../src/utils.js';
 import { gotoAndWait } from '../helpers/harness.js';
+
+const COLLECT_COVERAGE = process.env.COLLECT_COVERAGE === '1';
+const COVERAGE_DIR = join(import.meta.dirname, '..', '..', 'coverage', 'integration');
+let coverageFileCounter = 0;
 
 /**
  * @typedef {import('../../src/utils.js').Platform} Platform
@@ -54,6 +60,8 @@ export class ResultsCollector {
      * @param {import('../type-helpers.mjs').Build} build
      * @param {import('../type-helpers.mjs').PlatformInfo} platform
      */
+    #coverageStarted = false;
+
     constructor(page, build, platform) {
         this.page = page;
         this.build = build;
@@ -75,8 +83,33 @@ export class ResultsCollector {
         if (this.platform.name === 'extension') {
             return await this._loadExtension(htmlPath, configPath, platform);
         }
+
+        // Start V8 coverage collection before the page loads (non-extension only)
+        if (COLLECT_COVERAGE && typeof this.page.coverage?.startJSCoverage === 'function') {
+            await this.page.coverage.startJSCoverage({ resetOnNavigation: false });
+            this.#coverageStarted = true;
+        }
+
         await this.setup({ config: configPath, platform });
         await this.page.goto(htmlPath);
+    }
+
+    /**
+     * Flush collected V8 coverage data to disk.
+     * Call this after all assertions are done to capture coverage from the test.
+     * Only active when COLLECT_COVERAGE=1.
+     */
+    async flushCoverage() {
+        if (!this.#coverageStarted || typeof this.page.coverage?.stopJSCoverage !== 'function') {
+            return;
+        }
+        this.#coverageStarted = false;
+        const coverage = await this.page.coverage.stopJSCoverage();
+        if (coverage.length > 0) {
+            mkdirSync(COVERAGE_DIR, { recursive: true });
+            const filename = `coverage-${process.pid}-${Date.now()}-${coverageFileCounter++}.json`;
+            writeFileSync(join(COVERAGE_DIR, filename), JSON.stringify(coverage));
+        }
     }
 
     /**
@@ -231,7 +264,12 @@ export class ResultsCollector {
         if (beforeAwait) {
             await beforeAwait();
         }
-        return await resultsPromise;
+        const results = await resultsPromise;
+
+        // Auto-flush V8 coverage after collecting results
+        await this.flushCoverage();
+
+        return results;
     }
 
     /**
@@ -295,6 +333,8 @@ export class ResultsCollector {
             { timeout: 5000, polling: 100 },
         );
         const calls = await this.page.evaluate(readOutgoingMessages);
+        // Flush coverage if this is the last interaction in the test
+        await this.flushCoverage();
         return calls.filter((v) => v.payload.method === method);
     }
 
@@ -302,7 +342,10 @@ export class ResultsCollector {
      * @return {Promise<UnstableMockCall[]>}
      */
     async outgoingMessages() {
-        return await this.page.evaluate(readOutgoingMessages);
+        const messages = await this.page.evaluate(readOutgoingMessages);
+        // Flush coverage if this is the last interaction in the test
+        await this.flushCoverage();
+        return messages;
     }
 
     /**
