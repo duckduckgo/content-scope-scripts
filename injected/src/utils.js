@@ -5,13 +5,18 @@ import { Set } from './captured-globals.js';
 
 let globalObj = typeof window === 'undefined' ? globalThis : window;
 let Error = globalObj.Error;
+/** @type {string | undefined} */
 let messageSecret;
 
+/** @type {boolean | null} */
 let isAppleSiliconCache = null;
 
 // save a reference to original CustomEvent amd dispatchEvent so they can't be overriden to forge messages
 export const OriginalCustomEvent = typeof CustomEvent === 'undefined' ? null : CustomEvent;
 export const originalWindowDispatchEvent = typeof window === 'undefined' ? null : window.dispatchEvent.bind(window);
+/**
+ * @param {string} secret
+ */
 export function registerMessageSecret(secret) {
     messageSecret = secret;
 }
@@ -36,6 +41,7 @@ export function createStyleElement(css) {
 
 /**
  * Injects a script into the page, avoiding CSP restrictions if possible.
+ * @param {string} css
  */
 export function injectGlobalStyles(css) {
     const style = createStyleElement(css);
@@ -59,12 +65,22 @@ export function getGlobal() {
     return globalObj;
 }
 
-// linear feedback shift register to find a random approximation
+/**
+ * Linear feedback shift register to find a random approximation
+ * @param {number} v
+ * @returns {number}
+ */
 export function nextRandom(v) {
     return Math.abs((v >> 1) | (((v << 62) ^ (v << 61)) & (~(~0 << 63) << 62)));
 }
 
+/** @type {Record<string, RegExp[]>} */
 const exemptionLists = {};
+/**
+ * @param {string} type
+ * @param {string} url
+ * @returns {boolean}
+ */
 export function shouldExemptUrl(type, url) {
     for (const regex of exemptionLists[type]) {
         if (regex.test(url)) {
@@ -76,9 +92,12 @@ export function shouldExemptUrl(type, url) {
 
 let debug = false;
 
+/**
+ * @param {{ stringExemptionLists?: Record<string, string[]>; debug?: boolean }} args
+ */
 export function initStringExemptionLists(args) {
     const { stringExemptionLists } = args;
-    debug = args.debug;
+    debug = args.debug || false;
     for (const type in stringExemptionLists) {
         exemptionLists[type] = [];
         for (const stringExemption of stringExemptionLists[type]) {
@@ -114,10 +133,18 @@ export function isThirdPartyFrame() {
     return !matchHostname(globalThis.location.hostname, tabHostname);
 }
 
+/**
+ * @param {string} hostname
+ * @returns {boolean}
+ */
 function isThirdPartyOrigin(hostname) {
     return matchHostname(globalThis.location.hostname, hostname);
 }
 
+/**
+ * @param {string[]} scriptOrigins
+ * @returns {boolean}
+ */
 export function hasThirdPartyOrigin(scriptOrigins) {
     for (const origin of scriptOrigins) {
         if (isThirdPartyOrigin(origin)) {
@@ -183,6 +210,10 @@ export function matchHostname(hostname, exceptionDomain) {
 }
 
 const lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
+/**
+ * @param {string} stack
+ * @returns {Set<URL>}
+ */
 export function getStackTraceUrls(stack) {
     const urls = new Set();
     try {
@@ -200,6 +231,10 @@ export function getStackTraceUrls(stack) {
     return urls;
 }
 
+/**
+ * @param {string} stack
+ * @returns {Set<string>}
+ */
 export function getStackTraceOrigins(stack) {
     const urls = getStackTraceUrls(stack);
     const origins = new Set();
@@ -209,13 +244,18 @@ export function getStackTraceOrigins(stack) {
     return origins;
 }
 
-// Checks the stack trace if there are known libraries that are broken.
+/**
+ * Checks the stack trace if there are known libraries that are broken.
+ * @param {string} type
+ * @returns {boolean}
+ */
 export function shouldExemptMethod(type) {
     // Short circuit stack tracing if we don't have checks
     if (!(type in exemptionLists) || exemptionLists[type].length === 0) {
         return false;
     }
     const stack = getStack();
+    if (!stack) return false;
     const errorFiles = getStackTraceUrls(stack);
     for (const path of errorFiles) {
         if (shouldExemptUrl(type, path.href)) {
@@ -225,10 +265,14 @@ export function shouldExemptMethod(type) {
     return false;
 }
 
-// Iterate through the key, passing an item index and a byte to be modified
+/**
+ * Iterate through the key, passing an item index and a byte to be modified
+ * @param {string} key
+ * @param {(item: number, byte: number) => null | void} callback
+ */
 export function iterateDataKey(key, callback) {
     let item = key.charCodeAt(0);
-    for (const i in key) {
+    for (let i = 0; i < key.length; i++) {
         let byte = key.charCodeAt(i);
         for (let j = 8; j >= 0; j--) {
             const res = callback(item, byte);
@@ -262,8 +306,12 @@ export function isFeatureBroken(args, feature) {
     return args.site.isBroken || args.site.allowlisted || !isFeatureEnabled;
 }
 
+/**
+ * @param {string} dashCaseText
+ * @returns {string}
+ */
 export function camelcase(dashCaseText) {
-    return dashCaseText.replace(/-(.)/g, (_, letter) => {
+    return dashCaseText.replace(/-(.)/g, (/** @type {string} */ _, /** @type {string} */ letter) => {
         return letter.toUpperCase();
     });
 }
@@ -308,6 +356,7 @@ function processAttrByCriteria(configSetting) {
     return bestOption;
 }
 
+/** @type {Record<string, (...args: any[]) => void>} */
 const functionMap = {
     /** Useful for debugging APIs in the wild, shouldn't be used */
     debug: (...args) => {
@@ -388,6 +437,10 @@ export function getStack() {
     return new Error().stack;
 }
 
+/**
+ * @param {Record<string, any>} scope
+ * @returns {any}
+ */
 export function getContextId(scope) {
     if (document?.currentScript && 'contextID' in document.currentScript) {
         return document.currentScript.contextID;
@@ -425,13 +478,13 @@ function debugSerialize(argsArray) {
 }
 
 /**
- * @template {object} P
- * @typedef {object} ProxyObject<P>
- * @property {(target?: object, thisArg?: P, args?: object) => void} apply
+ * @template P
+ * @typedef {object} ProxyObject
+ * @property {(target?: any, thisArg?: P, args?: any) => any} apply
  */
 
 /**
- * @template [P=object]
+ * @template {Record<string, any>} [P=Record<string, any>]
  */
 export class DDGProxy {
     /**
@@ -446,7 +499,7 @@ export class DDGProxy {
         this.feature = feature;
         this.featureName = feature.name;
         this.camelFeatureName = camelcase(this.featureName);
-        const outputHandler = (...args) => {
+        const outputHandler = (/** @type {any[]} */ ...args) => {
             this.feature.addDebugFlag();
             const isExempt = shouldExemptMethod(this.camelFeatureName);
             // Keep this here as getStack() is expensive
@@ -466,7 +519,7 @@ export class DDGProxy {
             }
             return proxyObject.apply(...args);
         };
-        const getMethod = (target, prop, receiver) => {
+        const getMethod = (/** @type {any} */ target, /** @type {any} */ prop, /** @type {any} */ receiver) => {
             this.feature.addDebugFlag();
             if (prop === 'toString') {
                 const method = Reflect.get(target, prop, receiver).bind(target);
@@ -487,7 +540,7 @@ export class DDGProxy {
 
     // Actually apply the proxy to the native property
     overload() {
-        this.objectScope[this.property] = this.internal;
+        /** @type {Record<string, any>} */ (this.objectScope)[this.property] = this.internal;
     }
 
     overloadDescriptor() {
@@ -501,18 +554,25 @@ export class DDGProxy {
     }
 }
 
+/** @type {Map<string, number>} */
 const maxCounter = new Map();
+/**
+ * @param {string} feature
+ * @returns {number}
+ */
 function numberOfTimesDebugged(feature) {
-    if (!maxCounter.has(feature)) {
-        maxCounter.set(feature, 1);
-    } else {
-        maxCounter.set(feature, maxCounter.get(feature) + 1);
-    }
-    return maxCounter.get(feature);
+    const current = maxCounter.get(feature) ?? 0;
+    maxCounter.set(feature, current + 1);
+    return current + 1;
 }
 
 const DEBUG_MAX_TIMES = 5000;
 
+/**
+ * @param {string} feature
+ * @param {Record<string, any>} message
+ * @param {boolean} [allowNonDebug]
+ */
 export function postDebugMessage(feature, message, allowNonDebug = false) {
     if (!debug && !allowNonDebug) {
         return;
@@ -535,7 +595,7 @@ export const DDGReflect = globalObj.Reflect;
 
 /**
  * @param {string | null} topLevelHostname
- * @param {object[]} featureList
+ * @param {{domain: string}[]} featureList
  * @returns {boolean}
  */
 export function isUnprotectedDomain(topLevelHostname, featureList) {
@@ -614,6 +674,7 @@ function getPlatformVersion(preferences) {
  */
 export function stripVersion(version, keepComponents = 1) {
     const splitVersion = version.split('.');
+    /** @type {string[]} */
     const filteredVersion = [];
     let foundNonZero = false;
     let keptComponents = 0;
@@ -629,6 +690,10 @@ export function stripVersion(version, keepComponents = 1) {
     return filteredVersion.join('.');
 }
 
+/**
+ * @param {string} versionString
+ * @returns {number[]}
+ */
 function parseVersionString(versionString) {
     return versionString.split('.').map(Number);
 }
@@ -694,7 +759,7 @@ export function isMaxSupportedVersion(maxSupportedVersion, currentVersion) {
 /**
  * @typedef RemoteConfig
  * @property {Record<string, { state: string; settings: any; exceptions: { domain: string }[], minSupportedVersion?: string|number }>} features
- * @property {string[]} unprotectedTemporary
+ * @property {{domain: string}[]} unprotectedTemporary
  */
 
 /**
@@ -821,6 +886,10 @@ export function parseFeatureSettings(data, enabledFeatures) {
     return featureSettings;
 }
 
+/**
+ * @param {import('./content-scope-features.js').LoadArgs} args
+ * @returns {boolean | undefined}
+ */
 export function isGloballyDisabled(args) {
     return args.site.allowlisted || args.site.isBroken;
 }
@@ -839,16 +908,29 @@ export const platformSpecificFeatures = [
     'webInterferenceDetection',
 ];
 
+/**
+ * @param {string} featureName
+ * @returns {boolean}
+ */
 export function isPlatformSpecificFeature(featureName) {
-    return platformSpecificFeatures.includes(featureName);
+    return platformSpecificFeatures.includes(/** @type {import('./features.js').FeatureName} */ (featureName));
 }
 
+/**
+ * @param {string} eventName
+ * @param {CustomEventInit} eventDetail
+ * @returns {CustomEvent}
+ */
 export function createCustomEvent(eventName, eventDetail) {
     // @ts-expect-error - possibly null
     return new OriginalCustomEvent(eventName, eventDetail);
 }
 
-/** @deprecated */
+/**
+ * @deprecated
+ * @param {string} messageType
+ * @param {any} options
+ */
 export function legacySendMessage(messageType, options) {
     // FF & Chrome
     return (
@@ -862,9 +944,10 @@ export function legacySendMessage(messageType, options) {
 
 /**
  * Takes a function that returns an element and tries to execute it until it returns a valid result or the max attempts are reached.
- * @param {number} delay
+ * @param {() => any} fn - Function to try executing
  * @param {number} [maxAttempts=4] - The maximum number of attempts to find the element.
  * @param {number} [delay=500] - The initial delay to be used to create the exponential backoff.
+ * @param {string} [strategy='exponential'] - The retry strategy
  * @returns {Promise<Element|HTMLElement>}
  */
 export function withRetry(fn, maxAttempts = 4, delay = 500, strategy = 'exponential') {
@@ -965,9 +1048,14 @@ export function withDefaults(defaults, config) {
     }
 
     // at this point, we know that both defaults and config are objects, so we merge keys:
+    /** @type {Record<string, any>} */
     const result = {};
-    for (const key of new Set([...Object.keys(defaults), ...Object.keys(config)])) {
-        result[key] = withDefaults(defaults[key], config[key]);
+    /** @type {Record<string, any>} */
+    const d = defaults;
+    /** @type {Record<string, any>} */
+    const c = config;
+    for (const key of new Set([...Object.keys(d), ...Object.keys(c)])) {
+        result[key] = withDefaults(d[key], c[key]);
     }
     return result;
 }
