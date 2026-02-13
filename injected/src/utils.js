@@ -1033,7 +1033,7 @@ export function isDuckAiSidebar() {
 export function withDefaults(defaults, config) {
     // If config is undefined, use defaults
     if (config === undefined) {
-        return defaults;
+        return /** @type {D & C} */ (defaults);
     }
     if (
         // if defaults are undefined
@@ -1047,18 +1047,18 @@ export function withDefaults(defaults, config) {
         typeof config !== 'object'
     ) {
         // then we always favour the config value
-        return config;
+        return /** @type {D & C} */ (/** @type {unknown} */ (config));
     }
 
     // at this point, we know that both defaults and config are objects, so we merge keys:
-    /** @type {Record<string, any>} */
+    /** @type {Record<string, unknown>} */
     const result = {};
-    /** @type {Record<string, any>} */
-    const d = defaults;
-    /** @type {Record<string, any>} */
-    const c = config;
+    /** @type {Record<string, unknown>} */
+    const d = /** @type {any} */ (defaults);
+    /** @type {Record<string, unknown>} */
+    const c = /** @type {any} */ (config);
     for (const key of new Set([...Object.keys(d), ...Object.keys(c)])) {
-        result[key] = withDefaults(d[key], c[key]);
+        result[key] = withDefaults(/** @type {any} */ (d[key]), /** @type {any} */ (c[key]));
     }
-    return result;
+    return /** @type {D & C} */ (/** @type {unknown} */ (result));
 }
