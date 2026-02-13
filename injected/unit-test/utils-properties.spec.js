@@ -425,7 +425,9 @@ describe('withDefaults properties', () => {
     it('returns defaults when config is undefined', () => {
         fc.assert(
             fc.property(fc.anything(), (defaults) => {
-                expect(withDefaults(defaults, undefined)).toBe(defaults);
+                const result = withDefaults(defaults, undefined);
+                // Use Object.is to handle NaN correctly
+                expect(Object.is(result, defaults)).toBeTrue();
             }),
             { numRuns: 50 },
         );
@@ -459,7 +461,8 @@ describe('withDefaults properties', () => {
     it('returns config directly when defaults is undefined', () => {
         fc.assert(
             fc.property(fc.anything(), (config) => {
-                expect(withDefaults(undefined, config)).toBe(config);
+                const result = withDefaults(undefined, config);
+                expect(Object.is(result, config)).toBeTrue();
             }),
             { numRuns: 20 },
         );

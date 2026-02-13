@@ -9,6 +9,12 @@ import {
     processAttr,
     isStateEnabled,
     withDefaults,
+    withRetry,
+    getStackTraceUrls,
+    getStackTraceOrigins,
+    isFeatureBroken,
+    isPlatformSpecificFeature,
+    isGloballyDisabled,
 } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
@@ -935,6 +941,131 @@ describe('Helpers checks', () => {
             const defaults = { outer: { inner: { a: 1 } } };
             const config = { outer: { inner: { a: 2, b: 3 } } };
             expect(withDefaults(defaults, config)).toEqual({ outer: { inner: { a: 2, b: 3 } } });
+        });
+    });
+
+    describe('withRetry', () => {
+        it('resolves when function returns a truthy value', async () => {
+            /** @type {any} */
+            const result = await withRetry(() => /** @type {any} */ ('success'), 3, 10, 'linear');
+            expect(result).toBe('success');
+        });
+
+        it('retries and eventually resolves', async () => {
+            let count = 0;
+            /** @type {any} */
+            const result = await withRetry(() => /** @type {any} */ (count++ >= 2 ? 'found' : null), 5, 10, 'linear');
+            expect(result).toBe('found');
+            expect(count).toBe(3);
+        });
+
+        it('rejects after max attempts with null return', async () => {
+            await expectAsync(withRetry(() => /** @type {any} */ (null), 2, 10, 'linear')).toBeRejected();
+        });
+
+        it('rejects after max attempts with throwing function', async () => {
+            await expectAsync(
+                withRetry(
+                    () => {
+                        throw new Error('boom');
+                    },
+                    2,
+                    10,
+                    'linear',
+                ),
+            ).toBeRejected();
+        });
+
+        it('uses exponential backoff by default', async () => {
+            let count = 0;
+            /** @type {any} */
+            const result = await withRetry(() => /** @type {any} */ (count++ >= 1 ? 'done' : null), 4, 10);
+            expect(result).toBe('done');
+        });
+    });
+
+    describe('getStackTraceUrls', () => {
+        it('extracts https URLs from a stack trace', () => {
+            const stack = `Error
+    at Object.<anonymous> (https://example.com/script.js:10:5)
+    at Module._compile (node:internal/modules:1:2)`;
+            const urls = getStackTraceUrls(stack);
+            expect(urls.size).toBe(1);
+            const url = [...urls][0];
+            expect(url.hostname).toBe('example.com');
+        });
+
+        it('extracts http URLs from a stack trace', () => {
+            const stack = 'at test (http://localhost:3220/test.js:1:1)';
+            const urls = getStackTraceUrls(stack);
+            expect(urls.size).toBe(1);
+        });
+
+        it('returns empty set for stack without URLs', () => {
+            const urls = getStackTraceUrls('Error\n    at <anonymous>:1:1');
+            expect(urls.size).toBe(0);
+        });
+    });
+
+    describe('getStackTraceOrigins', () => {
+        it('returns hostnames from stack trace URLs', () => {
+            const stack = `Error
+    at fn (https://tracker.com/lib.js:1:1)
+    at fn2 (https://other.com/app.js:2:3)`;
+            const origins = getStackTraceOrigins(stack);
+            expect(origins.has('tracker.com')).toBeTrue();
+            expect(origins.has('other.com')).toBeTrue();
+        });
+    });
+
+    describe('isFeatureBroken', () => {
+        it('returns false when feature is in enabledFeatures', () => {
+            /** @type {any} */
+            const args = { site: { enabledFeatures: ['testFeature'] } };
+            expect(isFeatureBroken(args, 'testFeature')).toBeFalse();
+        });
+
+        it('returns true when feature is not in enabledFeatures', () => {
+            /** @type {any} */
+            const args = { site: { enabledFeatures: ['other'] } };
+            expect(isFeatureBroken(args, 'testFeature')).toBeTrue();
+        });
+
+        it('handles platform-specific features correctly', () => {
+            /** @type {any} */
+            const args = { site: { enabledFeatures: ['navigatorInterface'] } };
+            expect(isFeatureBroken(args, 'navigatorInterface')).toBeFalse();
+
+            /** @type {any} */
+            const args2 = { site: { enabledFeatures: [] } };
+            expect(isFeatureBroken(args2, 'navigatorInterface')).toBeTrue();
+        });
+    });
+
+    describe('isPlatformSpecificFeature', () => {
+        it('returns true for known platform features', () => {
+            expect(isPlatformSpecificFeature('navigatorInterface')).toBeTrue();
+            expect(isPlatformSpecificFeature('messageBridge')).toBeTrue();
+            expect(isPlatformSpecificFeature('favicon')).toBeTrue();
+        });
+
+        it('returns false for non-platform features', () => {
+            expect(isPlatformSpecificFeature('cookie')).toBeFalse();
+            expect(isPlatformSpecificFeature('gpc')).toBeFalse();
+        });
+    });
+
+    describe('isGloballyDisabled', () => {
+        it('returns true when site is allowlisted', () => {
+            expect(isGloballyDisabled({ site: { allowlisted: true, isBroken: false } })).toBeTrue();
+        });
+
+        it('returns true when site is broken', () => {
+            expect(isGloballyDisabled({ site: { allowlisted: false, isBroken: true } })).toBeTrue();
+        });
+
+        it('returns false when neither', () => {
+            expect(isGloballyDisabled({ site: { allowlisted: false, isBroken: false } })).toBeFalse();
         });
     });
 });
