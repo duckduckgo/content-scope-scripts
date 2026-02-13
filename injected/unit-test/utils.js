@@ -1064,17 +1064,23 @@ describe('Helpers checks', () => {
 
     describe('isGloballyDisabled', () => {
         it('returns true when site is allowlisted', () => {
-            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({ site: { allowlisted: true, isBroken: false } });
+            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
+                site: { allowlisted: true, isBroken: false },
+            });
             expect(isGloballyDisabled(args)).toBeTrue();
         });
 
         it('returns true when site is broken', () => {
-            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({ site: { allowlisted: false, isBroken: true } });
+            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
+                site: { allowlisted: false, isBroken: true },
+            });
             expect(isGloballyDisabled(args)).toBeTrue();
         });
 
         it('returns false when neither', () => {
-            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({ site: { allowlisted: false, isBroken: false } });
+            const args = /** @type {import('../src/content-scope-features.js').LoadArgs} */ ({
+                site: { allowlisted: false, isBroken: false },
+            });
             expect(isGloballyDisabled(args)).toBeFalse();
         });
     });
