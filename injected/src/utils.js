@@ -337,6 +337,12 @@ const functionMap = {
  * @returns
  */
 export function processAttr(configSetting, defaultValue) {
+    // Normalize NaN to undefined — NaN breaks identity checks (NaN !== NaN)
+    // and is never a valid config default.
+    if (typeof defaultValue === 'number' && isNaN(defaultValue)) {
+        defaultValue = undefined;
+    }
+
     if (configSetting === undefined) {
         return defaultValue;
     }

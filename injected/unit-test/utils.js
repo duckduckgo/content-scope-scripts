@@ -545,6 +545,12 @@ describe('Helpers checks', () => {
                 expect(processAttr(/** @type {any} */ (undefined), 'default')).toBe('default');
             });
 
+            it('normalizes NaN defaultValue to undefined', () => {
+                expect(processAttr(/** @type {any} */ (undefined), NaN)).toBe(undefined);
+                expect(processAttr(/** @type {any} */ ('string'), NaN)).toBe(undefined);
+                expect(processAttr(/** @type {any} */ ({}), NaN)).toBe(undefined);
+            });
+
             it('returns default value when configSetting is not an object', () => {
                 expect(processAttr(/** @type {any} */ ('string'), 'default')).toBe('default');
                 expect(processAttr(/** @type {any} */ (123), 'default')).toBe('default');
