@@ -1,0 +1,75 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+}
+
+.previewContainer {
+    align-self: stretch;
+    overflow: hidden;
+    border-radius: var(--sp-2); /* 8px */
+}
+
+.toggleButtons {
+    display: flex;
+    align-self: stretch;
+    gap: var(--sp-2); /* 8px */
+    margin-top: var(--sp-3); /* 12px */
+    font-family: var(--font-product);
+    font-size: calc(14 * var(--px-in-rem));
+    line-height: calc(18 * var(--px-in-rem));
+
+    /* Override ToggleButton theme to match Figma — light */
+    --toggle-accent-light: #4397E0;
+    --toggle-accent-text-light: #1074CC;
+    --toggle-accent-bg-light: rgba(161, 207, 247, 0.08);
+    --toggle-border-light: rgba(0, 0, 0, 0.20);
+    --toggle-color-light: rgba(36, 35, 35, 0.96);
+    --toggle-radio-light: #4397E0;
+
+    /* Override ToggleButton theme to match Figma — dark */
+    --toggle-accent-dark: #75B6EB;
+    --toggle-accent-text-dark: #75B6EB;
+    --toggle-accent-bg-dark: rgba(161, 207, 247, 0.08);
+    --toggle-bg-dark: #011D34;
+    --toggle-border-dark: rgba(255, 255, 255, 0.36);
+    --toggle-color-dark: white;
+    --toggle-radio-dark: #75B6EB;
+    --toggle-radio-check-dark: #222222;
+}
+
+.footer {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sp-2); /* 8px */
+    align-self: stretch;
+    margin-top: calc(26 * var(--px-in-rem)); /* 26px */
+}
+
+.starIcon {
+    width: var(--sp-5); /* 20px */
+    height: var(--sp-5); /* 20px */
+    flex-shrink: 0;
+}
+
+.footerText {
+    font-size: calc(13 * var(--px-in-rem));
+    line-height: calc(16 * var(--px-in-rem));
+    color: var(--color-black-at-84);
+
+    @media (prefers-color-scheme: dark) {
+        color: var(--color-white-at-84);
+    }
+}
+
+.footerText :where(b) {
+    font-weight: 700;
+}
+
+.startButton {
+    margin-top: var(--sp-8); /* 32px */
+    width: calc(232 * var(--px-in-rem));
+    height: calc(36 * var(--px-in-rem));
+    box-sizing: border-box;
+}
