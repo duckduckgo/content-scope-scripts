@@ -19,6 +19,9 @@ Sources/ContentScopeScripts/dist/pages/*
 # Test output files (generated during tests)
 injected/unit-test/fixtures/page-context/output/
 
+# Coverage output
+coverage/
+
 # Local Netlify folder
 .netlify
 # VS Code user config

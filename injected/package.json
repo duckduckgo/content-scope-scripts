@@ -12,6 +12,9 @@
     "build-types": "node scripts/types.mjs",
     "bundle-trackers": "node scripts/bundleTrackers.mjs --output ../build/tracker-lookup.json",
     "test-unit": "jasmine --config=unit-test/config.json",
+    "test-unit-coverage": "c8 jasmine --config=unit-test/config.json",
+    "coverage-int": "COLLECT_COVERAGE=1 playwright test --project windows --grep-invert '@screenshots' --reporter list",
+    "coverage-report": "node scripts/merge-coverage.js",
     "test-int": "playwright test --grep-invert '@screenshots'",
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
     "test-int-snapshots": "playwright test --grep '@screenshots'",
@@ -40,9 +43,11 @@
     "@types/chrome": "^0.1.33",
     "@types/jasmine": "^5.1.14",
     "@types/node": "^25.0.6",
+    "c8": "^10.1.3",
     "fast-check": "^4.5.2",
     "jasmine": "^5.13.0",
     "jsdom": "^27.2.0",
+    "monocart-coverage-reports": "^2.12.9",
     "web-ext": "^9.2.0"
   }
 }

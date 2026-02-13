@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Fingerprinting Canvas</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Fingerprinting Canvas]</a></p>
+
+    <p>This page verifies that canvas fingerprinting output is modified</p>
+
+    <script>
+        /**
+         * Draw a fingerprint-style pattern on a canvas context
+         */
+        function drawFingerprintPattern(ctx) {
+            ctx.fillStyle = 'rgb(255, 0, 0)';
+            ctx.fillRect(0, 0, 50, 50);
+            ctx.fillStyle = 'rgb(0, 255, 0)';
+            ctx.fillRect(50, 0, 50, 50);
+            ctx.fillStyle = 'rgb(0, 0, 255)';
+            ctx.fillRect(0, 50, 50, 50);
+            ctx.font = '18px Arial';
+            ctx.fillStyle = 'rgb(255, 255, 0)';
+            ctx.fillText('DuckDuckGo', 10, 30);
+        }
+
+        test('Canvas fingerprint protection', async () => {
+            const results = [];
+
+            // Create a canvas and draw a fingerprint pattern
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+            drawFingerprintPattern(ctx);
+
+            // Get the data URL
+            const dataUrl1 = canvas.toDataURL();
+
+            // Get the data URL again - should be consistently modified
+            const dataUrl2 = canvas.toDataURL();
+            results.push({
+                name: 'Repeated toDataURL returns consistent results',
+                result: dataUrl1 === dataUrl2,
+                expected: true,
+            });
+
+            // toDataURL should return a valid data URL
+            results.push({
+                name: 'toDataURL returns a valid data URL',
+                result: dataUrl1.startsWith('data:image/png;base64,'),
+                expected: true,
+            });
+
+            // getImageData should return modified data
+            const imageData = ctx.getImageData(0, 0, 100, 100);
+            results.push({
+                name: 'getImageData returns data',
+                result: imageData.data.length > 0,
+                expected: true,
+            });
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>

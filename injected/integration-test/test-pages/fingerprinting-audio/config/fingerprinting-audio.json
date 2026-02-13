@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the fingerprinting audio feature which adds noise to audio data.",
+    "version": 1,
+    "features": {
+        "fingerprintingAudio": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}
