@@ -3,6 +3,8 @@ import { useContext } from 'preact/hooks';
 import { GlobalContext, GlobalDispatch } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { ComparisonTable } from './ComparisonTable';
+import { Button } from './Button';
+import styles from './MakeDefaultContent.module.css';
 
 /**
  * Top bubble content for the makeDefaultSingle step.
@@ -26,20 +28,18 @@ export function MakeDefaultContent() {
         });
 
     return (
-        <div>
-            <h2>{isIdle ? t('protectionsActivated_title') : t('makeDefaultAccept_title')}</h2>
+        <div class={styles.root}>
+            <h2 class={styles.title}>{isIdle ? t('protectionsActivated_title') : t('makeDefaultAccept_title')}</h2>
 
             <ComparisonTable />
 
-            <div>
+            <div class={styles.actions}>
                 {isIdle && (
-                    <button type="button" onClick={advance}>
+                    <Button variant="secondary" class={styles.skipButton} onClick={advance}>
                         {t('skipButton')}
-                    </button>
+                    </Button>
                 )}
-                <button type="button" onClick={isIdle ? enableDefaultBrowser : advance}>
-                    {isIdle ? t('makeDefaultButton') : t('nextButton')}
-                </button>
+                <Button onClick={isIdle ? enableDefaultBrowser : advance}>{isIdle ? t('makeDefaultButton') : t('nextButton')}</Button>
             </div>
         </div>
     );

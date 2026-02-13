@@ -3,6 +3,7 @@ import { useContext } from 'preact/hooks';
 import { GlobalDispatch } from '../../global';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider';
 import { useTypedTranslation } from '../../types';
+import { Button } from './Button';
 import styles from './GetStartedContent.module.css';
 
 /**
@@ -30,9 +31,9 @@ export function GetStartedContent() {
                 <p class={styles.body}>{body}</p>
             </div>
             <div class={styles.actions}>
-                <button class={styles.button} onClick={handleClick}>
+                <Button class={styles.button} onClick={handleClick}>
                     {t('getStartedButton_v3')}
-                </button>
+                </Button>
             </div>
         </div>
     );

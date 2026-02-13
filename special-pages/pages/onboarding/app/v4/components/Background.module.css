@@ -6,7 +6,7 @@
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background-color: #ffffff;
+    background-color: white;
 
     @media (prefers-color-scheme: dark) {
         background-color: #133E7C;

@@ -22,6 +22,28 @@
     gap: var(--sp-2); /* 8px */
 }
 
+.bubbleColumnWide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 493px;
+    box-sizing: border-box;
+    gap: var(--sp-2); /* 8px */
+}
+
+.progressBadge {
+    position: absolute;
+    top: 0;
+    right: var(--sp-9); /* 36px — aligned with bubble border-radius */
+    transform: translateY(-50%);
+    background: var(--bubble-bg, white);
+    padding: 6px 10px 6px var(--sp-2);
+    border: 1.5px solid var(--bubble-border, #CBEAFF);
+    border-radius: var(--sp-16); /* 64px — full pill */
+    z-index: 1;
+}
+
 /* --- getStarted bubble intro --- */
 
 .bubbleGetStartedIntro {

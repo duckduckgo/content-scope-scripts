@@ -20,10 +20,14 @@ export function SingleStep() {
 
     return (
         <div class={styles.layout}>
-            <div class={styles.bubbleColumn}>
+            <div class={isGetStarted ? styles.bubbleColumn : styles.bubbleColumnWide}>
                 {topBubble && (
                     <Bubble tail={topBubbleTail} class={isGetStarted ? styles.bubbleGetStartedIntro : undefined}>
-                        {showProgress && <ProgressIndicator current={progress.current} total={progress.total} />}
+                        {showProgress && (
+                            <div class={styles.progressBadge}>
+                                <ProgressIndicator current={progress.current} total={progress.total} />
+                            </div>
+                        )}
                         {topBubble}
                     </Bubble>
                 )}
