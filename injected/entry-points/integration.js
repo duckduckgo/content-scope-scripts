@@ -51,6 +51,7 @@ function generateConfig() {
                 'webTelemetry',
                 'webInterferenceDetection',
                 'harmfulApis',
+                'pageContext',
             ],
         },
     };

@@ -316,4 +316,17 @@ test.describe('Test integration pages', () => {
             './integration-test/test-pages/web-interference-detection/config/web-interference-detection.json',
         );
     });
+
+    test('Cookie', async ({ page }, testInfo) => {
+        await testPage(page, testInfo, '/cookie/pages/cookie.html', './integration-test/test-pages/cookie/config/cookie.json');
+    });
+
+    test('Page Context', async ({ page }, testInfo) => {
+        await testPage(
+            page,
+            testInfo,
+            '/page-context/pages/page-context.html',
+            './integration-test/test-pages/page-context/config/page-context.json',
+        );
+    });
 });
