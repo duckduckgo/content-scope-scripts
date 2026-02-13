@@ -1,25 +1,66 @@
 name: 'asana sync'
 on:
     pull_request_review:
+        types: [submitted]
     pull_request_target:
         types:
             - opened
-            - edited
             - closed
-            - reopened
-            - synchronize
-            - review_requested
 
 jobs:
-    sync:
+    create-pr-task:
+        if: >
+            github.event_name == 'pull_request_target'
+            && github.event.action == 'opened'
+            && !startsWith(github.event.pull_request.title, 'Release: ')
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v6
-            - uses: duckduckgo/action-asana-sync@v11
+            - name: Get Asana user ID for PR author
+              id: get-asana-user
+              continue-on-error: true
+              uses: duckduckgo/native-github-asana-sync@v2.3
               with:
-                  ASANA_ACCESS_TOKEN: ${{ secrets.ASANA_ACCESS_TOKEN }}
-                  ASANA_WORKSPACE_ID: ${{ secrets.ASANA_WORKSPACE_ID }}
-                  ASANA_PROJECT_ID: '1208598406046969'
-                  GITHUB_PAT: ${{ secrets.GH_RO_PAT }}
-                  USER_MAP: ${{ vars.USER_MAP }}
-                  ASSIGN_PR_AUTHOR: 'true'
+                  github-pat: ${{ secrets.GH_RO_PAT }}
+                  action: 'get-asana-user-id'
+
+            - name: Create Asana task for PR
+              uses: duckduckgo/native-github-asana-sync@v2.3
+              with:
+                  asana-pat: ${{ secrets.ASANA_ACCESS_TOKEN }}
+                  asana-project: '1208598406046969'
+                  asana-task-name: 'PR ${{ github.event.repository.name }} #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}'
+                  asana-task-description: 'PR: ${{ github.event.pull_request.html_url }}'
+                  asana-task-assignee: ${{ steps.get-asana-user.outputs.asanaUserId }}
+                  action: 'create-asana-task'
+
+            - name: Add PR link to Asana task from description
+              uses: duckduckgo/native-github-asana-sync@v2.3
+              with:
+                  asana-pat: ${{ secrets.ASANA_ACCESS_TOKEN }}
+                  action: 'add-asana-comment'
+                  is-pinned: true
+
+    notify-approved:
+        if: >
+            github.event_name == 'pull_request_review'
+            && github.event.review.state == 'approved'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Add approval comment to Asana task
+              uses: duckduckgo/native-github-asana-sync@v2.3
+              with:
+                  asana-pat: ${{ secrets.ASANA_ACCESS_TOKEN }}
+                  action: 'notify-pr-approved'
+
+    notify-closed:
+        if: >
+            github.event_name == 'pull_request_target'
+            && github.event.action == 'closed'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Complete Asana task on close
+              uses: duckduckgo/native-github-asana-sync@v2.3
+              with:
+                  asana-pat: ${{ secrets.ASANA_ACCESS_TOKEN }}
+                  action: 'notify-pr-merged'
+                  is-complete: true
