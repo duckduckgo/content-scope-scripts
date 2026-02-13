@@ -60,7 +60,7 @@ jobs:
                   echo "BUILD_BRANCH=${BUILD_BRANCH}" >> $GITHUB_ENV
                   echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
-            - name: Update associated PR description and comment
+            - name: Comment on associated PR
               uses: actions/github-script@v8
               env:
                   BUILD_BRANCH: ${{ env.BUILD_BRANCH }}
@@ -81,7 +81,10 @@ jobs:
                           timeStyle: 'long'
                       });
 
-                      const integrationBlock = [
+                      const marker = '<!-- BUILD_BRANCH_COMMENT -->';
+
+                      const commentBody = [
+                          marker,
                           `### Build Branch`,
                           ``,
                           `| | |`,
@@ -139,32 +142,7 @@ jobs:
                       });
 
                       for (const pr of prs) {
-                          // --- Update PR description ---
-                          const marker = '<!-- BUILD_BRANCH_INFO -->';
-                          const markerEnd = '<!-- /BUILD_BRANCH_INFO -->';
-                          const wrappedBlock = `${marker}\n${integrationBlock}\n${markerEnd}`;
-
-                          let newBody;
-                          const currentBody = pr.body || '';
-                          if (currentBody.includes(marker)) {
-                              // Replace existing block
-                              const re = new RegExp(`${marker}[\\s\\S]*?${markerEnd}`);
-                              newBody = currentBody.replace(re, wrappedBlock);
-                          } else {
-                              // Prepend to description
-                              newBody = wrappedBlock + '\n\n---\n\n' + currentBody;
-                          }
-
-                          await github.rest.pulls.update({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              pull_number: pr.number,
-                              body: newBody,
-                          });
-
-                          console.log(`Updated PR #${pr.number} description`);
-
-                          // --- Update or create comment ---
+                          // Find existing bot comment by marker
                           const { data: comments } = await github.rest.issues.listComments({
                               owner: context.repo.owner,
                               repo: context.repo.repo,
@@ -172,7 +150,7 @@ jobs:
                           });
 
                           const botComment = comments.find(
-                              c => c.user.login === 'github-actions[bot]' && c.body.includes('Build Branch')
+                              c => c.user.login === 'github-actions[bot]' && c.body.includes(marker)
                           );
 
                           if (botComment) {
@@ -180,7 +158,7 @@ jobs:
                                   owner: context.repo.owner,
                                   repo: context.repo.repo,
                                   comment_id: botComment.id,
-                                  body: integrationBlock,
+                                  body: commentBody,
                               });
                               console.log(`Updated comment on PR #${pr.number}`);
                           } else {
@@ -188,7 +166,7 @@ jobs:
                                   owner: context.repo.owner,
                                   repo: context.repo.repo,
                                   issue_number: pr.number,
-                                  body: integrationBlock,
+                                  body: commentBody,
                               });
                               console.log(`Created comment on PR #${pr.number}`);
                           }
