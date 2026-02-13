@@ -1,4 +1,5 @@
 {
+  "readme": "Config for page-observer integration tests: pageObserver feature enabled.",
   "features": {
     "pageObserver": {
       "state": "enabled",
