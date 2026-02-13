@@ -3,6 +3,7 @@ let suppressingExpectedFailures = false;
 
 /**
  * Sets up a console handler on a Playwright page that filters out expected errors.
+ * Preserves log levels by routing to the appropriate console method (error, warn, log, etc.)
  *
  * @param {import('@playwright/test').Page} page - The Playwright page
  */
@@ -11,21 +12,33 @@ export function forwardConsole(page) {
         if (suppressingExpectedFailures) {
             return;
         }
-        console.log(msg.type(), msg.text());
+        const type = msg.type();
+        const text = msg.text();
+        // Use the appropriate console method to preserve log levels
+        // Fall back to console.log for unknown types
+        const logFn = console[type] ?? console.log;
+        logFn.call(console, type, text);
     });
 }
 
 /**
- * Executes an action that will trigger an expected request failure (e.g., navigation
- * to a custom protocol like duck://). Captures the failed request URL while suppressing
- * console noise from the expected 404 error.
+ * Sets up a listener to capture an expected request failure (e.g., navigation to a
+ * custom protocol like duck://). Returns an object to await the failure after
+ * performing the action that triggers it.
  *
  * @param {import('@playwright/test').Page} page - The Playwright page
- * @param {() => Promise<void>} action - The action that triggers the navigation
  * @param {string} [urlPrefix='duck'] - URL prefix to match for the expected failure
- * @returns {Promise<string>} - The URL of the failed request
+ * @returns {{ waitForFailure: () => Promise<string> }} - Object with waitForFailure method
+ *
+ * @example
+ * const { waitForFailure } = expectRequestFailure(page);
+ * await page.click('a[href^="duck://"]');
+ * const url = await waitForFailure();
+ * expect(url).toEqual('duck://player/123');
  */
-export async function captureExpectedRequestFailure(page, action, urlPrefix = 'duck') {
+export function expectRequestFailure(page, urlPrefix = 'duck') {
+    suppressingExpectedFailures = true;
+
     /** @type {(url: string) => void} */
     let resolveFailure;
     const failure = new Promise((resolve) => {
@@ -39,18 +52,17 @@ export async function captureExpectedRequestFailure(page, action, urlPrefix = 'd
     };
 
     page.context().on('requestfailed', handler);
-    suppressingExpectedFailures = true;
 
-    try {
-        await action();
-        const url = await failure;
-        // Brief delay to allow console messages to be suppressed
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        return url;
-    } finally {
-        suppressingExpectedFailures = false;
-        page.context().off('requestfailed', handler);
-    }
+    return {
+        waitForFailure: async () => {
+            try {
+                return await failure;
+            } finally {
+                suppressingExpectedFailures = false;
+                page.context().off('requestfailed', handler);
+            }
+        },
+    };
 }
 
 export function windowsGlobalPolyfills() {
