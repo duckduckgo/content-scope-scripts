@@ -152,7 +152,7 @@ export function wrapProperty(object, propertyName, descriptor, definePropertyFn)
  * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
  * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
  * @param {string} propertyName
- * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+ * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
  * @param {DefinePropertyFn} definePropertyFn - function to use for defining the property
  * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
  */
@@ -176,7 +176,7 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
         throw new Error(`Property ${propertyName} does not look like a method`);
     }
 
-    const newFn = wrapToString(function () {
+    const newFn = wrapToString(/** @this {any} */ function () {
         return wrapperFn.call(this, origFn, ...arguments);
     }, origFn);
 
@@ -196,12 +196,14 @@ export function wrapMethod(object, propertyName, wrapperFn, definePropertyFn) {
  * @param {ImportMeta['injectName']} [injectName] - the name of the inject to use for the shim
  */
 export function shimInterface(interfaceName, ImplClass, options, definePropertyFn, injectName) {
+    /** @type {any} */
+    const g = globalThis;
     if (injectName === 'integration') {
-        if (!globalThis.origInterfaceDescriptors) globalThis.origInterfaceDescriptors = {};
+        if (!g.origInterfaceDescriptors) g.origInterfaceDescriptors = {};
         const descriptor = Object.getOwnPropertyDescriptor(globalThis, interfaceName);
-        globalThis.origInterfaceDescriptors[interfaceName] = descriptor;
+        g.origInterfaceDescriptors[interfaceName] = descriptor;
 
-        globalThis.ddgShimMark = ddgShimMark;
+        g.ddgShimMark = ddgShimMark;
     }
 
     /** @type {DefineInterfaceOptions} */
@@ -298,7 +300,7 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
  * Define a missing standard property on a global (prototype) object. Only for data properties.
  * For constructors, use shimInterface().
  * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
- * @template Base
+ * @template {object} Base
  * @template {keyof Base & string} K
  * @param {Base} baseObject - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
  * @param {K} propertyName - name of the property to shim (e.g. 'mediaSession')
@@ -310,13 +312,15 @@ export function shimInterface(interfaceName, ImplClass, options, definePropertyF
 export function shimProperty(baseObject, propertyName, implInstance, readOnly, definePropertyFn, injectName) {
     // @ts-expect-error - implInstance is a class instance
     const ImplClass = implInstance.constructor;
+    /** @type {any} */
+    const g = globalThis;
 
     if (injectName === 'integration') {
-        if (!globalThis.origPropDescriptors) globalThis.origPropDescriptors = [];
+        if (!g.origPropDescriptors) g.origPropDescriptors = [];
         const descriptor = Object.getOwnPropertyDescriptor(baseObject, propertyName);
-        globalThis.origPropDescriptors.push([baseObject, propertyName, descriptor]);
+        g.origPropDescriptors.push([baseObject, propertyName, descriptor]);
 
-        globalThis.ddgShimMark = ddgShimMark;
+        g.ddgShimMark = ddgShimMark;
         if (ImplClass[ddgShimMark] !== true) {
             throw new TypeError('implInstance must be an instance of a shimmed class');
         }
