@@ -9,7 +9,11 @@ import onboardingAnimation from '../../shared/animations/Onboarding.riv';
 
 import styles from './DuckPlayerStep.module.css';
 
-export function DuckPlayerStep() {
+/**
+ * @param {object} props
+ * @param {boolean} [props.newDuckPlayerScreen] - When true, the animation is permanently in the 'after' state
+ */
+export function DuckPlayerStep({ newDuckPlayerScreen = false }) {
     const { isDarkMode, isReducedMotion } = useEnv();
     const [canPlay, setCanPlay] = useState(false);
     const { getStep, setStep } = useBeforeAfter();
@@ -17,6 +21,10 @@ export function DuckPlayerStep() {
     const timer = useRef(null);
 
     useEffect(() => {
+        if (newDuckPlayerScreen) {
+            setStep('duckPlayerSingle', 'after');
+            return;
+        }
         if (canPlay && !timer.current) {
             timer.current = setTimeout(
                 () => {
@@ -29,7 +37,7 @@ export function DuckPlayerStep() {
         return () => {
             if (timer.current) clearTimeout(timer.current);
         };
-    }, [canPlay, isReducedMotion]);
+    }, [canPlay, isReducedMotion, newDuckPlayerScreen]);
 
     const animationDidEnd = () => {
         if (!timer.current) setCanPlay(true);
@@ -40,7 +48,7 @@ export function DuckPlayerStep() {
             <div className={styles.animationContainer}>
                 <RiveAnimation
                     animation={onboardingAnimation}
-                    state={getStep('duckPlayerSingle') || 'before'}
+                    state={newDuckPlayerScreen ? 'after' : (getStep('duckPlayerSingle') || 'before')}
                     isDarkMode={isDarkMode}
                     artboard="Duck Player"
                     inputName="Duck Player?"
