@@ -43,7 +43,7 @@
     "@duckduckgo/eslint-config": "github:duckduckgo/eslint-config#v0.1.0",
     "@playwright/test": "^1.52.0",
     "ajv": "^8.17.1",
-    "esbuild": "^0.27.2",
+    "esbuild": "^0.27.3",
     "eslint": "^9.39.2",
     "minimist": "^1.2.8",
     "prettier": "3.7.4",
