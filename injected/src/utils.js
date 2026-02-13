@@ -543,7 +543,7 @@ export class DDGProxy {
 
     // Actually apply the proxy to the native property
     overload() {
-        /** @type {Record<string, any>} */ (this.objectScope)[this.property] = this.internal;
+        Reflect.set(this.objectScope, this.property, this.internal);
     }
 
     overloadDescriptor() {
