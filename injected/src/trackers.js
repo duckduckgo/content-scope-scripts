@@ -16,13 +16,14 @@ import { getGlobal } from './utils.js';
  */
 export function isTrackerOrigin(trackerLookup, originHostname = getGlobal().document.location.hostname) {
     const parts = originHostname.split('.').reverse();
-    /** @type {TrackerNode} */
-    let node = /** @type {TrackerNode} */ (trackerLookup);
+    /** @type {Record<string, TrackerNode | 1 | undefined>} */
+    let node = trackerLookup;
     for (const sub of parts) {
-        if (node[sub] === 1) {
+        const next = node[sub];
+        if (next === 1) {
             return true;
-        } else if (node[sub]) {
-            node = node[sub];
+        } else if (next) {
+            node = next;
         } else {
             return false;
         }
