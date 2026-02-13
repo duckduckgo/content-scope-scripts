@@ -1,7 +1,6 @@
 /**
  * Sets up a console handler on a Playwright page.
  * Preserves log levels by routing to the appropriate console method (error, warn, log, etc.)
- * Filters out "Failed to load resource" errors since these are already shown by the browser.
  *
  * @param {import('@playwright/test').Page} page - The Playwright page
  */
@@ -9,9 +8,10 @@ export function forwardConsole(page) {
     page.on('console', (msg) => {
         const type = msg.type();
         const text = msg.text();
-        // Skip "Failed to load resource" errors - the browser already outputs these natively,
-        // so logging them again would duplicate the output
-        if (text.includes('Failed to load resource')) {
+        // Handle 'assert' specially - console.assert only logs when first arg is falsy,
+        // so we use console.error instead to ensure assertion failures are visible
+        if (type === 'assert') {
+            console.error('assert', text);
             return;
         }
         // Use the appropriate console method to preserve log levels
