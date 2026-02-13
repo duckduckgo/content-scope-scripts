@@ -198,10 +198,10 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
-     * @returns {import('./trackers.js').TrackerNode}
+     * @returns {import('./trackers.js').TrackerNode | {}}
      **/
     get trackerLookup() {
-        return /** @type {import('./trackers.js').TrackerNode} */ (this.#importConfig.trackerLookup || {});
+        return this.#importConfig.trackerLookup || {};
     }
 
     /**
