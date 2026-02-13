@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { expect } from '@playwright/test';
 import { perPlatform } from '../type-helpers.mjs';
 import { ResultsCollector } from './results-collector.js';
+import { forwardConsole } from '../shared.mjs';
 
 /**
  * @import { PageType } from '../../src/features/duckplayer-native/messages.js'
@@ -44,9 +45,7 @@ export class DuckPlayerNative {
             javascriptInterface: 'javascriptInterface',
             messageCallback: 'messageCallback',
         });
-        page.on('console', (msg) => {
-            console.log(msg.type(), msg.text());
-        });
+        forwardConsole(page);
     }
 
     async reducedMotion() {
