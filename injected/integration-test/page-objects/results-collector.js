@@ -121,6 +121,7 @@ export class ResultsCollector {
                 ...platform,
             },
             sessionKey: 'test',
+            ...this.#userPreferences,
         };
 
         const processedConfig = processConfig(

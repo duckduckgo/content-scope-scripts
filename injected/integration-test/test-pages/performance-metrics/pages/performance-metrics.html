@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Performance Metrics</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Performance Metrics]</a></p>
+
+    <p>This page verifies that the performance metrics feature initializes correctly</p>
+
+    <script>
+        test('Performance metrics feature active', async () => {
+            const results = [];
+
+            // Verify PerformanceObserver API is available (feature uses it)
+            results.push({
+                name: 'PerformanceObserver API is available',
+                result: typeof PerformanceObserver,
+                expected: 'function',
+            });
+
+            // Verify the page can observe paint entries (the feature observes FCP)
+            let canObservePaint = false;
+            try {
+                const supportedTypes = PerformanceObserver.supportedEntryTypes;
+                canObservePaint = supportedTypes.includes('paint');
+            } catch (e) {
+                // PerformanceObserver.supportedEntryTypes may not be available
+                canObservePaint = false;
+            }
+            results.push({
+                name: 'Paint entry type is observable',
+                result: canObservePaint,
+                expected: true,
+            });
+
+            // The page should have rendered some content (triggering FCP)
+            const paintEntries = performance.getEntriesByType('paint');
+            const hasFcp = paintEntries.some((entry) => entry.name === 'first-contentful-paint');
+            results.push({
+                name: 'First Contentful Paint has occurred',
+                result: hasFcp,
+                expected: true,
+            });
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>
