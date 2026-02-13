@@ -1,6 +1,7 @@
 import { h, Fragment } from 'preact';
 import { MakeDefaultContent } from '../components/MakeDefaultContent';
 import { SettingsContent } from '../components/SettingsContent';
+import { StepHeader } from '../components/StepHeader';
 import { DuckPlayerContent } from '../components/DuckPlayerContent';
 import { AddressBarContent } from '../components/AddressBarContent';
 import { WelcomeContent } from '../components/WelcomeContent';
@@ -36,12 +37,7 @@ export const stepsConfig = {
     },
     systemSettings: ({ t }) => {
         return {
-            topBubble: (
-                <Fragment>
-                    <h2>{t('systemSettings_title_v3')}</h2>
-                    <p>{t('systemSettings_subtitle_v3')}</p>
-                </Fragment>
-            ),
+            topBubble: <StepHeader title={t('systemSettings_title_v3')} subtitle={t('systemSettings_subtitle_v3')} />,
             bottomBubble: <SettingsContent />,
             showProgress: true,
         };
@@ -60,12 +56,7 @@ export const stepsConfig = {
     },
     customize: ({ t }) => {
         return {
-            topBubble: (
-                <Fragment>
-                    <h2>{t('customize_title_v3')}</h2>
-                    <p>{t('customize_subtitle_v3')}</p>
-                </Fragment>
-            ),
+            topBubble: <StepHeader title={t('customize_title_v3')} subtitle={t('customize_subtitle_v3')} />,
             bottomBubble: <SettingsContent />,
             showProgress: true,
         };
@@ -104,7 +95,7 @@ export const settingsRowItems = {
     }),
     import: (t) => ({
         id: 'import',
-        icon: 'v3/Import-Color-24.svg',
+        icon: 'v4/import.svg',
         title: t('row_import_title_v3'),
         secondaryText: t('row_import_summary_v3'),
         kind: 'one-time',
@@ -119,7 +110,7 @@ export const settingsRowItems = {
 
         return {
             id: 'dock',
-            icon: 'v3/Add-To-Dock-Color-24.svg',
+            icon: 'v4/dock.svg',
             title,
             secondaryText,
             kind: 'one-time',
@@ -129,7 +120,7 @@ export const settingsRowItems = {
     },
     bookmarks: (t) => ({
         id: 'bookmarks',
-        icon: 'v3/Bookmark-Favorite-Color-24.svg',
+        icon: 'v4/bookmark.svg',
         title: t('row_bookmarks_title_v3'),
         kind: 'toggle',
         acceptText: t('row_bookmarks_accept'),
@@ -137,7 +128,7 @@ export const settingsRowItems = {
     }),
     'session-restore': (t) => ({
         id: 'session-restore',
-        icon: 'v3/Session-Restore-Color-24.svg',
+        icon: 'v4/session-restore.svg',
         title: t('row_session-restore_title_v3'),
         kind: 'toggle',
         acceptText: t('row_session-restore_accept'),
@@ -145,7 +136,7 @@ export const settingsRowItems = {
     }),
     'home-shortcut': (t) => ({
         id: 'home-shortcut',
-        icon: 'v3/Home-Color-24.svg',
+        icon: 'v4/home.svg',
         title: t('row_home-shortcut_title_v3'),
         kind: 'toggle',
         acceptText: t('row_home-shortcut_accept'),
