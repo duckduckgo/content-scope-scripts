@@ -2395,7 +2395,7 @@
   var debug = false;
   function initStringExemptionLists(args) {
     const { stringExemptionLists } = args;
-    debug = args.debug;
+    debug = args.debug || false;
     for (const type in stringExemptionLists) {
       exemptionLists[type] = [];
       for (const stringExemption of stringExemptionLists[type]) {
@@ -2450,6 +2450,7 @@
   var lineTest = /(\()?(https?:[^)]+):[0-9]+:[0-9]+(\))?/;
   function getStackTraceUrls(stack) {
     const urls = new Set2();
+    if (!stack) return urls;
     try {
       const errorLines = stack.split("\n");
       for (const line of errorLines) {
@@ -2475,6 +2476,7 @@
       return false;
     }
     const stack = getStack();
+    if (!stack) return false;
     const errorFiles = getStackTraceUrls(stack);
     for (const path of errorFiles) {
       if (shouldExemptUrl(type, path.href)) {
@@ -2485,7 +2487,7 @@
   }
   function iterateDataKey(key, callback) {
     let item = key.charCodeAt(0);
-    for (const i in key) {
+    for (let i = 0; i < key.length; i++) {
       let byte = key.charCodeAt(i);
       for (let j2 = 8; j2 >= 0; j2--) {
         const res = callback(item, byte);
@@ -2601,8 +2603,8 @@
     /**
      * @param {import('./content-feature').default} feature
      * @param {P} objectScope
-     * @param {string} property
-     * @param {ProxyObject<P>} proxyObject
+     * @param {K} property
+     * @param {ProxyObject<P, K>} proxyObject
      */
     constructor(feature, objectScope, property, proxyObject) {
       this.objectScope = objectScope;
@@ -2648,7 +2650,7 @@
     }
     // Actually apply the proxy to the native property
     overload() {
-      this.objectScope[this.property] = this.internal;
+      Reflect.set(this.objectScope, this.property, this.internal);
     }
     overloadDescriptor() {
       this.feature.defineProperty(this.objectScope, this.property, {
@@ -2661,12 +2663,9 @@
   };
   var maxCounter = /* @__PURE__ */ new Map();
   function numberOfTimesDebugged(feature) {
-    if (!maxCounter.has(feature)) {
-      maxCounter.set(feature, 1);
-    } else {
-      maxCounter.set(feature, maxCounter.get(feature) + 1);
-    }
-    return maxCounter.get(feature);
+    const current = maxCounter.get(feature) ?? 0;
+    maxCounter.set(feature, current + 1);
+    return current + 1;
   }
   var DEBUG_MAX_TIMES = 5e3;
   function postDebugMessage(feature, message, allowNonDebug = false) {
@@ -2824,7 +2823,10 @@
     "webInterferenceDetection"
   ];
   function isPlatformSpecificFeature(featureName) {
-    return platformSpecificFeatures.includes(featureName);
+    return platformSpecificFeatures.includes(
+      /** @type {import('./features.js').FeatureName} */
+      featureName
+    );
   }
   function createCustomEvent(eventName, eventDetail) {
     return new OriginalCustomEvent(eventName, eventDetail);
@@ -2873,20 +2875,44 @@
   }
   function withDefaults(defaults, config2) {
     if (config2 === void 0) {
-      return defaults;
+      return (
+        /** @type {D & C} */
+        defaults
+      );
     }
     if (
       // if defaults are undefined
       defaults === void 0 || // or either config or defaults are a non-object value that we can't merge
       Array.isArray(defaults) || defaults === null || typeof defaults !== "object" || Array.isArray(config2) || config2 === null || typeof config2 !== "object"
     ) {
-      return config2;
+      return (
+        /** @type {D & C} */
+        /** @type {unknown} */
+        config2
+      );
     }
     const result = {};
-    for (const key of new Set2([...Object.keys(defaults), ...Object.keys(config2)])) {
-      result[key] = withDefaults(defaults[key], config2[key]);
+    const d = (
+      /** @type {any} */
+      defaults
+    );
+    const c = (
+      /** @type {any} */
+      config2
+    );
+    for (const key of new Set2([...Object.keys(d), ...Object.keys(c)])) {
+      result[key] = withDefaults(
+        /** @type {any} */
+        d[key],
+        /** @type {any} */
+        c[key]
+      );
     }
-    return result;
+    return (
+      /** @type {D & C} */
+      /** @type {unknown} */
+      result
+    );
   }
 
   // src/features.js
@@ -3553,8 +3579,18 @@
 
   // src/crypto.js
   function getDataKeySync(sessionKey, domainKey, inputData) {
-    const hmac = new sjcl.misc.hmac(sjcl.codec.utf8String.toBits(sessionKey + domainKey), sjcl.hash.sha256);
-    return sjcl.codec.hex.fromBits(hmac.encrypt(inputData));
+    const hmac = new /** @type {any} */
+    sjcl.misc.hmac(
+      /** @type {any} */
+      sjcl.codec.utf8String.toBits(sessionKey + domainKey),
+      /** @type {any} */
+      sjcl.hash.sha256
+    );
+    return (
+      /** @type {string} */
+      /** @type {any} */
+      sjcl.codec.hex.fromBits(hmac.encrypt(inputData))
+    );
   }
 
   // src/content-feature.js
@@ -3657,9 +3693,13 @@
     if (!origFn || typeof origFn !== "function") {
       throw new Error(`Property ${propertyName} does not look like a method`);
     }
-    const newFn = wrapToString(function() {
-      return wrapperFn.call(this, origFn, ...arguments);
-    }, origFn);
+    const newFn = wrapToString(
+      /** @this {any} */
+      function() {
+        return wrapperFn.call(this, origFn, ...arguments);
+      },
+      origFn
+    );
     definePropertyFn(object, propertyName, {
       ...origDescriptor,
       value: newFn
@@ -3667,11 +3707,12 @@
     return origDescriptor;
   }
   function shimInterface(interfaceName, ImplClass, options, definePropertyFn, injectName) {
+    const g = globalThis;
     if (injectName === "integration") {
-      if (!globalThis.origInterfaceDescriptors) globalThis.origInterfaceDescriptors = {};
+      if (!g.origInterfaceDescriptors) g.origInterfaceDescriptors = {};
       const descriptor = Object.getOwnPropertyDescriptor(globalThis, interfaceName);
-      globalThis.origInterfaceDescriptors[interfaceName] = descriptor;
-      globalThis.ddgShimMark = ddgShimMark;
+      g.origInterfaceDescriptors[interfaceName] = descriptor;
+      g.ddgShimMark = ddgShimMark;
     }
     const defaultOptions = {
       allowConstructorCall: false,
@@ -3732,11 +3773,12 @@
   }
   function shimProperty(baseObject, propertyName, implInstance, readOnly, definePropertyFn, injectName) {
     const ImplClass = implInstance.constructor;
+    const g = globalThis;
     if (injectName === "integration") {
-      if (!globalThis.origPropDescriptors) globalThis.origPropDescriptors = [];
+      if (!g.origPropDescriptors) g.origPropDescriptors = [];
       const descriptor2 = Object.getOwnPropertyDescriptor(baseObject, propertyName);
-      globalThis.origPropDescriptors.push([baseObject, propertyName, descriptor2]);
-      globalThis.ddgShimMark = ddgShimMark;
+      g.origPropDescriptors.push([baseObject, propertyName, descriptor2]);
+      g.ddgShimMark = ddgShimMark;
       if (ImplClass[ddgShimMark] !== true) {
         throw new TypeError("implInstance must be an instance of a shimmed class");
       }
@@ -5042,10 +5084,11 @@
     const parts = originHostname.split(".").reverse();
     let node = trackerLookup2;
     for (const sub of parts) {
-      if (node[sub] === 1) {
+      const next = node[sub];
+      if (next === 1) {
         return true;
-      } else if (node[sub]) {
-        node = node[sub];
+      } else if (next) {
+        node = next;
       } else {
         return false;
       }
@@ -6146,8 +6189,8 @@
       __privateSet(this, _bundledConfig, bundledConfig);
       __privateSet(this, _args, args);
       if (__privateGet(this, _bundledConfig) && __privateGet(this, _args)) {
-        const enabledFeatures = computeEnabledFeatures(bundledConfig, site.domain, platform);
-        __privateGet(this, _args).featureSettings = parseFeatureSettings(bundledConfig, enabledFeatures);
+        const enabledFeatures = computeEnabledFeatures(__privateGet(this, _bundledConfig), site.domain, platform);
+        __privateGet(this, _args).featureSettings = parseFeatureSettings(__privateGet(this, _bundledConfig), enabledFeatures);
       }
     }
     /**
@@ -6540,8 +6583,7 @@
      */
     constructor(featureName, importConfig, features, args) {
       super(featureName, args);
-      /** @type {import('./utils.js').RemoteConfig | undefined} */
-      /** @type {import('../../messaging').Messaging} */
+      /** @type {import('../../messaging').Messaging | undefined} */
       // eslint-disable-next-line no-unused-private-class-members
       __privateAdd(this, _messaging);
       /** @type {boolean} */
@@ -6654,7 +6696,7 @@
       return this.args?.assets;
     }
     /**
-     * @returns {ImportMeta['trackerLookup']}
+     * @returns {import('./trackers.js').TrackerNode | {}}
      **/
     get trackerLookup() {
       return __privateGet(this, _importConfig).trackerLookup || {};
@@ -6766,6 +6808,9 @@
       const configSetting = this.getFeatureSetting(attrName);
       return processAttr(configSetting, defaultValue);
     }
+    /**
+     * @param {any} [_args]
+     */
     init(_args2) {
     }
     /**
@@ -6795,10 +6840,16 @@
     markFeatureAsSkipped(reason) {
       __privateGet(this, _ready).resolve({ status: "skipped", reason });
     }
+    /**
+     * @param {any} args
+     */
     setArgs(args) {
       this.args = args;
       this.platform = args.platform;
     }
+    /**
+     * @param {any} [_args]
+     */
     load(_args2) {
     }
     /**
@@ -6877,23 +6928,32 @@
      * Define a property descriptor with debug flags.
      * Mainly used for defining new properties. For overriding existing properties, consider using wrapProperty(), wrapMethod() and wrapConstructor().
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.BatteryManager.prototype)
-     * @param {string} propertyName
+     * @param {string | symbol} propertyName
      * @param {import('./wrapper-utils').StrictPropertyDescriptor} descriptor - requires all descriptor options to be defined because we can't validate correctness based on TS types
      */
     defineProperty(object, propertyName, descriptor) {
-      ["value", "get", "set"].forEach((k) => {
-        const descriptorProp = descriptor[k];
-        if (typeof descriptorProp === "function") {
-          const addDebugFlag = this.addDebugFlag.bind(this);
-          const wrapper = new Proxy2(descriptorProp, {
-            apply(_2, thisArg, argumentsList) {
-              addDebugFlag();
-              return Reflect2.apply(descriptorProp, thisArg, argumentsList);
-            }
-          });
-          descriptor[k] = wrapToString(wrapper, descriptorProp);
-        }
-      });
+      const addDebugFlag = this.addDebugFlag.bind(this);
+      const wrapWithDebugFlag = (fn) => {
+        const wrapper = new Proxy2(fn, {
+          apply(_2, thisArg, argumentsList) {
+            addDebugFlag();
+            return Reflect2.apply(fn, thisArg, argumentsList);
+          }
+        });
+        return (
+          /** @type {F} */
+          wrapToString(wrapper, fn)
+        );
+      };
+      if ("value" in descriptor && typeof descriptor.value === "function") {
+        descriptor.value = wrapWithDebugFlag(descriptor.value);
+      }
+      if ("get" in descriptor && typeof descriptor.get === "function") {
+        descriptor.get = wrapWithDebugFlag(descriptor.get);
+      }
+      if ("set" in descriptor && typeof descriptor.set === "function") {
+        descriptor.set = wrapWithDebugFlag(descriptor.set);
+      }
       return defineProperty(object, propertyName, descriptor);
     }
     /**
@@ -6910,7 +6970,7 @@
      * Wrap a method descriptor. Only for function properties. For data properties, use wrapProperty(). For constructors, use wrapConstructor().
      * @param {any} object - object whose property we are wrapping (most commonly a prototype, e.g. globalThis.Bluetooth.prototype)
      * @param {string} propertyName
-     * @param {(originalFn, ...args) => any } wrapperFn - wrapper function receives the original function as the first argument
+     * @param {(originalFn: any, ...args: any[]) => any } wrapperFn - wrapper function receives the original function as the first argument
      * @returns {PropertyDescriptor|undefined} original property descriptor, or undefined if it's not found
      */
     wrapMethod(object, propertyName, wrapperFn) {
@@ -6929,7 +6989,7 @@
      * Define a missing standard property on a global (prototype) object. Only for data properties.
      * For constructors, use shimInterface().
      * Most of the time, you'd want to call shimInterface() first to shim the class itself (MediaSession), and then shimProperty() for the global singleton instance (Navigator.prototype.mediaSession).
-     * @template Base
+     * @template {object} Base
      * @template {keyof Base & string} K
      * @param {Base} instanceHost - object whose property we are shimming (most commonly a prototype object, e.g. Navigator.prototype)
      * @param {K} instanceProp - name of the property to shim (e.g. 'mediaSession')
@@ -9484,6 +9544,10 @@
   // src/dom-utils.js
   init_define_import_meta_trackerLookup();
   var Template = class _Template {
+    /**
+     * @param {readonly string[]} strings
+     * @param {unknown[]} values
+     */
     constructor(strings, values) {
       this.values = values;
       this.strings = strings;
@@ -9506,6 +9570,10 @@
       };
       return String(str).replace(/[&"'<>/]/g, (m) => replacements[m]);
     }
+    /**
+     * @param {unknown} value
+     * @returns {string | Template}
+     */
     potentiallyEscape(value) {
       if (typeof value === "object") {
         if (value instanceof Array) {
@@ -9516,7 +9584,10 @@
         }
         throw new Error("Unknown object to escape");
       }
-      return this.escapeXML(value);
+      return this.escapeXML(
+        /** @type {string} */
+        value
+      );
     }
     toString() {
       const result = [];
@@ -9536,8 +9607,14 @@
     return html([string]);
   }
   function createPolicy() {
-    if (globalThis.trustedTypes) {
-      return globalThis.trustedTypes?.createPolicy?.("ddg-default", { createHTML: (s) => s });
+    if (
+      /** @type {any} */
+      globalThis.trustedTypes
+    ) {
+      return (
+        /** @type {any} */
+        globalThis.trustedTypes?.createPolicy?.("ddg-default", { createHTML: (s) => s })
+      );
     }
     return {
       createHTML: (s) => s
@@ -11203,8 +11280,16 @@
   // src/cookie.js
   init_define_import_meta_trackerLookup();
   var Cookie = class {
+    /**
+     * @param {string} cookieString
+     */
     constructor(cookieString) {
       this.parts = cookieString.split(";");
+      this.name = void 0;
+      this.value = void 0;
+      this["max-age"] = void 0;
+      this.expires = void 0;
+      this.attrIdx = {};
       this.parse();
     }
     parse() {
@@ -11218,6 +11303,7 @@
           this.name = attribute;
           this.value = value;
         } else if (EXTRACT_ATTRIBUTES.has(attribute.toLowerCase())) {
+          /** @type {unknown} */
           this[attribute.toLowerCase()] = value;
           this.attrIdx[attribute.toLowerCase()] = index;
         }
@@ -11227,9 +11313,12 @@
       if (!this.maxAge && !this.expires) {
         return NaN;
       }
-      const expiry = this.maxAge ? parseInt(this.maxAge) : (
-        // @ts-expect-error expires is not defined in the type definition
-        (new Date(this.expires) - /* @__PURE__ */ new Date()) / 1e3
+      const expiry = this.maxAge ? parseInt(String(this.maxAge)) : (
+        // this.expires is guaranteed to be a string here: the !this.expires guard above returns NaN for undefined/empty
+        (new Date(
+          /** @type {string} */
+          this.expires
+        ).getTime() - (/* @__PURE__ */ new Date()).getTime()) / 1e3
       );
       return expiry;
     }
@@ -21417,7 +21506,7 @@ ul.messages {
       try {
         lastResult = await Promise.resolve(fn());
       } catch (e) {
-        exceptions.push(e.toString());
+        exceptions.push(String(e));
       }
       if (lastResult && "success" in lastResult) break;
       if (i === config2.maxAttempts - 1) break;
@@ -23152,13 +23241,23 @@ ${iframeContent}
     }
   }
   function listenForURLChanges() {
-    const urlChangedInstance = new ContentFeature("urlChanged", {}, {}, {});
-    if ("navigation" in globalThis && "addEventListener" in globalThis.navigation) {
+    const urlChangedInstance = new ContentFeature(
+      "urlChanged",
+      {},
+      {},
+      /** @type {any} */
+      {}
+    );
+    const nav = (
+      /** @type {any} */
+      globalThis.navigation
+    );
+    if (nav && "addEventListener" in nav) {
       const navigations = /* @__PURE__ */ new WeakMap();
-      globalThis.navigation.addEventListener("navigate", (event) => {
+      nav.addEventListener("navigate", (event) => {
         navigations.set(event.target, event.navigationType);
       });
-      globalThis.navigation.addEventListener("navigatesuccess", (event) => {
+      nav.addEventListener("navigatesuccess", (event) => {
         const navigationType = navigations.get(event.target);
         handleURLChange(navigationType);
         navigations.delete(event.target);
@@ -23230,7 +23329,9 @@ ${iframeContent}
     if (!isHTMLDocument) {
       return;
     }
-    registerMessageSecret(args.messageSecret);
+    if (args.messageSecret) {
+      registerMessageSecret(args.messageSecret);
+    }
     initStringExemptionLists(args);
     const features = await getFeatures();
     await Promise.allSettled(
@@ -23286,7 +23387,7 @@ ${iframeContent}
   async function updateFeaturesInner(args) {
     const features = await getFeatures();
     Object.entries(features).forEach(([featureName, featureInstance2]) => {
-      if (!isFeatureBroken(initArgs, featureName) && featureInstance2.listenForUpdateChanges) {
+      if (initArgs && !isFeatureBroken(initArgs, featureName) && featureInstance2.listenForUpdateChanges) {
         featureInstance2.update(args);
       }
     });
@@ -23319,17 +23420,11 @@ ${iframeContent}
         url: topLevelUrl?.href || "",
         isBroken: false,
         allowlisted: false,
-        enabledFeatures: [
-          "fingerprintingCanvas",
-          "fingerprintingScreenSize",
-          "navigatorInterface",
-          "cookie",
-          "webCompat",
-          "apiManipulation",
-          "duckPlayer",
-          "duckPlayerNative",
-          "elementHiding"
-        ]
+        // Derive enabled features from platformSupport to avoid drift.
+        // Exclude features requiring a messaging backend (clickToLoad) or
+        // platform-specific globals (brokerProtection, autofillImport) that
+        // would fail or slow down initialization in the integration test context.
+        enabledFeatures: platformSupport.integration.filter((f) => !["clickToLoad", "brokerProtection", "autofillImport"].includes(f))
       }
     };
   }

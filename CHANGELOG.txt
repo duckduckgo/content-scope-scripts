@@ -1,1 +1,7 @@
-- Add ai-history script to android (#2259)
+- Add strict typing to core inject files (#2264)
+- Make pr-releases deterministic based on dev branch (#2267)
+- Injected code coverage (#2261)
+- fix: use GITHUB_TOKEN for dependabot comment automation (#2239)
+- Style v4 onboarding makeDefault step (#2257)
+- Style v4 onboarding welcome and getStarted screens (#2255)
+- Add v4 onboarding flow scaffold (#2254)

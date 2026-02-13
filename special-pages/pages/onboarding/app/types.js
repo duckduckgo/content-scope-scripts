@@ -50,6 +50,9 @@ export const EVERY_PAGE_ID = [
 /** @type {Step['id'][]} */
 export const ORDER_V3 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize', 'addressBarMode'];
 
+/** @type {Step['id'][]} */
+export const ORDER_V4 = ['welcome', 'getStarted', 'makeDefaultSingle', 'systemSettings', 'duckPlayerSingle', 'customize', 'addressBarMode'];
+
 /**
  * @typedef {BooleanSystemValue} SystemValue - values sent in messages to the host
  * @typedef {{ enabled: boolean }} BooleanSystemValue

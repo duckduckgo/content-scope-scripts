@@ -1,14 +1,19 @@
-name: PR Build and Release
+name: Build Release Branch
 
 on:
-    pull_request:
-        types: [opened, synchronize, closed, ready_for_review]
+    push:
+        branches-ignore:
+            - main
+            - releases
+            - 'pr-releases/**'
+    delete:
 
 permissions: write-all
 
 jobs:
     build:
-        if: github.event.action != 'closed'
+        # Only run on push events (not delete)
+        if: github.event_name == 'push'
         runs-on: ubuntu-latest
 
         steps:
@@ -32,82 +37,178 @@ jobs:
             - name: Run build
               run: npm run build
 
-            - name: Create and push release branch
+            - name: Create and push build branch
               id: create_branch
               env:
-                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  SOURCE_BRANCH: ${{ github.ref_name }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
-                  git checkout -b pr-releases/pr-${PR_NUMBER}
+
+                  # Build branch uses the pr-releases/ prefix to avoid ref conflicts.
+                  # A branch named "foo" prevents creating "foo/bar" (and vice-versa)
+                  # because git refs are a filesystem hierarchy.  pr-releases/ is a
+                  # separate namespace that can never collide with the source branch.
+                  BUILD_BRANCH="pr-releases/${SOURCE_BRANCH}"
+
+                  git checkout -b "${BUILD_BRANCH}"
                   git add -f build Sources/ContentScopeScripts/dist
-                  git commit -m "Add build folder for PR ${PR_NUMBER}"
-                  git push -u origin pr-releases/pr-${PR_NUMBER} --force
-                  echo "BRANCH_NAME=pr-releases/pr-${PR_NUMBER}" >> $GITHUB_ENV
+                  git commit -m "Build artifacts for ${SOURCE_BRANCH}"
+                  git push -u origin "${BUILD_BRANCH}" --force
+
+                  echo "BUILD_BRANCH=${BUILD_BRANCH}" >> $GITHUB_ENV
                   echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
-            - name: Find Previous Comment
-              uses: peter-evans/find-comment@v4
-              id: find_comment
-              with:
-                  issue-number: ${{ github.event.pull_request.number }}
-                  comment-author: 'github-actions[bot]'
-                  body-includes: 'Temporary Branch Update'
-                  direction: last
-
-            - name: Create Comment Body
+            - name: Update associated PR description and comment
               uses: actions/github-script@v8
-              id: create_body
+              env:
+                  BUILD_BRANCH: ${{ env.BUILD_BRANCH }}
+                  COMMIT_HASH: ${{ env.COMMIT_HASH }}
+                  SOURCE_BRANCH: ${{ github.ref_name }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
-                      const branchName = process.env.BRANCH_NAME;
+                      const buildBranch = process.env.BUILD_BRANCH;
                       const commitHash = process.env.COMMIT_HASH;
-                      const prNumber = context.issue.number;
+                      const sourceBranch = process.env.SOURCE_BRANCH;
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
-                      const branchUrl = `${repoUrl}/tree/${branchName}`;
+                      const branchUrl = `${repoUrl}/tree/${buildBranch}`;
                       const commitUrl = `${repoUrl}/commit/${commitHash}`;
 
-                      // Get the current date
-                      const lastUpdatedDate = (new Date()).toLocaleString('en-US', {
+                      const lastUpdated = (new Date()).toLocaleString('en-US', {
                           dateStyle: 'long',
                           timeStyle: 'long'
-                        });
+                      });
 
-                      const commentBody = `
-                      ### Temporary Branch Update
+                      const integrationBlock = [
+                          `### Build Branch`,
+                          ``,
+                          `| | |`,
+                          `|---|---|`,
+                          `| **Branch** | [\`${buildBranch}\`](${branchUrl}) |`,
+                          `| **Commit** | [\`${commitHash.slice(0, 10)}\`](${commitUrl}) |`,
+                          `| **Updated** | ${lastUpdated} |`,
+                          ``,
+                          `#### Integration commands`,
+                          ``,
+                          `**npm** (Android / Extension):`,
+                          '```',
+                          `npm i github:duckduckgo/content-scope-scripts#${buildBranch}`,
+                          '```',
+                          ``,
+                          `**Swift Package Manager** (Apple):`,
+                          '```swift',
+                          `.package(url: "https://github.com/duckduckgo/content-scope-scripts.git", branch: "${buildBranch}")`,
+                          '```',
+                          ``,
+                          `**git submodule** (Windows):`,
+                          '```sh',
+                          `git -C submodules/content-scope-scripts fetch origin ${buildBranch}`,
+                          `git -C submodules/content-scope-scripts checkout origin/${buildBranch}`,
+                          '```',
+                          ``,
+                          `<details>`,
+                          `<summary>Pin to exact commit</summary>`,
+                          ``,
+                          `**npm** (Android / Extension):`,
+                          '```',
+                          `npm i github:duckduckgo/content-scope-scripts#${commitHash}`,
+                          '```',
+                          ``,
+                          `**Swift Package Manager** (Apple):`,
+                          '```swift',
+                          `.package(url: "https://github.com/duckduckgo/content-scope-scripts.git", revision: "${commitHash}")`,
+                          '```',
+                          ``,
+                          `**git submodule** (Windows):`,
+                          '```sh',
+                          `git -C submodules/content-scope-scripts fetch origin ${buildBranch}`,
+                          `git -C submodules/content-scope-scripts checkout ${commitHash}`,
+                          '```',
+                          ``,
+                          `</details>`,
+                      ].join('\n');
 
-                      The temporary branch has been updated with the latest changes. Below are the details:
+                      // Find open PRs for this branch
+                      const { data: prs } = await github.rest.pulls.list({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          head: `${context.repo.owner}:${sourceBranch}`,
+                          state: 'open',
+                      });
 
-                        - **Branch Name**: [${branchName}](${branchUrl})
-                        - **Commit Hash**: [${commitHash}](${commitUrl})
-                        - **Last Updated**: ${lastUpdatedDate}
-                        - **Install Command**: \`npm i github:duckduckgo/content-scope-scripts#${commitHash}\`
+                      for (const pr of prs) {
+                          // --- Update PR description ---
+                          const marker = '<!-- BUILD_BRANCH_INFO -->';
+                          const markerEnd = '<!-- /BUILD_BRANCH_INFO -->';
+                          const wrappedBlock = `${marker}\n${integrationBlock}\n${markerEnd}`;
 
-                        Please use the above install command to update to the latest version.
-                      `;
-                      core.setOutput('comment_body', commentBody);
-                      core.setOutput('pr_number', prNumber);
+                          let newBody;
+                          const currentBody = pr.body || '';
+                          if (currentBody.includes(marker)) {
+                              // Replace existing block
+                              const re = new RegExp(`${marker}[\\s\\S]*?${markerEnd}`);
+                              newBody = currentBody.replace(re, wrappedBlock);
+                          } else {
+                              // Prepend to description
+                              newBody = wrappedBlock + '\n\n---\n\n' + currentBody;
+                          }
 
-            - name: Create, or Update the Comment
-              uses: peter-evans/create-or-update-comment@v5
-              with:
-                  issue-number: ${{ github.event.pull_request.number }}
-                  comment-id: ${{ steps.find_comment.outputs.comment-id }}
-                  body: ${{ steps.create_body.outputs.comment_body }}
-                  edit-mode: replace
+                          await github.rest.pulls.update({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              pull_number: pr.number,
+                              body: newBody,
+                          });
+
+                          console.log(`Updated PR #${pr.number} description`);
+
+                          // --- Update or create comment ---
+                          const { data: comments } = await github.rest.issues.listComments({
+                              owner: context.repo.owner,
+                              repo: context.repo.repo,
+                              issue_number: pr.number,
+                          });
+
+                          const botComment = comments.find(
+                              c => c.user.login === 'github-actions[bot]' && c.body.includes('Build Branch')
+                          );
+
+                          if (botComment) {
+                              await github.rest.issues.updateComment({
+                                  owner: context.repo.owner,
+                                  repo: context.repo.repo,
+                                  comment_id: botComment.id,
+                                  body: integrationBlock,
+                              });
+                              console.log(`Updated comment on PR #${pr.number}`);
+                          } else {
+                              await github.rest.issues.createComment({
+                                  owner: context.repo.owner,
+                                  repo: context.repo.repo,
+                                  issue_number: pr.number,
+                                  body: integrationBlock,
+                              });
+                              console.log(`Created comment on PR #${pr.number}`);
+                          }
+                      }
+
+                      if (prs.length === 0) {
+                          console.log(`No open PR found for branch ${sourceBranch} — build branch pushed but no PR to annotate.`);
+                      }
 
     clean_up:
-        if: github.event.action == 'closed'
+        # Only run when a branch is deleted, and only for non-pr-releases branches
+        if: github.event_name == 'delete' && github.event.ref_type == 'branch' && !startsWith(github.event.ref, 'pr-releases/')
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
               uses: actions/checkout@v6
 
-            - name: Delete release branch
+            - name: Delete build branch
               env:
-                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  DELETED_BRANCH: ${{ github.event.ref }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  git push origin --delete pr-releases/pr-${PR_NUMBER}
+                  git push origin --delete "pr-releases/${DELETED_BRANCH}" || echo "Build branch pr-releases/${DELETED_BRANCH} not found (may already be deleted)"
