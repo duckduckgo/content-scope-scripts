@@ -1,0 +1,11 @@
+{
+    "readme": "This config is used to test the print feature which overrides window.print() for native handling.",
+    "version": 1,
+    "features": {
+        "print": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

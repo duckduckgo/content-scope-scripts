@@ -1,0 +1,15 @@
+{
+    "readme": "This config is used to test the web telemetry feature which monitors video playback.",
+    "version": 1,
+    "features": {
+        "webTelemetry": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "videoPlayback": "enabled",
+                "urlChanged": "enabled"
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}
