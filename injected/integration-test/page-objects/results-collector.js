@@ -55,13 +55,13 @@ let coverageFileCounter = 0;
 export class ResultsCollector {
     #userPreferences = {};
     #mockResponses = {};
+    #coverageStarted = false;
+
     /**
      * @param {import('@playwright/test').Page} page
      * @param {import('../type-helpers.mjs').Build} build
      * @param {import('../type-helpers.mjs').PlatformInfo} platform
      */
-    #coverageStarted = false;
-
     constructor(page, build, platform) {
         this.page = page;
         this.build = build;
