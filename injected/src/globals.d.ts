@@ -25,7 +25,7 @@ interface ImportMeta {
         | 'android-autofill-import'
         | 'android-adsjs'
         | 'android-ai-history';
-    trackerLookup?: Record<string, unknown>;
+    trackerLookup?: import('./trackers.js').TrackerNode;
     pageName?: string;
 }
 

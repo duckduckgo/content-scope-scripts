@@ -198,10 +198,10 @@ export default class ContentFeature extends ConfigFeature {
     }
 
     /**
-     * @returns {ImportMeta['trackerLookup']}
+     * @returns {import('./trackers.js').TrackerNode}
      **/
     get trackerLookup() {
-        return this.#importConfig.trackerLookup || {};
+        return /** @type {import('./trackers.js').TrackerNode} */ (this.#importConfig.trackerLookup || {});
     }
 
     /**
@@ -215,7 +215,7 @@ export default class ContentFeature extends ConfigFeature {
      * @returns {boolean}
      */
     get documentOriginIsTracker() {
-        return isTrackerOrigin(/** @type {Record<string, any>} */ (this.trackerLookup || {}));
+        return isTrackerOrigin(this.trackerLookup);
     }
 
     /**
