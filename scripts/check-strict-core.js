@@ -38,12 +38,10 @@ try {
     output = (e.stdout || '') + (e.stderr || '');
 }
 
-const errors = output
-    .split('\n')
-    .filter((line) => {
-        const match = line.match(/^([^(]+)\(/);
-        return match && CORE_FILES.has(match[1]);
-    });
+const errors = output.split('\n').filter((line) => {
+    const match = line.match(/^([^(]+)\(/);
+    return match && CORE_FILES.has(match[1]);
+});
 
 if (errors.length > 0) {
     console.error(`\n❌ ${errors.length} strict-mode error(s) in injected core files:\n`);
