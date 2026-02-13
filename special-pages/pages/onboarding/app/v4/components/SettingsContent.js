@@ -74,7 +74,7 @@ export function SettingsContent() {
  * A green check icon for completed settings rows.
  */
 function CheckIcon() {
-    return <img src="assets/img/v4/icons/check-circle.svg" width="20" height="20" alt="Completed Action" />;
+    return <img src="assets/img/v4/icons/check-circle.svg" width="16" height="16" alt="Completed Action" />;
 }
 
 /**
