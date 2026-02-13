@@ -78,7 +78,7 @@ export function modifyPixelData(imageData, domainKey, sessionKey, width) {
     }
 
     const windowHash = getDataKeySync(sessionKey, domainKey, checkSum);
-    const rng = new Seedrandom(windowHash);
+    const rng = Seedrandom(windowHash);
     for (let i = 0; i < mappingArray.length; i++) {
         const rand = rng();
         const byte = Math.floor(rand * 10);
