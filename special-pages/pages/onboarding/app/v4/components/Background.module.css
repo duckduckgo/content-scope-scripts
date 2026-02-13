@@ -9,7 +9,7 @@
     background-color: #ffffff;
 
     @media (prefers-color-scheme: dark) {
-        background-color: #222222;
+        background-color: #133E7C;
     }
 }
 
@@ -27,5 +27,47 @@
 
     @media (prefers-color-scheme: dark) {
         background-image: var(--bg-dark);
+    }
+}
+
+/* --- Intro: slide in from offset --- */
+
+.intro {
+    animation: bg-intro-slide 0.7s var(--bg-intro-delay, 0s) both;
+}
+
+@keyframes bg-intro-slide {
+    0% {
+        translate: var(--bg-dx, 0) var(--bg-dy, 0);
+        animation-timing-function: cubic-bezier(0.10, 0.85, 0.64, 0.99);
+    }
+    100% {
+        translate: 0 0;
+    }
+}
+
+/* --- Outro: slide out to offset + fade --- */
+
+.outro {
+    animation: bg-outro-slide 0.7s both, bg-outro-opacity var(--bg-fade-duration, 0.4s) both;
+}
+
+@keyframes bg-outro-slide {
+    0% {
+        translate: 0 0;
+        animation-timing-function: cubic-bezier(0.10, 0.85, 0.64, 0.99);
+    }
+    100% {
+        translate: var(--bg-dx, 0) var(--bg-dy, 0);
+    }
+}
+
+@keyframes bg-outro-opacity {
+    0% {
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.33, 0.00, 0.67, 1.00);
+    }
+    100% {
+        opacity: 0;
     }
 }

@@ -17,10 +17,11 @@
 
 /**
  * @typedef {object} V4StepConfig
- * @property {import('preact').ComponentChild} [content] - Content rendered outside bubbles (e.g., welcome step logo + title)
+ * @property {import('preact').ComponentChild} [content] - Content rendered outside bubbles (e.g., welcome step logo + title, or illustration below bubble)
  * @property {import('preact').ComponentChild} [topBubble] - Content rendered inside the top speech bubble
  * @property {import('preact').ComponentChild} [bottomBubble] - Content rendered inside the bottom speech bubble (optional)
  * @property {boolean} [showProgress] - Whether to show the progress indicator in the top bubble
+ * @property {'bottom-left'} [topBubbleTail] - Direction of the speech bubble tail on the top bubble
  */
 
 /**
