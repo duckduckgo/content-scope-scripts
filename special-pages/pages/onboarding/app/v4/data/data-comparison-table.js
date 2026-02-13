@@ -26,7 +26,7 @@ const tableIcons = /** @type {const} */ ([
     'vpn.svg',
 ]);
 
-export const tableIconPrefix = 'assets/img/v4/steps/';
+export const tableIconPrefix = 'assets/img/steps/v4/';
 
 /** @typedef {{ icon: tableIcons[number], title: string, statuses: Record<'chrome'|'safari'|'ddg', SupportStatus> }} FeatureSupportData */
 

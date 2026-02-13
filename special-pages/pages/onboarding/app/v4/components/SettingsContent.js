@@ -1,14 +1,13 @@
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useGlobalDispatch, useGlobalState } from '../../global';
 import { useTypedTranslation } from '../../types';
 import { usePlatformName } from '../../shared/components/SettingsProvider';
-import { ListItem } from '../../shared/components/ListItem';
-import { BounceIn, Check, FadeIn, Launch } from '../../shared/components/Icons';
-import { Stack } from '../../shared/components/Stack';
+import { BounceIn, FadeIn, Launch } from '../../shared/components/Icons';
 import { Switch } from '../../../../../shared/components/Switch/Switch.js';
-import { PlainList } from '../../shared/components/List';
 import { useEnv } from '../../../../../shared/components/EnvironmentProvider.js';
 import { settingsRowItems } from '../data/data';
+import { Button } from './Button';
+import styles from './SettingsContent.module.css';
 
 /**
  * Bottom bubble content for systemSettings and customize steps.
@@ -45,24 +44,26 @@ export function SettingsContent() {
     });
 
     return (
-        <div>
-            <Stack>
-                {appState.status.kind === 'idle' && appState.status.error && <p>{appState.status.error}</p>}
-                <PlainList variant="bordered" animate>
-                    {rows
-                        .filter((item) => item.visible)
-                        .map((item, index) => {
-                            return <SettingListItem key={item.id} dispatch={dispatch} item={item} index={index} />;
-                        })}
-                </PlainList>
-            </Stack>
+        <div class={styles.root}>
+            <div class={styles.rows}>
+                {rows
+                    .filter((item) => item.visible)
+                    .map((item, index) => (
+                        <Fragment key={item.id}>
+                            {index > 0 && <div class={styles.divider} />}
+                            <SettingListItem dispatch={dispatch} item={item} />
+                        </Fragment>
+                    ))}
+            </div>
+
+            {appState.status.kind === 'idle' && appState.status.error && <p>{appState.status.error}</p>}
 
             {isDone && (
-                <div>
-                    <button type="button" onClick={isLastStep ? dismiss : advance}>
+                <div class={styles.actions}>
+                    <Button class={styles.nextButton} onClick={isLastStep ? dismiss : advance}>
                         {isLastStep ? t('startBrowsing') : t('nextButton')}
                         {isLastStep && <Launch />}
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>
@@ -70,7 +71,14 @@ export function SettingsContent() {
 }
 
 /**
- * Renders a setting list item with optional interactive components.
+ * A green check icon for completed settings rows.
+ */
+function CheckIcon() {
+    return <img src="assets/img/v4/icons/check-circle.svg" width="16" height="16" alt="Completed Action" />;
+}
+
+/**
+ * Renders a single settings row with icon, title, and optional inline action / buttons.
  *
  * @param {Object} props
  * @param {{
@@ -83,9 +91,8 @@ export function SettingsContent() {
  *    uiValue: import('../../types').UIValue;
  * }} props.item
  * @param {ReturnType<typeof useGlobalDispatch>} props.dispatch
- * @param {number} props.index
  */
-export function SettingListItem({ index, item, dispatch }) {
+function SettingListItem({ item, dispatch }) {
     const data = item.data;
     const { t } = useTypedTranslation();
     const { isDarkMode } = useEnv();
@@ -109,6 +116,8 @@ export function SettingListItem({ index, item, dispatch }) {
         });
     };
 
+    const iconPath = 'assets/img/steps/' + data.icon;
+
     const inline = (() => {
         if (item.uiValue === 'idle') return null;
         if (!item.systemValue) return null;
@@ -118,16 +127,16 @@ export function SettingListItem({ index, item, dispatch }) {
             if (enabled && item.data.kind === 'one-time') {
                 return (
                     <BounceIn delay={'normal'}>
-                        <Check />
+                        <CheckIcon />
                     </BounceIn>
                 );
             }
             return (
                 <FadeIn>
                     {item.data.kind === 'one-time' && (
-                        <button type="button" disabled={item.pending} onClick={accept}>
+                        <Button variant="secondary" disabled={item.pending} onClick={accept}>
                             {item.data.acceptTextRecall || item.data.acceptText}
-                        </button>
+                        </Button>
                     )}
                     {item.data.kind === 'toggle' && (
                         <Switch
@@ -147,7 +156,7 @@ export function SettingListItem({ index, item, dispatch }) {
         if (item.uiValue === 'accepted') {
             return (
                 <BounceIn delay={'normal'}>
-                    <Check />
+                    <CheckIcon />
                 </BounceIn>
             );
         }
@@ -156,27 +165,25 @@ export function SettingListItem({ index, item, dispatch }) {
     })();
 
     return (
-        <ListItem
-            key={data.id}
-            icon={data.icon}
-            title={data.title}
-            secondaryText={item.current && data.secondaryText}
-            inline={inline}
-            animate={true}
-            index={index}
-        >
-            {item.current && (
-                <ListItem.Indent>
-                    <div>
-                        <button type="button" disabled={item.pending} onClick={deny}>
+        <div class={styles.row} data-testid="ListItem" data-id={data.id}>
+            <div class={styles.rowContent}>
+                <div class={styles.rowMain}>
+                    <img class={styles.rowIcon} src={iconPath} alt="" />
+                    <p class={styles.rowTitle}>{data.title}</p>
+                    {inline && <div class={styles.rowInline}>{inline}</div>}
+                </div>
+
+                {item.current && (
+                    <div class={styles.rowButtons}>
+                        <Button variant="secondary" disabled={item.pending} onClick={deny}>
                             {t('skipButton')}
-                        </button>
-                        <button type="button" disabled={item.pending} onClick={accept}>
+                        </Button>
+                        <Button disabled={item.pending} onClick={accept}>
                             {item.data.acceptText}
-                        </button>
+                        </Button>
                     </div>
-                </ListItem.Indent>
-            )}
-        </ListItem>
+                )}
+            </div>
+        </div>
     );
 }

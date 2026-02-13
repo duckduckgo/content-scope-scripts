@@ -1,0 +1,39 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    padding: 2px var(--sp-3); /* 2px 12px */
+    gap: var(--sp-7); /* 28px */
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: var(--sp-6); /* 24px */
+    font-weight: 700;
+    line-height: var(--sp-7); /* 28px */
+    text-align: center;
+    color: var(--color-black-at-96);
+    margin: 0;
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+
+    @media (prefers-color-scheme: dark) {
+        color: white;
+    }
+}
+
+.subtitle {
+    font-family: var(--font-product);
+    font-size: calc(18 * var(--px-in-rem));
+    font-weight: 400;
+    line-height: calc(22 * var(--px-in-rem));
+    text-align: center;
+    color: var(--color-black-at-96);
+    margin: 0;
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+
+    @media (prefers-color-scheme: dark) {
+        color: white;
+    }
+}
