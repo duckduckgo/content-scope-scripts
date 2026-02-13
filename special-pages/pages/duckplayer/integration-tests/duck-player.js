@@ -387,9 +387,7 @@ export class DuckPlayerPage {
     async opensInYoutube() {
         await this.build.switch({
             windows: async () => {
-                const url = await withExpectedFailure(this.page, () =>
-                    this.page.getByRole('button', { name: 'Watch on YouTube' }).click(),
-                );
+                const url = await withExpectedFailure(this.page, () => this.page.getByRole('button', { name: 'Watch on YouTube' }).click());
                 expect(url).toEqual('duck://player/openInYoutube?v=VIDEO_ID');
             },
             apple: async () => {
