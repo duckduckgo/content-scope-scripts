@@ -1,11 +1,15 @@
 import { isTrackerOrigin } from '../src/trackers.js';
-import { setGlobal } from '../src/utils.js';
+import { setGlobal, getGlobal } from '../src/utils.js';
 
 describe('isTrackerOrigin', () => {
+    let originalGlobal;
+
     beforeEach(() => {
-        // Set up a mock global with document.location
+        originalGlobal = getGlobal();
+        // Set up a mock global with document.location, preserving Error for other tests
         setGlobal(
             /** @type {any} */ ({
+                Error: globalThis.Error,
                 document: {
                     location: {
                         hostname: 'tracker.example.com',
@@ -13,6 +17,11 @@ describe('isTrackerOrigin', () => {
                 },
             }),
         );
+    });
+
+    afterEach(() => {
+        // Restore the original global to avoid corrupting Error for other tests
+        setGlobal(originalGlobal);
     });
 
     it('returns true for a direct match in the trie', () => {
