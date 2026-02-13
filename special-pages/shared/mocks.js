@@ -7,6 +7,7 @@ import {
     simulateSubscriptionMessage,
     waitForCallCount,
 } from '@duckduckgo/messaging/lib/test-utils.mjs';
+import { forwardConsole } from 'injected/integration-test/shared.mjs';
 
 export class Mocks {
     /**
@@ -32,9 +33,7 @@ export class Mocks {
      * @returns {Promise<void|*|string>}
      */
     async install() {
-        this.page.on('console', (msg) => {
-            console.log('->', msg.type(), msg.text());
-        });
+        forwardConsole(this.page, { filterResourceErrors: true });
         await this.installMessagingMocks();
     }
 
