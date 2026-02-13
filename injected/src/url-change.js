@@ -70,7 +70,7 @@ function listenForURLChanges() {
     // single page applications don't have a DOMContentLoaded event on navigations, so
     // we use proxy/reflect on history.pushState to call applyRules on page navigations
     const historyMethodProxy = new DDGProxy(urlChangedInstance, History.prototype, 'pushState', {
-        apply(/** @type {any} */ target, /** @type {any} */ thisArg, /** @type {any} */ args) {
+        apply(target, thisArg, args) {
             const changeResult = DDGReflect.apply(target, thisArg, args);
             handleURLChange('push');
             return changeResult;
@@ -78,7 +78,7 @@ function listenForURLChanges() {
     });
     historyMethodProxy.overload();
     const historyMethodProxyReplace = new DDGProxy(urlChangedInstance, History.prototype, 'replaceState', {
-        apply(/** @type {any} */ target, /** @type {any} */ thisArg, /** @type {any} */ args) {
+        apply(target, thisArg, args) {
             const changeResult = DDGReflect.apply(target, thisArg, args);
             handleURLChange('replace');
             return changeResult;

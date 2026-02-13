@@ -479,20 +479,22 @@ function debugSerialize(argsArray) {
 }
 
 /**
- * @template P
+ * @template {Record<string, any>} P
+ * @template {string} K
  * @typedef {object} ProxyObject
- * @property {(target?: any, thisArg?: P, args?: any) => any} apply
+ * @property {(target: K extends keyof P ? P[K] : any, thisArg: P | undefined, args: any[]) => any} apply
  */
 
 /**
  * @template {Record<string, any>} [P=Record<string, any>]
+ * @template {string} [K=string]
  */
 export class DDGProxy {
     /**
      * @param {import('./content-feature').default} feature
      * @param {P} objectScope
-     * @param {string} property
-     * @param {ProxyObject<P>} proxyObject
+     * @param {K} property
+     * @param {ProxyObject<P, K>} proxyObject
      */
     constructor(feature, objectScope, property, proxyObject) {
         this.objectScope = objectScope;
@@ -500,7 +502,7 @@ export class DDGProxy {
         this.feature = feature;
         this.featureName = feature.name;
         this.camelFeatureName = camelcase(this.featureName);
-        const outputHandler = (/** @type {any[]} */ ...args) => {
+        const outputHandler = (/** @type {[P[K], P, any[]]} */ ...args) => {
             this.feature.addDebugFlag();
             const isExempt = shouldExemptMethod(this.camelFeatureName);
             // Keep this here as getStack() is expensive
