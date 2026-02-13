@@ -236,7 +236,20 @@ describe('ConfigFeature URL pattern matching', () => {
 
     it('matches an object urlPattern', () => {
         const feature = createFeature({ url: 'http://example.com/page/test' });
-        expect(feature._matchUrlPatternConditional({ urlPattern: { pathname: '/page/*' } })).toBeTrue();
+        expect(
+            feature._matchUrlPatternConditional({
+                urlPattern: { protocol: 'http', hostname: 'example.com', pathname: '/page/*' },
+            }),
+        ).toBeTrue();
+    });
+
+    it('does not match non-matching object urlPattern', () => {
+        const feature = createFeature({ url: 'http://example.com/other' });
+        expect(
+            feature._matchUrlPatternConditional({
+                urlPattern: { protocol: 'http', hostname: 'example.com', pathname: '/page/*' },
+            }),
+        ).toBeFalse();
     });
 
     it('returns false when no URL in args', () => {
@@ -296,5 +309,82 @@ describe('ConfigFeature.getFeatureSettingEnabled properties', () => {
             },
         });
         expect(feature.getFeatureSettingEnabled('myToggle')).toBeTrue();
+    });
+});
+
+// --- getFeatureSetting with conditionalChanges ---
+
+describe('ConfigFeature.getFeatureSetting with patches', () => {
+    it('applies conditionalChanges patch when domain matches', () => {
+        const feature = createFeature({
+            domain: 'example.com',
+            featureSettings: {
+                testFeature: {
+                    val: 'original',
+                    conditionalChanges: [
+                        {
+                            condition: { domain: 'example.com' },
+                            patchSettings: [{ op: 'replace', path: '/val', value: 'patched' }],
+                        },
+                    ],
+                },
+            },
+        });
+        expect(feature.getFeatureSetting('val')).toBe('patched');
+    });
+
+    it('skips conditionalChanges without patchSettings', () => {
+        const feature = createFeature({
+            domain: 'example.com',
+            featureSettings: {
+                testFeature: {
+                    val: 'original',
+                    conditionalChanges: [
+                        {
+                            condition: { domain: 'example.com' },
+                            // no patchSettings
+                        },
+                    ],
+                },
+            },
+        });
+        expect(feature.getFeatureSetting('val')).toBe('original');
+    });
+
+    it('handles invalid patch gracefully (does not throw)', () => {
+        const feature = createFeature({
+            domain: 'example.com',
+            featureSettings: {
+                testFeature: {
+                    val: 'original',
+                    conditionalChanges: [
+                        {
+                            condition: { domain: 'example.com' },
+                            patchSettings: [{ op: 'replace', path: '/nonexistent/deep/path', value: 'fail' }],
+                        },
+                    ],
+                },
+            },
+        });
+        // Should not throw, just log error
+        expect(() => feature.getFeatureSetting('val')).not.toThrow();
+    });
+
+    it('falls back to domains when no conditionalChanges', () => {
+        const feature = createFeature({
+            domain: 'example.com',
+            featureSettings: {
+                testFeature: {
+                    val: 'original',
+                    domains: [
+                        {
+                            domain: 'example.com',
+                            patchSettings: [{ op: 'replace', path: '/val', value: 'domain-patched' }],
+                        },
+                    ],
+                },
+            },
+        });
+        expect(feature.getFeatureSetting('val')).toBe('domain-patched');
     });
 });

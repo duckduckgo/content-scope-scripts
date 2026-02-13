@@ -15,6 +15,13 @@ import {
     isFeatureBroken,
     isPlatformSpecificFeature,
     isGloballyDisabled,
+    createCustomEvent,
+    isDuckAi,
+    isDuckAiSidebar,
+    nextRandom,
+    shouldExemptUrl,
+    initStringExemptionLists as initExemptions,
+    isBeingFramed,
 } from '../src/utils.js';
 import { polyfillProcessGlobals } from './helpers/polyfill-process-globals.js';
 
@@ -1066,6 +1073,110 @@ describe('Helpers checks', () => {
 
         it('returns false when neither', () => {
             expect(isGloballyDisabled({ site: { allowlisted: false, isBroken: false } })).toBeFalse();
+        });
+    });
+
+    describe('createCustomEvent', () => {
+        it('creates a CustomEvent with the given name and detail', () => {
+            const evt = createCustomEvent('test-event', { detail: { key: 'value' } });
+            expect(evt).toBeInstanceOf(CustomEvent);
+            expect(evt.type).toBe('test-event');
+            expect(evt.detail.key).toBe('value');
+        });
+    });
+
+    describe('isDuckAi', () => {
+        const originalTop = globalThis.top;
+
+        afterEach(() => {
+            globalThis.top = originalTop;
+        });
+
+        it('returns true for duckduckgo.com with duckai param', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://duckduckgo.com/?duckai=1' } };
+            expect(isDuckAi()).toBeTrue();
+        });
+
+        it('returns true for duck.ai with ia=chat', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://duck.ai/?ia=chat' } };
+            expect(isDuckAi()).toBeTrue();
+        });
+
+        it('returns false for non-duck domains', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://example.com/?duckai=1' } };
+            expect(isDuckAi()).toBeFalse();
+        });
+
+        it('returns false for duck domain without ai params', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://duckduckgo.com/?q=test' } };
+            expect(isDuckAi()).toBeFalse();
+        });
+    });
+
+    describe('isDuckAiSidebar', () => {
+        const originalTop = globalThis.top;
+
+        afterEach(() => {
+            globalThis.top = originalTop;
+        });
+
+        it('returns true for duck.ai with placement=sidebar', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://duck.ai/?ia=chat&placement=sidebar' } };
+            expect(isDuckAiSidebar()).toBeTrue();
+        });
+
+        it('returns false for duck.ai without placement=sidebar', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://duck.ai/?ia=chat' } };
+            expect(isDuckAiSidebar()).toBeFalse();
+        });
+
+        it('returns false for non-duck-ai pages', () => {
+            // @ts-expect-error - mocking top
+            globalThis.top = { location: { href: 'https://example.com/?placement=sidebar' } };
+            expect(isDuckAiSidebar()).toBeFalse();
+        });
+    });
+
+    describe('nextRandom', () => {
+        it('returns a number', () => {
+            expect(typeof nextRandom(42)).toBe('number');
+        });
+
+        it('is deterministic', () => {
+            expect(nextRandom(42)).toBe(nextRandom(42));
+        });
+    });
+
+    describe('isBeingFramed', () => {
+        it('returns a boolean', () => {
+            expect(typeof isBeingFramed()).toBe('boolean');
+        });
+    });
+
+    describe('shouldExemptUrl', () => {
+        it('returns false when URL does not match exemption pattern', () => {
+            // Initialize with a known exemption type
+            initExemptions({
+                stringExemptionLists: {
+                    testType: ['https://exempt\\.example\\.com/.*'],
+                },
+            });
+            expect(shouldExemptUrl('testType', 'https://other.com/test.js')).toBeFalse();
+        });
+
+        it('returns true when URL matches exemption pattern', () => {
+            initExemptions({
+                stringExemptionLists: {
+                    testType: ['https://exempt\\.example\\.com/.*'],
+                },
+            });
+            expect(shouldExemptUrl('testType', 'https://exempt.example.com/lib.js')).toBeTrue();
         });
     });
 });

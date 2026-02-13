@@ -67,4 +67,15 @@ describe('dom-utils.js - createPolicy', () => {
         const policy = createPolicy();
         expect(policy.createHTML('<div>test</div>')).toBe('<div>test</div>');
     });
+
+    it('uses trustedTypes.createPolicy when available', () => {
+        const mockPolicy = { createHTML: (/** @type {string} */ s) => `trusted:${s}` };
+        /** @type {any} */ (globalThis).trustedTypes = { createPolicy: () => mockPolicy };
+        try {
+            const policy = createPolicy();
+            expect(policy.createHTML('test')).toBe('trusted:test');
+        } finally {
+            delete (/** @type {any} */ (globalThis).trustedTypes);
+        }
+    });
 });
