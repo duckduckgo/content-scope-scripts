@@ -433,9 +433,13 @@ describe('withDefaults properties', () => {
         );
     });
 
+    // Exclude __proto__ and constructor since computed property keys with these
+    // values have special semantics in JavaScript object literals.
+    const safeKey = () => fc.string().filter((s) => s !== '__proto__' && s !== 'constructor');
+
     it('config values take precedence over defaults for flat objects', () => {
         fc.assert(
-            fc.property(fc.string(), fc.string(), fc.string(), (key, defaultVal, configVal) => {
+            fc.property(safeKey(), fc.string(), fc.string(), (key, defaultVal, configVal) => {
                 const defaults = { [key]: defaultVal };
                 const config = { [key]: configVal };
                 const result = withDefaults(defaults, config);
@@ -447,7 +451,7 @@ describe('withDefaults properties', () => {
 
     it('defaults fill in missing config keys', () => {
         fc.assert(
-            fc.property(fc.string(), fc.string(), (key, val) => {
+            fc.property(safeKey(), fc.string(), (key, val) => {
                 const defaults = { [key]: val, extra: 'default' };
                 const config = { [key]: 'override' };
                 const result = withDefaults(defaults, config);
