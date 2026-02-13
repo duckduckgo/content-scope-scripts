@@ -63,13 +63,10 @@ jobs:
             - name: 'Clean tree'
               run: 'npm run test-clean-tree'
 
-    integration-tests:
-        name: Integration tests (${{ matrix.workspace }}, ubuntu-latest)
+    integration-tests-special-pages:
+        name: Integration tests (special-pages, ubuntu-latest)
         runs-on: ubuntu-latest
         timeout-minutes: 15
-        strategy:
-            matrix:
-                workspace: [injected, special-pages]
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
@@ -88,17 +85,54 @@ jobs:
                   npm run build
             - name: Install Playwright Browsers
               run: npx playwright install --with-deps
-            - run: npm run test-int-x -w ${{ matrix.workspace }}
+            - run: npm run test-int-x -w special-pages
             - uses: actions/upload-artifact@v6
-              if: ${{ always() && matrix.workspace == 'special-pages' }}
+              if: always()
               with:
                   name: tests-playwright-report-pages
                   path: special-pages/playwright-report
                   retention-days: 5
-            - uses: actions/upload-artifact@v6
-              if: ${{ always() && matrix.workspace == 'injected' }}
+
+    integration-tests:
+        name: Integration tests (injected/${{ matrix.project }}, ubuntu-latest)
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        strategy:
+            fail-fast: false
+            matrix:
+                project:
+                    - windows
+                    - apple-isolated
+                    - apple
+                    - ios
+                    - android
+                    - android-autofill-import
+                    - chrome-mv3
+        steps:
+            - uses: actions/checkout@v6
+            - name: Use Node.js
+              uses: actions/setup-node@v6
               with:
-                  name: tests-playwright-report-injected
+                  node-version-file: '.nvmrc'
+            - uses: actions/cache@v5
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - name: Install dependencies
+              run: |
+                  npm install
+                  npm run build
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
+            - name: Run integration tests
+              run: xvfb-run --server-args='-screen 0 1024x768x24' npx playwright test --project ${{ matrix.project }} --reporter list
+              working-directory: injected
+            - uses: actions/upload-artifact@v6
+              if: always()
+              with:
+                  name: tests-playwright-report-injected-${{ matrix.project }}
                   path: injected/playwright-report
                   retention-days: 5
     integration:
@@ -128,7 +162,9 @@ jobs:
                   key: docs-output-${{ github.run_id }}
             - name: Build docs
               run: npm run docs
-        needs: integration-tests
+        needs:
+            - integration-tests
+            - integration-tests-special-pages
 
     deploy-docs:
         runs-on: ubuntu-latest
@@ -187,6 +223,7 @@ jobs:
             - unit-tests
             - integration
             - integration-tests
+            - integration-tests-special-pages
             - production-deps
         steps:
             - name: Ensure all required jobs succeeded
@@ -195,10 +232,12 @@ jobs:
                   echo "unit-tests: ${{ needs.unit-tests.result }}"
                   echo "integration: ${{ needs.integration.result }}"
                   echo "integration-tests: ${{ needs.integration-tests.result }}"
+                  echo "integration-tests-special-pages: ${{ needs.integration-tests-special-pages.result }}"
                   echo "production-deps: ${{ needs.production-deps.result }}"
 
                   test "${{ needs.unit.result }}" = "success"
                   test "${{ needs.unit-tests.result }}" = "success"
                   test "${{ needs.integration.result }}" = "success"
                   test "${{ needs.integration-tests.result }}" = "success"
+                  test "${{ needs.integration-tests-special-pages.result }}" = "success"
                   test "${{ needs.production-deps.result }}" = "success"
