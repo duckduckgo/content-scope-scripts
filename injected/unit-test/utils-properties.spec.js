@@ -259,8 +259,8 @@ describe('camelcase properties', () => {
 
 describe('processAttr properties', () => {
     it('returns defaultValue when configSetting is undefined', () => {
-        // In practice, processAttr is called with a config object and a concrete default.
-        // Test with realistic default values (numbers, strings, booleans, null).
+        // The defaultValue parameter is hard-coded by feature authors (e.g. getFeatureAttr('key', 2)).
+        // Test with the realistic value types they use.
         const defaults = [0, 1, 42, '', 'fallback', true, false, null];
         for (const defaultVal of defaults) {
             // @ts-expect-error - testing undefined configSetting
