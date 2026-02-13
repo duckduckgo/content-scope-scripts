@@ -46,11 +46,12 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'webTelemetry',
     'pageContext',
     'pageObserver',
+    'print',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webDetection', 'webInterferenceDetection', 'pageContext'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webDetection', 'webInterferenceDetection', 'pageContext', 'print'],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
@@ -89,6 +90,7 @@ export const platformSupport = {
         'webDetection',
         'breakageReporting',
     ],
+    'android-ai-history': ['duckAiChatHistory'],
     windows: [
         'cookie',
         ...baseFeatures,

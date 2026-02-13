@@ -1,0 +1,11 @@
+@import url('./fonts.css');
+
+:root {
+    --font-display: 'DuckSansDisplay', system-ui, sans-serif;
+    --font-product: 'DuckSansProduct', system-ui, sans-serif;
+}
+
+.container {
+    position: relative;
+    z-index: 1;
+}

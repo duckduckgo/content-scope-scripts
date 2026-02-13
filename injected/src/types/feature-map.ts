@@ -34,6 +34,7 @@ import type NavigatorInterface from '../features/navigator-interface.js';
 import type PageContext from '../features/page-context.js';
 import type PageObserver from '../features/page-observer.js';
 import type PerformanceMetrics from '../features/performance-metrics.js';
+import type Print from '../features/print.js';
 import type Referrer from '../features/referrer.js';
 import type UaChBrands from '../features/ua-ch-brands.js';
 import type WebCompat from '../features/web-compat.js';
@@ -74,6 +75,7 @@ export interface FeatureMap {
     pageContext: PageContext;
     pageObserver: PageObserver;
     performanceMetrics: PerformanceMetrics;
+    print: Print;
     referrer: Referrer;
     uaChBrands: UaChBrands;
     webCompat: WebCompat;
