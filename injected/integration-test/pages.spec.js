@@ -190,10 +190,7 @@ test.describe('Test integration pages', () => {
     test('GPC', async ({ page }, testInfo) => {
         const collector = ResultsCollector.create(page, testInfo?.project?.use);
         collector.withUserPreferences({ globalPrivacyControlValue: true });
-        await collector.load(
-            '/gpc/pages/gpc.html',
-            './integration-test/test-pages/gpc/config/gpc.json',
-        );
+        await collector.load('/gpc/pages/gpc.html', './integration-test/test-pages/gpc/config/gpc.json');
         const results = await collector.results();
         for (const key in results) {
             for (const result of results[key]) {
@@ -268,12 +265,7 @@ test.describe('Test integration pages', () => {
     });
 
     test('Referrer', async ({ page }, testInfo) => {
-        await testPage(
-            page,
-            testInfo,
-            '/referrer/pages/referrer.html',
-            './integration-test/test-pages/referrer/config/referrer.json',
-        );
+        await testPage(page, testInfo, '/referrer/pages/referrer.html', './integration-test/test-pages/referrer/config/referrer.json');
     });
 
     test('Navigator Interface', async ({ page }, testInfo) => {
@@ -295,12 +287,7 @@ test.describe('Test integration pages', () => {
     });
 
     test('Print', async ({ page }, testInfo) => {
-        await testPage(
-            page,
-            testInfo,
-            '/print/pages/print.html',
-            './integration-test/test-pages/print/config/print.json',
-        );
+        await testPage(page, testInfo, '/print/pages/print.html', './integration-test/test-pages/print/config/print.json');
     });
 
     test('Performance Metrics', async ({ page }, testInfo) => {
