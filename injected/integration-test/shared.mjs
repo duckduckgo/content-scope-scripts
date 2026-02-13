@@ -1,19 +1,19 @@
-/** @type {boolean} */
-let suppressingExpectedFailures = false;
-
 /**
- * Sets up a console handler on a Playwright page that filters out expected errors.
+ * Sets up a console handler on a Playwright page.
  * Preserves log levels by routing to the appropriate console method (error, warn, log, etc.)
+ * Filters out "Failed to load resource" errors since these are already shown by the browser.
  *
  * @param {import('@playwright/test').Page} page - The Playwright page
  */
 export function forwardConsole(page) {
     page.on('console', (msg) => {
-        if (suppressingExpectedFailures) {
-            return;
-        }
         const type = msg.type();
         const text = msg.text();
+        // Skip "Failed to load resource" errors - the browser already outputs these natively,
+        // so logging them again would duplicate the output
+        if (text.includes('Failed to load resource')) {
+            return;
+        }
         // Use the appropriate console method to preserve log levels
         // Fall back to console.log for unknown types
         const logFn = console[type] ?? console.log;
@@ -23,8 +23,7 @@ export function forwardConsole(page) {
 
 /**
  * Executes an action that triggers an expected request failure (e.g., navigation to a
- * custom protocol like duck://). Sets up the listener and suppression BEFORE executing
- * the action, and guarantees cleanup in a finally block.
+ * custom protocol like duck://). Captures the URL of the failed request.
  *
  * @param {import('@playwright/test').Page} page - The Playwright page
  * @param {() => Promise<void>} action - The action that triggers the failure
@@ -48,16 +47,12 @@ export async function withExpectedFailure(page, action, urlPrefix = 'duck') {
         }
     };
 
-    // Setup listener and suppression BEFORE action
     page.context().on('requestfailed', handler);
-    suppressingExpectedFailures = true;
 
     try {
         await action();
         return await failure;
     } finally {
-        // Cleanup ALWAYS happens, even if action throws
-        suppressingExpectedFailures = false;
         page.context().off('requestfailed', handler);
     }
 }
