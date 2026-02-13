@@ -79,11 +79,19 @@
     top: calc(12 * var(--px-in-rem));
     left: 0;
     right: 0;
+    bottom: 0;
     z-index: 1;
     pointer-events: none;
     /* Slightly scaled and dimmed to emphasize it's in the background */
     transform: scale(0.97);
     opacity: 0.85;
+    /* Clip content when back card's translated text is taller than the front card */
+    overflow: hidden;
+    /* Disable the cardFadeIn animation — its keyframes override transform/opacity,
+       hiding the stacked visual until the animation ends. After a dismiss Preact
+       reuses this DOM element so the animation never replays, which means stacking
+       only becomes visible after the first dismiss. */
+    animation: none;
 }
 
 [data-theme="dark"] .card.backCard {
