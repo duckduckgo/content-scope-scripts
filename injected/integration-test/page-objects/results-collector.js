@@ -360,7 +360,11 @@ export class ResultsCollector {
      */
     static create(page, use) {
         // Read the configuration object to determine which platform we're testing against
-        page.on('console', (msg) => console[msg.type()](msg.text()));
+        page.on('console', (msg) => {
+            const type = msg.type();
+            const logFn = console[type] ?? console.log;
+            logFn(msg.text());
+        });
         const { platformInfo, build } = perPlatform(use);
         return new ResultsCollector(page, build, platformInfo);
     }

@@ -48,6 +48,82 @@
             ];
         });
 
+        test('Screen property descriptors', async () => {
+            const props = ['availTop', 'availLeft', 'colorDepth', 'pixelDepth', 'availWidth', 'availHeight'];
+            const results = [];
+            for (const prop of props) {
+                const desc = Object.getOwnPropertyDescriptor(Screen.prototype, prop);
+                if (desc) {
+                    results.push({
+                        name: `${prop} has getter on Screen.prototype`,
+                        result: typeof desc.get,
+                        expected: 'function',
+                    });
+                    results.push({
+                        name: `${prop} is configurable`,
+                        result: desc.configurable,
+                        expected: true,
+                    });
+                }
+            }
+            return results;
+        });
+
+        test('Window positioning properties', async () => {
+            return [
+                {
+                    name: 'window.screenY is a number',
+                    result: typeof window.screenY,
+                    expected: 'number',
+                },
+                {
+                    name: 'window.screenTop is a number',
+                    result: typeof window.screenTop,
+                    expected: 'number',
+                },
+                {
+                    name: 'window.screenX is a number',
+                    result: typeof window.screenX,
+                    expected: 'number',
+                },
+                {
+                    name: 'window.screenLeft is a number',
+                    result: typeof window.screenLeft,
+                    expected: 'number',
+                },
+                {
+                    name: 'window.outerHeight is a number',
+                    result: typeof window.outerHeight,
+                    expected: 'number',
+                },
+                {
+                    name: 'window.outerWidth is a number',
+                    result: typeof window.outerWidth,
+                    expected: 'number',
+                },
+                {
+                    name: 'window.outerHeight >= window.innerHeight',
+                    result: window.outerHeight >= window.innerHeight,
+                    expected: true,
+                },
+                {
+                    name: 'window.outerWidth >= window.innerWidth',
+                    result: window.outerWidth >= window.innerWidth,
+                    expected: true,
+                },
+                {
+                    name: 'screenY is not negative',
+                    result: window.screenY >= 0,
+                    expected: true,
+                },
+                {
+                    name: 'screenX is not negative',
+                    result: window.screenX >= 0,
+                    expected: true,
+                },
+            ];
+        });
+
         renderResults();
     </script>
 </body>

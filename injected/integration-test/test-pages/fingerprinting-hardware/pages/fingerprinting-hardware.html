@@ -28,6 +28,60 @@
             ];
         });
 
+        test('Hardware property descriptors', async () => {
+            const hwDesc = Object.getOwnPropertyDescriptor(Navigator.prototype, 'hardwareConcurrency');
+            const dmDesc = Object.getOwnPropertyDescriptor(Navigator.prototype, 'deviceMemory');
+            return [
+                {
+                    name: 'hardwareConcurrency has getter on prototype',
+                    result: typeof hwDesc?.get,
+                    expected: 'function',
+                },
+                {
+                    name: 'hardwareConcurrency is configurable',
+                    result: hwDesc?.configurable,
+                    expected: true,
+                },
+                {
+                    name: 'hardwareConcurrency is enumerable',
+                    result: hwDesc?.enumerable,
+                    expected: true,
+                },
+                {
+                    name: 'deviceMemory has getter on prototype',
+                    result: typeof dmDesc?.get,
+                    expected: 'function',
+                },
+                {
+                    name: 'deviceMemory is configurable',
+                    result: dmDesc?.configurable,
+                    expected: true,
+                },
+                {
+                    name: 'deviceMemory is enumerable',
+                    result: dmDesc?.enumerable,
+                    expected: true,
+                },
+            ];
+        });
+
+        test('Keyboard property spoofed', async () => {
+            // The keyboard property should be wrapped even without config override
+            const kbDesc = Object.getOwnPropertyDescriptor(Navigator.prototype, 'keyboard');
+            return [
+                {
+                    name: 'keyboard has getter on prototype',
+                    result: typeof kbDesc?.get,
+                    expected: 'function',
+                },
+                {
+                    name: 'keyboard returns undefined without config override',
+                    result: navigator.keyboard,
+                    expected: undefined,
+                },
+            ];
+        });
+
         renderResults();
     </script>
 </body>
