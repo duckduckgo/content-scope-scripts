@@ -83,16 +83,7 @@ Follow the error handling guidelines in [`guides/error-handling.md`](guides/erro
 
 ## Debugging
 
-When a feature is not working, use the triage checklist in [`injected/docs/build-and-troubleshooting.md`](injected/docs/build-and-troubleshooting.md):
-- Validate injected script integrity across build directory, native app, and web inspector
-- Verify feature is enabled in config and site object, bundled on the platform, and sub-features/settings are enabled
-- Check messaging is wired and listeners are registered
-
-Additional debugging resources:
-- **Script integrity & builds:** [`injected/docs/build-and-troubleshooting.md`](injected/docs/build-and-troubleshooting.md)
-- **Messaging issues:** [`injected/docs/message-bridge.md`](injected/docs/message-bridge.md)
-- **Feature development:** [`injected/docs/features-guide.md`](injected/docs/features-guide.md)
-- **Testing:** [`injected/docs/testing-guide.md`](injected/docs/testing-guide.md)
+See [`guides/debugging.md`](guides/debugging.md) for debugging resources including script integrity validation, feature triage checklist, and platform-specific troubleshooting.
 
 ## Notes
 
