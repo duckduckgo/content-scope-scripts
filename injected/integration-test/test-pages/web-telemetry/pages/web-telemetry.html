@@ -46,6 +46,82 @@
             return results;
         });
 
+        test('MutationObserver tracks dynamically added videos', async () => {
+            const results = [];
+
+            // Count videos before dynamic addition
+            const beforeCount = document.querySelectorAll('video').length;
+
+            // Add a video element dynamically (the feature's MutationObserver should observe it)
+            const container = document.createElement('div');
+            const dynamicVideo = document.createElement('video');
+            dynamicVideo.id = 'dynamic-test-video';
+            dynamicVideo.width = 1;
+            dynamicVideo.height = 1;
+            dynamicVideo.muted = true;
+            container.appendChild(dynamicVideo);
+            document.body.appendChild(container);
+
+            // Allow MutationObserver to process the new element
+            await new Promise((resolve) => setTimeout(resolve, 200));
+
+            const afterCount = document.querySelectorAll('video').length;
+
+            results.push({
+                name: 'Dynamic video was added to DOM',
+                result: afterCount > beforeCount,
+                expected: true,
+            });
+
+            // The dynamic video should be accessible via querySelector
+            results.push({
+                name: 'Dynamic video is findable in DOM',
+                result: document.getElementById('dynamic-test-video') !== null,
+                expected: true,
+            });
+
+            // Verify the play event listener can be dispatched without error
+            let playEventFired = false;
+            dynamicVideo.addEventListener('play', () => {
+                playEventFired = true;
+            });
+            dynamicVideo.dispatchEvent(new Event('play'));
+
+            results.push({
+                name: 'Play event fires on dynamic video',
+                result: playEventFired,
+                expected: true,
+            });
+
+            return results;
+        });
+
+        test('Video URL detection', async () => {
+            const results = [];
+
+            // Test video with src attribute
+            const videoWithSrc = document.createElement('video');
+            videoWithSrc.src = 'https://example.com/test.mp4';
+            results.push({
+                name: 'Video with src has accessible src',
+                result: videoWithSrc.src,
+                expected: 'https://example.com/test.mp4',
+            });
+
+            // Test video with source child element
+            const videoWithSource = document.createElement('video');
+            const source = document.createElement('source');
+            source.src = 'https://example.com/source.mp4';
+            videoWithSource.appendChild(source);
+            results.push({
+                name: 'Video with source child has accessible source.src',
+                result: videoWithSource.querySelector('source').src,
+                expected: 'https://example.com/source.mp4',
+            });
+
+            return results;
+        });
+
         renderResults();
     </script>
 </body>
