@@ -17,6 +17,29 @@ const test = testContextForExtension(base);
 const SMOKE_HTML = '/smoke/pages/smoke.html';
 
 /**
+ * Minimal settings required for features that throw without them.
+ * These are the bare minimum to let init() complete without error —
+ * not intended to test feature behavior, just prevent init crashes.
+ * @type {Record<string, object>}
+ */
+const minimalFeatureSettings = {
+    elementHiding: { domains: [], rules: [] },
+};
+
+/**
+ * Build a feature config entry with state: enabled and any required minimal settings.
+ * @param {string} featureName
+ * @returns {{state: string, exceptions: any[], settings?: object}}
+ */
+function featureEntry(featureName) {
+    const entry = { state: 'enabled', exceptions: [] };
+    if (minimalFeatureSettings[featureName]) {
+        entry.settings = minimalFeatureSettings[featureName];
+    }
+    return entry;
+}
+
+/**
  * Generate a minimal config object enabling a single feature.
  * @param {string} featureName
  * @returns {object}
@@ -25,10 +48,7 @@ function singleFeatureConfig(featureName) {
     return {
         version: 1,
         features: {
-            [featureName]: {
-                state: 'enabled',
-                exceptions: [],
-            },
+            [featureName]: featureEntry(featureName),
         },
         unprotectedTemporary: [],
     };
@@ -40,13 +60,10 @@ function singleFeatureConfig(featureName) {
  * @returns {object}
  */
 function allFeaturesConfig() {
-    /** @type {Record<string, {state: string, exceptions: any[]}>} */
+    /** @type {Record<string, object>} */
     const features = {};
     for (const featureName of platformSupport.integration) {
-        features[featureName] = {
-            state: 'enabled',
-            exceptions: [],
-        };
+        features[featureName] = featureEntry(featureName);
     }
     return {
         version: 1,
