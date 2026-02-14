@@ -48,6 +48,82 @@
             return results;
         });
 
+        test('PerformanceObserver can observe paint entries', async () => {
+            const results = [];
+
+            // Create a PerformanceObserver and verify it can observe paint entries
+            // using the same pattern as the feature (buffered: true)
+            const paintEntries = await new Promise((resolve) => {
+                const collected = [];
+                try {
+                    const observer = new PerformanceObserver((list) => {
+                        collected.push(...list.getEntries());
+                        observer.disconnect();
+                        resolve(collected);
+                    });
+                    observer.observe({ type: 'paint', buffered: true });
+                    // Timeout in case no paint entries are available
+                    setTimeout(() => {
+                        observer.disconnect();
+                        resolve(collected);
+                    }, 2000);
+                } catch (e) {
+                    resolve(collected);
+                }
+            });
+
+            results.push({
+                name: 'Paint entries were observed',
+                result: paintEntries.length > 0,
+                expected: true,
+            });
+
+            // Check if FCP was among the entries
+            const hasFcp = paintEntries.some((entry) => entry.name === 'first-contentful-paint');
+            results.push({
+                name: 'First contentful paint entry found',
+                result: hasFcp,
+                expected: true,
+            });
+
+            // Verify FCP entry has a valid startTime
+            const fcpEntry = paintEntries.find((entry) => entry.name === 'first-contentful-paint');
+            results.push({
+                name: 'FCP startTime is a positive number',
+                result: fcpEntry ? fcpEntry.startTime > 0 : false,
+                expected: true,
+            });
+
+            return results;
+        });
+
+        test('Navigation timing data available', async () => {
+            const results = [];
+            const navEntries = performance.getEntriesByType('navigation');
+
+            results.push({
+                name: 'Navigation entries exist',
+                result: navEntries.length > 0,
+                expected: true,
+            });
+
+            if (navEntries.length > 0) {
+                const nav = navEntries[0];
+                results.push({
+                    name: 'Navigation entry has responseEnd',
+                    result: typeof nav.responseEnd,
+                    expected: 'number',
+                });
+                results.push({
+                    name: 'Navigation entry has domContentLoadedEventEnd',
+                    result: typeof nav.domContentLoadedEventEnd,
+                    expected: 'number',
+                });
+            }
+
+            return results;
+        });
+
         renderResults();
     </script>
 </body>
