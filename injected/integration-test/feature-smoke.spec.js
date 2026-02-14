@@ -15,10 +15,9 @@ import { platformSupport } from '../src/features.js';
 const test = testContextForExtension(base);
 
 const SMOKE_HTML = '/smoke/pages/smoke.html';
-const ALL_FEATURES_CONFIG = './integration-test/test-pages/smoke/config/all-features.json';
 
 /**
- * Generate a minimal config JSON string enabling a single feature.
+ * Generate a minimal config object enabling a single feature.
  * @param {string} featureName
  * @returns {object}
  */
@@ -31,6 +30,27 @@ function singleFeatureConfig(featureName) {
                 exceptions: [],
             },
         },
+        unprotectedTemporary: [],
+    };
+}
+
+/**
+ * Generate a config object enabling all features from platformSupport.integration.
+ * Built dynamically so new features added to features.js are automatically included.
+ * @returns {object}
+ */
+function allFeaturesConfig() {
+    /** @type {Record<string, {state: string, exceptions: any[]}>} */
+    const features = {};
+    for (const featureName of platformSupport.integration) {
+        features[featureName] = {
+            state: 'enabled',
+            exceptions: [],
+        };
+    }
+    return {
+        version: 1,
+        features,
         unprotectedTemporary: [],
     };
 }
@@ -68,7 +88,7 @@ async function runSmokeTest(page, testInfo, html, config) {
 test.describe('Feature smoke tests', () => {
     // Test all features combined - the critical "nothing explodes" test
     test('All features combined', async ({ page }, testInfo) => {
-        await runSmokeTest(page, testInfo, SMOKE_HTML, ALL_FEATURES_CONFIG);
+        await runSmokeTest(page, testInfo, SMOKE_HTML, allFeaturesConfig());
     });
 
     // Test each feature individually
