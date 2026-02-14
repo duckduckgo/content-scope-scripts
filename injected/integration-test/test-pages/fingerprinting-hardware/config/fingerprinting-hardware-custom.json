@@ -1,0 +1,21 @@
+{
+    "readme": "This config tests hardware fingerprinting with custom override values using the structured ConfigSetting format.",
+    "version": 1,
+    "features": {
+        "fingerprintingHardware": {
+            "state": "enabled",
+            "exceptions": [],
+            "settings": {
+                "hardwareConcurrency": {
+                    "type": "number",
+                    "value": 16
+                },
+                "deviceMemory": {
+                    "type": "number",
+                    "value": 4
+                }
+            }
+        }
+    },
+    "unprotectedTemporary": []
+}
