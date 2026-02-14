@@ -10,7 +10,7 @@
  * Prerequisites:
  *   1. Run unit tests:  npm run test-unit  (writes c8 coverage to coverage/tmp/)
  *   2. Run integration tests with coverage:
- *      C_S_S_SOURCEMAPS=1 npm run build && COLLECT_COVERAGE=1 npx playwright test --project coverage --reporter list
+ *      C_S_S_SOURCEMAPS=1 npm run build && npm run coverage-int
  *      (writes Playwright V8 coverage to coverage/integration/)
  *   3. Run this script to generate reports
  */
@@ -51,7 +51,7 @@ async function generateReport({ name, inputDir, outputDir, format }) {
     const coverageReport = new CoverageReport({
         name,
         outputDir,
-        reports: ['text-summary', 'v8'],
+        reports: ['v8', 'text-summary'],
     });
 
     const files = readdirSync(inputDir).filter((f) => f.endsWith('.json'));
