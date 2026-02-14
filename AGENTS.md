@@ -74,9 +74,25 @@ Run from root. Use `nvm use` to set the correct Node version.
 | `npm run serve` | Serve injected test pages (port 3220) |
 | `npm run serve-special-pages` | Serve special pages (port 3221) |
 
+## Coding Standards
+
+Follow the error handling guidelines in [`guides/error-handling.md`](guides/error-handling.md). Key rules:
+- Errors are for **exceptional conditions** (invariant violations, unreachable code), not control flow
+- Never leave promises unhandled — use `.catch()` or `try/catch` with `await`
+- Return `null`/sentinel values for expected missing data instead of throwing
+
 ## Debugging
 
-**Debugging guide:** `.cursor/rules/debugging.mdc` - Comprehensive debugging steps for C-S-S development, including config validation, script integrity checks, and troubleshooting tips.
+When a feature is not working, use the triage checklist in [`injected/docs/build-and-troubleshooting.md`](injected/docs/build-and-troubleshooting.md):
+- Validate injected script integrity across build directory, native app, and web inspector
+- Verify feature is enabled in config and site object, bundled on the platform, and sub-features/settings are enabled
+- Check messaging is wired and listeners are registered
+
+Additional debugging resources:
+- **Script integrity & builds:** [`injected/docs/build-and-troubleshooting.md`](injected/docs/build-and-troubleshooting.md)
+- **Messaging issues:** [`injected/docs/message-bridge.md`](injected/docs/message-bridge.md)
+- **Feature development:** [`injected/docs/features-guide.md`](injected/docs/features-guide.md)
+- **Testing:** [`injected/docs/testing-guide.md`](injected/docs/testing-guide.md)
 
 ## Notes
 
