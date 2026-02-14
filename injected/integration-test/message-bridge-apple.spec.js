@@ -57,8 +57,8 @@ test('message bridge when enabled (apple)', async ({ page }, testInfo) => {
         { name: 'data', result: [{ abc: 'def' }, { ghi: 'jkl' }], expected: [{ abc: 'def' }, { ghi: 'jkl' }] },
     ]);
 
-    // verify messaging calls
-    const calls = await page.evaluate(readOutgoingMessages);
+    // verify messaging calls (filter out pageObserver which fires unconditionally)
+    const calls = (await page.evaluate(readOutgoingMessages)).filter((m) => m.payload.featureName !== 'pageObserver');
     expect(calls.length).toBe(2);
     const pixel = calls[0].payload;
     const request = calls[1].payload;
@@ -95,8 +95,8 @@ test('message bridge when disabled (apple)', async ({ page }, testInfo) => {
     // now load the main page
     await pageWorld.load(DISABLED_HTML, DISABLED_CONFIG);
 
-    // verify no outgoing calls were made
-    const calls = await page.evaluate(readOutgoingMessages);
+    // verify no outgoing calls were made (filter out pageObserver which fires unconditionally)
+    const calls = (await page.evaluate(readOutgoingMessages)).filter((m) => m.payload.featureName !== 'pageObserver');
     expect(calls).toHaveLength(0);
 
     // get all results

@@ -907,6 +907,7 @@ export const platformSpecificFeatures = [
     'messageBridge',
     'favicon',
     'breakageReporting',
+    'pageObserver',
     'print',
     'webInterferenceDetection',
 ];
