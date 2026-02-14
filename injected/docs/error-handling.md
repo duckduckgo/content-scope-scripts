@@ -1,11 +1,4 @@
----
-description: Guidelines for intentional error management - errors should represent exceptional conditions, not control flow
-alwaysApply: true
----
-
-# Rule: Intentional Error Management
-
-## Principle
+# Intentional Error Management
 
 Thrown errors and unhandled promise rejections must be **intentional** and represent **exceptional conditions**, not part of the normal "happy path" of code execution.
 
@@ -55,10 +48,9 @@ Errors should be thrown only for:
 
 ### 3. Promise Rejection Rules
 
-- **Never leave promises unhandled** - always attach `.catch()` or use `try/catch` with `await`
+- **Never leave promises unhandled** — always attach `.catch()` or use `try/catch` with `await`
 - **Use `Promise.reject()` only when mimicking browser API behavior** (e.g., `web-compat.js` returning `DOMException`):
   ```javascript
-  // Mimicking native Share API behavior
   if (!canShare(data)) return Promise.reject(new TypeError('Invalid share data'));
   ```
 
@@ -96,7 +88,7 @@ function assertCustomEvent(event) {
 ## Anti-Patterns to Avoid
 
 | Anti-Pattern | Problem | Solution |
-|--------------|---------|----------|
+|---|---|---|
 | Empty catch blocks | Silently swallows errors | Log or re-throw with context |
 | Throwing for expected `null`/`undefined` | Using errors as control flow | Return optional/sentinel values |
 | Unhandled promise chains | Leads to unhandled rejections | Add `.catch()` handler |
@@ -106,9 +98,9 @@ function assertCustomEvent(event) {
 ## ESLint Support
 
 The codebase enforces:
-- `require-await` - async functions must use await
-- `promise/prefer-await-to-then` - prefer async/await over `.then()`
-- `@typescript-eslint/await-thenable` - only await promises
+- `require-await` — async functions must use await
+- `promise/prefer-await-to-then` — prefer async/await over `.then()`
+- `@typescript-eslint/await-thenable` — only await promises
 
 ## Summary
 

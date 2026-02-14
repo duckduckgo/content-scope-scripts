@@ -6,57 +6,43 @@ Shared JavaScript projects powering privacy features and special pages in DuckDu
 
 This is an npm workspace monorepo with four sub-projects:
 
-### `injected/` - Browser Privacy Features
+### `injected/` — Browser Privacy Features
 
-JavaScript features injected into web pages for privacy protections. Features extend `ConfigFeature` and integrate with remote configuration for per-site enable/disable.
+JavaScript features injected into web pages for privacy protections. Features extend `ContentFeature` / `ConfigFeature` and integrate with remote configuration for per-site enable/disable.
 
 **Features** (in `injected/src/features/`):
-- `api-manipulation` - API behavior modifications
-- `autofill-import` - Credential import support
-- `breakage-reporting` - Site breakage reports
-- `broker-protection` - Data broker removal automation
-- `click-to-load` - Social embed blocking
-- `cookie` - Cookie management
-- `duck-player` / `duck-player-native` - YouTube privacy player
-- `element-hiding` - Hide page elements
-- `exception-handler` - Error handling
-- `favicon` - Favicon privacy
-- `fingerprinting-*` - Audio, battery, canvas, hardware, screen, storage fingerprint protection
-- `google-rejected` - Google rejection handling
-- `gpc` - Global Privacy Control
-- `harmful-apis` - Dangerous API restrictions
-- `message-bridge` - Page↔content script messaging
-- `navigator-interface` - Navigator API modifications
-- `performance-metrics` - Performance tracking
-- `referrer` - Referrer protection
-- `web-compat` - Site compatibility fixes
-- `web-interference-detection` / `web-telemetry` - Monitoring
+- `api-manipulation` — API behavior modifications
+- `autofill-import` — Credential import support
+- `breakage-reporting` — Site breakage reports
+- `broker-protection` — Data broker removal automation
+- `click-to-load` — Social embed blocking
+- `cookie` — Cookie management
+- `duck-player` / `duck-player-native` — YouTube privacy player
+- `element-hiding` — Hide page elements
+- `exception-handler` — Error handling
+- `favicon` — Favicon privacy
+- `fingerprinting-*` — Audio, battery, canvas, hardware, screen, storage fingerprint protection
+- `google-rejected` — Google rejection handling
+- `gpc` — Global Privacy Control
+- `harmful-apis` — Dangerous API restrictions
+- `message-bridge` — Page↔content script messaging
+- `navigator-interface` — Navigator API modifications
+- `performance-metrics` — Performance tracking
+- `referrer` — Referrer protection
+- `web-compat` — Site compatibility fixes
+- `web-interference-detection` / `web-telemetry` — Monitoring
 
-**Docs:** `injected/docs/README.md` (index to all docs)
-
-### `special-pages/` - Embedded Browser Pages
+### `special-pages/` — Embedded Browser Pages
 
 Preact-based HTML/CSS/JS applications embedded in browsers. Each page lives in `special-pages/pages/<name>/`.
 
-**Pages:**
-- `duckplayer` - YouTube privacy player UI
-- `errorpage` - Browser error pages
-- `example` - Template for new pages
-- `history` - Browsing history viewer
-- `new-tab` - New Tab Page
-- `onboarding` - First-run experience
-- `release-notes` - Browser release notes
-- `special-error` - SSL/certificate error pages
+**Pages:** `duckplayer`, `errorpage`, `example`, `history`, `new-tab`, `onboarding`, `release-notes`, `special-error`
 
-**Docs:** `special-pages/README.md`, plus `readme.md` in each page directory
-
-### `messaging/` - Web-Native Communication
+### `messaging/` — Web-Native Communication
 
 Abstraction layer for web↔native messaging: `notify` (fire-and-forget), `request` (async response), `subscribe` (push updates).
 
-**Docs:** `messaging/docs/messaging.md`
-
-### `types-generator/` - Schema to TypeScript
+### `types-generator/` — Schema to TypeScript
 
 Generates TypeScript types from JSON Schema files. Used by other workspaces.
 
@@ -74,11 +60,30 @@ Run from root. Use `nvm use` to set the correct Node version.
 | `npm run serve` | Serve injected test pages (port 3220) |
 | `npm run serve-special-pages` | Serve special pages (port 3221) |
 
+## Key rules
+
+- **Error handling**: Errors must be exceptional, not control flow. Never leave promises unhandled. See [injected/docs/error-handling.md](injected/docs/error-handling.md).
+- **Playwright**: Use `--reporter list` to prevent the Shell tool from hanging.
+- **PRs**: Use `.github/pull_request_template.md` when creating a pull request.
+
 ## Debugging
 
-**Debugging guide:** `.cursor/rules/debugging.mdc` - Comprehensive debugging steps for C-S-S development, including config validation, script integrity checks, and troubleshooting tips.
+When developing or debugging C-S-S, validate script integrity, build outputs, and injection across all platforms. Key resources:
 
-## Notes
+- **Build & troubleshooting**: [injected/docs/build-and-troubleshooting.md](injected/docs/build-and-troubleshooting.md) — script integrity, config validation, platform-specific setup
+- **Feature not working?** See the triage checklist in `injected/docs/build-and-troubleshooting.md#feature-not-working-triage-checklist`
+- **Messaging issues**: [injected/docs/message-bridge.md](injected/docs/message-bridge.md) — missing messageName, handler registration, bridge init
+- **Breaking changes**: [CONTRIBUTING.md](CONTRIBUTING.md) — versioning and release coordination
 
-- When running Playwright commands, use `--reporter list` to prevent the Shell tool from hanging
-- Use `.github/pull_request_template.md` when creating a pull request.
+## Reference documentation
+
+| Topic | File |
+|-------|------|
+| Error handling guidelines | [injected/docs/error-handling.md](injected/docs/error-handling.md) |
+| Injected features docs index | [injected/docs/README.md](injected/docs/README.md) |
+| Build & troubleshooting | [injected/docs/build-and-troubleshooting.md](injected/docs/build-and-troubleshooting.md) |
+| Coding guidelines | [injected/docs/coding-guidelines.md](injected/docs/coding-guidelines.md) |
+| Message bridge | [injected/docs/message-bridge.md](injected/docs/message-bridge.md) |
+| CSS decision guide | [injected/docs/css-decision-guide.md](injected/docs/css-decision-guide.md) |
+| Special pages | [special-pages/README.md](special-pages/README.md) |
+| Messaging library | [messaging/docs/messaging.md](messaging/docs/messaging.md) |
