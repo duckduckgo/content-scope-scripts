@@ -19,6 +19,7 @@ export default defineConfig({
                 'integration-test/duck-ai-data-clearing.spec.js',
                 'integration-test/duck-ai-chat-history.spec.js',
                 'integration-test/web-detection.spec.js',
+                'integration-test/performance-metrics.spec.js',
             ],
             use: { injectName: 'windows', platform: 'windows' },
         },
