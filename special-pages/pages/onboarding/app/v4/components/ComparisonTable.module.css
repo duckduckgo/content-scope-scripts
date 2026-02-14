@@ -59,20 +59,24 @@
 
 .status {
     display: inline-block;
-    height: var(--sp-5);
-    width: var(--sp-5);
 }
 
 .notSupported {
-    background-image: url('../../../public/assets/img/icons/cross-24.svg');
+    height: var(--sp-6);
+    width: var(--sp-6);
+    background-image: url('../../../public/assets/img/v4/icons/cross-circle.svg');
 }
 
 .partialSupport {
-    background-image: url('../../../public/assets/img/icons/stop-24.svg');
+    height: var(--sp-6);
+    width: var(--sp-6);
+    background-image: url('../../../public/assets/img/v4/icons/stop-circle.svg');
 }
 
 .fullSupport {
-    background-image: url('../../../public/assets/img/icons/check-24.svg');
+    height: var(--sp-5);
+    width: var(--sp-5);
+    background-image: url('../../../public/assets/img/v4/icons/check-circle.svg');
 }
 
 .browserIcon {

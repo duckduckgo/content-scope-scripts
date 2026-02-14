@@ -1,11 +1,10 @@
 .button {
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
     gap: var(--sp-2); /* 8px */
-    height: var(--sp-9); /* 36px */
     min-width: var(--sp-32);
-    padding: 0 var(--sp-6); /* 0 24px */
+    padding: var(--sp-4) var(--sp-6); /* 16px 24px */
     border: none;
     border-radius: var(--sp-16); /* 64px */
     cursor: pointer;
@@ -15,6 +14,11 @@
     font-weight: 400;
     line-height: calc(15 * var(--px-in-rem));
     text-align: center;
+}
+
+.button:disabled {
+    opacity: 0.4;
+    cursor: default;
 }
 
 /* --- Primary (accent) --- */
@@ -29,19 +33,12 @@
     }
 }
 
-.primary:hover {
-    background: #d9531f;
+.primary:hover:not(:disabled),
+.primary:active:not(:disabled) {
+    background: #CC3B0A;
 
     @media (prefers-color-scheme: dark) {
-        background: #f0c96e;
-    }
-}
-
-.primary:active {
-    background: #c24a1b;
-
-    @media (prefers-color-scheme: dark) {
-        background: #e0ba5a;
+        background: #FFC95C;
     }
 }
 
@@ -57,18 +54,11 @@
     }
 }
 
-.secondary:hover {
+.secondary:hover:not(:disabled),
+.secondary:active:not(:disabled) {
     background: var(--color-black-at-9);
 
     @media (prefers-color-scheme: dark) {
         background: var(--color-white-at-18);
-    }
-}
-
-.secondary:active {
-    background: var(--color-black-at-12);
-
-    @media (prefers-color-scheme: dark) {
-        background: var(--color-white-at-24);
     }
 }

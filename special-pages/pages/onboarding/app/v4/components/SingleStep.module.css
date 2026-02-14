@@ -44,6 +44,18 @@
     z-index: 1;
 }
 
+/* --- illustration wrapper (systemSettings dax) --- */
+
+.illustrationWrapper {
+    position: relative;
+    width: 100%;
+    isolation: isolate;
+}
+
+.illustrationBubble {
+    z-index: 1;
+}
+
 /* --- getStarted bubble intro --- */
 
 .bubbleGetStartedIntro {

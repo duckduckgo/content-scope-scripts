@@ -10,7 +10,7 @@ import styles from './SingleStep.module.css';
  * Steps without bubbles (e.g. welcome) render content directly.
  */
 export function SingleStep() {
-    const { content, topBubble, bottomBubble, showProgress, progress, topBubbleTail, globalState } = useStepConfig();
+    const { content, topBubble, bottomBubble, showProgress, progress, topBubbleTail, illustration, globalState } = useStepConfig();
     const isGetStarted = globalState.activeStep === 'getStarted';
 
     // No bubbles — render content directly (e.g., welcome step has its own full-page layout)
@@ -32,7 +32,17 @@ export function SingleStep() {
                     </Bubble>
                 )}
 
-                {bottomBubble && <Bubble>{bottomBubble}</Bubble>}
+                {bottomBubble && illustration ? (
+                    <div class={styles.illustrationWrapper}>
+                        {illustration.background}
+                        <Bubble class={styles.illustrationBubble}>{bottomBubble}</Bubble>
+                        {illustration.foreground}
+                    </div>
+                ) : bottomBubble ? (
+                    <Bubble>{bottomBubble}</Bubble>
+                ) : null}
+
+                {!bottomBubble && illustration?.foreground}
 
                 {content}
             </div>
