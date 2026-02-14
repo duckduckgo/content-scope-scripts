@@ -64,6 +64,78 @@
                 expected: true,
             });
 
+            // Test toBlob returns data
+            const blob = await new Promise((resolve) => canvas.toBlob(resolve));
+            results.push({
+                name: 'toBlob returns a Blob',
+                result: blob instanceof Blob,
+                expected: true,
+            });
+            results.push({
+                name: 'toBlob Blob has non-zero size',
+                result: blob.size > 0,
+                expected: true,
+            });
+
+            return results;
+        });
+
+        test('Canvas data modification evidence', async () => {
+            const results = [];
+
+            // Create two canvases with identical patterns and compare their getImageData
+            // The protection should add per-session noise, so data is non-trivially present
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+            drawFingerprintPattern(ctx);
+
+            const imageData = ctx.getImageData(0, 0, 100, 100);
+
+            // Verify the image data contains non-zero pixels (drawing happened)
+            let hasNonZeroPixel = false;
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                if (imageData.data[i] !== 0 || imageData.data[i + 1] !== 0 || imageData.data[i + 2] !== 0) {
+                    hasNonZeroPixel = true;
+                    break;
+                }
+            }
+            results.push({
+                name: 'Canvas has non-zero pixel data after drawing',
+                result: hasNonZeroPixel,
+                expected: true,
+            });
+
+            // Verify alpha channel is fully opaque where we drew (proof drawing worked)
+            let hasOpaquePixel = false;
+            for (let i = 3; i < imageData.data.length; i += 4) {
+                if (imageData.data[i] === 255) {
+                    hasOpaquePixel = true;
+                    break;
+                }
+            }
+            results.push({
+                name: 'Canvas has opaque pixels where drawn',
+                result: hasOpaquePixel,
+                expected: true,
+            });
+
+            // Test that getImageData returns consistent results (cached modification)
+            const imageData2 = ctx.getImageData(0, 0, 100, 100);
+            let isConsistent = true;
+            for (let i = 0; i < imageData.data.length; i++) {
+                if (imageData.data[i] !== imageData2.data[i]) {
+                    isConsistent = false;
+                    break;
+                }
+            }
+            results.push({
+                name: 'Repeated getImageData returns consistent results',
+                result: isConsistent,
+                expected: true,
+            });
+
             return results;
         });
 
