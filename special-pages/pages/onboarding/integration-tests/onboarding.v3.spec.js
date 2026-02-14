@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { OnboardingV3Page } from './onboarding.v3.page.js';
 
 test.describe('onboarding v3', () => {
@@ -240,6 +240,63 @@ test.describe('onboarding v3', () => {
 
         // Customize
         await page.getByText('Let’s customize a few things').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click();
+        await page.getByRole('button', { name: 'Enable Session Restore' }).click();
+        await page.getByRole('button', { name: 'Show Home Button' }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        // Address bar mode
+        await page.getByText('Want easy access to private AI Chat?').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Search & Duck.ai' }).click();
+        await page.getByRole('button', { name: 'Search Only' }).click();
+        await onboarding.startBrowsing();
+    });
+
+    test('shows v3 flow with newDuckPlayerScreen (no toggle button)', async ({ page }, workerInfo) => {
+        const onboarding = OnboardingV3Page.create(page, workerInfo);
+        onboarding.withInitData({
+            stepDefinitions: {
+                duckPlayerSingle: {
+                    newDuckPlayerScreen: true,
+                },
+            },
+            order: 'v3',
+        });
+        await onboarding.reducedMotion();
+        await onboarding.darkMode();
+        await onboarding.openPage();
+
+        // Welcome
+        await page.getByText('Welcome to DuckDuckGo').nth(1).waitFor({ timeout: 1000 });
+
+        // Get started
+        await page.getByText('Hi there').nth(1).waitFor({ timeout: 1500 });
+        await page.getByRole('button', { name: 'Let's Do It' }).click();
+
+        // Make default
+        await page.getByText('Protections activated').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Make DuckDuckGo Your Default' }).click();
+        await page.getByText('Excellent!').nth(1).waitFor({ timeout: 1000 });
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        // System settings
+        await page.getByText('Let's get you set up!').nth(1).waitFor({ timeout: 1000 });
+        const dockButton = onboarding.build.switch({
+            windows: () => page.getByRole('button', { name: 'Pin to Taskbar' }),
+            apple: () => page.getByRole('button', { name: 'Keep in Dock' }),
+        });
+        await dockButton.click();
+        await page.getByRole('button', { name: 'Import' }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        // Duckplayer - toggle button should NOT be present
+        await page.getByText('Drowning in ads').nth(1).waitFor({ timeout: 1000 });
+        await expect(page.getByLabel('See Without Duck Player')).toBeHidden();
+        await expect(page.getByLabel('See With Duck Player')).toBeHidden();
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        // Customize
+        await page.getByText('Let's customize a few things').nth(1).waitFor({ timeout: 1000 });
         await page.getByRole('button', { name: 'Show Bookmarks Bar' }).click();
         await page.getByRole('button', { name: 'Enable Session Restore' }).click();
         await page.getByRole('button', { name: 'Show Home Button' }).click();

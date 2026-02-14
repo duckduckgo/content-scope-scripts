@@ -33,6 +33,14 @@ export function mockTransport() {
                         };
                     }
 
+                    if (url.searchParams.get('newDuckPlayerScreen') === 'true') {
+                        stepDefinitions.duckPlayerSingle = {
+                            id: 'duckPlayerSingle',
+                            kind: 'info',
+                            newDuckPlayerScreen: true,
+                        };
+                    }
+
                     return Promise.resolve({
                         stepDefinitions,
                         exclude: [],

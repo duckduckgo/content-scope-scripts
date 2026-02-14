@@ -278,12 +278,12 @@
     "note": "Title for a page that asks the user to add the DuckDuckGo browser to their dock on macOS."
   },
   "duckPlayer_title": {
-    "title": "Drowning in ads on YouTube? Not with Duck Player!",
-    "note": "Title for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
+    "title": "Watch YouTube Ad-free!",
+    "note": "Title for a page that shows the benefits of using the browser, it includes free adblock for YouTube."
   },
   "duckPlayer_subtitle": {
-    "title": "No targeted ads. No targeted recommendations. Just your video.",
-    "note": "Subtitle for a page that shows the benefits of using the Duck Player feature to watch YouTube videos more privately."
+    "title": "No need for a premium subscription or third-party plugins. Just your video without the ads.",
+    "note": "Subtitle for a page that shows the benefits of using the browser, feature to watch YouTube videos more privately."
   },
   "addressBarMode_title": {
     "title": "Want easy access to private AI Chat?",
