@@ -51,7 +51,7 @@ async function generateReport({ name, inputDir, outputDir, format }) {
     const coverageReport = new CoverageReport({
         name,
         outputDir,
-        reports: ['text-summary'],
+        reports: ['text-summary', 'v8'],
     });
 
     const files = readdirSync(inputDir).filter((f) => f.endsWith('.json'));
