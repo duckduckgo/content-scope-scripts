@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Feature Smoke Test</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+</head>
+<body>
+    <script src="../../shared/utils.js"></script>
+    <p><a href="../index.html">[Feature Smoke Test]</a></p>
+
+    <p>This page verifies that features initialize without breaking the page.
+       It is loaded once per feature and once with all features enabled.</p>
+
+    <!-- Elements that features may interact with -->
+    <video id="test-video" width="1" height="1" muted></video>
+    <canvas id="test-canvas" width="100" height="100"></canvas>
+    <div id="test-element">Test content</div>
+    <a href="https://example.com" id="test-link">Test link</a>
+    <iframe id="test-frame" src="about:blank" width="1" height="1" style="display:none"></iframe>
+
+    <script>
+        test('Page remains functional after feature init', async () => {
+            const results = [];
+
+            // Core DOM APIs still work
+            results.push({
+                name: 'document.createElement works',
+                result: typeof document.createElement('div'),
+                expected: 'object',
+            });
+
+            results.push({
+                name: 'document.querySelector works',
+                result: document.querySelector('#test-element') !== null,
+                expected: true,
+            });
+
+            results.push({
+                name: 'document.location.href is a string',
+                result: typeof document.location.href,
+                expected: 'string',
+            });
+
+            results.push({
+                name: 'document.readyState is valid',
+                result: ['loading', 'interactive', 'complete'].includes(document.readyState),
+                expected: true,
+            });
+
+            // Navigator APIs accessible
+            results.push({
+                name: 'navigator.userAgent is a string',
+                result: typeof navigator.userAgent,
+                expected: 'string',
+            });
+
+            // Timers still work
+            const timerWorks = await new Promise((resolve) => {
+                setTimeout(() => resolve(true), 10);
+            });
+            results.push({
+                name: 'setTimeout still works',
+                result: timerWorks,
+                expected: true,
+            });
+
+            // Promises still work
+            const promiseWorks = await Promise.resolve(true);
+            results.push({
+                name: 'Promises still work',
+                result: promiseWorks,
+                expected: true,
+            });
+
+            // JSON serialization works
+            let jsonWorks = false;
+            try {
+                JSON.parse(JSON.stringify({ test: true }));
+                jsonWorks = true;
+            } catch (e) {
+                // noop
+            }
+            results.push({
+                name: 'JSON serialization works',
+                result: jsonWorks,
+                expected: true,
+            });
+
+            // Event dispatch works
+            let eventFired = false;
+            const handler = () => { eventFired = true; };
+            window.addEventListener('test-smoke', handler);
+            window.dispatchEvent(new CustomEvent('test-smoke'));
+            window.removeEventListener('test-smoke', handler);
+            results.push({
+                name: 'Event dispatch works',
+                result: eventFired,
+                expected: true,
+            });
+
+            // DOM manipulation works
+            const el = document.createElement('span');
+            el.textContent = 'smoke';
+            document.body.appendChild(el);
+            const found = document.body.contains(el);
+            el.remove();
+            results.push({
+                name: 'DOM manipulation works',
+                result: found,
+                expected: true,
+            });
+
+            return results;
+        });
+
+        renderResults();
+    </script>
+</body>
+</html>
