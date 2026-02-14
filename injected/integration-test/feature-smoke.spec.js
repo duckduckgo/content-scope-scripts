@@ -10,7 +10,7 @@
 import { test as base, expect } from '@playwright/test';
 import { testContextForExtension } from './helpers/harness.js';
 import { ResultsCollector } from './page-objects/results-collector.js';
-import { baseFeatures, platformSupport } from '../src/features.js';
+import { platformSupport } from '../src/features.js';
 
 const test = testContextForExtension(base);
 
@@ -72,7 +72,7 @@ test.describe('Feature smoke tests', () => {
     });
 
     // Test each feature individually
-    const allFeatures = platformSupport['integration'];
+    const allFeatures = platformSupport.integration;
     for (const featureName of allFeatures) {
         test(`Smoke: ${featureName}`, async ({ page }, testInfo) => {
             const config = singleFeatureConfig(featureName);
