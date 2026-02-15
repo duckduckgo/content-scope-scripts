@@ -6,6 +6,7 @@ import styles from './FreemiumPIRBanner.module.css';
 import { FreemiumPIRBannerContext } from '../FreemiumPIRBannerProvider';
 import { useContext } from 'preact/hooks';
 import { convertMarkdownToHTMLForStrongTags } from '../../../../../shared/utils';
+import { useWidgetDidRender } from '../../widget-list/widget-config.provider.js';
 
 /**
  * @typedef { import("../../../types/new-tab").FreemiumPIRBannerMessage} FreemiumPIRBannerMessage
@@ -40,6 +41,7 @@ export function FreemiumPIRBanner({ message, action, dismiss }) {
 
 export function FreemiumPIRBannerConsumer() {
     const { state, action, dismiss } = useContext(FreemiumPIRBannerContext);
+    useWidgetDidRender(state.status);
 
     if (state.status === 'ready' && state.data.content) {
         return <FreemiumPIRBanner message={state.data.content} action={action} dismiss={dismiss} />;

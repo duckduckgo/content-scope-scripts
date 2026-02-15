@@ -4,6 +4,7 @@ import styles from './UpdateNotification.module.css';
 import { useContext, useId, useRef } from 'preact/hooks';
 import { UpdateNotificationContext } from '../UpdateNotificationProvider.js';
 import { useTypedTranslationWith } from '../../types.js';
+import { useWidgetDidRender } from '../../widget-list/widget-config.provider.js';
 import { Trans } from '../../../../../shared/components/TranslationsProvider.js';
 import { DismissButton } from '../../components/DismissButton';
 
@@ -102,6 +103,7 @@ export function WithoutNotes({ version }) {
 
 export function UpdateNotificationConsumer() {
     const { state, dismiss } = useContext(UpdateNotificationContext);
+    useWidgetDidRender(state.status);
 
     // `state.data.content` can be empty - meaning there's no message to display!
     if (state.status === 'ready' && state.data.content) {
