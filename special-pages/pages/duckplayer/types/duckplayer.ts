@@ -23,6 +23,7 @@ export type PrivatePlayerMode =
  */
 export interface DuckplayerMessages {
   notifications:
+    | OnPlaybackEventNotification
     | OpenInfoNotification
     | OpenSettingsNotification
     | ReportInitExceptionNotification
@@ -31,6 +32,35 @@ export interface DuckplayerMessages {
     | TelemetryEventNotification;
   requests: GetUserValuesRequest | InitialSetupRequest | SetUserValuesRequest;
   subscriptions: OnUserValuesChangedSubscription;
+}
+/**
+ * Generated from @see "../messages/onPlaybackEvent.notify.json"
+ */
+export interface OnPlaybackEventNotification {
+  method: "onPlaybackEvent";
+  params: PlaybackEvent;
+}
+export interface PlaybackEvent {
+  /**
+   * Type of playback event
+   */
+  eventType: "start" | "stalled" | "resume" | "error" | "end";
+  /**
+   * video.currentTime when event occurred
+   */
+  timestamp: number;
+  /**
+   * Seconds of buffer remaining (only for stalled)
+   */
+  bufferAhead?: number;
+  /**
+   * How long the stall lasted in milliseconds (only for resume)
+   */
+  stallDurationMs?: number;
+  /**
+   * MediaError.code (only for error)
+   */
+  errorCode?: number;
 }
 /**
  * Generated from @see "../messages/openInfo.notify.json"

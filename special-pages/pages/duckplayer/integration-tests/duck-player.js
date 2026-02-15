@@ -679,4 +679,71 @@ export class DuckPlayerPage {
             - paragraph: Si eso no funciona, tendrás que iniciar sesión y ver el vídeo en YouTube sin la privacidad adicional que ofrece Duck Player.
           `);
     }
+
+    async dispatchVideoEvent(eventName) {
+        const video = this.page.frameLocator('iframe').locator('video');
+        await video.waitFor({ state: 'attached' });
+        await video.dispatchEvent(eventName);
+    }
+
+    /**
+     * @param {'start'|'stalled'|'resume'|'error'|'end'} eventType
+     */
+    async waitForPlaybackEvent(eventType) {
+        await expect(async () => {
+            const calls = await this.mocks.outgoing({ names: ['onPlaybackEvent'] });
+            const match = calls.find((c) => c.payload.params.eventType === eventType);
+            expect(match).toBeTruthy();
+        }).toPass({ timeout: 5000 });
+    }
+
+    async didSendPlaybackStarted() {
+        await this.waitForPlaybackEvent('start');
+        const calls = await this.mocks.outgoing({ names: ['onPlaybackEvent'] });
+        const startCall = calls.find((c) => c.payload.params.eventType === 'start');
+        expect(startCall.payload.params).toHaveProperty('timestamp');
+    }
+
+    async didSendPlaybackStalled() {
+        await this.waitForPlaybackEvent('stalled');
+        const calls = await this.mocks.outgoing({ names: ['onPlaybackEvent'] });
+        const stalledCall = calls.find((c) => c.payload.params.eventType === 'stalled');
+        expect(stalledCall.payload.params).toHaveProperty('timestamp');
+        expect(stalledCall.payload.params).toHaveProperty('bufferAhead');
+    }
+
+    async didSendPlaybackResumed() {
+        await this.waitForPlaybackEvent('resume');
+        const calls = await this.mocks.outgoing({ names: ['onPlaybackEvent'] });
+        const resumeCall = calls.find((c) => c.payload.params.eventType === 'resume');
+        expect(resumeCall.payload.params).toHaveProperty('timestamp');
+        expect(resumeCall.payload.params).toHaveProperty('stallDurationMs');
+    }
+
+    async didNotSendPlaybackStalled() {
+        await this.page.waitForTimeout(100);
+        const calls = await this.mocks.outgoing({ names: ['onPlaybackEvent'] });
+        const stalledCall = calls.find((c) => c.payload.params.eventType === 'stalled');
+        expect(stalledCall).toBeFalsy();
+    }
+
+    async didNotSendPlaybackResumed() {
+        await this.page.waitForTimeout(100);
+        const calls = await this.mocks.outgoing({ names: ['onPlaybackEvent'] });
+        const resumeCall = calls.find((c) => c.payload.params.eventType === 'resume');
+        expect(resumeCall).toBeFalsy();
+    }
+
+    async didSendPlaybackEnded() {
+        await this.waitForPlaybackEvent('end');
+        const calls = await this.mocks.outgoing({ names: ['onPlaybackEvent'] });
+        const endedCall = calls.find((c) => c.payload.params.eventType === 'end');
+        expect(endedCall.payload.params).toHaveProperty('timestamp');
+    }
+
+    async didNotSendAnyPlaybackMetrics() {
+        await this.page.waitForTimeout(100);
+        const calls = await this.mocks.outgoing({ names: ['onPlaybackEvent'] });
+        expect(calls.length).toBe(0);
+    }
 }
