@@ -7,7 +7,9 @@ import {
     Subscription,
     MessageResponse,
     SubscriptionEvent,
+    WebkitMessagingConfig,
 } from '@duckduckgo/messaging';
+import { WebkitMessagingTransport } from '@duckduckgo/messaging/lib/webkit.js';
 import { AndroidMessagingConfig } from '@duckduckgo/messaging/lib/android.js';
 
 describe('Messaging Transports', () => {
@@ -233,6 +235,155 @@ describe('Android', () => {
         globalTarget[config.messageCallback](config.messageSecret, subEvent1);
     });
 });
+
+describe('WebKit notify rejection handling', () => {
+    it('catches rejected promise from wkSend in notify', async () => {
+        // Test the WebkitMessagingTransport.notify method directly
+        // by constructing a transport with pre-set globals that simulate a rejecting postMessage
+        const rejectingPostMessage = () => Promise.reject(new Error('feature named `performanceMetrics` was not found'));
+
+        const transport = createWebkitTransport({
+            postMessage: rejectingPostMessage,
+        });
+
+        const msg = new NotificationMessage({
+            context: 'contentScopeScriptsIsolated',
+            featureName: 'performanceMetrics',
+            method: 'firstContentfulPaint',
+            params: { value: 123.45 },
+        });
+
+        // Track unhandled rejections at the process level (Node.js equivalent)
+        const unhandledRejections = [];
+        const handler = (/** @type {any} */ reason) => unhandledRejections.push(reason);
+        process.on('unhandledRejection', handler);
+
+        // This should NOT produce an unhandled rejection
+        transport.notify(msg);
+
+        // Give time for any unhandled rejection to surface
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        expect(unhandledRejections.length).toBe(0);
+
+        process.removeListener('unhandledRejection', handler);
+    });
+
+    it('handles resolving postMessage without error', async () => {
+        const resolvingPostMessage = () => Promise.resolve(JSON.stringify({}));
+
+        const transport = createWebkitTransport({
+            postMessage: resolvingPostMessage,
+        });
+
+        const msg = new NotificationMessage({
+            context: 'contentScopeScriptsIsolated',
+            featureName: 'performanceMetrics',
+            method: 'firstContentfulPaint',
+            params: { value: 123.45 },
+        });
+
+        const unhandledRejections = [];
+        const handler = (/** @type {any} */ reason) => unhandledRejections.push(reason);
+        process.on('unhandledRejection', handler);
+
+        transport.notify(msg);
+
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        expect(unhandledRejections.length).toBe(0);
+
+        process.removeListener('unhandledRejection', handler);
+    });
+
+    it('handles non-promise return from postMessage', () => {
+        // Older WebKit or non-reply handlers return undefined
+        const syncPostMessage = () => undefined;
+
+        const transport = createWebkitTransport({
+            postMessage: syncPostMessage,
+        });
+
+        const msg = new NotificationMessage({
+            context: 'contentScopeScriptsIsolated',
+            featureName: 'performanceMetrics',
+            method: 'firstContentfulPaint',
+            params: { value: 123.45 },
+        });
+
+        // Should not throw
+        expect(() => transport.notify(msg)).not.toThrow();
+    });
+});
+
+/**
+ * Creates a WebkitMessagingTransport with mocked globals for testing in Node.js.
+ * @param {{ postMessage: (...args: any[]) => any }} messageHandler
+ * @returns {WebkitMessagingTransport}
+ */
+function createWebkitTransport(messageHandler) {
+    const messagingContext = new MessagingContext({
+        context: 'contentScopeScriptsIsolated',
+        featureName: 'performanceMetrics',
+        env: 'production',
+    });
+
+    const config = new WebkitMessagingConfig({
+        hasModernWebkitAPI: true,
+        webkitMessageHandlerNames: ['contentScopeScriptsIsolated'],
+        secret: '',
+    });
+
+    // Mock globalThis.window and isSecureContext for WebkitMessagingTransport's captureGlobals
+    const originalWindow = globalThis.window;
+    const originalIsSecureContext = globalThis.isSecureContext;
+    globalThis.isSecureContext = false;
+    globalThis.window = /** @type {any} */ ({
+        webkit: {
+            messageHandlers: {
+                contentScopeScriptsIsolated: messageHandler,
+            },
+        },
+        crypto: {
+            getRandomValues: (arr) => arr,
+            subtle: {
+                generateKey: () => Promise.resolve({}),
+                exportKey: () => Promise.resolve(new ArrayBuffer(0)),
+                importKey: () => Promise.resolve({}),
+                encrypt: () => Promise.resolve(new ArrayBuffer(0)),
+                decrypt: () => Promise.resolve(new ArrayBuffer(0)),
+            },
+        },
+        JSON: globalThis.JSON,
+        Array: globalThis.Array,
+        Promise: globalThis.Promise,
+        Error: globalThis.Error,
+        Reflect: globalThis.Reflect,
+        Object: globalThis.Object,
+        addEventListener: () => {},
+    });
+
+    let transport;
+    try {
+        transport = new WebkitMessagingTransport(config, messagingContext);
+    } finally {
+        // Restore globals immediately after construction (they are captured internally)
+        if (originalWindow !== undefined) {
+            globalThis.window = originalWindow;
+        } else {
+            // @ts-expect-error - cleaning up test mock
+            delete globalThis.window;
+        }
+        if (originalIsSecureContext !== undefined) {
+            globalThis.isSecureContext = originalIsSecureContext;
+        } else {
+            // @ts-expect-error - cleaning up test mock
+            delete globalThis.isSecureContext;
+        }
+    }
+
+    return transport;
+}
 
 /**
  * Creates a test transport and Messaging instance for testing

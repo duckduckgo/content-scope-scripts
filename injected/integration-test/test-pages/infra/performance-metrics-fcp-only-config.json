@@ -1,0 +1,15 @@
+{
+  "readme": "This config tests performance metrics with only FCP enabled.",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "performanceMetrics": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "firstContentfulPaint": "enabled",
+        "expandedPerformanceMetricsOnLoad": "disabled"
+      }
+    }
+  }
+}

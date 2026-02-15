@@ -1,0 +1,15 @@
+{
+  "readme": "This config tests that performance metrics does nothing when sub-settings are disabled.",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "performanceMetrics": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "firstContentfulPaint": "disabled",
+        "expandedPerformanceMetricsOnLoad": "disabled"
+      }
+    }
+  }
+}

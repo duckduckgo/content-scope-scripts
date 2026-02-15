@@ -1,0 +1,15 @@
+{
+  "readme": "This config is used to test the performance metrics feature.",
+  "version": 1,
+  "unprotectedTemporary": [],
+  "features": {
+    "performanceMetrics": {
+      "state": "enabled",
+      "exceptions": [],
+      "settings": {
+        "firstContentfulPaint": "enabled",
+        "expandedPerformanceMetricsOnLoad": "enabled"
+      }
+    }
+  }
+}
