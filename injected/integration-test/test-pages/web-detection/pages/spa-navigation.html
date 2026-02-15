@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPA Navigation Test</title>
+</head>
+<body>
+    <h1>SPA Navigation Test - Page 1</h1>
+    <div id="content">auto run test</div>
+    <button id="navigate-btn">Navigate to Page 2</button>
+    <script>
+        document.getElementById('navigate-btn').addEventListener('click', () => {
+            // Simulate SPA navigation
+            document.querySelector('h1').textContent = 'SPA Navigation Test - Page 2';
+            document.getElementById('content').textContent = 'different content';
+            history.pushState({ page: 2 }, '', '/page2');
+            
+            // Add content that matches after a delay
+            setTimeout(() => {
+                document.getElementById('content').textContent = 'auto run test';
+            }, 150);
+        });
+    </script>
+</body>
+</html>
