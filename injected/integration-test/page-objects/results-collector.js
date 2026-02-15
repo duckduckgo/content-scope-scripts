@@ -155,6 +155,12 @@ export class ResultsCollector {
      * @private
      */
     async _loadExtension(htmlPath, configPath, platform) {
+        // Start V8 coverage before navigation so extension-injected scripts are instrumented
+        if (COLLECT_COVERAGE && typeof this.page.coverage?.startJSCoverage === 'function') {
+            await this.page.coverage.startJSCoverage({ resetOnNavigation: false });
+            this.#coverageStarted = true;
+        }
+
         const config = JSON.parse(readFileSync(configPath, 'utf8'));
         /** @type {import('../../src/utils.js').UserPreferences} */
         const userPreferences = {
