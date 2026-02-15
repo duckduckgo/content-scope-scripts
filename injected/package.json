@@ -13,7 +13,7 @@
     "bundle-trackers": "node scripts/bundleTrackers.mjs --output ../build/tracker-lookup.json",
     "test-unit": "jasmine --config=unit-test/config.json",
     "test-unit-coverage": "c8 jasmine --config=unit-test/config.json",
-    "coverage-int": "COLLECT_COVERAGE=1 playwright test --project windows --project apple --project apple-isolated --project android --project android-autofill-import --grep-invert '@screenshots' --reporter list",
+    "coverage-int": "COLLECT_COVERAGE=1 playwright test --project windows --project apple --project apple-isolated --project android --project android-autofill-import --project chrome-mv3 --grep-invert '@screenshots' --reporter list",
     "coverage-report": "node scripts/merge-coverage.js",
     "test-int": "playwright test --grep-invert '@screenshots'",
     "test-int-x": "xvfb-run --server-args='-screen 0 1024x768x24' npm run test-int",
