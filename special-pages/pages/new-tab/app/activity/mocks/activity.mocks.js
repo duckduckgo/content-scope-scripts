@@ -27,8 +27,8 @@ export const activityMocks = {
         activity: [
             {
                 favicon: { src: 'selco-icon.png' },
-                url: 'https://preview-1468-content-scope-scripts.example.com',
-                title: 'preview-1468-content-scope-scripts.example.com',
+                url: 'https://example.com',
+                title: 'example.com',
                 etldPlusOne: 'example.com',
                 favorite: false,
                 trackersFound: false,
