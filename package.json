@@ -18,7 +18,7 @@
     "test-int-snapshots-update": "npm run test-int-snapshots-update --workspaces --if-present",
     "test-clean-tree": "npm run build && sh scripts/check-for-changes.sh",
     "docs": "typedoc",
-    "docs-netlify": "npm run build-locales -w injected && npm run build -w special-pages && npm run docs && cp -R build/integration/ docs/build",
+    "docs-preview": "npm run build-locales -w injected && npm run build -w special-pages && npm run docs && cp -R build/integration/ docs/build",
     "docs-watch": "typedoc --watch",
     "tsc": "tsc",
     "tsc-strict-core": "node scripts/check-strict-core.js",
