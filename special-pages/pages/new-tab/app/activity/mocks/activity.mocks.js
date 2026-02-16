@@ -29,7 +29,7 @@ export const activityMocks = {
                 favicon: { src: 'selco-icon.png' },
                 url: 'https://really-long-subdomain-for-testing-long-titles.example.com',
                 title: 'really-long-subdomain-for-testing-long-titles.example.com',
-                etldPlusOne: 'example.com',
+                etldPlusOne: 'really-long-subdomain-for-testing-long-titles.example.com',
                 favorite: false,
                 trackersFound: false,
                 trackingStatus: {
