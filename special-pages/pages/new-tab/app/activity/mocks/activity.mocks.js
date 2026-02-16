@@ -27,8 +27,8 @@ export const activityMocks = {
         activity: [
             {
                 favicon: { src: 'selco-icon.png' },
-                url: 'https://example.com',
-                title: 'example.com',
+                url: 'https://really-long-subdomain-for-testing-long-titles.example.com',
+                title: 'really-long-subdomain-for-testing-long-titles.example.com',
                 etldPlusOne: 'example.com',
                 favorite: false,
                 trackersFound: false,
