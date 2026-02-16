@@ -82,6 +82,10 @@ jobs:
                       const docsIndexUrl = `${previewBaseUrl}/docs/index.html`;
                       const staticPagesIndexUrl = `${previewBaseUrl}/build/integration/pages/index.html`;
                       const integrationPagesIndexUrl = `${previewBaseUrl}/injected/integration-test/test-pages/index.html`;
+                      const qrUrl = (targetUrl) => `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(targetUrl)}`;
+                      const docsQrUrl = qrUrl(docsIndexUrl);
+                      const staticPagesQrUrl = qrUrl(staticPagesIndexUrl);
+                      const integrationPagesQrUrl = qrUrl(integrationPagesIndexUrl);
 
                       const lastUpdated = (new Date()).toLocaleString('en-US', {
                           dateStyle: 'long',
@@ -105,6 +109,17 @@ jobs:
                           `- Docs: [docs/index.html](${docsIndexUrl})`,
                           `- Static pages: [build/integration/pages/index.html](${staticPagesIndexUrl})`,
                           `- Integration pages: [injected/integration-test/test-pages/index.html](${integrationPagesIndexUrl})`,
+                          ``,
+                          `<details>`,
+                          `<summary>QR codes (mobile preview)</summary>`,
+                          ``,
+                          `| Entry point | QR code |`,
+                          `|---|---|`,
+                          `| [Docs](${docsIndexUrl}) | ![QR for docs preview](${docsQrUrl}) |`,
+                          `| [Static pages](${staticPagesIndexUrl}) | ![QR for static pages preview](${staticPagesQrUrl}) |`,
+                          `| [Integration pages](${integrationPagesIndexUrl}) | ![QR for integration pages preview](${integrationPagesQrUrl}) |`,
+                          ``,
+                          `</details>`,
                           ``,
                           `#### Integration commands`,
                           ``,
