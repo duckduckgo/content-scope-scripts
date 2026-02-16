@@ -1,0 +1,9 @@
+{
+    "features": {
+        "browserUiLock": {
+            "state": "enabled",
+            "exceptions": []
+        }
+    },
+    "unprotectedTemporary": []
+}

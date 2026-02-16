@@ -34,7 +34,6 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'duckAiChatHistory',
     'harmfulApis',
     'webCompat',
-    'webDetection',
     'webInterferenceDetection',
     'windowsPermissionUsage',
     'uaChBrands',
@@ -45,12 +44,12 @@ const otherFeatures = /** @type {FeatureName[]} */ ([
     'favicon',
     'webTelemetry',
     'pageContext',
-    'print',
+    'browserUiLock',
 ]);
 
 /** @type {Record<string, FeatureName[]>} */
 export const platformSupport = {
-    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webDetection', 'webInterferenceDetection', 'pageContext', 'print'],
+    apple: ['webCompat', 'duckPlayerNative', ...baseFeatures, 'webInterferenceDetection', 'pageContext'],
     'apple-isolated': [
         'duckPlayer',
         'duckPlayerNative',
@@ -60,20 +59,10 @@ export const platformSupport = {
         'clickToLoad',
         'messageBridge',
         'favicon',
-        'webDetection',
     ],
     'apple-ai-clear': ['duckAiDataClearing'],
     'apple-ai-history': ['duckAiChatHistory'],
-    android: [
-        ...baseFeatures,
-        'webCompat',
-        'webDetection',
-        'webInterferenceDetection',
-        'breakageReporting',
-        'duckPlayer',
-        'messageBridge',
-        'pageContext',
-    ],
+    android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge', 'pageContext', 'browserUiLock'],
     'android-broker-protection': ['brokerProtection'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
@@ -85,14 +74,11 @@ export const platformSupport = {
         'fingerprintingAudio',
         'fingerprintingBattery',
         'gpc',
-        'webDetection',
         'breakageReporting',
     ],
-    'android-ai-history': ['duckAiChatHistory'],
     windows: [
         'cookie',
         ...baseFeatures,
-        'webDetection',
         'webInterferenceDetection',
         'webTelemetry',
         'windowsPermissionUsage',
@@ -107,8 +93,8 @@ export const platformSupport = {
         'performanceMetrics',
         'duckAiChatHistory',
     ],
-    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
-    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
-    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webDetection', 'webInterferenceDetection', 'breakageReporting'],
+    firefox: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
+    chrome: ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
+    'chrome-mv3': ['cookie', ...baseFeatures, 'clickToLoad', 'webInterferenceDetection', 'breakageReporting'],
     integration: [...baseFeatures, ...otherFeatures],
 };
