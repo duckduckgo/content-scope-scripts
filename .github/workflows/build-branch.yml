@@ -78,16 +78,17 @@ jobs:
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
                       const branchUrl = `${repoUrl}/tree/${buildBranch}`;
                       const commitUrl = `${repoUrl}/commit/${commitHash}`;
-                      const docsBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/docs`;
+                      const previewBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${buildBranch}`;
+                      const docsBaseUrl = `${previewBaseUrl}/docs`;
                       const docsIndexUrl = `${docsBaseUrl}/index.html`;
                       const docsSpecialPagesIndexUrl = `${docsBaseUrl}/build/pages/index.html`;
                       const docsNewTabDemoUrl = `${docsBaseUrl}/build/pages/new-tab/index.html`;
                       const docsNewTabPageDocUrl = `${docsBaseUrl}/documents/New_Tab_Page.html`;
-                      const staticPagesBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/build/integration/pages`;
+                      const staticPagesBaseUrl = `${previewBaseUrl}/build/integration/pages`;
                       const staticPagesIndexUrl = `${staticPagesBaseUrl}/index.html`;
                       const staticPagesNewTabDemoUrl = `${staticPagesBaseUrl}/new-tab/index.html`;
-                      const injectedTestPagesSourceIndexUrl = `${repoUrl}/blob/${commitHash}/injected/integration-test/test-pages/index.html`;
-                      const injectedTestPagesBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/injected/integration-test/test-pages`;
+                      const injectedTestPagesSourceIndexUrl = `${repoUrl}/blob/${buildBranch}/injected/integration-test/test-pages/index.html`;
+                      const injectedTestPagesBaseUrl = `${previewBaseUrl}/injected/integration-test/test-pages`;
                       const injectedTestPagesIndexUrl = `${injectedTestPagesBaseUrl}/index.html`;
                       const injectedTestPagesWebcompatUrl = `${injectedTestPagesBaseUrl}/webcompat/index.html`;
 
@@ -110,7 +111,7 @@ jobs:
                           ``,
                           `#### Static docs preview`,
                           ``,
-                          `Open [docs index](${docsIndexUrl}) for the typedoc preview from this build commit.`,
+                          `Open [docs index](${docsIndexUrl}) for the typedoc preview from this build branch.`,
                           `Built special-pages index inside docs: [docs/build/pages/index.html](${docsSpecialPagesIndexUrl})`,
                           ``,
                           `#### New Tab demos`,
@@ -127,7 +128,7 @@ jobs:
                           ``,
                           `#### Static special-pages preview`,
                           ``,
-                          `Open [special-pages index](${staticPagesIndexUrl}) to browse all built pages from this commit.`,
+                          `Open [special-pages index](${staticPagesIndexUrl}) to browse all built pages from this build branch.`,
                           ``,
                           `Direct URL pattern (if needed):`,
                           '```',
