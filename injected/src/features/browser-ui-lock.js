@@ -1,18 +1,6 @@
 import ContentFeature from '../content-feature';
 
 /**
- * @typedef {object} UiLockSignals
- * @property {string} overscrollBehavior - The computed overscroll-behavior value
- * @property {string} overflow - The computed overflow value
- */
-
-/**
- * @typedef {object} UiLockState
- * @property {boolean} locked - Whether the UI should be locked
- * @property {UiLockSignals} signals - The signals that triggered the lock state
- */
-
-/**
  * BrowserUiLock feature detects CSS signals indicating that a page manages
  * its own touch interactions (maps, games, drawing tools) and notifies the
  * native app to lock browser UI gestures (pull-to-refresh, omnibar, tab swipe).
@@ -66,7 +54,7 @@ export default class BrowserUiLock extends ContentFeature {
      */
     update() {
         // Reset to unlocked on navigation and re-evaluate
-        this.#notifyIfChanged(false, { overscrollBehavior: '', overflow: '' });
+        this.#notifyIfChanged(false);
         this.#scheduleEvaluation();
         this.#scheduleDelayedCheck();
     }
@@ -145,22 +133,15 @@ export default class BrowserUiLock extends ContentFeature {
      * Evaluate CSS signals and determine lock state
      */
     #evaluateLockState() {
-        const signals = this.#detectSignals();
-        const shouldLock = this.#shouldLock(signals);
-
-        this.#notifyIfChanged(shouldLock, signals);
+        const shouldLock = this.#detectShouldLock();
+        this.#notifyIfChanged(shouldLock);
     }
 
     /**
-     * Detect CSS signals from html and body elements
-     * @returns {UiLockSignals}
+     * Detect CSS signals from html and body elements and determine if should lock
+     * @returns {boolean}
      */
-    #detectSignals() {
-        const signals = {
-            overscrollBehavior: '',
-            overflow: '',
-        };
-
+    #detectShouldLock() {
         try {
             const htmlStyle = document.documentElement ? getComputedStyle(document.documentElement) : null;
             const bodyStyle = document.body ? getComputedStyle(document.body) : null;
@@ -168,22 +149,26 @@ export default class BrowserUiLock extends ContentFeature {
             // Check overscroll-behavior on both html and body
             const htmlOverscroll = htmlStyle?.getPropertyValue('overscroll-behavior-y') || htmlStyle?.getPropertyValue('overscroll-behavior') || '';
             const bodyOverscroll = bodyStyle?.getPropertyValue('overscroll-behavior-y') || bodyStyle?.getPropertyValue('overscroll-behavior') || '';
-
-            // Use the most restrictive value (none > contain > auto)
-            signals.overscrollBehavior = this.#getMostRestrictiveOverscroll(htmlOverscroll, bodyOverscroll);
+            const overscrollBehavior = this.#getMostRestrictiveOverscroll(htmlOverscroll, bodyOverscroll);
 
             // Check overflow on both html and body
             const htmlOverflow = htmlStyle?.getPropertyValue('overflow-y') || htmlStyle?.getPropertyValue('overflow') || '';
             const bodyOverflow = bodyStyle?.getPropertyValue('overflow-y') || bodyStyle?.getPropertyValue('overflow') || '';
+            const overflow = this.#getMostRestrictiveOverflow(htmlOverflow, bodyOverflow);
 
-            // Use the most restrictive value (hidden/clip > scroll/auto > visible)
-            signals.overflow = this.#getMostRestrictiveOverflow(htmlOverflow, bodyOverflow);
+            // Lock if overscroll-behavior is 'none' or 'contain'
+            const overscrollLock = overscrollBehavior === 'none' || overscrollBehavior === 'contain';
+
+            // Lock if overflow is 'hidden' or 'clip'
+            const overflowLock = overflow === 'hidden' || overflow === 'clip';
+
+            // For v1, lock if either signal indicates lock intent
+            return overscrollLock || overflowLock;
         } catch (e) {
-            // Fail open - return empty signals which won't trigger a lock
+            // Fail open - return false (unlocked) on error
             this.log.warn('Failed to detect CSS signals:', e);
+            return false;
         }
-
-        return signals;
     }
 
     /**
@@ -229,28 +214,10 @@ export default class BrowserUiLock extends ContentFeature {
     }
 
     /**
-     * Determine if UI should be locked based on signals
-     * @param {UiLockSignals} signals
-     * @returns {boolean}
-     */
-    #shouldLock(signals) {
-        // Lock if overscroll-behavior is 'none' or 'contain'
-        const overscrollLock = signals.overscrollBehavior === 'none' || signals.overscrollBehavior === 'contain';
-
-        // Lock if overflow is 'hidden' or 'clip'
-        const overflowLock = signals.overflow === 'hidden' || signals.overflow === 'clip';
-
-        // For v1, lock if either signal indicates lock intent
-        // This can be made more restrictive (require both) via config if false positives arise
-        return overscrollLock || overflowLock;
-    }
-
-    /**
      * Notify native if lock state changed
      * @param {boolean} locked
-     * @param {UiLockSignals} signals
      */
-    #notifyIfChanged(locked, signals) {
+    #notifyIfChanged(locked) {
         if (locked === this.#currentLockState) {
             return;
         }
@@ -262,13 +229,10 @@ export default class BrowserUiLock extends ContentFeature {
             this.addDebugFlag();
         }
 
-        this.messaging.notify('uiLockChanged', {
-            locked,
-            signals,
-        });
+        this.messaging.notify('uiLockChanged', { locked });
 
         if (this.shouldLog) {
-            this.log.info('UI lock state changed:', { locked, signals });
+            this.log.info('UI lock state changed:', locked);
         }
     }
 }

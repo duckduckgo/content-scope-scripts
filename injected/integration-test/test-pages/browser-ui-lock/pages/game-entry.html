@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Game Entry - Browser UI Lock</title>
+    <link rel="stylesheet" href="../../shared/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            min-height: 200vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body.game-mode {
+            height: 100vh;
+            min-height: 100vh;
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+        
+        .scroll-content {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .hero h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #e94560, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+        
+        .game-info {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px;
+        }
+        
+        .game-info h2 {
+            color: #e94560;
+            margin-top: 0;
+        }
+        
+        .features {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #e94560;
+        }
+        
+        .play-section {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 50px;
+        }
+        
+        .play-btn {
+            background: linear-gradient(45deg, #e94560, #ff6b6b);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 1.5em;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(233, 69, 96, 0.4);
+        }
+        
+        .play-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Game Mode Overlay */
+        .game-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0a0a15;
+            z-index: 1000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        body.game-mode .game-overlay {
+            display: flex;
+        }
+        
+        body.game-mode .scroll-content {
+            display: none;
+        }
+        
+        .game-canvas {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            border: 2px solid #e94560;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+            touch-action: none;
+        }
+        
+        .game-controls {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .exit-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid #e94560;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .exit-btn:hover {
+            background: #e94560;
+        }
+        
+        .status-bar {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            z-index: 1001;
+        }
+        
+        .status-bar span {
+            color: #e94560;
+            font-weight: bold;
+        }
+        
+        .scroll-hint {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+        
+        .scroll-hint::before {
+            content: "↓";
+            display: block;
+            font-size: 2em;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        UI Lock Status: <span id="lock-status">Unlocked</span>
+    </div>
+    
+    <div class="scroll-content">
+        <div class="hero">
+            <h1>🎮 Space Blaster</h1>
+            <p>The ultimate arcade experience</p>
+        </div>
+        
+        <div class="scroll-hint">Scroll down to play</div>
+        
+        <div class="game-info">
+            <h2>About the Game</h2>
+            <p>Navigate through asteroid fields, collect power-ups, and defeat enemy ships in this fast-paced action game.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <strong>🚀 Fast-paced Action</strong>
+                    <p>Quick reflexes required to survive</p>
+                </div>
+                <div class="feature">
+                    <strong>🎯 Touch Controls</strong>
+                    <p>Drag to move, tap to shoot</p>
+                </div>
+                <div class="feature">
+                    <strong>🏆 Leaderboards</strong>
+                    <p>Compete with players worldwide</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <h2>How to Play</h2>
+            <p>Use touch gestures to control your ship. The game will lock the browser UI to prevent accidental refreshes or navigation while playing.</p>
+            <p><strong>Note:</strong> When you enter game mode, pull-to-refresh and browser gestures will be disabled until you exit.</p>
+        </div>
+        
+        <div class="play-section">
+            <button class="play-btn" id="play-btn">▶ PLAY NOW</button>
+        </div>
+    </div>
+    
+    <div class="game-overlay">
+        <div class="game-canvas" id="game-canvas">
+            <span>🚀 Drag to move ship</span>
+        </div>
+        <div class="game-controls">
+            <button class="exit-btn" id="exit-btn">✕ Exit Game</button>
+        </div>
+    </div>
+
+    <script>
+        const playBtn = document.getElementById('play-btn');
+        const exitBtn = document.getElementById('exit-btn');
+        const lockStatus = document.getElementById('lock-status');
+        const gameCanvas = document.getElementById('game-canvas');
+        
+        let shipX = 150;
+        let shipY = 150;
+        
+        function enterGameMode() {
+            document.body.classList.add('game-mode');
+            lockStatus.textContent = 'Locked (Game Mode)';
+            lockStatus.style.color = '#ff6b6b';
+            updateShipPosition();
+        }
+        
+        function exitGameMode() {
+            document.body.classList.remove('game-mode');
+            lockStatus.textContent = 'Unlocked';
+            lockStatus.style.color = '#4ade80';
+        }
+        
+        function updateShipPosition() {
+            gameCanvas.innerHTML = `<span style="position:absolute;left:${shipX}px;top:${shipY}px;font-size:2em;">🚀</span>`;
+        }
+        
+        playBtn.addEventListener('click', enterGameMode);
+        exitBtn.addEventListener('click', exitGameMode);
+        
+        // Handle touch/drag in game canvas
+        let isDragging = false;
+        let startX, startY;
+        
+        gameCanvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            startX = e.touches[0].clientX - shipX;
+            startY = e.touches[0].clientY - shipY;
+        });
+        
+        gameCanvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (isDragging) {
+                const rect = gameCanvas.getBoundingClientRect();
+                shipX = Math.max(0, Math.min(280, e.touches[0].clientX - startX - rect.left));
+                shipY = Math.max(0, Math.min(280, e.touches[0].clientY - startY - rect.top));
+                updateShipPosition();
+            }
+        });
+        
+        gameCanvas.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+        
+        // Mouse support for testing
+        gameCanvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - shipX;
+            startY = e.clientY - shipY;
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging && document.body.classList.contains('game-mode')) {
+                const rect = gameCanvas.getBoundingClientRect();
+                shipX = Math.max(0, Math.min(280, e.clientX - startX - rect.left));
+                shipY = Math.max(0, Math.min(280, e.clientY - startY - rect.top));
+                updateShipPosition();
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    </script>
+</body>
+</html>
