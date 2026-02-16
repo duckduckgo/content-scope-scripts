@@ -13,16 +13,16 @@ import ContentFeature from '../content-feature';
  */
 export default class BrowserUiLock extends ContentFeature {
     /** @type {boolean} */
-    #currentLockState = false;
+    _currentLockState = false;
 
     /** @type {MutationObserver | null} */
-    #observer = null;
+    _observer = null;
 
     /** @type {number | null} */
-    #rafId = null;
+    _rafId = null;
 
     /** @type {number | null} */
-    #delayedCheckTimeout = null;
+    _delayedCheckTimeout = null;
 
     /**
      * Enable URL change listening to reset and re-evaluate on SPA navigations
@@ -37,16 +37,16 @@ export default class BrowserUiLock extends ContentFeature {
 
         // Initial evaluation on DOMContentLoaded or immediately if already loaded
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.#scheduleEvaluation(), { once: true });
+            document.addEventListener('DOMContentLoaded', () => this._scheduleEvaluation(), { once: true });
         } else {
-            this.#scheduleEvaluation();
+            this._scheduleEvaluation();
         }
 
         // Set up mutation observer for style/class changes
-        this.#setupObserver();
+        this._setupObserver();
 
         // Delayed check (300ms) to catch late SPA style changes
-        this.#scheduleDelayedCheck();
+        this._scheduleDelayedCheck();
     }
 
     /**
@@ -54,42 +54,42 @@ export default class BrowserUiLock extends ContentFeature {
      */
     urlChanged() {
         // Reset to unlocked on navigation and re-evaluate
-        this.#notifyIfChanged(false);
-        this.#scheduleEvaluation();
-        this.#scheduleDelayedCheck();
+        this._notifyIfChanged(false);
+        this._scheduleEvaluation();
+        this._scheduleDelayedCheck();
     }
 
     /**
      * Set up MutationObserver to watch for style/class attribute changes
      * and stylesheet additions.
      */
-    #setupObserver() {
-        if (this.#observer) {
-            this.#observer.disconnect();
+    _setupObserver() {
+        if (this._observer) {
+            this._observer.disconnect();
         }
 
-        this.#observer = new MutationObserver(() => {
-            this.#scheduleEvaluation();
+        this._observer = new MutationObserver(() => {
+            this._scheduleEvaluation();
         });
 
         // Start observing when DOM is ready
         const startObserving = () => {
             if (document.documentElement) {
-                this.#observer?.observe(document.documentElement, {
+                this._observer?.observe(document.documentElement, {
                     attributes: true,
                     attributeFilter: ['style', 'class'],
                 });
             }
 
             if (document.body) {
-                this.#observer?.observe(document.body, {
+                this._observer?.observe(document.body, {
                     attributes: true,
                     attributeFilter: ['style', 'class'],
                 });
             }
 
             if (document.head) {
-                this.#observer?.observe(document.head, {
+                this._observer?.observe(document.head, {
                     childList: true,
                     subtree: true,
                 });
@@ -106,55 +106,57 @@ export default class BrowserUiLock extends ContentFeature {
     /**
      * Schedule a delayed check to catch late style changes
      */
-    #scheduleDelayedCheck() {
-        if (this.#delayedCheckTimeout) {
-            clearTimeout(this.#delayedCheckTimeout);
+    _scheduleDelayedCheck() {
+        if (this._delayedCheckTimeout) {
+            clearTimeout(this._delayedCheckTimeout);
         }
-        this.#delayedCheckTimeout = window.setTimeout(() => {
-            this.#evaluateLockState();
+        this._delayedCheckTimeout = window.setTimeout(() => {
+            this._evaluateLockState();
         }, 300);
     }
 
     /**
      * Schedule evaluation using requestAnimationFrame to debounce
      */
-    #scheduleEvaluation() {
-        if (this.#rafId !== null) {
+    _scheduleEvaluation() {
+        if (this._rafId !== null) {
             return;
         }
 
-        this.#rafId = requestAnimationFrame(() => {
-            this.#rafId = null;
-            this.#evaluateLockState();
+        this._rafId = requestAnimationFrame(() => {
+            this._rafId = null;
+            this._evaluateLockState();
         });
     }
 
     /**
      * Evaluate CSS signals and determine lock state
      */
-    #evaluateLockState() {
-        const shouldLock = this.#detectShouldLock();
-        this.#notifyIfChanged(shouldLock);
+    _evaluateLockState() {
+        const shouldLock = this._detectShouldLock();
+        this._notifyIfChanged(shouldLock);
     }
 
     /**
      * Detect CSS signals from html and body elements and determine if should lock
      * @returns {boolean}
      */
-    #detectShouldLock() {
+    _detectShouldLock() {
         try {
             const htmlStyle = document.documentElement ? getComputedStyle(document.documentElement) : null;
             const bodyStyle = document.body ? getComputedStyle(document.body) : null;
 
             // Check overscroll-behavior on both html and body
-            const htmlOverscroll = htmlStyle?.getPropertyValue('overscroll-behavior-y') || htmlStyle?.getPropertyValue('overscroll-behavior') || '';
-            const bodyOverscroll = bodyStyle?.getPropertyValue('overscroll-behavior-y') || bodyStyle?.getPropertyValue('overscroll-behavior') || '';
-            const overscrollBehavior = this.#getMostRestrictiveOverscroll(htmlOverscroll, bodyOverscroll);
+            const htmlOverscroll =
+                htmlStyle?.getPropertyValue('overscroll-behavior-y') || htmlStyle?.getPropertyValue('overscroll-behavior') || '';
+            const bodyOverscroll =
+                bodyStyle?.getPropertyValue('overscroll-behavior-y') || bodyStyle?.getPropertyValue('overscroll-behavior') || '';
+            const overscrollBehavior = this._getMostRestrictiveOverscroll(htmlOverscroll, bodyOverscroll);
 
             // Check overflow on both html and body
             const htmlOverflow = htmlStyle?.getPropertyValue('overflow-y') || htmlStyle?.getPropertyValue('overflow') || '';
             const bodyOverflow = bodyStyle?.getPropertyValue('overflow-y') || bodyStyle?.getPropertyValue('overflow') || '';
-            const overflow = this.#getMostRestrictiveOverflow(htmlOverflow, bodyOverflow);
+            const overflow = this._getMostRestrictiveOverflow(htmlOverflow, bodyOverflow);
 
             // Lock if overscroll-behavior is 'none' or 'contain'
             const overscrollLock = overscrollBehavior === 'none' || overscrollBehavior === 'contain';
@@ -177,7 +179,7 @@ export default class BrowserUiLock extends ContentFeature {
      * @param {string} value2
      * @returns {string}
      */
-    #getMostRestrictiveOverscroll(value1, value2) {
+    _getMostRestrictiveOverscroll(value1, value2) {
         const priority = ['none', 'contain', 'auto'];
         const v1 = value1.trim().split(' ')[0]; // Handle shorthand
         const v2 = value2.trim().split(' ')[0];
@@ -198,7 +200,7 @@ export default class BrowserUiLock extends ContentFeature {
      * @param {string} value2
      * @returns {string}
      */
-    #getMostRestrictiveOverflow(value1, value2) {
+    _getMostRestrictiveOverflow(value1, value2) {
         const priority = ['hidden', 'clip', 'scroll', 'auto', 'visible'];
         const v1 = value1.trim().split(' ')[0];
         const v2 = value2.trim().split(' ')[0];
@@ -217,12 +219,12 @@ export default class BrowserUiLock extends ContentFeature {
      * Notify native if lock state changed
      * @param {boolean} locked
      */
-    #notifyIfChanged(locked) {
-        if (locked === this.#currentLockState) {
+    _notifyIfChanged(locked) {
+        if (locked === this._currentLockState) {
             return;
         }
 
-        this.#currentLockState = locked;
+        this._currentLockState = locked;
 
         // Add debug flag when locked to surface in breakage reports
         if (locked) {
