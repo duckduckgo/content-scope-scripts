@@ -1,4 +1,14 @@
 /**
+ * Gets the owner document of an element or uses document as fallback
+ *
+ * @param {Node|Element} element
+ * @return {Document} The owner document
+ */
+function getOwnerDocument(element) {
+    return element.ownerDocument || document;
+}
+
+/**
  * Get a single element.
  *
  * @param {Node} doc
@@ -75,7 +85,8 @@ export function getElementMatches(element, selector) {
  * @return {boolean}
  */
 function matchesXPath(element, selector) {
-    const xpathResult = document.evaluate(selector, element, null, XPathResult.BOOLEAN_TYPE, null);
+    const ownerDoc = getOwnerDocument(element);
+    const xpathResult = ownerDoc.evaluate(selector, element, null, XPathResult.BOOLEAN_TYPE, null);
 
     return xpathResult.booleanValue;
 }
@@ -131,7 +142,8 @@ function safeQuerySelector(element, selector) {
  */
 function safeQuerySelectorXPath(element, selector) {
     try {
-        const match = document.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+        const ownerDoc = getOwnerDocument(element);
+        const match = ownerDoc.evaluate(selector, element, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
         const single = match?.singleNodeValue;
         if (single) {
             return /** @type {HTMLElement} */ (single);
@@ -150,8 +162,9 @@ function safeQuerySelectorXPath(element, selector) {
  */
 function safeQuerySelectorAllXpath(element, selector) {
     try {
+        const ownerDoc = getOwnerDocument(element);
         // gets all elements matching the xpath query
-        const xpathResult = document.evaluate(selector, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+        const xpathResult = ownerDoc.evaluate(selector, element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
         if (xpathResult) {
             /** @type {HTMLElement[]} */
             const matchedNodes = [];
