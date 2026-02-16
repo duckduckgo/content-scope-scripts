@@ -174,6 +174,22 @@ Special-pages index inside docs:
 https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/docs/build/pages/index.html
 ```
 
+**Preview injected integration test pages from that build commit:**
+
+```text
+https://github.com/duckduckgo/content-scope-scripts/blob/<build-commit-hash>/injected/integration-test/test-pages/index.html
+```
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/injected/integration-test/test-pages/index.html
+```
+
+Example:
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/injected/integration-test/test-pages/webcompat/index.html
+```
+
 **Preview special pages from that build commit:**
 
 ```text

@@ -84,6 +84,10 @@ jobs:
                       const staticPagesBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/build/integration/pages`;
                       const staticPagesIndexUrl = `${staticPagesBaseUrl}/index.html`;
                       const staticPagesExampleUrl = `${staticPagesBaseUrl}/new-tab/index.html`;
+                      const injectedTestPagesSourceIndexUrl = `${repoUrl}/blob/${commitHash}/injected/integration-test/test-pages/index.html`;
+                      const injectedTestPagesBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/injected/integration-test/test-pages`;
+                      const injectedTestPagesIndexUrl = `${injectedTestPagesBaseUrl}/index.html`;
+                      const injectedTestPagesWebcompatUrl = `${injectedTestPagesBaseUrl}/webcompat/index.html`;
 
                       const lastUpdated = (new Date()).toLocaleString('en-US', {
                           dateStyle: 'long',
@@ -106,6 +110,12 @@ jobs:
                           ``,
                           `Open [docs index](${docsIndexUrl}) for the typedoc preview from this build commit.`,
                           `Built special-pages index inside docs: [docs/build/pages/index.html](${docsSpecialPagesIndexUrl})`,
+                          ``,
+                          `#### Injected integration test pages`,
+                          ``,
+                          `Source index (GitHub): [injected/integration-test/test-pages/index.html](${injectedTestPagesSourceIndexUrl})`,
+                          `Rendered index: [test pages index](${injectedTestPagesIndexUrl})`,
+                          `Example page: [webcompat/index.html](${injectedTestPagesWebcompatUrl})`,
                           ``,
                           `#### Static special-pages preview`,
                           ``,
