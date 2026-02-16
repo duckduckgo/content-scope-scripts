@@ -164,13 +164,13 @@ git -C submodules/content-scope-scripts checkout origin/pr-releases/my-feature-b
 **Preview special pages from that build commit:**
 
 ```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/build/integration/pages/<page>/index.html
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/build/integration/pages/index.html
 ```
 
-Example:
+That index page links to all built special pages. Individual pages are also available at:
 
 ```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/build/integration/pages/new-tab/index.html
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/build/integration/pages/<page>/index.html
 ```
 
 ### Breaking Changes Protocol

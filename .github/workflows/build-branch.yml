@@ -76,6 +76,7 @@ jobs:
                       const branchUrl = `${repoUrl}/tree/${buildBranch}`;
                       const commitUrl = `${repoUrl}/commit/${commitHash}`;
                       const staticPagesBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/build/integration/pages`;
+                      const staticPagesIndexUrl = `${staticPagesBaseUrl}/index.html`;
                       const staticPagesExampleUrl = `${staticPagesBaseUrl}/new-tab/index.html`;
 
                       const lastUpdated = (new Date()).toLocaleString('en-US', {
@@ -97,7 +98,9 @@ jobs:
                           ``,
                           `#### Static special-pages preview`,
                           ``,
-                          `Use this URL pattern to open any built special page from this build commit:`,
+                          `Open [special-pages index](${staticPagesIndexUrl}) to browse all built pages from this commit.`,
+                          ``,
+                          `Direct URL pattern (if needed):`,
                           '```',
                           `${staticPagesBaseUrl}/<page>/index.html`,
                           '```',
