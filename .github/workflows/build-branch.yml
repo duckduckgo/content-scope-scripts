@@ -38,7 +38,7 @@ jobs:
               run: npm run build
 
             - name: Build docs preview
-              run: npm run docs-netlify
+              run: npm run docs-preview
 
             - name: Create and push build branch
               id: create_branch

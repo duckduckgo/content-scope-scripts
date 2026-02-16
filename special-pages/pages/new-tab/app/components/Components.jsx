@@ -166,15 +166,15 @@ function TextLength() {
 function Isolate() {
     const next = new URL(url);
     next.searchParams.set('isolate', 'true');
-    const prod = new URL('/build/pages/new-tab', 'https://content-scope-scripts.netlify.app');
-    prod.search = url.search;
+    const builtPage = new URL('/build/integration/pages/new-tab', window.location.origin);
+    builtPage.search = url.search;
     return (
         <div class={styles.buttonRow}>
             <a href={next.toString()} target={'_blank'}>
                 Isolate (open in a new tab)
             </a>
-            <a href={prod.toString()} target={'_blank'}>
-                Open in Production (new tab)
+            <a href={builtPage.toString()} target={'_blank'}>
+                Open built page (new tab)
             </a>
         </div>
     );
