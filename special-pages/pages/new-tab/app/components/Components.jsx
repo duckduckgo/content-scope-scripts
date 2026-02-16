@@ -137,7 +137,6 @@ function DebugBar({ entries, id, ids }) {
             <ExampleSelector entries={entries} id={id} />
             {ids.length > 0 && <Append entries={entries} />}
             <TextLength />
-            <Isolate />
         </div>
     );
 }
@@ -159,23 +158,6 @@ function TextLength() {
             <button onClick={onClick} type="button">
                 Text Length 1.5x
             </button>
-        </div>
-    );
-}
-
-function Isolate() {
-    const next = new URL(url);
-    next.searchParams.set('isolate', 'true');
-    const builtPage = new URL('/build/integration/pages/new-tab', window.location.origin);
-    builtPage.search = url.search;
-    return (
-        <div class={styles.buttonRow}>
-            <a href={next.toString()} target={'_blank'}>
-                Isolate (open in a new tab)
-            </a>
-            <a href={builtPage.toString()} target={'_blank'}>
-                Open built page (new tab)
-            </a>
         </div>
     );
 }
