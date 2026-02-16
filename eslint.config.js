@@ -67,7 +67,7 @@ export default tseslint.config(
         languageOptions: {
             parserOptions: {
                 projectService: {
-                    allowDefaultProject: ['eslint.config.js', 'build-output.eslint.config.js'],
+                    allowDefaultProject: ['eslint.config.js', 'build-output.eslint.config.js', 'scripts/check-lockfile.mjs'],
                 },
             },
         },
