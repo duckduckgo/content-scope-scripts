@@ -81,9 +81,11 @@ jobs:
                       const docsBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/docs`;
                       const docsIndexUrl = `${docsBaseUrl}/index.html`;
                       const docsSpecialPagesIndexUrl = `${docsBaseUrl}/build/pages/index.html`;
+                      const docsNewTabDemoUrl = `${docsBaseUrl}/build/pages/new-tab/index.html`;
+                      const docsNewTabPageDocUrl = `${docsBaseUrl}/documents/New_Tab_Page.html`;
                       const staticPagesBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/build/integration/pages`;
                       const staticPagesIndexUrl = `${staticPagesBaseUrl}/index.html`;
-                      const staticPagesExampleUrl = `${staticPagesBaseUrl}/new-tab/index.html`;
+                      const staticPagesNewTabDemoUrl = `${staticPagesBaseUrl}/new-tab/index.html`;
                       const injectedTestPagesSourceIndexUrl = `${repoUrl}/blob/${commitHash}/injected/integration-test/test-pages/index.html`;
                       const injectedTestPagesBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/injected/integration-test/test-pages`;
                       const injectedTestPagesIndexUrl = `${injectedTestPagesBaseUrl}/index.html`;
@@ -111,6 +113,12 @@ jobs:
                           `Open [docs index](${docsIndexUrl}) for the typedoc preview from this build commit.`,
                           `Built special-pages index inside docs: [docs/build/pages/index.html](${docsSpecialPagesIndexUrl})`,
                           ``,
+                          `#### New Tab demos`,
+                          ``,
+                          `Standalone new-tab demo: [build/integration/pages/new-tab/index.html](${staticPagesNewTabDemoUrl})`,
+                          `Docs-bundled new-tab demo: [docs/build/pages/new-tab/index.html](${docsNewTabDemoUrl})`,
+                          `New Tab docs page: [docs/documents/New_Tab_Page.html](${docsNewTabPageDocUrl})`,
+                          ``,
                           `#### Injected integration test pages`,
                           ``,
                           `Source index (GitHub): [injected/integration-test/test-pages/index.html](${injectedTestPagesSourceIndexUrl})`,
@@ -125,7 +133,7 @@ jobs:
                           '```',
                           `${staticPagesBaseUrl}/<page>/index.html`,
                           '```',
-                          `Example: [new-tab](${staticPagesExampleUrl})`,
+                          `Example: [new-tab](${staticPagesNewTabDemoUrl})`,
                           ``,
                           `#### Integration commands`,
                           ``,

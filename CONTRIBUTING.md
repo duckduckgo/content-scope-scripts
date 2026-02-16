@@ -174,6 +174,20 @@ Special-pages index inside docs:
 https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/docs/build/pages/index.html
 ```
 
+New Tab demo and docs links:
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/build/integration/pages/new-tab/index.html
+```
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/docs/build/pages/new-tab/index.html
+```
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/docs/documents/New_Tab_Page.html
+```
+
 **Preview injected integration test pages from that build commit:**
 
 ```text
