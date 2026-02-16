@@ -6,9 +6,16 @@
  * Note: If you wish to support Catalina then you'll need to implement the native
  * part of the message handling, see {@link WebkitMessagingTransport} for details.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MessagingTransport, MissingHandler } from '../index.js';
+import { MissingHandler } from '../core.js';
 import { isResponseFor, isSubscriptionEventFor } from '../schema.js';
+
+/**
+ * @typedef {import('../core.js').MessagingTransport} MessagingTransport
+ * @typedef {import('../core.js').MessagingContext} MessagingContext
+ * @typedef {import('../schema.js').RequestMessage} RequestMessage
+ * @typedef {import('../schema.js').NotificationMessage} NotificationMessage
+ * @typedef {import('../schema.js').Subscription} Subscription
+ */
 
 /**
  * @example
@@ -353,6 +360,15 @@ export class WebkitMessagingConfig {
          * messages.
          */
         this.secret = params.secret;
+    }
+
+    /**
+     * @param {MessagingContext} messagingContext
+     * @returns {MessagingTransport}
+     * @internal
+     */
+    createTransport(messagingContext) {
+        return new WebkitMessagingTransport(this, messagingContext);
     }
 }
 
