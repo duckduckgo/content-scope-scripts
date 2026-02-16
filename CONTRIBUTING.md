@@ -140,7 +140,9 @@ When you push to any branch (except `main`, `releases`, or `pr-releases/*`), the
 
 1. Builds all workspaces (`npm run build`)
 2. Pushes the source + build artifacts to `pr-releases/<your-branch-name>`
-3. If an open PR exists for the branch, updates the PR description and posts a comment with integration commands for each platform
+3. If an open PR exists for the branch, updates the PR description and posts a comment with:
+   - Static preview entry points (docs, static pages, integration pages)
+   - Integration commands for each platform
 
 The build branch is created on the first push and updated on every subsequent push. It's deleted automatically when the source branch is deleted.
 
@@ -157,6 +159,22 @@ npm i github:duckduckgo/content-scope-scripts#pr-releases/my-feature-branch
 # Windows (git submodule)
 git -C submodules/content-scope-scripts fetch origin pr-releases/my-feature-branch
 git -C submodules/content-scope-scripts checkout origin/pr-releases/my-feature-branch
+```
+
+Use `<build-commit-hash>` from the PR build comment for cache-safe preview links.
+
+**Static preview entry points for that build commit:**
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/docs/index.html
+```
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/injected/integration-test/test-pages/index.html
+```
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/build/integration/pages/index.html
 ```
 
 ### Breaking Changes Protocol

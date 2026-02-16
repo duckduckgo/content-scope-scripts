@@ -37,6 +37,9 @@ jobs:
             - name: Run build
               run: npm run build
 
+            - name: Build docs preview
+              run: npm run docs-preview
+
             - name: Create and push build branch
               id: create_branch
               env:
@@ -53,7 +56,7 @@ jobs:
                   BUILD_BRANCH="pr-releases/${SOURCE_BRANCH}"
 
                   git checkout -b "${BUILD_BRANCH}"
-                  git add -f build Sources/ContentScopeScripts/dist
+                  git add -f build Sources/ContentScopeScripts/dist docs
                   git commit -m "Build artifacts for ${SOURCE_BRANCH}"
                   git push -u origin "${BUILD_BRANCH}" --force
 
@@ -75,6 +78,14 @@ jobs:
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
                       const branchUrl = `${repoUrl}/tree/${buildBranch}`;
                       const commitUrl = `${repoUrl}/commit/${commitHash}`;
+                      const previewBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}`;
+                      const docsIndexUrl = `${previewBaseUrl}/docs/index.html`;
+                      const staticPagesIndexUrl = `${previewBaseUrl}/build/integration/pages/index.html`;
+                      const integrationPagesIndexUrl = `${previewBaseUrl}/injected/integration-test/test-pages/index.html`;
+                      const qrUrl = (targetUrl) => `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(targetUrl)}`;
+                      const docsQrUrl = qrUrl(docsIndexUrl);
+                      const staticPagesQrUrl = qrUrl(staticPagesIndexUrl);
+                      const integrationPagesQrUrl = qrUrl(integrationPagesIndexUrl);
 
                       const lastUpdated = (new Date()).toLocaleString('en-US', {
                           dateStyle: 'long',
@@ -92,6 +103,23 @@ jobs:
                           `| **Branch** | [\`${buildBranch}\`](${branchUrl}) |`,
                           `| **Commit** | [\`${commitHash.slice(0, 10)}\`](${commitUrl}) |`,
                           `| **Updated** | ${lastUpdated} |`,
+                          ``,
+                          `#### Static preview entry points`,
+                          ``,
+                          `- Docs: [docs/index.html](${docsIndexUrl})`,
+                          `- Static pages: [build/integration/pages/index.html](${staticPagesIndexUrl})`,
+                          `- Integration pages: [injected/integration-test/test-pages/index.html](${integrationPagesIndexUrl})`,
+                          ``,
+                          `<details>`,
+                          `<summary>QR codes (mobile preview)</summary>`,
+                          ``,
+                          `| Entry point | QR code |`,
+                          `|---|---|`,
+                          `| [Docs](${docsIndexUrl}) | ![QR for docs preview](${docsQrUrl}) |`,
+                          `| [Static pages](${staticPagesIndexUrl}) | ![QR for static pages preview](${staticPagesQrUrl}) |`,
+                          `| [Integration pages](${integrationPagesIndexUrl}) | ![QR for integration pages preview](${integrationPagesQrUrl}) |`,
+                          ``,
+                          `</details>`,
                           ``,
                           `#### Integration commands`,
                           ``,
