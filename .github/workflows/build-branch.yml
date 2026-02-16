@@ -78,7 +78,7 @@ jobs:
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
                       const branchUrl = `${repoUrl}/tree/${buildBranch}`;
                       const commitUrl = `${repoUrl}/commit/${commitHash}`;
-                      const previewBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${buildBranch}`;
+                      const previewBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}`;
                       const docsIndexUrl = `${previewBaseUrl}/docs/index.html`;
                       const staticPagesIndexUrl = `${previewBaseUrl}/build/integration/pages/index.html`;
                       const integrationPagesIndexUrl = `${previewBaseUrl}/injected/integration-test/test-pages/index.html`;

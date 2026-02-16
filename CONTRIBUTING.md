@@ -161,20 +161,20 @@ git -C submodules/content-scope-scripts fetch origin pr-releases/my-feature-bran
 git -C submodules/content-scope-scripts checkout origin/pr-releases/my-feature-branch
 ```
 
-Use `<pr-releases-branch>` for branch-based preview links (example: `pr-releases/my-feature-branch`).
+Use `<build-commit-hash>` from the PR build comment for cache-safe preview links.
 
-**Static preview entry points for that build branch:**
+**Static preview entry points for that build commit:**
 
 ```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/docs/index.html
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/docs/index.html
 ```
 
 ```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/injected/integration-test/test-pages/index.html
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/injected/integration-test/test-pages/index.html
 ```
 
 ```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/build/integration/pages/index.html
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/build/integration/pages/index.html
 ```
 
 ### Breaking Changes Protocol
