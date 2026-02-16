@@ -37,6 +37,9 @@ jobs:
             - name: Run build
               run: npm run build
 
+            - name: Build docs preview
+              run: npm run docs-netlify
+
             - name: Create and push build branch
               id: create_branch
               env:
@@ -53,7 +56,7 @@ jobs:
                   BUILD_BRANCH="pr-releases/${SOURCE_BRANCH}"
 
                   git checkout -b "${BUILD_BRANCH}"
-                  git add -f build Sources/ContentScopeScripts/dist
+                  git add -f build Sources/ContentScopeScripts/dist docs
                   git commit -m "Build artifacts for ${SOURCE_BRANCH}"
                   git push -u origin "${BUILD_BRANCH}" --force
 
@@ -75,6 +78,9 @@ jobs:
                       const repoUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
                       const branchUrl = `${repoUrl}/tree/${buildBranch}`;
                       const commitUrl = `${repoUrl}/commit/${commitHash}`;
+                      const docsBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/docs`;
+                      const docsIndexUrl = `${docsBaseUrl}/index.html`;
+                      const docsSpecialPagesIndexUrl = `${docsBaseUrl}/build/pages/index.html`;
                       const staticPagesBaseUrl = `https://rawcdn.githack.com/${context.repo.owner}/${context.repo.repo}/${commitHash}/build/integration/pages`;
                       const staticPagesIndexUrl = `${staticPagesBaseUrl}/index.html`;
                       const staticPagesExampleUrl = `${staticPagesBaseUrl}/new-tab/index.html`;
@@ -95,6 +101,11 @@ jobs:
                           `| **Branch** | [\`${buildBranch}\`](${branchUrl}) |`,
                           `| **Commit** | [\`${commitHash.slice(0, 10)}\`](${commitUrl}) |`,
                           `| **Updated** | ${lastUpdated} |`,
+                          ``,
+                          `#### Static docs preview`,
+                          ``,
+                          `Open [docs index](${docsIndexUrl}) for the typedoc preview from this build commit.`,
+                          `Built special-pages index inside docs: [docs/build/pages/index.html](${docsSpecialPagesIndexUrl})`,
                           ``,
                           `#### Static special-pages preview`,
                           ``,

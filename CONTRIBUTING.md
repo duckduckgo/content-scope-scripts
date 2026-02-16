@@ -142,6 +142,7 @@ When you push to any branch (except `main`, `releases`, or `pr-releases/*`), the
 2. Pushes the source + build artifacts to `pr-releases/<your-branch-name>`
 3. If an open PR exists for the branch, updates the PR description and posts a comment with:
    - Integration commands for each platform
+   - Commit-pinned docs preview URL
    - Static special-pages preview URL pattern (commit-pinned)
 
 The build branch is created on the first push and updated on every subsequent push. It's deleted automatically when the source branch is deleted.
@@ -159,6 +160,18 @@ npm i github:duckduckgo/content-scope-scripts#pr-releases/my-feature-branch
 # Windows (git submodule)
 git -C submodules/content-scope-scripts fetch origin pr-releases/my-feature-branch
 git -C submodules/content-scope-scripts checkout origin/pr-releases/my-feature-branch
+```
+
+**Preview docs from that build commit:**
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/docs/index.html
+```
+
+Special-pages index inside docs:
+
+```text
+https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<build-commit-hash>/docs/build/pages/index.html
 ```
 
 **Preview special pages from that build commit:**
