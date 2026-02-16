@@ -64,6 +64,7 @@ export const platformSupport = {
     'apple-ai-history': ['duckAiChatHistory'],
     android: [...baseFeatures, 'webCompat', 'webInterferenceDetection', 'breakageReporting', 'duckPlayer', 'messageBridge', 'pageContext', 'browserUiLock'],
     'android-broker-protection': ['brokerProtection'],
+    'android-ai-history': ['duckAiChatHistory'],
     'android-autofill-import': ['autofillImport'],
     'android-adsjs': [
         'apiManipulation',

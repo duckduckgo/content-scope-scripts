@@ -52,7 +52,7 @@ export default class BrowserUiLock extends ContentFeature {
     /**
      * Called when URL changes (SPA navigation)
      */
-    update() {
+    urlChanged() {
         // Reset to unlocked on navigation and re-evaluate
         this.#notifyIfChanged(false);
         this.#scheduleEvaluation();
