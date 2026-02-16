@@ -141,9 +141,8 @@ When you push to any branch (except `main`, `releases`, or `pr-releases/*`), the
 1. Builds all workspaces (`npm run build`)
 2. Pushes the source + build artifacts to `pr-releases/<your-branch-name>`
 3. If an open PR exists for the branch, updates the PR description and posts a comment with:
+   - Static preview entry points (docs, static pages, integration pages)
    - Integration commands for each platform
-   - Branch-based docs preview URL
-   - Branch-based special-pages preview URL pattern
 
 The build branch is created on the first push and updated on every subsequent push. It's deleted automatically when the source branch is deleted.
 
@@ -164,58 +163,18 @@ git -C submodules/content-scope-scripts checkout origin/pr-releases/my-feature-b
 
 Use `<pr-releases-branch>` for branch-based preview links (example: `pr-releases/my-feature-branch`).
 
-**Preview docs from that build branch:**
+**Static preview entry points for that build branch:**
 
 ```text
 https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/docs/index.html
-```
-
-Special-pages index inside docs:
-
-```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/docs/build/pages/index.html
-```
-
-New Tab demo and docs links:
-
-```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/build/integration/pages/new-tab/index.html
-```
-
-```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/docs/build/pages/new-tab/index.html
-```
-
-```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/docs/documents/New_Tab_Page.html
-```
-
-**Preview injected integration test pages from that build branch:**
-
-```text
-https://github.com/duckduckgo/content-scope-scripts/blob/<pr-releases-branch>/injected/integration-test/test-pages/index.html
 ```
 
 ```text
 https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/injected/integration-test/test-pages/index.html
 ```
 
-Example:
-
-```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/injected/integration-test/test-pages/webcompat/index.html
-```
-
-**Preview special pages from that build branch:**
-
 ```text
 https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/build/integration/pages/index.html
-```
-
-That index page links to all built special pages. Individual pages are also available at:
-
-```text
-https://rawcdn.githack.com/duckduckgo/content-scope-scripts/<pr-releases-branch>/build/integration/pages/<page>/index.html
 ```
 
 ### Breaking Changes Protocol
