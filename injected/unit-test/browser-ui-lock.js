@@ -113,9 +113,19 @@ describe('BrowserUiLock', () => {
     });
 
     describe('iframe handling', () => {
-        it('should only run in top frame', () => {
-            const isTopFrame = globalThis.self === globalThis.top;
-            expect(isTopFrame).toBe(true);
+        it('should respect top-frame check in init', () => {
+            const feature = createFeature();
+            spyOn(feature, '_setupObserver');
+            spyOn(feature, '_scheduleEvaluation');
+            spyOn(feature, '_scheduleDelayedCheck');
+            feature.init();
+
+            if (window.self === window.top) {
+                expect(feature._setupObserver).toHaveBeenCalled();
+            } else {
+                expect(feature._setupObserver).not.toHaveBeenCalled();
+                expect(feature._scheduleEvaluation).not.toHaveBeenCalled();
+            }
         });
     });
 });
