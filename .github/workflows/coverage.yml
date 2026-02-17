@@ -60,8 +60,20 @@ jobs:
             - run: npm ci
             - name: Build with source maps
               run: C_S_S_SOURCEMAPS=1 npm run build -w injected
-            - name: Install Playwright Browsers
-              run: npx playwright install --with-deps chromium
+            - name: Get Playwright version
+              id: playwright-version
+              run: echo "version=$(npx playwright --version)" >> $GITHUB_OUTPUT
+            - name: Cache Playwright browsers
+              id: playwright-cache
+              uses: actions/cache@v5
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+            - name: Install Playwright browsers
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
+              run: npx playwright install chromium
+            - name: Install Playwright system dependencies
+              run: npx playwright install-deps chromium
             - name: Run integration tests with coverage
               run: xvfb-run --server-args='-screen 0 1024x768x24' npm run coverage-int -w injected
             - name: Upload coverage artifacts
