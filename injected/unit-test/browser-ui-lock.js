@@ -114,7 +114,7 @@ describe('BrowserUiLock', () => {
 
     describe('iframe handling', () => {
         it('should only run in top frame', () => {
-            const isTopFrame = window.self === window.top;
+            const isTopFrame = globalThis.self === globalThis.top;
             expect(isTopFrame).toBe(true);
         });
     });
