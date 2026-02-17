@@ -72,12 +72,12 @@ jobs:
             matrix:
                 include:
                     - group: chromium
-                      # windows=Desktop Edge, integration=Desktop Chrome, android/android-landscape=Galaxy S III
-                      projects: --project windows --project integration --project android --project android-landscape
+                      # windows=Desktop Edge, integration=Desktop Chrome
+                      projects: --project windows --project integration
                     - group: webkit
                       browser: webkit
-                      # macos=Desktop Safari, ios=iPhone 14
-                      projects: --project macos --project ios
+                      # macos=Desktop Safari, ios=iPhone 14, android/android-landscape=Galaxy S III (webkit)
+                      projects: --project macos --project ios --project android --project android-landscape
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
