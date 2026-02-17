@@ -106,3 +106,15 @@ jobs:
                   name: coverage-merged-report
                   path: injected/coverage/
                   retention-days: 30
+            - name: Upload unit HTML coverage report
+              uses: actions/upload-artifact@v6
+              with:
+                  name: html-coverage-unit
+                  path: injected/coverage/unit/
+                  retention-days: 30
+            - name: Upload integration HTML coverage report
+              uses: actions/upload-artifact@v6
+              with:
+                  name: html-coverage-integration
+                  path: injected/coverage/integration-report/
+                  retention-days: 30

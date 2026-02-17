@@ -3513,10 +3513,13 @@ body:not([data-platform-name]) .Button_button:active:not(:disabled) {
   top: calc(12 * var(--px-in-rem));
   left: 0;
   right: 0;
+  bottom: 0;
   z-index: 1;
   pointer-events: none;
   transform: scale(0.97);
   opacity: 0.85;
+  overflow: hidden;
+  animation: none;
 }
 [data-theme=dark] .NextStepsListCard_card.NextStepsListCard_backCard {
   opacity: 0.7;

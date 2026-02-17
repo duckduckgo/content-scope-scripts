@@ -34567,9 +34567,9 @@
       activity: [
         {
           favicon: { src: "selco-icon.png" },
-          url: "https://deploy-preview-1468--content-scope-scripts.netlify.app",
-          title: "deploy-preview-1468--content-scope-scripts.netlify.app",
-          etldPlusOne: "deploy-preview-1468--content-scope-scripts.netlify.app",
+          url: "https://really-long-subdomain-for-testing-long-titles.example.com",
+          title: "really-long-subdomain-for-testing-long-titles.example.com",
+          etldPlusOne: "really-long-subdomain-for-testing-long-titles.example.com",
           favorite: false,
           trackersFound: false,
           trackingStatus: {
@@ -35558,7 +35558,7 @@
     }));
   }
   function DebugBar({ entries: entries4, id, ids }) {
-    return /* @__PURE__ */ _("div", { class: Components_default.debugBar, "data-testid": "selector" }, /* @__PURE__ */ _(ExampleSelector, { entries: entries4, id }), ids.length > 0 && /* @__PURE__ */ _(Append, { entries: entries4 }), /* @__PURE__ */ _(TextLength, null), /* @__PURE__ */ _(Isolate, null));
+    return /* @__PURE__ */ _("div", { class: Components_default.debugBar, "data-testid": "selector" }, /* @__PURE__ */ _(ExampleSelector, { entries: entries4, id }), ids.length > 0 && /* @__PURE__ */ _(Append, { entries: entries4 }), /* @__PURE__ */ _(TextLength, null));
   }
   function TextLength() {
     function onClick() {
@@ -35570,13 +35570,6 @@
       window.location.href = url3.toString();
     }
     return /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("button", { onClick: onReset, type: "button" }, "Text Length 1x"), /* @__PURE__ */ _("button", { onClick, type: "button" }, "Text Length 1.5x"));
-  }
-  function Isolate() {
-    const next = new URL(url3);
-    next.searchParams.set("isolate", "true");
-    const prod = new URL("/build/pages/new-tab", "https://content-scope-scripts.netlify.app");
-    prod.search = url3.search;
-    return /* @__PURE__ */ _("div", { class: Components_default.buttonRow }, /* @__PURE__ */ _("a", { href: next.toString(), target: "_blank" }, "Isolate (open in a new tab)"), /* @__PURE__ */ _("a", { href: prod.toString(), target: "_blank" }, "Open in Production (new tab)"));
   }
   function ExampleSelector({ entries: entries4, id }) {
     function onReset() {
