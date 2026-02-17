@@ -66,7 +66,7 @@ jobs:
     integration-tests-special-pages:
         name: Integration tests (special-pages, ubuntu-latest)
         runs-on: ubuntu-latest
-        timeout-minutes: 15
+        timeout-minutes: 20
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
@@ -81,10 +81,10 @@ jobs:
                       ${{ runner.os }}-node-
             - name: Install dependencies
               run: |
-                  npm install
+                  npm ci
                   npm run build
             - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
+              run: npx playwright install --with-deps chromium webkit
             - run: npm run test-int-x -w special-pages
             - uses: actions/upload-artifact@v6
               if: always()
@@ -96,19 +96,27 @@ jobs:
     integration-tests:
         name: Integration tests (injected/${{ matrix.project }}, ubuntu-latest)
         runs-on: ubuntu-latest
-        timeout-minutes: 15
+        timeout-minutes: 20
         strategy:
             fail-fast: false
             matrix:
-                project:
-                    - windows
-                    - apple-isolated
-                    - apple
-                    - ios
-                    - android
-                    - android-autofill-import
-                    - chrome-mv3
-                    - firefox
+                include:
+                    - project: windows
+                      playwright_browsers: chromium
+                    - project: apple-isolated
+                      playwright_browsers: chromium
+                    - project: apple
+                      playwright_browsers: chromium
+                    - project: ios
+                      playwright_browsers: webkit
+                    - project: android
+                      playwright_browsers: chromium
+                    - project: android-autofill-import
+                      playwright_browsers: chromium
+                    - project: chrome-mv3
+                      playwright_browsers: chromium
+                    - project: firefox
+                      playwright_browsers: firefox
         steps:
             - uses: actions/checkout@v6
             - name: Use Node.js
@@ -123,10 +131,10 @@ jobs:
                       ${{ runner.os }}-node-
             - name: Install dependencies
               run: |
-                  npm install
+                  npm ci
                   npm run build
             - name: Install Playwright Browsers
-              run: npx playwright install --with-deps
+              run: npx playwright install --with-deps ${{ matrix.playwright_browsers }}
             - name: Run integration tests
               run: xvfb-run --server-args='-screen 0 1024x768x24' npx playwright test --project ${{ matrix.project }} --grep-invert '@screenshots' --reporter list
               working-directory: injected
