@@ -102,19 +102,14 @@ jobs:
             matrix:
                 include:
                     - project: windows
-                      browser: chromium
                     - project: apple-isolated
-                      browser: chromium
+                    # apple runs in Chromium (Playwright default) - no device preset is set in playwright.config.js
                     - project: apple
-                      browser: chromium
                     - project: ios
                       browser: webkit
                     - project: android
-                      browser: chromium
                     - project: android-autofill-import
-                      browser: chromium
                     - project: chrome-mv3
-                      browser: chromium
                     - project: firefox
                       browser: firefox
         steps:
@@ -134,7 +129,7 @@ jobs:
                   npm install
                   npm run build
             - name: Install Playwright Browsers
-              run: npx playwright install --with-deps ${{ matrix.browser }}
+              run: npx playwright install --with-deps ${{ matrix.browser || 'chromium' }}
             - name: Run integration tests
               run: xvfb-run --server-args='-screen 0 1024x768x24' npx playwright test --project ${{ matrix.project }} --grep-invert '@screenshots' --reporter list
               working-directory: injected
