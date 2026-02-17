@@ -113,6 +113,30 @@ describe('BrowserUiLock', () => {
     });
 
     describe('iframe handling', () => {
+        /** @type {() => void} */
+        let restoreGlobals;
+
+        beforeEach(() => {
+            // init() accesses window.self, window.top, and document.readyState;
+            // provide minimal browser-like globals for the Node test environment.
+            const added = /** @type {string[]} */ ([]);
+            for (const key of ['window', 'self', 'top', 'document']) {
+                if (!(key in globalThis)) added.push(key);
+            }
+            globalThis.window ??= globalThis;
+            globalThis.self ??= globalThis;
+            globalThis.top ??= globalThis;
+            globalThis.document ??= /** @type {any} */ ({ readyState: 'complete' });
+
+            restoreGlobals = () => {
+                for (const key of added) delete globalThis[key];
+            };
+        });
+
+        afterEach(() => {
+            restoreGlobals();
+        });
+
         it('should respect top-frame check in init', () => {
             const feature = createFeature();
             spyOn(feature, '_setupObserver');

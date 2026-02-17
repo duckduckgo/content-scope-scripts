@@ -34,9 +34,15 @@
         test('Page should NOT trigger UI lock (overflow: hidden alone)', async () => {
             await new Promise(resolve => setTimeout(resolve, 500));
             
+            const htmlStyle = getComputedStyle(document.documentElement);
             const bodyStyle = getComputedStyle(document.body);
             const overflow = bodyStyle.getPropertyValue('overflow');
-            const overscrollBehavior = bodyStyle.getPropertyValue('overscroll-behavior');
+            const htmlOverscroll = htmlStyle.getPropertyValue('overscroll-behavior-y') ||
+                                   htmlStyle.getPropertyValue('overscroll-behavior');
+            const bodyOverscroll = bodyStyle.getPropertyValue('overscroll-behavior-y') ||
+                                   bodyStyle.getPropertyValue('overscroll-behavior');
+            const isLockSignal = ['none', 'contain'].includes(htmlOverscroll) ||
+                                 ['none', 'contain'].includes(bodyOverscroll);
             
             return [
                 {
@@ -46,12 +52,12 @@
                 },
                 {
                     name: 'No overscroll-behavior signal present',
-                    result: overscrollBehavior === 'auto' || overscrollBehavior === '',
+                    result: htmlOverscroll === 'auto' || htmlOverscroll === '',
                     expected: true
                 },
                 {
                     name: 'Should NOT detect as lock condition',
-                    result: false,
+                    result: isLockSignal,
                     expected: false
                 }
             ];
