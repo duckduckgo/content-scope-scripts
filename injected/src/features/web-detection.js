@@ -34,9 +34,6 @@ export default class WebDetection extends ContentFeature {
     /** @type {Map<string, boolean>} */
     #matchedDetectors = new Map();
 
-    /** @type {ReturnType<typeof setTimeout>[]} */
-    #timers = [];
-
     _exposedMethods = this._declareExposedMethods(['runDetectors']);
 
     /**
@@ -91,13 +88,12 @@ export default class WebDetection extends ContentFeature {
 
         // Create one timer per unique interval
         for (const [interval, detectors] of detectorsByInterval.entries()) {
-            const timerId = setTimeout(() => {
+            setTimeout(() => {
                 // Run all detectors scheduled for this interval
                 for (const { detectorId, config } of detectors) {
                     this._runAutoDetector(detectorId, config);
                 }
             }, interval);
-            this.#timers.push(timerId);
         }
     }
 
@@ -142,16 +138,6 @@ export default class WebDetection extends ContentFeature {
                 this.log.error(`Error running auto-detector ${fullDetectorId}:`, e);
             }
         }
-    }
-
-    /**
-     * Clean up timers when feature is destroyed
-     */
-    unload() {
-        for (const timerId of this.#timers) {
-            clearTimeout(timerId);
-        }
-        this.#timers = [];
     }
 
     /**
