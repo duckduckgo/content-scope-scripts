@@ -1,0 +1,9 @@
+{
+  "features": {
+    "contextMenu": {
+      "state": "enabled",
+      "exceptions": []
+    }
+  },
+  "unprotectedTemporary": []
+}
