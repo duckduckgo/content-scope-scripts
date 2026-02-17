@@ -1,0 +1,87 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="../"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Next Steps List | @duckduckgo/content-scope-scripts</title><meta name="description" content="Documentation for @duckduckgo/content-scope-scripts"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/icons.js" id="tsd-icons-script"></script><script async src="../assets/search.js" id="tsd-search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="../index.html" class="title">@duckduckgo/content-scope-scripts</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><ul class="tsd-breadcrumb" aria-label="Breadcrumb"><li><a href="New_Tab_Page.html">New Tab Page</a></li><li><a href="" aria-current="page">Next Steps List</a></li></ul></div><div class="tsd-panel tsd-typography"><h2 id="overview" class="tsd-anchor-link">Overview<a href="#overview" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The Next Steps List widget provides an alternative UI for the Next Steps feature. It displays a single card at a time with a step indicator showing the total number of items, rather than the grid of cards shown by the regular Next Steps widget.</p>
+<p><strong>Important:</strong> This widget reuses the same message names as the <a href="New_Tab_Page.Next_Steps_Cards.html">Next Steps</a> widget to simplify native integration. Native devices can share the same message handlers for both widgets and simply include a different widget ID to control which UI is displayed.</p>
+<h2 id="behavior" class="tsd-anchor-link">Behavior<a href="#behavior" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Displays one card at a time with image, title, description, and action buttons</li>
+<li>Shows a step indicator (pill-shaped dots) below the card representing total items</li>
+<li>Unknown IDs are filtered out (only known variants are displayed)</li>
+<li>When a card is dismissed, it animates out while the next card animates in (crossfade with scale effect)</li>
+<li>If no known items remain, the widget is hidden</li>
+</ul>
+<h2 id="setup" class="tsd-anchor-link">Setup<a href="#setup" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<ul>
+<li>Widget ID: <code>nextStepsList</code></li>
+<li>Add it to the <code>widgets</code> field on <a href="New_Tab_Page.html">initialSetup</a></li>
+<li>Example:</li>
+</ul>
+<pre><code class="json"><span class="hl-3">{</span><br/><span class="hl-3">  </span><span class="hl-7">&quot;...&quot;</span><span class="hl-3">: </span><span class="hl-6">&quot;...&quot;</span><span class="hl-3">,</span><br/><span class="hl-3">  </span><span class="hl-7">&quot;widgets&quot;</span><span class="hl-3">: [</span><br/><span class="hl-3">    {</span><span class="hl-7">&quot;id&quot;</span><span class="hl-3">:  </span><span class="hl-6">&quot;nextStepsList&quot;</span><span class="hl-3">},</span><br/><span class="hl-3">    {</span><span class="hl-7">&quot;...&quot;</span><span class="hl-3">:  </span><span class="hl-6">&quot;...&quot;</span><span class="hl-3">}</span><br/><span class="hl-3">  ]</span><br/><span class="hl-3">}</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="messages" class="tsd-anchor-link">Messages<a href="#messages" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>This widget uses the <strong>same message names</strong> as the <code>nextSteps</code> widget. See the <a href="New_Tab_Page.Next_Steps_Cards.html">Next Steps documentation</a> for full details.</p>
+<h3 id="requests-reuses-nextsteps_" class="tsd-anchor-link">Requests (reuses nextSteps_*)<a href="#requests-reuses-nextsteps_" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><code>nextSteps_getData</code> - Returns <code>{content: null}</code> or <code>{content: Array&lt;{id: string}&gt;}</code></li>
+<li><code>nextSteps_getConfig</code> - Returns <code>{expansion: 'expanded' | 'collapsed'}</code></li>
+</ul>
+<h3 id="subscriptions-reuses-nextsteps_" class="tsd-anchor-link">Subscriptions (reuses nextSteps_*)<a href="#subscriptions-reuses-nextsteps_" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><code>nextSteps_onDataUpdate</code> - Data updates</li>
+<li><code>nextSteps_onConfigUpdate</code> - Config updates</li>
+</ul>
+<h3 id="notifications-reuses-nextsteps_" class="tsd-anchor-link">Notifications (reuses nextSteps_*)<a href="#notifications-reuses-nextsteps_" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li><code>nextSteps_action</code> - Sent when user clicks the primary action button</li>
+<li><code>nextSteps_dismiss</code> - Sent when user clicks &quot;Maybe Later&quot;</li>
+<li><code>nextSteps_setConfig</code> - Sent when expansion state changes</li>
+</ul>
+<h2 id="supported-item-ids" class="tsd-anchor-link">Supported Item IDs<a href="#supported-item-ids" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>The following IDs are supported for the Next Steps List:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pinAppToTaskbarWindows</code></td>
+<td>Pin to Taskbar (Windows)</td>
+</tr>
+<tr>
+<td><code>addAppToDockMac</code></td>
+<td>Add to Dock (Mac)</td>
+</tr>
+<tr>
+<td><code>personalizeBrowser</code></td>
+<td>Personalize Your Browser</td>
+</tr>
+<tr>
+<td><code>duckplayer</code></td>
+<td>Duck Player</td>
+</tr>
+<tr>
+<td><code>emailProtection</code></td>
+<td>Email Protection</td>
+</tr>
+<tr>
+<td><code>bringStuff</code></td>
+<td>Import Bookmarks and Passwords</td>
+</tr>
+<tr>
+<td><code>defaultApp</code></td>
+<td>Set as Default Browser</td>
+</tr>
+<tr>
+<td><code>subscription</code></td>
+<td>DuckDuckGo Subscription</td>
+</tr>
+<tr>
+<td><code>sync</code></td>
+<td>Sync Across Devices</td>
+</tr>
+</tbody>
+</table>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#overview"><span>Overview</span></a><a href="#behavior"><span>Behavior</span></a><a href="#setup"><span>Setup</span></a><a href="#messages"><span>Messages</span></a><ul><li><a href="#requests-reuses-nextsteps_"><span>Requests (reuses next<wbr/>Steps_<wbr/>*)</span></a></li><li><a href="#subscriptions-reuses-nextsteps_"><span>Subscriptions (reuses next<wbr/>Steps_<wbr/>*)</span></a></li><li><a href="#notifications-reuses-nextsteps_"><span>Notifications (reuses next<wbr/>Steps_<wbr/>*)</span></a></li></ul><a href="#supported-item-ids"><span>Supported <wbr/>Item <wbr/>I<wbr/>Ds</span></a></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="../index.html">@duckduckgo/content-scope-scripts</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
